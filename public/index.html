@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LosPerris Twitch Api</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Header / Logo -->
+        <header class="main-header fade-in">
+            <div class="logo-container">
+                <i class="fa-brands fa-twitch logo-icon"></i>
+                <h1 class="brand-logo">LosPerris <span class="accent-text">Twitch Api</span></h1>
+            </div>
+            <nav class="top-nav">
+                <!-- Links decorativos -->
+                <a href="#" class="nav-link">Estado</a>
+                <a href="#" class="nav-link">Comunidad</a>
+            </nav>
+        </header>
+
+        <!-- Hero / Landing Section (Visible si NO hay login) -->
+        <div id="login-section" class="hero-section fade-in">
+            <div class="hero-content">
+                <div class="badge">NUEVO</div>
+                <h2 class="hero-title">Potencia tu Stream con herramientas <span
+                        class="accent-text">Profesionales</span></h2>
+                <p class="hero-subtitle">
+                    La suite definitiva para streamers. Obtén tu <strong>ID de Broadcaster</strong>, gestiona tu
+                    <strong>Access Token</strong> y crea comandos de chat avanzados como <code>!followage</code> en
+                    segundos.
+                </p>
+
+                <div class="hero-features">
+                    <div class="h-feature">
+                        <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
+                        <div>
+                            <h4>Rápido</h4>
+                            <p>Sin configuraciones.</p>
+                        </div>
+                    </div>
+                    <div class="h-feature">
+                        <div class="icon-box"><i class="fa-solid fa-lock"></i></div>
+                        <div>
+                            <h4>Seguro</h4>
+                            <p>Login oficial Twitch.</p>
+                        </div>
+                    </div>
+                    <div class="h-feature">
+                        <div class="icon-box"><i class="fa-solid fa-robot"></i></div>
+                        <div>
+                            <h4>Bot Ready</h4>
+                            <p>Nightbot / SE.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cta-area">
+                    <a href="/auth/twitch" class="btn-primary btn-large">
+                        <i class="fa-brands fa-twitch"></i> Conectar con Twitch
+                    </a>
+                    <p class="cta-note"><i class="fa-solid fa-check"></i> Gratis y seguro. Únete a la elite.</p>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="visual-card floating">
+                    <div class="fake-header"><span class="dot red"></span><span class="dot yellow"></span><span
+                            class="dot green"></span></div>
+                    <div class="fake-body">
+                        <div class="code-line"><span class="c-purple">const</span> <span class="c-blue">streamer</span>
+                            = <span class="c-green">"LosPerris"</span>;</div>
+                        <div class="code-line"><span class="c-purple">await</span> api.verifyFollower(<span
+                                class="c-blue">user</span>);</div>
+                        <div class="code-result">// ✅ Siguiendo desde hace:</div>
+                        <div class="code-output">"2 años, 3 meses y 4 días"</div>
+                    </div>
+                </div>
+                <div class="glow-bg"></div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section (Oculto hasta login) -->
+        <div id="dashboard-section" class="dashboard hidden">
+
+            <div class="dashboard-welcome slide-up">
+                <div class="welcome-text">
+                    <h2>Panel de Control</h2>
+                    <p>Bienvenido, <span id="user-display-name" class="highlight">Streamer</span>. Tus herramientas
+                        están listas.</p>
+                </div>
+                <button id="logout-btn" class="btn-small logout-sc">Cerrar Sesión</button>
+            </div>
+
+            <div class="dashboard-cards scale-up-delay">
+                <!-- Credentials Section -->
+                <div class="dashboard-block full-width">
+                    <div class="block-header">
+                        <div class="icon-wrapper"><i class="fa-solid fa-fingerprint"></i></div>
+                        <div>
+                            <h3>Identidad y Seguridad</h3>
+                            <p class="sub-desc">Datos sensibles de tu canal.</p>
+                        </div>
+                    </div>
+
+                    <div class="block-content grid-2">
+                        <div class="data-box">
+                            <label>Tu User ID</label>
+                            <div class="copy-input">
+                                <input type="text" id="user-id" readonly>
+                                <button class="copy-btn" data-target="user-id"><i class="fa-regular fa-copy"></i>
+                                    Copiar</button>
+                            </div>
+                            <p class="help-text">ID único numérico de tu canal.</p>
+                        </div>
+                        <div class="data-box">
+                            <label>Access Token</label>
+                            <div class="copy-input">
+                                <input type="password" id="user-token" readonly>
+                                <button class="toggle-btn" id="toggle-token"><i class="fa-regular fa-eye"></i></button>
+                                <button class="copy-btn" data-target="user-token"><i class="fa-regular fa-copy"></i>
+                                    Copiar</button>
+                            </div>
+                            <p class="help-text warning"><i class="fa-solid fa-shield-halved"></i> Nunca muestres esto
+                                en vivo.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tools Section -->
+                <div class="dashboard-block full-width">
+                    <div class="block-header">
+                        <div class="icon-wrapper"><i class="fa-solid fa-toolbox"></i></div>
+                        <div>
+                            <h3>Centro de Comandos</h3>
+                            <p class="sub-desc">Generadores automáticos para tu chat.</p>
+                        </div>
+                    </div>
+
+                    <div class="block-content">
+                        <div class="tool-row">
+                            <div class="tool-info">
+                                <h4>Generador !followage</h4>
+                                <p>Crea el comando perfecto para que tus viewers presuman su antigüedad.</p>
+                            </div>
+                            <div class="tool-controls">
+                                <label>Bot:</label>
+                                <select id="bot-select" class="modern-select">
+                                    <option value="nightbot">Nightbot</option>
+                                    <option value="streamelements">StreamElements</option>
+                                    <option value="fossabot">Fossabot</option>
+                                    <option value="wizebot">Wizebot</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="code-display">
+                            <div class="code-label">Copia esto en tu chat:</div>
+                            <textarea id="command-output" readonly></textarea>
+                            <button class="btn-primary copy-btn absolute-copy" data-target="command-output">
+                                <i class="fa-regular fa-copy"></i> Copiar Código
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden"><i class="fa-solid fa-check"></i> Copiado al portapapeles</div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
