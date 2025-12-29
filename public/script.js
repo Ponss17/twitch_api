@@ -177,8 +177,9 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
             const target = document.getElementById(btn.dataset.target);
             if (target) {
+                const valueToCopy = target.dataset.realValue || target.value;
                 target.select();
-                navigator.clipboard.writeText(target.value);
+                navigator.clipboard.writeText(valueToCopy);
                 const t = document.getElementById('toast');
                 t.classList.remove('hidden');
                 setTimeout(() => t.classList.add('hidden'), 2000);
