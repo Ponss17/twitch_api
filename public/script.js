@@ -25,6 +25,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const login = params.get('login');
     const displayName = params.get('displayName');
 
+    const loginBtn = document.getElementById('login-btn');
+    if (loginBtn) {
+        const currentUrl = window.location.href.split('?')[0];
+        loginBtn.href = `/auth/twitch?redirect_origin=${encodeURIComponent(currentUrl)}`;
+    }
+
     if (token && userId) {
         initDashboard();
     }
