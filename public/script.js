@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userDisplayName.textContent = displayName || login;
         userIdInput.value = userId;
         userTokenInput.value = token;
-        window.history.replaceState({}, document.title, "/");
+        window.history.replaceState({}, document.title, window.location.pathname);
         updateFollowCommand();
         updateClipCommand();
         setupTabs();
