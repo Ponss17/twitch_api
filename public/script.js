@@ -113,12 +113,14 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (bot === 'wizebot') cmd = `$(urlfetch ${domain}/api/followage?channel=${login}&user=$(user_name)${tokenParam})`;
 
         const fullCommand = `!addcom !followage ${cmd}`;
-        commandOutputFollow.value = fullCommand;
+
         commandOutputFollow.dataset.realValue = fullCommand;
 
         if (token) {
             const maskedToken = '•'.repeat(20);
             commandOutputFollow.value = fullCommand.replace(token, maskedToken);
+        } else {
+            commandOutputFollow.value = fullCommand;
         }
     }
 
@@ -133,12 +135,14 @@ document.addEventListener('DOMContentLoaded', () => {
         else cmd = `$(customapi ${domain}/api/create-clip?channel=${login}${tokenParam})`;
 
         const fullCommand = `!addcom !clip ${cmd}`;
-        commandOutputClip.value = fullCommand;
+
         commandOutputClip.dataset.realValue = fullCommand;
 
         if (token) {
             const maskedToken = '•'.repeat(20);
             commandOutputClip.value = fullCommand.replace(token, maskedToken);
+        } else {
+            commandOutputClip.value = fullCommand;
         }
     }
 
