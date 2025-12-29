@@ -47,17 +47,22 @@ router.get('/twitch/callback', async (req, res) => {
         const user = userResponse.data.data[0];
 
         let redirectOrigin = '';
+        let basePath = '/';
         if (state) {
             try {
                 const decoded = JSON.parse(Buffer.from(state, 'base64').toString());
                 redirectOrigin = decoded.redirectOrigin || '';
+
+                if (redirectOrigin.includes('losperris.site/twitch')) {
+                    basePath = '/twitch/';
+                }
             } catch (e) {
                 console.error('Error decoding state:', e);
             }
         }
 
         const params = `?token=${access_token}&userId=${user.id}&login=${user.login}&displayName=${encodeURIComponent(user.display_name)}`;
-        const redirectUrl = redirectOrigin ? `${redirectOrigin}${params}` : `/${params}`;
+        const redirectUrl = redirectOrigin ? `${redirectOrigin}${params}` : `${basePath}${params}`;
 
         res.redirect(redirectUrl);
 
