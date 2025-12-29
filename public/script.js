@@ -104,26 +104,42 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateFollowCommand() {
         if (!login) return;
         const bot = botSelectFollow.value;
-        const domain = 'https://losperris.site'; // Cambiar a la URL de la API
+        const domain = 'https://losperris.site'; // aqui cambio
+        const tokenParam = token ? `&token=${token}` : '';
         let cmd = '';
 
-        if (bot === 'nightbot') cmd = `$(urlfetch ${domain}/api/followage?channel=${login}&user=$(touser))`;
-        else if (bot === 'streamelements' || bot === 'fossabot') cmd = `$(customapi ${domain}/api/followage?channel=${login}&user=\${user})`;
-        else if (bot === 'wizebot') cmd = `$(urlfetch ${domain}/api/followage?channel=${login}&user=$(user_name))`;
+        if (bot === 'nightbot') cmd = `$(urlfetch ${domain}/api/followage?channel=${login}&user=$(touser)${tokenParam})`;
+        else if (bot === 'streamelements' || bot === 'fossabot') cmd = `$(customapi ${domain}/api/followage?channel=${login}&user=\${user}${tokenParam})`;
+        else if (bot === 'wizebot') cmd = `$(urlfetch ${domain}/api/followage?channel=${login}&user=$(user_name)${tokenParam})`;
 
-        commandOutputFollow.value = `!addcom !followage ${cmd}`;
+        const fullCommand = `!addcom !followage ${cmd}`;
+        commandOutputFollow.value = fullCommand;
+        commandOutputFollow.dataset.realValue = fullCommand;
+
+        if (token) {
+            const maskedToken = '•'.repeat(20);
+            commandOutputFollow.value = fullCommand.replace(token, maskedToken);
+        }
     }
 
     function updateClipCommand() {
         if (!login) return;
         const bot = botSelectClip.value;
-        const domain = 'https://losperris.site'; // Cambiar a la URL de la API
+        const domain = 'https://losperris.site'; // aqui cambio
+        const tokenParam = token ? `&token=${token}` : '';
         let cmd = '';
 
-        if (bot === 'nightbot' || bot === 'wizebot') cmd = `$(urlfetch ${domain}/api/create-clip?channel=${login})`;
-        else cmd = `$(customapi ${domain}/api/create-clip?channel=${login})`;
+        if (bot === 'nightbot' || bot === 'wizebot') cmd = `$(urlfetch ${domain}/api/create-clip?channel=${login}${tokenParam})`;
+        else cmd = `$(customapi ${domain}/api/create-clip?channel=${login}${tokenParam})`;
 
-        commandOutputClip.value = `!addcom !clip ${cmd}`;
+        const fullCommand = `!addcom !clip ${cmd}`;
+        commandOutputClip.value = fullCommand;
+        commandOutputClip.dataset.realValue = fullCommand;
+
+        if (token) {
+            const maskedToken = '•'.repeat(20);
+            commandOutputClip.value = fullCommand.replace(token, maskedToken);
+        }
     }
 
     botSelectFollow.addEventListener('change', updateFollowCommand);
