@@ -53,7 +53,7 @@ router.get('/twitch/callback', async (req, res) => {
                 const decoded = JSON.parse(Buffer.from(state, 'base64').toString());
                 redirectOrigin = decoded.redirectOrigin || '';
 
-                if (redirectOrigin.includes('losperris.site/twitch')) {
+                if (redirectOrigin.includes('losperris.site/twitch')) { // aqui cambio
                     basePath = '/twitch/';
                 }
             } catch (e) {
