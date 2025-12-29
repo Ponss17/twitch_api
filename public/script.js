@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loginBtn) {
         let currentUrl = window.location.href.split('?')[0];
         currentUrl = currentUrl.replace('://www.', '://');
-        loginBtn.href = `/auth/twitch?redirect_origin=${encodeURIComponent(currentUrl)}`;
+        loginBtn.href = `auth/twitch?redirect_origin=${encodeURIComponent(currentUrl)}`;
     }
 
     if (token && userId) {
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clipsGallery.innerHTML = '<div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Cargando clips...</div>';
 
         try {
-            const res = await fetch(`/api/get-clips?channel=${login}`);
+            const res = await fetch(`api/get-clips?channel=${login}`);
             if (!res.ok) throw new Error('Error fetch');
             const data = await res.json();
 
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateFollowCommand() {
         if (!login) return;
         const bot = botSelectFollow.value;
-        const domain = 'https://losperris.site'; // aqui cambio
+        const domain = 'https://losperris.site/api/twitch'; // Updated to new namespace
         const tokenParam = token ? `&token=${token}` : '';
         let cmd = '';
 
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateClipCommand() {
         if (!login) return;
         const bot = botSelectClip.value;
-        const domain = 'https://losperris.site'; // aqui cambio
+        const domain = 'https://losperris.site/api/twitch'; // Updated to new namespace
         const tokenParam = token ? `&token=${token}` : '';
         let cmd = '';
 
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             testResultContainer.classList.remove('hidden');
 
             try {
-                const r = await fetch(`/api/followage?channel=${ch}&user=${u}`);
+                const r = await fetch(`api/followage?channel=${ch}&user=${u}`);
                 const t = await r.text();
                 testResultText.textContent = t;
             } catch (e) {
