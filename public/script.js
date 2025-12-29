@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateFollowCommand() {
         if (!login) return;
         const bot = botSelectFollow.value;
-        const domain = window.location.origin;
+        const domain = 'https://losperris.site'; // Cambiar a la URL de la API
         let cmd = '';
 
         if (bot === 'nightbot') cmd = `$(urlfetch ${domain}/api/followage?channel=${login}&user=$(touser))`;
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateClipCommand() {
         if (!login) return;
         const bot = botSelectClip.value;
-        const domain = window.location.origin;
+        const domain = 'https://losperris.site'; // Cambiar a la URL de la API
         let cmd = '';
 
         if (bot === 'nightbot' || bot === 'wizebot') cmd = `$(urlfetch ${domain}/api/create-clip?channel=${login})`;
