@@ -6,9 +6,9 @@ const tokenStore = require('../utils/tokenStore');
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
 
 const checkToken = (req, res, next) => {
-    const token = tokenStore.getToken();
+    const token = req.query.token || tokenStore.getToken();
     if (!token) {
-        return res.send('Error: Servidor reiniciado o sin sesión. Por favor loguéate de nuevo.');
+        return res.send('Error: Token no proporcionado. Incluye ?token=TU_TOKEN en la URL.');
     }
     req.twitchToken = token;
     next();
