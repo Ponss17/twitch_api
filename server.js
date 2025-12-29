@@ -17,3 +17,5 @@ app.use('/api', apiRoutes);
 app.listen(PORT, () => {
     console.log(`Servidor (Modular) corriendo en http://localhost:${PORT}`);
 });
+
+module.exports = app;
