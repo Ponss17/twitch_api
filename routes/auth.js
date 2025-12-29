@@ -9,12 +9,14 @@ const TWITCH_REDIRECT_URI = process.env.TWITCH_REDIRECT_URI || 'http://localhost
 
 router.get('/twitch', (req, res) => {
     const scope = 'user:read:email moderator:read:followers clips:edit';
-    const url = `https://id.twitch.tv/oauth2/authorize?client_id=${TWITCH_CLIENT_ID}&redirect_uri=${TWITCH_REDIRECT_URI}&response_type=code&scope=${scope}`;
+    const redirectOrigin = req.query.redirect_origin || '';
+    const state = Buffer.from(JSON.stringify({ redirectOrigin })).toString('base64');
+    const url = `https://id.twitch.tv/oauth2/authorize?client_id=${TWITCH_CLIENT_ID}&redirect_uri=${TWITCH_REDIRECT_URI}&response_type=code&scope=${scope}&state=${state}`;
     res.redirect(url);
 });
 
 router.get('/twitch/callback', async (req, res) => {
-    const { code } = req.query;
+    const { code, state } = req.query;
 
     if (!code) {
         return res.redirect('/?error=no_code');
@@ -44,7 +46,20 @@ router.get('/twitch/callback', async (req, res) => {
 
         const user = userResponse.data.data[0];
 
-        res.redirect(`/?token=${access_token}&userId=${user.id}&login=${user.login}&displayName=${encodeURIComponent(user.display_name)}`);
+        let redirectOrigin = '';
+        if (state) {
+            try {
+                const decoded = JSON.parse(Buffer.from(state, 'base64').toString());
+                redirectOrigin = decoded.redirectOrigin || '';
+            } catch (e) {
+                console.error('Error decoding state:', e);
+            }
+        }
+
+        const params = `?token=${access_token}&userId=${user.id}&login=${user.login}&displayName=${encodeURIComponent(user.display_name)}`;
+        const redirectUrl = redirectOrigin ? `${redirectOrigin}${params}` : `/${params}`;
+
+        res.redirect(redirectUrl);
 
     } catch (error) {
         console.error('Error en autenticación:', error.response?.data || error.message);
