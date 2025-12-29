@@ -1,126 +1,204 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Referencias DOM
     const loginSection = document.getElementById('login-section');
     const dashboardSection = document.getElementById('dashboard-section');
     const userDisplayName = document.getElementById('user-display-name');
     const userIdInput = document.getElementById('user-id');
     const userTokenInput = document.getElementById('user-token');
-    const botSelect = document.getElementById('bot-select');
-    const commandOutput = document.getElementById('command-output');
-    const logoutBtn = document.getElementById('logout-btn');
     const toggleTokenBtn = document.getElementById('toggle-token');
-
-    // Parse URL params
+    const logoutBtn = document.getElementById('logout-btn');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const botSelectFollow = document.getElementById('bot-select-follow');
+    const commandOutputFollow = document.getElementById('command-output-follow');
+    const testChannelInput = document.getElementById('test-channel');
+    const testUserInput = document.getElementById('test-user');
+    const runTestBtn = document.getElementById('run-test-btn');
+    const testResultText = document.getElementById('test-result-text');
+    const testResultContainer = document.getElementById('test-result-container');
+    const botSelectClip = document.getElementById('bot-select-clip');
+    const commandOutputClip = document.getElementById('command-output-clip');
+    const clipsGallery = document.getElementById('clips-gallery');
+    const refreshClipsBtn = document.getElementById('refresh-clips-btn');
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
     const userId = params.get('userId');
     const login = params.get('login');
     const displayName = params.get('displayName');
-    const error = params.get('error');
-
-    if (error) {
-        alert('Error en la autenticación. Intenta de nuevo.');
-        cleanUrl();
-    }
 
     if (token && userId) {
-        // Show Dashboard
+        initDashboard();
+    }
+
+    function initDashboard() {
         loginSection.classList.add('hidden');
         dashboardSection.classList.remove('hidden');
-        dashboardSection.classList.add('fade-in');
-
-        // Populate Data
         userDisplayName.textContent = displayName || login;
         userIdInput.value = userId;
         userTokenInput.value = token;
-
-        // Limpiar URL para limpieza visual
-        cleanUrl();
-
-        // Generar comando inicial
-        updateCommand();
+        window.history.replaceState({}, document.title, "/");
+        updateFollowCommand();
+        updateClipCommand();
+        setupTabs();
     }
 
-    // Toggle Token Visibility
-    toggleTokenBtn.addEventListener('click', () => {
-        if (userTokenInput.type === 'password') {
-            userTokenInput.type = 'text';
-            toggleTokenBtn.innerHTML = '<i class="fa-regular fa-eye-slash"></i>';
-        } else {
-            userTokenInput.type = 'password';
-            toggleTokenBtn.innerHTML = '<i class="fa-regular fa-eye"></i>';
+    function setupTabs() {
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                const targetId = btn.getAttribute('data-tab');
+                const targetContent = document.getElementById(targetId);
+                targetContent.classList.add('active');
+                if (targetId === 'tab-clips') {
+                    loadClips();
+                }
+            });
+        });
+    }
+
+    async function loadClips() {
+        clipsGallery.innerHTML = '<div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Cargando clips...</div>';
+
+        try {
+            const res = await fetch(`/api/get-clips?channel=${login}`);
+            if (!res.ok) throw new Error('Error fetch');
+            const data = await res.json();
+
+            renderClips(data);
+        } catch (error) {
+            clipsGallery.innerHTML = '<div style="text-align:center; padding:20px; color:var(--warning-color)">Error cargando clips.</div>';
         }
+    }
+
+    function renderClips(clips) {
+        if (clips.length === 0) {
+            clipsGallery.innerHTML = '<div style="text-align:center; padding:20px;">No hay clips recientes.</div>';
+            return;
+        }
+
+        clipsGallery.innerHTML = '';
+        clips.forEach(clip => {
+            const card = document.createElement('div');
+            card.className = 'clip-card';
+            card.innerHTML = `
+                <a href="${clip.url}" target="_blank" class="clip-link">
+                    <img src="${clip.thumbnail_url}" class="clip-thumb" alt="${clip.title}">
+                    <div class="clip-info">
+                        <div class="clip-title" title="${clip.title}">${clip.title}</div>
+                        <div class="clip-meta">
+                            <span><i class="fa-solid fa-eye"></i> ${clip.view_count}</span>
+                            <span>${new Date(clip.created_at).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                </a>
+            `;
+            clipsGallery.appendChild(card);
+        });
+    }
+
+    if (refreshClipsBtn) {
+        refreshClipsBtn.addEventListener('click', loadClips);
+    }
+
+    function updateFollowCommand() {
+        if (!login) return;
+        const bot = botSelectFollow.value;
+        const domain = window.location.origin;
+        let cmd = '';
+
+        if (bot === 'nightbot') cmd = `$(urlfetch ${domain}/api/followage?channel=${login}&user=$(touser))`;
+        else if (bot === 'streamelements' || bot === 'fossabot') cmd = `$(customapi ${domain}/api/followage?channel=${login}&user=\${user})`;
+        else if (bot === 'wizebot') cmd = `$(urlfetch ${domain}/api/followage?channel=${login}&user=$(user_name))`;
+
+        commandOutputFollow.value = `!addcom !followage ${cmd}`;
+    }
+
+    function updateClipCommand() {
+        if (!login) return;
+        const bot = botSelectClip.value;
+        const domain = window.location.origin;
+        let cmd = '';
+
+        if (bot === 'nightbot' || bot === 'wizebot') cmd = `$(urlfetch ${domain}/api/create-clip?channel=${login})`;
+        else cmd = `$(customapi ${domain}/api/create-clip?channel=${login})`;
+
+        commandOutputClip.value = `!addcom !clip ${cmd}`;
+    }
+
+    botSelectFollow.addEventListener('change', updateFollowCommand);
+    botSelectClip.addEventListener('change', updateClipCommand);
+
+    if (runTestBtn) {
+        if (login) { testChannelInput.value = login; testUserInput.value = login; }
+
+        runTestBtn.addEventListener('click', async () => {
+            const ch = testChannelInput.value || login;
+            const u = testUserInput.value || login;
+
+            testResultText.textContent = '...';
+            testResultContainer.classList.remove('hidden');
+
+            try {
+                const r = await fetch(`/api/followage?channel=${ch}&user=${u}`);
+                const t = await r.text();
+                testResultText.textContent = t;
+            } catch (e) {
+                testResultText.textContent = "Error de conexión.";
+            }
+        });
+    }
+
+    toggleTokenBtn.addEventListener('click', () => {
+        userTokenInput.type = userTokenInput.type === 'password' ? 'text' : 'password';
     });
 
-    // Copy Buttons
     document.querySelectorAll('.copy-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            const targetId = btn.getAttribute('data-target');
-            const targetEl = document.getElementById(targetId);
-
-            targetEl.select();
-            targetEl.setSelectionRange(0, 99999); // Mobile
-            navigator.clipboard.writeText(targetEl.value).then(() => {
-                showToast();
-            });
+            const target = document.getElementById(btn.dataset.target);
+            if (target) {
+                target.select();
+                navigator.clipboard.writeText(target.value);
+                const t = document.getElementById('toast');
+                t.classList.remove('hidden');
+                setTimeout(() => t.classList.add('hidden'), 2000);
+            }
         });
     });
 
-    // Bot Select Change
-    botSelect.addEventListener('change', updateCommand);
-
-    // Logout
     logoutBtn.addEventListener('click', () => {
         window.location.href = window.location.origin;
     });
 
-    // Funciones Helper
-    function cleanUrl() {
-        window.history.replaceState({}, document.title, "/");
+    const heroCodeDisplay = document.getElementById('hero-code-display');
+    if (heroCodeDisplay) {
+        const scenes = [
+            `
+            <div class="code-line"><span class="c-purple">const</span> <span class="c-blue">streamer</span> = <span class="c-green">"LosPerris"</span>;</div>
+            <div class="code-line"><span class="c-purple">await</span> api.checkFollow(<span class="c-blue">user</span>);</div>
+            <div class="code-result">// ⏳ Tiempo seguido:</div>
+            <div class="code-output">"2 años, 3 meses y 1 día"</div>
+            `,
+            `
+            <div class="code-line"><span class="c-purple">const</span> <span class="c-blue">streamer</span> = <span class="c-green">"LosPerris"</span>;</div>
+            <div class="code-line"><span class="c-purple">await</span> api.createClip();</div>
+            <div class="code-result">// 🎬 Clip generado:</div>
+            <div class="code-output">"twitch.tv/LosPerris/clip..."</div>
+            `
+        ];
+
+        let currentScene = 0;
+
+        setInterval(() => {
+            heroCodeDisplay.classList.add('fade-out');
+
+            setTimeout(() => {
+                currentScene = (currentScene + 1) % scenes.length;
+                heroCodeDisplay.innerHTML = scenes[currentScene];
+                heroCodeDisplay.classList.remove('fade-out');
+            }, 500);
+
+        }, 7000);
     }
 
-    function showToast() {
-        const toast = document.getElementById('toast');
-        toast.classList.remove('hidden');
-        setTimeout(() => {
-            toast.classList.add('hidden');
-        }, 3000);
-    }
-
-    function updateCommand() {
-        const bot = botSelect.value;
-        const currentDomain = window.location.origin; // e.g., http://localhost:3000
-        // En producción, esto debería ser el dominio público real.
-        // Si está en localhost y el bot intenta llamar a localhost, fallará.
-        // El usuario necesita un túnel (ngrok) o deployar esto.
-
-        // Asumimos que el usuario lo usará donde el bot pueda alcanzarlo.
-        const apiUrl = `${currentDomain}/api/followage?channel=${login}&user=$(touser)`;
-
-        let command = "";
-
-        switch (bot) {
-            case 'nightbot':
-                command = `$(urlfetch ${currentDomain}/api/followage?channel=${login}&user=$(touser))`;
-                break;
-            case 'streamelements':
-                command = `$(urlfetch ${currentDomain}/api/followage?channel=${login}&user=$(user))`;
-                // StreamElements usa $(user) para el sender o $(1) para argumentos.
-                // Ajustamos para verificar al sender si no hay argumentos, o lógica compleja.
-                // Simplifiquemos: verifica al $(touser) si existe, o al $(user).
-                // SE custom api: ${currentDomain}/api/followage?channel=${login}&user={user}
-                command = `$(customapi ${currentDomain}/api/followage?channel=${login}&user=\${user})`;
-                break;
-            case 'fossabot':
-                command = `$(customapi ${currentDomain}/api/followage?channel=${login}&user=$(user))`;
-                break;
-            case 'wizebot':
-                command = `$(urlfetch ${currentDomain}/api/followage?channel=${login}&user=$(user_name))`;
-                break;
-            default:
-                command = `API URL: ${currentDomain}/api/followage?channel=${login}&user=USERNAME`;
-        }
-
-        commandOutput.value = `!addcom !followage ${command}`;
-    }
 });
