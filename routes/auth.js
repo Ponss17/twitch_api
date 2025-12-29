@@ -19,7 +19,7 @@ router.get('/twitch/callback', async (req, res) => {
     const { code, state } = req.query;
 
     if (!code) {
-        return res.redirect('/?error=no_code');
+        return res.redirect('https://losperris.site/api/twitch/?error=no_code'); // Cambiado
     }
 
     try {
@@ -63,7 +63,7 @@ router.get('/twitch/callback', async (req, res) => {
 
     } catch (error) {
         console.error('Error en autenticación:', error.response?.data || error.message);
-        res.redirect('/?error=auth_failed');
+        res.redirect('https://losperris.site/api/twitch/?error=auth_failed');
     }
 });
 
