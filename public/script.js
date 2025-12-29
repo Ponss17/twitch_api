@@ -27,7 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loginBtn = document.getElementById('login-btn');
     if (loginBtn) {
-        const currentUrl = window.location.href.split('?')[0];
+        let currentUrl = window.location.href.split('?')[0];
+        currentUrl = currentUrl.replace('://www.', '://');
         loginBtn.href = `/auth/twitch?redirect_origin=${encodeURIComponent(currentUrl)}`;
     }
 
