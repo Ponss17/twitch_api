@@ -5,7 +5,7 @@ const tokenStore = require('../utils/tokenStore');
 
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
 const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
-const TWITCH_REDIRECT_URI = process.env.TWITCH_REDIRECT_URI || 'http://localhost:3000/auth/twitch/callback';
+const TWITCH_REDIRECT_URI = process.env.TWITCH_REDIRECT_URI || 'https://losperris.site/api/twitch/auth/twitch/callback';
 
 router.get('/twitch', (req, res) => {
     const scope = 'user:read:email moderator:read:followers clips:edit';
