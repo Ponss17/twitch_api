@@ -40,7 +40,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
 app.get('/status', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'status.html'));
+    res.sendFile(path.join(__dirname, 'public', 'app_status.html'));
+});
+
+app.get('/status.html', (req, res) => {
+    res.redirect('/status');
 });
 
 let lastCheckTime = 0;
