@@ -44,7 +44,7 @@ app.get('/status', (req, res) => {
 });
 
 app.get('/status.html', (req, res) => {
-    res.redirect('/status');
+    res.redirect('status');
 });
 
 let lastCheckTime = 0;
