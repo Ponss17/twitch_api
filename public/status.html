@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado del Servicio - LosPerris Twitch Api</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="img/LosPerris-gamer.ico">
+    <style>
+        .status-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            margin: 50px auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+
+        .status-text {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .status-desc {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .status-ok {
+            color: var(--success-color);
+        }
+
+        .status-error {
+            color: var(--warning-color);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: scale(1.05);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .refresh-btn {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            border-color: var(--accent-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="main-header fade-in">
+            <div class="logo-container">
+                <a href="/"
+                    style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
+                    <img src="img/LosPerris-gamer.ico" alt="Logo" class="logo-img">
+                    <h1 class="brand-logo">LosPerris <span class="accent-text">Status</span></h1>
+                </a>
+            </div>
+            <nav class="top-nav">
+                <a href="/" class="nav-link"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+            </nav>
+        </header>
+
+        <div class="hero-section fade-in" style="min-height: 50vh; justify-content: center;">
+            <div id="status-display" class="status-card">
+                <div class="status-icon"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+                <h2 class="status-text">Comprobando...</h2>
+                <p class="status-desc">Contactando con los servidores de API...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function checkStatus() {
+            const display = document.getElementById('status-display');
+            try {
+                const start = Date.now();
+                const res = await fetch('health');
+                const data = await res.json();
+                const latency = Date.now() - start;
+
+                if (data.status === 'ok') {
+                    display.innerHTML = `
+                        <div class="status-icon status-ok pulse"><i class="fa-solid fa-check-circle"></i></div>
+                        <h2 class="status-text status-ok">Sistemas Operativos</h2>
+                        <p class="status-desc">Todos los servicios funcionan correctamente.<br>Latencia: ${latency}ms</p>
+                        <button onclick="checkStatus()" class="refresh-btn"><i class="fa-solid fa-rotate-right"></i> Actualizar</button>
+                    `;
+                    display.style.borderColor = 'var(--success-color)';
+                } else {
+                    throw new Error('Estado no válido');
+                }
+            } catch (e) {
+                display.innerHTML = `
+                    <div class="status-icon status-error"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h2 class="status-text status-error">Servicio Interrumpido</h2>
+                    <p class="status-desc">No podemos conectar con la API en este momento.</p>
+                    <button onclick="checkStatus()" class="refresh-btn"><i class="fa-solid fa-rotate-right"></i> Reintentar</button>
+                `;
+                display.style.borderColor = 'var(--warning-color)';
+            }
+        }
+
+        checkStatus();
+    </script>
+</body>
+
+</html>

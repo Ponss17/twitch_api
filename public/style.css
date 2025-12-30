@@ -72,17 +72,32 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
+.top-nav {
+    display: flex;
+    align-items: center;
+}
+
 .top-nav .nav-link {
     color: var(--text-secondary);
     text-decoration: none;
-    margin-left: 25px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    transition: color 0.2s;
+    margin-left: 15px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 16px;
+    border-radius: 50px;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .top-nav .nav-link:hover {
-    color: var(--text-primary);
+    color: white;
+    background: rgba(145, 70, 255, 0.1);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
 }
 
 
