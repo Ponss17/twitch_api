@@ -42,6 +42,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
 
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString(), uptime: process.uptime() });
+});
+
 app.listen(PORT, () => {
     console.log(`Servidor (Modular) corriendo en http://localhost:${PORT}`);
 });
