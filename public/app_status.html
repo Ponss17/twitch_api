@@ -236,7 +236,7 @@
                 </a>
             </div>
             <nav class="top-nav">
-                <a href="/" class="nav-link"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+                <a href="../" class="nav-link"><i class="fa-solid fa-arrow-left"></i> Volver</a>
             </nav>
         </header>
 
@@ -257,9 +257,10 @@
             <div class="systems-grid">
                 <div class="system-card">
                     <div class="sys-info">
-                        <h3><i class="fa-brands fa-twitch" style="color: #9146ff; margin-right: 8px;"></i> API Gateway
+                        <h3><i class="fa-brands fa-twitch" style="color: #9146ff; margin-right: 8px;"></i> Servicio
+                            General
                         </h3>
-                        <p>Conexión con Twitch</p>
+                        <p>Api & Twitch</p>
                     </div>
                     <div id="status-api" class="sys-status">
                         <i class="fa-solid fa-check"></i> Operativo
@@ -358,6 +359,12 @@
                         if (status === 'operational') {
                             el.className = 'sys-status';
                             el.innerHTML = '<i class="fa-solid fa-check"></i> Operativo';
+                        } else if (status === 'maintenance') {
+                            el.className = 'sys-status';
+                            el.style.background = 'rgba(234, 179, 8, 0.1)';
+                            el.style.color = '#eab308';
+                            el.style.borderColor = 'rgba(234, 179, 8, 0.2)';
+                            el.innerHTML = '<i class="fa-solid fa-key"></i> Sin Token';
                         } else {
                             el.className = 'sys-status down';
                             el.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Problemas';
