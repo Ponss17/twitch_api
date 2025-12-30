@@ -12,77 +12,215 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="img/LosPerris-gamer.ico">
     <style>
-        .status-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+        .status-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .overall-card {
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.1) 0%, rgba(9, 9, 11, 0.5) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
             border-radius: 20px;
             padding: 40px;
             text-align: center;
-            max-width: 500px;
-            margin: 50px auto;
+            margin-bottom: 40px;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.05);
+            transition: all 0.3s;
         }
 
-        .status-icon {
-            font-size: 4rem;
+        .overall-card.error {
+            background: linear-gradient(145deg, rgba(244, 63, 94, 0.1) 0%, rgba(9, 9, 11, 0.5) 100%);
+            border-color: rgba(244, 63, 94, 0.3);
+            box-shadow: 0 0 40px rgba(244, 63, 94, 0.05);
+        }
+
+        .overall-icon {
+            font-size: 3.5rem;
             margin-bottom: 20px;
-            color: var(--text-secondary);
+            display: inline-block;
         }
 
-        .status-text {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .status-desc {
-            color: var(--text-secondary);
-            margin-bottom: 30px;
-        }
-
-        .status-ok {
+        .status-pulse {
+            animation: pulse-green 2s infinite;
             color: var(--success-color);
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
         }
 
         .status-error {
+            animation: pulse-red 2s infinite;
             color: var(--warning-color);
+            text-shadow: 0 0 20px rgba(244, 63, 94, 0.5);
         }
 
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
+        @keyframes pulse-green {
             0% {
-                opacity: 1;
                 transform: scale(1);
+                opacity: 1;
             }
 
             50% {
+                transform: scale(1.1);
                 opacity: 0.8;
-                transform: scale(1.05);
             }
 
             100% {
-                opacity: 1;
                 transform: scale(1);
+                opacity: 1;
             }
+        }
+
+        @keyframes pulse-red {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .overall-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .overall-desc {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .systems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .system-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .system-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+        }
+
+        .sys-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .sys-info p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .sys-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .sys-status.down {
+            background: rgba(244, 63, 94, 0.1);
+            color: var(--warning-color);
+            border-color: rgba(244, 63, 94, 0.2);
+        }
+
+        .metrics-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .metric-item {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+            font-family: 'Consolas', monospace;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .last-check {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
         }
 
         .refresh-btn {
             background: var(--input-bg);
             border: 1px solid var(--border-color);
             color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 10px 25px;
+            border-radius: 50px;
             cursor: pointer;
             font-family: var(--font-main);
+            font-weight: 600;
             transition: all 0.2s;
+            margin-top: 20px;
         }
 
         .refresh-btn:hover {
             border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
         }
     </style>
 </head>
@@ -102,18 +240,97 @@
             </nav>
         </header>
 
-        <div class="hero-section fade-in" style="min-height: 50vh; justify-content: center;">
-            <div id="status-display" class="status-card">
-                <div class="status-icon"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
-                <h2 class="status-text">Comprobando...</h2>
-                <p class="status-desc">Contactando con los servidores de API...</p>
+        <div id="loading" class="loading-overlay">
+            <i class="fa-solid fa-circle-notch fa-spin fa-2x" style="color: var(--accent-color);"></i>
+        </div>
+
+        <div id="content" class="status-container fade-in hidden">
+            <div id="overall-card" class="overall-card">
+                <div id="overall-icon" class="overall-icon status-pulse"><i class="fa-solid fa-check-circle"></i></div>
+                <h2 id="overall-title" class="overall-title">Todos los sistemas operativos</h2>
+                <p id="overall-desc" class="overall-desc">La API funciona con normalidad y sin incidentes reportados.
+                </p>
+                <button onclick="checkStatus()" class="refresh-btn"><i class="fa-solid fa-rotate-right"></i> Actualizar
+                    Ahora</button>
+            </div>
+
+            <div class="systems-grid">
+                <div class="system-card">
+                    <div class="sys-info">
+                        <h3><i class="fa-brands fa-twitch" style="color: #9146ff; margin-right: 8px;"></i> API Gateway
+                        </h3>
+                        <p>Conexión con Twitch</p>
+                    </div>
+                    <div id="status-api" class="sys-status">
+                        <i class="fa-solid fa-check"></i> Operativo
+                    </div>
+                </div>
+
+                <div class="system-card">
+                    <div class="sys-info">
+                        <h3><i class="fa-solid fa-shield-halved" style="color: #3b82f6; margin-right: 8px;"></i> Auth
+                            Service</h3>
+                        <p>OAuth2 & Tokens</p>
+                    </div>
+                    <div id="status-auth" class="sys-status">
+                        <i class="fa-solid fa-check"></i> Operativo
+                    </div>
+                </div>
+
+                <div class="system-card">
+                    <div class="sys-info">
+                        <h3><i class="fa-solid fa-database" style="color: #eab308; margin-right: 8px;"></i> Base de
+                            Datos</h3>
+                        <p>Redis / Cache</p>
+                    </div>
+                    <div id="status-db" class="sys-status">
+                        <i class="fa-solid fa-check"></i> Operativo
+                    </div>
+                </div>
+            </div>
+
+            <div class="metrics-container">
+                <div class="metric-item">
+                    <div id="metric-latency" class="metric-value">--ms</div>
+                    <div class="metric-label">Latencia API</div>
+                </div>
+                <div class="metric-item">
+                    <div id="metric-uptime" class="metric-value">--</div>
+                    <div class="metric-label">Tiempo Activo</div>
+                </div>
+                <div class="metric-item">
+                    <div id="metric-memory" class="metric-value">-- MB</div>
+                    <div class="metric-label">Uso de Memoria</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">v1.2.0</div>
+                    <div class="metric-label">Versión API</div>
+                </div>
+            </div>
+
+            <div class="last-check">
+                Última comprobación: <span id="last-updated">--:--:--</span>
             </div>
         </div>
     </div>
 
     <script>
+        function formatUptime(seconds) {
+            const days = Math.floor(seconds / (3600 * 24));
+            const hours = Math.floor(seconds % (3600 * 24) / 3600);
+            const minutes = Math.floor(seconds % 3600 / 60);
+
+            let result = "";
+            if (days > 0) result += days + "d ";
+            if (hours > 0) result += hours + "h ";
+            result += minutes + "m";
+            return result || "< 1m";
+        }
+
         async function checkStatus() {
-            const display = document.getElementById('status-display');
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('content');
+
             try {
                 const start = Date.now();
                 const res = await fetch('health');
@@ -121,28 +338,54 @@
                 const latency = Date.now() - start;
 
                 if (data.status === 'ok') {
-                    display.innerHTML = `
-                        <div class="status-icon status-ok pulse"><i class="fa-solid fa-check-circle"></i></div>
-                        <h2 class="status-text status-ok">Sistemas Operativos</h2>
-                        <p class="status-desc">Todos los servicios funcionan correctamente.<br>Latencia: ${latency}ms</p>
-                        <button onclick="checkStatus()" class="refresh-btn"><i class="fa-solid fa-rotate-right"></i> Actualizar</button>
-                    `;
-                    display.style.borderColor = 'var(--success-color)';
+                    document.getElementById('overall-card').classList.remove('error');
+                    document.getElementById('overall-icon').className = 'overall-icon status-pulse';
+                    document.getElementById('overall-icon').innerHTML = '<i class="fa-solid fa-check-circle"></i>';
+                    document.getElementById('overall-title').innerText = 'Todos los sistemas operativos';
+                    document.getElementById('overall-desc').innerText = 'La API funciona con normalidad y sin incidentes reportados.';
+                    document.getElementById('metric-latency').innerText = latency + 'ms';
+                    document.getElementById('metric-latency').style.color = latency < 200 ? 'var(--success-color)' : 'var(--warning-color)';
+                    document.getElementById('metric-uptime').innerText = formatUptime(data.uptime);
+
+                    if (data.memory) {
+                        document.getElementById('metric-memory').innerText = data.memory.rss + ' MB';
+                    }
+
+                    const subStatus = ['status-api', 'status-auth', 'status-db'];
+                    subStatus.forEach(id => {
+                        const el = document.getElementById(id);
+                        el.className = 'sys-status';
+                        el.innerHTML = '<i class="fa-solid fa-check"></i> Operativo';
+                    });
+
                 } else {
                     throw new Error('Estado no válido');
                 }
             } catch (e) {
-                display.innerHTML = `
-                    <div class="status-icon status-error"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h2 class="status-text status-error">Servicio Interrumpido</h2>
-                    <p class="status-desc">No podemos conectar con la API en este momento.</p>
-                    <button onclick="checkStatus()" class="refresh-btn"><i class="fa-solid fa-rotate-right"></i> Reintentar</button>
-                `;
-                display.style.borderColor = 'var(--warning-color)';
+                document.getElementById('overall-card').classList.add('error');
+                document.getElementById('overall-icon').className = 'overall-icon status-error';
+                document.getElementById('overall-icon').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                document.getElementById('overall-title').innerText = 'Servicio Interrumpido';
+                document.getElementById('overall-desc').innerText = 'No se puede conectar con la API. El equipo técnico está investigando.';
+                document.getElementById('metric-latency').innerText = 'ERR';
+                document.getElementById('metric-latency').style.color = 'var(--warning-color)';
+
+                const subStatus = ['status-api', 'status-auth', 'status-db'];
+                subStatus.forEach(id => {
+                    const el = document.getElementById(id);
+                    el.className = 'sys-status down';
+                    el.innerHTML = '<i class="fa-solid fa-xmark"></i> Caído';
+                });
+            } finally {
+                loading.classList.add('hidden');
+                content.classList.remove('hidden');
+
+                const now = new Date();
+                document.getElementById('last-updated').innerText = now.toLocaleTimeString();
             }
         }
 
-        checkStatus();
+        setTimeout(checkStatus, 500);
     </script>
 </body>
 

@@ -43,7 +43,18 @@ app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
 
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString(), uptime: process.uptime() });
+    const memory = process.memoryUsage();
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        memory: {
+            rss: Math.round(memory.rss / 1024 / 1024),
+            heapTotal: Math.round(memory.heapTotal / 1024 / 1024),
+            heapUsed: Math.round(memory.heapUsed / 1024 / 1024)
+        },
+        version: process.version
+    });
 });
 
 app.listen(PORT, () => {
