@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clipsGallery.innerHTML = '<div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Cargando clips...</div>';
 
         try {
-            const res = await fetch(`api/get-clips?channel=${login}`);
+            const res = await fetch(`api/get-clips?channel=${login}&token=${token}`);
             if (!res.ok) throw new Error('Error fetch');
             const data = await res.json();
 
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             testResultContainer.classList.remove('hidden');
 
             try {
-                const r = await fetch(`api/followage?channel=${ch}&user=${u}`);
+                const r = await fetch(`api/followage?channel=${ch}&user=${u}&token=${token}`);
                 const t = await r.text();
                 testResultText.textContent = t;
             } catch (e) {
