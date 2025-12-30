@@ -276,17 +276,6 @@
                         <i class="fa-solid fa-check"></i> Operativo
                     </div>
                 </div>
-
-                <div class="system-card">
-                    <div class="sys-info">
-                        <h3><i class="fa-solid fa-database" style="color: #eab308; margin-right: 8px;"></i> Base de
-                            Datos</h3>
-                        <p>Redis / Cache</p>
-                    </div>
-                    <div id="status-db" class="sys-status">
-                        <i class="fa-solid fa-check"></i> Operativo
-                    </div>
-                </div>
             </div>
 
             <div class="metrics-container">
@@ -337,41 +326,62 @@
                 const data = await res.json();
                 const latency = Date.now() - start;
 
-                if (data.status === 'ok') {
-                    document.getElementById('overall-card').classList.remove('error');
-                    document.getElementById('overall-icon').className = 'overall-icon status-pulse';
-                    document.getElementById('overall-icon').innerHTML = '<i class="fa-solid fa-check-circle"></i>';
-                    document.getElementById('overall-title').innerText = 'Todos los sistemas operativos';
-                    document.getElementById('overall-desc').innerText = 'La API funciona con normalidad y sin incidentes reportados.';
+                if (data.status === 'ok' || data.status === 'issues') {
+                    const overallCard = document.getElementById('overall-card');
+                    const overallIcon = document.getElementById('overall-icon');
+                    const overallTitle = document.getElementById('overall-title');
+                    const overallDesc = document.getElementById('overall-desc');
+
+                    if (data.status === 'ok') {
+                        overallCard.className = 'overall-card';
+                        overallIcon.className = 'overall-icon status-pulse';
+                        overallIcon.innerHTML = '<i class="fa-solid fa-check-circle"></i>';
+                        overallTitle.innerText = 'Todos los sistemas operativos';
+                        overallDesc.innerText = 'La API funciona con normalidad y sin incidentes reportados.';
+                    } else {
+                        overallCard.className = 'overall-card error';
+                        overallIcon.className = 'overall-icon status-error';
+                        overallIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                        overallTitle.innerText = 'Servicio Degradado';
+                        overallDesc.innerText = 'Algunos sistemas pueden estar experimentando problemas.';
+                    }
+
                     document.getElementById('metric-latency').innerText = latency + 'ms';
                     document.getElementById('metric-latency').style.color = latency < 200 ? 'var(--success-color)' : 'var(--warning-color)';
                     document.getElementById('metric-uptime').innerText = formatUptime(data.uptime);
-
                     if (data.memory) {
                         document.getElementById('metric-memory').innerText = data.memory.rss + ' MB';
                     }
 
-                    const subStatus = ['status-api', 'status-auth', 'status-db'];
-                    subStatus.forEach(id => {
+                    const updateSystemStatus = (id, status) => {
                         const el = document.getElementById(id);
-                        el.className = 'sys-status';
-                        el.innerHTML = '<i class="fa-solid fa-check"></i> Operativo';
-                    });
+                        if (status === 'operational') {
+                            el.className = 'sys-status';
+                            el.innerHTML = '<i class="fa-solid fa-check"></i> Operativo';
+                        } else {
+                            el.className = 'sys-status down';
+                            el.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Problemas';
+                        }
+                    };
+
+                    updateSystemStatus('status-api', data.services.api_gateway);
+                    updateSystemStatus('status-auth', data.services.auth_service);
 
                 } else {
-                    throw new Error('Estado no válido');
+                    throw new Error('Estado desconocido');
                 }
+
             } catch (e) {
+                console.error(e);
                 document.getElementById('overall-card').classList.add('error');
                 document.getElementById('overall-icon').className = 'overall-icon status-error';
                 document.getElementById('overall-icon').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
                 document.getElementById('overall-title').innerText = 'Servicio Interrumpido';
-                document.getElementById('overall-desc').innerText = 'No se puede conectar con la API. El equipo técnico está investigando.';
-                document.getElementById('metric-latency').innerText = 'ERR';
-                document.getElementById('metric-latency').style.color = 'var(--warning-color)';
+                document.getElementById('overall-desc').innerText = 'No se puede conectar con la API.';
 
-                const subStatus = ['status-api', 'status-auth', 'status-db'];
-                subStatus.forEach(id => {
+                document.getElementById('metric-latency').innerText = 'ERR';
+
+                ['status-api', 'status-auth'].forEach(id => {
                     const el = document.getElementById(id);
                     el.className = 'sys-status down';
                     el.innerHTML = '<i class="fa-solid fa-xmark"></i> Caído';

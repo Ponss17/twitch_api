@@ -35,17 +35,33 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
-
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
+app.get('/status', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'status.html'));
+});
+
+let lastCheckTime = 0;
+let cachedStatus = null;
+const CACHE_DURATION = 30000;
 
 app.get('/health', (req, res) => {
+    const now = Date.now();
+
+    if (cachedStatus && (now - lastCheckTime < CACHE_DURATION)) {
+        return res.json(cachedStatus);
+    }
+
+    const token = require('./utils/tokenStore').getToken();
+    const authStatus = token ? 'operational' : 'degraded';
+    const apiStatus = 'operational';
+
     const memory = process.memoryUsage();
-    res.json({
-        status: 'ok',
+
+    cachedStatus = {
+        status: (authStatus === 'operational' && apiStatus === 'operational') ? 'ok' : 'issues',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         memory: {
@@ -53,8 +69,15 @@ app.get('/health', (req, res) => {
             heapTotal: Math.round(memory.heapTotal / 1024 / 1024),
             heapUsed: Math.round(memory.heapUsed / 1024 / 1024)
         },
+        services: {
+            api_gateway: apiStatus,
+            auth_service: authStatus
+        },
         version: process.version
-    });
+    };
+
+    lastCheckTime = now;
+    res.json(cachedStatus);
 });
 
 app.listen(PORT, () => {
