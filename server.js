@@ -1,40 +1,14 @@
-if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config();
-}
+const config = require('./src/config/env');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const rateLimit = require('express-rate-limit');
-
-const authRoutes = require('./routes/auth');
-const apiRoutes = require('./routes/api');
-
+const rateLimiter = require('./src/middleware/rateLimiter');
+const authRoutes = require('./src/routes/authRoutes');
+const apiRoutes = require('./src/routes/apiRoutes');
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.set('trust proxy', 1);
-
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: (req) => {
-        const ua = req.get('User-Agent') || '';
-        if (
-            ua.includes('Nightbot') ||
-            ua.includes('StreamElements') ||
-            ua.includes('Mozilla') ||
-            ua.includes('Chrome') ||
-            ua.includes('Safari')
-        ) {
-            return 100;
-        }
-        return 20;
-    },
-    message: { error: 'Too many requests, please try again later.' },
-    standardHeaders: true,
-    legacyHeaders: false,
-});
-
-app.use(limiter);
+app.use(rateLimiter);
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/auth', authRoutes);
@@ -58,8 +32,8 @@ app.get('/health', (req, res) => {
         return res.json(cachedStatus);
     }
 
-    const token = require('./utils/tokenStore').getToken();
-    const authStatus = token ? 'operational' : 'maintenance';
+    const isConfigured = config.TWITCH_CLIENT_ID && config.TWITCH_CLIENT_SECRET;
+    const authStatus = isConfigured ? 'operational' : 'maintenance';
     const apiStatus = 'operational';
 
     const memory = process.memoryUsage();
@@ -84,8 +58,10 @@ app.get('/health', (req, res) => {
     res.json(cachedStatus);
 });
 
-app.listen(PORT, () => {
-    console.log(`Servidor (Modular) corriendo en http://localhost:${PORT}`);
-});
+if (require.main === module) {
+    app.listen(config.PORT, () => {
+        console.log(`Servidor (Modular) corriendo en http://localhost:${config.PORT}`);
+    });
+}
 
 module.exports = app;
