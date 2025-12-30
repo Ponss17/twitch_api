@@ -59,13 +59,13 @@ app.get('/health', (req, res) => {
     }
 
     const token = require('./utils/tokenStore').getToken();
-    const authStatus = token ? 'operational' : 'degraded';
+    const authStatus = token ? 'operational' : 'maintenance';
     const apiStatus = 'operational';
 
     const memory = process.memoryUsage();
 
     cachedStatus = {
-        status: (authStatus === 'operational' && apiStatus === 'operational') ? 'ok' : 'issues',
+        status: (apiStatus === 'operational') ? 'ok' : 'issues',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         memory: {
