@@ -1,8 +1,9 @@
-const rateLimit = require('express-rate-limit');
+import rateLimit from 'express-rate-limit';
+import { Request } from 'express';
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: (req) => {
+    max: (req: Request) => {
         const ua = req.get('User-Agent') || '';
         if (
             ua.includes('Nightbot') ||
@@ -20,4 +21,4 @@ const limiter = rateLimit({
     legacyHeaders: false,
 });
 
-module.exports = limiter;
+export default limiter;
