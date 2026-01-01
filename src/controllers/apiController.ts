@@ -15,9 +15,17 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
         const result = await apiService.createClip(channel as string, req.twitchToken);
         return res.send(`🎬 Clip creado con éxito! ${result}`);
     } catch (error: any) {
-        if (error.status) return res.status(error.status).send(error.message);
-        console.error('Error creando clip:', error.response?.data || error.message);
-        return res.send('Error interno creando el clip.');
+        const status = error.status || error.response?.status || 500;
+        const msg = error.response?.data?.message || error.message;
+
+        if (status === 401) {
+            return res.send('⛔ Error: Token inválido o expirado. Por favor, vuelve a iniciar sesión en el panel para generar uno nuevo.');
+        }
+
+        if (status === 404) return res.send(msg); // Custom 404 from service
+
+        console.error('Error creando clip:', msg);
+        return res.send(`❌ Error: ${msg}`);
     }
 };
 
@@ -32,9 +40,14 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
         const clips = await apiService.getClips(channel as string, limitNum, req.twitchToken);
         res.json(clips);
     } catch (error: any) {
-        if (error.status) return res.status(error.status).json({ error: error.message });
+        const status = error.status || error.response?.status || 500;
+
+        if (status === 401) {
+            return res.status(401).json({ error: 'Token inválido o expirado. Relogueate.' });
+        }
+
         console.error('Error fetching clips:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Error obteniendo clips' });
+        res.status(status).json({ error: 'Error obteniendo clips' });
     }
 };
 
@@ -51,7 +64,13 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         const result = await apiService.getFollowAge(channel as string, user as string, req.twitchToken);
         return res.send(result);
     } catch (error: any) {
+        const status = error.status || error.response?.status || 500;
+
+        if (status === 401) {
+            return res.send('⛔ Error: Token expirado. Vuelve a loguearte en el panel.');
+        }
+
         console.error('Error General:', error.response?.data || error.message);
-        res.status(500).send('Error interno del servidor.');
+        res.send('❌ Error interno del servidor.');
     }
 };
