@@ -20,6 +20,7 @@ export const callback = async (req: Request, res: Response) => {
         const params = `?token=${access_token}&userId=${user.id}&login=${user.login}&displayName=${encodeURIComponent(user.display_name)}`;
         const redirectUrl = redirectOrigin ? `${redirectOrigin}${params}` : `/${params}`;
 
+        console.log(`[DEBUG] Login Success. Redirecting to: ${redirectUrl}`);
         res.redirect(redirectUrl);
     } catch (error: any) {
         console.error('Error en autenticación:', error.response?.data || error.message);
