@@ -11,6 +11,8 @@ const app: Application = express();
 
 app.set('trust proxy', 1);
 
+// Security Headers (Matches Valorant API)
+/*
 app.use(helmet({
     contentSecurityPolicy: {
         useDefaults: false,
@@ -28,6 +30,7 @@ app.use(helmet({
         }
     }
 }));
+*/
 
 app.use(cors());
 app.use(express.json());
