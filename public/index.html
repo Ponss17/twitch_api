@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="img/LosPerris-gamer.ico">
+    <script src="js/config.js"></script>
 </head>
 
 <body>
@@ -211,8 +212,10 @@
     <footer>
         <div class="footer-content">
             <p>&copy;
-                <script>document.write(new Date().getFullYear())</script> <a href="https://losperris.site"
-                    target="_blank">losperris.site</a>. Todos los derechos reservados.
+                <script>
+                    document.write(new Date().getFullYear());
+                    document.write(` <a href="${CONFIG.siteUrl}" target="_blank">${CONFIG.domain}</a>`);
+                </script>. Todos los derechos reservados.
             </p>
         </div>
     </footer>

@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateFollowCommand() {
         if (!login) return;
         const bot = botSelectFollow.value;
-        const domain = 'https://losperris.site/api/twitch'; // Dominio
+        const domain = `${CONFIG.siteUrl}/api/twitch`; // Dominio
         const tokenParam = token ? `&token=${token}` : '';
         let cmd = '';
 
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateClipCommand() {
         if (!login) return;
         const bot = botSelectClip.value;
-        const domain = 'https://losperris.site/api/twitch'; // Dominio
+        const domain = `${CONFIG.siteUrl}/api/twitch`; // Dominio
         const tokenParam = token ? `&token=${token}` : '';
         let cmd = '';
 
