@@ -8,6 +8,10 @@
     ],
     "rewrites": [
         {
+            "source": "/docs",
+            "destination": "/server.js"
+        },
+        {
             "source": "/(.*)",
             "destination": "/server.js"
         }

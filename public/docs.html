@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación | LosPerris Twitch API</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="docs.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="img/LosPerris-gamer.ico">
+</head>
+
+<body>
+    <div class="docs-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="img/LosPerris-gamer.ico" alt="Logo" class="sidebar-logo">
+                <h2>Docs API</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#intro" class="nav-item active"><i class="fa-solid fa-house"></i> Introducción</a>
+                <a href="#auth" class="nav-item"><i class="fa-solid fa-key"></i> Autenticación</a>
+                <div class="nav-group">
+                    <span class="group-title">Endpoints</span>
+                    <a href="#create-clip" class="nav-item"><i class="fa-solid fa-film"></i> Crear Clip</a>
+                    <a href="#followage" class="nav-item"><i class="fa-solid fa-clock"></i> Followage</a>
+                    <a href="#get-clips" class="nav-item"><i class="fa-solid fa-list"></i> Listar Clips</a>
+                </div>
+                <a href="/" class="nav-item return-home"><i class="fa-solid fa-arrow-left"></i> Volver al Panel</a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <section id="intro" class="doc-section">
+                <h1 class="main-title">Documentación <span class="accent">Twitch API</span></h1>
+                <p class="lead-text">Bienvenido a la documentación oficial de la API de Twitch de LosPerris. Aquí
+                    encontrarás todo lo necesario para integrar comandos automáticos en tu canal de Twitch.</p>
+                <div class="info-card">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <p>Esta API está diseñada para ser utilizada principalmente con bots de chat como Nightbot,
+                        StreamElements, Fossabot y Wizebot.</p>
+                </div>
+            </section>
+
+            <section id="auth" class="doc-section">
+                <h2><i class="fa-solid fa-key"></i> Autenticación</h2>
+                <p>La mayoría de los endpoints requieren un <code>token</code> de acceso para funcionar. Puedes obtener
+                    tu token conectando tu cuenta en el <a href="/">panel principal</a>.</p>
+                <div class="endpoint-block">
+                    <span class="method get">GET</span>
+                    <span class="url">/auth/twitch</span>
+                </div>
+                <p>Este endpoint inicia el flujo de OAuth con Twitch para obtener tus credenciales.</p>
+            </section>
+
+            <section id="create-clip" class="doc-section">
+                <h2><i class="fa-solid fa-film"></i> Crear Clip</h2>
+                <p>Genera un clip instantáneo del canal especificado.</p>
+                <div class="endpoint-block">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/create-clip?channel={canal}&token={tu_token}</span>
+                </div>
+                <h3>Parámetros</h3>
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Parámetro</th>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>channel</code></td>
+                            <td>String</td>
+                            <td>El nombre de usuario del canal (login).</td>
+                        </tr>
+                        <tr>
+                            <td><code>token</code></td>
+                            <td>String</td>
+                            <td>Tu Access Token de Twitch.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h3>Ejemplo Nightbot</h3>
+                <div class="code-block">
+                    <code>$(urlfetch https://losperris.site/api/twitch/api/create-clip?channel=$(channel)&token=TU_TOKEN)</code>
+                </div>
+            </section>
+
+            <section id="followage" class="doc-section">
+                <h2><i class="fa-solid fa-clock"></i> Followage</h2>
+                <p>Consulta cuánto tiempo lleva un usuario siguiendo a un canal.</p>
+                <div class="endpoint-block">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/followage?channel={canal}&user={usuario}&token={tu_token}</span>
+                </div>
+                <h3>Ejemplo Nightbot</h3>
+                <div class="code-block">
+                    <code>$(urlfetch https://losperris.site/api/twitch/api/followage?channel=$(channel)&user=$(touser)&token=TU_TOKEN)</code>
+                </div>
+            </section>
+
+            <section id="get-clips" class="doc-section">
+                <h2><i class="fa-solid fa-list"></i> Listar Clips</h2>
+                <p>Obtiene los clips más recientes de un canal.</p>
+                <div class="endpoint-block">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/get-clips?channel={canal}&token={tu_token}&limit=10</span>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const sections = document.querySelectorAll('.doc-section');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === `#${current}`) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

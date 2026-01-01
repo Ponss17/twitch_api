@@ -13,6 +13,11 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
+
+app.get('/docs', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'docs.html'));
+});
+
 app.get('/status', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'app_status.html'));
 });
