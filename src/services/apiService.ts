@@ -1,9 +1,9 @@
-const axios = require('axios');
-const config = require('../config/env');
+import axios from 'axios';
+import { CONFIG } from '../config/env';
 
-const createClip = async (channel, token) => {
+export const createClip = async (channel: string, token: string): Promise<string> => {
     const headers = {
-        'Client-ID': config.TWITCH_CLIENT_ID,
+        'Client-ID': CONFIG.TWITCH_CLIENT_ID,
         'Authorization': `Bearer ${token}`
     };
 
@@ -15,7 +15,7 @@ const createClip = async (channel, token) => {
         const clipRes = await axios.post(`https://api.twitch.tv/helix/clips?broadcaster_id=${broadcasterId}`, null, { headers });
         const clipData = clipRes.data.data[0];
         return `https://clips.twitch.tv/${clipData.id}`;
-    } catch (error) {
+    } catch (error: any) {
         if (error.response && error.response.status === 404) {
             throw { status: 404, message: `No se pudo crear clip. Asegúrate de que ${channel} esté en vivo.` };
         }
@@ -23,9 +23,9 @@ const createClip = async (channel, token) => {
     }
 };
 
-const getClips = async (channel, limit, token) => {
+export const getClips = async (channel: string, limit: number, token: string) => {
     const headers = {
-        'Client-ID': config.TWITCH_CLIENT_ID,
+        'Client-ID': CONFIG.TWITCH_CLIENT_ID,
         'Authorization': `Bearer ${token}`
     };
 
@@ -44,9 +44,9 @@ const getClips = async (channel, limit, token) => {
     return clipsRes.data.data;
 };
 
-const getFollowAge = async (channel, user, token) => {
+export const getFollowAge = async (channel: string, user: string, token: string): Promise<string> => {
     const headers = {
-        'Client-ID': config.TWITCH_CLIENT_ID,
+        'Client-ID': CONFIG.TWITCH_CLIENT_ID,
         'Authorization': `Bearer ${token}`
     };
 
@@ -72,7 +72,7 @@ const getFollowAge = async (channel, user, token) => {
 
     const followDate = new Date(followRes.data.data[0].followed_at);
     const now = new Date();
-    let diff = Math.abs(now - followDate);
+    const diff = Math.abs(now.getTime() - followDate.getTime());
 
     const parts = {
         años: Math.floor(diff / (1000 * 60 * 60 * 24 * 365)),
@@ -83,7 +83,7 @@ const getFollowAge = async (channel, user, token) => {
         segundos: Math.floor((diff % (1000 * 60)) / 1000)
     };
 
-    let timeString = [];
+    let timeString: string[] = [];
     if (parts.años > 0) timeString.push(`${parts.años} años`);
     if (parts.meses > 0) timeString.push(`${parts.meses} meses`);
     if (parts.días > 0) timeString.push(`${parts.días} días`);
@@ -96,10 +96,4 @@ const getFollowAge = async (channel, user, token) => {
         : timeString[0];
 
     return `${user} ha seguido a ${channel} por ${finalString}.`;
-};
-
-module.exports = {
-    createClip,
-    getClips,
-    getFollowAge
 };

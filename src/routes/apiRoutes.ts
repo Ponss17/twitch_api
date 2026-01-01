@@ -1,10 +1,11 @@
-const express = require('express');
+import express from 'express';
+import * as apiController from '../controllers/apiController';
+import checkToken from '../middleware/authMiddleware';
+
 const router = express.Router();
-const apiController = require('../controllers/apiController');
-const checkToken = require('../middleware/authMiddleware');
 
 router.get('/create-clip', checkToken, apiController.createClip);
 router.get('/get-clips', checkToken, apiController.getClips);
 router.get('/followage', checkToken, apiController.followage);
 
-module.exports = router;
+export default router;

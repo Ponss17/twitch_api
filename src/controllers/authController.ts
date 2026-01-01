@@ -1,13 +1,14 @@
-const authService = require('../services/authService');
+import { Request, Response } from 'express';
+import * as authService from '../services/authService';
 
-const login = (req, res) => {
-    const redirectOrigin = req.query.redirect_origin || '';
+export const login = (req: Request, res: Response) => {
+    const redirectOrigin = (req.query.redirect_origin as string) || '';
     const url = authService.getAuthorizeUrl(redirectOrigin);
     res.redirect(url);
 };
 
-const callback = async (req, res) => {
-    const { code, state } = req.query;
+export const callback = async (req: Request, res: Response) => {
+    const { code, state } = req.query as { code: string; state: string };
 
     if (!code) {
         return res.redirect('/?error=no_code');
@@ -20,7 +21,7 @@ const callback = async (req, res) => {
         const redirectUrl = redirectOrigin ? `${redirectOrigin}${params}` : `/${params}`;
 
         res.redirect(redirectUrl);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error en autenticación:', error.response?.data || error.message);
 
         let errorRedirect = '/?error=auth_failed';
@@ -32,9 +33,4 @@ const callback = async (req, res) => {
         }
         res.redirect(errorRedirect);
     }
-};
-
-module.exports = {
-    login,
-    callback
 };

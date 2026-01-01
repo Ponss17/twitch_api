@@ -1,19 +1,22 @@
 {
     "version": 2,
-    "builds": [
-        {
-            "src": "server.js",
-            "use": "@vercel/node"
-        }
-    ],
     "rewrites": [
         {
+            "source": "/api/(.*)",
+            "destination": "/api/index.ts"
+        },
+        {
+            "source": "/auth/(.*)",
+            "destination": "/api/index.ts"
+        },
+        {
             "source": "/docs",
-            "destination": "/server.js"
+            "destination": "/api/index.ts"
         },
         {
             "source": "/(.*)",
-            "destination": "/server.js"
+            "destination": "/api/index.ts"
         }
-    ]
+    ],
+    "cleanUrls": true
 }

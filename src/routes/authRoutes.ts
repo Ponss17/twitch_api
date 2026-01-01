@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import * as authController from '../controllers/authController';
+
 const router = express.Router();
-const authController = require('../controllers/authController');
 
 router.get('/twitch', authController.login);
 router.get('/twitch/callback', authController.callback);
 
-module.exports = router;
+export default router;

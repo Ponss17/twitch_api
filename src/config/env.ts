@@ -1,8 +1,10 @@
+import dotenv from 'dotenv';
+
 if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config();
+    dotenv.config();
 }
 
-module.exports = {
+export const CONFIG = {
     PORT: process.env.PORT || 3000,
     TWITCH_CLIENT_ID: process.env.TWITCH_CLIENT_ID,
     TWITCH_CLIENT_SECRET: process.env.TWITCH_CLIENT_SECRET,
