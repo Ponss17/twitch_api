@@ -19,11 +19,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const commandOutputClip = document.getElementById('command-output-clip');
     const clipsGallery = document.getElementById('clips-gallery');
     const refreshClipsBtn = document.getElementById('refresh-clips-btn');
+    let savedSession = null;
+    try {
+        savedSession = JSON.parse(localStorage.getItem('twitch_api_session'));
+    } catch (e) { }
+
     const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    const userId = params.get('userId');
-    const login = params.get('login');
-    const displayName = params.get('displayName');
+    const token = params.get('token') || savedSession?.token;
+    const userId = params.get('userId') || savedSession?.userId;
+    const login = params.get('login') || savedSession?.login;
+    const displayName = params.get('displayName') || savedSession?.displayName;
+
+    const isNewLogin = !!params.get('token');
 
     const loginBtn = document.getElementById('login-btn');
     if (loginBtn) {
@@ -37,18 +44,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initDashboard() {
+        if (isNewLogin) {
+            localStorage.setItem('twitch_api_session', JSON.stringify({ token, userId, login, displayName }));
+        }
+
         loginSection.classList.add('hidden');
         dashboardSection.classList.remove('hidden');
         userDisplayName.textContent = displayName || login;
         userIdInput.value = userId;
         userTokenInput.value = token;
-        window.history.replaceState({}, document.title, window.location.pathname);
+
+        if (isNewLogin) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         updateFollowCommand();
         updateClipCommand();
         setupTabs();
 
         const toast = document.getElementById('toast');
-        if (toast) {
+        if (toast && isNewLogin) {
             toast.textContent = "⚠ Nueva sesión: TUS COMANDOS ANTIGUOS YA NO SIRVEN. Actualízalos.";
             toast.style.background = "var(--warning-color)";
             toast.classList.remove('hidden');
@@ -123,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateFollowCommand() {
         if (!login) return;
         const bot = botSelectFollow.value;
-        const domain = `${CONFIG.siteUrl}/api/twitch`; // Dominio
+        const domain = `${CONFIG.siteUrl}/api/twitch`;
         const tokenParam = token ? `&token=${token}` : '';
         let cmd = '';
 
@@ -146,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateClipCommand() {
         if (!login) return;
         const bot = botSelectClip.value;
-        const domain = `${CONFIG.siteUrl}/api/twitch`; // Dominio
+        const domain = `${CONFIG.siteUrl}/api/twitch`;
         const tokenParam = token ? `&token=${token}` : '';
         let cmd = '';
 
@@ -207,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('twitch_api_session');
         window.location.href = window.location.origin;
     });
 
