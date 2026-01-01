@@ -31,8 +31,10 @@ app.use(express.json());
 app.use(rateLimiter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
+    console.log(`[DEBUG] Incoming: ${req.method} ${req.url}`);
     if (req.url.startsWith('/api/twitch')) {
         req.url = req.url.replace('/api/twitch', '') || '/';
+        console.log(`[DEBUG] Stripped: ${req.url}`);
     }
     next();
 });
