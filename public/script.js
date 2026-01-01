@@ -46,6 +46,18 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFollowCommand();
         updateClipCommand();
         setupTabs();
+
+        const toast = document.getElementById('toast');
+        if (toast) {
+            toast.textContent = "⚠ Nueva sesión: TUS COMANDOS ANTIGUOS YA NO SIRVEN. Actualízalos.";
+            toast.style.background = "var(--warning-color)";
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.style.background = "var(--accent-color)";
+                toast.textContent = "Copiado al portapapeles!";
+            }, 5000);
+        }
     }
 
     function setupTabs() {
