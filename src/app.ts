@@ -22,7 +22,9 @@ app.use(helmet({
             imgSrc: ["'self'", "data:", "https://*.jtvnw.net", "https://*.twitch.tv", "blob:"],
             connectSrc: ["'self'", "https://id.twitch.tv", "https://api.twitch.tv", "https://*.twitch.tv", "wss://*.twitch.tv", "blob:"],
             objectSrc: ["'none'"],
-            frameSrc: ["'self'", "https://id.twitch.tv", "https://*.twitch.tv"]
+            frameSrc: ["'self'", "https://id.twitch.tv", "https://*.twitch.tv", "blob:"],
+            workerSrc: ["'self'", "blob:"],
+            childSrc: ["'self'", "blob:"]
         }
     }
 }));
