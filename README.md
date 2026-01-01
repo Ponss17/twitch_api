@@ -1,3 +1,0 @@
-# Twitch API
-
-Project initialized.
