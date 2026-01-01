@@ -16,12 +16,13 @@ app.use(helmet({
         useDefaults: false,
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "https://*.twitch.tv", "https://*.jtvnw.net", "blob:"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-            imgSrc: ["'self'", "data:", "https://static-cdn.jtvnw.net"],
-            connectSrc: ["'self'", "https://id.twitch.tv", "https://api.twitch.tv"],
-            objectSrc: ["'none'"]
+            imgSrc: ["'self'", "data:", "https://*.jtvnw.net", "https://*.twitch.tv", "blob:"],
+            connectSrc: ["'self'", "https://id.twitch.tv", "https://api.twitch.tv", "https://*.twitch.tv", "wss://*.twitch.tv", "blob:"],
+            objectSrc: ["'none'"],
+            frameSrc: ["'self'", "https://id.twitch.tv", "https://*.twitch.tv"]
         }
     }
 }));
