@@ -2,18 +2,6 @@
     "version": 2,
     "rewrites": [
         {
-            "source": "/api/(.*)",
-            "destination": "/api/index.ts"
-        },
-        {
-            "source": "/auth/(.*)",
-            "destination": "/api/index.ts"
-        },
-        {
-            "source": "/docs",
-            "destination": "/api/index.ts"
-        },
-        {
             "source": "/(.*)",
             "destination": "/api/index.ts"
         }
