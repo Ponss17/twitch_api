@@ -22,7 +22,7 @@ const createClip = async (channel, token) => {
         return `https://clips.twitch.tv/${clipData.id}`;
     }
     catch (error) {
-        if (error.response && error.response.status === 404) {
+        if (axios_1.default.isAxiosError(error) && error.response?.status === 404) {
             throw { status: 404, message: `No se pudo crear clip. Asegúrate de que ${channel} esté en vivo.` };
         }
         throw error;
