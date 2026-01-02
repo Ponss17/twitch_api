@@ -1,43 +1,42 @@
 import { Request, Response } from 'express';
 import * as apiService from '../services/apiService';
+import { TwitchError } from '../types/twitch';
 
-interface AuthenticatedRequest extends Request {
-    twitchToken?: string;
-}
-
-export const createClip = async (req: AuthenticatedRequest, res: Response) => {
+export const createClip = async (req: Request, res: Response) => {
     const { channel } = req.query;
     if (!channel) return res.status(400).send('Falta el parámetro channel.');
 
-    if (!req.twitchToken) return res.status(401).send('Token no proporcionado.');
+    const token = req.twitchToken || (req.query.token as string);
+    if (!token) return res.status(401).send('Token no proporcionado.');
 
     try {
-        const result = await apiService.createClip(channel as string, req.twitchToken);
+        const result = await apiService.createClip(channel as string, token);
         return res.send(`🎬 Clip creado con éxito! ${result}`);
     } catch (error: any) {
         const status = error.status || error.response?.status || 500;
-        const msg = error.response?.data?.message || error.message;
+        const msg = (error as TwitchError).message || error.response?.data?.message || error.message;
 
         if (status === 401) {
             return res.send('⛔ Error: Token inválido o expirado. Por favor, vuelve a iniciar sesión en el panel para generar uno nuevo.');
         }
 
-        if (status === 404) return res.send(msg); // Custom 404 from service
+        if (status === 404) return res.send(msg);
 
         console.error('Error creando clip:', msg);
         return res.send(`❌ Error: ${msg}`);
     }
 };
 
-export const getClips = async (req: AuthenticatedRequest, res: Response) => {
+export const getClips = async (req: Request, res: Response) => {
     const { channel, limit } = req.query;
     const limitNum = parseInt(limit as string) || 5;
     if (!channel) return res.status(400).json({ error: 'Falta channel' });
 
-    if (!req.twitchToken) return res.status(401).json({ error: 'Token no requerido' });
+    const token = req.twitchToken || (req.query.token as string);
+    if (!token) return res.status(401).json({ error: 'Token no requerido' });
 
     try {
-        const clips = await apiService.getClips(channel as string, limitNum, req.twitchToken);
+        const clips = await apiService.getClips(channel as string, limitNum, token);
         res.json(clips);
     } catch (error: any) {
         const status = error.status || error.response?.status || 500;
@@ -51,17 +50,18 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
     }
 };
 
-export const followage = async (req: AuthenticatedRequest, res: Response) => {
+export const followage = async (req: Request, res: Response) => {
     const { channel, user } = req.query;
 
     if (!channel || !user) {
         return res.status(400).send('Faltan parámetros: channel y user son requeridos.');
     }
 
-    if (!req.twitchToken) return res.status(401).send('Token no proporcionado.');
+    const token = req.twitchToken || (req.query.token as string);
+    if (!token) return res.status(401).send('Token no proporcionado.');
 
     try {
-        const result = await apiService.getFollowAge(channel as string, user as string, req.twitchToken);
+        const result = await apiService.getFollowAge(channel as string, user as string, token);
         return res.send(result);
     } catch (error: any) {
         const status = error.status || error.response?.status || 500;

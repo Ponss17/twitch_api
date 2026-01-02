@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="docs.css">
+    <link rel="stylesheet" href="./css/docs.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="img/LosPerris-gamer.ico">
 </head>
@@ -153,34 +153,7 @@
         </main>
     </div>
 
-    <script>
-        const sections = document.querySelectorAll('.doc-section');
-        const navItems = document.querySelectorAll('.nav-item');
-
-        window.addEventListener('scroll', () => {
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                if (pageYOffset >= (sectionTop - 100)) {
-                    current = section.getAttribute('id');
-                }
-            });
-
-            navItems.forEach(item => {
-                item.classList.remove('active');
-                if (item.getAttribute('href') === `#${current}`) {
-                    item.classList.add('active');
-                }
-            });
-
-            const baseUrl = window.location.origin;
-            document.querySelectorAll('.dynamic-url').forEach(code => {
-                const path = code.dataset.path;
-                code.textContent = `$(urlfetch ${baseUrl}${path})`;
-            });
-        });
-    </script>
+    <script src="./js/docs.js"></script>
 </body>
 
 </html>

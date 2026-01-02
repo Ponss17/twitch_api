@@ -1,17 +1,19 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
-import cors from 'cors';
-import path from 'path';
-import helmet from 'helmet';
-import { CONFIG } from './config/env';
-import rateLimiter from './middleware/rateLimiter';
-import authRoutes from './routes/authRoutes';
-import apiRoutes from './routes/apiRoutes';
-
-const app: Application = express();
-
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
+const path_1 = __importDefault(require("path"));
+const helmet_1 = __importDefault(require("helmet"));
+const env_1 = require("./config/env");
+const rateLimiter_1 = __importDefault(require("./middleware/rateLimiter"));
+const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
+const apiRoutes_1 = __importDefault(require("./routes/apiRoutes"));
+const app = (0, express_1.default)();
 app.set('trust proxy', 1);
-
-app.use(helmet({
+app.use((0, helmet_1.default)({
     contentSecurityPolicy: {
         useDefaults: false,
         directives: {
@@ -29,31 +31,23 @@ app.use(helmet({
     },
     crossOriginEmbedderPolicy: false
 }));
-
-app.use(cors());
-app.use(express.json());
-app.use(rateLimiter);
-
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((0, cors_1.default)());
+app.use(express_1.default.json());
+app.use(rateLimiter_1.default);
+app.use((req, res, next) => {
     if (req.url.startsWith('/api/twitch')) {
         req.url = req.url.replace('/api/twitch', '') || '/';
     }
     next();
 });
-
-app.use(express.static(path.join(__dirname, '../public')));
-
-app.get('/docs', (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, '../public/docs.html'));
+app.use(express_1.default.static(path_1.default.join(__dirname, '../public')));
+app.get('/docs', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../public/docs.html'));
 });
-
-
-
-app.use('/auth', authRoutes);
-app.use('/api', apiRoutes);
-
-app.get('/health', (req: Request, res: Response) => {
-    const isConfigured = !!(CONFIG.TWITCH_CLIENT_ID && CONFIG.TWITCH_CLIENT_SECRET);
+app.use('/auth', authRoutes_1.default);
+app.use('/api', apiRoutes_1.default);
+app.get('/health', (req, res) => {
+    const isConfigured = !!(env_1.CONFIG.TWITCH_CLIENT_ID && env_1.CONFIG.TWITCH_CLIENT_SECRET);
     res.json({
         status: isConfigured ? 'ok' : 'maintenance',
         timestamp: new Date().toISOString(),
@@ -61,5 +55,4 @@ app.get('/health', (req: Request, res: Response) => {
         version: '2.0.0 (TS)'
     });
 });
-
-export default app;
+exports.default = app;

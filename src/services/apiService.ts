@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { CONFIG } from '../config/env';
+import { TwitchClip, TwitchError } from '../types/twitch';
 
 export const createClip = async (channel: string, token: string): Promise<string> => {
     const headers = {
@@ -8,7 +9,9 @@ export const createClip = async (channel: string, token: string): Promise<string
     };
 
     const channelRes = await axios.get(`https://api.twitch.tv/helix/users?login=${channel}`, { headers });
-    if (channelRes.data.data.length === 0) throw { status: 404, message: `El canal ${channel} no existe.` };
+    if (channelRes.data.data.length === 0) {
+        throw { status: 404, message: `El canal ${channel} no existe.` } as TwitchError;
+    }
     const broadcasterId = channelRes.data.data[0].id;
 
     try {
@@ -17,20 +20,22 @@ export const createClip = async (channel: string, token: string): Promise<string
         return `https://clips.twitch.tv/${clipData.id}`;
     } catch (error: any) {
         if (error.response && error.response.status === 404) {
-            throw { status: 404, message: `No se pudo crear clip. Asegúrate de que ${channel} esté en vivo.` };
+            throw { status: 404, message: `No se pudo crear clip. Asegúrate de que ${channel} esté en vivo.` } as TwitchError;
         }
         throw error;
     }
 };
 
-export const getClips = async (channel: string, limit: number, token: string) => {
+export const getClips = async (channel: string, limit: number, token: string): Promise<TwitchClip[]> => {
     const headers = {
         'Client-ID': CONFIG.TWITCH_CLIENT_ID,
         'Authorization': `Bearer ${token}`
     };
 
     const channelRes = await axios.get(`https://api.twitch.tv/helix/users?login=${channel}`, { headers });
-    if (channelRes.data.data.length === 0) throw { status: 404, message: 'Canal no encontrado' };
+    if (channelRes.data.data.length === 0) {
+        throw { status: 404, message: 'Canal no encontrado' } as TwitchError;
+    }
     const broadcasterId = channelRes.data.data[0].id;
 
     const clipsRes = await axios.get(`https://api.twitch.tv/helix/clips`, {
@@ -41,7 +46,7 @@ export const getClips = async (channel: string, limit: number, token: string) =>
         }
     });
 
-    return clipsRes.data.data;
+    return clipsRes.data.data as TwitchClip[];
 };
 
 export const getFollowAge = async (channel: string, user: string, token: string): Promise<string> => {
