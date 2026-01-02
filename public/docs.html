@@ -88,7 +88,8 @@
                 </table>
                 <h3>Ejemplo Nightbot</h3>
                 <div class="code-block">
-                    <code>$(urlfetch https://losperris.site/api/twitch/api/create-clip?channel=$(channel)&token=TU_TOKEN)</code>
+                    <code class="dynamic-url"
+                        data-path="/api/create-clip?channel=$(channel)&token=TU_TOKEN">Cargando...</code>
                 </div>
             </section>
 
@@ -101,7 +102,8 @@
                 </div>
                 <h3>Ejemplo Nightbot</h3>
                 <div class="code-block">
-                    <code>$(urlfetch https://losperris.site/api/twitch/api/followage?channel=$(channel)&user=$(touser)&token=TU_TOKEN)</code>
+                    <code class="dynamic-url"
+                        data-path="/api/followage?channel=$(channel)&user=$(touser)&token=TU_TOKEN">Cargando...</code>
                 </div>
             </section>
 
@@ -170,6 +172,13 @@
                 if (item.getAttribute('href') === `#${current}`) {
                     item.classList.add('active');
                 }
+            });
+
+            // Dynamic URL Injection
+            const baseUrl = window.location.origin; // e.g., https://your-site.vercel.app
+            document.querySelectorAll('.dynamic-url').forEach(code => {
+                const path = code.dataset.path;
+                code.textContent = `$(urlfetch ${baseUrl}${path})`;
             });
         });
     </script>
