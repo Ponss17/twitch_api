@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { CONFIG } from '../config/env';
+import { TwitchUser, TwitchAuthResponse } from '../types/twitch';
 
 export const getAuthorizeUrl = (redirectOrigin: string): string => {
     const scope = 'user:read:email moderator:read:followers clips:edit';
@@ -7,7 +8,7 @@ export const getAuthorizeUrl = (redirectOrigin: string): string => {
     return `https://id.twitch.tv/oauth2/authorize?client_id=${CONFIG.TWITCH_CLIENT_ID}&redirect_uri=${CONFIG.TWITCH_REDIRECT_URI}&response_type=code&scope=${scope}&state=${state}`;
 };
 
-export const handleCallback = async (code: string, state: string) => {
+export const handleCallback = async (code: string, state: string): Promise<{ user: TwitchUser, access_token: string, redirectOrigin: string }> => {
     const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
         params: {
             client_id: CONFIG.TWITCH_CLIENT_ID,
@@ -18,7 +19,7 @@ export const handleCallback = async (code: string, state: string) => {
         }
     });
 
-    const { access_token } = tokenResponse.data;
+    const { access_token } = tokenResponse.data as TwitchAuthResponse;
 
     const userResponse = await axios.get('https://api.twitch.tv/helix/users', {
         headers: {
@@ -27,7 +28,7 @@ export const handleCallback = async (code: string, state: string) => {
         }
     });
 
-    const user = userResponse.data.data[0];
+    const user = userResponse.data.data[0] as TwitchUser;
 
     let redirectOrigin = '';
     if (state) {

@@ -21,8 +21,9 @@ export const callback = async (req: Request, res: Response) => {
         const redirectUrl = redirectOrigin ? `${redirectOrigin}${params}` : `/${params}`;
 
         res.redirect(redirectUrl);
-    } catch (error: any) {
-        console.error('Error en autenticación:', error.response?.data || error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Error en autenticación:', errorMessage);
 
         let errorRedirect = '/?error=auth_failed';
         if (state) {
