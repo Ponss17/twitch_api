@@ -28,6 +28,7 @@
                     <a href="#create-clip" class="nav-item"><i class="fa-solid fa-film"></i> Crear Clip</a>
                     <a href="#followage" class="nav-item"><i class="fa-solid fa-clock"></i> Followage</a>
                     <a href="#get-clips" class="nav-item"><i class="fa-solid fa-list"></i> Listar Clips</a>
+                    <a href="#errores" class="nav-item"><i class="fa-solid fa-triangle-exclamation"></i> Errores</a>
                 </div>
                 <a href="./" class="nav-item return-home"><i class="fa-solid fa-arrow-left"></i> Volver al Panel</a>
             </nav>
@@ -111,7 +112,42 @@
                     <span class="method get">GET</span>
                     <span class="url">/api/get-clips?channel={canal}&token={tu_token}&limit=10</span>
                 </div>
-            </section>
+                <section id="errores" class="doc-section">
+                    <h2><i class="fa-solid fa-triangle-exclamation"></i> Manejo de Errores</h2>
+                    <p>La API utiliza códigos de estado HTTP estándar para indicar el éxito o fracaso de una solicitud.
+                    </p>
+                    <table class="params-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Significado</th>
+                                <th>Solución</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="method get" style="background:var(--accent-red)">401</span></td>
+                                <td>Unauthorized</td>
+                                <td>El token ha expirado o es inválido. Genera uno nuevo en el panel.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method get" style="background:#eab308">400</span></td>
+                                <td>Bad Request</td>
+                                <td>Faltan parámetros obligatorios (ej: canal, usuario).</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method get" style="background:#64748b">404</span></td>
+                                <td>Not Found</td>
+                                <td>El canal o usuario especificado no existe en Twitch.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="method get" style="background:#ef4444">500</span></td>
+                                <td>Server Error</td>
+                                <td>Error interno. Contacta con el administrador si persiste.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
         </main>
     </div>
 
