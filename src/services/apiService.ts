@@ -18,8 +18,8 @@ export const createClip = async (channel: string, token: string): Promise<string
         const clipRes = await axios.post(`https://api.twitch.tv/helix/clips?broadcaster_id=${broadcasterId}`, null, { headers });
         const clipData = clipRes.data.data[0];
         return `https://clips.twitch.tv/${clipData.id}`;
-    } catch (error: any) {
-        if (error.response && error.response.status === 404) {
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
             throw { status: 404, message: `No se pudo crear clip. Asegúrate de que ${channel} esté en vivo.` } as TwitchError;
         }
         throw error;

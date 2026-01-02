@@ -32,8 +32,12 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.followage = exports.getClips = exports.createClip = void 0;
+const axios_1 = __importDefault(require("axios"));
 const apiService = __importStar(require("../services/apiService"));
 const createClip = async (req, res) => {
     const { channel } = req.query;
@@ -47,8 +51,22 @@ const createClip = async (req, res) => {
         return res.send(`🎬 Clip creado con éxito! ${result}`);
     }
     catch (error) {
-        const status = error.status || error.response?.status || 500;
-        const msg = error.message || error.response?.data?.message || error.message;
+        let status = 500;
+        let msg = 'Error interno del servidor';
+        if (axios_1.default.isAxiosError(error)) {
+            status = error.response?.status || 500;
+            msg = error.response?.data?.message || error.message;
+        }
+        else {
+            const err = error;
+            if (err.status && err.message) {
+                status = err.status;
+                msg = err.message;
+            }
+            else if (error instanceof Error) {
+                msg = error.message;
+            }
+        }
         if (status === 401) {
             return res.send('⛔ Error: Token inválido o expirado. Por favor, vuelve a iniciar sesión en el panel para generar uno nuevo.');
         }
@@ -72,12 +90,17 @@ const getClips = async (req, res) => {
         res.json(clips);
     }
     catch (error) {
-        const status = error.status || error.response?.status || 500;
+        let status = 500;
+        let msg = 'Error obteniendo clips';
+        if (axios_1.default.isAxiosError(error)) {
+            status = error.response?.status || 500;
+            msg = error.response?.data?.message || error.message;
+        }
         if (status === 401) {
             return res.status(401).json({ error: 'Token inválido o expirado. Relogueate.' });
         }
-        console.error('Error fetching clips:', error.response?.data || error.message);
-        res.status(status).json({ error: 'Error obteniendo clips' });
+        console.error('Error fetching clips:', msg);
+        res.status(status).json({ error: msg });
     }
 };
 exports.getClips = getClips;
@@ -94,11 +117,23 @@ const followage = async (req, res) => {
         return res.send(result);
     }
     catch (error) {
-        const status = error.status || error.response?.status || 500;
+        let status = 500;
+        let msg = 'Error interno del servidor';
+        if (axios_1.default.isAxiosError(error)) {
+            status = error.response?.status || 500;
+            msg = error.response?.data?.message || error.message;
+        }
+        else {
+            const err = error;
+            if (err.status)
+                status = err.status;
+            if (err.message)
+                msg = err.message;
+        }
         if (status === 401) {
             return res.send('⛔ Error: Token expirado. Vuelve a loguearte en el panel.');
         }
-        console.error('Error General:', error.response?.data || error.message);
+        console.error('Error General:', msg);
         res.send('❌ Error interno del servidor.');
     }
 };

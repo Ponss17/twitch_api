@@ -5,8 +5,8 @@
   "main": "api/index.ts",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/api/index.js",
-    "dev": "ts-node -r dotenv/config api/index.ts"
+    "start": "node -r dotenv/config dist/api/index.js",
+    "dev": "ts-node --files -r dotenv/config api/index.ts"
   },
   "repository": {
     "type": "git",

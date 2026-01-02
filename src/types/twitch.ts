@@ -42,5 +42,5 @@ export interface TwitchAuthResponse {
 export interface TwitchError {
     status: number;
     message: string;
-    details?: any;
+    details?: unknown;
 }
