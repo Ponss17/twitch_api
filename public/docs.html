@@ -174,8 +174,7 @@
                 }
             });
 
-            // Dynamic URL Injection
-            const baseUrl = window.location.origin; // e.g., https://your-site.vercel.app
+            const baseUrl = window.location.origin;
             document.querySelectorAll('.dynamic-url').forEach(code => {
                 const path = code.dataset.path;
                 code.textContent = `$(urlfetch ${baseUrl}${path})`;
