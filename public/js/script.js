@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     logoutBtn.addEventListener('click', () => {
         localStorage.removeItem('twitch_api_session');
-        window.location.href = window.location.origin;
+        window.location.href = CONFIG.siteUrl;
     });
 
     const heroCodeDisplay = document.getElementById('hero-code-display');
