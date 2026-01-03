@@ -7,5 +7,6 @@ const router = express.Router();
 router.get('/create-clip', checkToken, apiController.createClip);
 router.get('/get-clips', checkToken, apiController.getClips);
 router.get('/followage', checkToken, apiController.followage);
+router.get('/validate', checkToken, apiController.validateToken);
 
 export default router;

@@ -40,7 +40,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (token && userId) {
-        initDashboard();
+        validateCurrentToken(token).then(isValid => {
+            if (isValid) {
+                initDashboard();
+            } else {
+                const toast = document.getElementById('toast');
+                if (toast) {
+                    toast.textContent = "⚠ Tu sesión ha expirado. Redirigiendo...";
+                    toast.style.background = "var(--warning-color)";
+                    toast.classList.remove('hidden');
+                }
+                localStorage.removeItem('twitch_api_session');
+                setTimeout(() => {
+                    window.location.href = CONFIG.siteUrl;
+                }, 2000);
+            }
+        });
+    }
+
+    async function validateCurrentToken(t) {
+        try {
+            const res = await fetch(`api/validate?token=${t}`);
+            return res.ok;
+        } catch (e) {
+            return false;
+        }
     }
 
     function initDashboard() {
@@ -63,16 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setupTabs();
 
         const toast = document.getElementById('toast');
-        if (toast && isNewLogin) {
-            toast.textContent = "⚠ Nueva sesión: TUS COMANDOS ANTIGUOS YA NO SIRVEN. Actualízalos.";
-            toast.style.background = "var(--warning-color)";
-            toast.classList.remove('hidden');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-                toast.style.background = "var(--accent-color)";
-                toast.textContent = "Copiado al portapapeles!";
-            }, 5000);
-        }
     }
 
     function setupTabs() {

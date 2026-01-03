@@ -102,3 +102,15 @@ export const getFollowAge = async (channel: string, user: string, token: string)
 
     return `${user} ha seguido a ${channel} por ${finalString}.`;
 };
+
+export const validateToken = async (token: string): Promise<boolean> => {
+    try {
+        const headers = {
+            'Authorization': `OAuth ${token}`
+        };
+        await axios.get('https://id.twitch.tv/oauth2/validate', { headers });
+        return true;
+    } catch (error) {
+        return false;
+    }
+};
