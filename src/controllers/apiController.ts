@@ -104,3 +104,15 @@ export const followage = async (req: Request, res: Response) => {
         res.send('❌ Error interno del servidor.');
     }
 };
+
+export const validateToken = async (req: Request, res: Response) => {
+    const token = req.twitchToken || (req.query.token as string);
+    if (!token) return res.status(401).send('Token no proporcionado.');
+
+    const isValid = await apiService.validateToken(token);
+    if (isValid) {
+        return res.status(200).send('Token válido');
+    } else {
+        return res.status(401).send('Token inválido');
+    }
+};
