@@ -116,3 +116,21 @@ export const validateToken = async (req: Request, res: Response) => {
         return res.status(401).send('Token inválido');
     }
 };
+
+import * as authService from '../services/authService';
+import * as dbService from '../services/dbService';
+
+export const regenerateKey = async (req: Request, res: Response) => {
+    const apiKey = req.query.apiKey as string;
+    if (!apiKey) return res.status(400).send('API Key requerida');
+
+    const user = await dbService.getUserByApiKey(apiKey);
+    if (!user) return res.status(401).send('Usuario no encontrado');
+
+    try {
+        const newKey = await authService.regenerateApiKey(user.userId);
+        res.json({ apiKey: newKey });
+    } catch (e) {
+        res.status(500).send('Error regenerando clave');
+    }
+};

@@ -467,6 +467,14 @@ body {
     color: white !important;
 }
 
+.warning-btn {
+    color: var(--warning-color) !important;
+}
+
+.warning-btn:hover {
+    background: rgba(244, 63, 94, 0.1) !important;
+}
+
 .help-text {
     margin-top: 10px;
     font-size: 0.85rem;

@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const userTokenInput = document.getElementById('user-token');
 
     const toggleTokenBtn = document.getElementById('toggle-token');
+    const regenerateBtn = document.getElementById('regenerate-btn');
     const logoutBtn = document.getElementById('logout-btn');
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -28,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token') || savedSession?.token;
-    const apiKey = params.get('apiKey') || savedSession?.apiKey;
+    let apiKey = params.get('apiKey') || savedSession?.apiKey;
     const userId = params.get('userId') || savedSession?.userId;
     const login = params.get('login') || savedSession?.login;
     const displayName = params.get('displayName') || savedSession?.displayName;
@@ -241,6 +242,50 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleTokenBtn.addEventListener('click', () => {
         userTokenInput.type = userTokenInput.type === 'password' ? 'text' : 'password';
     });
+
+    if (regenerateBtn) {
+        regenerateBtn.addEventListener('click', async () => {
+            if (!confirm('⚠ ¿Estás seguro de que quieres generar una NUEVA API Key?\n\nLos comandos que ya tengas en tu chat DEJARÁN DE FUNCIONAR hasta que los actualices con la nueva llave.')) {
+                return;
+            }
+
+            try {
+                // Show loading state
+                regenerateBtn.disabled = true;
+                const originalIcon = regenerateBtn.innerHTML;
+                regenerateBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                const res = await fetch(`api/regenerate-key?apiKey=${apiKey}`, { method: 'POST' });
+                if (!res.ok) throw new Error('Error al regenerar');
+
+                const data = await res.json();
+                apiKey = data.apiKey;
+
+                // Update Storage
+                localStorage.setItem('twitch_api_session', JSON.stringify({ token, apiKey, userId, login, displayName }));
+
+                // Update UI
+                userTokenInput.value = apiKey;
+                updateFollowCommand();
+                updateClipCommand();
+
+                // Toast
+                const toast = document.getElementById('toast');
+                toast.innerHTML = '<i class="fa-solid fa-check"></i> Nueva Key Generada';
+                toast.classList.remove('hidden');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                    toast.innerHTML = '<i class="fa-solid fa-check"></i> Copiado';
+                }, 3000);
+
+            } catch (e) {
+                alert('Error al generar nueva clave. Inténtalo más tarde.');
+            } finally {
+                regenerateBtn.disabled = false;
+                regenerateBtn.innerHTML = '<i class="fa-solid fa-rotate"></i>';
+            }
+        });
+    }
 
     document.querySelectorAll('.copy-btn').forEach(btn => {
         btn.addEventListener('click', () => {
