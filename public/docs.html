@@ -48,8 +48,8 @@
 
             <section id="auth" class="doc-section">
                 <h2><i class="fa-solid fa-key"></i> Autenticación</h2>
-                <p>La mayoría de los endpoints requieren un <code>token</code> de acceso para funcionar. Puedes obtener
-                    tu token conectando tu cuenta en el <a href="./">panel principal</a>.</p>
+                <p>La mayoría de los endpoints requieren una <code>apiKey</code> para funcionar. Puedes obtener
+                    tu Clave Permanente conectando tu cuenta en el <a href="./">panel principal</a>.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
                     <span class="url">/auth/twitch</span>
@@ -62,7 +62,7 @@
                 <p>Genera un clip instantáneo del canal especificado.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/create-clip?channel={canal}&token={tu_token}</span>
+                    <span class="url">/api/create-clip?channel={canal}&apiKey={tu_api_key}</span>
                 </div>
                 <h3>Parámetros</h3>
                 <table class="params-table">
@@ -80,16 +80,18 @@
                             <td>El nombre de usuario del canal (login).</td>
                         </tr>
                         <tr>
-                            <td><code>token</code></td>
+                            <td><code>apiKey</code></td>
                             <td>String</td>
-                            <td>Tu Access Token de Twitch.</td>
+                            <td>Tu Clave Permanente (No expira).</td>
                         </tr>
                     </tbody>
                 </table>
                 <h3>Ejemplo Nightbot</h3>
                 <div class="code-block">
-                    <code class="dynamic-url"
-                        data-path="🎬 Clip creado por $(user): $(urlfetch {baseURL}/api/create-clip?channel=$(channel)&token=TU_TOKEN)">Cargando...</code>
+                    <div class="code-block">
+                        <code class="dynamic-url"
+                            data-path="🎬 Clip creado por $(user): $(urlfetch {baseURL}/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)">Cargando...</code>
+                    </div>
                 </div>
             </section>
 
@@ -98,12 +100,14 @@
                 <p>Consulta cuánto tiempo lleva un usuario siguiendo a un canal.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/followage?channel={canal}&user={usuario}&token={tu_token}</span>
+                    <span class="url">/api/followage?channel={canal}&user={usuario}&apiKey={tu_api_key}</span>
                 </div>
                 <h3>Ejemplo Nightbot</h3>
                 <div class="code-block">
-                    <code class="dynamic-url"
-                        data-path="/api/followage?channel=$(channel)&user=$(touser)&token=TU_TOKEN">Cargando...</code>
+                    <div class="code-block">
+                        <code class="dynamic-url"
+                            data-path="/api/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY">Cargando...</code>
+                    </div>
                 </div>
             </section>
 
@@ -112,7 +116,7 @@
                 <p>Obtiene los clips más recientes de un canal.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/get-clips?channel={canal}&token={tu_token}&limit=10</span>
+                    <span class="url">/api/get-clips?channel={canal}&apiKey={tu_api_key}&limit=10</span>
                 </div>
                 <section id="errores" class="doc-section">
                     <h2><i class="fa-solid fa-triangle-exclamation"></i> Manejo de Errores</h2>
@@ -130,7 +134,7 @@
                             <tr>
                                 <td><span class="method get" style="background:var(--accent-red)">401</span></td>
                                 <td>Unauthorized</td>
-                                <td>El token ha expirado o es inválido. Genera uno nuevo en el panel.</td>
+                                <td>Tu API Key es inválida.</td>
                             </tr>
                             <tr>
                                 <td><span class="method get" style="background:#eab308">400</span></td>

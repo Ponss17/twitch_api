@@ -44,3 +44,13 @@ export interface TwitchError {
     message: string;
     details?: unknown;
 }
+
+export interface StoredUser {
+    userId: string;
+    login: string;
+    displayName: string;
+    accessToken: string;
+    refreshToken: string;
+    expiresAt: number;
+    apiKey: string;
+}

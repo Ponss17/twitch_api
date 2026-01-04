@@ -31,7 +31,7 @@ export const createClip = async (req: Request, res: Response) => {
         }
 
         if (status === 401) {
-            return res.send('⛔ Error: Token inválido o expirado. Por favor, vuelve a iniciar sesión en el panel para generar uno nuevo.');
+            return res.send('⛔ Error: Credenciales inválidas. Verifica tu API Key.');
         }
 
         if (status === 404) return res.send(msg);
@@ -62,7 +62,7 @@ export const getClips = async (req: Request, res: Response) => {
         }
 
         if (status === 401) {
-            return res.status(401).json({ error: 'Token inválido o expirado. Relogueate.' });
+            return res.status(401).json({ error: 'Credenciales inválidas.' });
         }
 
         console.error('Error fetching clips:', msg);
@@ -97,7 +97,7 @@ export const followage = async (req: Request, res: Response) => {
         }
 
         if (status === 401) {
-            return res.send('⛔ Error: Token expirado. Vuelve a loguearte en el panel.');
+            return res.send('⛔ Error: Credenciales inválidas. Verifica tu API Key.');
         }
 
         console.error('Error General:', msg);

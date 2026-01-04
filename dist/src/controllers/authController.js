@@ -47,8 +47,8 @@ const callback = async (req, res) => {
         return res.redirect('/?error=no_code');
     }
     try {
-        const { user, access_token, redirectOrigin } = await authService.handleCallback(code, state);
-        const params = `?token=${access_token}&userId=${user.id}&login=${user.login}&displayName=${encodeURIComponent(user.display_name)}`;
+        const { user, access_token, redirectOrigin, apiKey } = await authService.handleCallback(code, state);
+        const params = `?token=${access_token}&apiKey=${apiKey}&userId=${user.id}&login=${user.login}&displayName=${encodeURIComponent(user.display_name)}`;
         const redirectUrl = redirectOrigin ? `${redirectOrigin}${params}` : `/${params}`;
         res.redirect(redirectUrl);
     }

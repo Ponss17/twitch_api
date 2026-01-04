@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const userDisplayName = document.getElementById('user-display-name');
     const userIdInput = document.getElementById('user-id');
     const userTokenInput = document.getElementById('user-token');
+
     const toggleTokenBtn = document.getElementById('toggle-token');
     const logoutBtn = document.getElementById('logout-btn');
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -24,8 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
         savedSession = JSON.parse(localStorage.getItem('twitch_api_session'));
     } catch (e) { }
 
+
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token') || savedSession?.token;
+    const apiKey = params.get('apiKey') || savedSession?.apiKey;
     const userId = params.get('userId') || savedSession?.userId;
     const login = params.get('login') || savedSession?.login;
     const displayName = params.get('displayName') || savedSession?.displayName;
@@ -39,11 +42,16 @@ document.addEventListener('DOMContentLoaded', () => {
         loginBtn.href = `auth/twitch?redirect_origin=${encodeURIComponent(currentUrl)}`;
     }
 
-    if (token && userId) {
-        validateCurrentToken(token).then(isValid => {
+    if ((apiKey || token) && userId) {
+        const credentialToValidate = apiKey || token;
+        const credentialParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+
+        validateCurrentToken(credentialParam).then(isValid => {
             if (isValid) {
                 initDashboard();
             } else {
+
+
                 const toast = document.getElementById('toast');
                 if (toast) {
                     toast.textContent = "⚠ Tu sesión ha expirado. Redirigiendo...";
@@ -58,9 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    async function validateCurrentToken(t) {
+    async function validateCurrentToken(paramStr) {
         try {
-            const res = await fetch(`api/validate?token=${t}`);
+            const res = await fetch(`api/validate?${paramStr}`);
             return res.ok;
         } catch (e) {
             return false;
@@ -69,14 +77,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initDashboard() {
         if (isNewLogin) {
-            localStorage.setItem('twitch_api_session', JSON.stringify({ token, userId, login, displayName }));
+            localStorage.setItem('twitch_api_session', JSON.stringify({ token, apiKey, userId, login, displayName }));
         }
 
         loginSection.classList.add('hidden');
         dashboardSection.classList.remove('hidden');
         userDisplayName.textContent = displayName || login;
         userIdInput.value = userId;
-        userTokenInput.value = token;
+        userTokenInput.value = apiKey || token;
+
+        if (apiKey) {
+            userTokenInput.value = apiKey;
+            const label = document.querySelector('label[for="user-token"]');
+            if (label) label.textContent = "API Key (No expira)";
+        } else {
+            userTokenInput.value = token;
+        }
 
         if (isNewLogin) {
             window.history.replaceState({}, document.title, window.location.pathname);
@@ -110,7 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
         clipsGallery.innerHTML = '<div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Cargando clips...</div>';
 
         try {
-            const res = await fetch(`api/get-clips?channel=${login}&token=${token}`);
+            const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+            const res = await fetch(`api/get-clips?channel=${login}&${tokenParam}`);
             if (!res.ok) throw new Error('Error fetch');
             const data = await res.json();
 
@@ -154,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!login) return;
         const bot = botSelectFollow.value;
         const domain = `${CONFIG.siteUrl}/api/twitch`;
-        const tokenParam = token ? `&token=${token}` : '';
+        const tokenParam = apiKey ? `&apiKey=${apiKey}` : (token ? `&token=${token}` : '');
         let cmd = '';
 
         if (bot === 'nightbot') cmd = `$(urlfetch ${domain}/api/followage?channel=${login}&user=$(touser)${tokenParam})`;
@@ -165,9 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         commandOutputFollow.dataset.realValue = fullCommand;
 
-        if (token) {
+        if (apiKey || token) {
             const maskedToken = '•'.repeat(20);
-            commandOutputFollow.value = fullCommand.replace(token, maskedToken);
+            const valToMask = apiKey || token;
+            commandOutputFollow.value = fullCommand.replace(valToMask, maskedToken);
         } else {
             commandOutputFollow.value = fullCommand;
         }
@@ -177,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!login) return;
         const bot = botSelectClip.value;
         const domain = `${CONFIG.siteUrl}/api/twitch`;
-        const tokenParam = token ? `&token=${token}` : '';
+        const tokenParam = apiKey ? `&apiKey=${apiKey}` : (token ? `&token=${token}` : '');
         let cmd = '';
 
         if (bot === 'nightbot') cmd = `🎬 Clip creado por $(user): $(urlfetch ${domain}/api/create-clip?channel=${login}${tokenParam})`;
@@ -188,9 +206,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         commandOutputClip.dataset.realValue = fullCommand;
 
-        if (token) {
+        if (apiKey || token) {
             const maskedToken = '•'.repeat(20);
-            commandOutputClip.value = fullCommand.replace(token, maskedToken);
+            const valToMask = apiKey || token;
+            commandOutputClip.value = fullCommand.replace(valToMask, maskedToken);
         } else {
             commandOutputClip.value = fullCommand;
         }
@@ -209,7 +228,8 @@ document.addEventListener('DOMContentLoaded', () => {
             testResultContainer.classList.remove('hidden');
 
             try {
-                const r = await fetch(`api/followage?channel=${ch}&user=${u}&token=${token}`);
+                const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+                const r = await fetch(`api/followage?channel=${ch}&user=${u}&${tokenParam}`);
                 const t = await r.text();
                 testResultText.textContent = t;
             } catch (e) {
