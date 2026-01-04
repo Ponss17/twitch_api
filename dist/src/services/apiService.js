@@ -12,18 +12,15 @@ const getHeaders = (token) => ({
     'Authorization': `Bearer ${token}`
 });
 const getUserId = async (username, token) => {
-    // Check cache first
     const cachedId = (0, cacheService_1.getCachedUserId)(username);
     if (cachedId)
         return cachedId;
-    // Fetch from Twitch if not in cache
     const headers = getHeaders(token);
     const response = await axios_1.default.get(`https://api.twitch.tv/helix/users?login=${username}`, { headers });
     if (response.data.data.length === 0) {
         throw { status: 404, message: `El usuario/canal ${username} no existe.` };
     }
     const id = response.data.data[0].id;
-    // Save to cache
     (0, cacheService_1.setCachedUserId)(username, id);
     return id;
 };
@@ -103,7 +100,6 @@ const getFollowAge = async (channel, user, token) => {
         return `${user} ha seguido a ${channel} por ${finalString}.`;
     }
     catch (error) {
-        // If getUserId throws 404, we catch it here to return the text friendly message
         const err = error;
         if (err.status === 404)
             return err.message || 'Usuario no encontrado';
