@@ -7,12 +7,17 @@ export const createClip = async (req: Request, res: Response) => {
     const { channel } = req.query;
     if (!channel) return res.status(400).send('Falta el parámetro channel.');
 
+    const user = req.query.user as string;
+
     const token = req.twitchToken || (req.query.token as string);
     if (!token) return res.status(401).send('Token no proporcionado.');
 
     try {
         const result = await apiService.createClip(channel as string, token);
-        return res.send(`🎬 Clip creado con éxito! ${result}`);
+        if (user) {
+            return res.send(`🎬 Clip creado por @${user}: ${result}`);
+        }
+        return res.send(`🎬 Clip creado: ${result}`);
     } catch (error: unknown) {
         let status = 500;
         let msg = 'Error interno del servidor';

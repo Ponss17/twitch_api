@@ -86,7 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
         updateClipCommand();
         setupTabs();
 
-        const toast = document.getElementById('toast');
+
+
     }
 
     function setupTabs() {
@@ -179,8 +180,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const tokenParam = token ? `&token=${token}` : '';
         let cmd = '';
 
-        if (bot === 'nightbot' || bot === 'wizebot') cmd = `$(urlfetch ${domain}/api/create-clip?channel=${login}${tokenParam})`;
-        else cmd = `$(customapi ${domain}/api/create-clip?channel=${login}${tokenParam})`;
+        if (bot === 'nightbot') cmd = `$(urlfetch ${domain}/api/create-clip?channel=${login}&user=$(user)${tokenParam})`;
+        else if (bot === 'wizebot') cmd = `$(urlfetch ${domain}/api/create-clip?channel=${login}&user=$(user_name)${tokenParam})`;
+        else cmd = `$(customapi ${domain}/api/create-clip?channel=${login}&user=\${user}${tokenParam})`;
 
         const fullCommand = `!addcom !clip ${cmd}`;
 
