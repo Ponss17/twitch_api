@@ -200,7 +200,6 @@ document.addEventListener('DOMContentLoaded', () => {
     botSelectClip.addEventListener('change', updateClipCommand);
 
     if (runTestBtn) {
-        if (login) { testChannelInput.value = login; testUserInput.value = login; }
 
         runTestBtn.addEventListener('click', async () => {
             const ch = testChannelInput.value || login;
