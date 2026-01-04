@@ -41,8 +41,8 @@ export const createClip = async (req: Request, res: Response) => {
 
         if (status === 404) return res.send(msg);
 
-        console.error('Error creando clip:', msg);
-        return res.send(`❌ Error: ${msg}`);
+        console.error('Error creando clip:', msg, error);
+        return res.send(`❌ Error: ${msg} - Detalles: ${JSON.stringify(error)}`);
     }
 };
 
