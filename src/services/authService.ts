@@ -104,3 +104,14 @@ export const getValidToken = async (apiKey: string): Promise<string> => {
 
     return user.accessToken;
 };
+
+export const regenerateApiKey = async (userId: string): Promise<string> => {
+    const user = await dbService.getUser(userId);
+    if (!user) throw new Error('Usuario no encontrado');
+
+    const newApiKey = crypto.randomBytes(16).toString('hex');
+    user.apiKey = newApiKey;
+
+    await dbService.saveUser(user);
+    return newApiKey;
+};
