@@ -250,7 +250,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // Show loading state
                 regenerateBtn.disabled = true;
                 const originalIcon = regenerateBtn.innerHTML;
                 regenerateBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
@@ -261,15 +260,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await res.json();
                 apiKey = data.apiKey;
 
-                // Update Storage
                 localStorage.setItem('twitch_api_session', JSON.stringify({ token, apiKey, userId, login, displayName }));
 
-                // Update UI
                 userTokenInput.value = apiKey;
                 updateFollowCommand();
                 updateClipCommand();
 
-                // Toast
                 const toast = document.getElementById('toast');
                 toast.innerHTML = '<i class="fa-solid fa-check"></i> Nueva Key Generada';
                 toast.classList.remove('hidden');
