@@ -180,9 +180,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const tokenParam = token ? `&token=${token}` : '';
         let cmd = '';
 
-        if (bot === 'nightbot') cmd = `$(urlfetch ${domain}/api/create-clip?channel=${login}&user=$(user)${tokenParam})`;
-        else if (bot === 'wizebot') cmd = `$(urlfetch ${domain}/api/create-clip?channel=${login}&user=$(user_name)${tokenParam})`;
-        else cmd = `$(customapi ${domain}/api/create-clip?channel=${login}&user=\${user}${tokenParam})`;
+        if (bot === 'nightbot') cmd = `🎬 Clip creado por $(user): $(urlfetch ${domain}/api/create-clip?channel=${login}${tokenParam})`;
+        else if (bot === 'wizebot') cmd = `🎬 Clip creado por $(user_name): $(urlfetch ${domain}/api/create-clip?channel=${login}${tokenParam})`;
+        else cmd = `🎬 Clip creado por \${user}: $(customapi ${domain}/api/create-clip?channel=${login}${tokenParam})`;
 
         const fullCommand = `!addcom !clip ${cmd}`;
 
