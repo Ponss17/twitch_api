@@ -43,4 +43,5 @@ const router = express_1.default.Router();
 router.get('/create-clip', authMiddleware_1.default, apiController.createClip);
 router.get('/get-clips', authMiddleware_1.default, apiController.getClips);
 router.get('/followage', authMiddleware_1.default, apiController.followage);
+router.get('/validate', authMiddleware_1.default, apiController.validateToken);
 exports.default = router;

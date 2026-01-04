@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 localStorage.removeItem('twitch_api_session');
                 setTimeout(() => {
-                    window.location.href = CONFIG.siteUrl;
+                    window.location.href = window.location.origin + window.location.pathname;
                 }, 2000);
             }
         });
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     logoutBtn.addEventListener('click', () => {
         localStorage.removeItem('twitch_api_session');
-        window.location.href = CONFIG.siteUrl;
+        window.location.href = window.location.origin + window.location.pathname;
     });
 
     const heroCodeDisplay = document.getElementById('hero-code-display');
