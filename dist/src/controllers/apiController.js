@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.followage = exports.getClips = exports.createClip = void 0;
+exports.validateToken = exports.followage = exports.getClips = exports.createClip = void 0;
 const axios_1 = __importDefault(require("axios"));
 const apiService = __importStar(require("../services/apiService"));
 const createClip = async (req, res) => {
@@ -48,7 +48,7 @@ const createClip = async (req, res) => {
         return res.status(401).send('Token no proporcionado.');
     try {
         const result = await apiService.createClip(channel, token);
-        return res.send(`🎬 Clip creado con éxito! ${result}`);
+        return res.send(result);
     }
     catch (error) {
         let status = 500;
@@ -138,3 +138,16 @@ const followage = async (req, res) => {
     }
 };
 exports.followage = followage;
+const validateToken = async (req, res) => {
+    const token = req.twitchToken || req.query.token;
+    if (!token)
+        return res.status(401).send('Token no proporcionado.');
+    const isValid = await apiService.validateToken(token);
+    if (isValid) {
+        return res.status(200).send('Token válido');
+    }
+    else {
+        return res.status(401).send('Token inválido');
+    }
+};
+exports.validateToken = validateToken;
