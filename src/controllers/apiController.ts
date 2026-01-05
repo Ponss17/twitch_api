@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 import * as apiService from '../services/apiService';
+import * as authService from '../services/authService';
+import * as dbService from '../services/dbService';
 import { TwitchError } from '../types/twitch';
 
 export const createClip = async (req: Request, res: Response) => {
@@ -13,31 +15,23 @@ export const createClip = async (req: Request, res: Response) => {
     try {
         const result = await apiService.createClip(channel as string, token);
         return res.send(result);
-    } catch (error: unknown) {
-        let status = 500;
-        let msg = 'Error interno del servidor';
-
-        if (axios.isAxiosError(error)) {
-            status = error.response?.status || 500;
-            msg = error.response?.data?.message || error.message;
-        } else {
-            const err = error as TwitchError;
-            if (err.status && err.message) {
-                status = err.status;
-                msg = err.message;
-            } else if (error instanceof Error) {
-                msg = error.message;
+    } catch (error: any) {
+        if (getHttpStatus(error) === 401 && req.query.apiKey) {
+            try {
+                console.log('🔄 Token expirado (401). Intentando renovación automática...');
+                const apiKey = req.query.apiKey as string;
+                const user = await dbService.getUserByApiKey(apiKey);
+                if (user) {
+                    const newToken = await authService.refreshUserToken(user.userId);
+                    const result = await apiService.createClip(channel as string, newToken);
+                    return res.send(result);
+                }
+            } catch (retryError) {
+                console.error('❌ Falló el reintento:', retryError);
             }
         }
 
-        if (status === 401) {
-            return res.send('⛔ Error: Credenciales inválidas. Verifica tu API Key.');
-        }
-
-        if (status === 404) return res.send(msg);
-
-        console.error('Error creando clip:', msg);
-        return res.send(`❌ Error: ${msg}`);
+        return handleApiError(error, res);
     }
 };
 
@@ -52,21 +46,19 @@ export const getClips = async (req: Request, res: Response) => {
     try {
         const clips = await apiService.getClips(channel as string, limitNum, token);
         res.json(clips);
-    } catch (error: unknown) {
-        let status = 500;
-        let msg = 'Error obteniendo clips';
-
-        if (axios.isAxiosError(error)) {
-            status = error.response?.status || 500;
-            msg = error.response?.data?.message || error.message;
+    } catch (error: any) {
+        if (getHttpStatus(error) === 401 && req.query.apiKey) {
+            try {
+                const apiKey = req.query.apiKey as string;
+                const user = await dbService.getUserByApiKey(apiKey);
+                if (user) {
+                    const newToken = await authService.refreshUserToken(user.userId);
+                    const clips = await apiService.getClips(channel as string, limitNum, newToken);
+                    return res.json(clips);
+                }
+            } catch (e) { }
         }
-
-        if (status === 401) {
-            return res.status(401).json({ error: 'Credenciales inválidas.' });
-        }
-
-        console.error('Error fetching clips:', msg);
-        res.status(status).json({ error: msg });
+        return handleApiError(error, res, true);
     }
 };
 
@@ -83,27 +75,48 @@ export const followage = async (req: Request, res: Response) => {
     try {
         const result = await apiService.getFollowAge(channel as string, user as string, token);
         return res.send(result);
-    } catch (error: unknown) {
-        let status = 500;
-        let msg = 'Error interno del servidor';
-
-        if (axios.isAxiosError(error)) {
-            status = error.response?.status || 500;
-            msg = error.response?.data?.message || error.message;
-        } else {
-            const err = error as TwitchError;
-            if (err.status) status = err.status;
-            if (err.message) msg = err.message;
+    } catch (error: any) {
+        if (getHttpStatus(error) === 401 && req.query.apiKey) {
+            try {
+                const apiKey = req.query.apiKey as string;
+                const dbUser = await dbService.getUserByApiKey(apiKey);
+                if (dbUser) {
+                    const newToken = await authService.refreshUserToken(dbUser.userId);
+                    const result = await apiService.getFollowAge(channel as string, user as string, newToken);
+                    return res.send(result);
+                }
+            } catch (e) { }
         }
-
-        if (status === 401) {
-            return res.send('⛔ Error: Credenciales inválidas. Verifica tu API Key.');
-        }
-
-        console.error('Error General:', msg);
-        res.send('❌ Error interno del servidor.');
+        return handleApiError(error, res);
     }
 };
+
+function getHttpStatus(error: any): number {
+    if (axios.isAxiosError(error)) return error.response?.status || 500;
+    if (error.status) return error.status;
+    return 500;
+}
+
+function handleApiError(error: any, res: Response, json: boolean = false) {
+    let status = getHttpStatus(error);
+    let msg = 'Error interno';
+
+    if (axios.isAxiosError(error)) msg = error.response?.data?.message || error.message;
+    else if (error instanceof Error) msg = error.message;
+    else if (error.message) msg = error.message;
+
+    if (status === 401) {
+        msg = '⛔ Error: Credenciales inválidas. Verifica tu API Key.';
+        return json ? res.status(401).json({ error: msg }) : res.send(msg);
+    }
+
+    if (!json) {
+        if (status === 404) return res.send(msg);
+        return res.send(`❌ Error: ${msg}`);
+    } else {
+        return res.status(status).json({ error: msg });
+    }
+}
 
 export const validateToken = async (req: Request, res: Response) => {
     const token = req.twitchToken || (req.query.token as string);
@@ -116,9 +129,6 @@ export const validateToken = async (req: Request, res: Response) => {
         return res.status(401).send('Token inválido');
     }
 };
-
-import * as authService from '../services/authService';
-import * as dbService from '../services/dbService';
 
 export const regenerateKey = async (req: Request, res: Response) => {
     const apiKey = req.query.apiKey as string;
