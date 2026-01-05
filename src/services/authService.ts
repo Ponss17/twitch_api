@@ -50,6 +50,12 @@ export const handleCallback = async (code: string, state: string): Promise<{ use
         apiKey
     };
 
+    if (!refresh_token) {
+        console.warn('⚠ ADVERTENCIA: No se recibió Refresh Token de Twitch. La sesión no se renovará automáticamente.');
+    } else {
+        console.log('✅ Refresh Token recibido y guardado correctamente.');
+    }
+
     await dbService.saveUser(storedUser);
 
     let redirectOrigin = '';
@@ -67,7 +73,10 @@ export const handleCallback = async (code: string, state: string): Promise<{ use
 
 export const refreshUserToken = async (userId: string): Promise<string> => {
     const user = await dbService.getUser(userId);
-    if (!user || !user.refreshToken) throw new Error('Usuario no encontrado o sin refresh token');
+    if (!user || !user.refreshToken) {
+        console.error(`❌ Error renovando token: Usuario ${userId} no tiene Refresh Token.`);
+        throw new Error('Usuario no encontrado o sin refresh token');
+    }
 
     try {
         const response = await axios.post('https://id.twitch.tv/oauth2/token', null, {
@@ -86,9 +95,14 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
         user.expiresAt = Date.now() + (expires_in * 1000);
 
         await dbService.saveUser(user);
+        console.log(`✅ Token renovado para ${user.login}`);
         return access_token;
     } catch (error) {
-        console.error('Error refreshing token for user', userId, error);
+        if (axios.isAxiosError(error)) {
+            console.error('❌ Error API Twitch (Refresh):', error.response?.data || error.message);
+        } else {
+            console.error('❌ Error renovando token:', error);
+        }
         throw new Error('No se pudo renovar el token. Relogueate.');
     }
 };
