@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const sections = document.querySelectorAll('.doc-section');
     const navItems = document.querySelectorAll('.nav-item');
-
-    // Intersection Observer for scroll-spy effect
     const observerOptions = {
         root: null,
         rootMargin: '-20% 0px -70% 0px',
