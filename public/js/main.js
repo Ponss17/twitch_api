@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     Auth.setupLoginButton('login-btn');
     UI.setupHeroAnimation(document.getElementById('hero-code-display'));
+    UI.setupFooter(CONFIG);
 
     UI.setupClipboard(document.querySelectorAll('.copy-btn'));
 

@@ -1,7 +1,11 @@
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const protocol = window.location.protocol;
+const host = window.location.host;
+
 export const CONFIG = {
-    domain: 'losperris.site',
-    siteUrl: 'https://www.losperris.site',
-    twitchRedirectUri: 'https://losperris.site/api/twitch/auth/twitch/callback'
+    domain: host,
+    siteUrl: `${protocol}//${host}`,
+    twitchRedirectUri: `${protocol}//${host}/api/twitch/auth/twitch/callback`
 };
 
 Object.freeze(CONFIG);
