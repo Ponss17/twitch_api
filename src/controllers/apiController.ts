@@ -6,11 +6,13 @@ import * as dbService from '../services/dbService';
 import * as cacheService from '../services/cacheService';
 import { TwitchError } from '../types/twitch';
 
+const safeString = (val: unknown): string => (typeof val === 'string' ? val : '');
+
 export const createClip = async (req: Request, res: Response) => {
-    const { channel } = req.query;
+    const channel = safeString(req.query.channel);
     if (!channel) return res.status(400).send('Falta el parámetro channel.');
 
-    const token = req.twitchToken || (req.query.token as string);
+    const token = req.twitchToken || safeString(req.query.token);
     if (!token) return res.status(401).send('Token no proporcionado.');
 
     try {
@@ -37,11 +39,13 @@ export const createClip = async (req: Request, res: Response) => {
 };
 
 export const getClips = async (req: Request, res: Response) => {
-    const { channel, limit } = req.query;
-    const limitNum = parseInt(limit as string) || 5;
+    const channel = safeString(req.query.channel);
+    const limit = safeString(req.query.limit);
+    const limitNum = parseInt(limit) || 5;
+
     if (!channel) return res.status(400).json({ error: 'Falta channel' });
 
-    const token = req.twitchToken || (req.query.token as string);
+    const token = req.twitchToken || safeString(req.query.token);
     if (!token) return res.status(401).json({ error: 'Token no requerido' });
 
     const cacheKey = `cmd:getClips:channel:${channel}:limit:${limitNum}`;
@@ -49,17 +53,17 @@ export const getClips = async (req: Request, res: Response) => {
     if (cached) return res.json(cached);
 
     try {
-        const clips = await apiService.getClips(channel as string, limitNum, token);
+        const clips = await apiService.getClips(channel, limitNum, token);
         cacheService.set(cacheKey, clips, 60);
         res.json(clips);
     } catch (error: any) {
         if (getHttpStatus(error) === 401 && req.query.apiKey) {
             try {
-                const apiKey = req.query.apiKey as string;
+                const apiKey = safeString(req.query.apiKey);
                 const user = await dbService.getUserByApiKey(apiKey);
                 if (user) {
                     const newToken = await authService.refreshUserToken(user.userId);
-                    const clips = await apiService.getClips(channel as string, limitNum, newToken);
+                    const clips = await apiService.getClips(channel, limitNum, newToken);
                     return res.json(clips);
                 }
             } catch (e) { }
@@ -69,13 +73,14 @@ export const getClips = async (req: Request, res: Response) => {
 };
 
 export const followage = async (req: Request, res: Response) => {
-    const { channel, user } = req.query;
+    const channel = safeString(req.query.channel);
+    const user = safeString(req.query.user);
 
     if (!channel || !user) {
         return res.status(400).send('Faltan parámetros: channel y user son requeridos.');
     }
 
-    const token = req.twitchToken || (req.query.token as string);
+    const token = req.twitchToken || safeString(req.query.token);
     if (!token) return res.status(401).send('Token no proporcionado.');
 
     const cacheKey = `cmd:followage:channel:${channel}:user:${user}`;
@@ -83,17 +88,17 @@ export const followage = async (req: Request, res: Response) => {
     if (cached) return res.send(cached);
 
     try {
-        const result = await apiService.getFollowAge(channel as string, user as string, token);
+        const result = await apiService.getFollowAge(channel, user, token);
         cacheService.set(cacheKey, result, 60);
         return res.send(result);
     } catch (error: any) {
         if (getHttpStatus(error) === 401 && req.query.apiKey) {
             try {
-                const apiKey = req.query.apiKey as string;
+                const apiKey = safeString(req.query.apiKey);
                 const dbUser = await dbService.getUserByApiKey(apiKey);
                 if (dbUser) {
                     const newToken = await authService.refreshUserToken(dbUser.userId);
-                    const result = await apiService.getFollowAge(channel as string, user as string, newToken);
+                    const result = await apiService.getFollowAge(channel, user, newToken);
                     return res.send(result);
                 }
             } catch (e) { }
@@ -113,7 +118,7 @@ function handleApiError(error: unknown, res: Response, json: boolean = false) {
     let msg = 'Error interno';
 
     if (axios.isAxiosError(error)) {
-        msg = error.response?.data?.message || error.message;
+        msg = error.response?.data?.message || 'Error en comunicación con Twitch';
     } else if (error instanceof Error) {
         msg = error.message;
     } else if (typeof error === 'string') {
@@ -134,7 +139,7 @@ function handleApiError(error: unknown, res: Response, json: boolean = false) {
 }
 
 export const validateToken = async (req: Request, res: Response) => {
-    const token = req.twitchToken || (req.query.token as string);
+    const token = req.twitchToken || safeString(req.query.token);
     if (!token) return res.status(401).send('Token no proporcionado.');
 
     const isValid = await apiService.validateToken(token);
@@ -146,7 +151,7 @@ export const validateToken = async (req: Request, res: Response) => {
 };
 
 export const regenerateKey = async (req: Request, res: Response) => {
-    const apiKey = req.query.apiKey as string;
+    const apiKey = safeString(req.query.apiKey);
     if (!apiKey) return res.status(400).send('API Key requerida');
 
     const user = await dbService.getUserByApiKey(apiKey);
