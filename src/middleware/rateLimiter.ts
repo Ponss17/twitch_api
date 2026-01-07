@@ -8,13 +8,13 @@ const limiter = rateLimit({
         if (
             ua.includes('Nightbot') ||
             ua.includes('StreamElements') ||
-            ua.includes('Mozilla') ||
-            ua.includes('Chrome') ||
-            ua.includes('Safari')
+            ua.includes('Fossabot') ||
+            ua.includes('Wizebot') ||
+            ua.includes('Mozilla')
         ) {
-            return 100;
+            return 500;
         }
-        return 20;
+        return 60;
     },
     message: { error: 'Too many requests, please try again later.' },
     standardHeaders: true,

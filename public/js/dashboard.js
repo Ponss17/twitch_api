@@ -131,7 +131,16 @@ export const Dashboard = {
         const clipsGallery = document.getElementById('clips-gallery');
         if (!clipsGallery) return;
 
-        clipsGallery.innerHTML = '<div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Cargando clips...</div>';
+        clipsGallery.innerHTML = Array(4).fill(0).map(() => `
+            <div class="skeleton-card">
+                <div class="skeleton-thumb"></div>
+                <div class="skeleton-info">
+                    <div class="skeleton-text skeleton-title"></div>
+                    <div class="skeleton-text skeleton-title" style="width: 60%"></div>
+                    <div class="skeleton-text skeleton-meta"></div>
+                </div>
+            </div>
+        `).join('');
 
         const { login, apiKey, token } = this.state.session;
 
