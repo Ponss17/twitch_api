@@ -7,8 +7,10 @@ interface AuthenticatedRequest extends Request {
 import * as authService from '../services/authService';
 
 const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    let token = req.query.token as string;
-    const apiKey = req.query.apiKey as string;
+    const safeString = (val: unknown) => (typeof val === 'string' ? val : '');
+
+    let token = safeString(req.query.token);
+    const apiKey = safeString(req.query.apiKey);
 
     if (apiKey) {
         try {
