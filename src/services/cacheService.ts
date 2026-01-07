@@ -30,3 +30,11 @@ setInterval(() => {
         }
     }
 }, 5 * 60 * 1000);
+
+export const getCachedUserId = (username: string): string | null => {
+    return get(`userId:${username.toLowerCase()}`);
+};
+
+export const setCachedUserId = (username: string, id: string): void => {
+    set(`userId:${username.toLowerCase()}`, id, 24 * 60 * 60);
+};
