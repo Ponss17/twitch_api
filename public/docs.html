@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentación | LosPerris Twitch API</title>
+    <title>LosPerris Twitch API Docs</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -36,19 +36,20 @@
 
         <main class="content">
             <section id="intro" class="doc-section">
-                <h1 class="main-title">Guía <span class="accent">Twitch API</span></h1>
-                <p class="lead-text">Todo lo que necesitas para configurar los comandos en tu chat.</p>
-                <div class="info-card">
-                    <i class="fa-solid fa-circle-info"></i>
-                    <p>Compatible con Nightbot, StreamElements, Fossabot y Wizebot.</p>
-                </div>
-                <div class="info-card"
-                    style="border-left-color: var(--success-color); background: rgba(16, 185, 129, 0.1);">
-                    <i class="fa-solid fa-bolt" style="color: var(--success-color)"></i>
-                    <p><strong>Caché Inteligente:</strong> Para optimizar el rendimiento, las respuestas de
-                        <code>followage</code> y <code>get-clips</code> se guardan en memoria durante <strong>60
-                            segundos</strong>.
-                    </p>
+                <h1 class="main-title">LosPerris <span class="accent">Twitch API Docs</span></h1>
+                <p class="lead-text">Bienvenido a la guía oficial. Aquí encontrarás todo lo necesario para configurar
+                    tus comandos y herramientas automáticas para tu chat de Twitch.</p>
+
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                    <div class="info-card" style="margin: 0; height: 100%;">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <p><strong>Compatible:</strong> Nightbot, StreamElements, Fossabot y Wizebot.</p>
+                    </div>
+                    <div class="info-card" style="margin: 0; height: 100%;">
+                        <i class="fa-solid fa-bolt"></i>
+                        <p><strong>Caché:</strong> Respuestas en memoria por <strong>60s</strong> para velocidad.</p>
+                    </div>
                 </div>
             </section>
 
@@ -94,10 +95,8 @@
                 </table>
                 <h3>Ejemplo Nightbot</h3>
                 <div class="code-block">
-                    <div class="code-block">
-                        <code class="dynamic-url"
-                            data-path="🎬 Clip creado por $(user): $(urlfetch {baseURL}/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)">Cargando...</code>
-                    </div>
+                    <code class="dynamic-url"
+                        data-path="🎬 Clip creado por $(user): $(urlfetch {baseURL}/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)">Cargando...</code>
                 </div>
             </section>
 
@@ -110,10 +109,8 @@
                 </div>
                 <h3>Ejemplo Nightbot</h3>
                 <div class="code-block">
-                    <div class="code-block">
-                        <code class="dynamic-url"
-                            data-path="/api/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY">Cargando...</code>
-                    </div>
+                    <code class="dynamic-url"
+                        data-path="/api/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY">Cargando...</code>
                 </div>
             </section>
 

@@ -141,39 +141,7 @@ body {
     line-height: 1.7;
 }
 
-.hero-features {
-    display: flex;
-    gap: 40px;
-    margin-bottom: 3rem;
-}
 
-.h-feature {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.icon-box {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    color: var(--accent-color);
-}
-
-.h-feature h4 {
-    font-size: 0.9rem;
-    margin-bottom: 2px;
-}
-
-.h-feature p {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-}
 
 .cta-area .btn-large {
     padding: 1rem 2.5rem;
@@ -185,18 +153,7 @@ body {
     box-shadow: 0 10px 30px rgba(145, 70, 255, 0.3);
 }
 
-.cta-note {
-    margin-top: 15px;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
 
-.cta-note i {
-    color: var(--success-color);
-}
 
 .hero-visual {
     flex: 1;
@@ -475,15 +432,9 @@ body {
     background: rgba(244, 63, 94, 0.1) !important;
 }
 
-.help-text {
-    margin-top: 10px;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-}
 
-.warning {
-    color: var(--warning-color);
-}
+
+
 
 .tool-row {
     display: flex;
@@ -811,9 +762,7 @@ footer {
         font-size: 2.5rem;
     }
 
-    .hero-features {
-        justify-content: center;
-    }
+
 
     .grid-2 {
         grid-template-columns: 1fr;
@@ -825,9 +774,7 @@ footer {
         gap: 15px;
     }
 
-    .tool-controls {
-        width: 100%;
-    }
+
 
     .modern-select {
         width: 100%;
