@@ -3,6 +3,7 @@ import axios from 'axios';
 import * as apiService from '../services/apiService';
 import * as authService from '../services/authService';
 import * as dbService from '../services/dbService';
+import * as cacheService from '../services/cacheService';
 import { TwitchError } from '../types/twitch';
 
 export const createClip = async (req: Request, res: Response) => {
@@ -43,8 +44,13 @@ export const getClips = async (req: Request, res: Response) => {
     const token = req.twitchToken || (req.query.token as string);
     if (!token) return res.status(401).json({ error: 'Token no requerido' });
 
+    const cacheKey = `cmd:getClips:channel:${channel}:limit:${limitNum}`;
+    const cached = cacheService.get(cacheKey);
+    if (cached) return res.json(cached);
+
     try {
         const clips = await apiService.getClips(channel as string, limitNum, token);
+        cacheService.set(cacheKey, clips, 60);
         res.json(clips);
     } catch (error: any) {
         if (getHttpStatus(error) === 401 && req.query.apiKey) {
@@ -72,8 +78,13 @@ export const followage = async (req: Request, res: Response) => {
     const token = req.twitchToken || (req.query.token as string);
     if (!token) return res.status(401).send('Token no proporcionado.');
 
+    const cacheKey = `cmd:followage:channel:${channel}:user:${user}`;
+    const cached = cacheService.get(cacheKey);
+    if (cached) return res.send(cached);
+
     try {
         const result = await apiService.getFollowAge(channel as string, user as string, token);
+        cacheService.set(cacheKey, result, 60);
         return res.send(result);
     } catch (error: any) {
         if (getHttpStatus(error) === 401 && req.query.apiKey) {
@@ -91,19 +102,23 @@ export const followage = async (req: Request, res: Response) => {
     }
 };
 
-function getHttpStatus(error: any): number {
+function getHttpStatus(error: unknown): number {
     if (axios.isAxiosError(error)) return error.response?.status || 500;
-    if (error.status) return error.status;
+    if (error && typeof error === 'object' && 'status' in error) return (error as any).status;
     return 500;
 }
 
-function handleApiError(error: any, res: Response, json: boolean = false) {
+function handleApiError(error: unknown, res: Response, json: boolean = false) {
     let status = getHttpStatus(error);
     let msg = 'Error interno';
 
-    if (axios.isAxiosError(error)) msg = error.response?.data?.message || error.message;
-    else if (error instanceof Error) msg = error.message;
-    else if (error.message) msg = error.message;
+    if (axios.isAxiosError(error)) {
+        msg = error.response?.data?.message || error.message;
+    } else if (error instanceof Error) {
+        msg = error.message;
+    } else if (typeof error === 'string') {
+        msg = error;
+    }
 
     if (status === 401) {
         msg = '⛔ Error: Credenciales inválidas. Verifica tu API Key.';
