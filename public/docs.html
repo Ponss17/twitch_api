@@ -77,6 +77,12 @@
                     <span class="method get">GET</span>
                     <span class="url">/api/create-clip?channel={canal}&apiKey={tu_api_key}</span>
                 </div>
+                <div class="info-card"
+                    style="margin-bottom: 1.5rem; background: rgba(59, 130, 246, 0.05); border-left-color: #3b82f6;">
+                    <i class="fa-solid fa-note-sticky" style="color: #3b82f6;"></i>
+                    <p><strong>Nota:</strong> El canal <strong>debe estar en vivo</strong> para poder generar un clip.
+                        Si el stream está offline, recibirás un mensaje de error.</p>
+                </div>
                 <h3>Parámetros</h3>
                 <table class="params-table">
                     <thead>
@@ -104,6 +110,10 @@
                     <code class="dynamic-url"
                         data-path="🎬 Clip creado por $(user): $(urlfetch {baseURL}/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)">Cargando...</code>
                 </div>
+                <h3>Ejemplo de Respuesta</h3>
+                <div class="code-block">
+                    <code>https://clips.twitch.tv/WiseElegant...</code>
+                </div>
             </section>
 
             <section id="followage" class="doc-section">
@@ -118,6 +128,10 @@
                     <code class="dynamic-url"
                         data-path="/api/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY">Cargando...</code>
                 </div>
+                <h3>Ejemplo de Respuesta</h3>
+                <div class="code-block">
+                    <code>ponss ha seguido a LosPerris por 1 año, 2 meses y 3 días.</code>
+                </div>
             </section>
 
             <section id="get-clips" class="doc-section">
@@ -127,9 +141,34 @@
                     <span class="method get">GET</span>
                     <span class="url">/api/get-clips?channel={canal}&apiKey={tu_api_key}&limit=10</span>
                 </div>
+                <h3>Ejemplo de Respuesta (JSON)</h3>
+                <div class="code-block">
+                    <code style="color: var(--text-dim);">[
+  {
+    "id": "FastLivelyTroutKeepo-7s9...",
+    "url": "https://clips.twitch.tv/FastLivelyTroutKeepo-7s9...",
+    "embed_url": "https://clips.twitch.tv/embed?clip=FastLivelyTroutKeepo-7s9...",
+    "broadcaster_id": "12345678",
+    "broadcaster_name": "LosPerris",
+    "creator_id": "87654321",
+    "creator_name": "ponss",
+    "video_id": "22334455",
+    "game_id": "509658",
+    "language": "es",
+    "title": "Epic Win en vivo!",
+    "view_count": 420,
+    "created_at": "2023-11-20T19:30:00Z",
+    "thumbnail_url": "https://clips-media-assets2.twitch.tv/...",
+    "duration": 30.5,
+    "vod_offset": 480
+  }
+]</code>
+                </div>
                 <section id="errores" class="doc-section">
                     <h2><i class="fa-solid fa-triangle-exclamation"></i> Problemas Comunes</h2>
-                    <p>Si algo falla, revisa esto:</p>
+                    <p>La API utiliza códigos de estado HTTP estándar para indicar el estado de las
+                        solicitudes. Si recibes un error, el cuerpo de la respuesta generalmente contendrá más detalles.
+                    </p>
                     <table class="params-table">
                         <thead>
                             <tr>
