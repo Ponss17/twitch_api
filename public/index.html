@@ -31,19 +31,18 @@
 
         <div id="login-section" class="hero-section fade-in">
             <div class="hero-content">
-                <div class="badge">NUEVO</div>
-                <h2 class="hero-title">Ayuda para tu Stream y <span class="accent-text">Herramientas</span></h2>
+                <div class="badge">BETA</div>
+                <h2 class="hero-title">Herramientas para tu <span class="accent-text">Stream</span></h2>
                 <p class="hero-subtitle">
-                    Lo que necesitas para que tu canal vaya fluido. Saca tu <strong>ID</strong>, tu
-                    <strong>API Key</strong> y monta
-                    comandos como <code>!followage</code> y <code>!clip</code> de manera sencilla.
+                    Genera tu <strong>API Key</strong> y configura comandos como <code>!followage</code> o
+                    <code>!clip</code> en segundos.
                 </p>
                 <div class="cta-area">
                     <a href="auth/twitch" id="login-btn" class="btn-primary btn-large">
                         <i class="fa-brands fa-twitch"></i> Conectar con Twitch
                     </a>
                     <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.7;">
-                        * Al conectar aceptas el uso de tus datos para el funcionamiento del bot.
+                        * Al conectar aceptas el uso de tus datos públicos para el funcionamiento de los comandos.
                     </p>
                 </div>
             </div>
@@ -68,7 +67,7 @@
             <div class="dashboard-welcome slide-up">
                 <div class="welcome-text">
                     <h2>Panel de Control</h2>
-                    <p>Bienvenido, <span id="user-display-name" class="highlight">Streamer</span>.</p>
+                    <p>Hola, <span id="user-display-name" class="highlight">Streamer</span></p>
                 </div>
                 <button id="logout-btn" class="btn-small logout-sc">Cerrar Sesión</button>
             </div>
@@ -77,8 +76,8 @@
                 <div class="block-header">
                     <div class="icon-wrapper"><i class="fa-solid fa-fingerprint"></i></div>
                     <div>
-                        <h3>Identidad y Seguridad</h3>
-                        <p class="sub-desc">Tus credenciales maestras (API Key).</p>
+                        <h3>Tu API Key</h3>
+                        <p class="sub-desc">Necesaria para que los comandos funcionen.</p>
                     </div>
                 </div>
                 <div class="block-content grid-2">
@@ -90,7 +89,7 @@
                         </div>
                     </div>
                     <div class="data-box">
-                        <label>API Key (No expira)</label>
+                        <label>API Key</label>
                         <div class="copy-input">
                             <input type="password" id="user-token" readonly>
                             <button class="toggle-btn" id="toggle-token"><i class="fa-regular fa-eye"></i></button>
@@ -117,8 +116,8 @@
                     <div class="block-header">
                         <div class="icon-wrapper"><i class="fa-solid fa-wrench"></i></div>
                         <div>
-                            <h3>Generador !followage</h3>
-                            <p class="sub-desc">Comando de antigüedad para tu chat.</p>
+                            <h3>Comando !followage</h3>
+                            <p class="sub-desc">Muestra cuánto tiempo lleva alguien siguiéndote.</p>
                         </div>
                     </div>
                     <div class="block-content">
@@ -143,23 +142,21 @@
                     <div class="block-header">
                         <div class="icon-wrapper"><i class="fa-solid fa-flask"></i></div>
                         <div>
-                            <h3>Laboratorio de Pruebas</h3>
-                            <p class="sub-desc">Prueba la respuesta de la API en vivo.</p>
+                            <h3>Pruebas</h3>
+                            <p class="sub-desc">Verifica que la API responda correctamente.</p>
                         </div>
                     </div>
                     <div class="block-content">
                         <div class="test-controls grid-2">
                             <div class="input-group">
-                                <input type="text" id="test-channel" placeholder="Tu Canal o canal moderado"
-                                    class="modern-input">
+                                <input type="text" id="test-channel" placeholder="Canal" class="modern-input">
                             </div>
                             <div class="input-group">
-                                <input type="text" id="test-user" placeholder="Usuario o canal seguidor"
-                                    class="modern-input">
+                                <input type="text" id="test-user" placeholder="Usuario" class="modern-input">
                             </div>
                         </div>
                         <button id="run-test-btn" class="btn-primary full-width-btn" style="margin-top:15px;">
-                            Ejecutar Prueba
+                            Probar Respuesta
                         </button>
                         <div id="test-result-container" class="code-display hidden" style="margin-top: 20px;">
                             <div id="test-result-text" class="result-text"></div>
@@ -173,8 +170,8 @@
                     <div class="block-header">
                         <div class="icon-wrapper"><i class="fa-solid fa-video"></i></div>
                         <div>
-                            <h3>Generador !clip</h3>
-                            <p class="sub-desc">Comando para sacar clips instantáneos.</p>
+                            <h3>Comando !clip</h3>
+                            <p class="sub-desc">Permite crear clips desde el chat.</p>
                         </div>
                     </div>
                     <div class="block-content">
@@ -199,16 +196,16 @@
                     <div class="block-header">
                         <div class="icon-wrapper"><i class="fa-solid fa-images"></i></div>
                         <div>
-                            <h3>Últimos Clips</h3>
-                            <p class="sub-desc">Galería de tus clips más recientes.</p>
+                            <h3>Clips Recientes</h3>
+                            <p class="sub-desc">Los últimos clips de tu canal.</p>
                         </div>
                         <button id="refresh-clips-btn" class="btn-small" style="margin-left: auto;">
-                            <i class="fa-solid fa-rotate-right"></i> Recargar
+                            <i class="fa-solid fa-rotate-right"></i>
                         </button>
                     </div>
 
                     <div id="clips-gallery" class="clips-grid">
-                        <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Cargando clips...</div>
+                        <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
                     </div>
                 </div>
             </div>
@@ -218,7 +215,7 @@
 
     <footer>
         <div class="footer-content">
-            <p>&copy; <span id="footer-year"></span> <span id="footer-link"></span>. Todos los derechos reservados.</p>
+            <p>&copy; <span id="footer-year"></span> Creado para la comunidad.</p>
         </div>
     </footer>
 

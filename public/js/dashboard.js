@@ -31,7 +31,7 @@ export const Dashboard = {
         if (apiKey) {
             userTokenInput.value = apiKey;
             const label = document.querySelector('label[for="user-token"]');
-            if (label) label.textContent = "API Key (No expira)";
+            if (label) label.textContent = "API Key";
         } else {
             userTokenInput.value = token;
         }
@@ -152,7 +152,7 @@ export const Dashboard = {
 
             this.renderClips(data);
         } catch (error) {
-            clipsGallery.innerHTML = '<div style="text-align:center; padding:20px; color:var(--warning-color)">Error cargando clips.</div>';
+            clipsGallery.innerHTML = '<div style="text-align:center; padding:20px; color:var(--warning-color)">Error al cargar clips</div>';
         }
     },
 
@@ -208,13 +208,13 @@ export const Dashboard = {
             const t = await r.text();
             testResultText.textContent = t;
         } catch (e) {
-            testResultText.textContent = "Error de conexión.";
+            testResultText.textContent = "Error de conexión";
         }
     },
 
     async regenerateKey(currentKey) {
         const regenerateBtn = document.getElementById('regenerate-btn');
-        if (!confirm('⚠ ¿Estás seguro de que quieres generar una NUEVA API Key?\n\nLos comandos que ya tengas en tu chat DEJARÁN DE FUNCIONAR hasta que los actualices con la nueva llave.')) {
+        if (!confirm('¿Generar una nueva API Key? ⚠ Tendrás que actualizar tus comandos en el chat.')) {
             return;
         }
 
@@ -232,10 +232,10 @@ export const Dashboard = {
             document.getElementById('user-token').value = data.apiKey;
             this.updateFollowCommand();
             this.updateClipCommand();
-            UI.showToast('<i class="fa-solid fa-check"></i> Nueva Key Generada');
+            UI.showToast('<i class="fa-solid fa-check"></i> Nueva Key generada');
 
         } catch (e) {
-            alert('Error al generar nueva clave. Inténtalo más tarde.');
+            alert('Error al generar Key');
         } finally {
             regenerateBtn.disabled = false;
             regenerateBtn.innerHTML = '<i class="fa-solid fa-rotate"></i>';
