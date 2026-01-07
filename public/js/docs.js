@@ -28,7 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const baseUrl = window.location.origin;
         document.querySelectorAll('.dynamic-url').forEach(code => {
             const path = code.dataset.path;
-            code.textContent = `$(urlfetch ${baseUrl}${path})`;
+            if (path.includes('{baseURL}')) {
+                code.textContent = path.replace('{baseURL}', baseUrl);
+            } else {
+                code.textContent = `$(urlfetch ${baseUrl}${path})`;
+            }
         });
     };
 
