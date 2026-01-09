@@ -1,4 +1,14 @@
 export const UI = {
+    escapeHTML(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    },
+
     showToast(message, type = 'success') {
         const toast = document.getElementById('toast');
         if (!toast) return;
@@ -12,22 +22,6 @@ export const UI = {
         setTimeout(() => {
             toast.classList.add('hidden');
         }, 3000);
-    },
-
-    setupTabs(tabBtns, tabContents, loadClipsCallback) {
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                tabBtns.forEach(b => b.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-                const targetId = btn.getAttribute('data-tab');
-                const targetContent = document.getElementById(targetId);
-                targetContent.classList.add('active');
-                if (targetId === 'tab-clips' && loadClipsCallback) {
-                    loadClipsCallback();
-                }
-            });
-        });
     },
 
     setupClipboard(copyBtns) {
