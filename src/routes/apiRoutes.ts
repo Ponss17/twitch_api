@@ -9,5 +9,6 @@ router.get('/get-clips', checkToken, apiController.getClips);
 router.get('/followage', checkToken, apiController.followage);
 router.get('/validate', checkToken, apiController.validateToken);
 router.post('/regenerate-key', checkToken, apiController.regenerateKey);
+router.get('/analytics', checkToken, apiController.getAnalytics);
 
 export default router;
