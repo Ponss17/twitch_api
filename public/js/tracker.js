@@ -54,7 +54,13 @@ export const Tracker = {
 
         const resetBtn = document.getElementById('reset-tracker-btn');
         if (resetBtn) resetBtn.addEventListener('click', () => this.reset());
+
+        const startTimerBtn = document.getElementById('start-timer-btn');
+        if (startTimerBtn) startTimerBtn.addEventListener('click', () => this.startTimer());
     },
+
+    timerInterval: null,
+    isLocked: false,
 
     updateStatus(connected) {
         const el = document.getElementById('tracker-status');
@@ -64,6 +70,62 @@ export const Tracker = {
         } else {
             el.innerHTML = '<span style="color:var(--warning-color)"><i class="fa-solid fa-xmark"></i> Error</span>';
         }
+    },
+
+    startTimer() {
+        const input = document.getElementById('tracker-minutes');
+        const display = document.getElementById('tracker-timer');
+        const controls = document.querySelector('.timer-controls');
+        const minutes = parseInt(input.value);
+
+        if (!minutes || minutes <= 0) return;
+
+        this.reset();
+        this.isLocked = false;
+
+        let seconds = minutes * 60;
+
+        if (controls) controls.style.display = 'none';
+        if (display) {
+            display.style.display = 'inline-block';
+            display.textContent = this.formatTime(seconds);
+        }
+
+        if (this.timerInterval) clearInterval(this.timerInterval);
+
+        this.timerInterval = setInterval(() => {
+            seconds--;
+            if (display) display.textContent = this.formatTime(seconds);
+
+            if (seconds <= 0) {
+                this.endTimer();
+            }
+        }, 1000);
+    },
+
+    endTimer() {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.isLocked = true;
+
+        const display = document.getElementById('tracker-timer');
+        if (display) {
+            display.textContent = "¡TIEMPO!";
+            display.style.color = "var(--warning-color)";
+        }
+
+        const firstRow = document.querySelector('#tracker-body tr:first-child');
+        if (firstRow) {
+            firstRow.style.background = "linear-gradient(90deg, rgba(255,215,0,0.2), transparent)";
+            firstRow.style.borderLeft = "4px solid #FFD700";
+            firstRow.style.transform = "scale(1.02)";
+            firstRow.querySelector('.word-text').style.color = "#FFD700";
+        }
+    },
+
+    formatTime(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
     },
 
     processMessage(msg) {
@@ -82,6 +144,18 @@ export const Tracker = {
 
     reset() {
         this.wordCounts = {};
+        this.isLocked = false;
+        if (this.timerInterval) clearInterval(this.timerInterval);
+
+        const controls = document.querySelector('.timer-controls');
+        const display = document.getElementById('tracker-timer');
+
+        if (controls) controls.style.display = 'flex';
+        if (display) {
+            display.style.display = 'none';
+            display.style.color = "var(--accent-color)";
+        }
+
         this.render();
     },
 
