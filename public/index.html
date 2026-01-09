@@ -16,290 +16,354 @@
 </head>
 
 <body>
-    <div class="container">
 
-        <header class="main-header fade-in">
-            <div class="logo-container">
-                <img src="img/LosPerris_progra.webp" alt="Logo" class="logo-img">
-                <h1 class="brand-logo">LosPerris <span class="accent-text">Twitch Api</span></h1>
-            </div>
-            <nav class="top-nav">
-                <a href="docs" class="nav-link"><i class="fa-solid fa-book"></i> Documentación</a>
-                <a href="https://discord.gg/8uN3qY5E" target="_blank" class="nav-link"><i
-                        class="fa-brands fa-discord"></i> Comunidad</a>
-            </nav>
-        </header>
+    <div id="landing-page">
+        <div class="container">
+            <header class="main-header fade-in">
+                <div class="logo-container">
+                    <img src="img/LosPerris_progra.webp" alt="Logo" class="logo-img">
+                    <h1 class="brand-logo">LosPerris <span class="accent-text">Twitch Api</span></h1>
+                </div>
+                <nav class="top-nav">
+                    <a href="docs" class="nav-link"><i class="fa-solid fa-book"></i> Documentación</a>
+                    <a href="https://discord.gg/8uN3qY5E" target="_blank" class="nav-link"><i
+                            class="fa-brands fa-discord"></i> Comunidad</a>
+                </nav>
+            </header>
 
-        <div id="login-section" class="hero-section fade-in">
-            <div class="hero-content">
-                <div class="badge">BETA</div>
-                <h2 class="hero-title">Herramientas para tu <span class="accent-text">Stream</span></h2>
-                <p class="hero-subtitle">
-                    Genera tu <strong>API Key</strong> y configura comandos como <code>!followage</code> o
-                    <code>!clip</code> en segundos.
-                </p>
-                <div class="cta-area">
-                    <a href="auth/twitch" id="login-btn" class="btn-primary btn-large">
-                        <i class="fa-brands fa-twitch"></i> Conectar con Twitch
-                    </a>
-                    <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.7;">
-                        * Al conectar aceptas el uso de tus datos públicos para el funcionamiento de los comandos.
+            <div id="login-section" class="hero-section fade-in">
+                <div class="hero-content">
+                    <div class="badge">BETA</div>
+                    <h2 class="hero-title">Herramientas para tu <span class="accent-text">Stream</span></h2>
+                    <p class="hero-subtitle">
+                        Genera tu <strong>API Key</strong> y configura comandos como <code>!followage</code> o
+                        <code>!clip</code> en segundos.
                     </p>
-                </div>
-            </div>
-            <div class="hero-visual">
-                <div class="visual-card floating">
-                    <div class="fake-header"><span class="dot red"></span><span class="dot yellow"></span><span
-                            class="dot green"></span></div>
-                    <div id="hero-code-display" class="fake-body code-transition">
-                        <div class="code-line"><span class="c-purple">const</span> <span class="c-blue">streamer</span>
-                            = <span class="c-green">"LosPerris"</span>;</div>
-                        <div class="code-line"><span class="c-purple">await</span> api.createClip();</div>
-                        <div class="code-result">// 🎬 Clip generado:</div>
-                        <div class="code-output">"twitch.tv/LosPerris/clip..."</div>
+                    <div class="cta-area">
+                        <a href="auth/twitch" id="login-btn" class="btn-primary btn-large">
+                            <i class="fa-brands fa-twitch"></i> Conectar con Twitch
+                        </a>
+                        <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.7;">
+                            * Al conectar aceptas el uso de tus datos públicos para el funcionamiento de los comandos.
+                        </p>
                     </div>
                 </div>
-                <div class="glow-bg"></div>
+                <div class="hero-visual">
+                    <div class="visual-card floating">
+                        <div class="fake-header">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <div id="hero-code-display" class="fake-body code-transition">
+                            <div class="code-line"><span class="c-purple">const</span> <span
+                                    class="c-blue">streamer</span> = <span class="c-green">"LosPerris"</span>;</div>
+                            <div class="code-line"><span class="c-purple">await</span> api.createClip();</div>
+                            <div class="code-result">// 🎬 Clip generado:</div>
+                            <div class="code-output">"twitch.tv/LosPerris/clip..."</div>
+                        </div>
+                    </div>
+                    <div class="glow-bg"></div>
+                </div>
             </div>
         </div>
 
-        <div id="dashboard-section" class="dashboard hidden">
-
-            <div class="dashboard-welcome slide-up">
-                <div class="welcome-text">
-                    <h2>Panel de Control</h2>
-                    <p>Hola, <span id="user-display-name" class="highlight">Streamer</span></p>
-                </div>
-                <button id="logout-btn" class="btn-small logout-sc">Cerrar Sesión</button>
+        <footer>
+            <div class="footer-content">
+                <p>&copy; <span id="footer-year"></span> <span id="footer-link"></span>. Creado para la comunidad. No
+                    afiliado con Twitch o Amazon.</p>
             </div>
-
-            <div class="dashboard-block full-width scale-up-delay">
-                <div class="block-header">
-                    <div class="icon-wrapper"><i class="fa-solid fa-fingerprint"></i></div>
-                    <div>
-                        <h3>Tu API Key</h3>
-                        <p class="sub-desc">Necesaria para que los comandos funcionen.</p>
-                    </div>
-                </div>
-                <div class="block-content grid-2">
-                    <div class="data-box">
-                        <label>User ID</label>
-                        <div class="copy-input">
-                            <input type="text" id="user-id" readonly>
-                            <button class="copy-btn" data-target="user-id"><i class="fa-regular fa-copy"></i></button>
-                        </div>
-                    </div>
-                    <div class="data-box">
-                        <label>API Key</label>
-                        <div class="copy-input">
-                            <input type="password" id="user-token" readonly>
-                            <button class="toggle-btn" id="toggle-token"><i class="fa-regular fa-eye"></i></button>
-                            <button class="copy-btn" data-target="user-token"><i
-                                    class="fa-regular fa-copy"></i></button>
-                            <button id="regenerate-btn" class="toggle-btn warning-btn" title="Generar Nueva Key"><i
-                                    class="fa-solid fa-rotate"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-block full-width scale-up-delay">
-                <div class="block-header">
-                    <div class="icon-wrapper"><i class="fa-solid fa-chart-line"></i></div>
-                    <div>
-                        <h3>Estadísticas</h3>
-                        <p class="sub-desc">Uso de tus comandos en tiempo real.</p>
-                    </div>
-                </div>
-                <div class="block-content grid-2" id="analytics-stats">
-                    <div class="data-box"
-                        style="text-align:center; background:rgba(255,255,255,0.03); padding:20px; border-radius:12px;">
-                        <i class="fa-solid fa-film"
-                            style="font-size:2rem; color:var(--accent-color); margin-bottom:10px;"></i>
-                        <h4 style="margin-bottom:5px;">Clips Creados</h4>
-                        <span id="stat-clips" style="font-size:2rem; font-weight:800;">0</span>
-                    </div>
-                    <div class="data-box"
-                        style="text-align:center; background:rgba(255,255,255,0.03); padding:20px; border-radius:12px;">
-                        <i class="fa-solid fa-clock-rotate-left"
-                            style="font-size:2rem; color:var(--success-color); margin-bottom:10px;"></i>
-                        <h4 style="margin-bottom:5px;">Consultas Followage</h4>
-                        <span id="stat-followage" style="font-size:2rem; font-weight:800;">0</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="nav-tabs scale-up-delay">
-                <button class="tab-btn active" data-tab="tab-followage">
-                    <i class="fa-solid fa-clock-rotate-left"></i> Followage
-                </button>
-                <button class="tab-btn" data-tab="tab-clips">
-                    <i class="fa-solid fa-film"></i> Clips
-                </button>
-                <button class="tab-btn" data-tab="tab-tracker">
-                    <i class="fa-solid fa-chart-column"></i> Tracker
-                </button>
-            </div>
-
-            <div id="tab-followage" class="tab-content active">
-                <div class="dashboard-block full-width">
-                    <div class="block-header">
-                        <div class="icon-wrapper"><i class="fa-solid fa-wrench"></i></div>
-                        <div>
-                            <h3>Comando !followage</h3>
-                            <p class="sub-desc">Muestra cuánto tiempo lleva alguien siguiéndote.</p>
-                        </div>
-                    </div>
-                    <div class="block-content">
-                        <div class="tool-row">
-                            <label><i class="fa-solid fa-robot"></i> Bot:</label>
-                            <select id="bot-select-follow" class="modern-select">
-                                <option value="nightbot">Nightbot</option>
-                                <option value="streamelements">StreamElements</option>
-                                <option value="fossabot">Fossabot</option>
-                                <option value="wizebot">Wizebot</option>
-                            </select>
-                        </div>
-                        <div class="code-display">
-                            <textarea id="command-output-follow" readonly></textarea>
-                            <button class="btn-primary copy-btn absolute-copy"
-                                data-target="command-output-follow">Copiar</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="dashboard-block full-width">
-                    <div class="block-header">
-                        <div class="icon-wrapper"><i class="fa-solid fa-flask"></i></div>
-                        <div>
-                            <h3>Pruebas</h3>
-                            <p class="sub-desc">Verifica que la API responda correctamente.</p>
-                        </div>
-                    </div>
-                    <div class="block-content">
-                        <div class="test-controls grid-2">
-                            <div class="input-group">
-                                <input type="text" id="test-channel" placeholder="Canal" class="modern-input">
-                            </div>
-                            <div class="input-group">
-                                <input type="text" id="test-user" placeholder="Usuario" class="modern-input">
-                            </div>
-                        </div>
-                        <button id="run-test-btn" class="btn-primary full-width-btn" style="margin-top:15px;">
-                            Probar Respuesta
-                        </button>
-                        <div id="test-result-container" class="code-display hidden" style="margin-top: 20px;">
-                            <div id="test-result-text" class="result-text"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tab-clips" class="tab-content">
-                <div class="dashboard-block full-width">
-                    <div class="block-header">
-                        <div class="icon-wrapper"><i class="fa-solid fa-video"></i></div>
-                        <div>
-                            <h3>Comando !clip</h3>
-                            <p class="sub-desc">Permite crear clips desde el chat.</p>
-                        </div>
-                    </div>
-                    <div class="block-content">
-                        <div class="tool-row">
-                            <label><i class="fa-solid fa-robot"></i> Bot:</label>
-                            <select id="bot-select-clip" class="modern-select">
-                                <option value="nightbot">Nightbot</option>
-                                <option value="streamelements">StreamElements</option>
-                                <option value="fossabot">Fossabot</option>
-                                <option value="wizebot">Wizebot</option>
-                            </select>
-                        </div>
-                        <div class="code-display">
-                            <textarea id="command-output-clip" readonly></textarea>
-                            <button class="btn-primary copy-btn absolute-copy"
-                                data-target="command-output-clip">Copiar</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="dashboard-block full-width">
-                    <div class="block-header">
-                        <div class="icon-wrapper"><i class="fa-solid fa-images"></i></div>
-                        <div>
-                            <h3>Clips Recientes</h3>
-                            <p class="sub-desc">Los últimos clips de tu canal.</p>
-                        </div>
-                        <button id="refresh-clips-btn" class="btn-small" style="margin-left: auto;">
-                            <i class="fa-solid fa-rotate-right"></i>
-                        </button>
-                    </div>
-
-                    <div id="clips-gallery" class="clips-grid">
-                        <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tab-tracker" class="tab-content">
-                <div class="dashboard-block full-width">
-                    <div class="block-header">
-                        <div class="icon-wrapper">
-                            <img id="tracker-avatar" src="img/LosPerris_progra.webp" alt="Avatar"
-                                style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:none;">
-                            <i id="tracker-icon" class="fa-solid fa-chart-simple"></i>
-                        </div>
-                        <div>
-                            <h3 id="tracker-title">Chat de ...</h3>
-                            <p class="sub-desc">Ranking en tiempo real de lo que dice tu chat.</p>
-                        </div>
-                        <div style="margin-left: auto; display:flex; gap:10px; align-items:center;">
-                            <div class="timer-controls" style="display:flex; gap:5px;">
-                                <input type="number" id="tracker-minutes" placeholder="Min" min="1" max="60"
-                                    style="width:60px; padding:5px; border-radius:5px; border:1px solid #333; background:#111; color:white; text-align:center;">
-                                <button id="start-timer-btn" class="btn-small success-btn"><i
-                                        class="fa-solid fa-play"></i></button>
-                            </div>
-                            <span id="tracker-timer"
-                                style="font-size:1.2rem; font-weight:800; color:var(--accent-color); display:none; min-width:60px; text-align:center;">00:00</span>
-                            <span id="tracker-status" style="font-size:0.8rem; color:#aaa;"><i
-                                    class="fa-solid fa-circle-notch fa-spin"></i> Conectando...</span>
-                            <button id="reset-tracker-btn" class="btn-small warning-btn">Reiniciar</button>
-                        </div>
-                    </div>
-                    <div class="block-content">
-                        <div class="leaderboard-container">
-                            <table class="modern-table" id="tracker-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:50px">#</th>
-                                        <th>Palabra</th>
-                                        <th style="text-align:right">Repeticiones</th>
-                                        <th style="width: 50%"></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tracker-body">
-                                    <tr>
-                                        <td colspan="4" style="text-align:center; padding:20px; color:#666;">Esperando
-                                            mensajes...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
+        </footer>
     </div>
 
-    <footer>
-        <div class="footer-content">
-            <p>&copy; <span id="footer-year"></span> <span id="footer-link"></span>. Creado para la comunidad. No
-                afiliado con Twitch o Amazon.</p>
-        </div>
-    </footer>
+    <div id="dashboard-page" class="hidden">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="img/LosPerris_progra.webp" alt="Logo" class="sidebar-logo">
+                <span class="brand-text">LosPerris<span class="accent-text">API</span></span>
+            </div>
 
-    <div id="toast" class="toast hidden"><i class="fa-solid fa-check"></i> Copiado</div>
+            <nav class="sidebar-menu">
+                <div class="menu-category">General</div>
+                <button class="nav-item active" data-tab="tab-home">
+                    <i class="fa-solid fa-house"></i>
+                    <span class="nav-text">Inicio</span>
+                </button>
+
+                <div class="menu-category">Comandos</div>
+                <button class="nav-item" data-tab="tab-followage">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span class="nav-text">Followage</span>
+                </button>
+                <button class="nav-item" data-tab="tab-clips">
+                    <i class="fa-solid fa-film"></i>
+                    <span class="nav-text">Clips</span>
+                </button>
+
+                <div class="menu-category">Herramientas</div>
+                <button class="nav-item" data-tab="tab-tracker">
+                    <i class="fa-solid fa-chart-column"></i>
+                    <span class="nav-text">Tracker</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="btn-logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span class="btn-text">Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <h1 id="page-title">Bienvenido</h1>
+                <div class="user-badge">
+                    <img src="img/LosPerris_progra.webp" id="user-avatar" alt="Avatar" style="display:none;">
+                    <span id="user-display-name">Streamer</span>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div id="tab-home" class="tab-pane active">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-key"></i>
+                            </div>
+                            <div>
+                                <h3>Tu Credencial API</h3>
+                                <p class="card-desc">Gestiona tu API Key para las integraciones</p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>User ID</label>
+                                    <div class="input-group">
+                                        <input type="text" id="user-id" readonly>
+                                        <button class="btn-icon copy-btn" data-target="user-id">
+                                            <i class="fa-regular fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>API Key</label>
+                                    <div class="input-group">
+                                        <input type="password" id="user-token" readonly>
+                                        <button class="btn-icon" id="toggle-token" title="Mostrar/Ocultar API Key">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </button>
+                                        <button class="btn-icon copy-btn" data-target="user-token"
+                                            title="Copiar API Key">
+                                            <i class="fa-regular fa-copy"></i>
+                                        </button>
+                                        <button class="btn-icon btn-warning" id="regenerate-btn"
+                                            title="Regenerar API Key (la anterior dejará de funcionar)">
+                                            <i class="fa-solid fa-rotate"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <h3>Estadísticas</h3>
+                                <p class="card-desc">Uso de tus comandos en tiempo real</p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="stats-grid">
+                                <div class="stat-box">
+                                    <i class="fa-solid fa-film stat-icon"></i>
+                                    <div class="stat-value" id="stat-clips">0</div>
+                                    <div class="stat-label">Clips Creados</div>
+                                </div>
+                                <div class="stat-box">
+                                    <i class="fa-solid fa-clock-rotate-left stat-icon"></i>
+                                    <div class="stat-value" id="stat-followage">0</div>
+                                    <div class="stat-label">Consultas Followage</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-followage" class="tab-pane">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-wrench"></i>
+                            </div>
+                            <div>
+                                <h3>Comando !followage</h3>
+                                <p class="card-desc">Muestra cuánto tiempo lleva alguien siguiéndote</p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="tool-selector">
+                                <label><i class="fa-solid fa-robot"></i> Selecciona tu bot:</label>
+                                <select id="bot-select-follow" class="select-input">
+                                    <option value="nightbot">Nightbot</option>
+                                    <option value="streamelements">StreamElements</option>
+                                    <option value="fossabot">Fossabot</option>
+                                    <option value="wizebot">Wizebot</option>
+                                </select>
+                            </div>
+                            <div class="code-box">
+                                <textarea id="command-output-follow" readonly></textarea>
+                                <button class="btn-copy copy-btn" data-target="command-output-follow">
+                                    <i class="fa-regular fa-copy"></i> Copiar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-flask"></i>
+                            </div>
+                            <div>
+                                <h3>Prueba la API</h3>
+                                <p class="card-desc">Verifica que todo funcione correctamente</p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <input type="text" id="test-channel" placeholder="Canal" class="text-input">
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" id="test-user" placeholder="Usuario" class="text-input">
+                                </div>
+                            </div>
+                            <button id="run-test-btn" class="btn-primary" style="margin-top: 20px;">
+                                <i class="fa-solid fa-play"></i> Probar Respuesta
+                            </button>
+                            <div id="test-result-container" class="result-box hidden">
+                                <div id="test-result-text"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-clips" class="tab-pane">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-video"></i>
+                            </div>
+                            <div>
+                                <h3>Comando !clip</h3>
+                                <p class="card-desc">Permite crear clips desde el chat</p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="tool-selector">
+                                <label><i class="fa-solid fa-robot"></i> Selecciona tu bot:</label>
+                                <select id="bot-select-clip" class="select-input">
+                                    <option value="nightbot">Nightbot</option>
+                                    <option value="streamelements">StreamElements</option>
+                                    <option value="fossabot">Fossabot</option>
+                                    <option value="wizebot">Wizebot</option>
+                                </select>
+                            </div>
+                            <div class="code-box">
+                                <textarea id="command-output-clip" readonly></textarea>
+                                <button class="btn-copy copy-btn" data-target="command-output-clip">
+                                    <i class="fa-regular fa-copy"></i> Copiar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-images"></i>
+                            </div>
+                            <div>
+                                <h3>Clips Recientes</h3>
+                                <p class="card-desc">Los últimos clips de tu canal</p>
+                            </div>
+                            <button id="refresh-clips-btn" class="btn-icon ml-auto" title="Recargar lista de clips">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="clips-gallery" class="clips-grid">
+                                <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-tracker" class="tab-pane">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <img id="tracker-avatar" src="img/LosPerris_progra.webp" alt="Avatar"
+                                    style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:none;">
+                                <i id="tracker-icon" class="fa-solid fa-chart-simple"></i>
+                            </div>
+                            <div>
+                                <h3 id="tracker-title">Chat Tracker</h3>
+                                <p class="card-desc">Ranking de palabras en tiempo real</p>
+                            </div>
+                            <div class="tracker-controls">
+                                <input type="number" id="tracker-minutes" placeholder="Min" min="1" max="60"
+                                    class="timer-input">
+                                <button id="start-timer-btn" class="btn-icon btn-success" title="Iniciar temporizador">
+                                    <i class="fa-solid fa-play"></i>
+                                </button>
+                                <span id="tracker-timer" class="timer-display hidden">00:00</span>
+                                <span id="tracker-status" style="font-size:0.8rem; color:#666;">
+                                    <i class="fa-solid fa-circle-notch fa-spin"></i> Conectando...
+                                </span>
+                                <button id="reset-tracker-btn" class="btn-icon btn-warning"
+                                    title="Reiniciar contador de palabras">
+                                    <i class="fa-solid fa-rotate"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="data-table" id="tracker-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:50px">#</th>
+                                            <th>Palabra</th>
+                                            <th style="text-align:right">Repeticiones</th>
+                                            <th style="width:50%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tracker-body">
+                                        <tr>
+                                            <td colspan="4" style="text-align:center; padding:40px; color:#666;">
+                                                Esperando mensajes...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast" class="toast hidden">
+        <i class="fa-solid fa-check"></i> <span id="toast-message">Copiado</span>
+    </div>
+
     <script type="module" src="./js/main.js"></script>
 </body>
 
