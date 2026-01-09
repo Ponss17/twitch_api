@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sections.forEach(section => observer.observe(section));
 
     const updateUrls = () => {
-        const baseUrl = window.location.origin;
+        const baseUrl = window.location.origin + '/api/twitch';
         document.querySelectorAll('.dynamic-url').forEach(code => {
             const path = code.dataset.path;
             if (path.includes('{baseURL}')) {
