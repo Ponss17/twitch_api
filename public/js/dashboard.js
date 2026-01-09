@@ -132,11 +132,11 @@ export const Dashboard = {
         let cmd = '';
 
         if (bot === 'nightbot') {
-            cmd = `$(urlfetch ${domain}/api/followage/$(touser)/${login}?${tokenParam})`;
+            cmd = `$(urlfetch ${domain}/api/followage?user=$(touser)&channel=${login}&${tokenParam})`;
         } else if (bot === 'streamelements' || bot === 'fossabot') {
-            cmd = `$(customapi ${domain}/api/followage/\${user}/${login}?${tokenParam})`;
+            cmd = `$(customapi ${domain}/api/followage?user=\${user}&channel=${login}&${tokenParam})`;
         } else if (bot === 'wizebot') {
-            cmd = `$(urlfetch ${domain}/api/followage/$(user_name)/${login}?${tokenParam})`;
+            cmd = `$(urlfetch ${domain}/api/followage?user=$(user_name)&channel=${login}&${tokenParam})`;
         }
 
         output.value = `!addcom !followage ${cmd}`;
@@ -168,11 +168,11 @@ export const Dashboard = {
         let cmd = '';
 
         if (bot === 'nightbot') {
-            cmd = `🎬 Clip creado por $(user): $(urlfetch ${domain}/api/clip?channel=${login}&${tokenParam})`;
+            cmd = `🎬 Clip creado por $(user): $(urlfetch ${domain}/api/create-clip?channel=${login}&${tokenParam})`;
         } else if (bot === 'wizebot') {
-            cmd = `🎬 Clip creado por $(user_name): $(urlfetch ${domain}/api/clip?channel=${login}&${tokenParam})`;
+            cmd = `🎬 Clip creado por $(user_name): $(urlfetch ${domain}/api/create-clip?channel=${login}&${tokenParam})`;
         } else {
-            cmd = `🎬 Clip creado por \${user}: $(customapi ${domain}/api/clip?channel=${login}&${tokenParam})`;
+            cmd = `🎬 Clip creado por \${user}: $(customapi ${domain}/api/create-clip?channel=${login}&${tokenParam})`;
         }
 
         output.value = `!addcom !clip ${cmd}`;
@@ -200,7 +200,8 @@ export const Dashboard = {
 
         try {
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-            const res = await fetch(`/api/followage/${user}/${channel}?${tokenParam}`);
+            // FIX: Backend expects query params, not path params
+            const res = await fetch(`/api/followage?user=${user}&channel=${channel}&${tokenParam}`);
 
             if (!res.ok) {
                 throw new Error(`Error ${res.status}: ${res.statusText}`);
