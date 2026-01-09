@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (isValid) {
             Dashboard.init(sessionParams);
-            Tracker.init(sessionParams.login);
+            Tracker.init(sessionParams.login, sessionParams.login);
         } else {
             UI.showToast("⚠ Tu sesión ha expirado. Redirigiendo...", "error");
             Auth.clearSession();

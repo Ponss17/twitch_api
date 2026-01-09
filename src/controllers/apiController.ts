@@ -21,7 +21,6 @@ export const createClip = async (req: Request, res: Response) => {
     } catch (error: any) {
         if (getHttpStatus(error) === 401 && req.query.apiKey) {
             try {
-                console.log('🔄 Token expirado (401). Intentando renovación automática...');
                 const apiKey = req.query.apiKey as string;
                 const user = await dbService.getUserByApiKey(apiKey);
                 if (user) {
@@ -29,9 +28,7 @@ export const createClip = async (req: Request, res: Response) => {
                     const result = await apiService.createClip(channel as string, newToken);
                     return res.send(result);
                 }
-            } catch (retryError) {
-                console.error('❌ Falló el reintento:', retryError);
-            }
+            } catch (retryError) { }
         }
 
         return handleApiError(error, res);
@@ -49,12 +46,12 @@ export const getClips = async (req: Request, res: Response) => {
     if (!token) return res.status(401).json({ error: 'Token no requerido' });
 
     const cacheKey = `cmd:getClips:channel:${channel}:limit:${limitNum}`;
-    const cached = cacheService.get(cacheKey);
+    const cached = await cacheService.get(cacheKey);
     if (cached) return res.json(cached);
 
     try {
         const clips = await apiService.getClips(channel, limitNum, token);
-        cacheService.set(cacheKey, clips, 60);
+        await cacheService.set(cacheKey, clips, 60);
         res.json(clips);
     } catch (error: any) {
         if (getHttpStatus(error) === 401 && req.query.apiKey) {
@@ -84,12 +81,12 @@ export const followage = async (req: Request, res: Response) => {
     if (!token) return res.status(401).send('Token no proporcionado.');
 
     const cacheKey = `cmd:followage:channel:${channel}:user:${user}`;
-    const cached = cacheService.get(cacheKey);
+    const cached = await cacheService.get(cacheKey);
     if (cached) return res.send(cached);
 
     try {
         const result = await apiService.getFollowAge(channel, user, token);
-        cacheService.set(cacheKey, result, 60);
+        await cacheService.set(cacheKey, result, 60);
         return res.send(result);
     } catch (error: any) {
         if (getHttpStatus(error) === 401 && req.query.apiKey) {
@@ -125,6 +122,11 @@ function handleApiError(error: unknown, res: Response, json: boolean = false) {
         msg = error;
     }
 
+    // Log 500/Internal errors to console for debugging
+    if (status >= 500) {
+        console.error(`Status ${status} Error:`, msg);
+    }
+
     if (status === 401) {
         msg = '⛔ Error: Credenciales inválidas. Verifica tu API Key.';
         return json ? res.status(401).json({ error: msg }) : res.send(msg);
@@ -142,9 +144,22 @@ export const validateToken = async (req: Request, res: Response) => {
     const token = req.twitchToken || safeString(req.query.token);
     if (!token) return res.status(401).send('Token no proporcionado.');
 
-    const isValid = await apiService.validateToken(token);
-    if (isValid) {
-        return res.status(200).send('Token válido');
+    const validation = await apiService.validateToken(token);
+    if (validation) {
+        try {
+            const userProfile = await apiService.getUserInfo(validation.login, token);
+            return res.json({
+                valid: true,
+                user: {
+                    id: userProfile.id,
+                    login: userProfile.login,
+                    display_name: userProfile.display_name,
+                    profile_image_url: userProfile.profile_image_url
+                }
+            });
+        } catch (e) {
+            return res.json({ valid: true, user: { login: validation.login } });
+        }
     } else {
         return res.status(401).send('Token inválido');
     }

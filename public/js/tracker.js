@@ -7,11 +7,33 @@ export const Tracker = {
         'que', 'qué', 'es', 'son', 'se', 'mi', 'tu', 'su', 'yo', 'me', 'te', 'le',
         'http', 'https', 'www', 'com'
     ]),
+    ignoredUsers: new Set([
+        'nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker'
+    ]),
 
-    init(channel) {
+    init(channel, displayName, avatarUrl = null) {
+        const titleEl = document.getElementById('tracker-title');
+        if (titleEl) titleEl.textContent = `Chat de ${displayName || channel}`;
+
+        if (avatarUrl) {
+            const avatarEl = document.getElementById('tracker-avatar');
+            const iconEl = document.getElementById('tracker-icon');
+            if (avatarEl && iconEl) {
+                avatarEl.src = avatarUrl;
+                avatarEl.style.display = 'block';
+                iconEl.style.display = 'none';
+            }
+        }
+
         if (this.client) return;
 
-        this.client = new tmi.Client({
+        if (typeof window.tmi === 'undefined') {
+            console.error('TMI.js not loaded');
+            this.updateStatus(false);
+            return;
+        }
+
+        this.client = new window.tmi.Client({
             channels: [channel],
             connection: { secure: true, reconnect: true }
         });
@@ -25,6 +47,8 @@ export const Tracker = {
 
         this.client.on('message', (chn, tags, message, self) => {
             if (self) return;
+            if (tags.username && this.ignoredUsers.has(tags.username.toLowerCase())) return;
+
             this.processMessage(message);
         });
 
@@ -83,13 +107,13 @@ export const Tracker = {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
 
             return `
-                <tr class="fade-in">
-                    <td style="font-weight:bold; color:var(--text-secondary);">${medal}</td>
-                    <td style="font-weight:600; color:var(--text-primary);">${word}</td>
-                    <td style="text-align:right; font-family:monospace; font-size:1.1rem;">${count}</td>
+                <tr class="fade-in ${rankClass}">
+                    <td><span class="rank-medal">${medal}</span></td>
+                    <td class="word-text" style="font-weight:600;">${word}</td>
+                    <td class="count-text" style="text-align:right; font-size:1.1rem;">${count}</td>
                     <td>
-                        <div style="background:rgba(255,255,255,0.1); height:6px; border-radius:3px; overflow:hidden;">
-                            <div style="width:${percentage}%; background:var(--accent-color); height:100%; transition: width 0.3s ease;"></div>
+                        <div class="progress-bg">
+                            <div class="progress-fill" style="width:${percentage}%"></div>
                         </div>
                     </td>
                 </tr>

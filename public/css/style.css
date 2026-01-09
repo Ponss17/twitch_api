@@ -815,3 +815,98 @@ footer {
         transform: scale(1);
     }
 }
+
+.leaderboard-container {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    padding: 5px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.95rem;
+}
+
+.modern-table th {
+    text-align: left;
+    padding: 15px 20px;
+    color: var(--text-secondary);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.modern-table td {
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+.modern-table tr:last-child td {
+    border-bottom: none;
+}
+
+.modern-table tr {
+    transition: background 0.2s, transform 0.2s;
+}
+
+.modern-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+    transform: translateX(5px);
+}
+
+.rank-medal {
+    font-size: 1.2rem;
+    display: inline-block;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+}
+
+.rank-1 td:first-child .rank-medal {
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+    transform: scale(1.2);
+}
+
+.rank-2 td:first-child .rank-medal {
+    text-shadow: 0 0 10px rgba(192, 192, 192, 0.6);
+}
+
+.rank-3 td:first-child .rank-medal {
+    text-shadow: 0 0 10px rgba(205, 127, 50, 0.6);
+}
+
+.progress-bg {
+    background: rgba(255, 255, 255, 0.08);
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 100%;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--gradient-main);
+    box-shadow: 0 0 12px rgba(145, 70, 255, 0.5);
+    border-radius: 4px;
+    position: relative;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.word-text {
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: 0.5px;
+}
+
+.count-text {
+    font-family: 'Consolas', monospace;
+    opacity: 0.8;
+}

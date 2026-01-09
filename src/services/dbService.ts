@@ -75,7 +75,6 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
     const foundUser = Object.values(allUsers).find(u => u.apiKey === apiKey);
 
     if (foundUser) {
-        console.log(`🔧 Migrando usuario ${foundUser.login} al Ã­ndice rÃ¡pido...`);
         await kv.hset(API_KEYS_KEY, { [apiKey]: foundUser.userId });
     }
 
