@@ -81,8 +81,8 @@ export const UI = {
         const linkSpan = document.getElementById('footer-link');
 
         if (yearSpan) yearSpan.textContent = new Date().getFullYear();
-        if (linkSpan && config) {
-            linkSpan.innerHTML = `<a href="${config.siteUrl}" target="_blank">${config.domain}</a>`;
+        if (linkSpan) {
+            linkSpan.innerHTML = `<a href="${window.location.origin}" target="_blank">${window.location.hostname}</a>`;
         }
     }
 };
