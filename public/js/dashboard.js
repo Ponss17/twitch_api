@@ -127,7 +127,7 @@ export const Dashboard = {
         }
 
         const bot = botSelect.value;
-        const domain = window.location.origin;
+        const domain = `${CONFIG.siteUrl}/api/twitch`;
         const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
         let cmd = '';
 
@@ -163,7 +163,7 @@ export const Dashboard = {
         }
 
         const bot = botSelect.value;
-        const domain = window.location.origin;
+        const domain = `${CONFIG.siteUrl}/api/twitch`;
         const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
         let cmd = '';
 
