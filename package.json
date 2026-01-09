@@ -22,15 +22,16 @@
   "dependencies": {
     "@vercel/kv": "^3.0.0",
     "axios": "^1.13.2",
+    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
-    "node-cache": "^5.1.2",
     "tmi.js": "^1.8.5"
   },
   "devDependencies": {
+    "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/helmet": "^0.0.48",

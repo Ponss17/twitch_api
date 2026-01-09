@@ -17,6 +17,7 @@ export const createClip = async (req: Request, res: Response) => {
 
     try {
         const result = await apiService.createClip(channel as string, token);
+        dbService.incrementUsage('clip');
         return res.send(result);
     } catch (error: any) {
         if (getHttpStatus(error) === 401 && req.query.apiKey) {
@@ -87,6 +88,7 @@ export const followage = async (req: Request, res: Response) => {
     try {
         const result = await apiService.getFollowAge(channel, user, token);
         await cacheService.set(cacheKey, result, 60);
+        dbService.incrementUsage('followage');
         return res.send(result);
     } catch (error: any) {
         if (getHttpStatus(error) === 401 && req.query.apiKey) {
@@ -177,5 +179,14 @@ export const regenerateKey = async (req: Request, res: Response) => {
         res.json({ apiKey: newKey });
     } catch (e) {
         res.status(500).send('Error regenerando clave');
+    }
+};
+
+export const getAnalytics = async (req: Request, res: Response) => {
+    try {
+        const stats = await dbService.getUsageStats();
+        res.json(stats);
+    } catch (e) {
+        res.status(500).json({ error: 'Error fetching analytics' });
     }
 };

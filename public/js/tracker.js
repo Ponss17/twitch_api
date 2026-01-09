@@ -85,18 +85,31 @@ export const Tracker = {
         this.render();
     },
 
+    renderPending: false,
+
     render() {
+        if (this.renderPending) return;
+
+        this.renderPending = true;
+        requestAnimationFrame(() => {
+            this._renderLogic();
+            this.renderPending = false;
+        });
+    },
+
+    _renderLogic() {
         const tbody = document.getElementById('tracker-body');
         if (!tbody) return;
 
-        const sorted = Object.entries(this.wordCounts)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 10);
-
-        if (sorted.length === 0) {
+        const entries = Object.entries(this.wordCounts);
+        if (entries.length === 0) {
             tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#666;">Esperando mensajes...</td></tr>';
             return;
         }
+
+        const sorted = entries
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10);
 
         const maxCount = sorted[0][1];
 

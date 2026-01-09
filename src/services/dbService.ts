@@ -80,3 +80,27 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
 
     return foundUser || null;
 };
+
+export const incrementUsage = async (command: string): Promise<void> => {
+    try {
+        const key = `stats:usage:${command}`;
+        await kv.incr(key);
+    } catch (e) {
+        console.error('Error incrementing stats:', e);
+    }
+};
+
+export const getUsageStats = async (): Promise<Record<string, number>> => {
+    try {
+        const [clips, followage] = await Promise.all([
+            kv.get<string>('stats:usage:clip'),
+            kv.get<string>('stats:usage:followage')
+        ]);
+        return {
+            clips: parseInt(clips || '0'),
+            followage: parseInt(followage || '0')
+        };
+    } catch (e) {
+        return { clips: 0, followage: 0 };
+    }
+};

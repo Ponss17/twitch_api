@@ -49,6 +49,25 @@ export const Dashboard = {
         this.setupFollowCommand();
         this.setupClipCommand();
         this.setupApiTest();
+        this.loadAnalytics();
+    },
+
+    async loadAnalytics() {
+        const statsContainer = document.getElementById('analytics-stats');
+        if (!statsContainer) return;
+
+        try {
+            const { apiKey, token } = this.state.session;
+            const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+            const res = await fetch(`api/analytics?${tokenParam}`);
+            if (!res.ok) return;
+            const stats = await res.json();
+
+            document.getElementById('stat-clips').textContent = stats.clips || 0;
+            document.getElementById('stat-followage').textContent = stats.followage || 0;
+        } catch (e) {
+            console.error('Error loading analytics', e);
+        }
     },
 
     setupFollowCommand() {

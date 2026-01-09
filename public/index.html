@@ -103,6 +103,32 @@
                 </div>
             </div>
 
+            <div class="dashboard-block full-width scale-up-delay">
+                <div class="block-header">
+                    <div class="icon-wrapper"><i class="fa-solid fa-chart-line"></i></div>
+                    <div>
+                        <h3>Estadísticas</h3>
+                        <p class="sub-desc">Uso de tus comandos en tiempo real.</p>
+                    </div>
+                </div>
+                <div class="block-content grid-2" id="analytics-stats">
+                    <div class="data-box"
+                        style="text-align:center; background:rgba(255,255,255,0.03); padding:20px; border-radius:12px;">
+                        <i class="fa-solid fa-film"
+                            style="font-size:2rem; color:var(--accent-color); margin-bottom:10px;"></i>
+                        <h4 style="margin-bottom:5px;">Clips Creados</h4>
+                        <span id="stat-clips" style="font-size:2rem; font-weight:800;">0</span>
+                    </div>
+                    <div class="data-box"
+                        style="text-align:center; background:rgba(255,255,255,0.03); padding:20px; border-radius:12px;">
+                        <i class="fa-solid fa-clock-rotate-left"
+                            style="font-size:2rem; color:var(--success-color); margin-bottom:10px;"></i>
+                        <h4 style="margin-bottom:5px;">Consultas Followage</h4>
+                        <span id="stat-followage" style="font-size:2rem; font-weight:800;">0</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="nav-tabs scale-up-delay">
                 <button class="tab-btn active" data-tab="tab-followage">
                     <i class="fa-solid fa-clock-rotate-left"></i> Followage
@@ -227,6 +253,14 @@
                             <p class="sub-desc">Ranking en tiempo real de lo que dice tu chat.</p>
                         </div>
                         <div style="margin-left: auto; display:flex; gap:10px; align-items:center;">
+                            <div class="timer-controls" style="display:flex; gap:5px;">
+                                <input type="number" id="tracker-minutes" placeholder="Min" min="1" max="60"
+                                    style="width:60px; padding:5px; border-radius:5px; border:1px solid #333; background:#111; color:white; text-align:center;">
+                                <button id="start-timer-btn" class="btn-small success-btn"><i
+                                        class="fa-solid fa-play"></i></button>
+                            </div>
+                            <span id="tracker-timer"
+                                style="font-size:1.2rem; font-weight:800; color:var(--accent-color); display:none; min-width:60px; text-align:center;">00:00</span>
                             <span id="tracker-status" style="font-size:0.8rem; color:#aaa;"><i
                                     class="fa-solid fa-circle-notch fa-spin"></i> Conectando...</span>
                             <button id="reset-tracker-btn" class="btn-small warning-btn">Reiniciar</button>
