@@ -200,8 +200,8 @@ export const Dashboard = {
 
         try {
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-            // FIX: Backend expects query params, not path params
-            const res = await fetch(`/api/followage?user=${user}&channel=${channel}&${tokenParam}`);
+            // FIX: Backend expects query params, not path params AND relative path
+            const res = await fetch(`api/followage?user=${user}&channel=${channel}&${tokenParam}`);
 
             if (!res.ok) {
                 throw new Error(`Error ${res.status}: ${res.statusText}`);
@@ -235,7 +235,7 @@ export const Dashboard = {
         try {
             const { apiKey, token } = this.state.session;
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-            const res = await fetch(`/api/analytics?${tokenParam}`);
+            const res = await fetch(`api/analytics?${tokenParam}`);
 
             if (!res.ok) {
                 throw new Error('No se pudieron cargar las estadísticas');
@@ -266,7 +266,7 @@ export const Dashboard = {
 
         try {
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-            const res = await fetch(`/api/get-clips?channel=${login}&${tokenParam}`);
+            const res = await fetch(`api/get-clips?channel=${login}&${tokenParam}`);
 
             if (!res.ok) {
                 throw new Error(`HTTP ${res.status}: ${res.statusText}`);
@@ -349,7 +349,7 @@ export const Dashboard = {
         regenerateBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
         try {
-            const res = await fetch('/api/regenerate-key', {
+            const res = await fetch('api/regenerate-key', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ key: currentKey })
