@@ -66,9 +66,9 @@ export const Tracker = {
         const el = document.getElementById('tracker-status');
         if (!el) return;
         if (connected) {
-            el.innerHTML = '<span style="color:var(--success-color)"><i class="fa-solid fa-circle"></i> Conectado</span>';
+            el.innerHTML = '<span style="color:var(--success)"><i class="fa-solid fa-circle"></i> Conectado</span>';
         } else {
-            el.innerHTML = '<span style="color:var(--warning-color)"><i class="fa-solid fa-xmark"></i> Error</span>';
+            el.innerHTML = '<span style="color:var(--warning)"><i class="fa-solid fa-xmark"></i> Error</span>';
         }
     },
 
@@ -87,7 +87,7 @@ export const Tracker = {
 
         if (controls) controls.style.display = 'none';
         if (display) {
-            display.style.display = 'inline-block';
+            display.classList.remove('hidden'); // FIX: remove hidden class
             display.textContent = this.formatTime(seconds);
         }
 
@@ -110,7 +110,8 @@ export const Tracker = {
         const display = document.getElementById('tracker-timer');
         if (display) {
             display.textContent = "¡TIEMPO!";
-            display.style.color = "var(--warning-color)";
+            display.textContent = "¡TIEMPO!";
+            display.style.color = "var(--warning)";
         }
 
         const firstRow = document.querySelector('#tracker-body tr:first-child');
@@ -152,8 +153,8 @@ export const Tracker = {
 
         if (controls) controls.style.display = 'flex';
         if (display) {
-            display.style.display = 'none';
-            display.style.color = "var(--accent-color)";
+            display.classList.add('hidden');
+            display.style.color = "var(--accent)";
         }
 
         this.render();
