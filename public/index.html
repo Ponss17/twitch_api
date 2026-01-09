@@ -109,6 +109,9 @@
                 <button class="tab-btn" data-tab="tab-clips">
                     <i class="fa-solid fa-film"></i> Clips
                 </button>
+                <button class="tab-btn" data-tab="tab-tracker">
+                    <i class="fa-solid fa-chart-column"></i> Tracker
+                </button>
             </div>
 
             <div id="tab-followage" class="tab-content active">
@@ -206,6 +209,43 @@
 
                     <div id="clips-gallery" class="clips-grid">
                         <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-tracker" class="tab-content">
+                <div class="dashboard-block full-width">
+                    <div class="block-header">
+                        <div class="icon-wrapper"><i class="fa-solid fa-chart-simple"></i></div>
+                        <div>
+                            <h3>Palabras Más Usadas</h3>
+                            <p class="sub-desc">Ranking en tiempo real de lo que dice tu chat.</p>
+                        </div>
+                        <div style="margin-left: auto; display:flex; gap:10px; align-items:center;">
+                            <span id="tracker-status" style="font-size:0.8rem; color:#aaa;"><i
+                                    class="fa-solid fa-circle-notch fa-spin"></i> Conectando...</span>
+                            <button id="reset-tracker-btn" class="btn-small warning-btn">Reiniciar</button>
+                        </div>
+                    </div>
+                    <div class="block-content">
+                        <div class="leaderboard-container">
+                            <table class="modern-table" id="tracker-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:50px">#</th>
+                                        <th>Palabra</th>
+                                        <th style="text-align:right">Repeticiones</th>
+                                        <th style="width: 50%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tracker-body">
+                                    <tr>
+                                        <td colspan="4" style="text-align:center; padding:20px; color:#666;">Esperando
+                                            mensajes...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
