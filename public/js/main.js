@@ -1,6 +1,7 @@
 import { Auth } from './auth.js';
 import { UI } from './ui.js';
 import { Dashboard } from './dashboard.js';
+import { Tracker } from './tracker.js';
 import { CONFIG } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (isValid) {
             Dashboard.init(sessionParams);
+            Tracker.init(sessionParams.login);
         } else {
             UI.showToast("⚠ Tu sesión ha expirado. Redirigiendo...", "error");
             Auth.clearSession();
