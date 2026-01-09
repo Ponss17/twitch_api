@@ -23,7 +23,15 @@ export const Auth = {
     async validateCurrentToken(paramStr) {
         try {
             const res = await fetch(`api/validate?${paramStr}`);
-            return res.ok;
+            if (!res.ok) return false;
+
+            const contentType = res.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                const data = await res.json();
+                return data.valid ? data.user : false;
+            }
+
+            return true;
         } catch (e) {
             return false;
         }

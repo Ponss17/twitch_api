@@ -9,9 +9,15 @@ const getHeaders = (token: string) => ({
 });
 
 const getUserId = async (username: string, token: string): Promise<string> => {
-    const cachedId = getCachedUserId(username);
+    const cachedId = await getCachedUserId(username);
     if (cachedId) return cachedId;
 
+    const user = await getUserInfo(username, token);
+    await setCachedUserId(username, user.id);
+    return user.id;
+};
+
+export const getUserInfo = async (username: string, token: string): Promise<any> => {
     const headers = getHeaders(token);
     const response = await axios.get(`https://api.twitch.tv/helix/users?login=${username}`, { headers });
 
@@ -19,9 +25,7 @@ const getUserId = async (username: string, token: string): Promise<string> => {
         throw { status: 404, message: `El usuario/canal ${username} no existe.` } as TwitchError;
     }
 
-    const id = response.data.data[0].id;
-    setCachedUserId(username, id);
-    return id;
+    return response.data.data[0];
 };
 
 export const createClip = async (channel: string, token: string): Promise<string> => {
@@ -109,12 +113,12 @@ export const getFollowAge = async (channel: string, user: string, token: string)
     }
 };
 
-export const validateToken = async (token: string): Promise<boolean> => {
+export const validateToken = async (token: string): Promise<any> => {
     try {
         const headers = { 'Authorization': `OAuth ${token}` };
-        await axios.get('https://id.twitch.tv/oauth2/validate', { headers });
-        return true;
+        const response = await axios.get('https://id.twitch.tv/oauth2/validate', { headers });
+        return response.data;
     } catch (error) {
-        return false;
+        return null;
     }
 };

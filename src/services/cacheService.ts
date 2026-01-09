@@ -1,40 +1,17 @@
-interface CacheEntry {
-    value: any;
-    expiresAt: number;
-}
+import { kv } from '@vercel/kv';
 
-const cache = new Map<string, CacheEntry>();
-
-export const get = (key: string): any | null => {
-    const entry = cache.get(key);
-    if (!entry) return null;
-
-    if (Date.now() > entry.expiresAt) {
-        cache.delete(key);
-        return null;
-    }
-
-    return entry.value;
+export const get = async (key: string): Promise<any | null> => {
+    return await kv.get(key);
 };
 
-export const set = (key: string, value: any, ttlSeconds: number = 60): void => {
-    const expiresAt = Date.now() + (ttlSeconds * 1000);
-    cache.set(key, { value, expiresAt });
+export const set = async (key: string, value: any, ttlSeconds: number = 60): Promise<void> => {
+    await kv.set(key, value, { ex: ttlSeconds });
 };
 
-setInterval(() => {
-    const now = Date.now();
-    for (const [key, entry] of cache.entries()) {
-        if (now > entry.expiresAt) {
-            cache.delete(key);
-        }
-    }
-}, 5 * 60 * 1000);
-
-export const getCachedUserId = (username: string): string | null => {
-    return get(`userId:${username.toLowerCase()}`);
+export const getCachedUserId = async (username: string): Promise<string | null> => {
+    return await get(`userId:${username.toLowerCase()}`);
 };
 
-export const setCachedUserId = (username: string, id: string): void => {
-    set(`userId:${username.toLowerCase()}`, id, 24 * 60 * 60);
+export const setCachedUserId = async (username: string, id: string): Promise<void> => {
+    await set(`userId:${username.toLowerCase()}`, id, 24 * 60 * 60);
 };
