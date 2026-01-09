@@ -33,11 +33,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     if ((apiKey || token) && userId) {
         const credentialParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
 
-        const isValid = await Auth.validateCurrentToken(credentialParam);
+        const validationResult = await Auth.validateCurrentToken(credentialParam);
 
-        if (isValid) {
+        if (validationResult) {
+            let avatarUrl = null;
+            let displayName = sessionParams.displayName || sessionParams.login;
+
+            if (typeof validationResult === 'object') {
+                avatarUrl = validationResult.profile_image_url;
+                if (validationResult.display_name) displayName = validationResult.display_name;
+                sessionParams.displayName = displayName;
+            }
+
             Dashboard.init(sessionParams);
-            Tracker.init(sessionParams.login, sessionParams.login);
+            Tracker.init(sessionParams.login, displayName, avatarUrl);
         } else {
             UI.showToast("⚠ Tu sesión ha expirado. Redirigiendo...", "error");
             Auth.clearSession();
