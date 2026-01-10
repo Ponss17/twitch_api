@@ -9,9 +9,9 @@ export const set = async (key: string, value: any, ttlSeconds: number = 60): Pro
 };
 
 export const getCachedUserId = async (username: string): Promise<string | null> => {
-    return await get(`userId:${username.toLowerCase()}`);
+    return await get(`cache:userId:${username.toLowerCase()}`);
 };
 
 export const setCachedUserId = async (username: string, id: string): Promise<void> => {
-    await set(`userId:${username.toLowerCase()}`, id, 24 * 60 * 60);
+    await set(`cache:userId:${username.toLowerCase()}`, id, 24 * 60 * 60);
 };
