@@ -120,7 +120,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
 export const getClips = async (req: AuthenticatedRequest, res: Response) => {
     const channel = safeString(req.query.channel);
     const limit = safeString(req.query.limit);
-    const limitNum = parseInt(limit) || 1;
+    const limitNum = parseInt(limit) || 20;
 
     const token = req.twitchToken || safeString(req.query.token);
     if (!channel) return res.status(400).send('Falta el parámetro channel.');
