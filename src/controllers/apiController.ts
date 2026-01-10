@@ -46,7 +46,7 @@ export const getClips = async (req: Request, res: Response) => {
     const token = req.twitchToken || safeString(req.query.token);
     if (!token) return res.status(401).json({ error: 'Token no requerido' });
 
-    const cacheKey = `cmd:getClips:channel:${channel}:limit:${limitNum}`;
+    const cacheKey = `cache:cmd:getClips:channel:${channel}:limit:${limitNum}`;
     const cached = await cacheService.get(cacheKey);
     if (cached) return res.json(cached);
 
@@ -81,7 +81,7 @@ export const followage = async (req: Request, res: Response) => {
     const token = req.twitchToken || safeString(req.query.token);
     if (!token) return res.status(401).send('Token no proporcionado.');
 
-    const cacheKey = `cmd:followage:channel:${channel}:user:${user}`;
+    const cacheKey = `cache:cmd:followage:channel:${channel}:user:${user}`;
     const cached = await cacheService.get(cacheKey);
     if (cached) return res.send(cached);
 
@@ -124,7 +124,6 @@ function handleApiError(error: unknown, res: Response, json: boolean = false) {
         msg = error;
     }
 
-    // Log 500/Internal errors to console for debugging
     if (status >= 500) {
         console.error(`Status ${status} Error:`, msg);
     }
