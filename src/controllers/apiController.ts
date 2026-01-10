@@ -22,12 +22,44 @@ const getUserId = async (req: Request): Promise<string | null> => {
 
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     const channel = safeString(req.query.channel);
+    const token = req.twitchToken || safeString(req.query.token);
+
+    if (!channel) return res.status(400).send('Falta channel');
+    if (!token) return res.status(401).send('Token no proporcionado.');
+
+    try {
+        const result = await apiService.createClip(channel, token);
+
+        const userId = await getUserId(req);
+        if (userId) {
+            await dbService.incrementUserStats(userId, 'clip');
+        }
+
+        return res.send(result);
+
+    } catch (error: any) {
+        if (getHttpStatus(error) === 401 && req.query.apiKey) {
+            try {
+                const apiKey = safeString(req.query.apiKey);
+                const user = await dbService.getUserByApiKey(apiKey);
+                if (user) {
+                    const newToken = await authService.refreshUserToken(user.userId);
+                    const result = await apiService.createClip(channel, newToken);
+                    return res.send(result);
+                }
+            } catch (e) { }
+        }
+        return handleApiError(error, res);
+    }
+};
+
+export const getClips = async (req: AuthenticatedRequest, res: Response) => {
+    const channel = safeString(req.query.channel);
     const limit = safeString(req.query.limit);
     const limitNum = parseInt(limit) || 1;
 
-    if (!channel) return res.status(400).send('Falta el parámetro channel.');
-
     const token = req.twitchToken || safeString(req.query.token);
+    if (!channel) return res.status(400).send('Falta el parámetro channel.');
     if (!token) return res.status(401).send('Token no proporcionado.');
 
     const cacheKey = `cache:cmd:getClips:channel:${channel}:limit:${limitNum}`;
@@ -38,11 +70,6 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
         const result = await apiService.getClips(channel, limitNum, token);
         await cacheService.set(cacheKey, result, 60);
 
-        const userId = await getUserId(req);
-        if (userId) {
-            await dbService.incrementUserStats(userId, 'clip');
-        }
-
         return res.json(result);
     } catch (error: any) {
         if (getHttpStatus(error) === 401 && req.query.apiKey) {
@@ -52,19 +79,14 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
                 if (user) {
                     const newToken = await authService.refreshUserToken(user.userId);
                     const result = await apiService.getClips(channel, limitNum, newToken);
-
-                    // Update cache with new result
                     await cacheService.set(cacheKey, result, 60);
-
                     return res.json(result);
                 }
-            } catch (retryError) { }
+            } catch (e) { }
         }
         return handleApiError(error, res, true);
     }
 };
-
-export const getClips = createClip;
 
 export const followage = async (req: AuthenticatedRequest, res: Response) => {
     const channel = safeString(req.query.channel);
