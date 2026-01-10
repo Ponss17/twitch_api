@@ -81,17 +81,17 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
     return foundUser || null;
 };
 
-export const incrementUsage = async (command: string): Promise<void> => {
+export const incrementUserStats = async (userId: string, command: string): Promise<void> => {
     try {
-        await kv.hincrby('app:stats', command, 1);
+        await kv.hincrby(`stats:user:${userId}`, command, 1);
     } catch (e) {
-        console.error('Error incrementing stats:', e);
+        console.error('Error incrementing user stats:', e);
     }
 };
 
-export const getUsageStats = async (): Promise<Record<string, number>> => {
+export const getUserStats = async (userId: string): Promise<Record<string, number>> => {
     try {
-        const stats = await kv.hgetall<Record<string, string>>('app:stats');
+        const stats = await kv.hgetall<Record<string, string>>(`stats:user:${userId}`);
         return {
             clips: parseInt(stats?.clip || '0'),
             followage: parseInt(stats?.followage || '0')
