@@ -3,11 +3,19 @@ import { StoredUser } from '../types/twitch';
 import crypto from 'crypto';
 import { CONFIG } from '../config/env';
 
+// ==========================================
+// Constantes y Configuración
+// ==========================================
+
 const USERS_KEY = 'twitch_users';
 const API_KEYS_KEY = 'twitch_api_keys';
 const ALGORITHM = 'aes-256-cbc';
 const ENCRYPTION_KEY = crypto.createHash('sha256').update(String(CONFIG.TWITCH_CLIENT_SECRET)).digest();
 const IV_LENGTH = 16;
+
+// ==========================================
+// Ayudantes de Criptografía (Seguridad)
+// ==========================================
 
 function encrypt(text: string): string {
     if (!text) return text;
@@ -39,6 +47,10 @@ function decrypt(text: string): string {
         return text;
     }
 }
+
+// ==========================================
+// Gestión de Usuarios y Auth
+// ==========================================
 
 export const saveUser = async (user: StoredUser): Promise<void> => {
     const secureUser = { ...user };
@@ -80,6 +92,10 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
 
     return foundUser || null;
 };
+
+// ==========================================
+// Estadísticas (Por Usuario)
+// ==========================================
 
 export const incrementUserStats = async (userId: string, command: string): Promise<void> => {
     try {
