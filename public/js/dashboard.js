@@ -319,7 +319,12 @@ export const Dashboard = {
             const safeTitle = UI.escapeHTML(clip.title);
             const safeUrl = UI.escapeHTML(clip.url);
             const safeThumb = UI.escapeHTML(clip.thumbnail_url);
-            const dateStr = new Date(clip.created_at).toLocaleDateString();
+            const dateStr = new Date(clip.created_at).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+            const viewsStr = clip.view_count.toLocaleString('es-ES');
 
             card.innerHTML = `
                 <a href="${safeUrl}" target="_blank" class="clip-link">
@@ -327,7 +332,7 @@ export const Dashboard = {
                     <div class="clip-info">
                         <div class="clip-title" title="${safeTitle}">${safeTitle}</div>
                         <div class="clip-meta">
-                            <span><i class="fa-solid fa-eye"></i> ${clip.view_count}</span>
+                            <span><i class="fa-solid fa-eye"></i> ${viewsStr}</span>
                             <span>${dateStr}</span>
                         </div>
                     </div>
