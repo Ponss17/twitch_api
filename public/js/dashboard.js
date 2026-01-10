@@ -266,7 +266,7 @@ export const Dashboard = {
 
         try {
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-            const res = await fetch(`api/get-clips?channel=${login}&${tokenParam}`);
+            const res = await fetch(`api/get-clips?channel=${login}&limit=20&${tokenParam}`);
 
             if (!res.ok) {
                 throw new Error(`HTTP ${res.status}: ${res.statusText}`);
