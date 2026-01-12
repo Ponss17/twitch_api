@@ -402,16 +402,27 @@
 
                 <div class="profile-stats">
                     <div class="stat-item">
-                        <span id="modal-views" class="stat-val">0</span>
-                        <span class="stat-lbl">Vistas</span>
+                        <span id="modal-rank" class="stat-val" style="font-size: 1.2rem;">-</span>
+                        <span class="stat-lbl">Rango</span>
                     </div>
                 </div>
 
-                <div id="modal-bio" class="profile-bio">
+                <div class="profile-details-grid">
+                    <div class="detail-item">
+                        <span class="detail-lbl">ID Interno</span>
+                        <span id="modal-id" class="detail-val">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-lbl">Antigüedad</span>
+                        <span id="modal-age" class="detail-val">-</span>
+                    </div>
+                </div>
+
+                <div id="modal-bio" class="profile-bio" style="margin-top: 20px;">
                     Sin biografía disponible.
                 </div>
-                <div id="modal-created" style="margin-top:20px; font-size:0.8rem; color:#666;">
-                    Creado: -
+                <div id="modal-created" style="margin-top:20px; font-size:0.8rem; color:var(--text-muted);">
+                    Cuenta creada el: -
                 </div>
             </div>
         </div>
