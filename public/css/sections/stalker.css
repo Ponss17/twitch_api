@@ -36,85 +36,35 @@
 }
 
 .stalker-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
     max-height: 60vh;
     overflow-y: auto;
-    padding-right: 5px;
+    padding: 20px;
 }
 
 .stalker-card {
-    background: var(--bg-secondary);
+    background: #18181b;
+    width: 200px;
     border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 15px;
+    border-radius: 16px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
     cursor: pointer;
-    transition: transform 0.2s, border-color 0.2s;
-}
-
-.stalker-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--accent);
-}
-
-.stalker-avatar {
-    width: 60px;
-    height: 60px;
-    background: var(--bg-primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: var(--text-secondary);
-}
-
-.stalker-info {
-    text-align: center;
-}
-
-.stalker-name {
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 2px;
-}
-
-.stalker-login {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-}
-
-.stalker-grid::-webkit-scrollbar {
-    width: 6px;
-}
-
-.stalker-grid::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.stalker-grid::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 3px;
-}
-
-.stalker-card {
-    background: linear-gradient(145deg, var(--bg-secondary), rgba(25, 25, 28, 0.8));
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
-    position: relative;
-    overflow: hidden;
-    border-radius: 16px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
 }
 
 .stalker-card:hover {
     transform: translateY(-5px);
-    border-color: var(--accent);
-    box-shadow: 0 12px 20px -8px rgba(145, 70, 255, 0.3);
+    background: #27272a;
+    border-color: var(--text-secondary);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
 }
 
 .stalker-card::after {
@@ -174,7 +124,8 @@
 
 .profile-header {
     height: 100px;
-    background: var(--gradient);
+    background: #18181b;
+    border-bottom: 1px solid var(--border-color);
     position: relative;
 }
 
@@ -241,7 +192,6 @@
 .profile-stats {
     display: flex;
     justify-content: space-around;
-    /* Better spacing */
     gap: 15px;
     margin: 25px 0;
     padding: 20px 0;
@@ -258,7 +208,6 @@
 .stat-val {
     display: block;
     font-size: 1.8rem;
-    /* Bigger */
     font-weight: 800;
     color: var(--accent);
     text-shadow: 0 0 20px rgba(145, 70, 255, 0.3);
