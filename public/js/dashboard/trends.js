@@ -1,6 +1,6 @@
 import { Messages } from './utils/messages.js';
 
-export const Tracker = {
+export const TrendsModule = {
     client: null,
     wordCounts: {},
     isIgnored: new Set([
@@ -12,10 +12,13 @@ export const Tracker = {
     ignoredUsers: new Set([
         'nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker'
     ]),
+    messageLog: [],
+    MAX_LOG_SIZE: 500,
+
 
     init(channel, displayName, avatarUrl = null) {
         const titleEl = document.getElementById('tracker-title');
-        if (titleEl) titleEl.textContent = `Chat de ${displayName || channel}`;
+        if (titleEl) titleEl.textContent = `Tendencias de ${displayName || channel}`;
 
         if (avatarUrl) {
             const avatarEl = document.getElementById('tracker-avatar');
@@ -50,6 +53,13 @@ export const Tracker = {
         this.client.on('message', (chn, tags, message, self) => {
             if (self) return;
             if (tags.username && this.ignoredUsers.has(tags.username.toLowerCase())) return;
+
+            this.messageLog.unshift({
+                user: tags.username,
+                text: message,
+                time: new Date()
+            });
+            if (this.messageLog.length > this.MAX_LOG_SIZE) this.messageLog.pop();
 
             this.processMessage(message);
         });
@@ -128,6 +138,11 @@ export const Tracker = {
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
         return `${m}:${s < 10 ? '0' : ''}${s}`;
+    },
+
+    getMessagesByUser(username) {
+        const target = username.toLowerCase();
+        return this.messageLog.filter(m => m.user.toLowerCase() === target);
     },
 
     processMessage(msg) {

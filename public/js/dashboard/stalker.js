@@ -225,8 +225,8 @@ export const StalkerModule = {
             let ageText = '';
             if (diffYears > 0) {
                 ageText = `${diffYears} año${diffYears > 1 ? 's' : ''}`;
-            } else if (diffMonths > 0) {
-                ageText = `${diffMonths} mes${diffMonths > 1 ? 'es' : ''}`;
+            } else if (diffMonths > 1) {
+                ageText = `${diffMonths} meses`;
             } else {
                 ageText = 'Nueva';
             }
@@ -235,7 +235,55 @@ export const StalkerModule = {
 
         created.textContent = `Cuenta creada el: ${new Date(user.created_at).toLocaleDateString()}`;
 
+        const detailsGrid = document.querySelector('.profile-details-grid');
+        let logBtn = document.getElementById('view-logs-btn');
+        if (!logBtn && detailsGrid) {
+            const btnContainer = document.createElement('div');
+            btnContainer.className = 'detail-item';
+            btnContainer.style.gridColumn = 'span 2';
+            btnContainer.style.marginTop = '10px';
+            btnContainer.innerHTML = `
+                <button id="view-logs-btn" class="btn-secondary" style="width:100%; font-size:0.9rem;">
+                    <i class="fa-solid fa-comment-dots"></i> Ver Últimos Mensajes
+                </button>
+             `;
+            detailsGrid.appendChild(btnContainer);
+            logBtn = btnContainer.querySelector('button');
+        }
+
+        if (logBtn) {
+            logBtn.onclick = () => {
+                this.showUserLogs(user.login, user.display_name);
+            };
+        }
+
         overlay.classList.add('active');
+    },
+
+    showUserLogs(login, displayName) {
+
+        import('./trends.js').then(module => {
+            const logs = module.TrendsModule.getMessagesByUser(login);
+            const bio = document.getElementById('modal-bio');
+
+            if (!bio) return;
+
+            let html = `<div style="text-align:left; max-height:200px; overflow-y:auto; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-top:10px;">
+                <h4 style="margin:0 0 10px 0; font-size:0.9rem; color:var(--accent);"><i class="fa-solid fa-history"></i> Historial (Sesión actual)</h4>`;
+
+            if (logs.length === 0) {
+                html += `<div style="color:var(--text-muted); font-size:0.8rem; font-style:italic;">No hay mensajes registrados en esta sesión.</div>`;
+            } else {
+                html += logs.map(l => `
+                    <div style="font-size:0.85rem; margin-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:4px;">
+                        <span style="color:var(--text-muted); font-size:0.7rem;">[${l.time.toLocaleTimeString()}]</span>
+                        <span style="color:var(--text-primary);">${l.text}</span>
+                    </div>
+                `).join('');
+            }
+            html += `</div>`;
+            bio.innerHTML = html;
+        });
     },
 
     closeModal() {

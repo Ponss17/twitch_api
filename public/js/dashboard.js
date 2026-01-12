@@ -105,6 +105,11 @@ export const Dashboard = {
                 .catch(err => console.error('Failed to load Stalker module:', err));
         }
         else if (tabId === 'tab-tracker') {
+            import('./dashboard/trends.js')
+                .then(module => {
+                    module.TrendsModule.init(session.login, session.displayName);
+                })
+                .catch(err => console.error('Failed to load Trends module:', err));
         }
     },
 
