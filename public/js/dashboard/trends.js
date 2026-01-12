@@ -1,4 +1,4 @@
-import { Messages } from './utils/messages.js';
+import { Messages } from '../utils/messages.js';
 
 export const TrendsModule = {
     client: null,
