@@ -122,3 +122,23 @@ export const validateToken = async (token: string): Promise<any> => {
         return null;
     }
 };
+
+export const getChatters = async (broadcasterId: string, moderatorId: string, token: string) => {
+    try {
+        const response = await axios.get('https://api.twitch.tv/helix/chat/chatters', {
+            params: {
+                broadcaster_id: broadcasterId,
+                moderator_id: moderatorId,
+                first: 100
+            },
+            headers: {
+                'Client-ID': CONFIG.TWITCH_CLIENT_ID,
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data.data;
+    } catch (error) {
+        console.error('Error fetching chatters:', error);
+        throw error;
+    }
+};

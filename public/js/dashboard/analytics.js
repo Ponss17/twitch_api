@@ -1,0 +1,37 @@
+import { UI } from '../ui.js';
+import { Loader } from '../utils/loader.js';
+
+export const AnalyticsModule = {
+    session: null,
+
+    async init(session) {
+        await Loader.loadCSS('css/sections/analytics.css');
+
+        this.session = session;
+        console.log('[AnalyticsModule] Initialized');
+        this.loadAnalytics();
+    },
+
+    async loadAnalytics() {
+        const statsContainer = document.getElementById('stat-clips');
+        if (!statsContainer) return;
+
+        try {
+            const { apiKey, token } = this.session;
+            const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+            const res = await fetch(`api/analytics?${tokenParam}`);
+
+            if (!res.ok) {
+                throw new Error('No se pudieron cargar las estadísticas');
+            }
+
+            const stats = await res.json();
+            document.getElementById('stat-clips').textContent = stats.clips || 0;
+            document.getElementById('stat-followage').textContent = stats.followage || 0;
+        } catch (e) {
+            console.error('Error loading analytics:', e);
+            document.getElementById('stat-clips').textContent = '--';
+            document.getElementById('stat-followage').textContent = '--';
+        }
+    }
+};

@@ -1,0 +1,136 @@
+#landing-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#landing-page .container {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.hero-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-bottom: 2rem;
+    min-height: 50vh;
+}
+
+.hero-content {
+    max-width: 600px;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    line-height: 1.1;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.7;
+}
+
+.visual-card {
+    background: rgba(20, 20, 23, 0.8);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.fake-header {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 12px 20px;
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.red {
+    background: #ef4444;
+}
+
+.yellow {
+    background: #eab308;
+}
+
+.green {
+    background: #22c55e;
+}
+
+.fake-body {
+    padding: 30px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.9rem;
+    min-height: 200px;
+}
+
+.code-line {
+    margin-bottom: 12px;
+}
+
+.code-result {
+    color: var(--text-muted);
+    margin-top: 20px;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+
+.code-output {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.c-purple {
+    color: #c084fc;
+}
+
+.c-blue {
+    color: #60a5fa;
+}
+
+.c-green {
+    color: #86efac;
+}
+
+.glow-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    background: var(--accent);
+    filter: blur(120px);
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+@media (max-width: 900px) {
+    .hero-section {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 40px;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+}
