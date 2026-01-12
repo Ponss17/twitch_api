@@ -136,7 +136,7 @@
     background: var(--bg-card);
     padding: 5px;
     position: absolute;
-    bottom: -50px;
+    top: 50px;
     left: 50%;
     transform: translateX(-50%);
 }
