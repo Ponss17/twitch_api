@@ -194,18 +194,46 @@ export const StalkerModule = {
         const avatar = document.getElementById('modal-avatar');
         const name = document.getElementById('modal-name');
         const modalLogin = document.getElementById('modal-login');
-        const views = document.getElementById('modal-views');
         const bio = document.getElementById('modal-bio');
         const created = document.getElementById('modal-created');
+
+        const rank = document.getElementById('modal-rank');
+        const userId = document.getElementById('modal-id');
+        const accountAge = document.getElementById('modal-age');
 
         if (!overlay) return;
 
         avatar.src = user.profile_image_url || 'img/LosPerris_progra.webp';
         name.textContent = user.display_name;
         modalLogin.textContent = `@${user.login}`;
-        views.textContent = user.view_count ? user.view_count.toLocaleString() : '0';
         bio.textContent = user.description || 'Sin biografía.';
-        created.textContent = `Creado: ${new Date(user.created_at).toLocaleDateString()}`;
+
+        if (userId) userId.textContent = user.id;
+
+        if (rank) {
+            const types = { 'partner': 'Socio', 'affiliate': 'Afiliado' };
+            rank.textContent = types[user.broadcaster_type] || 'Usuario';
+            rank.style.color = user.broadcaster_type ? 'var(--accent)' : 'var(--text-secondary)';
+        }
+
+        if (accountAge) {
+            const createdDate = new Date(user.created_at);
+            const now = new Date();
+            const diffYears = now.getFullYear() - createdDate.getFullYear();
+            const diffMonths = now.getMonth() - createdDate.getMonth();
+
+            let ageText = '';
+            if (diffYears > 0) {
+                ageText = `${diffYears} año${diffYears > 1 ? 's' : ''}`;
+            } else if (diffMonths > 0) {
+                ageText = `${diffMonths} mes${diffMonths > 1 ? 'es' : ''}`;
+            } else {
+                ageText = 'Nueva';
+            }
+            accountAge.textContent = ageText;
+        }
+
+        created.textContent = `Cuenta creada el: ${new Date(user.created_at).toLocaleDateString()}`;
 
         overlay.classList.add('active');
     },

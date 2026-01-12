@@ -169,37 +169,66 @@
 
 .profile-stats {
     display: flex;
-    justify-content: space-around;
-    gap: 15px;
+    justify-content: center;
+    gap: 40px;
     margin: 25px 0;
-    padding: 20px 0;
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
 }
 
 .stat-item {
-    display: flex;
-    flex-direction: column;
+    text-align: center;
 }
 
 .stat-val {
     display: block;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     font-weight: 800;
-    color: var(--accent);
-    text-shadow: 0 0 20px rgba(145, 70, 255, 0.3);
+    color: var(--text-primary);
 }
 
 .stat-lbl {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
+    font-size: 0.75rem;
     text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+}
+
+.profile-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+}
+
+.detail-lbl {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-val {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-family: 'Consolas', monospace;
 }
 
 .profile-bio {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-align: center;
+    margin: 10px 0;
+    padding: 0 10px;
 }
