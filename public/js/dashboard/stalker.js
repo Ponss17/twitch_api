@@ -8,7 +8,7 @@ export const StalkerModule = {
 
     init(session) {
         this.session = session;
-        console.log('[StalkerModule] Init');
+        console.log('[StalkerModule] Table Init');
 
         Loader.loadCSS('./css/sections/stalker.css').then(() => {
             this.render();
@@ -40,7 +40,21 @@ export const StalkerModule = {
                 ${Messages.Stalker.loading}
             </div>
 
-            <div id="stalker-grid" class="stalker-grid"></div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Avatar</th>
+                            <th>Usuario</th>
+                            <th>Login</th>
+                            <th style="text-align: right;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stalker-grid">
+                        <!-- Rows injected here -->
+                    </tbody>
+                </table>
+            </div>
             
             <div id="stalker-empty" class="empty-state hidden">
                 ${Messages.Stalker.empty}
@@ -51,8 +65,6 @@ export const StalkerModule = {
     setupListeners() {
         const searchInput = document.getElementById('stalker-search');
         const refreshBtn = document.getElementById('refresh-stalker');
-
-        // Modal Listeners
         const closeBtn = document.getElementById('close-modal-btn');
         const overlay = document.getElementById('profile-modal-overlay');
 
@@ -71,13 +83,13 @@ export const StalkerModule = {
     },
 
     async loadChatters() {
-        const grid = document.getElementById('stalker-grid');
+        const tbody = document.getElementById('stalker-grid');
         const loading = document.getElementById('stalker-loading');
         const empty = document.getElementById('stalker-empty');
 
-        if (!grid) return;
+        if (!tbody) return;
 
-        grid.innerHTML = '';
+        tbody.innerHTML = '';
         loading.classList.remove('hidden');
         empty.classList.add('hidden');
 
@@ -93,7 +105,7 @@ export const StalkerModule = {
             const data = await res.json();
             this.chatters = data;
 
-            this.renderGrid(this.chatters);
+            this.renderTable(this.chatters);
 
             loading.classList.add('hidden');
             if (this.chatters.length === 0) empty.classList.remove('hidden');
@@ -103,36 +115,54 @@ export const StalkerModule = {
             loading.classList.add('hidden');
 
             if (error.message.includes('re-login')) {
-                grid.innerHTML = Messages.Stalker.reauthError;
-                document.getElementById('reauth-btn').addEventListener('click', () => {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#666;">${Messages.Stalker.reauthError} <button id="reauth-btn" class="btn-primary" style="margin-left:10px;">Re-Login</button></td></tr>`;
+                document.getElementById('reauth-btn')?.addEventListener('click', () => {
                     window.location.href = 'auth/twitch';
                 });
             } else {
-                grid.innerHTML = Messages.Common.error(error.message);
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color: var(--text-secondary);"><i class="fa-solid fa-triangle-exclamation"></i> ${error.message}</td></tr>`;
             }
         }
     },
 
-    renderGrid(list) {
-        const grid = document.getElementById('stalker-grid');
-        grid.innerHTML = '';
+    renderTable(list) {
+        const tbody = document.getElementById('stalker-grid');
+        tbody.innerHTML = '';
 
         list.forEach(user => {
-            const card = document.createElement('div');
-            card.className = 'stalker-card';
+            const tr = document.createElement('tr');
 
-            card.innerHTML = `
-                <div class="stalker-avatar">
-                   <i class="fa-solid fa-user"></i>
-                </div>
-                <div class="stalker-info">
-                    <div class="stalker-name">${user.user_name}</div>
-                    <div class="stalker-login">@${user.user_login}</div>
-                </div>
-            `;
+            const avatarTd = document.createElement('td');
+            avatarTd.innerHTML = user.profile_image_url
+                ? `<img src="${user.profile_image_url}" class="table-avatar-img">`
+                : `<div class="table-avatar-img" style="background:var(--bg-secondary); display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-user"></i></div>`;
 
-            card.addEventListener('click', () => this.inspectUser(user.user_login));
-            grid.appendChild(card);
+            const nameTd = document.createElement('td');
+            nameTd.className = 'word-text';
+            nameTd.style.fontWeight = '600';
+            nameTd.textContent = user.user_name;
+
+            const loginTd = document.createElement('td');
+            loginTd.className = 'count-text';
+            loginTd.style.color = 'var(--text-secondary)';
+            loginTd.textContent = `@${user.user_login}`;
+
+            const actionTd = document.createElement('td');
+            actionTd.style.textAlign = 'right';
+
+            const btn = document.createElement('button');
+            btn.className = 'action-btn';
+            btn.innerHTML = '<i class="fa-solid fa-eye"></i> Ver';
+            btn.onclick = () => this.inspectUser(user.user_login);
+
+            actionTd.appendChild(btn);
+
+            tr.appendChild(avatarTd);
+            tr.appendChild(nameTd);
+            tr.appendChild(loginTd);
+            tr.appendChild(actionTd);
+
+            tbody.appendChild(tr);
         });
     },
 
@@ -142,7 +172,7 @@ export const StalkerModule = {
             u.user_name.toLowerCase().includes(q) ||
             u.user_login.toLowerCase().includes(q)
         );
-        this.renderGrid(filtered);
+        this.renderTable(filtered);
     },
 
     async inspectUser(login) {
