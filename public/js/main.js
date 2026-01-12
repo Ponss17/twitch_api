@@ -1,7 +1,6 @@
 import { Auth } from './auth.js';
 import { UI } from './ui.js';
 import { Dashboard } from './dashboard.js';
-import { Tracker } from './tracker.js';
 import { CONFIG } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -36,10 +35,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 Dashboard.init(sessionParams);
-
-                if (Tracker && Tracker.init) {
-                    Tracker.init(sessionParams.login, displayName, avatarUrl);
-                }
             } else {
                 UI.showToast("Tu sesión ha expirado", "error");
                 Auth.clearSession();
