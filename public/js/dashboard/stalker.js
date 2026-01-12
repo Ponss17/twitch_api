@@ -48,6 +48,10 @@ export const StalkerModule = {
         const searchInput = document.getElementById('stalker-search');
         const refreshBtn = document.getElementById('refresh-stalker');
 
+        // Modal Listeners
+        const closeBtn = document.getElementById('close-modal-btn');
+        const overlay = document.getElementById('profile-modal-overlay');
+
         if (searchInput) {
             searchInput.addEventListener('input', (e) => this.filterChatters(e.target.value));
         }
@@ -55,6 +59,11 @@ export const StalkerModule = {
         if (refreshBtn) {
             refreshBtn.addEventListener('click', () => this.loadChatters());
         }
+
+        if (closeBtn) closeBtn.addEventListener('click', () => this.closeModal());
+        if (overlay) overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) this.closeModal();
+        });
     },
 
     async loadChatters() {
@@ -139,9 +148,36 @@ export const StalkerModule = {
             if (!res.ok) throw new Error('Error info');
             const info = await res.json();
 
-            alert(Messages.Stalker.userInfo(info));
+            this.openModal(info);
         } catch (e) {
+            console.error(e);
             alert(Messages.Stalker.loadError);
         }
+    },
+
+    openModal(user) {
+        const overlay = document.getElementById('profile-modal-overlay');
+        const avatar = document.getElementById('modal-avatar');
+        const name = document.getElementById('modal-name');
+        const modalLogin = document.getElementById('modal-login');
+        const views = document.getElementById('modal-views');
+        const bio = document.getElementById('modal-bio');
+        const created = document.getElementById('modal-created');
+
+        if (!overlay) return;
+
+        avatar.src = user.profile_image_url || 'img/LosPerris_progra.webp';
+        name.textContent = user.display_name;
+        modalLogin.textContent = `@${user.login}`;
+        views.textContent = user.view_count ? user.view_count.toLocaleString() : '0';
+        bio.textContent = user.description || 'Sin biografía.';
+        created.textContent = `Creado: ${new Date(user.created_at).toLocaleDateString()}`;
+
+        overlay.classList.add('active');
+    },
+
+    closeModal() {
+        const overlay = document.getElementById('profile-modal-overlay');
+        if (overlay) overlay.classList.remove('active');
     }
 };
