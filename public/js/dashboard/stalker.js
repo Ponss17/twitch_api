@@ -19,19 +19,23 @@ export const StalkerModule = {
 
     render() {
         const container = document.getElementById('stalker-content');
-        if (!container) return;
+        const controls = document.getElementById('stalker-controls');
 
-        container.innerHTML = `
-            <div class="stalker-header">
+        if (controls) {
+            controls.innerHTML = `
                 <div class="search-wrapper">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
                     <input type="text" id="stalker-search" placeholder="Buscar usuario..." class="stalker-search">
                 </div>
-                <button id="refresh-stalker" class="btn-icon">
+                <button id="refresh-stalker" class="btn-icon" title="Recargar lista">
                     <i class="fa-solid fa-rotate-right"></i>
                 </button>
-            </div>
-            
+            `;
+        }
+
+        if (!container) return;
+
+        container.innerHTML = `
             <div id="stalker-loading" class="loading-state hidden">
                 ${Messages.Stalker.loading}
             </div>
