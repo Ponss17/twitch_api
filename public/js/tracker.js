@@ -1,3 +1,5 @@
+import { Messages } from './utils/messages.js';
+
 export const Tracker = {
     client: null,
     wordCounts: {},
@@ -66,9 +68,9 @@ export const Tracker = {
         const el = document.getElementById('tracker-status');
         if (!el) return;
         if (connected) {
-            el.innerHTML = '<span style="color:var(--success)"><i class="fa-solid fa-circle"></i> Conectado</span>';
+            el.innerHTML = Messages.Tracker.connected;
         } else {
-            el.innerHTML = '<span style="color:var(--warning)"><i class="fa-solid fa-xmark"></i> Error</span>';
+            el.innerHTML = Messages.Tracker.error;
         }
     },
 
@@ -87,7 +89,7 @@ export const Tracker = {
 
         if (controls) controls.style.display = 'none';
         if (display) {
-            display.classList.remove('hidden'); // FIX: remove hidden class
+            display.classList.remove('hidden');
             display.textContent = this.formatTime(seconds);
         }
 
@@ -109,8 +111,7 @@ export const Tracker = {
 
         const display = document.getElementById('tracker-timer');
         if (display) {
-            display.textContent = "¡TIEMPO!";
-            display.textContent = "¡TIEMPO!";
+            display.textContent = Messages.Tracker.timeUp;
             display.style.color = "var(--warning)";
         }
 
@@ -178,7 +179,7 @@ export const Tracker = {
 
         const entries = Object.entries(this.wordCounts);
         if (entries.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#666;">Esperando mensajes...</td></tr>';
+            tbody.innerHTML = Messages.Tracker.waiting;
             return;
         }
 

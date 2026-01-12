@@ -221,6 +221,46 @@ export const regenerateKey = async (req: Request, res: Response) => {
 };
 
 // ==========================================
+// Nuevas Funciones Stalker Mode
+// ==========================================
+
+export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
+    const token = req.twitchToken || safeString(req.query.token);
+    if (!token) return res.status(401).send('Token no proporcionado.');
+
+    const channel = safeString(req.query.channel);
+    if (!channel) return res.status(400).send('Falta channel');
+
+    try {
+        const userId = await getUserId(req);
+        if (!userId) return res.status(401).send('Usuario no encontrado');
+
+        const broadcasterId = userId;
+        const moderatorId = userId;
+
+        const chatters = await apiService.getChatters(broadcasterId, moderatorId, token);
+        res.json(chatters);
+    } catch (error) {
+        return handleApiError(error, res, true);
+    }
+};
+
+export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
+    const token = req.twitchToken || safeString(req.query.token);
+    if (!token) return res.status(401).send('Token no proporcionado.');
+
+    const login = safeString(req.query.login);
+    if (!login) return res.status(400).send('Falta login');
+
+    try {
+        const info = await apiService.getUserInfo(login, token);
+        res.json(info);
+    } catch (error) {
+        return handleApiError(error, res, true);
+    }
+};
+
+// ==========================================
 // Ayudantes de Manejo de Errores
 // ==========================================
 

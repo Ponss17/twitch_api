@@ -8,7 +8,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/layout.css">
+    <link rel="stylesheet" href="./css/sections/landing.css">
     <link rel="stylesheet" href="css/skeleton.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/webp" href="img/LosPerris_progra.webp">
@@ -104,6 +106,10 @@
                 <button class="nav-item" data-tab="tab-tracker">
                     <i class="fa-solid fa-chart-column"></i>
                     <span class="nav-text">Tracker</span>
+                </button>
+                <button class="nav-item" data-tab="tab-stalker">
+                    <i class="fa-solid fa-users-viewfinder"></i>
+                    <span class="nav-text">Stalker</span>
                 </button>
             </nav>
 
@@ -357,7 +363,24 @@
                     </div>
                 </div>
             </div>
-        </main>
+            <div id="tab-stalker" class="tab-pane">
+                <div class="card" style="height: 100%;">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-users-viewfinder"></i>
+                        </div>
+                        <div>
+                            <h3>Visor de Chat (Stalker)</h3>
+                            <p class="card-desc">Quién está en tu chat ahora mismo</p>
+                        </div>
+                    </div>
+                    <div class="card-body" id="stalker-content"
+                        style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+                    </div>
+                </div>
+            </div>
+    </div>
+    </main>
     </div>
 
     <div id="toast" class="toast hidden">

@@ -10,5 +10,7 @@ router.get('/followage', checkToken, apiController.followage);
 router.get('/validate', checkToken, apiController.validateToken);
 router.post('/regenerate-key', checkToken, apiController.regenerateKey);
 router.get('/analytics', checkToken, apiController.getAnalytics);
+router.get('/chatters', checkToken, apiController.getChatters);
+router.get('/user-info', checkToken, apiController.getUserInfo);
 
 export default router;
