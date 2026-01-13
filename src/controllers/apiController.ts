@@ -17,7 +17,7 @@ const safeString = (val: unknown): string => (typeof val === 'string' ? val : ''
 
 // Ayudante para obtener ID de usuario seguro desde la API Key
 const getUserId = async (req: Request): Promise<string | null> => {
-    const apiKey = safeString(req.query.apiKey);
+    const apiKey = safeString(req.query.apiKey) || safeString(req.body?.apiKey);
     if (apiKey) {
         const user = await dbService.getUserByApiKey(apiKey);
         return user ? user.userId : null;
