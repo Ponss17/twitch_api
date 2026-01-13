@@ -1,5 +1,6 @@
 import { UI } from '../ui.js';
 import { Loader } from '../utils/loader.js';
+import { Messages } from '../utils/messages.js';
 
 export const AnalyticsModule = {
     session: null,
@@ -21,7 +22,7 @@ export const AnalyticsModule = {
             const res = await fetch(`api/analytics?${tokenParam}`);
 
             if (!res.ok) {
-                throw new Error('No se pudieron cargar las estadísticas');
+                throw new Error(Messages.Analytics.loadError);
             }
 
             const stats = await res.json();

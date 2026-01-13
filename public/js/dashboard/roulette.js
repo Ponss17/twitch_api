@@ -1,5 +1,6 @@
 import { Loader } from '../utils/loader.js';
 import { UI } from '../ui.js';
+import { Messages } from '../utils/messages.js';
 
 export const RouletteModule = {
     session: null,
@@ -33,7 +34,7 @@ export const RouletteModule = {
             const refreshBtn = document.getElementById('btn-refresh-roulette');
             if (refreshBtn) refreshBtn.addEventListener('click', () => {
                 this.loadChatters();
-                UI.showToast('Lista actualizada', 'success');
+                UI.showToast(Messages.Roulette.updated, 'success');
             });
         }
 
@@ -139,7 +140,7 @@ export const RouletteModule = {
         this.ctx.font = 'bold 20px "Outfit", sans-serif';
         this.ctx.textAlign = "center";
         this.ctx.textBaseline = "middle";
-        this.ctx.fillText("Sin participantes", centerX, centerY);
+        this.ctx.fillText(Messages.Roulette.emptyWheel, centerX, centerY);
     },
 
     drawRouletteWheel() {
@@ -194,7 +195,7 @@ export const RouletteModule = {
     spin() {
         if (this.isSpinning) return;
         if (this.chatters.length === 0) {
-            UI.showToast("No hay participantes", "warning");
+            UI.showToast(Messages.Roulette.noParticipants, "warning");
             return;
         }
 
@@ -245,7 +246,7 @@ export const RouletteModule = {
         if (display && name) {
             name.textContent = user.user_name;
             display.classList.remove('hidden');
-            UI.showToast(`¡Ganador: ${user.user_name}!`);
+            UI.showToast(Messages.Roulette.winner(user.user_name));
         }
     },
 

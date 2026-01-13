@@ -1,4 +1,5 @@
 import { Messages } from '../utils/messages.js';
+import { Loader } from '../utils/loader.js';
 
 export const TrendsModule = {
     client: null,
@@ -21,7 +22,7 @@ export const TrendsModule = {
         this.session = { login: channel, displayName };
 
         const titleEl = document.getElementById('tracker-title');
-        if (titleEl) titleEl.textContent = `Tendencias de ${displayName || channel}`;
+        if (titleEl) titleEl.textContent = Messages.Trends.title(displayName || channel);
 
         if (avatarUrl) {
             const avatarEl = document.getElementById('tracker-avatar');

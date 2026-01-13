@@ -1,5 +1,5 @@
-import { CONFIG } from '../config.js';
 import { Loader } from '../utils/loader.js';
+import { Messages } from '../utils/messages.js';
 
 export const CommandsModule = {
     session: null,
@@ -33,7 +33,7 @@ export const CommandsModule = {
         const { login, apiKey, token } = this.session;
 
         if (!login || (!apiKey && !token)) {
-            console.warn('Missing credentials for followage command');
+            console.warn(Messages.Commands.missingCreds);
             return;
         }
 
@@ -74,7 +74,7 @@ export const CommandsModule = {
         const { login, apiKey, token } = this.session;
 
         if (!login || (!apiKey && !token)) {
-            console.warn('Missing credentials for clip command');
+            console.warn(Messages.Commands.missingCreds);
             return;
         }
 

@@ -29,6 +29,11 @@ export const Messages = {
             👁️ Vistas: ${info.view_count}
             📝 Bio: ${info.description || 'Sin bio'}
         `,
+        updated: '<i class="fa-solid fa-check"></i> Lista Stalker recargada',
+        bioEmpty: 'Sin biografía disponible.',
+        apiError: 'Error API',
+        infoError: 'No se pudo cargar info del usuario',
+        reloginMsg: 'Necesitas re-login (Permisos)',
         loadError: 'No se pudo cargar info del usuario'
     },
     Settings: {
@@ -55,5 +60,35 @@ export const Messages = {
         error: '<span style="color:var(--warning)"><i class="fa-solid fa-xmark"></i> Error</span>',
         waiting: '<tr><td colspan="4" style="text-align:center; padding:20px; color:#666;">Esperando mensajes...</td></tr>',
         timeUp: '¡TIEMPO!'
+    },
+    Roulette: {
+        updated: '<i class="fa-solid fa-check"></i> Lista actualizada',
+        noParticipants: 'No hay participantes',
+        emptyWheel: 'Sin participantes',
+        winner: (name) => `¡Ganador: ${name}!`
+    },
+    Commands: {
+        clipResponse: (user, url) => `🎬 Clip creado por ${user}: ${url}`,
+        followageResponse: 'Procesando followage...',
+        missingCreds: 'Faltan credenciales'
+    },
+    Analytics: {
+        loadError: 'No se pudieron cargar las estadísticas'
+    },
+    Trends: {
+        title: (channel) => `Tendencias de ${channel}`,
+        noTmi: 'TMI.js no cargado'
+    },
+    Details: {
+        partner: 'Socio',
+        affiliate: 'Afiliado',
+        user: 'Usuario',
+        created: (date) => `Cuenta creada el: ${new Date(date).toLocaleDateString()}`,
+        new: 'Nueva',
+        years: (y) => `${y} año${y > 1 ? 's' : ''}`,
+        months: (m) => `${m} meses`,
+        viewLogs: '<i class="fa-solid fa-comment-dots"></i> Ver Últimos Mensajes',
+        historyTitle: '<i class="fa-solid fa-history"></i> Historial (Sesión actual)',
+        noHistory: 'No hay mensajes registrados en esta sesión.'
     }
 };
