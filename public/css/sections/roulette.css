@@ -1,0 +1,51 @@
+/* Roulette Styles */
+.roulette-wrapper {
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#roulette-canvas {
+    width: 100%;
+    height: auto;
+    border-radius: 50%;
+    box-shadow: 0 0 50px rgba(168, 85, 247, 0.2);
+    transition: box-shadow 0.3s ease;
+}
+
+#roulette-canvas:hover {
+    box-shadow: 0 0 70px rgba(168, 85, 247, 0.4);
+}
+
+.roulette-arrow {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; 
+    height: 0; 
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 30px solid #fff;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+    z-index: 10;
+}
+
+#btn-spin-roulette {
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    font-size: 1.2rem;
+    padding: 15px 40px;
+    border-radius: 50px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+#btn-spin-roulette:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 30px rgba(168, 85, 247, 0.4);
+}
+
+#btn-spin-roulette:active {
+    transform: translateY(1px);
+}

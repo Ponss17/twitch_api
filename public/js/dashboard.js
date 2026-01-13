@@ -111,6 +111,13 @@ export const Dashboard = {
                 })
                 .catch(err => console.error('Failed to load Trends module:', err));
         }
+        else if (tabId === 'tab-roulette') {
+            import('./dashboard/roulette.js')
+                .then(module => {
+                    module.RouletteModule.init(session);
+                })
+                .catch(err => console.error('Failed to load Roulette module:', err));
+        }
     },
 
     setupEventListeners() {
