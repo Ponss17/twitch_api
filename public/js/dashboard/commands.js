@@ -1,3 +1,4 @@
+import { CONFIG } from '../config.js';
 import { Loader } from '../utils/loader.js';
 import { Messages } from '../utils/messages.js';
 
