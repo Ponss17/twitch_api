@@ -26,10 +26,12 @@ export const RouletteModule = {
         this.canvas = document.getElementById('roulette-canvas');
         if (this.canvas) {
             this.ctx = this.canvas.getContext('2d');
-            this.loadChatters();
 
             const spinBtn = document.getElementById('btn-spin-roulette');
             if (spinBtn) spinBtn.addEventListener('click', () => this.spin());
+
+            const toggleBtn = document.getElementById('toggle-roulette');
+            if (toggleBtn) toggleBtn.addEventListener('click', () => this.toggleEntries());
 
             const refreshBtn = document.getElementById('btn-refresh-roulette');
             if (refreshBtn) refreshBtn.addEventListener('click', () => {
@@ -37,18 +39,41 @@ export const RouletteModule = {
                 UI.showToast(Messages.Roulette.updated, 'success');
             });
         }
+    },
 
-        this.connectTmi();
+    isOpen: false,
+
+    toggleEntries() {
+        this.isOpen = !this.isOpen;
+
+        const btn = document.getElementById('toggle-roulette');
+        if (btn) {
+            btn.className = this.isOpen ? 'btn-icon btn-warning' : 'btn-icon btn-success';
+            btn.innerHTML = this.isOpen ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+            btn.title = this.isOpen ? 'Cerrar Inscripciones' : 'Abrir Inscripciones';
+        }
+
+        if (this.isOpen) {
+            UI.showToast(Messages.Roulette.open);
+            this.loadChatters();
+        } else {
+            UI.showToast(Messages.Roulette.closed, 'warning');
+        }
     },
 
     connectTmi() {
+        if (this.isConnected) return;
         if (typeof window.tmi === 'undefined') return;
 
         import('../utils/tmiService.js').then(({ TmiService }) => {
-            TmiService.init(this.session.login);
+            TmiService.init(this.session.login).then(() => {
+                this.isConnected = true;
+            });
 
             TmiService.addMessageListener((channel, tags, message) => {
                 if (this.isSpinning) return;
+
+                if (!this.isOpen) return;
 
                 const login = tags.username;
                 const name = tags['display-name'] || login;
@@ -88,6 +113,8 @@ export const RouletteModule = {
     },
 
     async loadChatters() {
+        if (!this.isConnected) this.connectTmi();
+
         const countDisplay = document.getElementById('roulette-count');
         try {
             const { apiKey, login } = this.session;

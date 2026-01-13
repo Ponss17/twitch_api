@@ -15,12 +15,16 @@ export const StalkerModule = {
     },
 
     client: null,
+    isConnected: false,
 
     connectTmi() {
+        if (this.isConnected) return;
         if (typeof window.tmi === 'undefined') return;
 
         import('../utils/tmiService.js').then(({ TmiService }) => {
-            TmiService.init(this.session.login);
+            TmiService.init(this.session.login).then(() => {
+                this.isConnected = true;
+            });
 
             TmiService.addMessageListener((channel, tags, message) => {
                 if (!this.isScanning) return;
@@ -187,6 +191,9 @@ export const StalkerModule = {
 
     async loadChatters() {
         if (!this.isScanning) return;
+
+        if (!this.isConnected) this.connectTmi();
+
         const tbody = document.getElementById('stalker-grid');
         const loading = document.getElementById('stalker-loading');
         const empty = document.getElementById('stalker-empty');
