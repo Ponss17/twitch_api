@@ -9,11 +9,6 @@ import * as authService from '../services/authService';
 const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const safeString = (val: unknown) => (typeof val === 'string' ? val : '');
 
-    // Debug Log
-    console.log(`[AuthMiddleware] Method: ${req.method} | URL: ${req.originalUrl}`);
-    console.log('Query:', req.query);
-    console.log('Body:', req.body);
-
     let token = safeString(req.query.token) || safeString(req.body?.token);
     const apiKey = safeString(req.query.apiKey) || safeString(req.body?.apiKey);
 

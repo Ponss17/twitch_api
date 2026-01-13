@@ -65,7 +65,7 @@ export const Messages = {
         updated: '<i class="fa-solid fa-check"></i> Lista actualizada',
         noParticipants: 'No hay participantes',
         emptyWheel: 'Sin participantes',
-        winner: (name) => `¡Ganador: ${name}!`
+        winner: (name) => `¡Ganador: ${name} 🎉!`
     },
     Commands: {
         clipResponse: (user, url) => `🎬 Clip creado por ${user}: ${url}`,
