@@ -87,28 +87,40 @@ export const TrendsModule = {
         const input = document.getElementById('tracker-minutes');
         const display = document.getElementById('tracker-timer');
         const controls = document.querySelector('.timer-controls');
-        const minutes = parseInt(input.value);
 
-        if (!minutes || minutes <= 0) return;
+        this.isTracking = true;
+        this.resetInternal();
 
-        this.reset();
-        this.isLocked = false;
+        const minutes = parseInt(input?.value) || 5;
 
-        let seconds = minutes * 60;
+        if (controls) controls.classList.add('hidden');
 
-        if (controls) controls.style.display = 'none';
+        const seconds = minutes * 60;
+        this.runTimer(seconds);
+    },
+
+    resetInternal() {
+        this.wordCounts = {};
+        this.messageLog = [];
+    },
+
+    runTimer(seconds) {
+        let remaining = seconds;
+        const display = document.getElementById('tracker-timer');
+
         if (display) {
             display.classList.remove('hidden');
-            display.textContent = this.formatTime(seconds);
+            display.textContent = this.formatTime(remaining);
+            display.style.color = "var(--text-primary)";
         }
 
         if (this.timerInterval) clearInterval(this.timerInterval);
 
         this.timerInterval = setInterval(() => {
-            seconds--;
-            if (display) display.textContent = this.formatTime(seconds);
+            remaining--;
+            if (display) display.textContent = this.formatTime(remaining);
 
-            if (seconds <= 0) {
+            if (remaining <= 0) {
                 this.endTimer();
             }
         }, 1000);
@@ -117,6 +129,7 @@ export const TrendsModule = {
     endTimer() {
         if (this.timerInterval) clearInterval(this.timerInterval);
         this.isLocked = true;
+        this.isTracking = false;
 
         const display = document.getElementById('tracker-timer');
         if (display) {
