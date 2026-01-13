@@ -10,7 +10,7 @@ export const TrendsModule = {
         'http', 'https', 'www', 'com'
     ]),
     ignoredUsers: new Set([
-        'nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker'
+        'nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker', 'botrixoficial', 'trackerggbot'
     ]),
     messageLog: [],
     MAX_LOG_SIZE: 500,

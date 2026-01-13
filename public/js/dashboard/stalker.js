@@ -8,12 +8,62 @@ export const StalkerModule = {
 
     init(session) {
         this.session = session;
-        console.log('[StalkerModule] Table Init');
+        console.log('[StalkerModule] Table Init + Realtime');
 
         Loader.loadCSS('./css/sections/stalker.css').then(() => {
             this.render();
             this.loadChatters();
             this.setupListeners();
+            this.connectTmi();
+        });
+    },
+
+    client: null,
+
+    connectTmi() {
+        if (this.client) return;
+        if (typeof window.tmi === 'undefined') return;
+
+        console.log('[Stalker] Connecting to chat...');
+        this.client = new window.tmi.Client({
+            channels: [this.session.login],
+            connection: { secure: true, reconnect: true }
+        });
+
+        this.client.connect().catch(console.error);
+
+        this.client.on('message', (channel, tags, message, self) => {
+            const login = tags.username;
+            const name = tags['display-name'] || login;
+
+            const ignored = new Set(['nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker', 'botrixoficial', 'trackerggbot']);
+            if (ignored.has(login.toLowerCase())) return;
+
+            const exists = this.chatters.some(u => u.user_login.toLowerCase() === login.toLowerCase());
+
+            if (!exists) {
+                console.log(`[Stalker] New user: ${name}`);
+
+                const newUser = {
+                    user_login: login,
+                    user_name: name,
+                    profile_image_url: null
+                };
+
+                this.chatters.unshift(newUser);
+                this.renderTable(this.chatters);
+
+                const tbody = document.getElementById('stalker-grid');
+                if (tbody && tbody.firstChild) {
+                    const row = tbody.firstChild;
+                    row.style.background = "rgba(59, 130, 246, 0.2)";
+                    row.style.transition = "background 1s";
+                    setTimeout(() => row.style.background = "", 1000);
+                }
+
+                const empty = document.getElementById('stalker-empty');
+                if (empty) empty.classList.add('hidden');
+            }
         });
     },
 
@@ -59,6 +109,9 @@ export const StalkerModule = {
             <div id="stalker-empty" class="empty-state hidden">
                 ${Messages.Stalker.empty}
             </div>
+            <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">
+                * Lista sincronizada con API + Chat en vivo
+            </div>
         `;
     },
 
@@ -73,7 +126,10 @@ export const StalkerModule = {
         }
 
         if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => this.loadChatters());
+            refreshBtn.addEventListener('click', () => {
+                this.loadChatters();
+                UI.showToast('Lista Stalker recargada');
+            });
         }
 
         if (closeBtn) closeBtn.addEventListener('click', () => this.closeModal());
@@ -103,8 +159,10 @@ export const StalkerModule = {
             }
 
             const data = await res.json();
-            this.chatters = data;
+            const ignored = new Set(['nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker', 'botrixoficial', 'trackerggbot']);
 
+            this.chatters = data.filter(u => !ignored.has(u.user_login.toLowerCase()));
+            this.chatters = data.filter(u => !ignored.has(u.user_login.toLowerCase()));
             this.renderTable(this.chatters);
 
             loading.classList.add('hidden');
@@ -127,6 +185,7 @@ export const StalkerModule = {
 
     renderTable(list) {
         const tbody = document.getElementById('stalker-grid');
+        if (!tbody) return;
         tbody.innerHTML = '';
 
         list.forEach(user => {
@@ -135,7 +194,7 @@ export const StalkerModule = {
             const avatarTd = document.createElement('td');
             avatarTd.innerHTML = user.profile_image_url
                 ? `<img src="${user.profile_image_url}" class="table-avatar-img">`
-                : `<div class="table-avatar-img" style="background:var(--bg-secondary); display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-user"></i></div>`;
+                : `<div class="table-avatar-img" style="background:var(--bg-secondary); display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><i class="fa-solid fa-user"></i></div>`;
 
             const nameTd = document.createElement('td');
             nameTd.className = 'word-text';

@@ -110,6 +110,10 @@
                     <i class="fa-solid fa-users-viewfinder"></i>
                     <span class="nav-text">Stalker</span>
                 </button>
+                <button class="nav-item" data-tab="tab-roulette">
+                    <i class="fa-solid fa-dice"></i>
+                    <span class="nav-text">Ruleta</span>
+                </button>
             </nav>
 
             <div class="sidebar-footer">
@@ -375,6 +379,40 @@
                             <div id="stalker-controls"></div>
                         </div>
                         <div class="card-body" id="stalker-content">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-roulette" class="tab-pane">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-dice"></i>
+                            </div>
+                            <div>
+                                <h3>Ruleta de Viewers</h3>
+                                <p class="card-desc">Sortea premios entre los usuarios activos</p>
+                            </div>
+                            <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
+                                <span id="roulette-count" class="badge">0</span>
+                                <button id="btn-refresh-roulette" class="btn-icon" title="Recargar usuarios">
+                                    <i class="fa-solid fa-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body" style="text-align:center;">
+                            <div class="roulette-wrapper">
+                                <canvas id="roulette-canvas" width="500" height="500"></canvas>
+                                <div class="roulette-arrow"></div>
+                            </div>
+                            <div style="margin-top:20px;">
+                                <button id="btn-spin-roulette" class="btn-primary btn-large">
+                                    <i class="fa-solid fa-play"></i> GIRAR RULETA
+                                </button>
+                            </div>
+                             <div style="margin-top:10px; font-size:0.75rem; opacity:0.6; font-style:italic;">
+                                * Twitch tarda unos minutos en actualizar la lista
+                            </div>
                         </div>
                     </div>
                 </div>
