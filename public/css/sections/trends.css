@@ -1,0 +1,68 @@
+.tracker-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.timer-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-primary);
+    padding: 4px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.timer-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.timer-input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    width: 40px;
+    text-align: right;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    padding-right: 2px;
+    outline: none;
+}
+
+.timer-input::-webkit-outer-spin-button,
+.timer-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.timer-input {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.input-suffix {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-left: 2px;
+}
+
+.timer-display {
+    font-family: 'Consolas', monospace;
+    color: var(--warning);
+    font-weight: bold;
+    font-size: 1.1rem;
+    background: rgba(245, 158, 11, 0.1);
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 1px;
+}

@@ -327,8 +327,14 @@
                                 <p class="card-desc">Ranking de palabras en tiempo real</p>
                             </div>
                             <div class="tracker-controls">
-                                <input type="number" id="tracker-minutes" placeholder="Min" min="1" max="60"
-                                    class="timer-input">
+                                <div class="timer-group">
+                                    <span class="timer-label">Duración:</span>
+                                    <div class="input-wrapper">
+                                        <input type="number" id="tracker-minutes" value="5" min="1" max="60"
+                                            class="timer-input">
+                                        <span class="input-suffix">min</span>
+                                    </div>
+                                </div>
                                 <button id="start-timer-btn" class="btn-icon btn-success" title="Iniciar temporizador">
                                     <i class="fa-solid fa-play"></i>
                                 </button>
@@ -394,7 +400,7 @@
                                 <p class="card-desc">Sortea premios entre los usuarios activos</p>
                             </div>
                             <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
-                                <span id="roulette-count" class="badge">0</span>
+                                <span id="roulette-count" class="badge" style="margin-bottom:0;">0</span>
                                 <button id="btn-refresh-roulette" class="btn-icon" title="Recargar usuarios">
                                     <i class="fa-solid fa-rotate-right"></i>
                                 </button>
@@ -404,13 +410,23 @@
                             <div class="roulette-wrapper">
                                 <canvas id="roulette-canvas" width="500" height="500"></canvas>
                                 <div class="roulette-arrow"></div>
+
+                                <div id="roulette-winner-display" class="winner-overlay hidden">
+                                    <div class="winner-card bounce-in">
+                                        <div class="winner-title">¡GANADOR!</div>
+                                        <div id="winner-name" class="winner-name">Usuario</div>
+                                        <button
+                                            onclick="document.getElementById('roulette-winner-display').classList.add('hidden')"
+                                            class="btn-secondary btn-sm" style="margin-top:10px;">Cerrar</button>
+                                    </div>
+                                </div>
                             </div>
                             <div style="margin-top:20px;">
                                 <button id="btn-spin-roulette" class="btn-primary btn-large">
                                     <i class="fa-solid fa-play"></i> GIRAR RULETA
                                 </button>
                             </div>
-                             <div style="margin-top:10px; font-size:0.75rem; opacity:0.6; font-style:italic;">
+                            <div style="margin-top:10px; font-size:0.75rem; opacity:0.6; font-style:italic;">
                                 * Twitch tarda unos minutos en actualizar la lista
                             </div>
                         </div>

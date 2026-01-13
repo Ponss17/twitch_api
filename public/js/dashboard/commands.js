@@ -8,7 +8,6 @@ export const CommandsModule = {
         await Loader.loadCSS('css/sections/commands.css');
         this.session = session;
 
-        console.log('[CommandsModule] Initialized');
         this.setupFollowCommand();
         this.setupClipCommand();
     },
