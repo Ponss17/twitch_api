@@ -39,6 +39,8 @@ export const TrendsModule = {
 
         const startTimerBtn = document.getElementById('start-timer-btn');
         if (startTimerBtn) startTimerBtn.addEventListener('click', () => this.startTimer());
+
+        this.render();
     },
 
     isConnected: false,

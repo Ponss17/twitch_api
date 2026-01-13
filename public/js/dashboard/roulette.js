@@ -38,6 +38,8 @@ export const RouletteModule = {
                 this.loadChatters();
                 UI.showToast(Messages.Roulette.updated, 'success');
             });
+
+            this.drawEmptyWheel();
         }
     },
 
@@ -161,7 +163,12 @@ export const RouletteModule = {
         this.ctx.font = 'bold 20px "Outfit", sans-serif';
         this.ctx.textAlign = "center";
         this.ctx.textBaseline = "middle";
-        this.ctx.fillText(Messages.Roulette.emptyWheel, centerX, centerY);
+
+        const text = this.isOpen
+            ? Messages.Roulette.emptyWheel
+            : "Dale al Play ▶️ para abrir";
+
+        this.ctx.fillText(text, centerX, centerY);
     },
 
     drawRouletteWheel() {
