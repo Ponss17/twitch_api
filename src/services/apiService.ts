@@ -142,3 +142,22 @@ export const getChatters = async (broadcasterId: string, moderatorId: string, to
         throw error;
     }
 };
+
+export const sendChatMessage = async (broadcasterId: string, senderId: string, message: string, token: string) => {
+    try {
+        await axios.post('https://api.twitch.tv/helix/chat/messages', {
+            broadcaster_id: broadcasterId,
+            sender_id: senderId,
+            message: message
+        }, {
+            headers: {
+                'Client-ID': CONFIG.TWITCH_CLIENT_ID,
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+    } catch (error) {
+        console.error('Error sending chat message:', error);
+        throw error;
+    }
+};

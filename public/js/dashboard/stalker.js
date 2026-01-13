@@ -179,7 +179,7 @@ export const StalkerModule = {
             if (error.message.includes('re-login')) {
                 tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#666;">${Messages.Stalker.reauthError} <button id="reauth-btn" class="btn-primary" style="margin-left:10px;">Re-Login</button></td></tr>`;
                 document.getElementById('reauth-btn')?.addEventListener('click', () => {
-                    window.location.href = 'auth/twitch';
+                    import('../auth.js').then(m => m.Auth.relogin());
                 });
             } else {
                 tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color: var(--text-secondary);"><i class="fa-solid fa-triangle-exclamation"></i> ${error.message}</td></tr>`;

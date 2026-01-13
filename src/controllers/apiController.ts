@@ -260,6 +260,27 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
     }
 };
 
+export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
+    const token = req.twitchToken || safeString(req.query.token);
+    if (!token) return res.status(401).send('Token no proporcionado.');
+
+    const message = safeString(req.body.message);
+    if (!message) return res.status(400).send('Falta mensaje');
+
+    try {
+        const userId = await getUserId(req);
+        if (!userId) return res.status(401).send('Usuario no encontrado');
+
+        await apiService.sendChatMessage(userId, userId, message, token);
+        res.json({ success: true });
+    } catch (error) {
+        if (getHttpStatus(error) === 403) {
+            return res.status(403).json({ error: 'Permisos insuficientes. Re-login requerido.' });
+        }
+        return handleApiError(error, res, true);
+    }
+};
+
 // ==========================================
 // Ayudantes de Manejo de Errores
 // ==========================================

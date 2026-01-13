@@ -54,9 +54,18 @@ export const Auth = {
     setupLoginButton(loginBtnId) {
         const loginBtn = document.getElementById(loginBtnId);
         if (loginBtn) {
-            let currentUrl = window.location.href.split('?')[0];
-            currentUrl = currentUrl.replace('://www.', '://');
-            loginBtn.href = `auth/twitch?redirect_origin=${encodeURIComponent(currentUrl)}`;
+            loginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.relogin();
+            });
         }
+    },
+
+    relogin() {
+        this.clearSession();
+        let currentUrl = window.location.href.split('?')[0];
+        currentUrl = currentUrl.replace('://www.', '://');
+
+        window.location.href = `auth/twitch?redirect_origin=${encodeURIComponent(currentUrl)}`;
     }
 };
