@@ -5,6 +5,7 @@ import { Messages } from '../utils/messages.js';
 export const StalkerModule = {
     session: null,
     isScanning: false,
+    chatters: [],
 
     init(session) {
         this.session = session;
