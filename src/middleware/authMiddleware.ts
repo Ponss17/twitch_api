@@ -9,8 +9,8 @@ import * as authService from '../services/authService';
 const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const safeString = (val: unknown) => (typeof val === 'string' ? val : '');
 
-    let token = safeString(req.query.token);
-    const apiKey = safeString(req.query.apiKey);
+    let token = safeString(req.query.token) || safeString(req.body.token);
+    const apiKey = safeString(req.query.apiKey) || safeString(req.body.apiKey);
 
     if (apiKey) {
         try {
