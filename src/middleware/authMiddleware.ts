@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 
 interface AuthenticatedRequest extends Request {
     twitchToken?: string;
+    userId?: string;
 }
 
 import * as authService from '../services/authService';
@@ -14,7 +15,9 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
 
     if (apiKey) {
         try {
-            token = await authService.getValidToken(apiKey);
+            const authData = await authService.getValidToken(apiKey);
+            token = authData.accessToken;
+            req.userId = authData.userId;
         } catch (error: any) {
             console.error('Middleware Auth Error (API Key lookup):', error.message);
             return res.status(401).send('⛔ Error: Credenciales inválidas. Verifica tu API Key.');

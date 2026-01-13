@@ -107,16 +107,17 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
     }
 };
 
-export const getValidToken = async (apiKey: string): Promise<string> => {
+export const getValidToken = async (apiKey: string): Promise<{ accessToken: string, userId: string }> => {
     const user = await dbService.getUserByApiKey(apiKey);
     if (!user) throw new Error('API Key inválida');
 
     if (Date.now() > user.expiresAt - 5 * 60 * 1000) {
         console.log(`Refreshing token for ${user.login}...`);
-        return await refreshUserToken(user.userId);
+        const newToken = await refreshUserToken(user.userId);
+        return { accessToken: newToken, userId: user.userId };
     }
 
-    return user.accessToken;
+    return { accessToken: user.accessToken, userId: user.userId };
 };
 
 export const regenerateApiKey = async (userId: string): Promise<string> => {
