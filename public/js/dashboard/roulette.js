@@ -18,7 +18,7 @@ export const RouletteModule = {
 
     init(session) {
         this.session = session;
-        console.log('[RouletteModule] Init Visual + Realtime');
+
 
         Loader.loadCSS('./css/sections/roulette.css');
 
@@ -44,7 +44,7 @@ export const RouletteModule = {
         if (this.client) return;
         if (typeof window.tmi === 'undefined') return;
 
-        console.log('[Roulette] Connecting to chat...');
+
         this.client = new window.tmi.Client({
             channels: [this.session.login],
             connection: { secure: true, reconnect: true }
@@ -64,7 +64,7 @@ export const RouletteModule = {
             const exists = this.chatters.some(u => u.user_login.toLowerCase() === login.toLowerCase());
 
             if (!exists) {
-                console.log(`[Roulette] New chatter detected via TMI: ${name}`);
+
                 this.chatters.push({
                     user_login: login,
                     user_name: name

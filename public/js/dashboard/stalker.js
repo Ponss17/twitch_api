@@ -8,7 +8,7 @@ export const StalkerModule = {
 
     init(session) {
         this.session = session;
-        console.log('[StalkerModule] Table Init + Realtime');
+
 
         Loader.loadCSS('./css/sections/stalker.css').then(() => {
             this.render();
@@ -24,7 +24,7 @@ export const StalkerModule = {
         if (this.client) return;
         if (typeof window.tmi === 'undefined') return;
 
-        console.log('[Stalker] Connecting to chat...');
+
         this.client = new window.tmi.Client({
             channels: [this.session.login],
             connection: { secure: true, reconnect: true }
@@ -42,7 +42,7 @@ export const StalkerModule = {
             const exists = this.chatters.some(u => u.user_login.toLowerCase() === login.toLowerCase());
 
             if (!exists) {
-                console.log(`[Stalker] New user: ${name}`);
+
 
                 const newUser = {
                     user_login: login,

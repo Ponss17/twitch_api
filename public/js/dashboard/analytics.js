@@ -8,7 +8,6 @@ export const AnalyticsModule = {
         await Loader.loadCSS('css/sections/analytics.css');
 
         this.session = session;
-        console.log('[AnalyticsModule] Initialized');
         this.loadAnalytics();
     },
 

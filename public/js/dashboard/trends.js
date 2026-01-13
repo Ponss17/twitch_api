@@ -17,6 +17,9 @@ export const TrendsModule = {
 
 
     init(channel, displayName, avatarUrl = null) {
+        Loader.loadCSS('css/sections/trends.css');
+        this.session = { login: channel, displayName };
+
         const titleEl = document.getElementById('tracker-title');
         if (titleEl) titleEl.textContent = `Tendencias de ${displayName || channel}`;
 
@@ -33,7 +36,6 @@ export const TrendsModule = {
         if (this.client) return;
 
         if (typeof window.tmi === 'undefined') {
-            console.error('TMI.js not loaded');
             this.updateStatus(false);
             return;
         }

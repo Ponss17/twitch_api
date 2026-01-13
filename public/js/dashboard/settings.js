@@ -8,7 +8,6 @@ export const SettingsModule = {
 
     init(session) {
         this.session = session;
-        console.log('[SettingsModule] Initialized');
         this.setupApiTest();
         this.setupTokenToggle();
         this.setupRegenerate();

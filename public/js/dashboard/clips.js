@@ -9,7 +9,6 @@ export const ClipsModule = {
         await Loader.loadCSS('css/sections/clips.css');
 
         this.session = session;
-        console.log('[ClipsModule] Initialized');
         this.loadClips();
     },
 
@@ -32,7 +31,6 @@ export const ClipsModule = {
             const data = await res.json();
             this.renderClips(data);
         } catch (error) {
-            console.error('Error loading clips:', error);
             clipsGallery.innerHTML = Messages.Common.error(error.message);
             const retryBtn = document.getElementById('retry-clips-btn');
             if (retryBtn) retryBtn.onclick = () => this.loadClips();
