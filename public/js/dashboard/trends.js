@@ -34,16 +34,26 @@ export const TrendsModule = {
             }
         }
 
-        if (this.client) return;
+        const resetBtn = document.getElementById('reset-tracker-btn');
+        if (resetBtn) resetBtn.addEventListener('click', () => this.reset());
 
+        const startTimerBtn = document.getElementById('start-timer-btn');
+        if (startTimerBtn) startTimerBtn.addEventListener('click', () => this.startTimer());
+    },
+
+    isConnected: false,
+
+    connect() {
+        if (this.isConnected) return;
         if (typeof window.tmi === 'undefined') {
             this.updateStatus(false);
             return;
         }
 
         import('../utils/tmiService.js').then(({ TmiService }) => {
-            TmiService.init(channel).then(() => {
+            TmiService.init(this.session.login).then(() => {
                 this.updateStatus(true);
+                this.isConnected = true;
             }).catch(() => {
                 this.updateStatus(false);
             });
@@ -62,12 +72,6 @@ export const TrendsModule = {
                 this.processMessage(message);
             });
         });
-
-        const resetBtn = document.getElementById('reset-tracker-btn');
-        if (resetBtn) resetBtn.addEventListener('click', () => this.reset());
-
-        const startTimerBtn = document.getElementById('start-timer-btn');
-        if (startTimerBtn) startTimerBtn.addEventListener('click', () => this.startTimer());
     },
 
     timerInterval: null,
@@ -84,6 +88,8 @@ export const TrendsModule = {
     },
 
     startTimer() {
+        this.connect();
+
         const input = document.getElementById('tracker-minutes');
         const display = document.getElementById('tracker-timer');
         const controls = document.querySelector('.timer-controls');
@@ -204,7 +210,21 @@ export const TrendsModule = {
         const tbody = document.getElementById('tracker-body');
         if (!tbody) return;
 
+        if (!this.isTracking) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align:center; padding:40px; color:var(--text-muted);">
+                        <div style="font-size:2rem; margin-bottom:10px;"><i class="fa-solid fa-play"></i></div>
+                        <h4 style="color:var(--text-primary); margin-bottom:5px;">Listo para analizar</h4>
+                        <p>Presiona el botón <strong>Play</strong> para comenzar a contar palabras.</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
         const entries = Object.entries(this.wordCounts);
+
         if (entries.length === 0) {
             tbody.innerHTML = Messages.Tracker.waiting;
             return;
