@@ -128,7 +128,7 @@ export const StalkerModule = {
         if (refreshBtn) {
             refreshBtn.addEventListener('click', () => {
                 this.loadChatters();
-                UI.showToast('Lista Stalker recargada');
+                UI.showToast(Messages.Stalker.updated);
             });
         }
 
@@ -154,15 +154,19 @@ export const StalkerModule = {
             const res = await fetch(`api/chatters?channel=${login}&apiKey=${apiKey}`);
 
             if (!res.ok) {
-                if (res.status === 401) throw new Error('Necesitas re-login (Permisos)');
-                throw new Error('Error API');
+                if (res.status === 401) throw new Error(Messages.Stalker.reloginMsg);
+                throw new Error(Messages.Stalker.apiError);
             }
 
             const data = await res.json();
             const ignored = new Set(['nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker', 'botrixoficial', 'trackerggbot']);
+            const apiChatters = data.filter(u => !ignored.has(u.user_login.toLowerCase()));
+            const chatterMap = new Map();
+            this.chatters.forEach(c => chatterMap.set(c.user_login.toLowerCase(), c));
+            apiChatters.forEach(c => chatterMap.set(c.user_login.toLowerCase(), c));
 
-            this.chatters = data.filter(u => !ignored.has(u.user_login.toLowerCase()));
-            this.chatters = data.filter(u => !ignored.has(u.user_login.toLowerCase()));
+            this.chatters = Array.from(chatterMap.values());
+
             this.renderTable(this.chatters);
 
             loading.classList.add('hidden');
@@ -238,7 +242,7 @@ export const StalkerModule = {
         const { apiKey } = this.session;
         try {
             const res = await fetch(`api/user-info?login=${login}&apiKey=${apiKey}`);
-            if (!res.ok) throw new Error('Error info');
+            if (!res.ok) throw new Error(Messages.Stalker.infoError);
             const info = await res.json();
 
             this.openModal(info);
@@ -265,13 +269,13 @@ export const StalkerModule = {
         avatar.src = user.profile_image_url || 'img/LosPerris_progra.webp';
         name.textContent = user.display_name;
         modalLogin.textContent = `@${user.login}`;
-        bio.textContent = user.description || 'Sin biografía.';
+        bio.textContent = user.description || Messages.Stalker.bioEmpty;
 
         if (userId) userId.textContent = user.id;
 
         if (rank) {
-            const types = { 'partner': 'Socio', 'affiliate': 'Afiliado' };
-            rank.textContent = types[user.broadcaster_type] || 'Usuario';
+            const types = { 'partner': Messages.Details.partner, 'affiliate': Messages.Details.affiliate };
+            rank.textContent = types[user.broadcaster_type] || Messages.Details.user;
             rank.style.color = user.broadcaster_type ? 'var(--accent)' : 'var(--text-secondary)';
         }
 
@@ -283,16 +287,16 @@ export const StalkerModule = {
 
             let ageText = '';
             if (diffYears > 0) {
-                ageText = `${diffYears} año${diffYears > 1 ? 's' : ''}`;
+                ageText = Messages.Details.years(diffYears);
             } else if (diffMonths > 1) {
-                ageText = `${diffMonths} meses`;
+                ageText = Messages.Details.months(diffMonths);
             } else {
-                ageText = 'Nueva';
+                ageText = Messages.Details.new;
             }
             accountAge.textContent = ageText;
         }
 
-        created.textContent = `Cuenta creada el: ${new Date(user.created_at).toLocaleDateString()}`;
+        created.textContent = Messages.Details.created(user.created_at);
 
         const detailsGrid = document.querySelector('.profile-details-grid');
         let logBtn = document.getElementById('view-logs-btn');
@@ -303,7 +307,7 @@ export const StalkerModule = {
             btnContainer.style.marginTop = '10px';
             btnContainer.innerHTML = `
                 <button id="view-logs-btn" class="btn-secondary" style="width:100%; font-size:0.9rem;">
-                    <i class="fa-solid fa-comment-dots"></i> Ver Últimos Mensajes
+                    ${Messages.Details.viewLogs}
                 </button>
              `;
             detailsGrid.appendChild(btnContainer);
@@ -328,10 +332,10 @@ export const StalkerModule = {
             if (!bio) return;
 
             let html = `<div style="text-align:left; max-height:200px; overflow-y:auto; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-top:10px;">
-                <h4 style="margin:0 0 10px 0; font-size:0.9rem; color:var(--accent);"><i class="fa-solid fa-history"></i> Historial (Sesión actual)</h4>`;
+                <h4 style="margin:0 0 10px 0; font-size:0.9rem; color:var(--accent);">${Messages.Details.historyTitle}</h4>`;
 
             if (logs.length === 0) {
-                html += `<div style="color:var(--text-muted); font-size:0.8rem; font-style:italic;">No hay mensajes registrados en esta sesión.</div>`;
+                html += `<div style="color:var(--text-muted); font-size:0.8rem; font-style:italic;">${Messages.Details.noHistory}</div>`;
             } else {
                 html += logs.map(l => `
                     <div style="font-size:0.85rem; margin-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:4px;">
