@@ -1,17 +1,24 @@
 import express from 'express';
-import * as apiController from '../controllers/apiController';
+import * as commandsController from '../controllers/commandsController';
+import * as dashboardController from '../controllers/dashboardController';
+import * as systemController from '../controllers/systemController';
 import checkToken from '../middleware/authMiddleware';
 
 const router = express.Router();
 
-router.get('/create-clip', checkToken, apiController.createClip);
-router.get('/get-clips', checkToken, apiController.getClips);
-router.get('/followage', checkToken, apiController.followage);
-router.get('/validate', checkToken, apiController.validateToken);
-router.post('/regenerate-key', checkToken, apiController.regenerateKey);
-router.get('/analytics', checkToken, apiController.getAnalytics);
-router.get('/chatters', checkToken, apiController.getChatters);
-router.get('/user-info', checkToken, apiController.getUserInfo);
-router.post('/send-message', checkToken, apiController.sendMessage);
+// Commands
+router.get('/create-clip', checkToken, commandsController.createClip);
+router.get('/followage', checkToken, commandsController.followage);
+router.post('/send-message', checkToken, commandsController.sendMessage);
+
+// Dashboard
+router.get('/get-clips', checkToken, dashboardController.getClips);
+router.get('/analytics', checkToken, dashboardController.getAnalytics);
+router.get('/chatters', checkToken, dashboardController.getChatters);
+router.get('/user-info', checkToken, dashboardController.getUserInfo);
+
+// System
+router.get('/validate', checkToken, systemController.validateToken);
+router.post('/regenerate-key', checkToken, systemController.regenerateKey);
 
 export default router;
