@@ -21,49 +21,42 @@ export const StalkerModule = {
     client: null,
 
     connectTmi() {
-        if (this.client) return;
         if (typeof window.tmi === 'undefined') return;
 
+        import('../utils/tmiService.js').then(({ TmiService }) => {
+            TmiService.init(this.session.login);
 
-        this.client = new window.tmi.Client({
-            channels: [this.session.login],
-            connection: { secure: true, reconnect: true }
-        });
+            TmiService.addMessageListener((channel, tags, message) => {
+                const login = tags.username;
+                const name = tags['display-name'] || login;
 
-        this.client.connect().catch(console.error);
+                const ignored = new Set(['nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker', 'botrixoficial', 'trackerggbot']);
+                if (ignored.has(login.toLowerCase())) return;
 
-        this.client.on('message', (channel, tags, message, self) => {
-            const login = tags.username;
-            const name = tags['display-name'] || login;
+                const exists = this.chatters.some(u => u.user_login.toLowerCase() === login.toLowerCase());
 
-            const ignored = new Set(['nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker', 'botrixoficial', 'trackerggbot']);
-            if (ignored.has(login.toLowerCase())) return;
+                if (!exists) {
+                    const newUser = {
+                        user_login: login,
+                        user_name: name,
+                        profile_image_url: null
+                    };
 
-            const exists = this.chatters.some(u => u.user_login.toLowerCase() === login.toLowerCase());
+                    this.chatters.unshift(newUser);
+                    this.renderTable(this.chatters);
 
-            if (!exists) {
+                    const tbody = document.getElementById('stalker-grid');
+                    if (tbody && tbody.firstChild) {
+                        const row = tbody.firstChild;
+                        row.style.background = "rgba(59, 130, 246, 0.2)";
+                        row.style.transition = "background 1s";
+                        setTimeout(() => row.style.background = "", 1000);
+                    }
 
-
-                const newUser = {
-                    user_login: login,
-                    user_name: name,
-                    profile_image_url: null
-                };
-
-                this.chatters.unshift(newUser);
-                this.renderTable(this.chatters);
-
-                const tbody = document.getElementById('stalker-grid');
-                if (tbody && tbody.firstChild) {
-                    const row = tbody.firstChild;
-                    row.style.background = "rgba(59, 130, 246, 0.2)";
-                    row.style.transition = "background 1s";
-                    setTimeout(() => row.style.background = "", 1000);
+                    const empty = document.getElementById('stalker-empty');
+                    if (empty) empty.classList.add('hidden');
                 }
-
-                const empty = document.getElementById('stalker-empty');
-                if (empty) empty.classList.add('hidden');
-            }
+            });
         });
     },
 
