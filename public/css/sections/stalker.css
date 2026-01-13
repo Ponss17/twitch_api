@@ -8,7 +8,6 @@
 #stalker-controls .search-wrapper {
     position: relative;
     width: 200px;
-    /* Reduced from 250px to prevent wrapping */
     margin-right: 10px;
 }
 
