@@ -247,6 +247,26 @@ export const RouletteModule = {
             name.textContent = user.user_name;
             display.classList.remove('hidden');
             UI.showToast(Messages.Roulette.winner(user.user_name));
+
+            this.announceWinner(user.user_name);
+        }
+    },
+
+    async announceWinner(winnerName) {
+        try {
+            const { apiKey, login } = this.session;
+            const message = `🎉 ¡El ganador de la ruleta es @${winnerName}! 🎉`;
+
+            await fetch('api/send-message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    apiKey,
+                    message
+                })
+            });
+        } catch (e) {
+            console.error('Error anunciando ganador:', e);
         }
     },
 
