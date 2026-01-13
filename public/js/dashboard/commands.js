@@ -51,7 +51,11 @@ export const CommandsModule = {
             cmd = `$(urlfetch ${domain}/api/followage?user=$(user_name)&channel=${login}&${tokenParam})`;
         }
 
-        output.value = `!addcom !followage ${cmd}`;
+        const realCmd = `!addcom !followage ${cmd}`;
+        const maskedCmd = realCmd.replace(apiKey, '**************');
+
+        output.value = maskedCmd;
+        output.dataset.realValue = realCmd;
     },
 
     setupClipCommand() {
@@ -92,6 +96,10 @@ export const CommandsModule = {
             cmd = `🎬 Clip creado por \${user}: $(customapi ${domain}/api/create-clip?channel=${login}&${tokenParam})`;
         }
 
-        output.value = `!addcom !clip ${cmd}`;
+        const realCmd = `!addcom !clip ${cmd}`;
+        const maskedCmd = realCmd.replace(apiKey, '**************');
+
+        output.value = maskedCmd;
+        output.dataset.realValue = realCmd;
     }
 };
