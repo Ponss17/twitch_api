@@ -41,30 +41,26 @@ export const TrendsModule = {
             return;
         }
 
-        this.client = new window.tmi.Client({
-            channels: [channel],
-            connection: { secure: true, reconnect: true }
-        });
-
-        this.client.connect().then(() => {
-            this.updateStatus(true);
-        }).catch(err => {
-            console.error(err);
-            this.updateStatus(false);
-        });
-
-        this.client.on('message', (chn, tags, message, self) => {
-            if (self) return;
-            if (tags.username && this.ignoredUsers.has(tags.username.toLowerCase())) return;
-
-            this.messageLog.unshift({
-                user: tags.username,
-                text: message,
-                time: new Date()
+        import('../utils/tmiService.js').then(({ TmiService }) => {
+            TmiService.init(channel).then(() => {
+                this.updateStatus(true);
+            }).catch(() => {
+                this.updateStatus(false);
             });
-            if (this.messageLog.length > this.MAX_LOG_SIZE) this.messageLog.pop();
 
-            this.processMessage(message);
+            TmiService.addMessageListener((chn, tags, message) => {
+                const username = tags.username;
+                if (!username || this.ignoredUsers.has(username.toLowerCase())) return;
+
+                this.messageLog.unshift({
+                    user: username,
+                    text: message,
+                    time: new Date()
+                });
+                if (this.messageLog.length > this.MAX_LOG_SIZE) this.messageLog.pop();
+
+                this.processMessage(message);
+            });
         });
 
         const resetBtn = document.getElementById('reset-tracker-btn');

@@ -42,48 +42,42 @@ export const RouletteModule = {
     },
 
     connectTmi() {
-        if (this.client) return;
         if (typeof window.tmi === 'undefined') return;
 
+        import('../utils/tmiService.js').then(({ TmiService }) => {
+            TmiService.init(this.session.login);
 
-        this.client = new window.tmi.Client({
-            channels: [this.session.login],
-            connection: { secure: true, reconnect: true }
-        });
+            TmiService.addMessageListener((channel, tags, message) => {
+                if (this.isSpinning) return;
 
-        this.client.connect().catch(console.error);
+                const login = tags.username;
+                const name = tags['display-name'] || login;
 
-        this.client.on('message', (channel, tags, message, self) => {
-            if (this.isSpinning) return;
+                const ignored = new Set(['nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker', 'botrixoficial', 'trackerggbot']);
+                if (ignored.has(login.toLowerCase())) return;
 
-            const login = tags.username;
-            const name = tags['display-name'] || login;
+                const exists = this.chatters.some(u => u.user_login.toLowerCase() === login.toLowerCase());
 
-            const ignored = new Set(['nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker', 'botrixoficial', 'trackerggbot']);
-            if (ignored.has(login.toLowerCase())) return;
+                if (!exists) {
+                    this.chatters.push({
+                        user_login: login,
+                        user_name: name
+                    });
 
-            const exists = this.chatters.some(u => u.user_login.toLowerCase() === login.toLowerCase());
+                    this.updateUI();
 
-            if (!exists) {
-
-                this.chatters.push({
-                    user_login: login,
-                    user_name: name
-                });
-
-                this.updateUI();
-
-                const countDisplay = document.getElementById('roulette-count');
-                if (countDisplay) {
-                    countDisplay.style.color = '#3b82f6';
-                    countDisplay.style.transform = 'scale(1.2)';
-                    countDisplay.style.transition = 'all 0.2s';
-                    setTimeout(() => {
-                        countDisplay.style.color = '';
-                        countDisplay.style.transform = '';
-                    }, 500);
+                    const countDisplay = document.getElementById('roulette-count');
+                    if (countDisplay) {
+                        countDisplay.style.color = '#3b82f6';
+                        countDisplay.style.transform = 'scale(1.2)';
+                        countDisplay.style.transition = 'all 0.2s';
+                        setTimeout(() => {
+                            countDisplay.style.color = '';
+                            countDisplay.style.transform = '';
+                        }, 500);
+                    }
                 }
-            }
+            });
         });
     },
 
