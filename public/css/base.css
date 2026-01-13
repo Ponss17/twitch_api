@@ -60,7 +60,6 @@ code {
     font-family: 'Consolas', monospace;
 }
 
-/* Icons / Badges / Buttons Shared */
 .badge {
     display: inline-block;
     background: rgba(145, 70, 255, 0.1);
@@ -142,12 +141,10 @@ code {
     margin-left: auto;
 }
 
-/* Utilities: Toast, Loading, Empty, Error */
 .toast {
     position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 20px;
+    right: 20px;
     background: var(--success);
     color: white;
     padding: 12px 24px;
@@ -158,18 +155,18 @@ code {
     display: flex;
     align-items: center;
     gap: 10px;
-    animation: slideUp 0.3s ease-out;
+    animation: slideDown 0.3s ease-out;
 }
 
-@keyframes slideUp {
+@keyframes slideDown {
     from {
         opacity: 0;
-        transform: translate(-50%, 20px);
+        transform: translateY(-20px);
     }
 
     to {
         opacity: 1;
-        transform: translate(-50%, 0);
+        transform: translateY(0);
     }
 }
 

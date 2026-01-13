@@ -72,7 +72,6 @@ footer {
 }
 
 .footer-content {
-    /* Alias to keep consistency if used */
     color: var(--text-secondary);
     font-size: 0.9rem;
 }
@@ -86,7 +85,6 @@ footer a:hover {
     color: var(--accent-hover);
 }
 
-/* Sidebar & Dashboard Structure */
 #dashboard-page {
     display: flex;
     min-height: 100vh;
@@ -266,7 +264,6 @@ footer a:hover {
     animation: fadeIn 0.3s ease-out;
 }
 
-/* Cards & Forms */
 .card {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -357,7 +354,6 @@ footer a:hover {
     outline: none;
 }
 
-/* Responsive */
 @media (max-width: 900px) {
     .form-grid {
         grid-template-columns: 1fr;
