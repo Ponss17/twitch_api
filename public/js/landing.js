@@ -12,6 +12,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const sessionParams = Auth.parseUrlParams();
     if (sessionParams.token || sessionParams.apiKey) {
-        window.location.href = `/dashboard?${window.location.search.substring(1)}`;
+        window.location.href = `./dashboard?${window.location.search.substring(1)}`;
     }
 });
