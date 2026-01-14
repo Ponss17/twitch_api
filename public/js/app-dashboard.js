@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             Dashboard.init(sessionParams);
 
             if (sessionParams.isNewLogin) {
-                const cleanUrl = window.location.href.split('?')[0];
+                const cleanUrl = window.location.pathname + window.location.hash;
                 window.history.replaceState({}, document.title, cleanUrl);
                 Auth.saveSession(sessionParams);
             }
