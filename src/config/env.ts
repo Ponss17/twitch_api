@@ -16,5 +16,6 @@ export const CONFIG = {
     TWITCH_CLIENT_ID: TWITCH_CLIENT_ID,
     TWITCH_CLIENT_SECRET: TWITCH_CLIENT_SECRET,
     TWITCH_REDIRECT_URI: process.env.TWITCH_REDIRECT_URI || 'https://losperris.site/api/twitch/auth/twitch/callback',
-    NODE_ENV: process.env.NODE_ENV || 'development'
+    NODE_ENV: process.env.NODE_ENV || 'development',
+    GROQ_API_KEY: process.env.GROQ_API_KEY
 };
