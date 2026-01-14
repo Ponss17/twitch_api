@@ -49,6 +49,10 @@ app.get('/docs', (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, '../public/docs.html'));
 });
 
+app.get('/dashboard', (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '../public/dashboard.html'));
+});
+
 app.use(rateLimiter);
 
 app.use('/auth', authRoutes);

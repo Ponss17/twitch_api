@@ -17,18 +17,18 @@ export const TrendsModule = {
     MAX_LOG_SIZE: 500,
 
 
-    init(channel, displayName, avatarUrl = null) {
-        Loader.loadCSS('css/sections/trends.css');
-        this.session = { login: channel, displayName };
+    init(session) {
+        this.session = session;
+        const { login, displayName, profile_image_url } = session;
 
         const titleEl = document.getElementById('tracker-title');
-        if (titleEl) titleEl.textContent = Messages.Trends.title(displayName || channel);
+        if (titleEl) titleEl.textContent = Messages.Trends.title(displayName || login);
 
-        if (avatarUrl) {
+        if (profile_image_url) {
             const avatarEl = document.getElementById('tracker-avatar');
             const iconEl = document.getElementById('tracker-icon');
             if (avatarEl && iconEl) {
-                avatarEl.src = avatarUrl;
+                avatarEl.src = profile_image_url;
                 avatarEl.style.display = 'block';
                 iconEl.style.display = 'none';
             }
@@ -46,17 +46,25 @@ export const TrendsModule = {
     isConnected: false,
 
     connect() {
-        if (this.isConnected) return;
+        console.log("Trends: connect called");
+        if (this.isConnected) {
+            console.log("Trends: Already connected");
+            return;
+        }
         if (typeof window.tmi === 'undefined') {
+            console.error("Trends: window.tmi is undefined!");
             this.updateStatus(false);
             return;
         }
 
         import('../utils/tmiService.js').then(({ TmiService }) => {
+            console.log("Trends: Initializing TmiService for", this.session.login);
             TmiService.init(this.session.login).then(() => {
+                console.log("Trends: TmiService Init Success");
                 this.updateStatus(true);
                 this.isConnected = true;
-            }).catch(() => {
+            }).catch((e) => {
+                console.error("Trends: TmiService Init Failed", e);
                 this.updateStatus(false);
             });
 
@@ -94,17 +102,19 @@ export const TrendsModule = {
 
         const input = document.getElementById('tracker-minutes');
         const display = document.getElementById('tracker-timer');
-        const controls = document.querySelector('.timer-controls');
+        const inputContainer = document.getElementById('tracker-input-container');
 
         this.isTracking = true;
         this.resetInternal();
 
         const minutes = parseInt(input?.value) || 5;
 
-        if (controls) controls.classList.add('hidden');
+        if (inputContainer) inputContainer.classList.add('hidden');
+        if (display) display.classList.remove('hidden');
 
         const seconds = minutes * 60;
         this.runTimer(seconds);
+        this.render();
     },
 
     resetInternal() {
@@ -115,12 +125,15 @@ export const TrendsModule = {
     runTimer(seconds) {
         let remaining = seconds;
         const display = document.getElementById('tracker-timer');
+        const status = document.getElementById('tracker-status');
 
         if (display) {
             display.classList.remove('hidden');
             display.textContent = this.formatTime(remaining);
             display.style.color = "var(--text-primary)";
         }
+
+        if (status) status.classList.remove('hidden');
 
         if (this.timerInterval) clearInterval(this.timerInterval);
 
@@ -150,7 +163,9 @@ export const TrendsModule = {
             firstRow.style.background = "linear-gradient(90deg, rgba(255,215,0,0.2), transparent)";
             firstRow.style.borderLeft = "4px solid #FFD700";
             firstRow.style.transform = "scale(1.02)";
-            firstRow.querySelector('.word-text').style.color = "#FFD700";
+
+            const wordEl = firstRow.querySelector('.word-text');
+            if (wordEl) wordEl.style.color = "#FFD700";
         }
     },
 
@@ -184,10 +199,10 @@ export const TrendsModule = {
         this.isLocked = false;
         if (this.timerInterval) clearInterval(this.timerInterval);
 
-        const controls = document.querySelector('.timer-controls');
+        const inputContainer = document.getElementById('tracker-input-container');
         const display = document.getElementById('tracker-timer');
 
-        if (controls) controls.style.display = 'flex';
+        if (inputContainer) inputContainer.classList.remove('hidden');
         if (display) {
             display.classList.add('hidden');
             display.style.color = "var(--accent)";

@@ -11,6 +11,49 @@ export const CommandsModule = {
 
         this.setupFollowCommand();
         this.setupClipCommand();
+        this.setupTestCommand();
+    },
+
+    setupTestCommand() {
+        const btn = document.getElementById('run-test-btn');
+        if (!btn) return;
+
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+
+        newBtn.addEventListener('click', async () => {
+            const channel = document.getElementById('test-channel').value.trim();
+            const user = document.getElementById('test-user').value.trim();
+            const resultBox = document.getElementById('test-result-container');
+            const resultText = document.getElementById('test-result-text');
+
+            if (!channel || !user) {
+                alert('Por favor, completa ambos campos.');
+                return;
+            }
+
+            resultBox.classList.remove('hidden');
+            resultText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Probando...';
+
+            const { apiKey, token } = this.session;
+            const domain = `${CONFIG.siteUrl}/api/twitch`;
+            const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+            const url = `${domain}/api/followage?user=${user}&channel=${channel}&${tokenParam}`;
+
+            try {
+                const response = await fetch(url);
+                const text = await response.text();
+
+                if (response.ok) {
+                    resultText.innerHTML = `<span class="text-success"><i class="fa-solid fa-check"></i> ${text}</span>`;
+                } else {
+                    resultText.innerHTML = `<span class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Error: ${text}</span>`;
+                }
+            } catch (err) {
+                resultText.innerHTML = `<span class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Error de conexión</span>`;
+                console.error(err);
+            }
+        });
     },
 
     setupFollowCommand() {

@@ -18,7 +18,7 @@ export const callback = async (req: Request, res: Response) => {
         const { user, access_token, redirectOrigin, apiKey } = await authService.handleCallback(code, state);
 
         const params = `?token=${access_token}&apiKey=${apiKey}&userId=${user.id}&login=${user.login}&displayName=${encodeURIComponent(user.display_name)}`;
-        const redirectUrl = redirectOrigin ? `${redirectOrigin}${params}` : `/${params}`;
+        const redirectUrl = redirectOrigin ? `${redirectOrigin}${params}` : `/dashboard${params}`;
 
         res.redirect(redirectUrl);
     } catch (error: unknown) {
