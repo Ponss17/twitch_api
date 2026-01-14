@@ -58,7 +58,7 @@ export const Messages = {
     Tracker: {
         connected: '<span style="color:var(--success)"><i class="fa-solid fa-circle"></i> Conectado</span>',
         error: '<span style="color:var(--warning)"><i class="fa-solid fa-xmark"></i> Error</span>',
-        waiting: '<tr><td colspan="4" style="text-align:center; padding:20px; color:#666;">Esperando mensajes...</td></tr>',
+        waiting: '<tr><td colspan="4" style="text-align:center; padding:20px; color:#666;">Esperando palabras...</td></tr>',
         timeUp: '¡TIEMPO!'
     },
     Roulette: {
