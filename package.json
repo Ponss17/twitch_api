@@ -5,6 +5,7 @@
   "main": "api/index.ts",
   "scripts": {
     "build": "tsc",
+    "postbuild": "cp -r public dist/public",
     "start": "node -r dotenv/config dist/api/index.js",
     "dev": "ts-node --files -r dotenv/config api/index.ts"
   },
