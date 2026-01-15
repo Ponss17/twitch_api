@@ -49,6 +49,8 @@ app.get(['/dashboard', '/api/twitch/dashboard'], (req: Request, res: Response) =
 
 app.use(rateLimiter);
 
+app.use('/auth', authRoutes);
+app.use('/auth', authRoutes);
 app.use('/api/twitch/auth', authRoutes);
 app.use('/api/twitch', apiRoutes);
 
