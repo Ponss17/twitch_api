@@ -19,7 +19,7 @@ export const AnalyticsModule = {
         try {
             const { apiKey, token } = this.session;
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-            const res = await fetch(`api/analytics?${tokenParam}`);
+            const res = await fetch(`/api/twitch/analytics?${tokenParam}`);
 
             if (!res.ok) {
                 throw new Error(Messages.Analytics.loadError);

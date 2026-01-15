@@ -62,7 +62,7 @@ export const SettingsModule = {
 
         try {
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-            const res = await fetch(`api/followage?user=${user}&channel=${channel}&${tokenParam}`);
+            const res = await fetch(`/api/twitch/followage?user=${user}&channel=${channel}&${tokenParam}`);
 
             if (!res.ok) {
                 throw new Error(`Error ${res.status}: ${res.statusText}`);
@@ -99,7 +99,7 @@ export const SettingsModule = {
         regenerateBtn.innerHTML = Messages.Settings.loadingIcon;
 
         try {
-            const res = await fetch('api/regenerate-key', {
+            const res = await fetch('/api/twitch/regenerate-key', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ key: currentKey })

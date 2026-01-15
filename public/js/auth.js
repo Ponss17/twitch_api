@@ -22,7 +22,7 @@ export const Auth = {
 
     async validateCurrentToken(paramStr) {
         try {
-            const res = await fetch(`api/validate?${paramStr}`);
+            const res = await fetch(`/api/twitch/validate?${paramStr}`);
             if (!res.ok) return false;
 
             const contentType = res.headers.get("content-type");
