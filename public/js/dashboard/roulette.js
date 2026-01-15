@@ -120,7 +120,7 @@ export const RouletteModule = {
         const countDisplay = document.getElementById('roulette-count');
         try {
             const { apiKey, login } = this.session;
-            const res = await fetch(`api/chatters?channel=${login}&apiKey=${apiKey}`);
+            const res = await fetch(`/api/twitch/chatters?channel=${login}&apiKey=${apiKey}`);
 
             if (res.ok) {
                 const data = await res.json();
@@ -285,7 +285,7 @@ export const RouletteModule = {
             const { apiKey, login } = this.session;
             const message = `🎉 ¡El ganador de la ruleta es @${winnerName} ! 🎉`;
 
-            await fetch('api/send-message', {
+            await fetch('/api/twitch/send-message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

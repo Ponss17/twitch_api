@@ -36,29 +36,23 @@ app.use(compression());
 app.use(express.json());
 app.use(express.json());
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-    if (req.url.startsWith('/api/twitch')) {
-        req.url = req.url.replace('/api/twitch', '') || '/';
-    }
-    next();
-});
-
+app.use('/api/twitch', express.static(path.join(__dirname, '../public')));
 app.use(express.static(path.join(__dirname, '../public')));
 
-app.get('/docs', (req: Request, res: Response) => {
+app.get(['/docs', '/api/twitch/docs'], (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, '../public/docs.html'));
 });
 
-app.get('/dashboard', (req: Request, res: Response) => {
+app.get(['/dashboard', '/api/twitch/dashboard'], (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, '../public/dashboard.html'));
 });
 
 app.use(rateLimiter);
 
-app.use('/auth', authRoutes);
-app.use('/api', apiRoutes);
+app.use('/api/twitch/auth', authRoutes);
+app.use('/api/twitch', apiRoutes);
 
-app.get('/health', (req: Request, res: Response) => {
+app.get(['/health', '/api/twitch/health'], (req: Request, res: Response) => {
     const isConfigured = !!(CONFIG.TWITCH_CLIENT_ID && CONFIG.TWITCH_CLIENT_SECRET);
     res.json({
         status: isConfigured ? 'ok' : 'maintenance',

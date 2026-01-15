@@ -38,7 +38,7 @@ export const CommandsModule = {
             const { apiKey, token } = this.session;
             const domain = `${CONFIG.siteUrl}/api/twitch`;
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-            const url = `${domain}/api/followage?user=${user}&channel=${channel}&${tokenParam}`;
+            const url = `${domain}/followage?user=${user}&channel=${channel}&${tokenParam}`;
 
             try {
                 const response = await fetch(url);
