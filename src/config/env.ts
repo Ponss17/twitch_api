@@ -15,7 +15,7 @@ export const CONFIG = {
     PORT: process.env.PORT || 3000,
     TWITCH_CLIENT_ID: TWITCH_CLIENT_ID,
     TWITCH_CLIENT_SECRET: TWITCH_CLIENT_SECRET,
-    TWITCH_REDIRECT_URI: process.env.TWITCH_REDIRECT_URI || 'https://losperris.site/api/twitch/auth/twitch/callback',
+    TWITCH_REDIRECT_URI: process.env.TWITCH_REDIRECT_URI || 'https://losperris.site/auth/twitch/callback',
     NODE_ENV: process.env.NODE_ENV || 'development',
     GROQ_API_KEY: process.env.GROQ_API_KEY
 };
