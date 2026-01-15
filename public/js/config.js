@@ -5,7 +5,7 @@ const host = window.location.host;
 export const CONFIG = {
     domain: host,
     siteUrl: `${protocol}//${host}`,
-    twitchRedirectUri: `${protocol}//${host}/api/twitch/auth/twitch/callback`
+    twitchRedirectUri: `${protocol}//${host}/auth/twitch/callback`
 };
 
 Object.freeze(CONFIG);
