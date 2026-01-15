@@ -283,7 +283,7 @@ export const RouletteModule = {
     async announceWinner(winnerName) {
         try {
             const { apiKey, login } = this.session;
-            const message = `🎉 ¡El ganador de la ruleta es @${winnerName}! 🎉`;
+            const message = `🎉 ¡El ganador de la ruleta es @${winnerName} ! 🎉`;
 
             await fetch('api/send-message', {
                 method: 'POST',
