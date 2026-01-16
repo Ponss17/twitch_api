@@ -82,7 +82,7 @@ export const PerriBot = {
                 const { apiKey, token } = this.session;
                 const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
 
-                const res = await fetch('api/ai/chat?' + tokenParam, {
+                const res = await fetch('/api/twitch/ai/chat?' + tokenParam, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
