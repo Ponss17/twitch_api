@@ -51,11 +51,9 @@ app.use(rateLimiter);
 
 app.use('/auth', authRoutes);
 app.use('/api/twitch/auth', authRoutes);
-// Fallbacks for Vercel stripping
 app.use('/twitch/auth', authRoutes);
 
 app.use('/api/twitch', apiRoutes);
-// Fallbacks for Vercel stripping
 app.use('/twitch', apiRoutes);
 app.use('/', apiRoutes);
 
