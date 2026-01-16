@@ -87,11 +87,11 @@ export const CommandsModule = {
         let cmd = '';
 
         if (bot === 'nightbot') {
-            cmd = `$(urlfetch ${domain}/api/followage?user=$(touser)&channel=${login}&${tokenParam})`;
+            cmd = `$(urlfetch ${domain}/followage?user=$(touser)&channel=${login}&${tokenParam})`;
         } else if (bot === 'streamelements' || bot === 'fossabot') {
-            cmd = `$(customapi ${domain}/api/followage?user=\${user}&channel=${login}&${tokenParam})`;
+            cmd = `$(customapi ${domain}/followage?user=\${user}&channel=${login}&${tokenParam})`;
         } else if (bot === 'wizebot') {
-            cmd = `$(urlfetch ${domain}/api/followage?user=$(user_name)&channel=${login}&${tokenParam})`;
+            cmd = `$(urlfetch ${domain}/followage?user=$(user_name)&channel=${login}&${tokenParam})`;
         }
 
         const realCmd = `!addcom !followage ${cmd}`;
@@ -132,11 +132,11 @@ export const CommandsModule = {
         let cmd = '';
 
         if (bot === 'nightbot') {
-            cmd = `🎬 Clip creado por $(user): $(urlfetch ${domain}/api/create-clip?channel=${login}&${tokenParam})`;
+            cmd = `🎬 Clip creado por $(user): $(urlfetch ${domain}/create-clip?channel=${login}&${tokenParam})`;
         } else if (bot === 'wizebot') {
-            cmd = `🎬 Clip creado por $(user_name): $(urlfetch ${domain}/api/create-clip?channel=${login}&${tokenParam})`;
+            cmd = `🎬 Clip creado por $(user_name): $(urlfetch ${domain}/create-clip?channel=${login}&${tokenParam})`;
         } else {
-            cmd = `🎬 Clip creado por \${user}: $(customapi ${domain}/api/create-clip?channel=${login}&${tokenParam})`;
+            cmd = `🎬 Clip creado por \${user}: $(customapi ${domain}/create-clip?channel=${login}&${tokenParam})`;
         }
 
         const realCmd = `!addcom !clip ${cmd}`;
