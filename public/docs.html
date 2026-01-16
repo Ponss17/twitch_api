@@ -67,7 +67,7 @@
                     tu Clave Permanente conectando tu cuenta en el <a href="./">panel principal</a>.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/auth/twitch</span>
+                    <span class="url">/api/twitch/auth/twitch</span>
                 </div>
                 <p>Este endpoint inicia el flujo de OAuth con Twitch para obtener tus credenciales.</p>
                 <div class="info-card" style="margin-top: 1.5rem;">
@@ -83,7 +83,7 @@
                 <p>Genera un clip instantáneo del canal especificado.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/create-clip?channel={canal}&apiKey={tu_api_key}</span>
+                    <span class="url">/api/twitch/create-clip?channel={canal}&apiKey={tu_api_key}</span>
                 </div>
                 <div class="info-card"
                     style="margin-bottom: 1.5rem; background: rgba(59, 130, 246, 0.05); border-left-color: #3b82f6;">
@@ -116,7 +116,7 @@
                 <h3>Ejemplo Nightbot</h3>
                 <div class="code-block">
                     <code class="dynamic-url"
-                        data-path="🎬 Clip creado por $(user): $(urlfetch {baseURL}/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)">Cargando...</code>
+                        data-path="🎬 Clip creado por $(user): $(urlfetch {baseURL}/api/twitch/create-clip?channel=$(channel)&apiKey=TU_API_KEY)">Cargando...</code>
                 </div>
                 <h3>Ejemplo de Respuesta</h3>
                 <div class="code-block">
@@ -129,12 +129,12 @@
                 <p>Consulta cuánto tiempo lleva un usuario siguiendo a un canal.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/followage?channel={canal}&user={usuario}&apiKey={tu_api_key}</span>
+                    <span class="url">/api/twitch/followage?channel={canal}&user={usuario}&apiKey={tu_api_key}</span>
                 </div>
                 <h3>Ejemplo Nightbot</h3>
                 <div class="code-block">
                     <code class="dynamic-url"
-                        data-path="/api/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY">Cargando...</code>
+                        data-path="/api/twitch/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY">Cargando...</code>
                 </div>
                 <h3>Ejemplo de Respuesta</h3>
                 <div class="code-block">
@@ -147,7 +147,7 @@
                 <p>Obtiene los clips más recientes de un canal.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/get-clips?channel={canal}&apiKey={tu_api_key}&limit=10</span>
+                    <span class="url">/api/twitch/get-clips?channel={canal}&apiKey={tu_api_key}&limit=10</span>
                 </div>
                 <h3>Ejemplo de Respuesta (JSON)</h3>
                 <div class="code-block">
@@ -179,7 +179,7 @@
                 <p>Obtiene una lista combinada de usuarios activos (API de Twitch + Detección en tiempo real).</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/chatters?channel={canal}&apiKey={tu_api_key}</span>
+                    <span class="url">/api/twitch/chatters?channel={canal}&apiKey={tu_api_key}</span>
                 </div>
                 <div class="info-card">
                     <i class="fa-solid fa-robot"></i>
@@ -200,7 +200,7 @@
                 <p>Obtiene detalles públicos de cualquier usuario de Twitch.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/user-info?login={usuario}&apiKey={tu_api_key}</span>
+                    <span class="url">/api/twitch/user-info?login={usuario}&apiKey={tu_api_key}</span>
                 </div>
                 <div class="code-block">
                     <code>{
