@@ -33,6 +33,10 @@
             "destination": "/public/docs.html"
         },
         {
+            "source": "/api/twitch/(.*)",
+            "destination": "/dist/api/index.js"
+        },
+        {
             "source": "/(.*)",
             "destination": "/dist/api/index.js"
         }
