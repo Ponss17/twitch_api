@@ -305,3 +305,47 @@ code {
     font-family: 'Consolas', monospace;
     font-size: 0.9rem;
 }
+
+.info-icon {
+    color: var(--text-muted);
+    cursor: help;
+    transition: color 0.2s;
+    position: relative;
+    font-size: 1.1rem;
+    /* margin-left handled by parent flex container gap */
+}
+
+.info-icon:hover {
+    color: var(--accent);
+}
+
+.info-icon::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    right: -10px;
+    transform: none;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    border-radius: 8px;
+    width: 240px;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    text-align: left;
+    margin-bottom: 10px;
+    line-height: 1.4;
+    white-space: normal;
+}
+
+.info-icon:hover::after {
+    opacity: 1;
+    transform: translateY(-5px);
+}
