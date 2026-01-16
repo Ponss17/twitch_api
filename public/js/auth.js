@@ -47,7 +47,7 @@ export const Auth = {
             userId: params.get('userId') || savedSession?.userId,
             login: params.get('login') || savedSession?.login,
             displayName: params.get('displayName') || savedSession?.displayName,
-            isNewLogin: !!params.get('token')
+            isNewLogin: !!params.get('token') || !!params.get('apiKey')
         };
     },
 
