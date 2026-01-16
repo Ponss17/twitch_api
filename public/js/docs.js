@@ -1,4 +1,7 @@
+import { FooterComponent } from './components/footer.js';
+
 document.addEventListener('DOMContentLoaded', () => {
+    FooterComponent.render('main-footer');
     const sections = document.querySelectorAll('.doc-section');
     const navItems = document.querySelectorAll('.nav-item');
     const observerOptions = {
