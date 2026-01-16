@@ -46,9 +46,7 @@ export const TrendsModule = {
     isConnected: false,
 
     connect() {
-        console.log("Trends: connect called");
         if (this.isConnected) {
-            console.log("Trends: Already connected");
             return;
         }
         if (typeof window.tmi === 'undefined') {
@@ -58,9 +56,7 @@ export const TrendsModule = {
         }
 
         import('../utils/tmiService.js').then(({ TmiService }) => {
-            console.log("Trends: Initializing TmiService for", this.session.login);
             TmiService.init(this.session.login).then(() => {
-                console.log("Trends: TmiService Init Success");
                 this.updateStatus(true);
                 this.isConnected = true;
             }).catch((e) => {
