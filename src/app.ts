@@ -50,9 +50,14 @@ app.get(['/dashboard', '/api/twitch/dashboard'], (req: Request, res: Response) =
 app.use(rateLimiter);
 
 app.use('/auth', authRoutes);
-app.use('/auth', authRoutes);
 app.use('/api/twitch/auth', authRoutes);
+// Fallbacks for Vercel stripping
+app.use('/twitch/auth', authRoutes);
+
 app.use('/api/twitch', apiRoutes);
+// Fallbacks for Vercel stripping
+app.use('/twitch', apiRoutes);
+app.use('/', apiRoutes);
 
 app.get(['/health', '/api/twitch/health'], (req: Request, res: Response) => {
     const isConfigured = !!(CONFIG.TWITCH_CLIENT_ID && CONFIG.TWITCH_CLIENT_SECRET);
