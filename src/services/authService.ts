@@ -53,7 +53,6 @@ export const handleCallback = async (code: string, state: string): Promise<{ use
     if (!refresh_token) {
         console.warn('⚠ ADVERTENCIA: No se recibió Refresh Token de Twitch. La sesión no se renovará automáticamente.');
     } else {
-        console.log('✅ Refresh Token recibido y guardado correctamente.');
     }
 
     await dbService.saveUser(storedUser);
@@ -95,7 +94,6 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
         user.expiresAt = Date.now() + (expires_in * 1000);
 
         await dbService.saveUser(user);
-        console.log(`✅ Token renovado para ${user.login}`);
         return access_token;
     } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -112,7 +110,6 @@ export const getValidToken = async (apiKey: string): Promise<{ accessToken: stri
     if (!user) throw new Error('API Key inválida');
 
     if (Date.now() > user.expiresAt - 5 * 60 * 1000) {
-        console.log(`Refreshing token for ${user.login}...`);
         const newToken = await refreshUserToken(user.userId);
         return { accessToken: newToken, userId: user.userId };
     }
