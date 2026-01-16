@@ -1,6 +1,6 @@
 import { Auth } from './auth.js';
 import { UI } from './ui.js';
-import { CONFIG } from './config.js';
+import { FooterComponent } from './components/footer.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     Auth.setupLoginButton('login-btn');
@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const heroCode = document.getElementById('hero-code-display');
     if (heroCode) UI.setupHeroAnimation(heroCode);
 
-    UI.setupFooter(CONFIG);
+    FooterComponent.render('main-footer');
 
     const sessionParams = Auth.parseUrlParams();
     if (sessionParams.token || sessionParams.apiKey) {

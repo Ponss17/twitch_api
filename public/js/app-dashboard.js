@@ -3,8 +3,10 @@ import { UI } from './ui.js';
 import { Dashboard } from './dashboard.js';
 import { CONFIG } from './config.js';
 import { PerriBot } from './components/perri.js';
+import { FooterComponent } from './components/footer.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+    FooterComponent.render('main-footer');
     UI.setupClipboard(document.querySelectorAll('.copy-btn'));
 
     const sessionParams = Auth.parseUrlParams();

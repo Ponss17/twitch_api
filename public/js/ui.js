@@ -70,13 +70,4 @@ export const UI = {
         }, 7000);
     },
 
-    setupFooter(config) {
-        const yearSpan = document.getElementById('footer-year');
-        const linkSpan = document.getElementById('footer-link');
-
-        if (yearSpan) yearSpan.textContent = new Date().getFullYear();
-        if (linkSpan) {
-            linkSpan.innerHTML = `<a href="${window.location.origin}" target="_blank">${window.location.hostname}</a>`;
-        }
-    }
 };

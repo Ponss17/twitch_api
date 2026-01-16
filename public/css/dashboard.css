@@ -130,6 +130,13 @@
     flex: 1;
     margin-left: var(--sidebar-width);
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-content {
+    flex: 1;
+    padding: 40px;
 }
 
 .dashboard-header {
@@ -168,9 +175,6 @@
     font-size: 0.9rem;
 }
 
-.dashboard-content {
-    padding: 40px;
-}
 
 .tab-pane {
     display: none;
