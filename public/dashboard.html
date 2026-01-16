@@ -101,6 +101,11 @@
                                 <h3>Tu Credencial API</h3>
                                 <p class="card-desc">Gestiona tu API Key para las integraciones</p>
                             </div>
+                            <div class="header-actions"
+                                style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-circle-question info-icon"
+                                    data-tooltip="Esta llave conecta tu canal con nuestras herramientas. ¡No la compartas con nadie!"></i>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="form-grid">
@@ -143,6 +148,11 @@
                                 <h3>Estadísticas</h3>
                                 <p class="card-desc">Uso de tus comandos en tiempo real</p>
                             </div>
+                            <div class="header-actions"
+                                style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-circle-question info-icon"
+                                    data-tooltip="Contador histórico de cuántas veces tus viewers han usado los comandos."></i>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="stats-grid">
@@ -170,6 +180,11 @@
                             <div>
                                 <h3>Comando !followage</h3>
                                 <p class="card-desc">Muestra cuánto tiempo lleva alguien siguiéndote</p>
+                            </div>
+                            <div class="header-actions"
+                                style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-circle-question info-icon"
+                                    data-tooltip="Genera el código para que tu bot responda con el tiempo exacto que un usuario te sigue."></i>
                             </div>
                         </div>
                         <div class="card-body">
@@ -199,6 +214,11 @@
                             <div>
                                 <h3>Prueba la API</h3>
                                 <p class="card-desc">Verifica que todo funcione correctamente</p>
+                            </div>
+                            <div class="header-actions"
+                                style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-circle-question info-icon"
+                                    data-tooltip="Simula una petición manual a la API. Útil para verificar si un usuario existe."></i>
                             </div>
                         </div>
                         <div class="card-body">
@@ -230,6 +250,11 @@
                                 <h3>Comando !clip</h3>
                                 <p class="card-desc">Permite crear clips desde el chat</p>
                             </div>
+                            <div class="header-actions"
+                                style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-circle-question info-icon"
+                                    data-tooltip="Tus moderadores podrán crear clips instantáneos escribiendo !clip. Requiere estar en vivo."></i>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="tool-selector">
@@ -259,9 +284,14 @@
                                 <h3>Clips Recientes</h3>
                                 <p class="card-desc">Los últimos clips de tu canal</p>
                             </div>
-                            <button id="refresh-clips-btn" class="btn-icon ml-auto" title="Recargar lista de clips">
-                                <i class="fa-solid fa-rotate-right"></i>
-                            </button>
+                            <div class="header-actions"
+                                style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                                <button id="refresh-clips-btn" class="btn-icon" title="Recargar lista de clips">
+                                    <i class="fa-solid fa-rotate-right"></i>
+                                </button>
+                                <i class="fa-solid fa-circle-question info-icon"
+                                    data-tooltip="Galería de tus clips más recientes. Se actualiza automáticamente."></i>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div id="clips-gallery" class="clips-grid">
@@ -283,29 +313,35 @@
                                 <h3 id="tracker-title">Tendencias de Chat</h3>
                                 <p class="card-desc">Ranking de palabras en tiempo real</p>
                             </div>
-                            <div class="tracker-controls">
-                                <div id="tracker-input-container" style="display:flex; align-items:center; gap:10px;">
-                                    <div class="timer-group">
-                                        <span class="timer-label">Duración:</span>
-                                        <div class="input-wrapper">
-                                            <input type="number" id="tracker-minutes" value="5" min="1" max="60"
-                                                class="timer-input">
-                                            <span class="input-suffix">min</span>
+                            <div class="header-actions"
+                                style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                                <div class="tracker-controls">
+                                    <div id="tracker-input-container"
+                                        style="display:flex; align-items:center; gap:10px;">
+                                        <div class="timer-group">
+                                            <span class="timer-label">Duración:</span>
+                                            <div class="input-wrapper">
+                                                <input type="number" id="tracker-minutes" value="5" min="1" max="60"
+                                                    class="timer-input">
+                                                <span class="input-suffix">min</span>
+                                            </div>
                                         </div>
+                                        <button id="start-timer-btn" class="btn-icon btn-success"
+                                            title="Iniciar temporizador">
+                                            <i class="fa-solid fa-play"></i>
+                                        </button>
                                     </div>
-                                    <button id="start-timer-btn" class="btn-icon btn-success"
-                                        title="Iniciar temporizador">
-                                        <i class="fa-solid fa-play"></i>
+                                    <span id="tracker-timer" class="timer-display hidden">00:00</span>
+                                    <span id="tracker-status" style="font-size:0.8rem; color:#666;">
+                                        <i class="fa-solid fa-circle-notch fa-spin"></i> Conectando...
+                                    </span>
+                                    <button id="reset-tracker-btn" class="btn-icon btn-warning"
+                                        title="Reiniciar contador de palabras">
+                                        <i class="fa-solid fa-rotate"></i>
                                     </button>
                                 </div>
-                                <span id="tracker-timer" class="timer-display hidden">00:00</span>
-                                <span id="tracker-status" style="font-size:0.8rem; color:#666;">
-                                    <i class="fa-solid fa-circle-notch fa-spin"></i> Conectando...
-                                </span>
-                                <button id="reset-tracker-btn" class="btn-icon btn-warning"
-                                    title="Reiniciar contador de palabras">
-                                    <i class="fa-solid fa-rotate"></i>
-                                </button>
+                                <i class="fa-solid fa-circle-question info-icon"
+                                    data-tooltip="Analiza las palabras más repetidas en el chat durante un tiempo. Ideal para encuestas rápidas."></i>
                             </div>
                         </div>
                         <div class="card-body">
@@ -342,7 +378,12 @@
                                 <h3>Visor de Chat (Stalker)</h3>
                                 <p class="card-desc">Quién está en tu chat ahora mismo</p>
                             </div>
-                            <div id="stalker-controls"></div>
+                            <div class="header-actions"
+                                style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                                <div id="stalker-controls"></div>
+                                <i class="fa-solid fa-circle-question info-icon"
+                                    data-tooltip="Lista de usuarios conectados, clasificados por rol (Mods, VIPs, etc). Clic para detalles."></i>
+                            </div>
                         </div>
                         <div class="card-body" id="stalker-content">
                         </div>
@@ -359,14 +400,20 @@
                                 <h3>Ruleta de Viewers</h3>
                                 <p class="card-desc">Sortea premios entre los usuarios activos</p>
                             </div>
-                            <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
-                                <span id="roulette-count" class="badge" style="margin-bottom:0;">0</span>
-                                <button id="toggle-roulette" class="btn-icon btn-success" title="Abrir Inscripciones">
-                                    <i class="fa-solid fa-play"></i>
-                                </button>
-                                <button id="btn-refresh-roulette" class="btn-icon" title="Recargar usuarios">
-                                    <i class="fa-solid fa-rotate-right"></i>
-                                </button>
+                            <div class="header-actions"
+                                style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <span id="roulette-count" class="badge" style="margin-bottom:0;">0</span>
+                                    <button id="toggle-roulette" class="btn-icon btn-success"
+                                        title="Abrir Inscripciones">
+                                        <i class="fa-solid fa-play"></i>
+                                    </button>
+                                    <button id="btn-refresh-roulette" class="btn-icon" title="Recargar usuarios">
+                                        <i class="fa-solid fa-rotate-right"></i>
+                                    </button>
+                                </div>
+                                <i class="fa-solid fa-circle-question info-icon"
+                                    data-tooltip="Sorteo en vivo. Los usuarios entran automáticamente al hablar en el chat."></i>
                             </div>
                         </div>
                         <div class="card-body" style="text-align:center;">
