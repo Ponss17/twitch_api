@@ -24,7 +24,6 @@ export const TmiService = {
 
         return this.client.connect()
             .then(() => {
-                console.log('✅ TMI Connected');
                 this.isConnected = true;
             })
             .catch(err => {
