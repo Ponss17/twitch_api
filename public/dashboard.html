@@ -47,6 +47,10 @@
                     <i class="fa-solid fa-film"></i>
                     <span class="nav-text">Clips</span>
                 </button>
+                <button class="nav-item" data-tab="tab-shoutout">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span class="nav-text">Shoutout</span>
+                </button>
 
                 <div class="menu-category">Herramientas</div>
                 <button class="nav-item" data-tab="tab-tracker">
@@ -176,39 +180,7 @@
                 </div>
 
                 <div id="tab-followage" class="tab-pane">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i class="fa-solid fa-wrench"></i>
-                            </div>
-                            <div>
-                                <h3>Comando !followage</h3>
-                                <p class="card-desc">Muestra cuánto tiempo lleva alguien siguiéndote</p>
-                            </div>
-                            <div class="header-actions"
-                                style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
-                                <i class="fa-solid fa-circle-question info-icon"
-                                    data-tooltip="Genera el código para que tu bot responda con el tiempo exacto que un usuario te sigue."></i>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="tool-selector">
-                                <label><i class="fa-solid fa-robot"></i> Selecciona tu bot:</label>
-                                <select id="bot-select-follow" class="select-input">
-                                    <option value="nightbot">Nightbot</option>
-                                    <option value="streamelements">StreamElements</option>
-                                    <option value="fossabot">Fossabot</option>
-                                    <option value="wizebot">Wizebot</option>
-                                </select>
-                            </div>
-                            <div class="code-box">
-                                <textarea id="command-output-follow" readonly></textarea>
-                                <button class="btn-copy copy-btn" data-target="command-output-follow">
-                                    <i class="fa-regular fa-copy"></i> Copiar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <div id="command-card-followage"></div>
 
                     <div class="card">
                         <div class="card-header">
@@ -245,39 +217,7 @@
                 </div>
 
                 <div id="tab-clips" class="tab-pane">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i class="fa-solid fa-video"></i>
-                            </div>
-                            <div>
-                                <h3>Comando !clip</h3>
-                                <p class="card-desc">Permite crear clips desde el chat</p>
-                            </div>
-                            <div class="header-actions"
-                                style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
-                                <i class="fa-solid fa-circle-question info-icon"
-                                    data-tooltip="Tus moderadores podrán crear clips instantáneos escribiendo !clip. Requiere estar en vivo."></i>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="tool-selector">
-                                <label><i class="fa-solid fa-robot"></i> Selecciona tu bot:</label>
-                                <select id="bot-select-clip" class="select-input">
-                                    <option value="nightbot">Nightbot</option>
-                                    <option value="streamelements">StreamElements</option>
-                                    <option value="fossabot">Fossabot</option>
-                                    <option value="wizebot">Wizebot</option>
-                                </select>
-                            </div>
-                            <div class="code-box">
-                                <textarea id="command-output-clip" readonly></textarea>
-                                <button class="btn-copy copy-btn" data-target="command-output-clip">
-                                    <i class="fa-regular fa-copy"></i> Copiar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <div id="command-card-clip"></div>
 
                     <div class="card">
                         <div class="card-header">
@@ -305,8 +245,12 @@
                     </div>
                 </div>
 
+                <div id="tab-shoutout" class="tab-pane">
+                    <div id="command-card-shoutout"></div>
+                </div>
+
                 <div id="tab-tracker" class="tab-pane">
-                    <div class="card">
+                    <div class="container">
                         <div class="card-header">
                             <div class="card-icon">
                                 <img id="tracker-avatar" src="img/LosPerris_progra.webp" alt="Avatar"
