@@ -52,7 +52,6 @@ export const handleCallback = async (code: string, state: string): Promise<{ use
 
     if (!refresh_token) {
         console.warn('⚠ ADVERTENCIA: No se recibió Refresh Token de Twitch. La sesión no se renovará automáticamente.');
-    } else {
     }
 
     await dbService.saveUser(storedUser);

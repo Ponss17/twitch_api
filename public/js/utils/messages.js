@@ -1,4 +1,21 @@
 export const Messages = {
+    Auth: {
+        sessionExpired: "Tu sesión ha expirado",
+        validationError: "Error al validar sesión",
+        sessionError: "Error de sesión. Recarga la página."
+    },
+    Feedback: {
+        emptyMessage: "Por favor, escribe un mensaje.",
+        sending: '<i class="fa-solid fa-circle-notch fa-spin"></i> Enviando...',
+        defaultButton: '<i class="fa-solid fa-paper-plane"></i> Enviar Feedback',
+        success: "¡Feedback enviado! Gracias por tu aporte.",
+        error: "Error al enviar. Intenta más tarde.",
+        connectionError: "Error de conexión."
+    },
+    Clipboard: {
+        copied: "¡Copiado!",
+        error: "Error al copiar"
+    },
     Common: {
         loading: '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...',
         error: (msg) => `<div class="error-msg"><i class="fa-solid fa-triangle-exclamation"></i> ${msg}</div>`,
@@ -72,7 +89,12 @@ export const Messages = {
     Commands: {
         clipResponse: (user, url) => `🎬 Clip creado por ${user}: ${url}`,
         followageResponse: 'Procesando followage...',
-        missingCreds: 'Faltan credenciales'
+        missingCreds: 'Faltan credenciales',
+        completeFields: 'Por favor, completa ambos campos.',
+        testing: '<i class="fa-solid fa-spinner fa-spin"></i> Probando...',
+        connectionError: '<span class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Error de conexión</span>',
+        success: (text) => `<span class="text-success"><i class="fa-solid fa-check"></i> ${text}</span>`,
+        error: (text) => `<span class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Error: ${text}</span>`
     },
     Analytics: {
         loadError: 'No se pudieron cargar las estadísticas'

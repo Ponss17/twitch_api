@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as authService from '../services/authService';
+import { MESSAGES } from '../config/messages';
 
 export const login = (req: Request, res: Response) => {
     const redirectOrigin = (req.query.redirect_origin as string) || '';
@@ -22,8 +23,8 @@ export const callback = async (req: Request, res: Response) => {
 
         res.redirect(redirectUrl);
     } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('Error en autenticación:', errorMessage);
+        const errorMessage = error instanceof Error ? error.message : MESSAGES.AUTH.UNKNOWN_ERROR;
+        console.error(MESSAGES.AUTH.AUTH_ERROR, errorMessage);
 
         let errorRedirect = '/?error=auth_failed';
         if (state) {

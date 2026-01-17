@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import * as dbService from '../services/dbService';
 import * as apiService from '../services/apiService';
 import * as cacheService from '../services/cacheService';
-import axios from 'axios';
+import { MESSAGES } from '../config/messages';
 
 interface AuthenticatedRequest extends Request {
     twitchToken?: string;
@@ -23,7 +23,7 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
         res.json(stats);
     } catch (e) {
         console.error('Error analytics:', e);
-        res.status(500).json({ error: 'Error fetching analytics' });
+        res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });
     }
 };
 
@@ -33,7 +33,7 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
     const limitNum = parseInt(limit) || 20;
     const token = req.twitchToken;
 
-    if (!channel) return res.status(400).send('Falta el parámetro channel.');
+    if (!channel) return res.status(400).send(MESSAGES.COMMANDS.MISSING_CHANNEL);
 
     const cacheKey = `cache:cmd:getClips:channel:${channel}:limit:${limitNum}`;
     const cached = await cacheService.get(cacheKey);
@@ -45,7 +45,7 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
         return res.json(result);
     } catch (error: any) {
         console.error('Error fetching clips:', error.message);
-        return res.status(500).json({ error: 'Error recupando clips' });
+        return res.status(500).json({ error: MESSAGES.DASHBOARD.CLIPS_ERROR });
     }
 };
 
@@ -54,27 +54,27 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
     const channel = safeString(req.query.channel);
     const userId = req.userId;
 
-    if (!channel) return res.status(400).send('Falta channel');
-    if (!userId) return res.status(401).send('Usuario no encontrado');
+    if (!channel) return res.status(400).send(MESSAGES.COMMANDS.MISSING_CHANNEL);
+    if (!userId) return res.status(401).send(MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     try {
         const chatters = await apiService.getChatters(userId, userId, token || '');
         res.json(chatters);
     } catch (error: any) {
         console.error('Error getting chatters:', error.message);
-        res.status(500).json({ error: 'Error recuperando chatters' });
+        res.status(500).json({ error: MESSAGES.DASHBOARD.CHATTERS_ERROR });
     }
 };
 
 export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
     const token = req.twitchToken;
     const login = safeString(req.query.login);
-    if (!login) return res.status(400).send('Falta login');
+    if (!login) return res.status(400).send(MESSAGES.COMMANDS.MISSING_LOGIN);
 
     try {
         const info = await apiService.getUserInfo(login, token || '');
         res.json(info);
     } catch (error: any) {
-        res.status(500).json({ error: 'Error fetching user info' });
+        res.status(500).json({ error: MESSAGES.DASHBOARD.USER_INFO_ERROR });
     }
 };
