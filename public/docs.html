@@ -30,9 +30,6 @@
                     <a href="#followage" class="nav-item"><i class="fa-solid fa-clock"></i> Followage</a>
                     <a href="#get-clips" class="nav-item"><i class="fa-solid fa-list"></i> Listar Clips</a>
 
-                    <span class="group-title">Datos API</span>
-                    <a href="#api-chatters" class="nav-item"><i class="fa-solid fa-users"></i> Chatters</a>
-                    <a href="#api-user" class="nav-item"><i class="fa-solid fa-id-card"></i> Info Usuario</a>
 
                     <span class="group-title">Dashboard</span>
                     <a href="#tools-guide" class="nav-item"><i class="fa-solid fa-toolbox"></i> Herramientas</a>
@@ -175,44 +172,7 @@
                 </div>
             </section>
 
-            <section id="api-chatters" class="doc-section">
-                <h2><i class="fa-solid fa-users"></i> Chatters (Participantes)</h2>
-                <p>Obtiene una lista combinada de usuarios activos (API de Twitch + Detección en tiempo real).</p>
-                <div class="endpoint-block">
-                    <span class="method get">GET</span>
-                    <span class="url">/api/twitch/chatters?channel={canal}&apiKey={tu_api_key}</span>
-                </div>
-                <div class="info-card">
-                    <i class="fa-solid fa-robot"></i>
-                    <p><strong>Filtrado Automático:</strong> Esta API ya excluye bots comunes (Nightbot, StreamElements,
-                        etc.) para que tu ruleta o lista de usuarios esté limpia.</p>
-                </div>
-                <h3>Ejemplo de Respuesta</h3>
-                <div class="code-block">
-                    <code>[
-  { "user_name": "Ponss", "user_login": "ponss" },
-  { "user_name": "Gordi", "user_login": "gordi" }
-]</code>
-                </div>
-            </section>
 
-            <section id="api-user" class="doc-section">
-                <h2><i class="fa-solid fa-id-card"></i> Info Usuario</h2>
-                <p>Obtiene detalles públicos de cualquier usuario de Twitch.</p>
-                <div class="endpoint-block">
-                    <span class="method get">GET</span>
-                    <span class="url">/api/twitch/user-info?login={usuario}&apiKey={tu_api_key}</span>
-                </div>
-                <div class="code-block">
-                    <code>{
-  "id": "123456",
-  "display_name": "Ponss",
-  "broadcaster_type": "affiliate",
-  "description": "Streamer de código...",
-  "profile_image_url": "https://..."
-}</code>
-                </div>
-            </section>
 
             <section id="tools-guide" class="doc-section">
                 <h2><i class="fa-solid fa-toolbox"></i> Herramientas del Dashboard</h2>
