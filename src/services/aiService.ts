@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk';
 import { CONFIG } from '../config/env';
+import { MESSAGES } from '../config/messages';
 
 let groq: Groq | null = null;
 
@@ -79,7 +80,7 @@ REGLAS DE RESPUESTA:
 export const generateResponse = async (history: { role: 'user' | 'assistant', content: string }[], domainContext: string): Promise<string> => {
     if (!groq) {
         console.error('❌ AI Service: GROQ_API_KEY missing.');
-        throw new Error('No estoy configurado (Falta API Key). ¡Cuak!');
+        throw new Error(MESSAGES.AI.MISSING_KEY);
     }
 
     try {
@@ -100,6 +101,6 @@ export const generateResponse = async (history: { role: 'user' | 'assistant', co
         return result;
     } catch (error: any) {
         console.error('❌ Error Groq:', error);
-        throw new Error('Algo salió mal en mi cerebro de pato.');
+        throw new Error(MESSAGES.AI.BRAIN_ERROR);
     }
 };

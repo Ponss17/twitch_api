@@ -96,6 +96,10 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
         return res.status(400).json({ error: MESSAGES.FEEDBACK.MESSAGE_REQUIRED });
     }
 
+    if (message.length > 2000) {
+        return res.status(400).json({ error: MESSAGES.FEEDBACK.MESSAGE_TOO_LONG });
+    }
+
     if (!CONFIG.DISCORD_FEEDBACK_WEBHOOK_URL) {
         return res.status(500).json({ error: MESSAGES.SYSTEM.INTERNAL_CONFIG_ERROR });
     }
