@@ -1,4 +1,5 @@
 import { Messages } from '../utils/messages.js';
+import { CONFIG } from '../config.js';
 import { Loader } from '../utils/loader.js';
 
 export const TrendsModule = {
@@ -9,9 +10,6 @@ export const TrendsModule = {
         'y', 'o', 'pero', 'si', 'no', 'en', 'de', 'del', 'a', 'al', 'con', 'para', 'por',
         'que', 'qué', 'es', 'son', 'se', 'mi', 'tu', 'su', 'yo', 'me', 'te', 'le',
         'http', 'https', 'www', 'com'
-    ]),
-    ignoredUsers: new Set([
-        'nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker', 'botrixoficial', 'trackerggbot'
     ]),
     messageLog: [],
     MAX_LOG_SIZE: 500,
@@ -66,7 +64,7 @@ export const TrendsModule = {
 
             TmiService.addMessageListener((chn, tags, message) => {
                 const username = tags.username;
-                if (!username || this.ignoredUsers.has(username.toLowerCase())) return;
+                if (!username || CONFIG.IGNORED_BOTS.has(username.toLowerCase())) return;
 
                 this.messageLog.unshift({
                     user: username,
@@ -178,14 +176,15 @@ export const TrendsModule = {
 
     processMessage(msg) {
         const words = msg.toLowerCase().split(/\s+/);
+        const firstWord = words[0];
 
-        words.forEach(word => {
-            const cleanWord = word.replace(/[^\wñáéíóúü]/g, '');
+        if (!firstWord) return;
 
-            if (cleanWord.length > 2 && !this.isIgnored.has(cleanWord)) {
-                this.wordCounts[cleanWord] = (this.wordCounts[cleanWord] || 0) + 1;
-            }
-        });
+        const cleanWord = firstWord.replace(/[^\wñáéíóúü]/g, '');
+
+        if (cleanWord.length > 2 && !this.isIgnored.has(cleanWord)) {
+            this.wordCounts[cleanWord] = (this.wordCounts[cleanWord] || 0) + 1;
+        }
 
         this.render();
     },

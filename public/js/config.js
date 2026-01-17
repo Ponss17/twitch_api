@@ -5,7 +5,13 @@ const host = window.location.host;
 export const CONFIG = {
     domain: host,
     siteUrl: `${protocol}//${host}`,
-    twitchRedirectUri: `${protocol}//${host}/auth/twitch/callback`
+    twitchRedirectUri: `${protocol}//${host}/auth/twitch/callback`,
+    IGNORED_BOTS: new Set([
+        'nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert',
+        'rainmaker', 'botrixoficial', 'trackerggbot', 'streamlabs', 'cloudbot',
+        'deepbot', 'phantombot', 'streamerbot', 'stayhydratedbot', 'commanderroot',
+        'own3d', 'streamholics', 'anotherttvviewer', 'electricallongboard'
+    ])
 };
 
 Object.freeze(CONFIG);

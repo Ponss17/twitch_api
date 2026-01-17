@@ -1,6 +1,7 @@
 import { Loader } from '../utils/loader.js';
 import { UI } from '../ui.js';
 import { Messages } from '../utils/messages.js';
+import { CONFIG } from '../config.js';
 
 export const StalkerModule = {
     session: null,
@@ -33,8 +34,7 @@ export const StalkerModule = {
                 const login = tags.username;
                 const name = tags['display-name'] || login;
 
-                const ignored = new Set(['nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker', 'botrixoficial', 'trackerggbot']);
-                if (ignored.has(login.toLowerCase())) return;
+                if (CONFIG.IGNORED_BOTS.has(login.toLowerCase())) return;
 
                 const exists = this.chatters.some(u => u.user_login.toLowerCase() === login.toLowerCase());
 
@@ -215,8 +215,7 @@ export const StalkerModule = {
             }
 
             const data = await res.json();
-            const ignored = new Set(['nightbot', 'streamelements', 'fossabot', 'moobot', 'wizebot', 'soundalert', 'rainmaker', 'botrixoficial', 'trackerggbot']);
-            const apiChatters = data.filter(u => !ignored.has(u.user_login.toLowerCase()));
+            const apiChatters = data.filter(u => !CONFIG.IGNORED_BOTS.has(u.user_login.toLowerCase()));
             const chatterMap = new Map();
             this.chatters.forEach(c => chatterMap.set(c.user_login.toLowerCase(), c));
             apiChatters.forEach(c => chatterMap.set(c.user_login.toLowerCase(), c));
