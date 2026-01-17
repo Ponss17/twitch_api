@@ -16,7 +16,7 @@ const limiter = rateLimit({
         }
         return 60;
     },
-    message: { error: 'Too many requests, please try again later.' },
+    message: { error: 'Demasiadas solicitudes, por favor intenta más tarde.' },
     standardHeaders: true,
     legacyHeaders: false,
 });

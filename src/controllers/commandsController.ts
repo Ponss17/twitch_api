@@ -65,6 +65,7 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
 
     if (!message) return res.status(400).send(MESSAGES.COMMANDS.MISSING_MESSAGE);
+    if (message.length > 500) return res.status(400).send(MESSAGES.COMMANDS.MESSAGE_TOO_LONG);
     if (!userId) return res.status(401).send(MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     try {

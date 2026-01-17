@@ -30,7 +30,8 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
 export const getClips = async (req: AuthenticatedRequest, res: Response) => {
     const channel = safeString(req.query.channel);
     const limit = safeString(req.query.limit);
-    const limitNum = parseInt(limit) || 20;
+    let limitNum = parseInt(limit) || 20;
+    if (limitNum > 100) limitNum = 100;
     const token = req.twitchToken;
 
     if (!channel) return res.status(400).send(MESSAGES.COMMANDS.MISSING_CHANNEL);

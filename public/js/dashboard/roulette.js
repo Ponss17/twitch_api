@@ -41,6 +41,14 @@ export const RouletteModule = {
             });
 
             this.drawEmptyWheel();
+
+            const closeWinnerBtn = document.getElementById('close-winner-display');
+            if (closeWinnerBtn) {
+                closeWinnerBtn.addEventListener('click', () => {
+                    const display = document.getElementById('roulette-winner-display');
+                    if (display) display.classList.add('hidden');
+                });
+            }
         }
     },
 

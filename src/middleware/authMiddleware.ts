@@ -6,6 +6,8 @@ interface AuthenticatedRequest extends Request {
 }
 
 import * as authService from '../services/authService';
+import * as apiService from '../services/apiService';
+import { MESSAGES } from '../config/messages';
 
 const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const safeString = (val: unknown) => (typeof val === 'string' ? val : '');
@@ -24,12 +26,23 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             req.userId = authData.userId;
         } catch (error: any) {
             console.error('Middleware Auth Error (API Key lookup):', error.message);
-            return res.status(401).send('⛔ Error: Credenciales inválidas. Verifica tu API Key.');
+            return res.status(401).send(MESSAGES.AUTH.INVALID_CREDENTIALS);
         }
     }
 
     if (!token) {
-        return res.status(401).send('Error: Token no proporcionado. Debes incluir ?token=TU_TOKEN en la URL.');
+        return res.status(401).send(MESSAGES.AUTH.MISSING_TOKEN_URL);
+    }
+
+    if (!req.userId) {
+        try {
+            const validation = await apiService.validateToken(token);
+            if (validation && validation.user_id) {
+                req.userId = validation.user_id;
+            }
+        } catch (e) {
+            console.warn('Error Middleware Auth: Could not validate token to extract userId');
+        }
     }
 
     req.twitchToken = token;

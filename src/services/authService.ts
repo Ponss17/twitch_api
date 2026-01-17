@@ -1,16 +1,16 @@
 import axios from 'axios';
 import { CONFIG } from '../config/env';
-import { TwitchUser } from '../types/twitch';
+import { TwitchUser, StoredUser } from '../types/twitch';
+import { kv } from '@vercel/kv';
+import * as dbService from './dbService';
+import crypto from 'crypto';
+import { MESSAGES } from '../config/messages';
 
 export const getAuthorizeUrl = (redirectOrigin: string): string => {
     const scope = 'user:read:email moderator:read:followers clips:edit moderator:read:chatters user:write:chat';
     const state = Buffer.from(JSON.stringify({ redirectOrigin })).toString('base64');
     return `https://id.twitch.tv/oauth2/authorize?client_id=${CONFIG.TWITCH_CLIENT_ID}&redirect_uri=${CONFIG.TWITCH_REDIRECT_URI}&response_type=code&scope=${scope}&state=${state}`;
 };
-
-import * as dbService from './dbService';
-import { StoredUser } from '../types/twitch';
-import crypto from 'crypto';
 
 export const handleCallback = async (code: string, state: string): Promise<{ user: TwitchUser, access_token: string, redirectOrigin: string, apiKey: string }> => {
     const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
@@ -120,7 +120,7 @@ export const regenerateApiKey = async (userId: string): Promise<string> => {
     const user = await dbService.getUser(userId);
     if (!user) throw new Error('Usuario no encontrado');
 
-    const newApiKey = crypto.randomBytes(16).toString('hex');
+    const newApiKey = crypto.randomUUID();
     user.apiKey = newApiKey;
 
     await dbService.saveUser(user);
