@@ -27,6 +27,7 @@
                 <div class="nav-group">
                     <span class="group-title">Comandos</span>
                     <a href="#create-clip" class="nav-item"><i class="fa-solid fa-film"></i> Crear Clip</a>
+                    <a href="#shoutout" class="nav-item"><i class="fa-solid fa-bullhorn"></i> Shoutout</a>
                     <a href="#followage" class="nav-item"><i class="fa-solid fa-clock"></i> Followage</a>
                     <a href="#get-clips" class="nav-item"><i class="fa-solid fa-list"></i> Listar Clips</a>
 
@@ -137,6 +138,24 @@
                 <h3>Ejemplo de Respuesta</h3>
                 <div class="code-block">
                     <code>ponss ha seguido a LosPerris por 1 año, 2 meses y 3 días.</code>
+                </div>
+            </section>
+
+            <section id="shoutout" class="doc-section">
+                <h2><i class="fa-solid fa-bullhorn"></i> Shoutout (!so)</h2>
+                <p>Genera un mensaje promocionando a otro streamer con su último juego.</p>
+                <div class="endpoint-block">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/twitch/shoutout?channel={canal}&touser={target}&apiKey={tu_api_key}</span>
+                </div>
+                <h3>Ejemplo Nightbot</h3>
+                <div class="code-block">
+                    <code class="dynamic-url"
+                        data-path="📢 $(urlfetch {baseURL}/api/twitch/shoutout?channel=$(channel)&touser=$(touser)&apiKey=TU_API_KEY)">Cargando...</code>
+                </div>
+                <h3>Ejemplo de Respuesta</h3>
+                <div class="code-block">
+                    <code>¡Vayan a seguir a ponss! Estaba jugando Valorant en https://twitch.tv/ponss</code>
                 </div>
             </section>
 

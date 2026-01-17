@@ -8,7 +8,7 @@ const getHeaders = (token: string) => ({
     'Authorization': `Bearer ${token}`
 });
 
-const getUserId = async (username: string, token: string): Promise<string> => {
+export const getUserId = async (username: string, token: string): Promise<string> => {
     const cachedId = await getCachedUserId(username);
     if (cachedId) return cachedId;
 
@@ -23,6 +23,17 @@ export const getUserInfo = async (username: string, token: string): Promise<any>
 
     if (response.data.data.length === 0) {
         throw { status: 404, message: `El usuario/canal ${username} no existe.` } as TwitchError;
+    }
+
+    return response.data.data[0];
+};
+
+export const getChannelInfo = async (broadcasterId: string, token: string): Promise<any> => {
+    const headers = getHeaders(token);
+    const response = await axios.get(`https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`, { headers });
+
+    if (response.data.data.length === 0) {
+        throw { status: 404, message: `No se encontró información del canal.` } as TwitchError;
     }
 
     return response.data.data[0];

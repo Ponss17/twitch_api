@@ -13,6 +13,7 @@ router.post('/ai/chat', checkToken, aiController.generateCommand);
 // Comandos
 router.get('/create-clip', checkToken, commandsController.createClip);
 router.get('/followage', checkToken, commandsController.followage);
+router.get('/shoutout', checkToken, commandsController.getShoutout);
 router.post('/send-message', checkToken, commandsController.sendMessage);
 
 // Dashboard

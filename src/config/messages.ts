@@ -38,7 +38,9 @@ export const MESSAGES = {
         CREATE_CLIP_ERROR: 'Error creando clip.',
         FOLLOWAGE_ERROR: 'Error verificando seguimiento.',
         SEND_MESSAGE_ERROR: 'Error enviando mensaje.',
-        MESSAGE_TOO_LONG: 'Mensaje demasiado largo (max 500 caracteres).'
+        MESSAGE_TOO_LONG: 'Mensaje demasiado largo (max 500 caracteres).',
+        SHOUTOUT_ERROR: 'Error generando shoutout.',
+        SHOUTOUT_HEADLINE: '¡Vayan a seguir a {user}! Estaba jugando {game}'
     },
     DASHBOARD: {
         ANALYTICS_ERROR: 'Error recuperando analytics',

@@ -53,7 +53,16 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             await dbService.incrementUserStats(userId, 'followage');
         }
 
-        res.send(result);
+        const template = req.query.template as string;
+        if (template) {
+            const message = template
+                .replace('{time}', result)
+                .replace('{user}', user)
+                .replace('{channel}', channel);
+            res.send(message);
+        } else {
+            res.send(result);
+        }
     } catch (error: any) {
         res.status(500).send(MESSAGES.COMMANDS.FOLLOWAGE_ERROR);
     }
@@ -73,5 +82,31 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
         res.json({ success: true });
     } catch (error: any) {
         res.status(500).json({ error: MESSAGES.COMMANDS.SEND_MESSAGE_ERROR });
+    }
+};
+
+export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
+    const channel = safeString(req.query.channel);
+    const touser = safeString(req.query.touser);
+    const token = req.twitchToken;
+
+    if (!channel || !touser) return res.status(400).send(MESSAGES.COMMANDS.MISSING_PARAMS);
+
+    try {
+        const targetUserId = await apiService.getUserId(touser, token || '');
+        const channelInfo = await apiService.getChannelInfo(targetUserId, token || '');
+        const gameName = channelInfo.game_name || 'Just Chatting';
+        const url = `https://twitch.tv/${touser}`;
+
+        let messagePattern = (req.query.template as string) || MESSAGES.COMMANDS.SHOUTOUT_HEADLINE;
+
+        const message = messagePattern
+            .replace('{user}', touser)
+            .replace('{game}', gameName)
+            .replace('{url}', url);
+
+        res.send(message);
+    } catch (error: any) {
+        res.status(500).send(MESSAGES.COMMANDS.SHOUTOUT_ERROR);
     }
 };
