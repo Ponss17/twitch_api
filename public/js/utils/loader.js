@@ -14,7 +14,6 @@ export const Loader = {
             link.onload = () => {
                 this.loaded.add(path);
                 this.loading.delete(path);
-                console.log(`[Loader] Loaded CSS: ${path}`);
                 resolve();
             };
             link.onerror = (e) => {
