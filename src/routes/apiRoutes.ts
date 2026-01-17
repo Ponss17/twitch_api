@@ -7,10 +7,10 @@ import checkToken from '../middleware/authMiddleware';
 
 const router = express.Router();
 
-// AI Route
+// IA
 router.post('/ai/chat', checkToken, aiController.generateCommand);
 
-// Commands
+// Comandos
 router.get('/create-clip', checkToken, commandsController.createClip);
 router.get('/followage', checkToken, commandsController.followage);
 router.post('/send-message', checkToken, commandsController.sendMessage);
@@ -21,8 +21,9 @@ router.get('/analytics', checkToken, dashboardController.getAnalytics);
 router.get('/chatters', checkToken, dashboardController.getChatters);
 router.get('/user-info', checkToken, dashboardController.getUserInfo);
 
-// System
+// Sistema
 router.get('/validate', checkToken, systemController.validateToken);
 router.post('/regenerate-key', checkToken, systemController.regenerateKey);
+router.post('/feedback', checkToken, systemController.submitFeedback);
 
 export default router;

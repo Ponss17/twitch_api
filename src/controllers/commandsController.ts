@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import * as dbService from '../services/dbService';
 import * as apiService from '../services/apiService';
 import * as cacheService from '../services/cacheService';
-import axios from 'axios';
+import { MESSAGES } from '../config/messages';
 
 interface AuthenticatedRequest extends Request {
     twitchToken?: string;
@@ -16,7 +16,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     const token = req.twitchToken;
     const userId = req.userId;
 
-    if (!channel) return res.status(400).send('Falta channel');
+    if (!channel) return res.status(400).send(MESSAGES.COMMANDS.MISSING_CHANNEL);
 
     try {
         const result = await apiService.createClip(channel, token || '');
@@ -27,7 +27,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
 
         return res.send(result);
     } catch (error: any) {
-        return res.status(500).send('Error creando clip');
+        return res.status(500).send(MESSAGES.COMMANDS.CREATE_CLIP_ERROR);
     }
 };
 
@@ -38,7 +38,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
 
     if (!channel || !user) {
-        return res.status(400).send('Faltan parámetros: channel y user son requeridos.');
+        return res.status(400).send(MESSAGES.COMMANDS.MISSING_PARAMS);
     }
 
     const cacheKey = `cache:cmd:followage:channel:${channel}:user:${user}`;
@@ -55,7 +55,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
 
         res.send(result);
     } catch (error: any) {
-        res.status(500).send('Error verificando seguimiento.');
+        res.status(500).send(MESSAGES.COMMANDS.FOLLOWAGE_ERROR);
     }
 };
 
@@ -64,13 +64,13 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
     const message = safeString(req.body.message);
     const userId = req.userId;
 
-    if (!message) return res.status(400).send('Falta mensaje');
-    if (!userId) return res.status(401).send('Usuario no encontrado');
+    if (!message) return res.status(400).send(MESSAGES.COMMANDS.MISSING_MESSAGE);
+    if (!userId) return res.status(401).send(MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     try {
         await apiService.sendChatMessage(userId, userId, message, token || '');
         res.json({ success: true });
     } catch (error: any) {
-        res.status(500).json({ error: 'Error enviando mensaje' });
+        res.status(500).json({ error: MESSAGES.COMMANDS.SEND_MESSAGE_ERROR });
     }
 };

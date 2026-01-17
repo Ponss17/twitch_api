@@ -13,6 +13,10 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     let token = safeString(req.query.token) || safeString(req.body?.token);
     const apiKey = safeString(req.query.apiKey) || safeString(req.body?.apiKey);
 
+    if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+
     if (apiKey) {
         try {
             const authData = await authService.getValidToken(apiKey);

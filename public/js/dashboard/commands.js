@@ -28,12 +28,12 @@ export const CommandsModule = {
             const resultText = document.getElementById('test-result-text');
 
             if (!channel || !user) {
-                alert('Por favor, completa ambos campos.');
+                alert(Messages.Commands.completeFields);
                 return;
             }
 
             resultBox.classList.remove('hidden');
-            resultText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Probando...';
+            resultText.innerHTML = Messages.Commands.testing;
 
             const { apiKey, token } = this.session;
             const domain = `${CONFIG.siteUrl}/api/twitch`;
@@ -45,12 +45,12 @@ export const CommandsModule = {
                 const text = await response.text();
 
                 if (response.ok) {
-                    resultText.innerHTML = `<span class="text-success"><i class="fa-solid fa-check"></i> ${text}</span>`;
+                    resultText.innerHTML = Messages.Commands.success(text);
                 } else {
-                    resultText.innerHTML = `<span class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Error: ${text}</span>`;
+                    resultText.innerHTML = Messages.Commands.error(text);
                 }
             } catch (err) {
-                resultText.innerHTML = `<span class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Error de conexión</span>`;
+                resultText.innerHTML = Messages.Commands.connectionError;
                 console.error(err);
             }
         });

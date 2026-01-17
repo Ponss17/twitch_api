@@ -29,8 +29,7 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "groq-sdk": "^0.37.0",
-    "helmet": "^8.1.0",
-    "tmi.js": "^1.8.5"
+    "helmet": "^8.1.0"
   },
   "devDependencies": {
     "@types/compression": "^1.8.1",

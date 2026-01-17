@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import { generateResponse } from '../services/aiService';
+import { MESSAGES } from '../config/messages';
 
 export const generateCommand = async (req: Request, res: Response) => {
     try {
         const { prompt, history } = req.body;
 
         if (!prompt && (!history || history.length === 0)) {
-            return res.status(400).json({ error: '¡Necesito que me digas algo! Cuak.' });
+            return res.status(400).json({ error: MESSAGES.AI.PROMPT_REQUIRED });
         }
 
         const protocol = req.protocol;
@@ -33,6 +34,6 @@ export const generateCommand = async (req: Request, res: Response) => {
         res.json({ result: response });
     } catch (error) {
         console.error('AI Controller Error:', error);
-        res.status(500).json({ error: 'Error interno del pato.' });
+        res.status(500).json({ error: MESSAGES.AI.INTERNAL_ERROR });
     }
 };

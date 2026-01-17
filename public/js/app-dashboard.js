@@ -4,6 +4,7 @@ import { Dashboard } from './dashboard.js';
 import { CONFIG } from './config.js';
 import { PerriBot } from './components/perri.js';
 import { FooterComponent } from './components/footer.js';
+import { Messages } from './utils/messages.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     FooterComponent.render('main-footer');
@@ -45,7 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         } else {
             console.warn("Token invalid");
-            UI.showToast("Tu sesión ha expirado", "error");
+            UI.showToast(Messages.Auth.sessionExpired, "error");
             Auth.clearSession();
             setTimeout(() => {
                 window.location.href = './';
@@ -53,8 +54,62 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (e) {
         console.error('Error validating session:', e);
-        UI.showToast("Error al validar sesión", "error");
+        UI.showToast(Messages.Auth.validationError, "error");
         Auth.clearSession();
         window.location.href = './';
+    }
+    const sendFeedbackBtn = document.getElementById('send-feedback-btn');
+    if (sendFeedbackBtn) {
+        sendFeedbackBtn.addEventListener('click', async () => {
+            const messageInput = document.getElementById('feedback-message');
+            const message = messageInput.value.trim();
+
+            if (!message) {
+                UI.showToast(Messages.Feedback.emptyMessage, 'error');
+                return;
+            }
+
+            sendFeedbackBtn.disabled = true;
+            sendFeedbackBtn.innerHTML = Messages.Feedback.sending;
+
+            try {
+                const sessionParams = Auth.parseUrlParams();
+                const token = sessionParams.token || localStorage.getItem('twitch_token');
+                const apiKey = sessionParams.apiKey;
+
+                const headers = { 'Content-Type': 'application/json' };
+                let url = '/api/twitch/feedback';
+
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                } else if (apiKey) {
+                    url += `?apiKey=${apiKey}`;
+                } else {
+                    UI.showToast(Messages.Auth.sessionError, 'error');
+                    return;
+                }
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        message
+                    })
+                });
+
+                if (response.ok) {
+                    UI.showToast(Messages.Feedback.success, 'success');
+                    messageInput.value = '';
+                } else {
+                    UI.showToast(Messages.Feedback.error, 'error');
+                }
+            } catch (error) {
+                console.error('Feedback error:', error);
+                UI.showToast(Messages.Feedback.connectionError, 'error');
+            } finally {
+                sendFeedbackBtn.disabled = false;
+                sendFeedbackBtn.innerHTML = Messages.Feedback.defaultButton;
+            }
+        });
     }
 });
