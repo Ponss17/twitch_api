@@ -8,7 +8,8 @@ import { Messages } from './utils/messages.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     FooterComponent.render('main-footer');
-    UI.setupClipboard(document.querySelectorAll('.copy-btn'));
+    FooterComponent.render('main-footer');
+    UI.setupClipboard();
 
     const sessionParams = Auth.parseUrlParams();
     const { apiKey, token, userId } = sessionParams;
