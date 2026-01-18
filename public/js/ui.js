@@ -47,33 +47,116 @@ export const UI = {
     setupHeroAnimation(heroCodeDisplay) {
         if (!heroCodeDisplay) return;
 
-        const scenes = [
-            `
-            <div class="code-line"><span class="c-purple">const</span> <span class="c-blue">streamer</span> = <span class="c-green">"LosPerris"</span>;</div>
-            <div class="code-line"><span class="c-purple">await</span> api.checkFollow(<span class="c-blue">user</span>);</div>
-            <div class="code-result">// ⏳ Tiempo seguido:</div>
-            <div class="code-output">"2 años, 3 meses y 1 día"</div>
-            `,
-            `
-            <div class="code-line"><span class="c-purple">const</span> <span class="c-blue">streamer</span> = <span class="c-green">"LosPerris"</span>;</div>
-            <div class="code-line"><span class="c-purple">await</span> api.createClip();</div>
-            <div class="code-result">// 🎬 Clip generado:</div>
-            <div class="code-output">"twitch.tv/LosPerris/clip..."</div>
-            `
+        heroCodeDisplay.innerHTML = `
+            <div class="twitch-chat-container">
+                <div class="chat-messages" id="sim-messages">
+                    <div class="chat-line" style="opacity:0.5"><span class="chat-text">¡Bienvenido al chat!</span></div>
+                </div>
+                <div class="chat-input-area">
+                    <div class="fake-input" id="sim-input-box">
+                        <div class="input-icon-area">
+                             <img src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1" class="badge-icon input-badge" alt="Broadcaster">
+                        </div>
+                        <div class="input-content-wrapper" style="position:relative; flex:1;">
+                            <span class="input-text" id="sim-input-text"></span>
+                            <span class="input-placeholder" id="sim-placeholder">Enviar un mensaje</span>
+                        </div>
+                    </div>
+                    <div class="input-actions">
+                        <button class="twitch-btn">Chat</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const messagesContainer = document.getElementById('sim-messages');
+        const inputText = document.getElementById('sim-input-text');
+        const placeholder = document.getElementById('sim-placeholder');
+        const inputBox = document.getElementById('sim-input-box');
+
+        const scenarios = [
+            {
+                cmd: "!followage",
+                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">@ponss17 sigue a @LosPerris desde hace 1 año, 4 meses y 20 días.</span>`
+            },
+            {
+                cmd: "!clip",
+                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">🎬 Clip creado por <span style="color:#FF69B4">@ponss17</span>: https://clips.twitch.tv/WiseDeliciousCurryHassanChop-Df293...</span>`
+            },
+            {
+                cmd: "!so  @mynana17",
+                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">¡Vayan a seguir a <span style="color:#bf94ff">@mynana17</span>! Estaba jugando Just Chatting</span>`
+            }
         ];
 
-        let currentScene = 0;
+        let currentScenario = 0;
 
-        setInterval(() => {
-            heroCodeDisplay.classList.add('fade-out');
+        const typeWriter = (text) => {
+            return new Promise(resolve => {
+                inputBox.classList.add('typing');
+                placeholder.style.display = 'none';
+                inputText.innerText = "";
 
-            setTimeout(() => {
-                currentScene = (currentScene + 1) % scenes.length;
-                heroCodeDisplay.innerHTML = scenes[currentScene];
-                heroCodeDisplay.classList.remove('fade-out');
-            }, 500);
+                let i = 0;
+                const interval = setInterval(() => {
+                    inputText.innerText += text.charAt(i);
+                    i++;
+                    if (i > text.length - 1) {
+                        clearInterval(interval);
+                        setTimeout(resolve, 500);
+                    }
+                }, 100);
+            });
+        };
 
-        }, 7000);
+        const addMessage = (html) => {
+            const div = document.createElement('div');
+            div.className = 'chat-line';
+            div.innerHTML = html;
+            messagesContainer.appendChild(div);
+            if (messagesContainer.children.length > 5) {
+                messagesContainer.removeChild(messagesContainer.children[0]);
+            }
+        };
+
+        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+        const runSimulation = async () => {
+            while (true) {
+                const scenario = scenarios[currentScenario];
+
+                await sleep(1500);
+                await typeWriter(scenario.cmd);
+                inputText.innerText = "";
+                placeholder.style.display = 'block';
+                inputBox.classList.remove('typing');
+
+                addMessage(`
+                    <span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1" class="badge-icon" alt="Broadcaster"></span>
+                    <span class="chat-username" style="color:#FF69B4">ponss17</span>
+                    <span class="chat-colon">:</span>
+                    <span class="chat-text">${scenario.cmd}</span>
+                `);
+
+                await sleep(1500);
+                addMessage(scenario.response);
+
+                currentScenario = (currentScenario + 1) % scenarios.length;
+                if (currentScenario === 0) {
+                    await sleep(2000);
+                    await typeWriter("/clear");
+                    await sleep(500);
+                    inputText.innerText = "";
+                    placeholder.style.display = 'block';
+                    inputBox.classList.remove('typing');
+
+                    messagesContainer.innerHTML = '<div class="chat-line" style="opacity:0.5"><span class="chat-text">¡Bienvenido al chat!</span></div>';
+                    await sleep(1000);
+                }
+            }
+        };
+
+        runSimulation();
     },
 
 };

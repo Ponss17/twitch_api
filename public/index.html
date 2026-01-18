@@ -58,11 +58,28 @@
                             <span class="dot green"></span>
                         </div>
                         <div id="hero-code-display" class="fake-body code-transition">
-                            <div class="code-line"><span class="c-purple">const</span> <span
-                                    class="c-blue">streamer</span> = <span class="c-green">"LosPerris"</span>;</div>
-                            <div class="code-line"><span class="c-purple">await</span> api.createClip();</div>
-                            <div class="code-result">// 🎬 Clip generado:</div>
-                            <div class="code-output">"twitch.tv/LosPerris/clip..."</div>
+                            <div class="twitch-chat-container">
+                                <div class="chat-messages" id="sim-messages">
+                                    <div class="chat-line" style="opacity:0.5"><span class="chat-text">¡Bienvenido al
+                                            chat!</span></div>
+                                </div>
+                                <div class="chat-input-area">
+                                    <div class="fake-input" id="sim-input-box">
+                                        <div class="input-icon-area">
+                                            <img src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1"
+                                                class="badge-icon input-badge" alt="Broadcaster">
+                                        </div>
+                                        <div class="input-content-wrapper" style="position:relative; flex:1;">
+                                            <span class="input-text" id="sim-input-text"></span>
+                                            <span class="input-placeholder" id="sim-placeholder">Enviar un
+                                                mensaje</span>
+                                        </div>
+                                    </div>
+                                    <div class="input-actions">
+                                        <button class="twitch-btn">Chat</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="glow-bg"></div>
