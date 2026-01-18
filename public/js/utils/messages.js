@@ -51,7 +51,9 @@ export const Messages = {
         apiError: 'Error API',
         infoError: 'No se pudo cargar info del usuario',
         reloginMsg: 'Necesitas re-login (Permisos)',
-        loadError: 'No se pudo cargar info del usuario'
+        loadError: 'No se pudo cargar info del usuario',
+        scanStarted: 'Escaneo iniciado',
+        scanPaused: 'Escaneo pausado (Vista congelada)'
     },
     Settings: {
         testing: '<i class="fa-solid fa-spinner fa-spin"></i> Probando conexión...',
@@ -59,6 +61,7 @@ export const Messages = {
         regenerateConfirm: '¿Generar una nueva API Key? La anterior dejará de funcionar.',
         regenerateSuccess: 'Nueva API Key generada',
         regenerateError: 'Error al generar Key',
+        confirmRegenerate: '¿Estás seguro de que quieres regenerar tu API Key? La anterior dejará de funcionar inmediatamente.',
         loadingIcon: '<i class="fa-solid fa-spinner fa-spin"></i>',
         rotateIcon: '<i class="fa-solid fa-rotate"></i>'
     },
@@ -76,7 +79,10 @@ export const Messages = {
         connected: '<span style="color:var(--success)"><i class="fa-solid fa-circle"></i> Conectado</span>',
         error: '<span style="color:var(--warning)"><i class="fa-solid fa-xmark"></i> Error</span>',
         waiting: '<tr><td colspan="4" style="text-align:center; padding:20px; color:#666;">Esperando palabras...</td></tr>',
-        timeUp: '¡TIEMPO!'
+        timeUp: '¡TIEMPO!',
+        started: (min) => `Tracker iniciado (${min} min)`,
+        finished: '¡Tiempo terminado!',
+        winner: (word, count) => `🏆 Ganador: "${word}" (${count})`
     },
     Roulette: {
         updated: '<i class="fa-solid fa-check"></i> Lista actualizada',
