@@ -1,6 +1,7 @@
 import { Messages } from '../utils/messages.js';
 import { CONFIG } from '../config.js';
 import { Loader } from '../utils/loader.js';
+import { UI } from '../ui.js';
 
 export const TrendsModule = {
     client: null,

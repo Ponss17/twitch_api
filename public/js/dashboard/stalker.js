@@ -316,7 +316,7 @@ export const StalkerModule = {
 
         } catch (e) {
             console.error(e);
-            alert(Messages.Stalker.loadError);
+            UI.showToast(Messages.Stalker.loadError, 'error');
         }
     }
 };

@@ -33,6 +33,11 @@ export const Dashboard = {
             name.innerText = displayName;
         }
 
+        const pageTitle = document.getElementById('page-title');
+        if (pageTitle && displayName && this.session.login) {
+            pageTitle.innerHTML = `Bienvenido, <a href="https://twitch.tv/${this.session.login}" target="_blank" class="welcome-link">@${displayName}</a>`;
+        }
+
         document.getElementById('logout-btn')?.addEventListener('click', () => {
             import('./auth.js').then(m => m.Auth.logout());
         });
@@ -166,7 +171,7 @@ export const Dashboard = {
 
         try {
             const { token } = this.session;
-            const res = await fetch('/api/twitch/dashboard/analytics', {
+            const res = await fetch('/api/twitch/analytics', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -174,37 +179,22 @@ export const Dashboard = {
                 const data = await res.json();
                 statsContainer.innerHTML = '';
 
-                const icons = {
-                    clips: 'fa-film',
-                    followage: 'fa-clock',
-                    so: 'fa-users',
-                    default: 'fa-chart-simple'
-                };
+                const statConfig = [
+                    { key: 'clips', icon: 'fa-film', label: 'Clips Creados' },
+                    { key: 'followage', icon: 'fa-clock', label: 'Consultas Followage' },
+                    { key: 'so', icon: 'fa-bullhorn', label: 'Shoutouts' }
+                ];
 
-                const labels = {
-                    clips: 'Clips Creados',
-                    followage: 'Followage Check',
-                    so: 'Shoutouts'
-                };
-
-                if (Object.keys(data).length === 0) {
-                    statsContainer.innerHTML = '<p class="text-muted">No hay estadísticas aún. ¡Usa tus comandos!</p>';
-                    return;
-                }
-
-                Object.entries(data).forEach(([key, value]) => {
-                    if (key.startsWith('_')) return;
-
-                    const icon = icons[key] || icons.default;
-                    const label = labels[key] || key.charAt(0).toUpperCase() + key.slice(1);
+                statConfig.forEach(stat => {
+                    const value = data[stat.key] || 0;
 
                     const card = document.createElement('div');
                     card.className = 'stat-card';
                     card.innerHTML = `
-                        <div class="stat-icon"><i class="fa-solid ${icon}"></i></div>
+                        <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
                         <div class="stat-info">
                             <h3>${value}</h3>
-                            <p>${label}</p>
+                            <p>${stat.label}</p>
                         </div>
                     `;
                     statsContainer.appendChild(card);
