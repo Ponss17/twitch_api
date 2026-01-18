@@ -142,10 +142,7 @@ export const getChatters = async (broadcasterId: string, moderatorId: string, to
                 moderator_id: moderatorId,
                 first: 100
             },
-            headers: {
-                'Client-ID': CONFIG.TWITCH_CLIENT_ID,
-                'Authorization': `Bearer ${token}`
-            }
+            headers: getHeaders(token)
         });
         return response.data.data;
     } catch (error) {
@@ -162,8 +159,7 @@ export const sendChatMessage = async (broadcasterId: string, senderId: string, m
             message: message
         }, {
             headers: {
-                'Client-ID': CONFIG.TWITCH_CLIENT_ID,
-                'Authorization': `Bearer ${token}`,
+                ...getHeaders(token),
                 'Content-Type': 'application/json'
             }
         });

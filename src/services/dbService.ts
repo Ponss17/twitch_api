@@ -111,7 +111,12 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
 
         if (!stats) return { clips: 0, followage: 0, so: 0 };
 
-        const numericStats: Record<string, number> = {};
+        const numericStats: Record<string, number> = {
+            clips: 0,
+            followage: 0,
+            so: 0
+        };
+
         for (const [key, value] of Object.entries(stats)) {
             numericStats[key] = parseInt(value as string) || 0;
         }
