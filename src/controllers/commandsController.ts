@@ -22,7 +22,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
         const result = await apiService.createClip(channel, token || '');
 
         if (userId) {
-            await dbService.incrementUserStats(userId, 'clip');
+            await dbService.incrementUserStats(userId, 'clips');
         }
 
         return res.send(result);
@@ -104,6 +104,10 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
             .replace('{user}', touser)
             .replace('{game}', gameName)
             .replace('{url}', url);
+
+        if (req.userId) {
+            await dbService.incrementUserStats(req.userId, 'so');
+        }
 
         res.send(message);
     } catch (error: any) {
