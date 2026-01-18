@@ -10,18 +10,33 @@ export const UI = {
     },
 
     showToast(message, type = 'success') {
-        const toast = document.getElementById('toast');
-        if (!toast) return;
+        let container = document.querySelector('.toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
 
-        toast.innerHTML = message;
-        toast.className = `toast ${type === 'error' ? 'error' : ''}`;
-        if (type === 'error') toast.style.background = "var(--warning-color)";
-        else toast.style.background = "";
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
 
-        toast.classList.remove('hidden');
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-triangle-exclamation';
+
+        toast.innerHTML = `
+            <i class="fa-solid ${icon}"></i>
+            <span>${message}</span>
+        `;
+
+        container.appendChild(toast);
+
         setTimeout(() => {
-            toast.classList.add('hidden');
-        }, 3000);
+            toast.classList.add('hiding');
+            toast.addEventListener('animationend', () => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            });
+        }, 4000);
     },
 
     setupClipboard() {

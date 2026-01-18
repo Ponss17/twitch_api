@@ -19,6 +19,9 @@ export const RouletteModule = {
     client: null,
 
     init(session) {
+        if (this.initialized) return;
+        this.initialized = true;
+
         this.session = session;
 
 

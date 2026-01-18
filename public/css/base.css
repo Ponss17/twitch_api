@@ -168,32 +168,75 @@ code {
     margin-left: auto;
 }
 
-.toast {
+.toast-container {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    background: var(--success);
-    color: white;
-    padding: 12px 24px;
-    border-radius: 50px;
-    font-weight: 600;
-    box-shadow: var(--shadow-lg);
-    z-index: 1000;
+    top: 90px;
+    right: 30px;
     display: flex;
-    align-items: center;
-    gap: 10px;
-    animation: slideDown 0.3s ease-out;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 10000;
+    pointer-events: none;
 }
 
-@keyframes slideDown {
+.toast {
+    background: rgba(14, 14, 16, 0.95);
+    color: var(--text-primary);
+    padding: 16px 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    max-width: 400px;
+    pointer-events: auto;
+    animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.3s ease;
+}
+
+.toast.success {
+    border-left: 4px solid var(--success);
+}
+
+.toast.error {
+    border-left: 4px solid var(--danger);
+}
+
+.toast i {
+    font-size: 1.2rem;
+}
+
+.toast.success i {
+    color: var(--success);
+}
+
+.toast.error i {
+    color: var(--danger);
+}
+
+.toast.hiding {
+    animation: fadeOutRight 0.3s forwards;
+}
+
+@keyframes slideInRight {
     from {
         opacity: 0;
-        transform: translateY(-20px);
+        transform: translateX(100px);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOutRight {
+    to {
+        opacity: 0;
+        transform: translateX(100px);
     }
 }
 
