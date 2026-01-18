@@ -45,8 +45,10 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
         await cacheService.set(cacheKey, result, 60);
         return res.json(result);
     } catch (error: any) {
-        console.error('Error fetching clips:', error.message);
-        return res.status(500).json({ error: MESSAGES.DASHBOARD.CLIPS_ERROR });
+        console.error('Error fetching clips:', error?.response?.data || error.message);
+        const status = error?.response?.status || 500;
+        const message = error?.response?.data?.message || MESSAGES.DASHBOARD.CLIPS_ERROR;
+        return res.status(status).json({ error: message });
     }
 };
 
