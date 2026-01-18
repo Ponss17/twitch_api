@@ -53,4 +53,5 @@ export interface StoredUser {
     refreshToken: string;
     expiresAt: number;
     apiKey: string;
+    profileImageUrl?: string;
 }
