@@ -52,8 +52,8 @@ export const Messages = {
         infoError: 'No se pudo cargar info del usuario',
         reloginMsg: 'Necesitas re-login (Permisos)',
         loadError: 'No se pudo cargar info del usuario',
-        scanStarted: 'Escaneo iniciado',
-        scanPaused: 'Escaneo pausado (Vista congelada)'
+        scanStarted: '<i class="fa-solid fa-satellite-dish fa-beat" style="--fa-beat-scale: 1.2;"></i> Escaneo iniciado',
+        scanPaused: '<i class="fa-solid fa-snowflake" style="color:#00f2ea"></i> Vista Congelada (Pausado)'
     },
     Settings: {
         testing: '<i class="fa-solid fa-spinner fa-spin"></i> Probando conexión...',
@@ -80,9 +80,9 @@ export const Messages = {
         error: '<span style="color:var(--warning)"><i class="fa-solid fa-xmark"></i> Error</span>',
         waiting: '<tr><td colspan="4" style="text-align:center; padding:20px; color:#666;">Esperando palabras...</td></tr>',
         timeUp: '¡TIEMPO!',
-        started: (min) => `Tracker iniciado (${min} min)`,
-        finished: '¡Tiempo terminado!',
-        winner: (word, count) => `🏆 Ganador: "${word}" (${count})`
+        started: (min) => `<i class="fa-solid fa-hourglass-start fa-spin"></i>  Tracker iniciado (${min} min)`,
+        finished: '<i class="fa-solid fa-flag-checkered"></i> ¡Tiempo terminado!',
+        winner: (word, count) => `👑 Ganador: <strong>"${word}"</strong> <span style="font-size:0.9em; opacity:0.8">(${count})</span>`
     },
     Roulette: {
         updated: '<i class="fa-solid fa-check"></i> Lista actualizada',
