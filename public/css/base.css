@@ -312,7 +312,6 @@ code {
     transition: color 0.2s;
     position: relative;
     font-size: 1.1rem;
-    /* margin-left handled by parent flex container gap */
 }
 
 .info-icon:hover {
