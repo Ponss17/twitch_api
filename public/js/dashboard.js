@@ -1,4 +1,5 @@
 import { StalkerModule } from './dashboard/stalker.js';
+import { Messages } from './utils/messages.js';
 import { TrendsModule } from './dashboard/trends.js';
 import { ClipsModule } from './dashboard/clips.js';
 import { RouletteModule } from './dashboard/roulette.js';
@@ -114,11 +115,11 @@ export const Dashboard = {
             regenerateBtn.parentNode.replaceChild(newBtn, regenerateBtn);
 
             newBtn.addEventListener('click', async () => {
-                if (!confirm('¿Estás seguro de que quieres regenerar tu API Key? La anterior dejará de funcionar inmediatamente.')) return;
+                if (!confirm(Messages.Settings.confirmRegenerate)) return;
 
                 newBtn.disabled = true;
                 const originalIcon = newBtn.innerHTML;
-                newBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                newBtn.innerHTML = Messages.Settings.loadingIcon;
 
                 try {
                     const { apiKey, token } = this.session;
@@ -142,13 +143,13 @@ export const Dashboard = {
                             userTokenInput.value = data.apiKey;
                             userTokenInput.dataset.realValue = data.apiKey;
                         }
-                        UI.showToast('API Key regenerada correctamente', 'success');
+                        UI.showToast(Messages.Settings.regenerateSuccess, 'success');
                     } else {
                         throw new Error('Error al regenerar');
                     }
                 } catch (e) {
                     console.error(e);
-                    UI.showToast('Error al regenerar API Key', 'error');
+                    UI.showToast(Messages.Settings.regenerateError, 'error');
                 } finally {
                     newBtn.disabled = false;
                     newBtn.innerHTML = originalIcon;
@@ -225,13 +226,13 @@ export const Dashboard = {
                 const message = messageInput.value.trim();
 
                 if (!message) {
-                    UI.showToast('Por favor escribe un mensaje primero.', 'error');
+                    UI.showToast(Messages.Feedback.emptyMessage, 'error');
                     return;
                 }
 
                 sendFeedbackBtn.disabled = true;
                 const originalText = sendFeedbackBtn.innerHTML;
-                sendFeedbackBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+                sendFeedbackBtn.innerHTML = Messages.Feedback.sending;
 
                 try {
                     const { apiKey, token } = this.session;
@@ -251,14 +252,14 @@ export const Dashboard = {
                     });
 
                     if (response.ok) {
-                        UI.showToast('¡Feedback enviado! Gracias 🐶', 'success');
+                        UI.showToast(Messages.Feedback.success, 'success');
                         messageInput.value = '';
                     } else {
                         throw new Error('Error al enviar');
                     }
                 } catch (e) {
                     console.error(e);
-                    UI.showToast('Error al enviar feedback', 'error');
+                    UI.showToast(Messages.Feedback.error, 'error');
                 } finally {
                     sendFeedbackBtn.disabled = false;
                     sendFeedbackBtn.innerHTML = originalText;

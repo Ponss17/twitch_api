@@ -68,15 +68,22 @@ export const StalkerModule = {
 
     toggleScan() {
         this.isScanning = !this.isScanning;
-        this.render();
+
+        const btn = document.getElementById('toggle-stalker');
+        if (btn) {
+            btn.className = this.isScanning ? 'btn-icon btn-warning' : 'btn-icon btn-success';
+            btn.innerHTML = this.isScanning ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+            btn.title = this.isScanning ? 'Pausar Escaneo' : 'Iniciar Escaneo';
+        }
 
         if (this.isScanning) {
+            UI.showToast(Messages.Stalker.scanStarted, 'success');
             this.loadChatters();
             this.connectTmi();
         } else {
-            this.chatters = [];
-            this.renderTable(this.chatters);
+            UI.showToast(Messages.Stalker.scanPaused, 'warning');
         }
+
     },
 
     render() {

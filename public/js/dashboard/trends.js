@@ -112,6 +112,8 @@ export const TrendsModule = {
         const seconds = minutes * 60;
         this.runTimer(seconds);
         this.render();
+
+        UI.showToast(Messages.Tracker.started(minutes), 'success');
     },
 
     resetInternal() {
@@ -140,6 +142,7 @@ export const TrendsModule = {
 
             if (remaining <= 0) {
                 this.endTimer();
+                UI.showToast(Messages.Tracker.finished, 'warning');
             }
         }, 1000);
     },
@@ -153,6 +156,15 @@ export const TrendsModule = {
         if (display) {
             display.textContent = Messages.Tracker.timeUp;
             display.style.color = "var(--warning)";
+        }
+
+        const entries = Object.entries(this.wordCounts);
+        if (entries.length > 0) {
+            const sorted = entries.sort((a, b) => b[1] - a[1]);
+            const [word, count] = sorted[0];
+            UI.showToast(Messages.Tracker.winner(word, count), 'success');
+        } else {
+            UI.showToast(Messages.Tracker.finished, 'warning');
         }
 
         const firstRow = document.querySelector('#tracker-body tr:first-child');
