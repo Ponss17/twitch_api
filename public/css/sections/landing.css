@@ -76,39 +76,16 @@
 }
 
 .fake-body {
-    padding: 30px;
-    font-family: 'Consolas', monospace;
-    font-size: 0.9rem;
-    min-height: 200px;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.code-line {
-    margin-bottom: 12px;
-}
 
-.code-result {
-    color: var(--text-muted);
-    margin-top: 20px;
-    margin-bottom: 8px;
-    font-style: italic;
-}
-
-.code-output {
-    color: var(--success);
-    font-weight: 600;
-}
-
-.c-purple {
-    color: #c084fc;
-}
-
-.c-blue {
-    color: #60a5fa;
-}
-
-.c-green {
-    color: #86efac;
-}
 
 .glow-bg {
     position: absolute;
@@ -133,4 +110,136 @@
     .hero-title {
         font-size: 2.5rem;
     }
+}
+
+.twitch-chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #18181b;
+    color: #efeff1;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 10px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: flex-end;
+    min-height: 200px;
+}
+
+.chat-line {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    animation: fadeIn 0.3s ease;
+    display: block;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    margin-bottom: 4px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-badges {
+    margin-right: 4px;
+    display: inline-flex;
+    gap: 2px;
+}
+
+.badge-icon {
+    height: 18px;
+    width: 18px;
+    object-fit: contain;
+    vertical-align: middle;
+    position: relative;
+    top: 0;
+    flex-shrink: 0;
+    max-width: none;
+}
+
+.chat-username {
+    font-weight: 700;
+    margin-right: 2px;
+    position: relative;
+    top: -2px;
+}
+
+.chat-colon {
+    margin-right: 4px;
+}
+
+.chat-input-area {
+    padding: 15px;
+    background: #18181b;
+    border-top: 1px solid #303032;
+}
+
+.fake-input {
+    background: #393940;
+    border-radius: 4px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    border: 2px solid transparent;
+    gap: 8px;
+}
+
+
+.input-badge {
+    height: 18px;
+    width: 18px;
+    opacity: 0.8;
+}
+
+.fake-input.typing {
+    border-color: #a970ff;
+    background: #000;
+}
+
+.input-text {
+    font-size: 0.85rem;
+    color: #efeff1;
+    min-height: 20px;
+}
+
+.input-placeholder {
+    color: #adadb8;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    pointer-events: none;
+}
+
+.input-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    justify-content: flex-end;
+}
+
+.twitch-btn {
+    background: #9147ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: default;
 }
