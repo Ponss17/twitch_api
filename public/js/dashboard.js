@@ -158,20 +158,62 @@ export const Dashboard = {
     },
 
     async loadAnalytics() {
+        const statsContainer = document.getElementById('stats-grid');
+        if (!statsContainer) return;
+
+        statsContainer.innerHTML = '<div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i></div>';
+
         try {
-            const { apiKey, token } = this.session;
-            const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-            const res = await fetch(`/api/twitch/analytics?${tokenParam}`);
+            const { token } = this.session;
+            const res = await fetch('/api/twitch/dashboard/analytics', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
 
             if (res.ok) {
-                const stats = await res.json();
-                const clipsEl = document.getElementById('stat-clips');
-                const followEl = document.getElementById('stat-followage');
-                if (clipsEl) clipsEl.textContent = stats.clips || 0;
-                if (followEl) followEl.textContent = stats.followage || 0;
+                const data = await res.json();
+                statsContainer.innerHTML = '';
+
+                const icons = {
+                    clips: 'fa-film',
+                    followage: 'fa-clock',
+                    so: 'fa-users',
+                    default: 'fa-chart-simple'
+                };
+
+                const labels = {
+                    clips: 'Clips Creados',
+                    followage: 'Followage Check',
+                    so: 'Shoutouts'
+                };
+
+                if (Object.keys(data).length === 0) {
+                    statsContainer.innerHTML = '<p class="text-muted">No hay estadísticas aún. ¡Usa tus comandos!</p>';
+                    return;
+                }
+
+                Object.entries(data).forEach(([key, value]) => {
+                    if (key.startsWith('_')) return;
+
+                    const icon = icons[key] || icons.default;
+                    const label = labels[key] || key.charAt(0).toUpperCase() + key.slice(1);
+
+                    const card = document.createElement('div');
+                    card.className = 'stat-card';
+                    card.innerHTML = `
+                        <div class="stat-icon"><i class="fa-solid ${icon}"></i></div>
+                        <div class="stat-info">
+                            <h3>${value}</h3>
+                            <p>${label}</p>
+                        </div>
+                    `;
+                    statsContainer.appendChild(card);
+                });
+            } else {
+                statsContainer.innerHTML = '<p class="error-text">No se pudieron cargar las estadísticas.</p>';
             }
         } catch (e) {
-            console.error('Error analytics', e);
+            console.error('Error loading analytics:', e);
+            statsContainer.innerHTML = '<p class="error-text">Error de conexión.</p>';
         }
     },
 
