@@ -6,6 +6,9 @@ export const ClipsModule = {
     session: null,
 
     async init(session) {
+        if (this.initialized) return;
+        this.initialized = true;
+
         await Loader.loadCSS('css/sections/clips.css');
 
         this.session = session;

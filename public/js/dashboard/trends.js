@@ -16,6 +16,9 @@ export const TrendsModule = {
 
 
     init(session) {
+        if (this.initialized) return;
+        this.initialized = true;
+
         this.session = session;
         const { login, displayName, profile_image_url } = session;
 
