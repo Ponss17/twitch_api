@@ -47,7 +47,8 @@ export const handleCallback = async (code: string, state: string): Promise<{ use
         accessToken: access_token,
         refreshToken: refresh_token,
         expiresAt: Date.now() + (expires_in * 1000),
-        apiKey
+        apiKey,
+        profileImageUrl: user.profile_image_url
     };
 
     if (!refresh_token) {

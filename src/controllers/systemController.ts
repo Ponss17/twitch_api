@@ -66,29 +66,15 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
     let avatar = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
     let userType = '📺 Viewer';
 
-    if (twitchToken) {
+    if (userId) {
         try {
-            const validation = await apiService.validateToken(twitchToken);
-            if (validation) {
-                if (!userId && validation.user_id) {
-                    userId = validation.user_id;
-                }
-
-                const userProfile = await apiService.getUserInfo(validation.login, twitchToken);
-                if (userProfile) {
-                    username = userProfile.display_name;
-                    avatar = userProfile.profile_image_url;
-
-                    const typeMap: { [key: string]: string } = {
-                        'partner': '🟣 Partner',
-                        'affiliate': '🔵 Afiliado',
-                        '': '📺 Viewer'
-                    };
-                    userType = typeMap[String(userProfile.broadcaster_type || '')] || '📺 Viewer';
-                }
+            const cachedUser = await dbService.getUser(userId);
+            if (cachedUser) {
+                username = cachedUser.displayName || cachedUser.login;
+                avatar = cachedUser.profileImageUrl || avatar;
             }
         } catch (e) {
-            console.error('Error getting full user profile for feedback', e);
+            console.error('Error fetching user from DB for feedback:', e);
         }
     }
 
