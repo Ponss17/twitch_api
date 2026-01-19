@@ -2,7 +2,10 @@ export const Messages = {
     Auth: {
         sessionExpired: "Tu sesión ha expirado",
         validationError: "Error al validar sesión",
-        sessionError: "Error de sesión. Recarga la página."
+        sessionError: "Error de sesión. Recarga la página.",
+        expiredTitle: "Sesión Expirada",
+        expiredMsg: "Tu credencial ha caducado. Por favor, inicia sesión de nuevo.",
+        reloginBtn: '<i class="fa-solid fa-right-to-bracket"></i> Re-Login'
     },
     Feedback: {
         emptyMessage: "Por favor, escribe un mensaje.",

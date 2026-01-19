@@ -34,11 +34,30 @@ export const ClipsModule = {
             const data = await res.json();
             this.renderClips(data);
         } catch (error) {
-            clipsGallery.innerHTML = Messages.Common.error(error.message);
-            const retryBtn = document.getElementById('retry-clips-btn');
-            if (retryBtn) retryBtn.onclick = () => this.loadClips();
+            console.error(error);
+            const isAuthError = error.message.includes('401') || error.message.includes('Unauthorized');
 
-            UI.showToast(Messages.Clips.loadError, 'error');
+            if (isAuthError) {
+                clipsGallery.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <h3>${Messages.Auth.expiredTitle}</h3>
+                        <p>${Messages.Auth.expiredMsg}</p>
+                        <button id="relogin-clips-btn" class="btn-primary" style="margin-top:10px;">
+                            ${Messages.Auth.reloginBtn}
+                        </button>
+                    </div>
+                `;
+                document.getElementById('relogin-clips-btn')?.addEventListener('click', () => {
+                    import('../auth.js').then(m => m.Auth.relogin());
+                });
+            } else {
+                clipsGallery.innerHTML = Messages.Common.error(error.message);
+                const retryBtn = document.getElementById('retry-clips-btn');
+                if (retryBtn) retryBtn.onclick = () => this.loadClips();
+            }
+
+            UI.showToast(isAuthError ? Messages.Auth.expired : Messages.Clips.loadError, 'error');
         }
     },
 
