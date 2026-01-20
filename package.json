@@ -5,7 +5,7 @@
   "main": "api/index.ts",
   "scripts": {
     "build": "tsc",
-    "postbuild": "cp -r public dist/public",
+    "postbuild": "shx cp -r public dist/public",
     "start": "node -r dotenv/config dist/api/index.js",
     "dev": "ts-node --files -r dotenv/config api/index.ts"
   },
@@ -29,7 +29,8 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "groq-sdk": "^0.37.0",
-    "helmet": "^8.1.0"
+    "helmet": "^8.1.0",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@types/compression": "^1.8.1",
@@ -37,6 +38,7 @@
     "@types/express": "^5.0.6",
     "@types/helmet": "^0.0.48",
     "@types/node": "^25.0.3",
+    "shx": "^0.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
