@@ -62,9 +62,9 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
     const { message } = req.body;
     let { userId, twitchToken } = req;
 
-    let username = 'Anónimo';
+    let username = MESSAGES.FEEDBACK.ANONYMOUS_USER;
     let avatar = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
-    let userType = '📺 Viewer';
+    let userType = MESSAGES.FEEDBACK.VIEWER_ROLE;
 
     if (userId) {
         try {
@@ -95,14 +95,14 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
             username: username,
             avatar_url: avatar,
             embeds: [{
-                title: "📢 Nuevo Feedback",
+                title: MESSAGES.FEEDBACK.EMBED_TITLE,
                 color: 0x9146ff,
                 fields: [
                     { name: "🆔 Usuario ID", value: userId || 'N/A', inline: true },
                     { name: "🏷️ Rango", value: userType, inline: true },
                     { name: "📝 Mensaje", value: message, inline: false }
                 ],
-                footer: { text: "LosPerris Twitch Api - FeedBack" },
+                footer: { text: MESSAGES.FEEDBACK.EMBED_FOOTER },
                 timestamp: new Date().toISOString()
             }]
         });
