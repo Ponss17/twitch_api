@@ -7,6 +7,7 @@ import { CONFIG } from './config/env';
 import rateLimiter from './middleware/rateLimiter';
 import authRoutes from './routes/authRoutes';
 import apiRoutes from './routes/apiRoutes';
+import { getRobotsTxt, getSitemapXml } from './controllers/seoController';
 
 const app: Application = express();
 
@@ -34,6 +35,9 @@ app.use(helmet({
 app.use(cors());
 app.use(compression());
 app.use(express.json());
+
+app.get(['/robots.txt', '/api/twitch/robots.txt'], getRobotsTxt);
+app.get(['/sitemap.xml', '/api/twitch/sitemap.xml'], getSitemapXml);
 
 app.use('/api/twitch', express.static(path.join(__dirname, '../public')));
 app.use(express.static(path.join(__dirname, '../public')));
