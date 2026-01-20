@@ -22,7 +22,11 @@ export const MESSAGES = {
         MESSAGE_REQUIRED: 'El mensaje es requerido.',
         SUCCESS: 'Feedback enviado correctamente.',
         SEND_ERROR: 'Error al enviar el feedback.',
-        MESSAGE_TOO_LONG: 'Mensaje demasiado largo (max 2000 caracteres).'
+        MESSAGE_TOO_LONG: 'Mensaje demasiado largo (max 2000 caracteres).',
+        ANONYMOUS_USER: 'Anónimo',
+        VIEWER_ROLE: '📺 Viewer',
+        EMBED_TITLE: '📢 Nuevo Feedback',
+        EMBED_FOOTER: 'LosPerris Twitch Api - FeedBack'
     },
     AI: {
         PROMPT_REQUIRED: '¡Necesito que me digas algo! Cuak.',
