@@ -4,14 +4,16 @@ import * as dashboardController from '../controllers/dashboardController';
 import * as systemController from '../controllers/systemController';
 import * as aiController from '../controllers/aiController';
 import checkToken from '../middleware/authMiddleware';
+import { validate } from '../middleware/validate';
+import { createClipSchema, aiChatSchema } from '../schemas/requestSchemas';
 
 const router = express.Router();
 
 // IA
-router.post('/ai/chat', checkToken, aiController.generateCommand);
+router.post('/ai/chat', checkToken, validate(aiChatSchema), aiController.generateCommand);
 
 // Comandos
-router.get('/create-clip', checkToken, commandsController.createClip);
+router.get('/create-clip', checkToken, validate(createClipSchema), commandsController.createClip);
 router.get('/followage', checkToken, commandsController.followage);
 router.get('/shoutout', checkToken, commandsController.getShoutout);
 router.post('/send-message', checkToken, commandsController.sendMessage);

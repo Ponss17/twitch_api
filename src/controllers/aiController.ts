@@ -6,9 +6,10 @@ export const generateCommand = async (req: Request, res: Response) => {
     try {
         const { prompt, history } = req.body;
 
-        if (!prompt && (!history || history.length === 0)) {
-            return res.status(400).json({ error: MESSAGES.AI.PROMPT_REQUIRED });
-        }
+        // Validación manejada por Zod
+        // if (!prompt && (!history || history.length === 0)) {
+        //     return res.status(400).json({ error: MESSAGES.AI.PROMPT_REQUIRED });
+        // }
 
         const protocol = req.protocol;
         const host = req.get('host');
