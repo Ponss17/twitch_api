@@ -110,9 +110,6 @@ export const Dashboard = {
             case 'tab-roulette':
                 RouletteModule.init(this.session);
                 break;
-            case 'tab-duel':
-                DuelModule.init(this.session);
-                break;
         }
     },
 

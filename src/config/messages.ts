@@ -47,11 +47,6 @@ export const MESSAGES = {
         SHOUTOUT_ERROR: 'Error generando shoutout.',
         SHOUTOUT_HEADLINE: '¡Vayan a seguir a {user}! Estaba jugando {game}'
     },
-    GAMES: {
-        DUEL: {
-            MISSING_PARAMS: 'Fallan los nombres de los contendientes'
-        }
-    },
     DASHBOARD: {
         ANALYTICS_ERROR: 'Error recuperando analytics',
         CLIPS_ERROR: 'Error recuperando clips.',
