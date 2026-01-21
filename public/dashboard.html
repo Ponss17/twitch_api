@@ -61,9 +61,15 @@
                     <i class="fa-solid fa-users-viewfinder"></i>
                     <span class="nav-text">Stalker</span>
                 </button>
+
+                <div class="menu-category">Minijuegos</div>
                 <button class="nav-item" data-tab="tab-roulette">
                     <i class="fa-solid fa-dice"></i>
                     <span class="nav-text">Ruleta</span>
+                </button>
+                <button class="nav-item" data-tab="tab-duel">
+                    <i class="fa-solid fa-khanda"></i>
+                    <span class="nav-text">Duelos</span>
                 </button>
 
                 <div class="menu-category menu-separator">Soporte</div>
@@ -378,6 +384,93 @@
                             </div>
                             <div style="margin-top:10px; font-size:0.75rem; opacity:0.6; font-style:italic;">
                                 * Twitch tarda unos minutos en actualizar la lista
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-duel" class="tab-pane">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-khanda"></i>
+                            </div>
+                            <div>
+                                <h3>Comando !duelo</h3>
+                                <p class="card-desc">Configura el minijuego para tu chat</p>
+                            </div>
+                            <div class="header-actions" style="margin-left:auto;">
+                                <i class="fa-solid fa-circle-question info-icon"
+                                    data-tooltip="Copia este comando en tu chat para que los viewers puedan pelear entre ellos."></i>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="tool-selector">
+                                <label><i class="fa-solid fa-robot"></i> Selecciona tu bot:</label>
+                                <select id="bot-select-duel" class="select-input">
+                                    <option value="nightbot">Nightbot</option>
+                                    <option value="streamelements">StreamElements</option>
+                                    <option value="fossabot">Fossabot</option>
+                                    <option value="wizebot">Wizebot</option>
+                                </select>
+                            </div>
+
+                            <div class="code-box">
+                                <textarea id="command-output-duel" readonly></textarea>
+                                <button class="btn-copy copy-btn" data-target="command-output-duel">
+                                    <i class="fa-regular fa-copy"></i> Copiar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-gamepad"></i>
+                            </div>
+                            <div>
+                                <h3>Simulador de Batalla</h3>
+                                <p class="card-desc">Prueba la narración manualmente</p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-grid"
+                                style="grid-template-columns: 1fr auto 1fr; align-items: center; gap: 15px;">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <span
+                                            style="padding:10px 12px; color:var(--text-muted); background:rgba(0,0,0,0.2); border-right:1px solid var(--border);"><i
+                                                class="fa-solid fa-user-ninja"></i></span>
+                                        <input type="text" id="duel-p1" placeholder="Retador (Ej: Goku)"
+                                            style="padding:10px;">
+                                    </div>
+                                </div>
+
+                                <div class="duel-vs-badge"
+                                    style="margin:0; width:36px; height:36px; font-size:0.9rem; box-shadow:none;">
+                                    <span>VS</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <span
+                                            style="padding:10px 12px; color:var(--text-muted); background:rgba(0,0,0,0.2); border-right:1px solid var(--border);"><i
+                                                class="fa-solid fa-skull"></i></span>
+                                        <input type="text" id="duel-p2" placeholder="Oponente (Ej: Freezer)"
+                                            style="padding:10px;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align:center; margin-top:20px;">
+                                <button id="btn-test-duel" class="btn-primary btn-large"
+                                    style="background:var(--accent); border-color:var(--accent);">
+                                    <i class="fa-solid fa-swords"></i> ¡PELEAR!
+                                </button>
+                            </div>
+
+                            <div id="duel-result" class="result-box hidden" style="margin-top:20px; text-align:center;">
                             </div>
                         </div>
                     </div>

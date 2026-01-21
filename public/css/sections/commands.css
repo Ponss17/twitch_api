@@ -97,3 +97,33 @@
     font-family: 'Consolas', monospace;
     font-size: 0.9rem;
 }
+
+.header-actions-flex {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+.input-help {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-tertiary);
+    font-size: 0.8em;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}

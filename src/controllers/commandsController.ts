@@ -16,9 +16,6 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     const token = req.twitchToken;
     const userId = req.userId;
 
-    // Validación manejada por Zod
-    // if (!channel) return res.status(400).send(MESSAGES.COMMANDS.MISSING_CHANNEL);
-
     try {
         const result = await apiService.createClip(channel, token || '');
 

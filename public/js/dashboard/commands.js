@@ -102,12 +102,7 @@ export const CommandsModule = {
         this.setupGenericCommands();
         this.setupTestCommand();
 
-        const refreshBtn = document.getElementById('refresh-clips-btn');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => this.loadRecentClips());
-        }
 
-        this.loadRecentClips();
     },
 
     renderCommandCards() {
@@ -130,7 +125,7 @@ export const CommandsModule = {
                     <h3>${conf.title}</h3>
                     <p class="card-desc">${conf.desc}</p>
                 </div>
-                <div class="header-actions" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                <div class="header-actions header-actions-flex">
                     <i class="fa-solid fa-circle-question info-icon" data-tooltip="${conf.info}"></i>
                 </div>
             </div>
@@ -145,14 +140,13 @@ export const CommandsModule = {
                     </select>
                 </div>
                 
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.9em; color: var(--text-secondary);">
+                <div class="form-group mb-20">
+                    <label class="input-label">
                         <i class="fa-solid fa-pen-to-square"></i> Mensaje Personalizado (Opcional)
                     </label>
-                    <input type="text" id="${conf.id}-template" class="text-input" 
-                        placeholder="${conf.templatePlaceholder}"
-                        style="width: 100%;">
-                    <small style="display: block; margin-top: 5px; color: var(--text-tertiary); font-size: 0.8em;">
+                    <input type="text" id="${conf.id}-template" class="text-input full-width" 
+                        placeholder="${conf.templatePlaceholder}">
+                    <small class="input-help">
                         ${conf.templateVars}
                     </small>
                 </div>
@@ -258,50 +252,5 @@ export const CommandsModule = {
         });
     },
 
-    async loadRecentClips() {
-        const gallery = document.getElementById('clips-gallery');
-        if (!gallery) return;
 
-        gallery.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Cargando clips...</div>';
-
-        const { token, login } = this.session;
-
-        try {
-            const domain = `${CONFIG.siteUrl}/api/twitch`;
-            const response = await fetch(`${domain}/get-clips?token=${token}&channel=${login}`);
-
-            if (!response.ok) {
-                console.error('API Error:', await response.text());
-                gallery.innerHTML = '<div class="error-state">Error al cargar clips (API).</div>';
-                return;
-            }
-
-            const data = await response.json();
-
-            if (!data.data || data.data.length === 0) {
-                gallery.innerHTML = '<div class="empty-state">No se encontraron clips recientes.</div>';
-                return;
-            }
-
-            gallery.innerHTML = data.data.map(clip => `
-                <div class="clip-card">
-                    <a href="${clip.url}" target="_blank" class="clip-thumb">
-                        <img src="${clip.thumbnail_url}" alt="${clip.title}">
-                        <div class="clip-duration">${clip.duration}s</div>
-                    </a>
-                    <div class="clip-info">
-                        <div class="clip-title" title="${clip.title}">${clip.title}</div>
-                        <div class="clip-meta">
-                            <span class="clip-views"><i class="fa-solid fa-eye"></i> ${clip.view_count}</span>
-                            <span class="clip-date">${new Date(clip.created_at).toLocaleDateString()}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-        } catch (error) {
-            console.error('Error loading clips:', error);
-            gallery.innerHTML = '<div class="error-state">Error cargando clips.</div>';
-        }
-    }
 };

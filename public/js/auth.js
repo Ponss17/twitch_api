@@ -1,3 +1,5 @@
+import { CONFIG } from './config.js';
+
 export const Auth = {
     getSession() {
         try {
@@ -20,14 +22,19 @@ export const Auth = {
         window.location.href = window.location.origin + window.location.pathname;
     },
 
-    async validateCurrentToken(paramStr) {
+    async validateCurrentToken(credentialParam) {
         try {
-            const res = await fetch(`/api/twitch/validate?${paramStr}`);
-            if (!res.ok) return false;
+            if (!credentialParam) return null;
 
-            const contentType = res.headers.get("content-type");
+            const response = await fetch(`${CONFIG.API_URL}/system/validate?${credentialParam}`);
+
+            if (!response.ok) {
+                return false;
+            }
+
+            const contentType = response.headers.get("content-type");
             if (contentType && contentType.indexOf("application/json") !== -1) {
-                const data = await res.json();
+                const data = await response.json();
                 return data.valid ? data.user : false;
             }
 

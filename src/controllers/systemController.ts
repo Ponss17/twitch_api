@@ -60,7 +60,7 @@ export const regenerateKey = async (req: Request, res: Response) => {
 
 export const submitFeedback = async (req: AuthenticatedRequest, res: Response) => {
     const { message } = req.body;
-    let { userId, twitchToken } = req;
+    let { userId } = req;
 
     let username = MESSAGES.FEEDBACK.ANONYMOUS_USER;
     let avatar = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';

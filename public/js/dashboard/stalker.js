@@ -54,9 +54,7 @@ export const StalkerModule = {
                     const tbody = document.getElementById('stalker-grid');
                     if (tbody && tbody.firstChild) {
                         const row = tbody.firstChild;
-                        row.style.background = "rgba(59, 130, 246, 0.2)";
-                        row.style.transition = "background 1s";
-                        setTimeout(() => row.style.background = "", 1000);
+                        row.classList.add('row-highlight');
                     }
 
                     const empty = document.getElementById('stalker-empty');
@@ -100,7 +98,7 @@ export const StalkerModule = {
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
                     <input type="text" id="stalker-search" placeholder="Buscar usuario..." class="stalker-search">
                 </div>
-                <button id="toggle-stalker" class="btn-icon ${btnClass}" title="${btnTitle}" style="margin-right:5px;">
+                <button id="toggle-stalker" class="btn-icon ${btnClass} mr-5" title="${btnTitle}">
                     <i class="fa-solid ${btnIcon}"></i>
                 </button>
                 <button id="refresh-stalker" class="btn-icon" title="Recargar lista">
@@ -217,7 +215,7 @@ export const StalkerModule = {
 
         try {
             const { apiKey, login } = this.session;
-            const res = await fetch(`/api/twitch/chatters?channel=${login}&apiKey=${apiKey}`);
+            const res = await fetch(`/api/twitch/dashboard/chatters?channel=${login}&apiKey=${apiKey}`);
 
             if (!res.ok) {
                 if (res.status === 401) throw new Error(Messages.Stalker.reloginMsg);
@@ -263,20 +261,18 @@ export const StalkerModule = {
             const avatarTd = document.createElement('td');
             avatarTd.innerHTML = user.profile_image_url
                 ? `<img src="${user.profile_image_url}" class="table-avatar-img">`
-                : `<div class="table-avatar-img" style="background:var(--bg-secondary); display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><i class="fa-solid fa-user"></i></div>`;
+                : `<div class="table-avatar-empty"><i class="fa-solid fa-user"></i></div>`;
 
             const nameTd = document.createElement('td');
-            nameTd.className = 'word-text';
-            nameTd.style.fontWeight = '600';
+            nameTd.className = 'word-text text-bold';
             nameTd.textContent = user.user_name;
 
             const loginTd = document.createElement('td');
-            loginTd.className = 'count-text';
-            loginTd.style.color = 'var(--text-secondary)';
+            loginTd.className = 'count-text text-muted-color';
             loginTd.textContent = `@${user.user_login}`;
 
             const actionTd = document.createElement('td');
-            actionTd.style.textAlign = 'right';
+            actionTd.className = 'text-right';
 
             const btn = document.createElement('button');
             btn.className = 'action-btn';
@@ -306,7 +302,7 @@ export const StalkerModule = {
     async inspectUser(login) {
         const { apiKey } = this.session;
         try {
-            const res = await fetch(`/api/twitch/user-info?login=${login}&apiKey=${apiKey}`);
+            const res = await fetch(`/api/twitch/dashboard/user-info?login=${login}&apiKey=${apiKey}`);
             if (!res.ok) throw new Error(Messages.Stalker.infoError);
             const info = await res.json();
 
