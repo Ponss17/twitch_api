@@ -24,7 +24,10 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
         return res.status(400).send('Este endpoint solo funciona cuando es llamado por Nightbot. El header "Nightbot-Response-Url" no está presente.');
     }
 
-    res.send(' ');
+    // Responder inmediatamente sin mensaje (Nightbot no imprimirá nada)
+    res.status(200).end();
+
+    // Enviar mensajes en background (fire-and-forget)
     sendDuelMessagesToNightbot(nightbotResponseUrl, challenger, opponent);
 };
 
@@ -44,19 +47,24 @@ function generateDuelMessages(challenger: string, opponent: string): string[] {
     ];
 }
 
-// Envía mensajes a Nightbot con delays
+// Envía mensajes a Nightbot con delays (fire-and-forget)
 async function sendDuelMessagesToNightbot(responseUrl: string, challenger: string, opponent: string) {
     const messages = generateDuelMessages(challenger, opponent);
 
     for (let i = 0; i < messages.length; i++) {
-        try {
-            await apiService.sendToNightbot(responseUrl, messages[i]);
-            if (i < messages.length - 1) {
-                await delay(5000);
-            }
-        } catch (error) {
-            console.error(`Error enviando mensaje ${i + 1} a Nightbot:`, error);
-            break;
+        // Fire-and-forget: no esperamos respuesta
+        sendToNightbotNoWait(responseUrl, messages[i]);
+
+        // Delay reducido a 1 segundo
+        if (i < messages.length - 1) {
+            await delay(1000);
         }
     }
+}
+
+// Envía mensaje sin esperar respuesta (fire-and-forget)
+function sendToNightbotNoWait(responseUrl: string, message: string) {
+    apiService.sendToNightbot(responseUrl, message)
+        .then(() => console.log(`[Nightbot] Mensaje enviado: ${message.substring(0, 30)}...`))
+        .catch(err => console.error(`[Nightbot] Error (ignorado): ${err.message}`));
 }
