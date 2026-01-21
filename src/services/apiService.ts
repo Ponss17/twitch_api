@@ -175,3 +175,21 @@ export const sendChatMessage = async (broadcasterId: string, senderId: string, m
         throw error;
     }
 };
+
+// ==========================================
+// NIGHTBOT
+// ==========================================
+
+export const sendToNightbot = async (responseUrl: string, message: string): Promise<void> => {
+    try {
+        await axios.post(responseUrl, { message }, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            timeout: 10000
+        });
+    } catch (error) {
+        console.error('Error sending message to Nightbot:', error);
+        throw error;
+    }
+};
