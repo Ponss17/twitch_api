@@ -40,11 +40,11 @@
         },
         {
             "source": "/api/twitch/(.*)",
-            "destination": "/api/index.ts"
+            "destination": "/dist/api/index.js"
         },
         {
             "source": "/(.*)",
-            "destination": "/api/index.ts"
+            "destination": "/dist/api/index.js"
         }
     ],
     "cleanUrls": true
