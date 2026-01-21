@@ -6,7 +6,7 @@ import { getCachedUserId, setCachedUserId } from './cacheService';
 
 const httpsAgent = new https.Agent({ keepAlive: true });
 const apiClient = axios.create({
-    timeout: 10000,
+    timeout: 30000,
     httpsAgent
 });
 
