@@ -2,16 +2,12 @@ import express from 'express';
 import * as commandsController from '../controllers/commandsController';
 import * as dashboardController from '../controllers/dashboardController';
 import * as systemController from '../controllers/systemController';
-import * as aiController from '../controllers/aiController';
 import * as gamesController from '../controllers/gamesController';
 import checkToken from '../middleware/authMiddleware';
 import { validate } from '../middleware/validate';
-import { createClipSchema, aiChatSchema } from '../schemas/requestSchemas';
+import { createClipSchema } from '../schemas/requestSchemas';
 
 const router = express.Router();
-
-// IA
-router.post('/ai/chat', checkToken, validate(aiChatSchema), aiController.generateCommand);
 
 // Minijuegos
 // (Aquí irán los nuevos minijuegos)

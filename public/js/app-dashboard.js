@@ -2,7 +2,6 @@ import { Auth } from './auth.js';
 import { UI } from './ui.js';
 import { Dashboard } from './dashboard.js';
 import { CONFIG } from './config.js';
-import { PerriBot } from './components/perri.js';
 import { FooterComponent } from './components/footer.js';
 import { Messages } from './utils/messages.js';
 
@@ -37,7 +36,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             Dashboard.init(sessionParams);
-            PerriBot.init(sessionParams);
 
             if (sessionParams.isNewLogin) {
                 const cleanUrl = window.location.pathname + window.location.hash;

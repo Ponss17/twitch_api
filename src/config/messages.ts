@@ -29,12 +29,6 @@ export const MESSAGES = {
         EMBED_TITLE: '📢 Nuevo Feedback',
         EMBED_FOOTER: 'LosPerris Twitch Api - FeedBack'
     },
-    AI: {
-        PROMPT_REQUIRED: '¡Necesito que me digas algo! Cuak.',
-        INTERNAL_ERROR: 'Error interno del pato.',
-        MISSING_KEY: 'No estoy configurado (Falta API Key). ¡Cuak!',
-        BRAIN_ERROR: 'Algo salió mal en mi cerebro de pato.'
-    },
     COMMANDS: {
         MISSING_CHANNEL: 'Falta el parámetro channel.',
         MISSING_PARAMS: 'Faltan parámetros: channel y user son requeridos.',
