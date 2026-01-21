@@ -25,41 +25,28 @@ const sendWithRetry = async (broadcasterId: string, message: string, token: stri
 export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
     const challenger = req.query.challenger as string;
     const opponent = req.query.opponent as string;
-    const token = req.twitchToken;
-    const broadcasterId = req.userId;
-
-
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.setHeader('Transfer-Encoding', 'chunked');
 
     try {
         const isChallengerWin = Math.random() > 0.5;
         const winner = isChallengerWin ? challenger : opponent;
         const loser = isChallengerWin ? opponent : challenger;
 
-        const intro = `⚔️ ¡Duelo a muerte con cuchillos! 🔪 `;
-        res.write(intro);
-
-        await delay(1000);
-
-        const actions = [
-            `💨 ${challenger} intenta flanquear... `,
-            `🛡️ ${opponent} levanta la guardia... `,
-            `💥 ¡Intercambio de golpes brutal! `,
-            `🔥 ¡${winner} lanza su ataque final! `,
-            `💀 ${loser} cae derrotado... ¡${winner} gana! 🏆 `
+        const messages = [
+            `⚔️ ¡Duelo a muerte con cuchillos! 🔪`,
+            `💨 ${challenger} intenta flanquear...`,
+            `🛡️ ${opponent} levanta la guardia...`,
+            `💥 ¡Intercambio de golpes brutal!`,
+            `🔥 ¡${winner} lanza su ataque final!`,
+            `💀 ${loser} cae derrotado... ¡${winner} gana! 🏆`
         ];
 
-        for (const action of actions) {
-            res.write(action);
-            await delay(1200);
-        }
+        const response = messages.join('`');
 
-        res.end();
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.send(response);
 
     } catch (error) {
         console.error('Error en duelo:', error);
-        res.write('⚠️ Error en el duelo.');
-        res.end();
+        res.status(500).send('⚠️ Error en el duelo.');
     }
 };
