@@ -6,17 +6,3 @@ export const createClipSchema = z.object({
     }),
 });
 
-export const aiChatSchema = z.object({
-    body: z.object({
-        prompt: z.string().optional(),
-        history: z.array(
-            z.object({
-                role: z.enum(['user', 'assistant', 'system']),
-                content: z.string()
-            })
-        ).optional()
-    }).refine(data => data.prompt || (data.history && data.history.length > 0), {
-        message: "Se requiere 'prompt' o un 'history' no vacío",
-        path: ["prompt"]
-    })
-});
