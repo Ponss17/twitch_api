@@ -1,7 +1,14 @@
 import axios from 'axios';
+import https from 'https';
 import { CONFIG } from '../config/env';
 import { TwitchClip, TwitchError } from '../types/twitch';
 import { getCachedUserId, setCachedUserId } from './cacheService';
+
+const httpsAgent = new https.Agent({ keepAlive: true });
+const apiClient = axios.create({
+    timeout: 10000,
+    httpsAgent
+});
 
 const getHeaders = (token: string) => ({
     'Client-ID': CONFIG.TWITCH_CLIENT_ID,
@@ -19,7 +26,7 @@ export const getUserId = async (username: string, token: string): Promise<string
 
 export const getUserInfo = async (username: string, token: string): Promise<any> => {
     const headers = getHeaders(token);
-    const response = await axios.get(`https://api.twitch.tv/helix/users?login=${username}`, { headers });
+    const response = await apiClient.get(`https://api.twitch.tv/helix/users?login=${username}`, { headers });
 
     if (response.data.data.length === 0) {
         throw { status: 404, message: `El usuario/canal ${username} no existe.` } as TwitchError;
@@ -30,7 +37,7 @@ export const getUserInfo = async (username: string, token: string): Promise<any>
 
 export const getChannelInfo = async (broadcasterId: string, token: string): Promise<any> => {
     const headers = getHeaders(token);
-    const response = await axios.get(`https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`, { headers });
+    const response = await apiClient.get(`https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`, { headers });
 
     if (response.data.data.length === 0) {
         throw { status: 404, message: `No se encontró información del canal.` } as TwitchError;
@@ -44,7 +51,7 @@ export const createClip = async (channel: string, token: string): Promise<string
         const broadcasterId = await getUserId(channel, token);
         const headers = getHeaders(token);
 
-        const clipRes = await axios.post(`https://api.twitch.tv/helix/clips?broadcaster_id=${broadcasterId}`, null, { headers });
+        const clipRes = await apiClient.post(`https://api.twitch.tv/helix/clips?broadcaster_id=${broadcasterId}`, null, { headers });
         const clipData = clipRes.data.data[0];
         return `https://clips.twitch.tv/${clipData.id}`;
     } catch (error: unknown) {
@@ -59,7 +66,7 @@ export const getClips = async (channel: string, limit: number, token: string): P
     const broadcasterId = await getUserId(channel, token);
     const headers = getHeaders(token);
 
-    const clipsRes = await axios.get(`https://api.twitch.tv/helix/clips`, {
+    const clipsRes = await apiClient.get(`https://api.twitch.tv/helix/clips`, {
         headers,
         params: {
             broadcaster_id: broadcasterId,
@@ -78,7 +85,7 @@ export const getFollowAge = async (channel: string, user: string, token: string)
         ]);
 
         const headers = getHeaders(token);
-        const followRes = await axios.get('https://api.twitch.tv/helix/channels/followers', {
+        const followRes = await apiClient.get('https://api.twitch.tv/helix/channels/followers', {
             headers,
             params: {
                 broadcaster_id: channelId,
@@ -127,7 +134,7 @@ export const getFollowAge = async (channel: string, user: string, token: string)
 export const validateToken = async (token: string): Promise<any> => {
     try {
         const headers = { 'Authorization': `OAuth ${token}` };
-        const response = await axios.get('https://id.twitch.tv/oauth2/validate', { headers });
+        const response = await apiClient.get('https://id.twitch.tv/oauth2/validate', { headers });
         return response.data;
     } catch (error) {
         return null;
@@ -136,7 +143,7 @@ export const validateToken = async (token: string): Promise<any> => {
 
 export const getChatters = async (broadcasterId: string, moderatorId: string, token: string) => {
     try {
-        const response = await axios.get('https://api.twitch.tv/helix/chat/chatters', {
+        const response = await apiClient.get('https://api.twitch.tv/helix/chat/chatters', {
             params: {
                 broadcaster_id: broadcasterId,
                 moderator_id: moderatorId,
@@ -153,7 +160,7 @@ export const getChatters = async (broadcasterId: string, moderatorId: string, to
 
 export const sendChatMessage = async (broadcasterId: string, senderId: string, message: string, token: string) => {
     try {
-        await axios.post('https://api.twitch.tv/helix/chat/messages', {
+        await apiClient.post('https://api.twitch.tv/helix/chat/messages', {
             broadcaster_id: broadcasterId,
             sender_id: senderId,
             message: message

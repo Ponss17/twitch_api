@@ -39,22 +39,27 @@ export const UI = {
         }, 4000);
     },
 
+    copyToClipboard(text) {
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(() => {
+            this.showToast('<i class="fa-solid fa-check"></i> Copiado');
+        }).catch(() => {
+            this.showToast('<i class="fa-solid fa-xmark"></i> Error al copiar', 'error');
+        });
+    },
+
     setupClipboard() {
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('.copy-btn');
             if (!btn) return;
 
             const targetId = btn.dataset.target;
-            const target = document.getElementById(targetId);
-
-            if (target) {
-                const valueToCopy = target.dataset.realValue || target.value;
-                target.select();
-                navigator.clipboard.writeText(valueToCopy).then(() => {
-                    this.showToast('<i class="fa-solid fa-check"></i> Copiado');
-                }).catch(() => {
-                    this.showToast('<i class="fa-solid fa-xmark"></i> Error al copiar', 'error');
-                });
+            if (targetId) {
+                const target = document.getElementById(targetId);
+                if (target) {
+                    const valueToCopy = target.dataset.realValue || target.value || target.innerText;
+                    this.copyToClipboard(valueToCopy);
+                }
             }
         });
     },
