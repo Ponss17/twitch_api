@@ -31,7 +31,8 @@ export const DuelModule = {
         }
 
         const copyBtn = document.querySelector('.copy-btn[data-target="command-output-duel"]');
-        if (copyBtn) {
+        if (copyBtn && !copyBtn.dataset.listenerAttached) {
+            copyBtn.dataset.listenerAttached = 'true';
             copyBtn.addEventListener('click', () => {
                 const output = document.getElementById('command-output-duel');
                 if (output) {
