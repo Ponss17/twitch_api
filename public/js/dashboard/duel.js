@@ -30,18 +30,6 @@ export const DuelModule = {
             botSelect.addEventListener('change', () => this.renderCommandBox());
         }
 
-        const copyBtn = document.querySelector('.copy-btn[data-target="command-output-duel"]');
-        if (copyBtn && !copyBtn.dataset.listenerAttached) {
-            copyBtn.dataset.listenerAttached = 'true';
-            copyBtn.addEventListener('click', () => {
-                const output = document.getElementById('command-output-duel');
-                if (output) {
-                    UI.copyToClipboard(output.value);
-                    UI.showToast(Messages.Duel.copied, 'success');
-                }
-            });
-        }
-
         this.renderCommandBox();
     },
 
