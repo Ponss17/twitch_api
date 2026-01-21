@@ -3,7 +3,6 @@ import { Messages } from './utils/messages.js';
 import { TrendsModule } from './dashboard/trends.js';
 import { ClipsModule } from './dashboard/clips.js';
 import { RouletteModule } from './dashboard/roulette.js';
-import { DuelModule } from './dashboard/duel.js';
 import { CommandsModule } from './dashboard/commands.js';
 import { UI } from './ui.js';
 
