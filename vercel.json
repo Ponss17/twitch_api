@@ -1,5 +1,11 @@
 {
     "version": 2,
+    "functions": {
+        "api/index.ts": {
+            "maxDuration": 60,
+            "memory": 256
+        }
+    },
     "headers": [
         {
             "source": "/(.*)",
@@ -34,11 +40,11 @@
         },
         {
             "source": "/api/twitch/(.*)",
-            "destination": "/dist/api/index.js"
+            "destination": "/api/index.ts"
         },
         {
             "source": "/(.*)",
-            "destination": "/dist/api/index.js"
+            "destination": "/api/index.ts"
         }
     ],
     "cleanUrls": true
