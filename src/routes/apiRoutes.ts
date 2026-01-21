@@ -6,7 +6,7 @@ import * as aiController from '../controllers/aiController';
 import * as gamesController from '../controllers/gamesController';
 import checkToken from '../middleware/authMiddleware';
 import { validate } from '../middleware/validate';
-import { createClipSchema, aiChatSchema, duelSchema } from '../schemas/requestSchemas';
+import { createClipSchema, aiChatSchema } from '../schemas/requestSchemas';
 
 const router = express.Router();
 
@@ -14,7 +14,7 @@ const router = express.Router();
 router.post('/ai/chat', checkToken, validate(aiChatSchema), aiController.generateCommand);
 
 // Minijuegos
-router.get('/minigames/duel', checkToken, validate(duelSchema), gamesController.startDuel);
+// (Aquí irán los nuevos minijuegos)
 
 // Comandos
 router.get('/create-clip', checkToken, validate(createClipSchema), commandsController.createClip);
