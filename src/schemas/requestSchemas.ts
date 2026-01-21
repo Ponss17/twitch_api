@@ -20,3 +20,10 @@ export const aiChatSchema = z.object({
         path: ["prompt"]
     })
 });
+
+export const duelSchema = z.object({
+    query: z.object({
+        challenger: z.string().min(1),
+        opponent: z.string().min(1)
+    })
+});

@@ -13,6 +13,14 @@ export const ClipsModule = {
 
         this.session = session;
         this.loadClips();
+
+        const refreshBtn = document.getElementById('refresh-clips-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.loadClips();
+                UI.showToast('Actualizando clips...', 'info');
+            });
+        }
     },
 
     async loadClips() {
@@ -21,11 +29,10 @@ export const ClipsModule = {
 
         clipsGallery.innerHTML = Messages.Clips.loading;
 
-        const { login, apiKey, token } = this.session;
-
         try {
+            const { apiKey, token, login } = this.session;
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-            const res = await fetch(`/api/twitch/get-clips?channel=${login}&limit=20&${tokenParam}`);
+            const res = await fetch(`/api/twitch/dashboard/get-clips?channel=${login}&${tokenParam}`);
 
             if (!res.ok) {
                 throw new Error(`HTTP ${res.status}: ${res.statusText}`);

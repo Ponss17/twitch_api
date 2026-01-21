@@ -106,12 +106,9 @@ export const RouletteModule = {
 
                     const countDisplay = document.getElementById('roulette-count');
                     if (countDisplay) {
-                        countDisplay.style.color = '#3b82f6';
-                        countDisplay.style.transform = 'scale(1.2)';
-                        countDisplay.style.transition = 'all 0.2s';
+                        countDisplay.classList.add('count-pulse');
                         setTimeout(() => {
-                            countDisplay.style.color = '';
-                            countDisplay.style.transform = '';
+                            countDisplay.classList.remove('count-pulse');
                         }, 500);
                     }
                 }
@@ -131,7 +128,7 @@ export const RouletteModule = {
         const countDisplay = document.getElementById('roulette-count');
         try {
             const { apiKey, login } = this.session;
-            const res = await fetch(`/api/twitch/chatters?channel=${login}&apiKey=${apiKey}`);
+            const res = await fetch(`/api/twitch/dashboard/chatters?channel=${login}&apiKey=${apiKey}`);
 
             if (res.ok) {
                 const data = await res.json();

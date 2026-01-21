@@ -3,6 +3,7 @@ import { Messages } from './utils/messages.js';
 import { TrendsModule } from './dashboard/trends.js';
 import { ClipsModule } from './dashboard/clips.js';
 import { RouletteModule } from './dashboard/roulette.js';
+import { DuelModule } from './dashboard/duel.js';
 import { CommandsModule } from './dashboard/commands.js';
 import { UI } from './ui.js';
 
@@ -110,6 +111,9 @@ export const Dashboard = {
             case 'tab-roulette':
                 RouletteModule.init(this.session);
                 break;
+            case 'tab-duel':
+                DuelModule.init(this.session);
+                break;
         }
     },
 
@@ -128,7 +132,7 @@ export const Dashboard = {
 
                 try {
                     const { apiKey, token } = this.session;
-                    const res = await fetch('/api/twitch/regenerate-key', {
+                    const res = await fetch('/api/twitch/system/regenerate-key', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -140,7 +144,7 @@ export const Dashboard = {
                     if (res.ok) {
                         const data = await res.json();
                         const newSession = { ...this.session, apiKey: data.apiKey };
-                        localStorage.setItem('twitch_session', JSON.stringify(newSession));
+                        localStorage.setItem('twitch_api_session', JSON.stringify(newSession));
                         this.session = newSession;
 
                         const userTokenInput = document.getElementById('user-token');
@@ -163,49 +167,74 @@ export const Dashboard = {
         }
     },
 
-    async loadAnalytics() {
+    analyticsCache: null,
+    lastAnalyticsFetch: 0,
+    CACHE_DURATION: 60000,
+
+    async loadAnalytics(force = false) {
         const statsContainer = document.getElementById('stats-grid');
         if (!statsContainer) return;
 
-        statsContainer.innerHTML = '<div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i></div>';
+        const now = Date.now();
+        if (!force && this.analyticsCache && (now - this.lastAnalyticsFetch < this.CACHE_DURATION)) {
+            this.renderAnalytics(this.analyticsCache);
+            return;
+        }
+
+        if (!this.analyticsCache) {
+            statsContainer.innerHTML = Messages.Analytics.loading;
+        }
 
         try {
             const { token } = this.session;
-            const res = await fetch('/api/twitch/analytics', {
+            const res = await fetch('/api/twitch/dashboard/analytics', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (res.ok) {
                 const data = await res.json();
-                statsContainer.innerHTML = '';
-
-                const statConfig = [
-                    { key: 'clips', icon: 'fa-film', label: 'Clips Creados' },
-                    { key: 'followage', icon: 'fa-clock', label: 'Consultas Followage' },
-                    { key: 'so', icon: 'fa-bullhorn', label: 'Shoutouts' }
-                ];
-
-                statConfig.forEach(stat => {
-                    const value = data[stat.key] || 0;
-
-                    const card = document.createElement('div');
-                    card.className = 'stat-card';
-                    card.innerHTML = `
-                        <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
-                        <div class="stat-info">
-                            <h3>${value}</h3>
-                            <p>${stat.label}</p>
-                        </div>
-                    `;
-                    statsContainer.appendChild(card);
-                });
+                this.analyticsCache = data;
+                this.lastAnalyticsFetch = Date.now();
+                this.renderAnalytics(data);
             } else {
-                statsContainer.innerHTML = '<p class="error-text">No se pudieron cargar las estadísticas.</p>';
+                if (!this.analyticsCache) {
+                    statsContainer.innerHTML = Messages.Analytics.errorState;
+                }
             }
         } catch (e) {
-            console.error('Error loading analytics:', e);
-            statsContainer.innerHTML = '<p class="error-text">Error de conexión.</p>';
+            console.error(e);
+            if (!this.analyticsCache) {
+                statsContainer.innerHTML = Messages.Analytics.errorState;
+            }
         }
+    },
+
+    renderAnalytics(data) {
+        const statsContainer = document.getElementById('stats-grid');
+        if (!statsContainer) return;
+
+        statsContainer.innerHTML = '';
+
+        const statConfig = [
+            { key: 'clips', icon: 'fa-film', label: 'Clips Creados' },
+            { key: 'followage', icon: 'fa-clock', label: 'Consultas Followage' },
+            { key: 'so', icon: 'fa-bullhorn', label: 'Shoutouts' }
+        ];
+
+        statConfig.forEach(stat => {
+            const value = data[stat.key] || 0;
+
+            const card = document.createElement('div');
+            card.className = 'stat-card';
+            card.innerHTML = `
+                <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
+                <div class="stat-info">
+                    <h3>${value}</h3>
+                    <span>${stat.label}</span>
+                </div>
+            `;
+            statsContainer.appendChild(card);
+        });
     },
 
     setupFeedback() {
@@ -227,7 +256,7 @@ export const Dashboard = {
                 try {
                     const { apiKey, token } = this.session;
                     const headers = { 'Content-Type': 'application/json' };
-                    let url = '/api/twitch/feedback';
+                    let url = '/api/twitch/system/feedback';
 
                     if (token) {
                         headers['Authorization'] = `Bearer ${token}`;

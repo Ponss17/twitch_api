@@ -15,6 +15,7 @@ export const MESSAGES = {
     SYSTEM: {
         KEY_REQUIRED: 'Key requerida',
         USER_NOT_FOUND: 'Usuario no encontrado',
+        UNAUTHORIZED: 'Acceso no autorizado',
         REGENERATE_KEY_ERROR: 'Error regenerando clave',
         INTERNAL_CONFIG_ERROR: 'Error interno de configuración.'
     },
@@ -45,6 +46,11 @@ export const MESSAGES = {
         MESSAGE_TOO_LONG: 'Mensaje demasiado largo (max 500 caracteres).',
         SHOUTOUT_ERROR: 'Error generando shoutout.',
         SHOUTOUT_HEADLINE: '¡Vayan a seguir a {user}! Estaba jugando {game}'
+    },
+    GAMES: {
+        DUEL: {
+            MISSING_PARAMS: 'Fallan los nombres de los contendientes'
+        }
     },
     DASHBOARD: {
         ANALYTICS_ERROR: 'Error recuperando analytics',

@@ -130,7 +130,9 @@ export const TrendsModule = {
         if (display) {
             display.classList.remove('hidden');
             display.textContent = this.formatTime(remaining);
-            display.style.color = "var(--text-primary)";
+            display.textContent = this.formatTime(remaining);
+            display.classList.remove('text-warning', 'text-accent');
+            display.classList.add('text-primary');
         }
 
         if (status) status.classList.remove('hidden');
@@ -156,7 +158,9 @@ export const TrendsModule = {
         const display = document.getElementById('tracker-timer');
         if (display) {
             display.textContent = Messages.Tracker.timeUp;
-            display.style.color = "var(--warning)";
+            display.textContent = Messages.Tracker.timeUp;
+            display.classList.remove('text-primary');
+            display.classList.add('text-warning');
         }
 
         const entries = Object.entries(this.wordCounts);
@@ -170,12 +174,10 @@ export const TrendsModule = {
 
         const firstRow = document.querySelector('#tracker-body tr:first-child');
         if (firstRow) {
-            firstRow.style.background = "linear-gradient(90deg, rgba(255,215,0,0.2), transparent)";
-            firstRow.style.borderLeft = "4px solid #FFD700";
-            firstRow.style.transform = "scale(1.02)";
+            firstRow.classList.add('tracker-row-winner');
 
             const wordEl = firstRow.querySelector('.word-text');
-            if (wordEl) wordEl.style.color = "#FFD700";
+            if (wordEl) wordEl.classList.add('gold-text');
         }
     },
 
@@ -216,7 +218,9 @@ export const TrendsModule = {
         if (inputContainer) inputContainer.classList.remove('hidden');
         if (display) {
             display.classList.add('hidden');
-            display.style.color = "var(--accent)";
+            display.classList.add('hidden');
+            display.classList.remove('text-primary', 'text-warning');
+            display.classList.add('text-accent');
         }
 
         this.render();

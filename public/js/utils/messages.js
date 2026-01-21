@@ -106,7 +106,9 @@ export const Messages = {
         error: (text) => `<span class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Error: ${text}</span>`
     },
     Analytics: {
-        loadError: 'No se pudieron cargar las estadísticas'
+        loadError: 'No se pudieron cargar las estadísticas',
+        loading: '<div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i></div>',
+        errorState: '<div class="error-state"><i class="fa-solid fa-triangle-exclamation"></i> Error cargando estadísticas</div>'
     },
     Trends: {
         title: (channel) => `Tendencias de ${channel}`,
@@ -123,5 +125,14 @@ export const Messages = {
         viewLogs: '<i class="fa-solid fa-comment-dots"></i> Ver Últimos Mensajes',
         historyTitle: '<i class="fa-solid fa-history"></i> Historial (Sesión actual)',
         noHistory: 'No hay mensajes registrados en esta sesión.'
+    },
+    Duel: {
+        copied: "Comando copiado al portapapeles",
+        missingNames: "Necesitas dos nombres para pelear",
+        fighting: '<i class="fa-solid fa-spinner fa-spin"></i> Peleando...',
+        started: "¡Duelo iniciado! ⚔️",
+        error: "Error al iniciar duelo",
+        sentTitle: "¡Comando Enviado!",
+        sentDesc: "La API está narrando la batalla en el chat ahora mismo. Corre a ver quién gana."
     }
 };

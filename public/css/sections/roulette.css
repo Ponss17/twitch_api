@@ -115,3 +115,9 @@
         opacity: 1;
     }
 }
+
+.count-pulse {
+    color: #3b82f6 !important;
+    transform: scale(1.2);
+    transition: all 0.2s;
+}

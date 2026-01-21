@@ -66,3 +66,25 @@
     border-radius: 6px;
     letter-spacing: 1px;
 }
+
+.text-primary {
+    color: var(--text-primary) !important;
+}
+
+.text-warning {
+    color: var(--warning) !important;
+}
+
+.text-accent {
+    color: var(--accent) !important;
+}
+
+.gold-text {
+    color: #FFD700 !important;
+}
+
+.tracker-row-winner {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), transparent) !important;
+    border-left: 4px solid #FFD700 !important;
+    transform: scale(1.02);
+}
