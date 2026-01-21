@@ -28,46 +28,38 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
     const token = req.twitchToken;
     const broadcasterId = req.userId;
 
-    if (!token || !broadcasterId) {
-        return res.status(401).send(MESSAGES.SYSTEM.UNAUTHORIZED);
-    }
+
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Transfer-Encoding', 'chunked');
 
     try {
-        await sendWithRetry(broadcasterId, `⏳ ${challenger} está desafiando a ${opponent}...`, token);
-        await delay(1000);
-
         const isChallengerWin = Math.random() > 0.5;
         const winner = isChallengerWin ? challenger : opponent;
         const loser = isChallengerWin ? opponent : challenger;
 
-        const intro = `⚔️ ¡${challenger} desafía a ${opponent} a un duelo a muerte con cuchillos! 🔪`;
+        const intro = `⚔️ ¡Duelo a muerte con cuchillos! 🔪 `;
+        res.write(intro);
+
+        await delay(1000);
 
         const actions = [
-            `💨 ${challenger} intenta flanquear...`,
-            `🛡️ ${opponent} levanta la guardia...`,
-            `💥 ¡Intercambio de golpes brutal!`,
-            `🔥 ¡${winner} lanza su ataque final!`,
-            `💀 ${loser} cae derrotado... ¡${winner} gana! 🏆`
+            `💨 ${challenger} intenta flanquear... `,
+            `🛡️ ${opponent} levanta la guardia... `,
+            `💥 ¡Intercambio de golpes brutal! `,
+            `🔥 ¡${winner} lanza su ataque final! `,
+            `💀 ${loser} cae derrotado... ¡${winner} gana! 🏆 `
         ];
 
-        await sendWithRetry(broadcasterId, intro, token);
-        await delay(1200);
-
         for (const action of actions) {
-            await sendWithRetry(broadcasterId, action, token);
+            res.write(action);
             await delay(1200);
         }
 
-        res.send('Duelo finalizado');
+        res.end();
 
     } catch (error) {
         console.error('Error en duelo:', error);
-        try {
-            await apiService.sendChatMessage(broadcasterId, broadcasterId, `⚠️ Error en el duelo.`, token);
-        } catch (e) { /* Nada que hacer */ }
-
-        if (!res.headersSent) {
-            res.status(500).send('Error executing duel');
-        }
+        res.write('⚠️ Error en el duelo.');
+        res.end();
     }
 };
