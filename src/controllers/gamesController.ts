@@ -15,8 +15,13 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
 
     const nightbotResponseUrl = req.headers['nightbot-response-url'] as string;
 
+    // Log para debugging
+    console.log('Nightbot Response URL:', nightbotResponseUrl);
+    console.log('All headers:', req.headers);
+
     if (!nightbotResponseUrl) {
-        return res.status(400).send('Este endpoint solo funciona con Nightbot');
+        console.error('No Nightbot-Response-Url header found');
+        return res.status(400).send('Este endpoint solo funciona cuando es llamado por Nightbot. El header "Nightbot-Response-Url" no está presente.');
     }
 
     res.send(' ');
