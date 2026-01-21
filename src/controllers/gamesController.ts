@@ -47,24 +47,30 @@ function generateDuelMessages(challenger: string, opponent: string): string[] {
     ];
 }
 
-// Envía mensajes a Nightbot con delays (fire-and-forget)
+// Envía mensajes a Nightbot con delays de 5s (rate limit)
 async function sendDuelMessagesToNightbot(responseUrl: string, challenger: string, opponent: string) {
     const messages = generateDuelMessages(challenger, opponent);
 
     for (let i = 0; i < messages.length; i++) {
-        // Fire-and-forget: no esperamos respuesta
-        sendToNightbotNoWait(responseUrl, messages[i]);
+        try {
+            console.log(`[Nightbot] Enviando mensaje ${i + 1}/${messages.length}`);
+            await apiService.sendToNightbot(responseUrl, messages[i]);
+            console.log(`[Nightbot] Mensaje ${i + 1} enviado exitosamente`);
 
-        // Delay reducido a 1 segundo
-        if (i < messages.length - 1) {
-            await delay(1000);
+            // Esperar 5 segundos antes del siguiente (rate limit de Nightbot)
+            if (i < messages.length - 1) {
+                await delay(5000);
+            }
+        } catch (error: any) {
+            console.error(`[Nightbot] Error en mensaje ${i + 1}:`, error.message);
+            // Si es rate limit, esperar y reintentar
+            if (error.response?.status === 429) {
+                console.log(`[Nightbot] Rate limit alcanzado, esperando 5s...`);
+                await delay(5000);
+                i--; // Reintentar este mensaje
+            } else {
+                break; // Otro error, detener
+            }
         }
     }
-}
-
-// Envía mensaje sin esperar respuesta (fire-and-forget)
-function sendToNightbotNoWait(responseUrl: string, message: string) {
-    apiService.sendToNightbot(responseUrl, message)
-        .then(() => console.log(`[Nightbot] Mensaje enviado: ${message.substring(0, 30)}...`))
-        .catch(err => console.error(`[Nightbot] Error (ignorado): ${err.message}`));
 }
