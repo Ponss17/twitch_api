@@ -4,7 +4,7 @@ import path from 'path';
 import helmet from 'helmet';
 import compression from 'compression';
 import { CONFIG } from './config/env';
-import rateLimiter from './middleware/rateLimiter';
+import rateLimiter, { authLimiter } from './middleware/rateLimiter';
 import authRoutes from './routes/authRoutes';
 import apiRoutes from './routes/apiRoutes';
 import { getRobotsTxt, getSitemapXml } from './controllers/seoController';
@@ -52,9 +52,9 @@ app.get(['/dashboard', '/api/twitch/dashboard'], (req: Request, res: Response) =
 
 app.use(rateLimiter);
 
-app.use('/auth', authRoutes);
-app.use('/api/twitch/auth', authRoutes);
-app.use('/twitch/auth', authRoutes);
+app.use('/auth', authLimiter, authRoutes);
+app.use('/api/twitch/auth', authLimiter, authRoutes);
+app.use('/twitch/auth', authLimiter, authRoutes);
 
 app.use('/api/twitch', apiRoutes);
 app.use('/twitch', apiRoutes);

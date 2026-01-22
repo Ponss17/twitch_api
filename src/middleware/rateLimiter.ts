@@ -21,4 +21,13 @@ const limiter = rateLimit({
     legacyHeaders: false,
 });
 
+// Rate limiter estricto para rutas de autenticación
+export const authLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hora
+    max: 10, // Máximo 10 intentos por IP por hora
+    message: { error: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en una hora.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 export default limiter;
