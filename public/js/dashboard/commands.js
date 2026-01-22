@@ -1,4 +1,5 @@
 import { CONFIG } from '../config.js';
+import { API_ENDPOINTS } from '../utils/constants.js';
 import { Loader } from '../utils/loader.js';
 import { Messages } from '../utils/messages.js';
 import { Auth } from '../auth.js';
@@ -188,7 +189,7 @@ export const CommandsModule = {
         }
 
         const bot = botSelect.value;
-        const domain = `${CONFIG.siteUrl}/api/twitch`;
+        const domain = `${CONFIG.siteUrl}${API_ENDPOINTS.BASE}`;
         const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
         const templateVal = templateInput.value.trim();
         const queryParams = `channel=${login}&${tokenParam}`;
@@ -225,7 +226,7 @@ export const CommandsModule = {
             resultText.innerHTML = Messages.Commands.testing;
 
             const { apiKey, token } = this.session;
-            const domain = `${CONFIG.siteUrl}/api/twitch`;
+            const domain = `${CONFIG.siteUrl}${API_ENDPOINTS.BASE}`;
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
             const url = `${domain}/followage?user=${user}&channel=${channel}&${tokenParam}`;
 

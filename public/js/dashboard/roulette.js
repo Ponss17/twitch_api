@@ -1,6 +1,7 @@
 import { Loader } from '../utils/loader.js';
 import { UI } from '../ui.js';
 import { Messages } from '../utils/messages.js';
+import { API_ENDPOINTS } from '../utils/constants.js';
 import { CONFIG } from '../config.js';
 
 export const RouletteModule = {
@@ -128,7 +129,7 @@ export const RouletteModule = {
         const countDisplay = document.getElementById('roulette-count');
         try {
             const { apiKey, login } = this.session;
-            const res = await fetch(`/api/twitch/dashboard/chatters?channel=${login}&apiKey=${apiKey}`);
+            const res = await fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&apiKey=${apiKey}`);
 
             if (res.ok) {
                 const data = await res.json();
@@ -291,7 +292,7 @@ export const RouletteModule = {
             const { apiKey, login } = this.session;
             const message = `🎉 ¡El ganador de la ruleta es @${winnerName} ! 🎉`;
 
-            await fetch('/api/twitch/send-message', {
+            await fetch(API_ENDPOINTS.SEND_MESSAGE, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

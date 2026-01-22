@@ -6,6 +6,10 @@ export const API_ENDPOINTS = {
     ANALYTICS: `${CONFIG.API_URL}/dashboard/analytics`,
     REGENERATE_KEY: `${CONFIG.API_URL}/system/regenerate-key`,
     FEEDBACK: `${CONFIG.API_URL}/system/feedback`,
+    CHATTERS: `${CONFIG.API_URL}/dashboard/chatters`,
+    USER_INFO: `${CONFIG.API_URL}/dashboard/user-info`,
+    SEND_MESSAGE: `${CONFIG.API_URL}/send-message`,
+    CLIPS: `${CONFIG.API_URL}/dashboard/get-clips`,
 };
 
 export const DOM_IDS = {
