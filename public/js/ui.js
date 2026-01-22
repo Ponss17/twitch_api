@@ -49,6 +49,9 @@ export const UI = {
     },
 
     setupClipboard() {
+        if (this.clipboardInitialized) return;
+        this.clipboardInitialized = true;
+
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('.copy-btn');
             if (!btn) return;

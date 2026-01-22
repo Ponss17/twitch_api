@@ -107,7 +107,10 @@ export const incrementUserStats = async (userId: string, command: string): Promi
 
 export const getUserStats = async (userId: string): Promise<Record<string, number>> => {
     try {
-        const stats = await kv.hgetall(`stats:${userId}`);
+        const key = `stats:${userId}`;
+        console.log('[DB] Querying KV for key:', key);
+        const stats = await kv.hgetall(key);
+        console.log('[DB] Raw KV response:', stats);
 
         if (!stats) return { clips: 0, followage: 0, so: 0 };
 

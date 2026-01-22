@@ -18,7 +18,7 @@ export const Dashboard = {
         this.loadTab('tab-home');
         this.setupFeedback();
 
-        UI.setupClipboard();
+
 
         CommandsModule.init(session);
     },
