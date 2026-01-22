@@ -17,11 +17,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    let validationResult = null;
+
     try {
         const credentialParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-        const validationResult = await Auth.validateCurrentToken(credentialParam);
+        validationResult = await Auth.validateCurrentToken(credentialParam);
+    } catch (e) {
+        console.error('Error validating session:', e);
+        UI.showToast(Messages.Auth.validationError, "error");
+        Auth.clearSession();
+        window.location.href = './';
+        return;
+    }
 
-        if (validationResult) {
+    if (validationResult) {
+        try {
             let avatarUrl = null;
             let displayName = sessionParams.displayName || sessionParams.login;
 
@@ -41,20 +51,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 window.history.replaceState({}, document.title, cleanUrl);
                 Auth.saveSession(sessionParams);
             }
-
-        } else {
-            console.warn("Token invalid");
-            UI.showToast(Messages.Auth.sessionExpired, "error");
-            Auth.clearSession();
-            setTimeout(() => {
-                window.location.href = './';
-            }, 2000);
+        } catch (initError) {
+            console.error('CRITICAL: Error initializing dashboard:', initError);
+            UI.showToast(`Error cargando interfaz: ${initError.message}`, 'error');
         }
-    } catch (e) {
-        console.error('Error validating session:', e);
-        UI.showToast(Messages.Auth.validationError, "error");
+    } else {
+        console.warn("Token invalid");
+        UI.showToast(Messages.Auth.sessionExpired, "error");
         Auth.clearSession();
-        window.location.href = './';
+        setTimeout(() => {
+            window.location.href = './';
+        }, 2000);
     }
 }
 );

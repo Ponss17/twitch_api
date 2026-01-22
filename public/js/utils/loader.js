@@ -18,8 +18,8 @@ export const Loader = {
             };
             link.onerror = (e) => {
                 this.loading.delete(path);
-                console.error(`[Loader] Failed to load CSS: ${path}`, e);
-                reject(e);
+                console.warn(`[Loader] Warning: Failed to load CSS: ${path}. Proceeding without it.`);
+                resolve();
             };
             document.head.appendChild(link);
         });
