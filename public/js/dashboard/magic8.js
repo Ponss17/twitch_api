@@ -1,0 +1,123 @@
+import { CONFIG } from '../config.js';
+import { Messages } from '../utils/messages.js';
+
+export const Magic8Module = {
+    session: null,
+
+    init(sessionParams) {
+        this.session = sessionParams;
+        this.setupUI();
+        this.setupCommandGenerator();
+    },
+
+    setupUI() {
+        const questionInput = document.getElementById('magic8-question');
+        const askBtn = document.getElementById('btn-ask-magic8');
+
+        if (!questionInput || !askBtn) return;
+
+        askBtn.addEventListener('click', () => this.askQuestion());
+
+        questionInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.askQuestion();
+            }
+        });
+    },
+
+    setLoading(isLoading) {
+        const btn = document.getElementById('btn-ask-magic8');
+        const input = document.getElementById('magic8-question');
+        const responseEl = document.getElementById('magic8-response');
+
+        if (isLoading) {
+            btn.disabled = true;
+            input.disabled = true;
+            btn.innerHTML = Messages.Magic8.consulting;
+
+            responseEl.className = 'magic8-response active';
+            responseEl.innerHTML = Messages.Magic8.loading;
+        } else {
+            btn.disabled = false;
+            input.disabled = false;
+            btn.innerHTML = Messages.Magic8.askButton;
+        }
+    },
+
+    async askQuestion() {
+        const questionInput = document.getElementById('magic8-question');
+        const askBtn = document.getElementById('btn-ask-magic8');
+
+        const question = questionInput.value.trim();
+
+        if (!question) {
+            this.showResponse(Messages.Magic8.emptyQuestion, 'error');
+            return;
+        }
+
+        this.setLoading(true);
+
+        try {
+            const { apiKey, token } = this.session;
+            const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+
+            const res = await fetch(`/api/twitch/minigames/magic8?${tokenParam}&question=${encodeURIComponent(question)}`);
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Error desconocido');
+            }
+
+            this.showResponse(data.answer, 'success');
+
+        } catch (error) {
+            console.error('Error al consultar Bola 8:', error);
+            this.showResponse(Messages.Magic8.error(error.message), 'error');
+        } finally {
+            questionInput.disabled = false;
+            askBtn.disabled = false;
+            askBtn.innerHTML = Messages.Magic8.askButton;
+            questionInput.value = '';
+            questionInput.focus();
+        }
+    },
+
+    showResponse(html, type) {
+        const responseEl = document.getElementById('magic8-response');
+        if (!responseEl) return;
+
+        responseEl.innerHTML = html;
+        responseEl.className = `magic8-response ${type} active`;
+    },
+
+    setupCommandGenerator() {
+        const commandOutput = document.getElementById('magic8-command-output');
+        const botSelect = document.getElementById('magic8-bot-select');
+
+        if (!commandOutput || !botSelect) return;
+
+        const updateCommand = () => {
+            const { apiKey } = this.session;
+            const bot = botSelect.value;
+            import('../utils/commandGenerator.js').then(({ CommandGenerator }) => {
+                const domain = `${CONFIG.siteUrl}/api/twitch/minigames/magic8`;
+
+                let questionVar = '$(querystring)';
+                if (bot === 'streamelements' || bot === 'fossabot') {
+                    questionVar = '${query}';
+                }
+
+                const params = `apiKey=${apiKey}&question=${questionVar}`;
+                const fetchPart = CommandGenerator.generate(bot, domain, params);
+                const rawCmd = `!addcom !8ball ${fetchPart}`;
+
+                const maskedCmd = rawCmd.replace(apiKey, '**************');
+                commandOutput.value = maskedCmd;
+                commandOutput.dataset.realValue = rawCmd;
+            });
+        };
+
+        botSelect.addEventListener('change', updateCommand);
+        updateCommand();
+    }
+};

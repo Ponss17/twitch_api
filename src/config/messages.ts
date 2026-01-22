@@ -29,6 +29,13 @@ export const MESSAGES = {
         EMBED_TITLE: '📢 Nuevo Feedback',
         EMBED_FOOTER: 'LosPerris Twitch Api - FeedBack'
     },
+    MAGIC8: {
+        QUESTION_REQUIRED: 'Debes hacer una pregunta a la Bola 8 Mágica.',
+        QUESTION_TOO_SHORT: 'La pregunta es demasiado corta.',
+        QUESTION_TOO_LONG: 'La pregunta es demasiado larga (max 500 caracteres).',
+        GROQ_ERROR: 'La Bola 8 Mágica está descansando. Intenta de nuevo.',
+        MISSING_API_KEY: 'La Bola 8 Mágica no está configurada (falta GROQ_API_KEY).'
+    },
     COMMANDS: {
         MISSING_CHANNEL: 'Falta el parámetro channel.',
         MISSING_PARAMS: 'Faltan parámetros: channel y user son requeridos.',

@@ -6,3 +6,11 @@ export const createClipSchema = z.object({
     }),
 });
 
+export const magic8Schema = z.object({
+    query: z.object({
+        question: z.string()
+            .min(3, 'La pregunta debe tener al menos 3 caracteres')
+            .max(500, 'La pregunta es demasiado larga (max 500 caracteres)')
+    })
+});
+

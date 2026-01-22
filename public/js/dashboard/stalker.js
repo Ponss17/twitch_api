@@ -15,7 +15,7 @@ export const StalkerModule = {
         this.session = session;
         Loader.loadCSS('./css/sections/stalker.css').then(() => {
             this.render();
-            this.setupListeners();
+            this.setupUI();
         });
     },
 
@@ -160,7 +160,7 @@ export const StalkerModule = {
         }
     },
 
-    setupListeners() {
+    setupUI() {
         const searchInput = document.getElementById('stalker-search');
         const refreshBtn = document.getElementById('refresh-stalker');
         const toggleBtn = document.getElementById('toggle-stalker');

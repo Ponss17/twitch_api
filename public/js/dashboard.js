@@ -3,6 +3,7 @@ import { Messages } from './utils/messages.js';
 import { TrendsModule } from './dashboard/trends.js';
 import { ClipsModule } from './dashboard/clips.js';
 import { RouletteModule } from './dashboard/roulette.js';
+import { Magic8Module } from './dashboard/magic8.js';
 import { CommandsModule } from './dashboard/commands.js';
 import { UI } from './ui.js';
 
@@ -16,6 +17,8 @@ export const Dashboard = {
 
         this.loadTab('tab-home');
         this.setupFeedback();
+
+        UI.setupClipboard();
 
         CommandsModule.init(session);
     },
@@ -106,6 +109,9 @@ export const Dashboard = {
                 break;
             case 'tab-stalker':
                 StalkerModule.init(this.session);
+                break;
+            case 'tab-magic8':
+                Magic8Module.init(this.session);
                 break;
             case 'tab-roulette':
                 RouletteModule.init(this.session);

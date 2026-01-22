@@ -182,20 +182,12 @@ export const sendChatMessage = async (broadcasterId: string, senderId: string, m
 
 export const sendToNightbot = async (responseUrl: string, message: string): Promise<void> => {
     try {
-        console.log(`[Nightbot] Enviando mensaje a: ${responseUrl}`);
-        console.log(`[Nightbot] Mensaje: ${message}`);
-
-        const startTime = Date.now();
-
         await axios.post(responseUrl, { message }, {
             headers: {
                 'Content-Type': 'application/json'
             },
-            timeout: 30000 // Aumentado a 30 segundos
+            timeout: 30000
         });
-
-        const elapsed = Date.now() - startTime;
-        console.log(`[Nightbot] Mensaje enviado exitosamente en ${elapsed}ms`);
     } catch (error) {
         console.error('[Nightbot] Error sending message:', error);
         throw error;
