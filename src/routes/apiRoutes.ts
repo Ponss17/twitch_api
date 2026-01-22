@@ -5,12 +5,13 @@ import * as systemController from '../controllers/systemController';
 import * as gamesController from '../controllers/gamesController';
 import checkToken from '../middleware/authMiddleware';
 import { validate } from '../middleware/validate';
-import { createClipSchema } from '../schemas/requestSchemas';
+import { createClipSchema, magic8Schema } from '../schemas/requestSchemas';
 
 const router = express.Router();
 
 // Minijuegos
-// (Aquí irán los nuevos minijuegos)
+router.get('/minigames/magic8', checkToken, validate(magic8Schema), gamesController.askMagic8);
+
 
 // Comandos
 router.get('/create-clip', checkToken, validate(createClipSchema), commandsController.createClip);

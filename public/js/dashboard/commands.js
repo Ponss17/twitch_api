@@ -90,12 +90,11 @@ export const CommandsModule = {
         }
     },
 
-    async init() {
+    async init(session) {
         if (this.initialized) return;
         this.initialized = true;
 
-        await Loader.loadCSS('css/sections/commands.css');
-        this.session = Auth.getSession();
+        this.session = session;
         if (!this.session) return;
 
         this.renderCommandCards();

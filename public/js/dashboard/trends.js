@@ -21,6 +21,9 @@ export const TrendsModule = {
         this.initialized = true;
 
         this.session = session;
+
+        Loader.loadCSS('./css/sections/trends.css');
+
         const { login, displayName, profile_image_url } = session;
 
         const titleEl = document.getElementById('tracker-title');
@@ -129,8 +132,8 @@ export const TrendsModule = {
 
         if (display) {
             display.classList.remove('hidden');
-            display.textContent = this.formatTime(remaining);
-            display.textContent = this.formatTime(remaining);
+
+
             display.classList.remove('text-warning', 'text-accent');
             display.classList.add('text-primary');
         }
@@ -157,8 +160,8 @@ export const TrendsModule = {
 
         const display = document.getElementById('tracker-timer');
         if (display) {
-            display.textContent = Messages.Tracker.timeUp;
-            display.textContent = Messages.Tracker.timeUp;
+
+
             display.classList.remove('text-primary');
             display.classList.add('text-warning');
         }
@@ -217,8 +220,8 @@ export const TrendsModule = {
 
         if (inputContainer) inputContainer.classList.remove('hidden');
         if (display) {
-            display.classList.add('hidden');
-            display.classList.add('hidden');
+
+
             display.classList.remove('text-primary', 'text-warning');
             display.classList.add('text-accent');
         }

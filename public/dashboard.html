@@ -9,13 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/base.css">
-    <link rel="stylesheet" href="./css/dashboard.css">
+    <link rel="stylesheet" href="./css/dashboard.css?v=3">
     <link rel="stylesheet" href="./css/sections/analytics.css">
-    <link rel="stylesheet" href="./css/sections/commands.css">
-    <link rel="stylesheet" href="./css/sections/clips.css">
-    <link rel="stylesheet" href="./css/sections/trends.css">
-    <link rel="stylesheet" href="./css/sections/stalker.css">
-    <link rel="stylesheet" href="./css/sections/roulette.css">
     <link rel="stylesheet" href="./css/components/footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/webp" href="img/LosPerris_progra.webp">
@@ -62,6 +57,10 @@
                 </button>
 
                 <div class="menu-category">Minijuegos</div>
+                <button class="nav-item" data-tab="tab-magic8">
+                    <i class="fa-solid fa-8"></i>
+                    <span class="nav-text">Bola 8</span>
+                </button>
                 <button class="nav-item" data-tab="tab-roulette">
                     <i class="fa-solid fa-dice"></i>
                     <span class="nav-text">Ruleta</span>
@@ -383,40 +382,101 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="tab-feedback" class="tab-pane">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-icon">
-                            <i class="fa-solid fa-comment-dots"></i>
+                <div id="tab-magic8" class="tab-pane">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-8"></i>
+                            </div>
+                            <div>
+                                <h3>Comando !8ball</h3>
+                                <p class="card-desc">Comando para que tus viewers pregunten a la IA</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3>Feedback & Sugerencias</h3>
-                            <p class="card-desc">Ayúdanos a mejorar LosPerris API</p>
+                        <div class="card-body">
+                            <div class="tool-selector">
+                                <label><i class="fa-solid fa-robot"></i> Selecciona tu bot:</label>
+                                <select id="magic8-bot-select" class="select-input">
+                                    <option value="nightbot">Nightbot</option>
+                                    <option value="streamelements">StreamElements</option>
+                                    <option value="fossabot">Fossabot</option>
+                                    <option value="wizebot">Wizebot</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="input-label">
+                                    <i class="fa-solid fa-code"></i> Código del Comando
+                                </label>
+                                <div class="code-box">
+                                    <textarea id="magic8-command-output" readonly></textarea>
+                                    <button class="btn-copy copy-btn" data-target="magic8-command-output">
+                                        <i class="fa-regular fa-copy"></i> Copiar
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label>Tu Mensaje</label>
-                            <textarea id="feedback-message" rows="6" class="text-input"
-                                style="width:100%; resize:vertical; background:var(--bg-secondary); border:1px solid var(--border); color:var(--text-primary); padding:15px; border-radius:8px; outline:none;"
-                                placeholder="Cuéntanos qué te gustaría ver, reporta un bug, o danos tu opinión..."></textarea>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-flask"></i>
+                            </div>
+                            <div>
+                                <h3>Prueba la Bola 8</h3>
+                                <p class="card-desc">Verifica que la IA responda correctamente</p>
+                            </div>
                         </div>
-                        <div style="margin-top:20px; text-align:right;">
-                            <button id="send-feedback-btn" class="btn-primary">
-                                <i class="fa-solid fa-paper-plane"></i> Enviar Feedback
+                        <div class="card-body">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="magic8-question">Tu pregunta</label>
+                                    <input type="text" id="magic8-question" placeholder="¿Debo comprar bitcoin?"
+                                        class="text-input">
+                                </div>
+                            </div>
+                            <button id="btn-ask-magic8" class="btn-primary" style="margin-top: 20px;">
+                                <i class="fa-solid fa-play"></i> Preguntar
                             </button>
+
+                            <div id="magic8-response" class="magic8-response"></div>
                         </div>
-                        <p style="margin-top:15px; font-size:0.8rem; color:var(--text-muted); text-align:center;">
-                            * Tu mensaje se enviará directamente a nuestro servidor de Discord.
-                        </p>
+                    </div>
+                </div>
+
+                <div id="tab-feedback" class="tab-pane">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-comment-dots"></i>
+                            </div>
+                            <div>
+                                <h3>Feedback & Sugerencias</h3>
+                                <p class="card-desc">Ayúdanos a mejorar LosPerris API</p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Tu Mensaje</label>
+                                <textarea id="feedback-message" rows="6" class="text-input"
+                                    style="width:100%; resize:vertical; background:var(--bg-secondary); border:1px solid var(--border); color:var(--text-primary); padding:15px; border-radius:8px; outline:none;"
+                                    placeholder="Cuéntanos qué te gustaría ver, reporta un bug, o danos tu opinión..."></textarea>
+                            </div>
+                            <div style="margin-top:20px; text-align:right;">
+                                <button id="send-feedback-btn" class="btn-primary">
+                                    <i class="fa-solid fa-paper-plane"></i> Enviar Feedback
+                                </button>
+                            </div>
+                            <p style="margin-top:15px; font-size:0.8rem; color:var(--text-muted); text-align:center;">
+                                * Tu mensaje se enviará directamente a nuestro servidor de Discord.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-    </div>
-    <footer id="main-footer"></footer>
-    </main>
+            <footer id="main-footer"></footer>
+        </main>
     </div>
 
 
