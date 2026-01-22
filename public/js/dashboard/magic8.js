@@ -87,7 +87,7 @@ export const Magic8Module = {
         if (!responseEl) return;
 
         responseEl.innerHTML = html;
-        responseEl.className = `magic8-response ${type} active`;
+        responseEl.className = `response-card ${type} active`;
     },
 
     setupCommandGenerator() {

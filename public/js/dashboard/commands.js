@@ -2,6 +2,7 @@ import { CONFIG } from '../config.js';
 import { Loader } from '../utils/loader.js';
 import { Messages } from '../utils/messages.js';
 import { Auth } from '../auth.js';
+import { CommandGenerator } from '../utils/commandGenerator.js';
 
 export const CommandsModule = {
     session: null,
@@ -17,17 +18,14 @@ export const CommandsModule = {
             templatePlaceholder: 'Ej: {user} lleva sufriendo {time}.',
             templateVars: 'Variables: {user}, {time}, {channel}',
             generate: (domain, login, tokenParam, bot, templateVal, queryParams) => {
-                let cmd = '';
+                const generator = CommandGenerator;
+                const botUtils = generator.bots[bot] || generator.bots.nightbot;
+                const userArg = bot === 'wizebot' ? '$(user_name)' : botUtils.arg('user');
 
                 if (templateVal) queryParams += `&template=${encodeURIComponent(templateVal)}`;
+                queryParams += `&user=${userArg}`;
 
-                if (bot === 'nightbot') {
-                    cmd = `$(urlfetch ${domain}/followage?${queryParams}&user=$(touser))`;
-                } else if (bot === 'streamelements' || bot === 'fossabot') {
-                    cmd = `$(customapi ${domain}/followage?${queryParams}&user=\${user})`;
-                } else if (bot === 'wizebot') {
-                    cmd = `$(urlfetch ${domain}/followage?${queryParams}&user=$(user_name))`;
-                }
+                const cmd = generator.generate(bot, `${domain}/followage`, queryParams);
                 return `!addcom !followage ${cmd}`;
             }
         },
@@ -41,25 +39,17 @@ export const CommandsModule = {
             templatePlaceholder: 'Ej: ¡Mirad este clip de {user}! 👉 {url}',
             templateVars: 'Variables: {user}, {url}',
             generate: (domain, login, tokenParam, bot, templateVal, queryParams) => {
-                let apiCall = '';
-                let userVar = '';
+                const generator = CommandGenerator;
+                const botUtils = generator.bots[bot] || generator.bots.nightbot;
 
-                if (bot === 'nightbot') {
-                    apiCall = `$(urlfetch ${domain}/create-clip?channel=${login}&${tokenParam})`;
-                    userVar = '$(user)';
-                } else if (bot === 'wizebot') {
-                    apiCall = `$(urlfetch ${domain}/create-clip?channel=${login}&${tokenParam})`;
-                    userVar = '$(user_name)';
-                } else {
-                    apiCall = `$(customapi ${domain}/create-clip?channel=${login}&${tokenParam})`;
-                    userVar = '\${user}';
-                }
+                const userArg = bot === 'nightbot' ? '$(user)' : (bot === 'wizebot' ? '$(user_name)' : '${user}');
+                const apiCall = generator.generate(bot, `${domain}/create-clip`, queryParams);
 
                 let cmd = '';
                 if (templateVal) {
-                    cmd = templateVal.replace('{user}', userVar).replace('{url}', apiCall);
+                    cmd = templateVal.replace('{user}', userArg).replace('{url}', apiCall);
                 } else {
-                    cmd = `🎬 Clip creado por ${userVar}: ${apiCall}`;
+                    cmd = `🎬 Clip creado por ${userArg}: ${apiCall}`;
                 }
                 return `!addcom !clip ${cmd}`;
             }
@@ -74,17 +64,18 @@ export const CommandsModule = {
             templatePlaceholder: 'Ej: Echadle un follow a {user}, cracks jugando {game} 👉 {url}',
             templateVars: 'Variables disponibles: {user}, {game}, {url}',
             generate: (domain, login, tokenParam, bot, templateVal, queryParams) => {
-                let cmd = '';
+                const generator = CommandGenerator;
+                const botUtils = generator.bots[bot] || generator.bots.nightbot;
+
+                let targetArg = '';
+                if (bot === 'wizebot') targetArg = '$(arg_1)';
+                else if (bot === 'nightbot') targetArg = '$(touser)';
+                else targetArg = '${1}';
 
                 if (templateVal) queryParams += `&template=${encodeURIComponent(templateVal)}`;
+                queryParams += `&touser=${targetArg}`;
 
-                if (bot === 'nightbot') {
-                    cmd = `$(urlfetch ${domain}/shoutout?${queryParams}&touser=$(touser))`;
-                } else if (bot === 'wizebot') {
-                    cmd = `$(urlfetch ${domain}/shoutout?${queryParams}&touser=$(arg_1))`;
-                } else {
-                    cmd = `$(customapi ${domain}/shoutout?${queryParams}&touser=\${1})`;
-                }
+                const cmd = generator.generate(bot, `${domain}/shoutout`, queryParams);
                 return `!addcom !so ${cmd}`;
             }
         }
@@ -227,7 +218,10 @@ export const CommandsModule = {
                 return;
             }
 
-            resultBox.classList.remove('hidden');
+            resultBox.classList.add('active');
+
+            resultBox.classList.remove('success', 'error');
+
             resultText.innerHTML = Messages.Commands.testing;
 
             const { apiKey, token } = this.session;
@@ -240,9 +234,11 @@ export const CommandsModule = {
                 const text = await response.text();
 
                 if (response.ok) {
-                    resultText.innerHTML = Messages.Commands.success(text);
+                    resultBox.classList.add('success');
+                    resultText.innerHTML = `<i class="fa-solid fa-check"></i> ${text}`;
                 } else {
-                    resultText.innerHTML = Messages.Commands.error(text);
+                    resultBox.classList.add('error');
+                    resultText.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${text}`;
                 }
             } catch (err) {
                 resultText.innerHTML = Messages.Commands.connectionError;

@@ -391,3 +391,39 @@ code {
     opacity: 1;
     transform: translateY(-5px);
 }
+
+.text-primary-color {
+    color: var(--text-primary) !important;
+}
+
+.text-warning {
+    color: var(--warning) !important;
+}
+
+.text-accent {
+    color: var(--accent) !important;
+}
+
+.text-success {
+    color: var(--success) !important;
+}
+
+.text-danger {
+    color: var(--danger) !important;
+}
+
+.text-gold {
+    color: #FFD700 !important;
+}
+
+.text-bold {
+    font-weight: 600 !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
