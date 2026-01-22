@@ -1,5 +1,6 @@
 import { CONFIG } from '../config.js';
 import { Messages } from '../utils/messages.js';
+import { API_ENDPOINTS, DOM_IDS } from '../utils/constants.js';
 
 export const Magic8Module = {
     session: null,
@@ -11,8 +12,8 @@ export const Magic8Module = {
     },
 
     setupUI() {
-        const questionInput = document.getElementById('magic8-question');
-        const askBtn = document.getElementById('btn-ask-magic8');
+        const questionInput = document.getElementById(DOM_IDS.MAGIC8.INPUT);
+        const askBtn = document.getElementById(DOM_IDS.MAGIC8.BUTTON);
 
         if (!questionInput || !askBtn) return;
 
@@ -26,9 +27,9 @@ export const Magic8Module = {
     },
 
     setLoading(isLoading) {
-        const btn = document.getElementById('btn-ask-magic8');
-        const input = document.getElementById('magic8-question');
-        const responseEl = document.getElementById('magic8-response');
+        const btn = document.getElementById(DOM_IDS.MAGIC8.BUTTON);
+        const input = document.getElementById(DOM_IDS.MAGIC8.INPUT);
+        const responseEl = document.getElementById(DOM_IDS.MAGIC8.RESPONSE);
 
         if (isLoading) {
             btn.disabled = true;
@@ -45,8 +46,8 @@ export const Magic8Module = {
     },
 
     async askQuestion() {
-        const questionInput = document.getElementById('magic8-question');
-        const askBtn = document.getElementById('btn-ask-magic8');
+        const questionInput = document.getElementById(DOM_IDS.MAGIC8.INPUT);
+        const askBtn = document.getElementById(DOM_IDS.MAGIC8.BUTTON);
 
         const question = questionInput.value.trim();
 
@@ -61,7 +62,7 @@ export const Magic8Module = {
             const { apiKey, token } = this.session;
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
 
-            const res = await fetch(`/api/twitch/minigames/magic8?${tokenParam}&question=${encodeURIComponent(question)}`);
+            const res = await fetch(`${API_ENDPOINTS.MAGIC8}?${tokenParam}&question=${encodeURIComponent(question)}`);
             const data = await res.json();
 
             if (!res.ok) {
@@ -83,7 +84,7 @@ export const Magic8Module = {
     },
 
     showResponse(html, type) {
-        const responseEl = document.getElementById('magic8-response');
+        const responseEl = document.getElementById(DOM_IDS.MAGIC8.RESPONSE);
         if (!responseEl) return;
 
         responseEl.innerHTML = html;
@@ -91,8 +92,8 @@ export const Magic8Module = {
     },
 
     setupCommandGenerator() {
-        const commandOutput = document.getElementById('magic8-command-output');
-        const botSelect = document.getElementById('magic8-bot-select');
+        const commandOutput = document.getElementById(DOM_IDS.MAGIC8.COMMAND_OUTPUT);
+        const botSelect = document.getElementById(DOM_IDS.MAGIC8.BOT_SELECT);
 
         if (!commandOutput || !botSelect) return;
 
@@ -100,7 +101,7 @@ export const Magic8Module = {
             const { apiKey } = this.session;
             const bot = botSelect.value;
             import('../utils/commandGenerator.js').then(({ CommandGenerator }) => {
-                const domain = `${CONFIG.siteUrl}/api/twitch/minigames/magic8`;
+                const domain = `${CONFIG.siteUrl}${API_ENDPOINTS.MAGIC8}`;
 
                 let questionVar = '$(querystring)';
                 if (bot === 'streamelements' || bot === 'fossabot') {

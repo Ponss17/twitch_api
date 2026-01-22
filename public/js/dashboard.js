@@ -1,5 +1,6 @@
 import { StalkerModule } from './dashboard/stalker.js';
 import { Messages } from './utils/messages.js';
+import { API_ENDPOINTS } from './utils/constants.js';
 import { TrendsModule } from './dashboard/trends.js';
 import { ClipsModule } from './dashboard/clips.js';
 import { RouletteModule } from './dashboard/roulette.js';
@@ -134,7 +135,7 @@ export const Dashboard = {
 
                 try {
                     const { apiKey, token } = this.session;
-                    const res = await fetch('/api/twitch/system/regenerate-key', {
+                    const res = await fetch(API_ENDPOINTS.REGENERATE_KEY, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -184,12 +185,21 @@ export const Dashboard = {
         }
 
         if (!this.analyticsCache) {
-            statsContainer.innerHTML = Messages.Analytics.loading;
+            const skeletonHTML = Array(3).fill(0).map(() => `
+                <div class="stat-card skeleton-card">
+                    <div class="stat-icon skeleton skeleton-circle" style="width: 50px; height: 50px; border-radius: 50%;"></div>
+                    <div class="stat-info" style="flex: 1;">
+                        <div class="skeleton skeleton-text" style="width: 40px; height: 28px; margin-bottom: 5px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 100px; height: 16px;"></div>
+                    </div>
+                </div>
+            `).join('');
+            statsContainer.innerHTML = skeletonHTML;
         }
 
         try {
             const { token } = this.session;
-            const res = await fetch('/api/twitch/dashboard/analytics', {
+            const res = await fetch(API_ENDPOINTS.ANALYTICS, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -258,7 +268,7 @@ export const Dashboard = {
                 try {
                     const { apiKey, token } = this.session;
                     const headers = { 'Content-Type': 'application/json' };
-                    let url = '/api/twitch/system/feedback';
+                    let url = API_ENDPOINTS.FEEDBACK;
 
                     if (token) {
                         headers['Authorization'] = `Bearer ${token}`;
