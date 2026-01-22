@@ -19,7 +19,9 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
     }
 
     try {
+        console.log('[Dashboard] Fetching analytics for userId:', userId);
         const stats = await dbService.getUserStats(userId);
+        console.log('[Dashboard] Stats found:', stats);
         res.json(stats);
     } catch (e) {
         console.error('Error analytics:', e);
