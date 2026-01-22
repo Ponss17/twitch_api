@@ -67,7 +67,6 @@ export const Dashboard = {
     loadTab(tabId) {
         switch (tabId) {
             case 'tab-home':
-                Loader.loadCSS('css/sections/analytics.css');
                 if (this.session) {
                     const userIdInput = document.getElementById('user-id');
                     const userTokenInput = document.getElementById('user-token');
