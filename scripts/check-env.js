@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
 
-// Cargar .env local
 const envPath = path.join(__dirname, '../.env');
 if (!fs.existsSync(envPath)) {
     console.error('❌ No se encontró el archivo .env');
@@ -12,7 +11,6 @@ if (!fs.existsSync(envPath)) {
 
 const envConfig = dotenv.parse(fs.readFileSync(envPath));
 
-// Variables críticas que deben existir
 const REQUIRED_VARS = [
     'TWITCH_CLIENT_ID',
     'TWITCH_CLIENT_SECRET',
@@ -31,7 +29,6 @@ REQUIRED_VARS.forEach(key => {
         console.error(`❌ Faltante: ${key}`);
         hasError = true;
     } else {
-        // Chequeos básicos de integridad
         if (key === 'KV_REST_API_TOKEN' && envConfig[key].length < 20) {
             console.warn(`⚠️  Advertencia: ${key} parece demasiado corto. ¿Es el token correcto?`);
         }
