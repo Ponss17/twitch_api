@@ -21,8 +21,9 @@ Thumbs.db
 .vercel
 
 
-#Pendientes
+#Pendientes e ia context
 pendientes.txt
+CONTEXT_FOR_NEXT_AGENT.md
 
 # Archivos archivados
 _archived/
