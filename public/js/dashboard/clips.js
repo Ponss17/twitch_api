@@ -1,5 +1,6 @@
 import { UI } from '../ui.js';
 import { Messages } from '../utils/messages.js';
+import { API_ENDPOINTS } from '../utils/constants.js';
 import { Loader } from '../utils/loader.js';
 
 export const ClipsModule = {
@@ -32,7 +33,7 @@ export const ClipsModule = {
         try {
             const { apiKey, token, login } = this.session;
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-            const res = await fetch(`/api/twitch/dashboard/get-clips?channel=${login}&${tokenParam}`);
+            const res = await fetch(`${API_ENDPOINTS.CLIPS}?channel=${login}&${tokenParam}`);
 
             if (!res.ok) {
                 throw new Error(`HTTP ${res.status}: ${res.statusText}`);

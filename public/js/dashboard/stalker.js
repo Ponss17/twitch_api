@@ -1,6 +1,7 @@
 import { Loader } from '../utils/loader.js';
 import { UI } from '../ui.js';
 import { Messages } from '../utils/messages.js';
+import { API_ENDPOINTS } from '../utils/constants.js';
 import { CONFIG } from '../config.js';
 
 export const StalkerModule = {
@@ -215,7 +216,7 @@ export const StalkerModule = {
 
         try {
             const { apiKey, login } = this.session;
-            const res = await fetch(`/api/twitch/dashboard/chatters?channel=${login}&apiKey=${apiKey}`);
+            const res = await fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&apiKey=${apiKey}`);
 
             if (!res.ok) {
                 if (res.status === 401) throw new Error(Messages.Stalker.reloginMsg);
@@ -302,7 +303,7 @@ export const StalkerModule = {
     async inspectUser(login) {
         const { apiKey } = this.session;
         try {
-            const res = await fetch(`/api/twitch/dashboard/user-info?login=${login}&apiKey=${apiKey}`);
+            const res = await fetch(`${API_ENDPOINTS.USER_INFO}?login=${login}&apiKey=${apiKey}`);
             if (!res.ok) throw new Error(Messages.Stalker.infoError);
             const info = await res.json();
 
