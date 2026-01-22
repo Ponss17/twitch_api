@@ -7,7 +7,8 @@
     "build": "tsc",
     "postbuild": "shx cp -r public dist/public",
     "start": "node -r dotenv/config dist/api/index.js",
-    "dev": "ts-node --files -r dotenv/config api/index.ts"
+    "dev": "ts-node --files -r dotenv/config api/index.ts",
+    "check-env": "node scripts/check-env.js"
   },
   "repository": {
     "type": "git",
