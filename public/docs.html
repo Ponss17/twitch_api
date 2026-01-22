@@ -46,6 +46,7 @@
                     <span class="group-title">Comandos</span>
                     <a href="#create-clip" class="nav-item"><i class="fa-solid fa-film"></i> Crear Clip</a>
                     <a href="#shoutout" class="nav-item"><i class="fa-solid fa-bullhorn"></i> Shoutout</a>
+                    <a href="#magic8" class="nav-item"><i class="fa-solid fa-8"></i> Bola 8</a>
                     <a href="#followage" class="nav-item"><i class="fa-solid fa-clock"></i> Followage</a>
                     <a href="#get-clips" class="nav-item"><i class="fa-solid fa-list"></i> Listar Clips</a>
 
@@ -174,6 +175,24 @@
                 <h3>Ejemplo de Respuesta</h3>
                 <div class="code-block">
                     <code>¡Vayan a seguir a ponss! Estaba jugando Valorant en https://twitch.tv/ponss</code>
+                </div>
+            </section>
+
+            <section id="magic8" class="doc-section">
+                <h2><i class="fa-solid fa-8"></i> Bola 8 Mágica</h2>
+                <p>Responde preguntas de sí/no de forma divertida y aleatoria.</p>
+                <div class="endpoint-block">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/twitch/magic8?question={pregunta}&apiKey={tu_api_key}</span>
+                </div>
+                <h3>Ejemplo Nightbot</h3>
+                <div class="code-block">
+                    <code class="dynamic-url"
+                        data-path="🎱 $(user) pregunta: $(query) | La Bola 8 dice: $(urlfetch {baseURL}/api/twitch/magic8?question=$(query)&apiKey=TU_API_KEY)">Cargando...</code>
+                </div>
+                <h3>Ejemplo de Respuesta</h3>
+                <div class="code-block">
+                    <code>La Bola 8 dice: ¡Definitivamente sí! 🎱</code>
                 </div>
             </section>
 
