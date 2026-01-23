@@ -17,7 +17,6 @@ export const RouletteModule = {
     spinTime: 0,
     spinTimeTotal: 0,
     isSpinning: false,
-    client: null,
 
     init(session) {
         if (this.initialized) return;
@@ -71,8 +70,13 @@ export const RouletteModule = {
         if (this.isOpen) {
             UI.showToast(Messages.Roulette.open);
             this.loadChatters();
+            this.connectTmi();
         } else {
             UI.showToast(Messages.Roulette.closed, 'warning');
+            import('../utils/tmiService.js').then(({ TmiService }) => {
+                TmiService.disconnect();
+                this.isConnected = false;
+            });
         }
     },
 
@@ -81,7 +85,7 @@ export const RouletteModule = {
         if (typeof window.tmi === 'undefined') return;
 
         import('../utils/tmiService.js').then(({ TmiService }) => {
-            TmiService.init(this.session.login).then(() => {
+            TmiService.connect(this.session.login).then(() => {
                 this.isConnected = true;
             });
 

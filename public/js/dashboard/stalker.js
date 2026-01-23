@@ -20,7 +20,6 @@ export const StalkerModule = {
         });
     },
 
-    client: null,
     isConnected: false,
 
     connectTmi() {
@@ -28,8 +27,9 @@ export const StalkerModule = {
         if (typeof window.tmi === 'undefined') return;
 
         import('../utils/tmiService.js').then(({ TmiService }) => {
-            TmiService.init(this.session.login).then(() => {
+            TmiService.connect(this.session.login).then(() => {
                 this.isConnected = true;
+                this.render();
             });
 
             TmiService.addMessageListener((channel, tags, message) => {
@@ -81,6 +81,10 @@ export const StalkerModule = {
             this.connectTmi();
         } else {
             UI.showToast(Messages.Stalker.scanPaused, 'warning');
+            import('../utils/tmiService.js').then(({ TmiService }) => {
+                TmiService.disconnect();
+                this.isConnected = false;
+            });
         }
 
     },
