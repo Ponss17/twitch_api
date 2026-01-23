@@ -4,7 +4,6 @@ import { Loader } from '../utils/loader.js';
 import { UI } from '../ui.js';
 
 export const TrendsModule = {
-    client: null,
     wordCounts: {},
     isIgnored: new Set([
         'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas',
@@ -51,9 +50,6 @@ export const TrendsModule = {
     isConnected: false,
 
     connect() {
-        if (this.isConnected) {
-            return;
-        }
         if (typeof window.tmi === 'undefined') {
             console.error("Trends: window.tmi is undefined!");
             this.updateStatus(false);
@@ -61,7 +57,7 @@ export const TrendsModule = {
         }
 
         import('../utils/tmiService.js').then(({ TmiService }) => {
-            TmiService.init(this.session.login).then(() => {
+            TmiService.connect(this.session.login).then(() => {
                 this.updateStatus(true);
                 this.isConnected = true;
             }).catch((e) => {
@@ -70,6 +66,8 @@ export const TrendsModule = {
             });
 
             TmiService.addMessageListener((chn, tags, message) => {
+                if (!this.isTracking) return;
+
                 const username = tags.username;
                 if (!username || CONFIG.IGNORED_BOTS.has(username.toLowerCase())) return;
 
@@ -93,19 +91,26 @@ export const TrendsModule = {
         if (!el) return;
         if (connected) {
             el.innerHTML = Messages.Tracker.connected;
+            el.style.color = 'var(--success)';
         } else {
-            el.innerHTML = Messages.Tracker.error;
+            if (!this.isTracking) {
+                el.innerHTML = '<i class="fa-solid fa-power-off"></i> Reposo';
+                el.style.color = 'var(--text-muted)';
+            } else {
+                el.innerHTML = Messages.Tracker.error;
+                el.style.color = 'var(--danger)';
+            }
         }
     },
 
     startTimer() {
+        this.isTracking = true;
         this.connect();
 
         const input = document.getElementById('tracker-minutes');
         const display = document.getElementById('tracker-timer');
         const inputContainer = document.getElementById('tracker-input-container');
 
-        this.isTracking = true;
         this.resetInternal();
 
         const minutes = parseInt(input?.value) || 5;
@@ -157,6 +162,12 @@ export const TrendsModule = {
         if (this.timerInterval) clearInterval(this.timerInterval);
         this.isLocked = true;
         this.isTracking = false;
+
+        import('../utils/tmiService.js').then(({ TmiService }) => {
+            TmiService.disconnect();
+            this.isConnected = false;
+            this.updateStatus(false);
+        });
 
         const display = document.getElementById('tracker-timer');
         if (display) {
@@ -214,6 +225,13 @@ export const TrendsModule = {
         this.wordCounts = {};
         this.isLocked = false;
         if (this.timerInterval) clearInterval(this.timerInterval);
+
+        this.isTracking = false;
+        import('../utils/tmiService.js').then(({ TmiService }) => {
+            TmiService.disconnect();
+            this.isConnected = false;
+            this.updateStatus(false);
+        });
 
         const inputContainer = document.getElementById('tracker-input-container');
         const display = document.getElementById('tracker-timer');
