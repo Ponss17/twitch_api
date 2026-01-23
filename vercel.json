@@ -43,6 +43,10 @@
             "destination": "/public/dashboard.html"
         },
         {
+            "source": "/components/(.*)",
+            "destination": "/public/components/$1"
+        },
+        {
             "source": "/api/twitch/(.*)",
             "destination": "/dist/api/index.js"
         },
