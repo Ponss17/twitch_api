@@ -108,7 +108,7 @@ export const Magic8Module = {
                     questionVar = '${query}';
                 }
 
-                const params = `apiKey=${apiKey}&question=${questionVar}`;
+                const params = `apiKey=${apiKey}&question=${questionVar}&format=plain`;
                 const fetchPart = CommandGenerator.generate(bot, domain, params);
                 const rawCmd = `!addcom !8ball ${fetchPart}`;
 

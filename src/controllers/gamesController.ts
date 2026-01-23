@@ -31,6 +31,10 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
 
         const answer = await generateMagic8Response(question);
 
+        if (req.query.format === 'plain') {
+            return res.send(answer);
+        }
+
         res.json({
             success: true,
             question,
