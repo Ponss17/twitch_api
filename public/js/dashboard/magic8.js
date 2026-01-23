@@ -7,6 +7,11 @@ export const Magic8Module = {
 
     init(sessionParams) {
         this.session = sessionParams;
+
+        import('../utils/loader.js').then(({ Loader }) => {
+            Loader.loadCSS('css/sections/magic8.css');
+        });
+
         this.setupUI();
         this.setupCommandGenerator();
     },

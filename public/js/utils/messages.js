@@ -5,7 +5,7 @@ export const Messages = {
         sessionError: "Error de sesión. Recarga la página.",
         expiredTitle: "Sesión Expirada",
         expiredMsg: "Tu credencial ha caducado. Por favor, inicia sesión de nuevo.",
-        reloginBtn: '<i class="fa-solid fa-right-to-bracket"></i> Re-Login'
+        reloginBtn: '<i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión'
     },
     Feedback: {
         emptyMessage: "Por favor, escribe un mensaje.",
@@ -23,7 +23,11 @@ export const Messages = {
         loading: '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...',
         error: (msg) => `<div class="error-msg"><i class="fa-solid fa-triangle-exclamation"></i> ${msg}</div>`,
         networkError: 'Error de conexión',
-        sessionExpired: 'Tu sesión ha expirado'
+        sessionExpired: 'Tu sesión ha expirado',
+        errorLoadingUI: (msg) => `Error cargando interfaz: ${msg}`,
+        viewBtn: '<i class="fa-solid fa-eye"></i> Ver',
+        saveBtn: '<i class="fa-solid fa-save"></i> Guardar',
+        cancelBtn: '<i class="fa-solid fa-xmark"></i> Cancelar'
     },
     Stalker: {
         loading: '<i class="fa-solid fa-spinner fa-spin"></i> Cargando Chat...',
@@ -33,6 +37,12 @@ export const Messages = {
                 <p>Nadie en el chat (o error de conexión)</p>
             </div>
         `,
+        waiting: `
+            <div class="empty-icon"><i class="fa-solid fa-satellite-dish"></i></div>
+            <h3>Esperando señal...</h3>
+            <p>Dale al botón <strong>Play</strong> para comenzar a escanear el chat.</p>
+        `,
+        syncNote: '* Lista sincronizada con API + Chat en vivo',
         reauthError: `
             <div class="error-msg" style="text-align: center; padding: 20px;">
                 <i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; color: var(--accent);"></i>
@@ -85,7 +95,17 @@ export const Messages = {
         timeUp: '¡TIEMPO!',
         started: (min) => `<i class="fa-solid fa-hourglass-start fa-spin"></i>  Tracker iniciado (${min} min)`,
         finished: '<i class="fa-solid fa-flag-checkered"></i> ¡Tiempo terminado!',
-        winner: (word, count) => `👑 Ganador: <strong>"${word}"</strong> <span style="font-size:0.9em; opacity:0.8">(${count})</span>`
+        winner: (word, count) => `👑 Ganador: <strong>"${word}"</strong> <span style="font-size:0.9em; opacity:0.8">(${count})</span>`,
+        resting: '<i class="fa-solid fa-power-off"></i> Reposo',
+        ready: `
+            <tr>
+                <td colspan="4" style="text-align:center; padding:40px; color:var(--text-muted);">
+                    <div style="font-size:2rem; margin-bottom:10px;"><i class="fa-solid fa-play"></i></div>
+                    <h4 style="color:var(--text-primary); margin-bottom:5px;">Listo para analizar</h4>
+                    <p>Presiona el botón <strong>Play</strong> para comenzar a contar palabras.</p>
+                </td>
+            </tr>
+        `,
     },
     Roulette: {
         updated: '<i class="fa-solid fa-check"></i> Lista actualizada',
@@ -93,7 +113,8 @@ export const Messages = {
         emptyWheel: 'Sin participantes',
         winner: (name) => `¡Ganador: ${name} 🎉!`,
         open: '<i class="fa-solid fa-door-open"></i> Inscripciones Abiertas',
-        closed: '<i class="fa-solid fa-door-closed"></i> Inscripciones Cerradas'
+        closed: '<i class="fa-solid fa-door-closed"></i> Inscripciones Cerradas',
+        playToOpen: "Dale al Play ▶️ para abrir"
     },
     Commands: {
         clipResponse: (user, url) => `🎬 Clip creado por ${user}: ${url}`,
@@ -132,5 +153,13 @@ export const Messages = {
         viewLogs: '<i class="fa-solid fa-comment-dots"></i> Ver Últimos Mensajes',
         historyTitle: '<i class="fa-solid fa-history"></i> Historial (Sesión actual)',
         noHistory: 'No hay mensajes registrados en esta sesión.'
+    },
+    ChatSim: {
+        welcome: "¡Bienvenido al chat!",
+        placeholder: "Enviar un mensaje",
+        btnText: "Chat",
+        followage: (user, channel, time) => `@${user} sigue a @${channel} desde hace ${time}.`,
+        clip: (user, url) => `🎬 Clip creado por <span style="color:#FF69B4">@${user}</span>: ${url}`,
+        shoutout: (user, game) => `¡Vayan a seguir a <span style="color:#bf94ff">@${user}</span>! Estaba jugando ${game}`
     }
 };

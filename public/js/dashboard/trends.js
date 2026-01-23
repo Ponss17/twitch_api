@@ -105,7 +105,7 @@ export const TrendsModule = {
             el.style.color = 'var(--success)';
         } else {
             if (!this.isTracking) {
-                el.innerHTML = '<i class="fa-solid fa-power-off"></i> Reposo';
+                el.innerHTML = Messages.Tracker.resting;
                 el.style.color = 'var(--text-muted)';
             } else {
                 el.innerHTML = Messages.Tracker.error;
@@ -276,13 +276,7 @@ export const TrendsModule = {
 
         if (!this.isTracking) {
             tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" style="text-align:center; padding:40px; color:var(--text-muted);">
-                        <div style="font-size:2rem; margin-bottom:10px;"><i class="fa-solid fa-play"></i></div>
-                        <h4 style="color:var(--text-primary); margin-bottom:5px;">Listo para analizar</h4>
-                        <p>Presiona el botón <strong>Play</strong> para comenzar a contar palabras.</p>
-                    </td>
-                </tr>
+                ${Messages.Tracker.ready}
             `;
             return;
         }

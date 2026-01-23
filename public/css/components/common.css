@@ -159,3 +159,226 @@
     font-family: 'Consolas', monospace;
     opacity: 0.9;
 }
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: var(--bg-card);
+    width: 100%;
+    max-width: 400px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+}
+
+.tool-selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.tool-selector label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.select-input {
+    padding: 10px 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+    min-width: 200px;
+}
+
+.text-input {
+    width: 100%;
+    padding: 12px 15px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.text-input:focus {
+    border-color: var(--accent);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-group {
+    display: flex;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+
+.input-group:focus-within {
+    border-color: var(--accent);
+}
+
+.input-group input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    padding: 12px 15px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.input-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+.input-help {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-tertiary);
+    font-size: 0.8em;
+}
+
+.code-box {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+}
+
+.code-box textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #e2e8f0;
+    font-family: 'Consolas', monospace;
+    font-size: 0.9rem;
+    resize: none;
+    outline: none;
+    height: 60px;
+    line-height: 1.6;
+    padding-right: 110px;
+}
+
+.btn-copy {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-copy:hover {
+    background: var(--accent-hover);
+}
+
+.full-width {
+    width: 100%;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+.response-card {
+    margin-top: 25px;
+    padding: 20px;
+    border-radius: var(--radius);
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 1.05rem;
+    line-height: 1.5;
+    display: none;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.response-card.active {
+    display: flex;
+}
+
+.response-card.success {
+    border-left: 4px solid var(--accent);
+}
+
+.response-card.error {
+    border-left: 4px solid var(--danger);
+}

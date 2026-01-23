@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (initError) {
             console.error('CRITICAL: Error initializing dashboard:', initError);
-            UI.showToast(`Error cargando interfaz: ${initError.message}`, 'error');
+            UI.showToast(Messages.Common.errorLoadingUI(initError.message), 'error');
         }
     } else {
         console.warn("Token invalid");
