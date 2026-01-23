@@ -39,11 +39,19 @@
             "destination": "/public/docs.html"
         },
         {
+            "source": "/dashboard",
+            "destination": "/public/dashboard.html"
+        },
+        {
             "source": "/api/twitch/(.*)",
             "destination": "/dist/api/index.js"
         },
         {
-            "source": "/(.*)",
+            "source": "/auth/(.*)",
+            "destination": "/dist/api/index.js"
+        },
+        {
+            "source": "/twitch/(.*)",
             "destination": "/dist/api/index.js"
         }
     ],
