@@ -20,31 +20,20 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const { question } = req.query;
+        const { question, mood } = req.query;
 
-        // Validar que exista la pregunta
         if (!question || typeof question !== 'string') {
             return res.status(400).json({
                 error: MESSAGES.MAGIC8.QUESTION_REQUIRED
             });
         }
 
-        const answer = await generateMagic8Response(question);
+        const answer = await generateMagic8Response(question, mood as string);
 
-        if (req.query.format === 'plain') {
-            return res.send(answer);
-        }
-
-        res.json({
-            success: true,
-            question,
-            answer
-        });
+        res.send(answer);
 
     } catch (error) {
         console.error('Error en askMagic8:', error);
-        res.status(500).json({
-            error: MESSAGES.MAGIC8.GROQ_ERROR
-        });
+        res.status(500).send(MESSAGES.MAGIC8.GROQ_ERROR);
     }
 };
