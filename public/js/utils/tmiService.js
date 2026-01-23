@@ -6,7 +6,7 @@ export const TmiService = {
 
     async connect(channel, identity = null) {
         this.activeClients++;
-        console.log(`[TmiService] Client added. Active: ${this.activeClients}`);
+
 
         if (this.isConnected && this.client) {
             return Promise.resolve();
@@ -37,7 +37,7 @@ export const TmiService = {
         this.connectionPromise = this.client.connect()
             .then(() => {
                 this.isConnected = true;
-                console.log('✅ [TmiService] Connected to Twitch');
+
             })
             .catch(err => {
                 console.error('❌ TMI Connection Error:', err);
@@ -57,15 +57,15 @@ export const TmiService = {
             this.activeClients--;
         }
 
-        console.log(`[TmiService] Client removed. Active: ${this.activeClients}`);
+
 
         if (this.activeClients === 0 && this.client && this.isConnected) {
-            console.log('💤 [TmiService] No active clients. Disconnecting...');
+
             this.client.disconnect().then(() => {
                 this.isConnected = false;
                 this.client = null;
                 this.connectionPromise = null;
-                console.log('🛑 [TmiService] Disconnected');
+
             });
         }
     }

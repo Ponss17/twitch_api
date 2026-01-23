@@ -1,0 +1,33 @@
+<div id="command-card-followage"></div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">
+            <i class="fa-solid fa-flask"></i>
+        </div>
+        <div>
+            <h3>Prueba la API</h3>
+            <p class="card-desc">Verifica que todo funcione correctamente</p>
+        </div>
+        <div class="header-actions" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-circle-question info-icon"
+                data-tooltip="Simula una petición manual a la API. Útil para verificar si un usuario existe."></i>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="form-grid">
+            <div class="form-group">
+                <input type="text" id="test-channel" placeholder="Canal" class="text-input">
+            </div>
+            <div class="form-group">
+                <input type="text" id="test-user" placeholder="Usuario" class="text-input">
+            </div>
+        </div>
+        <button id="run-test-btn" class="btn-primary" style="margin-top: 20px;">
+            <i class="fa-solid fa-play"></i> Probar Respuesta
+        </button>
+        <div id="test-result-container" class="response-card">
+            <div id="test-result-text" style="width:100%"></div>
+        </div>
+    </div>
+</div>
