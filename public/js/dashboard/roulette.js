@@ -19,35 +19,50 @@ export const RouletteModule = {
     isSpinning: false,
 
     init(session) {
+        this.session = session;
+        Loader.loadCSS('./css/sections/roulette.css');
+        this.setupUI();
+
         if (this.initialized) return;
         this.initialized = true;
+    },
 
-        this.session = session;
-
-
-        Loader.loadCSS('./css/sections/roulette.css');
-
+    setupUI() {
         this.canvas = document.getElementById('roulette-canvas');
         if (this.canvas) {
             this.ctx = this.canvas.getContext('2d');
 
             const spinBtn = document.getElementById('btn-spin-roulette');
-            if (spinBtn) spinBtn.addEventListener('click', () => this.spin());
+            if (spinBtn) {
+                const newBtn = spinBtn.cloneNode(true);
+                spinBtn.parentNode.replaceChild(newBtn, spinBtn);
+                newBtn.addEventListener('click', () => this.spin());
+            }
 
             const toggleBtn = document.getElementById('toggle-roulette');
-            if (toggleBtn) toggleBtn.addEventListener('click', () => this.toggleEntries());
+            if (toggleBtn) {
+                const newBtn = toggleBtn.cloneNode(true);
+                toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
+                newBtn.addEventListener('click', () => this.toggleEntries());
+            }
 
             const refreshBtn = document.getElementById('btn-refresh-roulette');
-            if (refreshBtn) refreshBtn.addEventListener('click', () => {
-                this.loadChatters();
-                UI.showToast(Messages.Roulette.updated, 'success');
-            });
+            if (refreshBtn) {
+                const newBtn = refreshBtn.cloneNode(true);
+                refreshBtn.parentNode.replaceChild(newBtn, refreshBtn);
+                newBtn.addEventListener('click', () => {
+                    this.loadChatters();
+                    UI.showToast(Messages.Roulette.updated, 'success');
+                });
+            }
 
             this.drawEmptyWheel();
 
             const closeWinnerBtn = document.getElementById('close-winner-display');
             if (closeWinnerBtn) {
-                closeWinnerBtn.addEventListener('click', () => {
+                const newBtn = closeWinnerBtn.cloneNode(true);
+                closeWinnerBtn.parentNode.replaceChild(newBtn, closeWinnerBtn);
+                newBtn.addEventListener('click', () => {
                     const display = document.getElementById('roulette-winner-display');
                     if (display) display.classList.add('hidden');
                 });

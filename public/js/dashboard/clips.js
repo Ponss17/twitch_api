@@ -7,21 +7,24 @@ export const ClipsModule = {
     session: null,
 
     async init(session) {
-        if (this.initialized) return;
-        this.initialized = true;
-
-        await Loader.loadCSS('css/sections/clips.css');
-
         this.session = session;
         this.loadClips();
 
         const refreshBtn = document.getElementById('refresh-clips-btn');
         if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => {
+            const newBtn = refreshBtn.cloneNode(true);
+            refreshBtn.parentNode.replaceChild(newBtn, refreshBtn);
+
+            newBtn.addEventListener('click', () => {
                 this.loadClips();
                 UI.showToast('Actualizando clips...', 'info');
             });
         }
+
+        if (this.initialized) return;
+        this.initialized = true;
+
+        await Loader.loadCSS('css/sections/clips.css');
     },
 
     async loadClips() {
