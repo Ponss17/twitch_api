@@ -60,16 +60,17 @@ export const Magic8Module = {
 
         try {
             const { apiKey, token } = this.session;
+            const mood = document.getElementById(DOM_IDS.MAGIC8.MOOD_SELECT)?.value || 'classic';
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
 
-            const res = await fetch(`${API_ENDPOINTS.MAGIC8}?${tokenParam}&question=${encodeURIComponent(question)}`);
-            const data = await res.json();
-
+            const res = await fetch(`${API_ENDPOINTS.MAGIC8}?${tokenParam}&question=${encodeURIComponent(question)}&mood=${mood}`);
             if (!res.ok) {
-                throw new Error(data.error || 'Error desconocido');
+                const errMsg = await res.text();
+                throw new Error(errMsg || 'Error desconocido');
             }
 
-            this.showResponse(data.answer, 'success');
+            const answer = await res.text();
+            this.showResponse(answer, 'success');
 
         } catch (error) {
             console.error('Error al consultar Bola 8:', error);
@@ -94,12 +95,15 @@ export const Magic8Module = {
     setupCommandGenerator() {
         const commandOutput = document.getElementById(DOM_IDS.MAGIC8.COMMAND_OUTPUT);
         const botSelect = document.getElementById(DOM_IDS.MAGIC8.BOT_SELECT);
+        const moodSelect = document.getElementById('magic8-mood-select');
 
         if (!commandOutput || !botSelect) return;
 
         const updateCommand = () => {
             const { apiKey } = this.session;
             const bot = botSelect.value;
+            const mood = moodSelect ? moodSelect.value : 'classic';
+
             import('../utils/commandGenerator.js').then(({ CommandGenerator }) => {
                 const domain = `${CONFIG.siteUrl}${API_ENDPOINTS.MAGIC8}`;
 
@@ -108,7 +112,7 @@ export const Magic8Module = {
                     questionVar = '${query}';
                 }
 
-                const params = `apiKey=${apiKey}&question=${questionVar}&format=plain`;
+                const params = `apiKey=${apiKey}&question=${questionVar}&mood=${mood}`;
                 const fetchPart = CommandGenerator.generate(bot, domain, params);
                 const rawCmd = `!addcom !8ball ${fetchPart}`;
 
@@ -119,6 +123,7 @@ export const Magic8Module = {
         };
 
         botSelect.addEventListener('change', updateCommand);
+        if (moodSelect) moodSelect.addEventListener('change', updateCommand);
         updateCommand();
     }
 };

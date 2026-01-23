@@ -18,6 +18,7 @@ export const DOM_IDS = {
         BUTTON: 'btn-ask-magic8',
         RESPONSE: 'magic8-response',
         COMMAND_OUTPUT: 'magic8-command-output',
-        BOT_SELECT: 'magic8-bot-select'
+        BOT_SELECT: 'magic8-bot-select',
+        MOOD_SELECT: 'magic8-mood-select'
     }
 };
