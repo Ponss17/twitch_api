@@ -7,6 +7,7 @@ import { RouletteModule } from './dashboard/roulette.js';
 import { Magic8Module } from './dashboard/magic8.js';
 import { CommandsModule } from './dashboard/commands.js';
 import { UI } from './ui.js';
+import { HtmlLoader } from './utils/htmlLoader.js';
 
 export const Dashboard = {
     session: null,
@@ -17,7 +18,6 @@ export const Dashboard = {
         this.setupUserBadge();
 
         this.loadTab('tab-home');
-        this.setupFeedback();
 
 
 
@@ -65,7 +65,12 @@ export const Dashboard = {
         });
     },
 
-    loadTab(tabId) {
+    async loadTab(tabId) {
+        const container = document.getElementById(tabId);
+        if (container && container.dataset.src) {
+            await HtmlLoader.load(container.dataset.src, tabId);
+        }
+
         switch (tabId) {
             case 'tab-home':
                 if (this.session) {
@@ -104,6 +109,10 @@ export const Dashboard = {
                 break;
             case 'tab-clips':
                 ClipsModule.init(this.session);
+                CommandsModule.init(this.session);
+                break;
+            case 'tab-shoutout':
+                CommandsModule.init(this.session);
                 break;
             case 'tab-tracker':
                 TrendsModule.init(this.session);
@@ -116,6 +125,9 @@ export const Dashboard = {
                 break;
             case 'tab-roulette':
                 RouletteModule.init(this.session);
+                break;
+            case 'tab-feedback':
+                this.setupFeedback();
                 break;
         }
     },

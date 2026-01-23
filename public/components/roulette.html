@@ -1,0 +1,47 @@
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">
+            <i class="fa-solid fa-dice"></i>
+        </div>
+        <div>
+            <h3>Ruleta de Viewers</h3>
+            <p class="card-desc">Sortea premios entre los usuarios activos</p>
+        </div>
+        <div class="header-actions" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span id="roulette-count" class="badge" style="margin-bottom:0;">0</span>
+                <button id="toggle-roulette" class="btn-icon btn-success" title="Abrir Inscripciones">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+                <button id="btn-refresh-roulette" class="btn-icon" title="Recargar usuarios">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+            <i class="fa-solid fa-circle-question info-icon"
+                data-tooltip="Sorteo en vivo. Los usuarios entran automáticamente al hablar en el chat."></i>
+        </div>
+    </div>
+    <div class="card-body" style="text-align:center;">
+        <div class="roulette-wrapper">
+            <canvas id="roulette-canvas" width="500" height="500"></canvas>
+            <div class="roulette-arrow"></div>
+
+            <div id="roulette-winner-display" class="winner-overlay hidden">
+                <div class="winner-card bounce-in">
+                    <div class="winner-title">¡GANADOR!</div>
+                    <div id="winner-name" class="winner-name">Usuario</div>
+                    <button id="close-winner-display" class="btn-secondary btn-sm"
+                        style="margin-top:10px;">Cerrar</button>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top:20px;">
+            <button id="btn-spin-roulette" class="btn-primary btn-large">
+                <i class="fa-solid fa-play"></i> GIRAR RULETA
+            </button>
+        </div>
+        <div style="margin-top:10px; font-size:0.75rem; opacity:0.6; font-style:italic;">
+            * Twitch tarda unos minutos en actualizar la lista
+        </div>
+    </div>
+</div>

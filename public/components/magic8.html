@@ -1,0 +1,64 @@
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">
+            <i class="fa-solid fa-8"></i>
+        </div>
+        <div>
+            <h3>Comando !8ball</h3>
+            <p class="card-desc">Comando para que tus viewers pregunten a la IA</p>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="tool-selector">
+            <label><i class="fa-solid fa-robot"></i> Selecciona tu bot:</label>
+            <select id="magic8-bot-select" class="select-input">
+                <option value="nightbot">Nightbot</option>
+                <option value="streamelements">StreamElements</option>
+                <option value="fossabot">Fossabot</option>
+                <option value="wizebot">Wizebot</option>
+            </select>
+        </div>
+        <div class="tool-selector" style="margin-top: 10px;">
+            <label><i class="fa-solid fa-masks-theater"></i> Personalidad:</label>
+            <select id="magic8-mood-select" class="select-input">
+                <option value="classic">Clásica</option>
+                <option value="sarcastic">Sarcástica</option>
+                <option value="toxic">Tóxica</option>
+                <option value="helpful">Servicial</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <div class="code-box">
+                <textarea id="magic8-command-output" readonly></textarea>
+                <button class="btn-copy copy-btn" data-target="magic8-command-output">
+                    <i class="fa-regular fa-copy"></i> Copiar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">
+            <i class="fa-solid fa-flask"></i>
+        </div>
+        <div>
+            <h3>Prueba la Bola 8</h3>
+            <p class="card-desc">Verifica que la IA responda correctamente</p>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="magic8-question">Tu pregunta</label>
+                <input type="text" id="magic8-question" placeholder="¿Debo comprar bitcoin?" class="text-input">
+            </div>
+        </div>
+        <button id="btn-ask-magic8" class="btn-primary" style="margin-top: 20px;">
+            <i class="fa-solid fa-play"></i> Preguntar
+        </button>
+
+        <div id="magic8-response" class="response-card"></div>
+    </div>
+</div>

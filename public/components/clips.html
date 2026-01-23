@@ -1,0 +1,25 @@
+<div id="command-card-clip"></div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">
+            <i class="fa-solid fa-images"></i>
+        </div>
+        <div>
+            <h3>Clips Recientes</h3>
+            <p class="card-desc">Los últimos clips de tu canal</p>
+        </div>
+        <div class="header-actions" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+            <button id="refresh-clips-btn" class="btn-icon" title="Recargar lista de clips">
+                <i class="fa-solid fa-rotate-right"></i>
+            </button>
+            <i class="fa-solid fa-circle-question info-icon"
+                data-tooltip="Galería de tus clips más recientes. Se actualiza automáticamente."></i>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="clips-gallery" class="clips-grid">
+            <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+        </div>
+    </div>
+</div>

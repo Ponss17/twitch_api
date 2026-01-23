@@ -1,0 +1,59 @@
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">
+            <img id="tracker-avatar" src="img/LosPerris_progra.webp" alt="Avatar"
+                style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:none;">
+            <i id="tracker-icon" class="fa-solid fa-chart-simple"></i>
+        </div>
+        <div>
+            <h3 id="tracker-title">Tendencias de Chat</h3>
+            <p class="card-desc">Ranking de palabras en tiempo real</p>
+        </div>
+        <div class="header-actions" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+            <div class="tracker-controls">
+                <div id="tracker-input-container" style="display:flex; align-items:center; gap:10px;">
+                    <div class="timer-group">
+                        <span class="timer-label">Duración:</span>
+                        <div class="input-wrapper">
+                            <input type="number" id="tracker-minutes" value="5" min="1" max="60" class="timer-input">
+                            <span class="input-suffix">min</span>
+                        </div>
+                    </div>
+                    <button id="start-timer-btn" class="btn-icon btn-success" title="Iniciar temporizador">
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+                </div>
+                <span id="tracker-timer" class="timer-display hidden">00:00</span>
+                <span id="tracker-status" style="font-size:0.8rem; color:#666;">
+                    <i class="fa-solid fa-power-off"></i> Reposo
+                </span>
+                <button id="reset-tracker-btn" class="btn-icon btn-warning" title="Reiniciar contador de palabras">
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
+            </div>
+            <i class="fa-solid fa-circle-question info-icon"
+                data-tooltip="Analiza las palabras más repetidas en el chat durante un tiempo. Ideal para encuestas rápidas."></i>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table class="data-table" id="tracker-table">
+                <thead>
+                    <tr>
+                        <th style="width:50px">#</th>
+                        <th>Palabra</th>
+                        <th style="text-align:right">Repeticiones</th>
+                        <th style="width:50%"></th>
+                    </tr>
+                </thead>
+                <tbody id="tracker-body">
+                    <tr>
+                        <td colspan="4" style="text-align:center; padding:40px; color:#666;">
+                            Esperando mensajes...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,63 @@
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">
+            <i class="fa-solid fa-key"></i>
+        </div>
+        <div>
+            <h3>Tu Credencial API</h3>
+            <p class="card-desc">Gestiona tu API Key para las integraciones</p>
+        </div>
+        <div class="header-actions" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-circle-question info-icon"
+                data-tooltip="Esta llave conecta tu canal con nuestras herramientas. ¡No la compartas con nadie!"></i>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>User ID</label>
+                <div class="input-group">
+                    <input type="text" id="user-id" readonly>
+                    <button class="btn-icon copy-btn" data-target="user-id">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>API Key</label>
+                <div class="input-group">
+                    <input type="password" id="user-token" readonly>
+                    <button class="btn-icon" id="toggle-token" title="Mostrar/Ocultar API Key">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                    <button class="btn-icon copy-btn" data-target="user-token" title="Copiar API Key">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                    <button class="btn-icon btn-warning" id="regenerate-btn"
+                        title="Regenerar API Key (la anterior dejará de funcionar)">
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-icon">
+            <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <div>
+            <h3>Estadísticas</h3>
+            <p class="card-desc">Uso de tus comandos en tiempo real</p>
+        </div>
+        <div class="header-actions" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-circle-question info-icon"
+                data-tooltip="Contador histórico de cuántas veces tus viewers han usado los comandos."></i>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="stats-grid" class="stats-grid"></div>
+    </div>
+</div>

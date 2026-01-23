@@ -83,17 +83,16 @@ export const CommandsModule = {
     },
 
     async init(session) {
-        if (this.initialized) return;
-        this.initialized = true;
-
         this.session = session;
         if (!this.session) return;
 
         this.renderCommandCards();
         this.setupGenericCommands();
-        this.setupTestCommand();
 
-
+        if (!this.initialized) {
+            this.initialized = true;
+            this.setupTestCommand();
+        }
     },
 
     renderCommandCards() {
