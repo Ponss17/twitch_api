@@ -16,14 +16,17 @@ export const TrendsModule = {
 
 
     init(session) {
+        this.session = session;
+        this.setupUI();
+
         if (this.initialized) return;
         this.initialized = true;
 
-        this.session = session;
-
         Loader.loadCSS('./css/sections/trends.css');
+    },
 
-        const { login, displayName, profile_image_url } = session;
+    setupUI() {
+        const { login, displayName, profile_image_url } = this.session;
 
         const titleEl = document.getElementById('tracker-title');
         if (titleEl) titleEl.textContent = Messages.Trends.title(displayName || login);
@@ -39,10 +42,18 @@ export const TrendsModule = {
         }
 
         const resetBtn = document.getElementById('reset-tracker-btn');
-        if (resetBtn) resetBtn.addEventListener('click', () => this.reset());
+        if (resetBtn) {
+            const newBtn = resetBtn.cloneNode(true);
+            resetBtn.parentNode.replaceChild(newBtn, resetBtn);
+            newBtn.addEventListener('click', () => this.reset());
+        }
 
         const startTimerBtn = document.getElementById('start-timer-btn');
-        if (startTimerBtn) startTimerBtn.addEventListener('click', () => this.startTimer());
+        if (startTimerBtn) {
+            const newBtn = startTimerBtn.cloneNode(true);
+            startTimerBtn.parentNode.replaceChild(newBtn, startTimerBtn);
+            newBtn.addEventListener('click', () => this.startTimer());
+        }
 
         this.render();
     },

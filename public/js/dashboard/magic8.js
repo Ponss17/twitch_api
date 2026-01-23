@@ -17,9 +17,14 @@ export const Magic8Module = {
 
         if (!questionInput || !askBtn) return;
 
-        askBtn.addEventListener('click', () => this.askQuestion());
+        const newBtn = askBtn.cloneNode(true);
+        askBtn.parentNode.replaceChild(newBtn, askBtn);
+        const newInput = questionInput.cloneNode(true);
+        questionInput.parentNode.replaceChild(newInput, questionInput);
 
-        questionInput.addEventListener('keypress', (e) => {
+        newBtn.addEventListener('click', () => this.askQuestion());
+
+        newInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 this.askQuestion();
             }

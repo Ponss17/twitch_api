@@ -10,14 +10,15 @@ export const StalkerModule = {
     chatters: [],
 
     init(session) {
-        if (this.initialized) return;
-        this.initialized = true;
-
         this.session = session;
+
         Loader.loadCSS('./css/sections/stalker.css').then(() => {
             this.render();
             this.setupUI();
         });
+
+        if (this.initialized) return;
+        this.initialized = true;
     },
 
     isConnected: false,

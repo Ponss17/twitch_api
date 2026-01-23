@@ -88,10 +88,10 @@ export const CommandsModule = {
 
         this.renderCommandCards();
         this.setupGenericCommands();
+        this.setupTestCommand();
 
         if (!this.initialized) {
             this.initialized = true;
-            this.setupTestCommand();
         }
     },
 
