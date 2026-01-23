@@ -138,12 +138,10 @@ export const StalkerModule = {
             </div>
             
             <div id="stalker-empty" class="empty-state">
-                <div class="empty-icon"><i class="fa-solid fa-satellite-dish"></i></div>
-                <h3>Esperando señal...</h3>
-                <p>Dale al botón <strong>Play</strong> para comenzar a escanear el chat.</p>
+                ${Messages.Stalker.waiting}
             </div>
             <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">
-                * Lista sincronizada con API + Chat en vivo
+                ${Messages.Stalker.syncNote}
             </div>
         `;
         } else {
@@ -153,11 +151,7 @@ export const StalkerModule = {
             if (empty && grid) {
                 if (!this.isScanning && this.chatters.length === 0) {
                     empty.classList.remove('hidden');
-                    empty.innerHTML = `
-                        <div class="empty-icon"><i class="fa-solid fa-satellite-dish"></i></div>
-                        <h3>Esperando señal...</h3>
-                        <p>Dale al botón <strong>Play</strong> para comenzar a escanear el chat.</p>
-                    `;
+                    empty.innerHTML = Messages.Stalker.waiting;
                 } else if (this.chatters.length === 0 && this.isScanning) {
                     empty.classList.remove('hidden');
                     empty.innerHTML = `${Messages.Stalker.empty}`;
@@ -282,7 +276,7 @@ export const StalkerModule = {
 
             const btn = document.createElement('button');
             btn.className = 'action-btn';
-            btn.innerHTML = '<i class="fa-solid fa-eye"></i> Ver';
+            btn.innerHTML = Messages.Common.viewBtn;
             btn.onclick = () => this.inspectUser(user.user_login);
 
             actionTd.appendChild(btn);

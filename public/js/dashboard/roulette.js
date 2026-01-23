@@ -192,7 +192,7 @@ export const RouletteModule = {
 
         const text = this.isOpen
             ? Messages.Roulette.emptyWheel
-            : "Dale al Play ▶️ para abrir";
+            : Messages.Roulette.playToOpen;
 
         this.ctx.fillText(text, centerX, centerY);
     },

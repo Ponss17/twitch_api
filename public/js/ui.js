@@ -42,9 +42,9 @@ export const UI = {
     copyToClipboard(text) {
         if (!text) return;
         navigator.clipboard.writeText(text).then(() => {
-            this.showToast('<i class="fa-solid fa-check"></i> Copiado');
+            this.showToast(`<i class="fa-solid fa-check"></i> ${Messages.Clipboard.copied}`);
         }).catch(() => {
-            this.showToast('<i class="fa-solid fa-xmark"></i> Error al copiar', 'error');
+            this.showToast(`<i class="fa-solid fa-xmark"></i> ${Messages.Clipboard.error}`, 'error');
         });
     },
 
@@ -73,7 +73,7 @@ export const UI = {
         heroCodeDisplay.innerHTML = `
             <div class="twitch-chat-container">
                 <div class="chat-messages" id="sim-messages">
-                    <div class="chat-line" style="opacity:0.5"><span class="chat-text">¡Bienvenido al chat!</span></div>
+                    <div class="chat-line" style="opacity:0.5"><span class="chat-text">${Messages.ChatSim.welcome}</span></div>
                 </div>
                 <div class="chat-input-area">
                     <div class="fake-input" id="sim-input-box">
@@ -82,11 +82,11 @@ export const UI = {
                         </div>
                         <div class="input-content-wrapper" style="position:relative; flex:1;">
                             <span class="input-text" id="sim-input-text"></span>
-                            <span class="input-placeholder" id="sim-placeholder">Enviar un mensaje</span>
+                            <span class="input-placeholder" id="sim-placeholder">${Messages.ChatSim.placeholder}</span>
                         </div>
                     </div>
                     <div class="input-actions">
-                        <button class="twitch-btn">Chat</button>
+                        <button class="twitch-btn">${Messages.ChatSim.btnText}</button>
                     </div>
                 </div>
             </div>
@@ -100,15 +100,15 @@ export const UI = {
         const scenarios = [
             {
                 cmd: "!followage",
-                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">@ponss17 sigue a @LosPerris desde hace 1 año, 4 meses y 20 días.</span>`
+                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${Messages.ChatSim.followage('ponss17', 'LosPerris', '1 año, 4 meses y 20 días')}</span>`
             },
             {
                 cmd: "!clip",
-                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">🎬 Clip creado por <span style="color:#FF69B4">@ponss17</span>: https://clips.twitch.tv/WiseDeliciousCurryHassanChop-Df293...</span>`
+                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${Messages.ChatSim.clip('ponss17', 'https://clips.twitch.tv/WiseDeliciousCurryHassanChop-Df293...')}</span>`
             },
             {
                 cmd: "!so  @mynana17",
-                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">¡Vayan a seguir a <span style="color:#bf94ff">@mynana17</span>! Estaba jugando Just Chatting</span>`
+                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${Messages.ChatSim.shoutout('mynana17', 'Just Chatting')}</span>`
             }
         ];
 
@@ -173,7 +173,7 @@ export const UI = {
                     placeholder.style.display = 'block';
                     inputBox.classList.remove('typing');
 
-                    messagesContainer.innerHTML = '<div class="chat-line" style="opacity:0.5"><span class="chat-text">¡Bienvenido al chat!</span></div>';
+                    messagesContainer.innerHTML = `<div class="chat-line" style="opacity:0.5"><span class="chat-text">${Messages.ChatSim.welcome}</span></div>`;
                     await sleep(1000);
                 }
             }
