@@ -34,7 +34,7 @@ export const handleCallback = async (code: string, state: string): Promise<{ use
 
     const user = userResponse.data.data[0] as TwitchUser;
 
-    let apiKey = crypto.randomBytes(16).toString('hex');
+    let apiKey: string = crypto.randomUUID();
     const existingUser = await dbService.getUser(user.id);
     if (existingUser && existingUser.apiKey) {
         apiKey = existingUser.apiKey;

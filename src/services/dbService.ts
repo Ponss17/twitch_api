@@ -76,21 +76,8 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
 
 export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null> => {
     const cachedUserId = await kv.hget<string>(API_KEYS_KEY, apiKey);
-
-    if (cachedUserId) {
-        return getUser(cachedUserId);
-    }
-
-    const allUsers = await kv.hgetall<Record<string, StoredUser>>(USERS_KEY);
-    if (!allUsers) return null;
-
-    const foundUser = Object.values(allUsers).find(u => u.apiKey === apiKey);
-
-    if (foundUser) {
-        await kv.hset(API_KEYS_KEY, { [apiKey]: foundUser.userId });
-    }
-
-    return foundUser || null;
+    if (!cachedUserId) return null;
+    return getUser(cachedUserId);
 };
 
 // ==========================================

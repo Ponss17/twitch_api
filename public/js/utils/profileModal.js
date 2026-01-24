@@ -39,9 +39,14 @@ export const ProfileModal = {
     },
 
     async showUserLogs(login) {
+        const bioEl = document.getElementById('modal-bio');
+        if (bioEl) {
+            bioEl.innerHTML = `<div class="loading-logs"><i class="fa-solid fa-spinner fa-spin"></i> Cargando historial...</div>`;
+        }
+
         const module = await import('../dashboard/trends.js');
         const logs = module.TrendsModule.getMessagesByUser(login);
-        const bioEl = document.getElementById('modal-bio');
+
         if (bioEl) {
             bioEl.innerHTML = ProfileTemplates.renderLogs(logs);
         }

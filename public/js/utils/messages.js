@@ -71,10 +71,9 @@ export const Messages = {
     Settings: {
         testing: '<i class="fa-solid fa-spinner fa-spin"></i> Probando conexión...',
         testError: '⚠️ Error en la prueba de API',
-        regenerateConfirm: '¿Generar una nueva API Key? La anterior dejará de funcionar.',
+        regenerateConfirm: '¿Generar una nueva API Key? La anterior dejará de funcionar inmediatamente.',
         regenerateSuccess: 'Nueva API Key generada',
         regenerateError: 'Error al generar Key',
-        confirmRegenerate: '¿Estás seguro de que quieres regenerar tu API Key? La anterior dejará de funcionar inmediatamente.',
         loadingIcon: '<i class="fa-solid fa-spinner fa-spin"></i>',
         rotateIcon: '<i class="fa-solid fa-rotate"></i>'
     },
