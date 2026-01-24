@@ -23,7 +23,7 @@ export const Messages = {
         loading: '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...',
         error: (msg) => `<div class="error-msg"><i class="fa-solid fa-triangle-exclamation"></i> ${msg}</div>`,
         networkError: 'Error de conexión',
-        sessionExpired: 'Tu sesión ha expirado',
+        sessionExpiredMsg: 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.',
         errorLoadingUI: (msg) => `Error cargando interfaz: ${msg}`,
         viewBtn: '<i class="fa-solid fa-eye"></i> Ver',
         saveBtn: '<i class="fa-solid fa-save"></i> Guardar',

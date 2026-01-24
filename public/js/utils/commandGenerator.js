@@ -7,19 +7,26 @@ export const CommandGenerator = {
     bots: {
         nightbot: {
             urlfetch: (url) => `$(urlfetch ${url})`,
-            arg: (idx) => `$(${idx === 'user' ? 'touser' : idx})`
+            arg: (name) => {
+                if (name === 'user') return '$(touser)';
+                if (name === 'query') return '$(querystring)';
+                return `$(${name})`;
+            }
         },
         streamelements: {
             urlfetch: (url) => `$(customapi ${url})`,
-            arg: (idx) => `\${${idx}}`
+            arg: (name) => `\${${name}}`
         },
         fossabot: {
             urlfetch: (url) => `$(customapi ${url})`,
-            arg: (idx) => `\${${idx}}`
+            arg: (name) => {
+                if (name === 'user') return '{{user.name}}';
+                return `{{${name}}}`;
+            }
         },
         wizebot: {
             urlfetch: (url) => `$(urlfetch ${url})`,
-            arg: (idx) => `$(arg_${idx === 'user' ? '1' : idx})`
+            arg: (name) => `$(arg_${name === 'user' ? '1' : name})`
         }
     },
 

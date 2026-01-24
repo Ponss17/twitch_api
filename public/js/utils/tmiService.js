@@ -1,23 +1,15 @@
 export const TmiService = {
     client: null,
-    callbacks: [],
+    listeners: new Map(),
     isConnected: false,
     activeClients: 0,
 
-    async connect(channel, identity = null) {
+    async connect(channel) {
         this.activeClients++;
 
-
-        if (this.isConnected && this.client) {
-            return Promise.resolve();
-        }
-
-        if (this.activeClients > 1) {
-            return this.connectionPromise || Promise.resolve();
-        }
+        if (this.isConnected && this.client) return Promise.resolve();
 
         if (typeof window.tmi === 'undefined') {
-            console.warn('TMI.js not loaded yet');
             this.activeClients--;
             return Promise.reject('TMI not loaded');
         }
@@ -31,14 +23,11 @@ export const TmiService = {
 
         this.client.on('message', (channel, tags, message, self) => {
             if (self) return;
-            this.callbacks.forEach(cb => cb(channel, tags, message));
+            this.listeners.forEach(callback => callback(channel, tags, message));
         });
 
         this.connectionPromise = this.client.connect()
-            .then(() => {
-                this.isConnected = true;
-
-            })
+            .then(() => { this.isConnected = true; })
             .catch(err => {
                 console.error('❌ TMI Connection Error:', err);
                 this.isConnected = false;
@@ -48,24 +37,23 @@ export const TmiService = {
         return this.connectionPromise;
     },
 
-    addMessageListener(callback) {
-        this.callbacks.push(callback);
+    addListener(id, callback) {
+        this.listeners.set(id, callback);
+    },
+
+    removeListener(id) {
+        this.listeners.delete(id);
     },
 
     disconnect() {
-        if (this.activeClients > 0) {
-            this.activeClients--;
-        }
-
-
+        if (this.activeClients > 0) this.activeClients--;
 
         if (this.activeClients === 0 && this.client && this.isConnected) {
-
             this.client.disconnect().then(() => {
                 this.isConnected = false;
                 this.client = null;
                 this.connectionPromise = null;
-
+                this.listeners.clear();
             });
         }
     }

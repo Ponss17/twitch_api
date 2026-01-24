@@ -1,13 +1,23 @@
 import { UI } from '../ui.js';
 import { Messages } from '../utils/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
-import { Loader } from '../utils/loader.js';
 
 export const ClipsModule = {
     session: null,
+    initialized: false, // Add initialized flag
 
     async init(session) {
         this.session = session;
+        import('../utils/loader.js').then(({ Loader }) => {
+            Loader.loadCSS('css/sections/clips.css');
+        });
+        this.setupUI();
+
+        if (this.initialized) return;
+        this.initialized = true;
+    },
+
+    setupUI() {
         this.loadClips();
 
         const refreshBtn = document.getElementById('refresh-clips-btn');
@@ -20,11 +30,6 @@ export const ClipsModule = {
                 UI.showToast('Actualizando clips...', 'info');
             });
         }
-
-        if (this.initialized) return;
-        this.initialized = true;
-
-        await Loader.loadCSS('css/sections/clips.css');
     },
 
     async loadClips() {
