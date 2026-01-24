@@ -28,22 +28,29 @@ export const AnalyticsModule = {
 
         try {
             const { token } = this.session;
+            console.log('[Analytics] Fetching from:', API_ENDPOINTS.ANALYTICS);
+
             const res = await fetch(API_ENDPOINTS.ANALYTICS, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
+            console.log('[Analytics] Response status:', res.status);
+
             if (res.ok) {
                 const data = await res.json();
+                console.log('[Analytics] Data received:', data);
                 this.cache = data;
                 this.lastFetch = Date.now();
                 this.render(data);
             } else {
+                const errorText = await res.text();
+                console.error('[Analytics] Error response:', errorText);
                 if (!this.cache) {
                     statsContainer.innerHTML = Messages.Analytics.errorState;
                 }
             }
         } catch (e) {
-            console.error('Error loading analytics:', e);
+            console.error('[Analytics] Fetch error:', e);
             if (!this.cache) {
                 statsContainer.innerHTML = Messages.Analytics.errorState;
             }
