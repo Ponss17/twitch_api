@@ -43,20 +43,12 @@
             "destination": "/public/dashboard.html"
         },
         {
-            "source": "/components/(.*)",
-            "destination": "/public/components/$1"
+            "source": "/(api/twitch|twitch|auth)/(.*)",
+            "destination": "/api/index.ts"
         },
         {
-            "source": "/api/twitch/(.*)",
-            "destination": "/dist/api/index.js"
-        },
-        {
-            "source": "/auth/(.*)",
-            "destination": "/dist/api/index.js"
-        },
-        {
-            "source": "/twitch/(.*)",
-            "destination": "/dist/api/index.js"
+            "source": "/system/(.*)",
+            "destination": "/api/index.ts"
         }
     ],
     "cleanUrls": false
