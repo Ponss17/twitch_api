@@ -427,3 +427,52 @@ code {
 .text-right {
     text-align: right;
 }
+
+.textarea-xl {
+    width: 100%;
+    min-height: 180px;
+    resize: vertical;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 18px;
+    border-radius: var(--radius);
+    line-height: 1.6;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.textarea-xl:focus {
+    border-color: var(--accent);
+    background: rgba(145, 70, 255, 0.02);
+}
+
+.card-footer-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.mb-10 {
+    margin-bottom: 10px !important;
+}
+
+.mb-20 {
+    margin-bottom: 20px !important;
+}
+
+.mt-10 {
+    margin-top: 10px !important;
+}
+
+.mt-20 {
+    margin-top: 20px !important;
+}
+
+.flex-1 {
+    flex: 1;
+}
