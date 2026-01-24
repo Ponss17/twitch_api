@@ -135,73 +135,92 @@
                 <div class="code-block">
                     <code class="dynamic-url"
                         data-path="🎬 Clip creado por $(user): $(urlfetch {baseURL}/api/twitch/create-clip?channel=$(channel)&apiKey=TU_API_KEY)">Cargando...</code>
-                </div>
-                <h3>Ejemplo de Respuesta</h3>
-                <div class="code-block">
-                    <code>https://clips.twitch.tv/WiseElegant...</code>
+                    <button class="btn-copy-doc" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
                 </div>
             </section>
 
             <section id="followage" class="doc-section">
                 <h2><i class="fa-solid fa-clock"></i> Followage</h2>
-                <p>Consulta cuánto tiempo lleva un usuario siguiendo a un canal.</p>
+                <p>Consulta cuánto tiempo lleva un usuario siguiendo a un canal con precisión quirúrgica.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/twitch/followage?channel={canal}&user={usuario}&apiKey={tu_api_key}</span>
+                    <span class="url">/api/twitch/followage?channel={canal}&user={usuario}&apiKey={clave}</span>
                 </div>
                 <h3>Ejemplo Nightbot</h3>
                 <div class="code-block">
                     <code class="dynamic-url"
                         data-path="/api/twitch/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY">Cargando...</code>
-                </div>
-                <h3>Ejemplo de Respuesta</h3>
-                <div class="code-block">
-                    <code>ponss ha seguido a LosPerris por 1 año, 2 meses y 3 días.</code>
+                    <button class="btn-copy-doc" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
                 </div>
             </section>
 
             <section id="shoutout" class="doc-section">
                 <h2><i class="fa-solid fa-bullhorn"></i> Shoutout (!so)</h2>
-                <p>Genera un mensaje promocionando a otro streamer con su último juego.</p>
+                <p>Genera un mensaje promocionando a otro streamer con su último juego y enlace directo.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/twitch/shoutout?channel={canal}&touser={target}&apiKey={tu_api_key}</span>
+                    <span class="url">/api/twitch/shoutout?channel={canal}&touser={objetivo}&apiKey={clave}</span>
                 </div>
                 <h3>Ejemplo Nightbot</h3>
                 <div class="code-block">
                     <code class="dynamic-url"
                         data-path="📢 $(urlfetch {baseURL}/api/twitch/shoutout?channel=$(channel)&touser=$(touser)&apiKey=TU_API_KEY)">Cargando...</code>
-                </div>
-                <h3>Ejemplo de Respuesta</h3>
-                <div class="code-block">
-                    <code>¡Vayan a seguir a ponss! Estaba jugando Valorant en https://twitch.tv/ponss</code>
+                    <button class="btn-copy-doc" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
                 </div>
             </section>
 
             <section id="magic8" class="doc-section">
-                <h2><i class="fa-solid fa-8"></i> Bola 8 Mágica</h2>
-                <p>Responde preguntas de sí/no de forma divertida y aleatoria.</p>
+                <h2><i class="fa-solid fa-8"></i> Bola 8 Mágica (IA)</h2>
+                <p>Responde preguntas de sí/no de forma divertida usando Inteligencia Artificial. Ahora puedes elegir la
+                    personalidad de la respuesta.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/twitch/magic8?question={pregunta}&apiKey={tu_api_key}</span>
+                    <span class="url">/api/twitch/minigames/magic8?question={pregunta}&mood={tono}&apiKey={clave}</span>
                 </div>
-                <h3>Ejemplo Nightbot</h3>
+
+                <h3>Parámetros</h3>
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Dato</th>
+                            <th>Tipo</th>
+                            <th>Info / Valores</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>question</code></td>
+                            <td>String</td>
+                            <td>La duda existencial del usuario.</td>
+                        </tr>
+                        <tr>
+                            <td><code>mood</code></td>
+                            <td>String</td>
+                            <td><strong>classic, sarcastic, toxic, helpful</strong> (Opcional, default: classic).</td>
+                        </tr>
+                        <tr>
+                            <td><code>apiKey</code></td>
+                            <td>String</td>
+                            <td>Tu Clave Permanente del panel.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Ejemplo Nightbot (Sarcástico)</h3>
                 <div class="code-block">
                     <code class="dynamic-url"
-                        data-path="🎱 $(user) pregunta: $(query) | La Bola 8 dice: $(urlfetch {baseURL}/api/twitch/magic8?question=$(query)&apiKey=TU_API_KEY)">Cargando...</code>
-                </div>
-                <h3>Ejemplo de Respuesta</h3>
-                <div class="code-block">
-                    <code>La Bola 8 dice: ¡Definitivamente sí! 🎱</code>
+                        data-path="🎱 $(user) pregunta: $(query) | La Bola 8 dice: $(urlfetch {baseURL}/api/twitch/minigames/magic8?question=$(query)&mood=sarcastic&apiKey=TU_API_KEY)">Cargando...</code>
+                    <button class="btn-copy-doc" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
                 </div>
             </section>
 
             <section id="get-clips" class="doc-section">
                 <h2><i class="fa-solid fa-list"></i> Listar Clips</h2>
-                <p>Obtiene los clips más recientes de un canal.</p>
+                <p>Endpoint para desarrolladores: obtén un JSON con los clips más recientes.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/twitch/get-clips?channel={canal}&apiKey={tu_api_key}&limit=10</span>
+                    <span
+                        class="url">/api/twitch/dashboard/get-clips?channel={canal}&apiKey={tu_api_key}&limit=10</span>
                 </div>
                 <h3>Ejemplo de Respuesta (JSON)</h3>
                 <div class="code-block">

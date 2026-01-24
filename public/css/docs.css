@@ -256,6 +256,41 @@ code {
     color: #e2e8f0;
     display: block;
     white-space: pre-wrap;
+    font-size: 0.95rem;
+    padding-right: 40px;
+}
+
+.btn-copy-doc {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(145, 70, 255, 0.1);
+    border: 1px solid rgba(145, 70, 255, 0.2);
+    color: var(--primary-color);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-copy-doc:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-copy-doc.success {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+
+.params-table code {
+    color: #a78bfa;
 }
 
 @media (max-width: 900px) {
