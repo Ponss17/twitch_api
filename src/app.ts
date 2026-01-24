@@ -59,9 +59,14 @@ app.get(['/dashboard', '/api/twitch/dashboard'], (req: Request, res: Response) =
 // Rate Limiting Global
 app.use(rateLimiter);
 
-// Rutas
-app.use(['/auth', '/api/twitch/auth', '/twitch/auth'], authLimiter, authRoutes);
-app.use(['/api/twitch', '/twitch', '/'], apiRoutes);
+// Rutas de Comandos y API
+app.use('/auth', authLimiter, authRoutes);
+app.use('/api/twitch/auth', authLimiter, authRoutes);
+app.use('/twitch/auth', authLimiter, authRoutes);
+
+app.use('/api/twitch', apiRoutes);
+app.use('/twitch', apiRoutes);
+app.use('/', apiRoutes);
 
 // Health Check
 app.get(['/health', '/api/twitch/health'], (req: Request, res: Response) => {
