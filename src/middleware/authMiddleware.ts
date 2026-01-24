@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 interface AuthenticatedRequest extends Request {
     twitchToken?: string;
     userId?: string;
+    login?: string;
 }
 
 import * as authService from '../services/authService';
@@ -34,14 +35,15 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         return res.status(401).send(MESSAGES.AUTH.MISSING_TOKEN_URL);
     }
 
-    if (!req.userId) {
+    if (!req.userId || !req.login) {
         try {
             const validation = await apiService.validateToken(token);
-            if (validation && validation.user_id) {
-                req.userId = validation.user_id;
+            if (validation) {
+                if (validation.user_id) req.userId = validation.user_id;
+                if (validation.login) req.login = validation.login;
             }
         } catch (e) {
-            console.warn('Error Middleware Auth: Could not validate token to extract userId');
+            console.warn('Error Middleware Auth: Could not validate token to extract user data');
         }
     }
 
