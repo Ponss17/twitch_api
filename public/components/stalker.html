@@ -1,18 +1,62 @@
 <div class="card">
     <div class="card-header">
-        <div class="card-icon">
-            <i class="fa-solid fa-users"></i>
+        <div class="card-title-group">
+            <div class="card-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <h3>Visor de Chat (Stalker)</h3>
+                <p class="card-desc">Quién está en tu chat ahora mismo</p>
+            </div>
         </div>
-        <div>
-            <h3>Visor de Chat (Stalker)</h3>
-            <p class="card-desc">Quién está en tu chat ahora mismo</p>
-        </div>
-        <div class="header-actions" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+        <div class="header-actions header-actions-flex">
             <div id="stalker-controls"></div>
             <i class="fa-solid fa-circle-question info-icon"
                 data-tooltip="Lista de usuarios conectados, clasificados por rol (Mods, VIPs, etc). Clic para detalles."></i>
         </div>
     </div>
     <div class="card-body" id="stalker-content">
+    </div>
+
+    <div id="profile-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <div class="profile-header">
+                <button id="close-modal-btn" class="profile-close-btn">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="profile-avatar-container">
+                <img id="modal-avatar" src="./img/LosPerris_progra.webp" class="profile-avatar-img">
+            </div>
+            <div class="profile-body">
+                <div id="modal-name" class="profile-name">Usuario</div>
+                <div id="modal-login" class="profile-login">@usuario</div>
+
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span id="modal-rank" class="stat-val" style="font-size: 1.2rem;">-</span>
+                        <span class="stat-lbl">Rango</span>
+                    </div>
+                </div>
+
+                <div class="profile-details-grid">
+                    <div class="detail-item">
+                        <span class="detail-lbl">ID Interno</span>
+                        <span id="modal-id" class="detail-val">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-lbl">Antigüedad</span>
+                        <span id="modal-age" class="detail-val">-</span>
+                    </div>
+                </div>
+
+                <div id="modal-bio" class="profile-bio" style="margin-top: 20px;">
+                    Sin biografía disponible.
+                </div>
+                <div id="modal-created" style="margin-top:20px; font-size:0.8rem; color:var(--text-muted);">
+                    Cuenta creada el: -
+                </div>
+            </div>
+        </div>
     </div>
 </div>

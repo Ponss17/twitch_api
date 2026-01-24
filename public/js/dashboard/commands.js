@@ -108,12 +108,14 @@ export const CommandsModule = {
         return `
         <div class="card">
             <div class="card-header">
-                <div class="card-icon">
-                    <i class="${conf.icon}"></i>
-                </div>
-                <div>
-                    <h3>${conf.title}</h3>
-                    <p class="card-desc">${conf.desc}</p>
+                <div class="card-title-group">
+                    <div class="card-icon">
+                        <i class="${conf.icon}"></i>
+                    </div>
+                    <div>
+                        <h3>${conf.title}</h3>
+                        <p class="card-desc">${conf.desc}</p>
+                    </div>
                 </div>
                 <div class="header-actions header-actions-flex">
                     <i class="fa-solid fa-circle-question info-icon" data-tooltip="${conf.info}"></i>
