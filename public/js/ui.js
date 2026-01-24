@@ -1,3 +1,5 @@
+import { Messages } from './utils/messages.js';
+
 export const UI = {
     escapeHTML(str) {
         if (!str) return '';
