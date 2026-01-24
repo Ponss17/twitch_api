@@ -40,8 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     updateUrls();
-
-    // Global copy function for the onclick handlers
     window.copyCode = (btn) => {
         const code = btn.parentElement.querySelector('code').textContent;
         navigator.clipboard.writeText(code).then(() => {
