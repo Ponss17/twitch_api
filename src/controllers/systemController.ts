@@ -9,6 +9,7 @@ import { MESSAGES } from '../config/messages';
 interface AuthenticatedRequest extends Request {
     twitchToken?: string;
     userId?: string;
+    login?: string;
 }
 
 const safeString = (val: unknown): string => (typeof val === 'string' ? val : '');
@@ -60,21 +61,31 @@ export const regenerateKey = async (req: Request, res: Response) => {
 
 export const submitFeedback = async (req: AuthenticatedRequest, res: Response) => {
     const { message } = req.body;
-    let { userId } = req;
+    const { userId, login, twitchToken } = req;
 
-    let username = MESSAGES.FEEDBACK.ANONYMOUS_USER;
+    let username = login || MESSAGES.FEEDBACK.ANONYMOUS_USER;
     let avatar = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
     let userType = MESSAGES.FEEDBACK.VIEWER_ROLE;
 
-    if (userId) {
+    if (userId || login) {
         try {
-            const cachedUser = await dbService.getUser(userId);
+            let cachedUser = null;
+            if (userId) {
+                cachedUser = await dbService.getUser(userId);
+            }
+
             if (cachedUser) {
                 username = cachedUser.displayName || cachedUser.login;
                 avatar = cachedUser.profileImageUrl || avatar;
+            } else if (twitchToken && login) {
+                const liveInfo = await apiService.getUserInfo(login, twitchToken);
+                if (liveInfo) {
+                    username = liveInfo.display_name;
+                    avatar = liveInfo.profile_image_url;
+                }
             }
         } catch (e) {
-            console.error('Error fetching user from DB for feedback:', e);
+            console.error('Error identifying user for feedback:', e);
         }
     }
 
@@ -98,7 +109,7 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
                 title: MESSAGES.FEEDBACK.EMBED_TITLE,
                 color: 0x9146ff,
                 fields: [
-                    { name: "🆔 Usuario ID", value: userId || 'N/A', inline: true },
+                    { name: "🆔 Usuario ID", value: userId || login || 'Anónimo', inline: true },
                     { name: "🏷️ Rango", value: userType, inline: true },
                     { name: "📝 Mensaje", value: message, inline: false }
                 ],

@@ -6,6 +6,9 @@ import { ClipsModule } from './dashboard/clips.js';
 import { RouletteModule } from './dashboard/roulette.js';
 import { Magic8Module } from './dashboard/magic8.js';
 import { CommandsModule } from './dashboard/commands.js';
+import { FeedbackModule } from './dashboard/feedback.js';
+import { AnalyticsModule } from './dashboard/analytics.js';
+import { AccountModule } from './dashboard/account.js';
 import { UI } from './ui.js';
 import { HtmlLoader } from './utils/htmlLoader.js';
 
@@ -39,7 +42,7 @@ export const Dashboard = {
 
         const pageTitle = document.getElementById('page-title');
         if (pageTitle && displayName && this.session.login) {
-            pageTitle.innerHTML = `Bienvenido, <a href="https://twitch.tv/${this.session.login}" target="_blank" class="welcome-link">@${displayName}</a>`;
+            pageTitle.innerHTML = `Bienvenido, <a href="https://twitch.tv/${this.session.login}" target="_blank" class="welcome-link">${displayName}</a>`;
         }
 
         document.getElementById('logout-btn')?.addEventListener('click', () => {
@@ -74,34 +77,8 @@ export const Dashboard = {
         switch (tabId) {
             case 'tab-home':
                 if (this.session) {
-                    const userIdInput = document.getElementById('user-id');
-                    const userTokenInput = document.getElementById('user-token');
-                    if (userIdInput) userIdInput.value = this.session.userId || '';
-                    if (userTokenInput) {
-                        userTokenInput.value = this.session.apiKey || this.session.token || '';
-                        userTokenInput.dataset.realValue = this.session.apiKey || this.session.token || '';
-                    }
-
-                    const toggleBtn = document.getElementById('toggle-token');
-                    if (toggleBtn) {
-                        const newBtn = toggleBtn.cloneNode(true);
-                        toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
-                        newBtn.addEventListener('click', () => {
-                            const input = document.getElementById('user-token');
-                            const icon = newBtn.querySelector('i');
-                            if (input.type === 'password') {
-                                input.type = 'text';
-                                icon.classList.replace('fa-eye', 'fa-eye-slash');
-                            } else {
-                                input.type = 'password';
-                                icon.classList.replace('fa-eye-slash', 'fa-eye');
-                            }
-                        });
-                    }
-
-                    this.setupRegenerate();
-
-                    this.loadAnalytics();
+                    AccountModule.init(this.session);
+                    AnalyticsModule.init(this.session);
                 }
                 break;
             case 'tab-followage':
@@ -127,187 +104,8 @@ export const Dashboard = {
                 RouletteModule.init(this.session);
                 break;
             case 'tab-feedback':
-                this.setupFeedback();
+                FeedbackModule.init(this.session);
                 break;
-        }
-    },
-
-    setupRegenerate() {
-        const regenerateBtn = document.getElementById('regenerate-btn');
-        if (regenerateBtn) {
-            const newBtn = regenerateBtn.cloneNode(true);
-            regenerateBtn.parentNode.replaceChild(newBtn, regenerateBtn);
-
-            newBtn.addEventListener('click', async () => {
-                if (!confirm(Messages.Settings.confirmRegenerate)) return;
-
-                newBtn.disabled = true;
-                const originalIcon = newBtn.innerHTML;
-                newBtn.innerHTML = Messages.Settings.loadingIcon;
-
-                try {
-                    const { apiKey, token } = this.session;
-                    const res = await fetch(API_ENDPOINTS.REGENERATE_KEY, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ key: apiKey })
-                    });
-
-                    if (res.ok) {
-                        const data = await res.json();
-                        const newSession = { ...this.session, apiKey: data.apiKey };
-                        localStorage.setItem('twitch_api_session', JSON.stringify(newSession));
-                        this.session = newSession;
-
-                        const userTokenInput = document.getElementById('user-token');
-                        if (userTokenInput) {
-                            userTokenInput.value = data.apiKey;
-                            userTokenInput.dataset.realValue = data.apiKey;
-                        }
-                        UI.showToast(Messages.Settings.regenerateSuccess, 'success');
-                    } else {
-                        throw new Error('Error al regenerar');
-                    }
-                } catch (e) {
-                    console.error(e);
-                    UI.showToast(Messages.Settings.regenerateError, 'error');
-                } finally {
-                    newBtn.disabled = false;
-                    newBtn.innerHTML = originalIcon;
-                }
-            });
-        }
-    },
-
-    analyticsCache: null,
-    lastAnalyticsFetch: 0,
-    CACHE_DURATION: 60000,
-
-    async loadAnalytics(force = false) {
-        const statsContainer = document.getElementById('stats-grid');
-        if (!statsContainer) return;
-
-        const now = Date.now();
-        if (!force && this.analyticsCache && (now - this.lastAnalyticsFetch < this.CACHE_DURATION)) {
-            this.renderAnalytics(this.analyticsCache);
-            return;
-        }
-
-        if (!this.analyticsCache) {
-            const skeletonHTML = Array(3).fill(0).map(() => `
-                <div class="stat-card skeleton-card">
-                    <div class="stat-icon skeleton skeleton-circle" style="width: 50px; height: 50px; border-radius: 50%;"></div>
-                    <div class="stat-info" style="flex: 1;">
-                        <div class="skeleton skeleton-text" style="width: 40px; height: 28px; margin-bottom: 5px;"></div>
-                        <div class="skeleton skeleton-text" style="width: 100px; height: 16px;"></div>
-                    </div>
-                </div>
-            `).join('');
-            statsContainer.innerHTML = skeletonHTML;
-        }
-
-        try {
-            const { token } = this.session;
-            const res = await fetch(API_ENDPOINTS.ANALYTICS, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                this.analyticsCache = data;
-                this.lastAnalyticsFetch = Date.now();
-                this.renderAnalytics(data);
-            } else {
-                if (!this.analyticsCache) {
-                    statsContainer.innerHTML = Messages.Analytics.errorState;
-                }
-            }
-        } catch (e) {
-            console.error(e);
-            if (!this.analyticsCache) {
-                statsContainer.innerHTML = Messages.Analytics.errorState;
-            }
-        }
-    },
-
-    renderAnalytics(data) {
-        const statsContainer = document.getElementById('stats-grid');
-        if (!statsContainer) return;
-
-        statsContainer.innerHTML = '';
-
-        const statConfig = [
-            { key: 'clips', icon: 'fa-film', label: 'Clips Creados' },
-            { key: 'followage', icon: 'fa-clock', label: 'Consultas Followage' },
-            { key: 'so', icon: 'fa-bullhorn', label: 'Shoutouts' }
-        ];
-
-        statConfig.forEach(stat => {
-            const value = data[stat.key] || 0;
-
-            const card = document.createElement('div');
-            card.className = 'stat-card';
-            card.innerHTML = `
-                <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
-                <div class="stat-info">
-                    <h3>${value}</h3>
-                    <span>${stat.label}</span>
-                </div>
-            `;
-            statsContainer.appendChild(card);
-        });
-    },
-
-    setupFeedback() {
-        const sendFeedbackBtn = document.getElementById('send-feedback-btn');
-        if (sendFeedbackBtn) {
-            sendFeedbackBtn.addEventListener('click', async () => {
-                const messageInput = document.getElementById('feedback-message');
-                const message = messageInput.value.trim();
-
-                if (!message) {
-                    UI.showToast(Messages.Feedback.emptyMessage, 'error');
-                    return;
-                }
-
-                sendFeedbackBtn.disabled = true;
-                const originalText = sendFeedbackBtn.innerHTML;
-                sendFeedbackBtn.innerHTML = Messages.Feedback.sending;
-
-                try {
-                    const { apiKey, token } = this.session;
-                    const headers = { 'Content-Type': 'application/json' };
-                    let url = API_ENDPOINTS.FEEDBACK;
-
-                    if (token) {
-                        headers['Authorization'] = `Bearer ${token}`;
-                    } else if (apiKey) {
-                        url += `?apiKey=${apiKey}`;
-                    }
-
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: headers,
-                        body: JSON.stringify({ message })
-                    });
-
-                    if (response.ok) {
-                        UI.showToast(Messages.Feedback.success, 'success');
-                        messageInput.value = '';
-                    } else {
-                        throw new Error('Error al enviar');
-                    }
-                } catch (e) {
-                    console.error(e);
-                    UI.showToast(Messages.Feedback.error, 'error');
-                } finally {
-                    sendFeedbackBtn.disabled = false;
-                    sendFeedbackBtn.innerHTML = originalText;
-                }
-            });
         }
     },
 };
