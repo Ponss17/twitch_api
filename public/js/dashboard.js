@@ -1,14 +1,5 @@
-import { StalkerModule } from './dashboard/stalker.js';
 import { Messages } from './utils/messages.js';
 import { API_ENDPOINTS } from './utils/constants.js';
-import { TrendsModule } from './dashboard/trends.js';
-import { ClipsModule } from './dashboard/clips.js';
-import { RouletteModule } from './dashboard/roulette.js';
-import { Magic8Module } from './dashboard/magic8.js';
-import { CommandsModule } from './dashboard/commands.js';
-import { FeedbackModule } from './dashboard/feedback.js';
-import { AnalyticsModule } from './dashboard/analytics.js';
-import { AccountModule } from './dashboard/account.js';
 import { UI } from './ui.js';
 import { HtmlLoader } from './utils/htmlLoader.js';
 
@@ -19,12 +10,7 @@ export const Dashboard = {
         this.session = session;
         this.setupTabs();
         this.setupUserBadge();
-
         this.loadTab('tab-home');
-
-
-
-        CommandsModule.init(session);
     },
 
     setupUserBadge() {
@@ -74,38 +60,53 @@ export const Dashboard = {
             await HtmlLoader.load(container.dataset.src, tabId);
         }
 
-        switch (tabId) {
-            case 'tab-home':
-                if (this.session) {
-                    AccountModule.init(this.session);
-                    AnalyticsModule.init(this.session);
-                }
-                break;
-            case 'tab-followage':
+        const tabHandlers = {
+            'tab-home': async () => {
+                const { AccountModule } = await import('./dashboard/account.js');
+                const { AnalyticsModule } = await import('./dashboard/analytics.js');
+                AccountModule.init(this.session);
+                AnalyticsModule.init(this.session);
+            },
+            'tab-followage': async () => {
+                const { CommandsModule } = await import('./dashboard/commands.js');
                 CommandsModule.init(this.session);
-                break;
-            case 'tab-clips':
+            },
+            'tab-clips': async () => {
+                const { CommandsModule } = await import('./dashboard/commands.js');
+                const { ClipsModule } = await import('./dashboard/clips.js');
                 ClipsModule.init(this.session);
                 CommandsModule.init(this.session);
-                break;
-            case 'tab-shoutout':
+            },
+            'tab-shoutout': async () => {
+                const { CommandsModule } = await import('./dashboard/commands.js');
                 CommandsModule.init(this.session);
-                break;
-            case 'tab-tracker':
+            },
+            'tab-tracker': async () => {
+                const { TrendsModule } = await import('./dashboard/trends.js');
                 TrendsModule.init(this.session);
-                break;
-            case 'tab-stalker':
+            },
+            'tab-stalker': async () => {
+                const { StalkerModule } = await import('./dashboard/stalker.js');
                 StalkerModule.init(this.session);
-                break;
-            case 'tab-magic8':
+            },
+            'tab-magic8': async () => {
+                const { Magic8Module } = await import('./dashboard/magic8.js');
+                const { CommandsModule } = await import('./dashboard/commands.js');
                 Magic8Module.init(this.session);
-                break;
-            case 'tab-roulette':
+                CommandsModule.init(this.session);
+            },
+            'tab-roulette': async () => {
+                const { RouletteModule } = await import('./dashboard/roulette.js');
                 RouletteModule.init(this.session);
-                break;
-            case 'tab-feedback':
+            },
+            'tab-feedback': async () => {
+                const { FeedbackModule } = await import('./dashboard/feedback.js');
                 FeedbackModule.init(this.session);
-                break;
+            }
+        };
+
+        if (tabHandlers[tabId]) {
+            await tabHandlers[tabId]();
         }
     },
 };

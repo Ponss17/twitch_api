@@ -259,6 +259,58 @@
     color: var(--text-primary);
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 80px;
+    }
+
+    .nav-text,
+    .brand-text,
+    .menu-category {
+        display: none;
+    }
+
+    .nav-item {
+        justify-content: center;
+        padding: 15px;
+    }
+
+    .sidebar-brand {
+        padding: 20px;
+        justify-content: center;
+    }
+
+    .sidebar-footer .btn-text {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 20px;
+    }
+
+    .dashboard-content {
+        padding: 20px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.5rem;
+    }
+}
+
 * {
     scrollbar-width: thin;
     scrollbar-color: var(--accent) var(--bg-primary);

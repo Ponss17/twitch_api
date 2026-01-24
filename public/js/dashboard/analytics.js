@@ -9,6 +9,9 @@ export const AnalyticsModule = {
 
     init(session) {
         this.session = session;
+        import('../utils/loader.js').then(({ Loader }) => {
+            Loader.loadCSS('css/sections/analytics.css');
+        });
         this.load();
     },
 
