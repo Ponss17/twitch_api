@@ -20,7 +20,7 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const { question, mood } = req.query;
+        const { question, mood, user } = req.query;
 
         if (!question || typeof question !== 'string') {
             return res.status(400).json({
@@ -28,7 +28,7 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
             });
         }
 
-        const answer = await generateMagic8Response(question, mood as string);
+        const answer = await generateMagic8Response(question, mood as string, user as string);
 
         res.send(answer);
 
