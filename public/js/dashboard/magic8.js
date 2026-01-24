@@ -69,11 +69,12 @@ export const Magic8Module = {
         this.setLoading(true);
 
         try {
-            const { apiKey, token } = this.session;
+            const { apiKey, token, login } = this.session;
             const mood = document.getElementById(DOM_IDS.MAGIC8.MOOD_SELECT)?.value || 'classic';
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+            const userPart = login ? `&user=${encodeURIComponent(login)}` : '';
 
-            const res = await fetch(`${API_ENDPOINTS.MAGIC8}?${tokenParam}&question=${encodeURIComponent(question)}&mood=${mood}`);
+            const res = await fetch(`${API_ENDPOINTS.MAGIC8}?${tokenParam}&question=${encodeURIComponent(question)}&mood=${mood}${userPart}`);
             if (!res.ok) {
                 const errMsg = await res.text();
                 throw new Error(errMsg || 'Error desconocido');
@@ -118,11 +119,17 @@ export const Magic8Module = {
                 const domain = `${CONFIG.siteUrl}${API_ENDPOINTS.MAGIC8}`;
 
                 let questionVar = '$(querystring)';
-                if (bot === 'streamelements' || bot === 'fossabot') {
+                let userVar = '$(user)';
+
+                if (bot === 'streamelements') {
                     questionVar = '${query}';
+                    userVar = '${user}';
+                } else if (bot === 'fossabot') {
+                    questionVar = '{{query}}';
+                    userVar = '{{user.name}}';
                 }
 
-                const params = `apiKey=${apiKey}&question=${questionVar}&mood=${mood}`;
+                const params = `apiKey=${apiKey}&question=${questionVar}&mood=${mood}&user=${userVar}`;
                 const fetchPart = CommandGenerator.generate(bot, domain, params);
                 const rawCmd = `!addcom !8ball ${fetchPart}`;
 
