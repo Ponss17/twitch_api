@@ -40,4 +40,18 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     updateUrls();
+
+    // Global copy function for the onclick handlers
+    window.copyCode = (btn) => {
+        const code = btn.parentElement.querySelector('code').textContent;
+        navigator.clipboard.writeText(code).then(() => {
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            btn.classList.add('success');
+            setTimeout(() => {
+                btn.innerHTML = originalIcon;
+                btn.classList.remove('success');
+            }, 2000);
+        });
+    };
 });
