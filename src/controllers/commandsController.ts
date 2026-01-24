@@ -25,7 +25,8 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
 
         return res.send(result);
     } catch (error: any) {
-        return res.status(500).send(MESSAGES.COMMANDS.CREATE_CLIP_ERROR);
+        const message = error.status === 404 ? error.message : MESSAGES.COMMANDS.CREATE_CLIP_ERROR;
+        return res.status(error.status || 500).send(message);
     }
 };
 

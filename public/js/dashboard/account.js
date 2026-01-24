@@ -52,7 +52,7 @@ export const AccountModule = {
         regenerateBtn.parentNode.replaceChild(newBtn, regenerateBtn);
 
         newBtn.addEventListener('click', async () => {
-            if (!confirm(Messages.Settings.confirmRegenerate)) return;
+            if (!confirm(Messages.Settings.regenerateConfirm)) return;
 
             newBtn.disabled = true;
             const originalIcon = newBtn.innerHTML;
