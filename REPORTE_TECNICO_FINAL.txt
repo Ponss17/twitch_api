@@ -75,5 +75,5 @@ Generado el: 24/01/2026 - 13:05
   > ARQUITECTURA:              Modular (Lazy Loading) y Serverless Ready.
 
 --------------------------------------------------------------------------------
-© PROYECTO LOSPERRIS API - MÓDULO BLINDADO - 2026
+© PROYECTO LOSPERRIS API - MÓDULO BLINDADO - 2026 - V.1.0.0
 ================================================================================
