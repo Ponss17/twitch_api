@@ -227,6 +227,12 @@
     min-width: 200px;
 }
 
+.select-input option {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    padding: 10px;
+}
+
 .text-input {
     width: 100%;
     padding: 12px 15px;
@@ -315,7 +321,7 @@
     width: 100%;
     background: transparent;
     border: none;
-    color: #e2e8f0;
+    color: var(--text-primary);
     font-family: 'Consolas', monospace;
     font-size: 0.9rem;
     resize: none;
