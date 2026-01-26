@@ -64,9 +64,6 @@ export const ClipsModule = {
                 UI.showToast('Actualizando clips...', 'info');
             }
 
-            console.log('[Clips] Session:', this.session);
-            console.log('[Clips] Fetching URL:', url);
-
             const response = await fetch(url, { headers });
 
             if (!response.ok) {
@@ -75,7 +72,6 @@ export const ClipsModule = {
             }
 
             const data = await response.json();
-            console.log('[Clips] API Response:', data);
 
             const clips = Array.isArray(data) ? data : (data.clips || data.data || []);
 
