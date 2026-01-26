@@ -49,7 +49,7 @@ export async function generateMagic8Response(question: string, mood: string = 'c
 
         return completion.choices[0]?.message?.content || '🔮 La bola está nublada... intenta de nuevo.';
     } catch (error) {
-        console.error('Error en Groq API:', error);
+        logger.error('Error en Groq API:', error);
         throw new Error('Error al consultar la Bola 8 Mágica');
     }
 }
