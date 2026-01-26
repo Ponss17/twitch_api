@@ -1,5 +1,5 @@
 import { Messages } from '../utils/messages.js';
-import { API_ENDPOINTS } from '../utils/core/config.js';
+import { API_ENDPOINTS } from '../utils/constants.js';
 import { UI } from '../ui.js';
 
 export const FeedbackModule = {
