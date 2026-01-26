@@ -310,7 +310,7 @@ export const ClipsModule = {
      */
     buildCard(clip) {
         const card = document.createElement('div');
-        card.className = 'clip-card';
+        card.className = 'clip-card fade-in';
         card.dataset.id = clip.id;
         const safeTitle = UI.escapeHTML(clip.title);
         const safeUrl = UI.escapeHTML(clip.url);

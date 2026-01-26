@@ -21,12 +21,12 @@
     </div>
     <div class="card-body">
         <div class="clips-toolbar">
-            <div class="search-box">
-                <i class="fa-solid fa-search"></i>
-                <input type="text" id="clips-search" placeholder="Buscar clips...">
+            <div class="search-box input-group">
+                <i class="fa-solid fa-search input-icon-left" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                <input type="text" id="clips-search" class="text-input" style="padding-left: 40px;" placeholder="Buscar clips...">
             </div>
             <div class="sort-box">
-                <select id="clips-sort">
+                <select id="clips-sort" class="select-input">
                     <option value="date-desc">Más recientes</option>
                     <option value="date-asc">Más antiguos</option>
                     <option value="views-desc">Más vistos</option>
