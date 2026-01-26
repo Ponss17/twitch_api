@@ -10,7 +10,9 @@
     "dev": "ts-node --files -r dotenv/config api/index.ts",
     "check-env": "node scripts/check-env.js",
     "lint": "tsc --noEmit",
-    "clean": "shx rm -rf dist"
+    "clean": "shx rm -rf dist",
+    "test": "echo \"No tests yet\" && exit 0",
+    "deploy": "npm run build && vercel --prod"
   },
   "repository": {
     "type": "git",
