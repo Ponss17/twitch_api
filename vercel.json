@@ -15,10 +15,6 @@
                     "value": "upgrade-insecure-requests; frame-ancestors 'self'; block-all-mixed-content"
                 },
                 {
-                    "key": "Service-Worker-Allowed",
-                    "value": "/"
-                },
-                {
                     "key": "X-Frame-Options",
                     "value": "DENY"
                 },
