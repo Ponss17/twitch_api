@@ -1,5 +1,4 @@
 import { CONFIG } from '../config.js';
-
 export const API_ENDPOINTS = {
     BASE: CONFIG.API_URL,
     MAGIC8: `${CONFIG.API_URL}/minigames/magic8`,
@@ -11,7 +10,6 @@ export const API_ENDPOINTS = {
     SEND_MESSAGE: `${CONFIG.API_URL}/send-message`,
     CLIPS: `${CONFIG.API_URL}/dashboard/get-clips`,
 };
-
 export const DOM_IDS = {
     MAGIC8: {
         INPUT: 'magic8-question',

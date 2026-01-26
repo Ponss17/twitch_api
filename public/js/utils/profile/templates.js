@@ -1,12 +1,10 @@
 import { Messages } from '../messages.js';
-
 export const ProfileTemplates = {
     renderContent(user, ageText) {
         const rankType = user.broadcaster_type === 'partner' ? Messages.Details.partner :
             user.broadcaster_type === 'affiliate' ? Messages.Details.affiliate :
                 Messages.Details.user;
         const rankColor = user.broadcaster_type ? 'var(--accent)' : 'var(--text-secondary)';
-
         return `
             <div class="profile-header">
                 <img src="${user.profile_image_url || 'img/LosPerris_progra.webp'}" class="profile-avatar-large" alt="${user.display_name}">
@@ -43,16 +41,15 @@ export const ProfileTemplates = {
             </div>
         `;
     },
-
     renderLogs(logs) {
         let html = `
             <div class="history-container">
                 <h4 class="history-title">${Messages.Details.historyTitle}</h4>
         `;
-
         if (logs.length === 0) {
             html += `<div class="history-empty">${Messages.Details.noHistory}</div>`;
-        } else {
+        }
+        else {
             html += `
                 <div class="history-list">
                     ${logs.map(l => `
@@ -64,7 +61,6 @@ export const ProfileTemplates = {
                 </div>
             `;
         }
-
         html += `</div>`;
         return html;
     }

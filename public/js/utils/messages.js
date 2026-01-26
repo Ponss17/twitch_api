@@ -5,7 +5,8 @@ export const Messages = {
         sessionError: "Error de sesión. Recarga la página.",
         expiredTitle: "Sesión Expirada",
         expiredMsg: "Tu credencial ha caducado. Por favor, inicia sesión de nuevo.",
-        reloginBtn: '<i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión'
+        reloginBtn: '<i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión',
+        expired: "Sesión expirada. Por favor, inicia sesión de nuevo."
     },
     Feedback: {
         emptyMessage: "Por favor, escribe un mensaje.",

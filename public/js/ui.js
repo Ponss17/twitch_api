@@ -1,13 +1,14 @@
 import { Messages } from './utils/messages.js';
-
 export const UI = {
+    clipboardInitialized: false,
     /**
      * Escapa caracteres especiales HTML
      * @param {string} str - Cadena a escapar
      * @returns {string} Cadena escapada
      */
     escapeHTML(str) {
-        if (!str) return '';
+        if (!str)
+            return '';
         return str
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -15,7 +16,6 @@ export const UI = {
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
     },
-
     /**
      * Muestra una notificación toast
      * @param {string} message - Mensaje a mostrar
@@ -28,19 +28,14 @@ export const UI = {
             container.className = 'toast-container';
             document.body.appendChild(container);
         }
-
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-
         const icon = type === 'success' ? 'fa-check-circle' : 'fa-triangle-exclamation';
-
         toast.innerHTML = `
             <i class="fa-solid ${icon}"></i>
             <span>${message}</span>
         `;
-
         container.appendChild(toast);
-
         setTimeout(() => {
             toast.classList.add('hiding');
             toast.addEventListener('animationend', () => {
@@ -50,28 +45,27 @@ export const UI = {
             });
         }, 4000);
     },
-
     /**
      * Copia texto al portapapeles
      * @param {string} text - Texto a copiar
      */
     copyToClipboard(text) {
-        if (!text) return;
+        if (!text)
+            return;
         navigator.clipboard.writeText(text).then(() => {
             this.showToast(`<i class="fa-solid fa-check"></i> ${Messages.Clipboard.copied}`);
         }).catch(() => {
             this.showToast(`<i class="fa-solid fa-xmark"></i> ${Messages.Clipboard.error}`, 'error');
         });
     },
-
     setupClipboard() {
-        if (this.clipboardInitialized) return;
+        if (this.clipboardInitialized)
+            return;
         this.clipboardInitialized = true;
-
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('.copy-btn');
-            if (!btn) return;
-
+            if (!btn)
+                return;
             const targetId = btn.dataset.target;
             if (targetId) {
                 const target = document.getElementById(targetId);
@@ -82,10 +76,9 @@ export const UI = {
             }
         });
     },
-
     setupHeroAnimation(heroCodeDisplay) {
-        if (!heroCodeDisplay) return;
-
+        if (!heroCodeDisplay)
+            return;
         heroCodeDisplay.innerHTML = `
             <div class="twitch-chat-container">
                 <div class="chat-messages" id="sim-messages">
@@ -107,12 +100,10 @@ export const UI = {
                 </div>
             </div>
         `;
-
         const messagesContainer = document.getElementById('sim-messages');
         const inputText = document.getElementById('sim-input-text');
         const placeholder = document.getElementById('sim-placeholder');
         const inputBox = document.getElementById('sim-input-box');
-
         const scenarios = [
             {
                 cmd: "!followage",
@@ -127,15 +118,12 @@ export const UI = {
                 response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${Messages.ChatSim.shoutout('mynana17', 'Just Chatting')}</span>`
             }
         ];
-
         let currentScenario = 0;
-
         const typeWriter = (text) => {
             return new Promise(resolve => {
                 inputBox.classList.add('typing');
                 placeholder.style.display = 'none';
                 inputText.innerText = "";
-
                 let i = 0;
                 const interval = setInterval(() => {
                     inputText.innerText += text.charAt(i);
@@ -147,7 +135,6 @@ export const UI = {
                 }, 100);
             });
         };
-
         const addMessage = (html) => {
             const div = document.createElement('div');
             div.className = 'chat-line';
@@ -157,29 +144,23 @@ export const UI = {
                 messagesContainer.removeChild(messagesContainer.children[0]);
             }
         };
-
         const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
         const runSimulation = async () => {
             while (true) {
                 const scenario = scenarios[currentScenario];
-
                 await sleep(1500);
                 await typeWriter(scenario.cmd);
                 inputText.innerText = "";
                 placeholder.style.display = 'block';
                 inputBox.classList.remove('typing');
-
                 addMessage(`
                     <span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1" class="badge-icon" alt="Broadcaster"></span>
                     <span class="chat-username" style="color:#FF69B4">ponss17</span>
                     <span class="chat-colon">:</span>
                     <span class="chat-text">${scenario.cmd}</span>
                 `);
-
                 await sleep(1500);
                 addMessage(scenario.response);
-
                 currentScenario = (currentScenario + 1) % scenarios.length;
                 if (currentScenario === 0) {
                     await sleep(2000);
@@ -188,29 +169,27 @@ export const UI = {
                     inputText.innerText = "";
                     placeholder.style.display = 'block';
                     inputBox.classList.remove('typing');
-
                     messagesContainer.innerHTML = `<div class="chat-line" style="opacity:0.5"><span class="chat-text">${Messages.ChatSim.welcome}</span></div>`;
                     await sleep(1000);
                 }
             }
         };
-
         runSimulation();
     },
-
     /**
      * Establece el estado de carga de un botón
      * @param {HTMLButtonElement | null} button - Elemento botón
      * @param {boolean} isLoading - Estado de carga
      */
     setButtonLoading(button, isLoading) {
-        if (!button) return;
-
+        if (!button)
+            return;
         if (isLoading) {
             button.classList.add('btn-loading');
             button.disabled = true;
-            button.dataset.originalText = button.textContent;
-        } else {
+            button.dataset.originalText = button.textContent || '';
+        }
+        else {
             button.classList.remove('btn-loading');
             button.disabled = false;
             if (button.dataset.originalText) {
@@ -218,40 +197,39 @@ export const UI = {
             }
         }
     },
-
     /**
      * Deshabilita un botón
      * @param {HTMLButtonElement | null} button - Elemento botón
      */
     disableButton(button) {
-        if (!button) return;
+        if (!button)
+            return;
         button.disabled = true;
         button.classList.add('btn-disabled');
     },
-
     /**
      * Habilita un botón
      * @param {HTMLButtonElement | null} button - Elemento botón
      */
     enableButton(button) {
-        if (!button) return;
+        if (!button)
+            return;
         button.disabled = false;
         button.classList.remove('btn-disabled');
     },
-
     /**
      * Establece el estado de carga de una tarjeta
      * @param {HTMLElement | null} card - Elemento tarjeta
      * @param {boolean} isLoading - Estado de carga
      */
     setCardLoading(card, isLoading) {
-        if (!card) return;
-
+        if (!card)
+            return;
         if (isLoading) {
             card.classList.add('card-loading');
-        } else {
+        }
+        else {
             card.classList.remove('card-loading');
         }
     }
-
 };
