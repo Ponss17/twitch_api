@@ -1,5 +1,5 @@
 import { Messages } from './utils/messages.js';
-import { API_ENDPOINTS } from './utils/constants.js';
+import { API_ENDPOINTS } from './utils/core/config.js';
 import { UI } from './ui.js';
 import { HtmlLoader } from './utils/htmlLoader.js';
 
