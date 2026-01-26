@@ -184,4 +184,42 @@ export const UI = {
         runSimulation();
     },
 
+    setButtonLoading(button, isLoading) {
+        if (!button) return;
+
+        if (isLoading) {
+            button.classList.add('btn-loading');
+            button.disabled = true;
+            button.dataset.originalText = button.textContent;
+        } else {
+            button.classList.remove('btn-loading');
+            button.disabled = false;
+            if (button.dataset.originalText) {
+                button.textContent = button.dataset.originalText;
+            }
+        }
+    },
+
+    disableButton(button) {
+        if (!button) return;
+        button.disabled = true;
+        button.classList.add('btn-disabled');
+    },
+
+    enableButton(button) {
+        if (!button) return;
+        button.disabled = false;
+        button.classList.remove('btn-disabled');
+    },
+
+    setCardLoading(card, isLoading) {
+        if (!button) return;
+
+        if (isLoading) {
+            card.classList.add('card-loading');
+        } else {
+            card.classList.remove('card-loading');
+        }
+    }
+
 };

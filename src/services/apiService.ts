@@ -1,4 +1,5 @@
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 import https from 'https';
 import { CONFIG } from '../config/env';
 import { TwitchClip, TwitchError } from '../types/twitch';
@@ -7,8 +8,37 @@ import { logger } from '../utils/logger';
 
 const httpsAgent = new https.Agent({ keepAlive: true });
 const apiClient = axios.create({
-    timeout: 30000,
-    httpsAgent
+    httpsAgent,
+    timeout: 10000,
+});
+
+axiosRetry(apiClient, {
+    retries: 3,
+    retryDelay: axiosRetry.exponentialDelay,
+    retryCondition: (error) => {
+        if (axiosRetry.isNetworkError(error)) {
+            logger.warn('Network error detected, retrying...', { error: error.message });
+            return true;
+        }
+
+        if (axiosRetry.isRetryableError(error)) {
+            logger.warn('Retryable error detected, retrying...', { status: error.response?.status });
+            return true;
+        }
+        if (error.response?.status === 429) {
+            logger.warn('Rate limit hit, retrying with backoff...');
+            return true;
+        }
+
+        return false;
+    },
+    onRetry: (retryCount, error, requestConfig) => {
+        logger.info(`Retry attempt ${retryCount}`, {
+            url: requestConfig.url,
+            method: requestConfig.method,
+            error: error.message
+        });
+    }
 });
 
 const getHeaders = (token: string) => ({
