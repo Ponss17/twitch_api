@@ -206,7 +206,6 @@
     animation: fadeIn 0.5s ease-out forwards;
 }
 
-/* Staggered animation delays */
 .card:nth-child(1) {
     animation-delay: 0.1s;
 }
