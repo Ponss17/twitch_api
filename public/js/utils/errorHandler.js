@@ -1,5 +1,5 @@
 import { UI } from '../ui.js';
-import { Messages } from '../config/messages.js';
+import { Messages } from './messages.js';
 
 class ErrorHandler {
     constructor() {
