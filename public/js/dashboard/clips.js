@@ -33,7 +33,7 @@ export const ClipsModule = {
     },
 
     async loadClips(forceRefresh = false) {
-        const container = document.getElementById('clips-container');
+        const container = document.getElementById('clips-gallery');
         if (!container) return;
 
         const cacheKey = `clips_${this.session.userId}`;
