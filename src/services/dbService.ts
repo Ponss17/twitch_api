@@ -1,6 +1,8 @@
 import { kv } from '@vercel/kv';
 import { StoredUser } from '../types/twitch';
 import crypto from 'crypto';
+import { logger } from '../utils/logger';
+import { logger } from '../utils/logger';
 import { CONFIG } from '../config/env';
 
 // ==========================================
@@ -26,7 +28,7 @@ function encrypt(text: string): string {
         encrypted = Buffer.concat([encrypted, cipher.final()]);
         return iv.toString('hex') + ':' + encrypted.toString('hex');
     } catch (e) {
-        console.error('Error encrypting:', e);
+        logger.error('Error encrypting:', e);
         return text;
     }
 }
@@ -88,7 +90,7 @@ export const incrementUserStats = async (userId: string, command: string): Promi
     try {
         await kv.hincrby(`stats:${userId}`, command, 1);
     } catch (e) {
-        console.error('Error incrementing user stats:', e);
+        logger.error('Error incrementing user stats:', e);
     }
 };
 
@@ -111,7 +113,7 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
 
         return numericStats;
     } catch (e) {
-        console.error('Error getting user stats:', e);
+        logger.error('Error getting user stats:', e);
         return { clips: 0, followage: 0, so: 0 };
     }
 };
