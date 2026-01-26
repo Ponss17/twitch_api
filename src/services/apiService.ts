@@ -153,7 +153,7 @@ export const getChatters = async (broadcasterId: string, moderatorId: string, to
         });
         return response.data.data;
     } catch (error) {
-        console.error('Error fetching chatters:', error);
+        logger.error('Error fetching chatters:', error);
         throw error;
     }
 };
@@ -171,7 +171,7 @@ export const sendChatMessage = async (broadcasterId: string, senderId: string, m
             }
         });
     } catch (error) {
-        console.error('Error sending chat message:', error);
+        logger.error('Error sending chat message:', error);
         throw error;
     }
 };
@@ -189,7 +189,7 @@ export const sendToNightbot = async (responseUrl: string, message: string): Prom
             timeout: 30000
         });
     } catch (error) {
-        console.error('[Nightbot] Error sending message:', error);
+        logger.error('[Nightbot] Error sending message:', error);
         throw error;
     }
 };

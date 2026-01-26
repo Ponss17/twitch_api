@@ -4,6 +4,7 @@ import { TwitchUser, StoredUser } from '../types/twitch';
 import { kv } from '@vercel/kv';
 import * as dbService from './dbService';
 import crypto from 'crypto';
+import { logger } from '../utils/logger';
 import { MESSAGES } from '../config/messages';
 
 export const getAuthorizeUrl = (redirectOrigin: string): string => {
