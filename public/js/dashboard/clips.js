@@ -3,16 +3,33 @@ import { Messages } from '../utils/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
 import { cache, CACHE_TTL } from '../utils/cacheService.js';
 
+/**
+ * Módulo de gestión y visualización de clips de Twitch
+ * @module ClipsModule
+ */
 export const ClipsModule = {
+    /** @type {Object | null} Sesión del usuario actual */
     session: null,
+    /** @type {boolean} Estado de inicialización del módulo */
     initialized: false,
+    /** @type {Array<Object>} Lista completa de clips cargados */
     allClips: [],
+    /** @type {Array<Object>} Lista filtrada de clips actuales */
     currentClips: [],
+    /** @type {Array<string>} IDs de clips marcados como favoritos */
     favorites: [],
+    /** @type {IntersectionObserver | null} Observador para lazy loading */
     observer: null,
+    /** @type {number} Página actual de paginación */
     currentPage: 1,
+    /** @type {number} Clips por página */
     ITEMS_PER_PAGE: 20,
 
+    /**
+     * Inicializa el módulo de clips
+     * @param {Object} session - Objeto de sesión del usuario
+     * @returns {Promise<void>}
+     */
     async init(session) {
         this.session = session;
         import('../utils/loader.js').then(({ Loader }) => {
@@ -38,6 +55,9 @@ export const ClipsModule = {
         this.initialized = true;
     },
 
+    /**
+     * Carga los favoritos desde localStorage
+     */
     loadFavorites() {
         try {
             const saved = localStorage.getItem(`clips_favs_${this.session.userId}`);
@@ -48,6 +68,9 @@ export const ClipsModule = {
         }
     },
 
+    /**
+     * Guarda los favoritos en localStorage
+     */
     saveFavorites() {
         try {
             localStorage.setItem(`clips_favs_${this.session.userId}`, JSON.stringify(this.favorites));
@@ -56,6 +79,10 @@ export const ClipsModule = {
         }
     },
 
+    /**
+     * Alterna el estado de favorito de un clip
+     * @param {string} clipId - ID del clip
+     */
     toggleFavorite(clipId) {
         if (this.favorites.includes(clipId)) {
             this.favorites = this.favorites.filter(id => id !== clipId);
@@ -68,6 +95,9 @@ export const ClipsModule = {
         this.updateFavoriteBtn(clipId);
     },
 
+    /**
+     * Configura la interfaz de usuario inicial y eventos
+     */
     setupUI() {
         this.loadClips();
         this.setupFilters();
@@ -83,6 +113,9 @@ export const ClipsModule = {
         }
     },
 
+    /**
+     * Configura los listeners para búsqueda y ordenamiento
+     */
     setupFilters() {
         const searchInput = document.getElementById('clips-search');
         const sortSelect = document.getElementById('clips-sort');
@@ -100,6 +133,12 @@ export const ClipsModule = {
         }
     },
 
+    /**
+     * Utilidad para limitar la frecuencia de ejecución de una función
+     * @param {Function} func - Función a ejecutar
+     * @param {number} wait - Tiempo de espera en ms
+     * @returns {Function} Función debounced
+     */
     debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -112,6 +151,10 @@ export const ClipsModule = {
         };
     },
 
+    /**
+     * Carga los clips desde la API o Caché
+     * @param {boolean} [forceRefresh=false] - Forzar recarga desde API
+     */
     async loadClips(forceRefresh = false) {
         const container = document.getElementById('clips-gallery');
         if (!container) return;
@@ -161,6 +204,11 @@ export const ClipsModule = {
         }
     },
 
+    /**
+     * Maneja los errores de carga
+     * @param {Error} error - Error capturado
+     * @param {HTMLElement} container - Contenedor para mostrar el error
+     */
     handleError(error, container) {
         const isAuthError = error.message === 'auth_error';
         UI.showToast(isAuthError ? Messages.Auth.expired : Messages.Clips.loadError, 'error');
@@ -186,6 +234,10 @@ export const ClipsModule = {
         }
     },
 
+    /**
+     * Renderiza esqueletos de carga
+     * @param {HTMLElement} container 
+     */
     renderSkeleton(container) {
         container.innerHTML = Array(8).fill(0).map(() => `
             <div class="skeleton-card skeleton-loading">
@@ -201,6 +253,9 @@ export const ClipsModule = {
         `).join('');
     },
 
+    /**
+     * Filtra y ordena los clips para renderizar
+     */
     filterAndRender() {
         const searchTerm = document.getElementById('clips-search')?.value.toLowerCase() || '';
         const sortValue = document.getElementById('clips-sort')?.value || 'date-desc';
@@ -228,6 +283,9 @@ export const ClipsModule = {
         this.renderPage();
     },
 
+    /**
+     * Renderiza la página actual de clips
+     */
     renderPage() {
         const clipsGallery = document.getElementById('clips-gallery');
         if (!clipsGallery) return;
@@ -247,7 +305,7 @@ export const ClipsModule = {
         const fragment = document.createDocumentFragment();
 
         pageClips.forEach(clip => {
-            fragment.appendChild(this.createClipCard(clip));
+            fragment.appendChild(this.buildCard(clip));
         });
 
         clipsGallery.appendChild(fragment);
@@ -257,6 +315,10 @@ export const ClipsModule = {
         }
     },
 
+    /**
+     * Agrega el botón de "Cargar más"
+     * @param {HTMLElement} container 
+     */
     addLoadMoreButton(container) {
         const btnContainer = document.createElement('div');
         btnContainer.id = 'clips-load-more';
@@ -274,7 +336,13 @@ export const ClipsModule = {
         container.after(btnContainer);
     },
 
-    createClipCard(clip) {
+    /**
+     * Construye el elemento DOM de una tarjeta de clip
+     * Refactorizado para aislar la lógica de creación
+     * @param {Object} clip - Datos del clip
+     * @returns {HTMLElement} Elemento tarjeta
+     */
+    buildCard(clip) {
         const card = document.createElement('div');
         card.className = 'clip-card';
         card.dataset.id = clip.id;
@@ -315,27 +383,51 @@ export const ClipsModule = {
             </a>
         `;
 
+        // Configurar Lazy Loading
         const img = card.querySelector('img');
         if (this.observer) this.observer.observe(img);
 
-        card.querySelector('.copy-btn').addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            navigator.clipboard.writeText(safeUrl).then(() => {
-                UI.showToast('Enlace copiado', 'success');
-            });
-        });
-
-        const favBtn = card.querySelector('.fav-btn');
-        favBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            this.toggleFavorite(clip.id);
-        });
+        // Configurar Eventos
+        this.attachCardEvents(card, safeUrl, clip.id);
 
         return card;
     },
 
+    /**
+     * Adjunta los eventos a los botones de la tarjeta
+     * @param {HTMLElement} card - Elemento tarjeta
+     * @param {string} url - URL del clip
+     * @param {string} clipId - ID del clip
+     */
+    attachCardEvents(card, url, clipId) {
+        card.querySelector('.copy-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = e.currentTarget;
+                const icon = btn.querySelector('i');
+                const originalClass = icon.className;
+
+                icon.className = 'fa-solid fa-check';
+                UI.showToast('Enlace copiado', 'success');
+
+                setTimeout(() => {
+                    icon.className = originalClass;
+                }, 2000);
+            });
+        });
+
+        card.querySelector('.fav-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.toggleFavorite(clipId);
+        });
+    },
+
+    /**
+     * Actualiza el estado visual del botón de favorito
+     * @param {string} clipId - ID del clip a actualizar
+     */
     updateFavoriteBtn(clipId) {
         const card = document.querySelector(`.clip-card[data-id="${clipId}"]`);
         if (!card) return;
