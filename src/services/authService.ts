@@ -52,7 +52,7 @@ export const handleCallback = async (code: string, state: string): Promise<{ use
     };
 
     if (!refresh_token) {
-        console.warn('⚠ ADVERTENCIA: No se recibió Refresh Token de Twitch. La sesión no se renovará automáticamente.');
+        logger.warn('⚠ ADVERTENCIA: No se recibió Refresh Token de Twitch. La sesión no se renovará automáticamente.');
     }
 
     await dbService.saveUser(storedUser);
@@ -63,7 +63,7 @@ export const handleCallback = async (code: string, state: string): Promise<{ use
             const decoded = JSON.parse(Buffer.from(state, 'base64').toString());
             redirectOrigin = decoded.redirectOrigin || '';
         } catch (e) {
-            console.error('Error decoding state:', e);
+            logger.error('Error decoding state:', e);
         }
     }
 
@@ -73,7 +73,7 @@ export const handleCallback = async (code: string, state: string): Promise<{ use
 export const refreshUserToken = async (userId: string): Promise<string> => {
     const user = await dbService.getUser(userId);
     if (!user || !user.refreshToken) {
-        console.error(`❌ Error renovando token: Usuario ${userId} no tiene Refresh Token.`);
+        logger.error(`❌ Error renovando token: Usuario ${userId} no tiene Refresh Token.`);
         throw new Error('Usuario no encontrado o sin refresh token');
     }
 
@@ -97,9 +97,9 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
         return access_token;
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            console.error('❌ Error API Twitch (Refresh):', error.response?.data || error.message);
+            logger.error('❌ Error API Twitch (Refresh):', error.response?.data || error.message);
         } else {
-            console.error('❌ Error renovando token:', error);
+            logger.error('❌ Error renovando token:', error);
         }
         throw new Error('No se pudo renovar el token. Relogueate.');
     }
