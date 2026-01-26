@@ -202,6 +202,8 @@
     padding: 30px;
     margin-bottom: 25px;
     box-shadow: var(--shadow);
+    opacity: 0;
+    animation: fadeInSoft 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 .card-header {
