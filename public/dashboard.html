@@ -135,9 +135,10 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('SW registered'))
-                    .catch(err => console.log('SW failed', err));
+                // Intentar registrar con ruta absoluta
+                navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                    .then(reg => console.log('SW registered successfully'))
+                    .catch(err => console.error('SW registration failed:', err));
             });
         }
     </script>
