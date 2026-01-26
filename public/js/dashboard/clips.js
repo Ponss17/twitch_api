@@ -1,11 +1,11 @@
 import { UI } from '../ui.js';
 import { Messages } from '../utils/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
+import { cache, CACHE_TTL } from '../utils/cacheService.js';
 
 export const ClipsModule = {
     session: null,
-    initialized: false, // Add initialized flag
-
+    initialized: false,
     async init(session) {
         this.session = session;
         import('../utils/loader.js').then(({ Loader }) => {
@@ -26,33 +26,62 @@ export const ClipsModule = {
             refreshBtn.parentNode.replaceChild(newBtn, refreshBtn);
 
             newBtn.addEventListener('click', () => {
-                this.loadClips();
+                this.loadClips(true);
                 UI.showToast('Actualizando clips...', 'info');
             });
         }
     },
 
-    async loadClips() {
-        const clipsGallery = document.getElementById('clips-gallery');
-        if (!clipsGallery) return;
+    async loadClips(forceRefresh = false) {
+        const container = document.getElementById('clips-container');
+        if (!container) return;
 
-        clipsGallery.innerHTML = Messages.Clips.loading;
+        const cacheKey = `clips_${this.session.userId}`;
+
+        if (!forceRefresh) {
+            const cachedClips = cache.get(cacheKey);
+            if (cachedClips) {
+                this.renderClips(cachedClips, container);
+                return;
+            }
+        }
+
+        container.innerHTML = Messages.Clips.loading;
 
         try {
             const { apiKey, token, login } = this.session;
-            const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-            const res = await fetch(`${API_ENDPOINTS.CLIPS}?channel=${login}&${tokenParam}`);
+            const headers = { 'Content-Type': 'application/json' };
+            let url = API_ENDPOINTS.CLIPS;
 
-            if (!res.ok) {
-                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+                url += `?channel=${login}`;
+            } else if (apiKey) {
+                url += `?apiKey=${apiKey}&channel=${login}`;
             }
 
-            const data = await res.json();
-            this.renderClips(data);
-        } catch (error) {
-            console.error(error);
-            const isAuthError = error.message.includes('401') || error.message.includes('Unauthorized');
+            if (forceRefresh) {
+                UI.showToast('Actualizando clips...', 'info');
+            }
 
+            const response = await fetch(url, { headers });
+
+            if (!response.ok) {
+                const isAuthError = response.status === 401 || response.status === 403;
+                throw new Error(isAuthError ? 'auth_error' : 'fetch_error');
+            }
+
+            const data = await response.json();
+            const clips = data.clips || [];
+
+            cache.set(cacheKey, clips, CACHE_TTL.CLIPS);
+
+            this.renderClips(clips, container);
+        } catch (error) {
+            const isAuthError = error.message === 'auth_error';
+            UI.showToast(isAuthError ? Messages.Auth.expired : Messages.Clips.loadError, 'error');
+
+            const clipsGallery = document.getElementById('clips-gallery');
             if (isAuthError) {
                 clipsGallery.innerHTML = `
                     <div class="empty-state">
