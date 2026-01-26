@@ -4,7 +4,6 @@ export const TrendsTemplates = {
         const percentage = (count / maxCount) * 100;
         const rankClass = index < 3 ? `rank-${index + 1}` : '';
         const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
-
         return `
             <tr class="fade-in ${rankClass}">
                 <td><span class="rank-medal">${medal}</span></td>

@@ -12,7 +12,6 @@ export const CommandTemplates = {
                 </div>`;
             });
         }
-
         const templateSection = conf.templatePlaceholder ? `
             <div class="form-group mb-20">
                 <label class="input-label">
@@ -24,7 +23,6 @@ export const CommandTemplates = {
                     ${conf.templateVars}
                 </small>
             </div>` : '';
-
         return `
         <div class="card">
             <div class="card-header">

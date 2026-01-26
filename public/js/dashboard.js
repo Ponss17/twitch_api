@@ -1,23 +1,18 @@
-import { Messages } from './utils/messages.js';
-import { API_ENDPOINTS } from './utils/constants.js';
-import { UI } from './ui.js';
 import { HtmlLoader } from './utils/htmlLoader.js';
-
 export const Dashboard = {
     session: null,
-
     init(session) {
         this.session = session;
         this.setupTabs();
         this.setupUserBadge();
         this.loadTab('tab-home');
     },
-
     setupUserBadge() {
+        if (!this.session)
+            return;
         const { displayName, profile_image_url } = this.session;
         const avatar = document.getElementById('user-avatar');
         const name = document.getElementById('user-display-name');
-
         if (avatar && profile_image_url) {
             avatar.src = profile_image_url;
             avatar.style.display = 'block';
@@ -25,41 +20,34 @@ export const Dashboard = {
         if (name && displayName) {
             name.innerText = displayName;
         }
-
         const pageTitle = document.getElementById('page-title');
         if (pageTitle && displayName && this.session.login) {
             pageTitle.innerHTML = `Bienvenido, <a href="https://twitch.tv/${this.session.login}" target="_blank" class="welcome-link">${displayName}</a>`;
         }
-
         document.getElementById('logout-btn')?.addEventListener('click', () => {
             import('./auth.js').then(m => m.Auth.logout());
         });
     },
-
     setupTabs() {
         const tabs = document.querySelectorAll('.nav-item');
-        tabs.forEach(tab => {
+        tabs.forEach((tab) => {
             tab.addEventListener('click', () => {
-                if (tab.classList.contains('external-link')) return;
-
-                tabs.forEach(t => t.classList.remove('active'));
+                if (tab.classList.contains('external-link'))
+                    return;
+                tabs.forEach((t) => t.classList.remove('active'));
                 document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-
                 tab.classList.add('active');
                 const tabId = tab.dataset.tab;
                 document.getElementById(tabId)?.classList.add('active');
-
                 this.loadTab(tabId);
             });
         });
     },
-
     async loadTab(tabId) {
         const container = document.getElementById(tabId);
         if (container && container.dataset.src) {
             await HtmlLoader.load(container.dataset.src, tabId);
         }
-
         const tabHandlers = {
             'tab-home': async () => {
                 const { AccountModule } = await import('./dashboard/account.js');
@@ -104,7 +92,6 @@ export const Dashboard = {
                 FeedbackModule.init(this.session);
             }
         };
-
         if (tabHandlers[tabId]) {
             await tabHandlers[tabId]();
         }

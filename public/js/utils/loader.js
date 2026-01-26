@@ -1,12 +1,11 @@
 export const Loader = {
     loaded: new Set(),
     loading: new Map(),
-
     loadCSS(path) {
-        if (this.loaded.has(path)) return Promise.resolve();
-
-        if (this.loading.has(path)) return this.loading.get(path);
-
+        if (this.loaded.has(path))
+            return Promise.resolve();
+        if (this.loading.has(path))
+            return this.loading.get(path);
         const promise = new Promise((resolve, reject) => {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
@@ -23,7 +22,6 @@ export const Loader = {
             };
             document.head.appendChild(link);
         });
-
         this.loading.set(path, promise);
         return promise;
     }

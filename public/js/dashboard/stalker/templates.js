@@ -29,12 +29,10 @@ export const StalkerTemplates = {
             </div>
         `;
     },
-
     renderControls(isScanning) {
         const btnClass = isScanning ? 'btn-warning' : 'btn-success';
         const btnIcon = isScanning ? 'fa-pause' : 'fa-play';
         const btnTitle = isScanning ? 'Pausar Escaneo' : 'Iniciar Escaneo';
-
         return `
             <div class="search-wrapper">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
@@ -48,37 +46,29 @@ export const StalkerTemplates = {
             </button>
         `;
     },
-
     renderRow(user, viewBtnText, inspectFn) {
         const tr = document.createElement('tr');
-
         const avatarTd = document.createElement('td');
         avatarTd.innerHTML = user.profile_image_url
             ? `<img src="${user.profile_image_url}" class="table-avatar-img">`
             : `<div class="table-avatar-empty"><i class="fa-solid fa-user"></i></div>`;
-
         const nameTd = document.createElement('td');
         nameTd.className = 'word-text text-bold';
         nameTd.textContent = user.user_name;
-
         const loginTd = document.createElement('td');
         loginTd.className = 'count-text text-muted-color';
         loginTd.textContent = `@${user.user_login}`;
-
         const actionTd = document.createElement('td');
         actionTd.className = 'text-right';
-
         const btn = document.createElement('button');
         btn.className = 'action-btn';
         btn.innerHTML = viewBtnText;
         btn.onclick = () => inspectFn(user.user_login);
-
         actionTd.appendChild(btn);
         tr.appendChild(avatarTd);
         tr.appendChild(nameTd);
         tr.appendChild(loginTd);
         tr.appendChild(actionTd);
-
         return tr;
     }
 };

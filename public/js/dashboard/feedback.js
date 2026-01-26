@@ -1,39 +1,30 @@
 import { Messages } from '../utils/messages.js';
-import { API_ENDPOINTS } from '../utils/constants.js';
 import { UI } from '../ui.js';
-
 export const FeedbackModule = {
     session: null,
-
     init(session) {
         this.session = session;
         this.setupUI();
     },
-
     setupUI() {
         const sendFeedbackBtn = document.getElementById('send-feedback-btn');
-        if (!sendFeedbackBtn) return;
-
+        if (!sendFeedbackBtn)
+            return;
         const newBtn = sendFeedbackBtn.cloneNode(true);
         sendFeedbackBtn.parentNode.replaceChild(newBtn, sendFeedbackBtn);
-
         newBtn.addEventListener('click', () => this.sendFeedback());
     },
-
     async sendFeedback() {
         const submitBtn = document.getElementById('send-feedback-btn');
         const messageInput = document.getElementById('feedback-message');
-        if (!submitBtn || !messageInput) return;
-
+        if (!submitBtn || !messageInput)
+            return;
         const message = messageInput.value.trim();
-
         if (!message) {
             UI.showToast(Messages.Feedback.emptyMessage, 'error');
             return;
         }
-
         UI.setButtonLoading(submitBtn, true);
-
         try {
             const response = await fetch('/api/system/feedback', {
                 method: 'POST',
@@ -44,17 +35,19 @@ export const FeedbackModule = {
                     message: message
                 })
             });
-
             if (response.ok) {
                 UI.showToast(Messages.Feedback.success, 'success');
                 messageInput.value = '';
-            } else {
+            }
+            else {
                 throw new Error('Failed to submit feedback');
             }
-        } catch (e) {
+        }
+        catch (e) {
             console.error('Error submitting feedback:', e);
             UI.showToast(Messages.Feedback.error, 'error');
-        } finally {
+        }
+        finally {
             UI.setButtonLoading(submitBtn, false);
         }
     }

@@ -8,11 +8,9 @@ export const Skeleton = {
             </div>
         `;
     },
-
     list(count = 3) {
         return Array(count).fill(this.card()).join('');
     },
-
     table(rows = 5) {
         const row = `
             <tr class="skeleton-row">
