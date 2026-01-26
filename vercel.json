@@ -35,6 +35,10 @@
     ],
     "rewrites": [
         {
+            "source": "/sw.js",
+            "destination": "/public/sw.js"
+        },
+        {
             "source": "/docs",
             "destination": "/public/docs.html"
         },
