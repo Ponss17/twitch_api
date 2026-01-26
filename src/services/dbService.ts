@@ -2,7 +2,6 @@ import { kv } from '@vercel/kv';
 import { StoredUser } from '../types/twitch';
 import crypto from 'crypto';
 import { logger } from '../utils/logger';
-import { logger } from '../utils/logger';
 import { CONFIG } from '../config/env';
 
 // ==========================================
