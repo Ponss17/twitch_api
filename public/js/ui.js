@@ -1,6 +1,11 @@
 import { Messages } from './utils/messages.js';
 
 export const UI = {
+    /**
+     * Escapa caracteres especiales HTML
+     * @param {string} str - Cadena a escapar
+     * @returns {string} Cadena escapada
+     */
     escapeHTML(str) {
         if (!str) return '';
         return str
@@ -11,6 +16,11 @@ export const UI = {
             .replace(/'/g, "&#039;");
     },
 
+    /**
+     * Muestra una notificación toast
+     * @param {string} message - Mensaje a mostrar
+     * @param {'success' | 'error' | 'warning'} [type='success'] - Tipo de toast
+     */
     showToast(message, type = 'success') {
         let container = document.querySelector('.toast-container');
         if (!container) {
@@ -41,6 +51,10 @@ export const UI = {
         }, 4000);
     },
 
+    /**
+     * Copia texto al portapapeles
+     * @param {string} text - Texto a copiar
+     */
     copyToClipboard(text) {
         if (!text) return;
         navigator.clipboard.writeText(text).then(() => {
@@ -184,6 +198,11 @@ export const UI = {
         runSimulation();
     },
 
+    /**
+     * Establece el estado de carga de un botón
+     * @param {HTMLButtonElement | null} button - Elemento botón
+     * @param {boolean} isLoading - Estado de carga
+     */
     setButtonLoading(button, isLoading) {
         if (!button) return;
 
@@ -200,20 +219,33 @@ export const UI = {
         }
     },
 
+    /**
+     * Deshabilita un botón
+     * @param {HTMLButtonElement | null} button - Elemento botón
+     */
     disableButton(button) {
         if (!button) return;
         button.disabled = true;
         button.classList.add('btn-disabled');
     },
 
+    /**
+     * Habilita un botón
+     * @param {HTMLButtonElement | null} button - Elemento botón
+     */
     enableButton(button) {
         if (!button) return;
         button.disabled = false;
         button.classList.remove('btn-disabled');
     },
 
+    /**
+     * Establece el estado de carga de una tarjeta
+     * @param {HTMLElement | null} card - Elemento tarjeta
+     * @param {boolean} isLoading - Estado de carga
+     */
     setCardLoading(card, isLoading) {
-        if (!button) return;
+        if (!card) return;
 
         if (isLoading) {
             card.classList.add('card-loading');
