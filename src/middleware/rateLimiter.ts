@@ -3,17 +3,19 @@ import { Request } from 'express';
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: (req: Request) => {
-        const ua = req.get('User-Agent') || '';
-        if (
-            ua.includes('Nightbot') ||
+    max: function getUserLimit(req: Request): number {
+        const ua = req.get('user-agent') || '';
+
+        // Solo bots confiables obtienen límite alto
+        if (ua.includes('Nightbot') ||
             ua.includes('StreamElements') ||
-            ua.includes('Fossabot') ||
-            ua.includes('Wizebot') ||
-            ua.includes('Mozilla')
-        ) {
-            return 500;
+            ua.includes('Streamlabs') ||
+            ua.includes('Moobot') ||
+            ua.includes('StreamLabs')) {
+            return 200;
         }
+
+        // Usuarios normales (incluyendo navegadores)
         return 60;
     },
     message: { error: 'Demasiadas solicitudes, por favor intenta más tarde.' },
