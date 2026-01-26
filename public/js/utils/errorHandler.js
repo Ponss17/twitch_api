@@ -6,9 +6,7 @@ import { Messages } from './messages.js';
  * Captura errores no manejados y rechazos de promesas
  */
 class ErrorHandler {
-    /**
-     * @type {boolean}
-     */
+    /** @type {boolean} Indica si el entorno es desarrollo */
     isDevelopment;
 
     constructor() {
@@ -16,17 +14,12 @@ class ErrorHandler {
         this.init();
     }
 
+    /**
+     * Inicializa los listeners globales de error
+     */
     init() {
-        /**
-         * @param {string | Event} message - Mensaje de error
-         * @param {string} [source] - Archivo fuente
-         * @param {number} [lineno] - Número de línea
-         * @param {number} [colno] - Número de columna
-         * @param {Error} [error] - Objeto de error
-         * @returns {boolean}
-         */
         window.onerror = (message, source, lineno, colno, error) => {
-            this.handleError(error || new Error(message), {
+            this.handleError(error || new Error(String(message)), {
                 source,
                 lineno,
                 colno
@@ -34,9 +27,6 @@ class ErrorHandler {
             return true;
         };
 
-        /**
-         * @param {PromiseRejectionEvent} event - Evento de rechazo de promesa
-         */
         window.onunhandledrejection = (event) => {
             this.handleError(event.reason, {
                 type: 'unhandledRejection'
@@ -60,30 +50,40 @@ class ErrorHandler {
     }
 
     /**
-     * Obtiene un mensaje de error amigable para el usuario
+     * Obtiene un mensaje de error amigable para el usuario basado en Messages
      * @param {Error | any} error - El objeto de error
      * @returns {string} Mensaje de error amigable
      */
     getUserMessage(error) {
-        if (error.message?.includes('fetch') || error.message?.includes('network')) {
-            return Messages.Common.networkError || 'Error de red. Por favor, verifica tu conexión.';
+        const msg = error?.message || '';
+
+        if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
+            return Messages.Common.networkError;
         }
 
-        if (error.message?.includes('401') || error.message?.includes('unauthorized')) {
-            return Messages.Auth.sessionExpired || 'Sesión expirada. Por favor, inicia sesión de nuevo.';
+        if (msg.includes('401') || msg.includes('unauthorized') || msg === 'auth_error') {
+            return Messages.Auth.sessionExpired;
         }
+
+        if (msg.includes('403') || msg.includes('forbidden')) {
+            return Messages.Auth.validationError;
+        }
+
         return this.isDevelopment
-            ? `Error: ${error.message}`
-            : 'Algo salió mal. Por favor, intenta de nuevo.';
+            ? `Error: ${msg}`
+            : Messages.Common.error('Algo salió mal. Intenta de nuevo.');
     }
 
     /**
-     * Reporta el error a un servicio de seguimiento (implementación futura)
+     * Reporta el error a un servicio de seguimiento (Stub)
      * @param {Error} error - El objeto de error
      * @param {Object} context - Contexto del error
      */
     reportError(error, context) {
         // Futuro: Sentry.captureException(error, { extra: context });
+        if (this.isDevelopment) {
+            console.warn('Reported Error:', error, context);
+        }
     }
 }
 
