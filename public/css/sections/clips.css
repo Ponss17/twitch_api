@@ -10,6 +10,40 @@
     border-radius: var(--radius);
     overflow: hidden;
     transition: all 0.2s;
+    position: relative;
+}
+
+.clip-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 2;
+}
+
+.clip-card:hover .clip-actions {
+    opacity: 1;
+}
+
+.btn-clip-action {
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.btn-clip-action:hover {
+    transform: scale(1.1);
+    background: var(--accent);
 }
 
 .clip-card:hover {
@@ -49,4 +83,157 @@
     color: var(--text-secondary);
     display: flex;
     justify-content: space-between;
+}
+
+.clips-toolbar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.search-box input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.1);
+    outline: none;
+}
+
+.search-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.sort-box select {
+    padding: 10px 35px 10px 15px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    min-width: 150px;
+}
+
+.sort-box select:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+.skeleton-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.skeleton-thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--bg-tertiary);
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton-info {
+    padding: 12px;
+}
+
+.skeleton-title {
+    height: 16px;
+    background: var(--bg-tertiary);
+    width: 80%;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.skeleton-meta {
+    display: flex;
+    justify-content: space-between;
+}
+
+.skeleton-text {
+    height: 12px;
+    background: var(--bg-tertiary);
+    width: 30%;
+    border-radius: 3px;
+}
+
+.skeleton-loading .skeleton-thumb::after,
+.skeleton-loading .skeleton-title::after,
+.skeleton-loading .skeleton-text::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0,
+            rgba(255, 255, 255, 0.05) 20%,
+            rgba(255, 255, 255, 0.1) 60%,
+            rgba(255, 255, 255, 0));
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.load-more-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    grid-column: 1 / -1;
+}
+
+.btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-hover);
+}
+
+.btn-clip-action.fav-btn.active {
+    color: #ffd700;
+}
+
+.btn-clip-action.fav-btn.active:hover {
+    background: rgba(255, 215, 0, 0.2);
 }

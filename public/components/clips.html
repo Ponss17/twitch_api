@@ -20,8 +20,21 @@
         </div>
     </div>
     <div class="card-body">
+        <div class="clips-toolbar">
+            <div class="search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="clips-search" placeholder="Buscar clips...">
+            </div>
+            <div class="sort-box">
+                <select id="clips-sort">
+                    <option value="date-desc">Más recientes</option>
+                    <option value="date-asc">Más antiguos</option>
+                    <option value="views-desc">Más vistos</option>
+                    <option value="views-asc">Menos vistos</option>
+                </select>
+            </div>
+        </div>
         <div id="clips-gallery" class="clips-grid">
-            <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
         </div>
     </div>
 </div>
