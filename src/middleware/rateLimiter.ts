@@ -3,7 +3,7 @@ import { Request } from 'express';
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: function getUserLimit(req: Request): number {
+    max: (req: Request) => {
         const ua = req.get('user-agent') || '';
 
         // Solo bots confiables obtienen límite alto
