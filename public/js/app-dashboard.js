@@ -4,6 +4,7 @@ import { Dashboard } from './dashboard.js';
 import { CONFIG } from './config.js';
 import { FooterComponent } from './components/footer.js';
 import { Messages } from './utils/messages.js';
+import { errorHandler } from './utils/errorHandler.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     FooterComponent.render('main-footer');

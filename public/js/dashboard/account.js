@@ -52,15 +52,15 @@ export const AccountModule = {
         regenerateBtn.parentNode.replaceChild(newBtn, regenerateBtn);
 
         newBtn.addEventListener('click', async () => {
-            if (!confirm(Messages.Settings.regenerateConfirm)) return;
+            if (!confirm('¿Regenerar API Key? La anterior dejará de funcionar.')) return;
 
-            newBtn.disabled = true;
             const originalIcon = newBtn.innerHTML;
-            newBtn.innerHTML = Messages.Settings.loadingIcon;
+
+            UI.setButtonLoading(newBtn, true);
 
             try {
                 const { apiKey, token } = this.session;
-                const res = await fetch(API_ENDPOINTS.REGENERATE_KEY, {
+                const res = await fetch(`/api/auth/regenerate?userId=${this.session.userId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -88,8 +88,7 @@ export const AccountModule = {
                 console.error('Regenerate error:', e);
                 UI.showToast(Messages.Settings.regenerateError, 'error');
             } finally {
-                newBtn.disabled = false;
-                newBtn.innerHTML = originalIcon;
+                UI.setButtonLoading(newBtn, false);
             }
         });
     }
