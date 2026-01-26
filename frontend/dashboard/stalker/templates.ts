@@ -54,7 +54,7 @@ export const StalkerTemplates = {
 
         const avatarTd = document.createElement('td');
         avatarTd.innerHTML = user.profile_image_url
-            ? `<img src="${user.profile_image_url}" class="table-avatar-img">`
+            ? `<img src="${user.profile_image_url}" class="table-avatar-img" loading="lazy" alt="${user.user_name}">`
             : `<div class="table-avatar-empty"><i class="fa-solid fa-user"></i></div>`;
 
         const nameTd = document.createElement('td');
