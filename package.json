@@ -8,7 +8,9 @@
     "postbuild": "shx cp -r public dist/public",
     "start": "node -r dotenv/config dist/api/index.js",
     "dev": "ts-node --files -r dotenv/config api/index.ts",
-    "check-env": "node scripts/check-env.js"
+    "check-env": "node scripts/check-env.js",
+    "lint": "tsc --noEmit",
+    "clean": "shx rm -rf dist"
   },
   "repository": {
     "type": "git",
