@@ -5,6 +5,7 @@
   "main": "api/index.ts",
   "scripts": {
     "build:frontend": "tsc -p tsconfig.frontend.json",
+    "watch:frontend": "tsc -p tsconfig.frontend.json --watch",
     "build": "npm run build:frontend && tsc",
     "postbuild": "shx cp -r public dist/public",
     "start": "node -r dotenv/config dist/api/index.js",

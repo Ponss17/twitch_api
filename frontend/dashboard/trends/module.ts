@@ -173,8 +173,8 @@ export const TrendsModule = {
                     if (entries.length === 0) {
                         tbody.innerHTML = Messages.Tracker.waiting;
                     } else {
-                        const maxCount = entries[0][1];
-                        tbody.innerHTML = entries.map((item, i) => TrendsTemplates.renderRow(item, i, maxCount)).join('');
+                        const maxCount = entries[0][1] as number;
+                    tbody.innerHTML = entries.map((item, i) => TrendsTemplates.renderRow(item as [string, any], i, maxCount)).join('');
                     }
                 }
             }

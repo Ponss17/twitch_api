@@ -9,7 +9,7 @@ export const ProfileTemplates = {
 
         return `
             <div class="profile-header">
-                <img src="${user.profile_image_url || 'img/LosPerris_progra.webp'}" class="profile-avatar-large" alt="${user.display_name}">
+                <img src="${user.profile_image_url || 'img/LosPerris_progra.webp'}" class="profile-avatar-large" alt="${user.display_name}" loading="lazy">
                 <div class="profile-title-group">
                     <h2 class="profile-name">${user.display_name}</h2>
                     <div class="profile-login">@${user.login}</div>
