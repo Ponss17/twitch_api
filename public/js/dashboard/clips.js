@@ -1,6 +1,6 @@
 import { UI } from '../ui.js';
 import { Messages } from '../utils/messages.js';
-import { API_ENDPOINTS } from '../utils/core/config.js';
+import { API_ENDPOINTS } from '../utils/constants.js';
 
 export const ClipsModule = {
     session: null,
