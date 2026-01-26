@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk';
 import { CONFIG } from '../config/env';
+import { logger } from '../utils/logger';
 
 const groq = new Groq({ apiKey: CONFIG.GROQ_API_KEY });
 

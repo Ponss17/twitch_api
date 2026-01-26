@@ -1,4 +1,3 @@
-// Service Worker para soporte offline
 const CACHE_NAME = 'losperris-api-v1';
 const urlsToCache = [
     '/',
@@ -20,7 +19,6 @@ const urlsToCache = [
     '/img/LosPerris_progra.webp'
 ];
 
-// Instalación
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
@@ -29,7 +27,6 @@ self.addEventListener('install', (event) => {
     );
 });
 
-// Activación
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
@@ -44,12 +41,9 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Fetch - Network First, fallback to Cache
 self.addEventListener('fetch', (event) => {
-    // Solo cachear GET requests
     if (event.request.method !== 'GET') return;
 
-    // No cachear API calls
     if (event.request.url.includes('/api/') ||
         event.request.url.includes('/twitch/') ||
         event.request.url.includes('/auth/') ||
@@ -60,7 +54,6 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
         fetch(event.request)
             .then((response) => {
-                // Clonar response para cachear
                 const responseToCache = response.clone();
                 caches.open(CACHE_NAME).then((cache) => {
                     cache.put(event.request, responseToCache);
@@ -68,7 +61,6 @@ self.addEventListener('fetch', (event) => {
                 return response;
             })
             .catch(() => {
-                // Si falla network, usar cache
                 return caches.match(event.request);
             })
     );
