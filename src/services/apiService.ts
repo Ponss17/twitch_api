@@ -3,6 +3,7 @@ import https from 'https';
 import { CONFIG } from '../config/env';
 import { TwitchClip, TwitchError } from '../types/twitch';
 import { getCachedUserId, setCachedUserId } from './cacheService';
+import { logger } from '../utils/logger';
 
 const httpsAgent = new https.Agent({ keepAlive: true });
 const apiClient = axios.create({
