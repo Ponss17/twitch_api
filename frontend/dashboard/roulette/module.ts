@@ -204,6 +204,10 @@ export const RouletteModule = {
             display.classList.remove('hidden');
             
             UI.showToast(`🏆 Ganador: ${winner.user_name}`);
+            
+            if (this.session && this.session.login) {
+                TmiService.sendMessage(this.session.login, `🏆 ¡El ganador es @${winner.user_name}! ¡Felicidades! 🎉`);
+            }
         }
     },
 

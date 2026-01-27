@@ -37,6 +37,16 @@ export const TmiService = {
     removeListener(id) {
         this.listeners.delete(id);
     },
+    sendMessage(channel, message) {
+        if (this.client && this.isConnected) {
+            this.client.say(channel, message).catch((err) => {
+                console.error('Error sending message:', err);
+            });
+        }
+        else {
+            console.warn('Cannot send message: TMI not connected');
+        }
+    },
     disconnect() {
         if (this.activeClients > 0)
             this.activeClients--;
