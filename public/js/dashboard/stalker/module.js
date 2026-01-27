@@ -12,27 +12,38 @@ export const StalkerModule = {
     initialized: false,
     init(session) {
         this.session = session;
-        if (this.initialized) {
-            this.render();
+        this.render();
+        if (this.initialized)
             return;
-        }
         import('../../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/stalker.css');
         });
-        this.render();
         this.setupUI();
         this.initialized = true;
     },
     setupUI() {
-        document.getElementById('stalker-search')?.addEventListener('input', (e) => this.filterChatters(e.target.value));
-        document.getElementById('refresh-stalker')?.addEventListener('click', () => {
-            if (this.isScanning) {
-                this.loadChatters();
-                UI.showToast(Messages.Stalker.updated);
-            }
-        });
-        document.getElementById('toggle-stalker')?.addEventListener('click', () => this.toggleScan());
-        document.getElementById('toggle-stalker')?.addEventListener('click', () => this.toggleScan());
+        const controls = document.getElementById('stalker-controls');
+        if (controls) {
+            controls.addEventListener('input', (e) => {
+                const target = e.target;
+                if (target.id === 'stalker-search') {
+                    this.filterChatters(target.value);
+                }
+            });
+            controls.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (!btn)
+                    return;
+                if (btn.id === 'toggle-stalker')
+                    this.toggleScan();
+                if (btn.id === 'refresh-stalker') {
+                    if (this.isScanning) {
+                        this.loadChatters();
+                        UI.showToast(Messages.Stalker.updated);
+                    }
+                }
+            });
+        }
     },
     toggleScan() {
         this.isScanning = !this.isScanning;

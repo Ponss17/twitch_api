@@ -23,18 +23,18 @@ export const TrendsModule = {
 
     init(session: Session) {
         this.session = session;
-        if (this.initialized) {
-            this.setupUI();
-            return;
-        }
+        this.updateUIState();
+        if (this.initialized) return;
+
         import('../../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/trends.css');
         });
+
         this.setupUI();
         this.initialized = true;
     },
 
-    setupUI() {
+    updateUIState() {
         if (!this.session) return;
         const { login, displayName, profile_image_url } = this.session;
         const titleEl = document.getElementById('tracker-title');
@@ -47,9 +47,11 @@ export const TrendsModule = {
             avatarEl.style.display = 'block';
             iconEl.style.display = 'none';
         }
-
-        this.attachListeners();
         this.render();
+    },
+
+    setupUI() {
+        this.attachListeners();
     },
 
     attachListeners() {

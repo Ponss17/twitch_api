@@ -18,14 +18,12 @@ export const AnalyticsModule = {
 
     init(session: Session) {
         this.session = session;
-        if (this.initialized) {
-            this.load();
-            return;
-        }
+        this.load();
+        if (this.initialized) return;
+
         import('../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/analytics.css');
         });
-        this.load();
         this.initialized = true;
     },
 

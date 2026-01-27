@@ -69,7 +69,6 @@ export const ClipsModule = {
         this.updateFavoriteBtn(clipId);
     },
     setupUI() {
-        this.loadClips();
         this.setupFilters();
         const refreshBtn = document.getElementById('refresh-clips-btn');
         if (refreshBtn) {

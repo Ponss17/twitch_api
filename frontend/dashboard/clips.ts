@@ -75,7 +75,6 @@ export const ClipsModule = {
     },
 
     setupUI() {
-        this.loadClips();
         this.setupFilters();
 
         const refreshBtn = document.getElementById('refresh-clips-btn');
