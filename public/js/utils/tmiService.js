@@ -1,10 +1,13 @@
+import { Auth } from '../auth.js';
+import { UI } from '../ui.js';
+import { Messages } from './messages.js';
 export const TmiService = {
     client: null,
     listeners: new Map(),
     isConnected: false,
     activeClients: 0,
     connectionPromise: null,
-    async connect(channel) {
+    async connect(channel, auth) {
         this.activeClients++;
         if (this.isConnected && this.client)
             return Promise.resolve();
@@ -16,18 +19,54 @@ export const TmiService = {
             channels: [channel],
             connection: { secure: true, reconnect: true }
         };
+        if (auth) {
+            options.identity = {
+                username: auth.username,
+                password: `oauth:${auth.token.replace('oauth:', '')}`
+            };
+        }
         this.client = new window.tmi.Client(options);
-        this.client.on('message', (channel, tags, message, self) => {
-            if (self)
-                return;
-            this.listeners.forEach((callback) => callback(channel, tags, message));
-        });
-        this.connectionPromise = this.client.connect()
-            .then(() => { this.isConnected = true; })
-            .catch((err) => {
-            console.error('❌ TMI Connection Error:', err);
-            this.isConnected = false;
-            this.activeClients = 0;
+        const attachListeners = (clientInstance) => {
+            clientInstance.on('message', (channel, tags, message, self) => {
+                if (self)
+                    return;
+                this.listeners.forEach((callback) => callback(channel, tags, message));
+            });
+        };
+        attachListeners(this.client);
+        this.connectionPromise = new Promise((resolve, reject) => {
+            this.client.connect()
+                .then(() => {
+                this.isConnected = true;
+                resolve();
+            })
+                .catch(async (err) => {
+                const isLoginError = auth && (err === 'Login unsuccessful' || (typeof err === 'string' && err.includes('Login unsuccessful')));
+                if (isLoginError) {
+                    console.error('❌ TMI Auth failed. Access Token may be invalid/expired for IRC.');
+                    console.warn('⚠️ Retrying anonymously...', err);
+                    delete options.identity;
+                    this.client = new window.tmi.Client(options);
+                    attachListeners(this.client);
+                    try {
+                        await this.client.connect();
+                        this.isConnected = true;
+                        UI.showToast('Conectado al chat de forma anónima (Lectura)', 'warning');
+                        resolve();
+                    }
+                    catch (anonErr) {
+                        this.isConnected = false;
+                        this.activeClients = 0;
+                        reject(anonErr);
+                    }
+                }
+                else {
+                    console.error('❌ TMI Connection Error:', err);
+                    this.isConnected = false;
+                    this.activeClients = 0;
+                    reject(err);
+                }
+            });
         });
         return this.connectionPromise;
     },
@@ -41,6 +80,10 @@ export const TmiService = {
         if (this.client && this.isConnected) {
             this.client.say(channel, message).catch((err) => {
                 console.error('Error sending message:', err);
+                if (err === 'Cannot send anonymous messages' || (typeof err === 'string' && (err.includes('anonymous') || err.includes('Login unsuccessful')))) {
+                    UI.showToast(Messages.Auth.sessionExpired, 'error');
+                    setTimeout(() => Auth.relogin(), 2000);
+                }
             });
         }
         else {

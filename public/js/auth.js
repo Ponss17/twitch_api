@@ -19,6 +19,11 @@ export const Auth = {
         this.clearSession();
         window.location.href = window.location.origin + window.location.pathname;
     },
+    /**
+     * Valida el token actual y devuelve los datos del usuario y el token actualizado
+     * @param {string} credentialParam - Parámetros de credenciales (apiKey o token)
+     * @returns {Promise<any>} Datos de validación o false
+     */
     async validateCurrentToken(credentialParam) {
         try {
             if (!credentialParam)
@@ -30,7 +35,7 @@ export const Auth = {
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.indexOf("application/json") !== -1) {
                 const data = await response.json();
-                return data.valid && data.user ? data.user : false;
+                return data.valid ? data : false;
             }
             return true;
         }

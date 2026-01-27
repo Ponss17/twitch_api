@@ -24,7 +24,12 @@ export const Auth = {
         window.location.href = window.location.origin + window.location.pathname;
     },
 
-    async validateCurrentToken(credentialParam: string): Promise<TwitchUser | boolean | null> {
+    /**
+     * Valida el token actual y devuelve los datos del usuario y el token actualizado
+     * @param {string} credentialParam - Parámetros de credenciales (apiKey o token)
+     * @returns {Promise<any>} Datos de validación o false
+     */
+    async validateCurrentToken(credentialParam: any): Promise<any> {
         try {
             if (!credentialParam) return null;
 
@@ -37,7 +42,7 @@ export const Auth = {
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.indexOf("application/json") !== -1) {
                 const data: ApiResponse = await response.json();
-                return data.valid && data.user ? data.user : false;
+                return data.valid ? data : false;
             }
 
             return true;
@@ -49,7 +54,7 @@ export const Auth = {
     parseUrlParams(): Session {
         const params = new URLSearchParams(window.location.search);
         const savedSession = this.getSession();
-        
+
         const session: Session = {
             login: params.get('login') || savedSession?.login || '',
             displayName: params.get('displayName') || savedSession?.displayName || '',
@@ -59,7 +64,7 @@ export const Auth = {
             userId: params.get('userId') || savedSession?.userId,
             isNewLogin: !!params.get('token') || !!params.get('apiKey')
         };
-        
+
         return session;
     },
 

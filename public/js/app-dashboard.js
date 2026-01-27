@@ -29,7 +29,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             let avatarUrl = null;
             let displayName = sessionParams.displayName || sessionParams.login;
             if (typeof validationResult === 'object' && validationResult !== null) {
-                const user = validationResult;
+                const data = validationResult;
+                const user = data.user;
+                // Update token if returned (e.g. from API Key refresh)
+                if (data.token) {
+                    sessionParams.token = data.token;
+                }
                 avatarUrl = user.profile_image_url;
                 if (user.display_name) {
                     displayName = user.display_name;
@@ -38,6 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 sessionParams.profile_image_url = avatarUrl;
             }
             Dashboard.init(sessionParams);
+            Auth.saveSession(sessionParams); // Save the session with the potentially new token
             if (sessionParams.isNewLogin) {
                 const cleanUrl = window.location.pathname + window.location.hash;
                 window.history.replaceState({}, document.title, cleanUrl);

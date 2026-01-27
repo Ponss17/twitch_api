@@ -64,21 +64,17 @@ export const TmiService = {
                     const isLoginError = auth && (err === 'Login unsuccessful' || (typeof err === 'string' && err.includes('Login unsuccessful')));
 
                     if (isLoginError) {
-                        console.error('❌ TMI Auth failed. Session invalid.');
-                        UI.showToast(Messages.Auth.sessionExpired || 'Sesión expirada', 'error');
-                        
-                        setTimeout(() => {
-                            Auth.relogin();
-                        }, 2000);
+                        console.error('❌ TMI Auth failed. Access Token may be invalid/expired for IRC.');
 
-                        console.warn('⚠️ Retrying anonymously pending redirect...', err);
+                        console.warn('⚠️ Retrying anonymously...', err);
                         delete options.identity;
                         this.client = new window.tmi.Client(options);
                         attachListeners(this.client);
-                        
+
                         try {
                             await this.client.connect();
                             this.isConnected = true;
+                            UI.showToast('Conectado al chat de forma anónima (Lectura)', 'warning');
                             resolve();
                         } catch (anonErr) {
                             this.isConnected = false;

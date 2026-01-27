@@ -39,7 +39,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             let displayName = sessionParams.displayName || sessionParams.login;
 
             if (typeof validationResult === 'object' && validationResult !== null) {
-                const user = validationResult as TwitchUser;
+                const data = validationResult as any;
+                const user = data.user as TwitchUser;
+
+                if (data.token) {
+                    sessionParams.token = data.token;
+                }
+
                 avatarUrl = user.profile_image_url;
                 if (user.display_name) {
                     displayName = user.display_name;
@@ -49,6 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             Dashboard.init(sessionParams);
+            Auth.saveSession(sessionParams);
 
             if (sessionParams.isNewLogin) {
                 const cleanUrl = window.location.pathname + window.location.hash;

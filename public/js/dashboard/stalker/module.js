@@ -64,11 +64,22 @@ export const StalkerModule = {
             return;
         if (!this.session)
             return;
-        TmiService.connect(this.session.login).then(() => {
+        const auth = this.session.token ? {
+            username: this.session.login,
+            token: this.session.token
+        } : undefined;
+        TmiService.connect(this.session.login, auth).then(() => {
             this.isConnected = true;
             TmiService.addListener('stalker', (channel, tags, message) => {
                 if (!this.isScanning)
                     return;
+                import('../trends/module.js').then(({ TrendsModule }) => {
+                    if (tags.username) {
+                        TrendsModule.messageLog.unshift({ user: tags.username, text: message, time: new Date() });
+                        if (TrendsModule.messageLog.length > TrendsModule.MAX_LOG_SIZE)
+                            TrendsModule.messageLog.pop();
+                    }
+                });
                 const login = tags.username;
                 if (CONFIG.IGNORED_BOTS.has(login.toLowerCase()))
                     return;
@@ -80,6 +91,10 @@ export const StalkerModule = {
                     document.getElementById('stalker-empty')?.classList.add('hidden');
                 }
             });
+        }).catch((err) => {
+            console.error('Stalker TMI Error:', err);
+            UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
+            this.toggleScan();
         });
     },
     render() {
@@ -110,15 +125,35 @@ export const StalkerModule = {
             if (!res.ok)
                 throw new Error(res.status === 401 ? Messages.Stalker.reloginMsg : Messages.Stalker.apiError);
             const data = await res.json();
-            const apiChatters = data.filter((u) => !CONFIG.IGNORED_BOTS.has(u.user_login.toLowerCase()));
-            const chatterMap = new Map();
-            this.chatters.forEach((c) => chatterMap.set(c.user_login.toLowerCase(), c));
-            apiChatters.forEach((c) => chatterMap.set(c.user_login.toLowerCase(), c));
-            this.chatters = Array.from(chatterMap.values());
-            this.renderTable(this.chatters);
-            loading?.classList.add('hidden');
-            if (this.chatters.length === 0)
-                empty?.classList.remove('hidden');
+            const chattersList = Array.isArray(data) ? data : (data.chatters || []);
+            if (Array.isArray(chattersList)) {
+                const apiChatters = chattersList.filter((item) => {
+                    const login = typeof item === 'string' ? item : item.user_login;
+                    return login && !CONFIG.IGNORED_BOTS.has(login.toLowerCase());
+                });
+                const chatterMap = new Map();
+                this.chatters.forEach((c) => chatterMap.set(c.user_login.toLowerCase(), c));
+                apiChatters.forEach((item) => {
+                    const login = typeof item === 'string' ? item : item.user_login;
+                    const name = typeof item === 'string' ? item : item.user_name;
+                    if (login) {
+                        const userObj = {
+                            user_login: login,
+                            user_name: name || login,
+                            profile_image_url: typeof item === 'object' ? item.profile_image_url : null
+                        };
+                        chatterMap.set(login.toLowerCase(), userObj);
+                    }
+                });
+                this.chatters = Array.from(chatterMap.values());
+                this.renderTable(this.chatters);
+                loading?.classList.add('hidden');
+                if (this.chatters.length === 0)
+                    empty?.classList.remove('hidden');
+            }
+            else {
+                throw new Error('Invalid data format');
+            }
         }
         catch (error) {
             console.error(error);
