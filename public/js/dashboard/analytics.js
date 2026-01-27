@@ -8,14 +8,12 @@ export const AnalyticsModule = {
     initialized: false,
     init(session) {
         this.session = session;
-        if (this.initialized) {
-            this.load();
+        this.load();
+        if (this.initialized)
             return;
-        }
         import('../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/analytics.css');
         });
-        this.load();
         this.initialized = true;
     },
     async load(force = false) {
