@@ -2,9 +2,16 @@ import { Messages } from '../utils/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
 import { Session } from '../types.js';
 
+interface AnalyticsData {
+    clips: number;
+    followage: number;
+    so: number;
+    [key: string]: number;
+}
+
 export const AnalyticsModule = {
     session: null as Session | null,
-    cache: null as any,
+    cache: null as AnalyticsData | null,
     lastFetch: 0,
     CACHE_DURATION: 60000,
 
@@ -77,7 +84,7 @@ export const AnalyticsModule = {
         `).join('');
     },
 
-    render(data: any) {
+    render(data: AnalyticsData) {
         const statsContainer = document.getElementById('stats-grid');
         if (!statsContainer) return;
 

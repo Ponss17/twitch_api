@@ -1,7 +1,7 @@
 import { Messages } from '../../utils/messages.js';
 import { CONFIG } from '../../config.js';
 import { UI } from '../../ui.js';
-import { TmiService } from '../../utils/tmiService.js';
+import { TmiService, TmiTags } from '../../utils/tmiService.js';
 import { TrendsTemplates } from './templates.js';
 import { Session } from '../../types.js';
 
@@ -62,7 +62,7 @@ export const TrendsModule = {
         TmiService.connect(this.session.login).then(() => {
             this.updateStatus(true);
             this.isConnected = true;
-            TmiService.addListener('trends', (chn: string, tags: any, message: string) => {
+            TmiService.addListener('trends', (chn: string, tags: TmiTags, message: string) => {
                 if (!this.isTracking) return;
                 const username = tags.username;
                 if (!username || CONFIG.IGNORED_BOTS.has(username.toLowerCase())) return;
@@ -166,7 +166,7 @@ export const TrendsModule = {
     renderPending: false,
 
     getMessagesByUser(username: string) {
-        return this.messageLog.filter((log: any) => log.user.toLowerCase() === username.toLowerCase());
+        return this.messageLog.filter((log: TrendMessage) => log.user.toLowerCase() === username.toLowerCase());
     },
 
     render() {
@@ -183,7 +183,7 @@ export const TrendsModule = {
                         tbody.innerHTML = Messages.Tracker.waiting;
                     } else {
                         const maxCount = entries[0][1] as number;
-                    tbody.innerHTML = entries.map((item, i) => TrendsTemplates.renderRow(item as [string, any], i, maxCount)).join('');
+                        tbody.innerHTML = entries.map((item, i) => TrendsTemplates.renderRow(item as [string, number], i, maxCount)).join('');
                     }
                 }
             }

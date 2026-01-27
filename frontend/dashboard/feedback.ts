@@ -49,7 +49,7 @@ export const FeedbackModule = {
                 headers['Authorization'] = `Bearer ${this.session.token}`;
             }
 
-            const body: any = {
+            const body: { message: string; apiKey?: string } = {
                 message: message
             };
 
