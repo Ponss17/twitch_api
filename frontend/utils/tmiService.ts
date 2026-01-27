@@ -33,7 +33,12 @@ export const TmiService = {
 
         const options: any = {
             channels: [channel],
-            connection: { secure: true, reconnect: true }
+            connection: { secure: true, reconnect: true },
+            options: {
+                messages: {
+                    emotes: false
+                }
+            }
         };
 
         if (auth) {
