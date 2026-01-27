@@ -1,13 +1,11 @@
 import { UI } from './ui.js';
 import { HtmlLoader } from './utils/htmlLoader.js';
-import { FeedbackModule } from './dashboard/feedback.js';
 export const Dashboard = {
     session: null,
     init(session) {
         this.session = session;
         this.setupTabs();
         this.setupUserBadge();
-        FeedbackModule.init(session);
         this.loadTab('tab-home');
     },
     setupUserBadge() {

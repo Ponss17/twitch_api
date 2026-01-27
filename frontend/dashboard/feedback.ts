@@ -15,14 +15,14 @@ export const FeedbackModule = {
         requestAnimationFrame(() => {
             const sendFeedbackBtn = document.getElementById('send-feedback-btn');
             if (!sendFeedbackBtn) {
-                console.error('Feedback button not found');
                 return;
             }
 
             const newBtn = sendFeedbackBtn.cloneNode(true);
-            sendFeedbackBtn.parentNode!.replaceChild(newBtn, sendFeedbackBtn);
-
-            newBtn.addEventListener('click', () => this.sendFeedback());
+            if (sendFeedbackBtn.parentNode) {
+                sendFeedbackBtn.parentNode.replaceChild(newBtn, sendFeedbackBtn);
+                newBtn.addEventListener('click', () => this.sendFeedback());
+            }
         });
     },
 

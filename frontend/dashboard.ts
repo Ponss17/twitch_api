@@ -12,7 +12,6 @@ export const Dashboard = {
         this.session = session;
         this.setupTabs();
         this.setupUserBadge();
-        FeedbackModule.init(session);
         this.loadTab('tab-home');
     },
 

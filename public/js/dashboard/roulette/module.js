@@ -34,8 +34,6 @@ export const RouletteModule = {
         if (!this.canvas)
             return;
         this.ctx = this.canvas.getContext('2d');
-        // Remove existing listeners if any (though isInitialized check prevents this, 
-        // it's good practice to be safe or just rely on the flag)
         document.getElementById('btn-spin-roulette')?.addEventListener('click', () => this.spin());
         document.getElementById('toggle-roulette')?.addEventListener('click', () => this.toggleEntries());
         document.getElementById('btn-refresh-roulette')?.addEventListener('click', () => {
@@ -103,7 +101,6 @@ export const RouletteModule = {
         if (!this.session)
             return;
         const { apiKey, token, login, displayName } = this.session;
-        // Ensure streamer is always in the list immediately
         const existing = new Set(this.chatters.map((u) => u.user_login));
         let added = 0;
         if (!existing.has(login)) {
@@ -122,7 +119,6 @@ export const RouletteModule = {
             .then(res => res.json())
             .then((data) => {
             if (data && Array.isArray(data.chatters)) {
-                // existing set needs to be updated or recreated because we might have added streamer above
                 const currentChatters = new Set(this.chatters.map(u => u.user_login.toLowerCase()));
                 let newAdded = 0;
                 data.chatters.forEach((name) => {
@@ -186,6 +182,9 @@ export const RouletteModule = {
             nameEl.textContent = winner.user_name;
             display.classList.remove('hidden');
             UI.showToast(`🏆 Ganador: ${winner.user_name}`);
+            if (this.session && this.session.login) {
+                TmiService.sendMessage(this.session.login, `🏆 ¡El ganador es @${winner.user_name}! ¡Felicidades! 🎉`);
+            }
         }
     },
     drawRouletteWheel() {
