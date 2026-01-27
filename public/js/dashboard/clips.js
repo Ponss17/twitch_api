@@ -181,13 +181,13 @@ export const ClipsModule = {
     },
     renderSkeleton(container) {
         container.innerHTML = Array(8).fill(0).map(() => `
-            <div class="skeleton-card skeleton-loading">
-                <div class="skeleton-thumb"></div>
+            <div class="skeleton-card">
+                <div class="skeleton-thumb skeleton"></div>
                 <div class="skeleton-info">
-                    <div class="skeleton-title"></div>
+                    <div class="skeleton-title skeleton"></div>
                     <div class="skeleton-meta">
-                        <div class="skeleton-text"></div>
-                        <div class="skeleton-text"></div>
+                        <div class="skeleton-text skeleton"></div>
+                        <div class="skeleton-text skeleton"></div>
                     </div>
                 </div>
             </div>
