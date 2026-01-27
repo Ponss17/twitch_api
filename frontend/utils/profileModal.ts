@@ -20,7 +20,10 @@ export const ProfileModal = {
 
         const closeBtn = document.getElementById('close-modal-btn');
         if (closeBtn && !closeBtn.dataset.listener) {
-            closeBtn.addEventListener('click', () => this.close());
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.close();
+            });
             closeBtn.dataset.listener = 'true';
         }
 
@@ -31,7 +34,7 @@ export const ProfileModal = {
             overlay.dataset.listener = 'true';
         }
 
-        const modalContent = document.querySelector('.modal-content') as HTMLElement;
+        const modalContent = document.querySelector('#profile-modal-overlay .modal-content') as HTMLElement;
         if (modalContent && !modalContent.dataset.listener) {
             modalContent.addEventListener('click', (e) => e.stopPropagation());
             modalContent.dataset.listener = 'true';
