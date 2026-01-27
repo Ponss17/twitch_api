@@ -1,3 +1,16 @@
+.col-actions {
+    margin-left: auto;
+}
+
+.stalker-row {
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.stalker-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
 #stalker-controls {
     margin-left: auto;
     display: flex;
@@ -64,29 +77,6 @@
     background: linear-gradient(to right, rgba(255, 255, 255, 0.03), transparent);
     border-bottom: 1px solid var(--border);
     position: relative;
-}
-
-.profile-close-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.profile-close-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
 }
 
 .profile-avatar-large {
@@ -166,14 +156,16 @@
     text-align: left;
 }
 
-.detail-lbl, .detail-label {
+.detail-lbl,
+.detail-label {
     font-size: 0.65rem;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.detail-val, .detail-value {
+.detail-val,
+.detail-value {
     font-size: 0.85rem;
     color: var(--text-secondary);
     font-weight: 500;

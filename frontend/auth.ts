@@ -29,7 +29,7 @@ export const Auth = {
      * @param {string} credentialParam - Parámetros de credenciales (apiKey o token)
      * @returns {Promise<any>} Datos de validación o false
      */
-    async validateCurrentToken(credentialParam: any): Promise<any> {
+    async validateCurrentToken(credentialParam: string): Promise<ApiResponse | false | null> {
         try {
             if (!credentialParam) return null;
 
@@ -45,7 +45,7 @@ export const Auth = {
                 return data.valid ? data : false;
             }
 
-            return true;
+            return { valid: true } as ApiResponse;
         } catch (e) {
             return false;
         }

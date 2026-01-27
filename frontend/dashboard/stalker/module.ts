@@ -122,6 +122,19 @@ export const StalkerModule = {
         if (container && container.innerHTML.trim() === '') {
             container.innerHTML = StalkerTemplates.renderMain();
         }
+
+        const gridContainer = document.getElementById('stalker-grid');
+        if (gridContainer && !gridContainer.dataset.listener) {
+            gridContainer.onclick = (e) => {
+                const row = (e.target as HTMLElement).closest('.stalker-row');
+                if (row) {
+                    const inspectBtn = row.querySelector('.inspect-btn') as HTMLElement;
+                    const login = inspectBtn?.dataset.login;
+                    if (login) this.inspectUser(login);
+                }
+            };
+            gridContainer.dataset.listener = 'true';
+        }
     },
 
     async loadChatters() {
