@@ -1,10 +1,13 @@
+import { UI } from './ui.js';
 import { HtmlLoader } from './utils/htmlLoader.js';
+import { FeedbackModule } from './dashboard/feedback.js';
 export const Dashboard = {
     session: null,
     init(session) {
         this.session = session;
         this.setupTabs();
         this.setupUserBadge();
+        FeedbackModule.init(session);
         this.loadTab('tab-home');
     },
     setupUserBadge() {
@@ -22,7 +25,9 @@ export const Dashboard = {
         }
         const pageTitle = document.getElementById('page-title');
         if (pageTitle && displayName && this.session.login) {
-            pageTitle.innerHTML = `Bienvenido, <a href="https://twitch.tv/${this.session.login}" target="_blank" class="welcome-link">${displayName}</a>`;
+            const safeDisplayName = UI.escapeHTML(displayName);
+            const safeLogin = UI.escapeHTML(this.session.login);
+            pageTitle.innerHTML = `Bienvenido, <a href="https://twitch.tv/${safeLogin}" target="_blank" class="welcome-link">${safeDisplayName}</a>`;
         }
         document.getElementById('logout-btn')?.addEventListener('click', () => {
             import('./auth.js').then(m => m.Auth.logout());

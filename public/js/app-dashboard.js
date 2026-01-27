@@ -28,10 +28,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             let avatarUrl = null;
             let displayName = sessionParams.displayName || sessionParams.login;
-            if (typeof validationResult === 'object') {
-                avatarUrl = validationResult.profile_image_url;
-                if (validationResult.display_name) {
-                    displayName = validationResult.display_name;
+            if (typeof validationResult === 'object' && validationResult !== null) {
+                const user = validationResult;
+                avatarUrl = user.profile_image_url;
+                if (user.display_name) {
+                    displayName = user.display_name;
                 }
                 sessionParams.displayName = displayName;
                 sessionParams.profile_image_url = avatarUrl;

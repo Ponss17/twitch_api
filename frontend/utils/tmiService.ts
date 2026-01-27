@@ -1,3 +1,9 @@
+export interface TmiTags {
+    username: string;
+    'display-name'?: string;
+    [key: string]: any;
+}
+
 declare global {
     interface Window {
         tmi: any;
@@ -6,7 +12,7 @@ declare global {
 
 export const TmiService = {
     client: null as any,
-    listeners: new Map<string, Function>(),
+    listeners: new Map<string, (channel: string, tags: TmiTags, message: string) => void>(),
     isConnected: false,
     activeClients: 0,
     connectionPromise: null as Promise<void> | null,
@@ -28,9 +34,9 @@ export const TmiService = {
 
         this.client = new window.tmi.Client(options);
 
-        this.client.on('message', (channel: string, tags: any, message: string, self: boolean) => {
+        this.client.on('message', (channel: string, tags: TmiTags, message: string, self: boolean) => {
             if (self) return;
-            this.listeners.forEach((callback: Function) => callback(channel, tags, message));
+            this.listeners.forEach((callback) => callback(channel, tags, message));
         });
 
         this.connectionPromise = this.client.connect()
@@ -44,7 +50,7 @@ export const TmiService = {
         return this.connectionPromise!;
     },
 
-    addListener(id: string, callback: Function) {
+    addListener(id: string, callback: (channel: string, tags: TmiTags, message: string) => void) {
         this.listeners.set(id, callback);
     },
 

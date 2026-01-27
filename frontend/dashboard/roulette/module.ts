@@ -2,8 +2,12 @@ import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
 import { API_ENDPOINTS } from '../../utils/constants.js';
 import { CONFIG } from '../../config.js';
-import { TmiService } from '../../utils/tmiService.js';
+import { TmiService, TmiTags } from '../../utils/tmiService.js';
 import { Session, RouletteUser } from '../../types.js';
+
+interface ChattersResponse {
+    chatters: string[];
+}
 
 export const RouletteModule = {
     session: null as Session | null,
@@ -20,20 +24,24 @@ export const RouletteModule = {
     isSpinning: false,
     isOpen: false,
     isConnected: false,
+    isInitialized: false,
 
     init(session: Session) {
         this.session = session;
-        import('../../utils/loader.js').then(({ Loader }) => {
-            Loader.loadCSS('css/sections/roulette.css');
-        });
-        this.setupUI();
+        if (!this.isInitialized) {
+            import('../../utils/loader.js').then(({ Loader }) => {
+                Loader.loadCSS('css/sections/roulette.css');
+            });
+            this.setupUI();
+            this.isInitialized = true;
+        }
     },
 
     setupUI() {
         this.canvas = document.getElementById('roulette-canvas') as HTMLCanvasElement;
         if (!this.canvas) return;
         this.ctx = this.canvas.getContext('2d');
-
+        
         document.getElementById('btn-spin-roulette')?.addEventListener('click', () => this.spin());
         document.getElementById('toggle-roulette')?.addEventListener('click', () => this.toggleEntries());
         document.getElementById('btn-refresh-roulette')?.addEventListener('click', () => {
@@ -71,7 +79,7 @@ export const RouletteModule = {
         if (!this.session) return;
         TmiService.connect(this.session.login).then(() => {
             this.isConnected = true;
-            TmiService.addListener('roulette', (channel: string, tags: any, message: string) => {
+            TmiService.addListener('roulette', (channel: string, tags: TmiTags, message: string) => {
                 if (this.isSpinning || !this.isOpen) return;
                 const login = tags.username;
                 if (CONFIG.IGNORED_BOTS.has(login.toLowerCase())) return;
@@ -99,37 +107,54 @@ export const RouletteModule = {
         this.drawRouletteWheel();
     },
 
-    loadChatters() {        if (!this.session) return;
-        const { apiKey, token, login } = this.session;
+    loadChatters() {
+        if (!this.session) return;
+        const { apiKey, token, login, displayName } = this.session;
+        
+        const existing = new Set(this.chatters.map((u: RouletteUser) => u.user_login));
+        let added = 0;
+
+        if (!existing.has(login)) {
+            this.chatters.push({ 
+                user_login: login, 
+                user_name: displayName || login 
+            });
+            existing.add(login);
+            added++;
+        }
+
+        if (added > 0) {
+            this.updateUI();
+        }
+
         const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
         
         fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&${tokenParam}`)
             .then(res => res.json())
-            .then((data: any) => {
-                if (data.chatters) {
-                    const existing = new Set(this.chatters.map((u: RouletteUser) => u.user_login));
-                    let added = 0;
-                    
-                    if (!existing.has(login)) {
-                        this.chatters.push({ user_login: login, user_name: login });
-                        existing.add(login);
-                        added++;
-                    }
+            .then((data: ChattersResponse) => {
+                if (data && Array.isArray(data.chatters)) {
+                    const currentChatters = new Set(this.chatters.map(u => u.user_login.toLowerCase()));
+                    let newAdded = 0;
 
                     data.chatters.forEach((name: string) => {
-                        if (!existing.has(name) && !CONFIG.IGNORED_BOTS.has(name.toLowerCase())) {
+                        const lowerName = name.toLowerCase();
+                        if (!currentChatters.has(lowerName) && !CONFIG.IGNORED_BOTS.has(lowerName)) {
                             this.chatters.push({ user_login: name, user_name: name });
-                            added++;
+                            currentChatters.add(lowerName);
+                            newAdded++;
                         }
                     });
 
-                    if (added > 0) {
+                    if (newAdded > 0) {
                         this.updateUI();
                         this.pulseCounter();
                     }
                 }
             })
-            .catch(err => console.error('Error loading chatters:', err));
+            .catch(err => {
+                console.error('Error loading chatters:', err);
+                UI.showToast('Error al cargar usuarios del chat', 'error');
+            });
     },
 
     spin() {

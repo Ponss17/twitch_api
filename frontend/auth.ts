@@ -49,17 +49,18 @@ export const Auth = {
     parseUrlParams(): Session {
         const params = new URLSearchParams(window.location.search);
         const savedSession = this.getSession();
-        const session: any = {
+        
+        const session: Session = {
+            login: params.get('login') || savedSession?.login || '',
+            displayName: params.get('displayName') || savedSession?.displayName || '',
+            profile_image_url: savedSession?.profile_image_url || '',
             token: params.get('token') || savedSession?.token,
             apiKey: params.get('apiKey') || savedSession?.apiKey,
             userId: params.get('userId') || savedSession?.userId,
-            login: params.get('login') || savedSession?.login,
-            displayName: params.get('displayName') || savedSession?.displayName,
-            profile_image_url: savedSession?.profile_image_url || '',
             isNewLogin: !!params.get('token') || !!params.get('apiKey')
         };
         
-        return session as Session;
+        return session;
     },
 
     setupLoginButton(loginBtnId: string): void {

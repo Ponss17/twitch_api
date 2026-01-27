@@ -72,7 +72,7 @@
     right: 15px;
     background: rgba(0, 0, 0, 0.3);
     border: none;
-    color: white;
+    color: var(--text-primary);
     width: 32px;
     height: 32px;
     border-radius: 50%;
