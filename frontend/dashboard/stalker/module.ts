@@ -96,7 +96,7 @@ export const StalkerModule = {
                 if (CONFIG.IGNORED_BOTS.has(login.toLowerCase())) return;
 
                 import('../trends/module.js').then(({ TrendsModule }) => {
-                    TrendsModule.messageLog.unshift({ user: login, text: message, time: new Date() });
+                    TrendsModule.messageLog.unshift({ user: login.toLowerCase(), text: message, time: new Date() });
                     if (TrendsModule.messageLog.length > TrendsModule.MAX_LOG_SIZE) TrendsModule.messageLog.pop();
                 });
 
