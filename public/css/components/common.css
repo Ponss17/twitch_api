@@ -199,6 +199,35 @@
     transform: scale(1);
 }
 
+.profile-modal {
+    max-width: 450px;
+    border-radius: 20px;
+}
+
+.profile-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+.profile-close-btn:hover {
+    background: var(--danger);
+    transform: rotate(90deg);
+}
+
 .tool-selector {
     display: flex;
     justify-content: space-between;

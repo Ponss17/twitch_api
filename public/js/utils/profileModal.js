@@ -14,24 +14,22 @@ export const ProfileModal = {
         }
         overlay.classList.add('active');
         const closeBtn = document.getElementById('close-modal-btn');
-        if (closeBtn && !closeBtn.dataset.listener) {
-            closeBtn.addEventListener('click', (e) => {
+        if (closeBtn) {
+            closeBtn.onclick = (e) => {
                 e.stopPropagation();
                 this.close();
-            });
-            closeBtn.dataset.listener = 'true';
+            };
         }
         if (!overlay.dataset.listener) {
-            overlay.addEventListener('click', (e) => {
+            overlay.onclick = (e) => {
                 if (e.target === overlay)
                     this.close();
-            });
+            };
             overlay.dataset.listener = 'true';
         }
-        const modalContent = document.querySelector('#profile-modal-overlay .modal-content');
-        if (modalContent && !modalContent.dataset.listener) {
-            modalContent.addEventListener('click', (e) => e.stopPropagation());
-            modalContent.dataset.listener = 'true';
+        const modalCard = content.parentElement;
+        if (modalCard) {
+            modalCard.onclick = (e) => e.stopPropagation();
         }
     },
     close() {

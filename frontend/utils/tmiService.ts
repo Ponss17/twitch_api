@@ -8,14 +8,23 @@ export interface TmiTags {
     [key: string]: any;
 }
 
+interface TmiClient {
+    connect: () => Promise<void>;
+    disconnect: () => Promise<void>;
+    on: (event: string, callback: (...args: any[]) => void) => void;
+    say: (channel: string, message: string) => Promise<any>;
+}
+
 declare global {
     interface Window {
-        tmi: any;
+        tmi: {
+            Client: new (options: any) => TmiClient;
+        };
     }
 }
 
 export const TmiService = {
-    client: null as any,
+    client: null as TmiClient | null,
     listeners: new Map<string, (channel: string, tags: TmiTags, message: string) => void>(),
     isConnected: false,
     activeClients: 0,
@@ -61,7 +70,10 @@ export const TmiService = {
 
         attachListeners(this.client);
 
+        if (!this.client) return Promise.reject('Client initialization failed');
+
         this.connectionPromise = new Promise<void>((resolve, reject) => {
+            if (!this.client) return reject('Client not found');
             this.client.connect()
                 .then(() => {
                     this.isConnected = true;

@@ -42,7 +42,11 @@ export const TmiService = {
             });
         };
         attachListeners(this.client);
+        if (!this.client)
+            return Promise.reject('Client initialization failed');
         this.connectionPromise = new Promise((resolve, reject) => {
+            if (!this.client)
+                return reject('Client not found');
             this.client.connect()
                 .then(() => {
                 this.isConnected = true;

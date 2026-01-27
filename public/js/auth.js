@@ -37,7 +37,7 @@ export const Auth = {
                 const data = await response.json();
                 return data.valid ? data : false;
             }
-            return true;
+            return { valid: true };
         }
         catch (e) {
             return false;
