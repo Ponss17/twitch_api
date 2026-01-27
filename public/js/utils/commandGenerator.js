@@ -39,9 +39,9 @@ export const CommandGenerator = {
     maskSecrets(cmd, secrets = {}) {
         let masked = cmd;
         if (secrets.apiKey)
-            masked = masked.replace(secrets.apiKey, this.masks.apiKey);
+            masked = masked.split(secrets.apiKey).join(this.masks.apiKey);
         if (secrets.token)
-            masked = masked.replace(secrets.token, this.masks.token);
+            masked = masked.split(secrets.token).join(this.masks.token);
         return masked;
     }
 };

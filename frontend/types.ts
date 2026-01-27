@@ -67,3 +67,9 @@ export interface Clip {
     duration: number;
     vod_offset: number;
 }
+export interface DashboardModule {
+    init(session: Session): void | Promise<void>;
+    deactivate?(): void;
+    initialized?: boolean;
+    isInitialized?: boolean;
+}

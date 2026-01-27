@@ -81,10 +81,10 @@ export const Magic8Module = {
             }
         }
     },
-    showResponse(html, type) {
+    showResponse(text, type) {
         const responseEl = document.getElementById(DOM_IDS.MAGIC8.RESPONSE);
         if (responseEl) {
-            responseEl.innerHTML = html;
+            responseEl.textContent = text;
             responseEl.className = `response-card ${type} active`;
         }
     }

@@ -199,7 +199,8 @@ export const StalkerModule = {
         } catch (error) {
             console.error(error);
             loading?.classList.add('hidden');
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px;">${(error as Error).message}</td></tr>`;
+            const safeMsg = UI.escapeHTML((error as Error).message);
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px;">${safeMsg}</td></tr>`;
         }
     },
 

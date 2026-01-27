@@ -4,6 +4,7 @@ import { Messages } from '../../utils/messages.js';
 import { CommandGenerator } from '../../utils/commandGenerator.js';
 import { COMMAND_CONFIG } from './config.js';
 import { CommandTemplates } from './templates.js';
+import { UI } from '../../ui.js';
 window.CommandUtils = { CommandGenerator };
 export const CommandsModule = {
     session: null,
@@ -101,13 +102,14 @@ export const CommandsModule = {
             try {
                 const response = await fetch(url);
                 const text = await response.text();
+                const safeText = UI.escapeHTML(text);
                 if (response.ok) {
                     resultBox.classList.add('success');
-                    resultText.innerHTML = `<i class="fa-solid fa-check"></i> ${text}`;
+                    resultText.innerHTML = `<i class="fa-solid fa-check"></i> ${safeText}`;
                 }
                 else {
                     resultBox.classList.add('error');
-                    resultText.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${text}`;
+                    resultText.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${safeText}`;
                 }
             }
             catch (err) {

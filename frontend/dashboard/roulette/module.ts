@@ -211,11 +211,11 @@ export const RouletteModule = {
         if (this.spinTimeout) clearTimeout(this.spinTimeout);
         this.isSpinning = false;
 
-        const degrees = this.startAngle * 180 / Math.PI + 90;
+        const degrees = (this.startAngle * 180 / Math.PI) % 360;
         const arcd = 360 / this.chatters.length;
-        const index = Math.floor((360 - degrees % 360) / arcd);
+        const index = Math.floor((360 - (degrees + 90) % 360) % 360 / arcd);
 
-        const winner = this.chatters[index];
+        const winner = this.chatters[index % this.chatters.length];
         this.showWinner(winner);
     },
 
