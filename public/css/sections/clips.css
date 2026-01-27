@@ -157,6 +157,7 @@
     background: var(--bg-tertiary);
     position: relative;
     overflow: hidden;
+    border-radius: var(--radius) var(--radius) 0 0;
 }
 
 .skeleton-info {
@@ -169,6 +170,8 @@
     width: 80%;
     margin-bottom: 15px;
     border-radius: 4px;
+    position: relative;
+    overflow: hidden;
 }
 
 .skeleton-meta {
@@ -181,30 +184,14 @@
     background: var(--bg-tertiary);
     width: 30%;
     border-radius: 3px;
+    position: relative;
+    overflow: hidden;
 }
 
-.skeleton-loading .skeleton-thumb::after,
-.skeleton-loading .skeleton-title::after,
-.skeleton-loading .skeleton-text::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    transform: translateX(-100%);
-    background-image: linear-gradient(90deg,
-            rgba(255, 255, 255, 0) 0,
-            rgba(255, 255, 255, 0.05) 20%,
-            rgba(255, 255, 255, 0.1) 60%,
-            rgba(255, 255, 255, 0));
-    animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-    100% {
-        transform: translateX(100%);
-    }
+.skeleton-loading .skeleton-thumb,
+.skeleton-loading .skeleton-title,
+.skeleton-loading .skeleton-text {
+    background-color: var(--bg-tertiary);
 }
 
 .load-more-container {

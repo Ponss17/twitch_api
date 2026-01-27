@@ -53,6 +53,7 @@ export const StalkerTemplates = {
 
     renderRow(user: StalkerUser, viewBtnText: string, inspectFn: (login: string) => void) {
         const tr = document.createElement('tr');
+        tr.className = 'stalker-row';
 
         const avatarTd = document.createElement('td');
         avatarTd.innerHTML = user.profile_image_url
@@ -71,9 +72,13 @@ export const StalkerTemplates = {
         actionTd.className = 'text-right';
 
         const btn = document.createElement('button');
-        btn.className = 'action-btn';
+        btn.className = 'action-btn inspect-btn';
+        btn.dataset.login = user.user_login;
         btn.innerHTML = viewBtnText;
-        btn.onclick = () => inspectFn(user.user_login);
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            inspectFn(user.user_login);
+        };
 
         actionTd.appendChild(btn);
         tr.appendChild(avatarTd);
@@ -82,5 +87,20 @@ export const StalkerTemplates = {
         tr.appendChild(actionTd);
 
         return tr;
+    },
+
+    renderRowsSkeleton(count = 5) {
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < count; i++) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><div class="skeleton skeleton-circle" style="width: 32px; height: 32px;"></div></td>
+                <td><div class="skeleton" style="width: 100px; height: 16px;"></div></td>
+                <td><div class="skeleton" style="width: 80px; height: 14px;"></div></td>
+                <td class="text-right"><div class="skeleton" style="width: 60px; height: 28px; border-radius: 6px;"></div></td>
+            `;
+            fragment.appendChild(tr);
+        }
+        return fragment;
     }
 };

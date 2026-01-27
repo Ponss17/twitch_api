@@ -144,7 +144,8 @@ export const StalkerModule = {
         if (!tbody)
             return;
         tbody.innerHTML = '';
-        loading?.classList.remove('hidden');
+        loading?.classList.add('hidden'); // Hide the old spinner container if it exists
+        tbody.appendChild(StalkerTemplates.renderRowsSkeleton(8));
         empty?.classList.add('hidden');
         try {
             if (!this.session)
