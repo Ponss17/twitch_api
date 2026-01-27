@@ -59,7 +59,13 @@ export const TrendsModule = {
 
     connect() {
         if (!this.session) return;
-        TmiService.connect(this.session.login).then(() => {
+
+        const auth = this.session.token ? {
+            username: this.session.login,
+            token: this.session.token
+        } : undefined;
+
+        TmiService.connect(this.session.login, auth).then(() => {
             this.updateStatus(true);
             this.isConnected = true;
             TmiService.addListener('trends', (chn: string, tags: TmiTags, message: string) => {

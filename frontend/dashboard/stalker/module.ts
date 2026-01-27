@@ -71,7 +71,13 @@ export const StalkerModule = {
     connectTmi() {
         if (this.isConnected) return;
         if (!this.session) return;
-        TmiService.connect(this.session.login).then(() => {
+
+        const auth = this.session.token ? {
+            username: this.session.login,
+            token: this.session.token
+        } : undefined;
+
+        TmiService.connect(this.session.login, auth).then(() => {
             this.isConnected = true;
             TmiService.addListener('stalker', (channel: string, tags: TmiTags, message: string) => {
                 if (!this.isScanning) return;
