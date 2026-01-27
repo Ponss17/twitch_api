@@ -58,7 +58,7 @@ export const RouletteModule = {
         document.getElementById('toggle-roulette')?.addEventListener('click', () => this.toggleEntries());
         document.getElementById('btn-refresh-roulette')?.addEventListener('click', () => {
             this.loadChatters();
-            UI.showToast(Messages.Roulette.updated, 'success');
+            UI.showToast(Messages.Roulette.updatedRaw, 'success', 'fa-check');
         });
         document.getElementById('close-winner-display')?.addEventListener('click', () => {
             document.getElementById('roulette-winner-display')?.classList.add('hidden');
@@ -76,17 +76,17 @@ export const RouletteModule = {
         }
 
         if (this.isOpen) {
-            UI.showToast(Messages.Roulette.open);
+            UI.showToast(Messages.Roulette.openRaw, 'success', 'fa-door-open');
             this.loadChatters();
             this.connectTmi();
         } else {
-            UI.showToast(Messages.Roulette.closed, 'warning');
+            UI.showToast(Messages.Roulette.closedRaw, 'warning', 'fa-door-closed');
             TmiService.disconnect();
             this.isConnected = false;
         }
     },
 
-    connectTmi() {
+    async connectTmi() {
         if (this.isConnected) return;
         if (!this.session) return;
 
@@ -95,7 +95,8 @@ export const RouletteModule = {
             token: this.session.token
         } : undefined;
 
-        TmiService.connect(this.session.login, auth).then(() => {
+        try {
+            await TmiService.connect(this.session.login, auth);
             this.isConnected = true;
             TmiService.addListener('roulette', (channel: string, tags: TmiTags, message: string) => {
                 if (this.isSpinning || !this.isOpen) return;
@@ -108,11 +109,11 @@ export const RouletteModule = {
                     this.pulseCounter();
                 }
             });
-        }).catch((err: any) => {
+        } catch (err: any) {
             console.error('Roulette TMI Error:', err);
             UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
             this.toggleEntries();
-        });
+        }
     },
 
     pulseCounter() {
@@ -132,7 +133,6 @@ export const RouletteModule = {
     loadChatters() {
         if (!this.session) return;
         const { apiKey, token, login, displayName } = this.session;
-
         const existing = new Set(this.chatters.map((u: RouletteUser) => u.user_login));
         let added = 0;
 
@@ -214,7 +214,6 @@ export const RouletteModule = {
         const degrees = (this.startAngle * 180 / Math.PI) % 360;
         const arcd = 360 / this.chatters.length;
         const index = Math.floor((360 - (degrees + 90) % 360) % 360 / arcd);
-
         const winner = this.chatters[index % this.chatters.length];
         this.showWinner(winner);
     },
@@ -232,7 +231,7 @@ export const RouletteModule = {
             nameEl.textContent = winner.user_name;
             display.classList.remove('hidden');
 
-            UI.showToast(`🏆 Ganador: ${winner.user_name}`);
+            UI.showToast(`Ganador: ${winner.user_name}`, 'success', 'fa-trophy');
 
             if (this.session && this.session.login) {
                 TmiService.sendMessage(this.session.login, `🏆 ¡El ganador es @${winner.user_name}! ¡Felicidades! 🎉`);
@@ -264,20 +263,17 @@ export const RouletteModule = {
             const angle = this.startAngle + i * this.arc;
 
             this.ctx.fillStyle = this.colors[i % this.colors.length];
-
             this.ctx.beginPath();
             this.ctx.arc(cx, cy, outsideRadius, angle, angle + this.arc, false);
             this.ctx.arc(cx, cy, insideRadius, angle + this.arc, angle, true);
             this.ctx.stroke();
             this.ctx.fill();
-
             this.ctx.save();
             this.ctx.shadowOffsetX = -1;
             this.ctx.shadowOffsetY = -1;
             this.ctx.shadowBlur = 0;
             this.ctx.fillStyle = "white";
             this.ctx.font = 'bold 14px Poppins, sans-serif';
-
             this.ctx.translate(cx + Math.cos(angle + this.arc / 2) * textRadius,
                 cy + Math.sin(angle + this.arc / 2) * textRadius);
             this.ctx.rotate(angle + this.arc / 2 + Math.PI / 2);
@@ -297,15 +293,19 @@ export const RouletteModule = {
 
         this.ctx.beginPath();
         this.ctx.arc(cx, cy, 200, 0, 2 * Math.PI);
-        this.ctx.fillStyle = "#1f2937";
+        this.ctx.fillStyle = "#1a1625";
         this.ctx.fill();
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeStyle = "#374151";
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeStyle = "#9146ff";
         this.ctx.stroke();
-        this.ctx.fillStyle = "#9ca3af";
-        this.ctx.font = "bold 20px Poppins";
+        this.ctx.fillStyle = "#ffffff";
+        this.ctx.font = "bold 22px Poppins, sans-serif";
         this.ctx.textAlign = "center";
+        this.ctx.shadowBlur = 10;
+        this.ctx.shadowColor = "#9146ff";
         this.ctx.fillText("Esperando", cx, cy - 10);
-        this.ctx.fillText("Participantes...", cx, cy + 20);
+        this.ctx.fillText("Participantes...", cx, cy + 22);
+
+        this.ctx.shadowBlur = 0;
     }
 };

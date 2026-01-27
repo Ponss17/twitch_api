@@ -1,3 +1,4 @@
+import { Messages } from '../../utils/messages.js';
 import { StalkerUser } from '../../types.js';
 
 export const StalkerTemplates = {
@@ -18,14 +19,17 @@ export const StalkerTemplates = {
                         </tr>
                     </thead>
                     <tbody id="stalker-grid">
-                        <!-- Rows injected here -->
+                        <tr>
+                            <td colspan="4">
+                                <div id="stalker-empty" class="empty-state">
+                                    ${Messages.Stalker.waiting}
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
             
-            <div id="stalker-empty" class="empty-state">
-                Esperando actividad en el chat...
-            </div>
             <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">
                 * La detección de usuarios se basa en la actividad reciente del chat.
             </div>

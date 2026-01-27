@@ -115,7 +115,7 @@ export const TrendsModule = {
         this.messageLog = [];
         this.runTimer(minutes * 60);
         this.render();
-        UI.showToast(Messages.Tracker.started(minutes), 'success');
+        UI.showToast(Messages.Tracker.startedRaw(minutes), 'success', 'fa-hourglass-start fa-spin');
     },
 
     runTimer(seconds: number) {
@@ -148,6 +148,8 @@ export const TrendsModule = {
         if (entries.length > 0) {
             const sorted = entries.sort((a, b) => (b[1] as number) - (a[1] as number));
             UI.showToast(Messages.Tracker.winner(sorted[0][0], sorted[0][1] as number), 'success');
+        } else {
+            UI.showToast(Messages.Tracker.finishedRaw, 'success', 'fa-flag-checkered');
         }
         this.render();
     },

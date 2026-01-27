@@ -16,12 +16,7 @@ export const UI = {
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
     },
-    /**
-     * Muestra una notificación toast
-     * @param {string} message - Mensaje a mostrar
-     * @param {'success' | 'error' | 'warning'} [type='success'] - Tipo de toast
-     */
-    showToast(message, type = 'success') {
+    showToast(message, type = 'success', customIcon) {
         let container = document.querySelector('.toast-container');
         if (!container) {
             container = document.createElement('div');
@@ -30,7 +25,7 @@ export const UI = {
         }
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        const icon = type === 'success' ? 'fa-check-circle' : 'fa-triangle-exclamation';
+        const icon = customIcon || (type === 'success' ? 'fa-check-circle' : 'fa-triangle-exclamation');
         toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span></span>`;
         const textSpan = toast.querySelector('span');
         textSpan.textContent = message;

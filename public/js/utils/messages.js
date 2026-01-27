@@ -62,13 +62,16 @@ export const Messages = {
             📝 Bio: ${info.description || 'Sin bio'}
         `,
         updated: '<i class="fa-solid fa-check"></i> Lista Stalker recargada',
+        updatedRaw: 'Lista Stalker recargada',
         bioEmpty: 'Sin biografía disponible.',
         apiError: 'Error API',
         infoError: 'No se pudo cargar info del usuario',
         reloginMsg: 'Necesitas re-login (Permisos)',
         loadError: 'No se pudo cargar info del usuario',
         scanStarted: '<i class="fa-solid fa-satellite-dish fa-beat" style="--fa-beat-scale: 1.2;"></i> Escaneo iniciado',
-        scanPaused: '<i class="fa-solid fa-snowflake" style="color:#00f2ea"></i> Vista Congelada (Pausado)'
+        scanStartedRaw: 'Escaneo iniciado',
+        scanPaused: '<i class="fa-solid fa-snowflake" style="color:#00f2ea"></i> Vista Congelada (Pausado)',
+        scanPausedRaw: 'Vista Congelada (Pausado)'
     },
     Settings: {
         testing: '<i class="fa-solid fa-spinner fa-spin"></i> Probando conexión...',
@@ -95,7 +98,9 @@ export const Messages = {
         waiting: '<tr><td colspan="4" style="text-align:center; padding:20px; color:#666;">Esperando palabras...</td></tr>',
         timeUp: '¡TIEMPO!',
         started: (min) => `<i class="fa-solid fa-hourglass-start fa-spin"></i>  Tracker iniciado (${min} min)`,
+        startedRaw: (min) => `Tracker iniciado (${min} min)`,
         finished: '<i class="fa-solid fa-flag-checkered"></i> ¡Tiempo terminado!',
+        finishedRaw: '¡Tiempo terminado!',
         winner: (word, count) => `👑 Ganador: <strong>"${word}"</strong> <span style="font-size:0.9em; opacity:0.8">(${count})</span>`,
         resting: '<i class="fa-solid fa-power-off"></i> Reposo',
         ready: `
@@ -110,11 +115,14 @@ export const Messages = {
     },
     Roulette: {
         updated: '<i class="fa-solid fa-check"></i> Lista actualizada',
+        updatedRaw: 'Lista actualizada',
         noParticipants: 'No hay participantes',
         emptyWheel: 'Sin participantes',
         winner: (name) => `¡Ganador: ${name} 🎉!`,
         open: '<i class="fa-solid fa-door-open"></i> Inscripciones Abiertas',
+        openRaw: 'Inscripciones Abiertas',
         closed: '<i class="fa-solid fa-door-closed"></i> Inscripciones Cerradas',
+        closedRaw: 'Inscripciones Cerradas',
         playToOpen: "Dale al Play ▶️ para abrir"
     },
     Commands: {

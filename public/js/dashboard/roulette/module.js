@@ -50,7 +50,7 @@ export const RouletteModule = {
         document.getElementById('toggle-roulette')?.addEventListener('click', () => this.toggleEntries());
         document.getElementById('btn-refresh-roulette')?.addEventListener('click', () => {
             this.loadChatters();
-            UI.showToast(Messages.Roulette.updated, 'success');
+            UI.showToast(Messages.Roulette.updatedRaw, 'success', 'fa-check');
         });
         document.getElementById('close-winner-display')?.addEventListener('click', () => {
             document.getElementById('roulette-winner-display')?.classList.add('hidden');
@@ -65,17 +65,17 @@ export const RouletteModule = {
             btn.innerHTML = this.isOpen ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
         }
         if (this.isOpen) {
-            UI.showToast(Messages.Roulette.open);
+            UI.showToast(Messages.Roulette.openRaw, 'success', 'fa-door-open');
             this.loadChatters();
             this.connectTmi();
         }
         else {
-            UI.showToast(Messages.Roulette.closed, 'warning');
+            UI.showToast(Messages.Roulette.closedRaw, 'warning', 'fa-door-closed');
             TmiService.disconnect();
             this.isConnected = false;
         }
     },
-    connectTmi() {
+    async connectTmi() {
         if (this.isConnected)
             return;
         if (!this.session)
@@ -84,7 +84,8 @@ export const RouletteModule = {
             username: this.session.login,
             token: this.session.token
         } : undefined;
-        TmiService.connect(this.session.login, auth).then(() => {
+        try {
+            await TmiService.connect(this.session.login, auth);
             this.isConnected = true;
             TmiService.addListener('roulette', (channel, tags, message) => {
                 if (this.isSpinning || !this.isOpen)
@@ -98,11 +99,12 @@ export const RouletteModule = {
                     this.pulseCounter();
                 }
             });
-        }).catch((err) => {
+        }
+        catch (err) {
             console.error('Roulette TMI Error:', err);
             UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
             this.toggleEntries();
-        });
+        }
     },
     pulseCounter() {
         const countDisplay = document.getElementById('roulette-count');
@@ -206,7 +208,7 @@ export const RouletteModule = {
         if (display && nameEl) {
             nameEl.textContent = winner.user_name;
             display.classList.remove('hidden');
-            UI.showToast(`🏆 Ganador: ${winner.user_name}`);
+            UI.showToast(`Ganador: ${winner.user_name}`, 'success', 'fa-trophy');
             if (this.session && this.session.login) {
                 TmiService.sendMessage(this.session.login, `🏆 ¡El ganador es @${winner.user_name}! ¡Felicidades! 🎉`);
             }
@@ -256,15 +258,18 @@ export const RouletteModule = {
         this.ctx.clearRect(0, 0, 500, 500);
         this.ctx.beginPath();
         this.ctx.arc(cx, cy, 200, 0, 2 * Math.PI);
-        this.ctx.fillStyle = "#1f2937";
+        this.ctx.fillStyle = "#1a1625";
         this.ctx.fill();
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeStyle = "#374151";
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeStyle = "#9146ff";
         this.ctx.stroke();
-        this.ctx.fillStyle = "#9ca3af";
-        this.ctx.font = "bold 20px Poppins";
+        this.ctx.fillStyle = "#ffffff";
+        this.ctx.font = "bold 22px Poppins, sans-serif";
         this.ctx.textAlign = "center";
+        this.ctx.shadowBlur = 10;
+        this.ctx.shadowColor = "#9146ff";
         this.ctx.fillText("Esperando", cx, cy - 10);
-        this.ctx.fillText("Participantes...", cx, cy + 20);
+        this.ctx.fillText("Participantes...", cx, cy + 22);
+        this.ctx.shadowBlur = 0;
     }
 };
