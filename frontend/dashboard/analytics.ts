@@ -27,6 +27,10 @@ export const AnalyticsModule = {
         this.initialized = true;
     },
 
+    deactivate() {
+        console.log('[AnalyticsModule] Deactivated');
+    },
+
     async load(force = false) {
         const statsContainer = document.getElementById('stats-grid');
         if (!statsContainer) return;

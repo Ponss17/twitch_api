@@ -44,7 +44,7 @@ export const StalkerModule = {
                 if (btn.id === 'refresh-stalker') {
                     if (this.isScanning) {
                         this.loadChatters();
-                        UI.showToast(Messages.Stalker.updated);
+                        UI.showToast(Messages.Stalker.updatedRaw, 'success', 'fa-check');
                     }
                 }
             });
@@ -66,11 +66,11 @@ export const StalkerModule = {
         }
 
         if (this.isScanning) {
-            UI.showToast(Messages.Stalker.scanStarted, 'success');
+            UI.showToast(Messages.Stalker.scanStartedRaw, 'success', 'fa-satellite-dish fa-beat');
             this.loadChatters();
             this.connectTmi();
         } else {
-            UI.showToast(Messages.Stalker.scanPaused, 'warning');
+            UI.showToast(Messages.Stalker.scanPausedRaw, 'warning', 'fa-snowflake');
             TmiService.disconnect();
             this.isConnected = false;
         }
@@ -105,7 +105,6 @@ export const StalkerModule = {
                     this.chatters.unshift(newUser);
                     this.renderTable(this.chatters);
                     (document.getElementById('stalker-grid') as HTMLElement)?.firstChild?.parentElement?.classList.add('row-highlight');
-                    document.getElementById('stalker-empty')?.classList.add('hidden');
                 }
             });
         }).catch((err: any) => {
@@ -149,13 +148,11 @@ export const StalkerModule = {
         if (!this.isScanning) return;
         const tbody = document.getElementById('stalker-grid');
         const loading = document.getElementById('stalker-loading');
-        const empty = document.getElementById('stalker-empty');
         if (!tbody) return;
 
         tbody.innerHTML = '';
         loading?.classList.add('hidden');
         tbody.appendChild(StalkerTemplates.renderRowsSkeleton(8));
-        empty?.classList.add('hidden');
 
         try {
             if (!this.session) return;
@@ -192,7 +189,9 @@ export const StalkerModule = {
                 this.chatters = Array.from(chatterMap.values());
                 this.renderTable(this.chatters);
                 loading?.classList.add('hidden');
-                if (this.chatters.length === 0) empty?.classList.remove('hidden');
+                if (this.chatters.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state">${Messages.Stalker.waiting}</div></td></tr>`;
+                }
             } else {
                 throw new Error('Invalid data format');
             }

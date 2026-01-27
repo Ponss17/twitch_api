@@ -17,6 +17,10 @@ export const AccountModule = {
         this.isInitialized = true;
     },
 
+    deactivate() {
+        console.log('[AccountModule] Deactivated');
+    },
+
     updateValues() {
         const userIdInput = document.getElementById('user-id') as HTMLInputElement;
         const userTokenInput = document.getElementById('user-token') as HTMLInputElement;
