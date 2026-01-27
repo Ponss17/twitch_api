@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof validationResult === 'object' && validationResult !== null) {
                 const data = validationResult;
                 const user = data.user;
-                // Update token if returned (e.g. from API Key refresh)
                 if (data.token) {
                     sessionParams.token = data.token;
                 }
@@ -43,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 sessionParams.profile_image_url = avatarUrl;
             }
             Dashboard.init(sessionParams);
-            Auth.saveSession(sessionParams); // Save the session with the potentially new token
+            Auth.saveSession(sessionParams);
             if (sessionParams.isNewLogin) {
                 const cleanUrl = window.location.pathname + window.location.hash;
                 window.history.replaceState({}, document.title, cleanUrl);
