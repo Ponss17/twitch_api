@@ -62,6 +62,8 @@ export const Auth = {
         this.clearSession();
         let currentUrl = window.location.href.split('?')[0];
         currentUrl = currentUrl.replace('://www.', '://');
-        window.location.href = `auth/twitch?redirect_origin=${encodeURIComponent(currentUrl)}`;
+        // Use absolute path based on API_URL to ensure it works from subdirectories like /dashboard
+        const authPath = `${CONFIG.API_URL}/auth/twitch`;
+        window.location.href = `${authPath}?redirect_origin=${encodeURIComponent(currentUrl)}`;
     }
 };
