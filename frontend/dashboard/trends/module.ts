@@ -78,7 +78,12 @@ export const TrendsModule = {
 
                 this.processMessage(message);
             });
-        }).catch(() => this.updateStatus(false));
+        }).catch((err: any) => {
+            console.error('Trends TMI Error:', err);
+            this.updateStatus(false);
+            UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
+            this.endTimer(); // Stop timer if connection fails
+        });
     },
 
     updateStatus(connected: boolean) {
