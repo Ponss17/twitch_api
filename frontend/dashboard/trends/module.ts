@@ -3,13 +3,7 @@ import { CONFIG } from '../../config.js';
 import { UI } from '../../ui.js';
 import { TmiService, TmiTags } from '../../utils/tmiService.js';
 import { TrendsTemplates } from './templates.js';
-import { Session } from '../../types.js';
-
-interface TrendMessage {
-    user: string;
-    text: string;
-    time: Date;
-}
+import { Session, ChatLogItem } from '../../types.js';
 
 export const TrendsModule = {
     wordCounts: {} as Record<string, number>,
@@ -19,7 +13,7 @@ export const TrendsModule = {
         'que', 'qué', 'es', 'son', 'se', 'mi', 'tu', 'su', 'yo', 'me', 'te', 'le',
         'http', 'https', 'www', 'com'
     ]),
-    messageLog: [] as TrendMessage[],
+    messageLog: [] as ChatLogItem[],
     MAX_LOG_SIZE: 500,
     isTracking: false,
     isConnected: false,
@@ -82,7 +76,7 @@ export const TrendsModule = {
             console.error('Trends TMI Error:', err);
             this.updateStatus(false);
             UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
-            this.endTimer(); // Stop timer if connection fails
+            this.endTimer();
         });
     },
 
@@ -177,7 +171,7 @@ export const TrendsModule = {
     renderPending: false,
 
     getMessagesByUser(username: string) {
-        return this.messageLog.filter((log: TrendMessage) => log.user.toLowerCase() === username.toLowerCase());
+        return this.messageLog.filter((log: ChatLogItem) => log.user.toLowerCase() === username.toLowerCase());
     },
 
     render() {

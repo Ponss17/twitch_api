@@ -1,3 +1,7 @@
+import { Auth } from '../auth.js';
+import { UI } from '../ui.js';
+import { Messages } from './messages.js';
+
 export interface TmiTags {
     username: string;
     'display-name'?: string;
@@ -57,10 +61,17 @@ export const TmiService = {
                     resolve();
                 })
                 .catch(async (err: any) => {
-                    console.error('❌ TMI Connection Error:', err);
-                    
-                    if (auth && (err === 'Login unsuccessful' || (typeof err === 'string' && err.includes('Login unsuccessful')))) {
-                        console.warn('🔄 Retrying with anonymous connection...');
+                    const isLoginError = auth && (err === 'Login unsuccessful' || (typeof err === 'string' && err.includes('Login unsuccessful')));
+
+                    if (isLoginError) {
+                        console.error('❌ TMI Auth failed. Session invalid.');
+                        UI.showToast(Messages.Auth.sessionExpired || 'Sesión expirada', 'error');
+                        
+                        setTimeout(() => {
+                            Auth.relogin();
+                        }, 2000);
+
+                        console.warn('⚠️ Retrying anonymously pending redirect...', err);
                         delete options.identity;
                         this.client = new window.tmi.Client(options);
                         attachListeners(this.client);
@@ -75,6 +86,7 @@ export const TmiService = {
                             reject(anonErr);
                         }
                     } else {
+                        console.error('❌ TMI Connection Error:', err);
                         this.isConnected = false;
                         this.activeClients = 0;
                         reject(err);
@@ -97,6 +109,10 @@ export const TmiService = {
         if (this.client && this.isConnected) {
             this.client.say(channel, message).catch((err: any) => {
                 console.error('Error sending message:', err);
+                if (err === 'Cannot send anonymous messages' || (typeof err === 'string' && (err.includes('anonymous') || err.includes('Login unsuccessful')))) {
+                    UI.showToast(Messages.Auth.sessionExpired, 'error');
+                    setTimeout(() => Auth.relogin(), 2000);
+                }
             });
         } else {
             console.warn('Cannot send message: TMI not connected');
