@@ -96,6 +96,10 @@ export const RouletteModule = {
                     this.pulseCounter();
                 }
             });
+        }).catch((err: any) => {
+            console.error('Roulette TMI Error:', err);
+            UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
+            this.toggleEntries();
         });
     },
 

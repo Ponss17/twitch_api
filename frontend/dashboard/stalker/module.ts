@@ -92,6 +92,10 @@ export const StalkerModule = {
                     document.getElementById('stalker-empty')?.classList.add('hidden');
                 }
             });
+        }).catch((err: any) => {
+            console.error('Stalker TMI Error:', err);
+            UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
+            this.toggleScan();
         });
     },
 

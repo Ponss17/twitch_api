@@ -41,20 +41,48 @@ export const TmiService = {
 
         this.client = new window.tmi.Client(options);
 
-        this.client.on('message', (channel: string, tags: TmiTags, message: string, self: boolean) => {
-            if (self) return;
-            this.listeners.forEach((callback) => callback(channel, tags, message));
+        const attachListeners = (clientInstance: any) => {
+            clientInstance.on('message', (channel: string, tags: TmiTags, message: string, self: boolean) => {
+                if (self) return;
+                this.listeners.forEach((callback) => callback(channel, tags, message));
+            });
+        };
+
+        attachListeners(this.client);
+
+        this.connectionPromise = new Promise<void>((resolve, reject) => {
+            this.client.connect()
+                .then(() => {
+                    this.isConnected = true;
+                    resolve();
+                })
+                .catch(async (err: any) => {
+                    console.error('❌ TMI Connection Error:', err);
+                    
+                    if (auth && (err === 'Login unsuccessful' || (typeof err === 'string' && err.includes('Login unsuccessful')))) {
+                        console.warn('🔄 Retrying with anonymous connection...');
+                        delete options.identity;
+                        this.client = new window.tmi.Client(options);
+                        attachListeners(this.client);
+                        
+                        try {
+                            await this.client.connect();
+                            this.isConnected = true;
+                            resolve();
+                        } catch (anonErr) {
+                            this.isConnected = false;
+                            this.activeClients = 0;
+                            reject(anonErr);
+                        }
+                    } else {
+                        this.isConnected = false;
+                        this.activeClients = 0;
+                        reject(err);
+                    }
+                });
         });
 
-        this.connectionPromise = this.client.connect()
-            .then(() => { this.isConnected = true; })
-            .catch((err: any) => {
-                console.error('❌ TMI Connection Error:', err);
-                this.isConnected = false;
-                this.activeClients = 0;
-            });
-
-        return this.connectionPromise!;
+        return this.connectionPromise;
     },
 
     addListener(id: string, callback: (channel: string, tags: TmiTags, message: string) => void) {
