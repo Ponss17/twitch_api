@@ -95,7 +95,7 @@
 }
 
 .nav-item.active i {
-    color: #a78bfa;
+    color: var(--accent);
 }
 
 .sidebar-footer {

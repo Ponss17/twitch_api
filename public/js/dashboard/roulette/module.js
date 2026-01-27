@@ -18,18 +18,24 @@ export const RouletteModule = {
     isSpinning: false,
     isOpen: false,
     isConnected: false,
+    isInitialized: false,
     init(session) {
         this.session = session;
-        import('../../utils/loader.js').then(({ Loader }) => {
-            Loader.loadCSS('css/sections/roulette.css');
-        });
-        this.setupUI();
+        if (!this.isInitialized) {
+            import('../../utils/loader.js').then(({ Loader }) => {
+                Loader.loadCSS('css/sections/roulette.css');
+            });
+            this.setupUI();
+            this.isInitialized = true;
+        }
     },
     setupUI() {
         this.canvas = document.getElementById('roulette-canvas');
         if (!this.canvas)
             return;
         this.ctx = this.canvas.getContext('2d');
+        // Remove existing listeners if any (though isInitialized check prevents this, 
+        // it's good practice to be safe or just rely on the flag)
         document.getElementById('btn-spin-roulette')?.addEventListener('click', () => this.spin());
         document.getElementById('toggle-roulette')?.addEventListener('click', () => this.toggleEntries());
         document.getElementById('btn-refresh-roulette')?.addEventListener('click', () => {
@@ -96,33 +102,47 @@ export const RouletteModule = {
     loadChatters() {
         if (!this.session)
             return;
-        const { apiKey, token, login } = this.session;
+        const { apiKey, token, login, displayName } = this.session;
+        // Ensure streamer is always in the list immediately
+        const existing = new Set(this.chatters.map((u) => u.user_login));
+        let added = 0;
+        if (!existing.has(login)) {
+            this.chatters.push({
+                user_login: login,
+                user_name: displayName || login
+            });
+            existing.add(login);
+            added++;
+        }
+        if (added > 0) {
+            this.updateUI();
+        }
         const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
         fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&${tokenParam}`)
             .then(res => res.json())
             .then((data) => {
-            if (data.chatters) {
-                const existing = new Set(this.chatters.map((u) => u.user_login));
-                let added = 0;
-                // Add broadcater if not present
-                if (!existing.has(login)) {
-                    this.chatters.push({ user_login: login, user_name: login });
-                    existing.add(login);
-                    added++;
-                }
+            if (data && Array.isArray(data.chatters)) {
+                // existing set needs to be updated or recreated because we might have added streamer above
+                const currentChatters = new Set(this.chatters.map(u => u.user_login.toLowerCase()));
+                let newAdded = 0;
                 data.chatters.forEach((name) => {
-                    if (!existing.has(name) && !CONFIG.IGNORED_BOTS.has(name.toLowerCase())) {
+                    const lowerName = name.toLowerCase();
+                    if (!currentChatters.has(lowerName) && !CONFIG.IGNORED_BOTS.has(lowerName)) {
                         this.chatters.push({ user_login: name, user_name: name });
-                        added++;
+                        currentChatters.add(lowerName);
+                        newAdded++;
                     }
                 });
-                if (added > 0) {
+                if (newAdded > 0) {
                     this.updateUI();
                     this.pulseCounter();
                 }
             }
         })
-            .catch(err => console.error('Error loading chatters:', err));
+            .catch(err => {
+            console.error('Error loading chatters:', err);
+            UI.showToast('Error al cargar usuarios del chat', 'error');
+        });
     },
     spin() {
         if (this.isSpinning || this.chatters.length === 0)
@@ -173,7 +193,7 @@ export const RouletteModule = {
             return;
         const outsideRadius = 200;
         const textRadius = 160;
-        const insideRadius = 50; // Donut style
+        const insideRadius = 50;
         this.ctx.clearRect(0, 0, 500, 500);
         const len = this.chatters.length;
         if (len === 0) {
@@ -181,7 +201,6 @@ export const RouletteModule = {
             return;
         }
         this.arc = Math.PI * 2 / len;
-        // Center the wheel
         const cx = this.canvas.width / 2;
         const cy = this.canvas.height / 2;
         for (let i = 0; i < len; i++) {
@@ -199,7 +218,7 @@ export const RouletteModule = {
             this.ctx.fillStyle = "white";
             this.ctx.font = 'bold 14px Poppins, sans-serif';
             this.ctx.translate(cx + Math.cos(angle + this.arc / 2) * textRadius, cy + Math.sin(angle + this.arc / 2) * textRadius);
-            this.ctx.rotate(angle + this.arc / 2 + Math.PI / 2); // Rotate text to point outward
+            this.ctx.rotate(angle + this.arc / 2 + Math.PI / 2);
             const text = this.chatters[i].user_name;
             this.ctx.fillText(text, -this.ctx.measureText(text).width / 2, 0);
             this.ctx.restore();

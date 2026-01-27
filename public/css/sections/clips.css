@@ -62,7 +62,7 @@
     width: 100%;
     aspect-ratio: 16/9;
     object-fit: cover;
-    background: #000;
+    background: var(--bg-secondary);
 }
 
 .clip-info {

@@ -6,11 +6,13 @@ import { FooterComponent } from './components/footer.js';
 import { Messages } from './utils/messages.js';
 import { errorHandler } from './utils/errorHandler.js';
 
+import { TwitchUser, Session } from './types.js';
+
 document.addEventListener('DOMContentLoaded', async () => {
     FooterComponent.render('main-footer');
     UI.setupClipboard();
 
-    const sessionParams: any = Auth.parseUrlParams();
+    const sessionParams: Session = Auth.parseUrlParams();
     const { apiKey, token, userId } = sessionParams;
 
     if (!apiKey && !token) {
@@ -36,10 +38,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             let avatarUrl = null;
             let displayName = sessionParams.displayName || sessionParams.login;
 
-            if (typeof validationResult === 'object') {
-                avatarUrl = (validationResult as any).profile_image_url;
-                if ((validationResult as any).display_name) {
-                    displayName = (validationResult as any).display_name;
+            if (typeof validationResult === 'object' && validationResult !== null) {
+                const user = validationResult as TwitchUser;
+                avatarUrl = user.profile_image_url;
+                if (user.display_name) {
+                    displayName = user.display_name;
                 }
                 sessionParams.displayName = displayName;
                 sessionParams.profile_image_url = avatarUrl;
