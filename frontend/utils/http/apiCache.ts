@@ -1,7 +1,12 @@
-export const APICache = {
-    cache: new Map(),
+interface CacheEntry {
+    data: any;
+    timestamp: number;
+}
 
-    async fetch(url, options = {}, ttl = 60000) {
+export const APICache = {
+    cache: new Map<string, CacheEntry>(),
+
+    async fetch(url: string, options: RequestInit = {}, ttl: number = 60000) {
         const key = url + JSON.stringify(options);
         const cached = this.cache.get(key);
 
@@ -29,7 +34,7 @@ export const APICache = {
         this.cache.clear();
     },
 
-    invalidate(url) {
+    invalidate(url: string) {
         for (const [key] of this.cache) {
             if (key.startsWith(url)) {
                 this.cache.delete(key);

@@ -1,11 +1,12 @@
 import { Messages } from '../utils/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
 import { UI } from '../ui.js';
+import { Session } from '../types.js';
 
 export const FeedbackModule = {
-    session: null as any,
+    session: null as Session | null,
 
-    init(session: any) {
+    init(session: Session) {
         this.session = session;
         this.setupUI();
     },

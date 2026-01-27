@@ -2,6 +2,7 @@
  * Servicio de Caché con TTL (Time To Live)
  * Almacena respuestas de API en memoria para reducir llamadas redundantes
  */
+export const CACHE_TTL = 60000;
 export class CacheService {
     constructor() {
         this.cache = new Map();
@@ -77,15 +78,8 @@ export class CacheService {
      */
     getStats() {
         return {
-            size: this.cache.size,
-            keys: Array.from(this.cache.keys())
+            size: this.cache.size
         };
     }
 }
-export const CACHE_TTL = {
-    CLIPS: 5 * 60 * 1000,
-    USER_INFO: 10 * 60 * 1000,
-    FOLLOWAGE: 30 * 60 * 1000,
-    ANALYTICS: 2 * 60 * 1000
-};
 export const cache = new CacheService();

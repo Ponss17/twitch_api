@@ -1,8 +1,9 @@
 import { Messages } from './messages.js';
 import { ProfileTemplates } from './profile/templates.js';
+import { TwitchUser } from '../types.js';
 
 export const ProfileModal = {
-    open(user) {
+    open(user: TwitchUser) {
         const overlay = document.getElementById('profile-modal-overlay');
         const content = document.getElementById('profile-modal-content');
         if (!overlay || !content) return;
@@ -27,7 +28,7 @@ export const ProfileModal = {
         if (overlay) overlay.classList.remove('active');
     },
 
-    calculateAge(dateStr) {
+    calculateAge(dateStr: string) {
         const createdDate = new Date(dateStr);
         const now = new Date();
         const diffYears = now.getFullYear() - createdDate.getFullYear();
@@ -38,7 +39,7 @@ export const ProfileModal = {
         return Messages.Details.new;
     },
 
-    async showUserLogs(login) {
+    async showUserLogs(login: string) {
         const bioEl = document.getElementById('modal-bio');
         if (bioEl) {
             bioEl.innerHTML = `<div class="loading-logs"><i class="fa-solid fa-spinner fa-spin"></i> Cargando historial...</div>`;

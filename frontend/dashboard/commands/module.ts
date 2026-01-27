@@ -4,13 +4,21 @@ import { Messages } from '../../utils/messages.js';
 import { CommandGenerator } from '../../utils/commandGenerator.js';
 import { COMMAND_CONFIG } from './config.js';
 import { CommandTemplates } from './templates.js';
+import { Session } from '../../types.js';
+import { CommandConfigItem } from './types.js';
+
+declare global {
+    interface Window {
+        CommandUtils: { CommandGenerator: typeof CommandGenerator };
+    }
+}
 
 window.CommandUtils = { CommandGenerator };
 
 export const CommandsModule = {
-    session: null as any,
+    session: null as Session | null,
 
-    async init(session: any) {
+    async init(session: Session) {
         this.session = session;
         if (!this.session) return;
 
@@ -20,28 +28,30 @@ export const CommandsModule = {
     },
 
     renderCommandCards() {
-        Object.values(COMMAND_CONFIG).forEach((conf: any) => {
-            const container = document.getElementById(conf.containerId);
+        Object.values(COMMAND_CONFIG).forEach((conf) => {
+            const config = conf as CommandConfigItem;
+            const container = document.getElementById(config.containerId);
             if (!container) return;
-            container.innerHTML = CommandTemplates.generateCard(conf);
+            container.innerHTML = CommandTemplates.generateCard(config);
         });
     },
 
     setupGenericCommands() {
-        Object.values(COMMAND_CONFIG).forEach((conf: any) => {
-            const botSelect = document.getElementById(`bot-select-${conf.id}`);
-            const output = document.getElementById(`command-output-${conf.id}`);
-            const templateInput = document.getElementById(`${conf.id}-template`);
+        Object.values(COMMAND_CONFIG).forEach((conf) => {
+            const config = conf as CommandConfigItem;
+            const botSelect = document.getElementById(`bot-select-${config.id}`);
+            const output = document.getElementById(`command-output-${config.id}`);
+            const templateInput = document.getElementById(`${config.id}-template`);
 
             if (botSelect && output) {
-                const updateFn = () => this.updateCommand(conf);
+                const updateFn = () => this.updateCommand(config);
 
                 botSelect.addEventListener('change', updateFn);
                 if (templateInput) templateInput.addEventListener('input', updateFn);
 
-                if (conf.extraSelectors) {
-                    conf.extraSelectors.forEach((sel: any) => {
-                        const selEl = document.getElementById(`extra-${conf.id}-${sel.id}`);
+                if (config.extraSelectors) {
+                    config.extraSelectors.forEach((sel) => {
+                        const selEl = document.getElementById(`extra-${config.id}-${sel.id}`);
                         if (selEl) selEl.addEventListener('change', updateFn);
                     });
                 }
@@ -51,12 +61,13 @@ export const CommandsModule = {
         });
     },
 
-    updateCommand(conf: any) {
+    updateCommand(conf: CommandConfigItem) {
         const botSelect = document.getElementById(`bot-select-${conf.id}`) as HTMLSelectElement;
         const output = document.getElementById(`command-output-${conf.id}`) as HTMLInputElement;
         const templateInput = document.getElementById(`${conf.id}-template`) as HTMLInputElement;
 
         if (!botSelect || !output) return;
+        if (!this.session) return;
 
         const { login, apiKey, token } = this.session;
         const currentApiKey = apiKey || '';
@@ -67,9 +78,9 @@ export const CommandsModule = {
         const templateVal = templateInput ? templateInput.value.trim() : '';
         const queryParams = `channel=${login}&${tokenParam}`;
 
-        const extraValues: any = {};
+        const extraValues: Record<string, string> = {};
         if (conf.extraSelectors) {
-            conf.extraSelectors.forEach((sel: any) => {
+            conf.extraSelectors.forEach((sel) => {
                 const selEl = document.getElementById(`extra-${conf.id}-${sel.id}`) as HTMLInputElement;
                 if (selEl) extraValues[sel.id] = selEl.value;
             });
@@ -104,6 +115,7 @@ export const CommandsModule = {
             resultBox.classList.remove('success', 'error');
             resultText.innerHTML = Messages.Commands.testing;
 
+            if (!this.session) return;
             const { apiKey, token } = this.session;
             const domain = `${CONFIG.siteUrl}${API_ENDPOINTS.BASE}`;
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;

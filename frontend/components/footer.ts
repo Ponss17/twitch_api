@@ -1,5 +1,5 @@
 export const FooterComponent = {
-    render(containerId) {
+    render(containerId: string) {
         const container = document.getElementById(containerId);
         if (!container) return;
 

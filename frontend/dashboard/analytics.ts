@@ -1,13 +1,14 @@
 import { Messages } from '../utils/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
+import { Session } from '../types.js';
 
 export const AnalyticsModule = {
-    session: null,
-    cache: null,
+    session: null as Session | null,
+    cache: null as any,
     lastFetch: 0,
     CACHE_DURATION: 60000,
 
-    init(session) {
+    init(session: Session) {
         this.session = session;
         import('../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/analytics.css');
@@ -30,6 +31,7 @@ export const AnalyticsModule = {
         }
 
         try {
+            if (!this.session) return;
             const { token } = this.session;
             console.log('[Analytics] Fetching from:', API_ENDPOINTS.ANALYTICS);
 
@@ -75,7 +77,7 @@ export const AnalyticsModule = {
         `).join('');
     },
 
-    render(data) {
+    render(data: any) {
         const statsContainer = document.getElementById('stats-grid');
         if (!statsContainer) return;
 

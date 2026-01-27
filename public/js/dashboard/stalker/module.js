@@ -43,6 +43,11 @@ export const StalkerModule = {
             btn.className = this.isScanning ? 'btn-icon btn-warning' : 'btn-icon btn-success';
             btn.innerHTML = this.isScanning ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
         }
+        const status = document.getElementById('stalker-status');
+        if (status) {
+            status.innerHTML = this.isScanning ? Messages.Stalker.scanStarted : Messages.Stalker.scanPaused;
+            status.className = this.isScanning ? 'text-success' : 'text-muted-color';
+        }
         if (this.isScanning) {
             UI.showToast(Messages.Stalker.scanStarted, 'success');
             this.loadChatters();
@@ -57,6 +62,8 @@ export const StalkerModule = {
     connectTmi() {
         if (this.isConnected)
             return;
+        if (!this.session)
+            return;
         TmiService.connect(this.session.login).then(() => {
             this.isConnected = true;
             TmiService.addListener('stalker', (channel, tags, message) => {
@@ -65,7 +72,7 @@ export const StalkerModule = {
                 const login = tags.username;
                 if (CONFIG.IGNORED_BOTS.has(login.toLowerCase()))
                     return;
-                if (!this.chatters.some(u => u.user_login.toLowerCase() === login.toLowerCase())) {
+                if (!this.chatters.some((u) => u.user_login.toLowerCase() === login.toLowerCase())) {
                     const newUser = { user_login: login, user_name: tags['display-name'] || login, profile_image_url: null };
                     this.chatters.unshift(newUser);
                     this.renderTable(this.chatters);
@@ -96,6 +103,8 @@ export const StalkerModule = {
         loading?.classList.remove('hidden');
         empty?.classList.add('hidden');
         try {
+            if (!this.session)
+                return;
             const { apiKey, login } = this.session;
             const res = await fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&apiKey=${apiKey}`);
             if (!res.ok)
@@ -103,7 +112,7 @@ export const StalkerModule = {
             const data = await res.json();
             const apiChatters = data.filter((u) => !CONFIG.IGNORED_BOTS.has(u.user_login.toLowerCase()));
             const chatterMap = new Map();
-            this.chatters.forEach(c => chatterMap.set(c.user_login.toLowerCase(), c));
+            this.chatters.forEach((c) => chatterMap.set(c.user_login.toLowerCase(), c));
             apiChatters.forEach((c) => chatterMap.set(c.user_login.toLowerCase(), c));
             this.chatters = Array.from(chatterMap.values());
             this.renderTable(this.chatters);
@@ -128,10 +137,12 @@ export const StalkerModule = {
     },
     filterChatters(query) {
         const q = query.toLowerCase();
-        this.renderTable(this.chatters.filter(u => u.user_name.toLowerCase().includes(q) || u.user_login.toLowerCase().includes(q)));
+        this.renderTable(this.chatters.filter((u) => u.user_name.toLowerCase().includes(q) || u.user_login.toLowerCase().includes(q)));
     },
     async inspectUser(login) {
         try {
+            if (!this.session)
+                return;
             const res = await fetch(`${API_ENDPOINTS.USER_INFO}?login=${login}&apiKey=${this.session.apiKey}`);
             if (!res.ok)
                 throw new Error();

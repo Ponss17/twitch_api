@@ -1,10 +1,11 @@
 import { Messages } from '../../utils/messages.js';
 import { API_ENDPOINTS, DOM_IDS } from '../../utils/constants.js';
+import { Session } from '../../types.js';
 
 export const Magic8Module = {
-    session: null as any,
+    session: null as Session | null,
 
-    init(session: any) {
+    init(session: Session) {
         this.session = session;
         import('../../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/magic8.css');
@@ -50,6 +51,7 @@ export const Magic8Module = {
 
         this.setLoading(true);
         try {
+            if (!this.session) throw new Error('No active session');
             const { apiKey, token, login } = this.session;
             const mood = (document.getElementById('extra-magic8-mood') as HTMLSelectElement)?.value || 'classic';
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;

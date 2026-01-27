@@ -53,6 +53,8 @@ export const ClipsModule = {
      * Carga los favoritos desde localStorage
      */
     loadFavorites() {
+        if (!this.session)
+            return;
         try {
             const saved = localStorage.getItem(`clips_favs_${this.session.userId}`);
             this.favorites = saved ? JSON.parse(saved) : [];
@@ -66,6 +68,8 @@ export const ClipsModule = {
      * Guarda los favoritos en localStorage
      */
     saveFavorites() {
+        if (!this.session)
+            return;
         try {
             localStorage.setItem(`clips_favs_${this.session.userId}`, JSON.stringify(this.favorites));
         }
@@ -79,7 +83,7 @@ export const ClipsModule = {
      */
     toggleFavorite(clipId) {
         if (this.favorites.includes(clipId)) {
-            this.favorites = this.favorites.filter(id => id !== clipId);
+            this.favorites = this.favorites.filter((id) => id !== clipId);
             UI.showToast('Clip eliminado de favoritos', 'info');
         }
         else {
@@ -132,7 +136,6 @@ export const ClipsModule = {
         return function executedFunction(...args) {
             const later = () => {
                 clearTimeout(timeout);
-                // @ts-ignore
                 func.apply(this, args);
             };
             clearTimeout(timeout);
@@ -146,6 +149,8 @@ export const ClipsModule = {
     async loadClips(forceRefresh = false) {
         const container = document.getElementById('clips-gallery');
         if (!container)
+            return;
+        if (!this.session)
             return;
         const cacheKey = `clips_${this.session.userId}`;
         if (!forceRefresh) {
@@ -179,7 +184,7 @@ export const ClipsModule = {
             const clips = Array.isArray(data) ? data : (data.clips || data.data || []);
             this.allClips = clips;
             if (clips.length > 0) {
-                cache.set(cacheKey, clips, CACHE_TTL.CLIPS);
+                cache.set(cacheKey, clips, CACHE_TTL);
             }
             this.filterAndRender();
         }
@@ -241,7 +246,7 @@ export const ClipsModule = {
     filterAndRender() {
         const searchTerm = document.getElementById('clips-search')?.value.toLowerCase() || '';
         const sortValue = document.getElementById('clips-sort')?.value || 'date-desc';
-        let filtered = this.allClips.filter(clip => clip.title.toLowerCase().includes(searchTerm));
+        let filtered = this.allClips.filter((clip) => clip.title.toLowerCase().includes(searchTerm));
         filtered.sort((a, b) => {
             switch (sortValue) {
                 case 'date-desc': return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -276,7 +281,7 @@ export const ClipsModule = {
         const end = start + this.ITEMS_PER_PAGE;
         const pageClips = this.currentClips.slice(start, end);
         const fragment = document.createDocumentFragment();
-        pageClips.forEach(clip => {
+        pageClips.forEach((clip) => {
             fragment.appendChild(this.buildCard(clip));
         });
         clipsGallery.appendChild(fragment);
@@ -344,11 +349,9 @@ export const ClipsModule = {
                 </div>
             </a>
         `;
-        // Configurar Lazy Loading
         const img = card.querySelector('img');
         if (this.observer && img)
             this.observer.observe(img);
-        // Configurar Eventos
         this.attachCardEvents(card, safeUrl, clip.id);
         return card;
     },

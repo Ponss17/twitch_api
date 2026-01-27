@@ -20,7 +20,7 @@ export const TmiService = {
         this.client.on('message', (channel, tags, message, self) => {
             if (self)
                 return;
-            this.listeners.forEach(callback => callback(channel, tags, message));
+            this.listeners.forEach((callback) => callback(channel, tags, message));
         });
         this.connectionPromise = this.client.connect()
             .then(() => { this.isConnected = true; })

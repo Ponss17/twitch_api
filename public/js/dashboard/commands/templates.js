@@ -2,12 +2,12 @@ export const CommandTemplates = {
     generateCard(conf) {
         let extrasHTML = '';
         if (conf.extraSelectors) {
-            conf.extraSelectors.forEach(sel => {
+            conf.extraSelectors.forEach((sel) => {
                 extrasHTML += `
                 <div class="tool-selector mt-10">
                     <label><i class="${sel.icon}"></i> ${sel.label}:</label>
                     <select id="extra-${conf.id}-${sel.id}" class="select-input">
-                        ${sel.options.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('')}
+                        ${sel.options.map((opt) => `<option value="${opt.value}">${opt.label}</option>`).join('')}
                     </select>
                 </div>`;
             });

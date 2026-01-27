@@ -25,6 +25,8 @@ export const TrendsModule = {
         this.setupUI();
     },
     setupUI() {
+        if (!this.session)
+            return;
         const { login, displayName, profile_image_url } = this.session;
         const titleEl = document.getElementById('tracker-title');
         if (titleEl)
@@ -44,6 +46,8 @@ export const TrendsModule = {
         document.getElementById('start-timer-btn')?.addEventListener('click', () => this.startTimer());
     },
     connect() {
+        if (!this.session)
+            return;
         TmiService.connect(this.session.login).then(() => {
             this.updateStatus(true);
             this.isConnected = true;

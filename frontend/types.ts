@@ -1,0 +1,50 @@
+export interface TwitchUser {
+    id: string;
+    login: string;
+    display_name: string;
+    type: string;
+    broadcaster_type: string;
+    description: string;
+    profile_image_url: string;
+    offline_image_url: string;
+    view_count: number;
+    email?: string;
+    created_at: string;
+}
+
+export interface Session {
+    login: string;
+    displayName: string;
+    profile_image_url: string;
+    token?: string;
+    apiKey?: string;
+    userId?: string;
+    isNewLogin?: boolean;
+    [key: string]: any;
+}
+
+export interface ApiResponse<T = any> {
+    data?: T;
+    error?: string;
+    message?: string;
+    status?: number;
+    valid?: boolean;
+    user?: TwitchUser;
+}
+
+export interface StalkerUser {
+    user_login: string;
+    user_name: string;
+    profile_image_url: string | null;
+}
+
+export interface RouletteUser {
+    user_login: string;
+    user_name: string;
+}
+
+export interface ChatLogItem {
+    user: string;
+    text: string;
+    time: Date;
+}

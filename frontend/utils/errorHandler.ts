@@ -7,7 +7,7 @@ import { Messages } from './messages.js';
  */
 class ErrorHandler {
     /** @type {boolean} Indica si el entorno es desarrollo */
-    isDevelopment;
+    isDevelopment: boolean;
 
     constructor() {
         this.isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -40,7 +40,7 @@ class ErrorHandler {
      * @param {Error | any} error - El objeto de error
      * @param {Object} [context={}] - Contexto adicional sobre el error
      */
-    handleError(error, context = {}) {
+    handleError(error: any, context: Record<string, any> = {}) {
         if (this.isDevelopment) {
             console.error('🔴 Error capturado por ErrorHandler:', error);
             console.error('Contexto:', context);
@@ -54,7 +54,7 @@ class ErrorHandler {
      * @param {Error | any} error - El objeto de error
      * @returns {string} Mensaje de error amigable
      */
-    getUserMessage(error) {
+    getUserMessage(error: any): string {
         const msg = error?.message || '';
 
         if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
@@ -79,7 +79,7 @@ class ErrorHandler {
      * @param {Error} error - El objeto de error
      * @param {Object} context - Contexto del error
      */
-    reportError(error, context) {
+    reportError(error: any, context: any) {
         // Futuro: Sentry.captureException(error, { extra: context });
         if (this.isDevelopment) {
             console.warn('Reported Error:', error, context);
