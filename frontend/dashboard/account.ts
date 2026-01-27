@@ -60,7 +60,7 @@ export const AccountModule = {
 
             try {
                 const { apiKey, token } = this.session;
-                const res = await fetch(`/api/auth/regenerate?userId=${this.session.userId}`, {
+                const res = await fetch(API_ENDPOINTS.REGENERATE_KEY, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

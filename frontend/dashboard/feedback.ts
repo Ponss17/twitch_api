@@ -11,13 +11,18 @@ export const FeedbackModule = {
     },
 
     setupUI() {
-        const sendFeedbackBtn = document.getElementById('send-feedback-btn');
-        if (!sendFeedbackBtn) return;
+        requestAnimationFrame(() => {
+            const sendFeedbackBtn = document.getElementById('send-feedback-btn');
+            if (!sendFeedbackBtn) {
+                console.error('Feedback button not found');
+                return;
+            }
 
-        const newBtn = sendFeedbackBtn.cloneNode(true);
-        sendFeedbackBtn.parentNode!.replaceChild(newBtn, sendFeedbackBtn);
+            const newBtn = sendFeedbackBtn.cloneNode(true);
+            sendFeedbackBtn.parentNode!.replaceChild(newBtn, sendFeedbackBtn);
 
-        newBtn.addEventListener('click', () => this.sendFeedback());
+            newBtn.addEventListener('click', () => this.sendFeedback());
+        });
     },
 
     async sendFeedback() {
@@ -35,25 +40,39 @@ export const FeedbackModule = {
         UI.setButtonLoading(submitBtn, true);
 
         try {
-            const response = await fetch('/api/system/feedback', {
+            const headers: Record<string, string> = {
+                'Content-Type': 'application/json'
+            };
+
+            if (this.session?.token) {
+                headers['Authorization'] = `Bearer ${this.session.token}`;
+            }
+
+            const body: any = {
+                message: message
+            };
+
+            if (!this.session?.token && this.session?.apiKey) {
+                body.apiKey = this.session.apiKey;
+            }
+
+            const response = await fetch(API_ENDPOINTS.FEEDBACK, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: message
-                })
+                headers: headers,
+                body: JSON.stringify(body)
             });
+
+            const data = await response.json();
 
             if (response.ok) {
                 UI.showToast(Messages.Feedback.success, 'success');
                 messageInput.value = '';
             } else {
-                throw new Error('Failed to submit feedback');
+                throw new Error(data.error || 'Failed to submit feedback');
             }
         } catch (e) {
             console.error('Error submitting feedback:', e);
-            UI.showToast(Messages.Feedback.error, 'error');
+            UI.showToast((e as Error).message || Messages.Feedback.error, 'error');
         } finally {
             UI.setButtonLoading(submitBtn, false);
         }
