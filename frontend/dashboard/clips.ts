@@ -42,6 +42,13 @@ export const ClipsModule = {
         this.initialized = true;
     },
 
+    deactivate() {
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+        console.log('[ClipsModule] Deactivated');
+    },
+
     loadFavorites() {
         if (!this.session) return;
         try {
