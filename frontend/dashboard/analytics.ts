@@ -104,14 +104,13 @@ export const AnalyticsModule = {
         const statsContainer = document.getElementById('stats-grid');
         if (!statsContainer) return;
 
-        statsContainer.innerHTML = '';
-
         const statConfig = [
             { key: 'clips', icon: 'fa-film', label: 'Clips Creados' },
             { key: 'followage', icon: 'fa-clock', label: 'Consultas Followage' },
             { key: 'so', icon: 'fa-bullhorn', label: 'Shoutouts' }
         ];
 
+        const fragment = document.createDocumentFragment();
         statConfig.forEach(stat => {
             const value = data[stat.key] || 0;
             const card = document.createElement('div');
@@ -123,7 +122,10 @@ export const AnalyticsModule = {
                     <span>${stat.label}</span>
                 </div>
             `;
-            statsContainer.appendChild(card);
+            fragment.appendChild(card);
         });
+
+        statsContainer.innerHTML = '';
+        statsContainer.appendChild(fragment);
     }
 };

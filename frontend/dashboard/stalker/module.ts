@@ -206,10 +206,14 @@ export const StalkerModule = {
     renderTable(list: StalkerUser[]) {
         const tbody = document.getElementById('stalker-grid');
         if (!tbody) return;
-        tbody.innerHTML = '';
+
+        const fragment = document.createDocumentFragment();
         list.forEach(user => {
-            tbody.appendChild(StalkerTemplates.renderRow(user, Messages.Common.viewBtn, (l: string) => this.inspectUser(l)));
+            fragment.appendChild(StalkerTemplates.renderRow(user, Messages.Common.viewBtn, (l: string) => this.inspectUser(l)));
         });
+
+        tbody.innerHTML = '';
+        tbody.appendChild(fragment);
     },
 
     filterChatters(query: string) {

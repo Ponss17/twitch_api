@@ -31,9 +31,10 @@ export const TmiService = {
     connectionPromise: null as Promise<void> | null,
 
     async connect(channel: string, auth?: { username: string, token: string }): Promise<void> {
-        if (this.connectionPromise) return this.connectionPromise;
         this.activeClients++;
+        console.log(`[TmiService] Connect requested. Active clients: ${this.activeClients}`);
 
+        if (this.connectionPromise) return this.connectionPromise;
         if (this.isConnected && this.client) return Promise.resolve();
 
         if (typeof window.tmi === 'undefined') {

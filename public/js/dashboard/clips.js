@@ -33,6 +33,7 @@ export const ClipsModule = {
         }, { rootMargin: '50px' });
         this.setupUI();
         this.initialized = true;
+        this.loadClips();
     },
     deactivate() {
         if (this.observer) {
