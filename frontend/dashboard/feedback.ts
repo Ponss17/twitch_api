@@ -5,23 +5,20 @@ import { Session } from '../types.js';
 
 export const FeedbackModule = {
     session: null as Session | null,
+    initialized: false,
 
     init(session: Session) {
         this.session = session;
+        if (this.initialized) return;
         this.setupUI();
+        this.initialized = true;
     },
 
     setupUI() {
         requestAnimationFrame(() => {
             const sendFeedbackBtn = document.getElementById('send-feedback-btn');
-            if (!sendFeedbackBtn) {
-                return;
-            }
-
-            const newBtn = sendFeedbackBtn.cloneNode(true);
-            if (sendFeedbackBtn.parentNode) {
-                sendFeedbackBtn.parentNode.replaceChild(newBtn, sendFeedbackBtn);
-                newBtn.addEventListener('click', () => this.sendFeedback());
+            if (sendFeedbackBtn) {
+                sendFeedbackBtn.addEventListener('click', () => this.sendFeedback());
             }
         });
     },

@@ -3,20 +3,19 @@ import { API_ENDPOINTS } from '../utils/constants.js';
 import { UI } from '../ui.js';
 export const FeedbackModule = {
     session: null,
+    initialized: false,
     init(session) {
         this.session = session;
+        if (this.initialized)
+            return;
         this.setupUI();
+        this.initialized = true;
     },
     setupUI() {
         requestAnimationFrame(() => {
             const sendFeedbackBtn = document.getElementById('send-feedback-btn');
-            if (!sendFeedbackBtn) {
-                return;
-            }
-            const newBtn = sendFeedbackBtn.cloneNode(true);
-            if (sendFeedbackBtn.parentNode) {
-                sendFeedbackBtn.parentNode.replaceChild(newBtn, sendFeedbackBtn);
-                newBtn.addEventListener('click', () => this.sendFeedback());
+            if (sendFeedbackBtn) {
+                sendFeedbackBtn.addEventListener('click', () => this.sendFeedback());
             }
         });
     },

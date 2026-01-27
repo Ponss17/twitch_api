@@ -3,11 +3,17 @@ import { API_ENDPOINTS } from '../utils/constants.js';
 import { UI } from '../ui.js';
 export const AccountModule = {
     session: null,
+    isInitialized: false,
     init(session) {
         this.session = session;
+        if (this.isInitialized) {
+            this.updateValues();
+            return;
+        }
         this.setupUI();
+        this.isInitialized = true;
     },
-    setupUI() {
+    updateValues() {
         const userIdInput = document.getElementById('user-id');
         const userTokenInput = document.getElementById('user-token');
         if (this.session) {
@@ -18,6 +24,9 @@ export const AccountModule = {
                 userTokenInput.dataset.realValue = this.session.apiKey || this.session.token || '';
             }
         }
+    },
+    setupUI() {
+        this.updateValues();
         this.setupTokenVisibility();
         this.setupRegenerate();
     },

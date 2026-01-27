@@ -5,13 +5,19 @@ import { Session } from '../types.js';
 
 export const AccountModule = {
     session: null as Session | null,
+    isInitialized: false,
 
     init(session: Session) {
         this.session = session;
+        if (this.isInitialized) {
+            this.updateValues();
+            return;
+        }
         this.setupUI();
+        this.isInitialized = true;
     },
 
-    setupUI() {
+    updateValues() {
         const userIdInput = document.getElementById('user-id') as HTMLInputElement;
         const userTokenInput = document.getElementById('user-token') as HTMLInputElement;
 
@@ -22,6 +28,10 @@ export const AccountModule = {
                 userTokenInput.dataset.realValue = this.session.apiKey || this.session.token || '';
             }
         }
+    },
+
+    setupUI() {
+        this.updateValues();
 
         this.setupTokenVisibility();
         this.setupRegenerate();
@@ -64,7 +74,7 @@ export const AccountModule = {
                                 Auth.saveSession(this.session!);
                             });
                         }
-                        
+
                         const tokenInput = document.getElementById('user-token') as HTMLInputElement;
                         if (tokenInput) {
                             tokenInput.dataset.realValue = data.apiKey;

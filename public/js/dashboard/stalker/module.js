@@ -9,13 +9,19 @@ export const StalkerModule = {
     isScanning: false,
     chatters: [],
     isConnected: false,
+    initialized: false,
     init(session) {
         this.session = session;
+        if (this.initialized) {
+            this.render();
+            return;
+        }
         import('../../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/stalker.css');
         });
         this.render();
         this.setupUI();
+        this.initialized = true;
     },
     setupUI() {
         document.getElementById('stalker-search')?.addEventListener('input', (e) => this.filterChatters(e.target.value));
@@ -26,15 +32,7 @@ export const StalkerModule = {
             }
         });
         document.getElementById('toggle-stalker')?.addEventListener('click', () => this.toggleScan());
-        document.getElementById('close-modal-btn')?.addEventListener('click', () => {
-            import('../../utils/profileModal.js').then(({ ProfileModal }) => ProfileModal.close());
-        });
-        const overlay = document.getElementById('profile-modal-overlay');
-        overlay?.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                import('../../utils/profileModal.js').then(({ ProfileModal }) => ProfileModal.close());
-            }
-        });
+        document.getElementById('toggle-stalker')?.addEventListener('click', () => this.toggleScan());
     },
     toggleScan() {
         this.isScanning = !this.isScanning;

@@ -11,14 +11,20 @@ export const StalkerModule = {
     isScanning: false,
     chatters: [] as StalkerUser[],
     isConnected: false,
+    initialized: false,
 
     init(session: Session) {
         this.session = session;
+        if (this.initialized) {
+            this.render();
+            return;
+        }
         import('../../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/stalker.css');
         });
         this.render();
         this.setupUI();
+        this.initialized = true;
     },
 
     setupUI() {
@@ -31,16 +37,7 @@ export const StalkerModule = {
         });
         document.getElementById('toggle-stalker')?.addEventListener('click', () => this.toggleScan());
 
-        document.getElementById('close-modal-btn')?.addEventListener('click', () => {
-            import('../../utils/profileModal.js').then(({ ProfileModal }) => ProfileModal.close());
-        });
-
-        const overlay = document.getElementById('profile-modal-overlay');
-        overlay?.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                import('../../utils/profileModal.js').then(({ ProfileModal }) => ProfileModal.close());
-            }
-        });
+        document.getElementById('toggle-stalker')?.addEventListener('click', () => this.toggleScan());
     },
 
     toggleScan() {
@@ -81,7 +78,7 @@ export const StalkerModule = {
             this.isConnected = true;
             TmiService.addListener('stalker', (channel: string, tags: TmiTags, message: string) => {
                 if (!this.isScanning) return;
-                
+
                 import('../trends/module.js').then(({ TrendsModule }) => {
                     if (tags.username) {
                         TrendsModule.messageLog.unshift({ user: tags.username, text: message, time: new Date() });
@@ -144,11 +141,11 @@ export const StalkerModule = {
 
                 const chatterMap = new Map();
                 this.chatters.forEach((c: StalkerUser) => chatterMap.set(c.user_login.toLowerCase(), c));
-                
+
                 apiChatters.forEach((item: any) => {
                     const login = typeof item === 'string' ? item : item.user_login;
                     const name = typeof item === 'string' ? item : item.user_name;
-                    
+
                     if (login) {
                         const userObj: StalkerUser = {
                             user_login: login,
@@ -164,7 +161,7 @@ export const StalkerModule = {
                 loading?.classList.add('hidden');
                 if (this.chatters.length === 0) empty?.classList.remove('hidden');
             } else {
-                 throw new Error('Invalid data format');
+                throw new Error('Invalid data format');
             }
         } catch (error) {
             console.error(error);

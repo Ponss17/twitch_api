@@ -14,13 +14,19 @@ export const AnalyticsModule = {
     cache: null as AnalyticsData | null,
     lastFetch: 0,
     CACHE_DURATION: 60000,
+    initialized: false,
 
     init(session: Session) {
         this.session = session;
+        if (this.initialized) {
+            this.load();
+            return;
+        }
         import('../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/analytics.css');
         });
         this.load();
+        this.initialized = true;
     },
 
     async load(force = false) {
@@ -51,7 +57,7 @@ export const AnalyticsModule = {
             if (res.ok) {
                 const data = await res.json();
                 console.log('[Analytics] Data received:', data);
-                
+
                 if (data && typeof data === 'object') {
                     this.cache = data;
                     this.lastFetch = Date.now();

@@ -7,9 +7,6 @@ export const ProfileTemplates = {
         const rankColor = user.broadcaster_type ? 'var(--accent)' : 'var(--text-secondary)';
         return `
             <div class="profile-header">
-                <button id="close-modal-btn" class="profile-close-btn" aria-label="Cerrar">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
                 <img src="${user.profile_image_url || 'img/LosPerris_progra.webp'}" class="profile-avatar-large" alt="${user.display_name}" loading="lazy">
                 <div class="profile-title-group">
                     <h2 class="profile-name">${user.display_name}</h2>

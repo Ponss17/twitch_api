@@ -17,12 +17,18 @@ export const TrendsModule = {
     isConnected: false,
     timerInterval: null,
     session: null,
+    initialized: false,
     init(session) {
         this.session = session;
+        if (this.initialized) {
+            this.setupUI();
+            return;
+        }
         import('../../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/trends.css');
         });
         this.setupUI();
+        this.initialized = true;
     },
     setupUI() {
         if (!this.session)

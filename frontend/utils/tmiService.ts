@@ -35,6 +35,7 @@ export const TmiService = {
             channels: [channel],
             connection: { secure: true, reconnect: true },
             options: {
+                skipUpdatingEmotesets: true,
                 messages: {
                     emotes: false
                 }

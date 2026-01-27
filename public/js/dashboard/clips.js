@@ -13,6 +13,10 @@ export const ClipsModule = {
     ITEMS_PER_PAGE: 20,
     async init(session) {
         this.session = session;
+        if (this.initialized) {
+            this.loadClips();
+            return;
+        }
         import('../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/clips.css');
         });
@@ -28,8 +32,6 @@ export const ClipsModule = {
             });
         }, { rootMargin: '50px' });
         this.setupUI();
-        if (this.initialized)
-            return;
         this.initialized = true;
     },
     loadFavorites() {
@@ -70,10 +72,8 @@ export const ClipsModule = {
         this.loadClips();
         this.setupFilters();
         const refreshBtn = document.getElementById('refresh-clips-btn');
-        if (refreshBtn && refreshBtn.parentNode) {
-            const newBtn = refreshBtn.cloneNode(true);
-            refreshBtn.parentNode.replaceChild(newBtn, refreshBtn);
-            newBtn.addEventListener('click', () => {
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
                 this.loadClips(true);
             });
         }
