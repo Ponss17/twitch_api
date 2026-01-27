@@ -28,20 +28,22 @@ export const RouletteModule = {
 
     init(session: Session) {
         this.session = session;
-        if (!this.isInitialized) {
-            import('../../utils/loader.js').then(({ Loader }) => {
-                Loader.loadCSS('css/sections/roulette.css');
-            });
-            this.setupUI();
-            this.isInitialized = true;
+        if (this.isInitialized) {
+            this.updateUI();
+            return;
         }
+        import('../../utils/loader.js').then(({ Loader }) => {
+            Loader.loadCSS('css/sections/roulette.css');
+        });
+        this.setupUI();
+        this.isInitialized = true;
     },
 
     setupUI() {
         this.canvas = document.getElementById('roulette-canvas') as HTMLCanvasElement;
         if (!this.canvas) return;
         this.ctx = this.canvas.getContext('2d');
-        
+
         document.getElementById('btn-spin-roulette')?.addEventListener('click', () => this.spin());
         document.getElementById('toggle-roulette')?.addEventListener('click', () => this.toggleEntries());
         document.getElementById('btn-refresh-roulette')?.addEventListener('click', () => {
@@ -120,14 +122,14 @@ export const RouletteModule = {
     loadChatters() {
         if (!this.session) return;
         const { apiKey, token, login, displayName } = this.session;
-        
+
         const existing = new Set(this.chatters.map((u: RouletteUser) => u.user_login));
         let added = 0;
 
         if (!existing.has(login)) {
-            this.chatters.push({ 
-                user_login: login, 
-                user_name: displayName || login 
+            this.chatters.push({
+                user_login: login,
+                user_name: displayName || login
             });
             existing.add(login);
             added++;
@@ -138,7 +140,7 @@ export const RouletteModule = {
         }
 
         const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-        
+
         fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&${tokenParam}`)
             .then(res => res.json())
             .then((data: any) => {
@@ -198,11 +200,11 @@ export const RouletteModule = {
     stopRotateWheel() {
         if (this.spinTimeout) clearTimeout(this.spinTimeout);
         this.isSpinning = false;
-        
+
         const degrees = this.startAngle * 180 / Math.PI + 90;
         const arcd = 360 / this.chatters.length;
         const index = Math.floor((360 - degrees % 360) / arcd);
-        
+
         const winner = this.chatters[index];
         this.showWinner(winner);
     },
@@ -219,9 +221,9 @@ export const RouletteModule = {
         if (display && nameEl) {
             nameEl.textContent = winner.user_name;
             display.classList.remove('hidden');
-            
+
             UI.showToast(`🏆 Ganador: ${winner.user_name}`);
-            
+
             if (this.session && this.session.login) {
                 TmiService.sendMessage(this.session.login, `🏆 ¡El ganador es @${winner.user_name}! ¡Felicidades! 🎉`);
             }
@@ -230,13 +232,13 @@ export const RouletteModule = {
 
     drawRouletteWheel() {
         if (!this.canvas || !this.ctx) return;
-        
+
         const outsideRadius = 200;
         const textRadius = 160;
         const insideRadius = 50;
-        
+
         this.ctx.clearRect(0, 0, 500, 500);
-        
+
         const len = this.chatters.length;
         if (len === 0) {
             this.drawEmptyWheel();
@@ -244,32 +246,32 @@ export const RouletteModule = {
         }
 
         this.arc = Math.PI * 2 / len;
-        
+
         const cx = this.canvas.width / 2;
         const cy = this.canvas.height / 2;
 
         for (let i = 0; i < len; i++) {
             const angle = this.startAngle + i * this.arc;
-            
+
             this.ctx.fillStyle = this.colors[i % this.colors.length];
-            
+
             this.ctx.beginPath();
             this.ctx.arc(cx, cy, outsideRadius, angle, angle + this.arc, false);
             this.ctx.arc(cx, cy, insideRadius, angle + this.arc, angle, true);
             this.ctx.stroke();
             this.ctx.fill();
-            
+
             this.ctx.save();
             this.ctx.shadowOffsetX = -1;
             this.ctx.shadowOffsetY = -1;
             this.ctx.shadowBlur = 0;
             this.ctx.fillStyle = "white";
             this.ctx.font = 'bold 14px Poppins, sans-serif';
-            
-            this.ctx.translate(cx + Math.cos(angle + this.arc / 2) * textRadius, 
-                             cy + Math.sin(angle + this.arc / 2) * textRadius);
+
+            this.ctx.translate(cx + Math.cos(angle + this.arc / 2) * textRadius,
+                cy + Math.sin(angle + this.arc / 2) * textRadius);
             this.ctx.rotate(angle + this.arc / 2 + Math.PI / 2);
-            
+
             const text = this.chatters[i].user_name;
             this.ctx.fillText(text, -this.ctx.measureText(text).width / 2, 0);
             this.ctx.restore();
@@ -280,9 +282,9 @@ export const RouletteModule = {
         if (!this.canvas || !this.ctx) return;
         const cx = this.canvas.width / 2;
         const cy = this.canvas.height / 2;
-        
+
         this.ctx.clearRect(0, 0, 500, 500);
-        
+
         this.ctx.beginPath();
         this.ctx.arc(cx, cy, 200, 0, 2 * Math.PI);
         this.ctx.fillStyle = "#1f2937";

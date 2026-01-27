@@ -16,6 +16,11 @@ export const ClipsModule = {
 
     async init(session: Session) {
         this.session = session;
+        if (this.initialized) {
+            this.loadClips();
+            return;
+        }
+
         import('../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/clips.css');
         });
@@ -34,8 +39,6 @@ export const ClipsModule = {
         }, { rootMargin: '50px' });
 
         this.setupUI();
-
-        if (this.initialized) return;
         this.initialized = true;
     },
 
@@ -76,11 +79,8 @@ export const ClipsModule = {
         this.setupFilters();
 
         const refreshBtn = document.getElementById('refresh-clips-btn');
-        if (refreshBtn && refreshBtn.parentNode) {
-            const newBtn = refreshBtn.cloneNode(true);
-            refreshBtn.parentNode.replaceChild(newBtn, refreshBtn);
-
-            newBtn.addEventListener('click', () => {
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
                 this.loadClips(true);
             });
         }

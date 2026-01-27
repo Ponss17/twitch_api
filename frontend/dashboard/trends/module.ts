@@ -19,13 +19,19 @@ export const TrendsModule = {
     isConnected: false,
     timerInterval: null as NodeJS.Timeout | null,
     session: null as Session | null,
+    initialized: false,
 
     init(session: Session) {
         this.session = session;
+        if (this.initialized) {
+            this.setupUI();
+            return;
+        }
         import('../../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/trends.css');
         });
         this.setupUI();
+        this.initialized = true;
     },
 
     setupUI() {

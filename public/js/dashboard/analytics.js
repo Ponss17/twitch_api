@@ -5,12 +5,18 @@ export const AnalyticsModule = {
     cache: null,
     lastFetch: 0,
     CACHE_DURATION: 60000,
+    initialized: false,
     init(session) {
         this.session = session;
+        if (this.initialized) {
+            this.load();
+            return;
+        }
         import('../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/analytics.css');
         });
         this.load();
+        this.initialized = true;
     },
     async load(force = false) {
         const statsContainer = document.getElementById('stats-grid');

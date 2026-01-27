@@ -21,13 +21,15 @@ export const RouletteModule = {
     isInitialized: false,
     init(session) {
         this.session = session;
-        if (!this.isInitialized) {
-            import('../../utils/loader.js').then(({ Loader }) => {
-                Loader.loadCSS('css/sections/roulette.css');
-            });
-            this.setupUI();
-            this.isInitialized = true;
+        if (this.isInitialized) {
+            this.updateUI();
+            return;
         }
+        import('../../utils/loader.js').then(({ Loader }) => {
+            Loader.loadCSS('css/sections/roulette.css');
+        });
+        this.setupUI();
+        this.isInitialized = true;
     },
     setupUI() {
         this.canvas = document.getElementById('roulette-canvas');
