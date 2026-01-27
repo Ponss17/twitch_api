@@ -23,7 +23,7 @@
     width: 100%;
     padding: 8px 12px 8px 35px;
     background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
     border-radius: 6px;
     color: var(--text-primary);
     font-size: 0.9rem;
@@ -39,11 +39,9 @@
     font-size: 0.8rem;
 }
 
-
-
 .action-btn {
     background: transparent;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
     color: var(--text-secondary);
     padding: 6px 12px;
     border-radius: 6px;
@@ -58,11 +56,10 @@
     border-color: var(--accent);
 }
 
-
 .profile-header {
     height: 100px;
     background: rgba(255, 255, 255, 0.02);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border);
     position: relative;
 }
 
@@ -216,8 +213,6 @@
         background: transparent;
     }
 }
-
-
 
 .text-muted-color {
     color: var(--text-secondary);

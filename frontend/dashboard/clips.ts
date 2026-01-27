@@ -2,35 +2,18 @@ import { UI } from '../ui.js';
 import { Messages } from '../utils/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
 import { cache, CACHE_TTL } from '../utils/cacheService.js';
-import { Session } from '../types.js';
+import { Session, Clip } from '../types.js';
 
-/**
- * Módulo de gestión y visualización de clips de Twitch
- * @module ClipsModule
- */
 export const ClipsModule = {
-    /** @type {Object | null} Sesión del usuario actual */
     session: null as Session | null,
-    /** @type {boolean} Estado de inicialización del módulo */
     initialized: false,
-    /** @type {Array<Object>} Lista completa de clips cargados */
-    allClips: [] as any[],
-    /** @type {Array<Object>} Lista filtrada de clips actuales */
-    currentClips: [] as any[],
-    /** @type {Array<string>} IDs de clips marcados como favoritos */
+    allClips: [] as Clip[],
+    currentClips: [] as Clip[],
     favorites: [] as string[],
-    /** @type {IntersectionObserver | null} Observador para lazy loading */
     observer: null as IntersectionObserver | null,
-    /** @type {number} Página actual de paginación */
     currentPage: 1,
-    /** @type {number} Clips por página */
     ITEMS_PER_PAGE: 20,
 
-    /**
-     * Inicializa el módulo de clips
-     * @param {Object} session - Objeto de sesión del usuario
-     * @returns {Promise<void>}
-     */
     async init(session: Session) {
         this.session = session;
         import('../utils/loader.js').then(({ Loader }) => {
@@ -56,9 +39,6 @@ export const ClipsModule = {
         this.initialized = true;
     },
 
-    /**
-     * Carga los favoritos desde localStorage
-     */
     loadFavorites() {
         if (!this.session) return;
         try {
@@ -70,9 +50,6 @@ export const ClipsModule = {
         }
     },
 
-    /**
-     * Guarda los favoritos en localStorage
-     */
     saveFavorites() {
         if (!this.session) return;
         try {
@@ -82,10 +59,6 @@ export const ClipsModule = {
         }
     },
 
-    /**
-     * Alterna el estado de favorito de un clip
-     * @param {string} clipId - ID del clip
-     */
     toggleFavorite(clipId: string) {
         if (this.favorites.includes(clipId)) {
             this.favorites = this.favorites.filter((id: string) => id !== clipId);
@@ -98,9 +71,6 @@ export const ClipsModule = {
         this.updateFavoriteBtn(clipId);
     },
 
-    /**
-     * Configura la interfaz de usuario inicial y eventos
-     */
     setupUI() {
         this.loadClips();
         this.setupFilters();
@@ -116,9 +86,6 @@ export const ClipsModule = {
         }
     },
 
-    /**
-     * Configura los listeners para búsqueda y ordenamiento
-     */
     setupFilters() {
         const searchInput = document.getElementById('clips-search') as HTMLInputElement;
         const sortSelect = document.getElementById('clips-sort');
@@ -136,14 +103,8 @@ export const ClipsModule = {
         }
     },
 
-    /**
-     * Utilidad para limitar la frecuencia de ejecución de una función
-     * @param {Function} func - Función a ejecutar
-     * @param {number} wait - Tiempo de espera en ms
-     * @returns {Function} Función debounced
-     */
     debounce(func: Function, wait: number) {
-        let timeout: any;
+        let timeout: NodeJS.Timeout;
         return function executedFunction(this: any, ...args: any[]) {
             const later = () => {
                 clearTimeout(timeout);
@@ -154,10 +115,6 @@ export const ClipsModule = {
         };
     },
 
-    /**
-     * Carga los clips desde la API o Caché
-     * @param {boolean} [forceRefresh=false] - Forzar recarga desde API
-     */
     async loadClips(forceRefresh = false) {
         const container = document.getElementById('clips-gallery');
         if (!container) return;
@@ -210,13 +167,8 @@ export const ClipsModule = {
         }
     },
 
-    /**
-     * Maneja los errores de carga
-     * @param {Error} error - Error capturado
-     * @param {HTMLElement} container - Contenedor para mostrar el error
-     */
-    handleError(error: any, container: HTMLElement) {
-        const isAuthError = error.message === 'auth_error';
+    handleError(error: unknown, container: HTMLElement) {
+        const isAuthError = (error as Error).message === 'auth_error';
         UI.showToast(isAuthError ? Messages.Auth.expired : Messages.Clips.loadError, 'error');
 
         if (isAuthError) {
@@ -234,16 +186,12 @@ export const ClipsModule = {
                 import('../auth.js').then(m => m.Auth.relogin());
             });
         } else {
-            container.innerHTML = Messages.Common.error(error.message);
+            container.innerHTML = Messages.Common.error((error as Error).message);
             const retryBtn = document.getElementById('retry-clips-btn');
             if (retryBtn) retryBtn.onclick = () => this.loadClips();
         }
     },
 
-    /**
-     * Renderiza esqueletos de carga
-     * @param {HTMLElement} container 
-     */
     renderSkeleton(container: HTMLElement) {
         container.innerHTML = Array(8).fill(0).map(() => `
             <div class="skeleton-card skeleton-loading">
@@ -259,9 +207,6 @@ export const ClipsModule = {
         `).join('');
     },
 
-    /**
-     * Filtra y ordena los clips para renderizar
-     */
     filterAndRender() {
         const searchTerm = (document.getElementById('clips-search') as HTMLInputElement)?.value.toLowerCase() || '';
         const sortValue = (document.getElementById('clips-sort') as HTMLSelectElement)?.value || 'date-desc';
@@ -289,9 +234,6 @@ export const ClipsModule = {
         this.renderPage();
     },
 
-    /**
-     * Renderiza la página actual de clips
-     */
     renderPage() {
         const clipsGallery = document.getElementById('clips-gallery');
         if (!clipsGallery) return;
@@ -310,7 +252,7 @@ export const ClipsModule = {
 
         const fragment = document.createDocumentFragment();
 
-        pageClips.forEach((clip: any) => {
+        pageClips.forEach((clip: Clip) => {
             fragment.appendChild(this.buildCard(clip));
         });
 
@@ -321,10 +263,6 @@ export const ClipsModule = {
         }
     },
 
-    /**
-     * Agrega el botón de "Cargar más"
-     * @param {HTMLElement} container 
-     */
     addLoadMoreButton(container: HTMLElement) {
         const btnContainer = document.createElement('div');
         btnContainer.id = 'clips-load-more';
@@ -342,13 +280,7 @@ export const ClipsModule = {
         container.after(btnContainer);
     },
 
-    /**
-     * Construye el elemento DOM de una tarjeta de clip
-     * Refactorizado para aislar la lógica de creación
-     * @param {Object} clip - Datos del clip
-     * @returns {HTMLElement} Elemento tarjeta
-     */
-    buildCard(clip: any) {
+    buildCard(clip: Clip) {
         const card = document.createElement('div');
         card.className = 'clip-card fade-in';
         card.dataset.id = clip.id;
@@ -397,12 +329,6 @@ export const ClipsModule = {
         return card;
     },
 
-    /**
-     * Adjunta los eventos a los botones de la tarjeta
-     * @param {HTMLElement} card - Elemento tarjeta
-     * @param {string} url - URL del clip
-     * @param {string} clipId - ID del clip
-     */
     attachCardEvents(card: HTMLElement, url: string, clipId: string) {
         card.querySelector('.copy-btn')!.addEventListener('click', (e) => {
             e.preventDefault();
@@ -428,10 +354,6 @@ export const ClipsModule = {
         });
     },
 
-    /**
-     * Actualiza el estado visual del botón de favorito
-     * @param {string} clipId - ID del clip a actualizar
-     */
     updateFavoriteBtn(clipId: string) {
         const card = document.querySelector(`.clip-card[data-id="${clipId}"]`);
         if (!card) return;

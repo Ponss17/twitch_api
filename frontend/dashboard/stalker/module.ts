@@ -2,7 +2,7 @@ import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
 import { API_ENDPOINTS } from '../../utils/constants.js';
 import { CONFIG } from '../../config.js';
-import { TmiService } from '../../utils/tmiService.js';
+import { TmiService, TmiTags } from '../../utils/tmiService.js';
 import { StalkerTemplates } from './templates.js';
 import { Session, StalkerUser } from '../../types.js';
 
@@ -73,7 +73,7 @@ export const StalkerModule = {
         if (!this.session) return;
         TmiService.connect(this.session.login).then(() => {
             this.isConnected = true;
-            TmiService.addListener('stalker', (channel: string, tags: any, message: string) => {
+            TmiService.addListener('stalker', (channel: string, tags: TmiTags, message: string) => {
                 if (!this.isScanning) return;
                 const login = tags.username;
                 if (CONFIG.IGNORED_BOTS.has(login.toLowerCase())) return;
@@ -116,10 +116,10 @@ export const StalkerModule = {
             if (!res.ok) throw new Error(res.status === 401 ? Messages.Stalker.reloginMsg : Messages.Stalker.apiError);
 
             const data = await res.json();
-            const apiChatters = data.filter((u: any) => !CONFIG.IGNORED_BOTS.has(u.user_login.toLowerCase()));
+            const apiChatters = data.filter((u: StalkerUser) => !CONFIG.IGNORED_BOTS.has(u.user_login.toLowerCase()));
             const chatterMap = new Map();
             this.chatters.forEach((c: StalkerUser) => chatterMap.set(c.user_login.toLowerCase(), c));
-            apiChatters.forEach((c: any) => chatterMap.set(c.user_login.toLowerCase(), c));
+            apiChatters.forEach((c: StalkerUser) => chatterMap.set(c.user_login.toLowerCase(), c));
 
             this.chatters = Array.from(chatterMap.values());
             this.renderTable(this.chatters);
