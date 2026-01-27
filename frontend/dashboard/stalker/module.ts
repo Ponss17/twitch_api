@@ -81,6 +81,14 @@ export const StalkerModule = {
             this.isConnected = true;
             TmiService.addListener('stalker', (channel: string, tags: TmiTags, message: string) => {
                 if (!this.isScanning) return;
+                
+                import('../trends/module.js').then(({ TrendsModule }) => {
+                    if (tags.username) {
+                        TrendsModule.messageLog.unshift({ user: tags.username, text: message, time: new Date() });
+                        if (TrendsModule.messageLog.length > TrendsModule.MAX_LOG_SIZE) TrendsModule.messageLog.pop();
+                    }
+                });
+
                 const login = tags.username;
                 if (CONFIG.IGNORED_BOTS.has(login.toLowerCase())) return;
 
