@@ -122,15 +122,38 @@ export const StalkerModule = {
             if (!res.ok) throw new Error(res.status === 401 ? Messages.Stalker.reloginMsg : Messages.Stalker.apiError);
 
             const data = await res.json();
-            const apiChatters = data.filter((u: StalkerUser) => !CONFIG.IGNORED_BOTS.has(u.user_login.toLowerCase()));
-            const chatterMap = new Map();
-            this.chatters.forEach((c: StalkerUser) => chatterMap.set(c.user_login.toLowerCase(), c));
-            apiChatters.forEach((c: StalkerUser) => chatterMap.set(c.user_login.toLowerCase(), c));
+            const chattersList = Array.isArray(data) ? data : (data.chatters || []);
 
-            this.chatters = Array.from(chatterMap.values());
-            this.renderTable(this.chatters);
-            loading?.classList.add('hidden');
-            if (this.chatters.length === 0) empty?.classList.remove('hidden');
+            if (Array.isArray(chattersList)) {
+                const apiChatters = chattersList.filter((item: any) => {
+                    const login = typeof item === 'string' ? item : item.user_login;
+                    return login && !CONFIG.IGNORED_BOTS.has(login.toLowerCase());
+                });
+
+                const chatterMap = new Map();
+                this.chatters.forEach((c: StalkerUser) => chatterMap.set(c.user_login.toLowerCase(), c));
+                
+                apiChatters.forEach((item: any) => {
+                    const login = typeof item === 'string' ? item : item.user_login;
+                    const name = typeof item === 'string' ? item : item.user_name;
+                    
+                    if (login) {
+                        const userObj: StalkerUser = {
+                            user_login: login,
+                            user_name: name || login,
+                            profile_image_url: typeof item === 'object' ? item.profile_image_url : null
+                        };
+                        chatterMap.set(login.toLowerCase(), userObj);
+                    }
+                });
+
+                this.chatters = Array.from(chatterMap.values());
+                this.renderTable(this.chatters);
+                loading?.classList.add('hidden');
+                if (this.chatters.length === 0) empty?.classList.remove('hidden');
+            } else {
+                 throw new Error('Invalid data format');
+            }
         } catch (error) {
             console.error(error);
             loading?.classList.add('hidden');

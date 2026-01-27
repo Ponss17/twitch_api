@@ -137,16 +137,23 @@ export const RouletteModule = {
         
         fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&${tokenParam}`)
             .then(res => res.json())
-            .then((data: ChattersResponse) => {
-                if (data && Array.isArray(data.chatters)) {
+            .then((data: any) => {
+                const chattersList = Array.isArray(data) ? data : (data.chatters || []);
+
+                if (Array.isArray(chattersList)) {
                     const currentChatters = new Set(this.chatters.map(u => u.user_login.toLowerCase()));
                     let newAdded = 0;
 
-                    data.chatters.forEach((name: string) => {
-                        const lowerName = name.toLowerCase();
-                        if (!currentChatters.has(lowerName) && !CONFIG.IGNORED_BOTS.has(lowerName)) {
-                            this.chatters.push({ user_login: name, user_name: name });
-                            currentChatters.add(lowerName);
+                    chattersList.forEach((item: any) => {
+                        const login = typeof item === 'string' ? item : item.user_login;
+                        const name = typeof item === 'string' ? item : item.user_name;
+
+                        if (!login) return;
+
+                        const lowerLogin = login.toLowerCase();
+                        if (!currentChatters.has(lowerLogin) && !CONFIG.IGNORED_BOTS.has(lowerLogin)) {
+                            this.chatters.push({ user_login: login, user_name: name });
+                            currentChatters.add(lowerLogin);
                             newAdded++;
                         }
                     });
