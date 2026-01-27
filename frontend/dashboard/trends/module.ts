@@ -11,6 +11,9 @@ export const TrendsModule = {
         'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas',
         'y', 'o', 'pero', 'si', 'no', 'en', 'de', 'del', 'a', 'al', 'con', 'para', 'por',
         'que', 'qué', 'es', 'son', 'se', 'mi', 'tu', 'su', 'yo', 'me', 'te', 'le',
+        'este', 'esta', 'estos', 'estas', 'ese', 'esa', 'esos', 'esas',
+        'como', 'cómo', 'cuando', 'cuándo', 'donde', 'dónde', 'quien', 'quién',
+        'solo', 'sólo', 'tan', 'muy', 'mucho', 'poco', 'más', 'menos',
         'http', 'https', 'www', 'com'
     ]),
     messageLog: [] as ChatLogItem[],

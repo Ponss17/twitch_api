@@ -19,8 +19,23 @@ export const ProfileModal = {
         overlay.classList.add('active');
 
         const closeBtn = document.getElementById('close-modal-btn');
-        if (closeBtn) closeBtn.onclick = () => this.close();
-        overlay.onclick = (e) => { if (e.target === overlay) this.close(); };
+        if (closeBtn && !closeBtn.dataset.listener) {
+            closeBtn.addEventListener('click', () => this.close());
+            closeBtn.dataset.listener = 'true';
+        }
+
+        if (!overlay.dataset.listener) {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) this.close();
+            });
+            overlay.dataset.listener = 'true';
+        }
+
+        const modalContent = document.querySelector('.modal-content') as HTMLElement;
+        if (modalContent && !modalContent.dataset.listener) {
+            modalContent.addEventListener('click', (e) => e.stopPropagation());
+            modalContent.dataset.listener = 'true';
+        }
     },
 
     close() {

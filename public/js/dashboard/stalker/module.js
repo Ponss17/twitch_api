@@ -82,16 +82,16 @@ export const StalkerModule = {
             TmiService.addListener('stalker', (channel, tags, message) => {
                 if (!this.isScanning)
                     return;
-                import('../trends/module.js').then(({ TrendsModule }) => {
-                    if (tags.username) {
-                        TrendsModule.messageLog.unshift({ user: tags.username, text: message, time: new Date() });
-                        if (TrendsModule.messageLog.length > TrendsModule.MAX_LOG_SIZE)
-                            TrendsModule.messageLog.pop();
-                    }
-                });
                 const login = tags.username;
+                if (!login)
+                    return;
                 if (CONFIG.IGNORED_BOTS.has(login.toLowerCase()))
                     return;
+                import('../trends/module.js').then(({ TrendsModule }) => {
+                    TrendsModule.messageLog.unshift({ user: login, text: message, time: new Date() });
+                    if (TrendsModule.messageLog.length > TrendsModule.MAX_LOG_SIZE)
+                        TrendsModule.messageLog.pop();
+                });
                 if (!this.chatters.some((u) => u.user_login.toLowerCase() === login.toLowerCase())) {
                     const newUser = { user_login: login, user_name: tags['display-name'] || login, profile_image_url: null };
                     this.chatters.unshift(newUser);
