@@ -22,12 +22,13 @@ export const TmiService = {
     connectionPromise: null as Promise<void> | null,
 
     async connect(channel: string, auth?: { username: string, token: string }): Promise<void> {
+        if (this.connectionPromise) return this.connectionPromise;
         this.activeClients++;
 
         if (this.isConnected && this.client) return Promise.resolve();
 
         if (typeof window.tmi === 'undefined') {
-            this.activeClients--;
+            this.activeClients = Math.max(0, this.activeClients - 1);
             return Promise.reject('TMI not loaded');
         }
 

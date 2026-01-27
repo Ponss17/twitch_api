@@ -8,11 +8,13 @@ export const TmiService = {
     activeClients: 0,
     connectionPromise: null,
     async connect(channel, auth) {
+        if (this.connectionPromise)
+            return this.connectionPromise;
         this.activeClients++;
         if (this.isConnected && this.client)
             return Promise.resolve();
         if (typeof window.tmi === 'undefined') {
-            this.activeClients--;
+            this.activeClients = Math.max(0, this.activeClients - 1);
             return Promise.reject('TMI not loaded');
         }
         const options = {
