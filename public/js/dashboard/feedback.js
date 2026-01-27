@@ -55,7 +55,7 @@ export const FeedbackModule = {
                 messageInput.value = '';
             }
             else {
-                throw new Error(data.error || 'Failed to submit feedback');
+                throw new Error(data.error || data.message || 'Failed to submit feedback');
             }
         }
         catch (e) {

@@ -36,9 +36,16 @@ export const AnalyticsModule = {
             if (res.ok) {
                 const data = await res.json();
                 console.log('[Analytics] Data received:', data);
-                this.cache = data;
-                this.lastFetch = Date.now();
-                this.render(data);
+                if (data && typeof data === 'object') {
+                    this.cache = data;
+                    this.lastFetch = Date.now();
+                    this.render(data);
+                }
+                else {
+                    console.error('[Analytics] Invalid data format:', data);
+                    if (!this.cache)
+                        statsContainer.innerHTML = Messages.Analytics.errorState;
+                }
             }
             else {
                 const errorText = await res.text();

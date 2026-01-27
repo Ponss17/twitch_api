@@ -68,7 +68,11 @@ export const RouletteModule = {
             return;
         if (!this.session)
             return;
-        TmiService.connect(this.session.login).then(() => {
+        const auth = this.session.token ? {
+            username: this.session.login,
+            token: this.session.token
+        } : undefined;
+        TmiService.connect(this.session.login, auth).then(() => {
             this.isConnected = true;
             TmiService.addListener('roulette', (channel, tags, message) => {
                 if (this.isSpinning || !this.isOpen)
@@ -82,6 +86,10 @@ export const RouletteModule = {
                     this.pulseCounter();
                 }
             });
+        }).catch((err) => {
+            console.error('Roulette TMI Error:', err);
+            UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
+            this.toggleEntries();
         });
     },
     pulseCounter() {
@@ -118,14 +126,19 @@ export const RouletteModule = {
         fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&${tokenParam}`)
             .then(res => res.json())
             .then((data) => {
-            if (data && Array.isArray(data.chatters)) {
+            const chattersList = Array.isArray(data) ? data : (data.chatters || []);
+            if (Array.isArray(chattersList)) {
                 const currentChatters = new Set(this.chatters.map(u => u.user_login.toLowerCase()));
                 let newAdded = 0;
-                data.chatters.forEach((name) => {
-                    const lowerName = name.toLowerCase();
-                    if (!currentChatters.has(lowerName) && !CONFIG.IGNORED_BOTS.has(lowerName)) {
-                        this.chatters.push({ user_login: name, user_name: name });
-                        currentChatters.add(lowerName);
+                chattersList.forEach((item) => {
+                    const login = typeof item === 'string' ? item : item.user_login;
+                    const name = typeof item === 'string' ? item : item.user_name;
+                    if (!login)
+                        return;
+                    const lowerLogin = login.toLowerCase();
+                    if (!currentChatters.has(lowerLogin) && !CONFIG.IGNORED_BOTS.has(lowerLogin)) {
+                        this.chatters.push({ user_login: login, user_name: name });
+                        currentChatters.add(lowerLogin);
                         newAdded++;
                     }
                 });

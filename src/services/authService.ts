@@ -8,7 +8,7 @@ import { logger } from '../utils/logger';
 import { MESSAGES } from '../config/messages';
 
 export const getAuthorizeUrl = (redirectOrigin: string): string => {
-    const scope = 'user:read:email moderator:read:followers clips:edit moderator:read:chatters user:write:chat';
+    const scope = 'user:read:email moderator:read:followers clips:edit moderator:read:chatters user:write:chat chat:read chat:edit';
     const state = Buffer.from(JSON.stringify({ redirectOrigin })).toString('base64');
     return `https://id.twitch.tv/oauth2/authorize?client_id=${CONFIG.TWITCH_CLIENT_ID}&redirect_uri=${CONFIG.TWITCH_REDIRECT_URI}&response_type=code&scope=${scope}&state=${state}`;
 };

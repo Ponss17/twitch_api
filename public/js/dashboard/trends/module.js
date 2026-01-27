@@ -48,7 +48,11 @@ export const TrendsModule = {
     connect() {
         if (!this.session)
             return;
-        TmiService.connect(this.session.login).then(() => {
+        const auth = this.session.token ? {
+            username: this.session.login,
+            token: this.session.token
+        } : undefined;
+        TmiService.connect(this.session.login, auth).then(() => {
             this.updateStatus(true);
             this.isConnected = true;
             TmiService.addListener('trends', (chn, tags, message) => {
@@ -62,7 +66,12 @@ export const TrendsModule = {
                     this.messageLog.pop();
                 this.processMessage(message);
             });
-        }).catch(() => this.updateStatus(false));
+        }).catch((err) => {
+            console.error('Trends TMI Error:', err);
+            this.updateStatus(false);
+            UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
+            this.endTimer();
+        });
     },
     updateStatus(connected) {
         const el = document.getElementById('tracker-status');

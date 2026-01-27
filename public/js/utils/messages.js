@@ -28,7 +28,8 @@ export const Messages = {
         errorLoadingUI: (msg) => `Error cargando interfaz: ${msg}`,
         viewBtn: '<i class="fa-solid fa-eye"></i> Ver',
         saveBtn: '<i class="fa-solid fa-save"></i> Guardar',
-        cancelBtn: '<i class="fa-solid fa-xmark"></i> Cancelar'
+        cancelBtn: '<i class="fa-solid fa-xmark"></i> Cancelar',
+        connectionError: 'Error de conexión'
     },
     Stalker: {
         loading: '<i class="fa-solid fa-spinner fa-spin"></i> Cargando Chat...',
