@@ -17,7 +17,7 @@ export const TmiService = {
     activeClients: 0,
     connectionPromise: null as Promise<void> | null,
 
-    async connect(channel: string): Promise<void> {
+    async connect(channel: string, auth?: { username: string, token: string }): Promise<void> {
         this.activeClients++;
 
         if (this.isConnected && this.client) return Promise.resolve();
@@ -27,10 +27,17 @@ export const TmiService = {
             return Promise.reject('TMI not loaded');
         }
 
-        const options = {
+        const options: any = {
             channels: [channel],
             connection: { secure: true, reconnect: true }
         };
+
+        if (auth) {
+            options.identity = {
+                username: auth.username,
+                password: `oauth:${auth.token.replace('oauth:', '')}`
+            };
+        }
 
         this.client = new window.tmi.Client(options);
 
