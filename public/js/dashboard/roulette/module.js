@@ -1,5 +1,6 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
+import { API_ENDPOINTS } from '../../utils/constants.js';
 import { CONFIG } from '../../config.js';
 import { TmiService } from '../../utils/tmiService.js';
 export const RouletteModule = {
@@ -93,11 +94,134 @@ export const RouletteModule = {
         this.drawRouletteWheel();
     },
     loadChatters() {
+        if (!this.session)
+            return;
+        const { apiKey, token, login } = this.session;
+        const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+        fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&${tokenParam}`)
+            .then(res => res.json())
+            .then((data) => {
+            if (data.chatters) {
+                const existing = new Set(this.chatters.map((u) => u.user_login));
+                let added = 0;
+                // Add broadcater if not present
+                if (!existing.has(login)) {
+                    this.chatters.push({ user_login: login, user_name: login });
+                    existing.add(login);
+                    added++;
+                }
+                data.chatters.forEach((name) => {
+                    if (!existing.has(name) && !CONFIG.IGNORED_BOTS.has(name.toLowerCase())) {
+                        this.chatters.push({ user_login: name, user_name: name });
+                        added++;
+                    }
+                });
+                if (added > 0) {
+                    this.updateUI();
+                    this.pulseCounter();
+                }
+            }
+        })
+            .catch(err => console.error('Error loading chatters:', err));
     },
     spin() {
+        if (this.isSpinning || this.chatters.length === 0)
+            return;
+        this.isSpinning = true;
+        this.spinAngleStart = Math.random() * 10 + 10;
+        this.spinTime = 0;
+        this.spinTimeTotal = Math.random() * 3000 + 4000;
+        this.rotateWheel();
+    },
+    rotateWheel() {
+        this.spinTime += 30;
+        if (this.spinTime >= this.spinTimeTotal) {
+            this.stopRotateWheel();
+            return;
+        }
+        const spinAngle = this.spinAngleStart - this.easeOut(this.spinTime, 0, this.spinAngleStart, this.spinTimeTotal);
+        this.startAngle += (spinAngle * Math.PI / 180);
+        this.drawRouletteWheel();
+        this.spinTimeout = setTimeout(() => this.rotateWheel(), 30);
+    },
+    stopRotateWheel() {
+        if (this.spinTimeout)
+            clearTimeout(this.spinTimeout);
+        this.isSpinning = false;
+        const degrees = this.startAngle * 180 / Math.PI + 90;
+        const arcd = 360 / this.chatters.length;
+        const index = Math.floor((360 - degrees % 360) / arcd);
+        const winner = this.chatters[index];
+        this.showWinner(winner);
+    },
+    easeOut(t, b, c, d) {
+        const ts = (t /= d) * t;
+        const tc = ts * t;
+        return b + c * (tc + -3 * ts + 3 * t);
+    },
+    showWinner(winner) {
+        const display = document.getElementById('roulette-winner-display');
+        const nameEl = document.getElementById('winner-name');
+        if (display && nameEl) {
+            nameEl.textContent = winner.user_name;
+            display.classList.remove('hidden');
+            UI.showToast(`🏆 Ganador: ${winner.user_name}`);
+        }
     },
     drawRouletteWheel() {
+        if (!this.canvas || !this.ctx)
+            return;
+        const outsideRadius = 200;
+        const textRadius = 160;
+        const insideRadius = 50; // Donut style
+        this.ctx.clearRect(0, 0, 500, 500);
+        const len = this.chatters.length;
+        if (len === 0) {
+            this.drawEmptyWheel();
+            return;
+        }
+        this.arc = Math.PI * 2 / len;
+        // Center the wheel
+        const cx = this.canvas.width / 2;
+        const cy = this.canvas.height / 2;
+        for (let i = 0; i < len; i++) {
+            const angle = this.startAngle + i * this.arc;
+            this.ctx.fillStyle = this.colors[i % this.colors.length];
+            this.ctx.beginPath();
+            this.ctx.arc(cx, cy, outsideRadius, angle, angle + this.arc, false);
+            this.ctx.arc(cx, cy, insideRadius, angle + this.arc, angle, true);
+            this.ctx.stroke();
+            this.ctx.fill();
+            this.ctx.save();
+            this.ctx.shadowOffsetX = -1;
+            this.ctx.shadowOffsetY = -1;
+            this.ctx.shadowBlur = 0;
+            this.ctx.fillStyle = "white";
+            this.ctx.font = 'bold 14px Poppins, sans-serif';
+            this.ctx.translate(cx + Math.cos(angle + this.arc / 2) * textRadius, cy + Math.sin(angle + this.arc / 2) * textRadius);
+            this.ctx.rotate(angle + this.arc / 2 + Math.PI / 2); // Rotate text to point outward
+            const text = this.chatters[i].user_name;
+            this.ctx.fillText(text, -this.ctx.measureText(text).width / 2, 0);
+            this.ctx.restore();
+        }
     },
     drawEmptyWheel() {
+        if (!this.canvas || !this.ctx)
+            return;
+        const cx = this.canvas.width / 2;
+        const cy = this.canvas.height / 2;
+        this.ctx.clearRect(0, 0, 500, 500);
+        this.ctx.beginPath();
+        this.ctx.arc(cx, cy, 200, 0, 2 * Math.PI);
+        this.ctx.fillStyle = "#1f2937";
+        this.ctx.fill();
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeStyle = "#374151";
+        this.ctx.stroke();
+        this.ctx.fillStyle = "#9ca3af";
+        this.ctx.font = "bold 20px Poppins";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText("Esperando", cx, cy - 10);
+        this.ctx.fillText("Participantes...", cx, cy + 20);
     }
 };
