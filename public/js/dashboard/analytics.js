@@ -25,6 +25,8 @@ export const AnalyticsModule = {
             this.showSkeleton();
         }
         try {
+            if (!this.session)
+                return;
             const { token } = this.session;
             console.log('[Analytics] Fetching from:', API_ENDPOINTS.ANALYTICS);
             const res = await fetch(API_ENDPOINTS.ANALYTICS, {

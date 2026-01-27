@@ -1,7 +1,7 @@
 export const HtmlLoader = {
-    cache: new Map(),
+    cache: new Map<string, string>(),
 
-    async load(url, containerId) {
+    async load(url: string, containerId: string) {
         const container = document.getElementById(containerId);
         if (!container) return;
 
@@ -10,7 +10,7 @@ export const HtmlLoader = {
         try {
             let html = '';
             if (this.cache.has(url)) {
-                html = this.cache.get(url);
+                html = this.cache.get(url)!;
             } else {
                 const res = await fetch(url);
                 if (!res.ok) throw new Error(`Status ${res.status}`);

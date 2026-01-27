@@ -4,14 +4,15 @@ import { API_ENDPOINTS } from '../../utils/constants.js';
 import { CONFIG } from '../../config.js';
 import { TmiService } from '../../utils/tmiService.js';
 import { StalkerTemplates } from './templates.js';
+import { Session, StalkerUser } from '../../types.js';
 
 export const StalkerModule = {
-    session: null as any,
+    session: null as Session | null,
     isScanning: false,
-    chatters: [] as any[],
+    chatters: [] as StalkerUser[],
     isConnected: false,
 
-    init(session: any) {
+    init(session: Session) {
         this.session = session;
         import('../../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/stalker.css');
@@ -50,6 +51,12 @@ export const StalkerModule = {
             btn.innerHTML = this.isScanning ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
         }
 
+        const status = document.getElementById('stalker-status');
+        if (status) {
+            status.innerHTML = this.isScanning ? Messages.Stalker.scanStarted : Messages.Stalker.scanPaused;
+            status.className = this.isScanning ? 'text-success' : 'text-muted-color';
+        }
+
         if (this.isScanning) {
             UI.showToast(Messages.Stalker.scanStarted, 'success');
             this.loadChatters();
@@ -63,15 +70,16 @@ export const StalkerModule = {
 
     connectTmi() {
         if (this.isConnected) return;
+        if (!this.session) return;
         TmiService.connect(this.session.login).then(() => {
             this.isConnected = true;
-            TmiService.addListener('stalker', (channel: any, tags: any, message: any) => {
+            TmiService.addListener('stalker', (channel: string, tags: any, message: string) => {
                 if (!this.isScanning) return;
                 const login = tags.username;
                 if (CONFIG.IGNORED_BOTS.has(login.toLowerCase())) return;
 
-                if (!this.chatters.some(u => u.user_login.toLowerCase() === login.toLowerCase())) {
-                    const newUser = { user_login: login, user_name: tags['display-name'] || login, profile_image_url: null };
+                if (!this.chatters.some((u: StalkerUser) => u.user_login.toLowerCase() === login.toLowerCase())) {
+                    const newUser: StalkerUser = { user_login: login, user_name: tags['display-name'] || login, profile_image_url: null };
                     this.chatters.unshift(newUser);
                     this.renderTable(this.chatters);
                     (document.getElementById('stalker-grid') as HTMLElement)?.firstChild?.parentElement?.classList.add('row-highlight');
@@ -102,6 +110,7 @@ export const StalkerModule = {
         empty?.classList.add('hidden');
 
         try {
+            if (!this.session) return;
             const { apiKey, login } = this.session;
             const res = await fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&apiKey=${apiKey}`);
             if (!res.ok) throw new Error(res.status === 401 ? Messages.Stalker.reloginMsg : Messages.Stalker.apiError);
@@ -109,7 +118,7 @@ export const StalkerModule = {
             const data = await res.json();
             const apiChatters = data.filter((u: any) => !CONFIG.IGNORED_BOTS.has(u.user_login.toLowerCase()));
             const chatterMap = new Map();
-            this.chatters.forEach(c => chatterMap.set(c.user_login.toLowerCase(), c));
+            this.chatters.forEach((c: StalkerUser) => chatterMap.set(c.user_login.toLowerCase(), c));
             apiChatters.forEach((c: any) => chatterMap.set(c.user_login.toLowerCase(), c));
 
             this.chatters = Array.from(chatterMap.values());
@@ -123,24 +132,25 @@ export const StalkerModule = {
         }
     },
 
-    renderTable(list: any[]) {
+    renderTable(list: StalkerUser[]) {
         const tbody = document.getElementById('stalker-grid');
         if (!tbody) return;
         tbody.innerHTML = '';
         list.forEach(user => {
-            tbody.appendChild(StalkerTemplates.renderRow(user, Messages.Common.viewBtn, (l: any) => this.inspectUser(l)));
+            tbody.appendChild(StalkerTemplates.renderRow(user, Messages.Common.viewBtn, (l: string) => this.inspectUser(l)));
         });
     },
 
     filterChatters(query: string) {
         const q = query.toLowerCase();
-        this.renderTable(this.chatters.filter(u =>
+        this.renderTable(this.chatters.filter((u: StalkerUser) =>
             u.user_name.toLowerCase().includes(q) || u.user_login.toLowerCase().includes(q)
         ));
     },
 
     async inspectUser(login: string) {
         try {
+            if (!this.session) return;
             const res = await fetch(`${API_ENDPOINTS.USER_INFO}?login=${login}&apiKey=${this.session.apiKey}`);
             if (!res.ok) throw new Error();
             const info = await res.json();

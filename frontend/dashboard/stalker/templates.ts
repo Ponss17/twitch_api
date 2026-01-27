@@ -1,3 +1,5 @@
+import { StalkerUser } from '../../types.js';
+
 export const StalkerTemplates = {
     renderMain() {
         return `
@@ -30,7 +32,7 @@ export const StalkerTemplates = {
         `;
     },
 
-    renderControls(isScanning) {
+    renderControls(isScanning: boolean) {
         const btnClass = isScanning ? 'btn-warning' : 'btn-success';
         const btnIcon = isScanning ? 'fa-pause' : 'fa-play';
         const btnTitle = isScanning ? 'Pausar Escaneo' : 'Iniciar Escaneo';
@@ -49,7 +51,7 @@ export const StalkerTemplates = {
         `;
     },
 
-    renderRow(user, viewBtnText, inspectFn) {
+    renderRow(user: StalkerUser, viewBtnText: string, inspectFn: (login: string) => void) {
         const tr = document.createElement('tr');
 
         const avatarTd = document.createElement('td');

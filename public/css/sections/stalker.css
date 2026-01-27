@@ -54,7 +54,7 @@
 
 .action-btn:hover {
     background: var(--accent);
-    color: white;
+    color: var(--text-primary);
     border-color: var(--accent);
 }
 
@@ -157,9 +157,9 @@
     gap: 15px;
     margin: 20px 0;
     padding: 15px;
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--bg-card);
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
 }
 
 .detail-item {

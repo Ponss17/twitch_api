@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sections = document.querySelectorAll('.doc-section');
     const navItems = document.querySelectorAll('.nav-item');
     const observerOptions = {
-        root: null,
+        root: null as Element | null,
         rootMargin: '-20% 0px -70% 0px',
         threshold: 0
     };

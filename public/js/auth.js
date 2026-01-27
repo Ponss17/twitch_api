@@ -2,7 +2,8 @@ import { CONFIG } from './config.js';
 export const Auth = {
     getSession() {
         try {
-            return JSON.parse(localStorage.getItem('twitch_api_session'));
+            const item = localStorage.getItem('twitch_api_session');
+            return item ? JSON.parse(item) : null;
         }
         catch (e) {
             return null;
@@ -29,7 +30,7 @@ export const Auth = {
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.indexOf("application/json") !== -1) {
                 const data = await response.json();
-                return data.valid ? data.user : false;
+                return data.valid && data.user ? data.user : false;
             }
             return true;
         }
@@ -40,14 +41,16 @@ export const Auth = {
     parseUrlParams() {
         const params = new URLSearchParams(window.location.search);
         const savedSession = this.getSession();
-        return {
+        const session = {
             token: params.get('token') || savedSession?.token,
             apiKey: params.get('apiKey') || savedSession?.apiKey,
             userId: params.get('userId') || savedSession?.userId,
             login: params.get('login') || savedSession?.login,
             displayName: params.get('displayName') || savedSession?.displayName,
+            profile_image_url: savedSession?.profile_image_url || '',
             isNewLogin: !!params.get('token') || !!params.get('apiKey')
         };
+        return session;
     },
     setupLoginButton(loginBtnId) {
         const loginBtn = document.getElementById(loginBtnId);
@@ -62,7 +65,6 @@ export const Auth = {
         this.clearSession();
         let currentUrl = window.location.href.split('?')[0];
         currentUrl = currentUrl.replace('://www.', '://');
-        // Use absolute path based on API_URL to ensure it works from subdirectories like /dashboard
         const authPath = `${CONFIG.API_URL}/auth/twitch`;
         window.location.href = `${authPath}?redirect_origin=${encodeURIComponent(currentUrl)}`;
     }

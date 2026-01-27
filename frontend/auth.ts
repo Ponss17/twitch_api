@@ -1,28 +1,30 @@
 import { CONFIG } from './config.js';
+import { Session, TwitchUser, ApiResponse } from './types.js';
 
 export const Auth = {
-    getSession() {
+    getSession(): Session | null {
         try {
-            return JSON.parse(localStorage.getItem('twitch_api_session'));
+            const item = localStorage.getItem('twitch_api_session');
+            return item ? JSON.parse(item) : null;
         } catch (e) {
             return null;
         }
     },
 
-    saveSession(sessionData) {
+    saveSession(sessionData: Session): void {
         localStorage.setItem('twitch_api_session', JSON.stringify(sessionData));
     },
 
-    clearSession() {
+    clearSession(): void {
         localStorage.removeItem('twitch_api_session');
     },
 
-    logout() {
+    logout(): void {
         this.clearSession();
         window.location.href = window.location.origin + window.location.pathname;
     },
 
-    async validateCurrentToken(credentialParam) {
+    async validateCurrentToken(credentialParam: string): Promise<TwitchUser | boolean | null> {
         try {
             if (!credentialParam) return null;
 
@@ -34,8 +36,8 @@ export const Auth = {
 
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.indexOf("application/json") !== -1) {
-                const data = await response.json();
-                return data.valid ? data.user : false;
+                const data: ApiResponse = await response.json();
+                return data.valid && data.user ? data.user : false;
             }
 
             return true;
@@ -44,21 +46,23 @@ export const Auth = {
         }
     },
 
-    parseUrlParams() {
+    parseUrlParams(): Session {
         const params = new URLSearchParams(window.location.search);
         const savedSession = this.getSession();
-
-        return {
+        const session: any = {
             token: params.get('token') || savedSession?.token,
             apiKey: params.get('apiKey') || savedSession?.apiKey,
             userId: params.get('userId') || savedSession?.userId,
             login: params.get('login') || savedSession?.login,
             displayName: params.get('displayName') || savedSession?.displayName,
+            profile_image_url: savedSession?.profile_image_url || '',
             isNewLogin: !!params.get('token') || !!params.get('apiKey')
         };
+        
+        return session as Session;
     },
 
-    setupLoginButton(loginBtnId) {
+    setupLoginButton(loginBtnId: string): void {
         const loginBtn = document.getElementById(loginBtnId);
         if (loginBtn) {
             loginBtn.addEventListener('click', (e) => {
@@ -68,12 +72,11 @@ export const Auth = {
         }
     },
 
-    relogin() {
+    relogin(): void {
         this.clearSession();
         let currentUrl = window.location.href.split('?')[0];
         currentUrl = currentUrl.replace('://www.', '://');
 
-        // Use absolute path based on API_URL to ensure it works from subdirectories like /dashboard
         const authPath = `${CONFIG.API_URL}/auth/twitch`;
         window.location.href = `${authPath}?redirect_origin=${encodeURIComponent(currentUrl)}`;
     }

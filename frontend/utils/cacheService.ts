@@ -9,6 +9,8 @@ interface CacheEntry {
     ttl: number;
 }
 
+export const CACHE_TTL = 60000;
+
 export class CacheService {
     private cache: Map<string, CacheEntry>;
 
@@ -24,7 +26,7 @@ export class CacheService {
      * @param {any} data - Datos a almacenar
      * @param {number} ttl - Tiempo de vida en milisegundos
      */
-    set(key, data, ttl) {
+    set(key: string, data: any, ttl: number) {
         this.cache.set(key, {
             data,
             timestamp: Date.now(),
@@ -37,7 +39,7 @@ export class CacheService {
      * @param {string} key - Clave de los datos
      * @returns {any | null} Datos almacenados o null si expiró/no existe
      */
-    get(key) {
+    get(key: string) {
         const entry = this.cache.get(key);
 
         if (!entry) {
@@ -60,7 +62,7 @@ export class CacheService {
      * @param {string} key - Clave a verificar
      * @returns {boolean}
      */
-    has(key) {
+    has(key: string) {
         return this.get(key) !== null;
     }
 
@@ -68,7 +70,7 @@ export class CacheService {
      * Elimina una entrada específica del caché
      * @param {string} key - Clave a eliminar
      */
-    clear(key) {
+    clear(key: string) {
         this.cache.delete(key);
     }
 
@@ -99,17 +101,9 @@ export class CacheService {
      */
     getStats() {
         return {
-            size: this.cache.size,
-            keys: Array.from(this.cache.keys())
+            size: this.cache.size
         };
     }
 }
-
-export const CACHE_TTL = {
-    CLIPS: 5 * 60 * 1000,
-    USER_INFO: 10 * 60 * 1000,
-    FOLLOWAGE: 30 * 60 * 1000,
-    ANALYTICS: 2 * 60 * 1000
-};
 
 export const cache = new CacheService();

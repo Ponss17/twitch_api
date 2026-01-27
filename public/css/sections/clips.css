@@ -29,7 +29,7 @@
 .btn-clip-action {
     background: rgba(0, 0, 0, 0.7);
     border: none;
-    color: white;
+    color: var(--text-primary);
     width: 32px;
     height: 32px;
     border-radius: 50%;

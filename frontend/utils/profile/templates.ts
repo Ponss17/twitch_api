@@ -1,7 +1,8 @@
 import { Messages } from '../messages.js';
+import { TwitchUser, ChatLogItem } from '../../types.js';
 
 export const ProfileTemplates = {
-    renderContent(user, ageText) {
+    renderContent(user: TwitchUser, ageText: string) {
         const rankType = user.broadcaster_type === 'partner' ? Messages.Details.partner :
             user.broadcaster_type === 'affiliate' ? Messages.Details.affiliate :
                 Messages.Details.user;
@@ -44,7 +45,7 @@ export const ProfileTemplates = {
         `;
     },
 
-    renderLogs(logs) {
+    renderLogs(logs: ChatLogItem[]) {
         let html = `
             <div class="history-container">
                 <h4 class="history-title">${Messages.Details.historyTitle}</h4>

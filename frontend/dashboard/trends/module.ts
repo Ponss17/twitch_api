@@ -3,6 +3,13 @@ import { CONFIG } from '../../config.js';
 import { UI } from '../../ui.js';
 import { TmiService } from '../../utils/tmiService.js';
 import { TrendsTemplates } from './templates.js';
+import { Session } from '../../types.js';
+
+interface TrendMessage {
+    user: string;
+    text: string;
+    time: Date;
+}
 
 export const TrendsModule = {
     wordCounts: {} as Record<string, number>,
@@ -12,14 +19,14 @@ export const TrendsModule = {
         'que', 'qué', 'es', 'son', 'se', 'mi', 'tu', 'su', 'yo', 'me', 'te', 'le',
         'http', 'https', 'www', 'com'
     ]),
-    messageLog: [] as any[],
+    messageLog: [] as TrendMessage[],
     MAX_LOG_SIZE: 500,
     isTracking: false,
     isConnected: false,
     timerInterval: null as NodeJS.Timeout | null,
-    session: null as any,
+    session: null as Session | null,
 
-    init(session: any) {
+    init(session: Session) {
         this.session = session;
         import('../../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/trends.css');
@@ -28,6 +35,7 @@ export const TrendsModule = {
     },
 
     setupUI() {
+        if (!this.session) return;
         const { login, displayName, profile_image_url } = this.session;
         const titleEl = document.getElementById('tracker-title');
         if (titleEl) titleEl.textContent = Messages.Trends.title(displayName || login);
@@ -50,10 +58,11 @@ export const TrendsModule = {
     },
 
     connect() {
+        if (!this.session) return;
         TmiService.connect(this.session.login).then(() => {
             this.updateStatus(true);
             this.isConnected = true;
-            TmiService.addListener('trends', (chn: any, tags: any, message: any) => {
+            TmiService.addListener('trends', (chn: string, tags: any, message: string) => {
                 if (!this.isTracking) return;
                 const username = tags.username;
                 if (!username || CONFIG.IGNORED_BOTS.has(username.toLowerCase())) return;

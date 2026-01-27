@@ -53,6 +53,8 @@ export const Magic8Module = {
         }
         this.setLoading(true);
         try {
+            if (!this.session)
+                throw new Error('No active session');
             const { apiKey, token, login } = this.session;
             const mood = document.getElementById('extra-magic8-mood')?.value || 'classic';
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
