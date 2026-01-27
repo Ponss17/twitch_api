@@ -1,4 +1,5 @@
 import { Messages } from '../messages.js';
+import { UI } from '../../ui.js';
 export const ProfileTemplates = {
     renderContent(user, ageText) {
         const rankType = user.broadcaster_type === 'partner' ? Messages.Details.partner :
@@ -7,10 +8,10 @@ export const ProfileTemplates = {
         const rankColor = user.broadcaster_type ? 'var(--accent)' : 'var(--text-secondary)';
         return `
             <div class="profile-header">
-                <img src="${user.profile_image_url || 'img/LosPerris_progra.webp'}" class="profile-avatar-large" alt="${user.display_name}" loading="lazy">
+                <img src="${user.profile_image_url || 'img/LosPerris_progra.webp'}" class="profile-avatar-large" alt="${UI.escapeHTML(user.display_name)}" loading="lazy">
                 <div class="profile-title-group">
-                    <h2 class="profile-name">${user.display_name}</h2>
-                    <div class="profile-login">@${user.login}</div>
+                    <h2 class="profile-name">${UI.escapeHTML(user.display_name)}</h2>
+                    <div class="profile-login">@${UI.escapeHTML(user.login)}</div>
                 </div>
             </div>
 
@@ -21,7 +22,7 @@ export const ProfileTemplates = {
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">ID de Usuario</span>
-                    <span class="detail-value">${user.id}</span>
+                    <span class="detail-value">${UI.escapeHTML(user.id)}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Antigüedad</span>
@@ -30,7 +31,7 @@ export const ProfileTemplates = {
             </div>
 
             <div id="modal-bio" class="profile-bio">
-                ${user.description || Messages.Stalker.bioEmpty}
+                ${UI.escapeHTML(user.description) || Messages.Stalker.bioEmpty}
             </div>
 
             <div class="profile-footer">
@@ -55,7 +56,7 @@ export const ProfileTemplates = {
                     ${logs.map(l => `
                         <div class="history-item">
                             <span class="history-time">[${l.time.toLocaleTimeString()}]</span>
-                            <span class="history-text">${l.text}</span>
+                            <span class="history-text">${UI.escapeHTML(l.text)}</span>
                         </div>
                     `).join('')}
                 </div>

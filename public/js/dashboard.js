@@ -2,7 +2,7 @@ import { UI } from './ui.js';
 import { HtmlLoader } from './utils/htmlLoader.js';
 export const Dashboard = {
     session: null,
-    currentModule: null,
+    activeModules: [],
     init(session) {
         this.session = session;
         this.setupTabs();
@@ -45,15 +45,18 @@ export const Dashboard = {
                 const pane = document.getElementById(tabId);
                 if (pane)
                     pane.classList.add('active');
-                // Deactivate current module before loading new one
-                if (this.currentModule && typeof this.currentModule.deactivate === 'function') {
-                    try {
-                        this.currentModule.deactivate();
+                // Deactivate ALL current modules before loading new ones
+                this.activeModules.forEach(mod => {
+                    if (mod && typeof mod.deactivate === 'function') {
+                        try {
+                            mod.deactivate();
+                        }
+                        catch (e) {
+                            console.warn('Error deactivating module:', e);
+                        }
                     }
-                    catch (e) {
-                        console.warn('Error deactivating module:', e);
-                    }
-                }
+                });
+                this.activeModules = [];
                 this.loadTab(tabId);
             });
         });
@@ -69,7 +72,7 @@ export const Dashboard = {
             'tab-home': async () => {
                 const { AccountModule } = await import('./dashboard/account.js');
                 const { AnalyticsModule } = await import('./dashboard/analytics.js');
-                this.currentModule = AccountModule; // Dashboard usually tracks one main module for cleanup
+                this.activeModules = [AccountModule, AnalyticsModule];
                 if (this.session) {
                     AccountModule.init(this.session);
                     AnalyticsModule.init(this.session);
@@ -77,14 +80,14 @@ export const Dashboard = {
             },
             'tab-followage': async () => {
                 const { CommandsModule } = await import('./dashboard/commands.js');
-                this.currentModule = CommandsModule;
+                this.activeModules = [CommandsModule];
                 if (this.session)
                     CommandsModule.init(this.session);
             },
             'tab-clips': async () => {
                 const { CommandsModule } = await import('./dashboard/commands.js');
                 const { ClipsModule } = await import('./dashboard/clips.js');
-                this.currentModule = ClipsModule;
+                this.activeModules = [ClipsModule, CommandsModule];
                 if (this.session) {
                     ClipsModule.init(this.session);
                     CommandsModule.init(this.session);
@@ -92,26 +95,26 @@ export const Dashboard = {
             },
             'tab-shoutout': async () => {
                 const { CommandsModule } = await import('./dashboard/commands.js');
-                this.currentModule = CommandsModule;
+                this.activeModules = [CommandsModule];
                 if (this.session)
                     CommandsModule.init(this.session);
             },
             'tab-tracker': async () => {
                 const { TrendsModule } = await import('./dashboard/trends.js');
-                this.currentModule = TrendsModule;
+                this.activeModules = [TrendsModule];
                 if (this.session)
                     TrendsModule.init(this.session);
             },
             'tab-stalker': async () => {
                 const { StalkerModule } = await import('./dashboard/stalker.js');
-                this.currentModule = StalkerModule;
+                this.activeModules = [StalkerModule];
                 if (this.session)
                     StalkerModule.init(this.session);
             },
             'tab-magic8': async () => {
                 const { Magic8Module } = await import('./dashboard/magic8.js');
                 const { CommandsModule } = await import('./dashboard/commands.js');
-                this.currentModule = Magic8Module;
+                this.activeModules = [Magic8Module, CommandsModule];
                 if (this.session) {
                     Magic8Module.init(this.session);
                     CommandsModule.init(this.session);
@@ -119,13 +122,13 @@ export const Dashboard = {
             },
             'tab-roulette': async () => {
                 const { RouletteModule } = await import('./dashboard/roulette.js');
-                this.currentModule = RouletteModule;
+                this.activeModules = [RouletteModule];
                 if (this.session)
                     RouletteModule.init(this.session);
             },
             'tab-feedback': async () => {
                 const { FeedbackModule } = await import('./dashboard/feedback.js');
-                this.currentModule = FeedbackModule;
+                this.activeModules = [FeedbackModule];
                 if (this.session)
                     FeedbackModule.init(this.session);
             }
