@@ -1,79 +1,80 @@
 ================================================================================
                 FICHA TÉCNICA DEL PROYECTO: LOSPERRIS TWITCH API
 ================================================================================
-Generado el: 24/01/2026 - 13:05
+Generado el: 27/01/2026 - 13:35
 
 --------------------------------------------------------------------------------
-1. MAPA DE ESTRUCTURA Y MÉTRICAS (Líneas de Código)
+1. MAPA DE ESTRUCTURA COMPLETO (Source + Build + Deployment)
 --------------------------------------------------------------------------------
 
-[RAÍZ]
-├── [api/]
-│   └── index.ts ............................................... [10 líneas]
+[RAÍZ DEL PROYECTO]
 │
-├── [public/]
-│   ├── dashboard.html ......................................... [129 líneas]
-│   ├── index.html ............................................. [113 líneas]
-│   ├── docs.html .............................................. [331 líneas]
-│   │
-│   ├── [components/]
-│   │   ├── home.html .......................................... [67 líneas]
-│   │   ├── stalker.html ....................................... [22 líneas]
-│   │   ├── trends.html ........................................ [61 líneas]
-│   │   ├── clips.html ......................................... [27 líneas]
-│   │   ├── magic8.html ........................................ [33 líneas]
-│   │   └── roulette.html ...................................... [49 líneas]
-│   │
-│   ├── [css/]
-│   │   ├── base.css ........................................... [478 líneas]
-│   │   ├── dashboard.css ...................................... [336 líneas]
-│   │   └── [sections/]
-│   │       ├── analytics.css .................................. [63 líneas]
-│   │       ├── stalker.css .................................... [240 líneas]
-│   │       └── landing.css .................................... [244 líneas]
-│   │
-│   └── [js/]
-│       ├── app-dashboard.js ................................... [67 líneas]
-│       ├── auth.js ............................................ [78 líneas]
-│       ├── dashboard.js ....................................... [112 líneas]
-│       ├── [dashboard/]
-│       │   ├── stalker/
-│       │   │   ├── module.js .................................. [152 líneas]
-│       │   │   └── templates.js ............................... [84 líneas]
-│       │   └── trends/
-│       │       ├── module.js .................................. [177 líneas]
-│       │       └── templates.js ............................... [21 líneas]
-│       └── [utils/]
-│           ├── messages.js .................................... [164 líneas]
-│           ├── profileModal.js ................................ [54 líneas]
-│           └── [profile/]
-│               └── templates.js ............................... [71 líneas]
+├── [api/] (Entry Point para Vercel)
+│   └── index.ts ............................................... [8 líneas]
 │
-└── [src/]
-    ├── app.ts ................................................. [85 líneas]
-    ├── [controllers/]
-    │   ├── authController.ts .................................. [38 líneas]
-    │   ├── commandsController.ts .............................. [115 líneas]
-    │   ├── dashboardController.ts ............................. [85 líneas]
-    │   └── systemController.ts ................................ [126 líneas]
-    ├── [services/]
-    │   ├── apiService.ts ...................................... [195 líneas]
-    │   ├── authService.ts ..................................... [129 líneas]
-    │   └── dbService.ts ....................................... [117 líneas]
-    └── [middleware/]
-        ├── authMiddleware.ts .................................. [54 líneas]
-        └── errorMiddleware.ts ................................. [24 líneas]
+├── [frontend/] (CÓDIGO FUENTE - TypeScript)
+│   ├── app-dashboard.ts ....................................... [66 líneas]
+│   ├── auth.ts ................................................ [74 líneas]
+│   ├── config.ts .............................................. [30 líneas]
+│   ├── dashboard.ts ........................................... [149 líneas]
+│   ├── ui.ts .................................................. [259 líneas]
+│   ├── types.ts ............................................... [62 líneas]
+│   │
+│   ├── [dashboard/] (Módulos Lógicos)
+│   │   ├── clips.ts ........................................... [344 líneas]
+│   │   ├── [stalker/] (module.ts + templates.ts) .............. [346 líneas]
+│   │   ├── [roulette/] (module.ts) ............................ [320 líneas]
+│   │   ├── [trends/] (module.ts) .............................. [151 líneas]
+│   │   ├── account.ts, analytics.ts, feedback.ts .............. [~300 líneas]
+│   │
+│   └── [utils/] (helpers, services) ........................... [~500 líneas]
+│
+├── [src/] (BACKEND - TypeScript)
+│   ├── app.ts ................................................. [85 líneas]
+│   ├── [controllers/] (4 archivos) ............................ [364 líneas]
+│   ├── [services/] (5 archivos) ............................... [540 líneas]
+│   ├── [routes/] (2 archivos) ................................. [75 líneas]
+│   ├── [middleware/] (2 archivos) ............................. [78 líneas]
+│   └── [config/] (env, messages) .............................. [32 líneas]
+│
+└── [public/] (BUILD & ASSETS - Despliegue)
+    ├── dashboard.html ......................................... [139 líneas]
+    ├── index.html ............................................. [113 líneas]
+    ├── [css/] (Estilos Compilados/Estáticos)
+    │   ├── base.css ........................................... [478 líneas]
+    │   ├── dashboard.css ...................................... [336 líneas]
+    │   └── [sections/] (Estilos modulares) .................... [~800 líneas]
+    │
+    ├── [js/] (JAVASCRIPT COMPILADO PARA NAVEGADOR)
+    │   ├── app-dashboard.js ................................... [~65 líneas]
+    │   ├── dashboard.js ....................................... [~130 líneas]
+    │   ├── [dashboard/] (Módulos JS ejecutables) .............. [~1,200 líneas]
+    │   └── [vendor/] (Librerías externas: tmi.js, etc.) ....... [~2,500 líneas]
+    │
+    └── [components/] (Fragmentos HTML dinámicos) .............. [~450 líneas]
 
 --------------------------------------------------------------------------------
-2. RESUMEN DE INGENIERÍA Y MÉTRICAS GLOBALES
+2. RESUMEN DE INGENIERÍA Y MÉTRICAS TOTALES
 --------------------------------------------------------------------------------
 
-  > TAMAÑO DEL PROYECTO:       ~10,020 líneas de código
-  > TOTAL DE ARCHIVOS:         92 archivos analizados
-  > TECNOLOGÍAS USADAS:        TypeScript, Node.js, Vercel KV, ESM, CSS3.
-  > SEGURIDAD:                 Encriptación AES-256-CBC, Sanitización, CORS.
-  > ARQUITECTURA:              Modular (Lazy Loading) y Serverless Ready.
+  > CÓDIGO FUENTE (TypeScript):       ~6,450 líneas (Lógica de Desarrollo)
+  > CÓDIGO COMPILADO (JS Build):      ~2,100 líneas (Ejecutable Navegador)
+  > INTERFAZ (HTML/CSS):              ~2,200 líneas (Estructura y Estilo)
+  > LIBRERÍAS (Vendor):               ~2,500 líneas (tmi.min.js base)
+  
+  > TOTAL LINEAS PROYECTO:           ~13,250 líneas (Estructura Completa)
+  
+  > ARCHIVOS VERIFICADOS:             128 archivos
+  > ESTADO DE BUILD:                  ✅ Sincronizado (TS -> JS)
 
 --------------------------------------------------------------------------------
-© PROYECTO LOSPERRIS API - MÓDULO BLINDADO - 2026 - V.1.0.0 - commit estable :3
+3. NOTAS DE ARQUITECTURA
+--------------------------------------------------------------------------------
+  * El directorio `frontend/` es la fuente de la verdad para la lógica.
+  * El directorio `public/js/` es el resultado de la compilación (`npm run build:frontend`).
+  * El proyecto utiliza un patrón híbrido: Backend en Node/Express y Frontend
+    servido estáticamente pero construido con TypeScript moderno.
+
+--------------------------------------------------------------------------------
+© PROYECTO LOSPERRIS API - MÓDULO BLINDADO - 2026 - V.1.1.0 - [MASTER]
 ================================================================================

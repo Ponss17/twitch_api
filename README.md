@@ -13,10 +13,14 @@
 
 ### 🖥️ Dashboard Pro (Next-Gen UI)
 - **Diseño Glassmorphism**: Interfaz oscura ultra-moderna con efectos de desenfoque y animaciones fluidas.
-- **Herramientas en Tiempo Real**:
-    - 🛰️ **Stalker**: Monitor avanzado de chat con inspección de perfiles y logs de sesión.
-    - 📊 **Tendencias**: Análisis léxico del chat en vivo con sistema de ranking y temporizador.
-    - 🎡 **Ruleta Interactiva**: Sistema de sorteos híbrido (API + Chat) con física de giro y anuncios automáticos.
+- **Arquitectura de Ciclo de Vida**: Motor de dashboard que gestiona la carga y limpieza de módulos (`init` / `deactivate`) dinámicamente.
+- **Lazy Loading Extremo**: Carga bajo demanda de HTML, CSS y JS TypeScript, optimizando el tiempo de respuesta inicial.
+- **XSS-Shield**: Sistema de renderizado seguro que protege contra inyecciones maliciosas en perfiles, clips y mensajes del chat.
+
+### 🛰️ Herramientas en Tiempo Real
+- **Stalker**: Monitor avanzado de chat con inspección de perfiles en tiempo real.
+- **Tendencias**: Análisis léxico del chat en vivo con sistema de ranking y temporizador.
+- **Ruleta Interactiva**: Sorteos interactivos con física de giro y temática Twitch personalizada.
 - **Arquitectura Modular**: CSS unificado en `common.css` para componentes compartidos y carga bajo demanda para estilos específicos.
 
 ---
@@ -37,17 +41,10 @@
 
 ```text
 /
-├── src/
-│   ├── config/      # Configuración de entorno y mensajes centralizados
-│   ├── controllers/ # Controladores de API y Dashboard
-│   ├── services/    # Lógica de negocio (Twitch, AI, Redis)
-│   ├── middleware/  # Protección de rutas y validaciones
-│   └── routes/      # Endpoints organizados
-├── public/
-│   ├── css/         # Estilos: dashboard.css (layout) + common.css (piezas)
-│   ├── js/          # Lógica modular del Dashboard
-│   └── components/  # Fragmentos HTML cargados dinámicamente
-└── api/             # Punto de entrada para despliegue
+├── frontend/        # Código fuente TypeScript del Dashboard
+├── src/             # Backend: Lógica de negocio y API
+├── public/          # Build: Assets estáticos y JS compilado
+├── api/             # Entry point para despliegue
 ```
 
 ---
