@@ -39,6 +39,16 @@ export const RouletteModule = {
         this.isInitialized = true;
     },
 
+    deactivate() {
+        this.isOpen = false;
+        if (this.spinTimeout) clearTimeout(this.spinTimeout);
+        TmiService.removeListener('roulette');
+        TmiService.disconnect();
+        this.isConnected = false;
+        this.isSpinning = false;
+        console.log('[RouletteModule] Deactivated');
+    },
+
     setupUI() {
         this.canvas = document.getElementById('roulette-canvas') as HTMLCanvasElement;
         if (!this.canvas) return;

@@ -31,10 +31,9 @@ export const UI = {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         const icon = type === 'success' ? 'fa-check-circle' : 'fa-triangle-exclamation';
-        toast.innerHTML = `
-            <i class="fa-solid ${icon}"></i>
-            <span>${message}</span>
-        `;
+        toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span></span>`;
+        const textSpan = toast.querySelector('span');
+        textSpan.textContent = message;
         container.appendChild(toast);
         setTimeout(() => {
             toast.classList.add('hiding');

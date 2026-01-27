@@ -106,6 +106,13 @@ export const StalkerModule = {
             this.toggleScan();
         });
     },
+    deactivate() {
+        this.isScanning = false;
+        TmiService.removeListener('stalker');
+        TmiService.disconnect();
+        this.isConnected = false;
+        console.log('[StalkerModule] Deactivated');
+    },
     render() {
         const container = document.getElementById('stalker-content');
         const controls = document.getElementById('stalker-controls');

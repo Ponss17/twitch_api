@@ -169,6 +169,15 @@ export const TrendsModule = {
     getMessagesByUser(username) {
         return this.messageLog.filter((log) => log.user.toLowerCase() === username.toLowerCase());
     },
+    deactivate() {
+        if (this.timerInterval)
+            clearInterval(this.timerInterval);
+        TmiService.removeListener('trends');
+        TmiService.disconnect();
+        this.isConnected = false;
+        this.isTracking = false;
+        console.log('[TrendsModule] Deactivated');
+    },
     render() {
         if (this.renderPending)
             return;
