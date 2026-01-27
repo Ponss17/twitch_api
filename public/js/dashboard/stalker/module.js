@@ -144,7 +144,7 @@ export const StalkerModule = {
         if (!tbody)
             return;
         tbody.innerHTML = '';
-        loading?.classList.add('hidden'); // Hide the old spinner container if it exists
+        loading?.classList.add('hidden');
         tbody.appendChild(StalkerTemplates.renderRowsSkeleton(8));
         empty?.classList.add('hidden');
         try {
@@ -195,10 +195,12 @@ export const StalkerModule = {
         const tbody = document.getElementById('stalker-grid');
         if (!tbody)
             return;
-        tbody.innerHTML = '';
+        const fragment = document.createDocumentFragment();
         list.forEach(user => {
-            tbody.appendChild(StalkerTemplates.renderRow(user, Messages.Common.viewBtn, (l) => this.inspectUser(l)));
+            fragment.appendChild(StalkerTemplates.renderRow(user, Messages.Common.viewBtn, (l) => this.inspectUser(l)));
         });
+        tbody.innerHTML = '';
+        tbody.appendChild(fragment);
     },
     filterChatters(query) {
         const q = query.toLowerCase();

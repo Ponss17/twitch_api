@@ -40,6 +40,7 @@ export const ClipsModule = {
 
         this.setupUI();
         this.initialized = true;
+        this.loadClips();
     },
 
     deactivate() {

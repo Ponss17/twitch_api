@@ -8,9 +8,10 @@ export const TmiService = {
     activeClients: 0,
     connectionPromise: null,
     async connect(channel, auth) {
+        this.activeClients++;
+        console.log(`[TmiService] Connect requested. Active clients: ${this.activeClients}`);
         if (this.connectionPromise)
             return this.connectionPromise;
-        this.activeClients++;
         if (this.isConnected && this.client)
             return Promise.resolve();
         if (typeof window.tmi === 'undefined') {

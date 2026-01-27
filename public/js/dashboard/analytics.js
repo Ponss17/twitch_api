@@ -70,26 +70,32 @@ export const AnalyticsModule = {
         const statsContainer = document.getElementById('stats-grid');
         if (!statsContainer)
             return;
-        statsContainer.innerHTML = Array(3).fill(0).map(() => `
-            <div class="stat-card skeleton-card">
-                <div class="stat-icon skeleton skeleton-circle" style="width: 50px; height: 50px; border-radius: 50%;"></div>
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < 3; i++) {
+            const card = document.createElement('div');
+            card.className = 'stat-card skeleton-card';
+            card.innerHTML = `
+                <div class="stat-icon skeleton skeleton-circle" style="width: 50px; height: 50px;"></div>
                 <div class="stat-info" style="flex: 1;">
                     <div class="skeleton skeleton-text" style="width: 40px; height: 28px; margin-bottom: 5px;"></div>
                     <div class="skeleton skeleton-text" style="width: 100px; height: 16px;"></div>
                 </div>
-            </div>
-        `).join('');
+            `;
+            fragment.appendChild(card);
+        }
+        statsContainer.innerHTML = '';
+        statsContainer.appendChild(fragment);
     },
     render(data) {
         const statsContainer = document.getElementById('stats-grid');
         if (!statsContainer)
             return;
-        statsContainer.innerHTML = '';
         const statConfig = [
             { key: 'clips', icon: 'fa-film', label: 'Clips Creados' },
             { key: 'followage', icon: 'fa-clock', label: 'Consultas Followage' },
             { key: 'so', icon: 'fa-bullhorn', label: 'Shoutouts' }
         ];
+        const fragment = document.createDocumentFragment();
         statConfig.forEach(stat => {
             const value = data[stat.key] || 0;
             const card = document.createElement('div');
@@ -101,7 +107,9 @@ export const AnalyticsModule = {
                     <span>${stat.label}</span>
                 </div>
             `;
-            statsContainer.appendChild(card);
+            fragment.appendChild(card);
         });
+        statsContainer.innerHTML = '';
+        statsContainer.appendChild(fragment);
     }
 };
