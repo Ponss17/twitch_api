@@ -40,12 +40,12 @@ export const Dashboard = {
                 if (htmlTab.classList.contains('external-link'))
                     return;
                 tabs.forEach((t) => t.classList.remove('active'));
+                htmlTab.classList.add('active');
                 document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
                 const tabId = htmlTab.dataset.tab;
                 const pane = document.getElementById(tabId);
                 if (pane)
                     pane.classList.add('active');
-                // Deactivate ALL current modules before loading new ones
                 this.activeModules.forEach(mod => {
                     if (mod && typeof mod.deactivate === 'function') {
                         try {
