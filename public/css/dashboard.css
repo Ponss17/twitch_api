@@ -69,6 +69,7 @@
     cursor: pointer;
     border-radius: var(--radius-sm);
     transition: all 0.2s;
+    outline: none;
     display: flex;
     align-items: center;
     gap: 14px;
@@ -79,6 +80,12 @@
 .nav-item:hover {
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-primary);
+}
+
+.nav-item:focus-visible {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 2px var(--accent);
 }
 
 .nav-item.active {

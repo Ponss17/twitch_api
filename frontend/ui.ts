@@ -28,10 +28,11 @@ export const UI = {
 
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
+        toast.setAttribute('role', 'alert');
 
         const icon = customIcon || (type === 'success' ? 'fa-check-circle' : 'fa-triangle-exclamation');
 
-        toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span></span>`;
+        toast.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i> <span></span>`;
         const textSpan = toast.querySelector('span')!;
         textSpan.textContent = message;
 
