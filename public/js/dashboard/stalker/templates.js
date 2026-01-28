@@ -39,14 +39,14 @@ export const StalkerTemplates = {
         const btnTitle = isScanning ? 'Pausar Escaneo' : 'Iniciar Escaneo';
         return `
             <div class="search-wrapper">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="stalker-search" placeholder="Buscar usuario..." class="stalker-search">
+                <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+                <input type="text" id="stalker-search" placeholder="Buscar usuario..." class="stalker-search" aria-label="Buscar usuario en el chat">
             </div>
-            <button id="toggle-stalker" class="btn-icon ${btnClass} mr-5" title="${btnTitle}">
-                <i class="fa-solid ${btnIcon}"></i>
+            <button id="toggle-stalker" class="btn-icon ${btnClass} mr-5" title="${btnTitle}" aria-label="${btnTitle}">
+                <i class="fa-solid ${btnIcon}" aria-hidden="true"></i>
             </button>
-            <button id="refresh-stalker" class="btn-icon" title="Recargar lista">
-                <i class="fa-solid fa-rotate-right"></i>
+            <button id="refresh-stalker" class="btn-icon" title="Recargar lista" aria-label="Recargar lista de usuarios">
+                <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
             </button>
         `;
     },

@@ -34,48 +34,48 @@
 
             <nav class="sidebar-menu">
                 <div class="menu-category">General</div>
-                <button class="nav-item active" data-tab="tab-home">
-                    <i class="fa-solid fa-house"></i>
+                <button class="nav-item active" data-tab="tab-home" aria-label="Ir a Inicio">
+                    <i class="fa-solid fa-house" aria-hidden="true"></i>
                     <span class="nav-text">Inicio</span>
                 </button>
 
                 <div class="menu-category">Comandos</div>
-                <button class="nav-item" data-tab="tab-followage">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
+                <button class="nav-item" data-tab="tab-followage" aria-label="Comando Followage">
+                    <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
                     <span class="nav-text">Followage</span>
                 </button>
-                <button class="nav-item" data-tab="tab-clips">
-                    <i class="fa-solid fa-film"></i>
+                <button class="nav-item" data-tab="tab-clips" aria-label="Gestor de Clips">
+                    <i class="fa-solid fa-film" aria-hidden="true"></i>
                     <span class="nav-text">Clips</span>
                 </button>
-                <button class="nav-item" data-tab="tab-shoutout">
-                    <i class="fa-solid fa-bullhorn"></i>
+                <button class="nav-item" data-tab="tab-shoutout" aria-label="Comando Shoutout">
+                    <i class="fa-solid fa-bullhorn" aria-hidden="true"></i>
                     <span class="nav-text">Shoutout</span>
                 </button>
 
                 <div class="menu-category">Herramientas</div>
-                <button class="nav-item" data-tab="tab-tracker">
-                    <i class="fa-solid fa-chart-line"></i>
+                <button class="nav-item" data-tab="tab-tracker" aria-label="Herramienta Tendencias">
+                    <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
                     <span class="nav-text">Tendencias</span>
                 </button>
-                <button class="nav-item" data-tab="tab-stalker">
-                    <i class="fa-solid fa-users-viewfinder"></i>
+                <button class="nav-item" data-tab="tab-stalker" aria-label="Herramienta Stalker">
+                    <i class="fa-solid fa-users-viewfinder" aria-hidden="true"></i>
                     <span class="nav-text">Stalker</span>
                 </button>
 
                 <div class="menu-category">Minijuegos</div>
-                <button class="nav-item" data-tab="tab-magic8">
-                    <i class="fa-solid fa-8"></i>
+                <button class="nav-item" data-tab="tab-magic8" aria-label="Juego Bola 8">
+                    <i class="fa-solid fa-8" aria-hidden="true"></i>
                     <span class="nav-text">Bola 8</span>
                 </button>
-                <button class="nav-item" data-tab="tab-roulette">
-                    <i class="fa-solid fa-dice"></i>
+                <button class="nav-item" data-tab="tab-roulette" aria-label="Juego Ruleta">
+                    <i class="fa-solid fa-dice" aria-hidden="true"></i>
                     <span class="nav-text">Ruleta</span>
                 </button>
 
                 <div class="menu-category menu-separator">Soporte</div>
-                <button class="nav-item" data-tab="tab-feedback">
-                    <i class="fa-solid fa-comment-dots"></i>
+                <button class="nav-item" data-tab="tab-feedback" aria-label="Enviar Feedback">
+                    <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
                     <span class="nav-text">Feedback</span>
                 </button>
                 <a href="docs" target="_blank" class="nav-item external-link">
@@ -89,8 +89,8 @@
             </nav>
 
             <div class="sidebar-footer">
-                <button id="logout-btn" class="btn-logout">
-                    <i class="fa-solid fa-right-from-bracket"></i>
+                <button id="logout-btn" class="btn-logout" aria-label="Cerrar Sesión">
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
                     <span class="btn-text">Cerrar Sesión</span>
                 </button>
             </div>
@@ -120,7 +120,7 @@
         </main>
     </div>
     <footer id="main-footer"></footer>
-    <div id="profile-modal-overlay" class="modal-overlay">
+    <div id="profile-modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-content profile-modal">
             <button id="close-modal-btn" class="profile-close-btn">
                 <i class="fa-solid fa-xmark"></i>
