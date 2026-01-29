@@ -77,12 +77,14 @@ export const getChannelInfo = async (broadcasterId: string, token: string): Prom
     return response.data.data[0];
 };
 
-export const createClip = async (channel: string, token: string): Promise<string> => {
+export const createClip = async (channel: string, token: string, title?: string): Promise<string> => {
     try {
         const broadcasterId = await getUserId(channel, token);
         const headers = getHeaders(token);
 
-        const clipRes = await apiClient.post(`https://api.twitch.tv/helix/clips?broadcaster_id=${broadcasterId}`, null, { headers });
+        let url = `https://api.twitch.tv/helix/clips?broadcaster_id=${broadcasterId}`;
+
+        const clipRes = await apiClient.post(url, null, { headers });
         const clipData = clipRes.data.data[0];
         return `https://clips.twitch.tv/${clipData.id}`;
     } catch (error: unknown) {
@@ -203,24 +205,6 @@ export const sendChatMessage = async (broadcasterId: string, senderId: string, m
         });
     } catch (error) {
         logger.error('Error sending chat message:', error);
-        throw error;
-    }
-};
-
-// ==========================================
-// NIGHTBOT
-// ==========================================
-
-export const sendToNightbot = async (responseUrl: string, message: string): Promise<void> => {
-    try {
-        await axios.post(responseUrl, { message }, {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            timeout: 30000
-        });
-    } catch (error) {
-        logger.error('[Nightbot] Error sending message:', error);
         throw error;
     }
 };

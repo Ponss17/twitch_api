@@ -33,6 +33,10 @@ export const COMMAND_CONFIG = {
         generate: (domain: string, login: string, tokenParam: string, bot: string, templateVal: string, queryParams: string) => {
             const botUtils = CommandGenerator.bots[bot] || CommandGenerator.bots.nightbot;
             const userArg = bot === 'nightbot' ? '$(user)' : (bot === 'wizebot' ? '$(user_name)' : '${user}');
+            const titleArg = botUtils.arg('query') || botUtils.arg('args') || '';
+
+            if (titleArg) queryParams += `&title=${titleArg}`;
+
             const apiCall = CommandGenerator.generate(bot, `${domain}/create-clip`, queryParams);
 
             let cmd = '';
