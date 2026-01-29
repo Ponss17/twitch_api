@@ -245,8 +245,8 @@
 }
 
 .select-input {
-    padding: 10px 20px;
-    background: var(--bg-secondary);
+    padding: 10px 35px 10px 20px;
+    background: var(--bg-secondary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239146ff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 15px center;
     border: 1px solid var(--border);
     color: var(--text-primary);
     border-radius: var(--radius-sm);
@@ -254,6 +254,25 @@
     cursor: pointer;
     outline: none;
     min-width: 200px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: all 0.2s;
+}
+
+.select-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(145, 70, 255, 0.2);
+}
+
+.var-badge {
+    background: rgba(145, 70, 255, 0.15) !important;
+    color: #c4b5fd !important;
+    border: 1px solid rgba(145, 70, 255, 0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin: 0 2px;
+    font-size: 0.85em;
 }
 
 .select-input option {
