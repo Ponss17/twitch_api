@@ -10,7 +10,11 @@
     "strict": true,
     "skipLibCheck": true,
     "allowJs": true,
-    "noEmitOnError": false
+    "noEmitOnError": false,
+    "lib": [
+      "DOM",
+      "ES2020"
+    ]
   },
   "include": [
     "frontend/**/*"

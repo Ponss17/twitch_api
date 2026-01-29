@@ -10,7 +10,14 @@
         "forceConsistentCasingInFileNames": true,
         "strict": true,
         "skipLibCheck": true,
-        "noImplicitAny": true
+        "noImplicitAny": true,
+        "types": [
+            "node",
+            "express",
+            "cors",
+            "helmet",
+            "compression"
+        ]
     },
     "include": [
         "src/**/*",
