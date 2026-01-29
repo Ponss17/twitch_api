@@ -10,7 +10,14 @@ export const COMMAND_CONFIG = {
         info: 'Genera el código para que tu bot responda con el tiempo exacto que un usuario te sigue.',
         templatePlaceholder: 'Ej: {user} lleva sufriendo {time}.',
         templateVars: 'Variables: {user}, {time}, {channel}',
-        generate: (domain: string, login: string, tokenParam: string, bot: string, templateVal: string, queryParams: string) => {
+        generate: (
+            domain: string,
+            login: string,
+            tokenParam: string,
+            bot: string,
+            templateVal: string,
+            queryParams: string
+        ) => {
             const botUtils = CommandGenerator.bots[bot] || CommandGenerator.bots.nightbot;
             const userArg = bot === 'wizebot' ? '$(user_name)' : botUtils.arg('user');
 
@@ -30,9 +37,17 @@ export const COMMAND_CONFIG = {
         info: 'Tus moderadores podrán crear clips instantáneos escribiendo !clip. Requiere estar en vivo.',
         templatePlaceholder: 'Ej: ¡Mirad este clip de {user}! 👉 {url}',
         templateVars: 'Variables: {user}, {url}',
-        generate: (domain: string, login: string, tokenParam: string, bot: string, templateVal: string, queryParams: string) => {
+        generate: (
+            domain: string,
+            login: string,
+            tokenParam: string,
+            bot: string,
+            templateVal: string,
+            queryParams: string
+        ) => {
             const botUtils = CommandGenerator.bots[bot] || CommandGenerator.bots.nightbot;
-            const userArg = bot === 'nightbot' ? '$(user)' : (bot === 'wizebot' ? '$(user_name)' : '${user}');
+            const userArg =
+                bot === 'nightbot' ? '$(user)' : bot === 'wizebot' ? '$(user_name)' : '${user}';
             const titleArg = botUtils.arg('query') || botUtils.arg('args') || '';
 
             if (titleArg) queryParams += `&title=${titleArg}`;
@@ -57,9 +72,16 @@ export const COMMAND_CONFIG = {
         info: 'Genera un enlace para que tu bot haga un Shoutout con el juego y el enlace del canal.',
         templatePlaceholder: 'Ej: Echadle un follow a {user}, cracks jugando {game} 👉 {url}',
         templateVars: 'Variables disponibles: {user}, {game}, {url}',
-        generate: (domain: string, login: string, tokenParam: string, bot: string, templateVal: string, queryParams: string) => {
+        generate: (
+            domain: string,
+            login: string,
+            tokenParam: string,
+            bot: string,
+            templateVal: string,
+            queryParams: string
+        ) => {
             const botUtils = CommandGenerator.bots[bot];
-            let targetArg = botUtils.arg('touser') || botUtils.arg('1');
+            const targetArg = botUtils.arg('touser') || botUtils.arg('1');
 
             if (templateVal) queryParams += `&template=${encodeURIComponent(templateVal)}`;
             queryParams += `&touser=${targetArg}`;
@@ -88,9 +110,17 @@ export const COMMAND_CONFIG = {
                 ]
             }
         ],
-        generate: (domain: string, login: string, tokenParam: string, bot: string, templateVal: string, queryParams: string, extraValues: Record<string, string>) => {
+        generate: (
+            domain: string,
+            login: string,
+            tokenParam: string,
+            bot: string,
+            templateVal: string,
+            queryParams: string,
+            extraValues: Record<string, string>
+        ) => {
             const botUtils = CommandGenerator.bots[bot];
-            let mood = extraValues.mood || 'classic';
+            const mood = extraValues.mood || 'classic';
 
             if (templateVal) queryParams += `&template=${encodeURIComponent(templateVal)}`;
             queryParams += `&mood=${mood}`;
@@ -101,7 +131,9 @@ export const COMMAND_CONFIG = {
             const queryArg = botUtils.arg('query') || botUtils.arg('args') || '(?)';
             queryParams += `&question=${queryArg}`;
 
-            const magicUrl = domain.includes('/minigames') ? `${domain}/magic8` : `${domain}/minigames/magic8`;
+            const magicUrl = domain.includes('/minigames')
+                ? `${domain}/magic8`
+                : `${domain}/minigames/magic8`;
             const cmd = CommandGenerator.generate(bot, magicUrl, queryParams);
             return `!addcom !8ball ${cmd}`;
         }

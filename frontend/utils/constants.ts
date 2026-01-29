@@ -9,7 +9,7 @@ export const API_ENDPOINTS = {
     CHATTERS: `${CONFIG.API_URL}/dashboard/chatters`,
     USER_INFO: `${CONFIG.API_URL}/dashboard/user-info`,
     SEND_MESSAGE: `${CONFIG.API_URL}/send-message`,
-    CLIPS: `${CONFIG.API_URL}/dashboard/get-clips`,
+    CLIPS: `${CONFIG.API_URL}/dashboard/get-clips`
 };
 
 export const DOM_IDS = {

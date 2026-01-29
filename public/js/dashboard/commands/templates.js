@@ -12,7 +12,8 @@ export const CommandTemplates = {
                 </div>`;
             });
         }
-        const templateSection = conf.templatePlaceholder ? `
+        const templateSection = conf.templatePlaceholder
+            ? `
             <div class="form-group mb-20">
                 <label class="input-label">
                     <i class="fa-solid fa-pen-to-square"></i> Mensaje Personalizado (Opcional)
@@ -20,9 +21,10 @@ export const CommandTemplates = {
                 <input type="text" id="${conf.id}-template" class="text-input full-width" 
                     placeholder="${conf.templatePlaceholder}">
                 <small class="input-help">
-                    ${conf.templateVars}
+                    ${conf.templateVars ? conf.templateVars.replace('Variables:', '<strong class="text-accent">Variables:</strong>').replace(/\{(\w+)\}/g, '<code class="var-badge">{$1}</code>') : ''}
                 </small>
-            </div>` : '';
+            </div>`
+            : '';
         return `
         <div class="card">
             <div class="card-header">

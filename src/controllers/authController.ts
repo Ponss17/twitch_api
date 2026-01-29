@@ -16,10 +16,15 @@ export const callback = async (req: Request, res: Response) => {
     }
 
     try {
-        const { user, access_token, redirectOrigin, apiKey } = await authService.handleCallback(code, state);
+        const { user, access_token, redirectOrigin, apiKey } = await authService.handleCallback(
+            code,
+            state
+        );
 
         const params = `?token=${access_token}&apiKey=${apiKey}&userId=${user.id}&login=${user.login}&displayName=${encodeURIComponent(user.display_name)}`;
-        const redirectUrl = redirectOrigin ? `${redirectOrigin}${params}` : `/api/twitch/dashboard${params}`;
+        const redirectUrl = redirectOrigin
+            ? `${redirectOrigin}${params}`
+            : `/api/twitch/dashboard${params}`;
 
         res.redirect(redirectUrl);
     } catch (error: unknown) {
@@ -30,8 +35,11 @@ export const callback = async (req: Request, res: Response) => {
         if (state) {
             try {
                 const decoded = JSON.parse(Buffer.from(state, 'base64').toString());
-                if (decoded.redirectOrigin) errorRedirect = `${decoded.redirectOrigin}?error=auth_failed`;
-            } catch (e) { }
+                if (decoded.redirectOrigin)
+                    errorRedirect = `${decoded.redirectOrigin}?error=auth_failed`;
+            } catch (_e) {
+                // ignore
+            }
         }
         res.redirect(errorRedirect);
     }

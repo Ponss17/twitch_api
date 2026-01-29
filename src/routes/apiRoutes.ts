@@ -12,7 +12,6 @@ const router = express.Router();
 // Minijuegos
 router.get('/minigames/magic8', checkToken, validate(magic8Schema), gamesController.askMagic8);
 
-
 // Comandos
 router.get('/create-clip', checkToken, validate(createClipSchema), commandsController.createClip);
 router.get('/followage', checkToken, commandsController.followage);

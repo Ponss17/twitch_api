@@ -78,7 +78,7 @@ export const AccountModule = {
                         UI.showToast(Messages.Settings.regenerateSuccess, 'success');
                     }
                 }
-                catch (e) {
+                catch (_e) {
                     UI.showToast(Messages.Settings.regenerateError, 'error');
                 }
                 finally {

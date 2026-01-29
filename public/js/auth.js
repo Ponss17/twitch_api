@@ -5,7 +5,7 @@ export const Auth = {
             const item = localStorage.getItem('twitch_api_session');
             return item ? JSON.parse(item) : null;
         }
-        catch (e) {
+        catch (_e) {
             return null;
         }
     },
@@ -32,14 +32,14 @@ export const Auth = {
             if (!response.ok) {
                 return false;
             }
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.indexOf("application/json") !== -1) {
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.indexOf('application/json') !== -1) {
                 const data = await response.json();
                 return data.valid ? data : false;
             }
             return { valid: true };
         }
-        catch (e) {
+        catch (_e) {
             return false;
         }
     },

@@ -17,14 +17,14 @@ export const AnalyticsModule = {
         this.initialized = true;
     },
     deactivate() {
-        console.log('[AnalyticsModule] Deactivated');
+        // cleaned
     },
     async load(force = false) {
         const statsContainer = document.getElementById('stats-grid');
         if (!statsContainer)
             return;
         const now = Date.now();
-        if (!force && this.cache && (now - this.lastFetch < this.CACHE_DURATION)) {
+        if (!force && this.cache && now - this.lastFetch < this.CACHE_DURATION) {
             this.render(this.cache);
             return;
         }
@@ -35,14 +35,11 @@ export const AnalyticsModule = {
             if (!this.session)
                 return;
             const { token } = this.session;
-            console.log('[Analytics] Fetching from:', API_ENDPOINTS.ANALYTICS);
             const res = await fetch(API_ENDPOINTS.ANALYTICS, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${token}` }
             });
-            console.log('[Analytics] Response status:', res.status);
             if (res.ok) {
                 const data = await res.json();
-                console.log('[Analytics] Data received:', data);
                 if (data && typeof data === 'object') {
                     this.cache = data;
                     this.lastFetch = Date.now();
@@ -99,7 +96,7 @@ export const AnalyticsModule = {
             { key: 'so', icon: 'fa-bullhorn', label: 'Shoutouts' }
         ];
         const fragment = document.createDocumentFragment();
-        statConfig.forEach(stat => {
+        statConfig.forEach((stat) => {
             const value = data[stat.key] || 0;
             const card = document.createElement('div');
             card.className = 'stat-card';

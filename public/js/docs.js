@@ -9,10 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
         threshold: 0
     };
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
             if (entry.isIntersecting) {
                 const id = entry.target.getAttribute('id');
-                navItems.forEach(item => {
+                navItems.forEach((item) => {
                     item.classList.remove('active');
                     if (item.getAttribute('href') === `#${id}`) {
                         item.classList.add('active');
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }, observerOptions);
-    sections.forEach(section => observer.observe(section));
+    sections.forEach((section) => observer.observe(section));
     const updateUrls = () => {
         const baseUrl = window.location.origin;
         document.querySelectorAll('.dynamic-url').forEach((code) => {

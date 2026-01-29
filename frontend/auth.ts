@@ -1,12 +1,12 @@
 import { CONFIG } from './config.js';
-import { Session, TwitchUser, ApiResponse } from './types.js';
+import { Session, ApiResponse } from './types.js';
 
 export const Auth = {
     getSession(): Session | null {
         try {
             const item = localStorage.getItem('twitch_api_session');
             return item ? JSON.parse(item) : null;
-        } catch (e) {
+        } catch (_e) {
             return null;
         }
     },
@@ -39,14 +39,14 @@ export const Auth = {
                 return false;
             }
 
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.indexOf("application/json") !== -1) {
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.indexOf('application/json') !== -1) {
                 const data: ApiResponse = await response.json();
                 return data.valid ? data : false;
             }
 
             return { valid: true } as ApiResponse;
-        } catch (e) {
+        } catch (_e) {
             return false;
         }
     },

@@ -1,9 +1,6 @@
-import { Messages } from './utils/messages.js';
-import { API_ENDPOINTS } from './utils/constants.js';
 import { UI } from './ui.js';
 import { HtmlLoader } from './utils/htmlLoader.js';
 import { Session, DashboardModule } from './types.js';
-import { FeedbackModule } from './dashboard/feedback.js';
 
 export const Dashboard = {
     session: null as Session | null,
@@ -38,7 +35,7 @@ export const Dashboard = {
         }
 
         document.getElementById('logout-btn')?.addEventListener('click', () => {
-            import('./auth.js').then(m => m.Auth.logout());
+            import('./auth.js').then((m) => m.Auth.logout());
         });
     },
 
@@ -51,13 +48,13 @@ export const Dashboard = {
 
                 tabs.forEach((t) => (t as HTMLElement).classList.remove('active'));
                 htmlTab.classList.add('active');
-                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach((p) => p.classList.remove('active'));
 
                 const tabId = htmlTab.dataset.tab!;
                 const pane = document.getElementById(tabId);
                 if (pane) pane.classList.add('active');
 
-                this.activeModules.forEach(mod => {
+                this.activeModules.forEach((mod) => {
                     if (mod && typeof mod.deactivate === 'function') {
                         try {
                             mod.deactivate();
@@ -85,7 +82,7 @@ export const Dashboard = {
             'tab-home': async () => {
                 const { AccountModule } = await import('./dashboard/account.js');
                 const { AnalyticsModule } = await import('./dashboard/analytics.js');
-                this.activeModules = [AccountModule, (AnalyticsModule as any) as DashboardModule];
+                this.activeModules = [AccountModule, AnalyticsModule as any as DashboardModule];
                 if (this.session) {
                     AccountModule.init(this.session);
                     AnalyticsModule.init(this.session);
@@ -144,5 +141,5 @@ export const Dashboard = {
         if (tabHandlers[tabId]) {
             await tabHandlers[tabId]();
         }
-    },
+    }
 };

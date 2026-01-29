@@ -6,7 +6,7 @@ export const Loader = {
             return Promise.resolve();
         if (this.loading.has(path))
             return this.loading.get(path);
-        const promise = new Promise((resolve, reject) => {
+        const promise = new Promise((resolve, _reject) => {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
             link.href = path;
@@ -15,7 +15,7 @@ export const Loader = {
                 this.loading.delete(path);
                 resolve();
             };
-            link.onerror = (e) => {
+            link.onerror = (_e) => {
                 this.loading.delete(path);
                 this.loaded.add(path);
                 console.warn(`[Loader] Warning: Failed to load CSS: ${path}. Proceeding without it.`);

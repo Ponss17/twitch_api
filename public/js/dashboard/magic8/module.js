@@ -23,8 +23,10 @@ export const Magic8Module = {
             return;
         const handleAsk = () => this.askQuestion();
         askBtn.onclick = handleAsk;
-        questionInput.onkeypress = (e) => { if (e.key === 'Enter')
-            handleAsk(); };
+        questionInput.onkeypress = (e) => {
+            if (e.key === 'Enter')
+                handleAsk();
+        };
     },
     setLoading(isLoading) {
         const btn = document.getElementById(DOM_IDS.MAGIC8.BUTTON);
@@ -63,7 +65,8 @@ export const Magic8Module = {
             if (!this.session)
                 throw new Error('No active session');
             const { apiKey, token, login } = this.session;
-            const mood = document.getElementById('extra-magic8-mood')?.value || 'classic';
+            const mood = document.getElementById('extra-magic8-mood')?.value ||
+                'classic';
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
             const url = `${API_ENDPOINTS.MAGIC8}?${tokenParam}&question=${encodeURIComponent(question)}&mood=${mood}&user=${encodeURIComponent(login || '')}`;
             const res = await fetch(url);

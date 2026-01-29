@@ -7,11 +7,13 @@ const limiter = rateLimit({
         const ua = req.get('user-agent') || '';
 
         // Solo bots confiables obtienen límite alto
-        if (ua.includes('Nightbot') ||
+        if (
+            ua.includes('Nightbot') ||
             ua.includes('StreamElements') ||
             ua.includes('Streamlabs') ||
             ua.includes('Moobot') ||
-            ua.includes('StreamLabs')) {
+            ua.includes('StreamLabs')
+        ) {
             return 200;
         }
 
@@ -20,7 +22,7 @@ const limiter = rateLimit({
     },
     message: { error: 'Demasiadas solicitudes, por favor intenta más tarde.' },
     standardHeaders: true,
-    legacyHeaders: false,
+    legacyHeaders: false
 });
 
 // Rate limiter estricto para rutas de autenticación
@@ -29,7 +31,7 @@ export const authLimiter = rateLimit({
     max: 10, // Máximo 10 intentos por IP por hora
     message: { error: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en una hora.' },
     standardHeaders: true,
-    legacyHeaders: false,
+    legacyHeaders: false
 });
 
 export default limiter;

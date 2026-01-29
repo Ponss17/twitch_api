@@ -9,7 +9,7 @@ import { logger } from '../utils/logger';
 const httpsAgent = new https.Agent({ keepAlive: true });
 const apiClient = axios.create({
     httpsAgent,
-    timeout: 10000,
+    timeout: 10000
 });
 
 axiosRetry(apiClient, {
@@ -22,7 +22,9 @@ axiosRetry(apiClient, {
         }
 
         if (axiosRetry.isRetryableError(error)) {
-            logger.warn('Retryable error detected, retrying...', { status: error.response?.status });
+            logger.warn('Retryable error detected, retrying...', {
+                status: error.response?.status
+            });
             return true;
         }
         if (error.response?.status === 429) {
@@ -43,7 +45,7 @@ axiosRetry(apiClient, {
 
 const getHeaders = (token: string) => ({
     'Client-ID': CONFIG.TWITCH_CLIENT_ID,
-    'Authorization': `Bearer ${token}`
+    Authorization: `Bearer ${token}`
 });
 
 export const getUserId = async (username: string, token: string): Promise<string> => {
@@ -57,7 +59,9 @@ export const getUserId = async (username: string, token: string): Promise<string
 
 export const getUserInfo = async (username: string, token: string): Promise<any> => {
     const headers = getHeaders(token);
-    const response = await apiClient.get(`https://api.twitch.tv/helix/users?login=${username}`, { headers });
+    const response = await apiClient.get(`https://api.twitch.tv/helix/users?login=${username}`, {
+        headers
+    });
 
     if (response.data.data.length === 0) {
         throw { status: 404, message: `El usuario/canal ${username} no existe.` } as TwitchError;
@@ -68,7 +72,10 @@ export const getUserInfo = async (username: string, token: string): Promise<any>
 
 export const getChannelInfo = async (broadcasterId: string, token: string): Promise<any> => {
     const headers = getHeaders(token);
-    const response = await apiClient.get(`https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`, { headers });
+    const response = await apiClient.get(
+        `https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`,
+        { headers }
+    );
 
     if (response.data.data.length === 0) {
         throw { status: 404, message: `No se encontró información del canal.` } as TwitchError;
@@ -77,25 +84,32 @@ export const getChannelInfo = async (broadcasterId: string, token: string): Prom
     return response.data.data[0];
 };
 
-export const createClip = async (channel: string, token: string, title?: string): Promise<string> => {
+export const createClip = async (channel: string, token: string): Promise<string> => {
     try {
         const broadcasterId = await getUserId(channel, token);
         const headers = getHeaders(token);
 
-        let url = `https://api.twitch.tv/helix/clips?broadcaster_id=${broadcasterId}`;
+        const url = `https://api.twitch.tv/helix/clips?broadcaster_id=${broadcasterId}`;
 
         const clipRes = await apiClient.post(url, null, { headers });
         const clipData = clipRes.data.data[0];
         return `https://clips.twitch.tv/${clipData.id}`;
     } catch (error: unknown) {
         if (axios.isAxiosError(error) && error.response?.status === 404) {
-            throw { status: 404, message: `No se pudo crear clip. Asegúrate de que ${channel} esté en vivo.` } as TwitchError;
+            throw {
+                status: 404,
+                message: `No se pudo crear clip. Asegúrate de que ${channel} esté en vivo.`
+            } as TwitchError;
         }
         throw error;
     }
 };
 
-export const getClips = async (channel: string, limit: number, token: string): Promise<TwitchClip[]> => {
+export const getClips = async (
+    channel: string,
+    limit: number,
+    token: string
+): Promise<TwitchClip[]> => {
     const broadcasterId = await getUserId(channel, token);
     const headers = getHeaders(token);
 
@@ -110,7 +124,11 @@ export const getClips = async (channel: string, limit: number, token: string): P
     return clipsRes.data.data as TwitchClip[];
 };
 
-export const getFollowAge = async (channel: string, user: string, token: string): Promise<string> => {
+export const getFollowAge = async (
+    channel: string,
+    user: string,
+    token: string
+): Promise<string> => {
     try {
         const [channelId, userId] = await Promise.all([
             getUserId(channel, token),
@@ -143,20 +161,21 @@ export const getFollowAge = async (channel: string, user: string, token: string)
             segundos: Math.floor((diff % (1000 * 60)) / 1000)
         };
 
-        let timeString: string[] = [];
+        const timeString: string[] = [];
         if (parts.años > 0) timeString.push(`${parts.años} años`);
         if (parts.meses > 0) timeString.push(`${parts.meses} meses`);
         if (parts.días > 0) timeString.push(`${parts.días} días`);
         if (parts.horas > 0) timeString.push(`${parts.horas} horas`);
         if (parts.minutos > 0) timeString.push(`${parts.minutos} minutos`);
-        if (parts.segundos > 0 || timeString.length === 0) timeString.push(`${parts.segundos} segundos`);
+        if (parts.segundos > 0 || timeString.length === 0)
+            timeString.push(`${parts.segundos} segundos`);
 
-        const finalString = timeString.length > 1
-            ? timeString.slice(0, -1).join(', ') + ' y ' + timeString.slice(-1)
-            : timeString[0];
+        const finalString =
+            timeString.length > 1
+                ? timeString.slice(0, -1).join(', ') + ' y ' + timeString.slice(-1)
+                : timeString[0];
 
         return `${user} ha seguido a ${channel} por ${finalString}.`;
-
     } catch (error: unknown) {
         const err = error as TwitchError;
         if (err.status === 404) return err.message || 'Usuario no encontrado';
@@ -166,10 +185,10 @@ export const getFollowAge = async (channel: string, user: string, token: string)
 
 export const validateToken = async (token: string): Promise<any> => {
     try {
-        const headers = { 'Authorization': `OAuth ${token}` };
+        const headers = { Authorization: `OAuth ${token}` };
         const response = await apiClient.get('https://id.twitch.tv/oauth2/validate', { headers });
         return response.data;
-    } catch (error) {
+    } catch (_error) {
         return null;
     }
 };
@@ -191,18 +210,27 @@ export const getChatters = async (broadcasterId: string, moderatorId: string, to
     }
 };
 
-export const sendChatMessage = async (broadcasterId: string, senderId: string, message: string, token: string) => {
+export const sendChatMessage = async (
+    broadcasterId: string,
+    senderId: string,
+    message: string,
+    token: string
+) => {
     try {
-        await apiClient.post('https://api.twitch.tv/helix/chat/messages', {
-            broadcaster_id: broadcasterId,
-            sender_id: senderId,
-            message: message
-        }, {
-            headers: {
-                ...getHeaders(token),
-                'Content-Type': 'application/json'
+        await apiClient.post(
+            'https://api.twitch.tv/helix/chat/messages',
+            {
+                broadcaster_id: broadcasterId,
+                sender_id: senderId,
+                message: message
+            },
+            {
+                headers: {
+                    ...getHeaders(token),
+                    'Content-Type': 'application/json'
+                }
             }
-        });
+        );
     } catch (error) {
         logger.error('Error sending chat message:', error);
         throw error;

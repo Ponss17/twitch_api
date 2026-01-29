@@ -22,7 +22,7 @@ export const ClipsModule = {
         });
         this.loadFavorites();
         this.observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
+            entries.forEach((entry) => {
                 if (entry.isIntersecting) {
                     const img = entry.target;
                     img.src = img.dataset.src;
@@ -39,7 +39,7 @@ export const ClipsModule = {
         if (this.observer) {
             this.observer.disconnect();
         }
-        console.log('[ClipsModule] Deactivated');
+        // cleaned
     },
     loadFavorites() {
         if (!this.session)
@@ -144,7 +144,7 @@ export const ClipsModule = {
                 throw new Error(isAuthError ? 'auth_error' : 'fetch_error');
             }
             const data = await response.json();
-            const clips = Array.isArray(data) ? data : (data.clips || data.data || []);
+            const clips = Array.isArray(data) ? data : data.clips || data.data || [];
             this.allClips = clips;
             if (clips.length > 0) {
                 cache.set(cacheKey, clips, CACHE_TTL);
@@ -170,7 +170,7 @@ export const ClipsModule = {
                 </div>
             `;
             document.getElementById('relogin-clips-btn')?.addEventListener('click', () => {
-                import('../auth.js').then(m => m.Auth.relogin());
+                import('../auth.js').then((m) => m.Auth.relogin());
             });
         }
         else {
@@ -181,7 +181,9 @@ export const ClipsModule = {
         }
     },
     renderSkeleton(container) {
-        container.innerHTML = Array(8).fill(0).map(() => `
+        container.innerHTML = Array(8)
+            .fill(0)
+            .map(() => `
             <div class="skeleton-card">
                 <div class="skeleton-thumb skeleton"></div>
                 <div class="skeleton-info">
@@ -192,19 +194,26 @@ export const ClipsModule = {
                     </div>
                 </div>
             </div>
-        `).join('');
+        `)
+            .join('');
     },
     filterAndRender() {
-        const searchTerm = document.getElementById('clips-search')?.value.toLowerCase() || '';
+        const searchTerm = document.getElementById('clips-search')?.value.toLowerCase() ||
+            '';
         const sortValue = document.getElementById('clips-sort')?.value || 'date-desc';
-        let filtered = this.allClips.filter((clip) => clip.title.toLowerCase().includes(searchTerm));
+        const filtered = this.allClips.filter((clip) => clip.title.toLowerCase().includes(searchTerm));
         filtered.sort((a, b) => {
             switch (sortValue) {
-                case 'date-desc': return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-                case 'date-asc': return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-                case 'views-desc': return b.view_count - a.view_count;
-                case 'views-asc': return a.view_count - b.view_count;
-                default: return 0;
+                case 'date-desc':
+                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                case 'date-asc':
+                    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                case 'views-desc':
+                    return b.view_count - a.view_count;
+                case 'views-asc':
+                    return a.view_count - b.view_count;
+                default:
+                    return 0;
             }
         });
         this.currentClips = filtered;
@@ -259,7 +268,9 @@ export const ClipsModule = {
         const safeUrl = UI.escapeHTML(clip.url);
         const safeThumb = UI.escapeHTML(clip.thumbnail_url);
         const dateStr = new Date(clip.created_at).toLocaleDateString('es-ES', {
-            year: 'numeric', month: 'short', day: 'numeric'
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
         });
         const viewsStr = clip.view_count.toLocaleString('es-ES');
         const isFav = this.favorites.includes(clip.id);

@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     FooterComponent.render('main-footer');
     UI.setupClipboard();
     const sessionParams = Auth.parseUrlParams();
-    const { apiKey, token, userId } = sessionParams;
+    const { apiKey, token } = sessionParams;
     if (!apiKey && !token) {
         window.location.href = './';
         return;
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     catch (e) {
         console.error('Error validating session:', e);
-        UI.showToast(Messages.Auth.validationError, "error");
+        UI.showToast(Messages.Auth.validationError, 'error');
         Auth.clearSession();
         window.location.href = './';
         return;
@@ -55,8 +55,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     else {
-        console.warn("Token invalid");
-        UI.showToast(Messages.Auth.sessionExpired, "error");
+        console.warn('Token invalid');
+        UI.showToast(Messages.Auth.sessionExpired, 'error');
         Auth.clearSession();
         setTimeout(() => {
             window.location.href = './';

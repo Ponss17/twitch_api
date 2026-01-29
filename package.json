@@ -1,53 +1,75 @@
 {
-  "name": "twitch_api",
-  "version": "1.0.0",
-  "description": "Project initialized.",
-  "main": "api/index.ts",
-  "scripts": {
-    "build:frontend": "tsc -p tsconfig.frontend.json",
-    "watch:frontend": "tsc -p tsconfig.frontend.json --watch",
-    "build": "npm run build:frontend && tsc",
-    "postbuild": "shx cp -r public dist/public",
-    "start": "node -r dotenv/config dist/api/index.js",
-    "dev": "ts-node --files -r dotenv/config api/index.ts",
-    "check-env": "node scripts/check-env.js",
-    "lint": "tsc --noEmit",
-    "clean": "shx rm -rf dist",
-    "test": "echo \"No tests yet\" && exit 0",
-    "deploy": "npm run build && vercel --prod"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Ponss17/twitch_api.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Ponss17/twitch_api/issues"
-  },
-  "homepage": "https://github.com/Ponss17/twitch_api#readme",
-  "dependencies": {
-    "@vercel/kv": "^3.0.0",
-    "axios": "^1.13.2",
-    "axios-retry": "^4.5.0",
-    "compression": "^1.8.1",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.2.1",
-    "groq-sdk": "^0.37.0",
-    "helmet": "^8.1.0",
-    "zod": "^4.3.5"
-  },
-  "devDependencies": {
-    "@types/compression": "^1.8.1",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/helmet": "^0.0.48",
-    "@types/node": "^25.1.0",
-    "shx": "^0.4.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
-  }
+    "name": "twitch_api",
+    "version": "1.0.0",
+    "description": "Project initialized.",
+    "main": "api/index.ts",
+    "scripts": {
+        "build:frontend": "tsc -p tsconfig.frontend.json",
+        "watch:frontend": "tsc -p tsconfig.frontend.json --watch",
+        "build": "npm run build:frontend && tsc",
+        "postbuild": "shx cp -r public dist/public",
+        "start": "node -r dotenv/config dist/api/index.js",
+        "dev": "ts-node --files -r dotenv/config api/index.ts",
+        "check-env": "node scripts/check-env.js",
+        "lint": "eslint .",
+        "format": "prettier --write .",
+        "type-check": "tsc --noEmit",
+        "clean": "shx rm -rf dist",
+        "test": "echo \"No tests yet\" && exit 0",
+        "deploy": "npm run build && vercel --prod",
+        "prepare": "husky"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Ponss17/twitch_api.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Ponss17/twitch_api/issues"
+    },
+    "homepage": "https://github.com/Ponss17/twitch_api#readme",
+    "dependencies": {
+        "@vercel/kv": "^3.0.0",
+        "axios": "^1.13.2",
+        "axios-retry": "^4.5.0",
+        "compression": "^1.8.1",
+        "cors": "^2.8.5",
+        "dotenv": "^17.2.3",
+        "express": "^5.2.1",
+        "express-rate-limit": "^8.2.1",
+        "groq-sdk": "^0.37.0",
+        "helmet": "^8.1.0",
+        "zod": "^4.3.5"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.39.2",
+        "@types/compression": "^1.8.1",
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.6",
+        "@types/helmet": "^0.0.48",
+        "@types/node": "^25.1.0",
+        "@typescript-eslint/eslint-plugin": "^8.54.0",
+        "@typescript-eslint/parser": "^8.54.0",
+        "eslint": "^9.39.2",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-prettier": "^5.5.5",
+        "globals": "^17.2.0",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.2.7",
+        "prettier": "^3.8.1",
+        "shx": "^0.4.0",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.54.0"
+    },
+    "lint-staged": {
+        "*.{ts,js,json,md}": [
+            "prettier --write"
+        ],
+        "*.ts": [
+            "eslint --fix"
+        ]
+    }
 }

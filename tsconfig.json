@@ -11,20 +11,8 @@
         "strict": true,
         "skipLibCheck": true,
         "noImplicitAny": true,
-        "types": [
-            "node",
-            "express",
-            "cors",
-            "helmet",
-            "compression"
-        ]
+        "types": ["node", "express", "cors", "helmet", "compression"]
     },
-    "include": [
-        "src/**/*",
-        "api/**/*"
-    ],
-    "exclude": [
-        "node_modules",
-        "public"
-    ]
+    "include": ["src/**/*", "api/**/*"],
+    "exclude": ["node_modules", "public"]
 }

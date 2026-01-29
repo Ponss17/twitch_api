@@ -1,24 +1,24 @@
 export const Messages = {
     Auth: {
-        sessionExpired: "Tu sesión ha expirado",
-        validationError: "Error al validar sesión",
-        sessionError: "Error de sesión. Recarga la página.",
-        expiredTitle: "Sesión Expirada",
-        expiredMsg: "Tu credencial ha caducado. Por favor, inicia sesión de nuevo.",
+        sessionExpired: 'Tu sesión ha expirado',
+        validationError: 'Error al validar sesión',
+        sessionError: 'Error de sesión. Recarga la página.',
+        expiredTitle: 'Sesión Expirada',
+        expiredMsg: 'Tu credencial ha caducado. Por favor, inicia sesión de nuevo.',
         reloginBtn: '<i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión',
-        expired: "Sesión expirada. Por favor, inicia sesión de nuevo."
+        expired: 'Sesión expirada. Por favor, inicia sesión de nuevo.'
     },
     Feedback: {
-        emptyMessage: "Por favor, escribe un mensaje.",
+        emptyMessage: 'Por favor, escribe un mensaje.',
         sending: '<i class="fa-solid fa-circle-notch fa-spin"></i> Enviando...',
         defaultButton: '<i class="fa-solid fa-paper-plane"></i> Enviar Feedback',
-        success: "¡Feedback enviado! Gracias por tu aporte.",
-        error: "Error al enviar. Intenta más tarde.",
-        connectionError: "Error de conexión."
+        success: '¡Feedback enviado! Gracias por tu aporte.',
+        error: 'Error al enviar. Intenta más tarde.',
+        connectionError: 'Error de conexión.'
     },
     Clipboard: {
-        copied: "¡Copiado!",
-        error: "Error al copiar"
+        copied: '¡Copiado!',
+        error: 'Error al copiar'
     },
     Common: {
         loading: '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...',
@@ -111,7 +111,7 @@ export const Messages = {
                     <p>Presiona el botón <strong>Play</strong> para comenzar a contar palabras.</p>
                 </td>
             </tr>
-        `,
+        `
     },
     Roulette: {
         updated: '<i class="fa-solid fa-check"></i> Lista actualizada',
@@ -123,7 +123,7 @@ export const Messages = {
         openRaw: 'Inscripciones Abiertas',
         closed: '<i class="fa-solid fa-door-closed"></i> Inscripciones Cerradas',
         closedRaw: 'Inscripciones Cerradas',
-        playToOpen: "Dale al Play ▶️ para abrir"
+        playToOpen: 'Dale al Play ▶️ para abrir'
     },
     Commands: {
         clipResponse: (user, url) => `🎬 Clip creado por ${user}: ${url}`,
@@ -164,9 +164,9 @@ export const Messages = {
         noHistory: 'No hay mensajes registrados en esta sesión.'
     },
     ChatSim: {
-        welcome: "¡Bienvenido al chat!",
-        placeholder: "Enviar un mensaje",
-        btnText: "Chat",
+        welcome: '¡Bienvenido al chat!',
+        placeholder: 'Enviar un mensaje',
+        btnText: 'Chat',
         followage: (user, channel, time) => `@${user} sigue a @${channel} desde hace ${time}.`,
         clip: (user, url) => `🎬 Clip creado por <span style="color:#FF69B4">@${user}</span>: ${url}`,
         shoutout: (user, game) => `¡Vayan a seguir a <span style="color:#bf94ff">@${user}</span>! Estaba jugando ${game}`
