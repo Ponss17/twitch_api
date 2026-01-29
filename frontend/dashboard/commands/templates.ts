@@ -23,7 +23,7 @@ export const CommandTemplates = {
                 <input type="text" id="${conf.id}-template" class="text-input full-width" 
                     placeholder="${conf.templatePlaceholder}">
                 <small class="input-help">
-                    ${conf.templateVars ? conf.templateVars.replace(/\{(\w+)\}/g, '<code class="var-badge">{$1}</code>') : ''}
+                    ${conf.templateVars ? conf.templateVars.replace('Variables:', '<strong class="text-accent">Variables:</strong>').replace(/\{(\w+)\}/g, '<code class="var-badge">{$1}</code>') : ''}
                 </small>
             </div>` : '';
 
