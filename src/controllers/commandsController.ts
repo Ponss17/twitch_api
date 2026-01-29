@@ -13,11 +13,12 @@ const safeString = (val: unknown): string => (typeof val === 'string' ? val : ''
 
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     const channel = safeString(req.query.channel);
+    const title = safeString(req.query.title);
     const token = req.twitchToken;
     const userId = req.userId;
 
     try {
-        const result = await apiService.createClip(channel, token || '');
+        const result = await apiService.createClip(channel, token || '', title);
 
         if (userId) {
             await dbService.incrementUserStats(userId, 'clips');
