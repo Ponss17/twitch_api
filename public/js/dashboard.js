@@ -29,7 +29,7 @@ export const Dashboard = {
             pageTitle.innerHTML = `Bienvenido, <a href="https://twitch.tv/${safeLogin}" target="_blank" class="welcome-link">${safeDisplayName}</a>`;
         }
         document.getElementById('logout-btn')?.addEventListener('click', () => {
-            import('./auth.js').then(m => m.Auth.logout());
+            import('./auth.js').then((m) => m.Auth.logout());
         });
     },
     setupTabs() {
@@ -41,12 +41,12 @@ export const Dashboard = {
                     return;
                 tabs.forEach((t) => t.classList.remove('active'));
                 htmlTab.classList.add('active');
-                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach((p) => p.classList.remove('active'));
                 const tabId = htmlTab.dataset.tab;
                 const pane = document.getElementById(tabId);
                 if (pane)
                     pane.classList.add('active');
-                this.activeModules.forEach(mod => {
+                this.activeModules.forEach((mod) => {
                     if (mod && typeof mod.deactivate === 'function') {
                         try {
                             mod.deactivate();
@@ -136,5 +136,5 @@ export const Dashboard = {
         if (tabHandlers[tabId]) {
             await tabHandlers[tabId]();
         }
-    },
+    }
 };

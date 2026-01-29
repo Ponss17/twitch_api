@@ -42,7 +42,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                 if (validation.user_id) req.userId = validation.user_id;
                 if (validation.login) req.login = validation.login;
             }
-        } catch (e) {
+        } catch (_e) {
             console.warn('Error Middleware Auth: Could not validate token to extract user data');
         }
     }

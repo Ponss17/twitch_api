@@ -4,9 +4,12 @@ import { UI } from '../../ui.js';
 
 export const ProfileTemplates = {
     renderContent(user: TwitchUser, ageText: string) {
-        const rankType = user.broadcaster_type === 'partner' ? Messages.Details.partner :
-            user.broadcaster_type === 'affiliate' ? Messages.Details.affiliate :
-                Messages.Details.user;
+        const rankType =
+            user.broadcaster_type === 'partner'
+                ? Messages.Details.partner
+                : user.broadcaster_type === 'affiliate'
+                  ? Messages.Details.affiliate
+                  : Messages.Details.user;
         const rankColor = user.broadcaster_type ? 'var(--accent)' : 'var(--text-secondary)';
 
         return `
@@ -57,12 +60,16 @@ export const ProfileTemplates = {
         } else {
             html += `
                 <div class="history-list">
-                    ${logs.map(l => `
+                    ${logs
+                        .map(
+                            (l) => `
                         <div class="history-item">
                             <span class="history-time">[${l.time.toLocaleTimeString()}]</span>
                             <span class="history-text">${UI.escapeHTML(l.text)}</span>
                         </div>
-                    `).join('')}
+                    `
+                        )
+                        .join('')}
                 </div>
             `;
         }

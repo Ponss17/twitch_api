@@ -10,7 +10,8 @@ class ErrorHandler {
     isDevelopment: boolean;
 
     constructor() {
-        this.isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        this.isDevelopment =
+            window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         this.init();
     }
 

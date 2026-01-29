@@ -1,10 +1,8 @@
 import { Auth } from './auth.js';
 import { UI } from './ui.js';
 import { Dashboard } from './dashboard.js';
-import { CONFIG } from './config.js';
 import { FooterComponent } from './components/footer.js';
 import { Messages } from './utils/messages.js';
-import { errorHandler } from './utils/errorHandler.js';
 
 import { TwitchUser, Session } from './types.js';
 
@@ -13,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     UI.setupClipboard();
 
     const sessionParams: Session = Auth.parseUrlParams();
-    const { apiKey, token, userId } = sessionParams;
+    const { apiKey, token } = sessionParams;
 
     if (!apiKey && !token) {
         window.location.href = './';
@@ -27,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         validationResult = await Auth.validateCurrentToken(credentialParam);
     } catch (e) {
         console.error('Error validating session:', e);
-        UI.showToast(Messages.Auth.validationError, "error");
+        UI.showToast(Messages.Auth.validationError, 'error');
         Auth.clearSession();
         window.location.href = './';
         return;
@@ -67,12 +65,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             UI.showToast(Messages.Common.errorLoadingUI((initError as Error).message), 'error');
         }
     } else {
-        console.warn("Token invalid");
-        UI.showToast(Messages.Auth.sessionExpired, "error");
+        console.warn('Token invalid');
+        UI.showToast(Messages.Auth.sessionExpired, 'error');
         Auth.clearSession();
         setTimeout(() => {
             window.location.href = './';
         }, 2000);
     }
-}
-);
+});

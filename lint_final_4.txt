@@ -1,0 +1,146 @@
+
+> twitch_api@1.0.0 lint
+> eslint .
+
+
+D:\zzzapi\twitch_api\frontend\app-dashboard.ts
+  40:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\auth.ts
+   2:19  error  'TwitchUser' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   9:18  error  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+  49:18  error  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\zzzapi\twitch_api\frontend\dashboard.ts
+  85:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\dashboard\clips.ts
+  122:20  error    The `Function` type accepts any function-like value.
+Prefer explicitly defining any function parameters and return type  @typescript-eslint/no-unsafe-function-type
+  124:48  warning  Unexpected any. Specify a different type                                                                                 @typescript-eslint/no-explicit-any
+  124:62  warning  Unexpected any. Specify a different type                                                                                 @typescript-eslint/no-explicit-any
+  238:13  error    'filtered' is never reassigned. Use 'const' instead                                                                      prefer-const
+  238:52  warning  Unexpected any. Specify a different type                                                                                 @typescript-eslint/no-explicit-any
+  242:27  warning  Unexpected any. Specify a different type                                                                                 @typescript-eslint/no-explicit-any
+  242:35  warning  Unexpected any. Specify a different type                                                                                 @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\dashboard\commands\config.ts
+   84:17  error  'targetArg' is never reassigned. Use 'const' instead  prefer-const
+  123:17  error  'mood' is never reassigned. Use 'const' instead       prefer-const
+
+D:\zzzapi\twitch_api\frontend\dashboard\commands\types.ts
+  25:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\dashboard\roulette\module.ts
+    8:11  error    'ChattersResponse' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  109:50  error    'message' is defined but never used. Allowed unused args must match /^_/u           @typescript-eslint/no-unused-vars
+  128:23  warning  Unexpected any. Specify a different type                                            @typescript-eslint/no-explicit-any
+  172:26  warning  Unexpected any. Specify a different type                                            @typescript-eslint/no-explicit-any
+  181:49  warning  Unexpected any. Specify a different type                                            @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\dashboard\stalker\module.ts
+  137:26  warning  Unexpected any. Specify a different type                                      @typescript-eslint/no-explicit-any
+  200:64  warning  Unexpected any. Specify a different type                                      @typescript-eslint/no-explicit-any
+  210:44  warning  Unexpected any. Specify a different type                                      @typescript-eslint/no-explicit-any
+  280:18  error    'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\zzzapi\twitch_api\frontend\dashboard\trends\module.ts
+  146:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\dashboard\trends\templates.ts
+  4:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\docs.ts
+  38:66  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\types.ts
+  23:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\utils\cacheService.ts
+   7:11  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\utils\commandGenerator.ts
+  41:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\utils\core\logger.ts
+   2:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   8:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  12:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\utils\errorHandler.ts
+  44:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  44:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  58:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  83:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  83:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\utils\http\apiCache.ts
+  2:11  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\utils\messages.ts
+   59:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  172:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\utils\tmiService.ts
+    8:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   14:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   15:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   21:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   45:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   65:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   87:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  135:59  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\src\controllers\authController.ts
+  40:26  error  Empty block statement  no-empty
+  40:27  error  Delete `┬À`             prettier/prettier
+
+D:\zzzapi\twitch_api\src\controllers\commandsController.ts
+   27:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   65:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   82:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  113:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\src\controllers\dashboardController.ts
+  49:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  68:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  82:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\src\controllers\systemController.ts
+  36:22  error    'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+  42:22  warning  Unexpected any. Specify a different type                                      @typescript-eslint/no-explicit-any
+  69:9   error    'userType' is never reassigned. Use 'const' instead                           prefer-const
+
+D:\zzzapi\twitch_api\src\middleware\authMiddleware.ts
+  28:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\src\middleware\errorMiddleware.ts
+  3:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\src\middleware\validate.ts
+   5:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\src\services\apiService.ts
+   60:77  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   73:85  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  186:61  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\src\services\cacheService.ts
+  3:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  7:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\src\services\magic8Service.ts
+  7:1  error  Delete `ÔÅÄ`  prettier/prettier
+
+D:\zzzapi\twitch_api\src\utils\logger.ts
+   4:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   7:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  10:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  13:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Ô£û 77 problems (15 errors, 62 warnings)
+  6 errors and 0 warnings potentially fixable with the `--fix` option.
+

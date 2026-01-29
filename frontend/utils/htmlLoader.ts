@@ -21,7 +21,9 @@ export const HtmlLoader = {
             container.innerHTML = html;
             container.dataset.loaded = 'true';
 
-            document.dispatchEvent(new CustomEvent('html-loaded', { detail: { url, containerId } }));
+            document.dispatchEvent(
+                new CustomEvent('html-loaded', { detail: { url, containerId } })
+            );
         } catch (error) {
             console.error('[HtmlLoader] Error:', error);
             container.innerHTML = `<div class="error-state">Error cargando ${url}</div>`;

@@ -13,12 +13,11 @@ const safeString = (val: unknown): string => (typeof val === 'string' ? val : ''
 
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     const channel = safeString(req.query.channel);
-    const title = safeString(req.query.title);
     const token = req.twitchToken;
     const userId = req.userId;
 
     try {
-        const result = await apiService.createClip(channel, token || '', title);
+        const result = await apiService.createClip(channel, token || '');
 
         if (userId) {
             await dbService.incrementUserStats(userId, 'clips');
@@ -63,7 +62,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         } else {
             res.send(result);
         }
-    } catch (error: any) {
+    } catch (_error: any) {
         res.status(500).send(MESSAGES.COMMANDS.FOLLOWAGE_ERROR);
     }
 };
@@ -80,7 +79,7 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
     try {
         await apiService.sendChatMessage(userId, userId, message, token || '');
         res.json({ success: true });
-    } catch (error: any) {
+    } catch (_error: any) {
         res.status(500).json({ error: MESSAGES.COMMANDS.SEND_MESSAGE_ERROR });
     }
 };
@@ -98,7 +97,8 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
         const gameName = channelInfo.game_name || 'Just Chatting';
         const url = `https://twitch.tv/${touser}`;
 
-        let messagePattern = (req.query.template as string) || MESSAGES.COMMANDS.SHOUTOUT_HEADLINE;
+        const messagePattern =
+            (req.query.template as string) || MESSAGES.COMMANDS.SHOUTOUT_HEADLINE;
 
         const message = messagePattern
             .replace('{user}', touser)
@@ -110,7 +110,7 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
         }
 
         res.send(message);
-    } catch (error: any) {
+    } catch (_error: any) {
         res.status(500).send(MESSAGES.COMMANDS.SHOUTOUT_ERROR);
     }
 };

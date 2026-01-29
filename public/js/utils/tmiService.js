@@ -48,13 +48,16 @@ export const TmiService = {
         this.connectionPromise = new Promise((resolve, reject) => {
             if (!this.client)
                 return reject('Client not found');
-            this.client.connect()
+            this.client
+                .connect()
                 .then(() => {
                 this.isConnected = true;
                 resolve();
             })
                 .catch(async (err) => {
-                const isLoginError = auth && (err === 'Login unsuccessful' || (typeof err === 'string' && err.includes('Login unsuccessful')));
+                const isLoginError = auth &&
+                    (err === 'Login unsuccessful' ||
+                        (typeof err === 'string' && err.includes('Login unsuccessful')));
                 if (isLoginError) {
                     console.error('❌ TMI Auth failed. Access Token may be invalid/expired for IRC.');
                     console.warn('⚠️ Retrying anonymously...', err);
@@ -93,7 +96,9 @@ export const TmiService = {
         if (this.client && this.isConnected) {
             this.client.say(channel, message).catch((err) => {
                 console.error('Error sending message:', err);
-                if (err === 'Cannot send anonymous messages' || (typeof err === 'string' && (err.includes('anonymous') || err.includes('Login unsuccessful')))) {
+                if (err === 'Cannot send anonymous messages' ||
+                    (typeof err === 'string' &&
+                        (err.includes('anonymous') || err.includes('Login unsuccessful')))) {
                     UI.showToast(Messages.Auth.sessionExpired, 'error');
                     setTimeout(() => Auth.relogin(), 2000);
                 }

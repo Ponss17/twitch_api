@@ -30,7 +30,10 @@ export const COMMAND_CONFIG = {
         templateVars: 'Variables: {user}, {url}',
         generate: (domain, login, tokenParam, bot, templateVal, queryParams) => {
             const botUtils = CommandGenerator.bots[bot] || CommandGenerator.bots.nightbot;
-            const userArg = bot === 'nightbot' ? '$(user)' : (bot === 'wizebot' ? '$(user_name)' : '${user}');
+            const userArg = bot === 'nightbot' ? '$(user)' : bot === 'wizebot' ? '$(user_name)' : '${user}';
+            const titleArg = botUtils.arg('query') || botUtils.arg('args') || '';
+            if (titleArg)
+                queryParams += `&title=${titleArg}`;
             const apiCall = CommandGenerator.generate(bot, `${domain}/create-clip`, queryParams);
             let cmd = '';
             if (templateVal) {
@@ -53,7 +56,7 @@ export const COMMAND_CONFIG = {
         templateVars: 'Variables disponibles: {user}, {game}, {url}',
         generate: (domain, login, tokenParam, bot, templateVal, queryParams) => {
             const botUtils = CommandGenerator.bots[bot];
-            let targetArg = botUtils.arg('touser') || botUtils.arg('1');
+            const targetArg = botUtils.arg('touser') || botUtils.arg('1');
             if (templateVal)
                 queryParams += `&template=${encodeURIComponent(templateVal)}`;
             queryParams += `&touser=${targetArg}`;
@@ -83,7 +86,7 @@ export const COMMAND_CONFIG = {
         ],
         generate: (domain, login, tokenParam, bot, templateVal, queryParams, extraValues) => {
             const botUtils = CommandGenerator.bots[bot];
-            let mood = extraValues.mood || 'classic';
+            const mood = extraValues.mood || 'classic';
             if (templateVal)
                 queryParams += `&template=${encodeURIComponent(templateVal)}`;
             queryParams += `&mood=${mood}`;
@@ -91,7 +94,9 @@ export const COMMAND_CONFIG = {
             queryParams += `&user=${userArg}`;
             const queryArg = botUtils.arg('query') || botUtils.arg('args') || '(?)';
             queryParams += `&question=${queryArg}`;
-            const magicUrl = domain.includes('/minigames') ? `${domain}/magic8` : `${domain}/minigames/magic8`;
+            const magicUrl = domain.includes('/minigames')
+                ? `${domain}/magic8`
+                : `${domain}/minigames/magic8`;
             const cmd = CommandGenerator.generate(bot, magicUrl, queryParams);
             return `!addcom !8ball ${cmd}`;
         }

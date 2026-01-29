@@ -1,19 +1,21 @@
 import axios from 'axios';
 import { CONFIG } from '../config/env';
 import { TwitchUser, StoredUser } from '../types/twitch';
-import { kv } from '@vercel/kv';
 import * as dbService from './dbService';
 import crypto from 'crypto';
 import { logger } from '../utils/logger';
-import { MESSAGES } from '../config/messages';
 
 export const getAuthorizeUrl = (redirectOrigin: string): string => {
-    const scope = 'user:read:email moderator:read:followers clips:edit moderator:read:chatters user:write:chat chat:read chat:edit';
+    const scope =
+        'user:read:email moderator:read:followers clips:edit moderator:read:chatters user:write:chat chat:read chat:edit';
     const state = Buffer.from(JSON.stringify({ redirectOrigin })).toString('base64');
     return `https://id.twitch.tv/oauth2/authorize?client_id=${CONFIG.TWITCH_CLIENT_ID}&redirect_uri=${CONFIG.TWITCH_REDIRECT_URI}&response_type=code&scope=${scope}&state=${state}`;
 };
 
-export const handleCallback = async (code: string, state: string): Promise<{ user: TwitchUser, access_token: string, redirectOrigin: string, apiKey: string }> => {
+export const handleCallback = async (
+    code: string,
+    state: string
+): Promise<{ user: TwitchUser; access_token: string; redirectOrigin: string; apiKey: string }> => {
     const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
         params: {
             client_id: CONFIG.TWITCH_CLIENT_ID,
@@ -29,7 +31,7 @@ export const handleCallback = async (code: string, state: string): Promise<{ use
     const userResponse = await axios.get('https://api.twitch.tv/helix/users', {
         headers: {
             'Client-ID': CONFIG.TWITCH_CLIENT_ID,
-            'Authorization': `Bearer ${access_token}`
+            Authorization: `Bearer ${access_token}`
         }
     });
 
@@ -47,13 +49,15 @@ export const handleCallback = async (code: string, state: string): Promise<{ use
         displayName: user.display_name,
         accessToken: access_token,
         refreshToken: refresh_token,
-        expiresAt: Date.now() + (expires_in * 1000),
+        expiresAt: Date.now() + expires_in * 1000,
         apiKey,
         profileImageUrl: user.profile_image_url
     };
 
     if (!refresh_token) {
-        logger.warn('⚠ ADVERTENCIA: No se recibió Refresh Token de Twitch. La sesión no se renovará automáticamente.');
+        logger.warn(
+            '⚠ ADVERTENCIA: No se recibió Refresh Token de Twitch. La sesión no se renovará automáticamente.'
+        );
     }
 
     await dbService.saveUser(storedUser);
@@ -92,7 +96,7 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
 
         user.accessToken = access_token;
         if (refresh_token) user.refreshToken = refresh_token;
-        user.expiresAt = Date.now() + (expires_in * 1000);
+        user.expiresAt = Date.now() + expires_in * 1000;
 
         await dbService.saveUser(user);
         return access_token;
@@ -106,7 +110,9 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
     }
 };
 
-export const getValidToken = async (apiKey: string): Promise<{ accessToken: string, userId: string }> => {
+export const getValidToken = async (
+    apiKey: string
+): Promise<{ accessToken: string; userId: string }> => {
     const user = await dbService.getUserByApiKey(apiKey);
     if (!user) throw new Error('API Key inválida');
 

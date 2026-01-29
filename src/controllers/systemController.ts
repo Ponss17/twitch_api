@@ -33,13 +33,13 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                         profile_image_url: userProfile.profile_image_url
                     }
                 });
-            } catch (e) {
+            } catch (_e) {
                 return res.json({ valid: true, token: token, user: { login: validation.login } });
             }
         } else {
             return res.status(401).send(MESSAGES.AUTH.INVALID_TOKEN);
         }
-    } catch (error: any) {
+    } catch (_error: any) {
         return res.status(500).json({ error: MESSAGES.AUTH.VALIDATION_ERROR });
     }
 };
@@ -66,7 +66,7 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
 
     let username = login || MESSAGES.FEEDBACK.ANONYMOUS_USER;
     let avatar = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
-    let userType = MESSAGES.FEEDBACK.VIEWER_ROLE;
+    const userType = MESSAGES.FEEDBACK.VIEWER_ROLE;
 
     if (userId || login) {
         try {
@@ -106,17 +106,23 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
         await axios.post(CONFIG.DISCORD_FEEDBACK_WEBHOOK_URL, {
             username: username,
             avatar_url: avatar,
-            embeds: [{
-                title: MESSAGES.FEEDBACK.EMBED_TITLE,
-                color: 0x9146ff,
-                fields: [
-                    { name: "🆔 Usuario ID", value: userId || login || 'Anónimo', inline: true },
-                    { name: "🏷️ Rango", value: userType, inline: true },
-                    { name: "📝 Mensaje", value: message, inline: false }
-                ],
-                footer: { text: MESSAGES.FEEDBACK.EMBED_FOOTER },
-                timestamp: new Date().toISOString()
-            }]
+            embeds: [
+                {
+                    title: MESSAGES.FEEDBACK.EMBED_TITLE,
+                    color: 0x9146ff,
+                    fields: [
+                        {
+                            name: '🆔 Usuario ID',
+                            value: userId || login || 'Anónimo',
+                            inline: true
+                        },
+                        { name: '🏷️ Rango', value: userType, inline: true },
+                        { name: '📝 Mensaje', value: message, inline: false }
+                    ],
+                    footer: { text: MESSAGES.FEEDBACK.EMBED_FOOTER },
+                    timestamp: new Date().toISOString()
+                }
+            ]
         });
 
         res.json({ success: true, message: MESSAGES.FEEDBACK.SUCCESS });

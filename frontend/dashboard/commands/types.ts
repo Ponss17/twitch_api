@@ -15,5 +15,13 @@ export interface CommandConfigItem {
     templatePlaceholder?: string;
     templateVars?: string;
     extraSelectors?: CommandSelector[];
-    generate: (domain: string, login: string, tokenParam: string, bot: string, templateVal: string, queryParams: string, extraValues: any) => string;
+    generate: (
+        domain: string,
+        login: string,
+        tokenParam: string,
+        bot: string,
+        templateVal: string,
+        queryParams: string,
+        extraValues: any
+    ) => string;
 }

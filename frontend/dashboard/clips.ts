@@ -27,16 +27,19 @@ export const ClipsModule = {
 
         this.loadFavorites();
 
-        this.observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target as HTMLImageElement;
-                    img.src = img.dataset.src!;
-                    img.classList.remove('lazy-img');
-                    observer.unobserve(img);
-                }
-            });
-        }, { rootMargin: '50px' });
+        this.observer = new IntersectionObserver(
+            (entries, observer) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target as HTMLImageElement;
+                        img.src = img.dataset.src!;
+                        img.classList.remove('lazy-img');
+                        observer.unobserve(img);
+                    }
+                });
+            },
+            { rootMargin: '50px' }
+        );
 
         this.setupUI();
         this.initialized = true;
@@ -47,7 +50,7 @@ export const ClipsModule = {
         if (this.observer) {
             this.observer.disconnect();
         }
-        console.log('[ClipsModule] Deactivated');
+        // cleaned
     },
 
     loadFavorites() {
@@ -64,7 +67,10 @@ export const ClipsModule = {
     saveFavorites() {
         if (!this.session) return;
         try {
-            localStorage.setItem(`clips_favs_${this.session.userId}`, JSON.stringify(this.favorites));
+            localStorage.setItem(
+                `clips_favs_${this.session.userId}`,
+                JSON.stringify(this.favorites)
+            );
         } catch (e) {
             console.error('Error saving favorites', e);
         }
@@ -98,9 +104,12 @@ export const ClipsModule = {
         const sortSelect = document.getElementById('clips-sort');
 
         if (searchInput) {
-            searchInput.addEventListener('input', this.debounce(() => {
-                this.filterAndRender();
-            }, 300));
+            searchInput.addEventListener(
+                'input',
+                this.debounce(() => {
+                    this.filterAndRender();
+                }, 300)
+            );
         }
 
         if (sortSelect) {
@@ -110,7 +119,7 @@ export const ClipsModule = {
         }
     },
 
-    debounce(func: Function, wait: number) {
+    debounce(func: (...args: any[]) => void, wait: number) {
         let timeout: NodeJS.Timeout;
         return function executedFunction(this: any, ...args: any[]) {
             const later = () => {
@@ -161,7 +170,7 @@ export const ClipsModule = {
             }
 
             const data = await response.json();
-            const clips = Array.isArray(data) ? data : (data.clips || data.data || []);
+            const clips = Array.isArray(data) ? data : data.clips || data.data || [];
 
             this.allClips = clips;
             if (clips.length > 0) {
@@ -190,7 +199,7 @@ export const ClipsModule = {
                 </div>
             `;
             document.getElementById('relogin-clips-btn')?.addEventListener('click', () => {
-                import('../auth.js').then(m => m.Auth.relogin());
+                import('../auth.js').then((m) => m.Auth.relogin());
             });
         } else {
             container.innerHTML = Messages.Common.error((error as Error).message);
@@ -200,7 +209,10 @@ export const ClipsModule = {
     },
 
     renderSkeleton(container: HTMLElement) {
-        container.innerHTML = Array(8).fill(0).map(() => `
+        container.innerHTML = Array(8)
+            .fill(0)
+            .map(
+                () => `
             <div class="skeleton-card">
                 <div class="skeleton-thumb skeleton"></div>
                 <div class="skeleton-info">
@@ -211,24 +223,34 @@ export const ClipsModule = {
                     </div>
                 </div>
             </div>
-        `).join('');
+        `
+            )
+            .join('');
     },
 
     filterAndRender() {
-        const searchTerm = (document.getElementById('clips-search') as HTMLInputElement)?.value.toLowerCase() || '';
-        const sortValue = (document.getElementById('clips-sort') as HTMLSelectElement)?.value || 'date-desc';
+        const searchTerm =
+            (document.getElementById('clips-search') as HTMLInputElement)?.value.toLowerCase() ||
+            '';
+        const sortValue =
+            (document.getElementById('clips-sort') as HTMLSelectElement)?.value || 'date-desc';
 
-        let filtered = this.allClips.filter((clip: any) =>
+        const filtered = this.allClips.filter((clip: any) =>
             clip.title.toLowerCase().includes(searchTerm)
         );
 
         filtered.sort((a: any, b: any) => {
             switch (sortValue) {
-                case 'date-desc': return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-                case 'date-asc': return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-                case 'views-desc': return b.view_count - a.view_count;
-                case 'views-asc': return a.view_count - b.view_count;
-                default: return 0;
+                case 'date-desc':
+                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                case 'date-asc':
+                    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                case 'views-desc':
+                    return b.view_count - a.view_count;
+                case 'views-asc':
+                    return a.view_count - b.view_count;
+                default:
+                    return 0;
             }
         });
 
@@ -297,7 +319,9 @@ export const ClipsModule = {
         const safeThumb = UI.escapeHTML(clip.thumbnail_url);
 
         const dateStr = new Date(clip.created_at).toLocaleDateString('es-ES', {
-            year: 'numeric', month: 'short', day: 'numeric'
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
         });
         const viewsStr = clip.view_count.toLocaleString('es-ES');
 

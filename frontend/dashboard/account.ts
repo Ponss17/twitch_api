@@ -68,7 +68,9 @@ export const AccountModule = {
 
                 UI.setButtonLoading(regenBtn as HTMLButtonElement, true);
                 try {
-                    const response = await fetch(`${API_ENDPOINTS.REGENERATE_KEY}?userId=${this.session?.userId}`);
+                    const response = await fetch(
+                        `${API_ENDPOINTS.REGENERATE_KEY}?userId=${this.session?.userId}`
+                    );
                     const data = await response.json();
 
                     if (data.apiKey) {
@@ -79,7 +81,9 @@ export const AccountModule = {
                             });
                         }
 
-                        const tokenInput = document.getElementById('user-token') as HTMLInputElement;
+                        const tokenInput = document.getElementById(
+                            'user-token'
+                        ) as HTMLInputElement;
                         if (tokenInput) {
                             tokenInput.dataset.realValue = data.apiKey;
                             if (tokenInput.type === 'text') {
@@ -88,7 +92,7 @@ export const AccountModule = {
                         }
                         UI.showToast(Messages.Settings.regenerateSuccess, 'success');
                     }
-                } catch (e) {
+                } catch (_e) {
                     UI.showToast(Messages.Settings.regenerateError, 'error');
                 } finally {
                     UI.setButtonLoading(regenBtn as HTMLButtonElement, false);

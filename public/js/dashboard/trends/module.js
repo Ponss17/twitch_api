@@ -6,13 +6,67 @@ import { TrendsTemplates } from './templates.js';
 export const TrendsModule = {
     wordCounts: {},
     isIgnored: new Set([
-        'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas',
-        'y', 'o', 'pero', 'si', 'no', 'en', 'de', 'del', 'a', 'al', 'con', 'para', 'por',
-        'que', 'qué', 'es', 'son', 'se', 'mi', 'tu', 'su', 'yo', 'me', 'te', 'le',
-        'este', 'esta', 'estos', 'estas', 'ese', 'esa', 'esos', 'esas',
-        'como', 'cómo', 'cuando', 'cuándo', 'donde', 'dónde', 'quien', 'quién',
-        'solo', 'sólo', 'tan', 'muy', 'mucho', 'poco', 'más', 'menos',
-        'http', 'https', 'www', 'com'
+        'el',
+        'la',
+        'los',
+        'las',
+        'un',
+        'una',
+        'unos',
+        'unas',
+        'y',
+        'o',
+        'pero',
+        'si',
+        'no',
+        'en',
+        'de',
+        'del',
+        'a',
+        'al',
+        'con',
+        'para',
+        'por',
+        'que',
+        'qué',
+        'es',
+        'son',
+        'se',
+        'mi',
+        'tu',
+        'su',
+        'yo',
+        'me',
+        'te',
+        'le',
+        'este',
+        'esta',
+        'estos',
+        'estas',
+        'ese',
+        'esa',
+        'esos',
+        'esas',
+        'como',
+        'cómo',
+        'cuando',
+        'cuándo',
+        'donde',
+        'dónde',
+        'quien',
+        'quién',
+        'solo',
+        'sólo',
+        'tan',
+        'muy',
+        'mucho',
+        'poco',
+        'más',
+        'menos',
+        'http',
+        'https',
+        'www',
+        'com'
     ]),
     messageLog: [],
     MAX_LOG_SIZE: 500,
@@ -53,16 +107,21 @@ export const TrendsModule = {
     },
     attachListeners() {
         document.getElementById('reset-tracker-btn')?.addEventListener('click', () => this.reset());
-        document.getElementById('start-timer-btn')?.addEventListener('click', () => this.startTimer());
+        document
+            .getElementById('start-timer-btn')
+            ?.addEventListener('click', () => this.startTimer());
     },
     connect() {
         if (!this.session)
             return;
-        const auth = this.session.token ? {
-            username: this.session.login,
-            token: this.session.token
-        } : undefined;
-        TmiService.connect(this.session.login, auth).then(() => {
+        const auth = this.session.token
+            ? {
+                username: this.session.login,
+                token: this.session.token
+            }
+            : undefined;
+        TmiService.connect(this.session.login, auth)
+            .then(() => {
             this.updateStatus(true);
             this.isConnected = true;
             TmiService.addListener('trends', (chn, tags, message) => {
@@ -76,7 +135,8 @@ export const TrendsModule = {
                     this.messageLog.pop();
                 this.processMessage(message);
             });
-        }).catch((err) => {
+        })
+            .catch((err) => {
             console.error('Trends TMI Error:', err);
             this.updateStatus(false);
             UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
@@ -149,7 +209,10 @@ export const TrendsModule = {
         return `${m}:${(s % 60).toString().padStart(2, '0')}`;
     },
     processMessage(msg) {
-        const firstWord = msg.toLowerCase().split(/\s+/)[0]?.replace(/[^\wñáéíóúü]/g, '');
+        const firstWord = msg
+            .toLowerCase()
+            .split(/\s+/)[0]
+            ?.replace(/[^\wñáéíóúü]/g, '');
         if (firstWord && firstWord.length > 2 && !this.isIgnored.has(firstWord)) {
             this.wordCounts[firstWord] = (this.wordCounts[firstWord] || 0) + 1;
             this.render();
@@ -192,13 +255,17 @@ export const TrendsModule = {
                     tbody.innerHTML = Messages.Tracker.ready;
                 }
                 else {
-                    const entries = Object.entries(this.wordCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+                    const entries = Object.entries(this.wordCounts)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 10);
                     if (entries.length === 0) {
                         tbody.innerHTML = Messages.Tracker.waiting;
                     }
                     else {
                         const maxCount = entries[0][1];
-                        tbody.innerHTML = entries.map((item, i) => TrendsTemplates.renderRow(item, i, maxCount)).join('');
+                        tbody.innerHTML = entries
+                            .map((item, i) => TrendsTemplates.renderRow(item, i, maxCount))
+                            .join('');
                     }
                 }
             }

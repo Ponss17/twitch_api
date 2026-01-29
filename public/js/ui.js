@@ -10,11 +10,11 @@ export const UI = {
         if (!str)
             return '';
         return str
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     },
     showToast(message, type = 'success', customIcon) {
         let container = document.querySelector('.toast-container');
@@ -47,9 +47,12 @@ export const UI = {
     copyToClipboard(text) {
         if (!text)
             return;
-        navigator.clipboard.writeText(text).then(() => {
+        navigator.clipboard
+            .writeText(text)
+            .then(() => {
             this.showToast(`<i class="fa-solid fa-check"></i> ${Messages.Clipboard.copied}`);
-        }).catch(() => {
+        })
+            .catch(() => {
             this.showToast(`<i class="fa-solid fa-xmark"></i> ${Messages.Clipboard.error}`, 'error');
         });
     },
@@ -65,7 +68,9 @@ export const UI = {
             if (targetId) {
                 const target = document.getElementById(targetId);
                 if (target) {
-                    const valueToCopy = target.dataset.realValue || target.value || target.innerText;
+                    const valueToCopy = target.dataset.realValue ||
+                        target.value ||
+                        target.innerText;
                     this.copyToClipboard(valueToCopy);
                 }
             }
@@ -101,24 +106,24 @@ export const UI = {
         const inputBox = document.getElementById('sim-input-box');
         const scenarios = [
             {
-                cmd: "!followage",
+                cmd: '!followage',
                 response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${Messages.ChatSim.followage('ponss17', 'LosPerris', '1 año, 4 meses y 20 días')}</span>`
             },
             {
-                cmd: "!clip",
+                cmd: '!clip',
                 response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${Messages.ChatSim.clip('ponss17', 'https://clips.twitch.tv/WiseDeliciousCurryHassanChop-Df293...')}</span>`
             },
             {
-                cmd: "!so  @mynana17",
+                cmd: '!so  @mynana17',
                 response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${Messages.ChatSim.shoutout('mynana17', 'Just Chatting')}</span>`
             }
         ];
         let currentScenario = 0;
         const typeWriter = (text) => {
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
                 inputBox.classList.add('typing');
                 placeholder.style.display = 'none';
-                inputText.innerText = "";
+                inputText.innerText = '';
                 let i = 0;
                 const interval = setInterval(() => {
                     inputText.innerText += text.charAt(i);
@@ -139,13 +144,13 @@ export const UI = {
                 messagesContainer.removeChild(messagesContainer.children[0]);
             }
         };
-        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+        const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
         const runSimulation = async () => {
             while (true) {
                 const scenario = scenarios[currentScenario];
                 await sleep(1500);
                 await typeWriter(scenario.cmd);
-                inputText.innerText = "";
+                inputText.innerText = '';
                 placeholder.style.display = 'block';
                 inputBox.classList.remove('typing');
                 addMessage(`
@@ -159,9 +164,9 @@ export const UI = {
                 currentScenario = (currentScenario + 1) % scenarios.length;
                 if (currentScenario === 0) {
                     await sleep(2000);
-                    await typeWriter("/clear");
+                    await typeWriter('/clear');
                     await sleep(500);
-                    inputText.innerText = "";
+                    inputText.innerText = '';
                     placeholder.style.display = 'block';
                     inputBox.classList.remove('typing');
                     messagesContainer.innerHTML = `<div class="chat-line" style="opacity:0.5"><span class="chat-text">${Messages.ChatSim.welcome}</span></div>`;

@@ -11,7 +11,10 @@ import { CONFIG } from '../config/env';
 const USERS_KEY = 'twitch_users';
 const API_KEYS_KEY = 'twitch_api_keys';
 const ALGORITHM = 'aes-256-cbc';
-const ENCRYPTION_KEY = crypto.createHash('sha256').update(String(CONFIG.TWITCH_CLIENT_SECRET)).digest();
+const ENCRYPTION_KEY = crypto
+    .createHash('sha256')
+    .update(String(CONFIG.TWITCH_CLIENT_SECRET))
+    .digest();
 const IV_LENGTH = 16;
 
 // ==========================================
@@ -44,7 +47,7 @@ function decrypt(text: string): string {
         let decrypted = decipher.update(encryptedText);
         decrypted = Buffer.concat([decrypted, decipher.final()]);
         return decrypted.toString();
-    } catch (error) {
+    } catch (_error) {
         return text;
     }
 }

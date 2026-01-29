@@ -50,11 +50,15 @@ export const StalkerModule = {
         const btn = document.getElementById('toggle-stalker');
         if (btn) {
             btn.className = this.isScanning ? 'btn-icon btn-warning' : 'btn-icon btn-success';
-            btn.innerHTML = this.isScanning ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+            btn.innerHTML = this.isScanning
+                ? '<i class="fa-solid fa-pause"></i>'
+                : '<i class="fa-solid fa-play"></i>';
         }
         const status = document.getElementById('stalker-status');
         if (status) {
-            status.innerHTML = this.isScanning ? Messages.Stalker.scanStarted : Messages.Stalker.scanPaused;
+            status.innerHTML = this.isScanning
+                ? Messages.Stalker.scanStarted
+                : Messages.Stalker.scanPaused;
             status.className = this.isScanning ? 'text-success' : 'text-muted-color';
         }
         if (this.isScanning) {
@@ -73,11 +77,14 @@ export const StalkerModule = {
             return;
         if (!this.session)
             return;
-        const auth = this.session.token ? {
-            username: this.session.login,
-            token: this.session.token
-        } : undefined;
-        TmiService.connect(this.session.login, auth).then(() => {
+        const auth = this.session.token
+            ? {
+                username: this.session.login,
+                token: this.session.token
+            }
+            : undefined;
+        TmiService.connect(this.session.login, auth)
+            .then(() => {
             this.isConnected = true;
             TmiService.addListener('stalker', (channel, tags, message) => {
                 if (!this.isScanning)
@@ -88,18 +95,27 @@ export const StalkerModule = {
                 if (CONFIG.IGNORED_BOTS.has(login.toLowerCase()))
                     return;
                 import('../trends/module.js').then(({ TrendsModule }) => {
-                    TrendsModule.messageLog.unshift({ user: login.toLowerCase(), text: message, time: new Date() });
+                    TrendsModule.messageLog.unshift({
+                        user: login.toLowerCase(),
+                        text: message,
+                        time: new Date()
+                    });
                     if (TrendsModule.messageLog.length > TrendsModule.MAX_LOG_SIZE)
                         TrendsModule.messageLog.pop();
                 });
                 if (!this.chatters.some((u) => u.user_login.toLowerCase() === login.toLowerCase())) {
-                    const newUser = { user_login: login, user_name: tags['display-name'] || login, profile_image_url: null };
+                    const newUser = {
+                        user_login: login,
+                        user_name: tags['display-name'] || login,
+                        profile_image_url: null
+                    };
                     this.chatters.unshift(newUser);
                     this.renderTable(this.chatters);
                     document.getElementById('stalker-grid')?.firstChild?.parentElement?.classList.add('row-highlight');
                 }
             });
-        }).catch((err) => {
+        })
+            .catch((err) => {
             console.error('Stalker TMI Error:', err);
             UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
             this.toggleScan();
@@ -152,7 +168,7 @@ export const StalkerModule = {
             if (!res.ok)
                 throw new Error(res.status === 401 ? Messages.Stalker.reloginMsg : Messages.Stalker.apiError);
             const data = await res.json();
-            const chattersList = Array.isArray(data) ? data : (data.chatters || []);
+            const chattersList = Array.isArray(data) ? data : data.chatters || [];
             if (Array.isArray(chattersList)) {
                 const apiChatters = chattersList.filter((item) => {
                     const login = typeof item === 'string' ? item : item.user_login;
@@ -195,7 +211,7 @@ export const StalkerModule = {
         if (!tbody)
             return;
         const fragment = document.createDocumentFragment();
-        list.forEach(user => {
+        list.forEach((user) => {
             fragment.appendChild(StalkerTemplates.renderRow(user, Messages.Common.viewBtn, (l) => this.inspectUser(l)));
         });
         tbody.innerHTML = '';
@@ -215,7 +231,7 @@ export const StalkerModule = {
             const info = await res.json();
             import('../../utils/profileModal.js').then(({ ProfileModal }) => ProfileModal.open(info));
         }
-        catch (e) {
+        catch (_e) {
             UI.showToast(Messages.Stalker.loadError, 'error');
         }
     }

@@ -82,12 +82,22 @@ export const CommandsModule = {
         const extraValues: Record<string, string> = {};
         if (conf.extraSelectors) {
             conf.extraSelectors.forEach((sel) => {
-                const selEl = document.getElementById(`extra-${conf.id}-${sel.id}`) as HTMLInputElement;
+                const selEl = document.getElementById(
+                    `extra-${conf.id}-${sel.id}`
+                ) as HTMLInputElement;
                 if (selEl) extraValues[sel.id] = selEl.value;
             });
         }
 
-        const realCmd = conf.generate(domain, login, tokenParam, bot, templateVal, queryParams, extraValues);
+        const realCmd = conf.generate(
+            domain,
+            login,
+            tokenParam,
+            bot,
+            templateVal,
+            queryParams,
+            extraValues
+        );
         const maskedCmd = realCmd.split(currentApiKey).join('**************');
 
         output.value = maskedCmd;
@@ -102,7 +112,9 @@ export const CommandsModule = {
         btn.parentNode!.replaceChild(newBtn, btn);
 
         newBtn.addEventListener('click', async () => {
-            const channel = (document.getElementById('test-channel') as HTMLInputElement).value.trim();
+            const channel = (
+                document.getElementById('test-channel') as HTMLInputElement
+            ).value.trim();
             const user = (document.getElementById('test-user') as HTMLInputElement).value.trim();
             const resultBox = document.getElementById('test-result-container')!;
             const resultText = document.getElementById('test-result-text')!;

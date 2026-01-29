@@ -8,13 +8,67 @@ import { Session, ChatLogItem } from '../../types.js';
 export const TrendsModule = {
     wordCounts: {} as Record<string, number>,
     isIgnored: new Set([
-        'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas',
-        'y', 'o', 'pero', 'si', 'no', 'en', 'de', 'del', 'a', 'al', 'con', 'para', 'por',
-        'que', 'qué', 'es', 'son', 'se', 'mi', 'tu', 'su', 'yo', 'me', 'te', 'le',
-        'este', 'esta', 'estos', 'estas', 'ese', 'esa', 'esos', 'esas',
-        'como', 'cómo', 'cuando', 'cuándo', 'donde', 'dónde', 'quien', 'quién',
-        'solo', 'sólo', 'tan', 'muy', 'mucho', 'poco', 'más', 'menos',
-        'http', 'https', 'www', 'com'
+        'el',
+        'la',
+        'los',
+        'las',
+        'un',
+        'una',
+        'unos',
+        'unas',
+        'y',
+        'o',
+        'pero',
+        'si',
+        'no',
+        'en',
+        'de',
+        'del',
+        'a',
+        'al',
+        'con',
+        'para',
+        'por',
+        'que',
+        'qué',
+        'es',
+        'son',
+        'se',
+        'mi',
+        'tu',
+        'su',
+        'yo',
+        'me',
+        'te',
+        'le',
+        'este',
+        'esta',
+        'estos',
+        'estas',
+        'ese',
+        'esa',
+        'esos',
+        'esas',
+        'como',
+        'cómo',
+        'cuando',
+        'cuándo',
+        'donde',
+        'dónde',
+        'quien',
+        'quién',
+        'solo',
+        'sólo',
+        'tan',
+        'muy',
+        'mucho',
+        'poco',
+        'más',
+        'menos',
+        'http',
+        'https',
+        'www',
+        'com'
     ]),
     messageLog: [] as ChatLogItem[],
     MAX_LOG_SIZE: 500,
@@ -59,36 +113,45 @@ export const TrendsModule = {
 
     attachListeners() {
         document.getElementById('reset-tracker-btn')?.addEventListener('click', () => this.reset());
-        document.getElementById('start-timer-btn')?.addEventListener('click', () => this.startTimer());
+        document
+            .getElementById('start-timer-btn')
+            ?.addEventListener('click', () => this.startTimer());
     },
 
     connect() {
         if (!this.session) return;
 
-        const auth = this.session.token ? {
-            username: this.session.login,
-            token: this.session.token
-        } : undefined;
+        const auth = this.session.token
+            ? {
+                  username: this.session.login,
+                  token: this.session.token
+              }
+            : undefined;
 
-        TmiService.connect(this.session.login, auth).then(() => {
-            this.updateStatus(true);
-            this.isConnected = true;
-            TmiService.addListener('trends', (chn: string, tags: TmiTags, message: string) => {
-                if (!this.isTracking) return;
-                const username = tags.username;
-                if (!username || CONFIG.IGNORED_BOTS.has(username.toLowerCase())) return;
+        TmiService.connect(this.session.login, auth)
+            .then(() => {
+                this.updateStatus(true);
+                this.isConnected = true;
+                TmiService.addListener('trends', (chn: string, tags: TmiTags, message: string) => {
+                    if (!this.isTracking) return;
+                    const username = tags.username;
+                    if (!username || CONFIG.IGNORED_BOTS.has(username.toLowerCase())) return;
 
-                this.messageLog.unshift({ user: username, text: message, time: new Date() });
-                if (this.messageLog.length > this.MAX_LOG_SIZE) this.messageLog.pop();
+                    this.messageLog.unshift({ user: username, text: message, time: new Date() });
+                    if (this.messageLog.length > this.MAX_LOG_SIZE) this.messageLog.pop();
 
-                this.processMessage(message);
+                    this.processMessage(message);
+                });
+            })
+            .catch((err: any) => {
+                console.error('Trends TMI Error:', err);
+                this.updateStatus(false);
+                UI.showToast(
+                    Messages.Common.connectionError || 'Error connecting to chat',
+                    'error'
+                );
+                this.endTimer();
             });
-        }).catch((err: any) => {
-            console.error('Trends TMI Error:', err);
-            this.updateStatus(false);
-            UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
-            this.endTimer();
-        });
     },
 
     updateStatus(connected: boolean) {
@@ -107,7 +170,8 @@ export const TrendsModule = {
         this.isTracking = true;
         this.connect();
 
-        const minutes = parseInt((document.getElementById('tracker-minutes') as HTMLInputElement)?.value) || 5;
+        const minutes =
+            parseInt((document.getElementById('tracker-minutes') as HTMLInputElement)?.value) || 5;
         document.getElementById('tracker-input-container')?.classList.add('hidden');
         document.getElementById('tracker-timer')?.classList.remove('hidden');
 
@@ -160,7 +224,10 @@ export const TrendsModule = {
     },
 
     processMessage(msg: string) {
-        const firstWord = msg.toLowerCase().split(/\s+/)[0]?.replace(/[^\wñáéíóúü]/g, '');
+        const firstWord = msg
+            .toLowerCase()
+            .split(/\s+/)[0]
+            ?.replace(/[^\wñáéíóúü]/g, '');
         if (firstWord && firstWord.length > 2 && !this.isIgnored.has(firstWord)) {
             this.wordCounts[firstWord] = (this.wordCounts[firstWord] || 0) + 1;
             this.render();
@@ -184,7 +251,9 @@ export const TrendsModule = {
     renderPending: false,
 
     getMessagesByUser(username: string) {
-        return this.messageLog.filter((log: ChatLogItem) => log.user.toLowerCase() === username.toLowerCase());
+        return this.messageLog.filter(
+            (log: ChatLogItem) => log.user.toLowerCase() === username.toLowerCase()
+        );
     },
 
     deactivate() {
@@ -205,12 +274,18 @@ export const TrendsModule = {
                 if (!this.isTracking && Object.keys(this.wordCounts).length === 0) {
                     tbody.innerHTML = Messages.Tracker.ready;
                 } else {
-                    const entries = Object.entries(this.wordCounts).sort((a, b) => (b[1] as number) - (a[1] as number)).slice(0, 10);
+                    const entries = Object.entries(this.wordCounts)
+                        .sort((a, b) => (b[1] as number) - (a[1] as number))
+                        .slice(0, 10);
                     if (entries.length === 0) {
                         tbody.innerHTML = Messages.Tracker.waiting;
                     } else {
                         const maxCount = entries[0][1] as number;
-                        tbody.innerHTML = entries.map((item, i) => TrendsTemplates.renderRow(item as [string, number], i, maxCount)).join('');
+                        tbody.innerHTML = entries
+                            .map((item, i) =>
+                                TrendsTemplates.renderRow(item as [string, number], i, maxCount)
+                            )
+                            .join('');
                     }
                 }
             }

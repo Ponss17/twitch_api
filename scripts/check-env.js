@@ -24,7 +24,7 @@ let hasError = false;
 
 console.log('🔍 Verificando variables de entorno...');
 
-REQUIRED_VARS.forEach(key => {
+REQUIRED_VARS.forEach((key) => {
     if (!envConfig[key]) {
         console.error(`❌ Faltante: ${key}`);
         hasError = true;

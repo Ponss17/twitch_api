@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import * as apiService from '../services/apiService';
 import { generateMagic8Response } from '../services/magic8Service';
 import { MESSAGES } from '../config/messages';
 
@@ -7,8 +6,6 @@ interface AuthenticatedRequest extends Request {
     twitchToken?: string;
     userId?: string;
 }
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // ==========================================
 // MINIJUEGOS
@@ -31,7 +28,6 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
         const answer = await generateMagic8Response(question, mood as string, user as string);
 
         res.send(answer);
-
     } catch (error) {
         console.error('Error en askMagic8:', error);
         res.status(500).send(MESSAGES.MAGIC8.GROQ_ERROR);

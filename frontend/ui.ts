@@ -11,11 +11,11 @@ export const UI = {
     escapeHTML(str: string) {
         if (!str) return '';
         return str
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     },
 
     showToast(message: string, type = 'success', customIcon?: string) {
@@ -30,7 +30,8 @@ export const UI = {
         toast.className = `toast ${type}`;
         toast.setAttribute('role', 'alert');
 
-        const icon = customIcon || (type === 'success' ? 'fa-check-circle' : 'fa-triangle-exclamation');
+        const icon =
+            customIcon || (type === 'success' ? 'fa-check-circle' : 'fa-triangle-exclamation');
 
         toast.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i> <span></span>`;
         const textSpan = toast.querySelector('span')!;
@@ -54,11 +55,17 @@ export const UI = {
      */
     copyToClipboard(text: string) {
         if (!text) return;
-        navigator.clipboard.writeText(text).then(() => {
-            this.showToast(`<i class="fa-solid fa-check"></i> ${Messages.Clipboard.copied}`);
-        }).catch(() => {
-            this.showToast(`<i class="fa-solid fa-xmark"></i> ${Messages.Clipboard.error}`, 'error');
-        });
+        navigator.clipboard
+            .writeText(text)
+            .then(() => {
+                this.showToast(`<i class="fa-solid fa-check"></i> ${Messages.Clipboard.copied}`);
+            })
+            .catch(() => {
+                this.showToast(
+                    `<i class="fa-solid fa-xmark"></i> ${Messages.Clipboard.error}`,
+                    'error'
+                );
+            });
     },
 
     setupClipboard() {
@@ -73,7 +80,10 @@ export const UI = {
             if (targetId) {
                 const target = document.getElementById(targetId);
                 if (target) {
-                    const valueToCopy = target.dataset.realValue || (target as HTMLInputElement).value || target.innerText;
+                    const valueToCopy =
+                        target.dataset.realValue ||
+                        (target as HTMLInputElement).value ||
+                        target.innerText;
                     this.copyToClipboard(valueToCopy);
                 }
             }
@@ -112,15 +122,15 @@ export const UI = {
 
         const scenarios = [
             {
-                cmd: "!followage",
+                cmd: '!followage',
                 response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${Messages.ChatSim.followage('ponss17', 'LosPerris', '1 año, 4 meses y 20 días')}</span>`
             },
             {
-                cmd: "!clip",
+                cmd: '!clip',
                 response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${Messages.ChatSim.clip('ponss17', 'https://clips.twitch.tv/WiseDeliciousCurryHassanChop-Df293...')}</span>`
             },
             {
-                cmd: "!so  @mynana17",
+                cmd: '!so  @mynana17',
                 response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${Messages.ChatSim.shoutout('mynana17', 'Just Chatting')}</span>`
             }
         ];
@@ -128,10 +138,10 @@ export const UI = {
         let currentScenario = 0;
 
         const typeWriter = (text: string) => {
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
                 inputBox.classList.add('typing');
                 placeholder.style.display = 'none';
-                inputText.innerText = "";
+                inputText.innerText = '';
 
                 let i = 0;
                 const interval = setInterval(() => {
@@ -155,7 +165,7 @@ export const UI = {
             }
         };
 
-        const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
         const runSimulation = async () => {
             while (true) {
@@ -163,7 +173,7 @@ export const UI = {
 
                 await sleep(1500);
                 await typeWriter(scenario.cmd);
-                inputText.innerText = "";
+                inputText.innerText = '';
                 placeholder.style.display = 'block';
                 inputBox.classList.remove('typing');
 
@@ -180,9 +190,9 @@ export const UI = {
                 currentScenario = (currentScenario + 1) % scenarios.length;
                 if (currentScenario === 0) {
                     await sleep(2000);
-                    await typeWriter("/clear");
+                    await typeWriter('/clear');
                     await sleep(500);
-                    inputText.innerText = "";
+                    inputText.innerText = '';
                     placeholder.style.display = 'block';
                     inputBox.classList.remove('typing');
 
@@ -250,5 +260,4 @@ export const UI = {
             card.classList.remove('card-loading');
         }
     }
-
 };
