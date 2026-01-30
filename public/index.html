@@ -34,6 +34,11 @@
 </head>
 
 <body>
+    <div class="animated-bg">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
 
     <div id="landing-page">
         <div class="container">
@@ -49,22 +54,25 @@
                 </nav>
             </header>
 
-            <div id="login-section" class="hero-section fade-in">
+            <section id="login-section" class="hero-section fade-in">
                 <div class="hero-content">
-                    <div class="badge">BETA</div>
-                    <h2 class="hero-title">Herramientas para tu <span class="accent-text">Stream</span></h2>
+                    <div class="landing-badge">BETA</div>
+                    <h2 class="hero-title">Comandos útiles para tu <span class="gradient-text">Stream</span></h2>
                     <p class="hero-subtitle">
-                        Genera tu <strong>API Key</strong> y configura comandos como <code>!followage</code> o
-                        <code>!clip</code> en segundos.
+                        Una API simple para Twitch. Configura comandos como <code>!followage</code>, <code>!clip</code>,
+                        <code>!shoutout</code> y más. Fácil de usar.
                     </p>
                     <div class="cta-area">
-                        <a href="auth/twitch" id="login-btn" class="btn-primary btn-large">
-                            <i class="fa-brands fa-twitch"></i> Conectar con Twitch
+                        <button class="btn-hero" id="login-btn">
+                            <i class="fa-brands fa-twitch"></i> Iniciar Sesión con Twitch
+                        </button>
+                        <a href="#features" class="btn-secondary">
+                            Explorar Funciones <i class="fa-solid fa-arrow-down"></i>
                         </a>
-                        <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.7;">
-                            * Al conectar aceptas el uso de tus datos públicos para el funcionamiento de los comandos.
-                        </p>
                     </div>
+                    <p class="disclaimer">
+                        * Al conectar aceptas el uso de tus datos públicos para el funcionamiento de los comandos.
+                    </p>
                 </div>
                 <div class="hero-visual">
                     <div class="visual-card floating">
@@ -100,7 +108,203 @@
                     </div>
                     <div class="glow-bg"></div>
                 </div>
-            </div>
+            </section>
+
+            <section class="features-section" id="features">
+                <div class="container">
+                    <div class="section-main-header">
+                        <span class="landing-badge">Funcionalidades</span>
+                        <h2 class="section-main-title">Cosas de la <span class="gradient-text">API</span></h2>
+                        <p class="section-main-subtitle">Todo lo que necesitas para que tu stream sea profesional y
+                            único.</p>
+                    </div>
+
+                    <div class="features-category align-left">
+                        <div class="category-header">
+                            <h3 class="category-title">Comandos</h3>
+                            <p class="category-description">Interacción directa y automática para dinamizar tu chat.</p>
+                        </div>
+
+                        <div class="bento-grid">
+                            <div class="bento-card">
+                                <div class="bento-content">
+                                    <div class="icon-box" aria-hidden="true"><i class="fa-solid fa-heart"></i></div>
+                                    <h4>Followage</h4>
+                                    <p>Muestra cuánto tiempo lleva un usuario siguiendo el canal. ¡Celebra la lealtad!
+                                    </p>
+                                    <div class="command-tag">!followage</div>
+                                </div>
+                            </div>
+                            <div class="bento-card">
+                                <div class="bento-content">
+                                    <div class="icon-box" aria-hidden="true"><i class="fa-solid fa-video"></i></div>
+                                    <h4>Clips</h4>
+                                    <p>Captura los mejores momentos al instante.</p>
+                                    <div class="command-tag">!clip</div>
+                                </div>
+                            </div>
+                            <div class="bento-card">
+                                <div class="bento-content">
+                                    <div class="icon-box" aria-hidden="true"><i class="fa-solid fa-bullhorn"></i></div>
+                                    <h4>Shoutout</h4>
+                                    <p>Promociona a otros streamers con un solo comando.</p>
+                                    <div class="command-tag">!so @user</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="features-category align-right">
+                        <div class="category-header">
+                            <h3 class="category-title">Herramientas</h3>
+                            <p class="category-description">Análisis avanzado para entender el crecimiento de tu canal.
+                            </p>
+                        </div>
+
+                        <div class="bento-grid">
+                            <div class="bento-card">
+                                <div class="bento-content">
+                                    <div class="icon-box" aria-hidden="true"><i class="fa-solid fa-ranking-star"></i>
+                                    </div>
+                                    <h4>Tendencias</h4>
+                                    <p>Ranking de palabras en tiempo real. Descubre de qué habla tu chat.</p>
+                                </div>
+                            </div>
+                            <div class="bento-card">
+                                <div class="bento-content">
+                                    <div class="icon-box" aria-hidden="true"><i class="fa-solid fa-user-secret"></i>
+                                    </div>
+                                    <h4>Stalker</h4>
+                                    <p>Investiga perfiles y obtén info pública detallada.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="features-category align-left">
+                        <div class="category-header">
+                            <h3 class="category-title">Minijuegos</h3>
+                            <p class="category-description">Mantén a tu audiencia entretenida incluso cuando no estás.
+                            </p>
+                        </div>
+
+                        <div class="bento-grid">
+                            <div class="bento-card">
+                                <div class="bento-content">
+                                    <div class="icon-box" aria-hidden="true"><i class="fa-solid fa-circle-question"></i>
+                                    </div>
+                                    <h4>Bola 8</h4>
+                                    <p>Respuestas aleatorias para las dudas más existenciales de tu chat.</p>
+                                </div>
+                            </div>
+                            <div class="bento-card">
+                                <div class="bento-content">
+                                    <div class="icon-box" aria-hidden="true"><i class="fa-solid fa-dice"></i></div>
+                                    <h4>Ruleta</h4>
+                                    <p>Juego de azar para sorteos o decisiones rápidas en vivo.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="features-category align-right">
+                        <div class="category-header">
+                            <h3 class="category-title">Soporte</h3>
+                            <p class="category-description">Ayuda y documentación para que nunca te quedes atrás.</p>
+                        </div>
+
+                        <div class="bento-grid">
+                            <div class="bento-card">
+                                <div class="bento-content">
+                                    <div class="icon-box" aria-hidden="true"><i class="fa-solid fa-comment-dots"></i>
+                                    </div>
+                                    <h4>Feedback</h4>
+                                    <p>Reporta errores o sugiere nuevas funciones directamente.</p>
+                                </div>
+                            </div>
+                            <div class="bento-card accent-card">
+                                <div class="bento-content">
+                                    <div class="icon-box" aria-hidden="true"><i class="fa-solid fa-book"></i></div>
+                                    <h4>Documentación</h4>
+                                    <p>Guías paso a paso para configurar tu bot en segundos.</p>
+                                </div>
+                            </div>
+                            <div class="bento-card">
+                                <div class="bento-content">
+                                    <div class="icon-box" aria-hidden="true"><i class="fa-brands fa-discord"></i></div>
+                                    <h4>Discord</h4>
+                                    <p>Únete a nuestra comunidad para obtener soporte en vivo y compartir ideas.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="faq-section">
+                <div class="section-header">
+                    <h2 class="section-title">Preguntas <span class="gradient-text">Frecuentes</span></h2>
+                    <p class="section-subtitle">Resuelve tus dudas sobre la API</p>
+                </div>
+
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h3>¿Cómo empiezo a usar la API?</h3>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Simplemente conecta tu cuenta de Twitch usando el botón de arriba. Una vez autenticado,
+                                obtendrás tu API key personal y podrás configurar los comandos desde el dashboard.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h3>¿Es gratis?</h3>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Sí, la API es completamente gratuita. Todos los comandos y herramientas están disponibles
+                                sin costo alguno.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h3>¿Necesito un bot para usar los comandos?</h3>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Sí, necesitas integrar la API con tu bot de Twitch (como Nightbot, StreamElements, o tu
+                                propio bot). La documentación incluye guías para las plataformas más populares.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h3>¿Qué comandos están disponibles?</h3>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Tenemos comandos de información (followage, clips, shoutout), herramientas de análisis
+                                (tendencias, stalker), y minijuegos (bola 8, ruleta). Revisa la sección de arriba para
+                                ver todos los detalles.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h3>¿Dónde puedo obtener soporte?</h3>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Puedes revisar la documentación completa, unirte a nuestro servidor de Discord, o enviar
+                                feedback directamente desde el dashboard. Estamos aquí para ayudarte.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
 
         <footer id="main-footer"></footer>
