@@ -1,5 +1,6 @@
 import { Auth } from './auth.js';
 import { UI } from './ui.js';
+import { HeaderComponent } from './components/header.js';
 import { FooterComponent } from './components/footer.js';
 
 function setupFAQ() {
@@ -32,8 +33,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const heroCode = document.getElementById('hero-code-display');
     if (heroCode) UI.setupHeroAnimation(heroCode);
 
+    HeaderComponent.render('main-header');
     FooterComponent.render('main-footer');
     setupFAQ();
+
+    const header = document.getElementById('main-header');
+    const handleScroll = () => {
+        if (window.scrollY > 50) {
+            header?.classList.add('scrolled');
+        } else {
+            header?.classList.remove('scrolled');
+        }
+    };
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
 
     const sessionParams = Auth.parseUrlParams();
     if (sessionParams.token || sessionParams.apiKey) {
