@@ -91,31 +91,14 @@ html {
     flex: 1;
     width: 100%;
     max-width: 1550px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     gap: 0;
     padding: 0 4rem;
 }
 
-.landing-badge {
-    display: inline-block;
-    padding: 0.5rem 1.25rem;
-    background: var(--accent-soft);
-    border: 1px solid rgba(145, 70, 255, 0.2);
-    border-radius: 100px;
-    color: #c4b5fd;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 1.5rem;
-    transition: all 0.3s ease;
-}
 
-.landing-badge:hover {
-    background: rgba(145, 70, 255, 0.15);
-    transform: scale(1.02);
-}
 
 .btn-hero {
     background: var(--accent);
