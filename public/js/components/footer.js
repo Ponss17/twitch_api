@@ -8,7 +8,7 @@ export const FooterComponent = {
         const hostname = window.location.hostname;
         const html = `
             <div class="footer-content">
-                <p>&copy; ${year} <a href="${origin}" target="_blank">${hostname}</a>. Creado para la comunidad. No afiliado con Twitch o Amazon.</p>
+                <p>&copy; ${year} <a href="${origin}" target="_blank" rel="noopener">${hostname}</a>. Creado para la comunidad. No afiliado con Twitch o Amazon.</p>
             </div>
         `;
         container.innerHTML = html;

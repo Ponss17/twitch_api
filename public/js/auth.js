@@ -68,7 +68,7 @@ export const Auth = {
     },
     relogin() {
         this.clearSession();
-        let currentUrl = window.location.href.split('?')[0];
+        let currentUrl = window.location.origin + window.location.pathname;
         currentUrl = currentUrl.replace('://www.', '://');
         const authPath = `${CONFIG.API_URL}/auth/twitch`;
         window.location.href = `${authPath}?redirect_origin=${encodeURIComponent(currentUrl)}`;
