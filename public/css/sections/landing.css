@@ -1,3 +1,7 @@
+html {
+    scroll-behavior: smooth;
+}
+
 .animated-bg {
     position: fixed;
     top: 0;
