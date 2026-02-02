@@ -1,5 +1,7 @@
 import { UI } from '../ui.js';
 import { Messages } from '../utils/messages.js';
+import { ClipsMessages } from './clips/messages.js';
+import { AuthMessages } from '../utils/auth/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
 import { cache, CACHE_TTL } from '../utils/cacheService.js';
 import { Session, Clip } from '../types.js';
@@ -50,7 +52,6 @@ export const ClipsModule = {
         if (this.observer) {
             this.observer.disconnect();
         }
-        // cleaned
     },
 
     loadFavorites() {
@@ -185,16 +186,16 @@ export const ClipsModule = {
 
     handleError(error: unknown, container: HTMLElement) {
         const isAuthError = (error as Error).message === 'auth_error';
-        UI.showToast(isAuthError ? Messages.Auth.expired : Messages.Clips.loadError, 'error');
+        UI.showToast(isAuthError ? AuthMessages.expired : ClipsMessages.loadError, 'error');
 
         if (isAuthError) {
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h3>${Messages.Auth.expiredTitle}</h3>
-                    <p>${Messages.Auth.expiredMsg}</p>
+                    <h3>${AuthMessages.expiredTitle}</h3>
+                    <p>${AuthMessages.expiredMsg}</p>
                     <button id="relogin-clips-btn" class="btn-primary" style="margin-top:10px;">
-                        ${Messages.Auth.reloginBtn}
+                        ${AuthMessages.reloginBtn}
                     </button>
                 </div>
             `;
@@ -235,11 +236,11 @@ export const ClipsModule = {
         const sortValue =
             (document.getElementById('clips-sort') as HTMLSelectElement)?.value || 'date-desc';
 
-        const filtered = this.allClips.filter((clip: any) =>
+        const filtered = this.allClips.filter((clip: Clip) =>
             clip.title.toLowerCase().includes(searchTerm)
         );
 
-        filtered.sort((a: any, b: any) => {
+        filtered.sort((a: Clip, b: Clip) => {
             switch (sortValue) {
                 case 'date-desc':
                     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -268,7 +269,7 @@ export const ClipsModule = {
         if (!clipsGallery) return;
 
         if (this.currentClips.length === 0) {
-            clipsGallery.innerHTML = Messages.Clips.empty;
+            clipsGallery.innerHTML = ClipsMessages.empty;
             return;
         }
 

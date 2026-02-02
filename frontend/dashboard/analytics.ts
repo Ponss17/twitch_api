@@ -1,4 +1,4 @@
-import { Messages } from '../utils/messages.js';
+import { AnalyticsMessages } from './analytics/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
 import { Session } from '../types.js';
 
@@ -27,9 +27,7 @@ export const AnalyticsModule = {
         this.initialized = true;
     },
 
-    deactivate() {
-        // cleaned
-    },
+    deactivate() {},
 
     async load(force = false) {
         const statsContainer = document.getElementById('stats-grid');
@@ -61,19 +59,19 @@ export const AnalyticsModule = {
                     this.render(data);
                 } else {
                     console.error('[Analytics] Invalid data format:', data);
-                    if (!this.cache) statsContainer.innerHTML = Messages.Analytics.errorState;
+                    if (!this.cache) statsContainer.innerHTML = AnalyticsMessages.errorState;
                 }
             } else {
                 const errorText = await res.text();
                 console.error('[Analytics] Error response:', errorText);
                 if (!this.cache) {
-                    statsContainer.innerHTML = Messages.Analytics.errorState;
+                    statsContainer.innerHTML = AnalyticsMessages.errorState;
                 }
             }
         } catch (e) {
             console.error('[Analytics] Fetch error:', e);
             if (!this.cache) {
-                statsContainer.innerHTML = Messages.Analytics.errorState;
+                statsContainer.innerHTML = AnalyticsMessages.errorState;
             }
         }
     },

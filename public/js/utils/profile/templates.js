@@ -1,12 +1,12 @@
-import { Messages } from '../messages.js';
+import { ProfileMessages } from './messages.js';
 import { UI } from '../../ui.js';
 export const ProfileTemplates = {
     renderContent(user, ageText) {
         const rankType = user.broadcaster_type === 'partner'
-            ? Messages.Details.partner
+            ? ProfileMessages.partner
             : user.broadcaster_type === 'affiliate'
-                ? Messages.Details.affiliate
-                : Messages.Details.user;
+                ? ProfileMessages.affiliate
+                : ProfileMessages.user;
         const rankColor = user.broadcaster_type ? 'var(--accent)' : 'var(--text-secondary)';
         return `
             <div class="profile-header">
@@ -19,27 +19,27 @@ export const ProfileTemplates = {
 
             <div class="profile-details-grid">
                 <div class="detail-item">
-                    <span class="detail-label">Rango</span>
+                    <span class="detail-label">${ProfileMessages.labels.rank}</span>
                     <span class="detail-value" style="color: ${rankColor}">${rankType}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">ID de Usuario</span>
+                    <span class="detail-label">${ProfileMessages.labels.userId}</span>
                     <span class="detail-value">${UI.escapeHTML(user.id)}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">Antigüedad</span>
+                    <span class="detail-label">${ProfileMessages.labels.age}</span>
                     <span class="detail-value">${ageText}</span>
                 </div>
             </div>
 
             <div id="modal-bio" class="profile-bio">
-                ${UI.escapeHTML(user.description) || Messages.Stalker.bioEmpty}
+                ${UI.escapeHTML(user.description) || ProfileMessages.bioEmpty}
             </div>
 
             <div class="profile-footer">
-                <div class="profile-created">${Messages.Details.created(user.created_at)}</div>
+                <div class="profile-created">${ProfileMessages.created(user.created_at)}</div>
                 <button id="view-logs-btn" class="btn-secondary btn-full">
-                    ${Messages.Details.viewLogs}
+                    ${ProfileMessages.viewLogs}
                 </button>
             </div>
         `;
@@ -47,10 +47,10 @@ export const ProfileTemplates = {
     renderLogs(logs) {
         let html = `
             <div class="history-container">
-                <h4 class="history-title">${Messages.Details.historyTitle}</h4>
+                <h4 class="history-title">${ProfileMessages.historyTitle}</h4>
         `;
         if (logs.length === 0) {
-            html += `<div class="history-empty">${Messages.Details.noHistory}</div>`;
+            html += `<div class="history-empty">${ProfileMessages.noHistory}</div>`;
         }
         else {
             html += `

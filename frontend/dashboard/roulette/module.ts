@@ -1,5 +1,6 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
+import { RouletteMessages } from './messages.js';
 import { API_ENDPOINTS } from '../../utils/constants.js';
 import { CONFIG } from '../../config.js';
 import { TmiService, TmiTags } from '../../utils/tmiService.js';
@@ -42,7 +43,6 @@ export const RouletteModule = {
         TmiService.disconnect();
         this.isConnected = false;
         this.isSpinning = false;
-        console.log('[RouletteModule] Deactivated');
     },
 
     setupUI() {
@@ -56,7 +56,7 @@ export const RouletteModule = {
             ?.addEventListener('click', () => this.toggleEntries());
         document.getElementById('btn-refresh-roulette')?.addEventListener('click', () => {
             this.loadChatters();
-            UI.showToast(Messages.Roulette.updatedRaw, 'success', 'fa-check');
+            UI.showToast(RouletteMessages.updatedRaw, 'success', 'fa-check');
         });
         document.getElementById('close-winner-display')?.addEventListener('click', () => {
             document.getElementById('roulette-winner-display')?.classList.add('hidden');
@@ -76,11 +76,11 @@ export const RouletteModule = {
         }
 
         if (this.isOpen) {
-            UI.showToast(Messages.Roulette.openRaw, 'success', 'fa-door-open');
+            UI.showToast(RouletteMessages.openRaw, 'success', 'fa-door-open');
             this.loadChatters();
             this.connectTmi();
         } else {
-            UI.showToast(Messages.Roulette.closedRaw, 'warning', 'fa-door-closed');
+            UI.showToast(RouletteMessages.closedRaw, 'warning', 'fa-door-closed');
             TmiService.disconnect();
             this.isConnected = false;
         }

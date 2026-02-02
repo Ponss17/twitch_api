@@ -1,28 +1,28 @@
-import { Messages } from '../../utils/messages.js';
+import { StalkerMessages } from './messages.js';
 import { StalkerUser } from '../../types.js';
 
 export const StalkerTemplates = {
     renderMain() {
         return `
             <div id="stalker-loading" class="loading-state hidden">
-                <i class="fa-solid fa-spinner fa-spin"></i> Cargando usuarios...
+                <i class="fa-solid fa-spinner fa-spin"></i> ${StalkerMessages.rowsLoading}
             </div>
 
             <div class="table-container">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 60px;">Avatar</th>
-                            <th>Usuario</th>
-                            <th>Login</th>
-                            <th style="text-align: right;">Acción</th>
+                            <th style="width: 60px;">${StalkerMessages.tableHeaders.avatar}</th>
+                            <th>${StalkerMessages.tableHeaders.user}</th>
+                            <th>${StalkerMessages.tableHeaders.login}</th>
+                            <th style="text-align: right;">${StalkerMessages.tableHeaders.action}</th>
                         </tr>
                     </thead>
                     <tbody id="stalker-grid">
                         <tr>
                             <td colspan="4">
                                 <div id="stalker-empty" class="empty-state">
-                                    ${Messages.Stalker.waiting}
+                                    ${StalkerMessages.waiting}
                                 </div>
                             </td>
                         </tr>
@@ -31,7 +31,7 @@ export const StalkerTemplates = {
             </div>
             
             <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">
-                * La detección de usuarios se basa en la actividad reciente del chat.
+                ${StalkerMessages.detectionNote}
             </div>
         `;
     },
@@ -39,17 +39,19 @@ export const StalkerTemplates = {
     renderControls(isScanning: boolean) {
         const btnClass = isScanning ? 'btn-warning' : 'btn-success';
         const btnIcon = isScanning ? 'fa-pause' : 'fa-play';
-        const btnTitle = isScanning ? 'Pausar Escaneo' : 'Iniciar Escaneo';
+        const btnTitle = isScanning
+            ? StalkerMessages.scanControls.pause
+            : StalkerMessages.scanControls.start;
 
         return `
             <div class="search-wrapper">
                 <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
-                <input type="text" id="stalker-search" placeholder="Buscar usuario..." class="stalker-search" aria-label="Buscar usuario en el chat">
+                <input type="text" id="stalker-search" placeholder="${StalkerMessages.scanControls.searchPlaceholder}" class="stalker-search" aria-label="${StalkerMessages.scanControls.searchPlaceholder}">
             </div>
             <button id="toggle-stalker" class="btn-icon ${btnClass} mr-5" title="${btnTitle}" aria-label="${btnTitle}">
                 <i class="fa-solid ${btnIcon}" aria-hidden="true"></i>
             </button>
-            <button id="refresh-stalker" class="btn-icon" title="Recargar lista" aria-label="Recargar lista de usuarios">
+            <button id="refresh-stalker" class="btn-icon" title="${StalkerMessages.scanControls.refresh}" aria-label="${StalkerMessages.scanControls.refresh}">
                 <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
             </button>
         `;

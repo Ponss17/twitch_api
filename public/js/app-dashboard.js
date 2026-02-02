@@ -3,6 +3,7 @@ import { UI } from './ui.js';
 import { Dashboard } from './dashboard.js';
 import { FooterComponent } from './components/footer.js';
 import { Messages } from './utils/messages.js';
+import { AuthMessages } from './utils/auth/messages.js';
 document.addEventListener('DOMContentLoaded', async () => {
     FooterComponent.render('main-footer');
     UI.setupClipboard();
@@ -19,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     catch (e) {
         console.error('Error validating session:', e);
-        UI.showToast(Messages.Auth.validationError, 'error');
+        UI.showToast(AuthMessages.validationError, 'error');
         Auth.clearSession();
         window.location.href = './';
         return;
@@ -56,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     else {
         console.warn('Token invalid');
-        UI.showToast(Messages.Auth.sessionExpired, 'error');
+        UI.showToast(AuthMessages.sessionExpired, 'error');
         Auth.clearSession();
         setTimeout(() => {
             window.location.href = './';

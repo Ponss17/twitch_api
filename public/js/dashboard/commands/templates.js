@@ -1,3 +1,4 @@
+import { CommandsMessages } from './messages.js';
 export const CommandTemplates = {
     generateCard(conf) {
         let extrasHTML = '';
@@ -16,12 +17,12 @@ export const CommandTemplates = {
             ? `
             <div class="form-group mb-20">
                 <label class="input-label">
-                    <i class="fa-solid fa-pen-to-square"></i> Mensaje Personalizado (Opcional)
+                    <i class="fa-solid fa-pen-to-square"></i> ${CommandsMessages.form.customMessage}
                 </label>
                 <input type="text" id="${conf.id}-template" class="text-input full-width" 
                     placeholder="${conf.templatePlaceholder}">
                 <small class="input-help">
-                    ${conf.templateVars ? conf.templateVars.replace('Variables:', '<strong class="text-accent">Variables:</strong>').replace(/\{(\w+)\}/g, '<code class="var-badge">{$1}</code>') : ''}
+                    ${conf.templateVars ? conf.templateVars.replace('Variables:', `<strong class="text-accent">${CommandsMessages.form.variables}</strong>`).replace(/\{(\w+)\}/g, '<code class="var-badge">{$1}</code>') : ''}
                 </small>
             </div>`
             : '';
@@ -43,7 +44,7 @@ export const CommandTemplates = {
             </div>
             <div class="card-body">
                 <div class="tool-selector">
-                    <label><i class="fa-solid fa-robot"></i> Selecciona tu bot:</label>
+                    <label><i class="fa-solid fa-robot"></i> ${CommandsMessages.form.selectBot}</label>
                     <select id="bot-select-${conf.id}" class="select-input">
                         <option value="nightbot">Nightbot</option>
                         <option value="streamelements">StreamElements</option>
@@ -58,7 +59,7 @@ export const CommandTemplates = {
                 <div class="code-box">
                     <textarea id="command-output-${conf.id}" readonly></textarea>
                     <button class="btn-copy copy-btn" data-target="command-output-${conf.id}">
-                        <i class="fa-regular fa-copy"></i> Copiar
+                        <i class="fa-regular fa-copy"></i> ${CommandsMessages.form.copyBtn}
                     </button>
                 </div>
             </div>

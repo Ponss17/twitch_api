@@ -1,4 +1,4 @@
-import { Messages } from '../utils/messages.js';
+import { AccountMessages } from './account/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
 import { UI } from '../ui.js';
 import { Session } from '../types.js';
@@ -17,9 +17,7 @@ export const AccountModule = {
         this.isInitialized = true;
     },
 
-    deactivate() {
-        console.log('[AccountModule] Deactivated');
-    },
+    deactivate() {},
 
     updateValues() {
         const userIdInput = document.getElementById('user-id') as HTMLInputElement;
@@ -64,7 +62,7 @@ export const AccountModule = {
         const regenBtn = document.getElementById('regenerate-token-btn');
         if (regenBtn) {
             regenBtn.addEventListener('click', async () => {
-                if (!confirm(Messages.Settings.regenerateConfirm)) return;
+                if (!confirm(AccountMessages.regenerateConfirm)) return;
 
                 UI.setButtonLoading(regenBtn as HTMLButtonElement, true);
                 try {
@@ -90,10 +88,10 @@ export const AccountModule = {
                                 tokenInput.value = data.apiKey;
                             }
                         }
-                        UI.showToast(Messages.Settings.regenerateSuccess, 'success');
+                        UI.showToast(AccountMessages.regenerateSuccess, 'success');
                     }
                 } catch (_e) {
-                    UI.showToast(Messages.Settings.regenerateError, 'error');
+                    UI.showToast(AccountMessages.regenerateError, 'error');
                 } finally {
                     UI.setButtonLoading(regenBtn as HTMLButtonElement, false);
                 }

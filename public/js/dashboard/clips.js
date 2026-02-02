@@ -1,5 +1,7 @@
 import { UI } from '../ui.js';
 import { Messages } from '../utils/messages.js';
+import { ClipsMessages } from './clips/messages.js';
+import { AuthMessages } from '../utils/auth/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
 import { cache, CACHE_TTL } from '../utils/cacheService.js';
 export const ClipsModule = {
@@ -39,7 +41,6 @@ export const ClipsModule = {
         if (this.observer) {
             this.observer.disconnect();
         }
-        // cleaned
     },
     loadFavorites() {
         if (!this.session)
@@ -157,15 +158,15 @@ export const ClipsModule = {
     },
     handleError(error, container) {
         const isAuthError = error.message === 'auth_error';
-        UI.showToast(isAuthError ? Messages.Auth.expired : Messages.Clips.loadError, 'error');
+        UI.showToast(isAuthError ? AuthMessages.expired : ClipsMessages.loadError, 'error');
         if (isAuthError) {
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h3>${Messages.Auth.expiredTitle}</h3>
-                    <p>${Messages.Auth.expiredMsg}</p>
+                    <h3>${AuthMessages.expiredTitle}</h3>
+                    <p>${AuthMessages.expiredMsg}</p>
                     <button id="relogin-clips-btn" class="btn-primary" style="margin-top:10px;">
-                        ${Messages.Auth.reloginBtn}
+                        ${AuthMessages.reloginBtn}
                     </button>
                 </div>
             `;
@@ -228,7 +229,7 @@ export const ClipsModule = {
         if (!clipsGallery)
             return;
         if (this.currentClips.length === 0) {
-            clipsGallery.innerHTML = Messages.Clips.empty;
+            clipsGallery.innerHTML = ClipsMessages.empty;
             return;
         }
         const loadMore = document.getElementById('clips-load-more');

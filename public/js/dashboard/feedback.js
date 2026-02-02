@@ -1,4 +1,4 @@
-import { Messages } from '../utils/messages.js';
+import { FeedbackMessages } from './feedback/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
 import { UI } from '../ui.js';
 export const FeedbackModule = {
@@ -10,6 +10,9 @@ export const FeedbackModule = {
             return;
         this.setupUI();
         this.initialized = true;
+    },
+    deactivate() {
+        // Passive module
     },
     setupUI() {
         requestAnimationFrame(() => {
@@ -26,7 +29,7 @@ export const FeedbackModule = {
             return;
         const message = messageInput.value.trim();
         if (!message) {
-            UI.showToast(Messages.Feedback.emptyMessage, 'error');
+            UI.showToast(FeedbackMessages.emptyMessage, 'error');
             return;
         }
         UI.setButtonLoading(submitBtn, true);
@@ -50,7 +53,7 @@ export const FeedbackModule = {
             });
             const data = await response.json();
             if (response.ok) {
-                UI.showToast(Messages.Feedback.success, 'success');
+                UI.showToast(FeedbackMessages.success, 'success');
                 messageInput.value = '';
             }
             else {
@@ -59,7 +62,7 @@ export const FeedbackModule = {
         }
         catch (e) {
             console.error('Error submitting feedback:', e);
-            UI.showToast(e.message || Messages.Feedback.error, 'error');
+            UI.showToast(e.message || FeedbackMessages.error, 'error');
         }
         finally {
             UI.setButtonLoading(submitBtn, false);

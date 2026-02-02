@@ -1,5 +1,6 @@
 import { UI } from './ui.js';
 import { HtmlLoader } from './utils/htmlLoader.js';
+import { Messages } from './utils/messages.js';
 export const Dashboard = {
     session: null,
     activeModules: [],
@@ -26,7 +27,8 @@ export const Dashboard = {
         if (pageTitle && displayName && this.session.login) {
             const safeDisplayName = UI.escapeHTML(displayName);
             const safeLogin = UI.escapeHTML(this.session.login);
-            pageTitle.innerHTML = `Bienvenido, <a href="https://twitch.tv/${safeLogin}" target="_blank" class="welcome-link">${safeDisplayName}</a>`;
+            const welcomeMsg = Messages.Common.welcome(`<a href="https://twitch.tv/${safeLogin}" target="_blank" class="welcome-link">${safeDisplayName}</a>`);
+            pageTitle.innerHTML = welcomeMsg;
         }
         document.getElementById('logout-btn')?.addEventListener('click', () => {
             import('./auth.js').then((m) => m.Auth.logout());

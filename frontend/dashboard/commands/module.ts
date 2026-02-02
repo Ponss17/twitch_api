@@ -1,6 +1,6 @@
 import { CONFIG } from '../../config.js';
 import { API_ENDPOINTS } from '../../utils/constants.js';
-import { Messages } from '../../utils/messages.js';
+import { CommandsMessages } from './messages.js';
 import { CommandGenerator } from '../../utils/commandGenerator.js';
 import { COMMAND_CONFIG } from './config.js';
 import { CommandTemplates } from './templates.js';
@@ -18,15 +18,19 @@ window.CommandUtils = { CommandGenerator };
 
 export const CommandsModule = {
     session: null as Session | null,
+    initialized: false,
 
     async init(session: Session) {
         this.session = session;
-        if (!this.session) return;
+        if (!this.session || this.initialized) return;
 
         this.renderCommandCards();
         this.setupGenericCommands();
         this.setupTestCommand();
+        this.initialized = true;
     },
+
+    deactivate() {},
 
     renderCommandCards() {
         Object.values(COMMAND_CONFIG).forEach((conf) => {
@@ -120,13 +124,13 @@ export const CommandsModule = {
             const resultText = document.getElementById('test-result-text')!;
 
             if (!channel || !user) {
-                alert(Messages.Commands.completeFields);
+                alert(CommandsMessages.completeFields);
                 return;
             }
 
             resultBox.classList.add('active');
             resultBox.classList.remove('success', 'error');
-            resultText.innerHTML = Messages.Commands.testing;
+            resultText.innerHTML = CommandsMessages.testing;
 
             if (!this.session) return;
             const { apiKey, token } = this.session;
@@ -147,7 +151,7 @@ export const CommandsModule = {
                     resultText.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${safeText}`;
                 }
             } catch (err) {
-                resultText.innerHTML = Messages.Commands.connectionError;
+                resultText.innerHTML = CommandsMessages.connectionError;
                 console.error(err);
             }
         });

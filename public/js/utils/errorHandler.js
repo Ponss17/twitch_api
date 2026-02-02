@@ -1,5 +1,6 @@
 import { UI } from '../ui.js';
 import { Messages } from './messages.js';
+import { AuthMessages } from './auth/messages.js';
 /**
  * Manejador Global de Errores
  * Captura errores no manejados y rechazos de promesas
@@ -31,8 +32,8 @@ class ErrorHandler {
     }
     /**
      * Maneja un error y muestra un mensaje amigable al usuario
-     * @param {Error | any} error - El objeto de error
-     * @param {Object} [context={}] - Contexto adicional sobre el error
+     * @param {Error | unknown} error - El objeto de error
+     * @param {Record<string, unknown>} [context={}] - Contexto adicional sobre el error
      */
     handleError(error, context = {}) {
         if (this.isDevelopment) {
@@ -44,19 +45,19 @@ class ErrorHandler {
     }
     /**
      * Obtiene un mensaje de error amigable para el usuario basado en Messages
-     * @param {Error | any} error - El objeto de error
+     * @param {Error | unknown} error - El objeto de error
      * @returns {string} Mensaje de error amigable
      */
     getUserMessage(error) {
-        const msg = error?.message || '';
+        const msg = error instanceof Error ? error.message : String(error || '');
         if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
             return Messages.Common.networkError;
         }
         if (msg.includes('401') || msg.includes('unauthorized') || msg === 'auth_error') {
-            return Messages.Auth.sessionExpired;
+            return AuthMessages.sessionExpired;
         }
         if (msg.includes('403') || msg.includes('forbidden')) {
-            return Messages.Auth.validationError;
+            return AuthMessages.validationError;
         }
         return this.isDevelopment
             ? `Error: ${msg}`
@@ -64,8 +65,8 @@ class ErrorHandler {
     }
     /**
      * Reporta el error a un servicio de seguimiento (Stub)
-     * @param {Error} error - El objeto de error
-     * @param {Object} context - Contexto del error
+     * @param {Error | unknown} error - El objeto de error
+     * @param {Record<string, unknown>} context - Contexto del error
      */
     reportError(error, context) {
         // Futuro: Sentry.captureException(error, { extra: context });

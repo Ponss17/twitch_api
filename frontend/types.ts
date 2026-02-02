@@ -20,7 +20,7 @@ export interface Session {
     apiKey?: string;
     userId?: string;
     isNewLogin?: boolean;
-    [key: string]: any;
+    metadata?: Record<string, string | number | boolean>;
 }
 
 export interface ApiResponse<T = any> {

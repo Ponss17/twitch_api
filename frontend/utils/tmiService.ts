@@ -1,6 +1,6 @@
 import { Auth } from '../auth.js';
 import { UI } from '../ui.js';
-import { Messages } from './messages.js';
+import { AuthMessages } from './auth/messages.js';
 
 export interface TmiTags {
     username: string;
@@ -8,17 +8,27 @@ export interface TmiTags {
     [key: string]: any;
 }
 
+interface TmiOptions {
+    channels: string[];
+    connection?: { secure?: boolean; reconnect?: boolean };
+    identity?: { username: string; password?: string };
+    options?: {
+        skipUpdatingEmotesets?: boolean;
+        messages?: { emotes?: boolean };
+    };
+}
+
 interface TmiClient {
     connect: () => Promise<void>;
     disconnect: () => Promise<void>;
     on: (event: string, callback: (...args: any[]) => void) => void;
-    say: (channel: string, message: string) => Promise<any>;
+    say: (channel: string, message: string) => Promise<string[]>;
 }
 
 declare global {
     interface Window {
         tmi: {
-            Client: new (options: any) => TmiClient;
+            Client: new (options: TmiOptions) => TmiClient;
         };
     }
 }
@@ -42,7 +52,7 @@ export const TmiService = {
             return Promise.reject('TMI not loaded');
         }
 
-        const options: any = {
+        const options: TmiOptions = {
             channels: [channel],
             connection: { secure: true, reconnect: true },
             options: {
@@ -62,7 +72,7 @@ export const TmiService = {
 
         this.client = new window.tmi.Client(options);
 
-        const attachListeners = (clientInstance: any) => {
+        const attachListeners = (clientInstance: TmiClient) => {
             clientInstance.on(
                 'message',
                 (channel: string, tags: TmiTags, message: string, self: boolean) => {
@@ -84,7 +94,7 @@ export const TmiService = {
                     this.isConnected = true;
                     resolve();
                 })
-                .catch(async (err: any) => {
+                .catch(async (err: string | Error) => {
                     const isLoginError =
                         auth &&
                         (err === 'Login unsuccessful' ||
@@ -139,7 +149,7 @@ export const TmiService = {
                     (typeof err === 'string' &&
                         (err.includes('anonymous') || err.includes('Login unsuccessful')))
                 ) {
-                    UI.showToast(Messages.Auth.sessionExpired, 'error');
+                    UI.showToast(AuthMessages.sessionExpired, 'error');
                     setTimeout(() => Auth.relogin(), 2000);
                 }
             });
