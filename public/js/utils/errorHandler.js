@@ -1,19 +1,14 @@
 import { UI } from '../ui.js';
 import { Messages } from './messages.js';
 import { AuthMessages } from './auth/messages.js';
-/**
- * Manejador Global de Errores
- * Captura errores no manejados y rechazos de promesas
- */
+
 class ErrorHandler {
     constructor() {
         this.isDevelopment =
             window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         this.init();
     }
-    /**
-     * Inicializa los listeners globales de error
-     */
+    
     init() {
         window.onerror = (message, source, lineno, colno, error) => {
             this.handleError(error || new Error(String(message)), {
@@ -30,11 +25,7 @@ class ErrorHandler {
             event.preventDefault();
         };
     }
-    /**
-     * Maneja un error y muestra un mensaje amigable al usuario
-     * @param {Error | unknown} error - El objeto de error
-     * @param {Record<string, unknown>} [context={}] - Contexto adicional sobre el error
-     */
+    
     handleError(error, context = {}) {
         if (this.isDevelopment) {
             console.error('🔴 Error capturado por ErrorHandler:', error);
@@ -43,11 +34,7 @@ class ErrorHandler {
         const userMessage = this.getUserMessage(error);
         UI.showToast(userMessage, 'error');
     }
-    /**
-     * Obtiene un mensaje de error amigable para el usuario basado en Messages
-     * @param {Error | unknown} error - El objeto de error
-     * @returns {string} Mensaje de error amigable
-     */
+    
     getUserMessage(error) {
         const msg = error instanceof Error ? error.message : String(error || '');
         if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
@@ -63,13 +50,9 @@ class ErrorHandler {
             ? `Error: ${msg}`
             : Messages.Common.error('Algo salió mal. Intenta de nuevo.');
     }
-    /**
-     * Reporta el error a un servicio de seguimiento (Stub)
-     * @param {Error | unknown} error - El objeto de error
-     * @param {Record<string, unknown>} context - Contexto del error
-     */
+    
     reportError(error, context) {
-        // Futuro: Sentry.captureException(error, { extra: context });
+        
         if (this.isDevelopment) {
             console.warn('Reported Error:', error, context);
         }
