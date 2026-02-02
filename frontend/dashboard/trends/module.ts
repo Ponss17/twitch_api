@@ -79,14 +79,18 @@ export const TrendsModule = {
     session: null as Session | null,
     initialized: false,
 
+    cssLoaded: false,
+
     init(session: Session) {
         this.session = session;
         this.updateUIState();
-        if (this.initialized) return;
 
-        import('../../utils/loader.js').then(({ Loader }) => {
-            Loader.loadCSS('css/sections/trends.css');
-        });
+        if (!this.cssLoaded) {
+            import('../../utils/loader.js').then(({ Loader }) => {
+                Loader.loadCSS('css/sections/trends.css');
+            });
+            this.cssLoaded = true;
+        }
 
         this.setupUI();
         this.initialized = true;
@@ -113,10 +117,18 @@ export const TrendsModule = {
     },
 
     attachListeners() {
-        document.getElementById('reset-tracker-btn')?.addEventListener('click', () => this.reset());
-        document
-            .getElementById('start-timer-btn')
-            ?.addEventListener('click', () => this.startTimer());
+        const resetBtn = document.getElementById('reset-tracker-btn');
+        const startBtn = document.getElementById('start-timer-btn');
+
+        if (resetBtn && !resetBtn.dataset.listener) {
+            resetBtn.addEventListener('click', () => this.reset());
+            resetBtn.dataset.listener = 'true';
+        }
+
+        if (startBtn && !startBtn.dataset.listener) {
+            startBtn.addEventListener('click', () => this.startTimer());
+            startBtn.dataset.listener = 'true';
+        }
     },
 
     connect() {

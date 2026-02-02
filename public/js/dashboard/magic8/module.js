@@ -3,18 +3,19 @@ import { API_ENDPOINTS, DOM_IDS } from '../../utils/constants.js';
 export const Magic8Module = {
     session: null,
     initialized: false,
+    cssLoaded: false,
     init(session) {
         this.session = session;
-        if (this.initialized)
-            return;
-        import('../../utils/loader.js').then(({ Loader }) => {
-            Loader.loadCSS('css/sections/magic8.css');
-        });
+        if (!this.cssLoaded) {
+            import('../../utils/loader.js').then(({ Loader }) => {
+                Loader.loadCSS('css/sections/magic8.css');
+            });
+            this.cssLoaded = true;
+        }
         this.setupUI();
         this.initialized = true;
     },
-    deactivate() {
-    },
+    deactivate() { },
     setupUI() {
         const questionInput = document.getElementById(DOM_IDS.MAGIC8.INPUT);
         const askBtn = document.getElementById(DOM_IDS.MAGIC8.BUTTON);

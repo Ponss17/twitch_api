@@ -22,7 +22,7 @@ export const CommandsModule = {
 
     async init(session: Session) {
         this.session = session;
-        if (!this.session || this.initialized) return;
+        if (!this.session) return;
 
         this.renderCommandCards();
         this.setupGenericCommands();
@@ -37,6 +37,9 @@ export const CommandsModule = {
             const config = conf as CommandConfigItem;
             const container = document.getElementById(config.containerId);
             if (!container) return;
+
+            // Only render if empty or contains nothing relevant to avoid duplication
+            // but for commands, we want to ensure fresh IDs are bound, so we overwrite.
             container.innerHTML = CommandTemplates.generateCard(config);
         });
     },

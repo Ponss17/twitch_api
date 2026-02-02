@@ -11,7 +11,7 @@ export const CommandsModule = {
     initialized: false,
     async init(session) {
         this.session = session;
-        if (!this.session || this.initialized)
+        if (!this.session)
             return;
         this.renderCommandCards();
         this.setupGenericCommands();
@@ -26,6 +26,8 @@ export const CommandsModule = {
             const container = document.getElementById(config.containerId);
             if (!container)
                 return;
+            // Only render if empty or contains nothing relevant to avoid duplication
+            // but for commands, we want to ensure fresh IDs are bound, so we overwrite.
             container.innerHTML = CommandTemplates.generateCard(config);
         });
     },

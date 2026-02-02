@@ -16,32 +16,35 @@ export const ClipsModule = {
     currentPage: 1,
     ITEMS_PER_PAGE: 20,
 
+    cssLoaded: false,
+
     async init(session: Session) {
         this.session = session;
-        if (this.initialized) {
-            this.loadClips();
-            return;
-        }
 
-        import('../utils/loader.js').then(({ Loader }) => {
-            Loader.loadCSS('css/sections/clips.css');
-        });
+        if (!this.cssLoaded) {
+            import('../utils/loader.js').then(({ Loader }) => {
+                Loader.loadCSS('css/sections/clips.css');
+            });
+            (this as any).cssLoaded = true;
+        }
 
         this.loadFavorites();
 
-        this.observer = new IntersectionObserver(
-            (entries, observer) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target as HTMLImageElement;
-                        img.src = img.dataset.src!;
-                        img.classList.remove('lazy-img');
-                        observer.unobserve(img);
-                    }
-                });
-            },
-            { rootMargin: '50px' }
-        );
+        if (!this.observer) {
+            this.observer = new IntersectionObserver(
+                (entries, observer) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target as HTMLImageElement;
+                            img.src = img.dataset.src!;
+                            img.classList.remove('lazy-img');
+                            observer.unobserve(img);
+                        }
+                    });
+                },
+                { rootMargin: '50px' }
+            );
+        }
 
         this.setupUI();
         this.initialized = true;
