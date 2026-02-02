@@ -10,6 +10,13 @@
     --accent-red: #ff4655;
     --font-main: 'Outfit', sans-serif;
     --code-bg: #1a1a1f;
+
+    --border: var(--card-border);
+    --text-primary: var(--text-main);
+    --text-secondary: var(--text-dim);
+    --text-muted: var(--text-dim);
+    --accent: var(--primary-color);
+    --accent-hover: var(--primary-hover);
 }
 
 * {
