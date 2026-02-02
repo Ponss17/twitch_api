@@ -18,10 +18,10 @@ export const ClipsModule = {
 
     cssLoaded: false,
 
-    async init(session: Session) {
+    init(session: Session) {
         this.session = session;
 
-        if (!this.cssLoaded) {
+        if (!(this as any).cssLoaded) {
             import('../utils/loader.js').then(({ Loader }) => {
                 Loader.loadCSS('css/sections/clips.css');
             });

@@ -2,7 +2,13 @@ import axios from 'axios';
 import axiosRetry from 'axios-retry';
 import https from 'https';
 import { CONFIG } from '../config/env';
-import { TwitchClip, TwitchError } from '../types/twitch';
+import {
+    TwitchClip,
+    TwitchError,
+    TwitchUser,
+    TwitchChannelInfo,
+    TwitchValidationResponse
+} from '../types/twitch';
 import { getCachedUserId, setCachedUserId } from './cacheService';
 import { logger } from '../utils/logger';
 
@@ -57,7 +63,7 @@ export const getUserId = async (username: string, token: string): Promise<string
     return user.id;
 };
 
-export const getUserInfo = async (username: string, token: string): Promise<any> => {
+export const getUserInfo = async (username: string, token: string): Promise<TwitchUser> => {
     const headers = getHeaders(token);
     const response = await apiClient.get(`https://api.twitch.tv/helix/users?login=${username}`, {
         headers
@@ -70,7 +76,10 @@ export const getUserInfo = async (username: string, token: string): Promise<any>
     return response.data.data[0];
 };
 
-export const getChannelInfo = async (broadcasterId: string, token: string): Promise<any> => {
+export const getChannelInfo = async (
+    broadcasterId: string,
+    token: string
+): Promise<TwitchChannelInfo> => {
     const headers = getHeaders(token);
     const response = await apiClient.get(
         `https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`,
@@ -183,7 +192,7 @@ export const getFollowAge = async (
     }
 };
 
-export const validateToken = async (token: string): Promise<any> => {
+export const validateToken = async (token: string): Promise<TwitchValidationResponse | null> => {
     try {
         const headers = { Authorization: `OAuth ${token}` };
         const response = await apiClient.get('https://id.twitch.tv/oauth2/validate', { headers });

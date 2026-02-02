@@ -1,13 +1,10 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import * as dbService from '../services/dbService';
 import * as apiService from '../services/apiService';
 import * as cacheService from '../services/cacheService';
 import { MESSAGES } from '../config/messages';
 
-interface AuthenticatedRequest extends Request {
-    twitchToken?: string;
-    userId?: string;
-}
+import { AuthenticatedRequest } from '../types/twitch';
 
 const safeString = (val: unknown): string => (typeof val === 'string' ? val : '');
 
@@ -24,9 +21,10 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
         }
 
         return res.send(result);
-    } catch (error: any) {
-        const message = error.status === 404 ? error.message : MESSAGES.COMMANDS.CREATE_CLIP_ERROR;
-        return res.status(error.status || 500).send(message);
+    } catch (error: unknown) {
+        const err = error as any;
+        const message = err.status === 404 ? err.message : MESSAGES.COMMANDS.CREATE_CLIP_ERROR;
+        return res.status(err.status || 500).send(message);
     }
 };
 
@@ -62,7 +60,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         } else {
             res.send(result);
         }
-    } catch (_error: any) {
+    } catch (_error: unknown) {
         res.status(500).send(MESSAGES.COMMANDS.FOLLOWAGE_ERROR);
     }
 };
@@ -79,7 +77,7 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
     try {
         await apiService.sendChatMessage(userId, userId, message, token || '');
         res.json({ success: true });
-    } catch (_error: any) {
+    } catch (_error: unknown) {
         res.status(500).json({ error: MESSAGES.COMMANDS.SEND_MESSAGE_ERROR });
     }
 };
@@ -110,7 +108,7 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
         }
 
         res.send(message);
-    } catch (_error: any) {
+    } catch (_error: unknown) {
         res.status(500).send(MESSAGES.COMMANDS.SHOUTOUT_ERROR);
     }
 };

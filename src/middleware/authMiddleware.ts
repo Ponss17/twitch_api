@@ -1,11 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-
-interface AuthenticatedRequest extends Request {
-    twitchToken?: string;
-    userId?: string;
-    login?: string;
-}
-
+import { Response, NextFunction } from 'express';
+import { AuthenticatedRequest } from '../types/twitch';
 import * as authService from '../services/authService';
 import * as apiService from '../services/apiService';
 import { MESSAGES } from '../config/messages';
@@ -25,8 +19,9 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             const authData = await authService.getValidToken(apiKey);
             token = authData.accessToken;
             req.userId = authData.userId;
-        } catch (error: any) {
-            console.error('Middleware Auth Error (API Key lookup):', error.message);
+        } catch (error: unknown) {
+            const err = error as Error;
+            console.error('Middleware Auth Error (API Key lookup):', err.message);
             return res.status(401).send(MESSAGES.AUTH.INVALID_CREDENTIALS);
         }
     }

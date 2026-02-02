@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 export interface TwitchUser {
     id: string;
     login: string;
@@ -54,4 +56,31 @@ export interface StoredUser {
     expiresAt: number;
     apiKey: string;
     profileImageUrl?: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+    twitchToken?: string;
+    userId?: string;
+    login?: string;
+}
+
+export interface TwitchValidationResponse {
+    client_id: string;
+    login: string;
+    scopes: string[];
+    user_id: string;
+    expires_in: number;
+}
+
+export interface TwitchChannelInfo {
+    broadcaster_id: string;
+    broadcaster_login: string;
+    broadcaster_name: string;
+    content_classification_labels: string[];
+    delay: number;
+    game_id: string;
+    game_name: string;
+    is_mature: boolean;
+    language: string;
+    title: string;
 }
