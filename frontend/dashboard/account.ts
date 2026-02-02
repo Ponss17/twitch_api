@@ -9,10 +9,6 @@ export const AccountModule = {
 
     init(session: Session) {
         this.session = session;
-        if (this.isInitialized) {
-            this.updateValues();
-            return;
-        }
         this.setupUI();
         this.isInitialized = true;
     },
@@ -43,7 +39,7 @@ export const AccountModule = {
         const toggleBtn = document.getElementById('toggle-token-btn');
         const tokenInput = document.getElementById('user-token') as HTMLInputElement;
 
-        if (toggleBtn && tokenInput) {
+        if (toggleBtn && tokenInput && !toggleBtn.dataset.listener) {
             toggleBtn.addEventListener('click', () => {
                 const isHidden = tokenInput.type === 'password';
                 if (isHidden) {
@@ -55,12 +51,13 @@ export const AccountModule = {
                     toggleBtn.innerHTML = '<i class="fa-solid fa-eye"></i>';
                 }
             });
+            toggleBtn.dataset.listener = 'true';
         }
     },
 
     setupRegenerate() {
         const regenBtn = document.getElementById('regenerate-token-btn');
-        if (regenBtn) {
+        if (regenBtn && !regenBtn.dataset.listener) {
             regenBtn.addEventListener('click', async () => {
                 if (!confirm(AccountMessages.regenerateConfirm)) return;
 
@@ -96,6 +93,7 @@ export const AccountModule = {
                     UI.setButtonLoading(regenBtn as HTMLButtonElement, false);
                 }
             });
+            regenBtn.dataset.listener = 'true';
         }
     }
 };

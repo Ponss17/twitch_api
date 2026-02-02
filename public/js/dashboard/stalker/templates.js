@@ -36,7 +36,9 @@ export const StalkerTemplates = {
     renderControls(isScanning) {
         const btnClass = isScanning ? 'btn-warning' : 'btn-success';
         const btnIcon = isScanning ? 'fa-pause' : 'fa-play';
-        const btnTitle = isScanning ? StalkerMessages.scanControls.pause : StalkerMessages.scanControls.start;
+        const btnTitle = isScanning
+            ? StalkerMessages.scanControls.pause
+            : StalkerMessages.scanControls.start;
         return `
             <div class="search-wrapper">
                 <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>

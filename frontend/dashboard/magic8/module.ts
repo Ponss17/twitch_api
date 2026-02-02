@@ -6,12 +6,18 @@ export const Magic8Module = {
     session: null as Session | null,
     initialized: false,
 
+    cssLoaded: false,
+
     init(session: Session) {
         this.session = session;
-        if (this.initialized) return;
-        import('../../utils/loader.js').then(({ Loader }) => {
-            Loader.loadCSS('css/sections/magic8.css');
-        });
+
+        if (!this.cssLoaded) {
+            import('../../utils/loader.js').then(({ Loader }) => {
+                Loader.loadCSS('css/sections/magic8.css');
+            });
+            (this as any).cssLoaded = true;
+        }
+
         this.setupUI();
         this.initialized = true;
     },

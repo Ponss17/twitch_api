@@ -6,19 +6,16 @@ export const FeedbackModule = {
     initialized: false,
     init(session) {
         this.session = session;
-        if (this.initialized)
-            return;
         this.setupUI();
         this.initialized = true;
     },
-    deactivate() {
-        // Passive module
-    },
+    deactivate() { },
     setupUI() {
         requestAnimationFrame(() => {
             const sendFeedbackBtn = document.getElementById('send-feedback-btn');
-            if (sendFeedbackBtn) {
+            if (sendFeedbackBtn && !sendFeedbackBtn.dataset.listener) {
                 sendFeedbackBtn.addEventListener('click', () => this.sendFeedback());
+                sendFeedbackBtn.dataset.listener = 'true';
             }
         });
     },

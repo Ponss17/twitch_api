@@ -23,16 +23,20 @@ export const RouletteModule = {
     isConnected: false,
     isInitialized: false,
 
+    cssLoaded: false,
+
     init(session: Session) {
         this.session = session;
-        if (this.isInitialized) {
-            this.updateUI();
-            return;
+
+        if (!this.cssLoaded) {
+            import('../../utils/loader.js').then(({ Loader }) => {
+                Loader.loadCSS('css/sections/roulette.css');
+            });
+            this.cssLoaded = true;
         }
-        import('../../utils/loader.js').then(({ Loader }) => {
-            Loader.loadCSS('css/sections/roulette.css');
-        });
+
         this.setupUI();
+        this.updateUI();
         this.isInitialized = true;
     },
 
@@ -50,17 +54,35 @@ export const RouletteModule = {
         if (!this.canvas) return;
         this.ctx = this.canvas.getContext('2d');
 
-        document.getElementById('btn-spin-roulette')?.addEventListener('click', () => this.spin());
-        document
-            .getElementById('toggle-roulette')
-            ?.addEventListener('click', () => this.toggleEntries());
-        document.getElementById('btn-refresh-roulette')?.addEventListener('click', () => {
-            this.loadChatters();
-            UI.showToast(RouletteMessages.updatedRaw, 'success', 'fa-check');
-        });
-        document.getElementById('close-winner-display')?.addEventListener('click', () => {
-            document.getElementById('roulette-winner-display')?.classList.add('hidden');
-        });
+        const spinBtn = document.getElementById('btn-spin-roulette');
+        const toggleBtn = document.getElementById('toggle-roulette');
+        const refreshBtn = document.getElementById('btn-refresh-roulette');
+        const closeWinnerBtn = document.getElementById('close-winner-display');
+
+        if (spinBtn && !spinBtn.dataset.listener) {
+            spinBtn.addEventListener('click', () => this.spin());
+            spinBtn.dataset.listener = 'true';
+        }
+
+        if (toggleBtn && !toggleBtn.dataset.listener) {
+            toggleBtn.addEventListener('click', () => this.toggleEntries());
+            toggleBtn.dataset.listener = 'true';
+        }
+
+        if (refreshBtn && !refreshBtn.dataset.listener) {
+            refreshBtn.addEventListener('click', () => {
+                this.loadChatters();
+                UI.showToast(RouletteMessages.updatedRaw, 'success', 'fa-check');
+            });
+            refreshBtn.dataset.listener = 'true';
+        }
+
+        if (closeWinnerBtn && !closeWinnerBtn.dataset.listener) {
+            closeWinnerBtn.addEventListener('click', () => {
+                document.getElementById('roulette-winner-display')?.classList.add('hidden');
+            });
+            closeWinnerBtn.dataset.listener = 'true';
+        }
 
         this.drawEmptyWheel();
     },

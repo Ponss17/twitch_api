@@ -14,14 +14,18 @@ export const StalkerModule = {
     isConnected: false,
     initialized: false,
 
+    cssLoaded: false,
+
     init(session: Session) {
         this.session = session;
         this.render();
-        if (this.initialized) return;
 
-        import('../../utils/loader.js').then(({ Loader }) => {
-            Loader.loadCSS('css/sections/stalker.css');
-        });
+        if (!this.cssLoaded) {
+            import('../../utils/loader.js').then(({ Loader }) => {
+                Loader.loadCSS('css/sections/stalker.css');
+            });
+            this.cssLoaded = true;
+        }
 
         this.setupUI();
         this.initialized = true;
@@ -29,7 +33,7 @@ export const StalkerModule = {
 
     setupUI() {
         const controls = document.getElementById('stalker-controls');
-        if (controls) {
+        if (controls && !controls.dataset.listener) {
             controls.addEventListener('input', (e) => {
                 const target = e.target as HTMLInputElement;
                 if (target.id === 'stalker-search') {
@@ -49,6 +53,7 @@ export const StalkerModule = {
                     }
                 }
             });
+            controls.dataset.listener = 'true';
         }
     },
 

@@ -16,8 +16,7 @@ export const AnalyticsModule = {
         });
         this.initialized = true;
     },
-    deactivate() {
-    },
+    deactivate() { },
     async load(force = false) {
         const statsContainer = document.getElementById('stats-grid');
         if (!statsContainer)

@@ -74,7 +74,10 @@ export const Dashboard = {
             'tab-home': async () => {
                 const { AccountModule } = await import('./dashboard/account.js');
                 const { AnalyticsModule } = await import('./dashboard/analytics.js');
-                this.activeModules = [AccountModule, AnalyticsModule];
+                this.activeModules = [
+                    AccountModule,
+                    AnalyticsModule
+                ];
                 if (this.session) {
                     AccountModule.init(this.session);
                     AnalyticsModule.init(this.session);
