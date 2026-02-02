@@ -76,5 +76,5 @@ Generado el: 27/01/2026 - 13:35
     servido estáticamente pero construido con TypeScript moderno.
 
 --------------------------------------------------------------------------------
-© PROYECTO LOSPERRIS API - MÓDULO BLINDADO - 2026 - V.1.1.0 - :3
+© PROYECTO LOSPERRIS API - MÓDULO BLINDADO - 2026 - V.1.1.0 - :4
 ================================================================================
