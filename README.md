@@ -60,4 +60,19 @@
 
 ---
 
+## 📊 Métricas del Proyecto
+
+| Categoría                       | Líneas (aprox) |
+| :------------------------------ | :------------- |
+| **Backend (src)**               | ~1,350         |
+| **Frontend (logic)**            | ~4,100         |
+| **Diseño (CSS)**                | ~3,300         |
+| **Estructura (HTML)**           | ~750           |
+| **Puntaje Total Fuente (SLOC)** | **~9,700**     |
+
+> [!NOTE]
+> El proyecto tiene una huella total de **~22,400 líneas** incluyendo compilados y dependencias, pero el núcleo original desarrollado es de aproximadamente **10k líneas**.
+
+---
+
 © 2026 LosPerrisAPI. Desarrollado con excelencia técnica para la comunidad de Twitch. 💜🦾
