@@ -36,7 +36,8 @@ export const TmiService = {
         }
         this.client = new window.tmi.Client(options);
         const attachListeners = (clientInstance) => {
-            clientInstance.on('message', (channel, tags, message, self) => {
+            clientInstance.on('message', (...args) => {
+                const [channel, tags, message, self] = args;
                 if (self)
                     return;
                 this.listeners.forEach((callback) => callback(channel, tags, message));

@@ -14,7 +14,7 @@ export const ClipsModule = {
     currentPage: 1,
     ITEMS_PER_PAGE: 20,
     cssLoaded: false,
-    async init(session) {
+    init(session) {
         this.session = session;
         if (!this.cssLoaded) {
             import('../utils/loader.js').then(({ Loader }) => {
