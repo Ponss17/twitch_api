@@ -1,13 +1,10 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import * as dbService from '../services/dbService';
 import * as apiService from '../services/apiService';
 import * as cacheService from '../services/cacheService';
 import { MESSAGES } from '../config/messages';
 
-interface AuthenticatedRequest extends Request {
-    twitchToken?: string;
-    userId?: string;
-}
+import { AuthenticatedRequest } from '../types/twitch';
 
 const safeString = (val: unknown): string => (typeof val === 'string' ? val : '');
 
@@ -44,10 +41,11 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
         const result = await apiService.getClips(channel, limitNum, token || '');
         await cacheService.set(cacheKey, result, 60);
         return res.json(result);
-    } catch (error: any) {
-        console.error('Error fetching clips:', error?.response?.data || error.message);
-        const status = error?.response?.status || 500;
-        const message = error?.response?.data?.message || MESSAGES.DASHBOARD.CLIPS_ERROR;
+    } catch (error: unknown) {
+        const err = error as any;
+        console.error('Error fetching clips:', err?.response?.data || err.message);
+        const status = err?.response?.status || 500;
+        const message = err?.response?.data?.message || MESSAGES.DASHBOARD.CLIPS_ERROR;
         return res.status(status).json({ error: message });
     }
 };
@@ -63,8 +61,9 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const chatters = await apiService.getChatters(userId, userId, token || '');
         res.json(chatters);
-    } catch (error: any) {
-        console.error('Error getting chatters:', error.message);
+    } catch (error: unknown) {
+        const err = error as Error;
+        console.error('Error getting chatters:', err.message);
         res.status(500).json({ error: MESSAGES.DASHBOARD.CHATTERS_ERROR });
     }
 };
@@ -77,7 +76,7 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const info = await apiService.getUserInfo(login, token || '');
         res.json(info);
-    } catch (_error: any) {
+    } catch (_error: unknown) {
         res.status(500).json({ error: MESSAGES.DASHBOARD.USER_INFO_ERROR });
     }
 };

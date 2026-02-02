@@ -6,11 +6,7 @@ import axios from 'axios';
 import { CONFIG } from '../config/env';
 import { MESSAGES } from '../config/messages';
 
-interface AuthenticatedRequest extends Request {
-    twitchToken?: string;
-    userId?: string;
-    login?: string;
-}
+import { AuthenticatedRequest } from '../types/twitch';
 
 const safeString = (val: unknown): string => (typeof val === 'string' ? val : '');
 
@@ -39,7 +35,7 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
         } else {
             return res.status(401).send(MESSAGES.AUTH.INVALID_TOKEN);
         }
-    } catch (_error: any) {
+    } catch (_error: unknown) {
         return res.status(500).json({ error: MESSAGES.AUTH.VALIDATION_ERROR });
     }
 };

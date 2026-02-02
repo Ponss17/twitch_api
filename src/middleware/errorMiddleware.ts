@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 
-export const errorHandler = (err: any, req: Request, res: Response, _next: NextFunction) => {
+export const errorHandler = (
+    err: { status?: number; message?: string },
+    req: Request,
+    res: Response,
+    _next: NextFunction
+) => {
     console.error('❌ [Error Handler]:', err);
 
     const status = err.status || 500;

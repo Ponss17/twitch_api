@@ -5,7 +5,7 @@ import { AuthMessages } from './auth/messages.js';
 export interface TmiTags {
     username: string;
     'display-name'?: string;
-    [key: string]: any;
+    [key: string]: string | number | boolean | string[] | undefined;
 }
 
 interface TmiOptions {
@@ -21,7 +21,7 @@ interface TmiOptions {
 interface TmiClient {
     connect: () => Promise<void>;
     disconnect: () => Promise<void>;
-    on: (event: string, callback: (...args: any[]) => void) => void;
+    on: (event: string, callback: (...args: unknown[]) => void) => void;
     say: (channel: string, message: string) => Promise<string[]>;
 }
 
@@ -73,13 +73,11 @@ export const TmiService = {
         this.client = new window.tmi.Client(options);
 
         const attachListeners = (clientInstance: TmiClient) => {
-            clientInstance.on(
-                'message',
-                (channel: string, tags: TmiTags, message: string, self: boolean) => {
-                    if (self) return;
-                    this.listeners.forEach((callback) => callback(channel, tags, message));
-                }
-            );
+            clientInstance.on('message', (...args: unknown[]) => {
+                const [channel, tags, message, self] = args as [string, TmiTags, string, boolean];
+                if (self) return;
+                this.listeners.forEach((callback) => callback(channel, tags, message));
+            });
         };
 
         attachListeners(this.client);
@@ -142,7 +140,7 @@ export const TmiService = {
 
     sendMessage(channel: string, message: string) {
         if (this.client && this.isConnected) {
-            this.client.say(channel, message).catch((err: any) => {
+            this.client.say(channel, message).catch((err: unknown) => {
                 console.error('Error sending message:', err);
                 if (
                     err === 'Cannot send anonymous messages' ||
