@@ -1,5 +1,6 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
+import { StalkerMessages } from './messages.js';
 import { API_ENDPOINTS } from '../../utils/constants.js';
 import { CONFIG } from '../../config.js';
 import { TmiService, TmiTags } from '../../utils/tmiService.js';
@@ -44,7 +45,7 @@ export const StalkerModule = {
                 if (btn.id === 'refresh-stalker') {
                     if (this.isScanning) {
                         this.loadChatters();
-                        UI.showToast(Messages.Stalker.updatedRaw, 'success', 'fa-check');
+                        UI.showToast(StalkerMessages.updatedRaw, 'success', 'fa-check');
                     }
                 }
             });
@@ -64,17 +65,17 @@ export const StalkerModule = {
         const status = document.getElementById('stalker-status');
         if (status) {
             status.innerHTML = this.isScanning
-                ? Messages.Stalker.scanStarted
-                : Messages.Stalker.scanPaused;
+                ? StalkerMessages.scanStarted
+                : StalkerMessages.scanPaused;
             status.className = this.isScanning ? 'text-success' : 'text-muted-color';
         }
 
         if (this.isScanning) {
-            UI.showToast(Messages.Stalker.scanStartedRaw, 'success', 'fa-satellite-dish fa-beat');
+            UI.showToast(StalkerMessages.scanStartedRaw, 'success', 'fa-satellite-dish fa-beat');
             this.loadChatters();
             this.connectTmi();
         } else {
-            UI.showToast(Messages.Stalker.scanPausedRaw, 'warning', 'fa-snowflake');
+            UI.showToast(StalkerMessages.scanPausedRaw, 'warning', 'fa-snowflake');
             TmiService.disconnect();
             this.isConnected = false;
         }
@@ -149,7 +150,6 @@ export const StalkerModule = {
         TmiService.removeListener('stalker');
         TmiService.disconnect();
         this.isConnected = false;
-        console.log('[StalkerModule] Deactivated');
     },
 
     render() {
@@ -190,24 +190,26 @@ export const StalkerModule = {
             const res = await fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&apiKey=${apiKey}`);
             if (!res.ok)
                 throw new Error(
-                    res.status === 401 ? Messages.Stalker.reloginMsg : Messages.Stalker.apiError
+                    res.status === 401 ? StalkerMessages.reloginMsg : StalkerMessages.apiError
                 );
 
             const data = await res.json();
             const chattersList = Array.isArray(data) ? data : data.chatters || [];
 
             if (Array.isArray(chattersList)) {
-                const apiChatters = chattersList.filter((item: any) => {
-                    const login = typeof item === 'string' ? item : item.user_login;
-                    return login && !CONFIG.IGNORED_BOTS.has(login.toLowerCase());
-                });
+                const apiChatters = (chattersList as (string | StalkerUser)[]).filter(
+                    (item: string | StalkerUser) => {
+                        const login = typeof item === 'string' ? item : item.user_login;
+                        return login && !CONFIG.IGNORED_BOTS.has(login.toLowerCase());
+                    }
+                );
 
-                const chatterMap = new Map();
+                const chatterMap = new Map<string, StalkerUser>();
                 this.chatters.forEach((c: StalkerUser) =>
                     chatterMap.set(c.user_login.toLowerCase(), c)
                 );
 
-                apiChatters.forEach((item: any) => {
+                apiChatters.forEach((item: string | StalkerUser) => {
                     const login = typeof item === 'string' ? item : item.user_login;
                     const name = typeof item === 'string' ? item : item.user_name;
 
@@ -226,7 +228,7 @@ export const StalkerModule = {
                 this.renderTable(this.chatters);
                 loading?.classList.add('hidden');
                 if (this.chatters.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state">${Messages.Stalker.waiting}</div></td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state">${StalkerMessages.waiting}</div></td></tr>`;
                 }
             } else {
                 throw new Error('Invalid data format');
@@ -278,7 +280,7 @@ export const StalkerModule = {
                 ProfileModal.open(info)
             );
         } catch (_e) {
-            UI.showToast(Messages.Stalker.loadError, 'error');
+            UI.showToast(StalkerMessages.loadError, 'error');
         }
     }
 };

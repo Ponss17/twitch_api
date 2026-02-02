@@ -1,6 +1,7 @@
 import { UI } from './ui.js';
 import { HtmlLoader } from './utils/htmlLoader.js';
 import { Session, DashboardModule } from './types.js';
+import { Messages } from './utils/messages.js';
 
 export const Dashboard = {
     session: null as Session | null,
@@ -31,7 +32,10 @@ export const Dashboard = {
         if (pageTitle && displayName && this.session.login) {
             const safeDisplayName = UI.escapeHTML(displayName);
             const safeLogin = UI.escapeHTML(this.session.login);
-            pageTitle.innerHTML = `Bienvenido, <a href="https://twitch.tv/${safeLogin}" target="_blank" class="welcome-link">${safeDisplayName}</a>`;
+            const welcomeMsg = Messages.Common.welcome(
+                `<a href="https://twitch.tv/${safeLogin}" target="_blank" class="welcome-link">${safeDisplayName}</a>`
+            );
+            pageTitle.innerHTML = welcomeMsg;
         }
 
         document.getElementById('logout-btn')?.addEventListener('click', () => {
@@ -82,7 +86,10 @@ export const Dashboard = {
             'tab-home': async () => {
                 const { AccountModule } = await import('./dashboard/account.js');
                 const { AnalyticsModule } = await import('./dashboard/analytics.js');
-                this.activeModules = [AccountModule, AnalyticsModule as any as DashboardModule];
+                this.activeModules = [
+                    AccountModule as DashboardModule,
+                    AnalyticsModule as DashboardModule
+                ];
                 if (this.session) {
                     AccountModule.init(this.session);
                     AnalyticsModule.init(this.session);

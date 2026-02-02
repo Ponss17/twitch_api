@@ -1,4 +1,5 @@
 import { Messages } from '../../utils/messages.js';
+import { TrendsMessages, TrackerMessages } from './messages.js';
 import { CONFIG } from '../../config.js';
 import { UI } from '../../ui.js';
 import { TmiService, TmiTags } from '../../utils/tmiService.js';
@@ -95,7 +96,7 @@ export const TrendsModule = {
         if (!this.session) return;
         const { login, displayName, profile_image_url } = this.session;
         const titleEl = document.getElementById('tracker-title');
-        if (titleEl) titleEl.textContent = Messages.Trends.title(displayName || login);
+        if (titleEl) titleEl.textContent = TrendsMessages.title(displayName || login);
 
         const avatarEl = document.getElementById('tracker-avatar') as HTMLImageElement;
         const iconEl = document.getElementById('tracker-icon');
@@ -158,10 +159,10 @@ export const TrendsModule = {
         const el = document.getElementById('tracker-status');
         if (!el) return;
         if (connected) {
-            el.innerHTML = Messages.Tracker.connected;
+            el.innerHTML = TrackerMessages.connected;
             el.style.color = 'var(--success)';
         } else {
-            el.innerHTML = !this.isTracking ? Messages.Tracker.resting : Messages.Tracker.error;
+            el.innerHTML = !this.isTracking ? TrackerMessages.resting : TrackerMessages.error;
             el.style.color = !this.isTracking ? 'var(--text-muted)' : 'var(--danger)';
         }
     },
@@ -179,7 +180,7 @@ export const TrendsModule = {
         this.messageLog = [];
         this.runTimer(minutes * 60);
         this.render();
-        UI.showToast(Messages.Tracker.startedRaw(minutes), 'success', 'fa-hourglass-start fa-spin');
+        UI.showToast(TrackerMessages.startedRaw(minutes), 'success', 'fa-hourglass-start fa-spin');
     },
 
     runTimer(seconds: number) {
@@ -211,9 +212,9 @@ export const TrendsModule = {
         const entries = Object.entries(this.wordCounts);
         if (entries.length > 0) {
             const sorted = entries.sort((a, b) => (b[1] as number) - (a[1] as number));
-            UI.showToast(Messages.Tracker.winner(sorted[0][0], sorted[0][1] as number), 'success');
+            UI.showToast(TrackerMessages.winner(sorted[0][0], sorted[0][1] as number), 'success');
         } else {
-            UI.showToast(Messages.Tracker.finishedRaw, 'success', 'fa-flag-checkered');
+            UI.showToast(TrackerMessages.finishedRaw, 'success', 'fa-flag-checkered');
         }
         this.render();
     },
@@ -262,7 +263,6 @@ export const TrendsModule = {
         TmiService.disconnect();
         this.isConnected = false;
         this.isTracking = false;
-        console.log('[TrendsModule] Deactivated');
     },
 
     render() {
@@ -272,13 +272,13 @@ export const TrendsModule = {
             const tbody = document.getElementById('tracker-body');
             if (tbody) {
                 if (!this.isTracking && Object.keys(this.wordCounts).length === 0) {
-                    tbody.innerHTML = Messages.Tracker.ready;
+                    tbody.innerHTML = TrackerMessages.ready;
                 } else {
                     const entries = Object.entries(this.wordCounts)
                         .sort((a, b) => (b[1] as number) - (a[1] as number))
                         .slice(0, 10);
                     if (entries.length === 0) {
-                        tbody.innerHTML = Messages.Tracker.waiting;
+                        tbody.innerHTML = TrackerMessages.waiting;
                     } else {
                         const maxCount = entries[0][1] as number;
                         tbody.innerHTML = entries

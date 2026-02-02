@@ -1,4 +1,4 @@
-import { Messages } from './utils/messages.js';
+import { UIMessages } from './utils/ui/messages.js';
 
 export const UI = {
     clipboardInitialized: false,
@@ -58,11 +58,11 @@ export const UI = {
         navigator.clipboard
             .writeText(text)
             .then(() => {
-                this.showToast(`<i class="fa-solid fa-check"></i> ${Messages.Clipboard.copied}`);
+                this.showToast(`<i class="fa-solid fa-check"></i> ${UIMessages.Clipboard.copied}`);
             })
             .catch(() => {
                 this.showToast(
-                    `<i class="fa-solid fa-xmark"></i> ${Messages.Clipboard.error}`,
+                    `<i class="fa-solid fa-xmark"></i> ${UIMessages.Clipboard.error}`,
                     'error'
                 );
             });
@@ -96,7 +96,7 @@ export const UI = {
         heroCodeDisplay.innerHTML = `
             <div class="twitch-chat-container">
                 <div class="chat-messages" id="sim-messages">
-                    <div class="chat-line" style="opacity:0.5"><span class="chat-text">${Messages.ChatSim.welcome}</span></div>
+                    <div class="chat-line" style="opacity:0.5"><span class="chat-text">${UIMessages.ChatSim.welcome}</span></div>
                 </div>
                 <div class="chat-input-area">
                     <div class="fake-input" id="sim-input-box">
@@ -105,11 +105,11 @@ export const UI = {
                         </div>
                         <div class="input-content-wrapper" style="position:relative; flex:1;">
                             <span class="input-text" id="sim-input-text"></span>
-                            <span class="input-placeholder" id="sim-placeholder">${Messages.ChatSim.placeholder}</span>
+                            <span class="input-placeholder" id="sim-placeholder">${UIMessages.ChatSim.placeholder}</span>
                         </div>
                     </div>
                     <div class="input-actions">
-                        <button class="twitch-btn">${Messages.ChatSim.btnText}</button>
+                        <button class="twitch-btn">${UIMessages.ChatSim.btnText}</button>
                     </div>
                 </div>
             </div>
@@ -123,15 +123,15 @@ export const UI = {
         const scenarios = [
             {
                 cmd: '!followage',
-                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${Messages.ChatSim.followage('ponss17', 'LosPerris', '1 año, 4 meses y 20 días')}</span>`
+                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${UIMessages.ChatSim.followage('ponss17', 'LosPerris', '1 año, 4 meses y 20 días')}</span>`
             },
             {
                 cmd: '!clip',
-                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${Messages.ChatSim.clip('ponss17', 'https://clips.twitch.tv/WiseDeliciousCurryHassanChop-Df293...')}</span>`
+                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${UIMessages.ChatSim.clip('ponss17', 'https://clips.twitch.tv/WiseDeliciousCurryHassanChop-Df293...')}</span>`
             },
             {
                 cmd: '!so  @mynana17',
-                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${Messages.ChatSim.shoutout('mynana17', 'Just Chatting')}</span>`
+                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${UIMessages.ChatSim.shoutout('mynana17', 'Just Chatting')}</span>`
             }
         ];
 
@@ -196,7 +196,7 @@ export const UI = {
                     placeholder.style.display = 'block';
                     inputBox.classList.remove('typing');
 
-                    messagesContainer.innerHTML = `<div class="chat-line" style="opacity:0.5"><span class="chat-text">${Messages.ChatSim.welcome}</span></div>`;
+                    messagesContainer.innerHTML = `<div class="chat-line" style="opacity:0.5"><span class="chat-text">${UIMessages.ChatSim.welcome}</span></div>`;
                     await sleep(1000);
                 }
             }

@@ -1,6 +1,6 @@
 import { Auth } from '../auth.js';
 import { UI } from '../ui.js';
-import { Messages } from './messages.js';
+import { AuthMessages } from './auth/messages.js';
 export const TmiService = {
     client: null,
     listeners: new Map(),
@@ -99,7 +99,7 @@ export const TmiService = {
                 if (err === 'Cannot send anonymous messages' ||
                     (typeof err === 'string' &&
                         (err.includes('anonymous') || err.includes('Login unsuccessful')))) {
-                    UI.showToast(Messages.Auth.sessionExpired, 'error');
+                    UI.showToast(AuthMessages.sessionExpired, 'error');
                     setTimeout(() => Auth.relogin(), 2000);
                 }
             });

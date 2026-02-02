@@ -1,4 +1,4 @@
-import { Messages } from '../utils/messages.js';
+import { FeedbackMessages } from './feedback/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
 import { UI } from '../ui.js';
 import { Session } from '../types.js';
@@ -13,6 +13,8 @@ export const FeedbackModule = {
         this.setupUI();
         this.initialized = true;
     },
+
+    deactivate() {},
 
     setupUI() {
         requestAnimationFrame(() => {
@@ -31,7 +33,7 @@ export const FeedbackModule = {
         const message = messageInput.value.trim();
 
         if (!message) {
-            UI.showToast(Messages.Feedback.emptyMessage, 'error');
+            UI.showToast(FeedbackMessages.emptyMessage, 'error');
             return;
         }
 
@@ -63,14 +65,14 @@ export const FeedbackModule = {
             const data = await response.json();
 
             if (response.ok) {
-                UI.showToast(Messages.Feedback.success, 'success');
+                UI.showToast(FeedbackMessages.success, 'success');
                 messageInput.value = '';
             } else {
                 throw new Error(data.error || data.message || 'Failed to submit feedback');
             }
         } catch (e) {
             console.error('Error submitting feedback:', e);
-            UI.showToast((e as Error).message || Messages.Feedback.error, 'error');
+            UI.showToast((e as Error).message || FeedbackMessages.error, 'error');
         } finally {
             UI.setButtonLoading(submitBtn, false);
         }

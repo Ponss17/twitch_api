@@ -1,4 +1,4 @@
-import { Messages } from '../utils/messages.js';
+import { AnalyticsMessages } from './analytics/messages.js';
 import { API_ENDPOINTS } from '../utils/constants.js';
 export const AnalyticsModule = {
     session: null,
@@ -17,7 +17,6 @@ export const AnalyticsModule = {
         this.initialized = true;
     },
     deactivate() {
-        // cleaned
     },
     async load(force = false) {
         const statsContainer = document.getElementById('stats-grid');
@@ -48,21 +47,21 @@ export const AnalyticsModule = {
                 else {
                     console.error('[Analytics] Invalid data format:', data);
                     if (!this.cache)
-                        statsContainer.innerHTML = Messages.Analytics.errorState;
+                        statsContainer.innerHTML = AnalyticsMessages.errorState;
                 }
             }
             else {
                 const errorText = await res.text();
                 console.error('[Analytics] Error response:', errorText);
                 if (!this.cache) {
-                    statsContainer.innerHTML = Messages.Analytics.errorState;
+                    statsContainer.innerHTML = AnalyticsMessages.errorState;
                 }
             }
         }
         catch (e) {
             console.error('[Analytics] Fetch error:', e);
             if (!this.cache) {
-                statsContainer.innerHTML = Messages.Analytics.errorState;
+                statsContainer.innerHTML = AnalyticsMessages.errorState;
             }
         }
     },

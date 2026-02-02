@@ -1,4 +1,4 @@
-import { Messages } from '../../utils/messages.js';
+import { Magic8Messages } from './messages.js';
 import { API_ENDPOINTS, DOM_IDS } from '../../utils/constants.js';
 export const Magic8Module = {
     session: null,
@@ -14,7 +14,6 @@ export const Magic8Module = {
         this.initialized = true;
     },
     deactivate() {
-        console.log('[Magic8Module] Deactivated');
     },
     setupUI() {
         const questionInput = document.getElementById(DOM_IDS.MAGIC8.INPUT);
@@ -35,19 +34,19 @@ export const Magic8Module = {
         if (isLoading) {
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = Messages.Magic8.consulting;
+                btn.innerHTML = Magic8Messages.consulting;
             }
             if (input)
                 input.disabled = true;
             if (responseEl) {
                 responseEl.className = 'response-card active';
-                responseEl.innerHTML = Messages.Magic8.loading;
+                responseEl.innerHTML = Magic8Messages.loading;
             }
         }
         else {
             if (btn) {
                 btn.disabled = false;
-                btn.innerHTML = Messages.Magic8.askButton;
+                btn.innerHTML = Magic8Messages.askButton;
             }
             if (input)
                 input.disabled = false;
@@ -57,7 +56,7 @@ export const Magic8Module = {
         const input = document.getElementById(DOM_IDS.MAGIC8.INPUT);
         const question = input?.value.trim();
         if (!question) {
-            this.showResponse(Messages.Magic8.emptyQuestion, 'error');
+            this.showResponse(Magic8Messages.emptyQuestion, 'error');
             return;
         }
         this.setLoading(true);
@@ -74,7 +73,7 @@ export const Magic8Module = {
             this.showResponse(res.ok ? answer : `Error: ${answer}`, res.ok ? 'success' : 'error');
         }
         catch (error) {
-            this.showResponse(Messages.Magic8.error(error.message), 'error');
+            this.showResponse(Magic8Messages.error(error.message), 'error');
         }
         finally {
             this.setLoading(false);
