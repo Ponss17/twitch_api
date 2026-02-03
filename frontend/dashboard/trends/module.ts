@@ -1,6 +1,7 @@
 import { Messages } from '../../utils/messages.js';
 import { TrendsMessages, TrackerMessages } from './messages.js';
 import { CONFIG } from '../../config.js';
+import { IGNORED_BOTS } from '../../utils/constants.js';
 import { UI } from '../../ui.js';
 import { TmiService, TmiTags } from '../../utils/tmiService.js';
 import { TrendsTemplates } from './templates.js';
@@ -136,9 +137,9 @@ export const TrendsModule = {
 
         const auth = this.session.token
             ? {
-                  username: this.session.login,
-                  token: this.session.token
-              }
+                username: this.session.login,
+                token: this.session.token
+            }
             : undefined;
 
         TmiService.connect(this.session.login, auth)
@@ -148,7 +149,7 @@ export const TrendsModule = {
                 TmiService.addListener('trends', (chn: string, tags: TmiTags, message: string) => {
                     if (!this.isTracking) return;
                     const username = tags.username;
-                    if (!username || CONFIG.IGNORED_BOTS.has(username.toLowerCase())) return;
+                    if (!username || IGNORED_BOTS.has(username.toLowerCase())) return;
 
                     this.messageLog.unshift({ user: username, text: message, time: new Date() });
                     if (this.messageLog.length > this.MAX_LOG_SIZE) this.messageLog.pop();

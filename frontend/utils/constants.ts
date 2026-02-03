@@ -12,6 +12,29 @@ export const API_ENDPOINTS = {
     CLIPS: `${CONFIG.API_URL}/dashboard/get-clips`
 };
 
+export const IGNORED_BOTS = new Set([
+    'nightbot',
+    'streamelements',
+    'fossabot',
+    'moobot',
+    'wizebot',
+    'soundalert',
+    'rainmaker',
+    'botrixoficial',
+    'trackerggbot',
+    'streamlabs',
+    'cloudbot',
+    'deepbot',
+    'phantombot',
+    'streamerbot',
+    'stayhydratedbot',
+    'commanderroot',
+    'own3d',
+    'streamholics',
+    'anotherttvviewer',
+    'electricallongboard'
+]);
+
 export const DOM_IDS = {
     MAGIC8: {
         INPUT: 'magic8-question',
