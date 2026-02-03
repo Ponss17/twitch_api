@@ -35,7 +35,7 @@ export const UI = {
 
         toast.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i> <span></span>`;
         const textSpan = toast.querySelector('span')!;
-        textSpan.textContent = message;
+        textSpan.innerHTML = message;
 
         container.appendChild(toast);
 
