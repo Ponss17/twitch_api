@@ -598,10 +598,13 @@ html {
 
 .faq-item:hover {
     border-color: rgba(145, 70, 255, 0.3);
+    background: rgba(145, 70, 255, 0.02);
 }
 
 .faq-item.active {
-    border-color: rgba(145, 70, 255, 0.4);
+    border-color: rgba(145, 70, 255, 0.5);
+    background: rgba(145, 70, 255, 0.04);
+    box-shadow: 0 10px 30px -10px rgba(145, 70, 255, 0.15);
 }
 
 .faq-question {
@@ -630,7 +633,7 @@ html {
 .faq-question i {
     color: var(--accent);
     font-size: 1rem;
-    transition: transform 0.3s ease;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .faq-item.active .faq-question i {
@@ -640,12 +643,19 @@ html {
 .faq-answer {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease, padding 0.3s ease;
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        padding 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.4s ease,
+        transform 0.4s ease;
 }
 
 .faq-item.active .faq-answer {
     max-height: 500px;
     padding: 0 2rem 1.5rem 2rem;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .faq-answer p {
