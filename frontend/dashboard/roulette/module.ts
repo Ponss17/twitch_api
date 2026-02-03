@@ -269,15 +269,16 @@ export const RouletteModule = {
         const display = document.getElementById('roulette-winner-display');
         const nameEl = document.getElementById('winner-name');
         if (display && nameEl) {
-            nameEl.textContent = winner.user_name;
+            const count = this.chatters.length;
+            nameEl.innerHTML = RouletteMessages.winner(winner.user_name, count);
             display.classList.remove('hidden');
 
-            UI.showToast(`Ganador: ${winner.user_name}`, 'success', 'fa-trophy');
+            UI.showToast(RouletteMessages.winner(winner.user_name, count), 'success', 'fa-trophy');
 
             if (this.session && this.session.login) {
                 TmiService.sendMessage(
                     this.session.login,
-                    `🏆 ¡El ganador es @${winner.user_name}! ¡Felicidades! 🎉`
+                    `🏆 ¡El ganador es @${winner.user_name}! (De ${count} participantes) ¡Felicidades! 🎉`
                 );
             }
         }

@@ -84,11 +84,20 @@
 }
 
 .winner-name {
-    font-size: 2.5rem;
+    font-size: 1.8rem;
     font-weight: 800;
     color: var(--text-primary);
     margin-bottom: 10px;
     text-shadow: 0 0 20px var(--accent);
+}
+
+.winner-name strong {
+    color: var(--accent);
+}
+
+.winner-name span {
+    font-size: 0.9em;
+    opacity: 0.8;
 }
 
 .bounce-in {
