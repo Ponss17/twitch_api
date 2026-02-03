@@ -38,8 +38,6 @@ export const CommandsModule = {
             const container = document.getElementById(config.containerId);
             if (!container) return;
 
-            // Only render if empty or contains nothing relevant to avoid duplication
-            // but for commands, we want to ensure fresh IDs are bound, so we overwrite.
             container.innerHTML = CommandTemplates.generateCard(config);
         });
     },
