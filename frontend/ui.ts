@@ -3,11 +3,6 @@ import { UIMessages } from './utils/ui/messages.js';
 export const UI = {
     clipboardInitialized: false,
 
-    /**
-     * Escapa caracteres especiales HTML
-     * @param {string} str - Cadena a escapar
-     * @returns {string} Cadena escapada
-     */
     escapeHTML(str: string) {
         if (!str) return '';
         return str
@@ -49,10 +44,6 @@ export const UI = {
         }, 4000);
     },
 
-    /**
-     * Copia texto al portapapeles
-     * @param {string} text - Texto a copiar
-     */
     copyToClipboard(text: string) {
         if (!text) return;
         navigator.clipboard
@@ -205,11 +196,6 @@ export const UI = {
         runSimulation();
     },
 
-    /**
-     * Establece el estado de carga de un botón
-     * @param {HTMLButtonElement | null} button - Elemento botón
-     * @param {boolean} isLoading - Estado de carga
-     */
     setButtonLoading(button: HTMLButtonElement | null, isLoading: boolean) {
         if (!button) return;
 
@@ -226,31 +212,18 @@ export const UI = {
         }
     },
 
-    /**
-     * Deshabilita un botón
-     * @param {HTMLButtonElement | null} button - Elemento botón
-     */
     disableButton(button: HTMLButtonElement | null) {
         if (!button) return;
         button.disabled = true;
         button.classList.add('btn-disabled');
     },
 
-    /**
-     * Habilita un botón
-     * @param {HTMLButtonElement | null} button - Elemento botón
-     */
     enableButton(button: HTMLButtonElement | null) {
         if (!button) return;
         button.disabled = false;
         button.classList.remove('btn-disabled');
     },
 
-    /**
-     * Establece el estado de carga de una tarjeta
-     * @param {HTMLElement | null} card - Elemento tarjeta
-     * @param {boolean} isLoading - Estado de carga
-     */
     setCardLoading(card: HTMLElement | null, isLoading: boolean) {
         if (!card) return;
 

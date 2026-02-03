@@ -24,11 +24,6 @@ export const Auth = {
         window.location.href = window.location.origin + window.location.pathname;
     },
 
-    /**
-     * Valida el token actual y devuelve los datos del usuario y el token actualizado
-     * @param {string} credentialParam - Parámetros de credenciales (apiKey o token)
-     * @returns {Promise<any>} Datos de validación o false
-     */
     async validateCurrentToken(credentialParam: string): Promise<ApiResponse | false | null> {
         try {
             if (!credentialParam) return null;
