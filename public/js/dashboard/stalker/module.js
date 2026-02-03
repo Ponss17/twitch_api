@@ -1,14 +1,17 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
 import { StalkerMessages } from './messages.js';
-import { API_ENDPOINTS, IGNORED_BOTS } from '../../utils/constants.js';
 import { CONFIG } from '../../config.js';
+import { DASHBOARD_CONFIG } from '../dashboard-config.js';
+const { API_ENDPOINTS, IGNORED_BOTS } = DASHBOARD_CONFIG;
+import { cache, CACHE_TTL } from '../../utils/cacheService.js';
 import { TmiService } from '../../utils/tmiService.js';
 import { StalkerTemplates } from './templates.js';
 export const StalkerModule = {
     session: null,
     isScanning: false,
     chatters: [],
+    searchTimeout: null,
     isConnected: false,
     initialized: false,
     cssLoaded: false,
@@ -30,7 +33,11 @@ export const StalkerModule = {
             controls.addEventListener('input', (e) => {
                 const target = e.target;
                 if (target.id === 'stalker-search') {
-                    this.filterChatters(target.value);
+                    if (this.searchTimeout)
+                        clearTimeout(this.searchTimeout);
+                    this.searchTimeout = setTimeout(() => {
+                        this.filterChatters(target.value);
+                    }, 300);
                 }
             });
             controls.addEventListener('click', (e) => {
@@ -228,10 +235,20 @@ export const StalkerModule = {
         try {
             if (!this.session)
                 return;
+            const cacheKey = `user_info_${login}`;
+            const cachedInfo = cache.get(cacheKey);
+
+            if (cachedInfo) {
+                import('../../utils/profileModal.js').then(({ ProfileModal }) =>
+                    ProfileModal.open(cachedInfo)
+                );
+                return;
+            }
             const res = await fetch(`${API_ENDPOINTS.USER_INFO}?login=${login}&apiKey=${this.session.apiKey}`);
             if (!res.ok)
                 throw new Error();
             const info = await res.json();
+            cache.set(cacheKey, info, CACHE_TTL);
             import('../../utils/profileModal.js').then(({ ProfileModal }) => ProfileModal.open(info));
         }
         catch (_e) {

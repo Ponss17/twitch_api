@@ -1,5 +1,6 @@
 import { CONFIG } from '../../config.js';
-import { API_ENDPOINTS } from '../../utils/constants.js';
+import { DASHBOARD_CONFIG } from '../dashboard-config.js';
+const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { CommandsMessages } from './messages.js';
 import { CommandGenerator } from '../../utils/commandGenerator.js';
 import { COMMAND_CONFIG } from './config.js';

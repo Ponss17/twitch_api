@@ -1,8 +1,10 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
 import { RouletteMessages } from './messages.js';
-import { API_ENDPOINTS, IGNORED_BOTS } from '../../utils/constants.js';
 import { CONFIG } from '../../config.js';
+import { DASHBOARD_CONFIG } from '../dashboard-config.js';
+const { API_ENDPOINTS, IGNORED_BOTS } = DASHBOARD_CONFIG;
+const { API_URL } = CONFIG;
 import { TmiService } from '../../utils/tmiService.js';
 export const RouletteModule = {
     session: null,
@@ -36,7 +38,7 @@ export const RouletteModule = {
     deactivate() {
         this.isOpen = false;
         if (this.spinTimeout)
-            clearTimeout(this.spinTimeout);
+            cancelAnimationFrame(this.spinTimeout);
         TmiService.removeListener('roulette');
         TmiService.disconnect();
         this.isConnected = false;
@@ -202,7 +204,7 @@ export const RouletteModule = {
         this.rotateWheel();
     },
     rotateWheel() {
-        this.spinTime += 30;
+        this.spinTime += 20;
         if (this.spinTime >= this.spinTimeTotal) {
             this.stopRotateWheel();
             return;
@@ -211,11 +213,11 @@ export const RouletteModule = {
             this.easeOut(this.spinTime, 0, this.spinAngleStart, this.spinTimeTotal);
         this.startAngle += (spinAngle * Math.PI) / 180;
         this.drawRouletteWheel();
-        this.spinTimeout = setTimeout(() => this.rotateWheel(), 30);
+        this.spinTimeout = requestAnimationFrame(() => this.rotateWheel());
     },
     stopRotateWheel() {
         if (this.spinTimeout)
-            clearTimeout(this.spinTimeout);
+            cancelAnimationFrame(this.spinTimeout);
         this.isSpinning = false;
         const degrees = ((this.startAngle * 180) / Math.PI) % 360;
         const arcd = 360 / this.chatters.length;
@@ -233,9 +235,10 @@ export const RouletteModule = {
         const nameEl = document.getElementById('winner-name');
         if (display && nameEl) {
             const count = this.chatters.length;
-            nameEl.innerHTML = RouletteMessages.winner(winner.user_name, count);
+            const safeName = UI.escapeHTML(winner.user_name);
+            nameEl.innerHTML = RouletteMessages.winner(safeName, count);
             display.classList.remove('hidden');
-            UI.showToast(RouletteMessages.winner(winner.user_name, count), 'success', 'fa-trophy');
+            UI.showToast(RouletteMessages.winner(safeName, count), 'success', 'fa-trophy');
             if (this.session && this.session.login) {
                 TmiService.sendMessage(this.session.login, `🏆 ¡El ganador es @${winner.user_name}! (De ${count} participantes) ¡Felicidades! 🎉`);
             }

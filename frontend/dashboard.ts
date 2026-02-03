@@ -3,15 +3,69 @@ import { HtmlLoader } from './utils/htmlLoader.js';
 import { Session, DashboardModule } from './types.js';
 import { Messages } from './utils/messages.js';
 
+import { AccountModule } from './dashboard/account.js';
+import { AnalyticsModule } from './dashboard/analytics.js';
+import { CommandsModule } from './dashboard/commands.js';
+import { ClipsModule } from './dashboard/clips.js';
+import { TrendsModule } from './dashboard/trends.js';
+import { StalkerModule } from './dashboard/stalker.js';
+import { Magic8Module } from './dashboard/magic8.js';
+import { RouletteModule } from './dashboard/roulette.js';
+import { FeedbackModule } from './dashboard/feedback.js';
+
 export const Dashboard = {
     session: null as Session | null,
     activeModules: [] as DashboardModule[],
 
-    init(session: Session) {
+    async init(session: Session) {
         this.session = session;
         this.setupTabs();
         this.setupUserBadge();
+
+        // Carga inmediata de todos los componentes visuales en paralelo
+        await this.preloadAllTabs();
+
+        // Inicialización pasiva de todos los módulos
+        this.initAllModules();
+
+        // Activar la pestaña inicial
         this.loadTab('tab-home');
+    },
+
+    async preloadAllTabs() {
+        const panes = document.querySelectorAll('.tab-pane');
+        const tasks = Array.from(panes).map((pane) => {
+            const p = pane as HTMLElement;
+            if (p.dataset.src) {
+                return HtmlLoader.load(p.dataset.src, p.id);
+            }
+            return Promise.resolve();
+        });
+        await Promise.all(tasks);
+    },
+
+    initAllModules() {
+        if (!this.session) return;
+        const modules = [
+            AccountModule,
+            AnalyticsModule,
+            CommandsModule,
+            ClipsModule,
+            TrendsModule,
+            StalkerModule,
+            Magic8Module,
+            RouletteModule,
+            FeedbackModule
+        ];
+        modules.forEach((mod) => {
+            if (mod && typeof (mod as any).init === 'function') {
+                try {
+                    (mod as any).init(this.session);
+                } catch (e) {
+                    console.warn('Error initializing module:', e);
+                }
+            }
+        });
     },
 
     setupUserBadge() {
@@ -58,95 +112,47 @@ export const Dashboard = {
                 const pane = document.getElementById(tabId);
                 if (pane) pane.classList.add('active');
 
-                this.activeModules.forEach((mod) => {
-                    if (mod && typeof mod.deactivate === 'function') {
-                        try {
-                            mod.deactivate();
-                        } catch (e) {
-                            console.warn('Error deactivating module:', e);
-                        }
-                    }
-                });
-                this.activeModules = [];
-
                 this.loadTab(tabId);
             });
         });
     },
 
-    async loadTab(tabId: string) {
+    loadTab(tabId: string) {
         if (!this.session) return;
 
-        const container = document.getElementById(tabId);
-        if (container && container.dataset.src) {
-            await HtmlLoader.load(container.dataset.src, tabId);
-        }
-
-        const tabHandlers: Record<string, () => Promise<void>> = {
-            'tab-home': async () => {
-                const { AccountModule } = await import('./dashboard/account.js');
-                const { AnalyticsModule } = await import('./dashboard/analytics.js');
-                this.activeModules = [
-                    AccountModule as DashboardModule,
-                    AnalyticsModule as DashboardModule
-                ];
-                if (this.session) {
-                    AccountModule.init(this.session);
-                    AnalyticsModule.init(this.session);
-                }
-            },
-            'tab-followage': async () => {
-                const { CommandsModule } = await import('./dashboard/commands.js');
-                this.activeModules = [CommandsModule];
-                if (this.session) CommandsModule.init(this.session);
-            },
-            'tab-clips': async () => {
-                const { CommandsModule } = await import('./dashboard/commands.js');
-                const { ClipsModule } = await import('./dashboard/clips.js');
-                this.activeModules = [ClipsModule, CommandsModule];
-                if (this.session) {
-                    ClipsModule.init(this.session);
-                    CommandsModule.init(this.session);
-                }
-            },
-            'tab-shoutout': async () => {
-                const { CommandsModule } = await import('./dashboard/commands.js');
-                this.activeModules = [CommandsModule];
-                if (this.session) CommandsModule.init(this.session);
-            },
-            'tab-tracker': async () => {
-                const { TrendsModule } = await import('./dashboard/trends.js');
-                this.activeModules = [TrendsModule];
-                if (this.session) TrendsModule.init(this.session);
-            },
-            'tab-stalker': async () => {
-                const { StalkerModule } = await import('./dashboard/stalker.js');
-                this.activeModules = [StalkerModule];
-                if (this.session) StalkerModule.init(this.session);
-            },
-            'tab-magic8': async () => {
-                const { Magic8Module } = await import('./dashboard/magic8.js');
-                const { CommandsModule } = await import('./dashboard/commands.js');
-                this.activeModules = [Magic8Module, CommandsModule];
-                if (this.session) {
-                    Magic8Module.init(this.session);
-                    CommandsModule.init(this.session);
-                }
-            },
-            'tab-roulette': async () => {
-                const { RouletteModule } = await import('./dashboard/roulette.js');
-                this.activeModules = [RouletteModule];
-                if (this.session) RouletteModule.init(this.session);
-            },
-            'tab-feedback': async () => {
-                const { FeedbackModule } = await import('./dashboard/feedback.js');
-                this.activeModules = [FeedbackModule];
-                if (this.session) FeedbackModule.init(this.session);
+        // Deactivar módulos anteriores si es necesario
+        this.activeModules.forEach((mod) => {
+            if (mod && typeof mod.deactivate === 'function') {
+                try {
+                    mod.deactivate();
+                } catch (e) {}
             }
+        });
+        this.activeModules = [];
+
+        // Los módulos ya están inicializados y el HTML ya está cargado.
+        // Solo necesitamos registrar cuáles están activos para el control de TMI si hiciera falta.
+        // Nota: En este nuevo sistema, la mayoría de herramientas se controlan por sus propios botones Play/Stop innen.
+
+        const moduleMap: Record<string, any[]> = {
+            'tab-home': [AccountModule, AnalyticsModule],
+            'tab-followage': [CommandsModule],
+            'tab-clips': [ClipsModule, CommandsModule],
+            'tab-shoutout': [CommandsModule],
+            'tab-tracker': [TrendsModule],
+            'tab-stalker': [StalkerModule],
+            'tab-magic8': [Magic8Module, CommandsModule],
+            'tab-roulette': [RouletteModule],
+            'tab-feedback': [FeedbackModule]
         };
 
-        if (tabHandlers[tabId]) {
-            await tabHandlers[tabId]();
+        if (moduleMap[tabId]) {
+            this.activeModules = moduleMap[tabId];
+            this.activeModules.forEach((mod) => {
+                if (mod && typeof (mod as any).activate === 'function') {
+                    (mod as any).activate();
+                }
+            });
         }
     }
 };

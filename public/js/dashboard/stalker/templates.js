@@ -56,8 +56,10 @@ export const StalkerTemplates = {
         const tr = document.createElement('tr');
         tr.className = 'stalker-row';
         const avatarTd = document.createElement('td');
+        const safeUrl = UI.escapeHTML(user.profile_image_url || '');
+        const safeName = UI.escapeHTML(user.user_name);
         avatarTd.innerHTML = user.profile_image_url
-            ? `<img src="${user.profile_image_url}" class="table-avatar-img" loading="lazy" alt="${user.user_name}">`
+            ? `<img src="${safeUrl}" class="table-avatar-img" loading="lazy" alt="${safeName}">`
             : `<div class="table-avatar-empty"><i class="fa-solid fa-user"></i></div>`;
         const nameTd = document.createElement('td');
         nameTd.className = 'word-text text-bold';

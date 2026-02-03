@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 sessionParams.displayName = displayName;
                 sessionParams.profile_image_url = avatarUrl;
             }
-            Dashboard.init(sessionParams);
+            await Dashboard.init(sessionParams);
             Auth.saveSession(sessionParams);
             if (sessionParams.isNewLogin) {
                 const cleanUrl = window.location.pathname + window.location.hash;

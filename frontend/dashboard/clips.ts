@@ -2,7 +2,8 @@ import { UI } from '../ui.js';
 import { Messages } from '../utils/messages.js';
 import { ClipsMessages } from './clips/messages.js';
 import { AuthMessages } from '../utils/auth/messages.js';
-import { API_ENDPOINTS } from '../utils/constants.js';
+import { DASHBOARD_CONFIG } from './dashboard-config.js';
+const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { cache, CACHE_TTL } from '../utils/cacheService.js';
 import { Session, Clip } from '../types.js';
 
@@ -15,17 +16,16 @@ export const ClipsModule = {
     observer: null as IntersectionObserver | null,
     currentPage: 1,
     ITEMS_PER_PAGE: 20,
-
     cssLoaded: false,
 
     init(session: Session) {
         this.session = session;
 
-        if (!(this as any).cssLoaded) {
+        if (!this.cssLoaded) {
             import('../utils/loader.js').then(({ Loader }) => {
                 Loader.loadCSS('css/sections/clips.css');
             });
-            (this as any).cssLoaded = true;
+            this.cssLoaded = true;
         }
 
         this.loadFavorites();
@@ -48,7 +48,12 @@ export const ClipsModule = {
 
         this.setupUI();
         this.initialized = true;
-        this.loadClips();
+    },
+
+    activate() {
+        if (this.allClips.length === 0) {
+            this.loadClips();
+        }
     },
 
     deactivate() {

@@ -9,7 +9,6 @@ export const TmiService = {
     connectionPromise: null,
     async connect(channel, auth) {
         this.activeClients++;
-        console.log(`[TmiService] Connect requested. Active clients: ${this.activeClients}`);
         if (this.connectionPromise)
             return this.connectionPromise;
         if (this.isConnected && this.client)
@@ -52,38 +51,38 @@ export const TmiService = {
             this.client
                 .connect()
                 .then(() => {
-                this.isConnected = true;
-                resolve();
-            })
+                    this.isConnected = true;
+                    resolve();
+                })
                 .catch(async (err) => {
-                const isLoginError = auth &&
-                    (err === 'Login unsuccessful' ||
-                        (typeof err === 'string' && err.includes('Login unsuccessful')));
-                if (isLoginError) {
-                    console.error('❌ TMI Auth failed. Access Token may be invalid/expired for IRC.');
-                    console.warn('⚠️ Retrying anonymously...', err);
-                    delete options.identity;
-                    this.client = new window.tmi.Client(options);
-                    attachListeners(this.client);
-                    try {
-                        await this.client.connect();
-                        this.isConnected = true;
-                        UI.showToast('Conectado al chat de forma anónima (Lectura)', 'warning');
-                        resolve();
+                    const isLoginError = auth &&
+                        (err === 'Login unsuccessful' ||
+                            (typeof err === 'string' && err.includes('Login unsuccessful')));
+                    if (isLoginError) {
+                        console.error('❌ TMI Auth failed. Access Token may be invalid/expired for IRC.');
+                        console.warn('⚠️ Retrying anonymously...', err);
+                        delete options.identity;
+                        this.client = new window.tmi.Client(options);
+                        attachListeners(this.client);
+                        try {
+                            await this.client.connect();
+                            this.isConnected = true;
+                            UI.showToast('Conectado al chat de forma anónima (Lectura)', 'warning');
+                            resolve();
+                        }
+                        catch (anonErr) {
+                            this.isConnected = false;
+                            this.activeClients = 0;
+                            reject(anonErr);
+                        }
                     }
-                    catch (anonErr) {
+                    else {
+                        console.error('❌ TMI Connection Error:', err);
                         this.isConnected = false;
                         this.activeClients = 0;
-                        reject(anonErr);
+                        reject(err);
                     }
-                }
-                else {
-                    console.error('❌ TMI Connection Error:', err);
-                    this.isConnected = false;
-                    this.activeClients = 0;
-                    reject(err);
-                }
-            });
+                });
         });
         return this.connectionPromise;
     },

@@ -1,5 +1,7 @@
 import { Magic8Messages } from './messages.js';
-import { API_ENDPOINTS, DOM_IDS } from '../../utils/constants.js';
+import { CONFIG } from '../../config.js';
+import { DASHBOARD_CONFIG } from '../dashboard-config.js';
+const { API_ENDPOINTS, DOM_IDS } = DASHBOARD_CONFIG;
 export const Magic8Module = {
     session: null,
     initialized: false,
