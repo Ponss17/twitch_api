@@ -29,7 +29,7 @@ export const StalkerTemplates = {
                     </tbody>
                 </table>
             </div>
-            
+
             <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">
                 ${StalkerMessages.detectionNote}
             </div>
