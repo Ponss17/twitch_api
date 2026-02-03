@@ -643,19 +643,24 @@ html {
 .faq-answer {
     max-height: 0;
     overflow: hidden;
+    transition: max-height 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.faq-content {
+    padding: 0.5rem 2rem 2rem 2rem;
     opacity: 0;
-    transform: translateY(-5px);
-    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-        padding 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-        opacity 0.4s ease,
-        transform 0.4s ease;
+    transform: translateY(-15px);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .faq-item.active .faq-answer {
     max-height: 500px;
-    padding: 0 2rem 1.5rem 2rem;
+}
+
+.faq-item.active .faq-content {
     opacity: 1;
     transform: translateY(0);
+    transition-delay: 0.25s;
 }
 
 .faq-answer p {
