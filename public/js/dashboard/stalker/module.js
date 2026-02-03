@@ -1,7 +1,7 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
 import { StalkerMessages } from './messages.js';
-import { API_ENDPOINTS } from '../../utils/constants.js';
+import { API_ENDPOINTS, IGNORED_BOTS } from '../../utils/constants.js';
 import { CONFIG } from '../../config.js';
 import { TmiService } from '../../utils/tmiService.js';
 import { StalkerTemplates } from './templates.js';
@@ -89,41 +89,41 @@ export const StalkerModule = {
             : undefined;
         TmiService.connect(this.session.login, auth)
             .then(() => {
-            this.isConnected = true;
-            TmiService.addListener('stalker', (channel, tags, message) => {
-                if (!this.isScanning)
-                    return;
-                const login = tags.username;
-                if (!login)
-                    return;
-                if (CONFIG.IGNORED_BOTS.has(login.toLowerCase()))
-                    return;
-                import('../trends/module.js').then(({ TrendsModule }) => {
-                    TrendsModule.messageLog.unshift({
-                        user: login.toLowerCase(),
-                        text: message,
-                        time: new Date()
+                this.isConnected = true;
+                TmiService.addListener('stalker', (channel, tags, message) => {
+                    if (!this.isScanning)
+                        return;
+                    const login = tags.username;
+                    if (!login)
+                        return;
+                    if (IGNORED_BOTS.has(login.toLowerCase()))
+                        return;
+                    import('../trends/module.js').then(({ TrendsModule }) => {
+                        TrendsModule.messageLog.unshift({
+                            user: login.toLowerCase(),
+                            text: message,
+                            time: new Date()
+                        });
+                        if (TrendsModule.messageLog.length > TrendsModule.MAX_LOG_SIZE)
+                            TrendsModule.messageLog.pop();
                     });
-                    if (TrendsModule.messageLog.length > TrendsModule.MAX_LOG_SIZE)
-                        TrendsModule.messageLog.pop();
+                    if (!this.chatters.some((u) => u.user_login.toLowerCase() === login.toLowerCase())) {
+                        const newUser = {
+                            user_login: login,
+                            user_name: tags['display-name'] || login,
+                            profile_image_url: null
+                        };
+                        this.chatters.unshift(newUser);
+                        this.renderTable(this.chatters);
+                        document.getElementById('stalker-grid')?.firstChild?.parentElement?.classList.add('row-highlight');
+                    }
                 });
-                if (!this.chatters.some((u) => u.user_login.toLowerCase() === login.toLowerCase())) {
-                    const newUser = {
-                        user_login: login,
-                        user_name: tags['display-name'] || login,
-                        profile_image_url: null
-                    };
-                    this.chatters.unshift(newUser);
-                    this.renderTable(this.chatters);
-                    document.getElementById('stalker-grid')?.firstChild?.parentElement?.classList.add('row-highlight');
-                }
-            });
-        })
+            })
             .catch((err) => {
-            console.error('Stalker TMI Error:', err);
-            UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
-            this.toggleScan();
-        });
+                console.error('Stalker TMI Error:', err);
+                UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
+                this.toggleScan();
+            });
     },
     deactivate() {
         this.isScanning = false;
@@ -175,7 +175,7 @@ export const StalkerModule = {
             if (Array.isArray(chattersList)) {
                 const apiChatters = chattersList.filter((item) => {
                     const login = typeof item === 'string' ? item : item.user_login;
-                    return login && !CONFIG.IGNORED_BOTS.has(login.toLowerCase());
+                    return login && !IGNORED_BOTS.has(login.toLowerCase());
                 });
                 const chatterMap = new Map();
                 this.chatters.forEach((c) => chatterMap.set(c.user_login.toLowerCase(), c));

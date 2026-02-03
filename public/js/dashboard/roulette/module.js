@@ -1,7 +1,7 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
 import { RouletteMessages } from './messages.js';
-import { API_ENDPOINTS } from '../../utils/constants.js';
+import { API_ENDPOINTS, IGNORED_BOTS } from '../../utils/constants.js';
 import { CONFIG } from '../../config.js';
 import { TmiService } from '../../utils/tmiService.js';
 export const RouletteModule = {
@@ -112,7 +112,7 @@ export const RouletteModule = {
                 if (this.isSpinning || !this.isOpen)
                     return;
                 const login = tags.username;
-                if (CONFIG.IGNORED_BOTS.has(login.toLowerCase()))
+                if (IGNORED_BOTS.has(login.toLowerCase()))
                     return;
                 if (!this.chatters.some((u) => u.user_login.toLowerCase() === login.toLowerCase())) {
                     this.chatters.push({
@@ -164,33 +164,33 @@ export const RouletteModule = {
         fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&${tokenParam}`)
             .then((res) => res.json())
             .then((data) => {
-            const chattersList = Array.isArray(data) ? data : data.chatters || [];
-            if (Array.isArray(chattersList)) {
-                const currentChatters = new Set(this.chatters.map((u) => u.user_login.toLowerCase()));
-                let newAdded = 0;
-                chattersList.forEach((item) => {
-                    const login = typeof item === 'string' ? item : item.user_login;
-                    const name = typeof item === 'string' ? item : item.user_name;
-                    if (!login)
-                        return;
-                    const lowerLogin = login.toLowerCase();
-                    if (!currentChatters.has(lowerLogin) &&
-                        !CONFIG.IGNORED_BOTS.has(lowerLogin)) {
-                        this.chatters.push({ user_login: login, user_name: name });
-                        currentChatters.add(lowerLogin);
-                        newAdded++;
+                const chattersList = Array.isArray(data) ? data : data.chatters || [];
+                if (Array.isArray(chattersList)) {
+                    const currentChatters = new Set(this.chatters.map((u) => u.user_login.toLowerCase()));
+                    let newAdded = 0;
+                    chattersList.forEach((item) => {
+                        const login = typeof item === 'string' ? item : item.user_login;
+                        const name = typeof item === 'string' ? item : item.user_name;
+                        if (!login)
+                            return;
+                        const lowerLogin = login.toLowerCase();
+                        if (!currentChatters.has(lowerLogin) &&
+                            !IGNORED_BOTS.has(lowerLogin)) {
+                            this.chatters.push({ user_login: login, user_name: name });
+                            currentChatters.add(lowerLogin);
+                            newAdded++;
+                        }
+                    });
+                    if (newAdded > 0) {
+                        this.updateUI();
+                        this.pulseCounter();
                     }
-                });
-                if (newAdded > 0) {
-                    this.updateUI();
-                    this.pulseCounter();
                 }
-            }
-        })
+            })
             .catch((err) => {
-            console.error('Error loading chatters:', err);
-            UI.showToast('Error al cargar usuarios del chat', 'error');
-        });
+                console.error('Error loading chatters:', err);
+                UI.showToast('Error al cargar usuarios del chat', 'error');
+            });
     },
     spin() {
         if (this.isSpinning || this.chatters.length === 0)

@@ -1,7 +1,7 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
 import { RouletteMessages } from './messages.js';
-import { API_ENDPOINTS } from '../../utils/constants.js';
+import { API_ENDPOINTS, IGNORED_BOTS } from '../../utils/constants.js';
 import { CONFIG } from '../../config.js';
 import { TmiService, TmiTags } from '../../utils/tmiService.js';
 import { Session, RouletteUser } from '../../types.js';
@@ -114,9 +114,9 @@ export const RouletteModule = {
 
         const auth = this.session.token
             ? {
-                  username: this.session.login,
-                  token: this.session.token
-              }
+                username: this.session.login,
+                token: this.session.token
+            }
             : undefined;
 
         try {
@@ -127,7 +127,7 @@ export const RouletteModule = {
                 (_channel: string, tags: TmiTags, _message: string) => {
                     if (this.isSpinning || !this.isOpen) return;
                     const login = tags.username;
-                    if (CONFIG.IGNORED_BOTS.has(login.toLowerCase())) return;
+                    if (IGNORED_BOTS.has(login.toLowerCase())) return;
 
                     if (
                         !this.chatters.some(
@@ -205,7 +205,7 @@ export const RouletteModule = {
                         const lowerLogin = login.toLowerCase();
                         if (
                             !currentChatters.has(lowerLogin) &&
-                            !CONFIG.IGNORED_BOTS.has(lowerLogin)
+                            !IGNORED_BOTS.has(lowerLogin)
                         ) {
                             this.chatters.push({ user_login: login, user_name: name });
                             currentChatters.add(lowerLogin);

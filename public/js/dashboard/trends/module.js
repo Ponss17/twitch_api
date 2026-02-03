@@ -1,6 +1,7 @@
 import { Messages } from '../../utils/messages.js';
 import { TrendsMessages, TrackerMessages } from './messages.js';
 import { CONFIG } from '../../config.js';
+import { IGNORED_BOTS } from '../../utils/constants.js';
 import { UI } from '../../ui.js';
 import { TmiService } from '../../utils/tmiService.js';
 import { TrendsTemplates } from './templates.js';
@@ -131,26 +132,26 @@ export const TrendsModule = {
             : undefined;
         TmiService.connect(this.session.login, auth)
             .then(() => {
-            this.updateStatus(true);
-            this.isConnected = true;
-            TmiService.addListener('trends', (chn, tags, message) => {
-                if (!this.isTracking)
-                    return;
-                const username = tags.username;
-                if (!username || CONFIG.IGNORED_BOTS.has(username.toLowerCase()))
-                    return;
-                this.messageLog.unshift({ user: username, text: message, time: new Date() });
-                if (this.messageLog.length > this.MAX_LOG_SIZE)
-                    this.messageLog.pop();
-                this.processMessage(message);
-            });
-        })
+                this.updateStatus(true);
+                this.isConnected = true;
+                TmiService.addListener('trends', (chn, tags, message) => {
+                    if (!this.isTracking)
+                        return;
+                    const username = tags.username;
+                    if (!username || IGNORED_BOTS.has(username.toLowerCase()))
+                        return;
+                    this.messageLog.unshift({ user: username, text: message, time: new Date() });
+                    if (this.messageLog.length > this.MAX_LOG_SIZE)
+                        this.messageLog.pop();
+                    this.processMessage(message);
+                });
+            })
             .catch((err) => {
-            console.error('Trends TMI Error:', err);
-            this.updateStatus(false);
-            UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
-            this.endTimer();
-        });
+                console.error('Trends TMI Error:', err);
+                this.updateStatus(false);
+                UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
+                this.endTimer();
+            });
     },
     updateStatus(connected) {
         const el = document.getElementById('tracker-status');

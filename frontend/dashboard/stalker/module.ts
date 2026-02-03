@@ -1,7 +1,7 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
 import { StalkerMessages } from './messages.js';
-import { API_ENDPOINTS } from '../../utils/constants.js';
+import { API_ENDPOINTS, IGNORED_BOTS } from '../../utils/constants.js';
 import { CONFIG } from '../../config.js';
 import { TmiService, TmiTags } from '../../utils/tmiService.js';
 import { StalkerTemplates } from './templates.js';
@@ -92,9 +92,9 @@ export const StalkerModule = {
 
         const auth = this.session.token
             ? {
-                  username: this.session.login,
-                  token: this.session.token
-              }
+                username: this.session.login,
+                token: this.session.token
+            }
             : undefined;
 
         TmiService.connect(this.session.login, auth)
@@ -108,7 +108,7 @@ export const StalkerModule = {
                         const login = tags.username;
                         if (!login) return;
 
-                        if (CONFIG.IGNORED_BOTS.has(login.toLowerCase())) return;
+                        if (IGNORED_BOTS.has(login.toLowerCase())) return;
 
                         import('../trends/module.js').then(({ TrendsModule }) => {
                             TrendsModule.messageLog.unshift({
@@ -205,7 +205,7 @@ export const StalkerModule = {
                 const apiChatters = (chattersList as (string | StalkerUser)[]).filter(
                     (item: string | StalkerUser) => {
                         const login = typeof item === 'string' ? item : item.user_login;
-                        return login && !CONFIG.IGNORED_BOTS.has(login.toLowerCase());
+                        return login && !IGNORED_BOTS.has(login.toLowerCase());
                     }
                 );
 
