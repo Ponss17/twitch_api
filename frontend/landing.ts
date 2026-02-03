@@ -1,5 +1,5 @@
 import { Auth } from './auth.js';
-import { UI } from './ui.js';
+import { LandingUI } from './ui-landing.js';
 import { HeaderComponent } from './components/header.js';
 import { FooterComponent } from './components/footer.js';
 
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     Auth.setupLoginButton('login-btn');
 
     const heroCode = document.getElementById('hero-code-display');
-    if (heroCode) UI.setupHeroAnimation(heroCode);
+    if (heroCode) LandingUI.setupHeroAnimation(heroCode);
 
     HeaderComponent.render('main-header');
     FooterComponent.render('main-footer');

@@ -1,8 +1,10 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
 import { StalkerMessages } from './messages.js';
-import { API_ENDPOINTS, IGNORED_BOTS } from '../../utils/constants.js';
 import { CONFIG } from '../../config.js';
+import { DASHBOARD_CONFIG } from '../dashboard-config.js';
+const { API_ENDPOINTS, IGNORED_BOTS } = DASHBOARD_CONFIG;
+import { cache, CACHE_TTL } from '../../utils/cacheService.js';
 import { TmiService, TmiTags } from '../../utils/tmiService.js';
 import { StalkerTemplates } from './templates.js';
 import { Session, StalkerUser } from '../../types.js';
@@ -11,6 +13,7 @@ export const StalkerModule = {
     session: null as Session | null,
     isScanning: false,
     chatters: [] as StalkerUser[],
+    searchTimeout: null as NodeJS.Timeout | null,
     isConnected: false,
     initialized: false,
 
@@ -37,7 +40,10 @@ export const StalkerModule = {
             controls.addEventListener('input', (e) => {
                 const target = e.target as HTMLInputElement;
                 if (target.id === 'stalker-search') {
-                    this.filterChatters(target.value);
+                    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+                    this.searchTimeout = setTimeout(() => {
+                        this.filterChatters(target.value);
+                    }, 300);
                 }
             });
 
@@ -92,9 +98,9 @@ export const StalkerModule = {
 
         const auth = this.session.token
             ? {
-                username: this.session.login,
-                token: this.session.token
-            }
+                  username: this.session.login,
+                  token: this.session.token
+              }
             : undefined;
 
         TmiService.connect(this.session.login, auth)
@@ -276,11 +282,24 @@ export const StalkerModule = {
     async inspectUser(login: string) {
         try {
             if (!this.session) return;
+            const cacheKey = `user_info_${login}`;
+            const cachedInfo = cache.get(cacheKey);
+
+            if (cachedInfo) {
+                import('../../utils/profileModal.js').then(({ ProfileModal }) =>
+                    ProfileModal.open(cachedInfo)
+                );
+                return;
+            }
+
             const res = await fetch(
                 `${API_ENDPOINTS.USER_INFO}?login=${login}&apiKey=${this.session.apiKey}`
             );
             if (!res.ok) throw new Error();
             const info = await res.json();
+
+            cache.set(cacheKey, info, CACHE_TTL);
+
             import('../../utils/profileModal.js').then(({ ProfileModal }) =>
                 ProfileModal.open(info)
             );

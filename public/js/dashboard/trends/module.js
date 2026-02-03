@@ -1,7 +1,8 @@
 import { Messages } from '../../utils/messages.js';
 import { TrendsMessages, TrackerMessages } from './messages.js';
 import { CONFIG } from '../../config.js';
-import { IGNORED_BOTS } from '../../utils/constants.js';
+import { DASHBOARD_CONFIG } from '../dashboard-config.js';
+const { IGNORED_BOTS } = DASHBOARD_CONFIG;
 import { UI } from '../../ui.js';
 import { TmiService } from '../../utils/tmiService.js';
 import { TrendsTemplates } from './templates.js';

@@ -1,5 +1,6 @@
 import { FeedbackMessages } from './feedback/messages.js';
-import { API_ENDPOINTS } from '../utils/constants.js';
+import { DASHBOARD_CONFIG } from './dashboard-config.js';
+const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { UI } from '../ui.js';
 export const FeedbackModule = {
     session: null,

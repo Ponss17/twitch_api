@@ -2,7 +2,8 @@ import { UI } from '../ui.js';
 import { Messages } from '../utils/messages.js';
 import { ClipsMessages } from './clips/messages.js';
 import { AuthMessages } from '../utils/auth/messages.js';
-import { API_ENDPOINTS } from '../utils/constants.js';
+import { DASHBOARD_CONFIG } from './dashboard-config.js';
+const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { cache, CACHE_TTL } from '../utils/cacheService.js';
 export const ClipsModule = {
     session: null,
@@ -37,7 +38,11 @@ export const ClipsModule = {
         }
         this.setupUI();
         this.initialized = true;
-        this.loadClips();
+    },
+    activate() {
+        if (this.allClips.length === 0) {
+            this.loadClips();
+        }
     },
     deactivate() {
         if (this.observer) {

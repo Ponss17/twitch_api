@@ -42,7 +42,6 @@ export const TmiService = {
 
     async connect(channel: string, auth?: { username: string; token: string }): Promise<void> {
         this.activeClients++;
-        console.log(`[TmiService] Connect requested. Active clients: ${this.activeClients}`);
 
         if (this.connectionPromise) return this.connectionPromise;
         if (this.isConnected && this.client) return Promise.resolve();

@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 sessionParams.profile_image_url = avatarUrl;
             }
 
-            Dashboard.init(sessionParams);
+            await Dashboard.init(sessionParams);
             Auth.saveSession(sessionParams);
 
             if (sessionParams.isNewLogin) {

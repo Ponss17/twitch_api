@@ -1,5 +1,6 @@
 import { AnalyticsMessages } from './analytics/messages.js';
-import { API_ENDPOINTS } from '../utils/constants.js';
+import { DASHBOARD_CONFIG } from './dashboard-config.js';
+const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { Session } from '../types.js';
 
 interface AnalyticsData {
@@ -18,13 +19,16 @@ export const AnalyticsModule = {
 
     init(session: Session) {
         this.session = session;
-        this.load();
         if (this.initialized) return;
 
         import('../utils/loader.js').then(({ Loader }) => {
             Loader.loadCSS('css/sections/analytics.css');
         });
         this.initialized = true;
+    },
+
+    activate() {
+        this.load();
     },
 
     deactivate() {},
