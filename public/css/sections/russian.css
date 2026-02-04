@@ -158,13 +158,3 @@
     background: linear-gradient(90deg, transparent, var(--accent), transparent);
     opacity: 0.3;
 }
-
-.russian-header-icon {
-    background: rgba(220, 38, 38, 0.1) !important;
-    color: #ef4444 !important;
-    border: 1px solid rgba(220, 38, 38, 0.2);
-}
-
-.russian-header-icon i {
-    filter: drop-shadow(0 0 5px rgba(220, 38, 38, 0.4));
-}
