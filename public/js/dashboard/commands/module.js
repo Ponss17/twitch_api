@@ -26,8 +26,6 @@ export const CommandsModule = {
             const container = document.getElementById(config.containerId);
             if (!container)
                 return;
-            // Only render if empty or contains nothing relevant to avoid duplication
-            // but for commands, we want to ensure fresh IDs are bound, so we overwrite.
             container.innerHTML = CommandTemplates.generateCard(config);
         });
     },
@@ -102,7 +100,7 @@ export const CommandsModule = {
             if (!this.session)
                 return;
             const { apiKey, token } = this.session;
-            const domain = `${CONFIG.siteUrl}${API_ENDPOINTS.BASE}`;
+            const domain = `${window.location.origin}${API_ENDPOINTS.BASE}`;
             const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
             const url = `${domain}/followage?user=${user}&channel=${channel}&${tokenParam}`;
             try {

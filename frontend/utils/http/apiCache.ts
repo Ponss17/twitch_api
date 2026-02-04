@@ -1,5 +1,5 @@
 interface CacheEntry {
-    data: any;
+    data: unknown;
     timestamp: number;
 }
 

@@ -19,7 +19,7 @@ export const CommandTemplates = {
                 <label class="input-label">
                     <i class="fa-solid fa-pen-to-square"></i> ${CommandsMessages.form.customMessage}
                 </label>
-                <input type="text" id="${conf.id}-template" class="text-input full-width" 
+                <input type="text" id="${conf.id}-template" class="text-input full-width"
                     placeholder="${conf.templatePlaceholder}">
                 <small class="input-help">
                     ${conf.templateVars ? conf.templateVars.replace('Variables:', `<strong class="text-accent">${CommandsMessages.form.variables}</strong>`).replace(/\{(\w+)\}/g, '<code class="var-badge">{$1}</code>') : ''}
@@ -52,7 +52,7 @@ export const CommandTemplates = {
                         <option value="wizebot">Wizebot</option>
                     </select>
                 </div>
-                
+
                 ${extrasHTML}
                 ${templateSection}
 
