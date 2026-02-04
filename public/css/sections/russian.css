@@ -158,3 +158,19 @@
     background: linear-gradient(90deg, transparent, var(--accent), transparent);
     opacity: 0.3;
 }
+
+@media (max-width: 600px) {
+    #russian-gun-icon {
+        font-size: 3rem;
+    }
+
+    #btn-fire-russian {
+        padding: 12px 25px;
+        font-size: 1rem;
+        width: 100%;
+    }
+
+    .game-controls::before {
+        width: 100px;
+    }
+}

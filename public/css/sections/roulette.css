@@ -130,3 +130,16 @@
     transform: scale(1.2);
     transition: all 0.2s;
 }
+
+@media (max-width: 480px) {
+    .roulette-wrapper {
+        padding: 10px;
+        max-width: 100%;
+    }
+
+    #btn-spin-roulette {
+        padding: 12px 30px;
+        font-size: 1rem;
+        width: 100%;
+    }
+}

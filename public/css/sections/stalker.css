@@ -307,3 +307,31 @@
     background: var(--accent);
     border-color: var(--accent);
 }
+
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+
+    #stalker-controls {
+        flex-direction: column;
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    #stalker-controls .search-wrapper {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    .profile-stats {
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .profile-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
