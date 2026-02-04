@@ -41,7 +41,7 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
 
 export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const { user, channel, hardcore } = req.query;
+        const { user, channel, hardcore, format } = req.query;
         const token = req.twitchToken;
 
         if (!token) return res.status(401).send('No token provided');
@@ -55,7 +55,11 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
             isHardcore
         );
 
-        res.json(result);
+        if (format === 'json') {
+            res.json(result);
+        } else {
+            res.send(result.message);
+        }
     } catch (error) {
         console.error('Error en playRussian:', error);
         res.status(500).json({ error: 'Error interno en la Ruleta Rusa' });

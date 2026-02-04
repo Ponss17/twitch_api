@@ -47,7 +47,8 @@ export const RussianModule: IRussianModule = {
             const params = new URLSearchParams({
                 user: this.session.login,
                 channel: this.session.login,
-                hardcore: String(isHardcore)
+                hardcore: String(isHardcore),
+                format: 'json'
             });
 
             const response = await fetch(`${this.gameEndpoint}?${params.toString()}`, {

@@ -100,5 +100,35 @@ export const COMMAND_CONFIG = {
             const cmd = CommandGenerator.generate(bot, magicUrl, queryParams);
             return `!addcom !8ball ${cmd}`;
         }
+    },
+    russian: {
+        id: 'russian',
+        containerId: 'command-card-russian',
+        title: 'Comando !bang',
+        icon: 'fa-solid fa-skull-crossbones',
+        desc: 'Juego de Ruleta Rusa para el chat',
+        info: 'Tus viewers podrán jugar a la Ruleta Rusa escribiendo !bang. ¡Cuidado con la bala!',
+        extraSelectors: [
+            {
+                id: 'hardcore',
+                label: 'Modo Hardcore',
+                icon: 'fa-solid fa-skull',
+                options: [
+                    { value: 'false', label: 'Desactivado' },
+                    { value: 'true', label: 'Activado (60s timeout)' }
+                ]
+            }
+        ],
+        generate: (domain, login, tokenParam, bot, templateVal, queryParams, extraValues) => {
+            const botUtils = CommandGenerator.bots[bot];
+            const userArg = bot === 'wizebot' ? '$(user_name)' : botUtils.arg('user');
+            const isHardcore = extraValues.hardcore === 'true';
+            queryParams += `&user=${userArg}&hardcore=${isHardcore}`;
+            const russianUrl = domain.includes('/minigames')
+                ? `${domain}/russian`
+                : `${domain}/minigames/russian`;
+            const cmd = CommandGenerator.generate(bot, russianUrl, queryParams);
+            return `!addcom !bang ${cmd}`;
+        }
     }
 };
