@@ -741,17 +741,53 @@ html {
     }
 }
 
-@media (max-width: 450px) {
-    #landing-page .container {
-        padding: 0 1.5rem;
+@media (max-width: 768px) {
+    .bento-card {
+        padding: 1.5rem;
+        min-height: auto;
+    }
+
+    .category-header {
+        margin-bottom: 3rem;
+        padding-left: 0;
+        border-left: none;
+        text-align: center;
+    }
+
+    .features-category.align-right .category-header {
+        padding-right: 0;
+        border-right: none;
+        text-align: center;
+    }
+
+    .category-title {
+        font-size: 2.5rem;
+    }
+
+    .section-main-title {
+        font-size: 2.5rem;
     }
 
     .hero-title {
-        font-size: 2.2rem;
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 450px) {
+    #landing-page .container {
+        padding: 0 1.25rem;
+    }
+
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 0.95rem;
     }
 
     .fake-body {
-        min-height: 220px;
+        min-height: 200px;
     }
 
     .faq-question {
@@ -764,5 +800,11 @@ html {
 
     .section-title {
         font-size: 1.8rem;
+    }
+
+    .btn-hero,
+    .btn-secondary {
+        width: 100%;
+        justify-content: center;
     }
 }

@@ -514,3 +514,31 @@ code {
 .flex-1 {
     flex: 1;
 }
+
+@media (max-width: 600px) {
+    .toast-container {
+        right: 0;
+        left: 0;
+        padding: 0 20px;
+        align-items: center;
+        width: 100%;
+        top: auto;
+        bottom: 20px;
+    }
+
+    .toast {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .btn-large,
+    .btn-block {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .loading {
+        padding: 30px 10px;
+    }
+}

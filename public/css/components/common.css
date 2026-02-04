@@ -441,3 +441,38 @@
 .response-card.error {
     border-left: 4px solid var(--danger);
 }
+
+@media (max-width: 768px) {
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 10px 15px;
+        white-space: nowrap;
+    }
+
+    .modal-content {
+        max-width: 90%;
+        margin: 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .tool-selector {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .select-input,
+    .text-input {
+        width: 100%;
+        min-width: 0;
+    }
+}
