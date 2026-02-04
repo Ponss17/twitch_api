@@ -1,7 +1,6 @@
 import { UI } from './ui.js';
 import { HtmlLoader } from './utils/htmlLoader.js';
 import { Messages } from './utils/messages.js';
-
 import { AccountModule } from './dashboard/account.js';
 import { AnalyticsModule } from './dashboard/analytics.js';
 import { CommandsModule } from './dashboard/commands.js';
@@ -11,51 +10,56 @@ import { StalkerModule } from './dashboard/stalker.js';
 import { Magic8Module } from './dashboard/magic8.js';
 import { RouletteModule } from './dashboard/roulette.js';
 import { FeedbackModule } from './dashboard/feedback.js';
-
 export const Dashboard = {
     session: null,
     activeModules: [],
-
     async init(session) {
         this.session = session;
         this.setupTabs();
         this.setupUserBadge();
-
+        // Carga inmediata de todos los componentes visuales en paralelo
         await this.preloadAllTabs();
-
+        // Inicialización pasiva de todos los módulos
         this.initAllModules();
-
+        // Activar la pestaña inicial
         this.loadTab('tab-home');
     },
-
     async preloadAllTabs() {
         const panes = document.querySelectorAll('.tab-pane');
-        const tasks = Array.from(panes).map(pane => {
-            if (pane.dataset.src) {
-                return HtmlLoader.load(pane.dataset.src, pane.id);
+        const tasks = Array.from(panes).map((pane) => {
+            const p = pane;
+            if (p.dataset.src) {
+                return HtmlLoader.load(p.dataset.src, p.id);
             }
             return Promise.resolve();
         });
         await Promise.all(tasks);
     },
-
     initAllModules() {
-        if (!this.session) return;
+        if (!this.session)
+            return;
         const modules = [
-            AccountModule, AnalyticsModule, CommandsModule, ClipsModule,
-            TrendsModule, StalkerModule, Magic8Module, RouletteModule, FeedbackModule
+            AccountModule,
+            AnalyticsModule,
+            CommandsModule,
+            ClipsModule,
+            TrendsModule,
+            StalkerModule,
+            Magic8Module,
+            RouletteModule,
+            FeedbackModule
         ];
-        modules.forEach(mod => {
+        modules.forEach((mod) => {
             if (mod && typeof mod.init === 'function') {
                 try {
                     mod.init(this.session);
-                } catch (e) {
+                }
+                catch (e) {
                     console.warn('Error initializing module:', e);
                 }
             }
         });
     },
-
     setupUserBadge() {
         if (!this.session)
             return;
@@ -80,7 +84,6 @@ export const Dashboard = {
             import('./auth.js').then((m) => m.Auth.logout());
         });
     },
-
     setupTabs() {
         const tabs = document.querySelectorAll('.nav-item');
         tabs.forEach((tab) => {
@@ -95,23 +98,26 @@ export const Dashboard = {
                 const pane = document.getElementById(tabId);
                 if (pane)
                     pane.classList.add('active');
-
                 this.loadTab(tabId);
             });
         });
     },
-
     loadTab(tabId) {
         if (!this.session)
             return;
-
+        // Deactivar módulos anteriores si es necesario
         this.activeModules.forEach((mod) => {
             if (mod && typeof mod.deactivate === 'function') {
-                try { mod.deactivate(); } catch (e) { }
+                try {
+                    mod.deactivate();
+                }
+                catch (e) { }
             }
         });
         this.activeModules = [];
-
+        // Los módulos ya están inicializados y el HTML ya está cargado.
+        // Solo necesitamos registrar cuáles están activos para el control de TMI si hiciera falta.
+        // Nota: En este nuevo sistema, la mayoría de herramientas se controlan por sus propios botones Play/Stop innen.
         const moduleMap = {
             'tab-home': [AccountModule, AnalyticsModule],
             'tab-followage': [CommandsModule],
@@ -123,9 +129,13 @@ export const Dashboard = {
             'tab-roulette': [RouletteModule],
             'tab-feedback': [FeedbackModule]
         };
-
         if (moduleMap[tabId]) {
             this.activeModules = moduleMap[tabId];
+            this.activeModules.forEach((mod) => {
+                if (mod && typeof mod.activate === 'function') {
+                    mod.activate();
+                }
+            });
         }
     }
 };

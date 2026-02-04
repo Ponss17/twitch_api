@@ -1,4 +1,5 @@
 import { StalkerMessages } from './messages.js';
+import { UI } from '../../ui.js';
 export const StalkerTemplates = {
     renderMain() {
         return `
@@ -27,7 +28,7 @@ export const StalkerTemplates = {
                     </tbody>
                 </table>
             </div>
-            
+
             <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">
                 ${StalkerMessages.detectionNote}
             </div>
