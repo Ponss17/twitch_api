@@ -1,5 +1,5 @@
 import express from 'express';
-import * as authController from '../controllers/authController';
+import * as authController from '../controllers/auth/authController';
 
 const router = express.Router();
 

@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../types/twitch';
-import * as authService from '../services/authService';
-import * as apiService from '../services/apiService';
+import * as authService from '../services/auth/authService';
+import * as apiService from '../services/twitch/apiService';
 import { MESSAGES } from '../config/messages';
 
 const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {

@@ -1,9 +1,9 @@
-import { Auth } from './auth.js';
-import { UI } from './ui.js';
-import { Dashboard } from './dashboard.js';
-import { FooterComponent } from './components/footer.js';
-import { Messages } from './utils/messages.js';
-import { AuthMessages } from './utils/auth/messages.js';
+import { Auth } from './core/auth.js';
+import { UI } from './core/ui.js';
+import { Dashboard } from './core/dashboard.js';
+import { FooterComponent } from './shared/components/footer.js';
+import { Messages } from './shared/i18n/messages.js';
+import { AuthMessages } from './shared/i18n/authMessages.js';
 
 import { TwitchUser, Session, ApiResponse } from './types.js';
 

@@ -1,8 +1,8 @@
 import express from 'express';
-import * as commandsController from '../controllers/commandsController';
-import * as dashboardController from '../controllers/dashboardController';
-import * as systemController from '../controllers/systemController';
-import * as gamesController from '../controllers/gamesController';
+import * as commandsController from '../controllers/twitch/commandsController';
+import * as dashboardController from '../controllers/twitch/dashboardController';
+import * as systemController from '../controllers/system/systemController';
+import * as gamesController from '../controllers/games/gamesController';
 import checkToken from '../middleware/authMiddleware';
 import { validate } from '../middleware/validate';
 import { createClipSchema, magic8Schema } from '../schemas/requestSchemas';
