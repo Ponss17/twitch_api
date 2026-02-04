@@ -9,6 +9,7 @@ import { TrendsModule } from './dashboard/trends.js';
 import { StalkerModule } from './dashboard/stalker.js';
 import { Magic8Module } from './dashboard/magic8.js';
 import { RouletteModule } from './dashboard/roulette.js';
+import { RussianModule } from './dashboard/russian/module.js';
 import { FeedbackModule } from './dashboard/feedback.js';
 export const Dashboard = {
     session: null,
@@ -17,11 +18,8 @@ export const Dashboard = {
         this.session = session;
         this.setupTabs();
         this.setupUserBadge();
-        // Carga inmediata de todos los componentes visuales en paralelo
         await this.preloadAllTabs();
-        // Inicialización pasiva de todos los módulos
         this.initAllModules();
-        // Activar la pestaña inicial
         this.loadTab('tab-home');
     },
     async preloadAllTabs() {
@@ -47,6 +45,7 @@ export const Dashboard = {
             StalkerModule,
             Magic8Module,
             RouletteModule,
+            RussianModule,
             FeedbackModule
         ];
         modules.forEach((mod) => {
@@ -105,19 +104,17 @@ export const Dashboard = {
     loadTab(tabId) {
         if (!this.session)
             return;
-        // Deactivar módulos anteriores si es necesario
         this.activeModules.forEach((mod) => {
             if (mod && typeof mod.deactivate === 'function') {
                 try {
                     mod.deactivate();
                 }
-                catch (e) { }
+                catch (error) {
+                    console.error('Error al desactivar módulo:', error);
+                }
             }
         });
         this.activeModules = [];
-        // Los módulos ya están inicializados y el HTML ya está cargado.
-        // Solo necesitamos registrar cuáles están activos para el control de TMI si hiciera falta.
-        // Nota: En este nuevo sistema, la mayoría de herramientas se controlan por sus propios botones Play/Stop innen.
         const moduleMap = {
             'tab-home': [AccountModule, AnalyticsModule],
             'tab-followage': [CommandsModule],
@@ -127,6 +124,7 @@ export const Dashboard = {
             'tab-stalker': [StalkerModule],
             'tab-magic8': [Magic8Module, CommandsModule],
             'tab-roulette': [RouletteModule],
+            'tab-russian': [RussianModule],
             'tab-feedback': [FeedbackModule]
         };
         if (moduleMap[tabId]) {

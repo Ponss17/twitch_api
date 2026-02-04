@@ -5,15 +5,43 @@ import { AuthMessages } from '../utils/auth/messages.js';
 import { DASHBOARD_CONFIG } from './dashboard-config.js';
 const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { cache, CACHE_TTL } from '../utils/cacheService.js';
-import { Session, Clip } from '../types.js';
+import { Session, Clip, DashboardModule } from '../types.js';
 
-export const ClipsModule = {
-    session: null as Session | null,
+interface IClipsModule extends DashboardModule {
+    allClips: Clip[];
+    currentClips: Clip[];
+    favorites: string[];
+    observer: IntersectionObserver | null;
+    currentPage: number;
+    ITEMS_PER_PAGE: number;
+    cssLoaded: boolean;
+    loadFavorites(): void;
+    saveFavorites(): void;
+    toggleFavorite(clipId: string): void;
+    setupUI(): void;
+    setupFilters(): void;
+    debounce<T extends (...args: unknown[]) => void>(
+        func: T,
+        wait: number
+    ): (...args: Parameters<T>) => void;
+    loadClips(forceRefresh?: boolean): Promise<void>;
+    handleError(error: unknown, container: HTMLElement): void;
+    renderSkeleton(container: HTMLElement): void;
+    filterAndRender(): void;
+    renderPage(): void;
+    addLoadMoreButton(container: HTMLElement): void;
+    buildCard(clip: Clip): HTMLElement;
+    attachCardEvents(card: HTMLElement, url: string, clipId: string): void;
+    updateFavoriteBtn(clipId: string): void;
+}
+
+export const ClipsModule: IClipsModule = {
+    session: null,
     initialized: false,
     allClips: [] as Clip[],
     currentClips: [] as Clip[],
     favorites: [] as string[],
-    observer: null as IntersectionObserver | null,
+    observer: null,
     currentPage: 1,
     ITEMS_PER_PAGE: 20,
     cssLoaded: false,
@@ -128,12 +156,12 @@ export const ClipsModule = {
         }
     },
 
-    debounce(func: (...args: any[]) => void, wait: number) {
+    debounce<T extends (...args: unknown[]) => void>(func: T, wait: number) {
         let timeout: NodeJS.Timeout;
-        return function executedFunction(this: any, ...args: any[]) {
+        return (...args: Parameters<T>) => {
             const later = () => {
                 clearTimeout(timeout);
-                func.apply(this, args);
+                func(...args);
             };
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
@@ -148,7 +176,7 @@ export const ClipsModule = {
         const cacheKey = `clips_${this.session.userId}`;
 
         if (!forceRefresh) {
-            const cachedClips = cache.get(cacheKey);
+            const cachedClips = cache.get<Clip[]>(cacheKey);
             if (cachedClips) {
                 this.allClips = cachedClips;
                 this.filterAndRender();

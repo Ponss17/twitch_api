@@ -38,7 +38,7 @@ export const CommandGenerator = {
         return bot.urlfetch(fullUrl);
     },
 
-    maskSecrets(cmd: string, secrets: any = {}) {
+    maskSecrets(cmd: string, secrets: Record<string, string> = {}) {
         let masked = cmd;
         if (secrets.apiKey) masked = masked.split(secrets.apiKey).join(this.masks.apiKey);
         if (secrets.token) masked = masked.split(secrets.token).join(this.masks.token);

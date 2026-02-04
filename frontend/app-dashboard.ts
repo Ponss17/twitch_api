@@ -5,7 +5,7 @@ import { FooterComponent } from './components/footer.js';
 import { Messages } from './utils/messages.js';
 import { AuthMessages } from './utils/auth/messages.js';
 
-import { TwitchUser, Session } from './types.js';
+import { TwitchUser, Session, ApiResponse } from './types.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     FooterComponent.render('main-footer');
@@ -38,8 +38,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             let displayName = sessionParams.displayName || sessionParams.login;
 
             if (typeof validationResult === 'object' && validationResult !== null) {
-                const data = validationResult as any;
-                const user = data.user as TwitchUser;
+                const data = validationResult as ApiResponse<TwitchUser>;
+                const user = data.user;
+
+                if (!user) {
+                    throw new Error('User data missing in validation');
+                }
 
                 if (data.token) {
                     sessionParams.token = data.token;

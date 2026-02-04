@@ -245,3 +245,38 @@ export const sendChatMessage = async (
         throw error;
     }
 };
+
+export const timeoutUser = async (
+    broadcasterId: string,
+    moderatorId: string,
+    userId: string,
+    duration: number,
+    reason: string,
+    token: string
+) => {
+    try {
+        await apiClient.post(
+            'https://api.twitch.tv/helix/moderation/bans',
+            {
+                data: {
+                    user_id: userId,
+                    duration: duration,
+                    reason: reason
+                }
+            },
+            {
+                params: {
+                    broadcaster_id: broadcasterId,
+                    moderator_id: moderatorId
+                },
+                headers: {
+                    ...getHeaders(token),
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+    } catch (error) {
+        logger.error('Error timing out user:', error);
+        throw error;
+    }
+};

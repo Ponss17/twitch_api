@@ -1,22 +1,51 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
 import { RouletteMessages } from './messages.js';
-import { CONFIG } from '../../config.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 const { API_ENDPOINTS, IGNORED_BOTS } = DASHBOARD_CONFIG;
 
 import { TmiService, TmiTags } from '../../utils/tmiService.js';
-import { Session, RouletteUser } from '../../types.js';
+import { Session, RouletteUser, DashboardModule } from '../../types.js';
 
-export const RouletteModule = {
-    session: null as Session | null,
+interface IRouletteModule extends DashboardModule {
+    chatters: RouletteUser[];
+    canvas: HTMLCanvasElement | null;
+    ctx: CanvasRenderingContext2D | null;
+    colors: string[];
+    startAngle: number;
+    arc: number;
+    spinTimeout: number | null;
+    spinAngleStart: number;
+    spinTime: number;
+    spinTimeTotal: number;
+    isSpinning: boolean;
+    isOpen: boolean;
+    isConnected: boolean;
+    cssLoaded: boolean;
+    setupUI(): void;
+    updateUI(): void;
+    toggleEntries(): void;
+    connectTmi(): Promise<void>;
+    pulseCounter(): void;
+    loadChatters(): void;
+    spin(): void;
+    rotateWheel(): void;
+    stopRotateWheel(): void;
+    easeOut(t: number, b: number, c: number, d: number): number;
+    showWinner(winner: RouletteUser): void;
+    drawRouletteWheel(): void;
+    drawEmptyWheel(): void;
+}
+
+export const RouletteModule: IRouletteModule = {
+    session: null,
     chatters: [] as RouletteUser[],
-    canvas: null as HTMLCanvasElement | null,
-    ctx: null as CanvasRenderingContext2D | null,
+    canvas: null,
+    ctx: null,
     colors: ['#a855f7', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#6366f1'],
     startAngle: 0,
     arc: 0,
-    spinTimeout: null as number | null,
+    spinTimeout: null,
     spinAngleStart: 10,
     spinTime: 0,
     spinTimeTotal: 0,

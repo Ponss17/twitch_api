@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof validationResult === 'object' && validationResult !== null) {
                 const data = validationResult;
                 const user = data.user;
+                if (!user) {
+                    throw new Error('User data missing in validation');
+                }
                 if (data.token) {
                     sessionParams.token = data.token;
                 }

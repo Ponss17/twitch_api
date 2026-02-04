@@ -11,6 +11,7 @@ import { TrendsModule } from './dashboard/trends.js';
 import { StalkerModule } from './dashboard/stalker.js';
 import { Magic8Module } from './dashboard/magic8.js';
 import { RouletteModule } from './dashboard/roulette.js';
+import { RussianModule } from './dashboard/russian/module.js';
 import { FeedbackModule } from './dashboard/feedback.js';
 
 export const Dashboard = {
@@ -22,13 +23,10 @@ export const Dashboard = {
         this.setupTabs();
         this.setupUserBadge();
 
-        // Carga inmediata de todos los componentes visuales en paralelo
         await this.preloadAllTabs();
 
-        // Inicialización pasiva de todos los módulos
         this.initAllModules();
 
-        // Activar la pestaña inicial
         this.loadTab('tab-home');
     },
 
@@ -46,21 +44,22 @@ export const Dashboard = {
 
     initAllModules() {
         if (!this.session) return;
-        const modules = [
-            AccountModule,
-            AnalyticsModule,
-            CommandsModule,
-            ClipsModule,
-            TrendsModule,
-            StalkerModule,
-            Magic8Module,
-            RouletteModule,
-            FeedbackModule
+        const modules: DashboardModule[] = [
+            AccountModule as DashboardModule,
+            AnalyticsModule as DashboardModule,
+            CommandsModule as DashboardModule,
+            ClipsModule as DashboardModule,
+            TrendsModule as DashboardModule,
+            StalkerModule as DashboardModule,
+            Magic8Module as DashboardModule,
+            RouletteModule as DashboardModule,
+            RussianModule as DashboardModule,
+            FeedbackModule as DashboardModule
         ];
         modules.forEach((mod) => {
-            if (mod && typeof (mod as any).init === 'function') {
+            if (mod && typeof mod.init === 'function') {
                 try {
-                    (mod as any).init(this.session);
+                    mod.init(this.session!);
                 } catch (e) {
                     console.warn('Error initializing module:', e);
                 }
@@ -120,37 +119,35 @@ export const Dashboard = {
     loadTab(tabId: string) {
         if (!this.session) return;
 
-        // Deactivar módulos anteriores si es necesario
         this.activeModules.forEach((mod) => {
             if (mod && typeof mod.deactivate === 'function') {
                 try {
                     mod.deactivate();
-                } catch (e) {}
+                } catch (error) {
+                    console.error('Error al desactivar módulo:', error);
+                }
             }
         });
         this.activeModules = [];
 
-        // Los módulos ya están inicializados y el HTML ya está cargado.
-        // Solo necesitamos registrar cuáles están activos para el control de TMI si hiciera falta.
-        // Nota: En este nuevo sistema, la mayoría de herramientas se controlan por sus propios botones Play/Stop innen.
-
-        const moduleMap: Record<string, any[]> = {
-            'tab-home': [AccountModule, AnalyticsModule],
-            'tab-followage': [CommandsModule],
-            'tab-clips': [ClipsModule, CommandsModule],
-            'tab-shoutout': [CommandsModule],
-            'tab-tracker': [TrendsModule],
-            'tab-stalker': [StalkerModule],
-            'tab-magic8': [Magic8Module, CommandsModule],
-            'tab-roulette': [RouletteModule],
-            'tab-feedback': [FeedbackModule]
+        const moduleMap: Record<string, DashboardModule[]> = {
+            'tab-home': [AccountModule as DashboardModule, AnalyticsModule as DashboardModule],
+            'tab-followage': [CommandsModule as DashboardModule],
+            'tab-clips': [ClipsModule as DashboardModule, CommandsModule as DashboardModule],
+            'tab-shoutout': [CommandsModule as DashboardModule],
+            'tab-tracker': [TrendsModule as DashboardModule],
+            'tab-stalker': [StalkerModule as DashboardModule],
+            'tab-magic8': [Magic8Module as DashboardModule, CommandsModule as DashboardModule],
+            'tab-roulette': [RouletteModule as DashboardModule],
+            'tab-russian': [RussianModule as DashboardModule],
+            'tab-feedback': [FeedbackModule as DashboardModule]
         };
 
         if (moduleMap[tabId]) {
             this.activeModules = moduleMap[tabId];
             this.activeModules.forEach((mod) => {
-                if (mod && typeof (mod as any).activate === 'function') {
-                    (mod as any).activate();
+                if (mod && typeof mod.activate === 'function') {
+                    mod.activate();
                 }
             });
         }
