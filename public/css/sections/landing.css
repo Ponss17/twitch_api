@@ -740,3 +740,29 @@ html {
         justify-content: center;
     }
 }
+
+@media (max-width: 450px) {
+    #landing-page .container {
+        padding: 0 1.5rem;
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+    }
+
+    .fake-body {
+        min-height: 220px;
+    }
+
+    .faq-question {
+        padding: 1rem;
+    }
+
+    .faq-content {
+        padding: 0 1rem 1.5rem 1rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+}
