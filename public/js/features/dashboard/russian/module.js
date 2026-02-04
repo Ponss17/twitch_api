@@ -3,8 +3,15 @@ import { UI } from '../../../core/ui.js';
 export const RussianModule = {
     session: null,
     gameEndpoint: `${DASHBOARD_CONFIG.API_ENDPOINTS.BASE}/minigames/russian`,
+    cssLoaded: false,
     init(session) {
         this.session = session;
+        if (!this.cssLoaded) {
+            import('../../../shared/utils/loader.js').then(({ Loader }) => {
+                Loader.loadCSS('css/sections/russian.css');
+            });
+            this.cssLoaded = true;
+        }
     },
     activate() {
         const btn = document.getElementById('btn-fire-russian');

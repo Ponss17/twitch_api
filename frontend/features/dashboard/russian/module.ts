@@ -4,15 +4,24 @@ import { UI } from '../../../core/ui.js';
 
 interface IRussianModule extends DashboardModule {
     gameEndpoint: string;
+    cssLoaded: boolean;
     pullTrigger(): Promise<void>;
 }
 
 export const RussianModule: IRussianModule = {
     session: null,
     gameEndpoint: `${DASHBOARD_CONFIG.API_ENDPOINTS.BASE}/minigames/russian`,
+    cssLoaded: false,
 
     init(session: Session): void {
         this.session = session;
+
+        if (!this.cssLoaded) {
+            import('../../../shared/utils/loader.js').then(({ Loader }) => {
+                Loader.loadCSS('css/sections/russian.css');
+            });
+            this.cssLoaded = true;
+        }
     },
 
     activate() {
