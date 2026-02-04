@@ -124,7 +124,7 @@ export const Dashboard = {
             'tab-stalker': [StalkerModule],
             'tab-magic8': [Magic8Module, CommandsModule],
             'tab-roulette': [RouletteModule],
-            'tab-russian': [RussianModule],
+            'tab-russian': [RussianModule, CommandsModule],
             'tab-feedback': [FeedbackModule]
         };
         if (moduleMap[tabId]) {
