@@ -1,0 +1,160 @@
+.russian-visuals {
+    position: relative;
+    margin: 30px 0;
+    padding: 20px;
+}
+
+#russian-gun-icon {
+    font-size: 4rem;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+}
+
+#russian-gun-icon:hover {
+    transform: scale(1.1) rotate(-5deg);
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+}
+
+.fa-shake {
+    animation: gunShake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes gunShake {
+
+    10%,
+    90% {
+        transform: translate3d(-2px, 0, 0) rotate(-2deg);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(4px, 0, 0) rotate(2deg);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-6px, 0, 0) rotate(-3deg);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(6px, 0, 0) rotate(3deg);
+    }
+}
+
+#btn-fire-russian {
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    font-size: 1.2rem;
+    padding: 15px 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+#btn-fire-russian::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+#btn-fire-russian:hover::before {
+    left: 100%;
+}
+
+#btn-fire-russian:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(220, 38, 38, 0.5);
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+#btn-fire-russian:active {
+    transform: translateY(1px) scale(0.98);
+}
+
+#btn-fire-russian:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#russian-result {
+    margin-top: 25px;
+    padding: 20px;
+    border-radius: var(--radius);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    animation: revealResult 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    transform-origin: center top;
+}
+
+#russian-result.hidden {
+    display: none;
+}
+
+#russian-result.visible {
+    display: block;
+}
+
+#russian-result.error {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(153, 27, 27, 0.15));
+    border: 1px solid rgba(220, 38, 38, 0.4);
+    border-left: 4px solid #dc2626;
+    color: #fca5a5;
+}
+
+#russian-result.success {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(21, 128, 61, 0.15));
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    border-left: 4px solid #22c55e;
+    color: #86efac;
+}
+
+#russian-message {
+    font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes revealResult {
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+        filter: blur(4px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+.game-controls {
+    position: relative;
+}
+
+.game-controls::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.3;
+}
