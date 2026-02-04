@@ -15,6 +15,7 @@
 ### 🖥️ Dashboard Pro (Next-Gen UI)
 
 - **Diseño Glassmorphism**: Interfaz oscura ultra-moderna con efectos de desenfoque y animaciones fluidas.
+- **Mobile-First Responsive**: Diseño totalmente adaptativo que escala perfectamente desde escritorio hasta dispositivos móviles.
 - **Arquitectura de Ciclo de Vida**: Motor de dashboard que gestiona la carga y limpieza de módulos (`init` / `deactivate`) dinámicamente.
 - **Lazy Loading Extremo**: Carga bajo demanda de HTML, CSS y JS TypeScript, optimizando el tiempo de respuesta inicial.
 - **XSS-Shield**: Sistema de renderizado seguro que protege contra inyecciones maliciosas en perfiles, clips y mensajes del chat.
@@ -24,6 +25,7 @@
 - **Stalker**: Monitor avanzado de chat con inspección de perfiles en tiempo real.
 - **Tendencias**: Análisis léxico del chat en vivo con sistema de ranking y temporizador.
 - **Ruleta Interactiva**: Sorteos interactivos con física de giro y temática Twitch personalizada.
+- **Ruleta Rusa (Bang)**: Minijuego de riesgo con interfaz inmersiva y animaciones CSS personalizadas.
 - **Arquitectura Modular**: CSS unificado en `common.css` para componentes compartidos y carga bajo demanda para estilos específicos.
 
 ---
