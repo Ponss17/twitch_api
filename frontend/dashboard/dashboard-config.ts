@@ -10,7 +10,7 @@ export const DASHBOARD_CONFIG = {
         CHATTERS: `${API_BASE}/dashboard/chatters`,
         USER_INFO: `${API_BASE}/dashboard/user-info`,
         SEND_MESSAGE: `${API_BASE}/send-message`,
-        CLIPS: `${API_BASE}/get-clips`
+        CLIPS: `${API_BASE}/dashboard/get-clips`
     },
     IGNORED_BOTS: new Set([
         'nightbot',
