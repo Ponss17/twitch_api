@@ -29,12 +29,9 @@ export const RussianModule: IRussianModule = {
         if (!this.session) return;
 
         const btn = document.getElementById('btn-fire-russian') as HTMLButtonElement;
-        const checkbox = document.getElementById('russian-hardcore') as HTMLInputElement;
         const resultBox = document.getElementById('russian-result');
         const messageEl = document.getElementById('russian-message');
         const gunIcon = document.getElementById('russian-gun-icon');
-
-        const isHardcore = checkbox.checked;
 
         if (btn) btn.disabled = true;
         if (resultBox) resultBox.classList.add('hidden');
@@ -47,7 +44,7 @@ export const RussianModule: IRussianModule = {
             const params = new URLSearchParams({
                 user: this.session.login,
                 channel: this.session.login,
-                hardcore: String(isHardcore),
+                hardcore: 'false',
                 format: 'json'
             });
 

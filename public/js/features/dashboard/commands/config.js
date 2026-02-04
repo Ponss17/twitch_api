@@ -104,10 +104,10 @@ export const COMMAND_CONFIG = {
     russian: {
         id: 'russian',
         containerId: 'command-card-russian',
-        title: 'Comando !bang',
+        title: 'Comando !ruleta',
         icon: 'fa-solid fa-skull-crossbones',
         desc: 'Juego de Ruleta Rusa para el chat',
-        info: 'Tus viewers podrán jugar a la Ruleta Rusa escribiendo !bang. ¡Cuidado con la bala!',
+        info: 'Tus viewers podrán jugar a la Ruleta Rusa escribiendo !ruleta. ¡Cuidado con la bala!',
         extraSelectors: [
             {
                 id: 'hardcore',
@@ -128,7 +128,7 @@ export const COMMAND_CONFIG = {
                 ? `${domain}/russian`
                 : `${domain}/minigames/russian`;
             const cmd = CommandGenerator.generate(bot, russianUrl, queryParams);
-            return `!addcom !bang ${cmd}`;
+            return `!addcom !ruleta ${cmd}`;
         }
     }
 };

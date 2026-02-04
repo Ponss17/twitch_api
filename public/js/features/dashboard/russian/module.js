@@ -18,11 +18,9 @@ export const RussianModule = {
         if (!this.session)
             return;
         const btn = document.getElementById('btn-fire-russian');
-        const checkbox = document.getElementById('russian-hardcore');
         const resultBox = document.getElementById('russian-result');
         const messageEl = document.getElementById('russian-message');
         const gunIcon = document.getElementById('russian-gun-icon');
-        const isHardcore = checkbox.checked;
         if (btn)
             btn.disabled = true;
         if (resultBox)
@@ -35,7 +33,7 @@ export const RussianModule = {
             const params = new URLSearchParams({
                 user: this.session.login,
                 channel: this.session.login,
-                hardcore: String(isHardcore),
+                hardcore: 'false',
                 format: 'json'
             });
             const response = await fetch(`${this.gameEndpoint}?${params.toString()}`, {

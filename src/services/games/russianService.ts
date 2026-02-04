@@ -14,12 +14,26 @@ export const playRussianRoulette = async (
 
         const broadcasterId = await getUserId(channel, token);
 
+        const deathMessages = [
+            `@${triggerUser} toma el revólver con mano temblorosa... 🔫 lo apunta a su sien... respira hondo... 💥 BANG! La bala estaba ahí. R.I.P. 💀`,
+            `@${triggerUser} gira el tambor, lo escucha girar... click click click... aprieta el gatillo y... 💥 BOOOOM! No tuvo suerte. 💀`,
+            `El silencio se apodera del chat mientras @${triggerUser} sostiene el arma... un segundo... dos... 💥 BANG! La ruleta rusa no perdona. 💀`,
+            `@${triggerUser} cierra los ojos, cuenta hasta tres... 1... 2... 3... 💥 BANG! El destino ha hablado. R.I.P. 💀`
+        ];
+
+        const surviveMessages = [
+            `@${triggerUser} aprieta el gatillo con los ojos cerrados... *click* 😰 ¡Vacío! Suda frío pero respira aliviado. Vivió para contarlo. 🍀`,
+            `El tambor gira... @${triggerUser} jala el gatillo... *click* 😅 ¡Nada! La suerte está de su lado hoy. 🎰`,
+            `@${triggerUser} tiembla mientras apunta... *click* 😌 Cámara vacía. Los dioses de la ruleta le perdonaron la vida. ✨`,
+            `Tensión máxima... @${triggerUser} dispara... *click* 😮‍💨 ¡Sobrevivió! Pero el corazón casi se le sale del pecho. 💚`
+        ];
+
         let message = '';
         let status = 'alive';
 
         if (isDead) {
             status = 'dead';
-            message = `💥 BANG! @${triggerUser} ha jalado el gatillo y... ha encontrado la bala. R.I.P. 💀`;
+            message = deathMessages[Math.floor(Math.random() * deathMessages.length)];
 
             if (hardcore) {
                 try {
@@ -31,7 +45,7 @@ export const playRussianRoulette = async (
                             broadcasterId,
                             targetUserId,
                             60,
-                            'Perdió en la Ruleta Rusa (!bang)',
+                            'Perdió en la Ruleta Rusa (!ruleta)',
                             token
                         );
                         message += ' (Modo Hardcore: 60s fuera 🕒)';
@@ -44,7 +58,7 @@ export const playRussianRoulette = async (
                 }
             }
         } else {
-            message = `😰 Click... @${triggerUser} suda frío. El revólver estaba vacío.`;
+            message = surviveMessages[Math.floor(Math.random() * surviveMessages.length)];
         }
 
         await sendChatMessage(broadcasterId, broadcasterId, message, token);
