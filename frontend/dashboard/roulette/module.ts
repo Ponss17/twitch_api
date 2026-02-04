@@ -4,7 +4,7 @@ import { RouletteMessages } from './messages.js';
 import { CONFIG } from '../../config.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 const { API_ENDPOINTS, IGNORED_BOTS } = DASHBOARD_CONFIG;
-const { API_URL } = CONFIG;
+
 import { TmiService, TmiTags } from '../../utils/tmiService.js';
 import { Session, RouletteUser } from '../../types.js';
 
@@ -116,9 +116,9 @@ export const RouletteModule = {
 
         const auth = this.session.token
             ? {
-                username: this.session.login,
-                token: this.session.token
-            }
+                  username: this.session.login,
+                  token: this.session.token
+              }
             : undefined;
 
         try {
@@ -191,7 +191,9 @@ export const RouletteModule = {
             .then((res) => res.json())
             .then((data: unknown) => {
                 const safeData = data as { chatters?: unknown[] } | unknown[];
-                const chattersList = Array.isArray(safeData) ? safeData : (safeData as { chatters?: unknown[] }).chatters || [];
+                const chattersList = Array.isArray(safeData)
+                    ? safeData
+                    : (safeData as { chatters?: unknown[] }).chatters || [];
 
                 if (Array.isArray(chattersList)) {
                     const currentChatters = new Set(
@@ -199,7 +201,10 @@ export const RouletteModule = {
                     );
                     let newAdded = 0;
 
-                    const typedList = chattersList as (string | { user_login: string; user_name: string })[];
+                    const typedList = chattersList as (
+                        | string
+                        | { user_login: string; user_name: string }
+                    )[];
                     typedList.forEach((item) => {
                         const login = typeof item === 'string' ? item : item.user_login;
                         const name = typeof item === 'string' ? item : item.user_name;
