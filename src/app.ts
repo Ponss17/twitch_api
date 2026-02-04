@@ -7,7 +7,7 @@ import { CONFIG } from './config/env';
 import rateLimiter, { authLimiter } from './middleware/rateLimiter';
 import authRoutes from './routes/authRoutes';
 import apiRoutes from './routes/apiRoutes';
-import { getRobotsTxt, getSitemapXml } from './controllers/seoController';
+import { getRobotsTxt, getSitemapXml } from './controllers/system/seoController';
 import { errorHandler, logger } from './middleware/errorMiddleware';
 
 const app: Application = express();

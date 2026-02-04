@@ -1,0 +1,4 @@
+
+> twitch_api@1.0.0 build:frontend
+> tsc -p tsconfig.frontend.json
+
