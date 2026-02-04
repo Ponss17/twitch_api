@@ -203,3 +203,21 @@
 .btn-clip-action.fav-btn.active:hover {
     background: rgba(255, 215, 0, 0.2);
 }
+
+@media (max-width: 600px) {
+    .clips-toolbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .search-box,
+    .sort-box,
+    .select-input {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .clips-grid {
+        grid-template-columns: 1fr;
+    }
+}
