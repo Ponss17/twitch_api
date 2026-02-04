@@ -108,3 +108,26 @@ footer a {
 footer a:hover {
     color: var(--accent-hover);
 }
+
+@media (max-width: 768px) {
+    .main-header .container {
+        padding: 1rem 1.5rem;
+    }
+
+    .main-header.scrolled .container {
+        padding: 0.8rem 1.5rem;
+    }
+
+    .brand-logo {
+        font-size: 1.3rem;
+    }
+
+    .top-nav {
+        gap: 5px;
+    }
+
+    .nav-link {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+}
