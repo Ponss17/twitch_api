@@ -24,8 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
     sections.forEach((section) => observer.observe(section));
     const updateUrls = () => {
         const baseUrl = window.location.origin;
-        document.querySelectorAll('.dynamic-url').forEach((code) => {
+        document.querySelectorAll('.dynamic-url').forEach((el) => {
+            const code = el;
             const path = code.dataset.path;
+            if (!path)
+                return;
             if (path.includes('{baseURL}')) {
                 code.textContent = path.replace('{baseURL}', baseUrl);
             }
