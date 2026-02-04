@@ -1,7 +1,6 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
 import { StalkerMessages } from './messages.js';
-import { CONFIG } from '../../config.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 const { API_ENDPOINTS, IGNORED_BOTS } = DASHBOARD_CONFIG;
 import { cache, CACHE_TTL } from '../../utils/cacheService.js';
@@ -96,41 +95,41 @@ export const StalkerModule = {
             : undefined;
         TmiService.connect(this.session.login, auth)
             .then(() => {
-                this.isConnected = true;
-                TmiService.addListener('stalker', (channel, tags, message) => {
-                    if (!this.isScanning)
-                        return;
-                    const login = tags.username;
-                    if (!login)
-                        return;
-                    if (IGNORED_BOTS.has(login.toLowerCase()))
-                        return;
-                    import('../trends/module.js').then(({ TrendsModule }) => {
-                        TrendsModule.messageLog.unshift({
-                            user: login.toLowerCase(),
-                            text: message,
-                            time: new Date()
-                        });
-                        if (TrendsModule.messageLog.length > TrendsModule.MAX_LOG_SIZE)
-                            TrendsModule.messageLog.pop();
+            this.isConnected = true;
+            TmiService.addListener('stalker', (channel, tags, message) => {
+                if (!this.isScanning)
+                    return;
+                const login = tags.username;
+                if (!login)
+                    return;
+                if (IGNORED_BOTS.has(login.toLowerCase()))
+                    return;
+                import('../trends/module.js').then(({ TrendsModule }) => {
+                    TrendsModule.messageLog.unshift({
+                        user: login.toLowerCase(),
+                        text: message,
+                        time: new Date()
                     });
-                    if (!this.chatters.some((u) => u.user_login.toLowerCase() === login.toLowerCase())) {
-                        const newUser = {
-                            user_login: login,
-                            user_name: tags['display-name'] || login,
-                            profile_image_url: null
-                        };
-                        this.chatters.unshift(newUser);
-                        this.renderTable(this.chatters);
-                        document.getElementById('stalker-grid')?.firstChild?.parentElement?.classList.add('row-highlight');
-                    }
+                    if (TrendsModule.messageLog.length > TrendsModule.MAX_LOG_SIZE)
+                        TrendsModule.messageLog.pop();
                 });
-            })
-            .catch((err) => {
-                console.error('Stalker TMI Error:', err);
-                UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
-                this.toggleScan();
+                if (!this.chatters.some((u) => u.user_login.toLowerCase() === login.toLowerCase())) {
+                    const newUser = {
+                        user_login: login,
+                        user_name: tags['display-name'] || login,
+                        profile_image_url: null
+                    };
+                    this.chatters.unshift(newUser);
+                    this.renderTable(this.chatters);
+                    document.getElementById('stalker-grid')?.firstChild?.parentElement?.classList.add('row-highlight');
+                }
             });
+        })
+            .catch((err) => {
+            console.error('Stalker TMI Error:', err);
+            UI.showToast(Messages.Common.connectionError || 'Error connecting to chat', 'error');
+            this.toggleScan();
+        });
     },
     deactivate() {
         this.isScanning = false;
@@ -237,11 +236,8 @@ export const StalkerModule = {
                 return;
             const cacheKey = `user_info_${login}`;
             const cachedInfo = cache.get(cacheKey);
-
             if (cachedInfo) {
-                import('../../utils/profileModal.js').then(({ ProfileModal }) =>
-                    ProfileModal.open(cachedInfo)
-                );
+                import('../../utils/profileModal.js').then(({ ProfileModal }) => ProfileModal.open(cachedInfo));
                 return;
             }
             const res = await fetch(`${API_ENDPOINTS.USER_INFO}?login=${login}&apiKey=${this.session.apiKey}`);

@@ -1,10 +1,8 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
 import { RouletteMessages } from './messages.js';
-import { CONFIG } from '../../config.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 const { API_ENDPOINTS, IGNORED_BOTS } = DASHBOARD_CONFIG;
-const { API_URL } = CONFIG;
 import { TmiService } from '../../utils/tmiService.js';
 export const RouletteModule = {
     session: null,
@@ -166,33 +164,36 @@ export const RouletteModule = {
         fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&${tokenParam}`)
             .then((res) => res.json())
             .then((data) => {
-                const chattersList = Array.isArray(data) ? data : data.chatters || [];
-                if (Array.isArray(chattersList)) {
-                    const currentChatters = new Set(this.chatters.map((u) => u.user_login.toLowerCase()));
-                    let newAdded = 0;
-                    chattersList.forEach((item) => {
-                        const login = typeof item === 'string' ? item : item.user_login;
-                        const name = typeof item === 'string' ? item : item.user_name;
-                        if (!login)
-                            return;
-                        const lowerLogin = login.toLowerCase();
-                        if (!currentChatters.has(lowerLogin) &&
-                            !IGNORED_BOTS.has(lowerLogin)) {
-                            this.chatters.push({ user_login: login, user_name: name });
-                            currentChatters.add(lowerLogin);
-                            newAdded++;
-                        }
-                    });
-                    if (newAdded > 0) {
-                        this.updateUI();
-                        this.pulseCounter();
+            const safeData = data;
+            const chattersList = Array.isArray(safeData)
+                ? safeData
+                : safeData.chatters || [];
+            if (Array.isArray(chattersList)) {
+                const currentChatters = new Set(this.chatters.map((u) => u.user_login.toLowerCase()));
+                let newAdded = 0;
+                const typedList = chattersList;
+                typedList.forEach((item) => {
+                    const login = typeof item === 'string' ? item : item.user_login;
+                    const name = typeof item === 'string' ? item : item.user_name;
+                    if (!login)
+                        return;
+                    const lowerLogin = login.toLowerCase();
+                    if (!currentChatters.has(lowerLogin) && !IGNORED_BOTS.has(lowerLogin)) {
+                        this.chatters.push({ user_login: login, user_name: name });
+                        currentChatters.add(lowerLogin);
+                        newAdded++;
                     }
+                });
+                if (newAdded > 0) {
+                    this.updateUI();
+                    this.pulseCounter();
                 }
-            })
+            }
+        })
             .catch((err) => {
-                console.error('Error loading chatters:', err);
-                UI.showToast('Error al cargar usuarios del chat', 'error');
-            });
+            console.error('Error loading chatters:', err);
+            UI.showToast('Error al cargar usuarios del chat', 'error');
+        });
     },
     spin() {
         if (this.isSpinning || this.chatters.length === 0)
