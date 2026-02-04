@@ -22,9 +22,12 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
 
         return res.send(result);
     } catch (error: unknown) {
-        const err = error as any;
-        const message = err.status === 404 ? err.message : MESSAGES.COMMANDS.CREATE_CLIP_ERROR;
-        return res.status(err.status || 500).send(message);
+        const status = (error as { status?: number }).status || 500;
+        const message =
+            status === 404
+                ? (error as { message?: string }).message
+                : MESSAGES.COMMANDS.CREATE_CLIP_ERROR;
+        return res.status(status).send(message);
     }
 };
 

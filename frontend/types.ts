@@ -23,13 +23,14 @@ export interface Session {
     metadata?: Record<string, string | number | boolean>;
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
     data?: T;
     error?: string;
     message?: string;
     status?: number;
     valid?: boolean;
     user?: TwitchUser;
+    token?: string;
 }
 
 export interface StalkerUser {
@@ -69,7 +70,9 @@ export interface Clip {
 }
 export interface DashboardModule {
     init(session: Session): void | Promise<void>;
+    activate?(): void | Promise<void>;
     deactivate?(): void;
     initialized?: boolean;
     isInitialized?: boolean;
+    session?: Session | null;
 }

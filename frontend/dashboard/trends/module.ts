@@ -1,14 +1,38 @@
 import { Messages } from '../../utils/messages.js';
 import { TrendsMessages, TrackerMessages } from './messages.js';
-import { CONFIG } from '../../config.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 const { IGNORED_BOTS } = DASHBOARD_CONFIG;
 import { UI } from '../../ui.js';
 import { TmiService, TmiTags } from '../../utils/tmiService.js';
 import { TrendsTemplates } from './templates.js';
-import { Session, ChatLogItem } from '../../types.js';
+import { Session, ChatLogItem, DashboardModule } from '../../types.js';
 
-export const TrendsModule = {
+interface ITrendsModule extends DashboardModule {
+    wordCounts: Record<string, number>;
+    isIgnored: Set<string>;
+    messageLog: ChatLogItem[];
+    MAX_LOG_SIZE: number;
+    isTracking: boolean;
+    isConnected: boolean;
+    timerInterval: NodeJS.Timeout | null;
+    cssLoaded: boolean;
+    renderPending: boolean;
+    updateUIState(): void;
+    setupUI(): void;
+    attachListeners(): void;
+    processMessage(msg: string): void;
+    connect(): void;
+    updateStatus(connected: boolean): void;
+    startTimer(): void;
+    runTimer(seconds: number): void;
+    endTimer(): void;
+    formatTime(s: number): string;
+    reset(): void;
+    getMessagesByUser(username: string): ChatLogItem[];
+    render(): void;
+}
+
+export const TrendsModule: ITrendsModule = {
     wordCounts: {} as Record<string, number>,
     isIgnored: new Set([
         'el',
@@ -77,8 +101,8 @@ export const TrendsModule = {
     MAX_LOG_SIZE: 500,
     isTracking: false,
     isConnected: false,
-    timerInterval: null as NodeJS.Timeout | null,
-    session: null as Session | null,
+    timerInterval: null,
+    session: null,
     initialized: false,
 
     cssLoaded: false,
@@ -158,7 +182,7 @@ export const TrendsModule = {
                     this.processMessage(message);
                 });
             })
-            .catch((err: any) => {
+            .catch((err: unknown) => {
                 console.error('Trends TMI Error:', err);
                 this.updateStatus(false);
                 UI.showToast(

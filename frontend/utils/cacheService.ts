@@ -1,5 +1,5 @@
 interface CacheEntry {
-    data: any;
+    data: unknown;
     timestamp: number;
     ttl: number;
 }
@@ -15,7 +15,7 @@ export class CacheService {
         setInterval(() => this.cleanup(), 60000);
     }
 
-    set(key: string, data: any, ttl: number) {
+    set<T>(key: string, data: T, ttl: number) {
         this.cache.set(key, {
             data,
             timestamp: Date.now(),
@@ -23,7 +23,7 @@ export class CacheService {
         });
     }
 
-    get(key: string) {
+    get<T = unknown>(key: string): T | null {
         const entry = this.cache.get(key);
 
         if (!entry) {
@@ -38,7 +38,7 @@ export class CacheService {
             return null;
         }
 
-        return entry.data;
+        return entry.data as T;
     }
 
     has(key: string) {

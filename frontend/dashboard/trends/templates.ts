@@ -1,7 +1,7 @@
 import { UI } from '../../ui.js';
 
 export const TrendsTemplates = {
-    renderRow(item: [string, any], index: number, maxCount: number) {
+    renderRow(item: [string, number], index: number, maxCount: number) {
         const [word, count] = item;
         const safeWord = UI.escapeHTML(word);
         const percentage = (count / maxCount) * 100;

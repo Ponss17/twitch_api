@@ -1,19 +1,34 @@
 import { UI } from '../../ui.js';
 import { Messages } from '../../utils/messages.js';
 import { StalkerMessages } from './messages.js';
-import { CONFIG } from '../../config.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 const { API_ENDPOINTS, IGNORED_BOTS } = DASHBOARD_CONFIG;
 import { cache, CACHE_TTL } from '../../utils/cacheService.js';
 import { TmiService, TmiTags } from '../../utils/tmiService.js';
 import { StalkerTemplates } from './templates.js';
-import { Session, StalkerUser } from '../../types.js';
+import { Session, StalkerUser, DashboardModule, TwitchUser } from '../../types.js';
 
-export const StalkerModule = {
-    session: null as Session | null,
+interface IStalkerModule extends DashboardModule {
+    isScanning: boolean;
+    chatters: StalkerUser[];
+    searchTimeout: NodeJS.Timeout | null;
+    isConnected: boolean;
+    cssLoaded: boolean;
+    setupUI(): void;
+    toggleScan(): void;
+    connectTmi(): void;
+    render(): void;
+    loadChatters(): Promise<void>;
+    renderTable(list: StalkerUser[]): void;
+    filterChatters(query: string): void;
+    inspectUser(login: string): Promise<void>;
+}
+
+export const StalkerModule: IStalkerModule = {
+    session: null,
     isScanning: false,
     chatters: [] as StalkerUser[],
-    searchTimeout: null as NodeJS.Timeout | null,
+    searchTimeout: null,
     isConnected: false,
     initialized: false,
 
@@ -146,7 +161,7 @@ export const StalkerModule = {
                     }
                 );
             })
-            .catch((err: any) => {
+            .catch((err: unknown) => {
                 console.error('Stalker TMI Error:', err);
                 UI.showToast(
                     Messages.Common.connectionError || 'Error connecting to chat',
@@ -283,7 +298,7 @@ export const StalkerModule = {
         try {
             if (!this.session) return;
             const cacheKey = `user_info_${login}`;
-            const cachedInfo = cache.get(cacheKey);
+            const cachedInfo = cache.get<TwitchUser>(cacheKey);
 
             if (cachedInfo) {
                 import('../../utils/profileModal.js').then(({ ProfileModal }) =>

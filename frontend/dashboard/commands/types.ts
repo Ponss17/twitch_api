@@ -22,6 +22,6 @@ export interface CommandConfigItem {
         bot: string,
         templateVal: string,
         queryParams: string,
-        extraValues: any
+        extraValues: Record<string, string>
     ) => string;
 }

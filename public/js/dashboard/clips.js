@@ -108,10 +108,10 @@ export const ClipsModule = {
     },
     debounce(func, wait) {
         let timeout;
-        return function executedFunction(...args) {
+        return (...args) => {
             const later = () => {
                 clearTimeout(timeout);
-                func.apply(this, args);
+                func(...args);
             };
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);

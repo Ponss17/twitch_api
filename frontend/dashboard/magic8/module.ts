@@ -1,11 +1,19 @@
 import { Magic8Messages } from './messages.js';
-import { CONFIG } from '../../config.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 const { API_ENDPOINTS, DOM_IDS } = DASHBOARD_CONFIG;
-import { Session } from '../../types.js';
+import { Session, DashboardModule } from '../../types.js';
 
-export const Magic8Module = {
-    session: null as Session | null,
+interface IMagic8Module extends DashboardModule {
+    cssLoaded: boolean;
+    initialized: boolean;
+    setupUI(): void;
+    askQuestion(): Promise<void>;
+    showResponse(text: string, type: string): void;
+    setLoading(isLoading: boolean): void;
+}
+
+export const Magic8Module: IMagic8Module = {
+    session: null,
     initialized: false,
 
     cssLoaded: false,
@@ -17,7 +25,7 @@ export const Magic8Module = {
             import('../../utils/loader.js').then(({ Loader }) => {
                 Loader.loadCSS('css/sections/magic8.css');
             });
-            (this as any).cssLoaded = true;
+            this.cssLoaded = true;
         }
 
         this.setupUI();
