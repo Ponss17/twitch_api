@@ -51,6 +51,30 @@ const SCENARIOS: Scenario[] = [
             'Final de la carrera. {w} lanza un caparazón azul justo cuando {l} iba a cruzar la meta. La explosión lanza a {l} fuera de la pista. La amistad se ha roto para siempre.',
             '{w} encierra a {l} en una caja de obsidiana y vierte un cubo de lava. No hay escapatoria. El inventario de {l} queda flotando en el fuego mientras {w} hace teabagging.'
         ]
+    },
+    {
+        name: 'Epicas',
+        messages: [
+            '{w} y {l} chocan en el aire, creando una onda expansiva que rompe las ventanas del chat. Tras un intercambio de golpes a la velocidad de la luz, {w} conecta un puñetazo que manda a {l} a la estratosfera.',
+            'El suelo tiembla. {w} invoca un dragón ancestral que incinera el campo de batalla. {l} intenta protegerse, pero las llamas son demasiado intensas. Solo quedan cenizas donde estaba {l}.',
+            'Bajo la lluvia torrencial, las espadas de {w} y {l} chocan. El acero ruge. En un movimiento final, {w} rompe la guardia de {l} y termina el duelo con un corte limpio. Honor y gloria para {w}.'
+        ]
+    },
+    {
+        name: 'Mitologia',
+        messages: [
+            '{w}, empuñando el Mjolnir, invoca una tormenta eléctrica. {l} es golpeado por un rayo divino, y su cuerpo sale volando hacia el Valhalla (o quizás solo al hospital).',
+            '{l} mira a los ojos de {w} y se convierte en piedra. Resulta que {w} tenía la cabeza de Medusa en la mochila. Una victoria táctica y petrificante.',
+            '{w} abre las aguas del mar como Moisés y las deja caer sobre {l}. La presión del océano aplasta a {l} bajo toneladas de agua salada. {w} camina sobre el agua celebrando.'
+        ]
+    },
+    {
+        name: 'Cine',
+        messages: [
+            '{w} dice "Hasta la vista, baby" y dispara un lanzagranadas. {l} explota en cámara lenta mientras {w} se pone unas gafas de sol y camina sin mirar atrás.',
+            'Es la batalla final. {l} tiene el terreno alto ("It\'s over {w}! I have the high ground!"), pero {w} subestima el poder de su salto y lo corta por la mitad en el aire.',
+            '{w} está acorralado, pero saca un lápiz... ¡UN LÁPIZ! Con pura precisión de John Wick, {w} derrota a {l} usando solo material de oficina. Nadie toca al perro de {w}.'
+        ]
     }
 ];
 
