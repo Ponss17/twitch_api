@@ -10,6 +10,7 @@ import { StalkerModule } from '../features/dashboard/stalker.js';
 import { Magic8Module } from '../features/dashboard/magic8.js';
 import { RouletteModule } from '../features/dashboard/roulette.js';
 import { RussianModule } from '../features/dashboard/russian/module.js';
+import { DuelModule } from '../features/dashboard/duel/module.js';
 import { FeedbackModule } from '../features/dashboard/feedback.js';
 export const Dashboard = {
     session: null,
@@ -45,7 +46,9 @@ export const Dashboard = {
             StalkerModule,
             Magic8Module,
             RouletteModule,
+            RouletteModule,
             RussianModule,
+            DuelModule,
             FeedbackModule
         ];
         modules.forEach((mod) => {
@@ -125,6 +128,7 @@ export const Dashboard = {
             'tab-magic8': [Magic8Module, CommandsModule],
             'tab-roulette': [RouletteModule],
             'tab-russian': [RussianModule, CommandsModule],
+            'tab-duel': [DuelModule],
             'tab-feedback': [FeedbackModule]
         };
         if (moduleMap[tabId]) {
