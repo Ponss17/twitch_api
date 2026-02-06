@@ -14,6 +14,7 @@
         "lint": "eslint .",
         "format": "prettier --write .",
         "type-check": "tsc --noEmit",
+        "validate": "npm run lint && npm run type-check && npm run build",
         "clean": "shx rm -rf dist",
         "test": "echo \"No tests yet\" && exit 0",
         "deploy": "npm run build && vercel --prod",
