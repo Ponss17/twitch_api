@@ -18,14 +18,20 @@ export const playRussianRoulette = async (
             `@${triggerUser} toma el revólver con mano temblorosa... 🔫 lo apunta a su sien... respira hondo... 💥 BANG! La bala estaba ahí. R.I.P. 💀`,
             `@${triggerUser} gira el tambor, lo escucha girar... click click click... aprieta el gatillo y... 💥 BOOOOM! No tuvo suerte. 💀`,
             `El silencio se apodera del chat mientras @${triggerUser} sostiene el arma... un segundo... dos... 💥 BANG! La ruleta rusa no perdona. 💀`,
-            `@${triggerUser} cierra los ojos, cuenta hasta tres... 1... 2... 3... 💥 BANG! El destino ha hablado. R.I.P. 💀`
+            `@${triggerUser} cierra los ojos, cuenta hasta tres... 1... 2... 3... 💥 BANG! El destino ha hablado. R.I.P. 💀`,
+            `@${triggerUser} sonríe nerviosamente, "No va a pasar nada" dice... 💥 ¡PUM! Esas fueron sus últimas palabras. ⚰️`,
+            `El revólver brilla fríamente. @${triggerUser} duda, pero la presión del chat es demasiada... 💥 Adiós vaquero. 🤠👻`,
+            `@${triggerUser} intenta hacerse el valiente... *click* (espíritu sale del cuerpo) 💥 ¡Directo al lobby! 🎮💀`
         ];
 
         const surviveMessages = [
             `@${triggerUser} aprieta el gatillo con los ojos cerrados... *click* 😰 ¡Vacío! Suda frío pero respira aliviado. Vivió para contarlo. 🍀`,
             `El tambor gira... @${triggerUser} jala el gatillo... *click* 😅 ¡Nada! La suerte está de su lado hoy. 🎰`,
             `@${triggerUser} tiembla mientras apunta... *click* 😌 Cámara vacía. Los dioses de la ruleta le perdonaron la vida. ✨`,
-            `Tensión máxima... @${triggerUser} dispara... *click* 😮‍💨 ¡Sobrevivió! Pero el corazón casi se le sale del pecho. 💚`
+            `Tensión máxima... @${triggerUser} dispara... *click* 😮‍💨 ¡Sobrevivió! Pero el corazón casi se le sale del pecho. 💚`,
+            `@${triggerUser} ríe ante el peligro... *click*. "¡Soy inmortal!", grita. Por ahora... 👀`,
+            `*click* ... @${triggerUser} abre un ojo... luego el otro. ¡Sigue vivo! El chat celebra (o se decepciona). 🎉`,
+            `El destino ha decidido que no es tu hora @${triggerUser}. *click*. Ve y compra lotería. 🎫`
         ];
 
         let message = '';
