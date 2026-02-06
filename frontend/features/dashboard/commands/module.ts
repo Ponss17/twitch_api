@@ -31,6 +31,12 @@ export const CommandsModule = {
         this.initialized = true;
     },
 
+    activate() {
+        Object.values(COMMAND_CONFIG).forEach((conf) => {
+            this.updateCommand(conf as CommandConfigItem);
+        });
+    },
+
     deactivate() {},
 
     renderCommandCards() {

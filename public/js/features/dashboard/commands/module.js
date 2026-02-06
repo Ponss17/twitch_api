@@ -19,6 +19,11 @@ export const CommandsModule = {
         this.setupTestCommand();
         this.initialized = true;
     },
+    activate() {
+        Object.values(COMMAND_CONFIG).forEach((conf) => {
+            this.updateCommand(conf);
+        });
+    },
     deactivate() { },
     renderCommandCards() {
         Object.values(COMMAND_CONFIG).forEach((conf) => {
