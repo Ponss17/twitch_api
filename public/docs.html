@@ -48,6 +48,9 @@
                     <a href="#shoutout" class="nav-item"><i class="fa-solid fa-bullhorn"></i> Shoutout</a>
                     <a href="#magic8" class="nav-item"><i class="fa-solid fa-8"></i> Bola 8</a>
                     <a href="#followage" class="nav-item"><i class="fa-solid fa-clock"></i> Followage</a>
+                    <a href="#followage" class="nav-item"><i class="fa-solid fa-clock"></i> Followage</a>
+                    <a href="#russian" class="nav-item"><i class="fa-solid fa-skull-crossbones"></i> Ruleta Rusa</a>
+                    <a href="#duel" class="nav-item"><i class="fa-solid fa-khanda"></i> Duelo</a>
                     <a href="#get-clips" class="nav-item"><i class="fa-solid fa-list"></i> Listar Clips</a>
 
                     <span class="group-title">Dashboard</span>
@@ -213,6 +216,64 @@
                 </div>
             </section>
 
+            <section id="russian" class="doc-section">
+                <h2><i class="fa-solid fa-skull-crossbones"></i> Ruleta Rusa</h2>
+                <p>Un juego de alto riesgo para tu chat. Los usuarios prueban su suerte con un revólver virtual de 6
+                    recámaras. Si pierden, reciben un <strong>Timeout</strong> real (si el bot es mod).</p>
+                <div class="endpoint-block">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/twitch/minigames/russian?user={usuario}&apiKey={clave}</span>
+                </div>
+                <div class="info-card"
+                    style="margin-top: 1.5rem; border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05);">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>
+                    <p><strong>Cuidado:</strong> Este comando puede expulsar temporalmente a tus usuarios. Úsalo bajo tu
+                        propio riesgo.</p>
+                </div>
+                <h3>Ejemplo Nightbot</h3>
+                <div class="code-block">
+                    <code class="dynamic-url"
+                        data-path="$(urlfetch {baseURL}/api/twitch/minigames/russian?user=$(user)&apiKey=TU_API_KEY)">Cargando...</code>
+                    <button class="btn-copy-doc" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
+                </div>
+            </section>
+
+            <section id="duel" class="doc-section">
+                <h2><i class="fa-solid fa-khanda"></i> Duelo</h2>
+                <p>Combate narrativo 1 contra 1. Desafía a otro usuario a un duelo épico con desenlaces aleatorios
+                    (Western, Anime, Sci-Fi, etc.). ¡Solo uno quedará en pie!</p>
+                <div class="endpoint-block">
+                    <span class="method get">GET</span>
+                    <span
+                        class="url">/api/twitch/minigames/duel?challenger={retador}&target={oponente}&apiKey={clave}</span>
+                </div>
+                <h3>Parámetros</h3>
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Dato</th>
+                            <th>Info</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>target</code></td>
+                            <td>El usuario al que quieres desafiar (ej: @Nightbot).</td>
+                        </tr>
+                        <tr>
+                            <td><code>challenger</code></td>
+                            <td>El usuario que inicia el duelo (opcional).</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h3>Ejemplo Nightbot</h3>
+                <div class="code-block">
+                    <code class="dynamic-url"
+                        data-path="$(urlfetch {baseURL}/api/twitch/minigames/duel?challenger=$(user)&target=$(touser)&apiKey=TU_API_KEY)">Cargando...</code>
+                    <button class="btn-copy-doc" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
+                </div>
+            </section>
+
             <section id="get-clips" class="doc-section">
                 <h2><i class="fa-solid fa-list"></i> Listar Clips</h2>
                 <p>Endpoint para desarrolladores: obtén un JSON con los clips más recientes.</p>
@@ -257,8 +318,9 @@
                         <h3 style="color:var(--accent); margin-bottom:10px;"><i class="fa-solid fa-dice"></i> Ruleta
                         </h3>
                         <p style="font-size:0.9rem; color:var(--text-secondary);">
-                            Sortea premios entre tus viewers activos. Usa lógica híbrida (API + Chat en vivo) para
-                            asegurar que nadie se quede fuera.
+                            La herramienta definitiva para sorteos. Configura una lista de opciones o deja que la API
+                            cargue a los <strong>usuarios activos del chat</strong> en tiempo real. Gira la rueda y
+                            celebra al ganador con confeti virtual. Ideal para regalar suscripciones o skins.
                         </p>
                     </div>
                     <div class="tool-card"
@@ -266,8 +328,9 @@
                         <h3 style="color:var(--success); margin-bottom:10px;"><i
                                 class="fa-solid fa-users-viewfinder"></i> Stalker</h3>
                         <p style="font-size:0.9rem; color:var(--text-secondary);">
-                            Monitor de chat en tiempo real. Permite inspeccionar perfiles, ver antigüedad de cuentas y
-                            leer logs de mensajes recientes.
+                            Tu centro de inteligencia. Investiga a cualquier usuario de Twitch al instante: descubre
+                            cuándo creó su cuenta, cuánto tiempo lleva siguiéndote, y ve sus últimos mensajes en tu
+                            chat. Perfecto para moderadores que necesitan contexto rápido sobre un viewer sospechoso.
                         </p>
                     </div>
                     <div class="tool-card"
@@ -275,8 +338,9 @@
                         <h3 style="color:var(--warning); margin-bottom:10px;"><i class="fa-solid fa-chart-line"></i>
                             Tendencias</h3>
                         <p style="font-size:0.9rem; color:var(--text-secondary);">
-                            Analiza de qué está hablando tu chat. Cuenta palabras repetidas y genera un ranking en vivo.
-                            Incluye temporizador.
+                            ¿Qué está spameando tu chat? Esta herramienta analiza los mensajes en vivo y genera un
+                            ranking (Top 10) de las palabras o emotes más repetidos. Úsalo para medir el "hype" de un
+                            momento o entender el sentimiento general de tu audiencia.
                         </p>
                     </div>
                 </div>
