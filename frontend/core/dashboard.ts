@@ -12,7 +12,7 @@ import { StalkerModule } from '../features/dashboard/stalker.js';
 import { Magic8Module } from '../features/dashboard/magic8.js';
 import { RouletteModule } from '../features/dashboard/roulette.js';
 import { RussianModule } from '../features/dashboard/russian/module.js';
-import { DuelModule } from '../features/dashboard/duel.js';
+import { DuelModule } from '../features/dashboard/duel/module.js';
 import { FeedbackModule } from '../features/dashboard/feedback.js';
 
 export const Dashboard = {
