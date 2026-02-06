@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { generateMagic8Response } from '../../services/games/magic8Service';
+
 import { playRussianRoulette } from '../../services/games/russianService';
+import { playDuel } from '../../services/games/duelService';
 import { MESSAGES } from '../../config/messages';
 
 interface AuthenticatedRequest extends Request {
@@ -63,5 +65,28 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
     } catch (error) {
         console.error('Error en playRussian:', error);
         res.status(500).json({ error: 'Error interno en la Ruleta Rusa' });
+    }
+};
+
+// ==========================================
+// Duelo
+// ==========================================
+
+export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const { target, challenger } = req.query;
+
+        if (!target || typeof target !== 'string') {
+            return res.status(400).send('Debes especificar un oponente (@usuario)');
+        }
+
+        const challengerUser = (challenger as string) || 'Keanu Reeves';
+
+        const result = await playDuel(challengerUser, target);
+
+        res.send(result.message);
+    } catch (error) {
+        console.error('Error en startDuel:', error);
+        res.status(500).send('Error al iniciar el duelo');
     }
 };

@@ -1,0 +1,36 @@
+<div id="command-card-duel"></div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title-group">
+            <div class="card-icon">
+                <i class="fa-solid fa-khanda"></i>
+            </div>
+            <div>
+                <h3>Duel Simulator</h3>
+                <p class="card-desc">Simula un duelo 1vs1 rápido</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <i class="fa-solid fa-circle-question info-icon"
+                data-tooltip="Prueba el comando !duelo directamente desde aquí."></i>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="duel-target">Oponente (@usuario)</label>
+                <input type="text" id="duel-target" placeholder="Ej: @Nightbot" class="text-input">
+            </div>
+            <div class="form-group">
+                <label for="duel-challenger">Retador (Opcional)</label>
+                <input type="text" id="duel-challenger" placeholder="Tu nombre" class="text-input" value="Streamer">
+            </div>
+        </div>
+        <button id="btn-fight-duel" class="btn-primary" style="margin-top: 20px;">
+            <i class="fa-solid fa-gavel"></i> ¡DUELO!
+        </button>
+
+        <div id="duel-response" class="response-card"></div>
+    </div>
+</div>
