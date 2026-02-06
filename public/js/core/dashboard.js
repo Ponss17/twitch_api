@@ -128,7 +128,7 @@ export const Dashboard = {
             'tab-magic8': [Magic8Module, CommandsModule],
             'tab-roulette': [RouletteModule],
             'tab-russian': [RussianModule, CommandsModule],
-            'tab-duel': [DuelModule],
+            'tab-duel': [DuelModule, CommandsModule],
             'tab-feedback': [FeedbackModule]
         };
         if (moduleMap[tabId]) {
