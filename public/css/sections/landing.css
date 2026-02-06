@@ -643,7 +643,7 @@ html {
 .faq-answer {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 1.0s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: max-height 1.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .faq-content {
@@ -660,7 +660,7 @@ html {
 .faq-item.active .faq-content {
     opacity: 1;
     transform: translateY(0);
-    transition-delay: 0.35s;
+    transition-delay: 0.7s;
 }
 
 .faq-answer p {
