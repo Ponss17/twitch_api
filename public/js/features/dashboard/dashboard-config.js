@@ -9,7 +9,8 @@ export const DASHBOARD_CONFIG = {
         CHATTERS: `${API_BASE}/dashboard/chatters`,
         USER_INFO: `${API_BASE}/dashboard/user-info`,
         SEND_MESSAGE: `${API_BASE}/send-message`,
-        CLIPS: `${API_BASE}/dashboard/get-clips`
+        CLIPS: `${API_BASE}/dashboard/get-clips`,
+        DUEL: `${API_BASE}/minigames/duel`
     },
     IGNORED_BOTS: new Set([
         'nightbot',
@@ -41,6 +42,12 @@ export const DASHBOARD_CONFIG = {
             COMMAND_OUTPUT: 'magic8-command-output',
             BOT_SELECT: 'magic8-bot-select',
             MOOD_SELECT: 'magic8-mood-select'
+        },
+        DUEL: {
+            INPUT_TARGET: 'duel-target',
+            INPUT_CHALLENGER: 'duel-challenger',
+            BUTTON: 'btn-fight-duel',
+            RESPONSE: 'duel-response'
         }
     }
 };
