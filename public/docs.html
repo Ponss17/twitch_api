@@ -49,9 +49,9 @@
                     <a href="#shoutout" class="nav-item"><i class="fa-solid fa-bullhorn"></i> Shoutout</a>
 
                     <span class="group-title">Herramientas</span>
-                    <a href="#tools-guide" class="nav-item"><i class="fa-solid fa-chart-line"></i> Tendencias</a>
-                    <a href="#tools-guide" class="nav-item"><i class="fa-solid fa-users-viewfinder"></i> Stalker</a>
-                    <a href="#tools-guide" class="nav-item"><i class="fa-solid fa-dice"></i> Ruleta</a>
+                    <a href="#trends" class="nav-item"><i class="fa-solid fa-chart-line"></i> Tendencias</a>
+                    <a href="#stalker" class="nav-item"><i class="fa-solid fa-users-viewfinder"></i> Stalker</a>
+                    <a href="#roulette" class="nav-item"><i class="fa-solid fa-dice"></i> Ruleta</a>
 
                     <span class="group-title">Minijuegos</span>
                     <a href="#magic8" class="nav-item"><i class="fa-solid fa-8"></i> Bola 8</a>
@@ -311,42 +311,35 @@
                 </div>
             </section>
 
-            <section id="tools-guide" class="doc-section">
-                <h2><i class="fa-solid fa-toolbox"></i> Herramientas del Dashboard</h2>
-                <p>Tu panel incluye herramientas exclusivas para potenciar tu stream:</p>
+            <section id="trends" class="doc-section">
+                <h2><i class="fa-solid fa-chart-line"></i> Tendencias</h2>
+                <p>¿Qué está es lo más comentado en tu chat? Esta herramienta analiza los mensajes en vivo y genera un
+                    ranking (Top 10) de las palabras o emotes más repetidos.</p>
+                <div class="info-card">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <p><strong>Uso ideal:</strong> Mide el "hype" de un momento específico o descubre qué emote está
+                        spameando tu comunidad. Incluye un temporizador para sesiones de análisis.</p>
+                </div>
+            </section>
 
-                <div
-                    style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-top:20px;">
-                    <div class="tool-card"
-                        style="background:var(--bg-secondary); padding:20px; border-radius:12px; border:1px solid var(--border);">
-                        <h3 style="color:var(--accent); margin-bottom:10px;"><i class="fa-solid fa-dice"></i> Ruleta
-                        </h3>
-                        <p style="font-size:0.9rem; color:var(--text-secondary);">
-                            La herramienta definitiva para sorteos. Configura una lista de opciones o deja que la API
-                            cargue a los <strong>usuarios activos del chat</strong> en tiempo real. Gira la rueda y
-                            celebra al ganador con confeti virtual. Ideal para regalar suscripciones o skins.
-                        </p>
-                    </div>
-                    <div class="tool-card"
-                        style="background:var(--bg-secondary); padding:20px; border-radius:12px; border:1px solid var(--border);">
-                        <h3 style="color:var(--success); margin-bottom:10px;"><i
-                                class="fa-solid fa-users-viewfinder"></i> Stalker</h3>
-                        <p style="font-size:0.9rem; color:var(--text-secondary);">
-                            Tu centro de inteligencia. Investiga a cualquier usuario de Twitch al instante: descubre
-                            cuándo creó su cuenta, cuánto tiempo lleva siguiéndote, y ve sus últimos mensajes en tu
-                            chat. Perfecto para moderadores que necesitan contexto rápido sobre un viewer sospechoso.
-                        </p>
-                    </div>
-                    <div class="tool-card"
-                        style="background:var(--bg-secondary); padding:20px; border-radius:12px; border:1px solid var(--border);">
-                        <h3 style="color:var(--warning); margin-bottom:10px;"><i class="fa-solid fa-chart-line"></i>
-                            Tendencias</h3>
-                        <p style="font-size:0.9rem; color:var(--text-secondary);">
-                            ¿Qué está spameando tu chat? Esta herramienta analiza los mensajes en vivo y genera un
-                            ranking (Top 10) de las palabras o emotes más repetidos. Úsalo para medir el "hype" de un
-                            momento o entender el sentimiento general de tu audiencia.
-                        </p>
-                    </div>
+            <section id="stalker" class="doc-section">
+                <h2><i class="fa-solid fa-users-viewfinder"></i> Stalker</h2>
+                <p>Tu centro de inteligencia. Investiga a cualquier usuario de Twitch al instante para obtener contexto
+                    rápido.</p>
+                <div class="info-card" style="border-left-color: #22c55e; background: rgba(34, 197, 94, 0.05);">
+                    <i class="fa-solid fa-shield-halved" style="color: #22c55e;"></i>
+                    <p><strong>Para Mods:</strong> Verifica cuándo se creó una cuenta, cuánto tiempo lleva siguiendo el
+                        canal y lee sus últimos mensajes en el chat (logs).</p>
+                </div>
+            </section>
+
+            <section id="roulette" class="doc-section">
+                <h2><i class="fa-solid fa-dice"></i> Ruleta</h2>
+                <p>La herramienta definitiva para sorteos y giveaways en tu stream.</p>
+                <div class="info-card" style="border-left-color: #a855f7; background: rgba(168, 85, 247, 0.05);">
+                    <i class="fa-solid fa-wand-magic-sparkles" style="color: #a855f7;"></i>
+                    <p><strong>Lógica Híbrida:</strong> Puedes crear una lista manual de opciones o dejar que la API
+                        cargue automáticamente a los <strong>usuarios activos</strong> del chat en tiempo real.</p>
                 </div>
             </section>
             <section id="errores" class="doc-section">
