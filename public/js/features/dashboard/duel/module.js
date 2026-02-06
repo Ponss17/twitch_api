@@ -63,7 +63,7 @@ export const DuelModule = {
         const inputTarget = document.getElementById(DOM_IDS.DUEL.INPUT_TARGET);
         const inputChallenger = document.getElementById(DOM_IDS.DUEL.INPUT_CHALLENGER);
         const target = inputTarget?.value.trim();
-        const challenger = inputChallenger?.value.trim() || 'Streamer';
+        const challenger = inputChallenger?.value.trim();
         if (!target) {
             this.showResponse(DuelMessages.emptyTarget, 'error');
             return;

@@ -80,9 +80,11 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
             return res.status(400).send('Debes especificar un oponente (@usuario)');
         }
 
-        const challengerUser = (challenger as string) || 'Keanu Reeves';
+        const cleanTarget = target.replace(/^@/, '');
+        const challengerStr = (challenger as string) || 'Keanu Reeves';
+        const cleanChallenger = challengerStr.replace(/^@/, '');
 
-        const result = await playDuel(challengerUser, target);
+        const result = await playDuel(cleanChallenger, cleanTarget);
 
         res.send(result.message);
     } catch (error) {
