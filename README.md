@@ -77,4 +77,4 @@
 
 ---
 
-© 2026 LosPerrisAPI. Desarrollado con excelencia técnica para la comunidad de Twitch. 💜🦾
+© 2026 LosPerrisAPI. Desarrollado con excelencia técnica para la comunidad de Twitch.💜🦾
