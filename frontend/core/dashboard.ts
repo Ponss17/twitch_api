@@ -143,7 +143,7 @@ export const Dashboard = {
             'tab-magic8': [Magic8Module as DashboardModule, CommandsModule as DashboardModule],
             'tab-roulette': [RouletteModule as DashboardModule],
             'tab-russian': [RussianModule as DashboardModule, CommandsModule as DashboardModule],
-            'tab-duel': [DuelModule as DashboardModule],
+            'tab-duel': [DuelModule as DashboardModule, CommandsModule as DashboardModule],
             'tab-feedback': [FeedbackModule as DashboardModule]
         };
 

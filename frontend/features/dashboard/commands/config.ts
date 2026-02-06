@@ -177,5 +177,33 @@ export const COMMAND_CONFIG = {
             const cmd = CommandGenerator.generate(bot, russianUrl, queryParams);
             return `!addcom !ruleta ${cmd}`;
         }
+    },
+    duel: {
+        id: 'duel',
+        containerId: 'command-card-duel',
+        title: 'Comando !duelo',
+        icon: 'fa-solid fa-khanda',
+        desc: 'Juego de Duelo 1vs1 para el chat',
+        info: 'Tus viewers podrán retarse a duelos narrativos escribiendo !duelo @usuario.',
+        generate: (
+            domain: string,
+            login: string,
+            tokenParam: string,
+            bot: string,
+            templateVal: string,
+            queryParams: string
+        ) => {
+            const botUtils = CommandGenerator.bots[bot];
+            const challengerArg = bot === 'wizebot' ? '$(user_name)' : botUtils.arg('user');
+            const targetArg = botUtils.arg('touser') || botUtils.arg('1'); // Most bots use touser or $1 as target
+
+            queryParams += `&challenger=${challengerArg}&target=${targetArg}`;
+
+            const duelUrl = domain.includes('/minigames')
+                ? `${domain}/duel`
+                : `${domain}/minigames/duel`;
+            const cmd = CommandGenerator.generate(bot, duelUrl, queryParams);
+            return `!addcom !duelo ${cmd}`;
+        }
     }
 };
