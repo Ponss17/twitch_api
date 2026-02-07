@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="card login-form">
+            <h1>Acceso Administrativo</h1>
+            <input type="password" id="password" placeholder="Contraseña de Administrador" autofocus>
+            <button onclick="login()">Entrar al Panel</button>
+            <p id="error" style="color: var(--danger); display: none; text-align: center;">Contraseña Incorrecta</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { setAdminPassword, fetchAdmin } from '/js/admin/auth.js';
+
+        window.login = async () => {
+            const password = document.getElementById('password').value;
+            if (!password) return;
+
+            setAdminPassword(password);
+
+            try {
+                const res = await fetchAdmin('/api/admin/users');
+                if (res.ok) {
+                    window.location.href = '/admin/index.html';
+                } else {
+                    throw new Error('Unauthorized');
+                }
+            } catch (e) {
+                document.getElementById('error').style.display = 'block';
+                sessionStorage.removeItem('admin_password');
+            }
+        };
+
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') window.login();
+        });
+    </script>
+</body>
+
+</html>

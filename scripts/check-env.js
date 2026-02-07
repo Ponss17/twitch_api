@@ -17,7 +17,8 @@ const REQUIRED_VARS = [
     'TWITCH_REDIRECT_URI',
     'KV_REST_API_URL',
     'KV_REST_API_TOKEN',
-    'GROQ_API_KEY'
+    'GROQ_API_KEY',
+    'ADMIN_PASSWORD'
 ];
 
 let hasError = false;
