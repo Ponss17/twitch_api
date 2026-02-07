@@ -46,7 +46,7 @@ const renderUsers = (users: AdminUser[]) => {
 
 const loadUsers = async () => {
     try {
-        const res = await fetchAdmin('/api/admin/users');
+        const res = await fetchAdmin('/api/twitch/admin/users'); // Updating to use the prefixed route which IS rewrited
         if (!res.ok) throw new Error('Failed to load users');
         const users: AdminUser[] = await res.json();
         renderUsers(users);
@@ -69,7 +69,7 @@ window.blockUser = async (userId: string) => {
     if (reason === null) return;
 
     try {
-        const res = await fetchAdmin(`/api/admin/users/${userId}/status`, {
+        const res = await fetchAdmin(`/api/twitch/admin/users/${userId}/status`, {
             method: 'POST',
             body: JSON.stringify({ isActive: false, reason })
         });
@@ -85,7 +85,7 @@ window.unblockUser = async (userId: string) => {
     if (!confirm('¿Estás seguro de desbloquear a este usuario?')) return;
 
     try {
-        const res = await fetchAdmin(`/api/admin/users/${userId}/status`, {
+        const res = await fetchAdmin(`/api/twitch/admin/users/${userId}/status`, {
             method: 'POST',
             body: JSON.stringify({ isActive: true })
         });
