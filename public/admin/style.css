@@ -115,22 +115,23 @@ button:active {
 }
 
 .btn-delete {
-    background: transparent;
-    color: var(--text-muted);
+    background: rgba(239, 68, 68, 0.05);
+    color: var(--danger);
     padding: 6px;
     width: 32px;
     height: 32px;
     border-radius: 6px;
-    border: 1px solid transparent;
+    border: 1px solid rgba(239, 68, 68, 0.2);
     display: inline-flex;
     align-items: center;
     justify-content: center;
 }
 
 .btn-delete:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--danger);
-    border-color: rgba(239, 68, 68, 0.2);
+    background: var(--danger);
+    color: white;
+    border-color: var(--danger);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 .btn-block {
