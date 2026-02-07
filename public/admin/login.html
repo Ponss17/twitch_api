@@ -4,22 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
+    <title>LosPerris Admin Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
     <link rel="stylesheet" href="style.css">
-    <style>
-        body {
-            display: block;
-        }
-    </style>
 </head>
 
 <body>
     <div class="login-container">
-        <div class="card login-form">
-            <h1>Acceso Administrativo</h1>
-            <input type="password" id="password" placeholder="Contraseña de Administrador" autofocus>
-            <button onclick="login()">Entrar al Panel</button>
-            <p id="error" style="color: var(--danger); display: none; text-align: center;">Contraseña Incorrecta</p>
+        <div class="card login-form fade-in">
+            <div class="login-header">
+                <img src="/img/LosPerris_progra.webp" alt="Logo" class="login-logo">
+                <h1>Admin Access</h1>
+            </div>
+            <div class="login-body">
+                <input type="password" id="password" class="auth-input" placeholder="Contraseña de Administrador"
+                    autofocus>
+                <button onclick="login()" class="btn-primary btn-block">Entrar al Panel</button>
+            </div>
+            <p id="error" class="error-msg">Contraseña Incorrecta</p>
         </div>
     </div>
 
@@ -35,7 +41,7 @@
             try {
                 const res = await fetchAdmin('/api/admin/users');
                 if (res.ok) {
-                    window.location.href = '/admin/index.html';
+                    window.location.href = '/admin-dashboard';
                 } else {
                     throw new Error('Unauthorized');
                 }

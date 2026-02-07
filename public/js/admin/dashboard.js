@@ -3,7 +3,8 @@ const renderUsers = (users) => {
     const tbody = document.getElementById('users-table-body');
     if (!tbody)
         return;
-    tbody.innerHTML = users.map(user => `
+    tbody.innerHTML = users
+        .map((user) => `
         <tr class="${user.isActive === false ? 'blocked' : ''}">
             <td>
                 <div class="user-info">
@@ -24,7 +25,8 @@ const renderUsers = (users) => {
         : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">Desbloquear</button>`}
             </td>
         </tr>
-    `).join('');
+    `)
+        .join('');
 };
 const loadUsers = async () => {
     try {

@@ -10,12 +10,12 @@ export const setAdminPassword = (password: string): void => {
 
 export const logout = (): void => {
     sessionStorage.removeItem(ADMIN_AUTH_KEY);
-    window.location.href = '/admin/login.html';
+    window.location.href = '/admin';
 };
 
 export const checkAuth = (): void => {
     if (!getAdminPassword()) {
-        window.location.href = '/admin/login.html';
+        window.location.href = '/admin';
     }
 };
 
