@@ -61,6 +61,23 @@ app.use(cors());
 app.use(compression());
 app.use(express.json());
 
+// Vistas y Panel de Administración (Definidos ANTES de los estáticos para evitar conflictos de redirección)
+app.get(['/docs', '/api/twitch/docs'], (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '../public/docs.html'));
+});
+
+app.get(['/dashboard', '/api/twitch/dashboard'], (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '../public/dashboard.html'));
+});
+
+app.get(['/admin', '/api/twitch/admin'], (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '../public/admin/login.html'));
+});
+
+app.get(['/admin-dashboard', '/api/twitch/admin-dashboard'], (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '../public/admin/dashboard.html'));
+});
+
 // SEO
 app.get(['/robots.txt', '/api/twitch/robots.txt'], getRobotsTxt);
 app.get(['/sitemap.xml', '/api/twitch/sitemap.xml'], getSitemapXml);
@@ -77,24 +94,6 @@ const publicPaths = [
 publicPaths.forEach((publicPath) => {
     app.use('/api/twitch', express.static(publicPath));
     app.use(express.static(publicPath));
-});
-
-// Vistas Dashboard
-app.get(['/docs', '/api/twitch/docs'], (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, '../public/docs.html'));
-});
-
-app.get(['/dashboard', '/api/twitch/dashboard'], (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, '../public/dashboard.html'));
-});
-
-// Admin Panel Custom Routes
-app.get(['/admin', '/api/twitch/admin'], (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, '../public/admin/login.html'));
-});
-
-app.get(['/admin-dashboard', '/api/twitch/admin-dashboard'], (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, '../public/admin/dashboard.html'));
 });
 
 // Rate Limiting Global
