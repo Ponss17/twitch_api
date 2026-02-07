@@ -42,7 +42,7 @@ const renderUsers = (users) => {
                                <i class="fa-solid fa-check"></i> Desbloquear
                            </button>`}
                 <button class="btn-delete" onclick="window.deleteUser('${user.userId}')" title="Eliminar Usuario">
-                    <i class="fa-solid fa-trash"></i>
+                    <i class="fa-solid fa-trash"></i> Eliminar
                 </button>
             </td>
         </tr>
