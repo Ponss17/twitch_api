@@ -13,17 +13,19 @@ const renderUsers = (users) => {
                         <span class="name">${user.displayName}</span>
                         <span class="login">(${user.login})</span>
                         <br>
-                        <small class="meta">Creado: ${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</small>
+                        <small class="meta">Creado: ${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Desconocido'}</small>
                     </div>
                 </div>
             </td>
             <td>
                 <code class="api-key">${user.apiKey}</code>
-                <button class="btn-icon" onclick="window.resetKey('${user.userId}')" title="Reset Key">🔄</button>
+                <button class="btn-icon" onclick="window.resetKey('${user.userId}')" title="Reset Key">
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
             </td>
             <td class="stats-cell">
                 <div>Reqs: <strong>${user.totalRequests || 0}</strong></div>
-                <small>Última vez: ${user.lastActive ? new Date(user.lastActive).toLocaleString() : 'Nunca'}</small>
+                <small>Última vez: ${user.lastActive ? new Date(user.lastActive).toLocaleString() : 'Sin actividad'}</small>
             </td>
             <td>
                 <span class="status-badge ${user.isActive !== false ? 'active' : 'inactive'}">
@@ -33,9 +35,15 @@ const renderUsers = (users) => {
             </td>
             <td class="actions-cell">
                 ${user.isActive !== false
-        ? `<button class="btn-block" onclick="window.blockUser('${user.userId}')">Bloquear</button>`
-        : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">Desbloquear</button>`}
-                <button class="btn-delete" onclick="window.deleteUser('${user.userId}')">🗑️</button>
+        ? `<button class="btn-block" onclick="window.blockUser('${user.userId}')">
+                               <i class="fa-solid fa-ban"></i> Bloquear
+                           </button>`
+        : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">
+                               <i class="fa-solid fa-check"></i> Desbloquear
+                           </button>`}
+                <button class="btn-delete" onclick="window.deleteUser('${user.userId}')" title="Eliminar Usuario">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
             </td>
         </tr>
     `)

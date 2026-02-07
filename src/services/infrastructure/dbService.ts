@@ -120,10 +120,8 @@ export const getAllUsers = async (): Promise<StoredUser[]> => {
                         try {
                             safeUser.createdAt = new Date(safeUser.obtainedAt).toISOString();
                         } catch {
-                            safeUser.createdAt = new Date().toISOString();
+                            // Invalid date, ignore
                         }
-                    } else {
-                        safeUser.createdAt = new Date().toISOString();
                     }
                 }
 
@@ -139,7 +137,7 @@ export const getAllUsers = async (): Promise<StoredUser[]> => {
         );
 
         return enhancedUsers;
-    } catch (e) {
+    } catch (e: unknown) {
         logger.error('Error getting all users:', e);
         return [];
     }
