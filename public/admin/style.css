@@ -117,14 +117,7 @@ button:active {
 .btn-delete {
     background: rgba(239, 68, 68, 0.05);
     color: var(--danger);
-    padding: 6px;
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
     border: 1px solid rgba(239, 68, 68, 0.2);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .btn-delete:hover {
