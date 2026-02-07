@@ -82,6 +82,7 @@ app.get(['/admin-dashboard', '/api/twitch/admin-dashboard'], (req: Request, res:
 app.use('/api/admin', adminRouter);
 app.use('/api/twitch/admin', adminRouter);
 app.use('/admin/api', adminRouter);
+app.use('/admin', adminRouter); //
 
 // SEO
 app.get(['/robots.txt', '/api/twitch/robots.txt'], getRobotsTxt);
