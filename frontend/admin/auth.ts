@@ -16,6 +16,9 @@ export const logout = (): void => {
 export const checkAuth = (): void => {
     if (!getAdminPassword()) {
         window.location.href = '/api/twitch/admin';
+    } else {
+        const dashboard = document.getElementById('dashboard-page');
+        if (dashboard) dashboard.style.display = 'flex';
     }
 };
 
