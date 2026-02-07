@@ -94,7 +94,7 @@ app.get(['/admin', '/api/twitch/admin'], (req: Request, res: Response) => {
 });
 
 app.get(['/admin-dashboard', '/api/twitch/admin-dashboard'], (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, '../public/admin/index.html'));
+    res.sendFile(path.join(__dirname, '../public/admin/dashboard.html'));
 });
 
 // Rate Limiting Global

@@ -43,6 +43,14 @@
             "destination": "/public/dashboard.html"
         },
         {
+            "source": "/admin",
+            "destination": "/public/admin/login.html"
+        },
+        {
+            "source": "/admin-dashboard",
+            "destination": "/public/admin/dashboard.html"
+        },
+        {
             "source": "/(api/twitch|twitch|auth)/(.*)",
             "destination": "/api/index.ts"
         },
