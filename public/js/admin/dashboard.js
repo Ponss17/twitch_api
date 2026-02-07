@@ -42,16 +42,27 @@ const renderUsers = (users) => {
         .join('');
 };
 const loadUsers = async () => {
+    console.log('Starting loadUsers...');
     try {
+        console.log('Fetching users from /api/twitch/admin/users...');
         const res = await fetchAdmin('/api/twitch/admin/users');
-        if (!res.ok)
-            throw new Error('Failed to load users');
+        console.log('Fetch response status:', res.status);
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('Fetch failed:', errorText);
+            throw new Error(`Failed to load users: ${res.status} ${res.statusText}`);
+        }
         const users = await res.json();
+        console.log('Users/Data loaded:', users);
+        if (users.length === 0) {
+            console.warn('No users returned from API');
+        }
         renderUsers(users);
+        console.log('Users rendered successfully');
     }
     catch (e) {
-        console.error(e);
-        alert('Error cargando usuarios.');
+        console.error('Error in loadUsers:', e);
+        alert('Error cargando usuarios. Revisa la consola.');
     }
 };
 window.blockUser = async (userId) => {
@@ -132,5 +143,7 @@ window.deleteUser = async (userId) => {
 };
 window.logout = logout;
 // Initialize
+// Initialize
+console.log('Dashboard script loaded');
 checkAuth();
 loadUsers();
