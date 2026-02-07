@@ -24,6 +24,10 @@ router.use((req, res, next) => {
     next();
 });
 
+router.get('/health', (_req, res) => {
+    res.json({ status: 'Admin Router OK', timestamp: new Date() });
+});
+
 router.use(checkAdminPassword);
 
 router.get('/users', async (_req, res) => {
