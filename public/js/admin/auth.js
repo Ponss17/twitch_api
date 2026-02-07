@@ -7,7 +7,7 @@ export const setAdminPassword = (password) => {
 };
 export const logout = () => {
     sessionStorage.removeItem(ADMIN_AUTH_KEY);
-    window.location.href = '/admin';
+    window.location.href = '/admin'; // This matches the route defined in app.ts
 };
 export const checkAuth = () => {
     if (!getAdminPassword()) {

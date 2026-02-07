@@ -30,7 +30,7 @@
     </div>
 
     <script type="module">
-        import { setAdminPassword, fetchAdmin } from '/js/admin/auth.js';
+        import { setAdminPassword, fetchAdmin } from '/api/twitch/js/admin/auth.js';
 
         window.login = async () => {
             const password = document.getElementById('password').value;
@@ -39,7 +39,7 @@
             setAdminPassword(password);
 
             try {
-                const res = await fetchAdmin('/api/admin/users');
+                const res = await fetchAdmin('/api/twitch/admin/users');
                 if (res.ok) {
                     window.location.href = '/admin-dashboard';
                 } else {
