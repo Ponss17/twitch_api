@@ -5,34 +5,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Twitch API Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <div class="container">
-        <header>
-            <h1>Panel de Administración</h1>
-            <button class="logout-btn" onclick="window.logout()">Cerrar Sesión</button>
-        </header>
+    <div id="dashboard-page">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="/img/LosPerris_progra.webp" alt="Logo" class="sidebar-logo">
+                <span class="brand-text">LosPerris<span class="accent-text">Admin</span></span>
+            </div>
 
-        <div class="card">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Usuario</th>
-                        <th>API Key</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="users-table-body">
-                    <tr>
-                        <td colspan="4" style="text-align: center; color: var(--text-secondary);">Cargando usuarios...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+            <nav class="sidebar-menu">
+                <div class="menu-category">General</div>
+                <button class="nav-item active">
+                    <i class="fa-solid fa-users-gear" aria-hidden="true"></i>
+                    <span class="nav-text">Usuarios</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="window.logout()">
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                    <span class="btn-text">Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <h1>Panel de Administración</h1>
+                <div class="user-badge">
+                    <span id="admin-badge">Admin Access</span>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-icon">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div>
+                                <h3>Usuarios Registrados</h3>
+                                <p class="card-desc">Gestiona el acceso y estado de las API Keys</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>API Key</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <tr>
+                                    <td colspan="4" class="loading-cell">
+                                        <div class="loading-spinner"></div> Cargando...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script type="module" src="/js/admin/dashboard.js"></script>

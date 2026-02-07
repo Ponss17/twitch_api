@@ -7,11 +7,11 @@ export const setAdminPassword = (password) => {
 };
 export const logout = () => {
     sessionStorage.removeItem(ADMIN_AUTH_KEY);
-    window.location.href = '/admin/login.html';
+    window.location.href = '/admin';
 };
 export const checkAuth = () => {
     if (!getAdminPassword()) {
-        window.location.href = '/admin/login.html';
+        window.location.href = '/admin';
     }
 };
 export const fetchAdmin = async (url, options = {}) => {

@@ -78,6 +78,15 @@ app.get(['/dashboard', '/api/twitch/dashboard'], (req: Request, res: Response) =
     res.sendFile(path.join(__dirname, '../public/dashboard.html'));
 });
 
+// Admin Panel Custom Routes
+app.get(['/admin', '/api/twitch/admin'], (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '../public/admin/login.html'));
+});
+
+app.get(['/admin-dashboard', '/api/twitch/admin-dashboard'], (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '../public/admin/index.html'));
+});
+
 // Rate Limiting Global
 app.use(rateLimiter);
 
