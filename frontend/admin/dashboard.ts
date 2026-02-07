@@ -8,6 +8,9 @@ interface AdminUser {
     isActive?: boolean;
     blockedReason?: string;
     profileImageUrl?: string;
+    totalRequests?: number;
+    lastActive?: string;
+    createdAt?: string;
 }
 
 const renderUsers = (users: AdminUser[]) => {
@@ -21,22 +24,35 @@ const renderUsers = (users: AdminUser[]) => {
             <td>
                 <div class="user-info">
                     <img src="${user.profileImageUrl || 'https://static-cdn.jtvnw.net/user-default-pictures-uv/cdd517fe-def4-11e9-948e-784f43822e80-profile_image-70x70.png'}" alt="${user.displayName}" class="avatar">
-                    <span>${user.displayName} (${user.login})</span>
+                    <div class="details">
+                        <span class="name">${user.displayName}</span>
+                        <span class="login">(${user.login})</span>
+                        <br>
+                        <small class="meta">Creado: ${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</small>
+                    </div>
                 </div>
             </td>
-            <td><code>${user.apiKey}</code></td>
+            <td>
+                <code class="api-key">${user.apiKey}</code>
+                <button class="btn-icon" onclick="window.resetKey('${user.userId}')" title="Reset Key">🔄</button>
+            </td>
+            <td class="stats-cell">
+                <div>Reqs: <strong>${user.totalRequests || 0}</strong></div>
+                <small>Última vez: ${user.lastActive ? new Date(user.lastActive).toLocaleString() : 'Nunca'}</small>
+            </td>
             <td>
                 <span class="status-badge ${user.isActive !== false ? 'active' : 'inactive'}">
                     ${user.isActive !== false ? 'Activo' : 'Bloqueado'}
                 </span>
-                ${user.blockedReason ? `<br><small>${user.blockedReason}</small>` : ''}
+                ${user.blockedReason ? `<br><small class="reason">${user.blockedReason}</small>` : ''}
             </td>
-            <td>
+            <td class="actions-cell">
                 ${
                     user.isActive !== false
                         ? `<button class="btn-block" onclick="window.blockUser('${user.userId}')">Bloquear</button>`
                         : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">Desbloquear</button>`
                 }
+                <button class="btn-delete" onclick="window.deleteUser('${user.userId}')">🗑️</button>
             </td>
         </tr>
     `
@@ -46,7 +62,7 @@ const renderUsers = (users: AdminUser[]) => {
 
 const loadUsers = async () => {
     try {
-        const res = await fetchAdmin('/api/twitch/admin/users'); // Updating to use the prefixed route which IS rewrited
+        const res = await fetchAdmin('/api/twitch/admin/users');
         if (!res.ok) throw new Error('Failed to load users');
         const users: AdminUser[] = await res.json();
         renderUsers(users);
@@ -60,6 +76,8 @@ declare global {
     interface Window {
         blockUser: (id: string) => Promise<void>;
         unblockUser: (id: string) => Promise<void>;
+        resetKey: (id: string) => Promise<void>;
+        deleteUser: (id: string) => Promise<void>;
         logout: () => void;
     }
 }
@@ -91,6 +109,43 @@ window.unblockUser = async (userId: string) => {
         });
         if (res.ok) loadUsers();
         else alert('Error al desbloquear usuario');
+    } catch (e) {
+        console.error(e);
+        alert('Error de conexión');
+    }
+};
+
+window.resetKey = async (userId: string) => {
+    if (!confirm('¿Generar nueva API Key? La anterior dejará de funcionar.')) return;
+
+    try {
+        const res = await fetchAdmin(`/api/twitch/admin/users/${userId}/reset-key`, {
+            method: 'POST'
+        });
+        if (res.ok) {
+            alert('Nueva API Key generada.');
+            loadUsers();
+        } else {
+            alert('Error al resetear key');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Error de conexión');
+    }
+};
+
+window.deleteUser = async (userId: string) => {
+    if (!confirm('¿ELIMINAR usuario permanentemente? Esta acción no se puede deshacer.')) return;
+
+    try {
+        const res = await fetchAdmin(`/api/twitch/admin/users/${userId}`, {
+            method: 'DELETE'
+        });
+        if (res.ok) {
+            loadUsers();
+        } else {
+            alert('Error al eliminar usuario');
+        }
     } catch (e) {
         console.error(e);
         alert('Error de conexión');

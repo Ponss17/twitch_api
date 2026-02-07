@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../types/twitch';
 import * as authService from '../services/auth/authService';
 import * as apiService from '../services/twitch/apiService';
+import * as dbService from '../services/infrastructure/dbService';
 import { MESSAGES } from '../config/messages';
 
 const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -40,6 +41,12 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         } catch (_e) {
             console.warn('Error Middleware Auth: Could not validate token to extract user data');
         }
+    }
+
+    if (req.userId) {
+        dbService.updateLastActive(req.userId).catch((err: unknown) => {
+            console.error('Error updating last active:', err);
+        });
     }
 
     req.twitchToken = token;

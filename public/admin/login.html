@@ -4,56 +4,366 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LosPerris Admin Login</title>
+    <title>Admin Portal | LosPerris</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/api/twitch/css/base.css">
-    <link rel="stylesheet" href="/api/twitch/css/dashboard.css">
-    <link rel="stylesheet" href="/api/twitch/admin/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --card-bg: #111111;
+            --primary: #9146ff;
+            --primary-glow: #bf94ff;
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --error: #ff4545;
+            --border: #2a2a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient Background */
+        .ambient-light {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: #4a1d96;
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(30px, 50px);
+            }
+        }
+
+        /* Login Card */
+        .login-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(17, 17, 17, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px -12px rgba(145, 70, 255, 0.15);
+            border-color: rgba(145, 70, 255, 0.3);
+        }
+
+        .logo-container {
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(145, 70, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card:hover .login-logo {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(to right, #fff, #bf94ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .auth-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .auth-input:focus {
+            border-color: var(--primary);
+            background: rgba(145, 70, 255, 0.05);
+            box-shadow: 0 0 0 4px rgba(145, 70, 255, 0.1);
+        }
+
+        .auth-input::placeholder {
+            color: #555;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-primary:hover {
+            background: #7a2bd9;
+            box-shadow: 0 0 30px rgba(145, 70, 255, 0.4);
+        }
+
+        .btn-primary:hover::after {
+            left: 100%;
+        }
+
+        .error-msg {
+            color: var(--error);
+            font-size: 14px;
+            margin-top: 15px;
+            min-height: 20px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .error-msg.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+            display: none;
+        }
+
+        .btn-primary.loading .spinner {
+            display: inline-block;
+        }
+
+        .btn-primary.loading span {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Fade In Animation */
+        .fade-in {
+            animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 
 <body>
+    <div class="ambient-light">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
     <div class="login-container">
-        <div class="card login-form fade-in">
-            <div class="login-header">
+        <div class="card fade-in">
+            <div class="logo-container">
                 <img src="/api/twitch/img/LosPerris_progra.webp" alt="Logo" class="login-logo">
-                <h1>Admin Access</h1>
             </div>
+
+            <h1>Portal de Acceso</h1>
+            <p class="subtitle">Ingresa tus credenciales de administrador</p>
+
             <div class="login-body">
-                <input type="password" id="password" class="auth-input" placeholder="Contraseña de Administrador"
-                    autofocus>
-                <button onclick="login()" class="btn-primary btn-block">Entrar al Panel</button>
+                <div class="input-group">
+                    <input type="password" id="password" class="auth-input" placeholder="Contraseña Admin"
+                        autocomplete="current-password">
+                </div>
+
+                <button id="loginBtn" class="btn-primary">
+                    <div class="spinner"></div>
+                    <span>Acceder</span>
+                </button>
             </div>
-            <p id="error" class="error-msg">Contraseña Incorrecta</p>
+
+            <p id="error" class="error-msg">Acceso Denegado: Contraseña inválida</p>
         </div>
     </div>
 
     <script type="module">
         import { setAdminPassword, fetchAdmin } from '/api/twitch/js/admin/auth.js';
 
-        window.login = async () => {
-            const password = document.getElementById('password').value;
+        const loginBtn = document.getElementById('loginBtn');
+        const passwordInput = document.getElementById('password');
+        const errorMsg = document.getElementById('error');
+
+        const setLoading = (loading) => {
+            if (loading) {
+                loginBtn.classList.add('loading');
+                loginBtn.disabled = true;
+            } else {
+                loginBtn.classList.remove('loading');
+                loginBtn.disabled = false;
+            }
+        };
+
+        const login = async () => {
+            const password = passwordInput.value;
             if (!password) return;
 
+            setLoading(true);
+            errorMsg.classList.remove('visible');
+
+            // Set temporary password for validation
             setAdminPassword(password);
 
             try {
+                // Simulate network delay for smooth UX
+                await new Promise(r => setTimeout(r, 600));
+
                 const res = await fetchAdmin('/api/twitch/admin/users');
+
                 if (res.ok) {
                     window.location.href = '/api/twitch/admin-dashboard';
                 } else {
                     throw new Error('Unauthorized');
                 }
             } catch (e) {
-                document.getElementById('error').style.display = 'block';
+                errorMsg.classList.add('visible');
+                passwordInput.classList.add('input-error');
+                passwordInput.value = '';
+                passwordInput.focus();
+
+                // Clear validation password
                 sessionStorage.removeItem('admin_password');
+            } finally {
+                setLoading(false);
             }
         };
 
-        document.getElementById('password').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') window.login();
+        loginBtn.addEventListener('click', login);
+
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
         });
+
+        // Focus input on load
+        setTimeout(() => passwordInput.focus(), 500);
     </script>
 </body>
 

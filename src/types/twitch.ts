@@ -53,10 +53,16 @@ export interface StoredUser {
     displayName: string;
     accessToken: string;
     refreshToken: string;
-    expiresAt: number;
-    apiKey: string;
+    expiresIn: number;
+    obtainedAt: number;
+    // Admin
+    apiKey?: string;
     isActive?: boolean;
     blockedReason?: string;
+    // Analíticas
+    totalRequests?: number;
+    lastActive?: string;
+    createdAt?: string;
     profileImageUrl?: string;
 }
 
