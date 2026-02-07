@@ -55,6 +55,8 @@ export interface StoredUser {
     refreshToken: string;
     expiresAt: number;
     apiKey: string;
+    isActive?: boolean;
+    blockedReason?: string;
     profileImageUrl?: string;
 }
 

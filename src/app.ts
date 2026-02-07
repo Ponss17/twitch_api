@@ -7,6 +7,7 @@ import { CONFIG } from './config/env';
 import rateLimiter, { authLimiter } from './middleware/rateLimiter';
 import authRoutes from './routes/authRoutes';
 import apiRoutes from './routes/apiRoutes';
+import adminRouter from './routes/admin';
 import { getRobotsTxt, getSitemapXml } from './controllers/system/seoController';
 import { errorHandler, logger } from './middleware/errorMiddleware';
 
@@ -79,6 +80,10 @@ app.get(['/dashboard', '/api/twitch/dashboard'], (req: Request, res: Response) =
 
 // Rate Limiting Global
 app.use(rateLimiter);
+
+// Admin Routes (Protected internally by middleware)
+app.use('/api/admin', adminRouter);
+app.use('/admin/api', adminRouter); // Alias for convenience
 
 // Rutas de Comandos y API
 app.use('/auth', authLimiter, authRoutes);

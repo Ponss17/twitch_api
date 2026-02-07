@@ -58,6 +58,9 @@ function decrypt(text: string): string {
 
 export const saveUser = async (user: StoredUser): Promise<void> => {
     const secureUser = { ...user };
+    // Default isActive to true if not present
+    if (secureUser.isActive === undefined) secureUser.isActive = true;
+
     if (secureUser.accessToken) secureUser.accessToken = encrypt(secureUser.accessToken);
     if (secureUser.refreshToken) secureUser.refreshToken = encrypt(secureUser.refreshToken);
 
@@ -81,7 +84,55 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
 export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null> => {
     const cachedUserId = await kv.hget<string>(API_KEYS_KEY, apiKey);
     if (!cachedUserId) return null;
-    return getUser(cachedUserId);
+
+    const user = await getUser(cachedUserId);
+    if (!user) return null;
+
+    if (user.isActive === false) {
+        logger.warn(`🛑 Blocked user attempted access: ${user.login}`);
+        return null; // Implicitly deny access by returning null
+    }
+
+    return user;
+};
+
+// ==========================================
+// Admin Functions
+// ==========================================
+
+export const getAllUsers = async (): Promise<StoredUser[]> => {
+    try {
+        const allUsers = await kv.hgetall<Record<string, StoredUser>>(USERS_KEY);
+        if (!allUsers) return [];
+
+        // Return users without sensitive tokens
+        return Object.values(allUsers).map((u) => {
+            const safeUser = { ...u };
+            delete (safeUser as any).accessToken;
+            delete (safeUser as any).refreshToken;
+            // Ensure isActive defaults to true for legacy records
+            if (safeUser.isActive === undefined) safeUser.isActive = true;
+            return safeUser;
+        });
+    } catch (e) {
+        logger.error('Error getting all users:', e);
+        return [];
+    }
+};
+
+export const updateUserStatus = async (
+    userId: string,
+    isActive: boolean,
+    reason?: string
+): Promise<void> => {
+    const user = await getUser(userId);
+    if (!user) throw new Error('User not found');
+
+    user.isActive = isActive;
+    if (reason) user.blockedReason = reason;
+    else if (isActive) delete user.blockedReason; // transform to undefined if unblocking
+
+    await saveUser(user);
 };
 
 // ==========================================
