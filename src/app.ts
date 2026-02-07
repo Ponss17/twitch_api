@@ -66,8 +66,18 @@ app.get(['/robots.txt', '/api/twitch/robots.txt'], getRobotsTxt);
 app.get(['/sitemap.xml', '/api/twitch/sitemap.xml'], getSitemapXml);
 
 // Estáticos
-app.use('/api/twitch', express.static(path.join(__dirname, '../public')));
-app.use(express.static(path.join(__dirname, '../public')));
+// Estáticos
+const publicPaths = [
+    path.join(process.cwd(), 'public'),
+    path.join(process.cwd(), 'dist/public'),
+    path.join(__dirname, '../public')
+];
+
+// Try to serve from all potential locations (express.static skips if not found)
+publicPaths.forEach((publicPath) => {
+    app.use('/api/twitch', express.static(publicPath));
+    app.use(express.static(publicPath));
+});
 
 // Vistas Dashboard
 app.get(['/docs', '/api/twitch/docs'], (req: Request, res: Response) => {
