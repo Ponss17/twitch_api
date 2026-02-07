@@ -41,7 +41,7 @@
             try {
                 const res = await fetchAdmin('/api/twitch/admin/users');
                 if (res.ok) {
-                    window.location.href = '/admin-dashboard';
+                    window.location.href = '/api/twitch/admin-dashboard';
                 } else {
                     throw new Error('Unauthorized');
                 }

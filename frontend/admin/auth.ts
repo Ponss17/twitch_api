@@ -10,12 +10,12 @@ export const setAdminPassword = (password: string): void => {
 
 export const logout = (): void => {
     sessionStorage.removeItem(ADMIN_AUTH_KEY);
-    window.location.href = '/admin'; // This matches the route defined in app.ts
+    window.location.href = '/api/twitch/admin';
 };
 
 export const checkAuth = (): void => {
     if (!getAdminPassword()) {
-        window.location.href = '/admin';
+        window.location.href = '/api/twitch/admin';
     }
 };
 
