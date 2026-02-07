@@ -101,6 +101,7 @@ app.use(rateLimiter);
 
 // Admin Routes (Protected internally by middleware)
 app.use('/api/admin', adminRouter);
+app.use('/api/twitch/admin', adminRouter); // Add this line
 app.use('/admin/api', adminRouter); // Alias for convenience
 
 // Rutas de Comandos y API
