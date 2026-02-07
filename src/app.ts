@@ -120,7 +120,7 @@ app.get(['/health', '/api/twitch/health'], (req: Request, res: Response) => {
         status: isConfigured ? 'ok' : 'maintenance',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        version: '2.1.0'
+        version: '2.1.1'
     });
 });
 

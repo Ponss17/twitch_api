@@ -19,6 +19,11 @@ const checkAdminPassword = (req: any, res: any, next: any) => {
     next();
 };
 
+router.use((req, res, next) => {
+    logger.info(`Admin Router Hit: ${req.method} ${req.originalUrl} - Path: ${req.path}`);
+    next();
+});
+
 router.use(checkAdminPassword);
 
 router.get('/users', async (_req, res) => {
