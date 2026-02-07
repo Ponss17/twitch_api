@@ -109,12 +109,23 @@ export const getAllUsers = async (): Promise<StoredUser[]> => {
         const enhancedUsers = await Promise.all(
             users.map(async (u) => {
                 const safeUser = { ...u };
-                delete (safeUser as any).accessToken;
-                delete (safeUser as any).refreshToken;
+                const safeAnyUser = safeUser as unknown as Record<string, unknown>;
+                delete safeAnyUser.accessToken;
+                delete safeAnyUser.refreshToken;
 
                 if (safeUser.isActive === undefined) safeUser.isActive = true;
-                if (!safeUser.createdAt)
-                    safeUser.createdAt = new Date(safeUser.obtainedAt).toISOString();
+
+                if (!safeUser.createdAt) {
+                    if (safeUser.obtainedAt) {
+                        try {
+                            safeUser.createdAt = new Date(safeUser.obtainedAt).toISOString();
+                        } catch {
+                            safeUser.createdAt = new Date().toISOString();
+                        }
+                    } else {
+                        safeUser.createdAt = new Date().toISOString();
+                    }
+                }
 
                 const stats = await getUserStats(u.userId);
                 const totalRequests = Object.values(stats).reduce((a, b) => a + b, 0);
