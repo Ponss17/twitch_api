@@ -49,7 +49,9 @@ export const handleCallback = async (
         displayName: user.display_name,
         accessToken: access_token,
         refreshToken: refresh_token,
-        expiresAt: Date.now() + expires_in * 1000,
+        expiresIn: expires_in,
+        obtainedAt: Date.now(),
+        createdAt: new Date().toISOString(),
         apiKey,
         profileImageUrl: user.profile_image_url
     };
@@ -96,7 +98,8 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
 
         user.accessToken = access_token;
         if (refresh_token) user.refreshToken = refresh_token;
-        user.expiresAt = Date.now() + expires_in * 1000;
+        user.expiresIn = expires_in;
+        user.obtainedAt = Date.now();
 
         await dbService.saveUser(user);
         return access_token;
@@ -116,7 +119,8 @@ export const getValidToken = async (
     const user = await dbService.getUserByApiKey(apiKey);
     if (!user) throw new Error('API Key inválida');
 
-    if (Date.now() > user.expiresAt - 5 * 60 * 1000) {
+    const expiresAt = user.obtainedAt + user.expiresIn * 1000;
+    if (Date.now() > expiresAt - 5 * 60 * 1000) {
         const newToken = await refreshUserToken(user.userId);
         return { accessToken: newToken, userId: user.userId };
     }

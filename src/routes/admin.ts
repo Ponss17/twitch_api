@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { getAllUsers, updateUserStatus } from '../services/infrastructure/dbService';
+import {
+    getAllUsers,
+    updateUserStatus,
+    resetUserApiKey,
+    deleteUser
+} from '../services/infrastructure/dbService';
 import { logger } from '../utils/logger';
 
 const router = Router();
@@ -55,6 +60,30 @@ router.post('/users/:userId/status', async (req, res) => {
     } catch (e) {
         logger.error('Error updating user status:', e);
         res.status(500).json({ error: 'Error actualizando usuario' });
+    }
+});
+
+router.post('/users/:userId/reset-key', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const newKey = await resetUserApiKey(userId);
+        logger.info(`Admin reset API key for user ${userId}`);
+        res.json({ success: true, newKey });
+    } catch (e) {
+        logger.error('Error resetting API key:', e);
+        res.status(500).json({ error: 'Error reseteando API Key' });
+    }
+});
+
+router.delete('/users/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        await deleteUser(userId);
+        logger.info(`Admin deleted user ${userId}`);
+        res.json({ success: true });
+    } catch (e) {
+        logger.error('Error deleting user:', e);
+        res.status(500).json({ error: 'Error eliminando usuario' });
     }
 });
 

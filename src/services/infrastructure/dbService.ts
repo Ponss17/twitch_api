@@ -105,15 +105,29 @@ export const getAllUsers = async (): Promise<StoredUser[]> => {
         const allUsers = await kv.hgetall<Record<string, StoredUser>>(USERS_KEY);
         if (!allUsers) return [];
 
-        // Return users without sensitive tokens
-        return Object.values(allUsers).map((u) => {
-            const safeUser = { ...u };
-            delete (safeUser as any).accessToken;
-            delete (safeUser as any).refreshToken;
-            // Ensure isActive defaults to true for legacy records
-            if (safeUser.isActive === undefined) safeUser.isActive = true;
-            return safeUser;
-        });
+        const users = Object.values(allUsers);
+        const enhancedUsers = await Promise.all(
+            users.map(async (u) => {
+                const safeUser = { ...u };
+                delete (safeUser as any).accessToken;
+                delete (safeUser as any).refreshToken;
+
+                if (safeUser.isActive === undefined) safeUser.isActive = true;
+                if (!safeUser.createdAt)
+                    safeUser.createdAt = new Date(safeUser.obtainedAt).toISOString();
+
+                const stats = await getUserStats(u.userId);
+                const totalRequests = Object.values(stats).reduce((a, b) => a + b, 0);
+
+                return {
+                    ...safeUser,
+                    totalRequests,
+                    stats
+                };
+            })
+        );
+
+        return enhancedUsers;
     } catch (e) {
         logger.error('Error getting all users:', e);
         return [];
@@ -169,4 +183,52 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         logger.error('Error getting user stats:', e);
         return { clips: 0, followage: 0, so: 0 };
     }
+};
+
+export const updateLastActive = async (userId: string): Promise<void> => {
+    try {
+        const user = await getUser(userId);
+        if (user) {
+            user.lastActive = new Date().toISOString();
+            await saveUser(user);
+        }
+    } catch (e) {
+        logger.error('Error updating last active:', e);
+    }
+};
+
+export const deleteUser = async (userId: string): Promise<void> => {
+    try {
+        const user = await getUser(userId);
+        if (!user) return;
+
+        await kv.hdel(USERS_KEY, userId);
+
+        if (user.apiKey) {
+            await kv.hdel(API_KEYS_KEY, user.apiKey);
+        }
+
+        await kv.del(`stats:${userId}`);
+    } catch (e) {
+        logger.error('Error deleting user:', e);
+        throw e;
+    }
+};
+
+export const resetUserApiKey = async (userId: string): Promise<string> => {
+    const user = await getUser(userId);
+    if (!user) throw new Error('User not found');
+
+    const oldKey = user.apiKey;
+    const newKey = crypto.randomUUID();
+    user.apiKey = newKey;
+
+    await saveUser(user);
+
+    if (oldKey) {
+        await kv.hdel(API_KEYS_KEY, oldKey);
+    }
+    await kv.hset(API_KEYS_KEY, { [newKey]: user.userId });
+
+    return newKey;
 };
