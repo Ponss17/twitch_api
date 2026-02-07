@@ -78,6 +78,11 @@ app.get(['/admin-dashboard', '/api/twitch/admin-dashboard'], (req: Request, res:
     res.sendFile(path.join(__dirname, '../public/admin/dashboard.html'));
 });
 
+// Admin Routes (Protected internally by middleware)
+app.use('/api/admin', adminRouter);
+app.use('/api/twitch/admin', adminRouter);
+app.use('/admin/api', adminRouter);
+
 // SEO
 app.get(['/robots.txt', '/api/twitch/robots.txt'], getRobotsTxt);
 app.get(['/sitemap.xml', '/api/twitch/sitemap.xml'], getSitemapXml);
@@ -98,11 +103,6 @@ publicPaths.forEach((publicPath) => {
 
 // Rate Limiting Global
 app.use(rateLimiter);
-
-// Admin Routes (Protected internally by middleware)
-app.use('/api/admin', adminRouter);
-app.use('/api/twitch/admin', adminRouter); // Add this line
-app.use('/admin/api', adminRouter); // Alias for convenience
 
 // Rutas de Comandos y API
 app.use('/auth', authLimiter, authRoutes);
