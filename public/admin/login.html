@@ -39,7 +39,6 @@
             position: relative;
         }
 
-        /* Ambient Background */
         .ambient-light {
             position: absolute;
             width: 100%;
@@ -87,7 +86,6 @@
             }
         }
 
-        /* Login Card */
         .login-container {
             position: relative;
             z-index: 10;
@@ -230,7 +228,6 @@
             transform: translateY(0);
         }
 
-        /* Loading Spinner */
         .spinner {
             display: inline-block;
             width: 20px;
@@ -258,7 +255,6 @@
             }
         }
 
-        /* Fade In Animation */
         .fade-in {
             animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
             opacity: 0;
@@ -329,27 +325,29 @@
             setLoading(true);
             errorMsg.classList.remove('visible');
 
-            // Set temporary password for validation
             setAdminPassword(password);
 
             try {
-                // Simulate network delay for smooth UX
                 await new Promise(r => setTimeout(r, 600));
 
-                const res = await fetchAdmin('/api/twitch/admin/users');
+                const res = await fetchAdmin('/api/twitch/admin/verify');
 
                 if (res.ok) {
                     window.location.href = '/api/twitch/admin-dashboard';
                 } else {
+                    if (res.status === 429) {
+                        const data = await res.json();
+                        throw new Error(data.error || 'Demasiados intentos. Inténtalo más tarde.');
+                    }
                     throw new Error('Unauthorized');
                 }
             } catch (e) {
+                errorMsg.textContent = e.message === 'Unauthorized' ? 'Acceso Denegado: Contraseña inválida' : e.message;
                 errorMsg.classList.add('visible');
                 passwordInput.classList.add('input-error');
                 passwordInput.value = '';
                 passwordInput.focus();
 
-                // Clear validation password
                 sessionStorage.removeItem('admin_password');
             } finally {
                 setLoading(false);

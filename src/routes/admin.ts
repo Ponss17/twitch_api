@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import {
     getAllUsers,
     updateUserStatus,
@@ -8,6 +9,24 @@ import {
 import { logger } from '../utils/logger';
 
 const router = Router();
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 5,
+    message: {
+        error: 'Demasiados intentos de inicio de sesión. Inténtalo de nuevo en 15 minutos.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+const adminApiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 100,
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
 const checkAdminPassword = (req: any, res: any, next: any) => {
     const adminPassword = process.env.ADMIN_PASSWORD;
     const providedPassword = req.headers['x-admin-password'];
@@ -33,6 +52,11 @@ router.get('/health', (_req, res) => {
     res.json({ status: 'Admin Router OK', timestamp: new Date() });
 });
 
+router.get('/verify', loginLimiter, checkAdminPassword, (_req, res) => {
+    res.json({ success: true, message: 'Authenticated' });
+});
+
+router.use(adminApiLimiter);
 router.use(checkAdminPassword);
 
 router.get('/users', async (_req, res) => {
