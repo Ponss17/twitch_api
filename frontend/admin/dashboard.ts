@@ -13,9 +13,72 @@ interface AdminUser {
     createdAt?: string;
 }
 
+declare const Chart: any;
+let userChart: any = null;
+
+const renderChart = (users: AdminUser[]) => {
+    const ctx = document.getElementById('usersChart') as HTMLCanvasElement;
+    if (!ctx) return;
+    if (userChart) userChart.destroy();
+
+    const labels = users.map((u) => u.displayName);
+    const data = users.map((u) => u.totalRequests || 0);
+
+    userChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Total Requests',
+                    data: data,
+                    backgroundColor: 'rgba(145, 70, 255, 0.5)',
+                    borderColor: 'rgba(145, 70, 255, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#efeff1'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#efeff1'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#efeff1'
+                    }
+                }
+            }
+        }
+    });
+};
+
 const renderUsers = (users: AdminUser[]) => {
     const tbody = document.getElementById('users-table-body');
     if (!tbody) return;
+
+    if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="loading-cell">No se encontraron usuarios.</td></tr>`;
+        return;
+    }
 
     tbody.innerHTML = users
         .map(
@@ -68,6 +131,66 @@ const renderUsers = (users: AdminUser[]) => {
         .join('');
 };
 
+const createToastContainer = () => {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    return container;
+};
+
+const showToast = (title: string, message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    const container = createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    const icon =
+        type === 'success'
+            ? 'fa-circle-check'
+            : type === 'error'
+              ? 'fa-circle-exclamation'
+              : 'fa-circle-info';
+
+    toast.innerHTML = `
+        <i class="fa-solid ${icon} toast-icon"></i>
+        <div class="toast-content">
+            <span class="toast-title">${title}</span>
+            <span class="toast-message">${message}</span>
+        </div>
+    `;
+
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+};
+
+let allUsersCache: AdminUser[] = [];
+
+const setupSearch = () => {
+    const searchInput = document.getElementById('user-search') as HTMLInputElement;
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', (e) => {
+        const query = (e.target as HTMLInputElement).value.toLowerCase();
+        const filtered = allUsersCache.filter(
+            (user) =>
+                user.displayName.toLowerCase().includes(query) ||
+                user.login.toLowerCase().includes(query) ||
+                user.userId.includes(query)
+        );
+        renderUsers(filtered);
+    });
+};
+
 const loadUsers = async () => {
     console.log('Starting loadUsers...');
     try {
@@ -84,15 +207,19 @@ const loadUsers = async () => {
         const users: AdminUser[] = await res.json();
         console.log('Users/Data loaded:', users);
 
+        allUsersCache = users; // Cache for search
+
         if (users.length === 0) {
             console.warn('No users returned from API');
+            showToast('Aviso', 'No se encontraron usuarios', 'info');
         }
 
         renderUsers(users);
+        renderChart(users);
         console.log('Users rendered successfully');
     } catch (e) {
         console.error('Error in loadUsers:', e);
-        alert('Error cargando usuarios. Revisa la consola.');
+        showToast('Error', 'Error cargando usuarios. Revisa la consola.', 'error');
     }
 };
 
@@ -115,11 +242,15 @@ window.blockUser = async (userId: string) => {
             method: 'POST',
             body: JSON.stringify({ isActive: false, reason })
         });
-        if (res.ok) loadUsers();
-        else alert('Error al bloquear usuario');
+        if (res.ok) {
+            loadUsers();
+            showToast('Éxito', 'Usuario bloqueado correctamente', 'success');
+        } else {
+            showToast('Error', 'No se pudo bloquear al usuario', 'error');
+        }
     } catch (e) {
         console.error(e);
-        alert('Error de conexión');
+        showToast('Error', 'Error de conexión', 'error');
     }
 };
 
@@ -131,11 +262,15 @@ window.unblockUser = async (userId: string) => {
             method: 'POST',
             body: JSON.stringify({ isActive: true })
         });
-        if (res.ok) loadUsers();
-        else alert('Error al desbloquear usuario');
+        if (res.ok) {
+            loadUsers();
+            showToast('Éxito', 'Usuario desbloqueado', 'success');
+        } else {
+            showToast('Error', 'No se pudo desbloquear al usuario', 'error');
+        }
     } catch (e) {
         console.error(e);
-        alert('Error de conexión');
+        showToast('Error', 'Error de conexión', 'error');
     }
 };
 
@@ -147,14 +282,14 @@ window.resetKey = async (userId: string) => {
             method: 'POST'
         });
         if (res.ok) {
-            alert('Nueva API Key generada.');
             loadUsers();
+            showToast('API Key Generada', 'El usuario tiene una nueva clave', 'success');
         } else {
-            alert('Error al resetear key');
+            showToast('Error', 'No se pudo resetear la clave', 'error');
         }
     } catch (e) {
         console.error(e);
-        alert('Error de conexión');
+        showToast('Error', 'Error de conexión', 'error');
     }
 };
 
@@ -167,19 +302,19 @@ window.deleteUser = async (userId: string) => {
         });
         if (res.ok) {
             loadUsers();
+            showToast('Usuario Eliminado', 'Se ha borrado el usuario y sus datos', 'success');
         } else {
-            alert('Error al eliminar usuario');
+            showToast('Error', 'No se pudo eliminar al usuario', 'error');
         }
     } catch (e) {
         console.error(e);
-        alert('Error de conexión');
+        showToast('Error', 'Error de conexión', 'error');
     }
 };
 
 window.logout = logout;
 
-// Initialize
-// Initialize
 console.log('Dashboard script loaded');
 checkAuth();
+setupSearch();
 loadUsers();

@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="/api/twitch/css/base.css">
     <link rel="stylesheet" href="/api/twitch/css/dashboard.css">
     <link rel="stylesheet" href="/api/twitch/admin/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -47,6 +48,15 @@
             </header>
 
             <div class="dashboard-content">
+                <div class="card fade-in" style="margin-bottom: 2rem;">
+                    <div class="card-header">
+                        <h3>Actividad de Usuarios</h3>
+                    </div>
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="usersChart"></canvas>
+                    </div>
+                </div>
+
                 <div class="card fade-in">
                     <div class="card-header">
                         <div class="card-title-group">
@@ -57,6 +67,10 @@
                                 <h3>Usuarios Registrados</h3>
                                 <p class="card-desc">Gestiona el acceso y estado de las API Keys</p>
                             </div>
+                        </div>
+                        <div class="search-container">
+                            <i class="fa-solid fa-search search-icon"></i>
+                            <input type="text" id="user-search" placeholder="Buscar usuario..." class="search-input">
                         </div>
                     </div>
 
