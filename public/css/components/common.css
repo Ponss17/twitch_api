@@ -85,7 +85,7 @@
     color: var(--text-primary);
     width: 40px;
     text-align: right;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Roobert', 'Inter', sans-serif;
     font-weight: 600;
     font-size: 1rem;
     padding-right: 2px;
@@ -151,7 +151,7 @@
 }
 
 .word-text {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Roobert', 'Inter', sans-serif;
     letter-spacing: 0.5px;
 }
 
