@@ -118,7 +118,9 @@ button:active {
     background: rgba(239, 68, 68, 0.05);
     color: var(--danger);
     border: 1px solid rgba(239, 68, 68, 0.2);
-    min-width: 120px;
+    width: 140px;
+    justify-content: flex-start;
+    padding-left: 20px;
 }
 
 .btn-delete:hover {
@@ -132,7 +134,9 @@ button:active {
     background: rgba(239, 68, 68, 0.1);
     color: var(--danger);
     border: 1px solid rgba(239, 68, 68, 0.2);
-    min-width: 120px;
+    width: 140px;
+    justify-content: flex-start;
+    padding-left: 20px;
 }
 
 .btn-block:hover {
@@ -144,7 +148,9 @@ button:active {
     background: rgba(16, 185, 129, 0.1);
     color: var(--success);
     border-color: rgba(16, 185, 129, 0.2);
-    min-width: 120px;
+    width: 140px;
+    justify-content: flex-start;
+    padding-left: 20px;
 }
 
 .btn-unblock:hover {
