@@ -118,6 +118,7 @@ button:active {
     background: rgba(239, 68, 68, 0.05);
     color: var(--danger);
     border: 1px solid rgba(239, 68, 68, 0.2);
+    min-width: 120px;
 }
 
 .btn-delete:hover {
@@ -131,6 +132,7 @@ button:active {
     background: rgba(239, 68, 68, 0.1);
     color: var(--danger);
     border: 1px solid rgba(239, 68, 68, 0.2);
+    min-width: 120px;
 }
 
 .btn-block:hover {
@@ -142,6 +144,7 @@ button:active {
     background: rgba(16, 185, 129, 0.1);
     color: var(--success);
     border-color: rgba(16, 185, 129, 0.2);
+    min-width: 120px;
 }
 
 .btn-unblock:hover {
@@ -247,6 +250,40 @@ code {
     margin-top: 15px;
     font-size: 0.9rem;
     display: none;
+}
+
+.search-container {
+    position: relative;
+    width: 250px;
+    margin-left: auto;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 2px rgba(145, 70, 255, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    pointer-events: none;
 }
 
 .toast-container {

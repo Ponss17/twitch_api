@@ -6,19 +6,21 @@ const renderChart = (users) => {
         return;
     if (userChart)
         userChart.destroy();
-    const labels = users.map(u => u.displayName);
-    const data = users.map(u => u.totalRequests || 0);
+    const labels = users.map((u) => u.displayName);
+    const data = users.map((u) => u.totalRequests || 0);
     userChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
-            datasets: [{
+            datasets: [
+                {
                     label: 'Total Requests',
                     data: data,
                     backgroundColor: 'rgba(145, 70, 255, 0.5)',
                     borderColor: 'rgba(145, 70, 255, 1)',
                     borderWidth: 1
-                }]
+                }
+            ]
         },
         options: {
             responsive: true,
@@ -120,7 +122,11 @@ const showToast = (title, message, type = 'info') => {
     const container = createToastContainer();
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info';
+    const icon = type === 'success'
+        ? 'fa-circle-check'
+        : type === 'error'
+            ? 'fa-circle-exclamation'
+            : 'fa-circle-info';
     toast.innerHTML = `
         <i class="fa-solid ${icon} toast-icon"></i>
         <div class="toast-content">
@@ -144,7 +150,7 @@ const setupSearch = () => {
         return;
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
-        const filtered = allUsersCache.filter(user => user.displayName.toLowerCase().includes(query) ||
+        const filtered = allUsersCache.filter((user) => user.displayName.toLowerCase().includes(query) ||
             user.login.toLowerCase().includes(query) ||
             user.userId.includes(query));
         renderUsers(filtered);
