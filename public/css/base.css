@@ -89,7 +89,7 @@
 }
 
 body {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Roobert', 'Inter', sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.6;
