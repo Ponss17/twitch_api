@@ -8,6 +8,8 @@ import {
 } from '../services/infrastructure/dbService';
 import { logger } from '../utils/logger';
 
+import { CONFIG } from '../config/env';
+
 const router = Router();
 
 const loginLimiter = rateLimit({
@@ -28,7 +30,7 @@ const adminApiLimiter = rateLimit({
 });
 
 const checkAdminPassword = (req: any, res: any, next: any) => {
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    const adminPassword = CONFIG.ADMIN_PASSWORD;
     const providedPassword = req.headers['x-admin-password'];
 
     if (!adminPassword) {

@@ -23,5 +23,6 @@ export const CONFIG = {
     MAX_MESSAGE_TOKENS: 100,
     DISCORD_FEEDBACK_WEBHOOK_URL: process.env.DISCORD_FEEDBACK_WEBHOOK_URL,
     GROQ_API_KEY: process.env.GROQ_API_KEY,
-    BASE_URL: process.env.BASE_URL || 'https://www.losperris.site/api/twitch'
+    BASE_URL: process.env.BASE_URL || 'https://www.losperris.site/api/twitch',
+    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD
 };
