@@ -5,20 +5,20 @@ let _currentSection = 'overview';
 // Navigation
 window.switchSection = (sectionId) => {
     _currentSection = sectionId;
-    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.admin-section').forEach((s) => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach((n) => n.classList.remove('active'));
     document.getElementById(`section-${sectionId}`)?.classList.add('active');
     const btn = document.querySelector(`button[onclick*="switchSection('${sectionId}')"]`);
     if (btn)
         btn.classList.add('active');
     const titles = {
-        'overview': 'Resumen General',
-        'users': 'Gestión de Usuarios',
-        'system': 'Salud del Sistema',
-        'limits': 'Límites & Tráfico',
-        'logs': 'Logs del Sistema',
-        'security': 'Seguridad & Admins',
-        'config': 'Configuración'
+        overview: 'Resumen General',
+        users: 'Gestión de Usuarios',
+        system: 'Salud del Sistema',
+        limits: 'Límites & Tráfico',
+        logs: 'Logs del Sistema',
+        security: 'Seguridad & Admins',
+        config: 'Configuración'
     };
     const titleElem = document.getElementById('current-section-title');
     if (titleElem)
@@ -54,17 +54,19 @@ window.refreshLogs = async () => {
             list.innerHTML = '<div class="loading-cell">No hay logs registrados todavía.</div>';
             return;
         }
-        list.innerHTML = logs.map((log) => `
+        list.innerHTML = logs
+            .map((log) => `
             <div class="log-item level-${log.level}">
                 <span class="log-time">${new Date(log.timestamp).toLocaleTimeString()}</span>
                 <span class="log-level ${log.level}">${log.level}</span>
                 <span class="log-message">${log.message}${log.details ? ` <small style="opacity:0.5">(${JSON.stringify(log.details)})</small>` : ''}</span>
             </div>
-        `).join('');
+        `)
+            .join('');
         list.scrollTop = 0;
     }
     catch (_e) {
-        showToast('Error al cargar logs', 'error');
+        showToast('Error', 'Error al cargar logs', 'error');
     }
 };
 const renderChart = (users) => {
@@ -393,7 +395,7 @@ window.deleteUser = async (userId) => {
         });
         if (res.ok) {
             loadUsers();
-            showToast('Usuario Eliminado', 'Se ha borrado el usuario y sus datos', 'success');
+            showToast('Éxito', 'Se ha borrado el usuario y sus datos', 'success');
         }
         else {
             showToast('Error', 'No se pudo eliminar al usuario', 'error');

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as dbService from '../services/infrastructure/dbService';
 import { logger } from '../utils/logger';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const validKeysCache = new Map<string, any>();
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
 const MAX_CACHE_SIZE = 1000; // Límite de seguridad para memoria

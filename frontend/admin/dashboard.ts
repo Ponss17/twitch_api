@@ -15,6 +15,7 @@ interface AdminUser {
 }
 
 // Globals
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const Chart: any;
 let userChart: { destroy: () => void } | null = null;
 
@@ -22,6 +23,7 @@ let userChart: { destroy: () => void } | null = null;
 let _currentSection = 'overview';
 
 // Navigation
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).switchSection = (sectionId: string) => {
     _currentSection = sectionId;
 
@@ -58,10 +60,12 @@ let _currentSection = 'overview';
     } else if (sectionId === 'security') {
         loadAdmins();
     } else if (sectionId === 'logs') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).refreshLogs();
     }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).refreshLogs = async () => {
     const list = document.getElementById('logs-list');
     if (!list) return;
@@ -77,6 +81,7 @@ let _currentSection = 'overview';
 
         list.innerHTML = logs
             .map(
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (log: any) => `
             <div class="log-item level-${log.level}">
                 <span class="log-time">${new Date(log.timestamp).toLocaleTimeString()}</span>

@@ -34,6 +34,7 @@ export const callback = async (req: Request, res: Response) => {
                 const decoded = JSON.parse(Buffer.from(state, 'base64').toString());
                 isAdminLogin = decoded.isAdmin === true;
             } catch (_e) {
+                logger.debug('State decode failed', _e);
             }
         }
 
@@ -63,7 +64,7 @@ export const callback = async (req: Request, res: Response) => {
                 if (decoded.redirectOrigin)
                     errorRedirect = `${decoded.redirectOrigin}?error=auth_failed`;
             } catch (_e) {
-                // Skip if state is not valid JSON
+                // Ignore state decode errors in error handler
             }
         }
         res.redirect(errorRedirect);
