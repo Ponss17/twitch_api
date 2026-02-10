@@ -37,6 +37,14 @@
                     <i class="fa-solid fa-server" aria-hidden="true"></i>
                     <span class="nav-text">Salud Sistema</span>
                 </button>
+                <button class="nav-item" onclick="window.switchSection('limits')">
+                    <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
+                    <span class="nav-text">Límites & Tráfico</span>
+                </button>
+                <button class="nav-item" onclick="window.switchSection('logs')">
+                    <i class="fa-solid fa-terminal" aria-hidden="true"></i>
+                    <span class="nav-text">Logs del Sistema</span>
+                </button>
                 <button class="nav-item" onclick="window.switchSection('config')">
                     <i class="fa-solid fa-sliders" aria-hidden="true"></i>
                     <span class="nav-text">Configuración</span>
@@ -149,6 +157,55 @@
                         </div>
                         <div id="system-status-container" class="status-grid">
                             <div class="loading-cell">Consultando servicios...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="section-limits" class="admin-section">
+                    <div class="card fade-in">
+                        <div class="card-header">
+                            <h3>Gestión de Rate Limits</h3>
+                        </div>
+                        <div class="config-list">
+                            <div class="config-item">
+                                <div class="config-info">
+                                    <span class="config-key">Límite Global Estándar</span>
+                                    <p class="card-desc">Peticiones por minuto para usuarios con API Key válida</p>
+                                </div>
+                                <span class="config-value">120 req/min</span>
+                            </div>
+                            <div class="config-item">
+                                <div class="config-info">
+                                    <span class="config-key">Límite de Bots (Nightbot/SE)</span>
+                                    <p class="card-desc">Límite específico para integraciones externas conocidas</p>
+                                </div>
+                                <span class="config-value">60 req/min</span>
+                            </div>
+                            <div class="config-item">
+                                <div class="config-info">
+                                    <span class="config-key">Rutas Críticas / Admin</span>
+                                    <p class="card-desc">Acceso garantizado para el panel y autenticación</p>
+                                </div>
+                                <span class="config-value">1000 req/min</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="section-logs" class="admin-section">
+                    <div class="card fade-in">
+                        <div class="card-header"
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3>Logs del Sistema</h3>
+                                <p class="card-desc">Historial reciente de eventos y errores</p>
+                            </div>
+                            <button class="btn-primary" onclick="window.refreshLogs()" style="padding: 8px 16px;">
+                                <i class="fa-solid fa-rotate"></i> Actualizar
+                            </button>
+                        </div>
+                        <div class="logs-container" id="logs-list">
+                            <div class="loading-cell">Cargando logs del sistema...</div>
                         </div>
                     </div>
                 </section>
