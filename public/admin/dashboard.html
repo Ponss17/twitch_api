@@ -24,10 +24,26 @@
             </div>
 
             <nav class="sidebar-menu">
-                <div class="menu-category">General</div>
-                <button class="nav-item active">
+                <div class="menu-category">Administración</div>
+                <button class="nav-item active" onclick="window.switchSection('overview')">
+                    <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                    <span class="nav-text">Resumen</span>
+                </button>
+                <button class="nav-item" onclick="window.switchSection('users')">
                     <i class="fa-solid fa-users-gear" aria-hidden="true"></i>
                     <span class="nav-text">Usuarios</span>
+                </button>
+                <button class="nav-item" onclick="window.switchSection('system')">
+                    <i class="fa-solid fa-server" aria-hidden="true"></i>
+                    <span class="nav-text">Salud Sistema</span>
+                </button>
+                <button class="nav-item" onclick="window.switchSection('config')">
+                    <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                    <span class="nav-text">Configuración</span>
+                </button>
+                <button class="nav-item" onclick="window.switchSection('security')">
+                    <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                    <span class="nav-text">Seguridad</span>
                 </button>
             </nav>
 
@@ -41,61 +57,149 @@
 
         <main class="dashboard-main">
             <header class="dashboard-header">
-                <h1>Panel de Administración</h1>
+                <h1 id="current-section-title">Resumen General</h1>
                 <div class="user-badge">
                     <span id="admin-badge">Admin Access</span>
                 </div>
             </header>
 
             <div class="dashboard-content">
-                <div class="card fade-in" style="margin-bottom: 2rem;">
-                    <div class="card-header">
-                        <h3>Actividad de Usuarios</h3>
-                    </div>
-                    <div style="position: relative; height: 300px; width: 100%;">
-                        <canvas id="usersChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="card fade-in">
-                    <div class="card-header">
-                        <div class="card-title-group">
-                            <div class="card-icon">
-                                <i class="fa-solid fa-users"></i>
-                            </div>
-                            <div>
-                                <h3>Usuarios Registrados</h3>
-                                <p class="card-desc">Gestiona el acceso y estado de las API Keys</p>
+                <section id="section-overview" class="admin-section active">
+                    <div class="kpi-grid">
+                        <div class="card kpi-card">
+                            <i class="fa-solid fa-users kpi-icon"></i>
+                            <div class="kpi-data">
+                                <span class="kpi-label">Usuarios Totales</span>
+                                <span id="kpi-total-users" class="kpi-value">--</span>
                             </div>
                         </div>
-                        <div class="search-container">
-                            <i class="fa-solid fa-search search-icon"></i>
-                            <input type="text" id="user-search" placeholder="Buscar usuario..." class="search-input">
+                        <div class="card kpi-card">
+                            <i class="fa-solid fa-bolt kpi-icon"></i>
+                            <div class="kpi-data">
+                                <span class="kpi-label">Peticiones Totales</span>
+                                <span id="kpi-total-requests" class="kpi-value">--</span>
+                            </div>
+                        </div>
+                        <div class="card kpi-card">
+                            <i class="fa-solid fa-user-check kpi-icon"></i>
+                            <div class="kpi-data">
+                                <span class="kpi-label">Usuarios Activos</span>
+                                <span id="kpi-active-users" class="kpi-value">--</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>API Key</th>
-                                    <th>Estadísticas</th>
-                                    <th>Límite</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="users-table-body">
-                                <tr>
-                                    <td colspan="4" class="loading-cell">
-                                        <div class="loading-spinner"></div> Cargando...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="card fade-in" style="margin-top: 2rem;">
+                        <div class="card-header">
+                            <h3>Actividad por Usuario</h3>
+                        </div>
+                        <div style="position: relative; height: 350px; width: 100%;">
+                            <canvas id="usersChart"></canvas>
+                        </div>
                     </div>
-                </div>
+                </section>
+
+                <section id="section-users" class="admin-section">
+                    <div class="card fade-in">
+                        <div class="card-header">
+                            <div class="card-title-group">
+                                <div class="card-icon">
+                                    <i class="fa-solid fa-users"></i>
+                                </div>
+                                <div>
+                                    <h3>Gestión de Usuarios</h3>
+                                    <p class="card-desc">Control de API Keys y estados de conexión</p>
+                                </div>
+                            </div>
+                            <div class="search-container">
+                                <i class="fa-solid fa-search search-icon"></i>
+                                <input type="text" id="user-search" placeholder="Buscar usuario..."
+                                    class="search-input">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Usuario</th>
+                                        <th>API Key</th>
+                                        <th>Estadísticas</th>
+                                        <th>Límite</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <tr>
+                                        <td colspan="6" class="loading-cell">
+                                            <div class="loading-spinner"></div> Cargando...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="section-system" class="admin-section">
+                    <div class="card fade-in">
+                        <div class="card-header">
+                            <h3>Estado de Infraestructura</h3>
+                        </div>
+                        <div id="system-status-container" class="status-grid">
+                            <div class="loading-cell">Consultando servicios...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="section-config" class="admin-section">
+                    <div class="card fade-in">
+                        <div class="card-header">
+                            <h3>Variables de Entorno Activas</h3>
+                        </div>
+                        <div class="config-list" id="config-list-container">
+                            <div class="loading-cell">Cargando configuración...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="section-security" class="admin-section">
+                    <div class="card fade-in">
+                        <div class="card-header"
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3>Gestión de Administradores</h3>
+                            <button class="btn-primary" style="padding: 8px 16px; font-size: 14px;"
+                                onclick="window.addAdminPrompt()">
+                                <i class="fa-solid fa-user-plus"></i> Añadir Admin
+                            </button>
+                        </div>
+                        <div
+                            style="padding: 12px; background: rgba(145, 70, 255, 0.05); border-radius: 12px; margin: 15px 0; border: 1px dashed var(--primary); font-size: 13px;">
+                            <span style="color: var(--primary-glow)">
+                                <i class="fa-solid fa-circle-info"></i> El <b>Admin Root</b> tiene acceso permanente y
+                                no puede ser eliminado desde aquí.
+                            </span>
+                        </div>
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Usuario</th>
+                                        <th>Twitch ID</th>
+                                        <th>Rol</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admins-table-body">
+                                    <tr>
+                                        <td colspan="4" class="loading-cell">Cargando lista de administradores...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
             </div>
         </main>
     </div>

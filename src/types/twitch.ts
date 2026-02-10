@@ -62,6 +62,7 @@ export interface StoredUser {
     customRateLimit?: number;
     // Analíticas
     totalRequests?: number;
+    stats?: Record<string, number>;
     lastActive?: string;
     createdAt?: string;
     profileImageUrl?: string;
