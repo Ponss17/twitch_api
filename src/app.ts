@@ -10,14 +10,14 @@ import authRoutes from './routes/authRoutes';
 import apiRoutes from './routes/apiRoutes';
 import adminRouter from './routes/admin';
 import { getRobotsTxt, getSitemapXml } from './controllers/system/seoController';
-import { errorHandler, logger } from './middleware/errorMiddleware';
+import { errorHandler, requestLogger } from './middleware/errorMiddleware';
 
 const app: Application = express();
 
 app.set('trust proxy', 1);
 
-// Middleware de infraestructura
-app.use(logger);
+// Middlewares Base
+app.use(requestLogger);
 app.use(
     helmet({
         contentSecurityPolicy: {
@@ -79,7 +79,7 @@ app.get(['/admin-dashboard', '/api/twitch/admin-dashboard'], (req: Request, res:
     res.sendFile(path.join(__dirname, '../public/admin/dashboard.html'));
 });
 
-// Admin Routes (Protected internally by middleware)
+// Admin Routes
 app.use('/api/admin', adminRouter);
 app.use('/api/twitch/admin', adminRouter);
 app.use('/admin/api', adminRouter);
@@ -89,7 +89,6 @@ app.use('/admin', adminRouter); //
 app.get(['/robots.txt', '/api/twitch/robots.txt'], getRobotsTxt);
 app.get(['/sitemap.xml', '/api/twitch/sitemap.xml'], getSitemapXml);
 
-// Estáticos
 // Estáticos
 const publicPaths = [
     path.join(process.cwd(), 'public'),
@@ -123,7 +122,7 @@ app.get(['/health', '/api/twitch/health'], (req: Request, res: Response) => {
         status: isConfigured ? 'ok' : 'maintenance',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        version: '2.1.1'
+        version: '2.2.0'
     });
 });
 

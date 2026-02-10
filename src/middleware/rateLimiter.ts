@@ -4,17 +4,12 @@ import { Request, Response } from 'express';
 const limiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     max: (req: Request, res: Response) => {
-        if (res.locals && res.locals.validApiKey) {
-            return 120;
+        // 1. Prioridad: API Key VÁLIDA (Verificada en DB/Caché por middleware previo)
+        if (res.locals && res.locals.apiUser) {
+            return 120; // 2 req/seg
         }
 
-        if (
-            req.path.includes('/auth') ||
-            req.path.includes('/callback') ||
-            req.path.includes('/health')
-        ) {
-            return 30;
-        }
+        // 2. Excepciones de Sistema
         if (
             req.path.includes('/auth') ||
             req.path.includes('/callback') ||
@@ -23,6 +18,7 @@ const limiter = rateLimit({
             return 30;
         }
 
+        // 3. Bots Confiables
         const ua = req.get('user-agent') || '';
         if (
             ua.includes('Nightbot') ||
@@ -34,10 +30,11 @@ const limiter = rateLimit({
             return 60;
         }
 
+        // 4. Bloqueo Total (Anónimos o Key Falsa)
         return 0;
     },
     keyGenerator: (req: Request, res: Response): string => {
-        if (res.locals && res.locals.validApiKey) {
+        if (res.locals && res.locals.apiUser) {
             return req.query.apiKey as string;
         }
         return req.ip || 'unknown';

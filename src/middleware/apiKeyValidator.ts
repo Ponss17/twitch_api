@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as dbService from '../services/infrastructure/dbService';
 import { logger } from '../utils/logger';
 
-const validKeysCache = new Map<string, number>();
+const validKeysCache = new Map<string, any>();
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
 const MAX_CACHE_SIZE = 1000; // Límite de seguridad para memoria
 
@@ -17,9 +17,9 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         const now = Date.now();
 
         if (validKeysCache.has(apiKey)) {
-            const expiry = validKeysCache.get(apiKey)!;
-            if (expiry > now) {
-                res.locals.validApiKey = true;
+            const cached = validKeysCache.get(apiKey)!;
+            if (cached.expiry > now) {
+                res.locals.apiUser = cached.user;
                 return next();
             }
             validKeysCache.delete(apiKey);
@@ -31,10 +31,11 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
                 validKeysCache.clear();
             }
 
-            validKeysCache.set(apiKey, now + CACHE_TTL_MS);
-            res.locals.validApiKey = true;
-        } else {
-            res.locals.validApiKey = false;
+            validKeysCache.set(apiKey, {
+                user,
+                expiry: now + CACHE_TTL_MS
+            });
+            res.locals.apiUser = user;
         }
     } catch (error) {
         logger.error('Error validating API Key:', error);

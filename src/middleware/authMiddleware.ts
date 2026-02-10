@@ -4,9 +4,23 @@ import * as authService from '../services/auth/authService';
 import * as apiService from '../services/twitch/apiService';
 import * as dbService from '../services/infrastructure/dbService';
 import { MESSAGES } from '../config/messages';
+import { logger } from '../utils/logger';
 
 const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const safeString = (val: unknown) => (typeof val === 'string' ? val : '');
+
+    if (res.locals.apiUser) {
+        const user = res.locals.apiUser;
+        req.userId = user.userId;
+        req.login = user.login;
+        req.twitchToken = user.accessToken;
+
+        dbService.updateLastActive(user.userId).catch((err) => {
+            logger.error('Error updating last active (pre-validated):', err);
+        });
+
+        return next();
+    }
 
     let token = safeString(req.query.token) || safeString(req.body?.token);
     const apiKey = safeString(req.query.apiKey) || safeString(req.body?.apiKey);
@@ -22,7 +36,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             req.userId = authData.userId;
         } catch (error: unknown) {
             const err = error as Error;
-            console.error('Middleware Auth Error (API Key lookup):', err.message);
+            logger.error('Middleware Auth Error (API Key lookup):', err.message);
             return res.status(401).send(MESSAGES.AUTH.INVALID_CREDENTIALS);
         }
     }
@@ -39,13 +53,13 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                 if (validation.login) req.login = validation.login;
             }
         } catch (_e) {
-            console.warn('Error Middleware Auth: Could not validate token to extract user data');
+            logger.warn('Error Middleware Auth: Could not validate token to extract user data');
         }
     }
 
     if (req.userId) {
         dbService.updateLastActive(req.userId).catch((err: unknown) => {
-            console.error('Error updating last active:', err);
+            logger.error('Error updating last active:', err);
         });
     }
 

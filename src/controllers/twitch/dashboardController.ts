@@ -3,6 +3,7 @@ import * as dbService from '../../services/infrastructure/dbService';
 import * as apiService from '../../services/twitch/apiService';
 import * as cacheService from '../../services/infrastructure/cacheService';
 import { MESSAGES } from '../../config/messages';
+import { logger } from '../../utils/logger';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 
@@ -19,7 +20,7 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
         const stats = await dbService.getUserStats(userId);
         res.json(stats);
     } catch (e) {
-        console.error('Error analytics:', e);
+        logger.error('Error analytics:', e);
         res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });
     }
 };
@@ -46,7 +47,7 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
             message?: string;
             response?: { status?: number; data?: { message?: string } };
         };
-        console.error('Error fetching clips:', err?.response?.data || err.message);
+        logger.error('Error fetching clips:', { error: err?.response?.data || err.message });
         const status = err?.response?.status || 500;
         const message = err?.response?.data?.message || MESSAGES.DASHBOARD.CLIPS_ERROR;
         return res.status(status).json({ error: message });
@@ -66,7 +67,7 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
         res.json(chatters);
     } catch (error: unknown) {
         const err = error as Error;
-        console.error('Error getting chatters:', err.message);
+        logger.error('Error getting chatters:', { error: err.message });
         res.status(500).json({ error: MESSAGES.DASHBOARD.CHATTERS_ERROR });
     }
 };
