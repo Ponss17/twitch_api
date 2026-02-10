@@ -128,4 +128,15 @@ app.get(['/health', '/api/twitch/health'], (req: Request, res: Response) => {
 
 app.use(errorHandler);
 
+app.use((req: Request, res: Response) => {
+    const message = 'Error 404: La ruta especificada no existe.';
+    if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
+        res.setHeader('Content-Type', 'text/plain');
+        return res.status(404).send(message);
+    }
+    res.status(404).sendFile(path.join(__dirname, '../public/404.html'), (err) => {
+        if (err) res.status(404).json({ error: 'Not Found', message });
+    });
+});
+
 export default app;

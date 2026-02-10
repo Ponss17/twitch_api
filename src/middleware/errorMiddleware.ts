@@ -12,6 +12,10 @@ export const errorHandler = (
     const status = err.status || 500;
     const message = err.message || 'Error interno del servidor';
 
+    if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
+        return res.status(status).send(message);
+    }
+
     res.status(status).json({
         error: true,
         status,

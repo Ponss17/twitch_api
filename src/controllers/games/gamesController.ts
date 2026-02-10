@@ -65,7 +65,7 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
         }
     } catch (error) {
         logger.error('Error en playRussian:', error);
-        res.status(500).json({ error: 'Error interno en la Ruleta Rusa' });
+        res.status(500).send('Error interno en la Ruleta Rusa');
     }
 };
 

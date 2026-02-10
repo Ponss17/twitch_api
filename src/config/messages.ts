@@ -9,8 +9,9 @@ export const MESSAGES = {
         RENEW_ERROR: 'No se pudo renovar el token. Relogueate.',
         INVALID_KEY: 'API Key inválida',
         USER_NOT_FOUND: 'Usuario no encontrado',
-        INVALID_CREDENTIALS: '⛔ Error: Credenciales inválidas. Verifica tu API Key.',
-        MISSING_TOKEN_URL: 'Error: Token no proporcionado. Debes incluir ?token=TU_TOKEN en la URL.'
+        INVALID_CREDENTIALS:
+            '⛔ Tu API Key no es válida. Regenerala en el dashboard o contacta con Ponss.',
+        MISSING_TOKEN_URL: 'Error: Falta API Key. Debes incluir ?apiKey=TU_KEY en la URL.'
     },
     SYSTEM: {
         KEY_REQUIRED: 'Key requerida',
