@@ -59,7 +59,7 @@ const renderUsers = (users) => {
     if (!tbody)
         return;
     if (users.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="loading-cell">No se encontraron usuarios.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="loading-cell">No se encontraron usuarios.</td></tr>`;
         return;
     }
     tbody.innerHTML = users
@@ -87,6 +87,14 @@ const renderUsers = (users) => {
                 <small>Última vez: ${user.lastActive ? new Date(user.lastActive).toLocaleString() : 'Sin actividad'}</small>
             </td>
             <td>
+                <div class="rate-limit-cell">
+                    <span class="rate-value">${user.customRateLimit || '120'}</span>
+                    <button class="btn-icon-alt" onclick="window.updateRateLimit('${user.userId}', ${user.customRateLimit || 120})" title="Editar Límite">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                </div>
+            </td>
+            <td>
                 <span class="status-badge ${user.isActive !== false ? 'active' : 'inactive'}">
                     ${user.isActive !== false ? 'Activo' : 'Bloqueado'}
                 </span>
@@ -94,10 +102,10 @@ const renderUsers = (users) => {
             </td>
             <td class="actions-cell">
                 ${user.isActive !== false
-        ? `<button class="btn-block" onclick="window.blockUser('${user.userId}')">
+                ? `<button class="btn-block" onclick="window.blockUser('${user.userId}')">
                                <i class="fa-solid fa-ban"></i> Bloquear
                            </button>`
-        : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">
+                : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">
                                <i class="fa-solid fa-check"></i> Desbloquear
                            </button>`}
                 <button class="btn-delete" onclick="window.deleteUser('${user.userId}')" title="Eliminar Usuario">
@@ -259,6 +267,34 @@ window.deleteUser = async (userId) => {
         }
         else {
             showToast('Error', 'No se pudo eliminar al usuario', 'error');
+        }
+    }
+    catch (e) {
+        console.error(e);
+        showToast('Error', 'Error de conexión', 'error');
+    }
+};
+window.updateRateLimit = async (userId, currentLimit) => {
+    const input = prompt('Asignar nuevo límite de peticiones (req/min):', currentLimit.toString());
+    if (input === null)
+        return;
+    const limit = parseInt(input);
+    if (isNaN(limit) || limit < 0) {
+        showToast('Error', 'El límite debe ser un número válido >= 0', 'error');
+        return;
+    }
+    try {
+        const res = await fetchAdmin(`/api/twitch/admin/users/${userId}/rate-limit`, {
+            method: 'POST',
+            body: JSON.stringify({ limit })
+        });
+        if (res.ok) {
+            loadUsers();
+            showToast('Éxito', `Límite actualizado a ${limit} req/min`, 'success');
+        }
+        else {
+            const err = await res.json();
+            showToast('Error', err.error || 'No se pudo actualizar el límite', 'error');
         }
     }
     catch (e) {

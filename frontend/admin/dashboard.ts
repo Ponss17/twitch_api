@@ -7,6 +7,7 @@ interface AdminUser {
     apiKey: string;
     isActive?: boolean;
     blockedReason?: string;
+    customRateLimit?: number;
     profileImageUrl?: string;
     totalRequests?: number;
     lastActive?: string;
@@ -76,7 +77,7 @@ const renderUsers = (users: AdminUser[]) => {
     if (!tbody) return;
 
     if (users.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="loading-cell">No se encontraron usuarios.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="loading-cell">No se encontraron usuarios.</td></tr>`;
         return;
     }
 
@@ -104,6 +105,14 @@ const renderUsers = (users: AdminUser[]) => {
             <td class="stats-cell">
                 <div>Reqs: <strong>${user.totalRequests || 0}</strong></div>
                 <small>Última vez: ${user.lastActive ? new Date(user.lastActive).toLocaleString() : 'Sin actividad'}</small>
+            </td>
+            <td>
+                <div class="rate-limit-cell">
+                    <span class="rate-value">${user.customRateLimit || '120'}</span>
+                    <button class="btn-icon-alt" onclick="window.updateRateLimit('${user.userId}', ${user.customRateLimit || 120})" title="Editar Límite">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                </div>
             </td>
             <td>
                 <span class="status-badge ${user.isActive !== false ? 'active' : 'inactive'}">
@@ -229,6 +238,7 @@ declare global {
         unblockUser: (id: string) => Promise<void>;
         resetKey: (id: string) => Promise<void>;
         deleteUser: (id: string) => Promise<void>;
+        updateRateLimit: (id: string, current: number) => Promise<void>;
         logout: () => void;
     }
 }
@@ -305,6 +315,34 @@ window.deleteUser = async (userId: string) => {
             showToast('Usuario Eliminado', 'Se ha borrado el usuario y sus datos', 'success');
         } else {
             showToast('Error', 'No se pudo eliminar al usuario', 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Error', 'Error de conexión', 'error');
+    }
+};
+
+window.updateRateLimit = async (userId: string, currentLimit: number) => {
+    const input = prompt('Asignar nuevo límite de peticiones (req/min):', currentLimit.toString());
+    if (input === null) return;
+
+    const limit = parseInt(input);
+    if (isNaN(limit) || limit < 0) {
+        showToast('Error', 'El límite debe ser un número válido >= 0', 'error');
+        return;
+    }
+
+    try {
+        const res = await fetchAdmin(`/api/twitch/admin/users/${userId}/rate-limit`, {
+            method: 'POST',
+            body: JSON.stringify({ limit })
+        });
+        if (res.ok) {
+            loadUsers();
+            showToast('Éxito', `Límite actualizado a ${limit} req/min`, 'success');
+        } else {
+            const err = await res.json();
+            showToast('Error', err.error || 'No se pudo actualizar el límite', 'error');
         }
     } catch (e) {
         console.error(e);

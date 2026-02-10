@@ -59,6 +59,7 @@ export interface StoredUser {
     apiKey?: string;
     isActive?: boolean;
     blockedReason?: string;
+    customRateLimit?: number;
     // Analíticas
     totalRequests?: number;
     lastActive?: string;

@@ -4,7 +4,9 @@ import {
     getAllUsers,
     updateUserStatus,
     resetUserApiKey,
-    deleteUser
+    deleteUser,
+    getUser,
+    saveUser
 } from '../services/infrastructure/dbService';
 import { logger } from '../utils/logger';
 
@@ -110,6 +112,30 @@ router.delete('/users/:userId', async (req, res) => {
     } catch (e) {
         logger.error('Error deleting user:', e);
         res.status(500).json({ error: 'Error eliminando usuario' });
+    }
+});
+
+router.post('/users/:userId/rate-limit', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { limit } = req.body;
+
+        if (typeof limit !== 'number' || limit < 0) {
+            return res.status(400).json({ error: 'Límite debe ser un número positivo' });
+        }
+
+        const user = await getUser(userId);
+        if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+        user.customRateLimit = limit;
+        if (limit === 0) delete user.customRateLimit; // 0 o null vuelve al default (120)
+
+        await saveUser(user);
+        logger.info(`Admin updated rate limit for user ${userId}: ${limit}`);
+        res.json({ success: true, limit });
+    } catch (e) {
+        logger.error('Error updating rate limit:', e);
+        res.status(500).json({ error: 'Error actualizando límite' });
     }
 });
 

@@ -7,7 +7,8 @@ const limiter = rateLimit({
     max: (req: Request, res: Response) => {
         // 1. Prioridad: API Key VÁLIDA (Verificada en DB/Caché por middleware previo)
         if (res.locals && res.locals.apiUser) {
-            return 120; // 2 req/seg
+            // Si el admin asignó un límite específico, usarlo. Si no, usar 120 (estándar).
+            return res.locals.apiUser.customRateLimit || 120;
         }
 
         // 2. Excepciones de Sistema / Dashboard (Alta disponibilidad para el admin)
