@@ -39,9 +39,17 @@
                 <img src="img/LosPerris_progra.webp" alt="Logo" class="sidebar-logo" loading="lazy">
                 <h2>Guía API</h2>
             </div>
+
+            <div class="search-container">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="docs-search" placeholder="Buscar..." aria-label="Buscar en la documentación">
+            </div>
+
             <nav class="sidebar-nav">
                 <a href="#intro" class="nav-item active"><i class="fa-solid fa-house"></i> Introducción</a>
                 <a href="#auth" class="nav-item"><i class="fa-solid fa-key"></i> Tu API Key</a>
+                <a href="#limits" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Límites</a>
+                <a href="#quick-start" class="nav-item"><i class="fa-solid fa-rocket"></i> ¡Comienza Ya!</a>
                 <div class="nav-group">
                     <span class="group-title">Comandos</span>
                     <a href="#followage" class="nav-item"><i class="fa-solid fa-clock"></i> Followage</a>
@@ -50,7 +58,7 @@
 
                     <span class="group-title">Herramientas</span>
                     <a href="#trends" class="nav-item"><i class="fa-solid fa-chart-line"></i> Tendencias</a>
-                    <a href="#stalker" class="nav-item"><i class="fa-solid fa-users-viewfinder"></i> Stalker</a>
+                    <a href="#stalker" class="nav-item"><i class="fa-solid fa-binoculars"></i> Stalker</a>
                     <a href="#roulette" class="nav-item"><i class="fa-solid fa-dice"></i> Ruleta</a>
 
                     <span class="group-title">Minijuegos</span>
@@ -89,11 +97,6 @@
                 <h2><i class="fa-solid fa-key"></i> Tu API Key</h2>
                 <p>La mayoría de los endpoints requieren una <code>apiKey</code> para funcionar. Puedes obtener
                     tu Clave Permanente conectando tu cuenta en el <a href="./">panel principal</a>.</p>
-                <div class="endpoint-block">
-                    <span class="method get">GET</span>
-                    <span class="url">/api/twitch/auth/twitch</span>
-                </div>
-                <p>Este endpoint inicia el flujo de OAuth con Twitch para obtener tus credenciales.</p>
                 <div class="info-card" style="margin-top: 1.5rem;">
                     <i class="fa-solid fa-user-shield"></i>
                     <p><strong>¿Por qué verificar?</strong> Solo necesitamos permiso para <strong>leer datos
@@ -102,20 +105,267 @@
                 </div>
             </section>
 
+            <section id="limits" class="doc-section">
+                <h2><i class="fa-solid fa-gauge-high"></i> Rate Limiting</h2>
+                <p>Para asegurar la estabilidad del servicio para todos los streamers, aplicamos los siguientes límites:
+                </p>
+
+                <div class="limits-grid">
+                    <div class="limit-card">
+                        <div class="limit-value">60</div>
+                        <div class="limit-label">Requests / minuto</div>
+                    </div>
+                    <div class="limit-card">
+                        <div class="limit-value">1000</div>
+                        <div class="limit-label">Requests / hora</div>
+                    </div>
+                    <div class="limit-card">
+                        <div class="limit-value">60s</div>
+                        <div class="limit-label">Caché de Respuestas</div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <i class="fa-solid fa-server"></i>
+                    <p><strong>Headers de Respuesta:</strong> Incluimos <code>X-RateLimit-Limit</code>,
+                        <code>X-RateLimit-Remaining</code> y <code>X-RateLimit-Reset</code> en todas las respuestas para
+                        que puedas monitorear tu consumo.
+                    </p>
+                </div>
+            </section>
+
+            <section id="quick-start" class="doc-section">
+                <h2><i class="fa-solid fa-rocket"></i> ¡Comienza Ya!</h2>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h3>Obtén tu API Key</h3>
+                        <p>Inicia sesión en el <a href="./">Dashboard</a> para obtener tu clave única.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h3>Elige un Comando</h3>
+                        <p>Selecciona una herramienta del menú (ej: Bola 8, Clips).</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h3>Copia y Pega</h3>
+                        <p>Copia el código generado y pégalo en el chat de tu bot.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <h3>¡Disfruta!</h3>
+                        <p>Tus viewers ya pueden interactuar con los nuevos comandos.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="followage" class="doc-section">
+                <h2><i class="fa-regular fa-clock"></i> Followage</h2>
+                <p>Calcula cuánto tiempo lleva un usuario siguiendo al canal.</p>
+
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Parámetro</th>
+                            <th>Requerido</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="url-param">channel</td>
+                            <td>Sí</td>
+                            <td>Canal a verificar.</td>
+                        </tr>
+                        <tr>
+                            <td class="url-param">user</td>
+                            <td>Sí</td>
+                            <td>Usuario seguidor.</td>
+                        </tr>
+                        <tr>
+                            <td class="url-param">template</td>
+                            <td>No</td>
+                            <td>Personaliza la respuesta. Ej: <code>{user} lleva {time} siguiendo a {channel}</code>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="code-tab-container">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
+                    </div>
+
+                    <div class="tab-content active" data-bot="nightbot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="$(urlfetch {baseURL}/api/twitch/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="streamelements">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="${customapi.{baseURL}/api/twitch/followage?channel=${channel}&user=${touser}&apiKey=TU_API_KEY}">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="fossabot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="$(customapi {baseURL}/api/twitch/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section id="create-clip" class="doc-section">
                 <h2><i class="fa-solid fa-film"></i> Crear Clip</h2>
-                <p>Genera un clip instantáneo del canal especificado.</p>
+                <p>Genera un clip instantáneo del canal. Ideal para capturar momentos épicos.</p>
+
+                <div class="info-card">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <p><strong>Requisito:</strong> Tu cuenta vinculada debe ser <strong>Moderador o VIP</strong> en el
+                        canal.</p>
+                </div>
+
+                <div class="usage-steps-mini">
+                    <span class="step-badge">1</span> Selecciona tu bot
+                    <i class="fa-solid fa-chevron-right separator"></i>
+                    <span class="step-badge">2</span> Copia el código
+                    <i class="fa-solid fa-chevron-right separator"></i>
+                    <span class="step-badge">3</span> Pega en el chat
+                </div>
+
+                <div class="code-tab-container">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
+                    </div>
+
+                    <div class="tab-content active" data-bot="nightbot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="🎬 Clip creado por $(user): $(urlfetch {baseURL}/api/twitch/create-clip?channel=$(channel)&apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="streamelements">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="🎬 Clip creado por ${user}: ${customapi.{baseURL}/api/twitch/create-clip?channel=${channel}&apiKey=TU_API_KEY}">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="fossabot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="🎬 Clip creado por $(user): $(customapi {baseURL}/api/twitch/create-clip?channel=$(channel)&apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+
+            <section id="shoutout" class="doc-section">
+                <h2><i class="fa-solid fa-bullhorn"></i> Shoutout (!so)</h2>
+                <p>Genera un mensaje promocionando a otro streamer con su último juego y enlace directo.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/twitch/create-clip?channel={canal}&apiKey={tu_api_key}</span>
+                    <span class="url">/api/twitch/shoutout?channel={canal}&touser={objetivo}&apiKey={clave}</span>
                 </div>
-                <div class="info-card"
-                    style="margin-bottom: 1.5rem; background: rgba(59, 130, 246, 0.05); border-left-color: #3b82f6;">
-                    <i class="fa-solid fa-note-sticky" style="color: #3b82f6;"></i>
-                    <p><strong>Nota:</strong> El canal <strong>debe estar en vivo</strong> para poder generar un clip.
-                        Si el stream está offline, recibirás un mensaje de error.</p>
+                <div class="code-tab-container">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
+                    </div>
+
+                    <div class="tab-content active" data-bot="nightbot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="📢 $(urlfetch {baseURL}/api/twitch/shoutout?channel=$(channel)&touser=$(touser)&apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="streamelements">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="📢 ${customapi.{baseURL}/api/twitch/shoutout?channel=${channel}&touser=${touser}&apiKey=TU_API_KEY}">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="fossabot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="📢 $(customapi {baseURL}/api/twitch/shoutout?channel=$(channel)&touser=$(touser)&apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
                 </div>
-                <h3>Parámetros</h3>
+            </section>
+
+            <section id="trends" class="doc-section">
+                <h2><i class="fa-solid fa-chart-line"></i> Tendencias</h2>
+                <p>¿Qué está es lo más comentado en tu chat? Esta herramienta analiza los mensajes en vivo y genera un
+                    ranking (Top 10) de las palabras o emotes más repetidos.</p>
+                <div class="info-card">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <p><strong>Uso ideal:</strong> Mide el "hype" de un momento específico o descubre qué emote está
+                        spameando tu comunidad. Incluye un temporizador para sesiones de análisis.</p>
+                </div>
+            </section>
+
+            <section id="stalker" class="doc-section">
+                <h2><i class="fa-solid fa-binoculars"></i> Stalker</h2>
+                <p>Tu centro de inteligencia. Investiga a cualquier usuario de Twitch al instante para obtener contexto
+                    rápido.</p>
+                <div class="info-card" style="border-left-color: #22c55e; background: rgba(34, 197, 94, 0.05);">
+                    <i class="fa-solid fa-shield-halved" style="color: #22c55e;"></i>
+                    <p><strong>Para Mods:</strong> Verifica cuándo se creó una cuenta, cuánto tiempo lleva siguiendo el
+                        canal y lee sus últimos mensajes en el chat (logs).</p>
+                </div>
+            </section>
+
+            <section id="roulette" class="doc-section">
+                <h2><i class="fa-solid fa-dice"></i> Ruleta</h2>
+                <p>La herramienta definitiva para sorteos y giveaways en tu stream.</p>
+                <div class="info-card" style="border-left-color: #a855f7; background: rgba(168, 85, 247, 0.05);">
+                    <i class="fa-solid fa-wand-magic-sparkles" style="color: #a855f7;"></i>
+                    <p><strong>Lógica Híbrida:</strong> Puedes crear una lista manual de opciones o dejar que la API
+                        cargue automáticamente a los <strong>usuarios activos</strong> del chat en tiempo real.</p>
+                </div>
+            </section>
+
+            <section id="magic8" class="doc-section">
+                <h2><i class="fa-solid fa-8"></i> Bola 8 Mágica (IA)</h2>
+                <p>Respuestas místicas (o sarcásticas) a tus preguntas.</p>
+                <div class="endpoint-block">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/twitch/minigames/magic8?question={pregunta}&mood={tono}&apiKey={clave}</span>
+                </div>
+
                 <table class="params-table">
                     <thead>
                         <tr>
@@ -126,83 +376,14 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><code>channel</code></td>
-                            <td>String</td>
-                            <td>El nombre de usuario del canal (login).</td>
-                        </tr>
-                        <tr>
-                            <td><code>apiKey</code></td>
-                            <td>String</td>
-                            <td>Tu Clave Permanente (No expira).</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <h3>Ejemplo Nightbot</h3>
-                <div class="code-block">
-                    <code class="dynamic-url"
-                        data-path="🎬 Clip creado por $(user): $(urlfetch {baseURL}/api/twitch/create-clip?channel=$(channel)&apiKey=TU_API_KEY)">Cargando...</code>
-                    <button class="btn-copy-doc" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
-                </div>
-            </section>
-
-            <section id="followage" class="doc-section">
-                <h2><i class="fa-solid fa-clock"></i> Followage</h2>
-                <p>Consulta cuánto tiempo lleva un usuario siguiendo a un canal con precisión quirúrgica.</p>
-                <div class="endpoint-block">
-                    <span class="method get">GET</span>
-                    <span class="url">/api/twitch/followage?channel={canal}&user={usuario}&apiKey={clave}</span>
-                </div>
-                <h3>Ejemplo Nightbot</h3>
-                <div class="code-block">
-                    <code class="dynamic-url"
-                        data-path="/api/twitch/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY">Cargando...</code>
-                    <button class="btn-copy-doc" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
-                </div>
-            </section>
-
-            <section id="shoutout" class="doc-section">
-                <h2><i class="fa-solid fa-bullhorn"></i> Shoutout (!so)</h2>
-                <p>Genera un mensaje promocionando a otro streamer con su último juego y enlace directo.</p>
-                <div class="endpoint-block">
-                    <span class="method get">GET</span>
-                    <span class="url">/api/twitch/shoutout?channel={canal}&touser={objetivo}&apiKey={clave}</span>
-                </div>
-                <h3>Ejemplo Nightbot</h3>
-                <div class="code-block">
-                    <code class="dynamic-url"
-                        data-path="📢 $(urlfetch {baseURL}/api/twitch/shoutout?channel=$(channel)&touser=$(touser)&apiKey=TU_API_KEY)">Cargando...</code>
-                    <button class="btn-copy-doc" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
-                </div>
-            </section>
-
-            <section id="magic8" class="doc-section">
-                <h2><i class="fa-solid fa-8"></i> Bola 8 Mágica (IA)</h2>
-                <p>Responde preguntas de sí/no de forma divertida usando Inteligencia Artificial. Ahora puedes elegir la
-                    personalidad de la respuesta.</p>
-                <div class="endpoint-block">
-                    <span class="method get">GET</span>
-                    <span class="url">/api/twitch/minigames/magic8?question={pregunta}&mood={tono}&apiKey={clave}</span>
-                </div>
-
-                <h3>Parámetros</h3>
-                <table class="params-table">
-                    <thead>
-                        <tr>
-                            <th>Dato</th>
-                            <th>Tipo</th>
-                            <th>Info / Valores</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
                             <td><code>question</code></td>
                             <td>String</td>
-                            <td>La duda existencial del usuario.</td>
+                            <td>La pregunta que quieres hacer a la Bola 8.</td>
                         </tr>
                         <tr>
                             <td><code>mood</code></td>
                             <td>String</td>
-                            <td><strong>classic, sarcastic, toxic, helpful</strong> (Opcional, default: classic).</td>
+                            <td>Tono de la respuesta (ej: <code>sarcastic</code>, <code>mystic</code>).</td>
                         </tr>
                         <tr>
                             <td><code>apiKey</code></td>
@@ -212,18 +393,46 @@
                     </tbody>
                 </table>
 
-                <h3>Ejemplo Nightbot (Sarcástico)</h3>
-                <div class="code-block">
-                    <code class="dynamic-url"
-                        data-path="🎱 $(user) pregunta: $(query) | La Bola 8 dice: $(urlfetch {baseURL}/api/twitch/minigames/magic8?question=$(query)&mood=sarcastic&apiKey=TU_API_KEY)">Cargando...</code>
-                    <button class="btn-copy-doc" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
+                <div class="code-tab-container">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
+                    </div>
+
+                    <div class="tab-content active" data-bot="nightbot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="🎱 $(user) pregunta: $(query) | La Bola 8 dice: $(urlfetch {baseURL}/api/twitch/minigames/magic8?question=$(query)&mood=sarcastic&apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="streamelements">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="🎱 ${user} pregunta: ${1:} | La Bola 8 dice: ${customapi.{baseURL}/api/twitch/minigames/magic8?question=${1:}&mood=sarcastic&apiKey=TU_API_KEY}">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="fossabot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="🎱 $(user) pregunta: $(query) | La Bola 8 dice: $(customapi {baseURL}/api/twitch/minigames/magic8?question=$(query)&mood=sarcastic&apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <section id="russian" class="doc-section">
                 <h2><i class="fa-solid fa-skull-crossbones"></i> Ruleta Rusa</h2>
                 <p>Un juego de alto riesgo para tu chat. Los usuarios prueban su suerte con un revólver virtual de 6
-                    recámaras. Si pierden, reciben un <strong>Timeout</strong> real (si el bot es mod).</p>
+                    recámaras. Si pierden, reciben un <strong>Timeout</strong> real.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
                     <span class="url">/api/twitch/minigames/russian?user={usuario}&apiKey={clave}</span>
@@ -234,18 +443,68 @@
                     <p><strong>Cuidado:</strong> Este comando puede expulsar temporalmente a tus usuarios. Úsalo bajo tu
                         propio riesgo.</p>
                 </div>
-                <h3>Ejemplo Nightbot</h3>
-                <div class="code-block">
-                    <code class="dynamic-url"
-                        data-path="$(urlfetch {baseURL}/api/twitch/minigames/russian?user=$(user)&apiKey=TU_API_KEY)">Cargando...</code>
-                    <button class="btn-copy-doc" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
+                <div class="code-tab-container">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
+                    </div>
+
+                    <div class="tab-content active" data-bot="nightbot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="$(urlfetch {baseURL}/api/twitch/minigames/russian?user=$(user)&apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="streamelements">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="${customapi.{baseURL}/api/twitch/minigames/russian?user=${user}&apiKey=TU_API_KEY}">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="fossabot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="$(customapi {baseURL}/api/twitch/minigames/russian?user=$(user)&apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <section id="duel" class="doc-section">
                 <h2><i class="fa-solid fa-khanda"></i> Duelo</h2>
-                <p>Combate narrativo 1 contra 1. Desafía a otro usuario a un duelo épico con desenlaces aleatorios
-                    (Western, Anime, Sci-Fi, etc.). ¡Solo uno quedará en pie!</p>
+                <p>Genera un clip instantáneo del canal especificado. <strong>Nota:</strong> Requiere que la cuenta
+                    vinculada sea moderador o VIP en el canal.</p>
+
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Parámetro</th>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="url-param">channel</td>
+                            <td>String</td>
+                            <td>Canal donde se creará el clip.</td>
+                        </tr>
+                        <tr>
+                            <td class="url-param">apiKey</td>
+                            <td>String</td>
+                            <td>Tu clave de API única.</td>
+                        </tr>
+                    </tbody>
+                </table>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
                     <span
@@ -270,13 +529,42 @@
                         </tr>
                     </tbody>
                 </table>
-                <h3>Ejemplo Nightbot</h3>
-                <div class="code-block">
-                    <code class="dynamic-url"
-                        data-path="$(urlfetch {baseURL}/api/twitch/minigames/duel?challenger=$(user)&target=$(touser)&apiKey=TU_API_KEY)">Cargando...</code>
-                    <button class="btn-copy-doc" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
+                <div class="code-tab-container">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
+                    </div>
+
+                    <div class="tab-content active" data-bot="nightbot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="$(urlfetch {baseURL}/api/twitch/minigames/duel?challenger=$(user)&target=$(touser)&apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="streamelements">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="${customapi.{baseURL}/api/twitch/minigames/duel?challenger=${user}&target=${touser}&apiKey=TU_API_KEY}">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="fossabot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="$(customapi {baseURL}/api/twitch/minigames/duel?challenger=$(user)&target=$(touser)&apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
                 </div>
             </section>
+
 
             <section id="get-clips" class="doc-section">
                 <h2><i class="fa-solid fa-list"></i> Listar Clips</h2>
@@ -311,37 +599,6 @@
                 </div>
             </section>
 
-            <section id="trends" class="doc-section">
-                <h2><i class="fa-solid fa-chart-line"></i> Tendencias</h2>
-                <p>¿Qué está es lo más comentado en tu chat? Esta herramienta analiza los mensajes en vivo y genera un
-                    ranking (Top 10) de las palabras o emotes más repetidos.</p>
-                <div class="info-card">
-                    <i class="fa-solid fa-lightbulb"></i>
-                    <p><strong>Uso ideal:</strong> Mide el "hype" de un momento específico o descubre qué emote está
-                        spameando tu comunidad. Incluye un temporizador para sesiones de análisis.</p>
-                </div>
-            </section>
-
-            <section id="stalker" class="doc-section">
-                <h2><i class="fa-solid fa-users-viewfinder"></i> Stalker</h2>
-                <p>Tu centro de inteligencia. Investiga a cualquier usuario de Twitch al instante para obtener contexto
-                    rápido.</p>
-                <div class="info-card" style="border-left-color: #22c55e; background: rgba(34, 197, 94, 0.05);">
-                    <i class="fa-solid fa-shield-halved" style="color: #22c55e;"></i>
-                    <p><strong>Para Mods:</strong> Verifica cuándo se creó una cuenta, cuánto tiempo lleva siguiendo el
-                        canal y lee sus últimos mensajes en el chat (logs).</p>
-                </div>
-            </section>
-
-            <section id="roulette" class="doc-section">
-                <h2><i class="fa-solid fa-dice"></i> Ruleta</h2>
-                <p>La herramienta definitiva para sorteos y giveaways en tu stream.</p>
-                <div class="info-card" style="border-left-color: #a855f7; background: rgba(168, 85, 247, 0.05);">
-                    <i class="fa-solid fa-wand-magic-sparkles" style="color: #a855f7;"></i>
-                    <p><strong>Lógica Híbrida:</strong> Puedes crear una lista manual de opciones o dejar que la API
-                        cargue automáticamente a los <strong>usuarios activos</strong> del chat en tiempo real.</p>
-                </div>
-            </section>
             <section id="errores" class="doc-section">
                 <h2><i class="fa-solid fa-triangle-exclamation"></i> Problemas Comunes</h2>
                 <p>La API utiliza códigos de estado HTTP estándar para indicar el estado de las
