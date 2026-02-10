@@ -300,21 +300,21 @@
     <script type="module">
         const loginBtn = document.getElementById('loginBtn');
         const errorMsg = document.getElementById('error');
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('error')) {
-            errorMsg.classList.add('visible');
-            if (urlParams.get('error') === 'not_authorized') {
-                errorMsg.textContent = '❌ Tu cuenta no tiene permisos de administrador';
-            }
-        }
+        const apiBase = window.location.pathname.replace(/\/admin\/?$/, '');
 
-        import { checkAuth } from '../js/admin/auth.js';
-        checkAuth();
+        import(`./js/admin/auth.js`).then(module => {
+            module.checkAuth();
+        }).catch(err => {
+            console.warn('Fallback to absolute path for auth.js');
+            import(`/js/admin/auth.js`).then(m => m.checkAuth());
+        });
 
         loginBtn.addEventListener('click', (e) => {
-            console.log('Login attempt started...');
+            e.preventDefault();
+            console.log('Redirigiendo a Twitch OAuth...');
             loginBtn.style.opacity = '0.7';
             loginBtn.querySelector('span').textContent = 'Redirigiendo...';
+            window.location.href = `${apiBase}/auth/twitch?admin=true`;
         });
     </script>
 </body>
