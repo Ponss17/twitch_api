@@ -679,3 +679,55 @@ a:hover {
     background: transparent;
     box-shadow: none;
 }
+
+.tab-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.format-selector {
+    margin-left: auto;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 2px;
+    display: flex;
+    gap: 2px;
+}
+
+.format-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    font-family: 'Outfit', sans-serif;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.format-btn:hover {
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.format-btn.active {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 500;
+}
+
+@media (max-width: 600px) {
+    .format-selector {
+        margin-left: 0;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    .format-btn {
+        flex: 1;
+        text-align: center;
+    }
+}

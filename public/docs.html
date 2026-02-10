@@ -191,11 +191,16 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="code-tab-container">
+                <div class="code-tab-container" data-trigger="!followage">
                     <div class="tab-header">
                         <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
                         <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
                         <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
+
+                        <div class="format-selector">
+                            <button class="format-btn active" onclick="switchFormat(this, 'chat')">Chat</button>
+                            <button class="format-btn" onclick="switchFormat(this, 'dashboard')">Panel</button>
+                        </div>
                     </div>
 
                     <div class="tab-content active" data-bot="nightbot">
@@ -233,8 +238,8 @@
 
                 <div class="info-card">
                     <i class="fa-solid fa-circle-exclamation"></i>
-                    <p><strong>Requisito:</strong> Tu cuenta vinculada debe ser <strong>Moderador o VIP</strong> en el
-                        canal.</p>
+                    <p><strong>Requisito:</strong> El canal debe estar <strong>en vivo</strong> para poder generar un
+                        clip. Si el stream está offline, recibirás un mensaje de error.</p>
                 </div>
 
                 <div class="usage-steps-mini">
@@ -245,11 +250,16 @@
                     <span class="step-badge">3</span> Pega en el chat
                 </div>
 
-                <div class="code-tab-container">
+                <div class="code-tab-container" data-trigger="!clip">
                     <div class="tab-header">
                         <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
                         <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
                         <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
+
+                        <div class="format-selector">
+                            <button class="format-btn active" onclick="switchFormat(this, 'chat')">Chat</button>
+                            <button class="format-btn" onclick="switchFormat(this, 'dashboard')">Panel</button>
+                        </div>
                     </div>
 
                     <div class="tab-content active" data-bot="nightbot">
@@ -288,13 +298,37 @@
                 <p>Genera un mensaje promocionando a otro streamer con su último juego y enlace directo.</p>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
-                    <span class="url">/api/twitch/shoutout?channel={canal}&touser={objetivo}&apiKey={clave}</span>
+                    <span
+                        class="url">/api/twitch/shoutout?channel={canal}&touser={objetivo}&apiKey={clave}&template={mensaje}</span>
                 </div>
-                <div class="code-tab-container">
+
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Parámetro</th>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="url-param">template</td>
+                            <td>String</td>
+                            <td>(Opcional) Personaliza el shoutout. Variables: <code>{user}</code>, <code>{game}</code>,
+                                <code>{url}</code>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="code-tab-container" data-trigger="!so">
                     <div class="tab-header">
                         <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
                         <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
                         <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
+
+                        <div class="format-selector">
+                            <button class="format-btn active" onclick="switchFormat(this, 'chat')">Chat</button>
+                            <button class="format-btn" onclick="switchFormat(this, 'dashboard')">Panel</button>
+                        </div>
                     </div>
 
                     <div class="tab-content active" data-bot="nightbot">
@@ -383,7 +417,9 @@
                         <tr>
                             <td><code>mood</code></td>
                             <td>String</td>
-                            <td>Tono de la respuesta (ej: <code>sarcastic</code>, <code>mystic</code>).</td>
+                            <td>Tono de personalidad: <code>classic</code>, <code>sarcastic</code>, <code>toxic</code>,
+                                <code>helpful</code>.
+                            </td>
                         </tr>
                         <tr>
                             <td><code>apiKey</code></td>
@@ -393,11 +429,16 @@
                     </tbody>
                 </table>
 
-                <div class="code-tab-container">
+                <div class="code-tab-container" data-trigger="!8ball">
                     <div class="tab-header">
                         <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
                         <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
                         <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
+
+                        <div class="format-selector">
+                            <button class="format-btn active" onclick="switchFormat(this, 'chat')">Chat</button>
+                            <button class="format-btn" onclick="switchFormat(this, 'dashboard')">Panel</button>
+                        </div>
                     </div>
 
                     <div class="tab-content active" data-bot="nightbot">
@@ -443,11 +484,16 @@
                     <p><strong>Cuidado:</strong> Este comando puede expulsar temporalmente a tus usuarios. Úsalo bajo tu
                         propio riesgo.</p>
                 </div>
-                <div class="code-tab-container">
+                <div class="code-tab-container" data-trigger="!russian">
                     <div class="tab-header">
                         <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
                         <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
                         <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
+
+                        <div class="format-selector">
+                            <button class="format-btn active" onclick="switchFormat(this, 'chat')">Chat</button>
+                            <button class="format-btn" onclick="switchFormat(this, 'dashboard')">Panel</button>
+                        </div>
                     </div>
 
                     <div class="tab-content active" data-bot="nightbot">
@@ -481,30 +527,8 @@
 
             <section id="duel" class="doc-section">
                 <h2><i class="fa-solid fa-khanda"></i> Duelo</h2>
-                <p>Genera un clip instantáneo del canal especificado. <strong>Nota:</strong> Requiere que la cuenta
-                    vinculada sea moderador o VIP en el canal.</p>
+                <p>Desafía a otros usuarios a un duelo a muerte (simulado). El ganador se lleva la gloria.</p>
 
-                <table class="params-table">
-                    <thead>
-                        <tr>
-                            <th>Parámetro</th>
-                            <th>Tipo</th>
-                            <th>Descripción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="url-param">channel</td>
-                            <td>String</td>
-                            <td>Canal donde se creará el clip.</td>
-                        </tr>
-                        <tr>
-                            <td class="url-param">apiKey</td>
-                            <td>String</td>
-                            <td>Tu clave de API única.</td>
-                        </tr>
-                    </tbody>
-                </table>
                 <div class="endpoint-block">
                     <span class="method get">GET</span>
                     <span
@@ -529,11 +553,16 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="code-tab-container">
+                <div class="code-tab-container" data-trigger="!duel">
                     <div class="tab-header">
                         <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
                         <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
                         <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
+
+                        <div class="format-selector">
+                            <button class="format-btn active" onclick="switchFormat(this, 'chat')">Chat</button>
+                            <button class="format-btn" onclick="switchFormat(this, 'dashboard')">Panel</button>
+                        </div>
                     </div>
 
                     <div class="tab-content active" data-bot="nightbot">
