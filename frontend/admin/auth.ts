@@ -8,12 +8,21 @@ export const setAdminPassword = (password: string): void => {
     sessionStorage.setItem(ADMIN_AUTH_KEY, password);
 };
 
+const getApiBase = (): string => {
+    const path = window.location.pathname;
+    if (path.includes('/admin')) {
+        return path.split('/admin')[0];
+    }
+    return '';
+};
+
 export const logout = (): void => {
     sessionStorage.removeItem(ADMIN_AUTH_KEY);
-    window.location.href = '/api/twitch/admin';
+    window.location.href = `${getApiBase()}/admin`;
 };
 
 export const checkAuth = (): void => {
+    const apiBase = getApiBase();
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('session');
 
@@ -25,18 +34,20 @@ export const checkAuth = (): void => {
 
     if (!getAdminPassword()) {
         const isLoginPage =
-            window.location.pathname.includes('/admin') &&
-            !window.location.pathname.includes('dashboard');
+            window.location.pathname.endsWith('/admin') ||
+            window.location.pathname.endsWith('/admin/');
         if (!isLoginPage) {
-            window.location.href = '/api/twitch/admin';
+            window.location.href = `${apiBase}/admin`;
         }
     } else {
         const dashboard = document.getElementById('dashboard-page');
         if (dashboard) dashboard.style.display = 'flex';
 
-        // Si estamos en la página de login pero ya tenemos sesión, ir al dashboard
-        if (window.location.pathname.endsWith('/admin')) {
-            window.location.href = '/api/twitch/admin-dashboard';
+        if (
+            window.location.pathname.endsWith('/admin') ||
+            window.location.pathname.endsWith('/admin/')
+        ) {
+            window.location.href = `${apiBase}/admin-dashboard`;
         }
     }
 };
