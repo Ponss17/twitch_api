@@ -1,14 +1,14 @@
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { Request, Response } from 'express';
 import { MESSAGES } from '../config/messages';
 
 const limiter = rateLimit({
     windowMs: 1 * 60 * 1000,
-    max: (req: Request, res: Response) => {
+    max: (req: Request) => {
         // 1. Prioridad: API Key VÁLIDA (Verificada en DB/Caché por middleware previo)
-        if (res.locals && res.locals.apiUser) {
+        if (req.res?.locals && req.res.locals.apiUser) {
             // Si el admin asignó un límite específico, usarlo. Si no, usar 120 (estándar).
-            return res.locals.apiUser.customRateLimit || 120;
+            return req.res.locals.apiUser.customRateLimit || 120;
         }
 
         // 2. Excepciones de Sistema / Dashboard (Alta disponibilidad para el admin)
@@ -39,11 +39,12 @@ const limiter = rateLimit({
         // 4. Bloqueo Total (Comandos de chat sin ninguna credencial)
         return 0;
     },
-    keyGenerator: (req: Request, res: Response): string => {
-        if (res.locals && res.locals.apiUser) {
-            return (req.query.apiKey as string) || res.locals.apiUser.userId;
+    keyGenerator: (req: Request): string => {
+        if (req.res?.locals && req.res.locals.apiUser) {
+            return (req.query.apiKey as string) || req.res.locals.apiUser.userId;
         }
-        return req.ip || 'unknown';
+        // Use ipKeyGenerator for proper IPv6 handling in express-rate-limit v8
+        return ipKeyGenerator(req.ip || 'unknown');
     },
     handler: (req: Request, res: Response) => {
         const path = req.originalUrl;

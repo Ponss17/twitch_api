@@ -275,6 +275,7 @@ export const getAllAdmins = async (): Promise<string[]> => {
 export const addSystemLog = async (
     level: 'info' | 'warn' | 'error',
     message: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     details?: any
 ): Promise<void> => {
     try {
@@ -291,6 +292,7 @@ export const addSystemLog = async (
     }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getSystemLogs = async (): Promise<any[]> => {
     try {
         const logs = await kv.lrange(LOGS_KEY, 0, -1);
