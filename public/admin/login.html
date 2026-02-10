@@ -281,86 +281,36 @@
                 <img src="/api/twitch/img/LosPerris_progra.webp" alt="Logo" class="login-logo">
             </div>
 
-            <h1>Portal de Acceso</h1>
-            <p class="subtitle">Ingresa tus credenciales de administrador</p>
+            <h1>Portal de Acceso Admin</h1>
+            <p class="subtitle">Accede de forma segura con tu cuenta de Twitch habilitada</p>
 
             <div class="login-body">
-                <div class="input-group">
-                    <input type="password" id="password" class="auth-input" placeholder="Contraseña Admin"
-                        autocomplete="current-password">
-                </div>
-
-                <button id="loginBtn" class="btn-primary">
-                    <div class="spinner"></div>
-                    <span>Acceder</span>
+                <button id="loginBtn" class="btn-primary"
+                    style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <img src="https://unpkg.com/simple-icons@v11/icons/twitch.svg"
+                        style="width: 20px; filter: brightness(0) invert(1);" alt="Twitch Logo">
+                    <span>Entrar con Twitch</span>
                 </button>
             </div>
 
-            <p id="error" class="error-msg">Acceso Denegado: Contraseña inválida</p>
+            <p id="error" class="error-msg">No tienes permisos de administrador</p>
         </div>
     </div>
 
     <script type="module">
-        import { setAdminPassword, fetchAdmin } from '/api/twitch/js/admin/auth.js';
-
         const loginBtn = document.getElementById('loginBtn');
-        const passwordInput = document.getElementById('password');
         const errorMsg = document.getElementById('error');
-
-        const setLoading = (loading) => {
-            if (loading) {
-                loginBtn.classList.add('loading');
-                loginBtn.disabled = true;
-            } else {
-                loginBtn.classList.remove('loading');
-                loginBtn.disabled = false;
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('error')) {
+            errorMsg.classList.add('visible');
+            if (urlParams.get('error') === 'not_authorized') {
+                errorMsg.textContent = '❌ Tu cuenta no tiene permisos de administrador';
             }
-        };
+        }
 
-        const login = async () => {
-            const password = passwordInput.value;
-            if (!password) return;
-
-            setLoading(true);
-            errorMsg.classList.remove('visible');
-
-            setAdminPassword(password);
-
-            try {
-                await new Promise(r => setTimeout(r, 600));
-
-                const res = await fetchAdmin('/api/twitch/admin/verify');
-
-                if (res.ok) {
-                    window.location.href = '/api/twitch/admin-dashboard';
-                } else {
-                    if (res.status === 429) {
-                        const data = await res.json();
-                        throw new Error(data.error || 'Demasiados intentos. Inténtalo más tarde.');
-                    }
-                    throw new Error('Unauthorized');
-                }
-            } catch (e) {
-                errorMsg.textContent = e.message === 'Unauthorized' ? 'Acceso Denegado: Contraseña inválida' : e.message;
-                errorMsg.classList.add('visible');
-                passwordInput.classList.add('input-error');
-                passwordInput.value = '';
-                passwordInput.focus();
-
-                sessionStorage.removeItem('admin_password');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loginBtn.addEventListener('click', login);
-
-        passwordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') login();
+        loginBtn.addEventListener('click', () => {
+            window.location.href = '/auth/twitch?admin=true';
         });
-
-        // Focus input on load
-        setTimeout(() => passwordInput.focus(), 500);
     </script>
 </body>
 

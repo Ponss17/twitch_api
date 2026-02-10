@@ -10,6 +10,13 @@ export const logout = () => {
     window.location.href = '/api/twitch/admin';
 };
 export const checkAuth = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionToken = urlParams.get('session');
+    if (sessionToken) {
+        setAdminPassword(sessionToken);
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     if (!getAdminPassword()) {
         window.location.href = '/api/twitch/admin';
     }

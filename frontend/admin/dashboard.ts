@@ -15,7 +15,7 @@ interface AdminUser {
 }
 
 declare const Chart: any;
-let userChart: any = null;
+let userChart: { destroy: () => void } | null = null;
 
 const renderChart = (users: AdminUser[]) => {
     const ctx = document.getElementById('usersChart') as HTMLCanvasElement;
@@ -121,12 +121,11 @@ const renderUsers = (users: AdminUser[]) => {
                 ${user.blockedReason ? `<br><small class="reason">${user.blockedReason}</small>` : ''}
             </td>
             <td class="actions-cell">
-                ${
-                    user.isActive !== false
-                        ? `<button class="btn-block" onclick="window.blockUser('${user.userId}')">
+                ${user.isActive !== false
+                    ? `<button class="btn-block" onclick="window.blockUser('${user.userId}')">
                                <i class="fa-solid fa-ban"></i> Bloquear
                            </button>`
-                        : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">
+                    : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">
                                <i class="fa-solid fa-check"></i> Desbloquear
                            </button>`
                 }
@@ -160,8 +159,8 @@ const showToast = (title: string, message: string, type: 'success' | 'error' | '
         type === 'success'
             ? 'fa-circle-check'
             : type === 'error'
-              ? 'fa-circle-exclamation'
-              : 'fa-circle-info';
+                ? 'fa-circle-exclamation'
+                : 'fa-circle-info';
 
     toast.innerHTML = `
         <i class="fa-solid ${icon} toast-icon"></i>
@@ -201,34 +200,89 @@ const setupSearch = () => {
 };
 
 const loadUsers = async () => {
-    console.log('Starting loadUsers...');
     try {
-        console.log('Fetching users from /api/twitch/admin/users...');
         const res = await fetchAdmin('/api/twitch/admin/users');
-        console.log('Fetch response status:', res.status);
-
-        if (!res.ok) {
-            const errorText = await res.text();
-            console.error('Fetch failed:', errorText);
-            throw new Error(`Failed to load users: ${res.status} ${res.statusText}`);
-        }
+        if (!res.ok) throw new Error(`Failed to load users: ${res.status}`);
 
         const users: AdminUser[] = await res.json();
-        console.log('Users/Data loaded:', users);
-
-        allUsersCache = users; // Cache for search
-
-        if (users.length === 0) {
-            console.warn('No users returned from API');
-            showToast('Aviso', 'No se encontraron usuarios', 'info');
-        }
+        allUsersCache = users;
 
         renderUsers(users);
         renderChart(users);
-        console.log('Users rendered successfully');
-    } catch (e) {
-        console.error('Error in loadUsers:', e);
-        showToast('Error', 'Error cargando usuarios. Revisa la consola.', 'error');
+    } catch (_e) {
+        console.error('Error in loadUsers:', _e);
+        showToast('Error', 'Error cargando usuarios', 'error');
+    }
+};
+
+const loadGlobalStats = async () => {
+    try {
+        const res = await fetchAdmin('/api/twitch/admin/stats/global');
+        if (!res.ok) throw new Error('Failed to load global stats');
+        const stats = await res.json();
+
+        const totalUsersEl = document.getElementById('kpi-total-users');
+        const totalReqsEl = document.getElementById('kpi-total-requests');
+        const activeUsersEl = document.getElementById('kpi-active-users');
+
+        if (totalUsersEl) totalUsersEl.innerText = stats.totalUsers;
+        if (totalReqsEl) totalReqsEl.innerText = stats.totalRequests;
+        if (activeUsersEl) activeUsersEl.innerText = stats.activeUsers;
+    } catch (_e) {
+        console.error('Error loadGlobalStats:', _e);
+    }
+};
+
+const loadSystemStatus = async () => {
+    const container = document.getElementById('system-status-container');
+    if (!container) return;
+
+    try {
+        const res = await fetchAdmin('/api/twitch/admin/system/status');
+        if (!res.ok) throw new Error('Failed to load system status');
+        const data = await res.json();
+
+        container.innerHTML = (Object.entries(data.services) as [string, { status: string; latency?: string }][])
+            .map(([name, info]) => `
+            <div class="status-item">
+                <div class="status-info">
+                    <div class="status-indicator ${info.status}"></div>
+                    <div>
+                        <div style="font-weight: 700; text-transform: capitalize;">${name.replace('_', ' ')}</div>
+                        <small style="color: var(--text-secondary)">${info.latency || 'vía HTTPS'}</small>
+                    </div>
+                </div>
+                <span class="status-badge ${info.status === 'ok' ? 'active' : 'inactive'}">
+                    ${info.status === 'ok' ? 'Online' : info.status === 'maintenance' ? 'Mant.' : 'Error'}
+                </span>
+            </div>
+        `).join('');
+    } catch (_e) {
+        container.innerHTML = `<div class="error-msg" style="display:block">Error cargando estado del sistema</div>`;
+    }
+};
+
+const loadConfig = async () => {
+    const container = document.getElementById('config-list-container');
+    if (!container) return;
+
+    try {
+        const configMock = [
+            { key: 'NODE_ENV', value: 'production' },
+            { key: 'PORT', value: '3000' },
+            { key: 'TWITCH_CLIENT_ID', value: '********' },
+            { key: 'GROQ_API_KEY', value: 'Suministrada ✅' },
+            { key: 'ADMIN_ENABLED', value: 'true' }
+        ];
+
+        container.innerHTML = configMock.map(item => `
+            <div class="config-item">
+                <span class="config-key">${item.key}</span>
+                <span class="config-value">${item.value}</span>
+            </div>
+        `).join('');
+    } catch (_e) {
+        container.innerHTML = `<div class="error-msg" style="display:block">Error cargando configuración</div>`;
     }
 };
 
@@ -239,6 +293,9 @@ declare global {
         resetKey: (id: string) => Promise<void>;
         deleteUser: (id: string) => Promise<void>;
         updateRateLimit: (id: string, current: number) => Promise<void>;
+        switchSection: (sectionId: string) => void;
+        addAdminPrompt: () => Promise<void>;
+        removeAdmin: (id: string) => Promise<void>;
         logout: () => void;
     }
 }
@@ -258,8 +315,8 @@ window.blockUser = async (userId: string) => {
         } else {
             showToast('Error', 'No se pudo bloquear al usuario', 'error');
         }
-    } catch (e) {
-        console.error(e);
+    } catch (_e) {
+        console.error(_e);
         showToast('Error', 'Error de conexión', 'error');
     }
 };
@@ -278,8 +335,8 @@ window.unblockUser = async (userId: string) => {
         } else {
             showToast('Error', 'No se pudo desbloquear al usuario', 'error');
         }
-    } catch (e) {
-        console.error(e);
+    } catch (_e) {
+        console.error(_e);
         showToast('Error', 'Error de conexión', 'error');
     }
 };
@@ -297,8 +354,8 @@ window.resetKey = async (userId: string) => {
         } else {
             showToast('Error', 'No se pudo resetear la clave', 'error');
         }
-    } catch (e) {
-        console.error(e);
+    } catch (_e) {
+        console.error(_e);
         showToast('Error', 'Error de conexión', 'error');
     }
 };
@@ -316,8 +373,8 @@ window.deleteUser = async (userId: string) => {
         } else {
             showToast('Error', 'No se pudo eliminar al usuario', 'error');
         }
-    } catch (e) {
-        console.error(e);
+    } catch (_e) {
+        console.error(_e);
         showToast('Error', 'Error de conexión', 'error');
     }
 };
@@ -344,9 +401,142 @@ window.updateRateLimit = async (userId: string, currentLimit: number) => {
             const err = await res.json();
             showToast('Error', err.error || 'No se pudo actualizar el límite', 'error');
         }
-    } catch (e) {
-        console.error(e);
+    } catch (_e) {
+        console.error(_e);
         showToast('Error', 'Error de conexión', 'error');
+    }
+};
+
+window.switchSection = (sectionId: string) => {
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        const text = item.querySelector('.nav-text')?.textContent?.toLowerCase();
+        const mapping: Record<string, string> = {
+            'resumen': 'overview',
+            'usuarios': 'users',
+            'salud sistema': 'system',
+            'configuración': 'config',
+            'seguridad': 'security'
+        };
+        if (text && mapping[text] === sectionId) {
+            item.classList.add('active');
+        }
+    });
+
+    document.querySelectorAll('.admin-section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    const activeSection = document.getElementById(`section-${sectionId}`);
+    if (activeSection) activeSection.classList.add('active');
+
+    const titleEl = document.getElementById('current-section-title');
+    if (titleEl) {
+        const titles: Record<string, string> = {
+            'overview': 'Resumen General',
+            'users': 'Gestión de Usuarios',
+            'system': 'Salud del Sistema',
+            'config': 'Configuración de Entorno',
+            'security': 'Seguridad y Admins'
+        };
+        titleEl.innerText = titles[sectionId] || 'Admin Panel';
+    }
+
+    if (sectionId === 'overview') {
+        loadGlobalStats();
+        loadUsers();
+    } else if (sectionId === 'users') {
+        loadUsers();
+    } else if (sectionId === 'system') {
+        loadSystemStatus();
+    } else if (sectionId === 'config') {
+        loadConfig();
+    } else if (sectionId === 'security') {
+        loadAdmins();
+    }
+};
+
+window.addAdminPrompt = async () => {
+    const userId = prompt('Ingresa el Twitch ID numérico del nuevo administrador:');
+    if (!userId) return;
+
+    try {
+        const res = await fetchAdmin('/api/twitch/admin/admins', {
+            method: 'POST',
+            body: JSON.stringify({ userId })
+        });
+
+        if (res.ok) {
+            showToast('Éxito', 'Administrador añadido correctamente', 'success');
+            loadAdmins();
+        } else {
+            const err = await res.json();
+            showToast('Error', err.error || 'No se pudo añadir al admin', 'error');
+        }
+    } catch (_e) {
+        showToast('Error', 'Error de conexión', 'error');
+    }
+};
+
+window.removeAdmin = async (userId: string) => {
+    if (!confirm('¿Quitar permisos de administrador a este usuario?')) return;
+
+    try {
+        const res = await fetchAdmin(`/api/twitch/admin/admins/${userId}`, {
+            method: 'DELETE'
+        });
+
+        if (res.ok) {
+            showToast('Éxito', 'Permisos revocados', 'success');
+            loadAdmins();
+        } else {
+            const err = await res.json();
+            showToast('Error', err.error || 'No se pudo quitar al admin', 'error');
+        }
+    } catch (_e) {
+        showToast('Error', 'Error de conexión', 'error');
+    }
+};
+
+const loadAdmins = async () => {
+    const tbody = document.getElementById('admins-table-body');
+    if (!tbody) return;
+
+    try {
+        const res = await fetchAdmin('/api/twitch/admin/admins');
+        if (!res.ok) throw new Error('Failed to load admins');
+        const { admins, rootId } = await res.json();
+
+        if (admins.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--text-muted)">No hay administradores adicionales</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = admins.map((admin: { userId: string; login: string; displayName: string }) => {
+            const isRoot = admin.userId === rootId;
+            return `
+            <tr>
+                <td>
+                    <div style="font-weight: 600;">${admin.displayName}</div>
+                    <small style="color: var(--text-muted)">@${admin.login}</small>
+                </td>
+                <td><code style="background: #222; padding: 2px 6px; border-radius: 4px;">${admin.userId}</code></td>
+                <td>
+                    <span class="status-badge ${isRoot ? 'active' : 'warn'}" style="font-size: 11px;">
+                        ${isRoot ? 'Root Admin' : 'Admin Delegado'}
+                    </span>
+                </td>
+                <td>
+                    ${!isRoot ? `
+                        <button class="action-btn delete" onclick="window.removeAdmin('${admin.userId}')" title="Quitar Permisos">
+                            <i class="fa-solid fa-user-minus"></i>
+                        </button>
+                    ` : '<small style="color: var(--text-muted)">Protegido</small>'}
+                </td>
+            </tr>
+        `}).join('');
+    } catch (_e) {
+        tbody.innerHTML = `<tr><td colspan="4" class="error-msg" style="display:block">Error cargando administradores</td></tr>`;
     }
 };
 
@@ -355,4 +545,5 @@ window.logout = logout;
 console.log('Dashboard script loaded');
 checkAuth();
 setupSearch();
-loadUsers();
+
+window.switchSection('overview');

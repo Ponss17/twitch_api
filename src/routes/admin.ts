@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 import {
     getAllUsers,
@@ -6,7 +6,12 @@ import {
     resetUserApiKey,
     deleteUser,
     getUser,
-    saveUser
+    saveUser,
+    isAdmin,
+    addAdmin,
+    removeAdmin,
+    getAllAdmins,
+    getUserByApiKey
 } from '../services/infrastructure/dbService';
 import { logger } from '../utils/logger';
 
@@ -31,20 +36,34 @@ const adminApiLimiter = rateLimit({
     legacyHeaders: false
 });
 
-const checkAdminPassword = (req: any, res: any, next: any) => {
-    const adminPassword = CONFIG.ADMIN_PASSWORD;
-    const providedPassword = req.headers['x-admin-password'];
+const authorizeAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    const sessionToken = req.headers['x-admin-password']; // Mantenemos el nombre del header por compatibilidad inicial
 
-    if (!adminPassword) {
-        logger.error('ADMIN_PASSWORD no está configurado en el servidor.');
-        return res.status(500).json({ error: 'Configuración del servidor incompleta' });
+    if (!sessionToken) {
+        return res.status(401).json({ error: 'Inicia sesión como administrador' });
     }
 
-    if (providedPassword !== adminPassword) {
-        logger.warn(`Intento de acceso admin fallido desde ${req.ip}`);
-        return res.status(401).json({ error: 'No autorizado' });
+    try {
+        // En v2.6.0, el x-admin-password contiene la API Key del administrador
+        const user = await getUserByApiKey(sessionToken as string);
+
+        if (!user) {
+            return res.status(401).json({ error: 'Sesión inválida o expirada' });
+        }
+
+        const allowed = await isAdmin(user.userId);
+        if (!allowed) {
+            logger.warn(`🛑 Usuario no autorizado intentó acceder al panel: ${user.login} (${user.userId})`);
+            return res.status(403).json({ error: 'No tienes permisos de administrador' });
+        }
+
+        // Guardamos el admin en locals
+        res.locals.adminUser = user;
+        next();
+    } catch (e) {
+        logger.error('Error in authorizeAdmin middleware:', e);
+        res.status(500).json({ error: 'Error de autorización' });
     }
-    next();
 };
 
 router.use((req, res, next) => {
@@ -56,12 +75,12 @@ router.get('/health', (_req, res) => {
     res.json({ status: 'Admin Router OK', timestamp: new Date() });
 });
 
-router.get('/verify', loginLimiter, checkAdminPassword, (_req, res) => {
-    res.json({ success: true, message: 'Authenticated' });
+router.get('/verify', loginLimiter, authorizeAdmin, (_req, res) => {
+    res.json({ success: true, message: 'Authenticated', user: res.locals.adminUser.displayName });
 });
 
 router.use(adminApiLimiter);
-router.use(checkAdminPassword);
+router.use(authorizeAdmin);
 
 router.get('/users', async (_req, res) => {
     try {
@@ -136,6 +155,117 @@ router.post('/users/:userId/rate-limit', async (req, res) => {
     } catch (e) {
         logger.error('Error updating rate limit:', e);
         res.status(500).json({ error: 'Error actualizando límite' });
+    }
+});
+
+router.get('/stats/global', async (_req, res) => {
+    try {
+        const users = await getAllUsers();
+        const totalUsers = users.length;
+        const activeUsers = users.filter((u) => u.isActive !== false).length;
+        const totalRequests = users.reduce((sum, u) => sum + (u.totalRequests || 0), 0);
+
+        const commandStats: Record<string, number> = {};
+        users.forEach((u) => {
+            if (u.stats) {
+                Object.entries(u.stats).forEach(([cmd, count]) => {
+                    commandStats[cmd] = (commandStats[cmd] || 0) + (count as number);
+                });
+            }
+        });
+
+        res.json({
+            totalUsers,
+            activeUsers,
+            totalRequests,
+            commandStats,
+            lastUpdate: new Date().toISOString()
+        });
+    } catch (e) {
+        logger.error('Error fetching global stats:', e);
+        res.status(500).json({ error: 'Error al obtener estadísticas globales' });
+    }
+});
+
+router.get('/system/status', async (_req, res) => {
+    try {
+        const startTime = Date.now();
+
+        let kvStatus = 'error';
+        let kvLatency = 0;
+        try {
+            const kvStart = Date.now();
+            await getAllUsers();
+            kvLatency = Date.now() - kvStart;
+            kvStatus = 'ok';
+        } catch (_e) {
+            kvStatus = 'error';
+        }
+
+        let twitchStatus = 'ok';
+        const groqStatus = CONFIG.GROQ_API_KEY ? 'ok' : 'maintenance';
+
+        res.json({
+            services: {
+                database: { status: kvStatus, latency: `${kvLatency}ms` },
+                twitch_api: { status: twitchStatus },
+                ai_engine: { status: groqStatus }
+            },
+            env: {
+                node_env: process.env.NODE_ENV,
+                base_url: CONFIG.BASE_URL
+            },
+            totalRuntime: `${Date.now() - startTime}ms`
+        });
+    } catch (e) {
+        logger.error('Error in system status:', e);
+        res.status(500).json({ error: 'Error al verificar salud del sistema' });
+    }
+});
+
+// ==========================================
+// Gestión de Admins
+// ==========================================
+
+router.get('/admins', async (_req, res) => {
+    try {
+        const adminIds = await getAllAdmins();
+        const admins = [];
+        for (const id of adminIds) {
+            const user = await getUser(id);
+            if (user) admins.push({ userId: user.userId, login: user.login, displayName: user.displayName });
+        }
+        res.json({ admins, rootId: CONFIG.ADMIN_ROOT_ID });
+    } catch (_e) {
+        res.status(500).json({ error: 'Error al listar administradores' });
+    }
+});
+
+router.post('/admins', async (req, res) => {
+    try {
+        const { userId } = req.body;
+        if (!userId) return res.status(400).json({ error: 'ID de usuario requerido' });
+
+        const user = await getUser(userId);
+        if (!user) return res.status(404).json({ error: 'Usuario no encontrado en el sistema' });
+
+        await addAdmin(userId);
+        res.json({ success: true });
+    } catch (_e) {
+        res.status(500).json({ error: 'Error al añadir administrador' });
+    }
+});
+
+router.delete('/admins/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        if (userId === CONFIG.ADMIN_ROOT_ID) {
+            return res.status(400).json({ error: 'No puedes eliminar al Root Admin' });
+        }
+        await removeAdmin(userId);
+        res.json({ success: true });
+    } catch (_e) {
+        res.status(500).json({ error: 'Error al eliminar administrador' });
     }
 });
 

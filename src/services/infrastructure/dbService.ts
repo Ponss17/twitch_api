@@ -241,3 +241,32 @@ export const resetUserApiKey = async (userId: string): Promise<string> => {
 
     return newKey;
 };
+
+// ==========================================
+// Gestión de Administradores (RBAC)
+// ==========================================
+
+const ADMINS_KEY = 'twitch_admins';
+
+export const isAdmin = async (userId: string): Promise<boolean> => {
+    // 1. Root Admin Check (Variable de entorno)
+    if (CONFIG.ADMIN_ROOT_ID && userId === CONFIG.ADMIN_ROOT_ID) return true;
+
+    // 2. White List Check (Vercel KV)
+    const isWhiteListed = await kv.sismember(ADMINS_KEY, userId);
+    return isWhiteListed === 1;
+};
+
+export const addAdmin = async (userId: string): Promise<void> => {
+    await kv.sadd(ADMINS_KEY, userId);
+    logger.info(`✨ Nuevo administrador añadido: ${userId}`);
+};
+
+export const removeAdmin = async (userId: string): Promise<void> => {
+    await kv.srem(ADMINS_KEY, userId);
+    logger.info(`🗑️ Administrador eliminado: ${userId}`);
+};
+
+export const getAllAdmins = async (): Promise<string[]> => {
+    return await kv.smembers(ADMINS_KEY);
+};
