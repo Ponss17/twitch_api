@@ -87,7 +87,7 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
         await apiService.sendChatMessage(userId, userId, message, token || '');
         res.json({ success: true });
     } catch (_error: unknown) {
-        res.status(500).json({ error: MESSAGES.COMMANDS.SEND_MESSAGE_ERROR });
+        res.status(500).send(MESSAGES.COMMANDS.SEND_MESSAGE_ERROR);
     }
 };
 

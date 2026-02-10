@@ -37,12 +37,21 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         } catch (error: unknown) {
             const err = error as Error;
             logger.error('Middleware Auth Error (API Key lookup):', err.message);
-            return res.status(401).send(MESSAGES.AUTH.INVALID_CREDENTIALS);
+
+            if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
+                res.setHeader('Content-Type', 'text/plain');
+                return res.status(401).send(MESSAGES.AUTH.INVALID_CREDENTIALS);
+            }
+            return res.status(401).json({ error: MESSAGES.AUTH.INVALID_CREDENTIALS });
         }
     }
 
     if (!token) {
-        return res.status(401).send(MESSAGES.AUTH.MISSING_TOKEN_URL);
+        if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
+            res.setHeader('Content-Type', 'text/plain');
+            return res.status(401).send(MESSAGES.AUTH.MISSING_TOKEN_URL);
+        }
+        return res.status(401).json({ error: MESSAGES.AUTH.MISSING_TOKEN_URL });
     }
 
     if (!req.userId || !req.login) {

@@ -1,5 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import { Request, Response } from 'express';
+import { MESSAGES } from '../config/messages';
 
 const limiter = rateLimit({
     windowMs: 1 * 60 * 1000,
@@ -39,9 +40,17 @@ const limiter = rateLimit({
         }
         return req.ip || 'unknown';
     },
-    message: {
-        error: 'Access Denied',
-        message: 'Se requiere una API Key válida para usar este servicio.'
+    handler: (req: Request, res: Response) => {
+        const message = MESSAGES.AUTH.INVALID_CREDENTIALS;
+
+        // Si es una ruta de API o un bot de Twitch, enviar texto plano
+        if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
+            res.setHeader('Content-Type', 'text/plain');
+            return res.status(429).send(message);
+        }
+
+        // Para dashboard/web enviar JSON
+        res.status(429).json({ error: 'Access Denied', message });
     },
     standardHeaders: true,
     legacyHeaders: false
