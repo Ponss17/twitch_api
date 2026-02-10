@@ -14,13 +14,19 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
 
     try {
-        const result = await apiService.createClip(channel, token || '');
+        const clipUrl = await apiService.createClip(channel, token || '');
 
         if (userId) {
             await dbService.incrementUserStats(userId, 'clips');
         }
 
-        return res.send(result);
+        const template = req.query.template as string;
+        if (template) {
+            const message = template.replace('{url}', clipUrl).replace('{channel}', channel);
+            return res.send(message);
+        }
+
+        return res.send(clipUrl);
     } catch (error: unknown) {
         const status = (error as { status?: number }).status || 500;
         const message =
