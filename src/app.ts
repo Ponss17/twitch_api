@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { CONFIG } from './config/env';
 import rateLimiter, { authLimiter } from './middleware/rateLimiter';
+import { apiKeyValidator } from './middleware/apiKeyValidator';
 import authRoutes from './routes/authRoutes';
 import apiRoutes from './routes/apiRoutes';
 import adminRouter from './routes/admin';
@@ -103,6 +104,7 @@ publicPaths.forEach((publicPath) => {
 });
 
 // Rate Limiting Global
+app.use(apiKeyValidator);
 app.use(rateLimiter);
 
 // Rutas de Comandos y API
@@ -125,7 +127,6 @@ app.get(['/health', '/api/twitch/health'], (req: Request, res: Response) => {
     });
 });
 
-// Manejo de Errores Global (Debe ir al final)
 app.use(errorHandler);
 
 export default app;
