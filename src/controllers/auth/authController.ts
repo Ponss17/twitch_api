@@ -43,7 +43,7 @@ export const callback = async (req: Request, res: Response) => {
                 logger.warn(`🚫 Intento de acceso admin denegado para: ${user.login} (${user.id})`);
                 return res.redirect('/api/twitch/admin/login?error=not_authorized');
             }
-            return res.redirect(`/api/twitch/admin?session=${apiKey}`);
+            return res.redirect(`/api/twitch/admin-dashboard?session=${apiKey}`);
         }
 
         const params = `?token=${access_token}&apiKey=${apiKey}&userId=${user.id}&login=${user.login}&displayName=${encodeURIComponent(user.display_name)}`;
@@ -63,7 +63,7 @@ export const callback = async (req: Request, res: Response) => {
                 if (decoded.redirectOrigin)
                     errorRedirect = `${decoded.redirectOrigin}?error=auth_failed`;
             } catch (_e) {
-                // ignore
+                // Skip if state is not valid JSON
             }
         }
         res.redirect(errorRedirect);

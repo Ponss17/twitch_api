@@ -308,6 +308,9 @@
             }
         }
 
+        import { checkAuth } from '../js/admin/auth.js';
+        checkAuth();
+
         loginBtn.addEventListener('click', (e) => {
             console.log('Login attempt started...');
             loginBtn.style.opacity = '0.7';
