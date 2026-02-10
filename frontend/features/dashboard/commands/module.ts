@@ -55,13 +55,14 @@ export const CommandsModule = {
             const botSelect = document.getElementById(`bot-select-${config.id}`);
             const output = document.getElementById(`command-output-${config.id}`);
             const templateInput = document.getElementById(`${config.id}-template`);
+            const formatSelect = document.getElementById(`copy-format-${config.id}`);
 
             if (botSelect && output) {
                 const updateFn = () => this.updateCommand(config);
 
                 botSelect.addEventListener('change', updateFn);
                 if (templateInput) templateInput.addEventListener('input', updateFn);
-
+                if (formatSelect) formatSelect.addEventListener('change', updateFn);
                 if (config.extraSelectors) {
                     config.extraSelectors.forEach((sel) => {
                         const selEl = document.getElementById(`extra-${config.id}-${sel.id}`);
@@ -78,6 +79,7 @@ export const CommandsModule = {
         const botSelect = document.getElementById(`bot-select-${conf.id}`) as HTMLSelectElement;
         const output = document.getElementById(`command-output-${conf.id}`) as HTMLInputElement;
         const templateInput = document.getElementById(`${conf.id}-template`) as HTMLInputElement;
+        const formatSelect = document.getElementById(`copy-format-${conf.id}`) as HTMLSelectElement;
 
         if (!botSelect || !output) return;
         if (!this.session) return;
@@ -101,7 +103,7 @@ export const CommandsModule = {
             });
         }
 
-        const realCmd = conf.generate(
+        const result = conf.generate(
             domain,
             login,
             tokenParam,
@@ -110,6 +112,9 @@ export const CommandsModule = {
             queryParams,
             extraValues
         );
+
+        const format = formatSelect ? formatSelect.value : 'full';
+        const realCmd = format === 'full' ? result.full : result.url;
         const maskedCmd = realCmd.split(currentApiKey).join('**************');
 
         output.value = maskedCmd;

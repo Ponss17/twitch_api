@@ -17,8 +17,8 @@
 }
 
 .sidebar-brand {
-    padding: 30px 25px;
-    font-size: 1.3rem;
+    padding: 24px 20px;
+    font-size: 1.1rem;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -27,11 +27,10 @@
 }
 
 .sidebar-logo {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     object-fit: cover;
-    box-shadow: 0 0 15px var(--accent-glow);
 }
 
 .sidebar-menu {
@@ -41,12 +40,12 @@
 }
 
 .menu-category {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     color: var(--text-muted);
-    letter-spacing: 1.2px;
-    margin: 25px 0 10px 15px;
-    font-weight: 800;
+    letter-spacing: 0.05em;
+    margin: 24px 0 8px 16px;
+    font-weight: 700;
 }
 
 .menu-category:first-child {
@@ -61,39 +60,41 @@
     background: transparent;
     border: none;
     color: var(--text-secondary);
-    padding: 12px 16px;
+    padding: 10px 16px;
     text-align: left;
     font-family: inherit;
-    font-size: 0.95rem;
-    font-weight: 500;
+    font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
     border-radius: var(--radius-sm);
-    transition: all 0.2s;
+    transition: all 0.15s ease;
     outline: none;
     display: flex;
     align-items: center;
-    gap: 14px;
-    width: 100%;
-    margin-bottom: 4px;
+    gap: 12px;
+    width: calc(100% - 16px);
+    margin: 0 auto 2px auto;
 }
 
 .nav-item:hover {
-    background: rgba(145, 70, 255, 0.1);
+    background: var(--bg-tertiary);
     color: var(--text-primary);
-    transform: translateX(5px);
 }
 
 .nav-item:focus-visible {
-    background: rgba(145, 70, 255, 0.1);
+    background: var(--bg-tertiary);
     color: var(--text-primary);
     box-shadow: 0 0 0 2px var(--accent);
 }
 
 .nav-item.active {
-    background: var(--accent);
-    color: #fff;
-    font-weight: 700;
-    box-shadow: 0 4px 15px rgba(145, 70, 255, 0.4);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    width: calc(100% - 8px);
+    margin-left: 0;
+    padding-left: 13px;
 }
 
 .nav-item i {
@@ -121,26 +122,27 @@
 }
 
 .sidebar-footer {
-    padding: 20px;
+    padding: 24px;
     border-top: 1px solid var(--border);
+    margin-top: auto;
 }
 
 .btn-logout {
     width: 100%;
     background: transparent;
     color: var(--danger);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    padding: 12px;
+    border: 1px solid var(--border);
+    padding: 10px;
     cursor: pointer;
     border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
     font-weight: 600;
     font-family: inherit;
-    font-size: 0.95rem;
-    transition: all 0.2s;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
 }
 
 .btn-logout:hover {
@@ -154,34 +156,40 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background: var(--bg-primary);
 }
 
 .dashboard-content {
     flex: 1;
-    padding: 40px;
+    padding: 32px 40px;
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .dashboard-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 30px 40px;
+    padding: 24px 40px;
     border-bottom: 1px solid var(--border);
-    background: var(--bg-secondary);
+    background: var(--bg-primary);
 }
 
 .dashboard-header h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
 }
 
-.welcome-link {
+.dashboard-header h1 a {
     color: var(--accent);
     text-decoration: none;
     transition: color 0.2s;
 }
 
-.welcome-link:hover {
+.dashboard-header h1 a:hover {
     color: var(--accent-hover);
     text-decoration: underline;
 }
@@ -190,10 +198,15 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    background: var(--bg-card);
+    background: var(--bg-secondary);
     padding: 6px 16px 6px 6px;
-    border-radius: 50px;
+    border-radius: 99px;
     border: 1px solid var(--border);
+    transition: border-color 0.2s;
+}
+
+.user-badge:hover {
+    border-color: var(--border-hover);
 }
 
 .user-badge img {
@@ -219,19 +232,24 @@
 .card {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 30px;
-    margin-bottom: 25px;
-    box-shadow: var(--shadow);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
     opacity: 0;
-    animation: fadeInSoft 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation: fadeInSoft 0.4s ease-out forwards;
+}
+
+.card:hover {
+    border-color: var(--accent);
+    transition: border-color 0.2s;
 }
 
 .card-header {
     display: flex;
     align-items: center;
-    gap: 15px;
-    margin-bottom: 25px;
+    gap: 16px;
+    margin-bottom: 24px;
     padding-bottom: 20px;
     border-bottom: 1px solid var(--border);
     justify-content: space-between;
@@ -254,16 +272,17 @@
 }
 
 .card-icon {
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
     background: rgba(145, 70, 255, 0.1);
-    border-radius: 12px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #a78bfa;
-    font-size: 1.2rem;
+    color: var(--accent);
+    font-size: 1.1rem;
     flex-shrink: 0;
+    border: 1px solid rgba(145, 70, 255, 0.2);
 }
 
 .card-header h3 {

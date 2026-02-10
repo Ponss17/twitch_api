@@ -25,7 +25,10 @@ export const COMMAND_CONFIG = {
             queryParams += `&user=${userArg}`;
 
             const cmd = CommandGenerator.generate(bot, `${domain}/followage`, queryParams);
-            return `!addcom !followage ${cmd}`;
+            return {
+                full: `!addcom !followage ${cmd}`,
+                url: cmd
+            };
         }
     },
     clip: {
@@ -35,7 +38,7 @@ export const COMMAND_CONFIG = {
         icon: 'fa-solid fa-video',
         desc: 'Permite crear clips desde el chat',
         info: 'Tus moderadores podrán crear clips instantáneos escribiendo !clip. Requiere estar en vivo.',
-        templatePlaceholder: 'Ej: ¡Mirad este clip de {user}! 👉 {url}',
+        templatePlaceholder: 'Ej: ¡Miren este clip de {user}! 👉 {url}',
         templateVars: 'Variables: {user}, {url}',
         generate: (
             domain: string,
@@ -60,7 +63,10 @@ export const COMMAND_CONFIG = {
             } else {
                 cmd = `🎬 Clip creado por ${userArg}: ${apiCall}`;
             }
-            return `!addcom !clip ${cmd}`;
+            return {
+                full: `!addcom !clip ${cmd}`,
+                url: cmd
+            };
         }
     },
     shoutout: {
@@ -70,7 +76,7 @@ export const COMMAND_CONFIG = {
         icon: 'fa-solid fa-bullhorn',
         desc: 'Promociona a otro streamer',
         info: 'Genera un enlace para que tu bot haga un Shoutout con el juego y el enlace del canal.',
-        templatePlaceholder: 'Ej: Echadle un follow a {user}, cracks jugando {game} 👉 {url}',
+        templatePlaceholder: 'Ej: Dale follow a {user}, jugando {game} 👉 {url}',
         templateVars: 'Variables disponibles: {user}, {game}, {url}',
         generate: (
             domain: string,
@@ -87,7 +93,10 @@ export const COMMAND_CONFIG = {
             queryParams += `&touser=${targetArg}`;
 
             const cmd = CommandGenerator.generate(bot, `${domain}/shoutout`, queryParams);
-            return `!addcom !so ${cmd}`;
+            return {
+                full: `!addcom !so ${cmd}`,
+                url: cmd
+            };
         }
     },
     magic8: {
@@ -135,7 +144,10 @@ export const COMMAND_CONFIG = {
                 ? `${domain}/magic8`
                 : `${domain}/minigames/magic8`;
             const cmd = CommandGenerator.generate(bot, magicUrl, queryParams);
-            return `!addcom !8ball ${cmd}`;
+            return {
+                full: `!addcom !8ball ${cmd}`,
+                url: cmd
+            };
         }
     },
     russian: {
@@ -175,7 +187,10 @@ export const COMMAND_CONFIG = {
                 ? `${domain}/russian`
                 : `${domain}/minigames/russian`;
             const cmd = CommandGenerator.generate(bot, russianUrl, queryParams);
-            return `!addcom !ruleta ${cmd}`;
+            return {
+                full: `!addcom !ruleta ${cmd}`,
+                url: cmd
+            };
         }
     },
     duel: {
@@ -203,7 +218,10 @@ export const COMMAND_CONFIG = {
                 ? `${domain}/duel`
                 : `${domain}/minigames/duel`;
             const cmd = CommandGenerator.generate(bot, duelUrl, queryParams);
-            return `!addcom !duelo ${cmd}`;
+            return {
+                full: `!addcom !duelo ${cmd}`,
+                url: cmd
+            };
         }
     }
 };

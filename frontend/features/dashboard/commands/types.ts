@@ -23,5 +23,5 @@ export interface CommandConfigItem {
         templateVal: string,
         queryParams: string,
         extraValues: Record<string, string>
-    ) => string;
+    ) => { full: string; url: string };
 }
