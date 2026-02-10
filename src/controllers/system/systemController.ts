@@ -5,6 +5,7 @@ import * as apiService from '../../services/twitch/apiService';
 import axios from 'axios';
 import { CONFIG } from '../../config/env';
 import { MESSAGES } from '../../config/messages';
+import { logger } from '../../utils/logger';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 
@@ -54,7 +55,7 @@ export const regenerateKey = async (req: Request, res: Response) => {
         const newKey = await authService.regenerateApiKey(user.userId);
         res.json({ apiKey: newKey });
     } catch (e) {
-        console.error('Error regenerando key:', e);
+        logger.error('Error regenerando key:', e);
         res.status(500).json({ error: MESSAGES.SYSTEM.REGENERATE_KEY_ERROR });
     }
 };
@@ -85,7 +86,7 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
                 }
             }
         } catch (e) {
-            console.error('Error identifying user for feedback:', e);
+            logger.error('Error identifying user for feedback:', e);
         }
     }
 
@@ -126,7 +127,7 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
 
         res.json({ success: true, message: MESSAGES.FEEDBACK.SUCCESS });
     } catch (error) {
-        console.error('Error enviando feedback a Discord:', error);
+        logger.error('Error enviando feedback a Discord:', error);
         res.status(500).json({ error: MESSAGES.FEEDBACK.SEND_ERROR });
     }
 };

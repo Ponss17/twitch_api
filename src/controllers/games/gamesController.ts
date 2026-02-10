@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { logger } from '../../utils/logger';
 import { generateMagic8Response } from '../../services/games/magic8Service';
 
 import { playRussianRoulette } from '../../services/games/russianService';
@@ -32,7 +33,7 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
 
         res.send(answer);
     } catch (error) {
-        console.error('Error en askMagic8:', error);
+        logger.error('Error en askMagic8:', error);
         res.status(500).send(MESSAGES.MAGIC8.GROQ_ERROR);
     }
 };
@@ -63,7 +64,7 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
             res.send(result.message);
         }
     } catch (error) {
-        console.error('Error en playRussian:', error);
+        logger.error('Error en playRussian:', error);
         res.status(500).json({ error: 'Error interno en la Ruleta Rusa' });
     }
 };
@@ -88,7 +89,7 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
 
         res.send(result.message);
     } catch (error) {
-        console.error('Error en startDuel:', error);
+        logger.error('Error en startDuel:', error);
         res.status(500).send('Error al iniciar el duelo');
     }
 };
