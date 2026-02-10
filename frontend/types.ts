@@ -31,6 +31,7 @@ export interface ApiResponse<T = unknown> {
     valid?: boolean;
     user?: TwitchUser;
     token?: string;
+    apiKey?: string | null;
 }
 
 export interface StalkerUser {

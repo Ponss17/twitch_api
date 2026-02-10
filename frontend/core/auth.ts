@@ -46,6 +46,35 @@ export const Auth = {
         }
     },
 
+    async syncApiKey(session: Session): Promise<Session> {
+        if (!session.userId) return session;
+
+        try {
+            const credentialParam = session.token
+                ? `token=${session.token}`
+                : `apiKey=${session.apiKey}`;
+
+            const validation = await this.validateCurrentToken(credentialParam);
+
+            if (validation && typeof validation === 'object' && 'apiKey' in validation) {
+                const serverApiKey = validation.apiKey;
+
+                if (serverApiKey && serverApiKey !== session.apiKey) {
+                    session.apiKey = serverApiKey;
+                    this.saveSession(session);
+
+                    import('./ui.js').then(({ UI }) => {
+                        UI.showToast('Tu API Key ha sido actualizada', 'info');
+                    });
+                }
+            }
+
+            return session;
+        } catch (_e) {
+            return session;
+        }
+    },
+
     parseUrlParams(): Session {
         const params = new URLSearchParams(window.location.search);
         const savedSession = this.getSession();

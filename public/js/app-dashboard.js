@@ -45,12 +45,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 sessionParams.displayName = displayName;
                 sessionParams.profile_image_url = avatarUrl;
             }
-            await Dashboard.init(sessionParams);
-            Auth.saveSession(sessionParams);
-            if (sessionParams.isNewLogin) {
+            const syncedSession = await Auth.syncApiKey(sessionParams);
+            await Dashboard.init(syncedSession);
+            Auth.saveSession(syncedSession);
+            if (syncedSession.isNewLogin) {
                 const cleanUrl = window.location.pathname + window.location.hash;
                 window.history.replaceState({}, document.title, cleanUrl);
-                Auth.saveSession(sessionParams);
+                Auth.saveSession(syncedSession);
             }
         }
         catch (initError) {
