@@ -121,11 +121,12 @@ const renderUsers = (users: AdminUser[]) => {
                 ${user.blockedReason ? `<br><small class="reason">${user.blockedReason}</small>` : ''}
             </td>
             <td class="actions-cell">
-                ${user.isActive !== false
-                    ? `<button class="btn-block" onclick="window.blockUser('${user.userId}')">
+                ${
+                    user.isActive !== false
+                        ? `<button class="btn-block" onclick="window.blockUser('${user.userId}')">
                                <i class="fa-solid fa-ban"></i> Bloquear
                            </button>`
-                    : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">
+                        : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">
                                <i class="fa-solid fa-check"></i> Desbloquear
                            </button>`
                 }
@@ -159,8 +160,8 @@ const showToast = (title: string, message: string, type: 'success' | 'error' | '
         type === 'success'
             ? 'fa-circle-check'
             : type === 'error'
-                ? 'fa-circle-exclamation'
-                : 'fa-circle-info';
+              ? 'fa-circle-exclamation'
+              : 'fa-circle-info';
 
     toast.innerHTML = `
         <i class="fa-solid ${icon} toast-icon"></i>
@@ -242,8 +243,11 @@ const loadSystemStatus = async () => {
         if (!res.ok) throw new Error('Failed to load system status');
         const data = await res.json();
 
-        container.innerHTML = (Object.entries(data.services) as [string, { status: string; latency?: string }][])
-            .map(([name, info]) => `
+        container.innerHTML = (
+            Object.entries(data.services) as [string, { status: string; latency?: string }][]
+        )
+            .map(
+                ([name, info]) => `
             <div class="status-item">
                 <div class="status-info">
                     <div class="status-indicator ${info.status}"></div>
@@ -256,7 +260,9 @@ const loadSystemStatus = async () => {
                     ${info.status === 'ok' ? 'Online' : info.status === 'maintenance' ? 'Mant.' : 'Error'}
                 </span>
             </div>
-        `).join('');
+        `
+            )
+            .join('');
     } catch (_e) {
         container.innerHTML = `<div class="error-msg" style="display:block">Error cargando estado del sistema</div>`;
     }
@@ -275,12 +281,16 @@ const loadConfig = async () => {
             { key: 'ADMIN_ENABLED', value: 'true' }
         ];
 
-        container.innerHTML = configMock.map(item => `
+        container.innerHTML = configMock
+            .map(
+                (item) => `
             <div class="config-item">
                 <span class="config-key">${item.key}</span>
                 <span class="config-value">${item.value}</span>
             </div>
-        `).join('');
+        `
+            )
+            .join('');
     } catch (_e) {
         container.innerHTML = `<div class="error-msg" style="display:block">Error cargando configuración</div>`;
     }
@@ -408,22 +418,22 @@ window.updateRateLimit = async (userId: string, currentLimit: number) => {
 };
 
 window.switchSection = (sectionId: string) => {
-    document.querySelectorAll('.nav-item').forEach(item => {
+    document.querySelectorAll('.nav-item').forEach((item) => {
         item.classList.remove('active');
         const text = item.querySelector('.nav-text')?.textContent?.toLowerCase();
         const mapping: Record<string, string> = {
-            'resumen': 'overview',
-            'usuarios': 'users',
+            resumen: 'overview',
+            usuarios: 'users',
             'salud sistema': 'system',
-            'configuración': 'config',
-            'seguridad': 'security'
+            configuración: 'config',
+            seguridad: 'security'
         };
         if (text && mapping[text] === sectionId) {
             item.classList.add('active');
         }
     });
 
-    document.querySelectorAll('.admin-section').forEach(section => {
+    document.querySelectorAll('.admin-section').forEach((section) => {
         section.classList.remove('active');
     });
 
@@ -433,11 +443,11 @@ window.switchSection = (sectionId: string) => {
     const titleEl = document.getElementById('current-section-title');
     if (titleEl) {
         const titles: Record<string, string> = {
-            'overview': 'Resumen General',
-            'users': 'Gestión de Usuarios',
-            'system': 'Salud del Sistema',
-            'config': 'Configuración de Entorno',
-            'security': 'Seguridad y Admins'
+            overview: 'Resumen General',
+            users: 'Gestión de Usuarios',
+            system: 'Salud del Sistema',
+            config: 'Configuración de Entorno',
+            security: 'Seguridad y Admins'
         };
         titleEl.innerText = titles[sectionId] || 'Admin Panel';
     }
@@ -512,9 +522,10 @@ const loadAdmins = async () => {
             return;
         }
 
-        tbody.innerHTML = admins.map((admin: { userId: string; login: string; displayName: string }) => {
-            const isRoot = admin.userId === rootId;
-            return `
+        tbody.innerHTML = admins
+            .map((admin: { userId: string; login: string; displayName: string }) => {
+                const isRoot = admin.userId === rootId;
+                return `
             <tr>
                 <td>
                     <div style="font-weight: 600;">${admin.displayName}</div>
@@ -527,14 +538,20 @@ const loadAdmins = async () => {
                     </span>
                 </td>
                 <td>
-                    ${!isRoot ? `
+                    ${
+                        !isRoot
+                            ? `
                         <button class="action-btn delete" onclick="window.removeAdmin('${admin.userId}')" title="Quitar Permisos">
                             <i class="fa-solid fa-user-minus"></i>
                         </button>
-                    ` : '<small style="color: var(--text-muted)">Protegido</small>'}
+                    `
+                            : '<small style="color: var(--text-muted)">Protegido</small>'
+                    }
                 </td>
             </tr>
-        `}).join('');
+        `;
+            })
+            .join('');
     } catch (_e) {
         tbody.innerHTML = `<tr><td colspan="4" class="error-msg" style="display:block">Error cargando administradores</td></tr>`;
     }

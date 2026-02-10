@@ -53,7 +53,9 @@ const authorizeAdmin = async (req: Request, res: Response, next: NextFunction) =
 
         const allowed = await isAdmin(user.userId);
         if (!allowed) {
-            logger.warn(`🛑 Usuario no autorizado intentó acceder al panel: ${user.login} (${user.userId})`);
+            logger.warn(
+                `🛑 Usuario no autorizado intentó acceder al panel: ${user.login} (${user.userId})`
+            );
             return res.status(403).json({ error: 'No tienes permisos de administrador' });
         }
 
@@ -202,7 +204,7 @@ router.get('/system/status', async (_req, res) => {
             kvStatus = 'error';
         }
 
-        let twitchStatus = 'ok';
+        const twitchStatus = 'ok';
         const groqStatus = CONFIG.GROQ_API_KEY ? 'ok' : 'maintenance';
 
         res.json({
@@ -233,7 +235,12 @@ router.get('/admins', async (_req, res) => {
         const admins = [];
         for (const id of adminIds) {
             const user = await getUser(id);
-            if (user) admins.push({ userId: user.userId, login: user.login, displayName: user.displayName });
+            if (user)
+                admins.push({
+                    userId: user.userId,
+                    login: user.login,
+                    displayName: user.displayName
+                });
         }
         res.json({ admins, rootId: CONFIG.ADMIN_ROOT_ID });
     } catch (_e) {
