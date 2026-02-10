@@ -1,5 +1,72 @@
 import { fetchAdmin, logout, checkAuth } from './auth.js';
 let userChart = null;
+// State
+let _currentSection = 'overview';
+// Navigation
+window.switchSection = (sectionId) => {
+    _currentSection = sectionId;
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(`section-${sectionId}`)?.classList.add('active');
+    const btn = document.querySelector(`button[onclick*="switchSection('${sectionId}')"]`);
+    if (btn)
+        btn.classList.add('active');
+    const titles = {
+        'overview': 'Resumen General',
+        'users': 'Gestión de Usuarios',
+        'system': 'Salud del Sistema',
+        'limits': 'Límites & Tráfico',
+        'logs': 'Logs del Sistema',
+        'security': 'Seguridad & Admins',
+        'config': 'Configuración'
+    };
+    const titleElem = document.getElementById('current-section-title');
+    if (titleElem)
+        titleElem.textContent = titles[sectionId] || 'Panel Admin';
+    if (sectionId === 'overview') {
+        loadGlobalStats();
+        loadUsers();
+    }
+    else if (sectionId === 'users') {
+        loadUsers();
+    }
+    else if (sectionId === 'system') {
+        loadSystemStatus();
+    }
+    else if (sectionId === 'config') {
+        loadConfig();
+    }
+    else if (sectionId === 'security') {
+        loadAdmins();
+    }
+    else if (sectionId === 'logs') {
+        window.refreshLogs();
+    }
+};
+window.refreshLogs = async () => {
+    const list = document.getElementById('logs-list');
+    if (!list)
+        return;
+    try {
+        const response = await fetchAdmin('/api/twitch/admin/logs');
+        const logs = await response.json();
+        if (!logs.length) {
+            list.innerHTML = '<div class="loading-cell">No hay logs registrados todavía.</div>';
+            return;
+        }
+        list.innerHTML = logs.map((log) => `
+            <div class="log-item level-${log.level}">
+                <span class="log-time">${new Date(log.timestamp).toLocaleTimeString()}</span>
+                <span class="log-level ${log.level}">${log.level}</span>
+                <span class="log-message">${log.message}${log.details ? ` <small style="opacity:0.5">(${JSON.stringify(log.details)})</small>` : ''}</span>
+            </div>
+        `).join('');
+        list.scrollTop = 0;
+    }
+    catch (_e) {
+        showToast('Error al cargar logs', 'error');
+    }
+};
 const renderChart = (users) => {
     const ctx = document.getElementById('usersChart');
     if (!ctx)
@@ -363,55 +430,6 @@ window.updateRateLimit = async (userId, currentLimit) => {
     catch (_e) {
         console.error(_e);
         showToast('Error', 'Error de conexión', 'error');
-    }
-};
-window.switchSection = (sectionId) => {
-    document.querySelectorAll('.nav-item').forEach((item) => {
-        item.classList.remove('active');
-        const text = item.querySelector('.nav-text')?.textContent?.toLowerCase();
-        const mapping = {
-            resumen: 'overview',
-            usuarios: 'users',
-            'salud sistema': 'system',
-            configuración: 'config',
-            seguridad: 'security'
-        };
-        if (text && mapping[text] === sectionId) {
-            item.classList.add('active');
-        }
-    });
-    document.querySelectorAll('.admin-section').forEach((section) => {
-        section.classList.remove('active');
-    });
-    const activeSection = document.getElementById(`section-${sectionId}`);
-    if (activeSection)
-        activeSection.classList.add('active');
-    const titleEl = document.getElementById('current-section-title');
-    if (titleEl) {
-        const titles = {
-            overview: 'Resumen General',
-            users: 'Gestión de Usuarios',
-            system: 'Salud del Sistema',
-            config: 'Configuración de Entorno',
-            security: 'Seguridad y Admins'
-        };
-        titleEl.innerText = titles[sectionId] || 'Admin Panel';
-    }
-    if (sectionId === 'overview') {
-        loadGlobalStats();
-        loadUsers();
-    }
-    else if (sectionId === 'users') {
-        loadUsers();
-    }
-    else if (sectionId === 'system') {
-        loadSystemStatus();
-    }
-    else if (sectionId === 'config') {
-        loadConfig();
-    }
-    else if (sectionId === 'security') {
-        loadAdmins();
     }
 };
 window.addAdminPrompt = async () => {

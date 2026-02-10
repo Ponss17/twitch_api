@@ -247,12 +247,11 @@ export const resetUserApiKey = async (userId: string): Promise<string> => {
 // ==========================================
 
 const ADMINS_KEY = 'twitch_admins';
+const LOGS_KEY = 'twitch_system_logs';
+const MAX_LOGS = 50;
 
 export const isAdmin = async (userId: string): Promise<boolean> => {
-    // 1. Root Admin Check (Variable de entorno)
     if (CONFIG.ADMIN_ROOT_ID && userId === CONFIG.ADMIN_ROOT_ID) return true;
-
-    // 2. White List Check (Vercel KV)
     const isWhiteListed = await kv.sismember(ADMINS_KEY, userId);
     return isWhiteListed === 1;
 };
@@ -260,13 +259,47 @@ export const isAdmin = async (userId: string): Promise<boolean> => {
 export const addAdmin = async (userId: string): Promise<void> => {
     await kv.sadd(ADMINS_KEY, userId);
     logger.info(`✨ Nuevo administrador añadido: ${userId}`);
+    await addSystemLog('info', `Admin añadido: ${userId}`);
 };
 
 export const removeAdmin = async (userId: string): Promise<void> => {
     await kv.srem(ADMINS_KEY, userId);
     logger.info(`🗑️ Administrador eliminado: ${userId}`);
+    await addSystemLog('warn', `Admin eliminado: ${userId}`);
 };
 
 export const getAllAdmins = async (): Promise<string[]> => {
     return await kv.smembers(ADMINS_KEY);
+};
+
+export const addSystemLog = async (
+    level: 'info' | 'warn' | 'error',
+    message: string,
+    details?: any
+): Promise<void> => {
+    try {
+        const logEntry = {
+            timestamp: new Date().toISOString(),
+            level,
+            message,
+            details
+        };
+        await kv.lpush(LOGS_KEY, JSON.stringify(logEntry));
+        await kv.ltrim(LOGS_KEY, 0, MAX_LOGS - 1);
+    } catch (_e) {
+        console.error('Failed to log to KV:', _e);
+    }
+};
+
+export const getSystemLogs = async (): Promise<any[]> => {
+    try {
+        const logs = await kv.lrange(LOGS_KEY, 0, -1);
+        return logs.map((l) => (typeof l === 'string' ? JSON.parse(l) : l));
+    } catch (_e) {
+        return [];
+    }
+};
+
+export const clearSystemLogs = async (): Promise<void> => {
+    await kv.del(LOGS_KEY);
 };

@@ -11,7 +11,9 @@ import {
     addAdmin,
     removeAdmin,
     getAllAdmins,
-    getUserByApiKey
+    getUserByApiKey,
+    getSystemLogs,
+    clearSystemLogs
 } from '../services/infrastructure/dbService';
 import { logger } from '../utils/logger';
 
@@ -37,14 +39,13 @@ const adminApiLimiter = rateLimit({
 });
 
 const authorizeAdmin = async (req: Request, res: Response, next: NextFunction) => {
-    const sessionToken = req.headers['x-admin-password']; // Mantenemos el nombre del header por compatibilidad inicial
+    const sessionToken = req.headers['x-admin-password'];
 
     if (!sessionToken) {
         return res.status(401).json({ error: 'Inicia sesión como administrador' });
     }
 
     try {
-        // En v2.6.0, el x-admin-password contiene la API Key del administrador
         const user = await getUserByApiKey(sessionToken as string);
 
         if (!user) {
@@ -59,7 +60,6 @@ const authorizeAdmin = async (req: Request, res: Response, next: NextFunction) =
             return res.status(403).json({ error: 'No tienes permisos de administrador' });
         }
 
-        // Guardamos el admin en locals
         res.locals.adminUser = user;
         next();
     } catch (e) {
@@ -263,16 +263,34 @@ router.post('/admins', async (req, res) => {
     }
 });
 
-router.delete('/admins/:userId', async (req, res) => {
+router.delete('/admins/:userId', authorizeAdmin, async (req, res) => {
     try {
         const { userId } = req.params;
         if (userId === CONFIG.ADMIN_ROOT_ID) {
-            return res.status(400).json({ error: 'No puedes eliminar al Root Admin' });
+            return res.status(403).json({ error: 'No se puede eliminar al Admin Root' });
         }
         await removeAdmin(userId);
         res.json({ success: true });
-    } catch (_e) {
+    } catch (_error) {
         res.status(500).json({ error: 'Error al eliminar administrador' });
+    }
+});
+
+router.get('/logs', authorizeAdmin, async (req, res) => {
+    try {
+        const logs = await getSystemLogs();
+        res.json(logs);
+    } catch (_error) {
+        res.status(500).json({ error: 'Error al obtener logs' });
+    }
+});
+
+router.post('/logs/clear', authorizeAdmin, async (req, res) => {
+    try {
+        await clearSystemLogs();
+        res.json({ success: true });
+    } catch (_error) {
+        res.status(500).json({ error: 'Error al limpiar logs' });
     }
 });
 
