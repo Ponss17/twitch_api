@@ -10,13 +10,17 @@ const limiter = rateLimit({
             return 120; // 2 req/seg
         }
 
-        // 2. Excepciones de Sistema
+        // 2. Excepciones de Sistema / Dashboard (Alta disponibilidad para el admin)
+        const path = req.originalUrl;
         if (
-            req.path.includes('/auth') ||
-            req.path.includes('/callback') ||
-            req.path.includes('/health')
+            path.includes('/auth') ||
+            path.includes('/callback') ||
+            path.includes('/health') ||
+            path.includes('/dashboard') ||
+            path.includes('/system') ||
+            path.includes('/docs')
         ) {
-            return 30;
+            return 1000; // Virtualmente sin límite para el panel de administración
         }
 
         // 3. Bots Confiables
@@ -31,26 +35,40 @@ const limiter = rateLimit({
             return 60;
         }
 
-        // 4. Bloqueo Total (Anónimos o Key Falsa)
+        // 4. Bloqueo Total (Comandos de chat sin ninguna credencial)
         return 0;
     },
     keyGenerator: (req: Request, res: Response): string => {
         if (res.locals && res.locals.apiUser) {
-            return req.query.apiKey as string;
+            return (req.query.apiKey as string) || res.locals.apiUser.userId;
         }
         return req.ip || 'unknown';
     },
     handler: (req: Request, res: Response) => {
-        const message = MESSAGES.AUTH.INVALID_CREDENTIALS;
+        const path = req.originalUrl;
+        const isSystemRoute =
+            path.includes('/auth') ||
+            path.includes('/callback') ||
+            path.includes('/health') ||
+            path.includes('/dashboard') ||
+            path.includes('/system') ||
+            path.includes('/docs');
+
+        let message = '⚠️ Has excedido el límite de peticiones. Por favor, espera un minuto.';
+
+        // Si es un comando de chat (no sistema) y no hay usuario, es falta de Key
+        if (!res.locals?.apiUser && !isSystemRoute) {
+            message = MESSAGES.AUTH.INVALID_CREDENTIALS;
+        }
 
         // Si es una ruta de API o un bot de Twitch, enviar texto plano
-        if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
+        if (path.startsWith('/api') || path.startsWith('/twitch')) {
             res.setHeader('Content-Type', 'text/plain');
             return res.status(429).send(message);
         }
 
         // Para dashboard/web enviar JSON
-        res.status(429).json({ error: 'Access Denied', message });
+        res.status(429).json({ error: 'Too Many Requests', message });
     },
     standardHeaders: true,
     legacyHeaders: false
