@@ -685,6 +685,50 @@ a:hover {
     flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--card-border);
+    padding: 0;
+}
+
+.tab-header .tab-btn {
+    border-bottom: none;
+}
+
+@media (max-width: 600px) {
+    .tab-header {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .format-selector {
+        width: 100%;
+        order: -1;
+        margin-left: 0;
+        justify-content: center;
+    }
+
+    .format-btn {
+        flex: 1;
+        text-align: center;
+    }
+
+    .tab-btn {
+        flex: 0 0 auto;
+        border-right: none;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        margin-right: 5px;
+        padding: 8px 15px;
+    }
+
+    .tab-btn.active {
+        box-shadow: none;
+        background: var(--primary-color);
+    }
+
+    .tab-header {
+        overflow-x: auto;
+    }
 }
 
 .format-selector {
@@ -720,14 +764,44 @@ a:hover {
 }
 
 @media (max-width: 600px) {
+    .tab-header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px;
+        gap: 8px;
+        height: auto;
+    }
+
     .format-selector {
-        margin-left: 0;
         width: 100%;
-        margin-top: 0.5rem;
+        order: -1;
+        margin-left: 0;
+        justify-content: center;
+        margin-bottom: 4px;
     }
 
     .format-btn {
         flex: 1;
         text-align: center;
+        padding: 8px;
+    }
+
+    .tab-btn {
+        width: 100%;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        margin: 0;
+        padding: 10px;
+        white-space: normal;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 }
