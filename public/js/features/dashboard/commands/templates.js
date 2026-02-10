@@ -56,6 +56,14 @@ export const CommandTemplates = {
                 ${extrasHTML}
                 ${templateSection}
 
+                <div class="tool-selector">
+                    <label><i class="fa-solid fa-file-code"></i> Formato de copiado:</label>
+                    <select id="copy-format-${conf.id}" class="select-input">
+                        <option value="full">Comando completo (!addcom)</option>
+                        <option value="url">Solo URL</option>
+                    </select>
+                </div>
+
                 <div class="code-box">
                     <textarea id="command-output-${conf.id}" readonly></textarea>
                     <button class="btn-copy copy-btn" data-target="command-output-${conf.id}">

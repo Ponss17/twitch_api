@@ -40,11 +40,14 @@ export const CommandsModule = {
             const botSelect = document.getElementById(`bot-select-${config.id}`);
             const output = document.getElementById(`command-output-${config.id}`);
             const templateInput = document.getElementById(`${config.id}-template`);
+            const formatSelect = document.getElementById(`copy-format-${config.id}`);
             if (botSelect && output) {
                 const updateFn = () => this.updateCommand(config);
                 botSelect.addEventListener('change', updateFn);
                 if (templateInput)
                     templateInput.addEventListener('input', updateFn);
+                if (formatSelect)
+                    formatSelect.addEventListener('change', updateFn);
                 if (config.extraSelectors) {
                     config.extraSelectors.forEach((sel) => {
                         const selEl = document.getElementById(`extra-${config.id}-${sel.id}`);
@@ -60,6 +63,7 @@ export const CommandsModule = {
         const botSelect = document.getElementById(`bot-select-${conf.id}`);
         const output = document.getElementById(`command-output-${conf.id}`);
         const templateInput = document.getElementById(`${conf.id}-template`);
+        const formatSelect = document.getElementById(`copy-format-${conf.id}`);
         if (!botSelect || !output)
             return;
         if (!this.session)
@@ -79,7 +83,9 @@ export const CommandsModule = {
                     extraValues[sel.id] = selEl.value;
             });
         }
-        const realCmd = conf.generate(domain, login, tokenParam, bot, templateVal, queryParams, extraValues);
+        const result = conf.generate(domain, login, tokenParam, bot, templateVal, queryParams, extraValues);
+        const format = formatSelect ? formatSelect.value : 'full';
+        const realCmd = format === 'full' ? result.full : result.url;
         const maskedCmd = realCmd.split(currentApiKey).join('**************');
         output.value = maskedCmd;
         output.dataset.realValue = realCmd;
