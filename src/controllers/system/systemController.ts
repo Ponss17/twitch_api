@@ -19,9 +19,12 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
         if (validation) {
             try {
                 const userProfile = await apiService.getUserInfo(validation.login, token);
+                const dbUser = await dbService.getUser(userProfile.id);
+
                 return res.json({
                     valid: true,
                     token: token,
+                    apiKey: dbUser?.apiKey || null,
                     user: {
                         id: userProfile.id,
                         login: userProfile.login,
