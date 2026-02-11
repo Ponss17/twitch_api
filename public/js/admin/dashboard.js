@@ -3,6 +3,7 @@ let userChart = null;
 // State
 let _currentSection = 'overview';
 // Navigation
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.switchSection = (sectionId) => {
     _currentSection = sectionId;
     document.querySelectorAll('.admin-section').forEach((s) => s.classList.remove('active'));
@@ -55,7 +56,9 @@ window.refreshLogs = async () => {
             return;
         }
         list.innerHTML = logs
-            .map((log) => `
+            .map(
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (log) => `
             <div class="log-item level-${log.level}">
                 <span class="log-time">${new Date(log.timestamp).toLocaleTimeString()}</span>
                 <span class="log-level ${log.level}">${log.level}</span>
@@ -171,10 +174,10 @@ const renderUsers = (users) => {
             </td>
             <td class="actions-cell">
                 ${user.isActive !== false
-        ? `<button class="btn-block" onclick="window.blockUser('${user.userId}')">
+                ? `<button class="btn-block" onclick="window.blockUser('${user.userId}')">
                                <i class="fa-solid fa-ban"></i> Bloquear
                            </button>`
-        : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">
+                : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">
                                <i class="fa-solid fa-check"></i> Desbloquear
                            </button>`}
                 <button class="btn-delete" onclick="window.deleteUser('${user.userId}')" title="Eliminar Usuario">
@@ -491,8 +494,8 @@ const loadAdmins = async () => {
         }
         tbody.innerHTML = admins
             .map((admin) => {
-            const isRoot = admin.userId === rootId;
-            return `
+                const isRoot = admin.userId === rootId;
+                return `
             <tr>
                 <td>
                     <div style="font-weight: 600;">${admin.displayName}</div>
@@ -506,16 +509,16 @@ const loadAdmins = async () => {
                 </td>
                 <td>
                     ${!isRoot
-                ? `
+                        ? `
                         <button class="action-btn delete" onclick="window.removeAdmin('${admin.userId}')" title="Quitar Permisos">
                             <i class="fa-solid fa-user-minus"></i>
                         </button>
                     `
-                : '<small style="color: var(--text-muted)">Protegido</small>'}
+                        : '<small style="color: var(--text-muted)">Protegido</small>'}
                 </td>
             </tr>
         `;
-        })
+            })
             .join('');
     }
     catch (_e) {
