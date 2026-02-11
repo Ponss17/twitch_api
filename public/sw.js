@@ -1,4 +1,4 @@
-const CACHE_NAME = 'losperris-api-v1';
+const CACHE_NAME = 'losperris-api-v2';
 const urlsToCache = [
     '/',
     '/dashboard',
