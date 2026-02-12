@@ -117,9 +117,14 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
         return access_token;
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            logger.error('❌ Error API Twitch (Refresh):', error.response?.data || error.message);
+            logger.error('❌ Error API Twitch (Refresh):', {
+                userId,
+                status: error.response?.status,
+                data: error.response?.data,
+                message: error.message
+            });
         } else {
-            logger.error('❌ Error renovando token:', error);
+            logger.error('❌ Error renovando token:', { userId, error });
         }
         throw new Error('No se pudo renovar el token. Relogueate.');
     }

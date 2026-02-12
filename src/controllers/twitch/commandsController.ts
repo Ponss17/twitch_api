@@ -84,6 +84,18 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             timestamp: new Date().toISOString()
         });
 
+        const isTokenError =
+            error instanceof Error &&
+            (error.message.includes('401') || error.message.includes('token'));
+
+        if (isTokenError) {
+            return res
+                .status(401)
+                .send(
+                    'Tu sesión ha expirado. Por favor, vuelve a autenticarte en https://www.losperris.site/api/twitch'
+                );
+        }
+
         res.status(500).send(MESSAGES.COMMANDS.FOLLOWAGE_ERROR);
     }
 };
