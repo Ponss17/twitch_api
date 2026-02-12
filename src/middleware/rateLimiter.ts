@@ -50,16 +50,18 @@ const limiter = rateLimit({
         return ipKeyGenerator(req.ip || 'unknown');
     },
     handler: (req: Request, res: Response) => {
-        const path = req.originalUrl.split('?')[0];
-        const isStatic = /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(path);
+        const cleanPath = req.originalUrl.split('?')[0];
+        const isStatic = /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json|webp)$/i.test(
+            cleanPath
+        );
         const isSystemRoute =
             isStatic ||
-            path.includes('/auth') ||
-            path.includes('/callback') ||
-            path.includes('/health') ||
-            path.includes('/dashboard') ||
-            path.includes('/system') ||
-            path.includes('/docs');
+            cleanPath.includes('/auth') ||
+            cleanPath.includes('/callback') ||
+            cleanPath.includes('/health') ||
+            cleanPath.includes('/dashboard') ||
+            cleanPath.includes('/system') ||
+            cleanPath.includes('/docs');
 
         let message = '⚠️ Has excedido el límite de peticiones. Por favor, espera un minuto.';
 
@@ -69,7 +71,7 @@ const limiter = rateLimit({
         }
 
         // Si es una ruta de API o un bot de Twitch, enviar texto plano
-        if (path.startsWith('/api') || path.startsWith('/twitch')) {
+        if (cleanPath.startsWith('/api') || cleanPath.startsWith('/twitch')) {
             res.setHeader('Content-Type', 'text/plain');
             return res.status(429).send(message);
         }

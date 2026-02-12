@@ -18,6 +18,28 @@ app.set('trust proxy', 1);
 
 // Middlewares Base
 app.use(requestLogger);
+
+// --- CONFIGURACIÓN DE ESTÁTICOS (DEBE IR ANTES DE HELMET/JSON/AUTH) ---
+const publicPaths = [
+    path.join(process.cwd(), 'public'),
+    path.join(process.cwd(), 'dist/public'),
+    path.join(__dirname, '../public'),
+    path.join(__dirname, '../../public')
+];
+
+publicPaths.forEach((publicPath) => {
+    app.use('/api/twitch', express.static(publicPath, { fallthrough: true }));
+    app.use(express.static(publicPath, { fallthrough: true }));
+});
+
+app.use((req, res, next) => {
+    const cleanPath = req.originalUrl.split('?')[0];
+    if (/\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json|webp)$/i.test(cleanPath)) {
+        return res.status(404).send('Not Found');
+    }
+    next();
+});
+
 app.use(
     helmet({
         contentSecurityPolicy: {
@@ -61,27 +83,6 @@ app.use(
 app.use(cors());
 app.use(compression());
 app.use(express.json());
-
-// --- CONFIGURACIÓN DE ESTÁTICOS (DEBE IR ANTES DE CUALQUIER AUTH/ROUTING) ---
-const publicPaths = [
-    path.join(process.cwd(), 'public'),
-    path.join(process.cwd(), 'dist/public'),
-    path.join(__dirname, '../public'),
-    path.join(__dirname, '../../public')
-];
-
-publicPaths.forEach((publicPath) => {
-    app.use('/api/twitch', express.static(publicPath, { fallthrough: true }));
-    app.use(express.static(publicPath, { fallthrough: true }));
-});
-
-// Evitar que archivos estáticos faltantes (.png, .webp, etc) entren en el validador o routers
-app.use((req, res, next) => {
-    if (/\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(req.path)) {
-        return res.status(404).send('Not Found');
-    }
-    next();
-});
 
 // --- VALIDACIÓN Y RATE LIMIT (PARA RUTAS DINÁMICAS) ---
 app.use(apiKeyValidator);
