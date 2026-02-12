@@ -27,10 +27,10 @@
 }
 
 .sidebar-logo {
-    width: 32px;
-    height: 32px;
+    width: 48px;
+    height: 48px;
     border-radius: 8px;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .sidebar-menu {
@@ -210,8 +210,8 @@
 }
 
 .user-badge img {
-    width: 36px;
-    height: 36px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     object-fit: cover;
 }
