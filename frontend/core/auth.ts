@@ -41,8 +41,13 @@ export const Auth = {
                 if (response.status === 401) {
                     return { valid: false, status: 401, reason: 'unauthorized' };
                 }
-                console.warn(`Server error ${response.status} during validation. Keeping session.`);
-                return { valid: true, error: true, status: response.status };
+                console.warn(`Server error ${response.status} during validation.`);
+                return {
+                    valid: false,
+                    error: true,
+                    status: response.status,
+                    reason: 'server_error'
+                };
             }
 
             const contentType = response.headers.get('content-type');

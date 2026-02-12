@@ -105,16 +105,22 @@ app.get(['/admin-dashboard', '/api/twitch/admin-dashboard'], (req: Request, res:
     res.sendFile(path.join(__dirname, '../public/admin/dashboard.html'));
 });
 
-// Admin Routes
+// Admin Router
 app.use(['/api/admin', '/api/twitch/admin', '/admin/api', '/admin'], adminRouter);
 
 // SEO
 app.get(['/robots.txt', '/api/twitch/robots.txt'], getRobotsTxt);
 app.get(['/sitemap.xml', '/api/twitch/sitemap.xml'], getSitemapXml);
 
-// Rutas de Comandos y API
-app.use(['/auth', '/api/twitch/auth', '/twitch/auth'], authLimiter, authRoutes);
-app.use(['/api/twitch', '/twitch', '/'], apiRoutes);
+// API/Twitch Routes
+// Usamos montajes individuales para mayor claridad en Express
+app.use('/auth', authLimiter, authRoutes);
+app.use('/api/twitch/auth', authLimiter, authRoutes);
+app.use('/twitch/auth', authLimiter, authRoutes);
+
+app.use('/api/twitch', apiRoutes);
+app.use('/twitch', apiRoutes);
+app.use('/', apiRoutes);
 
 // Health Check
 app.get(['/health', '/api/twitch/health'], (req: Request, res: Response) => {
