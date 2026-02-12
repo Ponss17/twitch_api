@@ -10,7 +10,7 @@ export const ProfileTemplates = {
         const rankColor = user.broadcaster_type ? 'var(--accent)' : 'var(--text-secondary)';
         return `
             <div class="profile-header">
-                <img src="${user.profile_image_url || 'img/LosPerris_progra.webp'}" class="profile-avatar-large" alt="${UI.escapeHTML(user.display_name)}" loading="lazy">
+                <img src="${user.profile_image_url || 'img/LosPerris-minimal.webp'}" class="profile-avatar-large" alt="${UI.escapeHTML(user.display_name)}" loading="lazy">
                 <div class="profile-title-group">
                     <h2 class="profile-name">${UI.escapeHTML(user.display_name)}</h2>
                     <div class="profile-login">@${UI.escapeHTML(user.login)}</div>
@@ -56,13 +56,13 @@ export const ProfileTemplates = {
             html += `
                 <div class="history-list">
                     ${logs
-                .map((l) => `
+                    .map((l) => `
                         <div class="history-item">
                             <span class="history-time">[${l.time.toLocaleTimeString()}]</span>
                             <span class="history-text">${UI.escapeHTML(l.text)}</span>
                         </div>
                     `)
-                .join('')}
+                    .join('')}
                 </div>
             `;
         }
