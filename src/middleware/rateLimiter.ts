@@ -21,6 +21,7 @@ const limiter = rateLimit({
             path.includes('/callback') ||
             path.includes('/health') ||
             path.includes('/dashboard') ||
+            path.includes('/minigames') ||
             path.includes('/system') ||
             path.includes('/docs')
         ) {
@@ -60,6 +61,7 @@ const limiter = rateLimit({
             cleanPath.includes('/callback') ||
             cleanPath.includes('/health') ||
             cleanPath.includes('/dashboard') ||
+            cleanPath.includes('/minigames') ||
             cleanPath.includes('/system') ||
             cleanPath.includes('/docs');
 
