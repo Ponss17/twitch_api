@@ -8,6 +8,19 @@
     },
     "headers": [
         {
+            "source": "/img/(.*)",
+            "headers": [
+                {
+                    "key": "x-asset-version",
+                    "value": "2.9.4-residency"
+                },
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=0, must-revalidate"
+                }
+            ]
+        },
+        {
             "source": "/(.*)",
             "headers": [
                 {

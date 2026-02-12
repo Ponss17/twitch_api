@@ -10,10 +10,20 @@ const MAX_CACHE_SIZE = 1000;
 
 export const apiKeyValidator = async (req: Request, res: Response, next: NextFunction) => {
     const apiKey = (req.query.apiKey as string) || (req.headers['x-api-key'] as string);
-    const path = req.path;
-    const isStatic = /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(path);
+    const cleanPath = req.originalUrl.split('?')[0];
+    const isStatic = /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json|webp)$/i.test(
+        cleanPath
+    );
+    const isSystemRoute =
+        isStatic ||
+        cleanPath.includes('/auth') ||
+        cleanPath.includes('/callback') ||
+        cleanPath.includes('/health') ||
+        cleanPath.includes('/dashboard') ||
+        cleanPath.includes('/system') ||
+        cleanPath.includes('/docs');
 
-    if (!apiKey || isStatic) {
+    if (!apiKey || isSystemRoute) {
         return next();
     }
 

@@ -39,6 +39,10 @@ const adminApiLimiter = rateLimit({
 });
 
 const authorizeAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    const path = req.path;
+    const isStatic = /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(path);
+    if (isStatic) return next();
+
     const sessionToken = req.headers['x-admin-password'];
 
     if (!sessionToken) {
