@@ -68,8 +68,9 @@ export const fetchAdmin = async (url: string, options: RequestInit = {}): Promis
     });
 
     if (response.status === 401) {
+        console.warn('Admin Unauthorized (401). Logging out...');
         logout();
     }
-
+    // Si es otro error (500, 429), el dashboard mostrará error en la UI, pero no sacará al admin.
     return response;
 };

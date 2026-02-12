@@ -24,25 +24,37 @@ export const Auth = {
         window.location.href = window.location.origin + window.location.pathname;
     },
 
-    async validateCurrentToken(credentialParam: string): Promise<ApiResponse | false | null> {
+    async validateCurrentToken(
+        credentialParam: string
+    ): Promise<
+        | ApiResponse
+        | false
+        | { valid: boolean; error?: boolean; reason?: string; status?: number }
+        | null
+    > {
         try {
-            if (!credentialParam) return null;
+            if (!credentialParam) return { valid: false, reason: 'no_credentials' };
 
             const response = await fetch(`${CONFIG.API_URL}/system/validate?${credentialParam}`);
 
             if (!response.ok) {
-                return false;
+                if (response.status === 401) {
+                    return { valid: false, status: 401, reason: 'unauthorized' };
+                }
+                console.warn(`Server error ${response.status} during validation. Keeping session.`);
+                return { valid: true, error: true, status: response.status };
             }
 
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.indexOf('application/json') !== -1) {
                 const data: ApiResponse = await response.json();
-                return data.valid ? data : false;
+                return data.valid ? data : { valid: false, reason: 'invalid_response' };
             }
 
             return { valid: true } as ApiResponse;
-        } catch (_e) {
-            return false;
+        } catch (e) {
+            console.error('Network error validating token:', e);
+            return { valid: true, error: true, reason: 'network_error' };
         }
     },
 

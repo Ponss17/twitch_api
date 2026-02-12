@@ -23,16 +23,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         const credentialParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
-        validationResult = await Auth.validateCurrentToken(credentialParam);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        validationResult = (await Auth.validateCurrentToken(credentialParam)) as any;
     } catch (e) {
-        console.error('Error validating session:', e);
-        UI.showToast(AuthMessages.validationError, 'error');
-        Auth.clearSession();
-        window.location.href = './';
-        return;
+        console.error('Error executing validation:', e);
+        validationResult = { valid: true, error: true };
     }
 
-    if (validationResult) {
+    if (validationResult && validationResult.valid) {
+        if (validationResult.error) {
+            UI.showToast('Conexión inestable con el servidor', 'warning');
+        }
         try {
             let avatarUrl = null;
             let displayName = sessionParams.displayName || sessionParams.login;

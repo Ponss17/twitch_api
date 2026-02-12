@@ -22,20 +22,25 @@ export const Auth = {
     async validateCurrentToken(credentialParam) {
         try {
             if (!credentialParam)
-                return null;
+                return { valid: false, reason: 'no_credentials' };
             const response = await fetch(`${CONFIG.API_URL}/system/validate?${credentialParam}`);
             if (!response.ok) {
-                return false;
+                if (response.status === 401) {
+                    return { valid: false, status: 401, reason: 'unauthorized' };
+                }
+                console.warn(`Server error ${response.status} during validation. Keeping session.`);
+                return { valid: true, error: true, status: response.status };
             }
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.indexOf('application/json') !== -1) {
                 const data = await response.json();
-                return data.valid ? data : false;
+                return data.valid ? data : { valid: false, reason: 'invalid_response' };
             }
             return { valid: true };
         }
-        catch (_e) {
-            return false;
+        catch (e) {
+            console.error('Network error validating token:', e);
+            return { valid: true, error: true, reason: 'network_error' };
         }
     },
     async syncApiKey(session) {

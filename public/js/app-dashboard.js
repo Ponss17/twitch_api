@@ -16,16 +16,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     let validationResult = null;
     try {
         const credentialParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         validationResult = await Auth.validateCurrentToken(credentialParam);
     }
     catch (e) {
-        console.error('Error validating session:', e);
-        UI.showToast(AuthMessages.validationError, 'error');
-        Auth.clearSession();
-        window.location.href = './';
-        return;
+        console.error('Error executing validation:', e);
+        validationResult = { valid: true, error: true };
     }
-    if (validationResult) {
+    if (validationResult && validationResult.valid) {
+        if (validationResult.error) {
+            UI.showToast('Conexión inestable con el servidor', 'warning');
+        }
         try {
             let avatarUrl = null;
             let displayName = sessionParams.displayName || sessionParams.login;
