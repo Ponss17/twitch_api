@@ -69,7 +69,21 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         } else {
             res.send(result);
         }
-    } catch (_error: unknown) {
+    } catch (error: unknown) {
+        console.error('[FOLLOWAGE ERROR] Full error details:', {
+            channel,
+            user,
+            error:
+                error instanceof Error
+                    ? {
+                          message: error.message,
+                          stack: error.stack,
+                          name: error.name
+                      }
+                    : error,
+            timestamp: new Date().toISOString()
+        });
+
         res.status(500).send(MESSAGES.COMMANDS.FOLLOWAGE_ERROR);
     }
 };
