@@ -54,7 +54,6 @@ export const Dashboard = {
             StalkerModule,
             Magic8Module,
             RouletteModule,
-            RouletteModule,
             RussianModule,
             DuelModule,
             FeedbackModule

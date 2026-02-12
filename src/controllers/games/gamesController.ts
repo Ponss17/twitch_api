@@ -45,23 +45,48 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
 export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { user, channel, hardcore, format } = req.query;
-        const token = req.twitchToken;
+        let token = req.twitchToken;
 
         if (!token) return res.status(401).send('No token provided');
 
         const isHardcore = hardcore === 'true';
 
-        const result = await playRussianRoulette(
-            channel as string,
-            user as string,
-            token,
-            isHardcore
-        );
+        let attempts = 0;
+        const maxAttempts = 2;
+        const apiKey = (req.query.apiKey as string) || (req.headers['x-api-key'] as string);
 
-        if (format === 'json') {
-            res.json(result);
-        } else {
-            res.send(result.message);
+        while (attempts < maxAttempts) {
+            attempts++;
+            try {
+                const result = await playRussianRoulette(
+                    channel as string,
+                    user as string,
+                    token || '',
+                    isHardcore
+                );
+
+                if (format === 'json') {
+                    return res.json(result);
+                } else {
+                    return res.send(result.message);
+                }
+            } catch (error: any) {
+                const is401 = error?.message?.includes('401') || error?.status === 401;
+
+                if (is401 && apiKey && attempts < maxAttempts) {
+                    logger.warn(`[RUSSIAN] 401 detected (attempt ${attempts}), refreshing...`);
+                    try {
+                        const authData = await import('../../services/auth/authService').then((m) =>
+                            m.getValidToken(apiKey)
+                        );
+                        token = authData.accessToken;
+                        continue;
+                    } catch (refreshErr) {
+                        logger.error('[RUSSIAN] Refresh failed:', refreshErr);
+                    }
+                }
+                throw error;
+            }
         }
     } catch (error) {
         logger.error('Error en playRussian:', error);
