@@ -494,21 +494,42 @@ a:hover {
 }
 
 @media (max-width: 900px) {
+    .mobile-nav-toggle {
+        display: flex !important;
+    }
+
     .sidebar {
-        display: none;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 250px;
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
     }
 
     .content {
         margin-left: 0;
-        padding: 60px 25px;
+        padding: 60px 20px;
     }
 
     .main-title {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
+        text-align: center;
+    }
+
+    .lead-text {
+        font-size: 1.1rem;
+        text-align: center;
     }
 
     h2 {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
+    }
+
+    .mobile-nav-toggle {
+        display: flex !important;
     }
 }
 

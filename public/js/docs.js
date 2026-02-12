@@ -1,5 +1,33 @@
 import { FooterComponent } from './components/footer.js';
 document.addEventListener('DOMContentLoaded', () => {
+    const mobileToggle = document.querySelector('.mobile-nav-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const navItems = document.querySelectorAll('.nav-item');
+
+    if (mobileToggle && sidebar) {
+        mobileToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            const icon = mobileToggle.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-xmark');
+            }
+        });
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                if (mobileToggle) {
+                    const icon = mobileToggle.querySelector('i');
+                    if (icon) {
+                        icon.classList.add('fa-bars');
+                        icon.classList.remove('fa-xmark');
+                    }
+                }
+            });
+        });
+    }
+
     const searchInput = document.getElementById('docs-search');
     const sections = document.querySelectorAll('.doc-section');
     const navGroup = document.querySelector('.sidebar-nav');
@@ -33,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     FooterComponent.render('main-footer');
-    const navItems = document.querySelectorAll('.nav-item');
+    const navItemsObserver = document.querySelectorAll('.nav-item');
     const observerOptions = {
         root: null,
         rootMargin: '-20% 0px -70% 0px',
@@ -43,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
                 const id = entry.target.getAttribute('id');
-                navItems.forEach((item) => {
+                navItemsObserver.forEach((item) => {
                     item.classList.remove('active');
                     if (item.getAttribute('href') === `#${id}`) {
                         item.classList.add('active');

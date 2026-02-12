@@ -26,4 +26,4 @@
 
 .btn-primary:hover .fa-khanda {
     transform: rotate(15deg) scale(1.1);
-}
+}@media (max-width: 360px) { .response-card { padding: 15px; font-size: 0.95rem; } .duel-loading { font-size: 0.9rem; } }
