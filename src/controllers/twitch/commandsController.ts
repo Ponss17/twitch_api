@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import * as dbService from '../../services/infrastructure/dbService';
 import * as apiService from '../../services/twitch/apiService';
+import * as authService from '../../services/auth/authService';
 import * as cacheService from '../../services/infrastructure/cacheService';
 import { MESSAGES } from '../../config/messages';
 
@@ -40,8 +41,9 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
 export const followage = async (req: AuthenticatedRequest, res: Response) => {
     const channel = safeString(req.query.channel);
     const user = safeString(req.query.user);
-    const token = req.twitchToken;
+    let token = req.twitchToken;
     const userId = req.userId;
+    const apiKey = safeString(req.query.apiKey) || safeString(req.headers['x-api-key']);
 
     if (!channel || !user) {
         return res.status(400).send(MESSAGES.COMMANDS.MISSING_PARAMS);
@@ -51,52 +53,77 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
     const cached = await cacheService.get(cacheKey);
     if (cached) return res.send(cached);
 
-    try {
-        const result = await apiService.getFollowAge(channel, user, token || '');
-        await cacheService.set(cacheKey, result, 60);
+    let attempts = 0;
+    const maxAttempts = 2;
 
-        if (userId) {
-            await dbService.incrementUserStats(userId, 'followage');
-        }
+    while (attempts < maxAttempts) {
+        attempts++;
+        try {
+            const result = await apiService.getFollowAge(channel, user, token || '');
+            await cacheService.set(cacheKey, result, 60);
 
-        const template = req.query.template as string;
-        if (template) {
-            const message = template
-                .replace('{time}', result)
-                .replace('{user}', user)
-                .replace('{channel}', channel);
-            res.send(message);
-        } else {
-            res.send(result);
-        }
-    } catch (error: unknown) {
-        console.error('[FOLLOWAGE ERROR] Full error details:', {
-            channel,
-            user,
-            error:
-                error instanceof Error
-                    ? {
-                          message: error.message,
-                          stack: error.stack,
-                          name: error.name
-                      }
-                    : error,
-            timestamp: new Date().toISOString()
-        });
+            if (userId) {
+                await dbService.incrementUserStats(userId, 'followage');
+            }
 
-        const isTokenError =
-            error instanceof Error &&
-            (error.message.includes('401') || error.message.includes('token'));
+            const template = req.query.template as string;
+            if (template) {
+                const message = template
+                    .replace('{time}', result)
+                    .replace('{user}', user)
+                    .replace('{channel}', channel);
+                return res.send(message);
+            } else {
+                return res.send(result);
+            }
+        } catch (error: unknown) {
+            const is401 = error instanceof Error && error.message.includes('401');
 
-        if (isTokenError) {
-            return res
-                .status(401)
-                .send(
-                    'Tu sesión ha expirado. Por favor, vuelve a autenticarte en https://www.losperris.site/api/twitch'
+            if (is401 && apiKey && attempts < maxAttempts) {
+                console.warn(
+                    `[FOLLOWAGE] 401 detected (attempt ${attempts}), forcing token refresh...`
                 );
-        }
+                try {
+                    const authData = await authService.getValidToken(apiKey);
+                    token = authData.accessToken;
+                    continue; // Reintentar con el nuevo token
+                } catch (refreshErr) {
+                    console.error('[FOLLOWAGE] Forced refresh failed:', refreshErr);
+                    // Si el refresh falla, salimos del bucle y lanzamos el error original
+                }
+            }
 
-        res.status(500).send(MESSAGES.COMMANDS.FOLLOWAGE_ERROR);
+            // Log detailed error information for debugging
+            console.error('[FOLLOWAGE ERROR] Full error details:', {
+                channel,
+                user,
+                attempt: attempts,
+                error:
+                    error instanceof Error
+                        ? {
+                              message: error.message,
+                              stack: error.stack,
+                              name: error.name
+                          }
+                        : error,
+                timestamp: new Date().toISOString()
+            });
+
+            // Check if it's a persistent 401 error (expired/invalid token)
+            const isTokenError =
+                error instanceof Error &&
+                (error.message.includes('401') || error.message.includes('token'));
+
+            if (isTokenError) {
+                const errorMsg =
+                    attempts >= maxAttempts
+                        ? 'Tu sesión ha expirado y el refresco automático falló. Por favor, re-autentícate en https://www.losperris.site/api/twitch'
+                        : 'Error de autenticación. Inténtalo de nuevo.';
+                return res.status(401).send(errorMsg);
+            }
+
+            return res.status(500).send(MESSAGES.COMMANDS.FOLLOWAGE_ERROR);
+        }
     }
 };
 

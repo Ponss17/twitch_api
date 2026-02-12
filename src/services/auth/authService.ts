@@ -137,9 +137,22 @@ export const getValidToken = async (
     if (!user) throw new Error('API Key inválida');
 
     const expiresAt = user.obtainedAt + user.expiresIn * 1000;
-    if (Date.now() > expiresAt - 5 * 60 * 1000) {
-        const newToken = await refreshUserToken(user.userId);
-        return { accessToken: newToken, userId: user.userId };
+    const now = Date.now();
+    const fiveMinutesFromNow = now + 5 * 60 * 1000;
+
+    if (now > expiresAt || fiveMinutesFromNow > expiresAt) {
+        try {
+            const newToken = await refreshUserToken(user.userId);
+            return { accessToken: newToken, userId: user.userId };
+        } catch (_error) {
+            if (now > expiresAt) {
+                logger.error(`Token expirado y refresh falló para usuario ${user.userId}`);
+                throw new Error('Tu sesión ha expirado. Por favor, vuelve a autenticarte.');
+            }
+            logger.warn(
+                `Refresh falló pero token aún válido para usuario ${user.userId}, usando token actual`
+            );
+        }
     }
 
     return { accessToken: user.accessToken, userId: user.userId };
