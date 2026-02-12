@@ -23,7 +23,10 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     }
 
     let token = safeString(req.query.token) || safeString(req.body?.token);
-    const apiKey = safeString(req.query.apiKey) || safeString(req.body?.apiKey);
+    const apiKey =
+        safeString(req.query.apiKey) ||
+        safeString(req.body?.apiKey) ||
+        safeString(req.headers['x-api-key']);
 
     if (!token && req.headers.authorization?.startsWith('Bearer ')) {
         token = req.headers.authorization.split(' ')[1];
