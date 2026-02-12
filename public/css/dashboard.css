@@ -319,22 +319,39 @@
 
     .nav-text,
     .brand-text,
-    .menu-category {
+    .menu-category,
+    .btn-logout .btn-text {
         display: none;
     }
 
     .nav-item {
         justify-content: center;
         padding: 15px;
+        width: 50px;
+        margin: 0 auto 5px auto;
+    }
+
+    .nav-item.active {
+        width: 50px;
+        border-left: none;
+        border-bottom: 3px solid var(--accent);
+        border-radius: var(--radius-sm);
+        padding-left: 15px;
     }
 
     .sidebar-brand {
-        padding: 20px;
+        padding: 20px 0;
         justify-content: center;
     }
 
-    .sidebar-footer .btn-text {
-        display: none;
+    .sidebar-footer {
+        padding: 15px 10px;
+    }
+
+    .btn-logout {
+        padding: 12px;
+        border: none;
+        background: rgba(239, 68, 68, 0.1);
     }
 }
 

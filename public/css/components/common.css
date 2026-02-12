@@ -475,4 +475,4 @@
         width: 100%;
         min-width: 0;
     }
-}
+}@media (max-width: 768px) { .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 20px; } .data-table th, .data-table td { padding: 12px 15px !important; white-space: nowrap; font-size: 0.85rem; } .modal-content { max-width: 95% !important; margin: 10px; border-radius: 15px; } .form-grid { grid-template-columns: 1fr !important; gap: 15px; } .tool-selector { flex-direction: column; align-items: stretch !important; gap: 12px; } }
