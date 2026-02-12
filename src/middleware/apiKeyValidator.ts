@@ -16,13 +16,14 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
     );
     const isSystemRoute =
         isStatic ||
-        cleanPath.includes('/auth') ||
-        cleanPath.includes('/callback') ||
-        cleanPath.includes('/health') ||
         cleanPath.includes('/dashboard') ||
         cleanPath.includes('/minigames') ||
+        cleanPath.includes('/admin') ||
         cleanPath.includes('/system') ||
-        cleanPath.includes('/docs');
+        cleanPath.includes('/health') ||
+        cleanPath.includes('/docs') ||
+        cleanPath.includes('robots.txt') ||
+        cleanPath.includes('sitemap.xml');
 
     if (!apiKey || isSystemRoute) {
         return next();

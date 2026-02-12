@@ -17,13 +17,14 @@ const limiter = rateLimit({
 
         if (
             isStatic ||
-            path.includes('/auth') ||
-            path.includes('/callback') ||
-            path.includes('/health') ||
             path.includes('/dashboard') ||
             path.includes('/minigames') ||
+            path.includes('/admin') ||
             path.includes('/system') ||
-            path.includes('/docs')
+            path.includes('/health') ||
+            path.includes('/docs') ||
+            path.includes('robots.txt') ||
+            path.includes('sitemap.xml')
         ) {
             return 1000; // Virtualmente sin límite para recursos estáticos y sistema
         }
@@ -57,13 +58,14 @@ const limiter = rateLimit({
         );
         const isSystemRoute =
             isStatic ||
-            cleanPath.includes('/auth') ||
-            cleanPath.includes('/callback') ||
-            cleanPath.includes('/health') ||
             cleanPath.includes('/dashboard') ||
             cleanPath.includes('/minigames') ||
+            cleanPath.includes('/admin') ||
             cleanPath.includes('/system') ||
-            cleanPath.includes('/docs');
+            cleanPath.includes('/health') ||
+            cleanPath.includes('/docs') ||
+            cleanPath.includes('robots.txt') ||
+            cleanPath.includes('sitemap.xml');
 
         let message = '⚠️ Has excedido el límite de peticiones. Por favor, espera un minuto.';
 
