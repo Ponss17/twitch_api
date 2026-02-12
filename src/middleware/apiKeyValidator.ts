@@ -1,14 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import * as dbService from '../services/infrastructure/dbService';
+import * as authService from '../services/auth/authService';
 import { logger } from '../utils/logger';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const validKeysCache = new Map<string, any>();
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
-const MAX_CACHE_SIZE = 1000; // Límite de seguridad para memoria
+const CACHE_TTL_MS = 1 * 60 * 1000; // Reducido a 1 minuto para mayor seguridad con tokens
+const MAX_CACHE_SIZE = 1000;
 
 export const apiKeyValidator = async (req: Request, res: Response, next: NextFunction) => {
-    const apiKey = req.query.apiKey as string;
+    const apiKey = (req.query.apiKey as string) || (req.headers['x-api-key'] as string);
 
     if (!apiKey) {
         return next();
@@ -26,7 +27,9 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             validKeysCache.delete(apiKey);
         }
 
-        const user = await dbService.getUserByApiKey(apiKey);
+        const authData = await authService.getValidToken(apiKey);
+        const user = await dbService.getUser(authData.userId);
+
         if (user && user.isActive) {
             if (validKeysCache.size >= MAX_CACHE_SIZE) {
                 validKeysCache.clear();
@@ -39,7 +42,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             res.locals.apiUser = user;
         }
     } catch (error) {
-        logger.error('Error validating API Key:', error);
+        logger.warn('API Key validation failed in validator:', (error as Error).message);
     }
 
     next();
