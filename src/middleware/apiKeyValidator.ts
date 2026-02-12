@@ -10,8 +10,10 @@ const MAX_CACHE_SIZE = 1000;
 
 export const apiKeyValidator = async (req: Request, res: Response, next: NextFunction) => {
     const apiKey = (req.query.apiKey as string) || (req.headers['x-api-key'] as string);
+    const path = req.path;
+    const isStatic = /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(path);
 
-    if (!apiKey) {
+    if (!apiKey || isStatic) {
         return next();
     }
 

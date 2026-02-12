@@ -11,9 +11,12 @@ const limiter = rateLimit({
             return req.res.locals.apiUser.customRateLimit || 120;
         }
 
-        // 2. Excepciones de Sistema / Dashboard (Alta disponibilidad para el admin)
-        const path = req.originalUrl;
+        // 2. Excepciones de Sistema / Dashboard / Estáticos (Alta disponibilidad)
+        const path = req.originalUrl.split('?')[0]; // Ignorar query params
+        const isStatic = /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(path);
+
         if (
+            isStatic ||
             path.includes('/auth') ||
             path.includes('/callback') ||
             path.includes('/health') ||
@@ -21,7 +24,7 @@ const limiter = rateLimit({
             path.includes('/system') ||
             path.includes('/docs')
         ) {
-            return 1000; // Virtualmente sin límite para el panel de administración
+            return 1000; // Virtualmente sin límite para recursos estáticos y sistema
         }
 
         // 3. Bots Confiables
@@ -47,8 +50,10 @@ const limiter = rateLimit({
         return ipKeyGenerator(req.ip || 'unknown');
     },
     handler: (req: Request, res: Response) => {
-        const path = req.originalUrl;
+        const path = req.originalUrl.split('?')[0];
+        const isStatic = /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(path);
         const isSystemRoute =
+            isStatic ||
             path.includes('/auth') ||
             path.includes('/callback') ||
             path.includes('/health') ||
