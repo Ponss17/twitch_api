@@ -62,7 +62,32 @@ app.use(cors());
 app.use(compression());
 app.use(express.json());
 
-// Vistas y Panel de Administración (Definidos ANTES de los estáticos para evitar conflictos de redirección)
+// --- CONFIGURACIÓN DE ESTÁTICOS (DEBE IR ANTES DE CUALQUIER AUTH/ROUTING) ---
+const publicPaths = [
+    path.join(process.cwd(), 'public'),
+    path.join(process.cwd(), 'dist/public'),
+    path.join(__dirname, '../public'),
+    path.join(__dirname, '../../public')
+];
+
+publicPaths.forEach((publicPath) => {
+    app.use('/api/twitch', express.static(publicPath, { fallthrough: true }));
+    app.use(express.static(publicPath, { fallthrough: true }));
+});
+
+// Evitar que archivos estáticos faltantes (.png, .webp, etc) entren en el validador o routers
+app.use((req, res, next) => {
+    if (/\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(req.path)) {
+        return res.status(404).send('Not Found');
+    }
+    next();
+});
+
+// --- VALIDACIÓN Y RATE LIMIT (PARA RUTAS DINÁMICAS) ---
+app.use(apiKeyValidator);
+app.use(rateLimiter);
+
+// --- VISTAS Y RUTAS ---
 app.get(['/docs', '/api/twitch/docs'], (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, '../public/docs.html'));
 });
@@ -80,40 +105,15 @@ app.get(['/admin-dashboard', '/api/twitch/admin-dashboard'], (req: Request, res:
 });
 
 // Admin Routes
-app.use('/api/admin', adminRouter);
-app.use('/api/twitch/admin', adminRouter);
-app.use('/admin/api', adminRouter);
-app.use('/admin', adminRouter); //
+app.use(['/api/admin', '/api/twitch/admin', '/admin/api', '/admin'], adminRouter);
 
 // SEO
 app.get(['/robots.txt', '/api/twitch/robots.txt'], getRobotsTxt);
 app.get(['/sitemap.xml', '/api/twitch/sitemap.xml'], getSitemapXml);
 
-// Estáticos
-const publicPaths = [
-    path.join(process.cwd(), 'public'),
-    path.join(process.cwd(), 'dist/public'),
-    path.join(__dirname, '../public')
-];
-
-// Try to serve from all potential locations (express.static skips if not found)
-publicPaths.forEach((publicPath) => {
-    app.use('/api/twitch', express.static(publicPath));
-    app.use(express.static(publicPath));
-});
-
-// Rate Limiting Global
-app.use(apiKeyValidator);
-app.use(rateLimiter);
-
 // Rutas de Comandos y API
-app.use('/auth', authLimiter, authRoutes);
-app.use('/api/twitch/auth', authLimiter, authRoutes);
-app.use('/twitch/auth', authLimiter, authRoutes);
-
-app.use('/api/twitch', apiRoutes);
-app.use('/twitch', apiRoutes);
-app.use('/', apiRoutes);
+app.use(['/auth', '/api/twitch/auth', '/twitch/auth'], authLimiter, authRoutes);
+app.use(['/api/twitch', '/twitch', '/'], apiRoutes);
 
 // Health Check
 app.get(['/health', '/api/twitch/health'], (req: Request, res: Response) => {
