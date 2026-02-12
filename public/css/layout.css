@@ -43,11 +43,9 @@
 }
 
 .logo-img {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    object-fit: cover;
-    box-shadow: 0 0 20px var(--accent-glow);
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
 }
 
 .brand-logo {

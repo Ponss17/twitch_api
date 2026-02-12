@@ -1,4 +1,4 @@
-const CACHE_NAME = 'losperris-api-v2';
+const CACHE_NAME = 'losperris-twitch-v3';
 const urlsToCache = [
     '/',
     '/dashboard',
@@ -16,7 +16,7 @@ const urlsToCache = [
     '/js/utils/htmlLoader.js',
     '/js/utils/loader.js',
     '/js/vendor/tmi.min.js',
-    '/img/LosPerris_progra.webp'
+    '/img/LosPerris-minimal.webp'
 ];
 
 self.addEventListener('install', (event) => {
