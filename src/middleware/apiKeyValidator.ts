@@ -20,6 +20,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         cleanPath.includes('/callback') ||
         cleanPath.includes('/health') ||
         cleanPath.includes('/dashboard') ||
+        cleanPath.includes('/minigames') ||
         cleanPath.includes('/system') ||
         cleanPath.includes('/docs');
 
