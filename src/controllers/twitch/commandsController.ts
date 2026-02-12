@@ -11,30 +11,56 @@ const safeString = (val: unknown): string => (typeof val === 'string' ? val : ''
 
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     const channel = safeString(req.query.channel);
-    const token = req.twitchToken;
+    let token = req.twitchToken;
     const userId = req.userId;
+    const apiKey = safeString(req.query.apiKey) || safeString(req.headers['x-api-key']);
 
-    try {
-        const clipUrl = await apiService.createClip(channel, token || '');
+    if (!channel) return res.status(400).send(MESSAGES.COMMANDS.MISSING_PARAMS);
 
-        if (userId) {
-            await dbService.incrementUserStats(userId, 'clips');
+    let attempts = 0;
+    const maxAttempts = 2;
+
+    while (attempts < maxAttempts) {
+        attempts++;
+        try {
+            const clipUrl = await apiService.createClip(channel, token || '');
+
+            if (userId) {
+                await dbService.incrementUserStats(userId, 'clips');
+            }
+
+            const template = req.query.template as string;
+            if (template) {
+                const message = template.replace('{url}', clipUrl).replace('{channel}', channel);
+                return res.send(message);
+            }
+
+            return res.send(clipUrl);
+        } catch (error: unknown) {
+            const is401 = error instanceof Error && error.message.includes('401');
+
+            if (is401 && apiKey && attempts < maxAttempts) {
+                console.warn(
+                    `[CREATE_CLIP] 401 detected (attempt ${attempts}), forcing refresh...`
+                );
+                try {
+                    const authData = await authService.getValidToken(apiKey);
+                    token = authData.accessToken;
+                    continue;
+                } catch (refreshErr) {
+                    console.error('[CREATE_CLIP] Forced refresh failed:', refreshErr);
+                }
+            }
+
+            const status = (error as { status?: number }).status || 500;
+            const message =
+                status === 404
+                    ? (error as { message?: string }).message
+                    : MESSAGES.COMMANDS.CREATE_CLIP_ERROR;
+
+            console.error('[CREATE_CLIP ERROR]', { channel, attempt: attempts, error });
+            return res.status(status).send(message);
         }
-
-        const template = req.query.template as string;
-        if (template) {
-            const message = template.replace('{url}', clipUrl).replace('{channel}', channel);
-            return res.send(message);
-        }
-
-        return res.send(clipUrl);
-    } catch (error: unknown) {
-        const status = (error as { status?: number }).status || 500;
-        const message =
-            status === 404
-                ? (error as { message?: string }).message
-                : MESSAGES.COMMANDS.CREATE_CLIP_ERROR;
-        return res.status(status).send(message);
     }
 };
 
@@ -86,14 +112,12 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 try {
                     const authData = await authService.getValidToken(apiKey);
                     token = authData.accessToken;
-                    continue; // Reintentar con el nuevo token
+                    continue;
                 } catch (refreshErr) {
                     console.error('[FOLLOWAGE] Forced refresh failed:', refreshErr);
-                    // Si el refresh falla, salimos del bucle y lanzamos el error original
                 }
             }
 
-            // Log detailed error information for debugging
             console.error('[FOLLOWAGE ERROR] Full error details:', {
                 channel,
                 user,
@@ -109,7 +133,6 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 timestamp: new Date().toISOString()
             });
 
-            // Check if it's a persistent 401 error (expired/invalid token)
             const isTokenError =
                 error instanceof Error &&
                 (error.message.includes('401') || error.message.includes('token'));
@@ -128,49 +151,93 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
-    const token = req.twitchToken;
+    let token = req.twitchToken;
     const message = safeString(req.body.message);
     const userId = req.userId;
+    const apiKey = safeString(req.query.apiKey) || safeString(req.headers['x-api-key']);
 
     if (!message) return res.status(400).send(MESSAGES.COMMANDS.MISSING_MESSAGE);
     if (message.length > 500) return res.status(400).send(MESSAGES.COMMANDS.MESSAGE_TOO_LONG);
     if (!userId) return res.status(401).send(MESSAGES.SYSTEM.USER_NOT_FOUND);
 
-    try {
-        await apiService.sendChatMessage(userId, userId, message, token || '');
-        res.json({ success: true });
-    } catch (_error: unknown) {
-        res.status(500).send(MESSAGES.COMMANDS.SEND_MESSAGE_ERROR);
+    let attempts = 0;
+    const maxAttempts = 2;
+
+    while (attempts < maxAttempts) {
+        attempts++;
+        try {
+            await apiService.sendChatMessage(userId, userId, message, token || '');
+            return res.json({ success: true });
+        } catch (error: unknown) {
+            const is401 = error instanceof Error && error.message.includes('401');
+
+            if (is401 && apiKey && attempts < maxAttempts) {
+                console.warn(
+                    `[SEND_MESSAGE] 401 detected (attempt ${attempts}), forcing refresh...`
+                );
+                try {
+                    const authData = await authService.getValidToken(apiKey);
+                    token = authData.accessToken;
+                    continue;
+                } catch (refreshErr) {
+                    console.error('[SEND_MESSAGE] Forced refresh failed:', refreshErr);
+                }
+            }
+
+            console.error('[SEND_MESSAGE ERROR]', { userId, attempt: attempts, error });
+            return res.status(500).send(MESSAGES.COMMANDS.SEND_MESSAGE_ERROR);
+        }
     }
 };
 
 export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
     const channel = safeString(req.query.channel);
     const touser = safeString(req.query.touser);
-    const token = req.twitchToken;
+    let token = req.twitchToken;
+    const apiKey = safeString(req.query.apiKey) || safeString(req.headers['x-api-key']);
 
     if (!channel || !touser) return res.status(400).send(MESSAGES.COMMANDS.MISSING_PARAMS);
 
-    try {
-        const targetUserId = await apiService.getUserId(touser, token || '');
-        const channelInfo = await apiService.getChannelInfo(targetUserId, token || '');
-        const gameName = channelInfo.game_name || 'Just Chatting';
-        const url = `https://twitch.tv/${touser}`;
+    let attempts = 0;
+    const maxAttempts = 2;
 
-        const messagePattern =
-            (req.query.template as string) || MESSAGES.COMMANDS.SHOUTOUT_HEADLINE;
+    while (attempts < maxAttempts) {
+        attempts++;
+        try {
+            const targetUserId = await apiService.getUserId(touser, token || '');
+            const channelInfo = await apiService.getChannelInfo(targetUserId, token || '');
+            const gameName = channelInfo.game_name || 'Just Chatting';
+            const url = `https://twitch.tv/${touser}`;
 
-        const message = messagePattern
-            .replace('{user}', touser)
-            .replace('{game}', gameName)
-            .replace('{url}', url);
+            const messagePattern =
+                (req.query.template as string) || MESSAGES.COMMANDS.SHOUTOUT_HEADLINE;
 
-        if (req.userId) {
-            await dbService.incrementUserStats(req.userId, 'so');
+            const message = messagePattern
+                .replace('{user}', touser)
+                .replace('{game}', gameName)
+                .replace('{url}', url);
+
+            if (req.userId) {
+                await dbService.incrementUserStats(req.userId, 'so');
+            }
+
+            return res.send(message);
+        } catch (error: unknown) {
+            const is401 = error instanceof Error && error.message.includes('401');
+
+            if (is401 && apiKey && attempts < maxAttempts) {
+                console.warn(`[SHOUTOUT] 401 detected (attempt ${attempts}), forcing refresh...`);
+                try {
+                    const authData = await authService.getValidToken(apiKey);
+                    token = authData.accessToken;
+                    continue;
+                } catch (refreshErr) {
+                    console.error('[SHOUTOUT] Forced refresh failed:', refreshErr);
+                }
+            }
+
+            console.error('[SHOUTOUT ERROR]', { channel, attempt: attempts, error });
+            return res.status(500).send(MESSAGES.COMMANDS.SHOUTOUT_ERROR);
         }
-
-        res.send(message);
-    } catch (_error: unknown) {
-        res.status(500).send(MESSAGES.COMMANDS.SHOUTOUT_ERROR);
     }
 };
