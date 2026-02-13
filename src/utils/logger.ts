@@ -15,7 +15,6 @@ export const logger = {
     },
     info: (msg: string, ...args: unknown[]) => {
         console.log(`${symbols.info} [INFO]`, msg, ...args);
-        addSystemLog('info', msg, args.length ? args : undefined);
     },
     warn: (msg: string, ...args: unknown[]) => {
         console.warn(`${symbols.warn} [WARN]`, msg, ...args);

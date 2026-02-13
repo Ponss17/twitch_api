@@ -248,7 +248,7 @@ export const resetUserApiKey = async (userId: string): Promise<string> => {
 
 const ADMINS_KEY = 'twitch_admins';
 const LOGS_KEY = 'twitch_system_logs';
-const MAX_LOGS = 50;
+const MAX_LOGS = 200;
 
 export const isAdmin = async (userId: string): Promise<boolean> => {
     if (CONFIG.ADMIN_ROOT_ID && userId === CONFIG.ADMIN_ROOT_ID) return true;

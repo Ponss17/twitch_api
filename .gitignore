@@ -27,3 +27,8 @@ CONTEXT_FOR_NEXT_AGENT.md
 
 # Archivos archivados
 _archived/
+
+# Testing
+coverage/
+junit.xml
+test-report.xml
