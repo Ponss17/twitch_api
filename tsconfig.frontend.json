@@ -14,5 +14,5 @@
         "lib": ["DOM", "ES2020"]
     },
     "include": ["frontend/**/*"],
-    "exclude": ["frontend/vendor"]
+    "exclude": ["frontend/vendor", "frontend/types.ts"]
 }

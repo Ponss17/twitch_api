@@ -2,14 +2,75 @@ import { FooterComponent } from '../../shared/components/footer.js';
 
 declare global {
     interface Window {
+        switchFormat: (btn: HTMLElement, format: string) => void;
+        switchTab: (btn: HTMLElement, botName: string) => void;
         copyCode: (btn: HTMLElement) => void;
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    FooterComponent.render('main-footer');
-    const sections = document.querySelectorAll('.doc-section');
+    const mobileToggle = document.querySelector('.mobile-nav-toggle');
+    const sidebar = document.querySelector('.sidebar');
     const navItems = document.querySelectorAll('.nav-item');
+
+    if (mobileToggle && sidebar) {
+        mobileToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            const icon = mobileToggle.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-xmark');
+            }
+        });
+
+        navItems.forEach((item) => {
+            item.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                if (mobileToggle) {
+                    const icon = mobileToggle.querySelector('i');
+                    if (icon) {
+                        icon.classList.add('fa-bars');
+                        icon.classList.remove('fa-xmark');
+                    }
+                }
+            });
+        });
+    }
+
+    const searchInput = document.getElementById('docs-search') as HTMLInputElement;
+    const sections = document.querySelectorAll('.doc-section');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const target = e.target as HTMLInputElement;
+            const query = target.value.toLowerCase();
+
+            sections.forEach((section) => {
+                const text = section.textContent?.toLowerCase() || '';
+                const id = section.getAttribute('id');
+                const navItem = document.querySelector(`.nav-item[href="#${id}"]`) as HTMLElement;
+
+                if (text.includes(query)) {
+                    (section as HTMLElement).style.display = 'block';
+                    if (navItem) navItem.style.display = 'flex';
+                } else {
+                    (section as HTMLElement).style.display = 'none';
+                    if (navItem) navItem.style.display = 'none';
+                }
+            });
+
+            if (!query) {
+                sections.forEach((s) => ((s as HTMLElement).style.display = 'block'));
+                document
+                    .querySelectorAll('.nav-item')
+                    .forEach((n) => ((n as HTMLElement).style.display = 'flex'));
+            }
+        });
+    }
+
+    FooterComponent.render('main-footer');
+
+    const navItemsObserver = document.querySelectorAll('.nav-item');
     const observerOptions = {
         root: null as Element | null,
         rootMargin: '-20% 0px -70% 0px',
@@ -20,8 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
                 const id = entry.target.getAttribute('id');
-
-                navItems.forEach((item) => {
+                navItemsObserver.forEach((item) => {
                     item.classList.remove('active');
                     if (item.getAttribute('href') === `#${id}`) {
                         item.classList.add('active');
@@ -33,25 +93,85 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sections.forEach((section) => observer.observe(section));
 
-    const updateUrls = () => {
-        const baseUrl = window.location.origin;
-        document.querySelectorAll('.dynamic-url').forEach((el: Element) => {
-            const code = el as HTMLElement;
-            const path = code.dataset.path;
-
-            if (!path) return;
-
-            if (path.includes('{baseURL}')) {
-                code.textContent = path.replace('{baseURL}', baseUrl);
-            } else {
-                code.textContent = `$(urlfetch ${baseUrl}${path})`;
-            }
-        });
+    const COMMAND_PREFIXES: Record<string, string> = {
+        nightbot: '!addcom {trigger} ',
+        streamelements: '!command add {trigger} ',
+        fossabot: '!addcom {trigger} '
     };
 
-    updateUrls();
+    function updateCodeBlock(container: HTMLElement, format: string) {
+        const activeTab = container.querySelector('.tab-content.active') as HTMLElement;
+        if (!activeTab) return;
+
+        const botName = activeTab.dataset.bot || '';
+        const codeElement = activeTab.querySelector('.dynamic-url') as HTMLElement;
+        const originalPath = codeElement.dataset.path || '';
+        const trigger = container.dataset.trigger;
+
+        const baseUrl = window.location.origin;
+        let finalCode = originalPath.includes('{baseURL}')
+            ? originalPath.replace('{baseURL}', baseUrl)
+            : `$(urlfetch ${baseUrl}${originalPath})`;
+
+        if (format === 'chat' && trigger && COMMAND_PREFIXES[botName]) {
+            const prefix = COMMAND_PREFIXES[botName].replace('{trigger}', trigger);
+            finalCode = prefix + finalCode;
+        }
+
+        try {
+            const sessionData = localStorage.getItem('twitch_dashboard_session');
+            if (sessionData) {
+                const session = JSON.parse(sessionData);
+                if (session.apiKey) {
+                    finalCode = finalCode.replace(/TU_API_KEY/g, session.apiKey);
+                }
+            }
+        } catch (e) {
+            console.warn('Session error', e);
+        }
+
+        codeElement.textContent = finalCode;
+
+        const copyBtn = activeTab.querySelector('.btn-copy-doc');
+        if (copyBtn) {
+            copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i>';
+            copyBtn.classList.remove('success');
+        }
+    }
+
+    window.switchFormat = (btn: HTMLElement, format: string) => {
+        const container = btn.closest('.code-tab-container') as HTMLElement;
+
+        container.querySelectorAll('.format-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        updateCodeBlock(container, format);
+    };
+
+    window.switchTab = (btn: HTMLElement, botName: string) => {
+        const container = btn.closest('.code-tab-container') as HTMLElement;
+
+        container.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        container.querySelectorAll('.tab-content').forEach((c) => c.classList.remove('active'));
+        const targetTab = container.querySelector(`.tab-content[data-bot="${botName}"]`);
+        if (targetTab) targetTab.classList.add('active');
+
+        const activeFormatBtn = container.querySelector('.format-btn.active');
+        const currentFormat = activeFormatBtn
+            ? activeFormatBtn.textContent?.trim() === 'Chat'
+                ? 'chat'
+                : 'dashboard'
+            : 'dashboard';
+
+        updateCodeBlock(container, currentFormat);
+    };
+
     window.copyCode = (btn: HTMLElement) => {
-        const code = btn.parentElement!.querySelector('code')!.textContent!;
+        const codeElement = btn.parentElement?.querySelector('code');
+        const code = codeElement?.textContent || '';
+
         navigator.clipboard.writeText(code).then(() => {
             const originalIcon = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-check"></i>';
@@ -62,4 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 2000);
         });
     };
+
+    setTimeout(() => {
+        document
+            .querySelectorAll('.code-tab-container')
+            .forEach((c) => updateCodeBlock(c as HTMLElement, 'chat'));
+    }, 100);
 });
