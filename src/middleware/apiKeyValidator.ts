@@ -8,22 +8,16 @@ const validKeysCache = new Map<string, any>();
 const CACHE_TTL_MS = 1 * 60 * 1000; // Reducido a 1 minuto para mayor seguridad con tokens
 const MAX_CACHE_SIZE = 1000;
 
+import { isPublicRoute } from '../utils/routeHelpers';
+
+// ... imports
+
 export const apiKeyValidator = async (req: Request, res: Response, next: NextFunction) => {
     const apiKey = (req.query.apiKey as string) || (req.headers['x-api-key'] as string);
     const cleanPath = req.originalUrl.split('?')[0];
-    const isStatic = /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json|webp)$/i.test(
-        cleanPath
-    );
-    const isSystemRoute =
-        isStatic ||
-        cleanPath.includes('/dashboard') ||
-        cleanPath.includes('/minigames') ||
-        cleanPath.includes('/admin') ||
-        cleanPath.includes('/system') ||
-        cleanPath.includes('/health') ||
-        cleanPath.includes('/docs') ||
-        cleanPath.includes('robots.txt') ||
-        cleanPath.includes('sitemap.xml');
+
+    // Use centralized check
+    const isSystemRoute = isPublicRoute(cleanPath);
 
     if (!apiKey || isSystemRoute) {
         return next();

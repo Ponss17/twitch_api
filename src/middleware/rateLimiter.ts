@@ -1,6 +1,7 @@
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { Request, Response } from 'express';
 import { MESSAGES } from '../config/messages';
+import { isPublicRoute } from '../utils/routeHelpers';
 
 const limiter = rateLimit({
     windowMs: 1 * 60 * 1000,
@@ -12,21 +13,8 @@ const limiter = rateLimit({
         }
 
         // 2. Excepciones de Sistema / Dashboard / Estáticos (Alta disponibilidad)
-        const path = req.originalUrl.split('?')[0]; // Ignorar query params
-        const isStatic = /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(path);
-
-        if (
-            isStatic ||
-            path.includes('/dashboard') ||
-            path.includes('/minigames') ||
-            path.includes('/admin') ||
-            path.includes('/system') ||
-            path.includes('/health') ||
-            path.includes('/docs') ||
-            path.includes('/auth') || // Excluir rutas de autenticación del limitador general
-            path.includes('robots.txt') ||
-            path.includes('sitemap.xml')
-        ) {
+        const path = req.originalUrl.split('?')[0];
+        if (isPublicRoute(path)) {
             return 1000; // Virtualmente sin límite para recursos estáticos y sistema
         }
 
@@ -54,19 +42,7 @@ const limiter = rateLimit({
     },
     handler: (req: Request, res: Response) => {
         const cleanPath = req.originalUrl.split('?')[0];
-        const isStatic = /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json|webp)$/i.test(
-            cleanPath
-        );
-        const isSystemRoute =
-            isStatic ||
-            cleanPath.includes('/dashboard') ||
-            cleanPath.includes('/minigames') ||
-            cleanPath.includes('/admin') ||
-            cleanPath.includes('/system') ||
-            cleanPath.includes('/health') ||
-            cleanPath.includes('/docs') ||
-            cleanPath.includes('robots.txt') ||
-            cleanPath.includes('sitemap.xml');
+        const isSystemRoute = isPublicRoute(cleanPath);
 
         let message = '⚠️ Has excedido el límite de peticiones. Por favor, espera un minuto.';
 
