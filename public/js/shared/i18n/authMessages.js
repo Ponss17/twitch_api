@@ -1,2 +1,1 @@
 const i={sessionExpired:"Tu sesi\xF3n ha expirado",validationError:"Error al validar sesi\xF3n",sessionError:"Error de sesi\xF3n. Recarga la p\xE1gina.",expiredTitle:"Sesi\xF3n Expirada",expiredMsg:"Tu credencial ha caducado. Por favor, inicia sesi\xF3n de nuevo.",reloginBtn:'<i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesi\xF3n',expired:"Sesi\xF3n expirada. Por favor, inicia sesi\xF3n de nuevo."};export{i as AuthMessages};
-//# sourceMappingURL=authMessages.js.map

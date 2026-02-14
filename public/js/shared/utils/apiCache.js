@@ -1,2 +1,1 @@
 const r={cache:new Map,async fetch(e,t={},i=6e4){const s=e+JSON.stringify(t),c=this.cache.get(s);if(c&&Date.now()-c.timestamp<i)return c.data;const a=await fetch(e,t);if(!a.ok)throw new Error(`HTTP ${a.status}: ${a.statusText}`);const n=await a.json();return this.cache.set(s,{data:n,timestamp:Date.now()}),n},clear(){this.cache.clear()},invalidate(e){for(const[t]of this.cache)t.startsWith(e)&&this.cache.delete(t)}};export{r as APICache};
-//# sourceMappingURL=apiCache.js.map

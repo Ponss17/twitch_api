@@ -26,8 +26,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./css/docs.css">
-    <link rel="stylesheet" href="./css/components/footer.css">
+    <link rel="stylesheet" href="/css/docs.css">
+    <script type="module" src="/js/shared/components/ui/index.js"></script>
+    <link rel="stylesheet" href="/css/components/footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/webp" href="img/LosPerris-minimal.webp">
 </head>
@@ -46,8 +47,11 @@
             </div>
 
             <div class="search-container">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="docs-search" placeholder="Buscar..." aria-label="Buscar en la documentación">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="docs-search" placeholder="Buscar comandos..." autocomplete="off">
+                </div>
+                <app-button variant="primary" icon="search">Buscar</app-button>
             </div>
 
             <nav class="sidebar-nav">
@@ -56,24 +60,32 @@
                 <a href="#limits" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Límites</a>
                 <a href="#quick-start" class="nav-item"><i class="fa-solid fa-rocket"></i> ¡Comienza Ya!</a>
                 <div class="nav-group">
-                    <span class="group-title">Comandos</span>
-                    <a href="#followage" class="nav-item"><i class="fa-solid fa-clock"></i> Followage</a>
-                    <a href="#create-clip" class="nav-item"><i class="fa-solid fa-film"></i> Clips</a>
-                    <a href="#shoutout" class="nav-item"><i class="fa-solid fa-bullhorn"></i> Shoutout</a>
+                    <div class="nav-subsection">
+                        <span class="group-title">Comandos</span>
+                        <a href="#followage" class="nav-item"><i class="fa-solid fa-clock"></i> Followage</a>
+                        <a href="#create-clip" class="nav-item"><i class="fa-solid fa-film"></i> Clips</a>
+                        <a href="#shoutout" class="nav-item"><i class="fa-solid fa-bullhorn"></i> Shoutout</a>
+                    </div>
 
-                    <span class="group-title">Herramientas</span>
-                    <a href="#trends" class="nav-item"><i class="fa-solid fa-chart-line"></i> Tendencias</a>
-                    <a href="#stalker" class="nav-item"><i class="fa-solid fa-binoculars"></i> Stalker</a>
-                    <a href="#roulette" class="nav-item"><i class="fa-solid fa-dice"></i> Ruleta</a>
+                    <div class="nav-subsection">
+                        <span class="group-title">Herramientas</span>
+                        <a href="#trends" class="nav-item"><i class="fa-solid fa-chart-line"></i> Tendencias</a>
+                        <a href="#stalker" class="nav-item"><i class="fa-solid fa-binoculars"></i> Stalker</a>
+                        <a href="#roulette" class="nav-item"><i class="fa-solid fa-dice"></i> Ruleta</a>
+                    </div>
 
-                    <span class="group-title">Minijuegos</span>
-                    <a href="#magic8" class="nav-item"><i class="fa-solid fa-8"></i> Bola 8</a>
-                    <a href="#russian" class="nav-item"><i class="fa-solid fa-skull-crossbones"></i> Ruleta Rusa</a>
-                    <a href="#duel" class="nav-item"><i class="fa-solid fa-khanda"></i> Duelo</a>
+                    <div class="nav-subsection">
+                        <span class="group-title">Minijuegos</span>
+                        <a href="#magic8" class="nav-item"><i class="fa-solid fa-8"></i> Bola 8</a>
+                        <a href="#russian" class="nav-item"><i class="fa-solid fa-skull-crossbones"></i> Ruleta Rusa</a>
+                        <a href="#duel" class="nav-item"><i class="fa-solid fa-khanda"></i> Duelo</a>
+                    </div>
 
-                    <span class="group-title">Extras</span>
-                    <a href="#get-clips" class="nav-item"><i class="fa-solid fa-list"></i> Listar Clips</a>
-                    <a href="#errores" class="nav-item"><i class="fa-solid fa-triangle-exclamation"></i> Ayuda</a>
+                    <div class="nav-subsection">
+                        <span class="group-title">Extras</span>
+                        <a href="#get-clips" class="nav-item"><i class="fa-solid fa-list"></i> Listar Clips</a>
+                        <a href="#errores" class="nav-item"><i class="fa-solid fa-triangle-exclamation"></i> Ayuda</a>
+                    </div>
                 </div>
                 <a href="./" class="nav-item return-home"><i class="fa-solid fa-arrow-left"></i> Volver al Panel</a>
             </nav>

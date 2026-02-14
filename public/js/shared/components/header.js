@@ -10,4 +10,3 @@ const i={render(s){const a=document.getElementById(s);if(!a)return;const n=`
                 </nav>
             </div>
         `;a.innerHTML=n,a.className="main-header fade-in"}};export{i as HeaderComponent};
-//# sourceMappingURL=header.js.map

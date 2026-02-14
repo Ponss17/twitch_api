@@ -11,4 +11,3 @@ import{AnalyticsMessages as r}from"./analytics/messages.js";import{DASHBOARD_CON
                     <span>${i.label}</span>
                 </div>
             `,e.appendChild(o)}),t.innerHTML="",t.appendChild(e)}};export{u as AnalyticsModule};
-//# sourceMappingURL=analytics.js.map

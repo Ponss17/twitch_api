@@ -97,4 +97,3 @@ import{fetchAdmin as i,logout as g,checkAuth as p}from"./auth.js";let l=null,v="
                 </td>
             </tr>
         `}).join("")}catch{e.innerHTML='<tr><td colspan="4" class="error-msg" style="display:block">Error cargando administradores</td></tr>'}};window.logout=g,console.log("Dashboard script loaded"),p(),w(),window.switchSection("overview");
-//# sourceMappingURL=dashboard.js.map
