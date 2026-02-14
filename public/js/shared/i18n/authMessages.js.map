@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../frontend/shared/i18n/authMessages.ts"],
+  "sourcesContent": ["export const AuthMessages = {\n    sessionExpired: 'Tu sesi\u00F3n ha expirado',\n    validationError: 'Error al validar sesi\u00F3n',\n    sessionError: 'Error de sesi\u00F3n. Recarga la p\u00E1gina.',\n    expiredTitle: 'Sesi\u00F3n Expirada',\n    expiredMsg: 'Tu credencial ha caducado. Por favor, inicia sesi\u00F3n de nuevo.',\n    reloginBtn: '<i class=\"fa-solid fa-right-to-bracket\"></i> Iniciar Sesi\u00F3n',\n    expired: 'Sesi\u00F3n expirada. Por favor, inicia sesi\u00F3n de nuevo.'\n};\n"],
+  "mappings": "AAAO,MAAMA,EAAe,CACxB,eAAgB,2BAChB,gBAAiB,6BACjB,aAAc,4CACd,aAAc,qBACd,WAAY,mEACZ,WAAY,iEACZ,QAAS,2DACb",
+  "names": ["AuthMessages"]
+}

@@ -1,5 +1,2 @@
-export const AnalyticsMessages = {
-    loadError: 'No se pudieron cargar las estadísticas',
-    loading: '<div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i></div>',
-    errorState: '<div class="error-state"><i class="fa-solid fa-triangle-exclamation"></i> Error cargando estadísticas</div>'
-};
+const a={loadError:"No se pudieron cargar las estad\xEDsticas",loading:'<div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i></div>',errorState:'<div class="error-state"><i class="fa-solid fa-triangle-exclamation"></i> Error cargando estad\xEDsticas</div>'};export{a as AnalyticsMessages};
+//# sourceMappingURL=messages.js.map

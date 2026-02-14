@@ -1,10 +1,2 @@
-const protocol = window.location.protocol;
-const host = window.location.host;
-const API_BASE = '/api/twitch';
-export const CONFIG = {
-    domain: host,
-    siteUrl: `${protocol}//${host}`,
-    API_URL: API_BASE,
-    twitchRedirectUri: `${protocol}//${host}/auth/twitch/callback`
-};
-Object.freeze(CONFIG);
+const o=window.location.protocol,t=window.location.host,c="/api/twitch",i={domain:t,siteUrl:`${o}//${t}`,API_URL:c,twitchRedirectUri:`${o}//${t}/auth/twitch/callback`};Object.freeze(i);export{i as CONFIG};
+//# sourceMappingURL=config.js.map

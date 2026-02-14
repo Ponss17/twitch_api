@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../frontend/shared/components/footer.ts"],
+  "sourcesContent": ["export const FooterComponent = {\n    render(containerId: string) {\n        const container = document.getElementById(containerId);\n        if (!container) return;\n\n        const year = new Date().getFullYear();\n        const origin = window.location.origin;\n        const hostname = window.location.hostname;\n\n        const html = `\n            <div class=\"footer-content\">\n                <p>&copy; ${year} <a href=\"${origin}\" target=\"_blank\" rel=\"noopener\">${hostname}</a>. Creado para la comunidad. No afiliado con Twitch o Amazon.</p>\n            </div>\n        `;\n\n        container.innerHTML = html;\n        container.classList.add('app-footer');\n    }\n};\n"],
+  "mappings": "AAAO,MAAMA,EAAkB,CAC3B,OAAOC,EAAqB,CACxB,MAAMC,EAAY,SAAS,eAAeD,CAAW,EACrD,GAAI,CAACC,EAAW,OAEhB,MAAMC,EAAO,IAAI,KAAK,EAAE,YAAY,EAC9BC,EAAS,OAAO,SAAS,OACzBC,EAAW,OAAO,SAAS,SAE3BC,EAAO;AAAA;AAAA,4BAEOH,CAAI,aAAaC,CAAM,oCAAoCC,CAAQ;AAAA;AAAA,UAIvFH,EAAU,UAAYI,EACtBJ,EAAU,UAAU,IAAI,YAAY,CACxC,CACJ",
+  "names": ["FooterComponent", "containerId", "container", "year", "origin", "hostname", "html"]
+}

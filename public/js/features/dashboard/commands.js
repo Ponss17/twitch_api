@@ -1,1 +1,2 @@
-export { CommandsModule } from './commands/module.js';
+import{CommandsModule as d}from"./commands/module.js";export{d as CommandsModule};
+//# sourceMappingURL=commands.js.map

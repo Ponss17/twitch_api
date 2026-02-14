@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../frontend/config.ts"],
+  "sourcesContent": ["const protocol = window.location.protocol;\nconst host = window.location.host;\nconst API_BASE = '/api/twitch';\n\nexport const CONFIG = {\n    domain: host,\n    siteUrl: `${protocol}//${host}`,\n    API_URL: API_BASE,\n    twitchRedirectUri: `${protocol}//${host}/auth/twitch/callback`\n};\n\nObject.freeze(CONFIG);\n"],
+  "mappings": "AAAA,MAAMA,EAAW,OAAO,SAAS,SAC3BC,EAAO,OAAO,SAAS,KACvBC,EAAW,cAEJC,EAAS,CAClB,OAAQF,EACR,QAAS,GAAGD,CAAQ,KAAKC,CAAI,GAC7B,QAASC,EACT,kBAAmB,GAAGF,CAAQ,KAAKC,CAAI,uBAC3C,EAEA,OAAO,OAAOE,CAAM",
+  "names": ["protocol", "host", "API_BASE", "CONFIG"]
+}

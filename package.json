@@ -4,7 +4,7 @@
     "description": "Project initialized.",
     "main": "api/index.ts",
     "scripts": {
-        "build:frontend": "tsc -p tsconfig.frontend.json",
+        "build:frontend": "node scripts/build-frontend.js",
         "watch:frontend": "tsc -p tsconfig.frontend.json --watch",
         "build": "npm run build:frontend && tsc",
         "postbuild": "shx cp -r public dist/public",
@@ -58,6 +58,7 @@
         "@types/supertest": "^6.0.3",
         "@typescript-eslint/eslint-plugin": "^8.54.0",
         "@typescript-eslint/parser": "^8.54.0",
+        "esbuild": "^0.27.3",
         "eslint": "^9.39.2",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.5",

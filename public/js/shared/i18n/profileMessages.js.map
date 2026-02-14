@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../frontend/shared/i18n/profileMessages.ts"],
+  "sourcesContent": ["export const ProfileMessages = {\n    partner: 'Socio',\n    affiliate: 'Afiliado',\n    user: 'Usuario',\n    created: (date: string | Date) => `Cuenta creada el: ${new Date(date).toLocaleDateString()}`,\n    new: 'Nueva',\n    years: (y: number) => `${y} a\u00F1o${y > 1 ? 's' : ''}`,\n    months: (m: number) => `${m} meses`,\n    viewLogs: '<i class=\"fa-solid fa-comment-dots\"></i> Ver \u00DAltimos Mensajes',\n    historyTitle: '<i class=\"fa-solid fa-history\"></i> Historial (Sesi\u00F3n actual)',\n    noHistory: 'No hay mensajes registrados en esta sesi\u00F3n.',\n    bioEmpty: 'Sin biograf\u00EDa disponible.',\n    labels: {\n        rank: 'Rango',\n        userId: 'ID de Usuario',\n        age: 'Antig\u00FCedad'\n    }\n};\n"],
+  "mappings": "AAAO,MAAMA,EAAkB,CAC3B,QAAS,QACT,UAAW,WACX,KAAM,UACN,QAAUC,GAAwB,qBAAqB,IAAI,KAAKA,CAAI,EAAE,mBAAmB,CAAC,GAC1F,IAAK,QACL,MAAQC,GAAc,GAAGA,CAAC,UAAOA,EAAI,EAAI,IAAM,EAAE,GACjD,OAASC,GAAc,GAAGA,CAAC,SAC3B,SAAU,mEACV,aAAc,mEACd,UAAW,iDACX,SAAU,+BACV,OAAQ,CACJ,KAAM,QACN,OAAQ,gBACR,IAAK,eACT,CACJ",
+  "names": ["ProfileMessages", "date", "y", "m"]
+}

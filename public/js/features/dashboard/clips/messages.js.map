@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../frontend/features/dashboard/clips/messages.ts"],
+  "sourcesContent": ["export const ClipsMessages = {\n    loading:\n        '<div class=\"loading\"><i class=\"fa-solid fa-spinner fa-spin\"></i> Cargando clips...</div>',\n    empty: `\n        <div class=\"empty-state\">\n            <i class=\"fa-solid fa-film\"></i>\n            <p>No hay clips recientes</p>\n        </div>\n    `,\n    loadError: '\u26A0\uFE0F Error al cargar clips'\n};\n"],
+  "mappings": "AAAO,MAAMA,EAAgB,CACzB,QACI,2FACJ,MAAO;AAAA;AAAA;AAAA;AAAA;AAAA,MAMP,UAAW,oCACf",
+  "names": ["ClipsMessages"]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../frontend/features/dashboard/commands.ts"],
+  "sourcesContent": ["export { CommandsModule } from './commands/module.js';\n"],
+  "mappings": "AAAA,OAAS,kBAAAA,MAAsB",
+  "names": ["CommandsModule"]
+}
