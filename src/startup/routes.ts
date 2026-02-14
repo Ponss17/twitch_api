@@ -9,12 +9,10 @@ import apiRouter from '../routes/index';
 import { getRobotsTxt, getSitemapXml } from '../controllers/system/seoController';
 import { errorHandler } from '../middleware/errorMiddleware';
 
-export const configureRoutes = (app: Application) => {
-    // --- VALIDACIÓN Y RATE LIMIT (PARA RUTAS DINÁMICAS) ---
-    app.use(apiKeyValidator);
-    app.use(rateLimiter);
-
+export const configurePageRoutes = (app: Application) => {
     // --- VISTAS Y RUTAS ESTATICAS (HTML) ---
+    // Estas rutas se configuran ANTES de los estáticos para evitar conflictos de carpetas (redirects 301)
+
     app.get(['/docs', '/api/twitch/docs'], (req: Request, res: Response) => {
         res.sendFile(path.join(__dirname, '../../public/docs.html'));
     });
@@ -31,12 +29,18 @@ export const configureRoutes = (app: Application) => {
         res.sendFile(path.join(__dirname, '../../public/admin/dashboard.html'));
     });
 
-    // Rutas de Admin
-    app.use(['/api/admin', '/api/twitch/admin', '/admin/api', '/admin'], adminRouter);
-
-    // SEO
+    // SEO (Servidos como páginas/archivos)
     app.get(['/robots.txt', '/api/twitch/robots.txt'], getRobotsTxt);
     app.get(['/sitemap.xml', '/api/twitch/sitemap.xml'], getSitemapXml);
+};
+
+export const configureRoutes = (app: Application) => {
+    // --- VALIDACIÓN Y RATE LIMIT (PARA RUTAS DINÁMICAS/API) ---
+    app.use(apiKeyValidator);
+    app.use(rateLimiter);
+
+    // Rutas de Admin (API)
+    app.use(['/api/admin', '/api/twitch/admin', '/admin/api', '/admin'], adminRouter);
 
     // Rutas API/Twitch
     // Usamos montajes individuales para mayor claridad en Express
