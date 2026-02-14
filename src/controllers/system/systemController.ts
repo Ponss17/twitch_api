@@ -9,7 +9,7 @@ import { logger } from '../../utils/logger';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 
-const safeString = (val: unknown): string => (typeof val === 'string' ? val : '');
+import { safeString } from '../../utils/validationHelpers';
 
 export const validateToken = async (req: AuthenticatedRequest, res: Response) => {
     const token = req.twitchToken;

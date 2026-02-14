@@ -19,9 +19,15 @@ interface AuthenticatedRequest extends Request {
 // Bola 8 Mágica
 // ==========================================
 
+import { safeString } from '../../utils/validationHelpers';
+
+// ...
+
 export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const { question, mood, user } = req.query;
+        const question = safeString(req.query.question);
+        const mood = safeString(req.query.mood);
+        const user = safeString(req.query.user);
 
         if (!question || typeof question !== 'string') {
             return res.status(400).json({
@@ -100,7 +106,8 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
 
 export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const { target, challenger } = req.query;
+        const target = safeString(req.query.target);
+        const challenger = safeString(req.query.challenger);
 
         if (!target || typeof target !== 'string') {
             return res.status(400).send('Debes especificar un oponente (@usuario)');
