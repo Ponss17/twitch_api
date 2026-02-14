@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../frontend/features/dashboard/analytics/messages.ts"],
-  "sourcesContent": ["export const AnalyticsMessages = {\n    loadError: 'No se pudieron cargar las estad\u00EDsticas',\n    loading: '<div class=\"loading-spinner\"><i class=\"fa-solid fa-spinner fa-spin\"></i></div>',\n    errorState:\n        '<div class=\"error-state\"><i class=\"fa-solid fa-triangle-exclamation\"></i> Error cargando estad\u00EDsticas</div>'\n};\n"],
-  "mappings": "AAAO,MAAMA,EAAoB,CAC7B,UAAW,4CACX,QAAS,iFACT,WACI,gHACR",
-  "names": ["AnalyticsMessages"]
-}

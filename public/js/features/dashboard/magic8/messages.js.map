@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../frontend/features/dashboard/magic8/messages.ts"],
-  "sourcesContent": ["export const Magic8Messages = {\n    emptyQuestion: '\u26A0\uFE0F Debes hacer una pregunta primero.',\n    consulting: '<i class=\"fa-solid fa-spinner fa-spin\"></i> Consultando...',\n    loading:\n        '<div class=\"magic8-loading\"><i class=\"fa-solid fa-crystal-ball fa-beat\"></i> Consultando a los esp\u00EDritus...</div>',\n    askButton: '<i class=\"fa-solid fa-play\"></i> Preguntar',\n    error: (msg: string) => `\u274C ${msg}`\n};\n"],
-  "mappings": "AAAO,MAAMA,EAAiB,CAC1B,cAAe,iDACf,WAAY,6DACZ,QACI,uHACJ,UAAW,6CACX,MAAQC,GAAgB,UAAKA,CAAG,EACpC",
-  "names": ["Magic8Messages", "msg"]
-}

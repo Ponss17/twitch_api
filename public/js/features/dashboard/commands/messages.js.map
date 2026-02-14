@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../frontend/features/dashboard/commands/messages.ts"],
-  "sourcesContent": ["export const CommandsMessages = {\n    clipResponse: (user: string, url: string) => `\uD83C\uDFAC Clip creado por ${user}: ${url}`,\n    followageResponse: 'Procesando followage...',\n    missingCreds: 'Faltan credenciales',\n    completeFields: 'Por favor, completa ambos campos.',\n    testing: '<i class=\"fa-solid fa-spinner fa-spin\"></i> Probando...',\n    connectionError:\n        '<span class=\"text-danger\"><i class=\"fa-solid fa-triangle-exclamation\"></i> Error de conexi\u00F3n</span>',\n    success: (text: string) =>\n        `<span class=\"text-success\"><i class=\"fa-solid fa-check\"></i> ${text}</span>`,\n    error: (text: string) =>\n        `<span class=\"text-danger\"><i class=\"fa-solid fa-triangle-exclamation\"></i> Error: ${text}</span>`,\n    form: {\n        customMessage: 'Mensaje Personalizado (Opcional)',\n        variables: 'Variables:',\n        selectBot: 'Selecciona tu bot:',\n        copyBtn: 'Copiar'\n    }\n};\n"],
-  "mappings": "AAAO,MAAMA,EAAmB,CAC5B,aAAc,CAACC,EAAcC,IAAgB,6BAAsBD,CAAI,KAAKC,CAAG,GAC/E,kBAAmB,0BACnB,aAAc,sBACd,eAAgB,oCAChB,QAAS,0DACT,gBACI,yGACJ,QAAUC,GACN,gEAAgEA,CAAI,UACxE,MAAQA,GACJ,qFAAqFA,CAAI,UAC7F,KAAM,CACF,cAAe,mCACf,UAAW,aACX,UAAW,qBACX,QAAS,QACb,CACJ",
-  "names": ["CommandsMessages", "user", "url", "text"]
-}

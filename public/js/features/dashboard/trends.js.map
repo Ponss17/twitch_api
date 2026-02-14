@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../frontend/features/dashboard/trends.ts"],
-  "sourcesContent": ["export { TrendsModule } from './trends/module.js';\n"],
-  "mappings": "AAAA,OAAS,gBAAAA,MAAoB",
-  "names": ["TrendsModule"]
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../frontend/features/dashboard/account/messages.ts"],
-  "sourcesContent": ["export const AccountMessages = {\n    testing: '<i class=\"fa-solid fa-spinner fa-spin\"></i> Probando conexi\u00F3n...',\n    testError: '\u26A0\uFE0F Error en la prueba de API',\n    regenerateConfirm:\n        '\u00BFGenerar una nueva API Key? La anterior dejar\u00E1 de funcionar inmediatamente.',\n    regenerateSuccess: 'Nueva API Key generada',\n    regenerateError: 'Error al generar Key',\n    loadingIcon: '<i class=\"fa-solid fa-spinner fa-spin\"></i>',\n    rotateIcon: '<i class=\"fa-solid fa-rotate\"></i>'\n};\n"],
-  "mappings": "AAAO,MAAMA,EAAkB,CAC3B,QAAS,sEACT,UAAW,yCACX,kBACI,oFACJ,kBAAmB,yBACnB,gBAAiB,uBACjB,YAAa,8CACb,WAAY,oCAChB",
-  "names": ["AccountMessages"]
-}

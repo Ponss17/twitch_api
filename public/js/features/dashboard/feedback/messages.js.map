@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../frontend/features/dashboard/feedback/messages.ts"],
-  "sourcesContent": ["export const FeedbackMessages = {\n    emptyMessage: 'Por favor, escribe un mensaje.',\n    sending: '<i class=\"fa-solid fa-circle-notch fa-spin\"></i> Enviando...',\n    defaultButton: '<i class=\"fa-solid fa-paper-plane\"></i> Enviar Feedback',\n    success: '\u00A1Feedback enviado! Gracias por tu aporte.',\n    error: 'Error al enviar. Intenta m\u00E1s tarde.',\n    connectionError: 'Error de conexi\u00F3n.'\n};\n"],
-  "mappings": "AAAO,MAAMA,EAAmB,CAC5B,aAAc,iCACd,QAAS,+DACT,cAAe,0DACf,QAAS,+CACT,MAAO,yCACP,gBAAiB,uBACrB",
-  "names": ["FeedbackMessages"]
-}
