@@ -16,6 +16,15 @@ export const errorHandler = (
         return res.status(status).send(message);
     }
 
+    if (req.accepts('html')) {
+        if (status === 404) {
+            return res.status(404).sendFile('404.html', { root: './public' });
+        }
+        return res
+            .status(status)
+            .send(`<h1>Error ${status}</h1><p>${message}</p><a href="/">Volver</a>`);
+    }
+
     res.status(status).json({
         error: true,
         status,

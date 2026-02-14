@@ -80,6 +80,11 @@ const limiter = rateLimit({
             return res.status(429).send(message);
         }
 
+        // Si es navegador, mostrar página bonita
+        if (req.accepts('html')) {
+            return res.status(429).sendFile('429.html', { root: './public' });
+        }
+
         // Para dashboard/web enviar JSON
         res.status(429).json({ error: 'Too Many Requests', message });
     },

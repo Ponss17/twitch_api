@@ -1,0 +1,67 @@
+.error-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+}
+
+.error-container {
+    text-align: center;
+    z-index: 10;
+    max-width: 600px;
+    animation: fadeInSoft 0.8s ease-out;
+}
+
+.error-code {
+    font-size: 8rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 20px;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 10px 30px rgba(145, 70, 255, 0.3);
+}
+
+.error-title {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.error-message {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+
+.floating-shapes div {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.1;
+    filter: blur(40px);
+    z-index: 1;
+    animation: float 10s infinite ease-in-out;
+}
+
+.shape-1 {
+    width: 300px;
+    height: 300px;
+    background: var(--accent);
+    top: -50px;
+    left: -50px;
+    animation-delay: 0s;
+}
+
+.shape-2 {
+    width: 400px;
+    height: 400px;
+    background: #db2777;
+    bottom: -100px;
+    right: -100px;
+    animation-delay: -5s;
+}
