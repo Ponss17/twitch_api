@@ -11,4 +11,3 @@ const l={card(){return`
                 <td><div class="skeleton-line short"></div></td>
             </tr>
         `).join("")}};export{l as Skeleton};
-//# sourceMappingURL=uiSkeleton.js.map

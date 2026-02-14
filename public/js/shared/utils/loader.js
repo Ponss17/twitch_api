@@ -1,2 +1,1 @@
 const r={loaded:new Set,loading:new Map,loadCSS(e){if(this.loaded.has(e))return Promise.resolve();if(this.loading.has(e))return this.loading.get(e);const o=new Promise((i,n)=>{const d=document.createElement("link");d.rel="stylesheet",d.href=e,d.onload=()=>{this.loaded.add(e),this.loading.delete(e),i()},d.onerror=l=>{this.loading.delete(e),this.loaded.add(e),console.warn(`[Loader] Warning: Failed to load CSS: ${e}. Proceeding without it.`),i()},document.head.appendChild(d)});return this.loading.set(e,o),o}};export{r as Loader};
-//# sourceMappingURL=loader.js.map

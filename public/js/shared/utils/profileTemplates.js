@@ -45,4 +45,3 @@ import{ProfileMessages as e}from"../i18n/profileMessages.js";import{UI as i}from
                     `).join("")}
                 </div>
             `,s+="</div>",s}};export{p as ProfileTemplates};
-//# sourceMappingURL=profileTemplates.js.map

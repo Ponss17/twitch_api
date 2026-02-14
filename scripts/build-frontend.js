@@ -38,7 +38,7 @@ async function build() {
             outdir: OUT_DIR,
             bundle: false,
             minify: true,
-            sourcemap: true,
+            sourcemap: false,
             target: ['es2020'],
             platform: 'browser',
             format: 'esm',

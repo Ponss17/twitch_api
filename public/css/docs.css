@@ -534,19 +534,27 @@ a:hover {
 }
 
 .search-container {
-    position: relative;
+    display: flex;
+    gap: 12px;
     margin-bottom: 20px;
     padding: 0 5px;
+    align-items: center;
+}
+
+.search-wrapper {
+    position: relative;
+    flex: 1;
 }
 
 .search-icon {
     position: absolute;
-    left: 20px;
+    left: 14px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-dim);
     font-size: 0.9rem;
     pointer-events: none;
+    z-index: 10;
 }
 
 #docs-search {

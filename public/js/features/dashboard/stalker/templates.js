@@ -45,4 +45,3 @@ import{StalkerMessages as e}from"./messages.js";import{UI as c}from"../../../cor
                 <td><div class="skeleton" style="width: 80px; height: 14px;"></div></td>
                 <td class="text-right"><div class="skeleton" style="width: 60px; height: 28px; border-radius: 6px;"></div></td>
             `,s.appendChild(a)}return s}};export{v as StalkerTemplates};
-//# sourceMappingURL=templates.js.map

@@ -4,4 +4,3 @@ const s={loading:'<div class="loading"><i class="fa-solid fa-spinner fa-spin"></
             <p>No hay clips recientes</p>
         </div>
     `,loadError:"\u26A0\uFE0F Error al cargar clips"};export{s as ClipsMessages};
-//# sourceMappingURL=messages.js.map

@@ -10,4 +10,3 @@ import{UI as l}from"../../../core/ui.js";const p={renderRow(r,t,e){const[a,s]=r,
                 </td>
             </tr>
         `}};export{p as TrendsTemplates};
-//# sourceMappingURL=templates.js.map

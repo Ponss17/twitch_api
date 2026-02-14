@@ -24,4 +24,3 @@ import{UIMessages as t}from"../shared/i18n/uiMessages.js";const v={setupHeroAnim
                     <span class="chat-colon">:</span>
                     <span class="chat-text">${s.cmd}</span>
                 `),await n(1500),h(s.response),i=(i+1)%r.length,i===0&&(await n(2e3),await m("/clear"),await n(500),c.innerText="",l.style.display="block",o.classList.remove("typing"),e.innerHTML=`<div class="chat-line" style="opacity:0.5"><span class="chat-text">${t.ChatSim.welcome}</span></div>`,await n(1e3))}})()}};export{v as LandingUI};
-//# sourceMappingURL=ui-landing.js.map

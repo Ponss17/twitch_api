@@ -59,11 +59,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
+            const subSections = document.querySelectorAll('.nav-subsection');
+            subSections.forEach((sub) => {
+                const visibleItems = sub.querySelectorAll('.nav-item[style*="display: flex"]');
+                const hasVisible = visibleItems.length > 0;
+                (sub as HTMLElement).style.display = hasVisible ? 'block' : 'none';
+            });
+
             if (!query) {
                 sections.forEach((s) => ((s as HTMLElement).style.display = 'block'));
                 document
                     .querySelectorAll('.nav-item')
                     .forEach((n) => ((n as HTMLElement).style.display = 'flex'));
+                document
+                    .querySelectorAll('.nav-subsection')
+                    .forEach((n) => ((n as HTMLElement).style.display = 'block'));
             }
         });
     }

@@ -60,4 +60,3 @@ import{CommandsMessages as a}from"./messages.js";const r={generateCard(e){let l=
                 </div>
             </div>
         </div>`}};export{r as CommandTemplates};
-//# sourceMappingURL=templates.js.map

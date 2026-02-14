@@ -7,4 +7,3 @@ const r={title:a=>`Tendencias de ${a}`,noTmi:"TMI.js no cargado"},e={connected:'
             </td>
         </tr>
     `};export{e as TrackerMessages,r as TrendsMessages};
-//# sourceMappingURL=messages.js.map
