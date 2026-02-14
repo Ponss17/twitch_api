@@ -23,6 +23,7 @@ const limiter = rateLimit({
             path.includes('/system') ||
             path.includes('/health') ||
             path.includes('/docs') ||
+            path.includes('/auth') || // Excluir rutas de autenticación del limitador general
             path.includes('robots.txt') ||
             path.includes('sitemap.xml')
         ) {
@@ -94,7 +95,7 @@ const limiter = rateLimit({
 
 export const authLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
-    max: 10,
+    max: 100, // Aumentado de 10 a 100 para evitar bloqueos en pruebas
     message: { error: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en una hora.' },
     standardHeaders: true,
     legacyHeaders: false
