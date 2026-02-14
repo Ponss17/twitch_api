@@ -35,7 +35,9 @@ export const isPublicRoute = (path: string): boolean => {
         cleanPath.includes('/dashboard') ||
         cleanPath.includes('/minigames') ||
         cleanPath.includes('/admin') ||
-        cleanPath.includes('/system') // System validation endpoint might need to be open?
+        // Only specific system routes should be loose, typically validation or public info
+        // regenerate-key and feedback should stay protected/limited
+        cleanPath === '/system/validate'
     ) {
         return true;
     }

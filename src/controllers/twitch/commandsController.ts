@@ -7,7 +7,7 @@ import { MESSAGES } from '../../config/messages';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 
-const safeString = (val: unknown): string => (typeof val === 'string' ? val : '');
+import { safeString } from '../../utils/validationHelpers';
 
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     const channel = safeString(req.query.channel);
