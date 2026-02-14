@@ -8,6 +8,10 @@ export const set = async (key: string, value: unknown, ttlSeconds: number = 60):
     await kv.set(key, value, { ex: ttlSeconds });
 };
 
+export const del = async (key: string): Promise<void> => {
+    await kv.del(key);
+};
+
 export const getCachedUserId = async (username: string): Promise<string | null> => {
     const value = await get(`cache:userId:${username.toLowerCase()}`);
     return typeof value === 'string' ? value : null;

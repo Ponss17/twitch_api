@@ -75,9 +75,24 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         return res.status(400).send(MESSAGES.COMMANDS.MISSING_PARAMS);
     }
 
-    const cacheKey = `cache:cmd:followage:channel:${channel}:user:${user}`;
+    // Use v2 cache key to avoid conflicts with old string-only cache
+    const cacheKey = `cache:cmd:followage:v2:channel:${channel}:user:${user}`;
     const cached = await cacheService.get(cacheKey);
-    if (cached) return res.send(cached);
+
+    if (cached && typeof cached === 'string') {
+        // Cached value is expected to be a JSON string of { text, timePhrase }
+        try {
+            const result = JSON.parse(cached);
+            const template = req.query.template as string;
+            if (template && result.timePhrase) {
+                return res.send(template.replace('{time}', result.timePhrase).replace('{user}', user).replace('{channel}', channel));
+            }
+            return res.send(result.text);
+        } catch (e) {
+            // Fallback if cache is corrupted or in old format (shouldn't happen with v2 key)
+            cacheService.del(cacheKey);
+        }
+    }
 
     let attempts = 0;
     const maxAttempts = 2;
@@ -86,7 +101,9 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         attempts++;
         try {
             const result = await apiService.getFollowAge(channel, user, token || '');
-            await cacheService.set(cacheKey, result, 60);
+
+            // Cache the full object
+            await cacheService.set(cacheKey, JSON.stringify(result), 60);
 
             if (userId) {
                 await dbService.incrementUserStats(userId, 'followage');
@@ -95,12 +112,12 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             const template = req.query.template as string;
             if (template) {
                 const message = template
-                    .replace('{time}', result)
+                    .replace('{time}', result.timePhrase)
                     .replace('{user}', user)
                     .replace('{channel}', channel);
                 return res.send(message);
             } else {
-                return res.send(result);
+                return res.send(result.text);
             }
         } catch (error: unknown) {
             const is401 = error instanceof Error && error.message.includes('401');
@@ -125,10 +142,10 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 error:
                     error instanceof Error
                         ? {
-                              message: error.message,
-                              stack: error.stack,
-                              name: error.name
-                          }
+                            message: error.message,
+                            stack: error.stack,
+                            name: error.name
+                        }
                         : error,
                 timestamp: new Date().toISOString()
             });

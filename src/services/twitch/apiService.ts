@@ -137,7 +137,7 @@ export const getFollowAge = async (
     channel: string,
     user: string,
     token: string
-): Promise<string> => {
+): Promise<{ text: string; timePhrase: string }> => {
     try {
         const [channelId, userId] = await Promise.all([
             getUserId(channel, token),
@@ -154,7 +154,10 @@ export const getFollowAge = async (
         });
 
         if (followRes.data.data.length === 0) {
-            return `${user} no sigue a ${channel}.`;
+            return {
+                text: `${user} no sigue a ${channel}.`,
+                timePhrase: 'no sigue'
+            };
         }
 
         const followDate = new Date(followRes.data.data[0].followed_at);
@@ -179,15 +182,21 @@ export const getFollowAge = async (
         if (parts.segundos > 0 || timeString.length === 0)
             timeString.push(`${parts.segundos} segundos`);
 
-        const finalString =
+        const timePhrase =
             timeString.length > 1
                 ? timeString.slice(0, -1).join(', ') + ' y ' + timeString.slice(-1)
                 : timeString[0];
 
-        return `${user} ha seguido a ${channel} por ${finalString}.`;
+        return {
+            text: `${user} ha seguido a ${channel} por ${timePhrase}.`,
+            timePhrase
+        };
     } catch (error: unknown) {
         const err = error as TwitchError;
-        if (err.status === 404) return err.message || 'Usuario no encontrado';
+        const msg = err.status === 404 ? err.message || 'Usuario no encontrado' : 'Error desconocido';
+        if (err.status === 404) {
+            return { text: msg, timePhrase: 'error' };
+        }
         throw error;
     }
 };
