@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.addEventListener('input', (e) => {
             const target = e.target;
             const query = target.value.toLowerCase();
-            let foundAny = false;
             sections.forEach((section) => {
                 const text = section.textContent?.toLowerCase() || '';
                 const id = section.getAttribute('id');
@@ -40,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     section.style.display = 'block';
                     if (navItem)
                         navItem.style.display = 'flex';
-                    foundAny = true;
                 }
                 else {
                     section.style.display = 'none';
@@ -50,7 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (!query) {
                 sections.forEach((s) => (s.style.display = 'block'));
-                document.querySelectorAll('.nav-item').forEach((n) => (n.style.display = 'flex'));
+                document
+                    .querySelectorAll('.nav-item')
+                    .forEach((n) => (n.style.display = 'flex'));
             }
         });
     }
@@ -131,7 +131,9 @@ document.addEventListener('DOMContentLoaded', () => {
             targetTab.classList.add('active');
         const activeFormatBtn = container.querySelector('.format-btn.active');
         const currentFormat = activeFormatBtn
-            ? (activeFormatBtn.textContent?.trim() === 'Chat' ? 'chat' : 'dashboard')
+            ? activeFormatBtn.textContent?.trim() === 'Chat'
+                ? 'chat'
+                : 'dashboard'
             : 'dashboard';
         updateCodeBlock(container, currentFormat);
     };
@@ -148,12 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 2000);
         });
     };
-    const updateUrls = () => {
-        document.querySelectorAll('.code-tab-container').forEach((container) => {
-            updateCodeBlock(container, 'dashboard');
-        });
-    };
     setTimeout(() => {
-        document.querySelectorAll('.code-tab-container').forEach((c) => updateCodeBlock(c, 'chat'));
+        document
+            .querySelectorAll('.code-tab-container')
+            .forEach((c) => updateCodeBlock(c, 'chat'));
     }, 100);
 });
