@@ -32,13 +32,15 @@
 
 ## 🏗️ Stack Tecnológico
 
-| Capa             | Tecnologías                                                      |
-| :--------------- | :--------------------------------------------------------------- |
-| **Backend**      | Node.js, Express, TypeScript                                     |
-| **Persistencia** | Vercel KV (Redis) para caché y estadísticas                      |
-| **Frontend**     | Vanilla JS (Modular/ES6), CSS3 Custom Properties, FontAwesome    |
-| **Seguridad**    | OAuth2 (Twitch), Encriptación AES-256, Helmet CSP, Rate Limiting |
-| **IA**           | Groq SDK (LLM integration)                                       |
+| Capa             | Tecnologías                                     |
+| :--------------- | :---------------------------------------------- |
+| **Backend**      | Node.js, Express, TypeScript                    |
+| **Frontend**     | TypeScript (Modular), Vanilla CSS3, FontAwesome |
+| **Persistencia** | Vercel KV (Redis) para caché y estadísticas     |
+| **Testing**      | Jest, Supertest, TS-Jest                        |
+| **Calidad**      | ESLint, Prettier, Husky                         |
+| **Seguridad**    | OAuth2, AES-256, Helmet CSP, Rate Limiting      |
+| **IA**           | Groq SDK (LLM integration)                      |
 
 ---
 
@@ -48,6 +50,7 @@
 /
 ├── frontend/        # Código fuente TypeScript del Dashboard
 ├── src/             # Backend: Lógica de negocio y API
+├── tests/           # Unit & Integration Tests (Jest)
 ├── public/          # Build: Assets estáticos y JS compilado
 ├── api/             # Entry point para despliegue
 ```
@@ -62,15 +65,14 @@
 
 ---
 
-## 📊 Métricas del Proyecto
-
-| Categoría                       | Líneas (aprox) |
-| :------------------------------ | :------------- |
-| **Backend (src)**               | ~1,350         |
-| **Frontend (logic)**            | ~4,100         |
-| **Diseño (CSS)**                | ~3,300         |
-| **Estructura (HTML)**           | ~750           |
-| **Puntaje Total Fuente (SLOC)** | **~9,700**     |
+| Categoría                       | Líneas de Código |
+| :------------------------------ | :--------------- |
+| **Backend (src)**               | 2,372            |
+| **Frontend (logic)**            | 4,714            |
+| **Diseño (CSS)**                | 3,941            |
+| **Tests (Jest)**                | 172              |
+| **Estructura (HTML)**           | 2,046            |
+| **Puntaje Total Fuente (SLOC)** | **13,245**       |
 
 > [!NOTE]
 > El proyecto tiene una huella total de **~22,400 líneas** incluyendo compilados y dependencias, pero el núcleo original desarrollado es de aproximadamente **10k líneas**.
