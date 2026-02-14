@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../frontend/features/dashboard/duel.ts"],
-  "sourcesContent": ["export { DuelModule } from './duel/module.js';\n"],
-  "mappings": "AAAA,OAAS,cAAAA,MAAkB",
-  "names": ["DuelModule"]
-}

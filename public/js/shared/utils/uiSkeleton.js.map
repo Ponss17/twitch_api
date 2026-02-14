@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../frontend/shared/utils/uiSkeleton.ts"],
-  "sourcesContent": ["export const Skeleton = {\n    card() {\n        return `\n            <div class=\"skeleton-card\">\n                <div class=\"skeleton-header\"></div>\n                <div class=\"skeleton-line\"></div>\n                <div class=\"skeleton-line short\"></div>\n            </div>\n        `;\n    },\n\n    list(count = 3) {\n        return Array(count).fill(this.card()).join('');\n    },\n\n    table(rows = 5) {\n        const row = `\n            <tr class=\"skeleton-row\">\n                <td><div class=\"skeleton-line\"></div></td>\n                <td><div class=\"skeleton-line\"></div></td>\n                <td><div class=\"skeleton-line short\"></div></td>\n            </tr>\n        `;\n        return Array(rows).fill(row).join('');\n    }\n};\n"],
-  "mappings": "AAAO,MAAMA,EAAW,CACpB,MAAO,CACH,MAAO;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,SAOX,EAEA,KAAKC,EAAQ,EAAG,CACZ,OAAO,MAAMA,CAAK,EAAE,KAAK,KAAK,KAAK,CAAC,EAAE,KAAK,EAAE,CACjD,EAEA,MAAMC,EAAO,EAAG,CAQZ,OAAO,MAAMA,CAAI,EAAE,KAPP;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,SAOe,EAAE,KAAK,EAAE,CACxC,CACJ",
-  "names": ["Skeleton", "count", "rows"]
-}
