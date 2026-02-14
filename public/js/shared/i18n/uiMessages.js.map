@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../frontend/shared/i18n/uiMessages.ts"],
+  "sourcesContent": ["export const UIMessages = {\n    Clipboard: {\n        copied: '\u00A1Copiado!',\n        error: 'Error al copiar'\n    },\n    ChatSim: {\n        welcome: '\u00A1Bienvenido al chat!',\n        placeholder: 'Enviar un mensaje',\n        btnText: 'Chat',\n        followage: (user: string, channel: string, time: string) =>\n            `@${user} sigue a @${channel} desde hace ${time}.`,\n        clip: (user: string, url: string) =>\n            `\uD83C\uDFAC Clip creado por <span style=\"color:#FF69B4\">@${user}</span>: ${url}`,\n        shoutout: (user: string, game: string) =>\n            `\u00A1Vayan a seguir a <span style=\"color:#bf94ff\">@${user}</span>! Estaba jugando ${game}`\n    }\n};\n"],
+  "mappings": "AAAO,MAAMA,EAAa,CACtB,UAAW,CACP,OAAQ,eACR,MAAO,iBACX,EACA,QAAS,CACL,QAAS,0BACT,YAAa,oBACb,QAAS,OACT,UAAW,CAACC,EAAcC,EAAiBC,IACvC,IAAIF,CAAI,aAAaC,CAAO,eAAeC,CAAI,IACnD,KAAM,CAACF,EAAcG,IACjB,0DAAmDH,CAAI,YAAYG,CAAG,GAC1E,SAAU,CAACH,EAAcI,IACrB,qDAAkDJ,CAAI,2BAA2BI,CAAI,EAC7F,CACJ",
+  "names": ["UIMessages", "user", "channel", "time", "url", "game"]
+}

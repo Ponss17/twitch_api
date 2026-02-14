@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../frontend/features/dashboard/roulette/messages.ts"],
+  "sourcesContent": ["export const RouletteMessages = {\n    updated: '<i class=\"fa-solid fa-check\"></i> Lista actualizada',\n    updatedRaw: 'Lista actualizada',\n    noParticipants: 'No hay participantes',\n    emptyWheel: 'Sin participantes',\n    winner: (name: string, count: number) =>\n        `\uD83D\uDC51 Ganador: <strong>\"${name}\"</strong> <span style=\"font-size:0.9em; opacity:0.8\">(${count})</span>`,\n    open: '<i class=\"fa-solid fa-door-open\"></i> Inscripciones Abiertas',\n    openRaw: 'Inscripciones Abiertas',\n    closed: '<i class=\"fa-solid fa-door-closed\"></i> Inscripciones Cerradas',\n    closedRaw: 'Inscripciones Cerradas',\n    playToOpen: 'Dale al Play \u25B6\uFE0F para abrir'\n};\n"],
+  "mappings": "AAAO,MAAMA,EAAmB,CAC5B,QAAS,sDACT,WAAY,oBACZ,eAAgB,uBAChB,WAAY,oBACZ,OAAQ,CAACC,EAAcC,IACnB,+BAAwBD,CAAI,0DAA0DC,CAAK,WAC/F,KAAM,+DACN,QAAS,yBACT,OAAQ,iEACR,UAAW,yBACX,WAAY,sCAChB",
+  "names": ["RouletteMessages", "name", "count"]
+}

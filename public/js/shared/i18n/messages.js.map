@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../frontend/shared/i18n/messages.ts"],
+  "sourcesContent": ["export const Messages = {\n    Common: {\n        loading: '<i class=\"fa-solid fa-spinner fa-spin\"></i> Cargando...',\n        error: (msg: string) =>\n            `<div class=\"error-msg\"><i class=\"fa-solid fa-triangle-exclamation\"></i> ${msg}</div>`,\n        networkError: 'Error de conexi\u00F3n',\n        sessionExpiredMsg: 'Tu sesi\u00F3n ha expirado. Por favor, inicia sesi\u00F3n de nuevo.',\n        errorLoadingUI: (msg: string) => `Error cargando interfaz: ${msg}`,\n        viewBtn: '<i class=\"fa-solid fa-eye\"></i> Ver',\n        saveBtn: '<i class=\"fa-solid fa-save\"></i> Guardar',\n        cancelBtn: '<i class=\"fa-solid fa-xmark\"></i> Cancelar',\n        connectionError: 'Error de conexi\u00F3n',\n        welcome: (name: string) => `Bienvenido, ${name}`\n    }\n};\n"],
+  "mappings": "AAAO,MAAMA,EAAW,CACpB,OAAQ,CACJ,QAAS,0DACT,MAAQC,GACJ,2EAA2EA,CAAG,SAClF,aAAc,uBACd,kBAAmB,kEACnB,eAAiBA,GAAgB,4BAA4BA,CAAG,GAChE,QAAS,sCACT,QAAS,2CACT,UAAW,6CACX,gBAAiB,uBACjB,QAAUC,GAAiB,eAAeA,CAAI,EAClD,CACJ",
+  "names": ["Messages", "msg", "name"]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../frontend/shared/components/header.ts"],
+  "sourcesContent": ["export const HeaderComponent = {\n    render(containerId: string) {\n        const container = document.getElementById(containerId);\n        if (!container) return;\n\n        const html = `\n            <div class=\"container\">\n                <div class=\"logo-container\">\n                    <img src=\"img/LosPerris-minimal.webp\" alt=\"Logo\" class=\"logo-img\" loading=\"lazy\">\n                    <h1 class=\"brand-logo\">LosPerris <span class=\"accent-text\">Twitch Api</span></h1>\n                </div>\n                <nav class=\"top-nav\">\n                    <a href=\"docs\" class=\"nav-link\"><i class=\"fa-solid fa-book\"></i> Documentaci\u00F3n</a>\n                    <a href=\"https://discord.gg/8uN3qY5E\" target=\"_blank\" class=\"nav-link\"><i class=\"fa-brands fa-discord\"></i> Comunidad</a>\n                </nav>\n            </div>\n        `;\n\n        container.innerHTML = html;\n        container.className = 'main-header fade-in';\n    }\n};\n"],
+  "mappings": "AAAO,MAAMA,EAAkB,CAC3B,OAAOC,EAAqB,CACxB,MAAMC,EAAY,SAAS,eAAeD,CAAW,EACrD,GAAI,CAACC,EAAW,OAEhB,MAAMC,EAAO;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,UAabD,EAAU,UAAYC,EACtBD,EAAU,UAAY,qBAC1B,CACJ",
+  "names": ["HeaderComponent", "containerId", "container", "html"]
+}

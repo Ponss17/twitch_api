@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../frontend/features/dashboard/stalker.ts"],
+  "sourcesContent": ["export { StalkerModule } from './stalker/module.js';\n"],
+  "mappings": "AAAA,OAAS,iBAAAA,MAAqB",
+  "names": ["StalkerModule"]
+}

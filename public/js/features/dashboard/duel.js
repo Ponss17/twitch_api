@@ -1,1 +1,2 @@
-export { DuelModule } from './duel/module.js';
+import{DuelModule as l}from"./duel/module.js";export{l as DuelModule};
+//# sourceMappingURL=duel.js.map

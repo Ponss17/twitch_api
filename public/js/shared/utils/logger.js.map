@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../frontend/shared/utils/logger.ts"],
+  "sourcesContent": ["export const Logger = {\n    log(...args: unknown[]) {\n        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {\n            console.log(...args);\n        }\n    },\n\n    warn(...args: unknown[]) {\n        console.warn(...args);\n    },\n\n    error(...args: unknown[]) {\n        console.error(...args);\n    }\n};\n"],
+  "mappings": "AAAO,MAAMA,EAAS,CAClB,OAAOC,EAAiB,CAChB,OAAO,OAAW,KAAe,OAAO,SAAS,WAAa,aAC9D,QAAQ,IAAI,GAAGA,CAAI,CAE3B,EAEA,QAAQA,EAAiB,CACrB,QAAQ,KAAK,GAAGA,CAAI,CACxB,EAEA,SAASA,EAAiB,CACtB,QAAQ,MAAM,GAAGA,CAAI,CACzB,CACJ",
+  "names": ["Logger", "args"]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../frontend/features/dashboard/duel/messages.ts"],
+  "sourcesContent": ["export const DuelMessages = {\n    emptyTarget: '\u26A0\uFE0F Debes especificar un oponente.',\n    fighting: '<i class=\"fa-solid fa-spinner fa-spin\"></i> Peleando...',\n    loading:\n        '<div class=\"duel-loading\"><i class=\"fa-solid fa-khanda fa-shake\"></i> Calculando ganador...</div>',\n    fightButton: '<i class=\"fa-solid fa-gavel\"></i> \u00A1DUELO!',\n    error: (msg: string) => `\u274C ${msg}`\n};\n"],
+  "mappings": "AAAO,MAAMA,EAAe,CACxB,YAAa,8CACb,SAAU,0DACV,QACI,oGACJ,YAAa,+CACb,MAAQC,GAAgB,UAAKA,CAAG,EACpC",
+  "names": ["DuelMessages", "msg"]
+}
