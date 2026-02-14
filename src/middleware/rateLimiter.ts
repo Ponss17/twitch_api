@@ -37,7 +37,7 @@ const limiter = rateLimit({
         if (req.res?.locals && req.res.locals.apiUser) {
             return (req.query.apiKey as string) || req.res.locals.apiUser.userId;
         }
-        // Use ipKeyGenerator for proper IPv6 handling in express-rate-limit v8
+        // Usar ipKeyGenerator para manejo correcto de IPv6 en express-rate-limit v8
         return ipKeyGenerator(req.ip || 'unknown');
     },
     handler: (req: Request, res: Response) => {
