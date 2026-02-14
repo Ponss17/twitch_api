@@ -16,5 +16,6 @@ module.exports = {
         '^@vercel/kv$': '<rootDir>/tests/__mocks__/@vercel/kv.ts'
     },
     setupFiles: ['<rootDir>/tests/setup.ts'],
+    modulePathIgnorePatterns: ['<rootDir>/dist/'],
     verbose: true
 };
