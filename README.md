@@ -48,11 +48,32 @@
 
 ```text
 /
-├── frontend/        # Código fuente TypeScript del Dashboard
-├── src/             # Backend: Lógica de negocio y API
-├── tests/           # Unit & Integration Tests (Jest)
-├── public/          # Build: Assets estáticos y JS compilado
-├── api/             # Entry point para despliegue
+├── 📂 src/                  # 🧠 Backend (Node.js + Express)
+│   ├── startup/             #    ├── 🏗️ Bootstrapping (Routes, Static, Middleware)
+│   ├── controllers/         #    ├── 🎮 Controllers (Twitch, System, Games)
+│   ├── routes/              #    ├── 🛣️ Routes (Modular Definition)
+│   ├── services/            #    ├── ⚡ Services (Business Logic)
+│   ├── middleware/          #    ├── 🛡️ Middleware (Auth, RateLimit, Logs)
+│   ├── config/              #    └── ⚙️ Config (Env, Constants)
+│   └── app.ts               #    └── 🏁 Entry Point (App Orchestrator)
+│
+├── 📂 frontend/             # 🎨 Frontend (Vanilla TypeScript)
+│   ├── features/            #    ├── 🧩 Features (Dashboard, Games, Tools)
+│   ├── core/                #    ├── ⚛️ Core (Authentication, Router)
+│   └── shared/              #    └── 🛠️ Shared (Utils, Types, UI)
+│
+├── 📂 public/               # 🌍 Public Assets (Production Build)
+│   ├── css/                 #    ├── 🎨 Styles (Variables, Modules)
+│   ├── js/                  #    ├── 📜 Compiled JavaScript
+│   └── img/                 #    └── 🖼️ Images & Branding
+│
+├── 📂 tests/                # 🧪 Testing (Jest)
+│   ├── infrastructure/      #    ├── 🏗️ Infra Tests (DB, Cache)
+│   └── middleware/          #    └── 🛡️ Middleware Tests
+│
+├── 📄 api/                  # 🚀 Serverless Entry (Vercel)
+├── 📄 vercel.json           # ☁️ Deployment Config
+└── 📄 package.json          # 📦 Dependencies
 ```
 
 ---
