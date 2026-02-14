@@ -1,8 +1,3 @@
-/**
- * Centralized logic to determine if a route is public, static, or system-related.
- * Used by Rate Limiters, API Validators, and Middleware to prevent accidental blocks.
- */
-
 export const isStaticAsset = (path: string): boolean => {
     return /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json|webp)$/i.test(path);
 };

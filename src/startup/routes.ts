@@ -31,25 +31,25 @@ export const configureRoutes = (app: Application) => {
         res.sendFile(path.join(__dirname, '../../public/admin/dashboard.html'));
     });
 
-    // Admin Router
+    // Rutas de Admin
     app.use(['/api/admin', '/api/twitch/admin', '/admin/api', '/admin'], adminRouter);
 
     // SEO
     app.get(['/robots.txt', '/api/twitch/robots.txt'], getRobotsTxt);
     app.get(['/sitemap.xml', '/api/twitch/sitemap.xml'], getSitemapXml);
 
-    // API/Twitch Routes
+    // Rutas API/Twitch
     // Usamos montajes individuales para mayor claridad en Express
     app.use('/auth', authLimiter, authRoutes);
     app.use('/api/twitch/auth', authLimiter, authRoutes);
     app.use('/twitch/auth', authLimiter, authRoutes);
 
-    // Main API Router (Aggregates games, commands, dashboard, system)
+    // Router API Principal (Agrega juegos, comandos, dashboard, sistema)
     app.use('/api/twitch', apiRouter);
     app.use('/twitch', apiRouter);
     app.use('/', apiRouter);
 
-    // Health Check
+    // Verificación de Estado (Health Check)
     app.get(['/health', '/api/twitch/health'], (req: Request, res: Response) => {
         const isConfigured = !!(CONFIG.TWITCH_CLIENT_ID && CONFIG.TWITCH_CLIENT_SECRET);
         res.json({
@@ -60,10 +60,10 @@ export const configureRoutes = (app: Application) => {
         });
     });
 
-    // Error Handling (Must be last)
+    // Manejo de Errores (Debe ser el último)
     app.use(errorHandler);
 
-    // 404 Handler - HTML Support
+    // Manejador 404 - Soporte HTML
     app.use((req: Request, res: Response) => {
         const message = 'Error 404: La ruta especificada no existe.';
         if (req.accepts('html')) {
