@@ -193,7 +193,8 @@ export const getFollowAge = async (
         };
     } catch (error: unknown) {
         const err = error as TwitchError;
-        const msg = err.status === 404 ? err.message || 'Usuario no encontrado' : 'Error desconocido';
+        const msg =
+            err.status === 404 ? err.message || 'Usuario no encontrado' : 'Error desconocido';
         if (err.status === 404) {
             return { text: msg, timePhrase: 'error' };
         }

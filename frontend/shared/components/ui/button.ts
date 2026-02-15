@@ -1,4 +1,3 @@
-
 export class AppButton extends HTMLElement {
     static get observedAttributes() {
         return ['variant', 'size', 'icon', 'loading', 'disabled', 'type'];
@@ -50,7 +49,7 @@ export class AppButton extends HTMLElement {
         if (size === 'lg') sizeClass = 'btn-large';
 
         this.button.className = `${btnClass} ${sizeClass} app-button`;
-        this.button.type = (type as 'button' | 'submit' | 'reset');
+        this.button.type = type as 'button' | 'submit' | 'reset';
         this.button.disabled = disabled || loading;
 
         const existingIcon = this.button.querySelector('i');
