@@ -37,7 +37,7 @@ async function build() {
             entryPoints: entryPoints,
             outdir: OUT_DIR,
             bundle: false,
-            minify: true,
+            minify: false,
             sourcemap: false,
             target: ['es2020'],
             platform: 'browser',
