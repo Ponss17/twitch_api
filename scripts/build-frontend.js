@@ -9,7 +9,7 @@ function getEntryPoints(dir) {
     let entries = [];
     const list = fs.readdirSync(dir);
 
-    list.forEach(file => {
+    list.forEach((file) => {
         const filePath = path.join(dir, file);
         const stat = fs.statSync(filePath);
 
@@ -41,7 +41,7 @@ async function build() {
             sourcemap: false,
             target: ['es2020'],
             platform: 'browser',
-            format: 'esm',
+            format: 'esm'
         });
 
         console.log('✅ Build completado exitosamente en public/js/');

@@ -76,8 +76,9 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
                 } else {
                     return res.send(result.message);
                 }
-            } catch (error: any) {
-                const is401 = error?.message?.includes('401') || error?.status === 401;
+            } catch (error: unknown) {
+                const err = error as any;
+                const is401 = err?.message?.includes('401') || err?.status === 401;
 
                 if (is401 && apiKey && attempts < maxAttempts) {
                     logger.warn(`[RUSSIAN] 401 detected (attempt ${attempts}), refreshing...`);

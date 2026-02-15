@@ -85,10 +85,15 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             const result = JSON.parse(cached);
             const template = req.query.template as string;
             if (template && result.timePhrase) {
-                return res.send(template.replace('{time}', result.timePhrase).replace('{user}', user).replace('{channel}', channel));
+                return res.send(
+                    template
+                        .replace('{time}', result.timePhrase)
+                        .replace('{user}', user)
+                        .replace('{channel}', channel)
+                );
             }
             return res.send(result.text);
-        } catch (e) {
+        } catch (_e) {
             // Fallback if cache is corrupted or in old format (shouldn't happen with v2 key)
             cacheService.del(cacheKey);
         }
@@ -142,10 +147,10 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 error:
                     error instanceof Error
                         ? {
-                            message: error.message,
-                            stack: error.stack,
-                            name: error.name
-                        }
+                              message: error.message,
+                              stack: error.stack,
+                              name: error.name
+                          }
                         : error,
                 timestamp: new Date().toISOString()
             });
