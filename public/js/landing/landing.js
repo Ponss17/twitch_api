@@ -1,1 +1,46 @@
-import{Auth as a}from"../core/auth.js";import{LandingUI as r}from"./ui-landing.js";import{HeaderComponent as i}from"../shared/components/header.js";import{FooterComponent as c}from"../shared/components/footer.js";function d(){const o=document.querySelectorAll(".faq-item");o.forEach(e=>{e.querySelector(".faq-question")?.addEventListener("click",()=>{const n=e.classList.contains("active");o.forEach(t=>{t!==e&&t.classList.remove("active")}),n?e.classList.remove("active"):e.classList.add("active")})})}document.addEventListener("DOMContentLoaded",async()=>{a.setupLoginButton("login-btn");const o=document.getElementById("hero-code-display");o&&r.setupHeroAnimation(o),i.render("main-header"),c.render("main-footer"),d();const e=document.getElementById("main-header"),s=()=>{window.scrollY>50?e?.classList.add("scrolled"):e?.classList.remove("scrolled")};window.addEventListener("scroll",s),s();const n=a.parseUrlParams();if(n.token||n.apiKey){const t=window.location.search;window.location.href=t?`./dashboard${t}`:"./dashboard"}});
+import { Auth } from "../core/auth.js";
+import { LandingUI } from "./ui-landing.js";
+import { HeaderComponent } from "../shared/components/header.js";
+import { FooterComponent } from "../shared/components/footer.js";
+function setupFAQ() {
+  const faqItems = document.querySelectorAll(".faq-item");
+  faqItems.forEach((item) => {
+    const question = item.querySelector(".faq-question");
+    question?.addEventListener("click", () => {
+      const isActive = item.classList.contains("active");
+      faqItems.forEach((otherItem) => {
+        if (otherItem !== item) {
+          otherItem.classList.remove("active");
+        }
+      });
+      if (isActive) {
+        item.classList.remove("active");
+      } else {
+        item.classList.add("active");
+      }
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded", async () => {
+  Auth.setupLoginButton("login-btn");
+  const heroCode = document.getElementById("hero-code-display");
+  if (heroCode) LandingUI.setupHeroAnimation(heroCode);
+  HeaderComponent.render("main-header");
+  FooterComponent.render("main-footer");
+  setupFAQ();
+  const header = document.getElementById("main-header");
+  const handleScroll = () => {
+    if (window.scrollY > 50) {
+      header?.classList.add("scrolled");
+    } else {
+      header?.classList.remove("scrolled");
+    }
+  };
+  window.addEventListener("scroll", handleScroll);
+  handleScroll();
+  const sessionParams = Auth.parseUrlParams();
+  if (sessionParams.token || sessionParams.apiKey) {
+    const query = window.location.search;
+    window.location.href = query ? `./dashboard${query}` : "./dashboard";
+  }
+});

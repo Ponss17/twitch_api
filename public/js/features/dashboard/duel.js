@@ -1,1 +1,4 @@
-import{DuelModule as l}from"./duel/module.js";export{l as DuelModule};
+import { DuelModule } from "./duel/module.js";
+export {
+  DuelModule
+};

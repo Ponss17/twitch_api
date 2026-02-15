@@ -1,1 +1,4 @@
-import{StalkerModule as r}from"./stalker/module.js";export{r as StalkerModule};
+import { StalkerModule } from "./stalker/module.js";
+export {
+  StalkerModule
+};

@@ -1,1 +1,45 @@
-const e={masks:{apiKey:"**************",token:"**************"},bots:{nightbot:{urlfetch:t=>`$(urlfetch ${t})`,arg:t=>t==="user"?"$(touser)":t==="query"?"$(querystring)":`$(${t})`},streamelements:{urlfetch:t=>`$(customapi ${t})`,arg:t=>`\${${t}}`},fossabot:{urlfetch:t=>`$(customapi ${t})`,arg:t=>t==="user"?"{{user.name}}":`{{${t}}}`},wizebot:{urlfetch:t=>`$(urlfetch ${t})`,arg:t=>`$(arg_${t==="user"?"1":t})`}},generate(t,s,r){const i=this.bots[t]||this.bots.nightbot,n=`${s}?${r}`;return i.urlfetch(n)},maskSecrets(t,s={}){let r=t;return s.apiKey&&(r=r.split(s.apiKey).join(this.masks.apiKey)),s.token&&(r=r.split(s.token).join(this.masks.token)),r}};export{e as CommandGenerator};
+const CommandGenerator = {
+  masks: {
+    apiKey: "**************",
+    token: "**************"
+  },
+  bots: {
+    nightbot: {
+      urlfetch: (url) => `$(urlfetch ${url})`,
+      arg: (name) => {
+        if (name === "user") return "$(touser)";
+        if (name === "query") return "$(querystring)";
+        return `$(${name})`;
+      }
+    },
+    streamelements: {
+      urlfetch: (url) => `$(customapi ${url})`,
+      arg: (name) => `\${${name}}`
+    },
+    fossabot: {
+      urlfetch: (url) => `$(customapi ${url})`,
+      arg: (name) => {
+        if (name === "user") return "{{user.name}}";
+        return `{{${name}}}`;
+      }
+    },
+    wizebot: {
+      urlfetch: (url) => `$(urlfetch ${url})`,
+      arg: (name) => `$(arg_${name === "user" ? "1" : name})`
+    }
+  },
+  generate(botName, url, queryParams) {
+    const bot = this.bots[botName] || this.bots.nightbot;
+    const fullUrl = `${url}?${queryParams}`;
+    return bot.urlfetch(fullUrl);
+  },
+  maskSecrets(cmd, secrets = {}) {
+    let masked = cmd;
+    if (secrets.apiKey) masked = masked.split(secrets.apiKey).join(this.masks.apiKey);
+    if (secrets.token) masked = masked.split(secrets.token).join(this.masks.token);
+    return masked;
+  }
+};
+export {
+  CommandGenerator
+};

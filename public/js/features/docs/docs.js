@@ -1,1 +1,149 @@
-import{FooterComponent as T}from"../../shared/components/footer.js";document.addEventListener("DOMContentLoaded",()=>{const i=document.querySelector(".mobile-nav-toggle"),m=document.querySelector(".sidebar"),v=document.querySelectorAll(".nav-item");i&&m&&(i.addEventListener("click",()=>{m.classList.toggle("active");const e=i.querySelector("i");e&&(e.classList.toggle("fa-bars"),e.classList.toggle("fa-xmark"))}),v.forEach(e=>{e.addEventListener("click",()=>{if(m.classList.remove("active"),i){const s=i.querySelector("i");s&&(s.classList.add("fa-bars"),s.classList.remove("fa-xmark"))}})}));const L=document.getElementById("docs-search"),u=document.querySelectorAll(".doc-section");L&&L.addEventListener("input",e=>{const t=e.target.value.toLowerCase();u.forEach(o=>{const n=o.textContent?.toLowerCase()||"",a=o.getAttribute("id"),r=document.querySelector(`.nav-item[href="#${a}"]`);n.includes(t)?(o.style.display="block",r&&(r.style.display="flex")):(o.style.display="none",r&&(r.style.display="none"))}),document.querySelectorAll(".nav-subsection").forEach(o=>{const a=o.querySelectorAll('.nav-item[style*="display: flex"]').length>0;o.style.display=a?"block":"none"}),t||(u.forEach(o=>o.style.display="block"),document.querySelectorAll(".nav-item").forEach(o=>o.style.display="flex"),document.querySelectorAll(".nav-subsection").forEach(o=>o.style.display="block"))}),T.render("main-footer");const E=document.querySelectorAll(".nav-item"),h={root:null,rootMargin:"-20% 0px -70% 0px",threshold:0},p=new IntersectionObserver(e=>{e.forEach(s=>{if(s.isIntersecting){const t=s.target.getAttribute("id");E.forEach(c=>{c.classList.remove("active"),c.getAttribute("href")===`#${t}`&&c.classList.add("active")})}})},h);u.forEach(e=>p.observe(e));const y={nightbot:"!addcom {trigger} ",streamelements:"!command add {trigger} ",fossabot:"!addcom {trigger} "};function f(e,s){const t=e.querySelector(".tab-content.active");if(!t)return;const c=t.dataset.bot||"",o=t.querySelector(".dynamic-url"),n=o.dataset.path||"",a=e.dataset.trigger,r=window.location.origin;let l=n.includes("{baseURL}")?n.replace("{baseURL}",r):`$(urlfetch ${r}${n})`;s==="chat"&&a&&y[c]&&(l=y[c].replace("{trigger}",a)+l);try{const d=localStorage.getItem("twitch_dashboard_session");if(d){const b=JSON.parse(d);b.apiKey&&(l=l.replace(/TU_API_KEY/g,b.apiKey))}}catch(d){console.warn("Session error",d)}o.textContent=l;const g=t.querySelector(".btn-copy-doc");g&&(g.innerHTML='<i class="fa-regular fa-copy"></i>',g.classList.remove("success"))}window.switchFormat=(e,s)=>{const t=e.closest(".code-tab-container");t.querySelectorAll(".format-btn").forEach(c=>c.classList.remove("active")),e.classList.add("active"),f(t,s)},window.switchTab=(e,s)=>{const t=e.closest(".code-tab-container");t.querySelectorAll(".tab-btn").forEach(a=>a.classList.remove("active")),e.classList.add("active"),t.querySelectorAll(".tab-content").forEach(a=>a.classList.remove("active"));const c=t.querySelector(`.tab-content[data-bot="${s}"]`);c&&c.classList.add("active");const o=t.querySelector(".format-btn.active"),n=o&&o.textContent?.trim()==="Chat"?"chat":"dashboard";f(t,n)},window.copyCode=e=>{const t=e.parentElement?.querySelector("code")?.textContent||"";navigator.clipboard.writeText(t).then(()=>{const c=e.innerHTML;e.innerHTML='<i class="fa-solid fa-check"></i>',e.classList.add("success"),setTimeout(()=>{e.innerHTML=c,e.classList.remove("success")},2e3)})},setTimeout(()=>{document.querySelectorAll(".code-tab-container").forEach(e=>f(e,"chat"))},100)});
+import { FooterComponent } from "../../shared/components/footer.js";
+document.addEventListener("DOMContentLoaded", () => {
+  const mobileToggle = document.querySelector(".mobile-nav-toggle");
+  const sidebar = document.querySelector(".sidebar");
+  const navItems = document.querySelectorAll(".nav-item");
+  if (mobileToggle && sidebar) {
+    mobileToggle.addEventListener("click", () => {
+      sidebar.classList.toggle("active");
+      const icon = mobileToggle.querySelector("i");
+      if (icon) {
+        icon.classList.toggle("fa-bars");
+        icon.classList.toggle("fa-xmark");
+      }
+    });
+    navItems.forEach((item) => {
+      item.addEventListener("click", () => {
+        sidebar.classList.remove("active");
+        if (mobileToggle) {
+          const icon = mobileToggle.querySelector("i");
+          if (icon) {
+            icon.classList.add("fa-bars");
+            icon.classList.remove("fa-xmark");
+          }
+        }
+      });
+    });
+  }
+  const searchInput = document.getElementById("docs-search");
+  const sections = document.querySelectorAll(".doc-section");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      const target = e.target;
+      const query = target.value.toLowerCase();
+      sections.forEach((section) => {
+        const text = section.textContent?.toLowerCase() || "";
+        const id = section.getAttribute("id");
+        const navItem = document.querySelector(`.nav-item[href="#${id}"]`);
+        if (text.includes(query)) {
+          section.style.display = "block";
+          if (navItem) navItem.style.display = "flex";
+        } else {
+          section.style.display = "none";
+          if (navItem) navItem.style.display = "none";
+        }
+      });
+      const subSections = document.querySelectorAll(".nav-subsection");
+      subSections.forEach((sub) => {
+        const visibleItems = sub.querySelectorAll('.nav-item[style*="display: flex"]');
+        const hasVisible = visibleItems.length > 0;
+        sub.style.display = hasVisible ? "block" : "none";
+      });
+      if (!query) {
+        sections.forEach((s) => s.style.display = "block");
+        document.querySelectorAll(".nav-item").forEach((n) => n.style.display = "flex");
+        document.querySelectorAll(".nav-subsection").forEach((n) => n.style.display = "block");
+      }
+    });
+  }
+  FooterComponent.render("main-footer");
+  const navItemsObserver = document.querySelectorAll(".nav-item");
+  const observerOptions = {
+    root: null,
+    rootMargin: "-20% 0px -70% 0px",
+    threshold: 0
+  };
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute("id");
+        navItemsObserver.forEach((item) => {
+          item.classList.remove("active");
+          if (item.getAttribute("href") === `#${id}`) {
+            item.classList.add("active");
+          }
+        });
+      }
+    });
+  }, observerOptions);
+  sections.forEach((section) => observer.observe(section));
+  const COMMAND_PREFIXES = {
+    nightbot: "!addcom {trigger} ",
+    streamelements: "!command add {trigger} ",
+    fossabot: "!addcom {trigger} "
+  };
+  function updateCodeBlock(container, format) {
+    const activeTab = container.querySelector(".tab-content.active");
+    if (!activeTab) return;
+    const botName = activeTab.dataset.bot || "";
+    const codeElement = activeTab.querySelector(".dynamic-url");
+    const originalPath = codeElement.dataset.path || "";
+    const trigger = container.dataset.trigger;
+    const baseUrl = window.location.origin;
+    let finalCode = originalPath.includes("{baseURL}") ? originalPath.replace("{baseURL}", baseUrl) : `$(urlfetch ${baseUrl}${originalPath})`;
+    if (format === "chat" && trigger && COMMAND_PREFIXES[botName]) {
+      const prefix = COMMAND_PREFIXES[botName].replace("{trigger}", trigger);
+      finalCode = prefix + finalCode;
+    }
+    try {
+      const sessionData = localStorage.getItem("twitch_dashboard_session");
+      if (sessionData) {
+        const session = JSON.parse(sessionData);
+        if (session.apiKey) {
+          finalCode = finalCode.replace(/TU_API_KEY/g, session.apiKey);
+        }
+      }
+    } catch (e) {
+      console.warn("Session error", e);
+    }
+    codeElement.textContent = finalCode;
+    const copyBtn = activeTab.querySelector(".btn-copy-doc");
+    if (copyBtn) {
+      copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i>';
+      copyBtn.classList.remove("success");
+    }
+  }
+  window.switchFormat = (btn, format) => {
+    const container = btn.closest(".code-tab-container");
+    container.querySelectorAll(".format-btn").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    updateCodeBlock(container, format);
+  };
+  window.switchTab = (btn, botName) => {
+    const container = btn.closest(".code-tab-container");
+    container.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    container.querySelectorAll(".tab-content").forEach((c) => c.classList.remove("active"));
+    const targetTab = container.querySelector(`.tab-content[data-bot="${botName}"]`);
+    if (targetTab) targetTab.classList.add("active");
+    const activeFormatBtn = container.querySelector(".format-btn.active");
+    const currentFormat = activeFormatBtn ? activeFormatBtn.textContent?.trim() === "Chat" ? "chat" : "dashboard" : "dashboard";
+    updateCodeBlock(container, currentFormat);
+  };
+  window.copyCode = (btn) => {
+    const codeElement = btn.parentElement?.querySelector("code");
+    const code = codeElement?.textContent || "";
+    navigator.clipboard.writeText(code).then(() => {
+      const originalIcon = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+      btn.classList.add("success");
+      setTimeout(() => {
+        btn.innerHTML = originalIcon;
+        btn.classList.remove("success");
+      }, 2e3);
+    });
+  };
+  setTimeout(() => {
+    document.querySelectorAll(".code-tab-container").forEach((c) => updateCodeBlock(c, "chat"));
+  }, 100);
+});

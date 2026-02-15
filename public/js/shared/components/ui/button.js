@@ -1,1 +1,59 @@
-class c extends HTMLElement{static get observedAttributes(){return["variant","size","icon","loading","disabled","type"]}constructor(){super(),this.innerHTML="",this.button=document.createElement("button"),this.button.className="btn"}connectedCallback(){for(this.render();this.childNodes.length>0;)this.button.appendChild(this.childNodes[0]);this.appendChild(this.button),this.button.addEventListener("click",t=>{(this.hasAttribute("disabled")||this.hasAttribute("loading"))&&(t.stopPropagation(),t.preventDefault())})}attributeChangedCallback(t,i,s){i!==s&&this.render()}render(){const t=this.getAttribute("variant")||"primary",i=this.getAttribute("size")||"md",s=this.getAttribute("icon"),a=this.hasAttribute("loading"),l=this.hasAttribute("disabled"),b=this.getAttribute("type")||"button";let o=`btn-${t}`;t==="ghost"&&(o="btn-icon");let n="";i==="sm"&&(n="btn-sm"),i==="lg"&&(n="btn-large"),this.button.className=`${o} ${n} app-button`,this.button.type=b,this.button.disabled=l||a;const r=this.button.querySelector("i");if(r&&r.remove(),a){const e=document.createElement("i");e.className="fa-solid fa-circle-notch fa-spin",this.button.prepend(e)}else if(s){const e=document.createElement("i");e.className=`fa-solid fa-${s}`,this.button.prepend(e)}}}customElements.define("app-button",c);export{c as AppButton};
+class AppButton extends HTMLElement {
+  static get observedAttributes() {
+    return ["variant", "size", "icon", "loading", "disabled", "type"];
+  }
+  constructor() {
+    super();
+    this.innerHTML = "";
+    this.button = document.createElement("button");
+    this.button.className = "btn";
+  }
+  connectedCallback() {
+    this.render();
+    while (this.childNodes.length > 0) {
+      this.button.appendChild(this.childNodes[0]);
+    }
+    this.appendChild(this.button);
+    this.button.addEventListener("click", (e) => {
+      if (this.hasAttribute("disabled") || this.hasAttribute("loading")) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    });
+  }
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) return;
+    this.render();
+  }
+  render() {
+    const variant = this.getAttribute("variant") || "primary";
+    const size = this.getAttribute("size") || "md";
+    const icon = this.getAttribute("icon");
+    const loading = this.hasAttribute("loading");
+    const disabled = this.hasAttribute("disabled");
+    const type = this.getAttribute("type") || "button";
+    let btnClass = `btn-${variant}`;
+    if (variant === "ghost") btnClass = "btn-icon";
+    let sizeClass = "";
+    if (size === "sm") sizeClass = "btn-sm";
+    if (size === "lg") sizeClass = "btn-large";
+    this.button.className = `${btnClass} ${sizeClass} app-button`;
+    this.button.type = type;
+    this.button.disabled = disabled || loading;
+    const existingIcon = this.button.querySelector("i");
+    if (existingIcon) existingIcon.remove();
+    if (loading) {
+      const loader = document.createElement("i");
+      loader.className = "fa-solid fa-circle-notch fa-spin";
+      this.button.prepend(loader);
+    } else if (icon) {
+      const i = document.createElement("i");
+      i.className = `fa-solid fa-${icon}`;
+      this.button.prepend(i);
+    }
+  }
+}
+customElements.define("app-button", AppButton);
+export {
+  AppButton
+};
