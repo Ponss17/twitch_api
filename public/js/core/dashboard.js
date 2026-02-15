@@ -26,9 +26,8 @@ const Dashboard = {
   async preloadAllTabs() {
     const panes = document.querySelectorAll(".tab-pane");
     const tasks = Array.from(panes).map((pane) => {
-      const p = pane;
-      if (p.dataset.src) {
-        return HtmlLoader.load(p.dataset.src, p.id);
+      if (pane instanceof HTMLElement && pane.dataset.src) {
+        return HtmlLoader.load(pane.dataset.src, pane.id);
       }
       return Promise.resolve();
     });
@@ -64,7 +63,7 @@ const Dashboard = {
     const { displayName, profile_image_url } = this.session;
     const avatar = document.getElementById("user-avatar");
     const name = document.getElementById("user-display-name");
-    if (avatar && profile_image_url) {
+    if (avatar instanceof HTMLImageElement && profile_image_url) {
       avatar.src = profile_image_url;
       avatar.style.display = "block";
     }

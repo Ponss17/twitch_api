@@ -26,10 +26,12 @@ export const errorHandler = (
     }
 
     res.status(status).json({
-        error: true,
-        status,
-        message,
-        timestamp: new Date().toISOString()
+        success: false,
+        error: {
+            code: status,
+            message,
+            timestamp: new Date().toISOString()
+        }
     });
 };
 
