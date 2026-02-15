@@ -21,6 +21,10 @@ const AccountModule = {
         userTokenInput.value = this.session.apiKey || this.session.token || "";
         userTokenInput.dataset.realValue = this.session.apiKey || this.session.token || "";
       }
+      const heroName = document.getElementById("hero-user-name");
+      if (heroName) {
+        heroName.textContent = this.session.displayName || this.session.login || "Streamer";
+      }
     }
   },
   setupUI() {

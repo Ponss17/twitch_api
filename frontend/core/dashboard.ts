@@ -1,7 +1,6 @@
 import { UI } from './ui.js';
 import { HtmlLoader } from '../shared/utils/htmlLoader.js';
 import { Session, DashboardModule } from '../types.js';
-import { Messages } from '../shared/i18n/messages.js';
 
 import { AccountModule } from '../features/dashboard/account.js';
 import { AnalyticsModule } from '../features/dashboard/analytics.js';
@@ -113,9 +112,7 @@ export const Dashboard = {
             const { displayName } = this.session;
             const safeDisplayName = UI.escapeHTML(displayName || 'Streamer');
             const safeLogin = UI.escapeHTML(this.session.login || '');
-            const welcomeMsg = Messages.Common.welcome(
-                `<a href="https://twitch.tv/${safeLogin}" target="_blank" class="welcome-link">${safeDisplayName}</a>`
-            );
+            const welcomeMsg = `Dashboard de <a href="https://twitch.tv/${safeLogin}" target="_blank" class="welcome-link">${safeDisplayName}</a>`;
             pageTitle.innerHTML = welcomeMsg;
         } else {
             pageTitle.textContent = title;
