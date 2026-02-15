@@ -1,1 +1,97 @@
-import{AccountMessages as o}from"./account/messages.js";import{DASHBOARD_CONFIG as r}from"./dashboard-config.js";const{API_ENDPOINTS:u}=r;import{UI as i}from"../../core/ui.js";const I={session:null,isInitialized:!1,init(e){this.session=e,this.setupUI(),this.isInitialized=!0},deactivate(){},updateValues(){const e=document.getElementById("user-id"),t=document.getElementById("user-token");this.session&&(e&&(e.value=this.session.userId||""),t&&(t.value=this.session.apiKey||this.session.token||"",t.dataset.realValue=this.session.apiKey||this.session.token||""))},setupUI(){this.updateValues(),this.setupTokenVisibility(),this.setupRegenerate()},setupTokenVisibility(){const e=document.getElementById("toggle-token-btn"),t=document.getElementById("user-token");e&&t&&!e.dataset.listener&&(e.addEventListener("click",()=>{t.type==="password"?(t.type="text",t.value=t.dataset.realValue||"",e.innerHTML='<i class="fa-solid fa-eye-slash"></i>'):(t.type="password",e.innerHTML='<i class="fa-solid fa-eye"></i>')}),e.dataset.listener="true")},setupRegenerate(){const e=document.getElementById("regenerate-token-btn");e&&!e.dataset.listener&&(e.addEventListener("click",async()=>{if(confirm(o.regenerateConfirm)){i.setButtonLoading(e,!0);try{const s=await(await fetch(`${u.REGENERATE_KEY}?userId=${this.session?.userId}`)).json();if(s.apiKey){this.session&&(this.session.apiKey=s.apiKey,import("../../core/auth.js").then(({Auth:a})=>{a.saveSession(this.session)}));const n=document.getElementById("user-token");n&&(n.dataset.realValue=s.apiKey,n.type==="text"&&(n.value=s.apiKey)),i.showToast(o.regenerateSuccess,"success")}}catch{i.showToast(o.regenerateError,"error")}finally{i.setButtonLoading(e,!1)}}}),e.dataset.listener="true")}};export{I as AccountModule};
+import { AccountMessages } from "./account/messages.js";
+import { DASHBOARD_CONFIG } from "./dashboard-config.js";
+const { API_ENDPOINTS } = DASHBOARD_CONFIG;
+import { UI } from "../../core/ui.js";
+
+const AccountModule = {
+    session: null,
+    isInitialized: false,
+
+    init(session) {
+        this.session = session;
+        this.setupUI();
+        this.isInitialized = true;
+    },
+
+    deactivate() { },
+
+    updateValues() {
+        const userIdInput = document.getElementById("user-id");
+        const tokenInput = document.getElementById("user-token");
+
+        if (this.session) {
+            if (userIdInput) userIdInput.value = this.session.userId || "";
+            if (tokenInput) {
+                const val = this.session.apiKey || this.session.token || "";
+                tokenInput.value = val;
+                tokenInput.dataset.realValue = val;
+            }
+        }
+    },
+
+    setupUI() {
+        this.updateValues();
+        this.setupTokenVisibility();
+        this.setupRegenerate();
+    },
+
+    setupTokenVisibility() {
+        const btn = document.getElementById("toggle-token-btn");
+        const input = document.getElementById("user-token");
+
+        if (btn && input && !btn.dataset.listener) {
+            btn.addEventListener("click", () => {
+                if (input.type === "password") {
+                    input.type = "text";
+                    input.value = input.dataset.realValue || "";
+                    btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+                } else {
+                    input.type = "password";
+                    btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+                }
+            });
+            btn.dataset.listener = "true";
+        }
+    },
+
+    setupRegenerate() {
+        const btn = document.getElementById("regenerate-token-btn");
+
+        if (btn && !btn.dataset.listener) {
+            btn.addEventListener("click", async () => {
+                if (confirm(AccountMessages.regenerateConfirm)) {
+                    UI.setButtonLoading(btn, true);
+                    try {
+                        const response = await fetch(`${API_ENDPOINTS.REGENERATE_KEY}?userId=${this.session?.userId}`);
+                        const data = await response.json();
+
+                        if (data.apiKey) {
+                            if (this.session) {
+                                this.session.apiKey = data.apiKey;
+                                import("../../core/auth.js").then(({ Auth }) => {
+                                    Auth.saveSession(this.session);
+                                });
+                            }
+
+                            const input = document.getElementById("user-token");
+                            if (input) {
+                                input.dataset.realValue = data.apiKey;
+                                if (input.type === "text") {
+                                    input.value = data.apiKey;
+                                }
+                            }
+                            UI.showToast(AccountMessages.regenerateSuccess, "success");
+                        }
+                    } catch (e) {
+                        UI.showToast(AccountMessages.regenerateError, "error");
+                    } finally {
+                        UI.setButtonLoading(btn, false);
+                    }
+                }
+            });
+            btn.dataset.listener = "true";
+        }
+    }
+};
+
+export { AccountModule };
