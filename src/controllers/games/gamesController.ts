@@ -77,7 +77,7 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
                     return res.send(result.message);
                 }
             } catch (error: unknown) {
-                const err = error as any;
+                const err = error as Record<string, any>;
                 const is401 = err?.message?.includes('401') || err?.status === 401;
 
                 if (is401 && apiKey && attempts < maxAttempts) {

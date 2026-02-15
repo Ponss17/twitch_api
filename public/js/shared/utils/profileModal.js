@@ -1,1 +1,60 @@
-import{ProfileMessages as l}from"../i18n/profileMessages.js";import{ProfileTemplates as c}from"./profileTemplates.js";const p={open(t){const e=document.getElementById("profile-modal-overlay"),o=document.getElementById("profile-modal-content");if(!e||!o)return;const n=this.calculateAge(t.created_at);o.innerHTML=c.renderContent(t,n);const s=document.getElementById("view-logs-btn");s&&(s.onclick=()=>this.showUserLogs(t.login)),e.classList.add("active");const a=document.getElementById("close-modal-btn");a&&(a.onclick=i=>{i.stopPropagation(),this.close()}),e.dataset.listener||(e.onclick=i=>{i.target===e&&this.close()},e.dataset.listener="true");const r=o.parentElement;r&&(r.onclick=i=>i.stopPropagation())},close(){const t=document.getElementById("profile-modal-overlay");t&&t.classList.remove("active")},calculateAge(t){const e=new Date(t),o=new Date,n=o.getFullYear()-e.getFullYear(),s=o.getMonth()-e.getMonth();return n>0?l.years(n):s>1?l.months(s):l.new},async showUserLogs(t){const e=document.getElementById("modal-bio");e&&(e.innerHTML='<div class="loading-logs"><i class="fa-solid fa-spinner fa-spin"></i> Cargando historial...</div>');const n=(await import("../../features/dashboard/trends/module.js")).TrendsModule.getMessagesByUser(t);e&&(e.innerHTML=c.renderLogs(n))}};export{p as ProfileModal};
+import { ProfileMessages } from "../i18n/profileMessages.js";
+import { ProfileTemplates } from "./profileTemplates.js";
+const ProfileModal = {
+  open(user) {
+    const overlay = document.getElementById("profile-modal-overlay");
+    const content = document.getElementById("profile-modal-content");
+    if (!overlay || !content) return;
+    const ageText = this.calculateAge(user.created_at);
+    content.innerHTML = ProfileTemplates.renderContent(user, ageText);
+    const logBtn = document.getElementById("view-logs-btn");
+    if (logBtn) {
+      logBtn.onclick = () => this.showUserLogs(user.login);
+    }
+    overlay.classList.add("active");
+    const closeBtn = document.getElementById("close-modal-btn");
+    if (closeBtn) {
+      closeBtn.onclick = (e) => {
+        e.stopPropagation();
+        this.close();
+      };
+    }
+    if (!overlay.dataset.listener) {
+      overlay.onclick = (e) => {
+        if (e.target === overlay) this.close();
+      };
+      overlay.dataset.listener = "true";
+    }
+    const modalCard = content.parentElement;
+    if (modalCard) {
+      modalCard.onclick = (e) => e.stopPropagation();
+    }
+  },
+  close() {
+    const overlay = document.getElementById("profile-modal-overlay");
+    if (overlay) overlay.classList.remove("active");
+  },
+  calculateAge(dateStr) {
+    const createdDate = new Date(dateStr);
+    const now = /* @__PURE__ */ new Date();
+    const diffYears = now.getFullYear() - createdDate.getFullYear();
+    const diffMonths = now.getMonth() - createdDate.getMonth();
+    if (diffYears > 0) return ProfileMessages.years(diffYears);
+    if (diffMonths > 1) return ProfileMessages.months(diffMonths);
+    return ProfileMessages.new;
+  },
+  async showUserLogs(login) {
+    const bioEl = document.getElementById("modal-bio");
+    if (bioEl) {
+      bioEl.innerHTML = `<div class="loading-logs"><i class="fa-solid fa-spinner fa-spin"></i> Cargando historial...</div>`;
+    }
+    const module = await import("../../features/dashboard/trends/module.js");
+    const logs = module.TrendsModule.getMessagesByUser(login);
+    if (bioEl) {
+      bioEl.innerHTML = ProfileTemplates.renderLogs(logs);
+    }
+  }
+};
+export {
+  ProfileModal
+};

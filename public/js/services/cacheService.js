@@ -1,1 +1,56 @@
-const r=6e4;class c{constructor(){this.cache=new Map,setInterval(()=>this.cleanup(),6e4)}set(t,e,n){this.cache.set(t,{data:e,timestamp:Date.now(),ttl:n})}get(t){const e=this.cache.get(t);return e?Date.now()-e.timestamp>e.ttl?(this.cache.delete(t),null):e.data:null}has(t){return this.get(t)!==null}clear(t){this.cache.delete(t)}clearAll(){this.cache.clear()}cleanup(){const t=Date.now();for(const[e,n]of this.cache.entries())t-n.timestamp>n.ttl&&this.cache.delete(e)}getStats(){return{size:this.cache.size}}}const i=new c;export{r as CACHE_TTL,c as CacheService,i as cache};
+const CACHE_TTL = 6e4;
+class CacheService {
+  constructor() {
+    this.cache = /* @__PURE__ */ new Map();
+    setInterval(() => this.cleanup(), 6e4);
+  }
+  set(key, data, ttl) {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl
+    });
+  }
+  get(key) {
+    const entry = this.cache.get(key);
+    if (!entry) {
+      return null;
+    }
+    const now = Date.now();
+    const age = now - entry.timestamp;
+    if (age > entry.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+    return entry.data;
+  }
+  has(key) {
+    return this.get(key) !== null;
+  }
+  clear(key) {
+    this.cache.delete(key);
+  }
+  clearAll() {
+    this.cache.clear();
+  }
+  cleanup() {
+    const now = Date.now();
+    for (const [key, entry] of this.cache.entries()) {
+      const age = now - entry.timestamp;
+      if (age > entry.ttl) {
+        this.cache.delete(key);
+      }
+    }
+  }
+  getStats() {
+    return {
+      size: this.cache.size
+    };
+  }
+}
+const cache = new CacheService();
+export {
+  CACHE_TTL,
+  CacheService,
+  cache
+};

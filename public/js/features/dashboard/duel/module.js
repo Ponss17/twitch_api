@@ -1,1 +1,94 @@
-import{DuelMessages as a}from"./messages.js";import{DASHBOARD_CONFIG as E}from"../dashboard-config.js";const{API_ENDPOINTS:m,DOM_IDS:n}=E,f={session:null,initialized:!1,cssLoaded:!1,init(s){this.session=s,this.cssLoaded||(import("../../../shared/utils/loader.js").then(({Loader:e})=>{e.loadCSS("css/sections/duel.css")}),this.cssLoaded=!0),this.setupUI(),this.initialized=!0},deactivate(){},setupUI(){const s=document.getElementById(n.DUEL.INPUT_TARGET),e=document.getElementById(n.DUEL.BUTTON);if(!s||!e)return;const t=()=>this.startDuel();e.onclick=t,s.onkeypress=o=>{o.key==="Enter"&&t()}},setLoading(s){const e=document.getElementById(n.DUEL.BUTTON),t=document.getElementById(n.DUEL.INPUT_TARGET),o=document.getElementById(n.DUEL.INPUT_CHALLENGER),i=document.getElementById(n.DUEL.RESPONSE);s?(e&&(e.disabled=!0,e.innerHTML=a.fighting),t&&(t.disabled=!0),o&&(o.disabled=!0),i&&(i.className="response-card active",i.innerHTML=a.loading)):(e&&(e.disabled=!1,e.innerHTML=a.fightButton),t&&(t.disabled=!1),o&&(o.disabled=!1))},async startDuel(){const s=document.getElementById(n.DUEL.INPUT_TARGET),e=document.getElementById(n.DUEL.INPUT_CHALLENGER),t=s?.value.trim(),o=e?.value.trim();if(!t){this.showResponse(a.emptyTarget,"error");return}this.setLoading(!0);try{if(!this.session)throw new Error("No active session");const{apiKey:i,token:d}=this.session,c=i?`apiKey=${i}`:`token=${d}`,u=`${m.DUEL}?${c}&target=${encodeURIComponent(t)}&challenger=${encodeURIComponent(o)}`,r=await fetch(u),l=await r.text();this.showResponse(r.ok?l:`Error: ${l}`,r.ok?"success":"error")}catch(i){this.showResponse(a.error(i.message),"error")}finally{this.setLoading(!1)}},showResponse(s,e){const t=document.getElementById(n.DUEL.RESPONSE);t&&(t.textContent=s,t.className=`response-card ${e} active`)}};export{f as DuelModule};
+import { DuelMessages } from "./messages.js";
+import { DASHBOARD_CONFIG } from "../dashboard-config.js";
+const { API_ENDPOINTS, DOM_IDS } = DASHBOARD_CONFIG;
+const DuelModule = {
+  session: null,
+  initialized: false,
+  cssLoaded: false,
+  init(session) {
+    this.session = session;
+    if (!this.cssLoaded) {
+      import("../../../shared/utils/loader.js").then(({ Loader }) => {
+        Loader.loadCSS("css/sections/duel.css");
+      });
+      this.cssLoaded = true;
+    }
+    this.setupUI();
+    this.initialized = true;
+  },
+  deactivate() {
+  },
+  setupUI() {
+    const targetInput = document.getElementById(DOM_IDS.DUEL.INPUT_TARGET);
+    const fightBtn = document.getElementById(DOM_IDS.DUEL.BUTTON);
+    if (!targetInput || !fightBtn) return;
+    const handleFight = () => this.startDuel();
+    fightBtn.onclick = handleFight;
+    targetInput.onkeypress = (e) => {
+      if (e.key === "Enter") handleFight();
+    };
+  },
+  setLoading(isLoading) {
+    const btn = document.getElementById(DOM_IDS.DUEL.BUTTON);
+    const inputTarget = document.getElementById(DOM_IDS.DUEL.INPUT_TARGET);
+    const inputChallenger = document.getElementById(
+      DOM_IDS.DUEL.INPUT_CHALLENGER
+    );
+    const responseEl = document.getElementById(DOM_IDS.DUEL.RESPONSE);
+    if (isLoading) {
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = DuelMessages.fighting;
+      }
+      if (inputTarget) inputTarget.disabled = true;
+      if (inputChallenger) inputChallenger.disabled = true;
+      if (responseEl) {
+        responseEl.className = "response-card active";
+        responseEl.innerHTML = DuelMessages.loading;
+      }
+    } else {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = DuelMessages.fightButton;
+      }
+      if (inputTarget) inputTarget.disabled = false;
+      if (inputChallenger) inputChallenger.disabled = false;
+    }
+  },
+  async startDuel() {
+    const inputTarget = document.getElementById(DOM_IDS.DUEL.INPUT_TARGET);
+    const inputChallenger = document.getElementById(
+      DOM_IDS.DUEL.INPUT_CHALLENGER
+    );
+    const target = inputTarget?.value.trim();
+    const challenger = inputChallenger?.value.trim();
+    if (!target) {
+      this.showResponse(DuelMessages.emptyTarget, "error");
+      return;
+    }
+    this.setLoading(true);
+    try {
+      if (!this.session) throw new Error("No active session");
+      const { apiKey, token } = this.session;
+      const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+      const url = `${API_ENDPOINTS.DUEL}?${tokenParam}&target=${encodeURIComponent(target)}&challenger=${encodeURIComponent(challenger)}`;
+      const res = await fetch(url);
+      const answer = await res.text();
+      this.showResponse(res.ok ? answer : `Error: ${answer}`, res.ok ? "success" : "error");
+    } catch (error) {
+      this.showResponse(DuelMessages.error(error.message), "error");
+    } finally {
+      this.setLoading(false);
+    }
+  },
+  showResponse(text, type) {
+    const responseEl = document.getElementById(DOM_IDS.DUEL.RESPONSE);
+    if (responseEl) {
+      responseEl.textContent = text;
+      responseEl.className = `response-card ${type} active`;
+    }
+  }
+};
+export {
+  DuelModule
+};

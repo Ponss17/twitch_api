@@ -1,1 +1,17 @@
-const r={Clipboard:{copied:"\xA1Copiado!",error:"Error al copiar"},ChatSim:{welcome:"\xA1Bienvenido al chat!",placeholder:"Enviar un mensaje",btnText:"Chat",followage:(a,e,o)=>`@${a} sigue a @${e} desde hace ${o}.`,clip:(a,e)=>`\u{1F3AC} Clip creado por <span style="color:#FF69B4">@${a}</span>: ${e}`,shoutout:(a,e)=>`\xA1Vayan a seguir a <span style="color:#bf94ff">@${a}</span>! Estaba jugando ${e}`}};export{r as UIMessages};
+const UIMessages = {
+  Clipboard: {
+    copied: "\xA1Copiado!",
+    error: "Error al copiar"
+  },
+  ChatSim: {
+    welcome: "\xA1Bienvenido al chat!",
+    placeholder: "Enviar un mensaje",
+    btnText: "Chat",
+    followage: (user, channel, time) => `@${user} sigue a @${channel} desde hace ${time}.`,
+    clip: (user, url) => `\u{1F3AC} Clip creado por <span style="color:#FF69B4">@${user}</span>: ${url}`,
+    shoutout: (user, game) => `\xA1Vayan a seguir a <span style="color:#bf94ff">@${user}</span>! Estaba jugando ${game}`
+  }
+};
+export {
+  UIMessages
+};

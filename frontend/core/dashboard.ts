@@ -83,19 +83,44 @@ export const Dashboard = {
             name.innerText = displayName;
         }
 
-        const pageTitle = document.getElementById('page-title');
-        if (pageTitle && displayName && this.session.login) {
-            const safeDisplayName = UI.escapeHTML(displayName);
-            const safeLogin = UI.escapeHTML(this.session.login);
-            const welcomeMsg = Messages.Common.welcome(
-                `<a href="https://twitch.tv/${safeLogin}" target="_blank" class="welcome-link">${safeDisplayName}</a>`
-            );
-            pageTitle.innerHTML = welcomeMsg;
-        }
+        this.updatePageTitle('tab-home');
 
         document.getElementById('logout-btn')?.addEventListener('click', () => {
             import('./auth.js').then((m) => m.Auth.logout());
         });
+    },
+
+    updatePageTitle(tabId: string) {
+        const pageTitle = document.getElementById('page-title');
+        if (!pageTitle) return;
+
+        const titleMap: Record<string, string> = {
+            'tab-home': 'Inicio',
+            'tab-followage': 'Followage',
+            'tab-clips': 'Clips',
+            'tab-shoutout': 'Shoutout',
+            'tab-tracker': 'Tendencias',
+            'tab-stalker': 'Stalker',
+            'tab-magic8': 'Bola 8 Mágica',
+            'tab-roulette': 'Ruleta',
+            'tab-russian': 'Ruleta Rusa',
+            'tab-duel': 'Duelo',
+            'tab-feedback': 'Feedback'
+        };
+
+        const title = titleMap[tabId] || 'Dashboard';
+
+        if (tabId === 'tab-home' && this.session) {
+            const { displayName } = this.session;
+            const safeDisplayName = UI.escapeHTML(displayName || 'Streamer');
+            const safeLogin = UI.escapeHTML(this.session.login || '');
+            const welcomeMsg = Messages.Common.welcome(
+                `<a href="https://twitch.tv/${safeLogin}" target="_blank" class="welcome-link">${safeDisplayName}</a>`
+            );
+            pageTitle.innerHTML = welcomeMsg;
+        } else {
+            pageTitle.textContent = title;
+        }
     },
 
     setupTabs() {
@@ -120,6 +145,8 @@ export const Dashboard = {
 
     loadTab(tabId: string) {
         if (!this.session) return;
+
+        this.updatePageTitle(tabId);
 
         this.activeModules.forEach((mod) => {
             if (mod && typeof mod.deactivate === 'function') {
