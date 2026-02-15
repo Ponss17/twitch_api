@@ -54,6 +54,22 @@ const getHeaders = (token: string) => ({
     Authorization: `Bearer ${token}`
 });
 
+const handleTwitchError = (error: unknown, context: string): never => {
+    logger.error(`Error in ${context}:`, error);
+    if (axios.isAxiosError(error)) {
+        throw {
+            status: error.response?.status || 500,
+            message: error.response?.data?.message || error.message || 'Error en la API de Twitch',
+            name: 'TwitchApiError'
+        } as TwitchError;
+    }
+    throw {
+        status: 500,
+        message: 'Error interno desconocido',
+        name: 'UnknownError'
+    } as TwitchError;
+};
+
 export const getUserId = async (username: string, token: string): Promise<string> => {
     const cachedId = await getCachedUserId(username);
     if (cachedId) return cachedId;
@@ -80,17 +96,22 @@ export const getChannelInfo = async (
     broadcasterId: string,
     token: string
 ): Promise<TwitchChannelInfo> => {
-    const headers = getHeaders(token);
-    const response = await apiClient.get(
-        `https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`,
-        { headers }
-    );
+    try {
+        const headers = getHeaders(token);
+        const response = await apiClient.get(
+            `https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`,
+            { headers }
+        );
 
-    if (response.data.data.length === 0) {
-        throw { status: 404, message: `No se encontró información del canal.` } as TwitchError;
+        if (response.data.data.length === 0) {
+            throw { status: 404, message: `No se encontró información del canal.` } as TwitchError;
+        }
+
+        return response.data.data[0];
+    } catch (error) {
+        if ((error as TwitchError).status === 404) throw error;
+        return handleTwitchError(error, `getChannelInfo(${broadcasterId})`);
     }
-
-    return response.data.data[0];
 };
 
 export const createClip = async (channel: string, token: string): Promise<string> => {
@@ -107,7 +128,15 @@ export const createClip = async (channel: string, token: string): Promise<string
         if (axios.isAxiosError(error) && error.response?.status === 404) {
             throw {
                 status: 404,
-                message: `No se pudo crear clip. Asegúrate de que ${channel} esté en vivo.`
+                message: `No se pudo crear clip. Asegúrate de que ${channel} esté en vivo.`,
+                name: 'TwitchError'
+            } as TwitchError;
+        }
+        if (axios.isAxiosError(error)) {
+            throw {
+                status: error.response?.status || 500,
+                message: error.message,
+                name: 'TwitchError'
             } as TwitchError;
         }
         throw error;
@@ -119,18 +148,22 @@ export const getClips = async (
     limit: number,
     token: string
 ): Promise<TwitchClip[]> => {
-    const broadcasterId = await getUserId(channel, token);
-    const headers = getHeaders(token);
+    try {
+        const broadcasterId = await getUserId(channel, token);
+        const headers = getHeaders(token);
 
-    const clipsRes = await apiClient.get(`https://api.twitch.tv/helix/clips`, {
-        headers,
-        params: {
-            broadcaster_id: broadcasterId,
-            first: limit
-        }
-    });
+        const clipsRes = await apiClient.get(`https://api.twitch.tv/helix/clips`, {
+            headers,
+            params: {
+                broadcaster_id: broadcasterId,
+                first: limit
+            }
+        });
 
-    return clipsRes.data.data as TwitchClip[];
+        return clipsRes.data.data as TwitchClip[];
+    } catch (error) {
+        return handleTwitchError(error, `getClips(${channel})`);
+    }
 };
 
 export const getFollowAge = async (
@@ -192,13 +225,16 @@ export const getFollowAge = async (
             timePhrase
         };
     } catch (error: unknown) {
-        const err = error as TwitchError;
-        const msg =
-            err.status === 404 ? err.message || 'Usuario no encontrado' : 'Error desconocido';
-        if (err.status === 404) {
+        // Special handling for 404 in followage to return a friendly message
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+            const msg = error.response.data?.message || 'Usuario no encontrado';
             return { text: msg, timePhrase: 'error' };
         }
-        throw error;
+        if ((error as TwitchError).status === 404) {
+            return { text: (error as TwitchError).message, timePhrase: 'error' };
+        }
+
+        return handleTwitchError(error, `getFollowAge(${channel}, ${user})`);
     }
 };
 
@@ -224,8 +260,7 @@ export const getChatters = async (broadcasterId: string, moderatorId: string, to
         });
         return response.data.data;
     } catch (error) {
-        logger.error('Error fetching chatters:', error);
-        throw error;
+        return handleTwitchError(error, `getChatters(${broadcasterId})`);
     }
 };
 
@@ -251,8 +286,7 @@ export const sendChatMessage = async (
             }
         );
     } catch (error) {
-        logger.error('Error sending chat message:', error);
-        throw error;
+        return handleTwitchError(error, `sendChatMessage(${broadcasterId})`);
     }
 };
 
@@ -286,7 +320,6 @@ export const timeoutUser = async (
             }
         );
     } catch (error) {
-        logger.error('Error timing out user:', error);
-        throw error;
+        return handleTwitchError(error, `timeoutUser(${broadcasterId}, target: ${userId})`);
     }
 };
