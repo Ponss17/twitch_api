@@ -2,7 +2,7 @@ const CommandsMessages = {
   clipResponse: (user, url) => `\u{1F3AC} Clip creado por ${user}: ${url}`,
   followageResponse: "Procesando followage...",
   missingCreds: "Faltan credenciales",
-  completeFields: "Por favor, completa ambos campos.",
+  completeFields: "\u26A0\uFE0F Por favor, ingresa el Canal y el Usuario para probar.",
   testing: '<i class="fa-solid fa-spinner fa-spin"></i> Probando...',
   connectionError: '<span class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Error de conexi\xF3n</span>',
   success: (text) => `<span class="text-success"><i class="fa-solid fa-check"></i> ${text}</span>`,
