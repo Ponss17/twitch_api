@@ -9,6 +9,7 @@ dialog.modal {
     margin: auto;
     inset: 0;
     position: fixed;
+    overflow: hidden;
 }
 
 dialog.modal::backdrop {
