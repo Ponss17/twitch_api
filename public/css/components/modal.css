@@ -7,6 +7,9 @@ dialog.modal {
     max-width: 500px;
     width: 90%;
     box-shadow: var(--shadow-lg);
+    margin: auto;
+    inset: 0;
+    position: fixed;
 }
 
 dialog.modal::backdrop {
@@ -82,7 +85,8 @@ dialog.modal::backdrop {
     background: var(--bg-secondary);
     border-top: 1px solid var(--border);
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    flex-direction: row-reverse;
     gap: 12px;
 }
 
