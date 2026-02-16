@@ -89,14 +89,17 @@ const AnalyticsModule = {
       { key: "so", icon: "fa-bullhorn", label: "Shoutouts" }
     ];
     const fragment = document.createDocumentFragment();
-    statConfig.forEach((stat) => {
+    statConfig.forEach((stat, index) => {
       const value = data[stat.key] || 0;
       const card = document.createElement("div");
-      card.className = "stat-card";
+      card.className = `stat-card stagger-${index + 1}`;
+      card.style.animation = "fadeInSoft 0.5s ease-out forwards";
+      card.style.animationDelay = `${index * 100}ms`;
+      card.style.opacity = "0";
       card.innerHTML = `
                 <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
                 <div class="stat-info">
-                    <h3>${value}</h3>
+                    <h3 class="counter" data-target="${value}">0</h3>
                     <span>${stat.label}</span>
                 </div>
             `;
@@ -104,6 +107,31 @@ const AnalyticsModule = {
     });
     statsContainer.innerHTML = "";
     statsContainer.appendChild(fragment);
+    requestAnimationFrame(() => {
+      document.querySelectorAll(".counter").forEach((counter) => {
+        const target = parseInt(counter.dataset.target || "0");
+        this.animateValue(counter, 0, target, 1500);
+      });
+    });
+  },
+  animateValue(obj, start, end, duration) {
+    if (start === end) {
+      obj.innerHTML = end.toString();
+      return;
+    }
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      const easeProgress = 1 - Math.pow(1 - progress, 4);
+      obj.innerHTML = Math.floor(progress * (end - start) + start).toString();
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      } else {
+        obj.innerHTML = end.toString();
+      }
+    };
+    window.requestAnimationFrame(step);
   }
 };
 export {
