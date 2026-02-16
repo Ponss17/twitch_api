@@ -22,7 +22,65 @@ function setupFAQ() {
   });
 }
 document.addEventListener("DOMContentLoaded", async () => {
-  Auth.setupLoginButton("login-btn");
+  const modal = document.getElementById("disclaimer-modal");
+  const loginBtn = document.getElementById("login-btn");
+  const confirmBtn = document.getElementById("confirm-login-btn");
+  const cancelBtn = document.getElementById("cancel-login-btn");
+  const closeBtn = document.getElementById("close-modal-btn");
+  const disclaimerText = document.querySelector(".disclaimer");
+  const showModal = () => {
+    if (modal) {
+      if (typeof modal.showModal === "function") {
+        modal.showModal();
+      } else {
+        modal.style.display = "block";
+      }
+    }
+  };
+  const closeModal = () => {
+    if (modal) {
+      if (typeof modal.close === "function") {
+        modal.close();
+      } else {
+        modal.style.display = "none";
+      }
+    }
+  };
+  if (loginBtn) {
+    loginBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      showModal();
+    });
+  }
+  if (disclaimerText) {
+    disclaimerText.addEventListener("click", () => {
+      showModal();
+    });
+    disclaimerText.style.cursor = "pointer";
+    disclaimerText.title = "Ver detalles de privacidad";
+  }
+  if (confirmBtn) {
+    confirmBtn.addEventListener("click", () => {
+      const icon = confirmBtn.querySelector("i");
+      if (icon) {
+        icon.className = "fa-solid fa-spinner fa-spin";
+      }
+      confirmBtn.style.opacity = "0.8";
+      confirmBtn.style.pointerEvents = "none";
+      Auth.relogin();
+    });
+  }
+  if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+  if (closeBtn) closeBtn.addEventListener("click", closeModal);
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      const rect = modal.getBoundingClientRect();
+      const isInDialog = rect.top <= e.clientY && e.clientY <= rect.top + rect.height && rect.left <= e.clientX && e.clientX <= rect.left + rect.width;
+      if (!isInDialog) {
+        closeModal();
+      }
+    });
+  }
   const heroCode = document.getElementById("hero-code-display");
   if (heroCode) LandingUI.setupHeroAnimation(heroCode);
   HeaderComponent.render("main-header");
