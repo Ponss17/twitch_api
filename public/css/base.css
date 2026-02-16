@@ -1,4 +1,5 @@
 :root {
+    scrollbar-gutter: stable;
     --bg-primary: #09090b;
     --bg-secondary: #0e0e10;
     --bg-tertiary: #18181b;
