@@ -52,9 +52,45 @@ const AccountModule = {
   },
   setupRegenerate() {
     const regenBtn = document.getElementById("regenerate-token-btn");
-    if (regenBtn && !regenBtn.dataset.listener) {
-      regenBtn.addEventListener("click", async () => {
-        if (!confirm(AccountMessages.regenerateConfirm)) return;
+    const modal = document.getElementById("regen-modal");
+    const confirmBtn = document.getElementById("confirm-regen-btn");
+    const cancelBtn = document.getElementById("cancel-regen-btn");
+    const closeBtn = document.getElementById("close-regen-btn");
+    const showModal = () => {
+      if (modal) {
+        if (typeof modal.showModal === "function") {
+          modal.showModal();
+        } else {
+          modal.style.display = "block";
+        }
+      }
+    };
+    const closeModal = () => {
+      if (modal) {
+        if (typeof modal.close === "function") {
+          modal.close();
+        } else {
+          modal.style.display = "none";
+        }
+      }
+    };
+    if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+    if (modal) {
+      modal.addEventListener("click", (e) => {
+        const rect = modal.getBoundingClientRect();
+        const isInDialog = rect.top <= e.clientY && e.clientY <= rect.top + rect.height && rect.left <= e.clientX && e.clientX <= rect.left + rect.width;
+        if (!isInDialog) {
+          closeModal();
+        }
+      });
+    }
+    if (confirmBtn) {
+      const newConfirmBtn = confirmBtn.cloneNode(true);
+      confirmBtn.parentNode?.replaceChild(newConfirmBtn, confirmBtn);
+      newConfirmBtn.addEventListener("click", async () => {
+        closeModal();
+        if (!regenBtn) return;
         UI.setButtonLoading(regenBtn, true);
         try {
           const response = await fetch(
@@ -84,6 +120,11 @@ const AccountModule = {
         } finally {
           UI.setButtonLoading(regenBtn, false);
         }
+      });
+    }
+    if (regenBtn && !regenBtn.dataset.listener) {
+      regenBtn.addEventListener("click", () => {
+        showModal();
       });
       regenBtn.dataset.listener = "true";
     }
