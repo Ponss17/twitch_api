@@ -94,6 +94,17 @@ dialog.modal::backdrop {
     text-decoration: underline;
     text-decoration-color: var(--text-muted);
     transition: color 0.2s;
+    user-select: none;
+    /* Prevent text selection on click */
+    -webkit-user-select: none;
+    outline: none;
+    /* Prevent focus ring */
+}
+
+.disclaimer:active {
+    opacity: 0.8;
+    transform: translateY(1px);
+    /* Subtle press effect */
 }
 
 .disclaimer:hover {
