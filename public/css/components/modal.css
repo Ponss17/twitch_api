@@ -90,24 +90,25 @@ dialog.modal::backdrop {
 }
 
 .disclaimer {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    opacity: 0.7;
     cursor: pointer;
     text-decoration: underline;
     text-decoration-color: var(--text-muted);
-    transition: color 0.2s;
+    transition: color 0.2s, opacity 0.2s;
     user-select: none;
-    /* Prevent text selection on click */
     -webkit-user-select: none;
     outline: none;
-    /* Prevent focus ring */
 }
 
 .disclaimer:active {
-    opacity: 0.8;
-    transform: translateY(1px);
-    /* Subtle press effect */
+    opacity: 0.9;
 }
 
 .disclaimer:hover {
     color: var(--accent);
     text-decoration-color: var(--accent);
+    opacity: 1;
 }
