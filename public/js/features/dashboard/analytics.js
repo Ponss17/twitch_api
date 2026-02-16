@@ -124,7 +124,7 @@ const AnalyticsModule = {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
       const easeProgress = 1 - Math.pow(1 - progress, 4);
-      obj.innerHTML = Math.floor(progress * (end - start) + start).toString();
+      obj.innerHTML = Math.floor(easeProgress * (end - start) + start).toString();
       if (progress < 1) {
         window.requestAnimationFrame(step);
       } else {

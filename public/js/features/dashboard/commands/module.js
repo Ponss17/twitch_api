@@ -104,7 +104,9 @@ const CommandsModule = {
       const resultBox = document.getElementById("test-result-container");
       const resultText = document.getElementById("test-result-text");
       if (!channel || !user) {
-        alert(CommandsMessages.completeFields);
+        resultBox.classList.add("active", "error");
+        resultBox.classList.remove("success");
+        resultText.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${CommandsMessages.completeFields}`;
         return;
       }
       resultBox.classList.add("active");
