@@ -63,11 +63,61 @@ export const AccountModule = {
 
     setupRegenerate() {
         const regenBtn = document.getElementById('regenerate-token-btn');
-        if (regenBtn && !regenBtn.dataset.listener) {
-            regenBtn.addEventListener('click', async () => {
-                if (!confirm(AccountMessages.regenerateConfirm)) return;
+        const modal = document.getElementById('regen-modal') as HTMLDialogElement;
+        const confirmBtn = document.getElementById('confirm-regen-btn');
+        const cancelBtn = document.getElementById('cancel-regen-btn');
+        const closeBtn = document.getElementById('close-regen-btn');
 
+        const showModal = () => {
+            if (modal) {
+                if (typeof modal.showModal === 'function') {
+                    modal.showModal();
+                } else {
+                    modal.style.display = 'block';
+                }
+            }
+        };
+
+        const closeModal = () => {
+            if (modal) {
+                if (typeof modal.close === 'function') {
+                    modal.close();
+                } else {
+                    modal.style.display = 'none';
+                }
+            }
+        };
+
+        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+        // Close on backdrop
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                const rect = modal.getBoundingClientRect();
+                const isInDialog =
+                    rect.top <= e.clientY &&
+                    e.clientY <= rect.top + rect.height &&
+                    rect.left <= e.clientX &&
+                    e.clientX <= rect.left + rect.width;
+                if (!isInDialog) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Logic for confirmed action
+        if (confirmBtn) {
+            // Remove old listeners to avoid multiple fires if re-initialized
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode?.replaceChild(newConfirmBtn, confirmBtn);
+
+            newConfirmBtn.addEventListener('click', async () => {
+                closeModal(); // Close modal immediately
+
+                if (!regenBtn) return;
                 UI.setButtonLoading(regenBtn as HTMLButtonElement, true);
+
                 try {
                     const response = await fetch(
                         `${API_ENDPOINTS.REGENERATE_KEY}?userId=${this.session?.userId}`
@@ -98,6 +148,12 @@ export const AccountModule = {
                 } finally {
                     UI.setButtonLoading(regenBtn as HTMLButtonElement, false);
                 }
+            });
+        }
+
+        if (regenBtn && !regenBtn.dataset.listener) {
+            regenBtn.addEventListener('click', () => {
+                showModal();
             });
             regenBtn.dataset.listener = 'true';
         }
