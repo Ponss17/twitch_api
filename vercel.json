@@ -44,7 +44,11 @@
     ],
     "rewrites": [
         {
-            "source": "/(.*)",
+            "source": "/api/(.*)",
+            "destination": "/api/index.ts"
+        },
+        {
+            "source": "/((?!css|js|img).*)",
             "destination": "/api/index.ts"
         }
     ],

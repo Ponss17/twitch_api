@@ -32,8 +32,7 @@ export const isPublicRoute = (path: string): boolean => {
         cleanPath.includes('/admin') ||
         // Only specific system routes should be loose, typically validation or public info
         // regenerate-key and feedback should stay protected/limited
-        cleanPath === '/system/validate' ||
-        cleanPath.includes('/debug-paths')
+        cleanPath === '/system/validate'
     ) {
         return true;
     }
