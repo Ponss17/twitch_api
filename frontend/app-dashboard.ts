@@ -58,15 +58,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 sessionParams.profile_image_url = avatarUrl;
             }
 
-            const syncedSession = await Auth.syncApiKey(sessionParams);
+            if (
+                validationResult &&
+                typeof validationResult === 'object' &&
+                validationResult.apiKey
+            ) {
+                sessionParams.apiKey = validationResult.apiKey;
+            }
 
-            await Dashboard.init(syncedSession);
-            Auth.saveSession(syncedSession);
+            await Dashboard.init(sessionParams);
+            Auth.saveSession(sessionParams);
 
-            if (syncedSession.isNewLogin) {
+            if (sessionParams.isNewLogin) {
                 const cleanUrl = window.location.pathname + window.location.hash;
                 window.history.replaceState({}, document.title, cleanUrl);
-                Auth.saveSession(syncedSession);
+                Auth.saveSession(sessionParams);
             }
         } catch (initError) {
             console.error('CRITICAL: Error initializing dashboard:', initError);

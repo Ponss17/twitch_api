@@ -14,15 +14,12 @@ interface AdminUser {
     createdAt?: string;
 }
 
-// Globals
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const Chart: any;
 let userChart: { destroy: () => void } | null = null;
 
-// State
 let _currentSection = 'overview';
 
-// Navigation
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).switchSection = (sectionId: string) => {
     _currentSection = sectionId;

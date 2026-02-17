@@ -1,0 +1,80 @@
+.hero-card {
+    background: linear-gradient(90deg, rgba(145, 70, 255, 0.15) 0%, #09090b 100%);
+    border: none;
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 24px 32px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+}
+
+.hero-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    line-height: 1.2;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.hero-icon {
+    font-size: 1.4rem;
+    color: var(--accent);
+    opacity: 0.9;
+}
+
+.hero-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin: 0;
+    font-weight: 500;
+}
+
+.gradient-text {
+    background: linear-gradient(to right, #a970ff, #9146ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@media (max-width: 768px) {
+    .hero-card {
+        padding: 20px;
+    }
+
+    .hero-title {
+        font-size: 1.5rem;
+    }
+}
+
+.stagger-1 {
+    animation-delay: 50ms;
+}
+
+.stagger-2 {
+    animation-delay: 100ms;
+}
+
+.stagger-3 {
+    animation-delay: 150ms;
+}
+
+.stagger-4 {
+    animation-delay: 200ms;
+}
+
+.stagger-5 {
+    animation-delay: 250ms;
+}
