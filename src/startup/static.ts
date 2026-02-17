@@ -12,8 +12,13 @@ export const configureStatic = (app: Application) => {
     ];
 
     publicPaths.forEach((publicPath) => {
-        app.use('/api/twitch', express.static(publicPath, { fallthrough: true }));
-        app.use(express.static(publicPath, { fallthrough: true }));
+        app.use(
+            '/api/twitch',
+            express.static(publicPath, { fallthrough: true, extensions: ['html', 'js', 'css'] })
+        );
+        app.use(
+            express.static(publicPath, { fallthrough: true, extensions: ['html', 'js', 'css'] })
+        );
     });
 
     app.use((req, res, next) => {

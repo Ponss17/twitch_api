@@ -1,5 +1,8 @@
 export const isStaticAsset = (path: string): boolean => {
-    return /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json|webp)$/i.test(path);
+    return (
+        /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json|webp)$/i.test(path) ||
+        /\/(css|js|img)\//i.test(path)
+    );
 };
 
 export const isPublicRoute = (path: string): boolean => {
@@ -7,7 +10,7 @@ export const isPublicRoute = (path: string): boolean => {
     const cleanPath = path.split('?')[0];
 
     // 1. Static Assets (Always public)
-    if (isStaticAsset(cleanPath)) return true;
+    if (isStaticAsset(cleanPath) || cleanPath.startsWith('/img/')) return true;
 
     // 2. System Critical Routes
     if (
