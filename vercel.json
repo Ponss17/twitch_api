@@ -42,25 +42,10 @@
             ]
         }
     ],
-    "routes": [
+    "rewrites": [
         {
-            "src": "/css/(.*)",
-            "dest": "/public/css/$1"
-        },
-        {
-            "src": "/js/(.*)",
-            "dest": "/public/js/$1"
-        },
-        {
-            "src": "/img/(.*)",
-            "dest": "/public/img/$1"
-        },
-        {
-            "handle": "filesystem"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/api/index.ts"
+            "source": "/(.*)",
+            "destination": "/api/index.ts"
         }
     ],
     "cleanUrls": false
