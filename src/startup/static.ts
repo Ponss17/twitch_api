@@ -6,7 +6,9 @@ export const configureStatic = (app: Application) => {
         path.join(process.cwd(), 'public'),
         path.join(process.cwd(), 'dist/public'),
         path.join(__dirname, '../../public'),
-        path.join(__dirname, '../../../public')
+        path.join(__dirname, '../../../public'),
+        path.join(__dirname, '../public'),
+        path.resolve(__dirname, '../../dist/public')
     ];
 
     publicPaths.forEach((publicPath) => {
