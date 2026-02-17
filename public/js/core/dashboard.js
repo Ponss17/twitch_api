@@ -1,6 +1,6 @@
 import { UI } from "./ui.js";
 import { HtmlLoader } from "../shared/utils/htmlLoader.js";
-import { AccountModule } from "../features/dashboard/account.js";
+import { HomeModule } from "../features/dashboard/home.js";
 import { AnalyticsModule } from "../features/dashboard/analytics.js";
 import { CommandsModule } from "../features/dashboard/commands.js";
 import { ClipsModule } from "../features/dashboard/clips.js";
@@ -35,7 +35,7 @@ const Dashboard = {
   initAllModules() {
     if (!this.session) return;
     const modules = [
-      AccountModule,
+      HomeModule,
       AnalyticsModule,
       CommandsModule,
       ClipsModule,
@@ -131,7 +131,7 @@ const Dashboard = {
     });
     this.activeModules = [];
     const moduleMap = {
-      "tab-home": [AccountModule, AnalyticsModule],
+      "tab-home": [HomeModule, AnalyticsModule],
       "tab-followage": [CommandsModule],
       "tab-clips": [ClipsModule, CommandsModule],
       "tab-shoutout": [CommandsModule],

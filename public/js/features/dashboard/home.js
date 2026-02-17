@@ -2,7 +2,7 @@ import { AccountMessages } from "./account/messages.js";
 import { DASHBOARD_CONFIG } from "./dashboard-config.js";
 const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { UI } from "../../core/ui.js";
-const AccountModule = {
+const HomeModule = {
   session: null,
   isInitialized: false,
   init(session) {
@@ -56,15 +56,6 @@ const AccountModule = {
     const confirmBtn = document.getElementById("confirm-regen-btn");
     const cancelBtn = document.getElementById("cancel-regen-btn");
     const closeBtn = document.getElementById("close-regen-btn");
-    const showModal = () => {
-      if (modal) {
-        if (typeof modal.showModal === "function") {
-          modal.showModal();
-        } else {
-          modal.style.display = "block";
-        }
-      }
-    };
     const closeModal = () => {
       if (modal) {
         if (typeof modal.close === "function") {
@@ -80,9 +71,7 @@ const AccountModule = {
       modal.addEventListener("click", (e) => {
         const rect = modal.getBoundingClientRect();
         const isInDialog = rect.top <= e.clientY && e.clientY <= rect.top + rect.height && rect.left <= e.clientX && e.clientX <= rect.left + rect.width;
-        if (!isInDialog) {
-          closeModal();
-        }
+        if (!isInDialog) closeModal();
       });
     }
     if (confirmBtn) {
@@ -104,9 +93,7 @@ const AccountModule = {
                 Auth.saveSession(this.session);
               });
             }
-            const tokenInput = document.getElementById(
-              "user-token"
-            );
+            const tokenInput = document.getElementById("user-token");
             if (tokenInput) {
               tokenInput.dataset.realValue = data.apiKey;
               if (tokenInput.type === "text") {
@@ -124,12 +111,16 @@ const AccountModule = {
     }
     if (regenBtn && !regenBtn.dataset.listener) {
       regenBtn.addEventListener("click", () => {
-        showModal();
+        if (modal && typeof modal.showModal === "function") {
+          modal.showModal();
+        } else if (modal) {
+          modal.style.display = "block";
+        }
       });
       regenBtn.dataset.listener = "true";
     }
   }
 };
 export {
-  AccountModule
+  HomeModule
 };

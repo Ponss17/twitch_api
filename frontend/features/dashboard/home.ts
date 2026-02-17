@@ -4,7 +4,7 @@ const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { UI } from '../../core/ui.js';
 import { Session } from '../../types.js';
 
-export const AccountModule = {
+export const HomeModule = {
     session: null as Session | null,
     isInitialized: false,
 
@@ -36,7 +36,6 @@ export const AccountModule = {
 
     setupUI() {
         this.updateValues();
-
         this.setupTokenVisibility();
         this.setupRegenerate();
     },
@@ -68,16 +67,6 @@ export const AccountModule = {
         const cancelBtn = document.getElementById('cancel-regen-btn');
         const closeBtn = document.getElementById('close-regen-btn');
 
-        const showModal = () => {
-            if (modal) {
-                if (typeof modal.showModal === 'function') {
-                    modal.showModal();
-                } else {
-                    modal.style.display = 'block';
-                }
-            }
-        };
-
         const closeModal = () => {
             if (modal) {
                 if (typeof modal.close === 'function') {
@@ -91,7 +80,6 @@ export const AccountModule = {
         if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
         if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
-        // Close on backdrop
         if (modal) {
             modal.addEventListener('click', (e) => {
                 const rect = modal.getBoundingClientRect();
@@ -100,21 +88,16 @@ export const AccountModule = {
                     e.clientY <= rect.top + rect.height &&
                     rect.left <= e.clientX &&
                     e.clientX <= rect.left + rect.width;
-                if (!isInDialog) {
-                    closeModal();
-                }
+                if (!isInDialog) closeModal();
             });
         }
 
-        // Logic for confirmed action
         if (confirmBtn) {
-            // Remove old listeners to avoid multiple fires if re-initialized
             const newConfirmBtn = confirmBtn.cloneNode(true);
             confirmBtn.parentNode?.replaceChild(newConfirmBtn, confirmBtn);
 
             newConfirmBtn.addEventListener('click', async () => {
-                closeModal(); // Close modal immediately
-
+                closeModal();
                 if (!regenBtn) return;
                 UI.setButtonLoading(regenBtn as HTMLButtonElement, true);
 
@@ -153,7 +136,11 @@ export const AccountModule = {
 
         if (regenBtn && !regenBtn.dataset.listener) {
             regenBtn.addEventListener('click', () => {
-                showModal();
+                if (modal && typeof modal.showModal === 'function') {
+                    modal.showModal();
+                } else if (modal) {
+                    modal.style.display = 'block';
+                }
             });
             regenBtn.dataset.listener = 'true';
         }

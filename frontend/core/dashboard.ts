@@ -2,7 +2,7 @@ import { UI } from './ui.js';
 import { HtmlLoader } from '../shared/utils/htmlLoader.js';
 import { Session, DashboardModule } from '../types.js';
 
-import { AccountModule } from '../features/dashboard/account.js';
+import { HomeModule } from '../features/dashboard/home.js';
 import { AnalyticsModule } from '../features/dashboard/analytics.js';
 import { CommandsModule } from '../features/dashboard/commands.js';
 import { ClipsModule } from '../features/dashboard/clips.js';
@@ -44,7 +44,7 @@ export const Dashboard = {
     initAllModules() {
         if (!this.session) return;
         const modules: DashboardModule[] = [
-            AccountModule,
+            HomeModule,
             AnalyticsModule,
             CommandsModule,
             ClipsModule,
@@ -156,7 +156,7 @@ export const Dashboard = {
         this.activeModules = [];
 
         const moduleMap: Record<string, DashboardModule[]> = {
-            'tab-home': [AccountModule as DashboardModule, AnalyticsModule as DashboardModule],
+            'tab-home': [HomeModule as DashboardModule, AnalyticsModule as DashboardModule],
             'tab-followage': [CommandsModule as DashboardModule],
             'tab-clips': [ClipsModule as DashboardModule, CommandsModule as DashboardModule],
             'tab-shoutout': [CommandsModule as DashboardModule],
