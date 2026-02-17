@@ -1,5 +1,4 @@
 import { Application, Request, Response } from 'express';
-import fs from 'fs';
 import path from 'path';
 import { CONFIG } from '../config/env';
 import rateLimiter, { authLimiter } from '../middleware/rateLimiter';
@@ -63,23 +62,6 @@ export const configureRoutes = (app: Application) => {
             uptime: process.uptime(),
             version: '2.9.4'
         });
-    });
-
-    // DEBUG: Path verification (temporary)
-    app.get('/api/twitch/debug-paths', (req: Request, res: Response) => {
-        const pathsToCheck = [
-            path.join(process.cwd(), 'public'),
-            path.join(process.cwd(), 'dist/public'),
-            path.join(__dirname, '../../public'),
-            path.join(__dirname, '../../../public'),
-            path.join(__dirname, '../public')
-        ];
-        const results = pathsToCheck.map((p) => ({
-            path: p,
-            exists: fs.existsSync(p),
-            contents: fs.existsSync(p) ? fs.readdirSync(p).slice(0, 5) : 'N/A'
-        }));
-        res.json({ cwd: process.cwd(), dirname: __dirname, results });
     });
 
     // Manejo de Errores (Debe ser el último)
