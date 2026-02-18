@@ -52,7 +52,12 @@ const HomeModule = {
         pill.className = `system-status-pill ${health.status}`;
         const latencyEl = document.getElementById("home-stat-latency");
         if (latencyEl) {
-          latencyEl.textContent = health.latency;
+          const parts = health.latency.split(" ");
+          if (parts.length > 1) {
+            latencyEl.innerHTML = `${parts[0]} <span class="stat-unit-alt">${parts[1]}</span>`;
+          } else {
+            latencyEl.textContent = health.latency;
+          }
         }
       }
     } catch (e) {
@@ -108,7 +113,11 @@ const HomeModule = {
         const avgLatency = parseInt(data.averageLatency) || 0;
         this.animateSingleStat("home-stat-requests", todayRequests, "");
         this.animateSingleStat("home-stat-success", successRate, "%");
-        this.animateSingleStat("home-stat-latency", avgLatency, `ms (${(avgLatency / 1e3).toFixed(1)}s)`);
+        this.animateSingleStat(
+          "home-stat-latency",
+          avgLatency,
+          `ms <span class="stat-unit-alt">(${(avgLatency / 1e3).toFixed(1)}s)</span>`
+        );
       }
     } catch (e) {
       console.error("[Home] Error loading stats:", e);
@@ -123,10 +132,10 @@ const HomeModule = {
     const timer = setInterval(() => {
       current += step;
       if (current >= target) {
-        el.textContent = `${target}${suffix}`;
+        el.innerHTML = `${target}${suffix}`;
         clearInterval(timer);
       } else {
-        el.textContent = `${current.toFixed(suffix === "%" ? 1 : 0)}${suffix}`;
+        el.innerHTML = `${current.toFixed(suffix.includes("%") ? 1 : 0)}${suffix}`;
       }
     }, 30);
   }
