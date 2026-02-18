@@ -212,10 +212,6 @@ export const recordUserRequest = async (
         // Incrementar diario
         await kv.hincrby(dailyKey, 'requests', 1);
         await kv.expire(dailyKey, 60 * 60 * 24 * 7); // Guardar historial de 7 días
-
-        console.log(
-            `[DB-STATS] Recorded request for ${userId}. Latency: ${latency}ms, Success: ${success}, Day: ${today}`
-        );
     } catch (e) {
         logger.error('Error recording user request stats:', e);
     }
