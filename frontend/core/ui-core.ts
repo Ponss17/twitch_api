@@ -117,5 +117,29 @@ export const UI = {
         } else {
             card.classList.remove('card-loading');
         }
+    },
+
+    animateValue(obj: HTMLElement, start: number, end: number, duration: number = 1500) {
+        if (start === end) {
+            obj.innerHTML = end.toString();
+            return;
+        }
+
+        let startTimestamp: number | null = null;
+        const step = (timestamp: number) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+
+            const easeProgress = 1 - Math.pow(1 - progress, 4);
+
+            obj.innerHTML = Math.floor(easeProgress * (end - start) + start).toLocaleString();
+
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                obj.innerHTML = end.toLocaleString();
+            }
+        };
+        window.requestAnimationFrame(step);
     }
 };

@@ -90,13 +90,19 @@ const ProfileModule = {
                 <div class="stat-card stagger-${index + 1}">
                     <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
                     <div class="stat-info">
-                        <h3 class="counter" data-target="${value}">${value}</h3>
+                        <h3 class="counter" data-target="${value}">0</h3>
                         <span>${stat.label}</span>
                     </div>
                 </div>
             `;
     });
     container.innerHTML = html;
+    requestAnimationFrame(() => {
+      container.querySelectorAll(".counter").forEach((counter) => {
+        const target = parseInt(counter.dataset.target || "0");
+        UI.animateValue(counter, 0, target, 1500);
+      });
+    });
   },
   updateProfileStatsInternal(data) {
     const followers = document.getElementById("profile-stat-followers");

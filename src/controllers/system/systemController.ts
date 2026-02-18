@@ -160,7 +160,7 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
                 database: dbStatus,
                 twitch: twitchStatus
             },
-            latency: `${latency}ms`,
+            latency: `${latency}ms (${(latency / 1000).toFixed(1)}s)`,
             timestamp: new Date().toISOString()
         });
     } catch (e) {

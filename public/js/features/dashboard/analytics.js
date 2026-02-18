@@ -105,28 +105,11 @@ const AnalyticsModule = {
     requestAnimationFrame(() => {
       document.querySelectorAll(".counter").forEach((counter) => {
         const target = parseInt(counter.dataset.target || "0");
-        this.animateValue(counter, 0, target, 1500);
+        import("../../core/ui.js").then(({ UI }) => {
+          UI.animateValue(counter, 0, target, 1500);
+        });
       });
     });
-  },
-  animateValue(obj, start, end, duration) {
-    if (start === end) {
-      obj.innerHTML = end.toString();
-      return;
-    }
-    let startTimestamp = null;
-    const step = (timestamp) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      const easeProgress = 1 - Math.pow(1 - progress, 4);
-      obj.innerHTML = Math.floor(easeProgress * (end - start) + start).toString();
-      if (progress < 1) {
-        window.requestAnimationFrame(step);
-      } else {
-        obj.innerHTML = end.toString();
-      }
-    };
-    window.requestAnimationFrame(step);
   }
 };
 export {

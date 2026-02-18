@@ -131,33 +131,10 @@ export const AnalyticsModule = {
         requestAnimationFrame(() => {
             document.querySelectorAll('.counter').forEach((counter) => {
                 const target = parseInt((counter as HTMLElement).dataset.target || '0');
-                this.animateValue(counter as HTMLElement, 0, target, 1500);
+                import('../../core/ui.js').then(({ UI }) => {
+                    UI.animateValue(counter as HTMLElement, 0, target, 1500);
+                });
             });
         });
-    },
-
-    animateValue(obj: HTMLElement, start: number, end: number, duration: number) {
-        if (start === end) {
-            obj.innerHTML = end.toString();
-            return;
-        }
-
-        let startTimestamp: number | null = null;
-        const step = (timestamp: number) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-
-            // Easing function: easeOutQuart
-            const easeProgress = 1 - Math.pow(1 - progress, 4);
-
-            obj.innerHTML = Math.floor(easeProgress * (end - start) + start).toString();
-
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            } else {
-                obj.innerHTML = end.toString();
-            }
-        };
-        window.requestAnimationFrame(step);
     }
 };

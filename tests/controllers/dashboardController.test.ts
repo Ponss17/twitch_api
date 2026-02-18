@@ -60,7 +60,7 @@ describe('dashboardController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     totalRequests: 100,
-                    averageLatency: '50ms',
+                    averageLatency: '50ms (0.1s)',
                     successRate: '95.0%',
                     todayRequests: 10
                 })
@@ -90,7 +90,7 @@ describe('dashboardController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     totalRequests: 0,
-                    averageLatency: '0ms',
+                    averageLatency: '0ms (0.0s)',
                     successRate: '100%'
                 })
             );
