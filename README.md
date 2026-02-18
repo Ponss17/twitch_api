@@ -1,103 +1,101 @@
 # LosPerrisAPI (Twitch Dashboard & API) 🚀
 
-> 💎 **Arquitectura Premium**: Dashboard y API profesional para streamers, construida con un enfoque modular, seguro y altamente escalable.
+> Suite de herramientas para streamers de Twitch desarrollada con arquitectura modular, enfoque en seguridad de datos y optimización de rendimiento en el lado del cliente.
 
 ---
 
-## 🔥 Características Destacadas
+## 🛠️ Especificaciones Técnicas
 
-### 🛠️ API REST de Alto Rendimiento
+Estructura diseñada bajo parámetros de integridad y eficiencia:
 
-- **Comandos Dinámicos**: Followage con precisión de segundos, creación de Clips automatizada y Shoutouts inteligentes.
-- **Bola 8 con IA**: Generación de respuestas con personalidad seleccionable (Clásica, Sarcástica, Tóxica, Amable) mediante modelos de lenguaje avanzados.
-- **Caché Inteligente**: Implementación de Redis (Vercel KV) para minimizar latencias y llamadas redundantes a la API de Twitch.
+- **⚙️ Capas de Seguridad**: Implementación de políticas de CORS restrictivas mediante whitelist de dominios, sanitización proactiva de entradas HTML para prevenir inyecciones (XSS) y cifrado AES-256-CBC para la persistencia de tokens de sesión en base de datos.
+- **⚡ Optimización de Recursos**: Uso de Vanilla TypeScript para evitar carga de frameworks externos, sistema de carga bajo demanda (lazy loading) de componentes y orquestación visual mediante `requestAnimationFrame`.
+- **🧪 Cobertura de Pruebas**: Suite de **37 tests unitarios** que validan la lógica de controladores, servicios de autenticación y flujos de infraestructura.
 
-### 🖥️ Dashboard Pro (Next-Gen UI)
+---
 
-- **Diseño Glassmorphism**: Interfaz oscura ultra-moderna con efectos de desenfoque y animaciones fluidas.
-- **Mobile-First Responsive**: Diseño totalmente adaptativo que escala perfectamente desde escritorio hasta dispositivos móviles.
-- **Arquitectura de Ciclo de Vida**: Motor de dashboard que gestiona la carga y limpieza de módulos (`init` / `deactivate`) dinámicamente.
-- **Lazy Loading Extremo**: Carga bajo demanda de HTML, CSS y JS TypeScript, optimizando el tiempo de respuesta inicial.
-- **XSS-Shield**: Sistema de renderizado seguro que protege contra inyecciones maliciosas en perfiles, clips y mensajes del chat.
+## 🔍 Detalle de Funcionalidades
 
-### 🛰️ Herramientas en Tiempo Real
+### Panel de Administración y Dashboard
 
-- **Stalker**: Monitor avanzado de chat con inspección de perfiles en tiempo real.
-- **Tendencias**: Análisis léxico del chat en vivo con sistema de ranking y temporizador.
-- **Ruleta Interactiva**: Sorteos interactivos con física de giro y temática Twitch personalizada.
-- **Ruleta Rusa (Bang)**: Minijuego de riesgo con interfaz inmersiva y animaciones CSS personalizadas.
-- **Arquitectura Modular**: CSS unificado en `common.css` para componentes compartidos y carga bajo demanda para estilos específicos.
+- **Arquitectura de Micro-módulos**: Sistema que gestiona de forma independiente la inicialización y limpieza (`init` / `deactivate`) de cada sección para optimizar el uso de memoria.
+- **Interfaz Glassmorphism**: Diseño basado en variables CSS dinámicas, efectos de desenfoque de fondo (`backdrop-filter`) y transiciones fluidas.
+- **XSS-Shield**: Procesamiento de datos de usuario mediante la función `sanitizeHtml` antes de su visualización en los paneles de actividad.
+
+### Herramientas de Interacción e IA
+
+- **Integración Groq LLM**: Sistema de IA para comandos de chat con 4 perfiles de respuesta configurables:
+    - **Clásica**: Respuestas estándar con tono místico.
+    - **Sarcástica**: Interacciones basadas en ironía.
+    - **Tóxica**: Respuestas con tono provocativo y directo.
+    - **Amable**: Soporte y respuestas motivadoras.
+- **Stalker de Perfiles**: Consulta en tiempo real de metadatos de usuario (ID, avatar, actividad y estadísticas públicas).
+- **Word Cloud & Tendencias**: Algoritmo de análisis léxico que identifica términos recurrentes en el chat y genera rankings de frecuencia.
+- **Simulaciones Visuales CSS**:
+    - **Ruleta Rusa**: Lógica de probabilidad con respuesta visual inmediata.
+    - **Ruleta de Selección**: Animación con simulación de fricción y deceleración mediante transformaciones CSS.
+
+### Capa de API y Conectividad
+
+- **Comandos de Utilidad**:
+    - `!followage`: Desglose exacto de tiempo de seguimiento (años, meses, días).
+    - `!clip`: Interfaz con la API de Twitch para generación inmediata de clips.
+    - `!shoutout`: Generación automática de recomendaciones con metadatos del canal (link y categoría actual).
+- **Generador de Documentación**: Adaptación dinámica de la sintaxis de comandos para bots externos como **Nightbot**, **Fossabot** y **StreamElements**.
+- **Sistema de Caché**: Persistencia en tres niveles: Memoria local (Hot), Vercel KV (Shared Redis) y CDN.
 
 ---
 
 ## 🏗️ Stack Tecnológico
 
-| Capa             | Tecnologías                                     |
-| :--------------- | :---------------------------------------------- |
-| **Backend**      | Node.js, Express, TypeScript                    |
-| **Frontend**     | TypeScript (Modular), Vanilla CSS3, FontAwesome |
-| **Persistencia** | Vercel KV (Redis) para caché y estadísticas     |
-| **Testing**      | Jest, Supertest, TS-Jest                        |
-| **Calidad**      | ESLint, Prettier, Husky                         |
-| **Seguridad**    | OAuth2, AES-256, Helmet CSP, Rate Limiting      |
-| **IA**           | Groq SDK (LLM integration)                      |
+| Componente        | Tecnología                             | Implementación                                     |
+| :---------------- | :------------------------------------- | :------------------------------------------------- |
+| **Backend**       | Node.js, Express, TypeScript           | Lógica de servidor y API REST                      |
+| **Frontend**      | Vanilla TS, CSS3, Esbuild              | Interfaz de usuario sin dependencias de frameworks |
+| **Base de Datos** | Vercel KV (Redis)                      | Gestión de sesiones, logs y estadísticas rápidas   |
+| **Testing**       | Jest, TS-Jest                          | Validación automática de 37 escenarios críticos    |
+| **Seguridad**     | AES-256, Helmet, OAuth2, Rate Limiting | Encriptado de datos y protección de headers        |
 
 ---
 
-## 📂 Estructura del Proyecto
+## 📊 Métricas de Código (SLOC Total)
+
+Total de **14,478+ líneas** de código fuente desarrollado:
+
+| Directorio                       | Líneas      | Función                                |
+| :------------------------------- | :---------- | :------------------------------------- |
+| **Backend (`src/`)**             | 2,709       | Controladores, servicios y middlewares |
+| **Frontend (`frontend/`)**       | 5,164       | Lógica de la UI y gestión del DOM      |
+| **Diseño (`public/css/`)**       | 4,797       | Estilos modulares y animaciones        |
+| **Estructura (`public/*.html`)** | 1,196       | Plantillas y componentes visuales      |
+| **Pruebas (`tests/`)**           | 612         | Suite de validación unitaria           |
+| **TOTAL FUENTE**                 | **14,478+** | **Volumen de ingeniería**              |
+
+---
+
+## 📂 Organización de Archivos
 
 ```text
-/
-├── 📂 src/                  # 🧠 Backend (Node.js + Express)
-│   ├── startup/             #    ├── 🏗️ Bootstrapping (Routes, Static, Middleware)
-│   ├── controllers/         #    ├── 🎮 Controllers (Twitch, System, Games)
-│   ├── routes/              #    ├── 🛣️ Routes (Modular Definition)
-│   ├── services/            #    ├── ⚡ Services (Business Logic)
-│   ├── middleware/          #    ├── 🛡️ Middleware (Auth, RateLimit, Logs)
-│   ├── config/              #    └── ⚙️ Config (Env, Constants)
-│   └── app.ts               #    └── 🏁 Entry Point (App Orchestrator)
+twitch_api/
+├── 📂 tests/                # 🧪 Suite de 37 Tests (Jest)
+│   ├── controllers/         # Pruebas de Dashboard y Comandos
+│   ├── services/            # Pruebas de servicios y autenticación
+│   └── infrastructure/      # Pruebas de salud y persistencia (KV)
 │
-├── 📂 frontend/             # 🎨 Frontend (Vanilla TypeScript)
-│   ├── features/            #    ├── 🧩 Features (Dashboard, Games, Tools)
-│   ├── core/                #    ├── ⚛️ Core (Authentication, Router)
-│   └── shared/              #    └── 🛠️ Shared (Utils, Types, UI)
+├── 📂 src/                  # 🛡️ Backend
+│   ├── startup/             # Inicialización (CORS, Rutas, Estáticos)
+│   ├── controllers/         # Controladores con sanitización XSS integrada
+│   └── services/            # Lógica (Auth, Twitch API, AES Encryption)
 │
-├── 📂 public/               # 🌍 Public Assets (Production Build)
-│   ├── css/                 #    ├── 🎨 Styles (Variables, Modules)
-│   ├── js/                  #    ├── 📜 Compiled JavaScript
-│   └── img/                 #    └── 🖼️ Images & Branding
+├── 📂 frontend/             # 🎨 Lógica Frontend (Vanilla TS)
+│   ├── features/            # Módulos: Docs, Dashboard, Admin, Games
+│   └── core/                # Orquestador de rutas y sesiones
 │
-├── 📂 tests/                # 🧪 Testing (Jest)
-│   ├── infrastructure/      #    ├── 🏗️ Infra Tests (DB, Cache)
-│   └── middleware/          #    └── 🛡️ Middleware Tests
-│
-├── 📄 api/                  # 🚀 Serverless Entry (Vercel)
-├── 📄 vercel.json           # ☁️ Deployment Config
-└── 📄 package.json          # 📦 Dependencies
+└── 📂 public/               # 📦 Assets finales
+    ├── js/                  # Compilados de TypeScript
+    └── css/                 # Hojas de estilo modulares
 ```
 
 ---
 
-## 🔒 Seguridad y Privacidad
-
-- **Zero-Value Logs**: No almacenamos información privada de los usuarios sin su consentimiento.
-- **Secure Sessions**: Tokens de Twitch guardados con cifrado de grado militar y rotación automática.
-- **Centralized Messages**: Toda la comunicación con el usuario gestionada desde `messages.js` para consistencia absoluta.
-
----
-
-| Categoría                       | Líneas de Código |
-| :------------------------------ | :--------------- |
-| **Backend (src)**               | 2,372            |
-| **Frontend (logic)**            | 4,714            |
-| **Diseño (CSS)**                | 3,941            |
-| **Tests (Jest)**                | 172              |
-| **Estructura (HTML)**           | 2,046            |
-| **Puntaje Total Fuente (SLOC)** | **13,245**       |
-
-> [!NOTE]
-> El proyecto tiene una huella total de **~22,400 líneas** incluyendo compilados y dependencias, pero el núcleo original desarrollado es de aproximadamente **10k líneas**.
-
----
-
-© 2026 LosPerrisAPI. Desarrollado con excelencia técnica para la comunidad de Twitch.💜🦾
+© 2026 LosPerrisAPI. Desarrollado con enfoque en robustez y eficiencia para la comunidad de Twitch. 💜🦾
