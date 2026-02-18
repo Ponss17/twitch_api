@@ -536,3 +536,10 @@
     font-size: 0.9rem;
     font-weight: 500;
 }
+
+.stat-unit-alt {
+    font-size: 0.72em;
+    opacity: 0.8;
+    margin-left: 2px;
+    font-weight: 400;
+}
