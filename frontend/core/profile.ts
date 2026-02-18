@@ -148,7 +148,7 @@ export const ProfileModule: DashboardModule = {
             badgesHtml += `<span class="profile-badge-status secondary"><i class="fa-solid fa-user"></i> Streamer</span>`;
         }
 
-        badgesHtml += `<span class="profile-badge-status secondary"><i class="fa-solid fa-crown"></i> LosPerris Pro</span>`;
+        badgesHtml += `<span class="profile-badge-status secondary"><i class="fa-solid fa-key"></i> LosPerris Access</span>`;
 
         container.innerHTML = badgesHtml;
     },

@@ -185,10 +185,17 @@
 .premium-field-group .field-label {
     display: block;
     font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 800;
-    color: var(--text-muted);
-    margin-bottom: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
     letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.field-label i {
+    color: var(--accent);
+    margin-right: 4px;
 }
 
 .field-input-wrapper {
@@ -205,15 +212,23 @@
     box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
-.premium-field-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: var(--text-primary);
-    padding: 16px 24px;
+.vault-field-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: #fff;
     font-family: 'Consolas', monospace;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.vault-field-input:focus {
     outline: none;
+    border-color: var(--accent);
+    background: rgba(145, 70, 255, 0.05);
+    box-shadow: 0 0 0 3px rgba(145, 70, 255, 0.1);
 }
 
 .field-actions {
@@ -223,21 +238,28 @@
 }
 
 .field-btn {
-    width: 52px;
-    background: transparent;
-    border: none;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
 }
 
 .field-btn:hover {
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.field-btn.copy-btn:hover {
+    background: rgba(145, 70, 255, 0.1);
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 .btn-danger-soft:hover {
@@ -251,46 +273,44 @@
     padding-top: 10px;
 }
 
-.status-badge-premium {
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
-    padding: 8px 16px;
-    border-radius: 8px;
+.status-badge-vault {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
 }
 
-.status-badge-premium .s-label {
-    font-size: 0.65rem;
+.status-badge-vault .s-label {
+    font-size: 0.6rem;
     font-weight: 800;
-    color: var(--text-muted);
-    white-space: nowrap;
+    color: var(--text-secondary);
 }
 
-.status-badge-premium .s-value {
-    font-size: 0.85rem;
+.status-badge-vault .s-value {
+    font-size: 0.8rem;
     font-weight: 700;
-    color: var(--text-primary);
-    font-family: 'Consolas', monospace;
+    color: #fff;
 }
 
-.status-badge-premium.success {
-    border-color: rgba(16, 185, 129, 0.2);
+.status-badge-vault.success {
     background: rgba(16, 185, 129, 0.05);
+    border-color: rgba(16, 185, 129, 0.1);
 }
 
-.status-badge-premium.success .s-value {
+.status-badge-vault.success .s-value {
     color: var(--success);
 }
 
-.status-badge-premium.info {
-    border-color: rgba(145, 70, 255, 0.2);
-    background: rgba(145, 70, 255, 0.05);
+.status-badge-vault.info {
+    background: rgba(59, 130, 246, 0.05);
+    border-color: rgba(59, 130, 246, 0.1);
 }
 
-.status-badge-premium.info .s-value {
-    color: var(--accent);
+.status-badge-vault.info .s-value {
+    color: #3b82f6;
 }
 
 .info-placeholder-card {
