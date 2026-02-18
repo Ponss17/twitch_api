@@ -108,7 +108,7 @@ const HomeModule = {
         const avgLatency = parseInt(data.averageLatency) || 0;
         this.animateSingleStat("home-stat-requests", todayRequests, "");
         this.animateSingleStat("home-stat-success", successRate, "%");
-        this.animateSingleStat("home-stat-latency", avgLatency, "ms");
+        this.animateSingleStat("home-stat-latency", avgLatency, `ms (${(avgLatency / 1e3).toFixed(1)}s)`);
       }
     } catch (e) {
       console.error("[Home] Error loading stats:", e);

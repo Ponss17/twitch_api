@@ -108,7 +108,7 @@ export const ProfileModule: DashboardModule = {
                 <div class="stat-card stagger-${index + 1}">
                     <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
                     <div class="stat-info">
-                        <h3 class="counter" data-target="${value}">${value}</h3>
+                        <h3 class="counter" data-target="${value}">0</h3>
                         <span>${stat.label}</span>
                     </div>
                 </div>
@@ -116,6 +116,14 @@ export const ProfileModule: DashboardModule = {
         });
 
         container.innerHTML = html;
+
+        // Disparar animación
+        requestAnimationFrame(() => {
+            container.querySelectorAll('.counter').forEach((counter) => {
+                const target = parseInt((counter as HTMLElement).dataset.target || '0');
+                UI.animateValue(counter as HTMLElement, 0, target, 1500);
+            });
+        });
     },
 
     updateProfileStatsInternal(data: Record<string, number>): void {
