@@ -4,6 +4,7 @@ import { AccountMessages } from "../features/dashboard/account/messages.js";
 const ProfileModule = {
   session: null,
   isInitialized: false,
+  rateLimitPollInterval: null,
   get authToken() {
     return this.session?.token || "";
   },
@@ -15,19 +16,23 @@ const ProfileModule = {
     this.setupUIInternal();
     this.loadProfileData();
     this.loadAnalytics();
+    if (this.rateLimitPollInterval) clearInterval(this.rateLimitPollInterval);
+    this.rateLimitPollInterval = setInterval(() => this.pollRateLimit(), 3e4);
   },
   deactivate() {
+    if (this.rateLimitPollInterval) {
+      clearInterval(this.rateLimitPollInterval);
+      this.rateLimitPollInterval = null;
+    }
   },
   setupUIInternal() {
     if (!this.session) return;
     const userIdTag = document.getElementById("profile-user-id");
     const displayName = document.getElementById("profile-display-name");
-    const username = document.getElementById("profile-username");
     const avatar = document.getElementById("profile-large-avatar");
     if (userIdTag) userIdTag.textContent = this.session.userId || "---";
     if (displayName)
       displayName.textContent = this.session.displayName || this.session.login || "Streamer";
-    if (username) username.textContent = `@${this.session.login || "streamer"}`;
     if (avatar && this.session.profile_image_url) {
       avatar.src = this.session.profile_image_url;
     }
@@ -39,6 +44,7 @@ const ProfileModule = {
     }
     this.setupTokenVisibility();
     this.setupRegenerate();
+    this.setupCopyId();
   },
   async loadProfileData() {
     if (!this.session) return;
@@ -56,6 +62,23 @@ const ProfileModule = {
       console.error("[Profile] Error loading data:", e);
     }
   },
+  async pollRateLimit() {
+    if (!this.session) return;
+    try {
+      const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}`;
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${this.authToken}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const rateLimitEl = document.getElementById("profile-stat-ratelimit");
+        if (rateLimitEl && data.rateLimit) {
+          rateLimitEl.textContent = `${data.rateLimit} req/min`;
+        }
+      }
+    } catch (_e) {
+    }
+  },
   async loadAnalytics() {
     if (!this.session) return;
     try {
@@ -64,11 +87,6 @@ const ProfileModule = {
       });
       if (response.ok) {
         const data = await response.json();
-        const cmdStat = document.getElementById("profile-stat-commands");
-        if (cmdStat) {
-          const total = (data.clips || 0) + (data.followage || 0) + (data.so || 0);
-          cmdStat.textContent = total.toLocaleString();
-        }
         this.renderCommandStatsInternal(data);
       }
     } catch (e) {
@@ -106,9 +124,35 @@ const ProfileModule = {
   },
   updateProfileStatsInternal(data) {
     const followers = document.getElementById("profile-stat-followers");
-    const views = document.getElementById("profile-stat-views");
-    if (followers) followers.textContent = (data.followers || 0).toLocaleString();
-    if (views) views.textContent = (data.views || 0).toLocaleString();
+    const bio = document.getElementById("profile-bio");
+    const broadcasterType = document.getElementById("profile-stat-broadcaster");
+    const createdAt = document.getElementById("profile-stat-created");
+    if (followers) {
+      const targetValue = data.followers || 0;
+      UI.animateValue(followers, 0, targetValue, 1500);
+    }
+    if (bio) bio.textContent = data.description || "Sin biograf\xEDa disponible. \xA1Este streamer es un misterio!";
+    if (broadcasterType) {
+      const types = {
+        partner: "Partner",
+        affiliate: "Afiliado",
+        "": "Streamer"
+      };
+      broadcasterType.textContent = types[data.broadcaster_type] || "Streamer";
+    }
+    if (createdAt && data.created_at) {
+      try {
+        const date = new Date(data.created_at);
+        const options = { day: "2-digit", month: "short", year: "numeric" };
+        createdAt.textContent = date.toLocaleDateString("es-ES", options);
+      } catch (e) {
+        createdAt.textContent = "---";
+      }
+    }
+    const rateLimitEl = document.getElementById("profile-stat-ratelimit");
+    if (rateLimitEl && data.rateLimit) {
+      rateLimitEl.textContent = `${data.rateLimit} req/min`;
+    }
   },
   updateBadgesInternal(data) {
     const container = document.getElementById("profile-badges-container");
@@ -140,6 +184,30 @@ const ProfileModule = {
         }
       });
       toggleBtn.dataset.listener = "true";
+    }
+  },
+  setupCopyId() {
+    const copyBtn = document.getElementById("profile-copy-id-btn");
+    if (copyBtn && !copyBtn.dataset.listener) {
+      copyBtn.addEventListener("click", () => {
+        const idEl = document.getElementById("profile-user-id");
+        const id = idEl?.textContent?.trim();
+        if (!id || id === "---") return;
+        navigator.clipboard.writeText(id).then(() => {
+          const icon = copyBtn.querySelector("i");
+          if (icon) {
+            icon.className = "fa-solid fa-check";
+            icon.style.opacity = "1";
+            icon.style.color = "var(--success)";
+            setTimeout(() => {
+              icon.className = "fa-regular fa-copy";
+              icon.style.opacity = "0.5";
+              icon.style.color = "";
+            }, 1500);
+          }
+        });
+      });
+      copyBtn.dataset.listener = "true";
     }
   },
   setupRegenerate() {

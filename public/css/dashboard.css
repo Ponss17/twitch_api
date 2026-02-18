@@ -271,61 +271,72 @@
 .user-badge {
     display: flex;
     align-items: center;
-    gap: 12px;
-    background: var(--bg-secondary);
-    padding: 6px 14px 6px 8px;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 5px 12px 5px 6px;
     border-radius: 99px;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     cursor: pointer;
     transition: all 0.2s ease;
     user-select: none;
+    backdrop-filter: blur(8px);
 }
 
 .user-badge:hover {
-    border-color: var(--accent);
-    background: rgba(145, 70, 255, 0.05);
+    border-color: rgba(145, 70, 255, 0.4);
+    background: rgba(145, 70, 255, 0.06);
+    box-shadow: 0 0 16px rgba(145, 70, 255, 0.1);
 }
 
 .user-badge img {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid transparent;
+    border: 2px solid rgba(145, 70, 255, 0.5);
     transition: border-color 0.2s;
 }
 
+.user-badge:hover img {
+    border-color: var(--accent);
+}
+
 .user-badge span {
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-weight: 700;
+    font-size: 0.88rem;
     color: var(--text-primary);
+    letter-spacing: -0.01em;
 }
 
 .dropdown-arrow {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    transition: transform 0.2s ease;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    transition: transform 0.25s ease;
+    margin-left: 2px;
 }
 
 .user-dropdown-container.active .dropdown-arrow {
     transform: rotate(180deg);
+    color: var(--accent);
 }
 
 .user-menu {
     position: absolute;
-    top: calc(100% + 12px);
+    top: calc(100% + 10px);
     right: 0;
-    width: 220px;
-    background: #0f0f12;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
-    padding: 8px;
+    width: 230px;
+    background: rgba(15, 15, 20, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(145, 70, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+    padding: 6px;
     display: none;
     flex-direction: column;
     gap: 2px;
     transform-origin: top right;
-    animation: dropdownFadeIn 0.2s ease-out;
+    animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .user-dropdown-container.active .user-menu {
@@ -333,66 +344,90 @@
 }
 
 .menu-header {
-    padding: 8px 12px 12px 12px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 8px;
+    padding: 10px 12px 12px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 4px;
 }
 
 .menu-title {
-    font-size: 0.7rem;
+    font-size: 0.62rem;
     font-weight: 800;
     text-transform: uppercase;
-    color: var(--text-secondary);
-    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
 }
 
 .menu-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
+    gap: 10px;
+    padding: 9px 12px;
     background: transparent;
     border: none;
-    border-radius: var(--radius-xs);
-    color: #efeff1;
-    font-size: 0.9rem;
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
     font-weight: 500;
     width: 100%;
     text-align: left;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 }
 
 .menu-item i {
-    width: 18px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    color: var(--text-secondary);
-    font-size: 1rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 6px;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
 }
 
 .menu-item:hover {
-    background: var(--accent);
+    background: rgba(145, 70, 255, 0.1);
     color: #fff;
 }
 
 .menu-item:hover i {
-    color: #fff;
+    background: rgba(145, 70, 255, 0.2);
+    color: var(--accent);
 }
 
 .menu-divider {
     height: 1px;
-    background: var(--border);
-    margin: 6px 0;
+    background: rgba(255, 255, 255, 0.06);
+    margin: 4px 0;
+}
+
+.btn-logout-new {
+    color: var(--danger) !important;
+}
+
+.btn-logout-new i {
+    color: var(--danger) !important;
+    background: rgba(239, 68, 68, 0.08) !important;
 }
 
 .btn-logout-new:hover {
-    background: var(--danger) !important;
+    background: rgba(239, 68, 68, 0.12) !important;
+    color: #fff !important;
+}
+
+.btn-logout-new:hover i {
+    background: rgba(239, 68, 68, 0.25) !important;
+    color: #ff6b6b !important;
 }
 
 @keyframes dropdownFadeIn {
     from {
         opacity: 0;
-        transform: translateY(-8px) scale(0.98);
+        transform: translateY(-6px) scale(0.97);
     }
 
     to {

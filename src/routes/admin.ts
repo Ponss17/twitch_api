@@ -16,7 +16,7 @@ import {
     clearSystemLogs
 } from '../services/infrastructure/dbService';
 import { logger } from '../utils/logger';
-
+import { invalidateUserCache } from '../middleware/apiKeyValidator';
 import { CONFIG } from '../config/env';
 
 const router = Router();
@@ -156,6 +156,10 @@ router.post('/users/:userId/rate-limit', async (req, res) => {
         if (limit === 0) delete user.customRateLimit; // 0 o null vuelve al default (120)
 
         await saveUser(user);
+
+        // Invalidar caché inmediatamente para que el nuevo límite se aplique en la próxima petición
+        invalidateUserCache(userId);
+
         logger.info(`Admin updated rate limit for user ${userId}: ${limit}`);
         res.json({ success: true, limit });
     } catch (e) {
