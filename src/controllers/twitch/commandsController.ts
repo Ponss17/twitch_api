@@ -7,7 +7,7 @@ import { MESSAGES } from '../../config/messages';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 
-import { safeString } from '../../utils/validationHelpers';
+import { safeString, sanitizeHtml } from '../../utils/validationHelpers';
 
 import { withTwitchAuth } from '../../utils/twitchAuthHelpers';
 
@@ -50,7 +50,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
                     await dbService.incrementUserStats(userId, 'clips');
                     await dbService.addUserActivity(
                         userId,
-                        `🎬 <strong>${req.displayName || 'Streamer'}</strong> <span class="log-action">creó un clip</span>`
+                        `🎬 <strong>${sanitizeHtml(req.displayName || 'Streamer')}</strong> <span class="log-action">creó un clip</span>`
                     );
                 }
                 return url;
@@ -86,7 +86,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 if (userId) {
                     await dbService.addUserActivity(
                         userId,
-                        `👥 <strong>${user}</strong> (Caché) <span class="log-action">consultó followage</span>`
+                        `👥 <strong>${sanitizeHtml(user)}</strong> (Caché) <span class="log-action">consultó followage</span>`
                     );
                 }
                 const template = req.query.template as string;
@@ -115,7 +115,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                     await dbService.incrementUserStats(userId, 'followage');
                     await dbService.addUserActivity(
                         userId,
-                        `👥 <strong>${user}</strong> <span class="log-action">consultó followage</span>`
+                        `👥 <strong>${sanitizeHtml(user)}</strong> <span class="log-action">consultó followage</span>`
                     );
                 }
                 return result;
@@ -154,7 +154,7 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
                 await apiService.sendChatMessage(userId, userId, message, token);
                 await dbService.addUserActivity(
                     userId,
-                    `envió mensaje al chat: ${message.substring(0, 20)}...`
+                    `envió mensaje al chat: ${sanitizeHtml(message.substring(0, 20))}...`
                 );
                 return { success: true };
             },
@@ -191,7 +191,7 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
                     await dbService.incrementUserStats(req.userId, 'so');
                     await dbService.addUserActivity(
                         req.userId,
-                        `📢 <strong>${touser}</strong> <span class="log-action">recibió un shoutout</span>`
+                        `📢 <strong>${sanitizeHtml(touser)}</strong> <span class="log-action">recibió un shoutout</span>`
                     );
                 }
                 return message;
