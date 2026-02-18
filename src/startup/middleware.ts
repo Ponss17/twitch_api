@@ -60,7 +60,28 @@ export const configureMiddleware = (app: Application) => {
         })
     );
 
-    app.use(cors());
+    app.use(
+        cors({
+            origin: (origin, callback) => {
+                // Permitir requests sin origin (bots, curl, Nightbot, Postman, etc.)
+                if (!origin) return callback(null, true);
+
+                const allowedOrigins = [
+                    'https://www.losperris.site',
+                    'https://losperris.site',
+                    'http://localhost:3000',
+                    'http://localhost:5173'
+                ];
+
+                if (allowedOrigins.includes(origin)) {
+                    return callback(null, true);
+                }
+
+                callback(new Error('Blocked by CORS'));
+            },
+            credentials: true
+        })
+    );
     app.use(compression());
     app.use(express.json());
 };

@@ -2,28 +2,22 @@ import express, { Application } from 'express';
 import path from 'path';
 
 export const configureStatic = (app: Application) => {
-    const publicPaths = [
-        path.join(process.cwd(), 'public'),
-        path.join(process.cwd(), 'dist/public'),
-        path.join(__dirname, '../../public'),
-        path.join(__dirname, '../../../public'),
-        path.join(__dirname, '../public'),
-        path.resolve(__dirname, '../../dist/public')
-    ];
+    // Desarrollo: public/ en raíz | Producción (Vercel): dist/public/
+    const publicPath = path.join(process.cwd(), 'public');
+    const distPublicPath = path.resolve(__dirname, '../../dist/public');
 
-    publicPaths.forEach((publicPath) => {
-        app.use(
-            '/api/twitch',
-            express.static(publicPath, { fallthrough: true, extensions: ['html', 'js', 'css'] })
-        );
-        app.use(
-            express.static(publicPath, { fallthrough: true, extensions: ['html', 'js', 'css'] })
-        );
-    });
+    const staticOptions = { fallthrough: true, extensions: ['html', 'js', 'css'] };
 
+    app.use('/api/twitch', express.static(publicPath, staticOptions));
+    app.use(express.static(publicPath, staticOptions));
+
+    app.use('/api/twitch', express.static(distPublicPath, staticOptions));
+    app.use(express.static(distPublicPath, staticOptions));
+
+    // Interceptar 404 de assets estáticos para evitar que caigan al router
     app.use((req, res, next) => {
         const cleanPath = req.originalUrl.split('?')[0];
-        if (/\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json|webp)$/i.test(cleanPath)) {
+        if (/\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(cleanPath)) {
             return res.status(404).send('Not Found');
         }
         next();
