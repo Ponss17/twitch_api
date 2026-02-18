@@ -1,0 +1,87 @@
+<div class="hero-card profile-hero-card stagger-1">
+    <div class="profile-hero-bg"></div>
+    <div class="hero-content profile-hero-flex">
+        <div class="profile-avatar-container">
+            <img src="./img/LosPerris-minimal.webp" id="profile-large-avatar" class="profile-large-avatar" alt="Avatar">
+            <div class="profile-status-indicator online"></div>
+        </div>
+        <div class="profile-master-info">
+            <h2 class="hero-title" id="profile-display-name">Streamer</h2>
+            <p class="hero-subtitle" id="profile-username">@streamer</p>
+            <div id="profile-badges-container" class="profile-badges-row">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card stagger-2">
+    <div class="card-header">
+        <div class="card-title-group">
+            <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
+            <div>
+                <h3>Uso de Herramientas</h3>
+                <p class="card-desc">Frecuencia de uso de tus comandos en tiempo real</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="profile-commands-grid" class="command-usage-grid">
+        </div>
+    </div>
+</div>
+
+<div class="card stagger-3">
+    <div class="card-header">
+        <div class="card-title-group">
+            <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div>
+                <div class="title-with-info">
+                    <h3>Seguridad y Conexión</h3>
+                    <div class="info-tooltip-wrapper">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span class="tooltip-content">Mantén esta información privada. No la compartas nunca en
+                            directo.</span>
+                    </div>
+                </div>
+                <p class="card-desc">Gestiona tus credenciales privadas de LosPerris API</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+
+        <div class="api-vault-box">
+            <div class="premium-field-group">
+                <label class="field-label">TU API KEY PRIVADA</label>
+                <div class="field-input-wrapper">
+                    <input type="password" id="profile-api-key" readonly class="premium-field-input">
+                    <div class="field-actions">
+                        <button class="field-btn" id="profile-toggle-key" title="Ver/Ocultar">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                        <button class="field-btn copy-btn" data-target="profile-api-key" title="Copiar">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                        <button class="field-btn btn-danger-soft" id="profile-regen-key" title="Regenerar">
+                            <i class="fa-solid fa-rotate"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-status-row">
+                <div class="status-badge-premium">
+                    <span class="s-label">ID CUENTA:</span>
+                    <span id="profile-user-id" class="s-value">---</span>
+                </div>
+                <div class="status-badge-premium success">
+                    <span class="s-label">ESTADO:</span>
+                    <span class="s-value"><i class="fa-solid fa-check"></i> ACTIVA</span>
+                </div>
+                <div class="status-badge-premium info">
+                    <span class="s-label">ACCESO:</span>
+                    <span class="s-value">FULL API</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

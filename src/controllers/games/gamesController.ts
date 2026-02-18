@@ -21,8 +21,6 @@ interface AuthenticatedRequest extends Request {
 
 import { safeString } from '../../utils/validationHelpers';
 
-// ...
-
 export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const question = safeString(req.query.question);
@@ -77,6 +75,7 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
                     return res.send(result.message);
                 }
             } catch (error: unknown) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const err = error as Record<string, any>;
                 const is401 = err?.message?.includes('401') || err?.status === 401;
 

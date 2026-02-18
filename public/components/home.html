@@ -1,77 +1,101 @@
-<div class="hero-card compact-hero">
-    <div class="hero-content">
-        <h2 class="hero-title">
-            Hola, <span class="gradient-text" id="hero-user-name">Streamer</span>
-            <i class="fa-brands fa-twitch hero-icon"></i>
-        </h2>
-        <p class="hero-subtitle">Bienvenido a tu panel de control de LosPerris API.</p>
-    </div>
-</div>
-
-<div class="card">
-    <div class="card-header">
-        <div class="card-title-group">
-            <div class="card-icon">
-                <i class="fa-solid fa-key"></i>
-            </div>
-            <div>
-                <h3>Tu Credencial API</h3>
-                <p class="card-desc">Gestiona tu API Key para las integraciones</p>
-            </div>
+<div class="hero-glass-section stagger-1">
+    <div class="hero-glass-content">
+        <div class="hero-text-area">
+            <h2 class="hero-welcome-title">
+                Hola, <span class="gradient-text" id="hero-user-name">Streamer</span>
+                <i class="fa-brands fa-twitch hero-twitch-icon"></i>
+            </h2>
+            <p class="hero-welcome-subtitle">Gestione sus utilidades de Twitch y monitoree el rendimiento de su API en
+                tiempo real.</p>
         </div>
-        <div class="header-actions header-actions-flex">
-            <i class="fa-solid fa-circle-question info-icon"
-                data-tooltip="Esta llave conecta tu canal con nuestras herramientas. ¡No la compartas con nadie!"></i>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="form-grid">
-            <div class="form-group">
-                <label>User ID</label>
-                <div class="input-group">
-                    <input type="text" id="user-id" readonly>
-                    <button class="btn-icon copy-btn" data-target="user-id">
-                        <i class="fa-regular fa-copy"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>API Key</label>
-                <div class="input-group">
-                    <input type="password" id="user-token" readonly>
-                    <button class="btn-icon" id="toggle-token-btn" title="Mostrar/Ocultar API Key">
-                        <i class="fa-regular fa-eye"></i>
-                    </button>
-                    <button class="btn-icon copy-btn" data-target="user-token" title="Copiar API Key">
-                        <i class="fa-regular fa-copy"></i>
-                    </button>
-                    <button class="btn-icon btn-warning" id="regenerate-token-btn"
-                        title="Regenerar API Key (la anterior dejará de funcionar)">
-                        <i class="fa-solid fa-rotate"></i>
-                    </button>
-                </div>
+        <div class="hero-status-area">
+            <div class="system-status-pill operational" id="home-health-pill">
+                <span class="pulse-dot"></span>
+                <span class="status-label">Sistemas Online</span>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <div class="card-title-group">
-            <div class="card-icon">
-                <i class="fa-solid fa-chart-line"></i>
-            </div>
-            <div>
-                <h3>Estadísticas</h3>
-                <p class="card-desc">Uso de tus comandos en tiempo real</p>
-            </div>
-        </div>
-        <div class="header-actions header-actions-flex">
-            <i class="fa-solid fa-circle-question info-icon"
-                data-tooltip="Contador histórico de cuántas veces tus viewers han usado los comandos."></i>
+<div class="home-mini-stats-grid mb-24">
+    <div class="mini-stat-card stagger-2">
+        <div class="m-icon"><i class="fa-solid fa-bolt"></i></div>
+        <div class="m-data">
+            <span class="m-label">PETICIONES HOY</span>
+            <span class="m-value" id="home-stat-requests">1.4k</span>
         </div>
     </div>
-    <div class="card-body">
-        <div id="stats-grid" class="stats-grid"></div>
+    <div class="mini-stat-card stagger-3">
+        <div class="m-icon success"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="m-data">
+            <span class="m-label">TASA DE ÉXITO</span>
+            <span class="m-value" id="home-stat-success">99.9%</span>
+        </div>
+    </div>
+    <div class="mini-stat-card stagger-4">
+        <div class="m-icon warning"><i class="fa-solid fa-gauge-high"></i></div>
+        <div class="m-data">
+            <span class="m-label">LATENCIA MEDIA</span>
+            <span class="m-value" id="home-stat-latency">142ms</span>
+        </div>
+    </div>
+</div>
+
+<div class="home-activity-layout">
+    <div class="card activity-feed-card stagger-5">
+        <div class="card-header">
+            <div class="card-title-group">
+                <div class="card-icon"><i class="fa-solid fa-terminal"></i></div>
+                <div>
+                    <h3>Actividad en Vivo</h3>
+                    <p class="card-desc">Registro en tiempo real del uso de comandos</p>
+                </div>
+            </div>
+            <div class="header-status">
+                <span class="live-indicator">LIVE</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="home-activity-logs" class="activity-logs">
+                <div class="log-placeholder">Conectando con el stream activity feed...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-resources-sidebar">
+        <div class="card sidebar-card stagger-6">
+            <div class="card-header mini">
+                <h3>Recursos</h3>
+            </div>
+            <div class="card-body">
+                <div class="sidebar-section-title">Comandos Frecuentes</div>
+                <div class="resource-links mb-20">
+                    <div class="resource-btn mini clickable-tab" data-tab="tab-followage">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Followage</span>
+                    </div>
+                    <div class="resource-btn mini clickable-tab" data-tab="tab-clips">
+                        <i class="fa-solid fa-clapperboard"></i>
+                        <span>Clips</span>
+                    </div>
+                    <div class="resource-btn mini clickable-tab" data-tab="tab-shoutout">
+                        <i class="fa-solid fa-bullhorn"></i>
+                        <span>Shoutout</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section-title">Enlaces Útiles</div>
+                <div class="resource-links">
+                    <a href="docs" target="_blank" class="resource-btn">
+                        <i class="fa-solid fa-book"></i>
+                        <span>Documentación</span>
+                    </a>
+                    <a href="https://discord.gg/8uN3qY5E" target="_blank" class="resource-btn">
+                        <i class="fa-brands fa-discord"></i>
+                        <span>Discord Soporte</span>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

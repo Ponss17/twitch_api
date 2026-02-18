@@ -13,6 +13,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         const user = res.locals.apiUser;
         req.userId = user.userId;
         req.login = user.login;
+        req.displayName = user.displayName;
         req.twitchToken = user.accessToken;
 
         dbService.updateLastActive(user.userId).catch((err) => {

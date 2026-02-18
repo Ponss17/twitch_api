@@ -8,5 +8,6 @@ router.get('/get-clips', checkToken, dashboardController.getClips);
 router.get('/analytics', checkToken, dashboardController.getAnalytics);
 router.get('/chatters', checkToken, dashboardController.getChatters);
 router.get('/user-info', checkToken, dashboardController.getUserInfo);
+router.get('/activity', checkToken, dashboardController.getLogs);
 
 export default router;

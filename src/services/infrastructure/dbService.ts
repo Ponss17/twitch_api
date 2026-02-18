@@ -194,6 +194,33 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
     }
 };
 
+export const recordUserRequest = async (
+    userId: string,
+    latency: number,
+    success: boolean
+): Promise<void> => {
+    try {
+        const key = `stats:${userId}`;
+        const today = new Date().toISOString().split('T')[0];
+        const dailyKey = `stats:${userId}:daily:${today}`;
+
+        // Incrementar totales
+        await kv.hincrby(key, 'total_requests', 1);
+        await kv.hincrby(key, 'total_latency', latency);
+        if (!success) await kv.hincrby(key, 'total_errors', 1);
+
+        // Incrementar diario
+        await kv.hincrby(dailyKey, 'requests', 1);
+        await kv.expire(dailyKey, 60 * 60 * 24 * 7); // Guardar historial de 7 días
+
+        console.log(
+            `[DB-STATS] Recorded request for ${userId}. Latency: ${latency}ms, Success: ${success}, Day: ${today}`
+        );
+    } catch (e) {
+        logger.error('Error recording user request stats:', e);
+    }
+};
+
 export const updateLastActive = async (userId: string): Promise<void> => {
     try {
         const user = await getUser(userId);
@@ -298,6 +325,39 @@ export const getSystemLogs = async (): Promise<any[]> => {
         const logs = await kv.lrange(LOGS_KEY, 0, -1);
         return logs.map((l) => (typeof l === 'string' ? JSON.parse(l) : l));
     } catch (_e) {
+        return [];
+    }
+};
+
+// ==========================================
+// Actividad de Usuario (Logs de comandos)
+// ==========================================
+
+const USER_ACTIVITY_PREFIX = 'activity:';
+const MAX_USER_LOGS = 50;
+
+export const addUserActivity = async (userId: string, action: string): Promise<void> => {
+    try {
+        const logEntry = {
+            timestamp: new Date().toISOString(),
+            action
+        };
+        const key = `${USER_ACTIVITY_PREFIX}${userId}`;
+        await kv.lpush(key, JSON.stringify(logEntry));
+        await kv.ltrim(key, 0, MAX_USER_LOGS - 1);
+    } catch (e) {
+        logger.error('Error adding user activity:', e);
+    }
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const getUserActivity = async (userId: string): Promise<any[]> => {
+    try {
+        const key = `${USER_ACTIVITY_PREFIX}${userId}`;
+        const logs = await kv.lrange(key, 0, -1);
+        return logs.map((l) => (typeof l === 'string' ? JSON.parse(l) : l));
+    } catch (e) {
+        logger.error('Error getting user activity:', e);
         return [];
     }
 };

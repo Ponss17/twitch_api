@@ -167,6 +167,27 @@
     width: 100%;
 }
 
+@keyframes pulse-accent {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+}
+
+.pulse-accent {
+    animation: pulse-accent 2s infinite ease-in-out;
+}
+
 .dashboard-header {
     display: flex;
     justify-content: space-between;
@@ -184,6 +205,53 @@
     text-shadow: 0 0 25px rgba(145, 70, 255, 0.3);
 }
 
+.system-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.1);
+    border-radius: 100px;
+    margin-top: 8px;
+}
+
+.system-status-pill.degraded {
+    background: rgba(245, 158, 11, 0.05);
+    border-color: rgba(245, 158, 11, 0.2);
+}
+
+.system-status-pill.degraded .status-label {
+    color: #f59e0b;
+}
+
+.system-status-pill.degraded .pulse-dot {
+    background: #f59e0b;
+    box-shadow: 0 0 8px #f59e0b;
+}
+
+.system-status-pill.down {
+    background: rgba(239, 68, 68, 0.05);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.system-status-pill.down .status-label {
+    color: var(--danger);
+}
+
+.system-status-pill.down .pulse-dot {
+    background: var(--danger);
+    box-shadow: 0 0 8px var(--danger);
+}
+
+.system-status-pill .status-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--success);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
 .dashboard-header h1 a {
     color: var(--accent);
     text-decoration: none;
@@ -195,31 +263,142 @@
     text-decoration: underline;
 }
 
+.user-dropdown-container {
+    position: relative;
+    z-index: 1000;
+}
+
 .user-badge {
     display: flex;
     align-items: center;
     gap: 12px;
     background: var(--bg-secondary);
-    padding: 6px 16px 6px 6px;
+    padding: 6px 14px 6px 8px;
     border-radius: 99px;
     border: 1px solid var(--border);
-    transition: border-color 0.2s;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
 }
 
 .user-badge:hover {
-    border-color: var(--border-hover);
+    border-color: var(--accent);
+    background: rgba(145, 70, 255, 0.05);
 }
 
 .user-badge img {
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     object-fit: cover;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
 }
 
 .user-badge span {
     font-weight: 600;
     font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.dropdown-arrow {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    transition: transform 0.2s ease;
+}
+
+.user-dropdown-container.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.user-menu {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 220px;
+    background: #0f0f12;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+    padding: 8px;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    transform-origin: top right;
+    animation: dropdownFadeIn 0.2s ease-out;
+}
+
+.user-dropdown-container.active .user-menu {
+    display: flex;
+}
+
+.menu-header {
+    padding: 8px 12px 12px 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+}
+
+.menu-title {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 0.08em;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-xs);
+    color: #efeff1;
+    font-size: 0.9rem;
+    font-weight: 500;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.menu-item i {
+    width: 18px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.menu-item:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+.menu-item:hover i {
+    color: #fff;
+}
+
+.menu-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 6px 0;
+}
+
+.btn-logout-new:hover {
+    background: var(--danger) !important;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .tab-pane {

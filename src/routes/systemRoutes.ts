@@ -7,5 +7,6 @@ const router = express.Router();
 router.get('/validate', checkToken, systemController.validateToken);
 router.post('/regenerate-key', checkToken, systemController.regenerateKey);
 router.post('/feedback', checkToken, systemController.submitFeedback);
+router.get('/health', checkToken, systemController.getHealth);
 
 export default router;

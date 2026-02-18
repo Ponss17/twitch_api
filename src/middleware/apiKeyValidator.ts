@@ -10,8 +10,6 @@ const MAX_CACHE_SIZE = 1000;
 
 import { isPublicRoute } from '../utils/routeHelpers';
 
-// ... imports
-
 export const apiKeyValidator = async (req: Request, res: Response, next: NextFunction) => {
     const apiKey = (req.query.apiKey as string) || (req.headers['x-api-key'] as string);
     const cleanPath = req.originalUrl.split('?')[0];

@@ -53,6 +53,7 @@ export const MESSAGES = {
         ANALYTICS_ERROR: 'Error recuperando analytics',
         CLIPS_ERROR: 'Error recuperando clips.',
         CHATTERS_ERROR: 'Error recuperando chatters',
-        USER_INFO_ERROR: 'Error recuperando info de usuario'
+        USER_INFO_ERROR: 'Error recuperando info de usuario',
+        LOGS_ERROR: 'Error recuperando actividad'
     }
 };

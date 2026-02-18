@@ -1,7 +1,5 @@
-import { AccountMessages } from "./account/messages.js";
 import { DASHBOARD_CONFIG } from "./dashboard-config.js";
 const { API_ENDPOINTS } = DASHBOARD_CONFIG;
-import { UI } from "../../core/ui.js";
 const HomeModule = {
   session: null,
   isInitialized: false,
@@ -13,14 +11,7 @@ const HomeModule = {
   deactivate() {
   },
   updateValues() {
-    const userIdInput = document.getElementById("user-id");
-    const userTokenInput = document.getElementById("user-token");
     if (this.session) {
-      if (userIdInput) userIdInput.value = this.session.userId || "";
-      if (userTokenInput) {
-        userTokenInput.value = this.session.apiKey || this.session.token || "";
-        userTokenInput.dataset.realValue = this.session.apiKey || this.session.token || "";
-      }
       const heroName = document.getElementById("hero-user-name");
       if (heroName) {
         heroName.textContent = this.session.displayName || this.session.login || "Streamer";
@@ -29,96 +20,115 @@ const HomeModule = {
   },
   setupUI() {
     this.updateValues();
-    this.setupTokenVisibility();
-    this.setupRegenerate();
+    this.loadRealActivity();
+    this.loadRealStats();
+    this.loadRealHealth();
+    this.setupNavigation();
   },
-  setupTokenVisibility() {
-    const toggleBtn = document.getElementById("toggle-token-btn");
-    const tokenInput = document.getElementById("user-token");
-    if (toggleBtn && tokenInput && !toggleBtn.dataset.listener) {
-      toggleBtn.addEventListener("click", () => {
-        const isHidden = tokenInput.type === "password";
-        if (isHidden) {
-          tokenInput.type = "text";
-          tokenInput.value = tokenInput.dataset.realValue || "";
-          toggleBtn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
-        } else {
-          tokenInput.type = "password";
-          toggleBtn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+  setupNavigation() {
+    const btns = document.querySelectorAll(".clickable-tab");
+    btns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tabId = btn.dataset.tab;
+        if (!tabId) return;
+        const sidebarBtn = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
+        if (sidebarBtn) {
+          sidebarBtn.click();
         }
       });
-      toggleBtn.dataset.listener = "true";
-    }
+    });
   },
-  setupRegenerate() {
-    const regenBtn = document.getElementById("regenerate-token-btn");
-    const modal = document.getElementById("regen-modal");
-    const confirmBtn = document.getElementById("confirm-regen-btn");
-    const cancelBtn = document.getElementById("cancel-regen-btn");
-    const closeBtn = document.getElementById("close-regen-btn");
-    const closeModal = () => {
-      if (modal) {
-        if (typeof modal.close === "function") {
-          modal.close();
-        } else {
-          modal.style.display = "none";
+  async loadRealHealth() {
+    const pill = document.getElementById("home-health-pill");
+    const label = pill?.querySelector(".status-label");
+    if (!pill || !label || !this.session) return;
+    try {
+      const response = await fetch(API_ENDPOINTS.HEALTH, {
+        headers: { Authorization: `Bearer ${this.session?.token}` }
+      });
+      if (response.ok) {
+        const health = await response.json();
+        label.textContent = health.status === "operational" ? "Todos los Sistemas Operativos" : "Sistemas Degradados";
+        pill.className = `system-status-pill ${health.status}`;
+        const latencyEl = document.getElementById("home-stat-latency");
+        if (latencyEl) {
+          latencyEl.textContent = health.latency;
         }
       }
-    };
-    if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
-    if (closeBtn) closeBtn.addEventListener("click", closeModal);
-    if (modal) {
-      modal.addEventListener("click", (e) => {
-        const rect = modal.getBoundingClientRect();
-        const isInDialog = rect.top <= e.clientY && e.clientY <= rect.top + rect.height && rect.left <= e.clientX && e.clientX <= rect.left + rect.width;
-        if (!isInDialog) closeModal();
-      });
+    } catch (e) {
+      console.error("[Home] Error loading health:", e);
+      label.textContent = "Error de Conexi\xF3n";
+      pill.className = "system-status-pill down";
     }
-    if (confirmBtn) {
-      const newConfirmBtn = confirmBtn.cloneNode(true);
-      confirmBtn.parentNode?.replaceChild(newConfirmBtn, confirmBtn);
-      newConfirmBtn.addEventListener("click", async () => {
-        closeModal();
-        if (!regenBtn) return;
-        UI.setButtonLoading(regenBtn, true);
-        try {
-          const response = await fetch(
-            `${API_ENDPOINTS.REGENERATE_KEY}?userId=${this.session?.userId}`
-          );
-          const data = await response.json();
-          if (data.apiKey) {
-            if (this.session) {
-              this.session.apiKey = data.apiKey;
-              import("../../core/auth.js").then(({ Auth }) => {
-                Auth.saveSession(this.session);
-              });
-            }
-            const tokenInput = document.getElementById("user-token");
-            if (tokenInput) {
-              tokenInput.dataset.realValue = data.apiKey;
-              if (tokenInput.type === "text") {
-                tokenInput.value = data.apiKey;
-              }
-            }
-            UI.showToast(AccountMessages.regenerateSuccess, "success");
-          }
-        } catch (_e) {
-          UI.showToast(AccountMessages.regenerateError, "error");
-        } finally {
-          UI.setButtonLoading(regenBtn, false);
+  },
+  async loadRealActivity() {
+    const logContainer = document.getElementById("home-activity-logs");
+    if (!logContainer || !this.session?.token) return;
+    await new Promise((r) => setTimeout(r, 600));
+    try {
+      const response = await fetch(`${API_ENDPOINTS.ACTIVITY}?_=${Date.now()}`, {
+        headers: { Authorization: `Bearer ${this.session?.token}` }
+      });
+      if (response.ok) {
+        const logs = await response.json();
+        logContainer.innerHTML = "";
+        if (logs.length === 0) {
+          logContainer.innerHTML = '<div class="log-placeholder">No hay actividad reciente registrada.</div>';
+          return;
         }
-      });
+        logs.forEach((log) => {
+          const time = new Date(log.timestamp).toLocaleTimeString("es-ES", {
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+          const logElement = document.createElement("div");
+          logElement.className = "log-entry";
+          logElement.innerHTML = `
+                        <span class="log-time">[${time}]</span>
+                        <span class="log-msg">${log.action}</span>
+                    `;
+          logContainer.appendChild(logElement);
+        });
+      }
+    } catch (e) {
+      console.error("[Home] Error loading activity:", e);
+      logContainer.innerHTML = '<div class="log-placeholder text-danger">Error al conectar con el feed de actividad.</div>';
     }
-    if (regenBtn && !regenBtn.dataset.listener) {
-      regenBtn.addEventListener("click", () => {
-        if (modal && typeof modal.showModal === "function") {
-          modal.showModal();
-        } else if (modal) {
-          modal.style.display = "block";
-        }
+  },
+  async loadRealStats() {
+    if (!this.session?.token) return;
+    try {
+      const response = await fetch(`${API_ENDPOINTS.ANALYTICS}?_=${Date.now()}`, {
+        headers: { Authorization: `Bearer ${this.session.token}` }
       });
-      regenBtn.dataset.listener = "true";
+      if (response.ok) {
+        const data = await response.json();
+        const todayRequests = data.todayRequests || 0;
+        const successRate = data.rawSuccessRate || 0;
+        const avgLatency = parseInt(data.averageLatency) || 0;
+        this.animateSingleStat("home-stat-requests", todayRequests, "");
+        this.animateSingleStat("home-stat-success", successRate, "%");
+        this.animateSingleStat("home-stat-latency", avgLatency, "ms");
+      }
+    } catch (e) {
+      console.error("[Home] Error loading stats:", e);
     }
+  },
+  animateSingleStat(id, target, suffix) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let current = 0;
+    const duration = 1500;
+    const step = target / (duration / 30);
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= target) {
+        el.textContent = `${target}${suffix}`;
+        clearInterval(timer);
+      } else {
+        el.textContent = `${current.toFixed(suffix === "%" ? 1 : 0)}${suffix}`;
+      }
+    }, 30);
   }
 };
 export {
