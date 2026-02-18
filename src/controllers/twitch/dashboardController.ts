@@ -127,10 +127,14 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
         const info = await apiService.getUserInfo(login, token || '');
         const followers = await apiService.getFollowersCount(info.id, token || '');
 
+        const apiUser = res.locals.apiUser;
+        const rateLimit = apiUser?.customRateLimit || 120;
+
         res.json({
             ...info,
             followers,
-            views: info.view_count
+            views: info.view_count,
+            rateLimit
         });
     } catch (_error: unknown) {
         res.status(500).json({ error: MESSAGES.DASHBOARD.USER_INFO_ERROR });

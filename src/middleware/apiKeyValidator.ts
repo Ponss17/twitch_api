@@ -10,6 +10,23 @@ const MAX_CACHE_SIZE = 1000;
 
 import { isPublicRoute } from '../utils/routeHelpers';
 
+/**
+ * Invalida la caché de API Key para un userId específico.
+ * Llamar esto cuando el admin cambia el rate limit u otros datos del usuario.
+ */
+export const invalidateUserCache = (userId: string): void => {
+    let invalidated = 0;
+    for (const [key, cached] of validKeysCache.entries()) {
+        if (cached.user?.userId === userId) {
+            validKeysCache.delete(key);
+            invalidated++;
+        }
+    }
+    if (invalidated > 0) {
+        logger.info(`[Cache] Invalidated ${invalidated} cache entries for userId: ${userId}`);
+    }
+};
+
 export const apiKeyValidator = async (req: Request, res: Response, next: NextFunction) => {
     const apiKey = (req.query.apiKey as string) || (req.headers['x-api-key'] as string);
     const cleanPath = req.originalUrl.split('?')[0];

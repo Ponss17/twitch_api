@@ -1,15 +1,40 @@
-<div class="hero-card profile-hero-card stagger-1">
+<div class="profile-hero-card stagger-1">
     <div class="profile-hero-bg"></div>
-    <div class="hero-content profile-hero-flex">
+    <div class="profile-hero-flex">
         <div class="profile-avatar-container">
             <img src="./img/LosPerris-minimal.webp" id="profile-large-avatar" class="profile-large-avatar" alt="Avatar"
                 loading="lazy">
             <div class="profile-status-indicator online"></div>
         </div>
         <div class="profile-master-info">
-            <h2 class="hero-title" id="profile-display-name">Streamer</h2>
-            <p class="hero-subtitle" id="profile-username">@streamer</p>
-            <div id="profile-badges-container" class="profile-badges-row">
+            <div class="profile-title-row">
+                <h2 class="profile-name" id="profile-display-name">Streamer</h2>
+                <div id="profile-badges-container" class="profile-badges-row"></div>
+            </div>
+            <p class="profile-bio" id="profile-bio">Cargando biografía...</p>
+
+            <div class="profile-stats-grid-inline">
+                <div class="profile-stat-item">
+                    <i class="fa-solid fa-heart"></i>
+                    <div class="stat-text">
+                        <span class="stat-value" id="profile-stat-followers">---</span>
+                        <span class="stat-label">Seguidores</span>
+                    </div>
+                </div>
+                <div class="profile-stat-item">
+                    <i class="fa-solid fa-video"></i>
+                    <div class="stat-text">
+                        <span class="stat-value" id="profile-stat-broadcaster">---</span>
+                        <span class="stat-label">Tipo Canal</span>
+                    </div>
+                </div>
+                <div class="profile-stat-item">
+                    <i class="fa-solid fa-calendar"></i>
+                    <div class="stat-text">
+                        <span class="stat-value" id="profile-stat-created">---</span>
+                        <span class="stat-label">Miembro</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -36,16 +61,13 @@
         <div class="card-title-group">
             <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
             <div>
-                <div class="title-with-info">
-                    <h3>Seguridad y Conexión</h3>
-                    <div class="info-tooltip-wrapper">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <span class="tooltip-content">Mantén esta información privada. No la compartas nunca en
-                            directo.</span>
-                    </div>
-                </div>
+                <h3>Seguridad y Conexión</h3>
                 <p class="card-desc">Gestiona tus credenciales privadas de LosPerris API</p>
             </div>
+        </div>
+        <div class="info-tooltip-wrapper">
+            <i class="fa-solid fa-circle-info"></i>
+            <span class="tooltip-content">Mantén esta información privada. No la compartas nunca en directo.</span>
         </div>
     </div>
     <div class="card-body">
@@ -70,10 +92,6 @@
             </div>
 
             <div class="footer-status-row">
-                <div class="status-badge-vault">
-                    <span class="s-label">ID CUENTA:</span>
-                    <span id="profile-user-id" class="s-value">---</span>
-                </div>
                 <div class="status-badge-vault success">
                     <span class="s-label">ESTADO:</span>
                     <span class="s-value"><i class="fa-solid fa-check"></i> ACTIVA</span>
@@ -82,6 +100,18 @@
                     <span class="s-label">ACCESO:</span>
                     <span class="s-value">FULL API</span>
                 </div>
+                <div class="status-badge-vault" id="profile-ratelimit-badge"
+                    title="Peticiones máximas por minuto con tu API Key">
+                    <span class="s-label">LÍMITE/MIN:</span>
+                    <span class="s-value" id="profile-stat-ratelimit">120</span>
+                    <i class="fa-solid fa-gauge-high"
+                        style="font-size:0.7rem; color:var(--accent); margin-left:4px; opacity:0.7;"></i>
+                </div>
+                <button class="status-badge-vault copy-id-btn" id="profile-copy-id-btn" title="Copiar ID de cuenta">
+                    <span class="s-label">ID:</span>
+                    <span id="profile-user-id" class="s-value">---</span>
+                    <i class="fa-regular fa-copy" style="font-size:0.65rem; opacity:0.5; margin-left:4px;"></i>
+                </button>
             </div>
         </div>
     </div>
