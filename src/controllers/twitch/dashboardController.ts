@@ -1,3 +1,4 @@
+import { kv } from '@vercel/kv';
 import { Response } from 'express';
 import * as dbService from '../../services/infrastructure/dbService';
 import * as apiService from '../../services/twitch/apiService';
@@ -13,15 +14,56 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
     const userId = req.userId;
 
     if (!userId) {
-        return res.json({ clips: 0, followage: 0 });
+        return res.json({
+            todayRequests: 0,
+            totalRequests: 0,
+            averageLatency: '0ms',
+            successRate: '100%',
+            rawSuccessRate: 100
+        });
     }
 
     try {
         const stats = await dbService.getUserStats(userId);
-        res.json(stats);
+        const today = new Date().toISOString().split('T')[0];
+        const dailyStats =
+            ((await kv.hgetall(`stats:${userId}:daily:${today}`)) as Record<string, string>) || {};
+
+        const todayRequests = parseInt(dailyStats?.requests) || 0;
+
+        res.json({
+            ...stats,
+            todayRequests,
+            totalRequests: stats.total_requests || 0,
+            averageLatency:
+                stats.total_latency && stats.total_requests
+                    ? `${Math.round(stats.total_latency / stats.total_requests)}ms`
+                    : '0ms',
+            successRate: stats.total_requests
+                ? `${((1 - (stats.total_errors || 0) / stats.total_requests) * 100).toFixed(1)}%`
+                : '100%',
+            rawSuccessRate: stats.total_requests
+                ? parseFloat(
+                      ((1 - (stats.total_errors || 0) / stats.total_requests) * 100).toFixed(1)
+                  )
+                : 100
+        });
     } catch (e) {
         logger.error('Error analytics:', e);
         res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });
+    }
+};
+
+export const getLogs = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId;
+    if (!userId) return res.json([]);
+
+    try {
+        const logs = await dbService.getUserActivity(userId);
+        res.json(logs);
+    } catch (e) {
+        logger.error('Error logs activity:', e);
+        res.status(500).json({ error: MESSAGES.DASHBOARD.LOGS_ERROR });
     }
 };
 
@@ -79,7 +121,13 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
 
     try {
         const info = await apiService.getUserInfo(login, token || '');
-        res.json(info);
+        const followers = await apiService.getFollowersCount(info.id, token || '');
+
+        res.json({
+            ...info,
+            followers,
+            views: info.view_count
+        });
     } catch (_error: unknown) {
         res.status(500).json({ error: MESSAGES.DASHBOARD.USER_INFO_ERROR });
     }

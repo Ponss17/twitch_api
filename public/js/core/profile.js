@@ -1,0 +1,194 @@
+import { UI } from "./ui.js";
+import { DASHBOARD_CONFIG } from "../features/dashboard/dashboard-config.js";
+import { AccountMessages } from "../features/dashboard/account/messages.js";
+const ProfileModule = {
+  session: null,
+  isInitialized: false,
+  get authToken() {
+    return this.session?.token || "";
+  },
+  init(session) {
+    this.session = session;
+    this.isInitialized = true;
+  },
+  activate() {
+    this.setupUIInternal();
+    this.loadProfileData();
+    this.loadAnalytics();
+  },
+  deactivate() {
+  },
+  setupUIInternal() {
+    if (!this.session) return;
+    const userIdTag = document.getElementById("profile-user-id");
+    const displayName = document.getElementById("profile-display-name");
+    const username = document.getElementById("profile-username");
+    const avatar = document.getElementById("profile-large-avatar");
+    if (userIdTag) userIdTag.textContent = this.session.userId || "---";
+    if (displayName)
+      displayName.textContent = this.session.displayName || this.session.login || "Streamer";
+    if (username) username.textContent = `@${this.session.login || "streamer"}`;
+    if (avatar && this.session.profile_image_url) {
+      avatar.src = this.session.profile_image_url;
+    }
+    const tokenInput = document.getElementById("profile-api-key");
+    if (tokenInput) {
+      const realKey = this.session.apiKey || this.session.token || "";
+      tokenInput.value = realKey;
+      tokenInput.dataset.realValue = realKey;
+    }
+    this.setupTokenVisibility();
+    this.setupRegenerate();
+  },
+  async loadProfileData() {
+    if (!this.session) return;
+    try {
+      const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}`;
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${this.authToken}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        this.updateProfileStatsInternal(data);
+        this.updateBadgesInternal(data);
+      }
+    } catch (e) {
+      console.error("[Profile] Error loading data:", e);
+    }
+  },
+  async loadAnalytics() {
+    if (!this.session) return;
+    try {
+      const response = await fetch(DASHBOARD_CONFIG.API_ENDPOINTS.ANALYTICS, {
+        headers: { Authorization: `Bearer ${this.authToken}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const cmdStat = document.getElementById("profile-stat-commands");
+        if (cmdStat) {
+          const total = (data.clips || 0) + (data.followage || 0) + (data.so || 0);
+          cmdStat.textContent = total.toLocaleString();
+        }
+        this.renderCommandStatsInternal(data);
+      }
+    } catch (e) {
+      console.error("[Profile] Error loading analytics:", e);
+    }
+  },
+  renderCommandStatsInternal(data) {
+    const container = document.getElementById("profile-commands-grid");
+    if (!container) return;
+    const statConfig = [
+      { key: "clips", icon: "fa-film", label: "Clips" },
+      { key: "followage", icon: "fa-clock", label: "Followage" },
+      { key: "so", icon: "fa-bullhorn", label: "Shoutouts" }
+    ];
+    let html = "";
+    statConfig.forEach((stat, index) => {
+      const value = data[stat.key] || 0;
+      html += `
+                <div class="stat-card stagger-${index + 1}">
+                    <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
+                    <div class="stat-info">
+                        <h3 class="counter" data-target="${value}">${value}</h3>
+                        <span>${stat.label}</span>
+                    </div>
+                </div>
+            `;
+    });
+    container.innerHTML = html;
+  },
+  updateProfileStatsInternal(data) {
+    const followers = document.getElementById("profile-stat-followers");
+    const views = document.getElementById("profile-stat-views");
+    if (followers) followers.textContent = (data.followers || 0).toLocaleString();
+    if (views) views.textContent = (data.views || 0).toLocaleString();
+  },
+  updateBadgesInternal(data) {
+    const container = document.getElementById("profile-badges-container");
+    if (!container) return;
+    let badgesHtml = "";
+    if (data.broadcaster_type === "partner") {
+      badgesHtml += `<span class="profile-badge-status"><i class="fa-solid fa-check-circle"></i> Partner de Twitch</span>`;
+    } else if (data.broadcaster_type === "affiliate") {
+      badgesHtml += `<span class="profile-badge-status"><i class="fa-solid fa-star"></i> Afiliado de Twitch</span>`;
+    } else {
+      badgesHtml += `<span class="profile-badge-status secondary"><i class="fa-solid fa-user"></i> Streamer</span>`;
+    }
+    badgesHtml += `<span class="profile-badge-status secondary"><i class="fa-solid fa-crown"></i> LosPerris Pro</span>`;
+    container.innerHTML = badgesHtml;
+  },
+  setupTokenVisibility() {
+    const toggleBtn = document.getElementById("profile-toggle-key");
+    const tokenInput = document.getElementById("profile-api-key");
+    if (toggleBtn && tokenInput && !toggleBtn.dataset.listener) {
+      toggleBtn.addEventListener("click", () => {
+        const isHidden = tokenInput.type === "password";
+        if (isHidden) {
+          tokenInput.type = "text";
+          tokenInput.value = tokenInput.dataset.realValue || "";
+          toggleBtn.innerHTML = '<i class="fa-regular fa-eye-slash"></i>';
+        } else {
+          tokenInput.type = "password";
+          toggleBtn.innerHTML = '<i class="fa-regular fa-eye"></i>';
+        }
+      });
+      toggleBtn.dataset.listener = "true";
+    }
+  },
+  setupRegenerate() {
+    const regenBtn = document.getElementById("profile-regen-key");
+    const modal = document.getElementById("regen-modal");
+    const confirmBtn = document.getElementById("confirm-regen-btn");
+    if (regenBtn && !regenBtn.dataset.listener) {
+      regenBtn.addEventListener("click", () => {
+        if (modal) {
+          if (typeof modal.showModal === "function") {
+            modal.showModal();
+          } else {
+            modal.style.display = "block";
+          }
+        }
+      });
+      regenBtn.dataset.listener = "true";
+    }
+    if (confirmBtn && !confirmBtn.dataset.listener) {
+      confirmBtn.addEventListener("click", async () => {
+        const closeBtn = document.getElementById("close-regen-btn");
+        if (closeBtn) closeBtn.click();
+        if (!regenBtn) return;
+        UI.setButtonLoading(regenBtn, true);
+        try {
+          const response = await fetch(
+            `${DASHBOARD_CONFIG.API_ENDPOINTS.REGENERATE_KEY}?userId=${this.session?.userId}`
+          );
+          const data = await response.json();
+          if (data.apiKey) {
+            if (this.session) {
+              this.session.apiKey = data.apiKey;
+              const auth = await import("./auth.js");
+              auth.Auth.saveSession(this.session);
+            }
+            const tokenInput = document.getElementById(
+              "profile-api-key"
+            );
+            if (tokenInput) {
+              tokenInput.dataset.realValue = data.apiKey;
+              if (tokenInput.type === "text") tokenInput.value = data.apiKey;
+            }
+            UI.showToast(AccountMessages.regenerateSuccess, "success");
+          }
+        } catch (_e) {
+          UI.showToast(AccountMessages.regenerateError, "error");
+        } finally {
+          UI.setButtonLoading(regenBtn, false);
+        }
+      });
+      confirmBtn.dataset.listener = "true";
+    }
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+};
+export {
+  ProfileModule
+};

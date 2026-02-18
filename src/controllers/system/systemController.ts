@@ -131,3 +131,40 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
         res.status(500).json({ error: MESSAGES.FEEDBACK.SEND_ERROR });
     }
 };
+
+export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
+    const token = req.twitchToken;
+    const startTime = Date.now();
+
+    try {
+        const dbStatus = await dbService
+            .getUser('ping')
+            .then(() => 'online')
+            .catch(() => 'offline');
+
+        let twitchStatus = 'offline';
+        if (token) {
+            try {
+                const validation = await apiService.validateToken(token);
+                if (validation) twitchStatus = 'online';
+            } catch (_e) {
+                twitchStatus = 'error';
+            }
+        }
+
+        const latency = Date.now() - startTime;
+
+        res.json({
+            status: dbStatus === 'online' && twitchStatus === 'online' ? 'operational' : 'degraded',
+            checks: {
+                database: dbStatus,
+                twitch: twitchStatus
+            },
+            latency: `${latency}ms`,
+            timestamp: new Date().toISOString()
+        });
+    } catch (e) {
+        logger.error('Error in health check:', e);
+        res.status(500).json({ status: 'down', error: 'Internal health check failed' });
+    }
+};

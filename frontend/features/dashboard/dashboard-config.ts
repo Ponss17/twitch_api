@@ -11,6 +11,8 @@ export const DASHBOARD_CONFIG = {
         USER_INFO: `${API_BASE}/dashboard/user-info`,
         SEND_MESSAGE: `${API_BASE}/send-message`,
         CLIPS: `${API_BASE}/dashboard/get-clips`,
+        ACTIVITY: `${API_BASE}/dashboard/activity`,
+        HEALTH: `/api/twitch/system/health`,
         DUEL: `${API_BASE}/minigames/duel`
     },
     IGNORED_BOTS: new Set([

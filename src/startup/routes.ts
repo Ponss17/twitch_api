@@ -35,7 +35,15 @@ export const configurePageRoutes = (app: Application) => {
 };
 
 export const configureRoutes = (app: Application) => {
-    // --- VALIDACIÓN Y RATE LIMIT (PARA RUTAS DINÁMICAS/API) ---
+    // --- MIDDLEWARES Y CONFIGURACIÓN ---
+    app.use((req, res, next) => {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.setHeader('Surrogate-Control', 'no-store');
+        next();
+    });
+
     app.use(apiKeyValidator);
     app.use(rateLimiter);
 

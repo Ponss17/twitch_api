@@ -1,4 +1,3 @@
-import { UI } from './ui.js';
 import { HtmlLoader } from '../shared/utils/htmlLoader.js';
 import { Session, DashboardModule } from '../types.js';
 
@@ -12,6 +11,7 @@ import { Magic8Module } from '../features/dashboard/magic8.js';
 import { RouletteModule } from '../features/dashboard/roulette.js';
 import { RussianModule } from '../features/dashboard/russian/module.js';
 import { DuelModule } from '../features/dashboard/duel/module.js';
+import { ProfileModule } from './profile.js';
 import { FeedbackModule } from '../features/dashboard/feedback.js';
 
 export const Dashboard = {
@@ -45,6 +45,7 @@ export const Dashboard = {
         if (!this.session) return;
         const modules: DashboardModule[] = [
             HomeModule,
+            ProfileModule,
             AnalyticsModule,
             CommandsModule,
             ClipsModule,
@@ -81,6 +82,45 @@ export const Dashboard = {
             name.innerText = displayName;
         }
 
+        const toggle = document.getElementById('user-dropdown-toggle');
+        const container = document.querySelector('.user-dropdown-container');
+        const menu = document.getElementById('user-menu');
+
+        if (toggle && container && menu) {
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                container.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!container.contains(e.target as Node)) {
+                    container.classList.remove('active');
+                }
+            });
+
+            const profileBtn = document.getElementById('btn-profile');
+            if (profileBtn) {
+                profileBtn.addEventListener('click', () => {
+                    container.classList.remove('active');
+
+                    document
+                        .querySelectorAll('.tab-pane')
+                        .forEach((p) => p.classList.remove('active'));
+                    const pane = document.getElementById('tab-profile');
+                    if (pane) pane.classList.add('active');
+
+                    this.loadTab('tab-profile');
+                    document
+                        .querySelectorAll('.nav-item')
+                        .forEach((t) => t.classList.remove('active'));
+                });
+            }
+
+            document.getElementById('logout-btn-header')?.addEventListener('click', () => {
+                import('./auth.js').then((m) => m.Auth.logout());
+            });
+        }
+
         this.updatePageTitle('tab-home');
 
         document.getElementById('logout-btn')?.addEventListener('click', () => {
@@ -94,6 +134,7 @@ export const Dashboard = {
 
         const titleMap: Record<string, string> = {
             'tab-home': 'Inicio',
+            'tab-profile': 'Mi Perfil',
             'tab-followage': 'Followage',
             'tab-clips': 'Clips',
             'tab-shoutout': 'Shoutout',
@@ -108,15 +149,7 @@ export const Dashboard = {
 
         const title = titleMap[tabId] || 'Dashboard';
 
-        if (tabId === 'tab-home' && this.session) {
-            const { displayName } = this.session;
-            const safeDisplayName = UI.escapeHTML(displayName || 'Streamer');
-            const safeLogin = UI.escapeHTML(this.session.login || '');
-            const welcomeMsg = `Dashboard de <a href="https://twitch.tv/${safeLogin}" target="_blank" class="welcome-link">${safeDisplayName}</a>`;
-            pageTitle.innerHTML = welcomeMsg;
-        } else {
-            pageTitle.textContent = title;
-        }
+        pageTitle.textContent = title;
     },
 
     setupTabs() {
@@ -157,6 +190,7 @@ export const Dashboard = {
 
         const moduleMap: Record<string, DashboardModule[]> = {
             'tab-home': [HomeModule as DashboardModule, AnalyticsModule as DashboardModule],
+            'tab-profile': [ProfileModule as DashboardModule],
             'tab-followage': [CommandsModule as DashboardModule],
             'tab-clips': [ClipsModule as DashboardModule, CommandsModule as DashboardModule],
             'tab-shoutout': [CommandsModule as DashboardModule],

@@ -44,18 +44,14 @@ const AnalyticsModule = {
           this.lastFetch = Date.now();
           this.render(data);
         } else {
-          console.error("[Analytics] Invalid data format:", data);
           if (!this.cache) statsContainer.innerHTML = AnalyticsMessages.errorState;
         }
       } else {
-        const errorText = await res.text();
-        console.error("[Analytics] Error response:", errorText);
         if (!this.cache) {
           statsContainer.innerHTML = AnalyticsMessages.errorState;
         }
       }
-    } catch (e) {
-      console.error("[Analytics] Fetch error:", e);
+    } catch (_e) {
       if (!this.cache) {
         statsContainer.innerHTML = AnalyticsMessages.errorState;
       }
@@ -95,7 +91,6 @@ const AnalyticsModule = {
       card.className = `stat-card stagger-${index + 1}`;
       card.style.animation = "fadeInSoft 0.5s ease-out forwards";
       card.style.animationDelay = `${index * 100}ms`;
-      card.style.opacity = "0";
       card.innerHTML = `
                 <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
                 <div class="stat-info">

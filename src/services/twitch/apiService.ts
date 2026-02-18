@@ -264,6 +264,20 @@ export const getChatters = async (broadcasterId: string, moderatorId: string, to
     }
 };
 
+export const getFollowersCount = async (broadcasterId: string, token: string): Promise<number> => {
+    try {
+        const headers = getHeaders(token);
+        const response = await apiClient.get('https://api.twitch.tv/helix/channels/followers', {
+            headers,
+            params: { broadcaster_id: broadcasterId }
+        });
+        return response.data.total || 0;
+    } catch (error) {
+        logger.error('Error in getFollowersCount:', error);
+        return 0;
+    }
+};
+
 export const sendChatMessage = async (
     broadcasterId: string,
     senderId: string,
