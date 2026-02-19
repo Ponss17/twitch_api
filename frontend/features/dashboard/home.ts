@@ -154,8 +154,15 @@ export const HomeModule = {
                 logContainer.innerHTML = '';
 
                 if (logs.length === 0) {
-                    logContainer.innerHTML =
-                        '<div class="log-placeholder">No hay actividad reciente registrada.</div>';
+                    logContainer.innerHTML = `
+                        <div class="empty-state-container">
+                            <div class="empty-state-icon">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </div>
+                            <h4>Sin actividad reciente</h4>
+                            <p>Tus comandos y acciones aparecerán aquí en cuanto empieces a usarlos.</p>
+                        </div>
+                    `;
                     return;
                 }
 

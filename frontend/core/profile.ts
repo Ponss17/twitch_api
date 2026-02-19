@@ -500,8 +500,8 @@ export const ProfileModule: DashboardModule = {
         if (deleteBtn && !deleteBtn.dataset.listener) {
             deleteBtn.addEventListener('click', () => {
                 this.openDangerModal({
-                    title: 'Eliminar Cuenta Permanentemente',
-                    desc: '¡ATENCIÓN! Esta acción es irreversible. Se borrarán todos tus datos, API Key y acceso al sistema.',
+                    title: 'Eliminar Perfil de LosPerris API',
+                    desc: '¡ATENCIÓN! Esta acción es irreversible dentro de nuestra plataforma. Se borrarán tus datos y API Key. Esto NO afectará a tu canal ni cuenta de Twitch de ninguna manera.',
                     word: 'ELIMINAR',
                     onConfirm: async () => {
                         try {

@@ -172,3 +172,35 @@ footer a:hover {
         transform: rotate(360deg);
     }
 }
+
+.empty-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--text-dim);
+    opacity: 0.8;
+}
+
+.empty-state-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.25rem;
+    color: var(--accent);
+    opacity: 0.4;
+    filter: drop-shadow(0 0 10px rgba(130, 80, 255, 0.2));
+}
+
+.empty-state-container h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+.empty-state-container p {
+    font-size: 0.9rem;
+    max-width: 250px;
+    line-height: 1.5;
+}
