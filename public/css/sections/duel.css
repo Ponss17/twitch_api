@@ -14,11 +14,6 @@
     animation: fa-shake 1s infinite linear;
 }
 
-.response-card.success {
-    background: linear-gradient(135deg, rgba(234, 88, 12, 0.15), rgba(194, 65, 12, 0.1));
-    border: 1px solid rgba(234, 88, 12, 0.3);
-    border-left: 4px solid #ea580c;
-}
 
 .fa-khanda {
     transition: transform 0.3s ease;
@@ -26,4 +21,15 @@
 
 .btn-primary:hover .fa-khanda {
     transform: rotate(15deg) scale(1.1);
-}@media (max-width: 360px) { .response-card { padding: 15px; font-size: 0.95rem; } .duel-loading { font-size: 0.9rem; } }
+}
+
+@media (max-width: 360px) {
+    .response-card {
+        padding: 15px;
+        font-size: 0.95rem;
+    }
+
+    .duel-loading {
+        font-size: 0.9rem;
+    }
+}

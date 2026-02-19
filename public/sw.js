@@ -5,7 +5,6 @@ const urlsToCache = [
     '/css/base.css',
     '/css/dashboard.css',
     '/css/components/common.css',
-    '/css/sections/analytics.css',
     '/css/components/skeleton.css',
     '/css/components/footer.css',
     '/js/app-dashboard.js',

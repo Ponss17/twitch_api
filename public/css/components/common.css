@@ -417,17 +417,20 @@
 
 .response-card {
     margin-top: 25px;
-    padding: 20px;
+    padding: 24px;
     border-radius: var(--radius);
-    background: var(--bg-primary);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--border);
     color: var(--text-primary);
     font-size: 1.05rem;
-    line-height: 1.5;
+    line-height: 1.6;
     display: none;
     align-items: center;
     gap: 15px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-lg);
+    animation: revealCard 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .response-card.active {
@@ -435,11 +438,32 @@
 }
 
 .response-card.success {
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(79, 70, 229, 0.05));
+    border: 1px solid rgba(145, 70, 255, 0.3);
     border-left: 4px solid var(--accent);
 }
 
 .response-card.error {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(153, 27, 27, 0.05));
+    border: 1px solid rgba(239, 68, 68, 0.3);
     border-left: 4px solid var(--danger);
+}
+
+.response-card i {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+}
+
+@keyframes revealCard {
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 @media (max-width: 768px) {

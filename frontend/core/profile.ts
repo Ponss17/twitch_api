@@ -3,6 +3,7 @@ import { UI } from './ui.js';
 import { DASHBOARD_CONFIG } from '../features/dashboard/dashboard-config.js';
 import { AccountMessages } from '../features/dashboard/account/messages.js';
 import { HtmlLoader } from '../shared/utils/htmlLoader.js';
+import { Loader } from '../shared/utils/loader.js';
 
 export const ProfileModule: DashboardModule = {
     session: null as Session | null,
@@ -20,6 +21,7 @@ export const ProfileModule: DashboardModule = {
     },
 
     activate(): void {
+        Loader.loadCSS('./css/sections/profile.css');
         this.setupUIInternal();
         this.loadProfileData();
         this.loadAnalytics();
