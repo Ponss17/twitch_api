@@ -43,7 +43,7 @@ const authorizeAdmin = async (req: Request, res: Response, next: NextFunction) =
     const isStatic = /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(path);
     if (isStatic) return next();
 
-    const sessionToken = req.headers['x-admin-password'];
+    const sessionToken = req.headers['x-admin-api-key'];
 
     if (!sessionToken) {
         return res.status(401).json({ error: 'Inicia sesión como administrador' });
@@ -108,6 +108,7 @@ router.post('/users/:userId/status', async (req, res) => {
         }
 
         await updateUserStatus(userId, isActive, reason);
+        invalidateUserCache(userId);
         logger.info(`Admin updated user ${userId} status: isActive=${isActive}`);
         res.json({ success: true });
     } catch (e) {
@@ -120,6 +121,7 @@ router.post('/users/:userId/reset-key', async (req, res) => {
     try {
         const { userId } = req.params;
         const newKey = await resetUserApiKey(userId);
+        invalidateUserCache(userId);
         logger.info(`Admin reset API key for user ${userId}`);
         res.json({ success: true, newKey });
     } catch (e) {
@@ -132,6 +134,7 @@ router.delete('/users/:userId', async (req, res) => {
     try {
         const { userId } = req.params;
         await deleteUser(userId);
+        invalidateUserCache(userId);
         logger.info(`Admin deleted user ${userId}`);
         res.json({ success: true });
     } catch (e) {

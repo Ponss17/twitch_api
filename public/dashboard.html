@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="./css/components/loading.css">
     <link rel="stylesheet" href="./css/components/footer.css">
     <link rel="stylesheet" href="./css/components/modal.css">
+    <link rel="stylesheet" href="./css/components/danger-modal.css">
     <link rel="stylesheet" href="./css/sections/profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -157,25 +158,8 @@
         </div>
     </div>
 
-    <dialog id="regen-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-triangle-exclamation"></i> ¿Estás seguro de regenerar tu API Key?</h3>
-                <button id="close-regen-btn" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <p>Al regenerar tu API Key, <strong>la clave anterior dejará de funcionar inmediatamente</strong>.</p>
-                <p>Tendrás que actualizar el token en todos tus bots (Nightbot, StreamElements, etc.) para que los
-                    comandos sigan funcionando.</p>
-                <p class="text-sm text-secondary">Esta acción no se puede deshacer.</p>
-            </div>
-            <div class="modal-footer">
-                <button id="confirm-regen-btn" class="btn-danger">
-                    <i class="fa-solid fa-arrows-rotate"></i> Sí, regenerar
-                </button>
-                <button id="cancel-regen-btn" class="btn-secondary">Cancelar</button>
-            </div>
-        </div>
+    <dialog id="regen-modal" class="modal" data-src="./components/modals/regenApiKey.html"></dialog>
+    <dialog id="danger-action-modal" class="modal danger-modal" data-src="./components/modals/dangerAction.html">
     </dialog>
 
     <script type="module" src="./js/app-dashboard.js"></script>

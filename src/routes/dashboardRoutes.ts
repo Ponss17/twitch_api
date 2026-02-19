@@ -10,4 +10,8 @@ router.get('/chatters', checkToken, dashboardController.getChatters);
 router.get('/user-info', checkToken, dashboardController.getUserInfo);
 router.get('/activity', checkToken, dashboardController.getLogs);
 
+// Danger Zone
+router.post('/clear-data', checkToken, dashboardController.clearUserData);
+router.delete('/delete-account', checkToken, dashboardController.deleteAccount);
+
 export default router;

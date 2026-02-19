@@ -104,11 +104,10 @@ describe('systemController', () => {
     });
 
     describe('regenerateKey', () => {
-        it('should regenerate API key for valid existing key', async () => {
-            const req = mockReq({ body: { key: 'old-api-key' } });
+        it('should regenerate API key for authenticated user session', async () => {
+            const req = mockReq({ userId: '123' });
             const res = mockRes();
 
-            (dbService.getUserByApiKey as jest.Mock).mockResolvedValue({ userId: '123' });
             (authService.regenerateApiKey as jest.Mock).mockResolvedValue('new-api-key-uuid');
 
             await regenerateKey(req, res);
@@ -121,24 +120,24 @@ describe('systemController', () => {
             );
         });
 
-        it('should return 400 if no key provided in body', async () => {
-            const req = mockReq({ body: {} });
+        it('should return 401 if userId is missing from session', async () => {
+            const req = mockReq({ userId: undefined });
             const res = mockRes();
-
-            await regenerateKey(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-        });
-
-        it('should return 401 if API key not found in DB', async () => {
-            const req = mockReq({ body: { key: 'invalid-key' } });
-            const res = mockRes();
-
-            (dbService.getUserByApiKey as jest.Mock).mockResolvedValue(null);
 
             await regenerateKey(req, res);
 
             expect(res.status).toHaveBeenCalledWith(401);
+        });
+
+        it('should return 500 if regeneration service fails', async () => {
+            const req = mockReq();
+            const res = mockRes();
+
+            (authService.regenerateApiKey as jest.Mock).mockRejectedValue(new Error('DB Error'));
+
+            await regenerateKey(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
         });
     });
 

@@ -140,3 +140,42 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
         res.status(500).json({ error: MESSAGES.DASHBOARD.USER_INFO_ERROR });
     }
 };
+export const clearUserData = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId;
+    const { confirm } = req.body;
+
+    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
+    if (confirm !== 'LIMPIAR') {
+        return res
+            .status(400)
+            .json({ error: 'Debes escribir LIMPIAR para confirmar esta acción.' });
+    }
+
+    try {
+        await dbService.clearUserStatsAndLogs(userId);
+        res.json({ success: true, message: 'Estadísticas y actividad reiniciadas correctamente.' });
+    } catch (e) {
+        logger.error('Error clearing user data:', e);
+        res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });
+    }
+};
+
+export const deleteAccount = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId;
+    const { confirm } = req.body;
+
+    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
+    if (confirm !== 'ELIMINAR') {
+        return res
+            .status(400)
+            .json({ error: 'Debes escribir ELIMINAR para confirmar esta acción.' });
+    }
+
+    try {
+        await dbService.deleteUser(userId);
+        res.json({ success: true, message: 'Cuenta eliminada permanentemente del sistema.' });
+    } catch (e) {
+        logger.error('Error deleting account:', e);
+        res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });
+    }
+};

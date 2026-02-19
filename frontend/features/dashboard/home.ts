@@ -5,18 +5,31 @@ import { Session } from '../../types.js';
 export const HomeModule = {
     session: null as Session | null,
     isInitialized: false,
+    pollInterval: null as ReturnType<typeof setInterval> | null,
 
     init(session: Session): void {
         this.session = session;
-        this.setupUI();
         this.isInitialized = true;
     },
 
-    deactivate() {
-        // no-op
+    activate(): void {
+        this.setupUI();
+        if (this.pollInterval) clearInterval(this.pollInterval);
+        this.pollInterval = setInterval(() => {
+            this.loadRealActivity();
+            this.loadRealStats();
+            this.loadRealHealth();
+        }, 30_000);
     },
 
-    updateValues() {
+    deactivate(): void {
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
+        }
+    },
+
+    updateValues(): void {
         if (this.session) {
             const heroName = document.getElementById('hero-user-name');
             if (heroName) {

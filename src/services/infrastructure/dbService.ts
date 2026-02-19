@@ -234,15 +234,45 @@ export const deleteUser = async (userId: string): Promise<void> => {
         const user = await getUser(userId);
         if (!user) return;
 
+        // 1. Borrar objeto principal
         await kv.hdel(USERS_KEY, userId);
 
+        // 2. Borrar mapeo de API Key
         if (user.apiKey) {
             await kv.hdel(API_KEYS_KEY, user.apiKey);
         }
 
-        await kv.del(`stats:${userId}`);
+        // 3. Borrar rastro de estadísticas y actividad
+        await clearUserStatsAndLogs(userId);
+
+        logger.info(`🗑️ Usuario eliminado por completo: ${user.login} (${userId})`);
     } catch (e) {
         logger.error('Error deleting user:', e);
+        throw e;
+    }
+};
+
+export const clearUserStatsAndLogs = async (userId: string): Promise<void> => {
+    try {
+        // Borrar hashes de estadísticas
+        const statsKey = `stats:${userId}`;
+        await kv.del(statsKey);
+
+        // Borrar logs de actividad
+        const activityKey = `${USER_ACTIVITY_PREFIX}${userId}`;
+        await kv.del(activityKey);
+
+        // Borrar estadísticas diarias (scan de llaves por patrón)
+        // Nota: En KV de Vercel (Redis) esto es un poco costoso pero necesario
+        const dailyPattern = `stats:${userId}:daily:*`;
+        const keys = await kv.keys(dailyPattern);
+        if (keys.length > 0) {
+            await kv.del(...keys);
+        }
+
+        logger.info(`🧹 Datos limpiados para usuario: ${userId}`);
+    } catch (e) {
+        logger.error('Error clearing user stats and logs:', e);
         throw e;
     }
 };

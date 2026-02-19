@@ -2,6 +2,7 @@ import { Session, DashboardModule } from '../types.js';
 import { UI } from './ui.js';
 import { DASHBOARD_CONFIG } from '../features/dashboard/dashboard-config.js';
 import { AccountMessages } from '../features/dashboard/account/messages.js';
+import { HtmlLoader } from '../shared/utils/htmlLoader.js';
 
 export const ProfileModule: DashboardModule = {
     session: null as Session | null,
@@ -22,9 +23,12 @@ export const ProfileModule: DashboardModule = {
         this.loadProfileData();
         this.loadAnalytics();
 
-        // Polling cada 30s para reflejar cambios de rate limit del admin en tiempo real
+        // Polling cada 30s para reflejar cambios en tiempo real
         if (this.rateLimitPollInterval) clearInterval(this.rateLimitPollInterval);
-        this.rateLimitPollInterval = setInterval(() => this.pollRateLimit(), 30_000);
+        this.rateLimitPollInterval = setInterval(() => {
+            this.pollRateLimit();
+            this.loadAnalytics();
+        }, 30_000);
     },
 
     deactivate(): void {
@@ -59,6 +63,7 @@ export const ProfileModule: DashboardModule = {
         this.setupTokenVisibility();
         this.setupRegenerate();
         this.setupCopyId();
+        this.setupDangerZone();
     },
 
     async loadProfileData(): Promise<void> {
@@ -107,8 +112,8 @@ export const ProfileModule: DashboardModule = {
                 const data = await response.json();
                 this.renderCommandStatsInternal(data);
             }
-        } catch (e) {
-            console.error('[Profile] Error loading analytics:', e);
+        } catch (_e) {
+            console.error('Error updating statistics', _e);
         }
     },
 
@@ -257,59 +262,236 @@ export const ProfileModule: DashboardModule = {
     setupRegenerate(): void {
         const regenBtn = document.getElementById('profile-regen-key');
         const modal = document.getElementById('regen-modal') as HTMLDialogElement;
-        const confirmBtn = document.getElementById('confirm-regen-btn');
 
         if (regenBtn && !regenBtn.dataset.listener) {
-            regenBtn.addEventListener('click', () => {
-                if (modal) {
-                    if (typeof modal.showModal === 'function') {
-                        modal.showModal();
-                    } else {
-                        modal.style.display = 'block';
+            regenBtn.addEventListener('click', async () => {
+                if (!modal) return;
+
+                // Verificar si el contenido está cargado
+                if (!document.getElementById('confirm-regen-btn') && modal.dataset.src) {
+                    try {
+                        await HtmlLoader.load(modal.dataset.src, modal.id);
+                    } catch (_e) {
+                        UI.showToast('Error al cargar modal de regeneración', 'error');
+                        return;
                     }
                 }
+
+                // Volver a buscar el botón de confirmar tras carga potencial
+                const confirmBtn = document.getElementById('confirm-regen-btn');
+                if (confirmBtn && !confirmBtn.dataset.listener) {
+                    confirmBtn.addEventListener('click', async () => {
+                        const closeBtn = document.getElementById('close-regen-btn');
+                        if (closeBtn) closeBtn.click();
+                        else modal.close();
+
+                        UI.setButtonLoading(regenBtn as HTMLButtonElement, true);
+                        try {
+                            const response = await fetch(
+                                `${DASHBOARD_CONFIG.API_ENDPOINTS.REGENERATE_KEY}?userId=${this.session?.userId}`
+                            );
+                            const data = await response.json();
+
+                            if (data.apiKey && this.session) {
+                                this.session.apiKey = data.apiKey;
+                                const auth = await import('./auth.js');
+                                auth.Auth.saveSession(this.session);
+
+                                const tokenInput = document.getElementById(
+                                    'profile-api-key'
+                                ) as HTMLInputElement;
+                                if (tokenInput) {
+                                    tokenInput.dataset.realValue = data.apiKey;
+                                    if (tokenInput.type === 'text') tokenInput.value = data.apiKey;
+                                }
+                                UI.showToast(AccountMessages.regenerateSuccess, 'success');
+                            }
+                        } catch (_e) {
+                            UI.showToast(AccountMessages.regenerateError, 'error');
+                        } finally {
+                            UI.setButtonLoading(regenBtn as HTMLButtonElement, false);
+                        }
+                    });
+                    confirmBtn.dataset.listener = 'true';
+                }
+
+                // listener para el botón cancelar o cerrar si existen
+                const closeBtn = document.getElementById('close-regen-btn');
+                const cancelBtn = document.getElementById('cancel-regen-btn');
+                if (closeBtn) closeBtn.onclick = () => modal.close();
+                if (cancelBtn) cancelBtn.onclick = () => modal.close();
+
+                modal.showModal();
             });
             regenBtn.dataset.listener = 'true';
         }
+    },
 
-        if (confirmBtn && !confirmBtn.dataset.listener) {
-            confirmBtn.addEventListener('click', async () => {
-                const closeBtn = document.getElementById('close-regen-btn');
-                if (closeBtn) closeBtn.click();
+    async openDangerModal(options: {
+        title: string;
+        desc: string;
+        word: string;
+        onConfirm: () => Promise<void>;
+    }) {
+        const modal = document.getElementById('danger-action-modal') as HTMLDialogElement;
+        if (!modal) {
+            UI.showToast('Error: Modal de seguridad no encontrado', 'error');
+            return;
+        }
 
-                if (!regenBtn) return;
-                UI.setButtonLoading(regenBtn as HTMLButtonElement, true);
+        // Si el modal no tiene contenido (p.ej. fallo de precarga), intentar cargar ahora
+        if (!document.getElementById('danger-modal-title') && modal.dataset.src) {
+            try {
+                await HtmlLoader.load(modal.dataset.src, modal.id);
+            } catch (_e) {
+                UI.showToast('Error al cargar componente de seguridad', 'error');
+                return;
+            }
+        }
 
-                try {
-                    const response = await fetch(
-                        `${DASHBOARD_CONFIG.API_ENDPOINTS.REGENERATE_KEY}?userId=${this.session?.userId}`
-                    );
-                    const data = await response.json();
+        const titleEl = document.getElementById('danger-modal-title');
+        const descEl = document.getElementById('danger-modal-desc');
+        const wordEl = document.getElementById('danger-modal-word');
+        const inputEl = document.getElementById('danger-modal-confirm') as HTMLInputElement;
+        const submitBtn = document.getElementById('danger-modal-submit') as HTMLButtonElement;
+        const closeBtn = document.getElementById('danger-modal-close');
+        const cancelBtn = document.getElementById('danger-modal-cancel');
 
-                    if (data.apiKey) {
-                        if (this.session) {
-                            this.session.apiKey = data.apiKey;
-                            const auth = await import('./auth.js');
-                            auth.Auth.saveSession(this.session);
-                        }
-
-                        const tokenInput = document.getElementById(
-                            'profile-api-key'
-                        ) as HTMLInputElement;
-                        if (tokenInput) {
-                            tokenInput.dataset.realValue = data.apiKey;
-                            if (tokenInput.type === 'text') tokenInput.value = data.apiKey;
-                        }
-                        UI.showToast(AccountMessages.regenerateSuccess, 'success');
-                    }
-                } catch (_e) {
-                    UI.showToast(AccountMessages.regenerateError, 'error');
-                } finally {
-                    UI.setButtonLoading(regenBtn as HTMLButtonElement, false);
-                }
+        if (!titleEl || !descEl || !wordEl || !inputEl || !submitBtn) {
+            UI.showToast('Error: Componentes del modal incompletos', 'error');
+            console.error('[Profile] Missing modal elements:', {
+                titleEl,
+                descEl,
+                wordEl,
+                inputEl,
+                submitBtn
             });
-            confirmBtn.dataset.listener = 'true';
+            return;
+        }
+
+        titleEl.innerText = options.title;
+        descEl.innerText = options.desc;
+        wordEl.innerText = options.word;
+        inputEl.value = '';
+        submitBtn.disabled = true;
+        modal.classList.remove('shake');
+
+        const validate = () => {
+            submitBtn.disabled = inputEl.value.trim().toUpperCase() !== options.word;
+        };
+
+        inputEl.oninput = validate;
+
+        return new Promise<void>((resolve) => {
+            const cleanup = () => {
+                inputEl.oninput = null;
+                if (closeBtn) closeBtn.onclick = null;
+                if (cancelBtn) cancelBtn.onclick = null;
+                submitBtn.onclick = null;
+                if (modal.open) modal.close();
+                resolve();
+            };
+
+            submitBtn.onclick = async () => {
+                if (inputEl.value.trim().toUpperCase() === options.word) {
+                    UI.setButtonLoading(submitBtn, true);
+                    try {
+                        await options.onConfirm();
+                        cleanup();
+                    } catch (_e) {
+                        UI.showToast('Error en la acción confirmada', 'error');
+                    } finally {
+                        UI.setButtonLoading(submitBtn, false);
+                    }
+                } else {
+                    modal.classList.add('shake');
+                    setTimeout(() => modal.classList.remove('shake'), 500);
+                }
+            };
+
+            if (closeBtn) closeBtn.onclick = cleanup;
+            if (cancelBtn) cancelBtn.onclick = cleanup;
+
+            modal.showModal();
+        });
+    },
+
+    setupDangerZone(): void {
+        const clearBtn = document.getElementById('profile-clear-data-btn');
+        const deleteBtn = document.getElementById('profile-delete-account-btn');
+
+        if (clearBtn && !clearBtn.dataset.listener) {
+            clearBtn.addEventListener('click', () => {
+                this.openDangerModal({
+                    title: 'Reiniciar Estadísticas',
+                    desc: 'Esta acción borrará todo el historial de comandos, clips y latencia. Tu cuenta y API Key seguirán activas.',
+                    word: 'LIMPIAR',
+                    onConfirm: async () => {
+                        try {
+                            const response = await fetch(
+                                DASHBOARD_CONFIG.API_ENDPOINTS.CLEAR_DATA,
+                                {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        Authorization: `Bearer ${this.authToken}`
+                                    },
+                                    body: JSON.stringify({ confirm: 'LIMPIAR' })
+                                }
+                            );
+
+                            const data = await response.json();
+                            if (data.success) {
+                                UI.showToast(data.message, 'success');
+                                setTimeout(() => window.location.reload(), 1500);
+                            } else {
+                                UI.showToast(data.error || 'Error al limpiar datos', 'error');
+                            }
+                        } catch (_e) {
+                            UI.showToast('Error de conexión', 'error');
+                        }
+                    }
+                });
+            });
+            clearBtn.dataset.listener = 'true';
+        }
+
+        if (deleteBtn && !deleteBtn.dataset.listener) {
+            deleteBtn.addEventListener('click', () => {
+                this.openDangerModal({
+                    title: 'Eliminar Cuenta Permanentemente',
+                    desc: '¡ATENCIÓN! Esta acción es irreversible. Se borrarán todos tus datos, API Key y acceso al sistema.',
+                    word: 'ELIMINAR',
+                    onConfirm: async () => {
+                        try {
+                            const response = await fetch(
+                                DASHBOARD_CONFIG.API_ENDPOINTS.DELETE_ACCOUNT,
+                                {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        Authorization: `Bearer ${this.authToken}`
+                                    },
+                                    body: JSON.stringify({ confirm: 'ELIMINAR' })
+                                }
+                            );
+
+                            const data = await response.json();
+                            if (data.success) {
+                                UI.showToast('Cuenta eliminada. Redirigiendo...', 'success');
+                                setTimeout(() => {
+                                    window.location.href = '/logout';
+                                }, 2000);
+                            } else {
+                                UI.showToast(data.error || 'Error al eliminar cuenta', 'error');
+                            }
+                        } catch (_e) {
+                            UI.showToast('Error de conexión', 'error');
+                        }
+                    }
+                });
+            });
+            deleteBtn.dataset.listener = 'true';
         }
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any;

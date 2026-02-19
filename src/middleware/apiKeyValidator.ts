@@ -10,20 +10,26 @@ const MAX_CACHE_SIZE = 1000;
 
 import { isPublicRoute } from '../utils/routeHelpers';
 
+import { invalidateAuthCache } from './authMiddleware';
+
 /**
- * Invalida la caché de API Key para un userId específico.
+ * Invalida la caché de API Key y de sesión para un userId específico.
  * Llamar esto cuando el admin cambia el rate limit u otros datos del usuario.
  */
 export const invalidateUserCache = (userId: string): void => {
-    let invalidated = 0;
+    let invalidatedKeys = 0;
     for (const [key, cached] of validKeysCache.entries()) {
         if (cached.user?.userId === userId) {
             validKeysCache.delete(key);
-            invalidated++;
+            invalidatedKeys++;
         }
     }
-    if (invalidated > 0) {
-        logger.info(`[Cache] Invalidated ${invalidated} cache entries for userId: ${userId}`);
+
+    // Invalidar también la caché de sesión (Dashboard)
+    invalidateAuthCache(userId);
+
+    if (invalidatedKeys > 0) {
+        logger.info(`[Cache] Invalidated ${invalidatedKeys} API Key entries for userId: ${userId}`);
     }
 };
 

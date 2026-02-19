@@ -2,6 +2,9 @@ import express, { Application } from 'express';
 import { configureMiddleware } from './startup/middleware';
 import { configureStatic } from './startup/static';
 import { configureRoutes, configurePageRoutes } from './startup/routes';
+import { validateConfig } from './startup/config-check';
+
+validateConfig();
 
 const app: Application = express();
 

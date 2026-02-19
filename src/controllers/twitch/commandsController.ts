@@ -4,6 +4,7 @@ import * as apiService from '../../services/twitch/apiService';
 
 import * as cacheService from '../../services/infrastructure/cacheService';
 import { MESSAGES } from '../../config/messages';
+import { logger } from '../../utils/logger';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 
@@ -22,13 +23,18 @@ const trackCommand = async (
         const result = await action();
         const latency = Date.now() - startTime;
         if (userId) {
-            await dbService.recordUserRequest(userId, latency, true);
+            // Async fire-and-forget for metrics
+            dbService.recordUserRequest(userId, latency, true).catch((e) => {
+                logger.error('Error recording success metrics:', e);
+            });
         }
         return result;
     } catch (e) {
         const latency = Date.now() - startTime;
         if (userId) {
-            await dbService.recordUserRequest(userId, latency, false);
+            dbService.recordUserRequest(userId, latency, false).catch((err) => {
+                logger.error('Error recording error metrics:', err);
+            });
         }
         throw e;
     }

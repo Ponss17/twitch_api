@@ -89,45 +89,62 @@ export const handleCallback = async (
     return { user, access_token, redirectOrigin, apiKey };
 };
 
+// Para evitar que múltiples peticiones simultáneas refresquen el mismo token (Race Condition)
+const refreshPromises = new Map<string, Promise<string>>();
+
 export const refreshUserToken = async (userId: string): Promise<string> => {
-    const user = await dbService.getUser(userId);
-    if (!user || !user.refreshToken) {
-        logger.error(`❌ Error renovando token: Usuario ${userId} no tiene Refresh Token.`);
-        throw new Error('Usuario no encontrado o sin refresh token');
+    // Si ya hay un refresco en curso para este usuario, devolvemos la misma promesa
+    if (refreshPromises.has(userId)) {
+        logger.info(`[Auth] Reusing existing refresh promise for user ${userId}`);
+        return refreshPromises.get(userId)!;
     }
 
-    try {
-        const response = await axios.post('https://id.twitch.tv/oauth2/token', null, {
-            params: {
-                client_id: CONFIG.TWITCH_CLIENT_ID,
-                client_secret: CONFIG.TWITCH_CLIENT_SECRET,
-                grant_type: 'refresh_token',
-                refresh_token: user.refreshToken
-            }
-        });
-
-        const { access_token, refresh_token, expires_in } = response.data;
-
-        user.accessToken = access_token;
-        if (refresh_token) user.refreshToken = refresh_token;
-        user.expiresIn = expires_in;
-        user.obtainedAt = Date.now();
-
-        await dbService.saveUser(user);
-        return access_token;
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            logger.error('❌ Error API Twitch (Refresh):', {
-                userId,
-                status: error.response?.status,
-                data: error.response?.data,
-                message: error.message
-            });
-        } else {
-            logger.error('❌ Error renovando token:', { userId, error });
+    const refreshTask = (async () => {
+        const user = await dbService.getUser(userId);
+        if (!user || !user.refreshToken) {
+            logger.error(`❌ Error renovando token: Usuario ${userId} no tiene Refresh Token.`);
+            throw new Error('Usuario no encontrado o sin refresh token');
         }
-        throw new Error('No se pudo renovar el token. Relogueate.');
-    }
+
+        try {
+            const response = await axios.post('https://id.twitch.tv/oauth2/token', null, {
+                params: {
+                    client_id: CONFIG.TWITCH_CLIENT_ID,
+                    client_secret: CONFIG.TWITCH_CLIENT_SECRET,
+                    grant_type: 'refresh_token',
+                    refresh_token: user.refreshToken
+                }
+            });
+
+            const { access_token, refresh_token, expires_in } = response.data;
+
+            user.accessToken = access_token;
+            if (refresh_token) user.refreshToken = refresh_token;
+            user.expiresIn = expires_in;
+            user.obtainedAt = Date.now();
+
+            await dbService.saveUser(user);
+            return access_token;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                logger.error('❌ Error API Twitch (Refresh):', {
+                    userId,
+                    status: error.response?.status,
+                    data: error.response?.data,
+                    message: error.message
+                });
+            } else {
+                logger.error('❌ Error renovando token:', { userId, error });
+            }
+            throw new Error('No se pudo renovar el token. Relogueate.');
+        } finally {
+            // Limpiar la promesa del mapa cuando termine (éxito o error)
+            refreshPromises.delete(userId);
+        }
+    })();
+
+    refreshPromises.set(userId, refreshTask);
+    return refreshTask;
 };
 
 export const getValidToken = async (

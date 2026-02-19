@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import * as authService from '../../services/auth/authService';
 import * as dbService from '../../services/infrastructure/dbService';
 import * as apiService from '../../services/twitch/apiService';
@@ -8,8 +8,6 @@ import { MESSAGES } from '../../config/messages';
 import { logger } from '../../utils/logger';
 
 import { AuthenticatedRequest } from '../../types/twitch';
-
-import { safeString } from '../../utils/validationHelpers';
 
 export const validateToken = async (req: AuthenticatedRequest, res: Response) => {
     const token = req.twitchToken;
@@ -44,15 +42,12 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
     }
 };
 
-export const regenerateKey = async (req: Request, res: Response) => {
-    const apiKey = safeString(req.body.key);
-    if (!apiKey) return res.status(400).json({ error: MESSAGES.SYSTEM.KEY_REQUIRED });
+export const regenerateKey = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId;
+    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
 
     try {
-        const user = await dbService.getUserByApiKey(apiKey);
-        if (!user) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
-
-        const newKey = await authService.regenerateApiKey(user.userId);
+        const newKey = await authService.regenerateApiKey(userId);
         res.json({ apiKey: newKey });
     } catch (e) {
         logger.error('Error regenerando key:', e);
