@@ -10,7 +10,6 @@ export const validateConfig = () => {
 
     if (isProd) {
         if (!CONFIG.ADMIN_ROOT_ID) missing.push('ADMIN_ROOT_ID');
-        if (!CONFIG.ADMIN_PASSWORD) missing.push('ADMIN_PASSWORD');
     }
 
     if (missing.length > 0) {
