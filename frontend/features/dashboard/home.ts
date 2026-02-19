@@ -154,6 +154,7 @@ export const HomeModule = {
                 logContainer.innerHTML = '';
 
                 if (logs.length === 0) {
+                    logContainer.classList.add('is-empty');
                     logContainer.innerHTML = `
                         <div class="empty-state-container">
                             <div class="empty-state-icon">
@@ -165,6 +166,7 @@ export const HomeModule = {
                     `;
                     return;
                 }
+                logContainer.classList.remove('is-empty');
 
                 logs.forEach((log: { action: string; timestamp: string }) => {
                     const time = new Date(log.timestamp).toLocaleTimeString('es-ES', {
