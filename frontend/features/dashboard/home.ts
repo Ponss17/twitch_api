@@ -156,12 +156,15 @@ export const HomeModule = {
                 if (logs.length === 0) {
                     logContainer.classList.add('is-empty');
                     logContainer.innerHTML = `
-                        <div class="empty-state-container">
-                            <div class="empty-state-icon">
-                                <i class="fa-solid fa-clock-rotate-left"></i>
+                        <div class="terminal-ux-container">
+                            <div class="terminal-line">
+                                <span class="t-prompt">ponss17@losperris:~$</span>
+                                <span class="t-msg">esperando actividad del stream...</span>
+                                <span class="t-cursor">_</span>
                             </div>
-                            <h4>Sin actividad reciente</h4>
-                            <p>Tus comandos y acciones aparecerán aquí en cuanto empieces a usarlos.</p>
+                            <div class="terminal-hint">
+                                [ Los comandos aparecerán aquí en tiempo real ]
+                            </div>
                         </div>
                     `;
                     return;
