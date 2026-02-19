@@ -131,7 +131,8 @@ const ProfileModule = {
       const targetValue = data.followers || 0;
       UI.animateValue(followers, 0, targetValue, 1500);
     }
-    if (bio) bio.textContent = data.description || "Sin biograf\xEDa disponible. \xA1Este streamer es un misterio!";
+    if (bio)
+      bio.textContent = data.description || "Sin biograf\xEDa disponible. \xA1Este streamer es un misterio!";
     if (broadcasterType) {
       const types = {
         partner: "Partner",
@@ -143,9 +144,13 @@ const ProfileModule = {
     if (createdAt && data.created_at) {
       try {
         const date = new Date(data.created_at);
-        const options = { day: "2-digit", month: "short", year: "numeric" };
+        const options = {
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        };
         createdAt.textContent = date.toLocaleDateString("es-ES", options);
-      } catch (e) {
+      } catch (_e) {
         createdAt.textContent = "---";
       }
     }
