@@ -6,16 +6,18 @@ import { isPublicRoute } from '../utils/routeHelpers';
 const limiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     max: (req: Request) => {
-        // 1. Prioridad: API Key VÁLIDA (Verificada en DB/Caché por middleware previo)
-        if (req.res?.locals && req.res.locals.apiUser) {
+        const apiUser = req.res?.locals?.apiUser;
+
+        // 1. Prioridad: Usuario Identificado (API Key o Sesión del Dashboard)
+        if (apiUser) {
             // Si el admin asignó un límite específico, usarlo. Si no, usar 120 (estándar).
-            return req.res.locals.apiUser.customRateLimit || 120;
+            return apiUser.customRateLimit || 120;
         }
 
-        // 2. Excepciones de Sistema / Dashboard / Estáticos (Alta disponibilidad)
+        // 2. Excepciones de Sistema / Estáticos (Alta disponibilidad)
         const path = req.originalUrl.split('?')[0];
         if (isPublicRoute(path)) {
-            return 1000; // Virtualmente sin límite para recursos estáticos y sistema
+            return 1000;
         }
 
         // 3. Bots Confiables
@@ -30,14 +32,20 @@ const limiter = rateLimit({
             return 60;
         }
 
-        // 4. Bloqueo Total (Comandos de chat sin ninguna credencial)
+        // 4. Bloqueo Total (Peticiones anónimas a rutas protegidas)
         return 0;
     },
     keyGenerator: (req: Request): string => {
-        if (req.res?.locals && req.res.locals.apiUser) {
-            return (req.query.apiKey as string) || req.res.locals.apiUser.userId;
+        const apiUser = req.res?.locals?.apiUser;
+        const userId = (req as any).userId;
+
+        if (apiUser) {
+            return (req.query.apiKey as string) || apiUser.userId;
         }
-        // Usar ipKeyGenerator para manejo correcto de IPv6 en express-rate-limit v8
+        if (userId) {
+            return `sess:${userId}`;
+        }
+        // Usar ipKeyGenerator para manejo correcto de IPv6
         return ipKeyGenerator(req.ip || 'unknown');
     },
     handler: (req: Request, res: Response) => {

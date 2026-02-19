@@ -5,6 +5,10 @@ import * as apiService from '../services/twitch/apiService';
 import * as dbService from '../services/infrastructure/dbService';
 import { MESSAGES } from '../config/messages';
 import { logger } from '../utils/logger';
+import { isPublicRoute } from '../utils/routeHelpers';
+
+const userCache = new Map<string, { user: any; expiry: number }>();
+const CACHE_TTL = 60 * 1000;
 
 const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const safeString = (val: unknown) => (typeof val === 'string' ? val : '');
@@ -51,6 +55,11 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     }
 
     if (!token) {
+        // En rutas públicas, permitimos continuar aunque no haya token
+        if (isPublicRoute(req.path)) {
+            return next();
+        }
+
         if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
             res.setHeader('Content-Type', 'text/plain');
             return res.status(401).send(MESSAGES.AUTH.MISSING_TOKEN_URL);
@@ -70,6 +79,26 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         }
     }
 
+    // Unificación de Rate Limit: Poblar res.locals.apiUser desde DB si tenemos userId
+    if (req.userId && !res.locals.apiUser) {
+        try {
+            const now = Date.now();
+            const cached = userCache.get(req.userId);
+
+            if (cached && cached.expiry > now) {
+                res.locals.apiUser = cached.user;
+            } else {
+                const user = await dbService.getUser(req.userId);
+                if (user) {
+                    res.locals.apiUser = user;
+                    userCache.set(req.userId, { user, expiry: now + CACHE_TTL });
+                }
+            }
+        } catch (e) {
+            logger.error('Error fetching user for unified rate limit:', e);
+        }
+    }
+
     if (req.userId) {
         dbService.updateLastActive(req.userId).catch((err: unknown) => {
             logger.error('Error updating last active:', err);
@@ -78,6 +107,13 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
 
     req.twitchToken = token;
     next();
+};
+
+/**
+ * Invalida la caché de usuario local.
+ */
+export const invalidateAuthCache = (userId: string) => {
+    userCache.delete(userId);
 };
 
 export default checkToken;

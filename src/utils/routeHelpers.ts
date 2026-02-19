@@ -6,38 +6,45 @@ export const isStaticAsset = (path: string): boolean => {
 };
 
 export const isPublicRoute = (path: string): boolean => {
-    // Cleaner path without query params
     const cleanPath = path.split('?')[0];
 
     // 1. Static Assets (Always public)
     if (isStaticAsset(cleanPath) || cleanPath.startsWith('/img/')) return true;
 
-    // 2. System Critical Routes
+    // 2. System Critical Routes (Exact matches or specific patterns)
+    const publicExactRoutes = [
+        '/health',
+        '/api/twitch/health',
+        '/api/twitch/system/health',
+        '/robots.txt',
+        '/api/twitch/robots.txt',
+        '/sitemap.xml',
+        '/api/twitch/sitemap.xml',
+        '/docs',
+        '/api/twitch/docs'
+    ];
+    if (publicExactRoutes.includes(cleanPath)) return true;
+
+    // 3. Auth Flows
     if (
-        cleanPath.includes('/health') ||
-        cleanPath.includes('/docs') ||
-        cleanPath.includes('robots.txt') ||
-        cleanPath.includes('sitemap.xml')
+        cleanPath === '/auth' ||
+        cleanPath.startsWith('/auth/') ||
+        cleanPath.startsWith('/api/twitch/auth/') ||
+        cleanPath.includes('/callback')
     ) {
         return true;
     }
 
-    // 3. Auth Flows (OAuth callbacks, Login)
-    if (cleanPath.includes('/auth') || cleanPath.includes('/callback')) {
-        return true;
-    }
-
-    // 4. Public Views (Dashboard, Minigames - served as HTML)
-    // Note: The API data for these might still be protected, but the HTML page/assets shouldn't be blocked hard.
+    // 4. Public Views (Served as HTML)
+    const publicViewPrefixes = ['/dashboard', '/minigames', '/admin'];
     if (
-        cleanPath.includes('/dashboard') ||
-        cleanPath.includes('/minigames') ||
-        cleanPath.includes('/admin') ||
-        // Only specific system routes should be loose, typically validation or public info
-        // regenerate-key and feedback should stay protected/limited
-        cleanPath.endsWith('/system/validate')
+        publicViewPrefixes.some(
+            (prefix) => cleanPath === prefix || cleanPath.startsWith(`${prefix}/`)
+        )
     ) {
-        return true;
+        if (cleanPath.endsWith('/system/validate')) return true;
+
+        if (!cleanPath.includes('/api/')) return true;
     }
 
     return false;

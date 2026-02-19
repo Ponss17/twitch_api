@@ -1,38 +1,40 @@
-<div class="profile-hero-card stagger-1">
-    <div class="profile-hero-bg"></div>
-    <div class="profile-hero-flex">
-        <div class="profile-avatar-container">
-            <img src="./img/LosPerris-minimal.webp" id="profile-large-avatar" class="profile-large-avatar" alt="Avatar"
-                loading="lazy">
-            <div class="profile-status-indicator online"></div>
-        </div>
-        <div class="profile-master-info">
-            <div class="profile-title-row">
-                <h2 class="profile-name" id="profile-display-name">Streamer</h2>
-                <div id="profile-badges-container" class="profile-badges-row"></div>
+<div class="profile-hero">
+    <div class="profile-hero-card stagger-1">
+        <div class="profile-hero-bg"></div>
+        <div class="profile-hero-flex">
+            <div class="profile-avatar-container">
+                <img src="./img/LosPerris-minimal.webp" id="profile-large-avatar" class="profile-large-avatar"
+                    alt="Avatar" loading="lazy">
+                <div class="profile-status-indicator online"></div>
             </div>
-            <p class="profile-bio" id="profile-bio">Cargando biografía...</p>
+            <div class="profile-master-info">
+                <div class="profile-title-row">
+                    <h2 class="profile-name" id="profile-display-name">Streamer</h2>
+                    <div id="profile-badges-container" class="profile-badges-row"></div>
+                </div>
+                <p class="profile-bio" id="profile-bio">Cargando biografía...</p>
 
-            <div class="profile-stats-grid-inline">
-                <div class="profile-stat-item">
-                    <i class="fa-solid fa-heart"></i>
-                    <div class="stat-text">
-                        <span class="stat-value" id="profile-stat-followers">---</span>
-                        <span class="stat-label">Seguidores</span>
+                <div class="profile-stats-grid-inline">
+                    <div class="profile-stat-item">
+                        <i class="fa-solid fa-heart"></i>
+                        <div class="stat-text">
+                            <span class="stat-value" id="profile-stat-followers">---</span>
+                            <span class="stat-label">Seguidores</span>
+                        </div>
                     </div>
-                </div>
-                <div class="profile-stat-item">
-                    <i class="fa-solid fa-video"></i>
-                    <div class="stat-text">
-                        <span class="stat-value" id="profile-stat-broadcaster">---</span>
-                        <span class="stat-label">Tipo Canal</span>
+                    <div class="profile-stat-item">
+                        <i class="fa-solid fa-video"></i>
+                        <div class="stat-text">
+                            <span class="stat-value" id="profile-stat-broadcaster">---</span>
+                            <span class="stat-label">Tipo Canal</span>
+                        </div>
                     </div>
-                </div>
-                <div class="profile-stat-item">
-                    <i class="fa-solid fa-calendar"></i>
-                    <div class="stat-text">
-                        <span class="stat-value" id="profile-stat-created">---</span>
-                        <span class="stat-label">Miembro</span>
+                    <div class="profile-stat-item">
+                        <i class="fa-solid fa-calendar"></i>
+                        <div class="stat-text">
+                            <span class="stat-value" id="profile-stat-created">---</span>
+                            <span class="stat-label">Miembro</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -41,22 +43,6 @@
 </div>
 
 <div class="card stagger-2">
-    <div class="card-header">
-        <div class="card-title-group">
-            <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
-            <div>
-                <h3>Uso de Herramientas</h3>
-                <p class="card-desc">Frecuencia de uso de tus comandos en tiempo real</p>
-            </div>
-        </div>
-    </div>
-    <div class="card-body">
-        <div id="profile-commands-grid" class="command-usage-grid">
-        </div>
-    </div>
-</div>
-
-<div class="card stagger-3">
     <div class="card-header">
         <div class="card-title-group">
             <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
@@ -71,7 +57,6 @@
         </div>
     </div>
     <div class="card-body">
-
         <div class="api-vault-box">
             <div class="vault-field-group">
                 <label class="field-label"><i class="fa-solid fa-key"></i> TU API KEY PRIVADA</label>
@@ -111,6 +96,60 @@
                     <span class="s-label">ID:</span>
                     <span id="profile-user-id" class="s-value">---</span>
                     <i class="fa-regular fa-copy" style="font-size:0.65rem; opacity:0.5; margin-left:4px;"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card stagger-3">
+    <div class="card-header">
+        <div class="card-title-group">
+            <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
+            <div>
+                <h3>Resumen de Actividad</h3>
+                <p class="card-desc">Frecuencia de uso de tus recursos en tiempo real</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="profile-commands-grid" class="command-usage-grid">
+        </div>
+    </div>
+</div>
+
+<div class="card stagger-4 danger-card-wrapper">
+    <div class="card-header">
+        <div class="card-title-group">
+            <div class="card-icon danger-icon-bg">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="danger-text">Zona de Peligro</h3>
+                <p class="card-desc">Acciones irreversibles sobre tus datos y cuenta</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="danger-actions-grid">
+            <div class="danger-card">
+                <div class="danger-card-info">
+                    <h4>Reiniciar Estadísticas</h4>
+                    <p>Borra todo el historial de comandos, clips y latencia. La API Key seguirá activa.</p>
+                </div>
+                <button class="btn-danger-outline" id="profile-clear-data-btn">
+                    Limpiar Datos
+                </button>
+            </div>
+
+            <div class="danger-card">
+                <div class="danger-card-info">
+                    <h4>Borrar Cuenta</h4>
+                    <p>Elimina permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.
+                    </p>
+                </div>
+                <button class="btn-danger-solid" id="profile-delete-account-btn">
+                    Eliminar Perfil
                 </button>
             </div>
         </div>

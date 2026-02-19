@@ -3,6 +3,7 @@ import path from 'path';
 import { CONFIG } from '../config/env';
 import rateLimiter, { authLimiter } from '../middleware/rateLimiter';
 import { apiKeyValidator } from '../middleware/apiKeyValidator';
+import checkToken from '../middleware/authMiddleware';
 import authRoutes from '../routes/authRoutes';
 import adminRouter from '../routes/admin';
 import apiRouter from '../routes/index';
@@ -45,6 +46,7 @@ export const configureRoutes = (app: Application) => {
     });
 
     app.use(apiKeyValidator);
+    app.use(checkToken);
     app.use(rateLimiter);
 
     // Rutas de Admin (API)

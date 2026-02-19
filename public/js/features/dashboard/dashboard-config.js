@@ -11,6 +11,8 @@ const DASHBOARD_CONFIG = {
     SEND_MESSAGE: `${API_BASE}/send-message`,
     CLIPS: `${API_BASE}/dashboard/get-clips`,
     ACTIVITY: `${API_BASE}/dashboard/activity`,
+    CLEAR_DATA: `${API_BASE}/dashboard/clear-data`,
+    DELETE_ACCOUNT: `${API_BASE}/dashboard/delete-account`,
     HEALTH: `/api/twitch/system/health`,
     DUEL: `${API_BASE}/minigames/duel`
   },
