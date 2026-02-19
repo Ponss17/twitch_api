@@ -1,3 +1,4 @@
+// Build trigger: 2026-02-19T15:22:10-06:00
 import { fetchAdmin, logout, checkAuth } from './auth.js';
 
 interface AdminUser {
@@ -199,12 +200,11 @@ const renderUsers = (users: AdminUser[]) => {
                 ${user.blockedReason ? `<br><small class="reason">${user.blockedReason}</small>` : ''}
             </td>
             <td class="actions-cell">
-                ${
-                    user.isActive !== false
-                        ? `<button class="btn-block" onclick="window.blockUser('${user.userId}')">
+                ${user.isActive !== false
+                    ? `<button class="btn-block" onclick="window.blockUser('${user.userId}')">
                                <i class="fa-solid fa-ban"></i> Bloquear
                            </button>`
-                        : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">
+                    : `<button class="btn-unblock" onclick="window.unblockUser('${user.userId}')">
                                <i class="fa-solid fa-check"></i> Desbloquear
                            </button>`
                 }
@@ -238,8 +238,8 @@ const showToast = (title: string, message: string, type: 'success' | 'error' | '
         type === 'success'
             ? 'fa-circle-check'
             : type === 'error'
-              ? 'fa-circle-exclamation'
-              : 'fa-circle-info';
+                ? 'fa-circle-exclamation'
+                : 'fa-circle-info';
 
     toast.innerHTML = `
         <i class="fa-solid ${icon} toast-icon"></i>
@@ -567,14 +567,13 @@ const loadAdmins = async () => {
                     </span>
                 </td>
                 <td>
-                    ${
-                        !isRoot
-                            ? `
+                    ${!isRoot
+                        ? `
                         <button class="action-btn delete" onclick="window.removeAdmin('${admin.userId}')" title="Quitar Permisos">
                             <i class="fa-solid fa-user-minus"></i>
                         </button>
                     `
-                            : '<small style="color: var(--text-muted)">Protegido</small>'
+                        : '<small style="color: var(--text-muted)">Protegido</small>'
                     }
                 </td>
             </tr>
