@@ -2,7 +2,6 @@ import { HtmlLoader } from '../shared/utils/htmlLoader.js';
 import { Session, DashboardModule } from '../types.js';
 
 import { HomeModule } from '../features/dashboard/home.js';
-import { AnalyticsModule } from '../features/dashboard/analytics.js';
 import { CommandsModule } from '../features/dashboard/commands.js';
 import { ClipsModule } from '../features/dashboard/clips.js';
 import { TrendsModule } from '../features/dashboard/trends.js';
@@ -46,7 +45,6 @@ export const Dashboard = {
         const modules: DashboardModule[] = [
             HomeModule,
             ProfileModule,
-            AnalyticsModule,
             CommandsModule,
             ClipsModule,
             TrendsModule,
@@ -189,7 +187,7 @@ export const Dashboard = {
         this.activeModules = [];
 
         const moduleMap: Record<string, DashboardModule[]> = {
-            'tab-home': [HomeModule as DashboardModule, AnalyticsModule as DashboardModule],
+            'tab-home': [HomeModule as DashboardModule],
             'tab-profile': [ProfileModule as DashboardModule],
             'tab-followage': [CommandsModule as DashboardModule],
             'tab-clips': [ClipsModule as DashboardModule, CommandsModule as DashboardModule],

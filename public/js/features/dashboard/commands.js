@@ -1,4 +1,1 @@
-import { CommandsModule } from "./commands/module.js";
-export {
-  CommandsModule
-};
+import{CommandsModule as d}from"./commands/module.js";export{d as CommandsModule};

@@ -1,4 +1,1 @@
-import { TrendsModule } from "./trends/module.js";
-export {
-  TrendsModule
-};
+import{TrendsModule as r}from"./trends/module.js";export{r as TrendsModule};

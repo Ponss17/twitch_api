@@ -12,6 +12,14 @@ export interface TwitchUser {
     created_at: string;
 }
 
+export interface ProfileStatsData {
+    followers?: number;
+    description?: string;
+    broadcaster_type?: string;
+    created_at?: string;
+    rateLimit?: number;
+}
+
 export interface Session {
     login: string;
     displayName: string;
@@ -76,4 +84,8 @@ export interface DashboardModule {
     initialized?: boolean;
     isInitialized?: boolean;
     session?: Session | null;
+    countdown?: number;
+    pollInterval?: ReturnType<typeof setInterval> | null;
+    rateLimitPollInterval?: ReturnType<typeof setInterval> | null;
+    [key: string]: any;
 }

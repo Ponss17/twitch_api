@@ -129,3 +129,46 @@ footer a:hover {
         font-size: 0.85rem;
     }
 }
+
+.sync-subticker {
+    font-family: inherit;
+    font-size: 0.85em;
+    opacity: 0.6;
+    margin-left: 4px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.card:hover .sync-subticker {
+    opacity: 1;
+    color: var(--accent);
+}
+
+.sync-subticker.syncing {
+    color: var(--accent);
+    animation: blink-soft 2s infinite;
+}
+
+@keyframes blink-soft {
+    0% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.4;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -1,193 +1,13 @@
-import { UI } from "../../core/ui.js";
-import { Messages } from "../../shared/i18n/messages.js";
-import { ClipsMessages } from "./clips/messages.js";
-import { AuthMessages } from "../../shared/i18n/authMessages.js";
-import { DASHBOARD_CONFIG } from "./dashboard-config.js";
-const { API_ENDPOINTS } = DASHBOARD_CONFIG;
-import { cache, CACHE_TTL } from "../../services/cacheService.js";
-const ClipsModule = {
-  session: null,
-  initialized: false,
-  allClips: [],
-  currentClips: [],
-  favorites: [],
-  observer: null,
-  currentPage: 1,
-  ITEMS_PER_PAGE: 20,
-  cssLoaded: false,
-  init(session) {
-    this.session = session;
-    if (!this.cssLoaded) {
-      import("../../shared/utils/loader.js").then(({ Loader }) => {
-        Loader.loadCSS("css/sections/clips.css");
-      });
-      this.cssLoaded = true;
-    }
-    this.loadFavorites();
-    if (!this.observer) {
-      this.observer = new IntersectionObserver(
-        (entries, observer) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const img = entry.target;
-              img.src = img.dataset.src;
-              img.classList.remove("lazy-img");
-              observer.unobserve(img);
-            }
-          });
-        },
-        { rootMargin: "50px" }
-      );
-    }
-    this.setupUI();
-    this.initialized = true;
-  },
-  activate() {
-    if (this.allClips.length === 0) {
-      this.loadClips();
-    }
-  },
-  deactivate() {
-    if (this.observer) {
-      this.observer.disconnect();
-    }
-  },
-  loadFavorites() {
-    if (!this.session) return;
-    try {
-      const saved = localStorage.getItem(`clips_favs_${this.session.userId}`);
-      this.favorites = saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      console.error("Error loading favorites", e);
-      this.favorites = [];
-    }
-  },
-  saveFavorites() {
-    if (!this.session) return;
-    try {
-      localStorage.setItem(
-        `clips_favs_${this.session.userId}`,
-        JSON.stringify(this.favorites)
-      );
-    } catch (e) {
-      console.error("Error saving favorites", e);
-    }
-  },
-  toggleFavorite(clipId) {
-    if (this.favorites.includes(clipId)) {
-      this.favorites = this.favorites.filter((id) => id !== clipId);
-      UI.showToast("Clip eliminado de favoritos", "info");
-    } else {
-      this.favorites.push(clipId);
-      UI.showToast("Clip a\xF1adido a favoritos", "success");
-    }
-    this.saveFavorites();
-    this.updateFavoriteBtn(clipId);
-  },
-  setupUI() {
-    this.setupFilters();
-    const refreshBtn = document.getElementById("refresh-clips-btn");
-    if (refreshBtn) {
-      refreshBtn.addEventListener("click", () => {
-        this.loadClips(true);
-      });
-    }
-  },
-  setupFilters() {
-    const searchInput = document.getElementById("clips-search");
-    const sortSelect = document.getElementById("clips-sort");
-    if (searchInput) {
-      searchInput.addEventListener(
-        "input",
-        this.debounce(() => {
-          this.filterAndRender();
-        }, 300)
-      );
-    }
-    if (sortSelect) {
-      sortSelect.addEventListener("change", () => {
-        this.filterAndRender();
-      });
-    }
-  },
-  debounce(func, wait) {
-    let timeout;
-    return (...args) => {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  },
-  async loadClips(forceRefresh = false) {
-    const container = document.getElementById("clips-gallery");
-    if (!container) return;
-    if (!this.session) return;
-    const cacheKey = `clips_${this.session.userId}`;
-    if (!forceRefresh) {
-      const cachedClips = cache.get(cacheKey);
-      if (cachedClips) {
-        this.allClips = cachedClips;
-        this.filterAndRender();
-        return;
-      }
-    }
-    this.renderSkeleton(container);
-    if (forceRefresh) UI.showToast("Actualizando clips...", "info");
-    try {
-      const { apiKey, token, login } = this.session;
-      const headers = { "Content-Type": "application/json" };
-      let url = API_ENDPOINTS.CLIPS;
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-        url += `?channel=${login}`;
-      } else if (apiKey) {
-        url += `?apiKey=${apiKey}&channel=${login}`;
-      }
-      const response = await fetch(url, { headers });
-      if (!response.ok) {
-        const isAuthError = response.status === 401 || response.status === 403;
-        throw new Error(isAuthError ? "auth_error" : "fetch_error");
-      }
-      const data = await response.json();
-      const clips = Array.isArray(data) ? data : data.clips || data.data || [];
-      this.allClips = clips;
-      if (clips.length > 0) {
-        cache.set(cacheKey, clips, CACHE_TTL);
-      }
-      this.filterAndRender();
-    } catch (error) {
-      this.handleError(error, container);
-    }
-  },
-  handleError(error, container) {
-    const isAuthError = error.message === "auth_error";
-    UI.showToast(isAuthError ? AuthMessages.expired : ClipsMessages.loadError, "error");
-    if (isAuthError) {
-      container.innerHTML = `
+var g=Object.defineProperty;var p=(e,t)=>g(e,"name",{value:t,configurable:!0});import{UI as o}from"../../core/ui.js";import{Messages as E}from"../../shared/i18n/messages.js";import{ClipsMessages as m}from"./clips/messages.js";import{AuthMessages as v}from"../../shared/i18n/authMessages.js";import{DASHBOARD_CONFIG as C}from"./dashboard-config.js";const{API_ENDPOINTS:b}=C;import{cache as h,CACHE_TTL as T}from"../../services/cacheService.js";const B={session:null,initialized:!1,allClips:[],currentClips:[],favorites:[],observer:null,currentPage:1,ITEMS_PER_PAGE:20,cssLoaded:!1,init(e){this.session=e,this.cssLoaded||(import("../../shared/utils/loader.js").then(({Loader:t})=>{t.loadCSS("css/sections/clips.css")}),this.cssLoaded=!0),this.loadFavorites(),this.observer||(this.observer=new IntersectionObserver((t,i)=>{t.forEach(s=>{if(s.isIntersecting){const r=s.target;r.src=r.dataset.src,r.classList.remove("lazy-img"),i.unobserve(r)}})},{rootMargin:"50px"})),this.setupUI(),this.initialized=!0},activate(){this.allClips.length===0&&this.loadClips()},deactivate(){this.observer&&this.observer.disconnect()},loadFavorites(){if(this.session)try{const e=localStorage.getItem(`clips_favs_${this.session.userId}`);this.favorites=e?JSON.parse(e):[]}catch(e){console.error("Error loading favorites",e),this.favorites=[]}},saveFavorites(){if(this.session)try{localStorage.setItem(`clips_favs_${this.session.userId}`,JSON.stringify(this.favorites))}catch(e){console.error("Error saving favorites",e)}},toggleFavorite(e){this.favorites.includes(e)?(this.favorites=this.favorites.filter(t=>t!==e),o.showToast("Clip eliminado de favoritos","info")):(this.favorites.push(e),o.showToast("Clip a\xF1adido a favoritos","success")),this.saveFavorites(),this.updateFavoriteBtn(e)},setupUI(){this.setupFilters();const e=document.getElementById("refresh-clips-btn");e&&e.addEventListener("click",()=>{this.loadClips(!0)})},setupFilters(){const e=document.getElementById("clips-search"),t=document.getElementById("clips-sort");e&&e.addEventListener("input",this.debounce(()=>{this.filterAndRender()},300)),t&&t.addEventListener("change",()=>{this.filterAndRender()})},debounce(e,t){let i;return(...s)=>{const r=p(()=>{clearTimeout(i),e(...s)},"later");clearTimeout(i),i=setTimeout(r,t)}},async loadClips(e=!1){const t=document.getElementById("clips-gallery");if(!t||!this.session)return;const i=`clips_${this.session.userId}`;if(!e){const s=h.get(i);if(s){this.allClips=s,this.filterAndRender();return}}this.renderSkeleton(t),e&&o.showToast("Actualizando clips...","info");try{const{apiKey:s,token:r,login:a}=this.session,n={"Content-Type":"application/json"};let l=b.CLIPS;r?(n.Authorization=`Bearer ${r}`,l+=`?channel=${a}`):s&&(l+=`?apiKey=${s}&channel=${a}`);const c=await fetch(l,{headers:n});if(!c.ok){const f=c.status===401||c.status===403;throw new Error(f?"auth_error":"fetch_error")}const d=await c.json(),u=Array.isArray(d)?d:d.clips||d.data||[];this.allClips=u,u.length>0&&h.set(i,u,T),this.filterAndRender()}catch(s){this.handleError(s,t)}},handleError(e,t){const i=e.message==="auth_error";if(o.showToast(i?v.expired:m.loadError,"error"),i)t.innerHTML=`
                 <div class="empty-state">
                     <div class="empty-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h3>${AuthMessages.expiredTitle}</h3>
-                    <p>${AuthMessages.expiredMsg}</p>
+                    <h3>${v.expiredTitle}</h3>
+                    <p>${v.expiredMsg}</p>
                     <button id="relogin-clips-btn" class="btn-primary" style="margin-top:10px;">
-                        ${AuthMessages.reloginBtn}
+                        ${v.reloginBtn}
                     </button>
                 </div>
-            `;
-      document.getElementById("relogin-clips-btn")?.addEventListener("click", () => {
-        import("../../core/auth.js").then((m) => m.Auth.relogin());
-      });
-    } else {
-      container.innerHTML = Messages.Common.error(error.message);
-      const retryBtn = document.getElementById("retry-clips-btn");
-      if (retryBtn) retryBtn.onclick = () => this.loadClips();
-    }
-  },
-  renderSkeleton(container) {
-    container.innerHTML = Array(8).fill(0).map(
-      () => `
+            `,document.getElementById("relogin-clips-btn")?.addEventListener("click",()=>{import("../../core/auth.js").then(s=>s.Auth.relogin())});else{t.innerHTML=E.Common.error(e.message);const s=document.getElementById("retry-clips-btn");s&&(s.onclick=()=>this.loadClips())}},renderSkeleton(e){e.innerHTML=Array(8).fill(0).map(()=>`
             <div class="skeleton-card">
                 <div class="skeleton-thumb skeleton"></div>
                 <div class="skeleton-info">
@@ -198,150 +18,25 @@ const ClipsModule = {
                     </div>
                 </div>
             </div>
-        `
-    ).join("");
-  },
-  filterAndRender() {
-    const searchTerm = document.getElementById("clips-search")?.value.toLowerCase() || "";
-    const sortValue = document.getElementById("clips-sort")?.value || "date-desc";
-    const filtered = this.allClips.filter(
-      (clip) => clip.title.toLowerCase().includes(searchTerm)
-    );
-    filtered.sort((a, b) => {
-      switch (sortValue) {
-        case "date-desc":
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        case "date-asc":
-          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        case "views-desc":
-          return b.view_count - a.view_count;
-        case "views-asc":
-          return a.view_count - b.view_count;
-        default:
-          return 0;
-      }
-    });
-    this.currentClips = filtered;
-    this.currentPage = 1;
-    const clipsGallery = document.getElementById("clips-gallery");
-    if (clipsGallery) clipsGallery.innerHTML = "";
-    this.renderPage();
-  },
-  renderPage() {
-    const clipsGallery = document.getElementById("clips-gallery");
-    if (!clipsGallery) return;
-    if (this.currentClips.length === 0) {
-      clipsGallery.innerHTML = ClipsMessages.empty;
-      return;
-    }
-    const loadMore = document.getElementById("clips-load-more");
-    if (loadMore) loadMore.remove();
-    const start = (this.currentPage - 1) * this.ITEMS_PER_PAGE;
-    const end = start + this.ITEMS_PER_PAGE;
-    const pageClips = this.currentClips.slice(start, end);
-    const fragment = document.createDocumentFragment();
-    pageClips.forEach((clip) => {
-      fragment.appendChild(this.buildCard(clip));
-    });
-    clipsGallery.appendChild(fragment);
-    if (end < this.currentClips.length) {
-      this.addLoadMoreButton(clipsGallery);
-    }
-  },
-  addLoadMoreButton(container) {
-    const btnContainer = document.createElement("div");
-    btnContainer.id = "clips-load-more";
-    btnContainer.className = "load-more-container";
-    const btn = document.createElement("button");
-    btn.className = "btn-secondary";
-    btn.innerHTML = "Ver m\xE1s clips";
-    btn.onclick = () => {
-      this.currentPage++;
-      this.renderPage();
-    };
-    btnContainer.appendChild(btn);
-    container.after(btnContainer);
-  },
-  buildCard(clip) {
-    const card = document.createElement("div");
-    card.className = "clip-card fade-in";
-    card.dataset.id = clip.id;
-    const safeTitle = UI.escapeHTML(clip.title);
-    const safeUrl = UI.escapeHTML(clip.url);
-    const safeThumb = UI.escapeHTML(clip.thumbnail_url);
-    const dateStr = new Date(clip.created_at).toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "short",
-      day: "numeric"
-    });
-    const viewsStr = clip.view_count.toLocaleString("es-ES");
-    const isFav = this.favorites.includes(clip.id);
-    const favIconClass = isFav ? "fa-solid fa-star" : "fa-regular fa-star";
-    const favActiveClass = isFav ? "active" : "";
-    card.innerHTML = `
+        `).join("")},filterAndRender(){const e=document.getElementById("clips-search")?.value.toLowerCase()||"",t=document.getElementById("clips-sort")?.value||"date-desc",i=this.allClips.filter(r=>r.title.toLowerCase().includes(e));i.sort((r,a)=>{switch(t){case"date-desc":return new Date(a.created_at).getTime()-new Date(r.created_at).getTime();case"date-asc":return new Date(r.created_at).getTime()-new Date(a.created_at).getTime();case"views-desc":return a.view_count-r.view_count;case"views-asc":return r.view_count-a.view_count;default:return 0}}),this.currentClips=i,this.currentPage=1;const s=document.getElementById("clips-gallery");s&&(s.innerHTML=""),this.renderPage()},renderPage(){const e=document.getElementById("clips-gallery");if(!e)return;if(this.currentClips.length===0){e.innerHTML=m.empty;return}const t=document.getElementById("clips-load-more");t&&t.remove();const i=(this.currentPage-1)*this.ITEMS_PER_PAGE,s=i+this.ITEMS_PER_PAGE,r=this.currentClips.slice(i,s),a=document.createDocumentFragment();r.forEach(n=>{a.appendChild(this.buildCard(n))}),e.appendChild(a),s<this.currentClips.length&&this.addLoadMoreButton(e)},addLoadMoreButton(e){const t=document.createElement("div");t.id="clips-load-more",t.className="load-more-container";const i=document.createElement("button");i.className="btn-secondary",i.innerHTML="Ver m\xE1s clips",i.onclick=()=>{this.currentPage++,this.renderPage()},t.appendChild(i),e.after(t)},buildCard(e){const t=document.createElement("div");t.className="clip-card fade-in",t.dataset.id=e.id;const i=o.escapeHTML(e.title),s=o.escapeHTML(e.url),r=o.escapeHTML(e.thumbnail_url),a=new Date(e.created_at).toLocaleDateString("es-ES",{year:"numeric",month:"short",day:"numeric"}),n=e.view_count.toLocaleString("es-ES"),l=this.favorites.includes(e.id),c=l?"fa-solid fa-star":"fa-regular fa-star",d=l?"active":"";t.innerHTML=`
             <div class="clip-actions">
-                <button class="btn-clip-action fav-btn ${favActiveClass}" title="Favorito" data-id="${clip.id}">
-                    <i class="${favIconClass}"></i>
+                <button class="btn-clip-action fav-btn ${d}" title="Favorito" data-id="${e.id}">
+                    <i class="${c}"></i>
                 </button>
-                <button class="btn-clip-action copy-btn" title="Copiar enlace" data-url="${safeUrl}">
+                <button class="btn-clip-action copy-btn" title="Copiar enlace" data-url="${s}">
                     <i class="fa-solid fa-link"></i>
                 </button>
             </div>
-            <a href="${safeUrl}" target="_blank" class="clip-link">
+            <a href="${s}" target="_blank" class="clip-link">
                 <div class="clip-thumb-wrapper">
-                    <img data-src="${safeThumb}" class="clip-thumb lazy-img" alt="${safeTitle}" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiA5IiBzdHlsZT0iYmFja2dyb3VuZDojMjIyOyIvPgo=">
+                    <img data-src="${r}" class="clip-thumb lazy-img" alt="${i}" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiA5IiBzdHlsZT0iYmFja2dyb3VuZDojMjIyOyIvPgo=">
                 </div>
                 <div class="clip-info">
-                    <div class="clip-title" title="${safeTitle}">${safeTitle}</div>
+                    <div class="clip-title" title="${i}">${i}</div>
                     <div class="clip-meta">
-                        <span><i class="fa-solid fa-eye"></i> ${viewsStr}</span>
-                        <span>${dateStr}</span>
+                        <span><i class="fa-solid fa-eye"></i> ${n}</span>
+                        <span>${a}</span>
                     </div>
                 </div>
             </a>
-        `;
-    const img = card.querySelector("img");
-    if (this.observer && img) this.observer.observe(img);
-    this.attachCardEvents(card, safeUrl, clip.id);
-    return card;
-  },
-  attachCardEvents(card, url, clipId) {
-    card.querySelector(".copy-btn").addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      navigator.clipboard.writeText(url).then(() => {
-        const btn = e.currentTarget;
-        const icon = btn.querySelector("i");
-        const originalClass = icon.className;
-        icon.className = "fa-solid fa-check";
-        UI.showToast("Enlace copiado", "success");
-        setTimeout(() => {
-          icon.className = originalClass;
-        }, 2e3);
-      });
-    });
-    card.querySelector(".fav-btn").addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      this.toggleFavorite(clipId);
-    });
-  },
-  updateFavoriteBtn(clipId) {
-    const card = document.querySelector(`.clip-card[data-id="${clipId}"]`);
-    if (!card) return;
-    const btn = card.querySelector(".fav-btn");
-    if (!btn) return;
-    const icon = btn.querySelector("i");
-    const isFav = this.favorites.includes(clipId);
-    if (isFav) {
-      btn.classList.add("active");
-      if (icon) icon.className = "fa-solid fa-star";
-    } else {
-      btn.classList.remove("active");
-      if (icon) icon.className = "fa-regular fa-star";
-    }
-  }
-};
-export {
-  ClipsModule
-};
+        `;const u=t.querySelector("img");return this.observer&&u&&this.observer.observe(u),this.attachCardEvents(t,s,e.id),t},attachCardEvents(e,t,i){e.querySelector(".copy-btn").addEventListener("click",s=>{s.preventDefault(),s.stopPropagation(),navigator.clipboard.writeText(t).then(()=>{const a=s.currentTarget.querySelector("i"),n=a.className;a.className="fa-solid fa-check",o.showToast("Enlace copiado","success"),setTimeout(()=>{a.className=n},2e3)})}),e.querySelector(".fav-btn").addEventListener("click",s=>{s.preventDefault(),s.stopPropagation(),this.toggleFavorite(i)})},updateFavoriteBtn(e){const t=document.querySelector(`.clip-card[data-id="${e}"]`);if(!t)return;const i=t.querySelector(".fav-btn");if(!i)return;const s=i.querySelector("i");this.favorites.includes(e)?(i.classList.add("active"),s&&(s.className="fa-solid fa-star")):(i.classList.remove("active"),s&&(s.className="fa-regular fa-star"))}};export{B as ClipsModule};

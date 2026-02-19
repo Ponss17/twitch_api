@@ -1,16 +1,1 @@
-const Logger = {
-  log(...args) {
-    if (typeof window !== "undefined" && window.location.hostname === "localhost") {
-      console.log(...args);
-    }
-  },
-  warn(...args) {
-    console.warn(...args);
-  },
-  error(...args) {
-    console.error(...args);
-  }
-};
-export {
-  Logger
-};
+const n={log(...o){typeof window<"u"&&window.location.hostname==="localhost"&&console.log(...o)},warn(...o){console.warn(...o)},error(...o){console.error(...o)}};export{n as Logger};

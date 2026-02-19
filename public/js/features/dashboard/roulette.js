@@ -1,4 +1,1 @@
-import { RouletteModule } from "./roulette/module.js";
-export {
-  RouletteModule
-};
+import{RouletteModule as t}from"./roulette/module.js";export{t as RouletteModule};

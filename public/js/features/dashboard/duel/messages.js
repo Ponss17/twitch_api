@@ -1,10 +1,1 @@
-const DuelMessages = {
-  emptyTarget: "\u26A0\uFE0F Debes especificar un oponente.",
-  fighting: '<i class="fa-solid fa-spinner fa-spin"></i> Peleando...',
-  loading: '<div class="duel-loading"><i class="fa-solid fa-khanda fa-shake"></i> Calculando ganador...</div>',
-  fightButton: '<i class="fa-solid fa-gavel"></i> \xA1DUELO!',
-  error: (msg) => `\u274C ${msg}`
-};
-export {
-  DuelMessages
-};
+var e=Object.defineProperty;var i=(a,s)=>e(a,"name",{value:s,configurable:!0});const l={emptyTarget:"\u26A0\uFE0F Debes especificar un oponente.",fighting:'<i class="fa-solid fa-spinner fa-spin"></i> Peleando...',loading:'<div class="duel-loading"><i class="fa-solid fa-khanda fa-shake"></i> Calculando ganador...</div>',fightButton:'<i class="fa-solid fa-gavel"></i> \xA1DUELO!',error:i(a=>`\u274C ${a}`,"error")};export{l as DuelMessages};

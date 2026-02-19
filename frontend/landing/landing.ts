@@ -72,7 +72,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (confirmBtn) {
         confirmBtn.addEventListener('click', () => {
-            // Add loading state
             const icon = confirmBtn.querySelector('i');
             if (icon) {
                 icon.className = 'fa-solid fa-spinner fa-spin';
