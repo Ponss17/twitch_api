@@ -18,7 +18,10 @@ const ProfileModule = {
     this.loadProfileData();
     this.loadAnalytics();
     if (this.rateLimitPollInterval) clearInterval(this.rateLimitPollInterval);
-    this.rateLimitPollInterval = setInterval(() => this.pollRateLimit(), 3e4);
+    this.rateLimitPollInterval = setInterval(() => {
+      this.pollRateLimit();
+      this.loadAnalytics();
+    }, 3e4);
   },
   deactivate() {
     if (this.rateLimitPollInterval) {

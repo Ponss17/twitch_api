@@ -3,12 +3,25 @@ const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 const HomeModule = {
   session: null,
   isInitialized: false,
+  pollInterval: null,
   init(session) {
     this.session = session;
-    this.setupUI();
     this.isInitialized = true;
   },
+  activate() {
+    this.setupUI();
+    if (this.pollInterval) clearInterval(this.pollInterval);
+    this.pollInterval = setInterval(() => {
+      this.loadRealActivity();
+      this.loadRealStats();
+      this.loadRealHealth();
+    }, 3e4);
+  },
   deactivate() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
   },
   updateValues() {
     if (this.session) {
