@@ -8,8 +8,8 @@ interface IMagic8Module extends DashboardModule {
     initialized: boolean;
     setupUI(): void;
     askQuestion(): Promise<void>;
-    showResponse(text: string, type: string): void;
-    setLoading(isLoading: boolean): void;
+    showResponse(_text: string, _type: string): void;
+    setLoading(_isLoading: boolean): void;
 }
 
 export const Magic8Module: IMagic8Module = {
@@ -89,8 +89,14 @@ export const Magic8Module: IMagic8Module = {
             const url = `${API_ENDPOINTS.MAGIC8}?${tokenParam}&question=${encodeURIComponent(question)}&mood=${mood}&user=${encodeURIComponent(login || '')}`;
 
             const res = await fetch(url);
-            const answer = await res.text();
-            this.showResponse(res.ok ? answer : `Error: ${answer}`, res.ok ? 'success' : 'error');
+            if (res.ok) {
+                const answer = await res.text();
+                this.showResponse(answer, 'success');
+            } else {
+                const { formatApiError } = await import('../../../shared/utils/api-errors.js');
+                const errorMsg = await formatApiError(res);
+                this.showResponse(`Error: ${errorMsg}`, 'error');
+            }
         } catch (error) {
             this.showResponse(Magic8Messages.error((error as Error).message), 'error');
         } finally {
@@ -105,8 +111,12 @@ export const Magic8Module: IMagic8Module = {
     showResponse(text: string, type: string) {
         const responseEl = document.getElementById(DOM_IDS.MAGIC8.RESPONSE);
         if (responseEl) {
-            responseEl.textContent = text;
             responseEl.className = `response-card ${type} active`;
+            const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+            responseEl.innerHTML = `
+                <i class="fa-solid ${icon}"></i>
+                <span>${text}</span>
+            `;
         }
     }
 };

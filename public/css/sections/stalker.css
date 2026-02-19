@@ -181,16 +181,6 @@
     padding: 0 10px;
 }
 
-.table-avatar-empty {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--bg-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-}
 
 .row-highlight {
     animation: highlightFade 1s forwards;
@@ -210,21 +200,6 @@
     color: var(--text-secondary);
 }
 
-.mt-10 {
-    margin-top: 10px;
-}
-
-.mr-5 {
-    margin-right: 5px;
-}
-
-.w-60 {
-    width: 60px;
-}
-
-.p-40 {
-    padding: 40px;
-}
 
 .profile-footer {
     padding: 20px 25px;

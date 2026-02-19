@@ -180,21 +180,6 @@
     grid-column: 1 / -1;
 }
 
-.btn-secondary {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border);
-    padding: 8px 16px;
-    border-radius: var(--radius);
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-    background: var(--bg-hover);
-    border-color: var(--border-hover);
-}
 
 .btn-clip-action.fav-btn.active {
     color: #ffd700;

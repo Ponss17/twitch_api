@@ -99,8 +99,14 @@ export const DuelModule: IDuelModule = {
             const url = `${API_ENDPOINTS.DUEL}?${tokenParam}&target=${encodeURIComponent(target)}&challenger=${encodeURIComponent(challenger)}`;
 
             const res = await fetch(url);
-            const answer = await res.text();
-            this.showResponse(res.ok ? answer : `Error: ${answer}`, res.ok ? 'success' : 'error');
+            if (res.ok) {
+                const answer = await res.text();
+                this.showResponse(answer, 'success');
+            } else {
+                const { formatApiError } = await import('../../../shared/utils/api-errors.js');
+                const errorMsg = await formatApiError(res);
+                this.showResponse(`Error: ${errorMsg}`, 'error');
+            }
         } catch (error) {
             this.showResponse(DuelMessages.error((error as Error).message), 'error');
         } finally {
@@ -108,11 +114,15 @@ export const DuelModule: IDuelModule = {
         }
     },
 
-    showResponse(text: string, type: string) {
+    showResponse(_text: string, _type: string) {
         const responseEl = document.getElementById(DOM_IDS.DUEL.RESPONSE);
         if (responseEl) {
-            responseEl.textContent = text;
-            responseEl.className = `response-card ${type} active`;
+            responseEl.className = `response-card ${_type} active`;
+            const icon = _type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+            responseEl.innerHTML = `
+                <i class="fa-solid ${icon}"></i>
+                <span>${_text}</span>
+            `;
         }
     }
 };

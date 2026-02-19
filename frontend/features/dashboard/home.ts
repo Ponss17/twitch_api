@@ -1,6 +1,7 @@
 import { DASHBOARD_CONFIG } from './dashboard-config.js';
 const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { Session } from '../../types.js';
+import { Loader } from '../../shared/utils/loader.js';
 
 export const HomeModule = {
     session: null as Session | null,
@@ -14,6 +15,7 @@ export const HomeModule = {
     },
 
     activate(): void {
+        Loader.loadCSS('./css/sections/home.css');
         this.setupUI();
         this.startSmartPolling();
     },
@@ -156,15 +158,9 @@ export const HomeModule = {
                 if (logs.length === 0) {
                     logContainer.classList.add('is-empty');
                     logContainer.innerHTML = `
-                        <div class="terminal-ux-container">
-                            <div class="terminal-line">
-                                <span class="t-prompt">ponss17@losperris:~$</span>
-                                <span class="t-msg">esperando actividad del stream...</span>
-                                <span class="t-cursor">_</span>
-                            </div>
-                            <div class="terminal-hint">
-                                [ Los comandos aparecerán aquí en tiempo real ]
-                            </div>
+                        <div class="feed-empty-state">
+                            <span class="empty-msg">esperando actividad...</span>
+                            <span class="empty-cursor">_</span>
                         </div>
                     `;
                     return;

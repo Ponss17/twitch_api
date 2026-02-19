@@ -1,11 +1,13 @@
 import { Session, DashboardModule } from '../../../types.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
-import { UI } from '../../../core/ui.js';
 
 interface IRussianModule extends DashboardModule {
+    session: Session | null;
     gameEndpoint: string;
     cssLoaded: boolean;
     pullTrigger(): Promise<void>;
+    setLoading(_isLoading: boolean): void;
+    showResponse(_text: string, _type: 'success' | 'error'): void;
 }
 
 export const RussianModule: IRussianModule = {
@@ -24,7 +26,7 @@ export const RussianModule: IRussianModule = {
         }
     },
 
-    activate() {
+    activate(): void {
         const btn = document.getElementById('btn-fire-russian');
         if (btn && !btn.dataset.listener) {
             btn.addEventListener('click', () => this.pullTrigger());
@@ -32,22 +34,64 @@ export const RussianModule: IRussianModule = {
         }
     },
 
-    deactivate() {},
+    deactivate(): void {},
 
-    async pullTrigger() {
-        if (!this.session) return;
-
+    setLoading(isLoading: boolean): void {
         const btn = document.getElementById('btn-fire-russian') as HTMLButtonElement;
-        const resultBox = document.getElementById('russian-result');
-        const messageEl = document.getElementById('russian-message');
+        const responseEl = document.getElementById('russian-response');
         const gunIcon = document.getElementById('russian-gun-icon');
 
-        if (btn) btn.disabled = true;
-        if (resultBox) resultBox.classList.add('hidden');
-        if (gunIcon) {
-            gunIcon.classList.add('fa-shake');
-            gunIcon.style.color = 'var(--accent-color)';
+        if (isLoading) {
+            if (btn) btn.disabled = true;
+            if (gunIcon) {
+                gunIcon.classList.add('fa-shake');
+                gunIcon.style.color = 'var(--accent)';
+            }
+            if (responseEl) {
+                responseEl.className = 'response-card active';
+                responseEl.innerHTML = `
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <span>Girando el cilindro...</span>
+                `;
+            }
+        } else {
+            if (btn) btn.disabled = false;
         }
+    },
+
+    showResponse(text: string, type: 'success' | 'error'): void {
+        const responseEl = document.getElementById('russian-response');
+        const gunIcon = document.getElementById('russian-gun-icon');
+
+        if (responseEl) {
+            const icon = type === 'success' ? 'fa-circle-check' : 'fa-skull';
+            responseEl.className = `response-card ${type} active`;
+            responseEl.innerHTML = `
+                <i class="fa-solid ${icon}"></i>
+                <span>${text}</span>
+            `;
+
+            if (gunIcon) {
+                gunIcon.classList.remove('fa-shake');
+                if (type === 'error') {
+                    gunIcon.style.color = 'var(--danger)';
+                    gunIcon.classList.replace('fa-gun', 'fa-skull');
+                } else {
+                    gunIcon.style.color = 'var(--success)';
+                }
+
+                setTimeout(() => {
+                    gunIcon.classList.replace('fa-skull', 'fa-gun');
+                    gunIcon.style.color = 'var(--text-muted)';
+                }, 3000);
+            }
+        }
+    },
+
+    async pullTrigger(): Promise<void> {
+        if (!this.session) return;
+
+        this.setLoading(true);
 
         try {
             const params = new URLSearchParams({
@@ -63,33 +107,19 @@ export const RussianModule: IRussianModule = {
                 }
             });
 
-            const data = await response.json();
-
-            if (messageEl && resultBox && gunIcon) {
-                resultBox.classList.remove('hidden');
-                messageEl.textContent = data.message;
-
-                gunIcon.classList.remove('fa-shake');
-
-                if (data.status === 'dead') {
-                    resultBox.className = 'result-box error visible';
-                    gunIcon.style.color = 'var(--danger-color)';
-                    gunIcon.classList.replace('fa-gun', 'fa-skull');
-                } else {
-                    resultBox.className = 'result-box success visible';
-                    gunIcon.style.color = 'var(--success-color)';
-                }
-
-                setTimeout(() => {
-                    gunIcon.classList.replace('fa-skull', 'fa-gun');
-                    gunIcon.style.color = 'var(--text-muted)';
-                }, 3000);
+            if (response.ok) {
+                const data = await response.json();
+                this.showResponse(data.message, data.status === 'dead' ? 'error' : 'success');
+            } else {
+                const { formatApiError } = await import('../../../shared/utils/api-errors.js');
+                const errorMsg = await formatApiError(response);
+                this.showResponse(`Error: ${errorMsg}`, 'error');
             }
         } catch (error) {
             console.error('Error in Russian Roulette:', error);
-            UI.showToast('La pistola se encasquilló (Error de API)', 'error');
+            this.showResponse('La pistola se encasquilló (Error de API)', 'error');
         } finally {
-            if (btn) btn.disabled = false;
+            this.setLoading(false);
         }
     }
 };
