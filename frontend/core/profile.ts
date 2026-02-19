@@ -8,6 +8,7 @@ export const ProfileModule: DashboardModule = {
     session: null as Session | null,
     isInitialized: false,
     rateLimitPollInterval: null as ReturnType<typeof setInterval> | null,
+    countdown: 30,
 
     get authToken(): string {
         return this.session?.token || '';
@@ -22,13 +23,7 @@ export const ProfileModule: DashboardModule = {
         this.setupUIInternal();
         this.loadProfileData();
         this.loadAnalytics();
-
-        // Polling cada 30s para reflejar cambios en tiempo real
-        if (this.rateLimitPollInterval) clearInterval(this.rateLimitPollInterval);
-        this.rateLimitPollInterval = setInterval(() => {
-            this.pollRateLimit();
-            this.loadAnalytics();
-        }, 30_000);
+        this.startSmartPolling();
     },
 
     deactivate(): void {
@@ -36,6 +31,40 @@ export const ProfileModule: DashboardModule = {
             clearInterval(this.rateLimitPollInterval);
             this.rateLimitPollInterval = null;
         }
+    },
+
+    startSmartPolling(): void {
+        if (this.rateLimitPollInterval) clearInterval(this.rateLimitPollInterval);
+        this.countdown = 30;
+        this.updateSyncIndicator();
+
+        this.rateLimitPollInterval = setInterval(() => {
+            if (typeof this.countdown === 'number') {
+                this.countdown--;
+                if (this.countdown <= 0) {
+                    this.performSync();
+                    this.countdown = 30;
+                }
+            }
+            this.updateSyncIndicator();
+        }, 1000);
+    },
+
+    updateSyncIndicator(): void {
+        const syncEl = document.getElementById('profile-sync-indicator');
+        if (!syncEl) return;
+        syncEl.textContent = `${this.countdown}s`;
+    },
+
+    async performSync(): Promise<void> {
+        const syncEl = document.getElementById('profile-sync-indicator');
+        if (this.session) {
+            await Promise.all([this.pollRateLimit(), this.loadAnalytics()]);
+        }
+
+        setTimeout(() => {
+            if (syncEl) syncEl.classList.remove('syncing');
+        }, 1000);
     },
 
     setupUIInternal(): void {
@@ -98,7 +127,7 @@ export const ProfileModule: DashboardModule = {
                 }
             }
         } catch (_e) {
-            /* silencioso */
+            /* polling ignorado */
         }
     },
 
@@ -127,31 +156,28 @@ export const ProfileModule: DashboardModule = {
             { key: 'so', icon: 'fa-bullhorn', label: 'Shoutouts' }
         ];
 
-        let html = '';
-        statConfig.forEach((stat, index) => {
-            const value = data[stat.key] || 0;
-            html += `
-                <div class="stat-card stagger-${index + 1}">
-                    <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
-                    <div class="stat-info">
-                        <h3 class="counter" data-target="${value}">0</h3>
-                        <span>${stat.label}</span>
+        if (container.children.length === 0) {
+            let html = '';
+            statConfig.forEach((stat, index) => {
+                html += `
+                    <div class="stat-card stagger-${index + 1}">
+                        <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
+                        <div class="stat-info">
+                            <h3 class="counter" id="prof-stat-${stat.key}" data-target="0">0</h3>
+                            <span>${stat.label}</span>
+                        </div>
                     </div>
-                </div>
-            `;
-        });
-
-        container.innerHTML = html;
-
-        requestAnimationFrame(() => {
-            container.querySelectorAll('.counter').forEach((counter) => {
-                const target = parseInt((counter as HTMLElement).dataset.target || '0');
-                UI.animateValue(counter as HTMLElement, 0, target, 1500);
+                `;
             });
+            container.innerHTML = html;
+        }
+
+        statConfig.forEach((stat) => {
+            const el = document.getElementById(`prof-stat-${stat.key}`);
+            if (el) UI.animateValue(el, null, data[stat.key] || 0);
         });
     },
-
-    updateProfileStatsInternal(data: any): void {
+    updateProfileStatsInternal(data: import('../types.js').ProfileStatsData): void {
         const followers = document.getElementById('profile-stat-followers');
         const bio = document.getElementById('profile-bio');
         const broadcasterType = document.getElementById('profile-stat-broadcaster');
@@ -172,7 +198,8 @@ export const ProfileModule: DashboardModule = {
                 affiliate: 'Afiliado',
                 '': 'Streamer'
             };
-            broadcasterType.textContent = types[data.broadcaster_type] || 'Streamer';
+            const type = data.broadcaster_type || '';
+            broadcasterType.textContent = types[type] || 'Streamer';
         }
 
         if (createdAt && data.created_at) {
@@ -267,7 +294,6 @@ export const ProfileModule: DashboardModule = {
             regenBtn.addEventListener('click', async () => {
                 if (!modal) return;
 
-                // Verificar si el contenido está cargado
                 if (!document.getElementById('confirm-regen-btn') && modal.dataset.src) {
                     try {
                         await HtmlLoader.load(modal.dataset.src, modal.id);
@@ -277,7 +303,6 @@ export const ProfileModule: DashboardModule = {
                     }
                 }
 
-                // Volver a buscar el botón de confirmar tras carga potencial
                 const confirmBtn = document.getElementById('confirm-regen-btn');
                 if (confirmBtn && !confirmBtn.dataset.listener) {
                     confirmBtn.addEventListener('click', async () => {
@@ -315,7 +340,6 @@ export const ProfileModule: DashboardModule = {
                     confirmBtn.dataset.listener = 'true';
                 }
 
-                // listener para el botón cancelar o cerrar si existen
                 const closeBtn = document.getElementById('close-regen-btn');
                 const cancelBtn = document.getElementById('cancel-regen-btn');
                 if (closeBtn) closeBtn.onclick = () => modal.close();
@@ -339,7 +363,6 @@ export const ProfileModule: DashboardModule = {
             return;
         }
 
-        // Si el modal no tiene contenido (p.ej. fallo de precarga), intentar cargar ahora
         if (!document.getElementById('danger-modal-title') && modal.dataset.src) {
             try {
                 await HtmlLoader.load(modal.dataset.src, modal.id);
@@ -494,4 +517,4 @@ export const ProfileModule: DashboardModule = {
             deleteBtn.dataset.listener = 'true';
         }
     }
-} as any;
+};

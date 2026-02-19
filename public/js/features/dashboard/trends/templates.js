@@ -1,25 +1,12 @@
-import { UI } from "../../../core/ui.js";
-const TrendsTemplates = {
-  renderRow(item, index, maxCount) {
-    const [word, count] = item;
-    const safeWord = UI.escapeHTML(word);
-    const percentage = count / maxCount * 100;
-    const rankClass = index < 3 ? `rank-${index + 1}` : "";
-    const medal = index === 0 ? "\u{1F947}" : index === 1 ? "\u{1F948}" : index === 2 ? "\u{1F949}" : `#${index + 1}`;
-    return `
-            <tr class="fade-in ${rankClass}">
-                <td><span class="rank-medal">${medal}</span></td>
-                <td class="word-text" style="font-weight:600;">${safeWord}</td>
-                <td class="count-text" style="text-align:right; font-size:1.1rem;">${count}</td>
+import{UI as l}from"../../../core/ui.js";const p={renderRow(r,t,e){const[a,s]=r,n=l.escapeHTML(a),o=s/e*100,c=t<3?`rank-${t+1}`:"",d=t===0?"\u{1F947}":t===1?"\u{1F948}":t===2?"\u{1F949}":`#${t+1}`;return`
+            <tr class="fade-in ${c}">
+                <td><span class="rank-medal">${d}</span></td>
+                <td class="word-text" style="font-weight:600;">${n}</td>
+                <td class="count-text" style="text-align:right; font-size:1.1rem;">${s}</td>
                 <td>
                     <div class="progress-bg">
-                        <div class="progress-fill" style="width:${percentage}%"></div>
+                        <div class="progress-fill" style="width:${o}%"></div>
                     </div>
                 </td>
             </tr>
-        `;
-  }
-};
-export {
-  TrendsTemplates
-};
+        `}};export{p as TrendsTemplates};

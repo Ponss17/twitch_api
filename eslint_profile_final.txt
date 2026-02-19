@@ -1,0 +1,8 @@
+
+D:\zzzapi\twitch_api\frontend\core\profile.ts
+  129:22  error  Empty block statement  no-empty
+  129:23  error  Delete `ÔÅÄ┬À┬À┬À┬À┬À┬À┬À┬À`     prettier/prettier
+
+Ô£û 2 problems (2 errors, 0 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

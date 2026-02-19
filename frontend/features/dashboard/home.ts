@@ -6,6 +6,7 @@ export const HomeModule = {
     session: null as Session | null,
     isInitialized: false,
     pollInterval: null as ReturnType<typeof setInterval> | null,
+    countdown: 30,
 
     init(session: Session): void {
         this.session = session;
@@ -14,12 +15,7 @@ export const HomeModule = {
 
     activate(): void {
         this.setupUI();
-        if (this.pollInterval) clearInterval(this.pollInterval);
-        this.pollInterval = setInterval(() => {
-            this.loadRealActivity();
-            this.loadRealStats();
-            this.loadRealHealth();
-        }, 30_000);
+        this.startSmartPolling();
     },
 
     deactivate(): void {
@@ -27,6 +23,38 @@ export const HomeModule = {
             clearInterval(this.pollInterval);
             this.pollInterval = null;
         }
+    },
+
+    startSmartPolling(): void {
+        if (this.pollInterval) clearInterval(this.pollInterval);
+        this.countdown = 30;
+        this.updateSyncIndicator();
+
+        this.pollInterval = setInterval(() => {
+            this.countdown--;
+            if (this.countdown <= 0) {
+                this.performSync();
+                this.countdown = 30;
+            }
+            this.updateSyncIndicator();
+        }, 1000);
+    },
+
+    async performSync(): Promise<void> {
+        const syncEl = document.getElementById('home-sync-indicator');
+        if (syncEl) syncEl.classList.add('syncing');
+
+        await Promise.all([this.loadRealActivity(), this.loadRealStats(), this.loadRealHealth()]);
+
+        setTimeout(() => {
+            if (syncEl) syncEl.classList.remove('syncing');
+        }, 1000);
+    },
+
+    updateSyncIndicator(): void {
+        const syncEl = document.getElementById('home-sync-indicator');
+        if (!syncEl) return;
+        syncEl.textContent = `${this.countdown}s`;
     },
 
     updateValues(): void {
@@ -40,9 +68,7 @@ export const HomeModule = {
 
     setupUI() {
         this.updateValues();
-        this.loadRealActivity();
-        this.loadRealStats();
-        this.loadRealHealth();
+        this.performSync();
         this.setupNavigation();
     },
 
@@ -82,12 +108,14 @@ export const HomeModule = {
 
                 const latencyEl = document.getElementById('home-stat-latency');
                 if (latencyEl) {
-                    const parts = health.latency.split(' ');
-                    if (parts.length > 1) {
-                        latencyEl.innerHTML = `${parts[0]} <span class="stat-unit-alt">${parts[1]}</span>`;
-                    } else {
-                        latencyEl.textContent = health.latency;
-                    }
+                    const avgLatency = parseInt(health.latency) || 0;
+                    const suffix = `ms <span class="stat-unit-alt">(${(avgLatency / 1000).toFixed(1)}s)</span>`;
+
+                    const { UI } = await import('../../core/ui.js');
+                    UI.animateValue(latencyEl, null, avgLatency);
+                    setTimeout(() => {
+                        latencyEl.innerHTML = `${avgLatency.toLocaleString()}${suffix}`;
+                    }, 1600);
                 }
             }
         } catch (e) {
@@ -100,8 +128,6 @@ export const HomeModule = {
     async loadRealActivity(): Promise<void> {
         const logContainer = document.getElementById('home-activity-logs');
         if (!logContainer || !this.session?.token) return;
-
-        await new Promise((r) => setTimeout(r, 600));
 
         try {
             const response = await fetch(`${API_ENDPOINTS.ACTIVITY}?_=${Date.now()}`, {
@@ -149,40 +175,24 @@ export const HomeModule = {
 
             if (response.ok) {
                 const data = await response.json();
+                const { UI } = await import('../../core/ui.js');
 
                 const todayRequests = data.todayRequests || 0;
                 const successRate = data.rawSuccessRate || 0;
-                const avgLatency = parseInt(data.averageLatency) || 0;
 
-                this.animateSingleStat('home-stat-requests', todayRequests, '');
-                this.animateSingleStat('home-stat-success', successRate, '%');
-                this.animateSingleStat(
-                    'home-stat-latency',
-                    avgLatency,
-                    `ms <span class="stat-unit-alt">(${(avgLatency / 1000).toFixed(1)}s)</span>`
-                );
+                const reqEl = document.getElementById('home-stat-requests');
+                const successEl = document.getElementById('home-stat-success');
+
+                if (reqEl) UI.animateValue(reqEl, null, todayRequests);
+                if (successEl) {
+                    UI.animateValue(successEl, null, successRate);
+                    setTimeout(() => {
+                        successEl.innerHTML = `${successRate.toLocaleString()}%`;
+                    }, 1600);
+                }
             }
         } catch (e) {
             console.error('[Home] Error loading stats:', e);
         }
-    },
-
-    animateSingleStat(id: string, target: number, suffix: string): void {
-        const el = document.getElementById(id);
-        if (!el) return;
-
-        let current = 0;
-        const duration = 1500;
-        const step = target / (duration / 30);
-
-        const timer = setInterval(() => {
-            current += step;
-            if (current >= target) {
-                el.innerHTML = `${target}${suffix}`;
-                clearInterval(timer);
-            } else {
-                el.innerHTML = `${current.toFixed(suffix.includes('%') ? 1 : 0)}${suffix}`;
-            }
-        }, 30);
     }
 };

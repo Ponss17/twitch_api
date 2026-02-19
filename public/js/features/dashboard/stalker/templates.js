@@ -1,27 +1,23 @@
-import { StalkerMessages } from "./messages.js";
-import { UI } from "../../../core/ui.js";
-const StalkerTemplates = {
-  renderMain() {
-    return `
+import{StalkerMessages as e}from"./messages.js";import{UI as c}from"../../../core/ui.js";const v={renderMain(){return`
             <div id="stalker-loading" class="loading-state hidden">
-                <i class="fa-solid fa-spinner fa-spin"></i> ${StalkerMessages.rowsLoading}
+                <i class="fa-solid fa-spinner fa-spin"></i> ${e.rowsLoading}
             </div>
 
             <div class="table-container">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 60px;">${StalkerMessages.tableHeaders.avatar}</th>
-                            <th>${StalkerMessages.tableHeaders.user}</th>
-                            <th>${StalkerMessages.tableHeaders.login}</th>
-                            <th style="text-align: right;">${StalkerMessages.tableHeaders.action}</th>
+                            <th style="width: 60px;">${e.tableHeaders.avatar}</th>
+                            <th>${e.tableHeaders.user}</th>
+                            <th>${e.tableHeaders.login}</th>
+                            <th style="text-align: right;">${e.tableHeaders.action}</th>
                         </tr>
                     </thead>
                     <tbody id="stalker-grid">
                         <tr>
                             <td colspan="4">
                                 <div id="stalker-empty" class="empty-state">
-                                    ${StalkerMessages.waiting}
+                                    ${e.waiting}
                                 </div>
                             </td>
                         </tr>
@@ -30,72 +26,22 @@ const StalkerTemplates = {
             </div>
 
             <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">
-                ${StalkerMessages.detectionNote}
+                ${e.detectionNote}
             </div>
-        `;
-  },
-  renderControls(isScanning) {
-    const btnClass = isScanning ? "btn-warning" : "btn-success";
-    const btnIcon = isScanning ? "fa-pause" : "fa-play";
-    const btnTitle = isScanning ? StalkerMessages.scanControls.pause : StalkerMessages.scanControls.start;
-    return `
+        `},renderControls(t){const s=t?"btn-warning":"btn-success",n=t?"fa-pause":"fa-play",a=t?e.scanControls.pause:e.scanControls.start;return`
             <div class="search-wrapper">
                 <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
-                <input type="text" id="stalker-search" placeholder="${StalkerMessages.scanControls.searchPlaceholder}" class="stalker-search" aria-label="${StalkerMessages.scanControls.searchPlaceholder}">
+                <input type="text" id="stalker-search" placeholder="${e.scanControls.searchPlaceholder}" class="stalker-search" aria-label="${e.scanControls.searchPlaceholder}">
             </div>
-            <button id="toggle-stalker" class="btn-icon ${btnClass} mr-5" title="${btnTitle}" aria-label="${btnTitle}">
-                <i class="fa-solid ${btnIcon}" aria-hidden="true"></i>
+            <button id="toggle-stalker" class="btn-icon ${s} mr-5" title="${a}" aria-label="${a}">
+                <i class="fa-solid ${n}" aria-hidden="true"></i>
             </button>
-            <button id="refresh-stalker" class="btn-icon" title="${StalkerMessages.scanControls.refresh}" aria-label="${StalkerMessages.scanControls.refresh}">
+            <button id="refresh-stalker" class="btn-icon" title="${e.scanControls.refresh}" aria-label="${e.scanControls.refresh}">
                 <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
             </button>
-        `;
-  },
-  renderRow(user, viewBtnText, inspectFn) {
-    const tr = document.createElement("tr");
-    tr.className = "stalker-row";
-    const avatarTd = document.createElement("td");
-    const safeUrl = UI.escapeHTML(user.profile_image_url || "");
-    const safeName = UI.escapeHTML(user.user_name);
-    avatarTd.innerHTML = user.profile_image_url ? `<img src="${safeUrl}" class="table-avatar-img" loading="lazy" alt="${safeName}">` : `<div class="table-avatar-empty"><i class="fa-solid fa-user"></i></div>`;
-    const nameTd = document.createElement("td");
-    nameTd.className = "word-text text-bold";
-    nameTd.textContent = user.user_name;
-    const loginTd = document.createElement("td");
-    loginTd.className = "count-text text-muted-color";
-    loginTd.textContent = `@${user.user_login}`;
-    const actionTd = document.createElement("td");
-    actionTd.className = "text-right";
-    const btn = document.createElement("button");
-    btn.className = "action-btn inspect-btn";
-    btn.dataset.login = user.user_login;
-    btn.innerHTML = viewBtnText;
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      inspectFn(user.user_login);
-    };
-    actionTd.appendChild(btn);
-    tr.appendChild(avatarTd);
-    tr.appendChild(nameTd);
-    tr.appendChild(loginTd);
-    tr.appendChild(actionTd);
-    return tr;
-  },
-  renderRowsSkeleton(count = 5) {
-    const fragment = document.createDocumentFragment();
-    for (let i = 0; i < count; i++) {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
+        `},renderRow(t,s,n){const a=document.createElement("tr");a.className="stalker-row";const d=document.createElement("td"),p=c.escapeHTML(t.profile_image_url||""),h=c.escapeHTML(t.user_name);d.innerHTML=t.profile_image_url?`<img src="${p}" class="table-avatar-img" loading="lazy" alt="${h}">`:'<div class="table-avatar-empty"><i class="fa-solid fa-user"></i></div>';const l=document.createElement("td");l.className="word-text text-bold",l.textContent=t.user_name;const i=document.createElement("td");i.className="count-text text-muted-color",i.textContent=`@${t.user_login}`;const o=document.createElement("td");o.className="text-right";const r=document.createElement("button");return r.className="action-btn inspect-btn",r.dataset.login=t.user_login,r.innerHTML=s,r.onclick=m=>{m.stopPropagation(),n(t.user_login)},o.appendChild(r),a.appendChild(d),a.appendChild(l),a.appendChild(i),a.appendChild(o),a},renderRowsSkeleton(t=5){const s=document.createDocumentFragment();for(let n=0;n<t;n++){const a=document.createElement("tr");a.innerHTML=`
                 <td><div class="skeleton skeleton-circle" style="width: 32px; height: 32px;"></div></td>
                 <td><div class="skeleton" style="width: 100px; height: 16px;"></div></td>
                 <td><div class="skeleton" style="width: 80px; height: 14px;"></div></td>
                 <td class="text-right"><div class="skeleton" style="width: 60px; height: 28px; border-radius: 6px;"></div></td>
-            `;
-      fragment.appendChild(tr);
-    }
-    return fragment;
-  }
-};
-export {
-  StalkerTemplates
-};
+            `,s.appendChild(a)}return s}};export{v as StalkerTemplates};

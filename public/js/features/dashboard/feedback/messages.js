@@ -1,11 +1,1 @@
-const FeedbackMessages = {
-  emptyMessage: "Por favor, escribe un mensaje.",
-  sending: '<i class="fa-solid fa-circle-notch fa-spin"></i> Enviando...',
-  defaultButton: '<i class="fa-solid fa-paper-plane"></i> Enviar Feedback',
-  success: "\xA1Feedback enviado! Gracias por tu aporte.",
-  error: "Error al enviar. Intenta m\xE1s tarde.",
-  connectionError: "Error de conexi\xF3n."
-};
-export {
-  FeedbackMessages
-};
+const e={emptyMessage:"Por favor, escribe un mensaje.",sending:'<i class="fa-solid fa-circle-notch fa-spin"></i> Enviando...',defaultButton:'<i class="fa-solid fa-paper-plane"></i> Enviar Feedback',success:"\xA1Feedback enviado! Gracias por tu aporte.",error:"Error al enviar. Intenta m\xE1s tarde.",connectionError:"Error de conexi\xF3n."};export{e as FeedbackMessages};
