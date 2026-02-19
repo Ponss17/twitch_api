@@ -1,8 +1,0 @@
-
-D:\zzzapi\twitch_api\frontend\core\profile.ts
-  127:22  error    Empty block statement                     no-empty
-  177:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  516:6   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-Ô£û 3 problems (1 error, 2 warnings)
-
