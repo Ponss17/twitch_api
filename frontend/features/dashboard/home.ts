@@ -27,7 +27,24 @@ export const HomeModule = {
 
     startSmartPolling(): void {
         if (this.pollInterval) clearInterval(this.pollInterval);
-        this.countdown = 30;
+
+        const lastSync = localStorage.getItem('home_last_sync');
+        const now = Date.now();
+        const pollMs = 30000;
+
+        if (lastSync) {
+            const elapsed = now - parseInt(lastSync);
+            if (elapsed < pollMs) {
+                this.countdown = Math.ceil((pollMs - elapsed) / 1000);
+            } else {
+                this.countdown = 30;
+                this.performSync();
+            }
+        } else {
+            this.countdown = 30;
+            this.performSync();
+        }
+
         this.updateSyncIndicator();
 
         this.pollInterval = setInterval(() => {
@@ -44,6 +61,7 @@ export const HomeModule = {
         const syncEl = document.getElementById('home-sync-indicator');
         if (syncEl) syncEl.classList.add('syncing');
 
+        localStorage.setItem('home_last_sync', Date.now().toString());
         await Promise.all([this.loadRealActivity(), this.loadRealStats(), this.loadRealHealth()]);
 
         setTimeout(() => {
@@ -112,10 +130,7 @@ export const HomeModule = {
                     const suffix = `ms <span class="stat-unit-alt">(${(avgLatency / 1000).toFixed(1)}s)</span>`;
 
                     const { UI } = await import('../../core/ui.js');
-                    UI.animateValue(latencyEl, null, avgLatency);
-                    setTimeout(() => {
-                        latencyEl.innerHTML = `${avgLatency.toLocaleString()}${suffix}`;
-                    }, 1600);
+                    UI.animateValue(latencyEl, null, avgLatency, 1500, suffix);
                 }
             }
         } catch (e) {
@@ -185,10 +200,7 @@ export const HomeModule = {
 
                 if (reqEl) UI.animateValue(reqEl, null, todayRequests);
                 if (successEl) {
-                    UI.animateValue(successEl, null, successRate);
-                    setTimeout(() => {
-                        successEl.innerHTML = `${successRate.toLocaleString()}%`;
-                    }, 1600);
+                    UI.animateValue(successEl, null, successRate, 1500, '%');
                 }
             }
         } catch (e) {

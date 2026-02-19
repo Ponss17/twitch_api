@@ -35,7 +35,24 @@ export const ProfileModule: DashboardModule = {
 
     startSmartPolling(): void {
         if (this.rateLimitPollInterval) clearInterval(this.rateLimitPollInterval);
-        this.countdown = 30;
+
+        const lastSync = localStorage.getItem('profile_last_sync');
+        const now = Date.now();
+        const pollMs = 30000;
+
+        if (lastSync) {
+            const elapsed = now - parseInt(lastSync);
+            if (elapsed < pollMs) {
+                this.countdown = Math.ceil((pollMs - elapsed) / 1000);
+            } else {
+                this.countdown = 30;
+                this.performSync();
+            }
+        } else {
+            this.countdown = 30;
+            this.performSync();
+        }
+
         this.updateSyncIndicator();
 
         this.rateLimitPollInterval = setInterval(() => {
@@ -59,6 +76,7 @@ export const ProfileModule: DashboardModule = {
     async performSync(): Promise<void> {
         const syncEl = document.getElementById('profile-sync-indicator');
         if (this.session) {
+            localStorage.setItem('profile_last_sync', Date.now().toString());
             await Promise.all([this.pollRateLimit(), this.loadAnalytics()]);
         }
 

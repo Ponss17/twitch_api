@@ -119,12 +119,19 @@ export const UI = {
         }
     },
 
-    animateValue(obj: HTMLElement, start: number | null, end: number, duration: number = 1500) {
-        const currentVal = parseInt(obj.innerText.replace(/[^0-9.-]+/g, '')) || 0;
+    animateValue(
+        obj: HTMLElement,
+        start: number | null,
+        end: number,
+        duration: number = 1500,
+        suffix: string = ''
+    ) {
+        const textWithoutHtml = obj.innerHTML.replace(/<[^>]*>?/gm, '');
+        const currentVal = parseInt(textWithoutHtml.replace(/[^0-9.-]+/g, '')) || 0;
         const actualStart = start !== null ? start : currentVal;
 
         if (actualStart === end) {
-            obj.innerHTML = end.toLocaleString();
+            obj.innerHTML = `${end.toLocaleString()}${suffix}`;
             return;
         }
 
@@ -136,12 +143,12 @@ export const UI = {
             const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
 
             const current = Math.floor(easeProgress * (end - actualStart) + actualStart);
-            obj.innerHTML = current.toLocaleString();
+            obj.innerHTML = `${current.toLocaleString()}${suffix}`;
 
             if (progress < 1) {
                 window.requestAnimationFrame(step);
             } else {
-                obj.innerHTML = end.toLocaleString();
+                obj.innerHTML = `${end.toLocaleString()}${suffix}`;
             }
         };
         window.requestAnimationFrame(step);
