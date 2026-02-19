@@ -59,7 +59,7 @@ export const fetchAdmin = async (url: string, options: RequestInit = {}): Promis
     }
 
     const headers = new Headers(options.headers);
-    headers.set('x-admin-password', password);
+    headers.set('x-admin-api-key', password);
     headers.set('Content-Type', 'application/json');
 
     const response = await fetch(url, {
