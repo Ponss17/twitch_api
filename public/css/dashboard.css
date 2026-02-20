@@ -17,7 +17,8 @@
 }
 
 .sidebar-brand {
-    padding: 24px 20px;
+    padding: 16px 20px;
+    height: 80px;
     font-size: 1.1rem;
     font-weight: 700;
     display: flex;
@@ -35,7 +36,7 @@
 
 .sidebar-menu {
     flex: 1;
-    padding: 20px 15px;
+    padding: 12px 12px;
     overflow-y: auto;
 }
 
@@ -161,7 +162,7 @@
 
 .dashboard-content {
     flex: 1;
-    padding: 32px 40px;
+    padding: 16px 24px;
     max-width: 1600px;
     margin: 0 auto;
     width: 100%;
@@ -189,16 +190,23 @@
 }
 
 .dashboard-header {
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-primary);
+    width: 100%;
+}
+
+.dashboard-header-inner {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 80px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 24px 40px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-primary);
 }
 
 .dashboard-header h1 {
-    font-size: 2rem;
+    font-size: 1.6rem;
     font-weight: 800;
     color: var(--text-primary);
     letter-spacing: -0.03em;
@@ -448,8 +456,8 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 24px;
-    margin-bottom: 24px;
+    padding: 20px;
+    margin-bottom: 20px;
     box-shadow: var(--shadow-sm);
     opacity: 0;
     animation: fadeInSoft 0.4s ease-out forwards;
@@ -463,9 +471,9 @@
 .card-header {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
-    padding-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
     border-bottom: 1px solid var(--border);
     justify-content: space-between;
 }
@@ -483,25 +491,25 @@
 .card-title-group {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
 }
 
 .card-icon {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     background: rgba(145, 70, 255, 0.1);
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--accent);
-    font-size: 1.1rem;
+    font-size: 1rem;
     flex-shrink: 0;
     border: 1px solid rgba(145, 70, 255, 0.2);
 }
 
 .card-header h3 {
-    font-size: 1.3rem;
+    font-size: 1.15rem;
     font-weight: 700;
     margin-bottom: 4px;
 }

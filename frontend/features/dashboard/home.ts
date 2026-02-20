@@ -8,6 +8,11 @@ export const HomeModule = {
     isInitialized: false,
     pollInterval: null as ReturnType<typeof setInterval> | null,
     countdown: 30,
+    lastStats: {
+        todayRequests: -1,
+        successRate: -1,
+        latency: -1
+    },
 
     init(session: Session): void {
         this.session = session;
@@ -17,6 +22,9 @@ export const HomeModule = {
     activate(): void {
         Loader.loadCSS('./css/sections/home.css');
         this.setupUI();
+        this.loadRealActivity();
+        this.loadRealStats();
+        this.loadRealHealth();
         this.startSmartPolling();
     },
 
@@ -30,7 +38,7 @@ export const HomeModule = {
     startSmartPolling(): void {
         if (this.pollInterval) clearInterval(this.pollInterval);
 
-        const lastSync = localStorage.getItem('home_last_sync');
+        const lastSync = localStorage.getItem('dashboard_last_sync');
         const now = Date.now();
         const pollMs = 30000;
 
@@ -63,7 +71,7 @@ export const HomeModule = {
         const syncEl = document.getElementById('home-sync-indicator');
         if (syncEl) syncEl.classList.add('syncing');
 
-        localStorage.setItem('home_last_sync', Date.now().toString());
+        localStorage.setItem('dashboard_last_sync', Date.now().toString());
         await Promise.all([this.loadRealActivity(), this.loadRealStats(), this.loadRealHealth()]);
 
         setTimeout(() => {
@@ -88,7 +96,6 @@ export const HomeModule = {
 
     setupUI() {
         this.updateValues();
-        this.performSync();
         this.setupNavigation();
     },
 
@@ -129,10 +136,13 @@ export const HomeModule = {
                 const latencyEl = document.getElementById('home-stat-latency');
                 if (latencyEl) {
                     const avgLatency = parseInt(health.latency) || 0;
-                    const suffix = `ms <span class="stat-unit-alt">(${(avgLatency / 1000).toFixed(1)}s)</span>`;
 
-                    const { UI } = await import('../../core/ui.js');
-                    UI.animateValue(latencyEl, null, avgLatency, 1500, suffix);
+                    if (this.lastStats.latency !== avgLatency) {
+                        const suffix = `ms <span class="stat-unit-alt">(${(avgLatency / 1000).toFixed(1)}s)</span>`;
+                        const { UI } = await import('../../core/ui.js');
+                        UI.animateValue(latencyEl, null, avgLatency, 1500, suffix);
+                        this.lastStats.latency = avgLatency;
+                    }
                 }
             }
         } catch (e) {
@@ -206,9 +216,18 @@ export const HomeModule = {
                 const reqEl = document.getElementById('home-stat-requests');
                 const successEl = document.getElementById('home-stat-success');
 
-                if (reqEl) UI.animateValue(reqEl, null, todayRequests);
-                if (successEl) {
+                if (reqEl && this.lastStats.todayRequests !== todayRequests) {
+                    UI.animateValue(reqEl, null, todayRequests);
+                    this.lastStats.todayRequests = todayRequests;
+                } else if (reqEl) {
+                    reqEl.textContent = todayRequests.toLocaleString();
+                }
+
+                if (successEl && this.lastStats.successRate !== successRate) {
                     UI.animateValue(successEl, null, successRate, 1500, '%');
+                    this.lastStats.successRate = successRate;
+                } else if (successEl) {
+                    successEl.textContent = `${successRate}%`;
                 }
             }
         } catch (e) {

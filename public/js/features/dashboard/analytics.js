@@ -84,31 +84,39 @@ const AnalyticsModule = {
       { key: "followage", icon: "fa-clock", label: "Consultas Followage" },
       { key: "so", icon: "fa-bullhorn", label: "Shoutouts" }
     ];
-    const fragment = document.createDocumentFragment();
-    statConfig.forEach((stat, index) => {
-      const value = data[stat.key] || 0;
-      const card = document.createElement("div");
-      card.className = `stat-card stagger-${index + 1}`;
-      card.style.animation = "fadeInSoft 0.5s ease-out forwards";
-      card.style.animationDelay = `${index * 100}ms`;
-      card.innerHTML = `
-                <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
-                <div class="stat-info">
-                    <h3 class="counter" data-target="${value}">0</h3>
-                    <span>${stat.label}</span>
-                </div>
-            `;
-      fragment.appendChild(card);
-    });
-    statsContainer.innerHTML = "";
-    statsContainer.appendChild(fragment);
-    requestAnimationFrame(() => {
-      document.querySelectorAll(".counter").forEach((counter) => {
-        const target = parseInt(counter.dataset.target || "0");
-        import("../../core/ui.js").then(({ UI }) => {
-          UI.animateValue(counter, 0, target, 1500);
-        });
+
+    if (!statsContainer.children.length || statsContainer.querySelector('.skeleton-card')) {
+      const fragment = document.createDocumentFragment();
+      statConfig.forEach((stat) => {
+        const card = document.createElement("div");
+        card.className = `stat-card`;
+        card.innerHTML = `
+                  <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
+                  <div class="stat-info">
+                      <h3 class="counter" id="an-stat-${stat.key}" data-target="0">0</h3>
+                      <span>${stat.label}</span>
+                  </div>
+              `;
+        fragment.appendChild(card);
       });
+      statsContainer.innerHTML = "";
+      statsContainer.appendChild(fragment);
+    }
+
+    statConfig.forEach((stat) => {
+      const el = document.getElementById(`an-stat-${stat.key}`);
+      const newValue = data[stat.key] || 0;
+      if (el) {
+        const currentTarget = parseInt(el.dataset.target || "0");
+        if (currentTarget !== newValue || el.textContent === "0") {
+          el.dataset.target = newValue;
+          import("../../core/ui.js").then(({ UI }) => {
+            UI.animateValue(el, null, newValue);
+          });
+        } else {
+          el.textContent = newValue.toLocaleString();
+        }
+      }
     });
   }
 };

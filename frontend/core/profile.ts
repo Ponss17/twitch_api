@@ -10,6 +10,10 @@ export const ProfileModule: DashboardModule = {
     isInitialized: false,
     rateLimitPollInterval: null as ReturnType<typeof setInterval> | null,
     countdown: 30,
+    lastData: {
+        followers: -1,
+        analytics: {} as Record<string, number>
+    },
 
     get authToken(): string {
         return this.session?.token || '';
@@ -38,7 +42,7 @@ export const ProfileModule: DashboardModule = {
     startSmartPolling(): void {
         if (this.rateLimitPollInterval) clearInterval(this.rateLimitPollInterval);
 
-        const lastSync = localStorage.getItem('profile_last_sync');
+        const lastSync = localStorage.getItem('dashboard_last_sync');
         const now = Date.now();
         const pollMs = 30000;
 
@@ -78,7 +82,7 @@ export const ProfileModule: DashboardModule = {
     async performSync(): Promise<void> {
         const syncEl = document.getElementById('profile-sync-indicator');
         if (this.session) {
-            localStorage.setItem('profile_last_sync', Date.now().toString());
+            localStorage.setItem('dashboard_last_sync', Date.now().toString());
             await Promise.all([this.pollRateLimit(), this.loadAnalytics()]);
         }
 
@@ -112,7 +116,53 @@ export const ProfileModule: DashboardModule = {
         this.setupTokenVisibility();
         this.setupRegenerate();
         this.setupCopyId();
+        this.setupDangerToggle();
         this.setupDangerZone();
+    },
+
+    setupDangerToggle(): void {
+        const toggleBtn = document.getElementById('profile-toggle-danger');
+        const dangerSection = document.getElementById('danger-zone-section');
+
+        if (toggleBtn && dangerSection && !toggleBtn.dataset.listener) {
+            toggleBtn.addEventListener('click', () => {
+                const isHidden = dangerSection.classList.contains('is-hidden');
+                if (isHidden) {
+                    dangerSection.classList.remove('is-hidden');
+                    toggleBtn.classList.add('active');
+                    toggleBtn.title = 'Ocultar Zona de Peligro';
+                    setTimeout(() => {
+                        const start = window.pageYOffset;
+                        const end = document.documentElement.scrollHeight - window.innerHeight;
+                        const distance = end - start;
+                        const duration = 1200;
+                        let startTime: number | null = null;
+
+                        const easeOutQuint = (t: number, b: number, c: number, d: number) => {
+                            return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
+                        };
+
+                        const animation = (currentTime: number) => {
+                            if (startTime === null) startTime = currentTime;
+                            const timeElapsed = currentTime - startTime;
+                            const run = easeOutQuint(timeElapsed, start, distance, duration);
+                            window.scrollTo(0, run);
+                            if (timeElapsed < duration) {
+                                requestAnimationFrame(animation);
+                            } else {
+                                window.scrollTo(0, document.documentElement.scrollHeight);
+                            }
+                        };
+                        requestAnimationFrame(animation);
+                    }, 400);
+                } else {
+                    dangerSection.classList.add('is-hidden');
+                    toggleBtn.classList.remove('active');
+                    toggleBtn.title = 'Mostrar Zona de Peligro';
+                }
+            });
+            toggleBtn.dataset.listener = 'true';
+        }
     },
 
     async loadProfileData(): Promise<void> {
@@ -147,7 +197,7 @@ export const ProfileModule: DashboardModule = {
                 }
             }
         } catch (_e) {
-            /* polling ignorado */
+            /*  */
         }
     },
 
@@ -178,9 +228,9 @@ export const ProfileModule: DashboardModule = {
 
         if (container.children.length === 0) {
             let html = '';
-            statConfig.forEach((stat, index) => {
+            statConfig.forEach((stat) => {
                 html += `
-                    <div class="stat-card stagger-${index + 1}">
+                    <div class="stat-card">
                         <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
                         <div class="stat-info">
                             <h3 class="counter" id="prof-stat-${stat.key}" data-target="0">0</h3>
@@ -194,7 +244,15 @@ export const ProfileModule: DashboardModule = {
 
         statConfig.forEach((stat) => {
             const el = document.getElementById(`prof-stat-${stat.key}`);
-            if (el) UI.animateValue(el, null, data[stat.key] || 0);
+            const newValue = data[stat.key] || 0;
+            if (el) {
+                if (this.lastData.analytics[stat.key] !== newValue) {
+                    UI.animateValue(el, null, newValue);
+                    this.lastData.analytics[stat.key] = newValue;
+                } else {
+                    el.textContent = newValue.toLocaleString();
+                }
+            }
         });
     },
     updateProfileStatsInternal(data: import('../types.js').ProfileStatsData): void {
@@ -205,7 +263,12 @@ export const ProfileModule: DashboardModule = {
 
         if (followers) {
             const targetValue = data.followers || 0;
-            UI.animateValue(followers, 0, targetValue, 1500);
+            if (this.lastData.followers !== targetValue) {
+                UI.animateValue(followers, 0, targetValue, 1500);
+                this.lastData.followers = targetValue;
+            } else {
+                followers.textContent = targetValue.toLocaleString();
+            }
         }
 
         if (bio)

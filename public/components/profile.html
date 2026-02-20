@@ -1,5 +1,5 @@
 <div class="profile-hero">
-    <div class="profile-hero-card stagger-1">
+    <div class="profile-hero-card">
         <div class="profile-hero-bg"></div>
         <div class="profile-hero-flex">
             <div class="profile-avatar-container">
@@ -42,7 +42,7 @@
     </div>
 </div>
 
-<div class="card stagger-2">
+<div class="card">
     <div class="card-header">
         <div class="card-title-group">
             <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
@@ -73,6 +73,10 @@
                         <button class="field-btn btn-danger-soft" type="button" id="profile-regen-key"
                             title="Regenerar">
                             <i class="fa-solid fa-rotate"></i>
+                        </button>
+                        <button class="field-btn btn-toggle-danger" type="button" id="profile-toggle-danger"
+                            title="Mostrar Zona de Peligro">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
                         </button>
                     </div>
                 </div>
@@ -105,7 +109,7 @@
     </div>
 </div>
 
-<div class="card stagger-3">
+<div class="card">
     <div class="card-header">
         <div class="card-title-group">
             <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
@@ -122,7 +126,7 @@
     </div>
 </div>
 
-<div class="card stagger-4 danger-card-wrapper">
+<div class="card danger-card-wrapper danger-zone-container is-hidden" id="danger-zone-section">
     <div class="card-header">
         <div class="card-title-group">
             <div class="card-icon danger-icon-bg">
