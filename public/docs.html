@@ -51,12 +51,12 @@
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
                     <input type="text" id="docs-search" placeholder="Buscar comandos..." autocomplete="off">
                 </div>
-                <app-button variant="primary" icon="search">Buscar</app-button>
             </div>
 
             <nav class="sidebar-nav">
                 <a href="#intro" class="nav-item active"><i class="fa-solid fa-house"></i> Introducción</a>
                 <a href="#auth" class="nav-item"><i class="fa-solid fa-key"></i> Tu API Key</a>
+                <a href="#profile" class="nav-item"><i class="fa-solid fa-user-gear"></i> Perfil y Seguridad</a>
                 <a href="#limits" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Límites</a>
                 <a href="#quick-start" class="nav-item"><i class="fa-solid fa-rocket"></i> ¡Comienza Ya!</a>
                 <div class="nav-group">
@@ -105,7 +105,8 @@
                     </div>
                     <div class="info-card" style="margin: 0; height: 100%;">
                         <i class="fa-solid fa-bolt"></i>
-                        <p><strong>Caché:</strong> Respuestas en memoria por <strong>60s</strong> para velocidad.</p>
+                        <p><strong>Actualización:</strong> Datos frescos cada <strong>30 segundos</strong> de forma
+                            automática.</p>
                     </div>
                 </div>
             </section>
@@ -119,6 +120,66 @@
                     <p><strong>¿Por qué verificar?</strong> Solo necesitamos permiso para <strong>leer datos
                             públicos</strong> y <strong>crear clips</strong> en tu nombre. No tocamos tu clave de
                         transmisión ni datos privados.</p>
+                </div>
+            </section>
+
+            <section id="profile" class="doc-section">
+                <h2><i class="fa-solid fa-user-gear"></i> Perfil y Seguridad</h2>
+                <p>Gestiona tu identidad en la plataforma y configura las opciones de seguridad de tu cuenta.</p>
+
+                <div class="info-card" style="border-left-color: var(--primary-color);">
+                    <i class="fa-solid fa-key"></i>
+                    <p><strong>API Key Manager:</strong> Visualiza y regenera tu clave permanente usada para los
+                        comandos de chat.</p>
+                </div>
+
+                <p>Si deseas integrar tu perfil directamente en tu bot de chat para consultar tu estado:</p>
+
+                <div class="code-tab-container" data-trigger="perfil">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
+
+                        <div class="format-selector">
+                            <button class="format-btn active" onclick="switchFormat(this, 'chat')">Chat</button>
+                            <button class="format-btn" onclick="switchFormat(this, 'dashboard')">Panel</button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content active" data-bot="nightbot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="$(urlfetch {baseURL}/api/twitch/profile/status?apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="streamelements">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="${customapi.{baseURL}/api/twitch/profile/status?apiKey=TU_API_KEY}">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" data-bot="fossabot">
+                        <div class="code-block">
+                            <code class="dynamic-url"
+                                data-path="$(customapi {baseURL}/api/twitch/profile/status?apiKey=TU_API_KEY)">Cargando...</code>
+                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card" style="border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05);">
+                    <i class="fa-solid fa-skull-crossbones" style="color: #ef4444;"></i>
+                    <p><strong>Zona de Peligro:</strong> Accede a opciones críticas como el borrado de cuenta mediante
+                        el toggle de advertencia y confirmación de seguridad.
+                    </p>
                 </div>
             </section>
 
