@@ -1,48 +1,43 @@
-<div class="hero-glass-section stagger-1">
+<div class="hero-glass-section">
     <div class="hero-glass-content">
-        <div class="hero-text-area">
-            <h2 class="hero-welcome-title">
-                Hola, <span class="gradient-text" id="hero-user-name">Streamer</span>
-                <i class="fa-brands fa-twitch hero-twitch-icon"></i>
-            </h2>
+        <div class="hero-welcome-area">
+            <h1 class="hero-welcome-title">Hola, <span id="hero-user-name" class="user-name-gradient">...</span> <span
+                    class="hero-twitch-icon"><i class="fa-brands fa-twitch"></i></span></h1>
             <p class="hero-welcome-subtitle">Gestione sus utilidades de Twitch y monitoree el rendimiento de su API en
                 tiempo real.</p>
         </div>
         <div class="hero-status-area">
-            <div class="system-status-pill operational" id="home-health-pill">
-                <span class="pulse-dot"></span>
-                <span class="status-label">Sistemas Online</span>
+            <div class="hero-stats-row">
+                <div class="h-stat">
+                    <div class="h-stat-icon p-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="h-stat-content">
+                        <span class="h-stat-label">PETICIONES</span>
+                        <span class="h-stat-value" id="home-stat-requests">0</span>
+                    </div>
+                </div>
+                <div class="h-stat">
+                    <div class="h-stat-icon s-icon"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="h-stat-content">
+                        <span class="h-stat-label">ÉXITO</span>
+                        <span class="h-stat-value success" id="home-stat-success">0%</span>
+                    </div>
+                </div>
+                <div class="h-stat">
+                    <div class="h-stat-icon w-icon"><i class="fa-solid fa-gauge-high"></i></div>
+                    <div class="h-stat-content">
+                        <span class="h-stat-label">LATENCIA</span>
+                        <span class="h-stat-value warning" id="home-stat-latency">0ms</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="home-mini-stats-grid mb-24">
-    <div class="mini-stat-card stagger-2">
-        <div class="m-icon"><i class="fa-solid fa-bolt"></i></div>
-        <div class="m-data">
-            <span class="m-label">PETICIONES HOY</span>
-            <span class="m-value" id="home-stat-requests">0</span>
-        </div>
-    </div>
-    <div class="mini-stat-card stagger-3">
-        <div class="m-icon success"><i class="fa-solid fa-circle-check"></i></div>
-        <div class="m-data">
-            <span class="m-label">TASA DE ÉXITO</span>
-            <span class="m-value" id="home-stat-success">0%</span>
-        </div>
-    </div>
-    <div class="mini-stat-card stagger-4">
-        <div class="m-icon warning"><i class="fa-solid fa-gauge-high"></i></div>
-        <div class="m-data">
-            <span class="m-label">LATENCIA MEDIA</span>
-            <span class="m-value" id="home-stat-latency">0ms</span>
-        </div>
-    </div>
-</div>
+
 
 <div class="home-activity-layout">
-    <div class="card activity-feed-card stagger-5">
+    <div class="card activity-feed-card">
         <div class="card-header">
             <div class="card-title-group">
                 <div class="card-icon"><i class="fa-solid fa-terminal"></i></div>
@@ -64,7 +59,7 @@
     </div>
 
     <div class="quick-resources-sidebar">
-        <div class="card sidebar-card stagger-6">
+        <div class="card sidebar-card">
             <div class="card-header mini">
                 <h3>Recursos</h3>
             </div>
