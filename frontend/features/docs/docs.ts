@@ -80,10 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     FooterComponent.render('main-footer');
 
-    const navItemsObserver = document.querySelectorAll('.nav-item');
     const observerOptions = {
         root: null as Element | null,
-        rootMargin: '-20% 0px -70% 0px',
+        rootMargin: '-15% 0px -65% 0px',
         threshold: 0
     };
 
@@ -91,10 +90,13 @@ document.addEventListener('DOMContentLoaded', () => {
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
                 const id = entry.target.getAttribute('id');
-                navItemsObserver.forEach((item) => {
-                    item.classList.remove('active');
-                    if (item.getAttribute('href') === `#${id}`) {
-                        item.classList.add('active');
+                if (!id) return;
+
+                navItems.forEach((item) => {
+                    const el = item as HTMLElement;
+                    el.classList.remove('active');
+                    if (el.getAttribute('href') === `#${id}`) {
+                        el.classList.add('active');
                     }
                 });
             }
