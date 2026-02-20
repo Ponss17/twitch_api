@@ -391,11 +391,48 @@
 }
 
 .empty-msg {
-    letter-spacing: 0.05em;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: none;
+    letter-spacing: 0.1em;
+    width: 0;
+    animation:
+        typing 10s steps(22) infinite,
+        pulse-opacity 10s infinite;
+}
+
+@keyframes typing {
+
+    0%,
+    10% {
+        width: 0;
+    }
+
+    40%,
+    90% {
+        width: 22ch;
+    }
+
+    100% {
+        width: 0;
+    }
+}
+
+@keyframes pulse-opacity {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
 }
 
 .empty-cursor {
-    color: var(--accent);
+    color: var(--text-dim);
     font-weight: bold;
     animation: slow-blink 1.5s step-end infinite;
 }
