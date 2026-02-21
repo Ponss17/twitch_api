@@ -18,6 +18,7 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
             todayRequests: 0,
             totalRequests: 0,
             averageLatency: '0ms (0.0s)',
+            avgLatencyMs: 0,
             successRate: '100%',
             rawSuccessRate: 100
         });
@@ -43,6 +44,10 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
                           1000
                       ).toFixed(1)}s)`
                     : '0ms (0.0s)',
+            avgLatencyMs:
+                stats.total_latency && stats.total_requests
+                    ? Math.round(stats.total_latency / stats.total_requests)
+                    : 0,
             successRate: stats.total_requests
                 ? `${((1 - (stats.total_errors || 0) / stats.total_requests) * 100).toFixed(1)}%`
                 : '100%',
