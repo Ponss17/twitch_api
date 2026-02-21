@@ -81,9 +81,12 @@ export const getUserId = async (username: string, token: string): Promise<string
 
 export const getUserInfo = async (username: string, token: string): Promise<TwitchUser> => {
     const headers = getHeaders(token);
-    const response = await apiClient.get(`https://api.twitch.tv/helix/users?login=${username}`, {
-        headers
-    });
+    const response = await apiClient.get(
+        `https://api.twitch.tv/helix/users?login=${encodeURIComponent(username)}`,
+        {
+            headers
+        }
+    );
 
     if (response.data.data.length === 0) {
         throw { status: 404, message: `El usuario/canal ${username} no existe.` } as TwitchError;

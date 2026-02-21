@@ -5,7 +5,8 @@ export const playRussianRoulette = async (
     channel: string,
     triggerUser: string,
     token: string,
-    hardcore: boolean
+    hardcore: boolean,
+    sendToChat: boolean = true
 ) => {
     try {
         const bulletPosition = Math.floor(Math.random() * 6);
@@ -67,7 +68,9 @@ export const playRussianRoulette = async (
             message = surviveMessages[Math.floor(Math.random() * surviveMessages.length)];
         }
 
-        await sendChatMessage(broadcasterId, broadcasterId, message, token);
+        if (sendToChat) {
+            await sendChatMessage(broadcasterId, broadcasterId, message, token);
+        }
 
         return {
             status,

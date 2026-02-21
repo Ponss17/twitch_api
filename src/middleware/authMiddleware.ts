@@ -1,5 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../types/twitch';
+import { AuthenticatedRequest, StoredUser } from '../types/twitch';
 import * as authService from '../services/auth/authService';
 import * as apiService from '../services/twitch/apiService';
 import * as dbService from '../services/infrastructure/dbService';
@@ -7,8 +7,23 @@ import { MESSAGES } from '../config/messages';
 import { logger } from '../utils/logger';
 import { isPublicRoute } from '../utils/routeHelpers';
 
-const userCache = new Map<string, { user: any; expiry: number }>();
+const userCache = new Map<string, { user: StoredUser; expiry: number }>();
 const CACHE_TTL = 60 * 1000;
+
+// Throttle updateLastActive to once per 5 minutes per user
+const lastActiveThrottle = new Map<string, number>();
+const LAST_ACTIVE_THROTTLE_MS = 5 * 60 * 1000;
+
+const throttledUpdateLastActive = (userId: string) => {
+    const now = Date.now();
+    const lastUpdate = lastActiveThrottle.get(userId) || 0;
+    if (now - lastUpdate < LAST_ACTIVE_THROTTLE_MS) return;
+
+    lastActiveThrottle.set(userId, now);
+    dbService.updateLastActive(userId).catch((err) => {
+        logger.error('Error updating last active:', err);
+    });
+};
 
 const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const safeString = (val: unknown) => (typeof val === 'string' ? val : '');
@@ -20,9 +35,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         req.displayName = user.displayName;
         req.twitchToken = user.accessToken;
 
-        dbService.updateLastActive(user.userId).catch((err) => {
-            logger.error('Error updating last active (pre-validated):', err);
-        });
+        throttledUpdateLastActive(user.userId);
 
         return next();
     }
@@ -100,9 +113,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     }
 
     if (req.userId) {
-        dbService.updateLastActive(req.userId).catch((err: unknown) => {
-            logger.error('Error updating last active:', err);
-        });
+        throttledUpdateLastActive(req.userId);
     }
 
     req.twitchToken = token;

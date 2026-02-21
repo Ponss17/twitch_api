@@ -1,6 +1,6 @@
 export const isStaticAsset = (path: string): boolean => {
     return (
-        /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json|webp)$/i.test(path) ||
+        /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(path) ||
         /\/(css|js|img)\//i.test(path)
     );
 };
@@ -11,7 +11,7 @@ export const isPublicRoute = (path: string): boolean => {
     // 1. Static Assets (Always public)
     if (isStaticAsset(cleanPath) || cleanPath.startsWith('/img/')) return true;
 
-    // 2. System Critical Routes (Exact matches or specific patterns)
+    // 2. System Critical Routes & Admin Routes
     const publicExactRoutes = [
         '/health',
         '/api/twitch/health',
@@ -24,6 +24,15 @@ export const isPublicRoute = (path: string): boolean => {
         '/api/twitch/docs'
     ];
     if (publicExactRoutes.includes(cleanPath)) return true;
+
+    // 2.5 Admin API Routes (These have their own rate limiters and auth in routes/admin.ts)
+    if (
+        cleanPath.startsWith('/api/admin') ||
+        cleanPath.startsWith('/api/twitch/admin') ||
+        cleanPath.startsWith('/admin/api')
+    ) {
+        return true;
+    }
 
     // 3. Auth Flows
     if (

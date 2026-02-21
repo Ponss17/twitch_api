@@ -4,6 +4,22 @@ import * as dbService from '../../services/infrastructure/dbService';
 import { MESSAGES } from '../../config/messages';
 import { logger } from '../../utils/logger';
 
+const ALLOWED_REDIRECT_ORIGINS = [
+    'https://www.losperris.site',
+    'https://losperris.site',
+    'http://localhost:3000',
+    'http://localhost:5173'
+];
+
+const isAllowedOrigin = (origin: string): boolean => {
+    try {
+        const url = new URL(origin);
+        return ALLOWED_REDIRECT_ORIGINS.includes(url.origin);
+    } catch {
+        return false;
+    }
+};
+
 export const login = (req: Request, res: Response) => {
     const redirectOrigin = (req.query.redirect_origin as string) || '';
     const isAdmin = req.query.admin === 'true';
@@ -23,10 +39,7 @@ export const callback = async (req: Request, res: Response) => {
     }
 
     try {
-        const { user, access_token, redirectOrigin, apiKey } = await authService.handleCallback(
-            code,
-            state
-        );
+        const { user, redirectOrigin, apiKey } = await authService.handleCallback(code, state);
 
         let isAdminLogin = false;
         if (state) {
@@ -47,10 +60,12 @@ export const callback = async (req: Request, res: Response) => {
             return res.redirect(`/api/twitch/admin-dashboard?session=${apiKey}`);
         }
 
-        const params = `?token=${access_token}&apiKey=${apiKey}&userId=${user.id}&login=${user.login}&displayName=${encodeURIComponent(user.display_name)}`;
-        const redirectUrl = redirectOrigin
-            ? `${redirectOrigin}${params}`
-            : `/api/twitch/dashboard${params}`;
+        const params = `?apiKey=${apiKey}&userId=${user.id}&login=${user.login}&displayName=${encodeURIComponent(user.display_name)}`;
+
+        let redirectUrl = `/api/twitch/dashboard${params}`;
+        if (redirectOrigin && isAllowedOrigin(redirectOrigin)) {
+            redirectUrl = `${redirectOrigin}${params}`;
+        }
 
         res.redirect(redirectUrl);
     } catch (error: unknown) {
@@ -61,7 +76,7 @@ export const callback = async (req: Request, res: Response) => {
         if (state) {
             try {
                 const decoded = JSON.parse(Buffer.from(state, 'base64').toString());
-                if (decoded.redirectOrigin)
+                if (decoded.redirectOrigin && isAllowedOrigin(decoded.redirectOrigin))
                     errorRedirect = `${decoded.redirectOrigin}?error=auth_failed`;
             } catch (_e) {
                 // Ignore state decode errors in error handler

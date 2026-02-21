@@ -15,3 +15,17 @@ export const magic8Schema = z.object({
         user: z.string().optional()
     })
 });
+
+export const followageSchema = z.object({
+    query: z.object({
+        channel: z.string().min(1, 'El nombre del canal es requerido'),
+        user: z.string().min(1, 'El nombre del usuario es requerido')
+    })
+});
+
+export const shoutoutSchema = z.object({
+    query: z.object({
+        channel: z.string().min(1, 'El nombre del canal es requerido'),
+        touser: z.string().min(1, 'El usuario a destacar es requerido')
+    })
+});

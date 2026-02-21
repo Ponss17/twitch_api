@@ -1,3 +1,4 @@
+import { kv } from '@vercel/kv';
 import { Router, Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 import {
@@ -208,7 +209,7 @@ router.get('/system/status', async (_req, res) => {
         let kvLatency = 0;
         try {
             const kvStart = Date.now();
-            await getAllUsers();
+            await kv.exists('twitch_users');
             kvLatency = Date.now() - kvStart;
             kvStatus = 'ok';
         } catch (_e) {

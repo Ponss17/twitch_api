@@ -33,9 +33,16 @@ const AnalyticsModule = {
     }
     try {
       if (!this.session) return;
-      const { token } = this.session;
-      const res = await fetch(API_ENDPOINTS.ANALYTICS, {
-        headers: { Authorization: `Bearer ${token}` }
+      const { token, apiKey } = this.session;
+      const queryParams = new URLSearchParams();
+      if (apiKey) queryParams.set("apiKey", apiKey);
+      else if (token) queryParams.set("token", token);
+
+      const headers = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await fetch(`${API_ENDPOINTS.ANALYTICS}?${queryParams.toString()}`, {
+        headers
       });
       if (res.ok) {
         const data = await res.json();

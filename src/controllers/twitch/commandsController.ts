@@ -1,23 +1,17 @@
 import { Response } from 'express';
 import * as dbService from '../../services/infrastructure/dbService';
 import * as apiService from '../../services/twitch/apiService';
-
 import * as cacheService from '../../services/infrastructure/cacheService';
 import { MESSAGES } from '../../config/messages';
 import { logger } from '../../utils/logger';
-
 import { AuthenticatedRequest } from '../../types/twitch';
-
 import { safeString, sanitizeHtml } from '../../utils/validationHelpers';
-
 import { withTwitchAuth } from '../../utils/twitchAuthHelpers';
 
-const trackCommand = async (
+const trackCommand = async <T>(
     userId: string | undefined,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    action: () => Promise<any>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Promise<any> => {
+    action: () => Promise<T>
+): Promise<T> => {
     const startTime = Date.now();
     try {
         const result = await action();
@@ -54,10 +48,11 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
                 const url = await apiService.createClip(channel, token);
                 if (userId) {
                     await dbService.incrementUserStats(userId, 'clips');
-                    await dbService.addUserActivity(
-                        userId,
-                        `🎬 <strong>${sanitizeHtml(req.displayName || 'Streamer')}</strong> <span class="log-action">creó un clip</span>`
-                    );
+                    await dbService.addUserActivity(userId, {
+                        type: 'clip',
+                        user: req.displayName || 'Streamer',
+                        detail: channel
+                    });
                 }
                 return url;
             },
@@ -65,9 +60,11 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
         );
 
         if (clipUrl) {
-            const template = req.query.template as string;
+            const template = safeString(req.query.template);
             if (template) {
-                const message = template.replace('{url}', clipUrl).replace('{channel}', channel);
+                const message = sanitizeHtml(
+                    template.replace('{url}', clipUrl).replace('{channel}', channel)
+                );
                 return res.send(message);
             }
             return res.send(clipUrl);
@@ -90,12 +87,13 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             try {
                 const result = JSON.parse(cached);
                 if (userId) {
-                    await dbService.addUserActivity(
-                        userId,
-                        `👥 <strong>${sanitizeHtml(user)}</strong> (Caché) <span class="log-action">consultó followage</span>`
-                    );
+                    await dbService.addUserActivity(userId, {
+                        type: 'followage',
+                        user: user,
+                        detail: `${channel} (caché)`
+                    });
                 }
-                const template = req.query.template as string;
+                const template = safeString(req.query.template);
                 if (template && result.timePhrase) {
                     return res.send(
                         template
@@ -119,10 +117,11 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
 
                 if (userId) {
                     await dbService.incrementUserStats(userId, 'followage');
-                    await dbService.addUserActivity(
-                        userId,
-                        `👥 <strong>${sanitizeHtml(user)}</strong> <span class="log-action">consultó followage</span>`
-                    );
+                    await dbService.addUserActivity(userId, {
+                        type: 'followage',
+                        user: user,
+                        detail: channel
+                    });
                 }
                 return result;
             },
@@ -130,7 +129,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         );
 
         if (result) {
-            const template = req.query.template as string;
+            const template = safeString(req.query.template);
             if (template) {
                 return res.send(
                     template
@@ -158,10 +157,11 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
             res,
             async (token) => {
                 await apiService.sendChatMessage(userId, userId, message, token);
-                await dbService.addUserActivity(
-                    userId,
-                    `envió mensaje al chat: ${sanitizeHtml(message.substring(0, 20))}...`
-                );
+                await dbService.addUserActivity(userId, {
+                    type: 'message',
+                    user: userId,
+                    detail: message.substring(0, 30)
+                });
                 return { success: true };
             },
             'SEND_MESSAGE'
@@ -187,7 +187,7 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
                 const url = `https://twitch.tv/${touser}`;
 
                 const messagePattern =
-                    (req.query.template as string) || MESSAGES.COMMANDS.SHOUTOUT_HEADLINE;
+                    safeString(req.query.template) || MESSAGES.COMMANDS.SHOUTOUT_HEADLINE;
                 const message = messagePattern
                     .replace('{user}', touser)
                     .replace('{game}', gameName)
@@ -195,10 +195,10 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
 
                 if (req.userId) {
                     await dbService.incrementUserStats(req.userId, 'so');
-                    await dbService.addUserActivity(
-                        req.userId,
-                        `📢 <strong>${sanitizeHtml(touser)}</strong> <span class="log-action">recibió un shoutout</span>`
-                    );
+                    await dbService.addUserActivity(req.userId, {
+                        type: 'shoutout',
+                        user: touser
+                    });
                 }
                 return message;
             },

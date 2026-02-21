@@ -22,7 +22,6 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
 
                 return res.json({
                     valid: true,
-                    token: token,
                     apiKey: dbUser?.apiKey || null,
                     user: {
                         id: userProfile.id,
@@ -32,7 +31,7 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                     }
                 });
             } catch (_e) {
-                return res.json({ valid: true, token: token, user: { login: validation.login } });
+                return res.json({ valid: true, user: { login: validation.login } });
             }
         } else {
             return res.status(401).send(MESSAGES.AUTH.INVALID_TOKEN);

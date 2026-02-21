@@ -18,10 +18,10 @@ export const logger = {
     },
     warn: (msg: string, ...args: unknown[]) => {
         console.warn(`${symbols.warn} [WARN]`, msg, ...args);
-        addSystemLog('warn', msg, args.length ? args : undefined);
+        addSystemLog('warn', msg, args.length ? { details: args } : undefined);
     },
     error: (msg: string, ...args: unknown[]) => {
         console.error(`${symbols.error} [ERROR]`, msg, ...args);
-        addSystemLog('error', msg, args.length ? args : undefined);
+        addSystemLog('error', msg, args.length ? { details: args } : undefined);
     }
 };
