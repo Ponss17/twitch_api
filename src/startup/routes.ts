@@ -22,6 +22,10 @@ export const configurePageRoutes = (app: Application) => {
         res.sendFile(path.join(__dirname, '../../public/dashboard.html'));
     });
 
+    app.get(['/sobre-la-api', '/api/twitch/sobre-la-api'], (req: Request, res: Response) => {
+        res.sendFile(path.join(__dirname, '../../public/sobre-la-api.html'));
+    });
+
     app.get(['/admin', '/api/twitch/admin'], (req: Request, res: Response) => {
         res.sendFile(path.join(__dirname, '../../public/admin/login.html'));
     });
