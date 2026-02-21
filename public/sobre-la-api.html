@@ -189,6 +189,16 @@
                 setTimeout(() => toast.classList.remove('show'), 3000);
             });
         });
+
+        const backBtn = document.querySelector('.nav-back-btn');
+        if (backBtn) {
+            backBtn.addEventListener('click', (e) => {
+                if (document.referrer && document.referrer.includes(window.location.hostname)) {
+                    e.preventDefault();
+                    window.history.back();
+                }
+            });
+        }
     </script>
 </body>
 
