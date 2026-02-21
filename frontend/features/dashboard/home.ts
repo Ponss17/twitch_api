@@ -7,7 +7,7 @@ export const HomeModule = {
     session: null as Session | null,
     isInitialized: false,
     pollInterval: null as ReturnType<typeof setInterval> | null,
-    countdown: 30,
+    countdown: 15,
     lastStats: {
         todayRequests: -1,
         successRate: -1,
@@ -22,9 +22,6 @@ export const HomeModule = {
     activate(): void {
         Loader.loadCSS('./css/sections/home.css');
         this.setupUI();
-        this.loadRealActivity();
-        this.loadRealStats();
-        this.loadRealHealth();
         this.startSmartPolling();
     },
 
@@ -40,18 +37,18 @@ export const HomeModule = {
 
         const lastSync = localStorage.getItem('dashboard_last_sync');
         const now = Date.now();
-        const pollMs = 30000;
+        const pollMs = 15000;
 
         if (lastSync) {
             const elapsed = now - parseInt(lastSync);
             if (elapsed < pollMs) {
                 this.countdown = Math.ceil((pollMs - elapsed) / 1000);
             } else {
-                this.countdown = 30;
+                this.countdown = 15;
                 this.performSync();
             }
         } else {
-            this.countdown = 30;
+            this.countdown = 15;
             this.performSync();
         }
 
@@ -61,7 +58,7 @@ export const HomeModule = {
             this.countdown--;
             if (this.countdown <= 0) {
                 this.performSync();
-                this.countdown = 30;
+                this.countdown = 15;
             }
             this.updateSyncIndicator();
         }, 1000);
@@ -82,7 +79,7 @@ export const HomeModule = {
     updateSyncIndicator(): void {
         const syncEl = document.getElementById('home-sync-indicator');
         if (!syncEl) return;
-        syncEl.textContent = `${this.countdown}s`;
+        syncEl.textContent = 'Auto';
     },
 
     updateValues(): void {
@@ -132,18 +129,6 @@ export const HomeModule = {
                         ? 'Todos los Sistemas Operativos'
                         : 'Sistemas Degradados';
                 pill.className = `system-status-pill ${health.status}`;
-
-                const latencyEl = document.getElementById('home-stat-latency');
-                if (latencyEl) {
-                    const avgLatency = parseInt(health.latency) || 0;
-
-                    if (this.lastStats.latency !== avgLatency) {
-                        const suffix = `ms <span class="stat-unit-alt">(${(avgLatency / 1000).toFixed(1)}s)</span>`;
-                        const { UI } = await import('../../core/ui.js');
-                        UI.animateValue(latencyEl, null, avgLatency, 1500, suffix);
-                        this.lastStats.latency = avgLatency;
-                    }
-                }
             }
         } catch (e) {
             console.error('[Home] Error loading health:', e);
@@ -208,13 +193,15 @@ export const HomeModule = {
 
             if (response.ok) {
                 const data = await response.json();
-                const { UI } = await import('../../core/ui.js');
+                const { UI } = (await import('../../core/ui.js')) as any;
 
                 const todayRequests = data.todayRequests || 0;
                 const successRate = data.rawSuccessRate || 0;
+                const avgLatencyMs = data.avgLatencyMs || 0;
 
                 const reqEl = document.getElementById('home-stat-requests');
                 const successEl = document.getElementById('home-stat-success');
+                const latencyEl = document.getElementById('home-stat-latency');
 
                 if (reqEl && this.lastStats.todayRequests !== todayRequests) {
                     UI.animateValue(reqEl, null, todayRequests);
@@ -228,6 +215,16 @@ export const HomeModule = {
                     this.lastStats.successRate = successRate;
                 } else if (successEl) {
                     successEl.textContent = `${successRate}%`;
+                }
+
+                if (latencyEl) {
+                    if (this.lastStats.latency !== avgLatencyMs) {
+                        const unit = `ms <span class="stat-unit-alt">(${(avgLatencyMs / 1000).toFixed(1)}s)</span>`;
+                        UI.animateValue(latencyEl, null, avgLatencyMs, 1500, unit);
+                        this.lastStats.latency = avgLatencyMs;
+                    } else if (avgLatencyMs === 0 && latencyEl.textContent === '0ms') {
+                        latencyEl.innerHTML = '0ms <span class="stat-unit-alt">(0.0s)</span>';
+                    }
                 }
             }
         } catch (e) {
