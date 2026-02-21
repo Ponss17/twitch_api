@@ -749,6 +749,19 @@
     <footer id="main-footer"></footer>
 
     <script type="module" src="./js/features/docs/docs.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const returnBtn = document.querySelector('.return-home');
+            if (returnBtn) {
+                returnBtn.addEventListener('click', (e) => {
+                    if (document.referrer && document.referrer.includes(window.location.hostname)) {
+                        e.preventDefault();
+                        window.history.back();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
