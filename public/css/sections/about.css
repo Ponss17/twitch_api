@@ -47,6 +47,34 @@ body.minimal-tech-vibe {
     z-index: 2;
 }
 
+.nav-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+    padding: 8px 0;
+}
+
+.nav-back-btn i {
+    font-size: 0.9rem;
+    transition: transform 0.3s ease;
+}
+
+.nav-back-btn:hover {
+    color: var(--accent);
+}
+
+.nav-back-btn:hover i {
+    transform: translateX(-4px);
+}
+
 .profile-header {
     display: flex;
     justify-content: space-between;
