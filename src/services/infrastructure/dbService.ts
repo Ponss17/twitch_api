@@ -23,16 +23,11 @@ const IV_LENGTH = 16;
 
 function encrypt(text: string): string {
     if (!text) return text;
-    try {
-        const iv = crypto.randomBytes(IV_LENGTH);
-        const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
-        let encrypted = cipher.update(text);
-        encrypted = Buffer.concat([encrypted, cipher.final()]);
-        return iv.toString('hex') + ':' + encrypted.toString('hex');
-    } catch (e) {
-        logger.error('Error encrypting:', e);
-        return text;
-    }
+    const iv = crypto.randomBytes(IV_LENGTH);
+    const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return iv.toString('hex') + ':' + encrypted.toString('hex');
 }
 
 function decrypt(text: string): string {
@@ -42,14 +37,10 @@ function decrypt(text: string): string {
     const iv = Buffer.from(textParts.shift()!, 'hex');
     const encryptedText = Buffer.from(textParts.join(':'), 'hex');
 
-    try {
-        const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
-        let decrypted = decipher.update(encryptedText);
-        decrypted = Buffer.concat([decrypted, decipher.final()]);
-        return decrypted.toString();
-    } catch (_error) {
-        return text;
-    }
+    const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
 }
 
 // ==========================================
@@ -183,8 +174,8 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
             so: 0
         };
 
-        for (const [key, value] of Object.entries(stats)) {
-            numericStats[key] = parseInt(value as string) || 0;
+        for (const [statKey, value] of Object.entries(stats)) {
+            numericStats[statKey] = parseInt(value as string) || 0;
         }
 
         return numericStats;
@@ -219,10 +210,10 @@ export const recordUserRequest = async (
 
 export const updateLastActive = async (userId: string): Promise<void> => {
     try {
-        const user = await getUser(userId);
-        if (user) {
-            user.lastActive = new Date().toISOString();
-            await saveUser(user);
+        const existing = await kv.hget<StoredUser>(USERS_KEY, userId);
+        if (existing) {
+            existing.lastActive = new Date().toISOString();
+            await kv.hset(USERS_KEY, { [userId]: existing });
         }
     } catch (e) {
         logger.error('Error updating last active:', e);
@@ -328,8 +319,7 @@ export const getAllAdmins = async (): Promise<string[]> => {
 export const addSystemLog = async (
     level: 'info' | 'warn' | 'error',
     message: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    details?: any
+    details?: Record<string, unknown>
 ): Promise<void> => {
     try {
         const logEntry = {
@@ -345,11 +335,17 @@ export const addSystemLog = async (
     }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getSystemLogs = async (): Promise<any[]> => {
+interface SystemLogEntry {
+    timestamp: string;
+    level: 'info' | 'warn' | 'error';
+    message: string;
+    details?: Record<string, unknown>;
+}
+
+export const getSystemLogs = async (): Promise<SystemLogEntry[]> => {
     try {
         const logs = await kv.lrange(LOGS_KEY, 0, -1);
-        return logs.map((l) => (typeof l === 'string' ? JSON.parse(l) : l));
+        return logs.map((l) => (typeof l === 'string' ? JSON.parse(l) : l)) as SystemLogEntry[];
     } catch (_e) {
         return [];
     }
@@ -362,11 +358,26 @@ export const getSystemLogs = async (): Promise<any[]> => {
 const USER_ACTIVITY_PREFIX = 'activity:';
 const MAX_USER_LOGS = 50;
 
-export const addUserActivity = async (userId: string, action: string): Promise<void> => {
+export interface ActivityLogEntry {
+    type: 'clip' | 'followage' | 'shoutout' | 'message' | 'russian' | 'magic8' | 'duel' | 'other';
+    user: string;
+    detail?: string;
+}
+
+interface StoredActivityLog {
+    timestamp: string;
+    type: string;
+    user: string;
+    detail?: string;
+}
+
+export const addUserActivity = async (userId: string, entry: ActivityLogEntry): Promise<void> => {
     try {
-        const logEntry = {
+        const logEntry: StoredActivityLog = {
             timestamp: new Date().toISOString(),
-            action
+            type: entry.type,
+            user: entry.user,
+            ...(entry.detail && { detail: entry.detail })
         };
         const key = `${USER_ACTIVITY_PREFIX}${userId}`;
         await kv.lpush(key, JSON.stringify(logEntry));
@@ -376,12 +387,11 @@ export const addUserActivity = async (userId: string, action: string): Promise<v
     }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getUserActivity = async (userId: string): Promise<any[]> => {
+export const getUserActivity = async (userId: string): Promise<StoredActivityLog[]> => {
     try {
         const key = `${USER_ACTIVITY_PREFIX}${userId}`;
         const logs = await kv.lrange(key, 0, -1);
-        return logs.map((l) => (typeof l === 'string' ? JSON.parse(l) : l));
+        return logs.map((l) => (typeof l === 'string' ? JSON.parse(l) : l)) as StoredActivityLog[];
     } catch (e) {
         logger.error('Error getting user activity:', e);
         return [];

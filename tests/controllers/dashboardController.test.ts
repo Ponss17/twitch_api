@@ -102,8 +102,13 @@ describe('dashboardController', () => {
             const req = mockReq();
             const res = mockRes();
             const mockLogs = [
-                { message: 'log1', timestamp: '2026-01-01' },
-                { message: 'log2', timestamp: '2026-01-02' }
+                { type: 'clip', user: 'TestUser', timestamp: '2026-01-01' },
+                {
+                    type: 'followage',
+                    user: 'OtherUser',
+                    detail: 'channel1',
+                    timestamp: '2026-01-02'
+                }
             ];
 
             (dbService.getUserActivity as jest.Mock).mockResolvedValue(mockLogs);

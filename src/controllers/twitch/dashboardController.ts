@@ -69,7 +69,39 @@ export const getLogs = async (req: AuthenticatedRequest, res: Response) => {
 
     try {
         const logs = await dbService.getUserActivity(userId);
-        res.json(logs);
+        const formattedLogs = logs.map((log) => {
+            let actionText = '';
+            switch (log.type) {
+                case 'clip':
+                    actionText = `📺 Nuevo clip creado por @${log.user} (${log.detail})`;
+                    break;
+                case 'followage':
+                    actionText = `⏱️ @${log.user} revisó su followage en ${log.detail}`;
+                    break;
+                case 'shoutout':
+                    actionText = `🗣️ Shoutout de @${log.user}`;
+                    break;
+                case 'message':
+                    actionText = `💬 Mensaje enviado: "${log.detail}"`;
+                    break;
+                case 'russian':
+                    actionText = `🔫 @${log.user} jugó la Ruleta Rusa`;
+                    break;
+                case 'magic8':
+                    actionText = `🎱 @${log.user} preguntó a la Bola 8`;
+                    break;
+                case 'duel':
+                    actionText = `⚔️ @${log.user} inició un duelo con @${log.detail}`;
+                    break;
+                default:
+                    actionText = `🔹 Actividad: ${log.type} por @${log.user}`;
+            }
+            return {
+                ...log,
+                action: actionText
+            };
+        });
+        res.json(formattedLogs);
     } catch (e) {
         logger.error('Error logs activity:', e);
         res.status(500).json({ error: MESSAGES.DASHBOARD.LOGS_ERROR });
@@ -114,7 +146,8 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
     if (!userId) return res.status(401).send(MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     try {
-        const chatters = await apiService.getChatters(userId, userId, token || '');
+        const broadcasterId = await apiService.getUserId(channel, token || '');
+        const chatters = await apiService.getChatters(broadcasterId, userId, token || '');
         res.json(chatters);
     } catch (error: unknown) {
         const err = error as Error;

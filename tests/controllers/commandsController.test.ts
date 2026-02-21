@@ -70,7 +70,7 @@ describe('commandsController', () => {
             expect(dbService.incrementUserStats).toHaveBeenCalledWith('123', 'clips');
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
-                expect.stringContaining('creó un clip')
+                expect.objectContaining({ type: 'clip', user: 'TestUser' })
             );
         });
 
@@ -95,7 +95,7 @@ describe('commandsController', () => {
 
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
-                expect.stringContaining('envió mensaje al chat')
+                expect.objectContaining({ type: 'message' })
             );
         });
 
@@ -121,7 +121,7 @@ describe('commandsController', () => {
 
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
-                expect.stringContaining('recibió un shoutout')
+                expect.objectContaining({ type: 'shoutout', user: 'TargetUser' })
             );
         });
 

@@ -2,15 +2,18 @@ import { Request, Response, NextFunction } from 'express';
 import * as dbService from '../services/infrastructure/dbService';
 import * as authService from '../services/auth/authService';
 import { logger } from '../utils/logger';
+import { isPublicRoute } from '../utils/routeHelpers';
+import { invalidateAuthCache } from './authMiddleware';
+import { StoredUser } from '../types/twitch';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const validKeysCache = new Map<string, any>();
+interface CachedApiKey {
+    user: StoredUser;
+    expiry: number;
+}
+
+const validKeysCache = new Map<string, CachedApiKey>();
 const CACHE_TTL_MS = 1 * 60 * 1000; // Reducido a 1 minuto para mayor seguridad con tokens
 const MAX_CACHE_SIZE = 1000;
-
-import { isPublicRoute } from '../utils/routeHelpers';
-
-import { invalidateAuthCache } from './authMiddleware';
 
 /**
  * Invalida la caché de API Key y de sesión para un userId específico.
@@ -61,7 +64,13 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
 
         if (user && user.isActive) {
             if (validKeysCache.size >= MAX_CACHE_SIZE) {
-                validKeysCache.clear();
+                // LRU-style eviction: remove oldest 25% of entries
+                const entriesToRemove = Math.floor(MAX_CACHE_SIZE * 0.25);
+                const iterator = validKeysCache.keys();
+                for (let i = 0; i < entriesToRemove; i++) {
+                    const key = iterator.next().value;
+                    if (key) validKeysCache.delete(key);
+                }
             }
 
             validKeysCache.set(apiKey, {

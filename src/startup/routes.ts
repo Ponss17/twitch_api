@@ -78,10 +78,7 @@ export const configureRoutes = (app: Application) => {
         });
     });
 
-    // Manejo de Errores (Debe ser el último)
-    app.use(errorHandler);
-
-    // Manejador 404 - Soporte HTML
+    // 404 Handler - catches unmatched routes
     app.use((req: Request, res: Response) => {
         const message = 'Error 404: La ruta especificada no existe.';
         if (req.accepts('html')) {
@@ -97,4 +94,7 @@ export const configureRoutes = (app: Application) => {
 
         res.status(404).json({ error: 'Not Found', message });
     });
+
+    // Error Handler - must be last (4-param middleware)
+    app.use(errorHandler);
 };

@@ -11,7 +11,10 @@ export const MESSAGES = {
         USER_NOT_FOUND: 'Usuario no encontrado',
         INVALID_CREDENTIALS:
             '⛔ Tu API Key no es válida. Regenerala en el dashboard o contacta con Ponss.',
-        MISSING_TOKEN_URL: 'Error: Falta API Key. Debes incluir ?apiKey=TU_KEY en la URL.'
+        MISSING_TOKEN_URL: 'Error: Falta API Key. Debes incluir ?apiKey=TU_KEY en la URL.',
+        API_KEY_REQUIRED:
+            '🔑 API Key requerida. Obtén tu llave en el Dashboard para usar esta ruta.',
+        RATE_LIMIT_EXCEEDED: '⚠️ Has excedido el límite de peticiones. Por favor, espera un minuto.'
     },
     SYSTEM: {
         KEY_REQUIRED: 'Key requerida',
@@ -47,7 +50,10 @@ export const MESSAGES = {
         SEND_MESSAGE_ERROR: 'Error enviando mensaje.',
         MESSAGE_TOO_LONG: 'Mensaje demasiado largo (max 500 caracteres).',
         SHOUTOUT_ERROR: 'Error generando shoutout.',
-        SHOUTOUT_HEADLINE: '¡Vayan a seguir a {user}! Estaba jugando {game}'
+        SHOUTOUT_HEADLINE: '¡Vayan a seguir a {user}! Estaba jugando {game}',
+        RUSSIAN_ERROR: 'Error interno en la Ruleta Rusa.',
+        DUEL_ERROR: 'Error al iniciar el duelo.',
+        MISSING_OPPONENT: 'Debes especificar un oponente (@usuario).'
     },
     DASHBOARD: {
         ANALYTICS_ERROR: 'Error recuperando analytics',

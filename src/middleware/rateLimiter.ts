@@ -2,6 +2,7 @@ import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { Request, Response } from 'express';
 import { MESSAGES } from '../config/messages';
 import { isPublicRoute } from '../utils/routeHelpers';
+import { AuthenticatedRequest } from '../types/twitch';
 
 const limiter = rateLimit({
     windowMs: 1 * 60 * 1000,
@@ -10,17 +11,22 @@ const limiter = rateLimit({
 
         // 1. Prioridad: Usuario Identificado (API Key o Sesión del Dashboard)
         if (apiUser) {
-            // Si el admin asignó un límite específico, usarlo. Si no, usar 120 (estándar).
             return apiUser.customRateLimit || 120;
         }
 
-        // 2. Excepciones de Sistema / Estáticos (Alta disponibilidad)
+        // 2. Sesión autenticada (Bearer token / Dashboard)
+        const userId = (req as AuthenticatedRequest).userId;
+        if (userId) {
+            return 120;
+        }
+
+        // 3. Excepciones de Sistema / Estáticos (Alta disponibilidad)
         const path = req.originalUrl.split('?')[0];
         if (isPublicRoute(path)) {
             return 1000;
         }
 
-        // 3. Bots Confiables
+        // 4. Bots Confiables
         const ua = req.get('user-agent') || '';
         if (
             ua.includes('Nightbot') ||
@@ -32,12 +38,12 @@ const limiter = rateLimit({
             return 60;
         }
 
-        // 4. Bloqueo Total (Peticiones anónimas a rutas protegidas)
+        // 5. Bloqueo Total (Peticiones anónimas a rutas protegidas)
         return 0;
     },
     keyGenerator: (req: Request): string => {
         const apiUser = req.res?.locals?.apiUser;
-        const userId = (req as any).userId;
+        const userId = (req as AuthenticatedRequest).userId;
 
         if (apiUser) {
             return (req.query.apiKey as string) || apiUser.userId;
@@ -52,11 +58,11 @@ const limiter = rateLimit({
         const cleanPath = req.originalUrl.split('?')[0];
         const isSystemRoute = isPublicRoute(cleanPath);
 
-        let message = '⚠️ Has excedido el límite de peticiones. Por favor, espera un minuto.';
+        let message = MESSAGES.AUTH.RATE_LIMIT_EXCEEDED;
 
-        // Si es un comando de chat (no sistema) y no hay usuario, es falta de Key
+        // Si no hay usuario identificado y no es ruta pública, es falta de API Key
         if (!res.locals?.apiUser && !isSystemRoute) {
-            message = MESSAGES.AUTH.INVALID_CREDENTIALS;
+            message = MESSAGES.AUTH.API_KEY_REQUIRED;
         }
 
         // Si es una ruta de API o un bot de Twitch, enviar texto plano

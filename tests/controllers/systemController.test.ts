@@ -77,7 +77,10 @@ describe('systemController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     valid: true,
-                    token: 'test_token'
+                    user: expect.objectContaining({
+                        id: '123',
+                        login: 'testuser'
+                    })
                 })
             );
         });
