@@ -6,6 +6,7 @@ import { Session, DashboardModule } from '../../../types.js';
 interface IMagic8Module extends DashboardModule {
     cssLoaded: boolean;
     initialized: boolean;
+    uiInitialized: boolean;
     setupUI(): void;
     askQuestion(): Promise<void>;
     showResponse(_text: string, _type: string): void;
@@ -15,6 +16,7 @@ interface IMagic8Module extends DashboardModule {
 export const Magic8Module: IMagic8Module = {
     session: null,
     initialized: false,
+    uiInitialized: false,
 
     cssLoaded: false,
 
@@ -28,8 +30,14 @@ export const Magic8Module: IMagic8Module = {
             this.cssLoaded = true;
         }
 
-        this.setupUI();
         this.initialized = true;
+    },
+
+    activate() {
+        if (!this.uiInitialized) {
+            this.setupUI();
+            this.uiInitialized = true;
+        }
     },
 
     deactivate() {},

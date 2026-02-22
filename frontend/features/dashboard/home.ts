@@ -208,7 +208,7 @@ export const HomeModule = {
 
             if (response.ok) {
                 const data = await response.json();
-                const { UI } = (await import('../../core/ui.js')) as any;
+                const { UI } = await import('../../core/ui.js');
 
                 const todayRequests = data.todayRequests || 0;
                 const successRate = data.rawSuccessRate || 0;

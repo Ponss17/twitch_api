@@ -161,7 +161,7 @@ export const DataExport = {
         return {};
     },
 
-    async fetchUserInfo(session: Session): Promise<any> {
+    async fetchUserInfo(session: Session): Promise<Record<string, unknown>> {
         try {
             const authQuery = session.apiKey
                 ? `apiKey=${encodeURIComponent(session.apiKey)}`
@@ -300,7 +300,7 @@ export const DataExport = {
             typeof userInfo.followers === 'number'
                 ? userInfo.followers.toLocaleString()
                 : userInfo.followers;
-        const cDateObj = new Date(userInfo.created_at || now);
+        const cDateObj = new Date((userInfo.created_at as string | number) || now);
         const memberSince = isNaN(cDateObj.getTime())
             ? '---'
             : cDateObj.toLocaleDateString('es-ES', {

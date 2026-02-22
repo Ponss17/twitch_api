@@ -1,0 +1,57 @@
+
+> twitch_api@2.9.4 lint
+> eslint .
+
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\account\dataExport.ts
+  164:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\commands\module.ts
+   45:19  error  Delete `┬À`   prettier/prettier
+  100:15  error  Delete `┬À┬À`  prettier/prettier
+  101:1   error  Delete `┬À┬À`  prettier/prettier
+  165:19  error  Delete `┬À┬À`  prettier/prettier
+  166:1   error  Delete `┬À┬À`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\duel\module.ts
+   43:19  error  Delete `┬À`   prettier/prettier
+  109:19  error  Delete `┬À┬À`  prettier/prettier
+  110:1   error  Delete `┬À┬À`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\feedback.ts
+  24:19  error  Delete `┬À`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\home.ts
+  211:70  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\magic8\module.ts
+   43:19  error  Delete `┬À`   prettier/prettier
+   99:19  error  Delete `┬À┬À`  prettier/prettier
+  100:1   error  Delete `┬À┬À`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\roulette\module.ts
+  156:17  error  Insert `┬À┬À`  prettier/prettier
+  157:17  error  Insert `┬À┬À`  prettier/prettier
+  158:1   error  Insert `┬À┬À`  prettier/prettier
+  228:15  error  Delete `┬À┬À`  prettier/prettier
+  229:1   error  Delete `┬À┬À`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\stalker\module.ts
+  136:17  error  Insert `┬À┬À`  prettier/prettier
+  137:17  error  Insert `┬À┬À`  prettier/prettier
+  138:1   error  Insert `┬À┬À`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\trends\module.ts
+  173:17  error  Insert `┬À┬À`  prettier/prettier
+  174:17  error  Insert `┬À┬À`  prettier/prettier
+  175:1   error  Insert `┬À┬À`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\services\tmiService.ts
+  144:21  error  Replace `err┬À===┬À'Cannot┬Àsend┬Àanonymous┬Àmessages'┬À||┬À(typeof┬Àerr┬À===┬À'string'┬À&&┬Àerr.includes('anonymous'))` with `ÔÅÄ┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬Àerr┬À===┬À'Cannot┬Àsend┬Àanonymous┬Àmessages'┬À||ÔÅÄ┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À(typeof┬Àerr┬À===┬À'string'┬À&&┬Àerr.includes('anonymous'))ÔÅÄ┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À`  prettier/prettier
+
+D:\zzzapi\twitch_api\src\controllers\twitch\dashboardController.ts
+  128:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Ô£û 27 problems (24 errors, 3 warnings)
+  24 errors and 0 warnings potentially fixable with the `--fix` option.
+

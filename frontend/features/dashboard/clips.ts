@@ -45,6 +45,7 @@ export const ClipsModule: IClipsModule = {
     currentPage: 1,
     ITEMS_PER_PAGE: 20,
     cssLoaded: false,
+    uiInitialized: false,
 
     init(session: Session): void {
         this.session = session;
@@ -74,11 +75,15 @@ export const ClipsModule: IClipsModule = {
             );
         }
 
-        this.setupUI();
         this.initialized = true;
     },
 
     activate() {
+        if (!this.uiInitialized) {
+            this.setupUI();
+            this.uiInitialized = true;
+        }
+
         if (this.allClips.length === 0) {
             this.loadClips();
         }

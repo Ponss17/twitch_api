@@ -22,6 +22,7 @@ interface IRouletteModule extends DashboardModule {
     isOpen: boolean;
     isConnected: boolean;
     cssLoaded: boolean;
+    uiInitialized: boolean;
     setupUI(): void;
     updateUI(): void;
     toggleEntries(): void;
@@ -55,6 +56,7 @@ export const RouletteModule: IRouletteModule = {
     isInitialized: false,
 
     cssLoaded: false,
+    uiInitialized: false,
 
     init(session: Session): void {
         this.session = session;
@@ -66,9 +68,15 @@ export const RouletteModule: IRouletteModule = {
             this.cssLoaded = true;
         }
 
-        this.setupUI();
-        this.updateUI();
         this.isInitialized = true;
+    },
+
+    activate() {
+        if (!this.uiInitialized) {
+            this.setupUI();
+            this.updateUI();
+            this.uiInitialized = true;
+        }
     },
 
     deactivate() {
@@ -317,7 +325,7 @@ export const RouletteModule: IRouletteModule = {
 
             UI.showToast(RouletteMessages.winner(safeName, count), 'success', 'fa-trophy');
 
-            if (this.session && this.session.login) {
+            if (this.session && this.session.login && this.session.token) {
                 TmiService.sendMessage(
                     this.session.login,
                     `🏆 ¡El ganador es @${winner.user_name}! (De ${count} participantes) ¡Felicidades! 🎉`
