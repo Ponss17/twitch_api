@@ -14,6 +14,7 @@ interface IStalkerModule extends DashboardModule {
     searchTimeout: NodeJS.Timeout | null;
     isConnected: boolean;
     cssLoaded: boolean;
+    uiInitialized: boolean;
     setupUI(): void;
     toggleScan(): void;
     connectTmi(): void;
@@ -33,6 +34,7 @@ export const StalkerModule: IStalkerModule = {
     initialized: false,
 
     cssLoaded: false,
+    uiInitialized: false,
 
     get authHeaders(): Record<string, string> {
         const headers: Record<string, string> = {};
@@ -48,7 +50,6 @@ export const StalkerModule: IStalkerModule = {
 
     init(session: Session): void {
         this.session = session;
-        this.render();
 
         if (!this.cssLoaded) {
             import('../../../shared/utils/loader.js').then(({ Loader }) => {
@@ -57,8 +58,15 @@ export const StalkerModule: IStalkerModule = {
             this.cssLoaded = true;
         }
 
-        this.setupUI();
         this.initialized = true;
+    },
+
+    activate() {
+        if (!this.uiInitialized) {
+            this.render();
+            this.setupUI();
+            this.uiInitialized = true;
+        }
     },
 
     setupUI() {

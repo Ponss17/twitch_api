@@ -21,17 +21,22 @@ export const CommandsModule = {
     session: null as Session | null,
     initialized: false,
 
+    uiInitialized: false,
+
     async init(session: Session) {
         this.session = session;
         if (!this.session) return;
-
-        this.renderCommandCards();
-        this.setupGenericCommands();
-        this.setupTestCommand();
         this.initialized = true;
     },
 
     activate() {
+        if (!this.uiInitialized) {
+            this.renderCommandCards();
+            this.setupGenericCommands();
+            this.setupTestCommand();
+            this.uiInitialized = true;
+        }
+
         Object.values(COMMAND_CONFIG).forEach((conf) => {
             this.updateCommand(conf as CommandConfigItem);
         });

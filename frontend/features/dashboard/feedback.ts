@@ -7,11 +7,18 @@ import { Session } from '../../types.js';
 export const FeedbackModule = {
     session: null as Session | null,
     initialized: false,
+    uiInitialized: false,
 
     init(session: Session): void {
         this.session = session;
-        this.setupUI();
         this.initialized = true;
+    },
+
+    activate() {
+        if (!this.uiInitialized) {
+            this.setupUI();
+            this.uiInitialized = true;
+        }
     },
 
     deactivate() {},

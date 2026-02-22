@@ -17,6 +17,7 @@ interface ITrendsModule extends DashboardModule {
     timerInterval: NodeJS.Timeout | null;
     cssLoaded: boolean;
     renderPending: boolean;
+    uiInitialized: boolean;
     updateUIState(): void;
     setupUI(): void;
     attachListeners(): void;
@@ -106,10 +107,10 @@ export const TrendsModule: ITrendsModule = {
     initialized: false,
 
     cssLoaded: false,
+    uiInitialized: false,
 
     init(session: Session): void {
         this.session = session;
-        this.updateUIState();
 
         if (!this.cssLoaded) {
             import('../../../shared/utils/loader.js').then(({ Loader }) => {
@@ -118,8 +119,15 @@ export const TrendsModule: ITrendsModule = {
             this.cssLoaded = true;
         }
 
-        this.setupUI();
         this.initialized = true;
+    },
+
+    activate() {
+        if (!this.uiInitialized) {
+            this.setupUI();
+            this.updateUIState();
+            this.uiInitialized = true;
+        }
     },
 
     updateUIState() {

@@ -143,9 +143,10 @@ export const TmiService = {
                 console.error('Error sending message:', err);
                 if (
                     err === 'Cannot send anonymous messages' ||
-                    (typeof err === 'string' &&
-                        (err.includes('anonymous') || err.includes('Login unsuccessful')))
+                    (typeof err === 'string' && err.includes('anonymous'))
                 ) {
+                    UI.showToast('Inicia sesión con Twitch para enviar mensajes', 'warning');
+                } else if (typeof err === 'string' && err.includes('Login unsuccessful')) {
                     UI.showToast(AuthMessages.sessionExpired, 'error');
                     setTimeout(() => Auth.relogin(), 2000);
                 }

@@ -6,6 +6,7 @@ import { Session, DashboardModule } from '../../../types.js';
 interface IDuelModule extends DashboardModule {
     cssLoaded: boolean;
     initialized: boolean;
+    uiInitialized: boolean;
     setupUI(): void;
     startDuel(): Promise<void>;
     showResponse(text: string, type: string): void;
@@ -15,6 +16,7 @@ interface IDuelModule extends DashboardModule {
 export const DuelModule: IDuelModule = {
     session: null,
     initialized: false,
+    uiInitialized: false,
 
     cssLoaded: false,
 
@@ -28,8 +30,14 @@ export const DuelModule: IDuelModule = {
             this.cssLoaded = true;
         }
 
-        this.setupUI();
         this.initialized = true;
+    },
+
+    activate() {
+        if (!this.uiInitialized) {
+            this.setupUI();
+            this.uiInitialized = true;
+        }
     },
 
     deactivate() {},

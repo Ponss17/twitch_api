@@ -125,11 +125,16 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
         const result = await apiService.getClips(channel, limitNum, token || '');
         await cacheService.set(cacheKey, result, 60);
         return res.json(result);
-    } catch (error: any) {
+    } catch (error: unknown) {
         logger.error('Error fetching clips:', { error });
-        const status = error.status || error.response?.status || 500;
+        const err = error as {
+            status?: number;
+            response?: { status?: number; data?: { message?: string } };
+            message?: string;
+        };
+        const status = err.status || err.response?.status || 500;
         const message =
-            error.message || error.response?.data?.message || MESSAGES.DASHBOARD.CLIPS_ERROR;
+            err.message || err.response?.data?.message || MESSAGES.DASHBOARD.CLIPS_ERROR;
         return res.status(status).json({ error: message });
     }
 };
