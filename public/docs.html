@@ -133,46 +133,16 @@
                         comandos de chat.</p>
                 </div>
 
-                <p>Si deseas integrar tu perfil directamente en tu bot de chat para consultar tu estado:</p>
+                <div class="info-card" style="border-left-color: #22c55e; background: rgba(34, 197, 94, 0.05);">
+                    <i class="fa-solid fa-chart-simple" style="color: #22c55e;"></i>
+                    <p><strong>Resumen de Actividad:</strong> Consulta tus estadísticas de uso: total de requests,
+                        latencia promedio, tasa de éxito y actividad reciente.</p>
+                </div>
 
-                <div class="code-tab-container" data-trigger="perfil">
-                    <div class="tab-header">
-                        <button class="tab-btn active" onclick="switchTab(this, 'nightbot')">Nightbot</button>
-                        <button class="tab-btn" onclick="switchTab(this, 'streamelements')">StreamElements</button>
-                        <button class="tab-btn" onclick="switchTab(this, 'fossabot')">Fossabot</button>
-
-                        <div class="format-selector">
-                            <button class="format-btn active" onclick="switchFormat(this, 'chat')">Chat</button>
-                            <button class="format-btn" onclick="switchFormat(this, 'dashboard')">Panel</button>
-                        </div>
-                    </div>
-
-                    <div class="tab-content active" data-bot="nightbot">
-                        <div class="code-block">
-                            <code class="dynamic-url"
-                                data-path="$(urlfetch {baseURL}/api/twitch/profile/status?apiKey=TU_API_KEY)">Cargando...</code>
-                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
-                                    class="fa-regular fa-copy"></i></button>
-                        </div>
-                    </div>
-
-                    <div class="tab-content" data-bot="streamelements">
-                        <div class="code-block">
-                            <code class="dynamic-url"
-                                data-path="${customapi.{baseURL}/api/twitch/profile/status?apiKey=TU_API_KEY}">Cargando...</code>
-                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
-                                    class="fa-regular fa-copy"></i></button>
-                        </div>
-                    </div>
-
-                    <div class="tab-content" data-bot="fossabot">
-                        <div class="code-block">
-                            <code class="dynamic-url"
-                                data-path="$(customapi {baseURL}/api/twitch/profile/status?apiKey=TU_API_KEY)">Cargando...</code>
-                            <button class="btn-copy-doc" onclick="copyCode(this)"><i
-                                    class="fa-regular fa-copy"></i></button>
-                        </div>
-                    </div>
+                <div class="info-card" style="border-left-color: #3b82f6; background: rgba(59, 130, 246, 0.05);">
+                    <i class="fa-solid fa-id-card" style="color: #3b82f6;"></i>
+                    <p><strong>Tu Identidad:</strong> Visualiza tu ID de Twitch, nombre de usuario y fecha de
+                        última conexión. Puedes copiar tu ID directamente desde el panel.</p>
                 </div>
 
                 <div class="info-card" style="border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05);">
