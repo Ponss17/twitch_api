@@ -89,7 +89,11 @@ export const CommandsModule = {
 
         const bot = botSelect.value;
         const domain = `${CONFIG.siteUrl}${API_ENDPOINTS.BASE}`;
-        const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+        const tokenParam = apiKey
+            ? `apiKey=${encodeURIComponent(apiKey)}`
+            : token
+              ? `token=${encodeURIComponent(token)}`
+              : '';
         const templateVal = templateInput ? templateInput.value.trim() : '';
         const queryParams = `channel=${login}&${tokenParam}`;
 
@@ -150,7 +154,11 @@ export const CommandsModule = {
             if (!this.session) return;
             const { apiKey, token } = this.session;
             const domain = `${window.location.origin}${API_ENDPOINTS.BASE}`;
-            const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+            const tokenParam = apiKey
+                ? `apiKey=${encodeURIComponent(apiKey)}`
+                : token
+                  ? `token=${encodeURIComponent(token)}`
+                  : '';
             const url = `${domain}/followage?user=${user}&channel=${channel}&${tokenParam}`;
 
             try {

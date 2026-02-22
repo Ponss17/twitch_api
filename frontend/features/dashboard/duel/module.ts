@@ -95,10 +95,17 @@ export const DuelModule: IDuelModule = {
             if (!this.session) throw new Error('No active session');
             const { apiKey, token } = this.session;
 
-            const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+            const tokenParam = apiKey
+                ? `apiKey=${encodeURIComponent(apiKey)}`
+                : token
+                  ? `token=${encodeURIComponent(token)}`
+                  : '';
             const url = `${API_ENDPOINTS.DUEL}?${tokenParam}&target=${encodeURIComponent(target)}&challenger=${encodeURIComponent(challenger)}`;
 
-            const res = await fetch(url);
+            const headers: Record<string, string> = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const res = await fetch(url, { headers });
             if (res.ok) {
                 const answer = await res.text();
                 this.showResponse(answer, 'success');

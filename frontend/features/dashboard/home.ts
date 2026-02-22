@@ -19,6 +19,18 @@ export const HomeModule = {
         this.isInitialized = true;
     },
 
+    get authHeaders(): Record<string, string> {
+        const headers: Record<string, string> = {};
+        if (this.session?.token) headers['Authorization'] = `Bearer ${this.session.token}`;
+        return headers;
+    },
+
+    get authQuery(): string {
+        if (this.session?.apiKey) return `apiKey=${encodeURIComponent(this.session.apiKey)}`;
+        if (this.session?.token) return `token=${encodeURIComponent(this.session.token)}`;
+        return '';
+    },
+
     activate(): void {
         Loader.loadCSS('./css/sections/home.css');
         this.setupUI();
@@ -117,8 +129,9 @@ export const HomeModule = {
         if (!pill || !label || !this.session) return;
 
         try {
-            const response = await fetch(API_ENDPOINTS.HEALTH, {
-                headers: { Authorization: `Bearer ${this.session?.token}` }
+            const q = this.authQuery ? `?${this.authQuery}` : '';
+            const response = await fetch(`${API_ENDPOINTS.HEALTH}${q}`, {
+                headers: this.authHeaders
             });
 
             if (response.ok) {
@@ -139,11 +152,12 @@ export const HomeModule = {
 
     async loadRealActivity(): Promise<void> {
         const logContainer = document.getElementById('home-activity-logs');
-        if (!logContainer || !this.session?.token) return;
+        if (!logContainer || !this.session) return;
 
         try {
-            const response = await fetch(`${API_ENDPOINTS.ACTIVITY}?_=${Date.now()}`, {
-                headers: { Authorization: `Bearer ${this.session?.token}` }
+            const q = this.authQuery ? `&${this.authQuery}` : '';
+            const response = await fetch(`${API_ENDPOINTS.ACTIVITY}?_=${Date.now()}${q}`, {
+                headers: this.authHeaders
             });
 
             if (response.ok) {
@@ -184,11 +198,12 @@ export const HomeModule = {
     },
 
     async loadRealStats(): Promise<void> {
-        if (!this.session?.token) return;
+        if (!this.session) return;
 
         try {
-            const response = await fetch(`${API_ENDPOINTS.ANALYTICS}?_=${Date.now()}`, {
-                headers: { Authorization: `Bearer ${this.session.token}` }
+            const q = this.authQuery ? `&${this.authQuery}` : '';
+            const response = await fetch(`${API_ENDPOINTS.ANALYTICS}?_=${Date.now()}${q}`, {
+                headers: this.authHeaders
             });
 
             if (response.ok) {

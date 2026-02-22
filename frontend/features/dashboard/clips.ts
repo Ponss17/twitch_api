@@ -190,14 +190,13 @@ export const ClipsModule: IClipsModule = {
         try {
             const { apiKey, token, login } = this.session;
             const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-            let url = API_ENDPOINTS.CLIPS;
+            if (token) headers['Authorization'] = `Bearer ${token}`;
 
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-                url += `?channel=${login}`;
-            } else if (apiKey) {
-                url += `?apiKey=${apiKey}&channel=${login}`;
-            }
+            const params = [`channel=${login}`];
+            if (apiKey) params.push(`apiKey=${encodeURIComponent(apiKey)}`);
+            else if (token) params.push(`token=${encodeURIComponent(token)}`);
+
+            const url = `${API_ENDPOINTS.CLIPS}?${params.join('&')}`;
 
             const response = await fetch(url, { headers });
 

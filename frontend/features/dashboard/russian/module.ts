@@ -94,6 +94,7 @@ export const RussianModule: IRussianModule = {
         this.setLoading(true);
 
         try {
+            const { apiKey, token } = this.session;
             const params = new URLSearchParams({
                 user: this.session.login,
                 channel: this.session.login,
@@ -101,10 +102,14 @@ export const RussianModule: IRussianModule = {
                 format: 'json'
             });
 
+            if (apiKey) params.set('apiKey', apiKey);
+            else if (token) params.set('token', token);
+
+            const headers: Record<string, string> = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
             const response = await fetch(`${this.gameEndpoint}?${params.toString()}`, {
-                headers: {
-                    Authorization: `Bearer ${this.session.token}`
-                }
+                headers
             });
 
             if (response.ok) {
