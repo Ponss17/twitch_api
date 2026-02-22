@@ -125,6 +125,7 @@ export const ProfileModule: DashboardModule = {
         this.setupRegenerate();
         this.setupCopyId();
         this.setupDangerToggle();
+        this.setupDataExport();
         this.setupDangerZone();
     },
 
@@ -273,6 +274,9 @@ export const ProfileModule: DashboardModule = {
         const createdAt = document.getElementById('profile-stat-created');
 
         if (followers) {
+            followers.classList.remove('skeleton', 'skeleton-text');
+            followers.style.width = '';
+            followers.style.height = '';
             const targetValue = data.followers || 0;
             if (this.lastData.followers !== targetValue) {
                 UI.animateValue(followers, 0, targetValue, 1500);
@@ -282,11 +286,18 @@ export const ProfileModule: DashboardModule = {
             }
         }
 
-        if (bio)
+        if (bio) {
+            bio.classList.remove('skeleton', 'skeleton-text');
+            bio.style.width = '';
+            bio.style.height = '';
             bio.textContent =
                 data.description || 'Sin biografía disponible. ¡Este streamer es un misterio!';
+        }
 
         if (broadcasterType) {
+            broadcasterType.classList.remove('skeleton', 'skeleton-text');
+            broadcasterType.style.width = '';
+            broadcasterType.style.height = '';
             const types: Record<string, string> = {
                 partner: 'Partner',
                 affiliate: 'Afiliado',
@@ -297,6 +308,9 @@ export const ProfileModule: DashboardModule = {
         }
 
         if (createdAt && data.created_at) {
+            createdAt.classList.remove('skeleton', 'skeleton-text');
+            createdAt.style.width = '';
+            createdAt.style.height = '';
             try {
                 const date = new Date(data.created_at);
                 const options: Intl.DateTimeFormatOptions = {
@@ -531,6 +545,27 @@ export const ProfileModule: DashboardModule = {
 
             modal.showModal();
         });
+    },
+
+    setupDataExport(): void {
+        const exportBtn = document.getElementById('profile-export-data-btn');
+        if (exportBtn && !exportBtn.dataset.listener) {
+            exportBtn.addEventListener('click', async () => {
+                if (!this.session) return;
+                UI.setButtonLoading(exportBtn as HTMLButtonElement, true);
+                try {
+                    const { DataExport } =
+                        await import('../features/dashboard/account/dataExport.js');
+                    await DataExport.export(this.session);
+                } catch (e) {
+                    console.error('[Profile] Export error:', e);
+                    UI.showToast('Error al exportar datos', 'error');
+                } finally {
+                    UI.setButtonLoading(exportBtn as HTMLButtonElement, false);
+                }
+            });
+            exportBtn.dataset.listener = 'true';
+        }
     },
 
     setupDangerZone(): void {

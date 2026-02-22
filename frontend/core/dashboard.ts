@@ -22,22 +22,22 @@ export const Dashboard = {
         this.setupTabs();
         this.setupUserBadge();
 
-        await this.preloadAllTabs();
-
         this.initAllModules();
 
-        this.loadTab('tab-home');
+        await this.loadTab('tab-home');
+
+        setTimeout(() => {
+            this.preloadAllTabsBackground();
+        }, 1000);
     },
 
-    async preloadAllTabs() {
+    preloadAllTabsBackground() {
         const panes = document.querySelectorAll('.tab-pane');
-        const tasks = Array.from(panes).map((pane) => {
-            if (pane instanceof HTMLElement && pane.dataset.src) {
-                return HtmlLoader.load(pane.dataset.src, pane.id);
+        panes.forEach((pane) => {
+            if (pane instanceof HTMLElement && pane.dataset.src && pane.id !== 'tab-home') {
+                HtmlLoader.load(pane.dataset.src, pane.id).catch(console.error);
             }
-            return Promise.resolve();
         });
-        await Promise.all(tasks);
     },
 
     initAllModules() {
@@ -154,7 +154,7 @@ export const Dashboard = {
         const tabs = document.querySelectorAll('.nav-item');
         tabs.forEach((tab) => {
             const htmlTab = tab as HTMLElement;
-            htmlTab.addEventListener('click', () => {
+            htmlTab.addEventListener('click', async () => {
                 if (htmlTab.classList.contains('external-link')) return;
 
                 tabs.forEach((t) => (t as HTMLElement).classList.remove('active'));
@@ -165,12 +165,12 @@ export const Dashboard = {
                 const pane = document.getElementById(tabId);
                 if (pane) pane.classList.add('active');
 
-                this.loadTab(tabId);
+                await this.loadTab(tabId);
             });
         });
     },
 
-    loadTab(tabId: string) {
+    async loadTab(tabId: string) {
         if (!this.session) return;
 
         this.updatePageTitle(tabId);
@@ -185,6 +185,15 @@ export const Dashboard = {
             }
         });
         this.activeModules = [];
+
+        const pane = document.getElementById(tabId);
+        if (pane && pane.dataset.src) {
+            try {
+                await HtmlLoader.load(pane.dataset.src, pane.id);
+            } catch (error) {
+                console.error(`Error loading HTML for tab ${tabId}:`, error);
+            }
+        }
 
         const moduleMap: Record<string, DashboardModule[]> = {
             'tab-home': [HomeModule as DashboardModule],
