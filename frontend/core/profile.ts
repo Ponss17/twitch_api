@@ -84,7 +84,7 @@ export const ProfileModule: DashboardModule = {
     updateSyncIndicator(): void {
         const syncEl = document.getElementById('profile-sync-indicator');
         if (!syncEl) return;
-        syncEl.textContent = `${this.countdown}s`;
+        syncEl.textContent = 'Auto';
     },
 
     async performSync(): Promise<void> {
