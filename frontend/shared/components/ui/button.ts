@@ -1,4 +1,4 @@
-export class AppButton extends HTMLElement {
+class AppButton extends HTMLElement {
     static get observedAttributes() {
         return ['variant', 'size', 'icon', 'loading', 'disabled', 'type'];
     }
