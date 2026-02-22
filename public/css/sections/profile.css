@@ -16,14 +16,14 @@
 }
 
 .profile-hero .profile-hero-card {
-    min-height: 160px;
+    min-height: 120px;
     padding: 0;
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     background: var(--bg-card);
     border-radius: 20px;
     border: 1px solid rgba(145, 70, 255, 0.25);
@@ -53,8 +53,8 @@
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    gap: 24px;
-    padding: 24px 32px;
+    gap: 16px;
+    padding: 16px 24px;
     z-index: 2;
     position: relative;
     text-align: left;
@@ -67,10 +67,10 @@
 }
 
 .profile-large-avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 16px;
-    border: 4px solid var(--bg-card);
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    border: 3px solid var(--bg-card);
     background: var(--bg-tertiary);
     object-fit: cover;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
@@ -99,7 +99,7 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     text-align: left;
     align-items: flex-start;
 }
@@ -113,7 +113,7 @@
 
 .profile-master-info .profile-name {
     margin: 0;
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 900;
     letter-spacing: -0.04em;
     color: #fff;
@@ -136,8 +136,8 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 20px;
-    padding: 8px 0 0 0;
+    gap: 16px;
+    padding: 4px 0 0 0;
     background: transparent;
     border: none;
 }
@@ -157,7 +157,7 @@
 .profile-stat-item:not(:last-child)::after {
     content: '';
     position: absolute;
-    right: -12px;
+    right: -8px;
     top: 20%;
     height: 60%;
     width: 1px;
@@ -165,10 +165,10 @@
 }
 
 .profile-stat-item i {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     background: rgba(145, 70, 255, 0.1);
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -281,8 +281,8 @@
 .api-vault-box {
     background: rgba(0, 0, 0, 0.25);
     border: 1px solid rgba(145, 70, 255, 0.15);
-    border-radius: 16px;
-    padding: 16px 20px;
+    border-radius: 12px;
+    padding: 12px 16px;
     margin-top: 5px;
     position: relative;
     overflow: hidden;
@@ -338,10 +338,10 @@
     background: transparent;
     border: none;
     outline: none;
-    padding: 12px 14px;
+    padding: 8px 12px;
     color: #fff;
     font-family: 'Consolas', monospace;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .vault-field-input:focus {
@@ -361,14 +361,14 @@
     background: rgba(255, 255, 255, 0.02);
     border: none;
     border-left: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 0 16px;
+    padding: 0 12px;
     color: var(--text-dim);
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .field-btn:hover {
@@ -396,10 +396,10 @@
 .status-badge-vault {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     background: rgba(0, 0, 0, 0.2);
-    padding: 8px 12px;
-    border-radius: 10px;
+    padding: 6px 10px;
+    border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(8px);
     transition: all 0.2s ease;
@@ -525,6 +525,73 @@ button.status-badge-vault.copy-id-btn:hover .s-value {
     }
 }
 
+.export-data-box {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(145, 70, 255, 0.15);
+    border-radius: 12px;
+    padding: 16px 20px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s ease;
+}
+
+.export-data-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    opacity: 0.6;
+}
+
+.export-data-box:hover {
+    border-color: rgba(145, 70, 255, 0.4);
+    background: rgba(145, 70, 255, 0.03);
+    box-shadow: 0 0 20px rgba(145, 70, 255, 0.08);
+}
+
+.export-data-info {
+    flex: 1;
+}
+
+.export-data-info h4 {
+    color: #fff;
+    font-size: 1.15rem;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.export-data-info p {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 600px;
+}
+
+.export-data-action {
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .export-data-box {
+        flex-direction: column;
+        text-align: center;
+        align-items: stretch;
+    }
+
+    .export-data-action button {
+        width: 100%;
+    }
+}
+
 .danger-card-wrapper {
     border-color: rgba(239, 68, 68, 0.2);
     background: linear-gradient(to bottom right, rgba(239, 68, 68, 0.03), transparent);
@@ -556,9 +623,9 @@ button.status-badge-vault.copy-id-btn:hover .s-value {
     justify-content: space-between;
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    padding: 16px 20px;
-    gap: 12px;
+    border-radius: 12px;
+    padding: 12px 16px;
+    gap: 10px;
     transition: all 0.3s ease;
 }
 

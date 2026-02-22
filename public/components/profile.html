@@ -12,27 +12,30 @@
                     <h2 class="profile-name" id="profile-display-name">Streamer</h2>
                     <div id="profile-badges-container" class="profile-badges-row"></div>
                 </div>
-                <p class="profile-bio" id="profile-bio">Cargando biografía...</p>
+                <p class="profile-bio skeleton skeleton-text" id="profile-bio" style="width: 100%; height: 3em;"></p>
 
                 <div class="profile-stats-grid-inline">
                     <div class="profile-stat-item">
                         <i class="fa-solid fa-heart"></i>
                         <div class="stat-text">
-                            <span class="stat-value" id="profile-stat-followers">---</span>
+                            <span class="stat-value skeleton skeleton-text" id="profile-stat-followers"
+                                style="width: 60px;"></span>
                             <span class="stat-label">Seguidores</span>
                         </div>
                     </div>
                     <div class="profile-stat-item">
                         <i class="fa-solid fa-video"></i>
                         <div class="stat-text">
-                            <span class="stat-value" id="profile-stat-broadcaster">---</span>
+                            <span class="stat-value skeleton skeleton-text" id="profile-stat-broadcaster"
+                                style="width: 70px;"></span>
                             <span class="stat-label">Tipo Canal</span>
                         </div>
                     </div>
                     <div class="profile-stat-item">
                         <i class="fa-solid fa-calendar"></i>
                         <div class="stat-text">
-                            <span class="stat-value" id="profile-stat-created">---</span>
+                            <span class="stat-value skeleton skeleton-text" id="profile-stat-created"
+                                style="width: 80px;"></span>
                             <span class="stat-label">Miembro</span>
                         </div>
                     </div>
@@ -122,6 +125,32 @@
     </div>
     <div class="card-body">
         <div id="profile-commands-grid" class="command-usage-grid">
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title-group">
+            <div class="card-icon"><i class="fa-solid fa-download"></i></div>
+            <div>
+                <h3>Tus Datos</h3>
+                <p class="card-desc">Descarga toda tu información en un documento legible</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="export-data-box">
+            <div class="export-data-info">
+                <h4>Reporte de Cuenta Completo</h4>
+                <p>Genera un archivo HTML estático con toda la información de tu perfil, historial de comandos y
+                    credenciales, listo para visualizar offline.</p>
+            </div>
+            <div class="export-data-action">
+                <button class="btn-primary" id="profile-export-data-btn" type="button" style="white-space: nowrap;">
+                    <i class="fa-solid fa-download"></i> Generar Reporte
+                </button>
+            </div>
         </div>
     </div>
 </div>
