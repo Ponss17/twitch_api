@@ -214,9 +214,15 @@ export const RouletteModule: IRouletteModule = {
             this.updateUI();
         }
 
-        const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+        const tokenParam = apiKey
+            ? `apiKey=${encodeURIComponent(apiKey)}`
+            : token
+              ? `token=${encodeURIComponent(token)}`
+              : '';
+        const headers: Record<string, string> = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&${tokenParam}`)
+        fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&${tokenParam}`, { headers })
             .then((res) => res.json())
             .then((data: unknown) => {
                 const safeData = data as { chatters?: unknown[] } | unknown[];

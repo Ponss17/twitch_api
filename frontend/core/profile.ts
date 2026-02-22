@@ -15,8 +15,16 @@ export const ProfileModule: DashboardModule = {
         analytics: {} as Record<string, number>
     },
 
-    get authToken(): string {
-        return this.session?.token || '';
+    get authHeaders(): Record<string, string> {
+        const headers: Record<string, string> = {};
+        if (this.session?.token) headers['Authorization'] = `Bearer ${this.session.token}`;
+        return headers;
+    },
+
+    get authQuery(): string {
+        if (this.session?.apiKey) return `apiKey=${encodeURIComponent(this.session.apiKey)}`;
+        if (this.session?.token) return `token=${encodeURIComponent(this.session.token)}`;
+        return '';
     },
 
     init(session: Session): void {
@@ -168,9 +176,10 @@ export const ProfileModule: DashboardModule = {
     async loadProfileData(): Promise<void> {
         if (!this.session) return;
         try {
-            const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}`;
+            const q = this.authQuery ? `&${this.authQuery}` : '';
+            const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}${q}`;
             const response = await fetch(url, {
-                headers: { Authorization: `Bearer ${this.authToken}` }
+                headers: this.authHeaders
             });
             if (response.ok) {
                 const data = await response.json();
@@ -185,9 +194,10 @@ export const ProfileModule: DashboardModule = {
     async pollRateLimit(): Promise<void> {
         if (!this.session) return;
         try {
-            const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}`;
+            const q = this.authQuery ? `&${this.authQuery}` : '';
+            const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}${q}`;
             const response = await fetch(url, {
-                headers: { Authorization: `Bearer ${this.authToken}` }
+                headers: this.authHeaders
             });
             if (response.ok) {
                 const data = await response.json();
@@ -204,8 +214,9 @@ export const ProfileModule: DashboardModule = {
     async loadAnalytics(): Promise<void> {
         if (!this.session) return;
         try {
-            const response = await fetch(DASHBOARD_CONFIG.API_ENDPOINTS.ANALYTICS, {
-                headers: { Authorization: `Bearer ${this.authToken}` }
+            const q = this.authQuery ? `?${this.authQuery}` : '';
+            const response = await fetch(`${DASHBOARD_CONFIG.API_ENDPOINTS.ANALYTICS}${q}`, {
+                headers: this.authHeaders
             });
             if (response.ok) {
                 const data = await response.json();
@@ -534,13 +545,14 @@ export const ProfileModule: DashboardModule = {
                     word: 'LIMPIAR',
                     onConfirm: async () => {
                         try {
+                            const q = this.authQuery ? `?${this.authQuery}` : '';
                             const response = await fetch(
-                                DASHBOARD_CONFIG.API_ENDPOINTS.CLEAR_DATA,
+                                `${DASHBOARD_CONFIG.API_ENDPOINTS.CLEAR_DATA}${q}`,
                                 {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
-                                        Authorization: `Bearer ${this.authToken}`
+                                        ...this.authHeaders
                                     },
                                     body: JSON.stringify({ confirm: 'LIMPIAR' })
                                 }
@@ -570,13 +582,14 @@ export const ProfileModule: DashboardModule = {
                     word: 'ELIMINAR',
                     onConfirm: async () => {
                         try {
+                            const q = this.authQuery ? `?${this.authQuery}` : '';
                             const response = await fetch(
-                                DASHBOARD_CONFIG.API_ENDPOINTS.DELETE_ACCOUNT,
+                                `${DASHBOARD_CONFIG.API_ENDPOINTS.DELETE_ACCOUNT}${q}`,
                                 {
                                     method: 'DELETE',
                                     headers: {
                                         'Content-Type': 'application/json',
-                                        Authorization: `Bearer ${this.authToken}`
+                                        ...this.authHeaders
                                     },
                                     body: JSON.stringify({ confirm: 'ELIMINAR' })
                                 }

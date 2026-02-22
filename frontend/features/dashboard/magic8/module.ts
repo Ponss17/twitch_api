@@ -85,10 +85,17 @@ export const Magic8Module: IMagic8Module = {
             const mood =
                 (document.getElementById('extra-magic8-mood') as HTMLSelectElement)?.value ||
                 'classic';
-            const tokenParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
+            const tokenParam = apiKey
+                ? `apiKey=${encodeURIComponent(apiKey)}`
+                : token
+                  ? `token=${encodeURIComponent(token)}`
+                  : '';
             const url = `${API_ENDPOINTS.MAGIC8}?${tokenParam}&question=${encodeURIComponent(question)}&mood=${mood}&user=${encodeURIComponent(login || '')}`;
 
-            const res = await fetch(url);
+            const headers: Record<string, string> = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const res = await fetch(url, { headers });
             if (res.ok) {
                 const answer = await res.text();
                 this.showResponse(answer, 'success');

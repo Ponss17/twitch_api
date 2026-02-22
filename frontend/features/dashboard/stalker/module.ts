@@ -34,6 +34,18 @@ export const StalkerModule: IStalkerModule = {
 
     cssLoaded: false,
 
+    get authHeaders(): Record<string, string> {
+        const headers: Record<string, string> = {};
+        if (this.session?.token) headers['Authorization'] = `Bearer ${this.session.token}`;
+        return headers;
+    },
+
+    get authQuery(): string {
+        if (this.session?.apiKey) return `apiKey=${encodeURIComponent(this.session.apiKey)}`;
+        if (this.session?.token) return `token=${encodeURIComponent(this.session.token)}`;
+        return '';
+    },
+
     init(session: Session): void {
         this.session = session;
         this.render();
@@ -212,8 +224,11 @@ export const StalkerModule: IStalkerModule = {
 
         try {
             if (!this.session) return;
-            const { apiKey, login } = this.session;
-            const res = await fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&apiKey=${apiKey}`);
+            const { login } = this.session;
+            const q = this.authQuery ? `&${this.authQuery}` : '';
+            const res = await fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}${q}`, {
+                headers: this.authHeaders
+            });
             if (!res.ok)
                 throw new Error(
                     res.status === 401 ? StalkerMessages.reloginMsg : StalkerMessages.apiError
@@ -307,9 +322,10 @@ export const StalkerModule: IStalkerModule = {
                 return;
             }
 
-            const res = await fetch(
-                `${API_ENDPOINTS.USER_INFO}?login=${login}&apiKey=${this.session.apiKey}`
-            );
+            const q = this.authQuery ? `&${this.authQuery}` : '';
+            const res = await fetch(`${API_ENDPOINTS.USER_INFO}?login=${login}${q}`, {
+                headers: this.authHeaders
+            });
             if (!res.ok) throw new Error();
             const info = await res.json();
 
