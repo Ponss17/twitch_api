@@ -140,16 +140,16 @@
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                this.size = Math.random() * 2 + 1;
-                this.speedX = (Math.random() - 0.5) * 2;
-                this.speedY = (Math.random() - 0.5) * 2;
+                this.size = Math.random() * 1.2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 1;
+                this.speedY = (Math.random() - 0.5) * 1;
                 this.color = '#9146ff';
                 this.life = 1;
             }
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-                this.life -= 0.02;
+                this.life -= 0.035;
                 if (this.size > 0.1) this.size -= 0.01;
             }
             draw() {
@@ -162,7 +162,7 @@
         }
 
         window.addEventListener('mousemove', (e) => {
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 1; i++) {
                 particles.push(new Particle(e.clientX, e.clientY));
             }
         });
