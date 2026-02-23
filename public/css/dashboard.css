@@ -274,7 +274,59 @@
 .user-dropdown-container {
     position: relative;
     z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 16px;
 }
+
+.donation-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.donation-link i {
+    color: #0070ba;
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
+}
+
+.donation-link:hover {
+    background: rgba(0, 112, 186, 0.08);
+    border-color: rgba(0, 112, 186, 0.2);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.donation-link:hover i {
+    transform: scale(1.2);
+    color: #005ea6;
+}
+
+.donation-link:active {
+    transform: scale(0.98);
+}
+
+@media (max-width: 640px) {
+    .donation-text {
+        display: none;
+    }
+
+    .donation-link {
+        padding: 8px;
+        aspect-ratio: 1;
+    }
+}
+
 
 .user-badge {
     display: flex;
