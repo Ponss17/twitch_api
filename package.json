@@ -6,7 +6,7 @@
     "scripts": {
         "build:frontend": "node scripts/build-frontend.js",
         "watch:frontend": "tsc -p tsconfig.frontend.json --watch",
-        "build": "shx rm -rf dist && npm run build:frontend && tsc",
+        "build": "shx rm -rf dist && shx rm -rf public/js/* && npm run build:frontend && tsc",
         "postbuild": "shx cp -r public dist/",
         "start": "node -r dotenv/config dist/api/index.js",
         "dev": "ts-node --files -r dotenv/config api/index.ts",

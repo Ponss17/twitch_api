@@ -32,6 +32,7 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
         const answer = await generateMagic8Response(question, mood as string, user as string);
 
         if (req.userId) {
+            await dbService.incrementUserStats(req.userId, 'magic8');
             await dbService.addUserActivity(req.userId, {
                 type: 'magic8',
                 user: user || 'Anónimo',
@@ -77,6 +78,7 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
 
         if (result) {
             if (req.userId) {
+                await dbService.incrementUserStats(req.userId, 'russian');
                 await dbService.addUserActivity(req.userId, {
                     type: 'russian',
                     user: (user as string) || 'Anónimo'
@@ -112,6 +114,7 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
         const result = await playDuel(challengerStr, target);
 
         if (req.userId) {
+            await dbService.incrementUserStats(req.userId, 'duel');
             await dbService.addUserActivity(req.userId, {
                 type: 'duel',
                 user: challengerStr,

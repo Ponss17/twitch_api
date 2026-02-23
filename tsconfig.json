@@ -17,5 +17,5 @@
         "types": ["node", "express", "cors", "helmet", "compression", "jest"]
     },
     "include": ["src/**/*", "api/**/*", "tests/**/*"],
-    "exclude": ["node_modules", "public", "dist"]
+    "exclude": ["node_modules", "public", "dist", "frontend"]
 }
