@@ -131,23 +131,22 @@ export const Dashboard = {
         if (!pageTitle) return;
 
         const titleMap: Record<string, string> = {
-            'tab-home': 'Inicio',
-            'tab-profile': 'Mi Perfil',
-            'tab-followage': 'Followage',
-            'tab-clips': 'Clips',
-            'tab-shoutout': 'Shoutout',
-            'tab-tracker': 'Tendencias',
-            'tab-stalker': 'Stalker',
-            'tab-magic8': 'Bola 8 Mágica',
-            'tab-roulette': 'Ruleta',
-            'tab-russian': 'Ruleta Rusa',
-            'tab-duel': 'Duelo',
-            'tab-feedback': 'Feedback'
+            'tab-home': '<i class="fa-solid fa-house"></i> Inicio',
+            'tab-profile': '<i class="fa-solid fa-user"></i> Mi Perfil',
+            'tab-followage': '<i class="fa-solid fa-clock-rotate-left"></i> Followage',
+            'tab-clips': '<i class="fa-solid fa-film"></i> Clips',
+            'tab-shoutout': '<i class="fa-solid fa-bullhorn"></i> Shoutout',
+            'tab-tracker': '<i class="fa-solid fa-chart-line"></i> Tendencias',
+            'tab-stalker': '<i class="fa-solid fa-users-viewfinder"></i> Stalker',
+            'tab-magic8': '<i class="fa-solid fa-8"></i> Bola 8 Mágica',
+            'tab-roulette': '<i class="fa-solid fa-dice"></i> Ruleta',
+            'tab-russian': '<i class="fa-solid fa-skull-crossbones"></i> Ruleta Rusa',
+            'tab-duel': '<i class="fa-solid fa-khanda"></i> Duelo',
+            'tab-feedback': '<i class="fa-solid fa-comment-dots"></i> Feedback'
         };
 
-        const title = titleMap[tabId] || 'Dashboard';
-
-        pageTitle.textContent = title;
+        const title = titleMap[tabId] || '<i class="fa-solid fa-gauge"></i> Dashboard';
+        pageTitle.innerHTML = title;
     },
 
     setupTabs() {
