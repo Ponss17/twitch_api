@@ -157,6 +157,7 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
             res,
             async (token) => {
                 await apiService.sendChatMessage(userId, userId, message, token);
+                await dbService.incrementUserStats(userId, 'message');
                 await dbService.addUserActivity(userId, {
                     type: 'message',
                     user: userId,

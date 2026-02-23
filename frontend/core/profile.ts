@@ -12,7 +12,8 @@ export const ProfileModule: DashboardModule = {
     countdown: 30,
     lastData: {
         followers: -1,
-        analytics: {} as Record<string, number>
+        analytics: {} as Record<string, number>,
+        summaries: {} as Record<string, number>
     },
 
     get authHeaders(): Record<string, string> {
@@ -220,7 +221,7 @@ export const ProfileModule: DashboardModule = {
                 headers: this.authHeaders
             });
             if (response.ok) {
-                const data = await response.json();
+                const data: Record<string, number> = await response.json();
                 this.renderCommandStatsInternal(data);
             }
         } catch (_e) {
@@ -229,40 +230,55 @@ export const ProfileModule: DashboardModule = {
     },
 
     renderCommandStatsInternal(data: Record<string, number>): void {
-        const container = document.getElementById('profile-commands-grid');
-        if (!container) return;
+        const statsGrid = document.getElementById('profile-stats-summary-grid');
+        if (!statsGrid) return;
 
-        const statConfig = [
-            { key: 'clips', icon: 'fa-film', label: 'Clips' },
-            { key: 'followage', icon: 'fa-clock', label: 'Followage' },
-            { key: 'so', icon: 'fa-bullhorn', label: 'Shoutouts' }
+        statsGrid.innerHTML = '';
+
+        const categories = [
+            {
+                id: 'cat-commands',
+                label: 'Comandos',
+                icon: 'fa-terminal',
+                keys: ['clips', 'followage', 'so']
+            },
+            {
+                id: 'cat-tools',
+                label: 'Herramientas',
+                icon: 'fa-screwdriver-wrench',
+                keys: ['stalker', 'trends', 'roulette']
+            },
+            {
+                id: 'cat-minigames',
+                label: 'Minijuegos',
+                icon: 'fa-gamepad',
+                keys: ['russian', 'magic8', 'duel']
+            }
         ];
 
-        if (container.children.length === 0) {
-            let html = '';
-            statConfig.forEach((stat) => {
-                html += `
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fa-solid ${stat.icon}"></i></div>
-                        <div class="stat-info">
-                            <h3 class="counter" id="prof-stat-${stat.key}" data-target="0">0</h3>
-                            <span>${stat.label}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
+        categories.forEach((cat) => {
+            const totalSum = cat.keys.reduce((sum, key) => sum + (data[key] || 0), 0);
 
-        statConfig.forEach((stat) => {
-            const el = document.getElementById(`prof-stat-${stat.key}`);
-            const newValue = data[stat.key] || 0;
-            if (el) {
-                if (this.lastData.analytics[stat.key] !== newValue) {
-                    UI.animateValue(el, null, newValue);
-                    this.lastData.analytics[stat.key] = newValue;
+            const card = document.createElement('div');
+            card.className = 'stat-card';
+            card.innerHTML = `
+                <div class="stat-icon"><i class="fa-solid ${cat.icon}"></i></div>
+                <div class="stat-info">
+                    <h3 id="profile-sum-${cat.id}">0</h3>
+                    <span>${cat.label}</span>
+                </div>
+            `;
+            statsGrid.appendChild(card);
+
+            const valueEl = document.getElementById(`profile-sum-${cat.id}`);
+            if (valueEl) {
+                const prevSum = this.lastData.summaries?.[cat.id] ?? 0;
+                if (prevSum !== totalSum) {
+                    UI.animateValue(valueEl, null, totalSum);
+                    if (!this.lastData.summaries) this.lastData.summaries = {};
+                    this.lastData.summaries[cat.id] = totalSum;
                 } else {
-                    el.textContent = newValue.toLocaleString();
+                    valueEl.textContent = totalSum.toLocaleString();
                 }
             }
         });

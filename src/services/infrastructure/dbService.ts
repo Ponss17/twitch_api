@@ -166,13 +166,23 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         const key = `stats:${userId}`;
         const stats = await kv.hgetall(key);
 
-        if (!stats) return { clips: 0, followage: 0, so: 0 };
-
         const numericStats: Record<string, number> = {
+            // Comandos
             clips: 0,
             followage: 0,
-            so: 0
+            so: 0,
+            // Herramientas
+            stalker: 0,
+            trends: 0,
+            roulette: 0,
+            message: 0,
+            // Minijuegos
+            russian: 0,
+            magic8: 0,
+            duel: 0
         };
+
+        if (!stats) return numericStats;
 
         for (const [statKey, value] of Object.entries(stats)) {
             numericStats[statKey] = parseInt(value as string) || 0;
@@ -181,7 +191,18 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         return numericStats;
     } catch (e) {
         logger.error('Error getting user stats:', e);
-        return { clips: 0, followage: 0, so: 0 };
+        return {
+            clips: 0,
+            followage: 0,
+            so: 0,
+            stalker: 0,
+            trends: 0,
+            roulette: 0,
+            message: 0,
+            russian: 0,
+            magic8: 0,
+            duel: 0
+        };
     }
 };
 
