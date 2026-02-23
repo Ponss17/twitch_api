@@ -74,7 +74,7 @@ export const configureRoutes = (app: Application) => {
             status: isConfigured ? 'ok' : 'maintenance',
             timestamp: new Date().toISOString(),
             uptime: process.uptime(),
-            version: '2.9.4'
+            version: '2.9.5'
         });
     });
 
