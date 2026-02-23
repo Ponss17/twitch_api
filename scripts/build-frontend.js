@@ -33,6 +33,17 @@ async function build() {
     console.log(`📂 Encontrados ${entryPoints.length} archivos TypeScript.`);
 
     try {
+        if (!fs.existsSync(OUT_DIR)) {
+            fs.mkdirSync(OUT_DIR, { recursive: true });
+        }
+
+        const vendorSrc = path.join(SRC_DIR, 'vendor');
+        const vendorDest = path.join(OUT_DIR, 'vendor');
+        if (fs.existsSync(vendorSrc)) {
+            console.log('📦 Copiando librerías vendor...');
+            fs.cpSync(vendorSrc, vendorDest, { recursive: true });
+        }
+
         await esbuild.build({
             entryPoints: entryPoints,
             outdir: OUT_DIR,

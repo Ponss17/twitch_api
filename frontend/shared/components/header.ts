@@ -1,5 +1,5 @@
 export const HeaderComponent = {
-    render(containerId: string) {
+    render(containerId: string): void {
         const container = document.getElementById(containerId);
         if (!container) return;
 
@@ -15,7 +15,6 @@ export const HeaderComponent = {
                 </nav>
             </div>
         `;
-
         container.innerHTML = html;
         container.className = 'main-header fade-in';
     }
