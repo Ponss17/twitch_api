@@ -497,7 +497,7 @@ const ProfileModule = {
         if (!this.session) return;
         UI.setButtonLoading(exportBtn, true);
         try {
-          const { DataExport } = await import("../features/dashboard/account/dataExport.js");
+          const { DataExport } = await import("../features/dashboard/account/dataExporter.js");
           await DataExport.export(this.session);
         } catch (e) {
           console.error("[Profile] Export error:", e);
