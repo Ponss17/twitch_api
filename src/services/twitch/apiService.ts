@@ -9,7 +9,7 @@ import {
     TwitchChannelInfo,
     TwitchValidationResponse
 } from '../../types/twitch';
-import { getCachedUserId, setCachedUserId } from '../infrastructure/cacheService';
+import { getCachedUserId, setCachedUserId, get, set } from '../infrastructure/cacheService';
 import { logger } from '../../utils/logger';
 
 const httpsAgent = new https.Agent({ keepAlive: true });
@@ -99,7 +99,12 @@ export const getChannelInfo = async (
     broadcasterId: string,
     token: string
 ): Promise<TwitchChannelInfo> => {
+    const cacheKey = `twitch:channel:${broadcasterId}`;
     try {
+        // Intentar obtener de caché primero
+        const cached = (await get(cacheKey)) as TwitchChannelInfo | null;
+        if (cached) return cached;
+
         const headers = getHeaders(token);
         const response = await apiClient.get(
             `https://api.twitch.tv/helix/channels?broadcaster_id=${broadcasterId}`,
@@ -110,7 +115,11 @@ export const getChannelInfo = async (
             throw { status: 404, message: `No se encontró información del canal.` } as TwitchError;
         }
 
-        return response.data.data[0];
+        const data = response.data.data[0];
+        // Cachear resultado por 30 minutos
+        await set(cacheKey, data, 1800);
+
+        return data;
     } catch (error) {
         if ((error as TwitchError).status === 404) throw error;
         return handleTwitchError(error, `getChannelInfo(${broadcasterId})`);

@@ -82,6 +82,10 @@ export const configureMiddleware = (app: Application) => {
             credentials: true
         })
     );
-    app.use(compression());
+    app.use(
+        compression({
+            threshold: 1024 // Solo comprimir respuestas mayores a 1KB
+        })
+    );
     app.use(express.json());
 };
