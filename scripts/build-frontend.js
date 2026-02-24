@@ -50,7 +50,7 @@ async function build() {
             entryPoints: entryPoints,
             outdir: OUT_DIR,
             bundle: true,
-            minify: false, // Dejar false para facilitar debug si el usuario lo necesita
+            minify: false,
             keepNames: true,
             legalComments: 'none',
             sourcemap: false,
