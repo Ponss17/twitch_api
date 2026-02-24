@@ -571,7 +571,7 @@ export const ProfileModule: DashboardModule = {
                 UI.setButtonLoading(exportBtn as HTMLButtonElement, true);
                 try {
                     const { DataExport } =
-                        await import('../features/dashboard/account/dataExport.js');
+                        await import('../features/dashboard/account/dataExporter.js');
                     await DataExport.export(this.session);
                 } catch (e) {
                     console.error('[Profile] Export error:', e);
