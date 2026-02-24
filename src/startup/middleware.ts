@@ -22,6 +22,7 @@ export const configureMiddleware = (app: Application) => {
                         'https://unpkg.com',
                         'https://*.twitch.tv',
                         'https://*.jtvnw.net',
+                        'https://va.vercel-scripts.com',
                         'blob:'
                     ],
                     styleSrc: [
@@ -48,6 +49,7 @@ export const configureMiddleware = (app: Application) => {
                         'https://api.twitch.tv',
                         'https://*.twitch.tv',
                         'wss://*.twitch.tv',
+                        'https://va.vercel-scripts.com',
                         'blob:'
                     ],
                     objectSrc: ["'none'"],

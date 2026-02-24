@@ -114,6 +114,11 @@ export const Dashboard = {
                 });
             }
 
+            const twitchBtn = document.getElementById('btn-twitch-account');
+            if (twitchBtn instanceof HTMLAnchorElement && this.session.login) {
+                twitchBtn.href = `https://twitch.tv/${this.session.login}`;
+            }
+
             document.getElementById('logout-btn-header')?.addEventListener('click', () => {
                 import('./auth.js').then((m) => m.Auth.logout());
             });

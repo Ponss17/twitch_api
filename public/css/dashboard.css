@@ -442,6 +442,7 @@
     font-weight: 500;
     width: 100%;
     text-align: left;
+    text-decoration: none;
     cursor: pointer;
     transition: all 0.15s ease;
 }
