@@ -1,4 +1,5 @@
-const AuthMessages = {
+// frontend/shared/i18n/authMessages.ts
+var AuthMessages = {
   sessionExpired: "Tu sesi\xF3n ha expirado",
   validationError: "Error al validar sesi\xF3n",
   sessionError: "Error de sesi\xF3n. Recarga la p\xE1gina.",

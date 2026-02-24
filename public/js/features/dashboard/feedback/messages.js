@@ -1,4 +1,5 @@
-const FeedbackMessages = {
+// frontend/features/dashboard/feedback/messages.ts
+var FeedbackMessages = {
   emptyMessage: "Por favor, escribe un mensaje.",
   sending: '<i class="fa-solid fa-circle-notch fa-spin"></i> Enviando...',
   defaultButton: '<i class="fa-solid fa-paper-plane"></i> Enviar Feedback',

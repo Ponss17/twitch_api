@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const CommandGenerator = {
+
+// frontend/shared/utils/commandGenerator.ts
+var CommandGenerator = {
   masks: {
     apiKey: "**************",
     token: "**************"

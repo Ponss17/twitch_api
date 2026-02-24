@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const UIMessages = {
+
+// frontend/shared/i18n/uiMessages.ts
+var UIMessages = {
   Clipboard: {
     copied: "\xA1Copiado!",
     error: "Error al copiar"

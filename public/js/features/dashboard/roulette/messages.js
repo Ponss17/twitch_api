@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const RouletteMessages = {
+
+// frontend/features/dashboard/roulette/messages.ts
+var RouletteMessages = {
   updated: '<i class="fa-solid fa-check"></i> Lista actualizada',
   updatedRaw: "Lista actualizada",
   noParticipants: "No hay participantes",

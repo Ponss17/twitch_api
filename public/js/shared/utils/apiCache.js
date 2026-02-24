@@ -1,4 +1,5 @@
-const APICache = {
+// frontend/shared/utils/apiCache.ts
+var APICache = {
   cache: /* @__PURE__ */ new Map(),
   async fetch(url, options = {}, ttl = 6e4) {
     const key = url + JSON.stringify(options);

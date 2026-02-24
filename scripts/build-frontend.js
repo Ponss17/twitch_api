@@ -33,9 +33,11 @@ async function build() {
     console.log(`📂 Encontrados ${entryPoints.length} archivos TypeScript.`);
 
     try {
-        if (!fs.existsSync(OUT_DIR)) {
-            fs.mkdirSync(OUT_DIR, { recursive: true });
+        if (fs.existsSync(OUT_DIR)) {
+            console.log('🧹 Limpiando directorio public/js...');
+            fs.rmSync(OUT_DIR, { recursive: true, force: true });
         }
+        fs.mkdirSync(OUT_DIR, { recursive: true });
 
         const vendorSrc = path.join(SRC_DIR, 'vendor');
         const vendorDest = path.join(OUT_DIR, 'vendor');
@@ -47,14 +49,16 @@ async function build() {
         await esbuild.build({
             entryPoints: entryPoints,
             outdir: OUT_DIR,
-            bundle: false,
-            minify: false,
+            bundle: true,
+            minify: false, // Dejar false para facilitar debug si el usuario lo necesita
             keepNames: true,
             legalComments: 'none',
             sourcemap: false,
             target: ['es2020'],
             platform: 'browser',
-            format: 'esm'
+            format: 'esm',
+            tsconfig: path.join(__dirname, '../tsconfig.frontend.json'),
+            loader: { '.ts': 'ts' }
         });
 
         console.log('✅ Build completado exitosamente en public/js/');

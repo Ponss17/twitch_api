@@ -1,4 +1,5 @@
-const FooterComponent = {
+// frontend/shared/components/footer.ts
+var FooterComponent = {
   render(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;

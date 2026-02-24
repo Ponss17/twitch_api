@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const Messages = {
+
+// frontend/shared/i18n/messages.ts
+var Messages = {
   Common: {
     loading: '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...',
     error: /* @__PURE__ */ __name((msg) => `<div class="error-msg"><i class="fa-solid fa-triangle-exclamation"></i> ${msg}</div>`, "error"),

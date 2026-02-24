@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const CommandsMessages = {
+
+// frontend/features/dashboard/commands/messages.ts
+var CommandsMessages = {
   clipResponse: /* @__PURE__ */ __name((user, url) => `\u{1F3AC} Clip creado por ${user}: ${url}`, "clipResponse"),
   followageResponse: "Procesando followage...",
   missingCreds: "Faltan credenciales",

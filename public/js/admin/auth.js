@@ -1,24 +1,26 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const ADMIN_AUTH_KEY = "admin_password";
-const getAdminPassword = /* @__PURE__ */ __name(() => {
+
+// frontend/admin/auth.ts
+var ADMIN_AUTH_KEY = "admin_password";
+var getAdminPassword = /* @__PURE__ */ __name(() => {
   return sessionStorage.getItem(ADMIN_AUTH_KEY);
 }, "getAdminPassword");
-const setAdminPassword = /* @__PURE__ */ __name((password) => {
+var setAdminPassword = /* @__PURE__ */ __name((password) => {
   sessionStorage.setItem(ADMIN_AUTH_KEY, password);
 }, "setAdminPassword");
-const getApiBase = /* @__PURE__ */ __name(() => {
+var getApiBase = /* @__PURE__ */ __name(() => {
   const path = window.location.pathname;
   if (path.includes("/admin")) {
     return path.split("/admin")[0];
   }
   return "";
 }, "getApiBase");
-const logout = /* @__PURE__ */ __name(() => {
+var logout = /* @__PURE__ */ __name(() => {
   sessionStorage.removeItem(ADMIN_AUTH_KEY);
   window.location.href = `${getApiBase()}/admin`;
 }, "logout");
-const checkAuth = /* @__PURE__ */ __name(() => {
+var checkAuth = /* @__PURE__ */ __name(() => {
   const apiBase = getApiBase();
   const urlParams = new URLSearchParams(window.location.search);
   const sessionToken = urlParams.get("session");
@@ -40,7 +42,7 @@ const checkAuth = /* @__PURE__ */ __name(() => {
     }
   }
 }, "checkAuth");
-const fetchAdmin = /* @__PURE__ */ __name(async (url, options = {}) => {
+var fetchAdmin = /* @__PURE__ */ __name(async (url, options = {}) => {
   const password = getAdminPassword();
   if (!password) {
     throw new Error("No admin password found");

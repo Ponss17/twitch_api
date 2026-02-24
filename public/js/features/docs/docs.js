@@ -1,6 +1,25 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { FooterComponent } from "../../shared/components/footer.js";
+
+// frontend/shared/components/footer.ts
+var FooterComponent = {
+  render(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const year = (/* @__PURE__ */ new Date()).getFullYear();
+    const origin = window.location.origin;
+    const hostname = window.location.hostname;
+    const html = `
+            <div class="footer-content">
+                <p>&copy; ${year} <a href="${origin}" target="_blank" rel="noopener">${hostname}</a>. Creado para la comunidad. No afiliado con Twitch o Amazon.</p>
+            </div>
+        `;
+    container.innerHTML = html;
+    container.classList.add("app-footer");
+  }
+};
+
+// frontend/features/docs/docs.ts
 document.addEventListener("DOMContentLoaded", () => {
   const mobileToggle = document.querySelector(".mobile-nav-toggle");
   const sidebar = document.querySelector(".sidebar");

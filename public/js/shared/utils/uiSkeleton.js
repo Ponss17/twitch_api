@@ -1,4 +1,5 @@
-const Skeleton = {
+// frontend/shared/utils/uiSkeleton.ts
+var Skeleton = {
   card() {
     return `
             <div class="skeleton-card">

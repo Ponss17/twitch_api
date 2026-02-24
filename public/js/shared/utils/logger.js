@@ -1,4 +1,5 @@
-const Logger = {
+// frontend/shared/utils/logger.ts
+var Logger = {
   log(...args) {
     if (typeof window !== "undefined" && window.location.hostname === "localhost") {
       console.log(...args);

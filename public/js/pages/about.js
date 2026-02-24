@@ -1,10 +1,50 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { HeaderComponent } from "../shared/components/header.js";
-import { FooterComponent } from "../shared/components/footer.js";
+
+// frontend/shared/components/header.ts
+var HeaderComponent = {
+  render(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const html = `
+            <div class="container">
+                <div class="logo-container">
+                    <img src="img/LosPerris-minimal.webp" alt="Logo" class="logo-img" loading="lazy">
+                    <h1 class="brand-logo">LosPerris <span class="accent-text">Twitch Api</span></h1>
+                </div>
+                <nav class="top-nav">
+                    <a href="docs" class="nav-link"><i class="fa-solid fa-book"></i> Documentaci\xF3n</a>
+                    <a href="https://discord.gg/8uN3qY5E" target="_blank" class="nav-link"><i class="fa-brands fa-discord"></i> Comunidad</a>
+                </nav>
+            </div>
+        `;
+    container.innerHTML = html;
+    container.className = "main-header fade-in";
+  }
+};
+
+// frontend/shared/components/footer.ts
+var FooterComponent = {
+  render(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const year = (/* @__PURE__ */ new Date()).getFullYear();
+    const origin = window.location.origin;
+    const hostname = window.location.hostname;
+    const html = `
+            <div class="footer-content">
+                <p>&copy; ${year} <a href="${origin}" target="_blank" rel="noopener">${hostname}</a>. Creado para la comunidad. No afiliado con Twitch o Amazon.</p>
+            </div>
+        `;
+    container.innerHTML = html;
+    container.classList.add("app-footer");
+  }
+};
+
+// frontend/pages/about.ts
 HeaderComponent.render("main-header");
 FooterComponent.render("main-footer");
-const canvas = document.getElementById("sparks-canvas");
+var canvas = document.getElementById("sparks-canvas");
 if (canvas) {
   const ctx = canvas.getContext("2d");
   if (ctx) {
@@ -62,8 +102,8 @@ if (canvas) {
     animate();
   }
 }
-const btn = document.getElementById("copy-btn");
-const toast = document.getElementById("toast-notif");
+var btn = document.getElementById("copy-btn");
+var toast = document.getElementById("toast-notif");
 btn?.addEventListener("click", () => {
   navigator.clipboard.writeText("ponsschiquito").then(() => {
     if (toast) {
@@ -72,7 +112,7 @@ btn?.addEventListener("click", () => {
     }
   });
 });
-const backBtn = document.querySelector(".nav-back-btn");
+var backBtn = document.querySelector(".nav-back-btn");
 if (backBtn) {
   backBtn.addEventListener("click", (e) => {
     if (document.referrer && document.referrer.includes(window.location.hostname)) {

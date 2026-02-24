@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const StalkerMessages = {
+
+// frontend/features/dashboard/stalker/messages.ts
+var StalkerMessages = {
   loading: '<i class="fa-solid fa-spinner fa-spin"></i> Cargando Chat...',
   empty: `
         <div class="empty-state">
