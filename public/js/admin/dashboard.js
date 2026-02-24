@@ -1,8 +1,69 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { fetchAdmin, logout, checkAuth } from "./auth.js";
-let userChart = null;
-let _currentSection = "overview";
+
+// frontend/admin/auth.ts
+var ADMIN_AUTH_KEY = "admin_password";
+var getAdminPassword = /* @__PURE__ */ __name(() => {
+  return sessionStorage.getItem(ADMIN_AUTH_KEY);
+}, "getAdminPassword");
+var setAdminPassword = /* @__PURE__ */ __name((password) => {
+  sessionStorage.setItem(ADMIN_AUTH_KEY, password);
+}, "setAdminPassword");
+var getApiBase = /* @__PURE__ */ __name(() => {
+  const path = window.location.pathname;
+  if (path.includes("/admin")) {
+    return path.split("/admin")[0];
+  }
+  return "";
+}, "getApiBase");
+var logout = /* @__PURE__ */ __name(() => {
+  sessionStorage.removeItem(ADMIN_AUTH_KEY);
+  window.location.href = `${getApiBase()}/admin`;
+}, "logout");
+var checkAuth = /* @__PURE__ */ __name(() => {
+  const apiBase = getApiBase();
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionToken = urlParams.get("session");
+  if (sessionToken) {
+    setAdminPassword(sessionToken);
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
+  if (!getAdminPassword()) {
+    const isLoginPage = window.location.pathname.endsWith("/admin") || window.location.pathname.endsWith("/admin/");
+    if (!isLoginPage) {
+      window.location.href = `${apiBase}/admin`;
+    }
+  } else {
+    const dashboard = document.getElementById("dashboard-page");
+    if (dashboard) dashboard.style.display = "flex";
+    if (window.location.pathname.endsWith("/admin") || window.location.pathname.endsWith("/admin/")) {
+      window.location.href = `${apiBase}/admin-dashboard`;
+    }
+  }
+}, "checkAuth");
+var fetchAdmin = /* @__PURE__ */ __name(async (url, options = {}) => {
+  const password = getAdminPassword();
+  if (!password) {
+    throw new Error("No admin password found");
+  }
+  const headers = new Headers(options.headers);
+  headers.set("x-admin-api-key", password);
+  headers.set("Content-Type", "application/json");
+  const response = await fetch(url, {
+    ...options,
+    headers
+  });
+  if (response.status === 401) {
+    console.warn("Admin Unauthorized (401). Logging out...");
+    logout();
+  }
+  return response;
+}, "fetchAdmin");
+
+// frontend/admin/dashboard.ts
+var userChart = null;
+var _currentSection = "overview";
 window.switchSection = (sectionId) => {
   _currentSection = sectionId;
   document.querySelectorAll(".admin-section").forEach((s) => s.classList.remove("active"));
@@ -61,7 +122,7 @@ window.refreshLogs = async () => {
     showToast("Error", "Error al cargar logs", "error");
   }
 };
-const renderChart = /* @__PURE__ */ __name((users) => {
+var renderChart = /* @__PURE__ */ __name((users) => {
   const ctx = document.getElementById("usersChart");
   if (!ctx) return;
   if (userChart) userChart.destroy();
@@ -113,7 +174,7 @@ const renderChart = /* @__PURE__ */ __name((users) => {
     }
   });
 }, "renderChart");
-const renderUsers = /* @__PURE__ */ __name((users) => {
+var renderUsers = /* @__PURE__ */ __name((users) => {
   const tbody = document.getElementById("users-table-body");
   if (!tbody) return;
   if (users.length === 0) {
@@ -172,7 +233,7 @@ const renderUsers = /* @__PURE__ */ __name((users) => {
     `
   ).join("");
 }, "renderUsers");
-const createToastContainer = /* @__PURE__ */ __name(() => {
+var createToastContainer = /* @__PURE__ */ __name(() => {
   let container = document.getElementById("toast-container");
   if (!container) {
     container = document.createElement("div");
@@ -182,7 +243,7 @@ const createToastContainer = /* @__PURE__ */ __name(() => {
   }
   return container;
 }, "createToastContainer");
-const showToast = /* @__PURE__ */ __name((title, message, type = "info") => {
+var showToast = /* @__PURE__ */ __name((title, message, type = "info") => {
   const container = createToastContainer();
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;
@@ -203,8 +264,8 @@ const showToast = /* @__PURE__ */ __name((title, message, type = "info") => {
     setTimeout(() => toast.remove(), 300);
   }, 4e3);
 }, "showToast");
-let allUsersCache = [];
-const setupSearch = /* @__PURE__ */ __name(() => {
+var allUsersCache = [];
+var setupSearch = /* @__PURE__ */ __name(() => {
   const searchInput = document.getElementById("user-search");
   if (!searchInput) return;
   searchInput.addEventListener("input", (e) => {
@@ -215,7 +276,7 @@ const setupSearch = /* @__PURE__ */ __name(() => {
     renderUsers(filtered);
   });
 }, "setupSearch");
-const loadUsers = /* @__PURE__ */ __name(async () => {
+var loadUsers = /* @__PURE__ */ __name(async () => {
   try {
     const res = await fetchAdmin("/api/twitch/admin/users");
     if (!res.ok) throw new Error(`Failed to load users: ${res.status}`);
@@ -228,7 +289,7 @@ const loadUsers = /* @__PURE__ */ __name(async () => {
     showToast("Error", "Error cargando usuarios", "error");
   }
 }, "loadUsers");
-const loadGlobalStats = /* @__PURE__ */ __name(async () => {
+var loadGlobalStats = /* @__PURE__ */ __name(async () => {
   try {
     const res = await fetchAdmin("/api/twitch/admin/stats/global");
     if (!res.ok) throw new Error("Failed to load global stats");
@@ -243,7 +304,7 @@ const loadGlobalStats = /* @__PURE__ */ __name(async () => {
     console.error("Error loadGlobalStats:", _e);
   }
 }, "loadGlobalStats");
-const loadSystemStatus = /* @__PURE__ */ __name(async () => {
+var loadSystemStatus = /* @__PURE__ */ __name(async () => {
   const container = document.getElementById("system-status-container");
   if (!container) return;
   try {
@@ -270,7 +331,7 @@ const loadSystemStatus = /* @__PURE__ */ __name(async () => {
     container.innerHTML = `<div class="error-msg" style="display:block">Error cargando estado del sistema</div>`;
   }
 }, "loadSystemStatus");
-const loadConfig = /* @__PURE__ */ __name(async () => {
+var loadConfig = /* @__PURE__ */ __name(async () => {
   const container = document.getElementById("config-list-container");
   if (!container) return;
   try {
@@ -425,7 +486,7 @@ window.removeAdmin = async (userId) => {
     showToast("Error", "Error de conexi\xF3n", "error");
   }
 };
-const loadAdmins = /* @__PURE__ */ __name(async () => {
+var loadAdmins = /* @__PURE__ */ __name(async () => {
   const tbody = document.getElementById("admins-table-body");
   if (!tbody) return;
   try {

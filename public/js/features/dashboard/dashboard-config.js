@@ -1,5 +1,6 @@
-const API_BASE = "/api/twitch";
-const DASHBOARD_CONFIG = {
+// frontend/features/dashboard/dashboard-config.ts
+var API_BASE = "/api/twitch";
+var DASHBOARD_CONFIG = {
   API_ENDPOINTS: {
     BASE: API_BASE,
     MAGIC8: `${API_BASE}/minigames/magic8`,

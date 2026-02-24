@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const _AppButton = class _AppButton extends HTMLElement {
+
+// frontend/shared/components/ui/button.ts
+var _AppButton = class _AppButton extends HTMLElement {
   static get observedAttributes() {
     return ["variant", "size", "icon", "loading", "disabled", "type"];
   }
@@ -56,5 +58,5 @@ const _AppButton = class _AppButton extends HTMLElement {
   }
 };
 __name(_AppButton, "AppButton");
-let AppButton = _AppButton;
+var AppButton = _AppButton;
 customElements.define("app-button", AppButton);

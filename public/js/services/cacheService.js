@@ -1,7 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const CACHE_TTL = 6e4;
-const _CacheService = class _CacheService {
+
+// frontend/services/cacheService.ts
+var CACHE_TTL = 6e4;
+var _CacheService = class _CacheService {
   constructor() {
     this.cache = /* @__PURE__ */ new Map();
     setInterval(() => this.cleanup(), 6e4);
@@ -51,8 +53,8 @@ const _CacheService = class _CacheService {
   }
 };
 __name(_CacheService, "CacheService");
-let CacheService = _CacheService;
-const cache = new CacheService();
+var CacheService = _CacheService;
+var cache = new CacheService();
 export {
   CACHE_TTL,
   CacheService,

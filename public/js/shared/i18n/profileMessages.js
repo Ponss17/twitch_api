@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const ProfileMessages = {
+
+// frontend/shared/i18n/profileMessages.ts
+var ProfileMessages = {
   partner: "Socio",
   affiliate: "Afiliado",
   user: "Usuario",

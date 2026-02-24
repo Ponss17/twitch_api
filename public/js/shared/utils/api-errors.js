@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const formatApiError = /* @__PURE__ */ __name(async (response) => {
+
+// frontend/shared/utils/api-errors.ts
+var formatApiError = /* @__PURE__ */ __name(async (response) => {
   try {
     const text = await response.text();
     try {

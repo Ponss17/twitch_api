@@ -1,4 +1,5 @@
-const ClipsMessages = {
+// frontend/features/dashboard/clips/messages.ts
+var ClipsMessages = {
   loading: '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Cargando clips...</div>',
   empty: `
         <div class="empty-state">

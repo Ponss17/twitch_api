@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-const Magic8Messages = {
+
+// frontend/features/dashboard/magic8/messages.ts
+var Magic8Messages = {
   emptyQuestion: "\u26A0\uFE0F Debes hacer una pregunta primero.",
   consulting: '<i class="fa-solid fa-spinner fa-spin"></i> Consultando...',
   loading: '<div class="magic8-loading"><i class="fa-solid fa-crystal-ball fa-beat"></i> Consultando a los esp\xEDritus...</div>',

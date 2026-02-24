@@ -1,13 +1,498 @@
 var __defProp = Object.defineProperty;
+var __getOwnPropNames = Object.getOwnPropertyNames;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { UI } from "../../core/ui.js";
-import { Messages } from "../../shared/i18n/messages.js";
-import { ClipsMessages } from "./clips/messages.js";
-import { AuthMessages } from "../../shared/i18n/authMessages.js";
-import { DASHBOARD_CONFIG } from "./dashboard-config.js";
-const { API_ENDPOINTS } = DASHBOARD_CONFIG;
-import { cache, CACHE_TTL } from "../../services/cacheService.js";
-const ClipsModule = {
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+
+// frontend/shared/i18n/uiMessages.ts
+var UIMessages;
+var init_uiMessages = __esm({
+  "frontend/shared/i18n/uiMessages.ts"() {
+    "use strict";
+    UIMessages = {
+      Clipboard: {
+        copied: "\xA1Copiado!",
+        error: "Error al copiar"
+      },
+      ChatSim: {
+        welcome: "\xA1Bienvenido al chat!",
+        placeholder: "Enviar un mensaje",
+        btnText: "Chat",
+        followage: /* @__PURE__ */ __name((user, channel, time) => `@${user} sigue a @${channel} desde hace ${time}.`, "followage"),
+        clip: /* @__PURE__ */ __name((user, url) => `\u{1F3AC} Clip creado por <span style="color:#FF69B4">@${user}</span>: ${url}`, "clip"),
+        shoutout: /* @__PURE__ */ __name((user, game) => `\xA1Vayan a seguir a <span style="color:#bf94ff">@${user}</span>! Estaba jugando ${game}`, "shoutout")
+      }
+    };
+  }
+});
+
+// frontend/core/ui-core.ts
+var UI;
+var init_ui_core = __esm({
+  "frontend/core/ui-core.ts"() {
+    "use strict";
+    init_uiMessages();
+    UI = {
+      clipboardInitialized: false,
+      escapeHTML(str) {
+        if (!str) return "";
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+      },
+      showToast(message, type = "success", customIcon) {
+        let container = document.querySelector(".toast-container");
+        if (!container) {
+          container = document.createElement("div");
+          container.className = "toast-container";
+          document.body.appendChild(container);
+        }
+        const toast = document.createElement("div");
+        toast.className = `toast ${type}`;
+        toast.setAttribute("role", "alert");
+        const icon = customIcon || (type === "success" ? "fa-check-circle" : "fa-triangle-exclamation");
+        toast.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i> <span></span>`;
+        const textSpan = toast.querySelector("span");
+        textSpan.innerHTML = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.classList.add("hiding");
+          toast.addEventListener("animationend", () => {
+            if (toast.parentElement) {
+              toast.remove();
+            }
+          });
+        }, 4e3);
+      },
+      copyToClipboard(text) {
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(() => {
+          this.showToast(`<i class="fa-solid fa-check"></i> ${UIMessages.Clipboard.copied}`);
+        }).catch(() => {
+          this.showToast(
+            `<i class="fa-solid fa-xmark"></i> ${UIMessages.Clipboard.error}`,
+            "error"
+          );
+        });
+      },
+      setupClipboard() {
+        if (this.clipboardInitialized) return;
+        this.clipboardInitialized = true;
+        document.addEventListener("click", (e) => {
+          const btn = e.target.closest(".copy-btn");
+          if (!btn) return;
+          const targetId = btn.dataset.target;
+          if (targetId) {
+            const target = document.getElementById(targetId);
+            if (target) {
+              const valueToCopy = target.dataset.realValue || target.value || target.innerText;
+              this.copyToClipboard(valueToCopy);
+            }
+          }
+        });
+      },
+      setButtonLoading(button, isLoading) {
+        if (!button) return;
+        if (isLoading) {
+          button.classList.add("btn-loading");
+          button.disabled = true;
+          button.dataset.originalText = button.textContent || "";
+        } else {
+          button.classList.remove("btn-loading");
+          button.disabled = false;
+          if (button.dataset.originalText) {
+            button.textContent = button.dataset.originalText;
+          }
+        }
+      },
+      disableButton(button) {
+        if (!button) return;
+        button.disabled = true;
+        button.classList.add("btn-disabled");
+      },
+      enableButton(button) {
+        if (!button) return;
+        button.disabled = false;
+        button.classList.remove("btn-disabled");
+      },
+      setCardLoading(card, isLoading) {
+        if (!card) return;
+        if (isLoading) {
+          card.classList.add("card-loading");
+        } else {
+          card.classList.remove("card-loading");
+        }
+      },
+      animateValue(obj, start, end, duration = 1500, suffix = "") {
+        const textWithoutHtml = obj.innerHTML.replace(/<[^>]*>?/gm, "");
+        const currentVal = parseInt(textWithoutHtml.replace(/[^0-9.-]+/g, "")) || 0;
+        const actualStart = start !== null ? start : currentVal;
+        if (actualStart === end) {
+          obj.innerHTML = `${end.toLocaleString()}${suffix}`;
+          return;
+        }
+        let startTimestamp = null;
+        const step = /* @__PURE__ */ __name((timestamp) => {
+          if (!startTimestamp) startTimestamp = timestamp;
+          const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+          const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+          const current = Math.floor(easeProgress * (end - actualStart) + actualStart);
+          obj.innerHTML = `${current.toLocaleString()}${suffix}`;
+          if (progress < 1) {
+            window.requestAnimationFrame(step);
+          } else {
+            obj.innerHTML = `${end.toLocaleString()}${suffix}`;
+          }
+        }, "step");
+        window.requestAnimationFrame(step);
+      }
+    };
+  }
+});
+
+// frontend/core/ui.ts
+var ui_exports = {};
+__export(ui_exports, {
+  UI: () => UI
+});
+var init_ui = __esm({
+  "frontend/core/ui.ts"() {
+    "use strict";
+    init_ui_core();
+  }
+});
+
+// frontend/shared/utils/loader.ts
+var loader_exports = {};
+__export(loader_exports, {
+  Loader: () => Loader
+});
+var Loader;
+var init_loader = __esm({
+  "frontend/shared/utils/loader.ts"() {
+    "use strict";
+    Loader = {
+      loaded: /* @__PURE__ */ new Set(),
+      loading: /* @__PURE__ */ new Map(),
+      loadCSS(path) {
+        if (this.loaded.has(path)) return Promise.resolve();
+        if (this.loading.has(path)) return this.loading.get(path);
+        const promise = new Promise((resolve, _reject) => {
+          const link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = path;
+          link.onload = () => {
+            this.loaded.add(path);
+            this.loading.delete(path);
+            resolve();
+          };
+          link.onerror = (_e) => {
+            this.loading.delete(path);
+            this.loaded.add(path);
+            console.warn(
+              `[Loader] Warning: Failed to load CSS: ${path}. Proceeding without it.`
+            );
+            resolve();
+          };
+          document.head.appendChild(link);
+        });
+        this.loading.set(path, promise);
+        return promise;
+      }
+    };
+  }
+});
+
+// frontend/config.ts
+var protocol, host, API_BASE2, CONFIG;
+var init_config = __esm({
+  "frontend/config.ts"() {
+    "use strict";
+    protocol = window.location.protocol;
+    host = window.location.host;
+    API_BASE2 = "/api/twitch";
+    CONFIG = {
+      domain: host,
+      siteUrl: `${protocol}//${host}`,
+      API_URL: API_BASE2,
+      twitchRedirectUri: `${protocol}//${host}/auth/twitch/callback`
+    };
+    Object.freeze(CONFIG);
+  }
+});
+
+// frontend/core/auth.ts
+var auth_exports = {};
+__export(auth_exports, {
+  Auth: () => Auth
+});
+var Auth;
+var init_auth = __esm({
+  "frontend/core/auth.ts"() {
+    "use strict";
+    init_config();
+    Auth = {
+      getSession() {
+        try {
+          const item = localStorage.getItem("twitch_api_session");
+          return item ? JSON.parse(item) : null;
+        } catch (_e) {
+          return null;
+        }
+      },
+      saveSession(sessionData) {
+        localStorage.setItem("twitch_api_session", JSON.stringify(sessionData));
+      },
+      clearSession() {
+        localStorage.removeItem("twitch_api_session");
+      },
+      logout() {
+        this.clearSession();
+        window.location.href = window.location.origin + window.location.pathname;
+      },
+      async validateCurrentToken(credentialParam) {
+        try {
+          if (!credentialParam) return { valid: false, reason: "no_credentials" };
+          const response = await fetch(`${CONFIG.API_URL}/system/validate?${credentialParam}`);
+          if (!response.ok) {
+            if (response.status === 401) {
+              return { valid: false, status: 401, reason: "unauthorized" };
+            }
+            console.warn(`Server error ${response.status} during validation.`);
+            return {
+              valid: false,
+              error: true,
+              status: response.status,
+              reason: "server_error"
+            };
+          }
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.indexOf("application/json") !== -1) {
+            const data = await response.json();
+            return data.valid ? data : { valid: false, reason: "invalid_response" };
+          }
+          return { valid: true };
+        } catch (e) {
+          console.error("Network error validating token:", e);
+          return { valid: true, error: true, reason: "network_error" };
+        }
+      },
+      async syncApiKey(session) {
+        if (!session.userId) return session;
+        try {
+          const credentialParam = session.token ? `token=${session.token}` : `apiKey=${session.apiKey}`;
+          const validation = await this.validateCurrentToken(credentialParam);
+          if (validation && typeof validation === "object" && "apiKey" in validation) {
+            const serverApiKey = validation.apiKey;
+            if (serverApiKey && serverApiKey !== session.apiKey) {
+              session.apiKey = serverApiKey;
+              this.saveSession(session);
+              Promise.resolve().then(() => (init_ui(), ui_exports)).then(({ UI: UI2 }) => {
+                UI2.showToast("Tu API Key ha sido actualizada", "info");
+              });
+            }
+          }
+          return session;
+        } catch (_e) {
+          return session;
+        }
+      },
+      parseUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        const savedSession = this.getSession();
+        const session = {
+          login: params.get("login") || savedSession?.login || "",
+          displayName: params.get("displayName") || savedSession?.displayName || "",
+          profile_image_url: savedSession?.profile_image_url || "",
+          token: params.get("token") || savedSession?.token,
+          apiKey: params.get("apiKey") || savedSession?.apiKey,
+          userId: params.get("userId") || savedSession?.userId,
+          isNewLogin: !!params.get("token") || !!params.get("apiKey")
+        };
+        return session;
+      },
+      setupLoginButton(loginBtnId) {
+        const loginBtn = document.getElementById(loginBtnId);
+        if (loginBtn) {
+          loginBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            this.relogin();
+          });
+        }
+      },
+      relogin() {
+        this.clearSession();
+        let currentUrl = window.location.origin + window.location.pathname;
+        currentUrl = currentUrl.replace("://www.", "://");
+        const authPath = `${CONFIG.API_URL}/auth/twitch`;
+        window.location.href = `${authPath}?redirect_origin=${encodeURIComponent(currentUrl)}`;
+      }
+    };
+  }
+});
+
+// frontend/features/dashboard/clips.ts
+init_ui();
+
+// frontend/shared/i18n/messages.ts
+var Messages = {
+  Common: {
+    loading: '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...',
+    error: /* @__PURE__ */ __name((msg) => `<div class="error-msg"><i class="fa-solid fa-triangle-exclamation"></i> ${msg}</div>`, "error"),
+    networkError: "Error de conexi\xF3n",
+    sessionExpiredMsg: "Tu sesi\xF3n ha expirado. Por favor, inicia sesi\xF3n de nuevo.",
+    errorLoadingUI: /* @__PURE__ */ __name((msg) => `Error cargando interfaz: ${msg}`, "errorLoadingUI"),
+    viewBtn: '<i class="fa-solid fa-eye"></i> Ver',
+    saveBtn: '<i class="fa-solid fa-save"></i> Guardar',
+    cancelBtn: '<i class="fa-solid fa-xmark"></i> Cancelar',
+    connectionError: "Error de conexi\xF3n",
+    welcome: /* @__PURE__ */ __name((name) => `Bienvenido, ${name}`, "welcome")
+  }
+};
+
+// frontend/features/dashboard/clips/messages.ts
+var ClipsMessages = {
+  loading: '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Cargando clips...</div>',
+  empty: `
+        <div class="empty-state">
+            <i class="fa-solid fa-film"></i>
+            <p>No hay clips recientes</p>
+        </div>
+    `,
+  loadError: "\u26A0\uFE0F Error al cargar clips"
+};
+
+// frontend/shared/i18n/authMessages.ts
+var AuthMessages = {
+  sessionExpired: "Tu sesi\xF3n ha expirado",
+  validationError: "Error al validar sesi\xF3n",
+  sessionError: "Error de sesi\xF3n. Recarga la p\xE1gina.",
+  expiredTitle: "Sesi\xF3n Expirada",
+  expiredMsg: "Tu credencial ha caducado. Por favor, inicia sesi\xF3n de nuevo.",
+  reloginBtn: '<i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesi\xF3n',
+  expired: "Sesi\xF3n expirada. Por favor, inicia sesi\xF3n de nuevo."
+};
+
+// frontend/features/dashboard/dashboard-config.ts
+var API_BASE = "/api/twitch";
+var DASHBOARD_CONFIG = {
+  API_ENDPOINTS: {
+    BASE: API_BASE,
+    MAGIC8: `${API_BASE}/minigames/magic8`,
+    ANALYTICS: `${API_BASE}/dashboard/analytics`,
+    REGENERATE_KEY: `${API_BASE}/system/regenerate-key`,
+    FEEDBACK: `${API_BASE}/system/feedback`,
+    CHATTERS: `${API_BASE}/dashboard/chatters`,
+    USER_INFO: `${API_BASE}/dashboard/user-info`,
+    SEND_MESSAGE: `${API_BASE}/send-message`,
+    CLIPS: `${API_BASE}/dashboard/get-clips`,
+    ACTIVITY: `${API_BASE}/dashboard/activity`,
+    CLEAR_DATA: `${API_BASE}/dashboard/clear-data`,
+    DELETE_ACCOUNT: `${API_BASE}/dashboard/delete-account`,
+    HEALTH: `/api/twitch/system/health`,
+    DUEL: `${API_BASE}/minigames/duel`
+  },
+  IGNORED_BOTS: /* @__PURE__ */ new Set([
+    "nightbot",
+    "streamelements",
+    "fossabot",
+    "moobot",
+    "wizebot",
+    "soundalert",
+    "rainmaker",
+    "botrixoficial",
+    "trackerggbot",
+    "streamlabs",
+    "cloudbot",
+    "deepbot",
+    "phantombot",
+    "streamerbot",
+    "stayhydratedbot",
+    "commanderroot",
+    "own3d",
+    "streamholics",
+    "anotherttvviewer",
+    "electricallongboard"
+  ]),
+  DOM_IDS: {
+    MAGIC8: {
+      INPUT: "magic8-question",
+      BUTTON: "btn-ask-magic8",
+      RESPONSE: "magic8-response",
+      COMMAND_OUTPUT: "magic8-command-output",
+      BOT_SELECT: "magic8-bot-select",
+      MOOD_SELECT: "magic8-mood-select"
+    },
+    DUEL: {
+      INPUT_TARGET: "duel-target",
+      INPUT_CHALLENGER: "duel-challenger",
+      BUTTON: "btn-fight-duel",
+      RESPONSE: "duel-response"
+    }
+  }
+};
+
+// frontend/services/cacheService.ts
+var CACHE_TTL = 6e4;
+var _CacheService = class _CacheService {
+  constructor() {
+    this.cache = /* @__PURE__ */ new Map();
+    setInterval(() => this.cleanup(), 6e4);
+  }
+  set(key, data, ttl) {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl
+    });
+  }
+  get(key) {
+    const entry = this.cache.get(key);
+    if (!entry) {
+      return null;
+    }
+    const now = Date.now();
+    const age = now - entry.timestamp;
+    if (age > entry.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+    return entry.data;
+  }
+  has(key) {
+    return this.get(key) !== null;
+  }
+  clear(key) {
+    this.cache.delete(key);
+  }
+  clearAll() {
+    this.cache.clear();
+  }
+  cleanup() {
+    const now = Date.now();
+    for (const [key, entry] of this.cache.entries()) {
+      const age = now - entry.timestamp;
+      if (age > entry.ttl) {
+        this.cache.delete(key);
+      }
+    }
+  }
+  getStats() {
+    return {
+      size: this.cache.size
+    };
+  }
+};
+__name(_CacheService, "CacheService");
+var CacheService = _CacheService;
+var cache = new CacheService();
+
+// frontend/features/dashboard/clips.ts
+var { API_ENDPOINTS } = DASHBOARD_CONFIG;
+var ClipsModule = {
   session: null,
   initialized: false,
   allClips: [],
@@ -21,8 +506,8 @@ const ClipsModule = {
   init(session) {
     this.session = session;
     if (!this.cssLoaded) {
-      import("../../shared/utils/loader.js").then(({ Loader }) => {
-        Loader.loadCSS("css/sections/clips.css");
+      Promise.resolve().then(() => (init_loader(), loader_exports)).then(({ Loader: Loader2 }) => {
+        Loader2.loadCSS("css/sections/clips.css");
       });
       this.cssLoaded = true;
     }
@@ -181,7 +666,7 @@ const ClipsModule = {
                 </div>
             `;
       document.getElementById("relogin-clips-btn")?.addEventListener("click", () => {
-        import("../../core/auth.js").then((m) => m.Auth.relogin());
+        Promise.resolve().then(() => (init_auth(), auth_exports)).then((m) => m.Auth.relogin());
       });
     } else {
       container.innerHTML = Messages.Common.error(error.message);

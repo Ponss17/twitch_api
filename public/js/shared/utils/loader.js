@@ -1,4 +1,5 @@
-const Loader = {
+// frontend/shared/utils/loader.ts
+var Loader = {
   loaded: /* @__PURE__ */ new Set(),
   loading: /* @__PURE__ */ new Map(),
   loadCSS(path) {
