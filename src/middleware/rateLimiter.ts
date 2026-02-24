@@ -1,48 +1,38 @@
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { Request, Response } from 'express';
+import { RATE_LIMITS } from '../config/limits';
 import { MESSAGES } from '../config/messages';
 import { isPublicRoute } from '../utils/routeHelpers';
 import { AuthenticatedRequest } from '../types/twitch';
 
 const limiter = rateLimit({
     windowMs: 1 * 60 * 1000,
-    max: (req: Request) => {
-        const apiUser = req.res?.locals?.apiUser;
+    max: (req: Request, res: Response) => {
+        const apiUser = res.locals?.apiUser;
+        const isApiKeyRequest = res.locals?.isApiKeyRequest;
 
-        // 1. Prioridad: Usuario Identificado (API Key o Sesión del Dashboard)
-        if (apiUser) {
-            return apiUser.customRateLimit || 120;
-        }
-
-        // 2. Sesión autenticada (Bearer token / Dashboard)
-        const userId = (req as AuthenticatedRequest).userId;
-        if (userId) {
-            return 120;
-        }
-
-        // 3. Excepciones de Sistema / Estáticos (Alta disponibilidad)
+        // 1. Excepciones de Sistema / Estáticos (Alta disponibilidad)
         const path = req.originalUrl.split('?')[0];
         if (isPublicRoute(path)) {
-            return 1000;
+            return RATE_LIMITS.PUBLIC;
         }
 
-        // 4. Bots Confiables
-        const ua = req.get('user-agent') || '';
-        if (
-            ua.includes('Nightbot') ||
-            ua.includes('StreamElements') ||
-            ua.includes('Streamlabs') ||
-            ua.includes('Moobot') ||
-            ua.includes('Fossabot')
-        ) {
-            return 60;
+        // 2. Prioridad: Usuario con API Key (Llamada externa)
+        if (isApiKeyRequest && apiUser) {
+            return apiUser.customRateLimit || RATE_LIMITS.DEFAULT;
         }
 
-        // 5. Bloqueo Total (Peticiones anónimas a rutas protegidas)
+        // 3. Sesión autenticada (Dashboard oficial)
+        const userId = (req as AuthenticatedRequest).userId;
+        if (userId) {
+            return RATE_LIMITS.DASHBOARD;
+        }
+
+        // 4. Bloqueo Total (Peticiones no autorizadas)
         return 0;
     },
-    keyGenerator: (req: Request): string => {
-        const apiUser = req.res?.locals?.apiUser;
+    keyGenerator: (req: Request, res: Response): string => {
+        const apiUser = res.locals?.apiUser;
         const userId = (req as AuthenticatedRequest).userId;
 
         if (apiUser) {
@@ -51,7 +41,6 @@ const limiter = rateLimit({
         if (userId) {
             return `sess:${userId}`;
         }
-        // Usar ipKeyGenerator para manejo correcto de IPv6
         return ipKeyGenerator(req.ip || 'unknown');
     },
     handler: (req: Request, res: Response) => {

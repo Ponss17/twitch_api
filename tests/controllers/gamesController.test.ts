@@ -1,7 +1,8 @@
 import { Response } from 'express';
 
 jest.mock('@/services/infrastructure/dbService', () => ({
-    addUserActivity: jest.fn().mockResolvedValue(undefined)
+    addUserActivity: jest.fn().mockResolvedValue(undefined),
+    incrementUserStats: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('@/services/games/magic8Service', () => ({

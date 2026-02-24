@@ -7,6 +7,7 @@ import { MESSAGES } from '../../config/messages';
 import { logger } from '../../utils/logger';
 
 import { AuthenticatedRequest } from '../../types/twitch';
+import { RATE_LIMITS } from '../../config/limits';
 
 import { safeString } from '../../utils/validationHelpers';
 
@@ -168,7 +169,7 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
         const followers = await apiService.getFollowersCount(info.id, token || '');
 
         const apiUser = res.locals.apiUser;
-        const rateLimit = apiUser?.customRateLimit || 120;
+        const rateLimit = apiUser?.customRateLimit || RATE_LIMITS.DEFAULT;
 
         res.json({
             ...info,

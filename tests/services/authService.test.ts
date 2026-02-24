@@ -12,7 +12,12 @@ jest.mock('@/utils/logger', () => ({
 
 import axios from 'axios';
 import * as dbService from '@/services/infrastructure/dbService';
-import { getValidToken, regenerateApiKey, refreshUserToken } from '@/services/auth/authService';
+import {
+    getValidToken,
+    regenerateApiKey,
+    refreshUserToken,
+    handleCallback
+} from '@/services/auth/authService';
 import { StoredUser } from '@/types/twitch';
 
 const mockStoredUser: StoredUser = {
@@ -113,6 +118,77 @@ describe('authService', () => {
             (dbService.getUser as jest.Mock).mockResolvedValue(null);
 
             await expect(refreshUserToken('999')).rejects.toThrow();
+        });
+    });
+
+    describe('handleCallback', () => {
+        const mockTwitchUser = {
+            id: '123',
+            login: 'testuser',
+            display_name: 'Test User',
+            profile_image_url: 'http://img.url'
+        };
+
+        const mockTokenResponse = {
+            data: {
+                access_token: 'new_access_token',
+                refresh_token: 'new_refresh_token',
+                expires_in: 3600
+            }
+        };
+
+        const mockUserResponse = {
+            data: {
+                data: [mockTwitchUser]
+            }
+        };
+
+        it('should preserve custom user data when user already exists', async () => {
+            const existingUser: StoredUser = {
+                ...mockStoredUser,
+                customRateLimit: 500,
+                isActive: false,
+                blockedReason: 'Test reason',
+                stats: { clips: 10 },
+                totalRequests: 10,
+                lastActive: '2026-02-23T00:00:00.000Z'
+            };
+
+            (dbService.getUser as jest.Mock).mockResolvedValue(existingUser);
+            (axios.post as jest.Mock).mockResolvedValue(mockTokenResponse);
+            (axios.get as jest.Mock).mockResolvedValue(mockUserResponse);
+
+            const result = await handleCallback('mock_code', 'mock_state');
+
+            expect(result.user.id).toBe('123');
+            expect(dbService.saveUser).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    userId: '123',
+                    customRateLimit: 500,
+                    isActive: false,
+                    blockedReason: 'Test reason',
+                    stats: { clips: 10 },
+                    totalRequests: 10,
+                    lastActive: '2026-02-23T00:00:00.000Z',
+                    createdAt: '2026-01-01T00:00:00.000Z' // preserved
+                })
+            );
+        });
+
+        it('should use default values for new users', async () => {
+            (dbService.getUser as jest.Mock).mockResolvedValue(null);
+            (axios.post as jest.Mock).mockResolvedValue(mockTokenResponse);
+            (axios.get as jest.Mock).mockResolvedValue(mockUserResponse);
+
+            await handleCallback('mock_code', 'mock_state');
+
+            expect(dbService.saveUser).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    userId: '123',
+                    isActive: true, // default
+                    customRateLimit: undefined // default
+                })
+            );
         });
     });
 });
