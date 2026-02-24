@@ -63,6 +63,10 @@ describe('commandsController', () => {
             const req = mockReq({ query: { channel: 'testchannel' } });
             const res = mockRes();
 
+            (apiService.getUserId as jest.Mock).mockResolvedValue('test_id');
+            (apiService.getChannelInfo as jest.Mock).mockResolvedValue({
+                title: 'Stream Original'
+            });
             (apiService.createClip as jest.Mock).mockResolvedValue('https://clips.twitch.tv/test');
 
             await createClip(req, res);
@@ -70,7 +74,62 @@ describe('commandsController', () => {
             expect(dbService.incrementUserStats).toHaveBeenCalledWith('123', 'clips');
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
-                expect.objectContaining({ type: 'clip', user: 'TestUser' })
+                expect.objectContaining({
+                    type: 'clip',
+                    user: 'TestUser',
+                    detail: 'testchannel (Stream Original)'
+                })
+            );
+        });
+
+        it('should use custom title if provided in q', async () => {
+            const req = mockReq({
+                query: {
+                    channel: 'testchannel',
+                    q: 'Mi Jugada',
+                    template: 'Clip: {title} en {url}'
+                }
+            });
+            const res = mockRes();
+
+            (apiService.createClip as jest.Mock).mockResolvedValue('https://clips.twitch.tv/test');
+
+            await createClip(req, res);
+
+            expect(res.send).toHaveBeenCalledWith(
+                'Clip: Mi Jugada en https://clips.twitch.tv/test'
+            );
+            expect(dbService.addUserActivity).toHaveBeenCalledWith(
+                '123',
+                expect.objectContaining({
+                    detail: 'testchannel (Mi Jugada)'
+                })
+            );
+        });
+
+        it('should fallback to stream title if no q/title provided', async () => {
+            const req = mockReq({
+                query: {
+                    channel: 'testchannel',
+                    template: 'Stream: {title}'
+                }
+            });
+            const res = mockRes();
+
+            (apiService.getUserId as jest.Mock).mockResolvedValue('test_id');
+            (apiService.getChannelInfo as jest.Mock).mockResolvedValue({
+                title: 'Valorant con amigos'
+            });
+            (apiService.createClip as jest.Mock).mockResolvedValue('https://clips.twitch.tv/test');
+
+            await createClip(req, res);
+
+            expect(res.send).toHaveBeenCalledWith('Stream: Valorant con amigos');
+            expect(dbService.addUserActivity).toHaveBeenCalledWith(
+                '123',
+                expect.objectContaining({
+                    detail: 'testchannel (Valorant con amigos)'
+                })
             );
         });
 
