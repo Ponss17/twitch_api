@@ -37,21 +37,35 @@ const trackCommand = async <T>(
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     const channel = safeString(req.query.channel);
     const userId = req.userId;
+    const customTitle = safeString(req.query.q) || safeString(req.query.title);
 
     if (!channel) return res.status(400).send(MESSAGES.COMMANDS.MISSING_PARAMS);
 
     return await trackCommand(userId, async () => {
+        let finalTitle = customTitle;
+
         const clipUrl = await withTwitchAuth(
             req,
             res,
             async (token) => {
+                if (!finalTitle) {
+                    try {
+                        const broadcasterId = await apiService.getUserId(channel, token);
+                        const channelInfo = await apiService.getChannelInfo(broadcasterId, token);
+                        finalTitle = channelInfo.title || 'Clip de ' + channel;
+                    } catch (error) {
+                        logger.warn('Could not fetch stream title for clip fallback:', error);
+                        finalTitle = 'Clip de ' + channel;
+                    }
+                }
+
                 const url = await apiService.createClip(channel, token);
                 if (userId) {
                     await dbService.incrementUserStats(userId, 'clips');
                     await dbService.addUserActivity(userId, {
                         type: 'clip',
                         user: req.displayName || 'Streamer',
-                        detail: channel
+                        detail: finalTitle ? `${channel} (${finalTitle})` : channel
                     });
                 }
                 return url;
@@ -63,7 +77,10 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
             const template = safeString(req.query.template);
             if (template) {
                 const message = sanitizeHtml(
-                    template.replace('{url}', clipUrl).replace('{channel}', channel)
+                    template
+                        .replace('{url}', clipUrl)
+                        .replace('{channel}', channel)
+                        .replace('{title}', finalTitle || '')
                 );
                 return res.send(message);
             }
