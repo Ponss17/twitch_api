@@ -25,11 +25,19 @@
 
 @media (max-width: 360px) {
     .response-card {
-        padding: 15px;
-        font-size: 0.95rem;
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+        gap: 15px;
+    }
+
+    .response-card i {
+        font-size: 2rem;
     }
 
     .duel-loading {
         font-size: 0.9rem;
+        flex-direction: column;
+        text-align: center;
     }
 }
