@@ -35,8 +35,8 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         req.displayName = user.displayName;
         req.twitchToken = user.accessToken;
 
+        // No esperamos a que termine para no bloquear el hilo de ejecución
         throttledUpdateLastActive(user.userId);
-
         return next();
     }
 

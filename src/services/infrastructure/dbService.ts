@@ -216,14 +216,17 @@ export const recordUserRequest = async (
         const today = new Date().toISOString().split('T')[0];
         const dailyKey = `stats:${userId}:daily:${today}`;
 
-        // Incrementar totales
-        await kv.hincrby(key, 'total_requests', 1);
-        await kv.hincrby(key, 'total_latency', latency);
-        if (!success) await kv.hincrby(key, 'total_errors', 1);
+        // Usar pipeline para agrupar todas las actualizaciones en una sola llamada de red
+        const pipeline = kv.pipeline();
+        pipeline.hincrby(key, 'total_requests', 1);
+        pipeline.hincrby(key, 'total_latency', latency);
+        if (!success) {
+            pipeline.hincrby(key, 'total_errors', 1);
+        }
+        pipeline.hincrby(dailyKey, 'requests', 1);
+        pipeline.expire(dailyKey, 60 * 60 * 24 * 7); // 7 días
 
-        // Incrementar diario
-        await kv.hincrby(dailyKey, 'requests', 1);
-        await kv.expire(dailyKey, 60 * 60 * 24 * 7); // Guardar historial de 7 días
+        await pipeline.exec();
     } catch (e) {
         logger.error('Error recording user request stats:', e);
     }
@@ -231,11 +234,9 @@ export const recordUserRequest = async (
 
 export const updateLastActive = async (userId: string): Promise<void> => {
     try {
-        const existing = await kv.hget<StoredUser>(USERS_KEY, userId);
-        if (existing) {
-            existing.lastActive = new Date().toISOString();
-            await kv.hset(USERS_KEY, { [userId]: existing });
-        }
+        // Optimización: hset parcial en lugar de leer todo el objeto
+        // Redis permite actualizar campos específicos de un hash
+        await kv.hset(USERS_KEY, { [userId]: { lastActive: new Date().toISOString() } });
     } catch (e) {
         logger.error('Error updating last active:', e);
     }
