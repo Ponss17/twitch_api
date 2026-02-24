@@ -1,5 +1,19 @@
-const i={render(n){const o=document.getElementById(n);if(!o)return;const t=new Date().getFullYear(),e=window.location.origin,a=window.location.hostname,r=`
+const FooterComponent = {
+  render(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const year = (/* @__PURE__ */ new Date()).getFullYear();
+    const origin = window.location.origin;
+    const hostname = window.location.hostname;
+    const html = `
             <div class="footer-content">
-                <p>&copy; ${t} <a href="${e}" target="_blank" rel="noopener">${a}</a>. Creado para la comunidad. No afiliado con Twitch o Amazon.</p>
+                <p>&copy; ${year} <a href="${origin}" target="_blank" rel="noopener">${hostname}</a>. Creado para la comunidad. No afiliado con Twitch o Amazon.</p>
             </div>
-        `;o.innerHTML=r,o.classList.add("app-footer")}};export{i as FooterComponent};
+        `;
+    container.innerHTML = html;
+    container.classList.add("app-footer");
+  }
+};
+export {
+  FooterComponent
+};

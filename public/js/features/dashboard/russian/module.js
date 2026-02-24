@@ -1,7 +1,106 @@
-import{DASHBOARD_CONFIG as r}from"../dashboard-config.js";const f={session:null,gameEndpoint:`${r.API_ENDPOINTS.BASE}/minigames/russian`,cssLoaded:!1,init(s){this.session=s,this.cssLoaded||(import("../../../shared/utils/loader.js").then(({Loader:e})=>{e.loadCSS("css/sections/russian.css")}),this.cssLoaded=!0)},activate(){const s=document.getElementById("btn-fire-russian");s&&!s.dataset.listener&&(s.addEventListener("click",()=>this.pullTrigger()),s.dataset.listener="true")},deactivate(){},setLoading(s){const e=document.getElementById("btn-fire-russian"),n=document.getElementById("russian-response"),o=document.getElementById("russian-gun-icon");s?(e&&(e.disabled=!0),o&&(o.classList.add("fa-shake"),o.style.color="var(--accent)"),n&&(n.className="response-card active",n.innerHTML=`
+import { DASHBOARD_CONFIG } from "../dashboard-config.js";
+const RussianModule = {
+  session: null,
+  gameEndpoint: `${DASHBOARD_CONFIG.API_ENDPOINTS.BASE}/minigames/russian`,
+  cssLoaded: false,
+  init(session) {
+    this.session = session;
+    if (!this.cssLoaded) {
+      import("../../../shared/utils/loader.js").then(({ Loader }) => {
+        Loader.loadCSS("css/sections/russian.css");
+      });
+      this.cssLoaded = true;
+    }
+  },
+  activate() {
+    const btn = document.getElementById("btn-fire-russian");
+    if (btn && !btn.dataset.listener) {
+      btn.addEventListener("click", () => this.pullTrigger());
+      btn.dataset.listener = "true";
+    }
+  },
+  deactivate() {
+  },
+  setLoading(isLoading) {
+    const btn = document.getElementById("btn-fire-russian");
+    const responseEl = document.getElementById("russian-response");
+    const gunIcon = document.getElementById("russian-gun-icon");
+    if (isLoading) {
+      if (btn) btn.disabled = true;
+      if (gunIcon) {
+        gunIcon.classList.add("fa-shake");
+        gunIcon.style.color = "var(--accent)";
+      }
+      if (responseEl) {
+        responseEl.className = "response-card active";
+        responseEl.innerHTML = `
                     <i class="fa-solid fa-spinner fa-spin"></i>
                     <span>Girando el cilindro...</span>
-                `)):e&&(e.disabled=!1)},showResponse(s,e){const n=document.getElementById("russian-response"),o=document.getElementById("russian-gun-icon");if(n){const i=e==="success"?"fa-circle-check":"fa-skull";n.className=`response-card ${e} active`,n.innerHTML=`
-                <i class="fa-solid ${i}"></i>
-                <span>${s}</span>
-            `,o&&(o.classList.remove("fa-shake"),e==="error"?(o.style.color="var(--danger)",o.classList.replace("fa-gun","fa-skull")):o.style.color="var(--success)",setTimeout(()=>{o.classList.replace("fa-skull","fa-gun"),o.style.color="var(--text-muted)"},3e3))}},async pullTrigger(){if(this.session){this.setLoading(!0);try{const{apiKey:s,token:e}=this.session,n=new URLSearchParams({user:this.session.login,channel:this.session.login,hardcore:"false",format:"json"});s?n.set("apiKey",s):e&&n.set("token",e);const o={};e&&(o.Authorization=`Bearer ${e}`);const i=await fetch(`${this.gameEndpoint}?${n.toString()}`,{headers:o});if(i.ok){const t=await i.json();this.showResponse(t.message,t.status==="dead"?"error":"success")}else{const{formatApiError:t}=await import("../../../shared/utils/api-errors.js"),a=await t(i);this.showResponse(`Error: ${a}`,"error")}}catch(s){console.error("Error in Russian Roulette:",s),this.showResponse("La pistola se encasquill\xF3 (Error de API)","error")}finally{this.setLoading(!1)}}}};export{f as RussianModule};
+                `;
+      }
+    } else {
+      if (btn) btn.disabled = false;
+    }
+  },
+  showResponse(text, type) {
+    const responseEl = document.getElementById("russian-response");
+    const gunIcon = document.getElementById("russian-gun-icon");
+    if (responseEl) {
+      const icon = type === "success" ? "fa-circle-check" : "fa-skull";
+      responseEl.className = `response-card ${type} active`;
+      responseEl.innerHTML = `
+                <i class="fa-solid ${icon}"></i>
+                <span>${text}</span>
+            `;
+      if (gunIcon) {
+        gunIcon.classList.remove("fa-shake");
+        if (type === "error") {
+          gunIcon.style.color = "var(--danger)";
+          gunIcon.classList.replace("fa-gun", "fa-skull");
+        } else {
+          gunIcon.style.color = "var(--success)";
+        }
+        setTimeout(() => {
+          gunIcon.classList.replace("fa-skull", "fa-gun");
+          gunIcon.style.color = "var(--text-muted)";
+        }, 3e3);
+      }
+    }
+  },
+  async pullTrigger() {
+    if (!this.session) return;
+    this.setLoading(true);
+    try {
+      const { apiKey, token } = this.session;
+      const params = new URLSearchParams({
+        user: this.session.login,
+        channel: this.session.login,
+        hardcore: "false",
+        format: "json"
+      });
+      if (apiKey) params.set("apiKey", apiKey);
+      else if (token) params.set("token", token);
+      const headers = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const response = await fetch(`${this.gameEndpoint}?${params.toString()}`, {
+        headers
+      });
+      if (response.ok) {
+        const data = await response.json();
+        this.showResponse(data.message, data.status === "dead" ? "error" : "success");
+      } else {
+        const { formatApiError } = await import("../../../shared/utils/api-errors.js");
+        const errorMsg = await formatApiError(response);
+        this.showResponse(`Error: ${errorMsg}`, "error");
+      }
+    } catch (error) {
+      console.error("Error in Russian Roulette:", error);
+      this.showResponse("La pistola se encasquill\xF3 (Error de API)", "error");
+    } finally {
+      this.setLoading(false);
+    }
+  }
+};
+export {
+  RussianModule
+};

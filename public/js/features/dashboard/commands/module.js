@@ -1,1 +1,146 @@
-var B=Object.defineProperty;var y=(e,t)=>B(e,"name",{value:t,configurable:!0});import{CONFIG as T}from"../../../config.js";import{DASHBOARD_CONFIG as M}from"../dashboard-config.js";const{API_ENDPOINTS:L}=M;import{CommandsMessages as f}from"./messages.js";import{CommandGenerator as S}from"../../../shared/utils/commandGenerator.js";import{COMMAND_CONFIG as I}from"./config.js";import{CommandTemplates as x}from"./templates.js";import{UI as H}from"../../../core/ui.js";window.CommandUtils={CommandGenerator:S};const j={session:null,initialized:!1,uiInitialized:!1,async init(e){this.session=e,this.session&&(this.initialized=!0)},activate(){this.uiInitialized||(this.renderCommandCards(),this.setupGenericCommands(),this.setupTestCommand(),this.uiInitialized=!0),Object.values(I).forEach(e=>{this.updateCommand(e)})},deactivate(){},renderCommandCards(){Object.values(I).forEach(e=>{const t=e,n=document.getElementById(t.containerId);n&&(n.innerHTML=x.generateCard(t))})},setupGenericCommands(){Object.values(I).forEach(e=>{const t=e,n=document.getElementById(`bot-select-${t.id}`),i=document.getElementById(`command-output-${t.id}`),o=document.getElementById(`${t.id}-template`),a=document.getElementById(`copy-format-${t.id}`);if(n&&i){const s=y(()=>this.updateCommand(t),"updateFn");n.addEventListener("change",s),o&&o.addEventListener("input",s),a&&a.addEventListener("change",s),t.extraSelectors&&t.extraSelectors.forEach(r=>{const c=document.getElementById(`extra-${t.id}-${r.id}`);c&&c.addEventListener("change",s)}),s()}})},updateCommand(e){const t=document.getElementById(`bot-select-${e.id}`),n=document.getElementById(`command-output-${e.id}`),i=document.getElementById(`${e.id}-template`),o=document.getElementById(`copy-format-${e.id}`);if(!t||!n||!this.session)return;const{login:a,apiKey:s,token:r}=this.session,c=s||"",l=t.value,u=`${T.siteUrl}${L.BASE}`,m=s?`apiKey=${encodeURIComponent(s)}`:r?`token=${encodeURIComponent(r)}`:"",p=i?i.value.trim():"",d=`channel=${a}&${m}`,C={};e.extraSelectors&&e.extraSelectors.forEach(h=>{const $=document.getElementById(`extra-${e.id}-${h.id}`);$&&(C[h.id]=$.value)});const E=e.generate(u,a,m,l,p,d,C),g=(o?o.value:"full")==="full"?E.full:E.url,v=g.split(c).join("**************");n.value=v,n.dataset.realValue=g},setupTestCommand(){const e=document.getElementById("run-test-btn");if(!e)return;const t=e.cloneNode(!0);e.parentNode.replaceChild(t,e),t.addEventListener("click",async()=>{const n=document.getElementById("test-channel").value.trim(),i=document.getElementById("test-user").value.trim(),o=document.getElementById("test-result-container"),a=document.getElementById("test-result-text");if(!n||!i){o.classList.add("active","error"),o.classList.remove("success"),a.innerHTML=`<i class="fa-solid fa-circle-exclamation"></i> ${f.completeFields}`;return}if(o.classList.add("active"),o.classList.remove("success","error"),a.innerHTML=f.testing,!this.session)return;const{apiKey:s,token:r}=this.session,c=`${window.location.origin}${L.BASE}`,l=s?`apiKey=${encodeURIComponent(s)}`:r?`token=${encodeURIComponent(r)}`:"",u=`${c}/followage?user=${i}&channel=${n}&${l}`;try{const m=await fetch(u),p=await m.text(),d=H.escapeHTML(p);m.ok?(o.classList.add("success"),a.innerHTML=`<i class="fa-solid fa-check"></i> ${d}`):(o.classList.add("error"),a.innerHTML=`<i class="fa-solid fa-triangle-exclamation"></i> ${d}`)}catch(m){a.innerHTML=f.connectionError,console.error(m)}})}};export{j as CommandsModule};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CONFIG } from "../../../config.js";
+import { DASHBOARD_CONFIG } from "../dashboard-config.js";
+const { API_ENDPOINTS } = DASHBOARD_CONFIG;
+import { CommandsMessages } from "./messages.js";
+import { CommandGenerator } from "../../../shared/utils/commandGenerator.js";
+import { COMMAND_CONFIG } from "./config.js";
+import { CommandTemplates } from "./templates.js";
+import { UI } from "../../../core/ui.js";
+window.CommandUtils = { CommandGenerator };
+const CommandsModule = {
+  session: null,
+  initialized: false,
+  uiInitialized: false,
+  async init(session) {
+    this.session = session;
+    if (!this.session) return;
+    this.initialized = true;
+  },
+  activate() {
+    if (!this.uiInitialized) {
+      this.renderCommandCards();
+      this.setupGenericCommands();
+      this.setupTestCommand();
+      this.uiInitialized = true;
+    }
+    Object.values(COMMAND_CONFIG).forEach((conf) => {
+      this.updateCommand(conf);
+    });
+  },
+  deactivate() {
+  },
+  renderCommandCards() {
+    Object.values(COMMAND_CONFIG).forEach((conf) => {
+      const config = conf;
+      const container = document.getElementById(config.containerId);
+      if (!container) return;
+      container.innerHTML = CommandTemplates.generateCard(config);
+    });
+  },
+  setupGenericCommands() {
+    Object.values(COMMAND_CONFIG).forEach((conf) => {
+      const config = conf;
+      const botSelect = document.getElementById(`bot-select-${config.id}`);
+      const output = document.getElementById(`command-output-${config.id}`);
+      const templateInput = document.getElementById(`${config.id}-template`);
+      const formatSelect = document.getElementById(`copy-format-${config.id}`);
+      if (botSelect && output) {
+        const updateFn = /* @__PURE__ */ __name(() => this.updateCommand(config), "updateFn");
+        botSelect.addEventListener("change", updateFn);
+        if (templateInput) templateInput.addEventListener("input", updateFn);
+        if (formatSelect) formatSelect.addEventListener("change", updateFn);
+        if (config.extraSelectors) {
+          config.extraSelectors.forEach((sel) => {
+            const selEl = document.getElementById(`extra-${config.id}-${sel.id}`);
+            if (selEl) selEl.addEventListener("change", updateFn);
+          });
+        }
+        updateFn();
+      }
+    });
+  },
+  updateCommand(conf) {
+    const botSelect = document.getElementById(`bot-select-${conf.id}`);
+    const output = document.getElementById(`command-output-${conf.id}`);
+    const templateInput = document.getElementById(`${conf.id}-template`);
+    const formatSelect = document.getElementById(`copy-format-${conf.id}`);
+    if (!botSelect || !output) return;
+    if (!this.session) return;
+    const { login, apiKey, token } = this.session;
+    const currentApiKey = apiKey || "";
+    const bot = botSelect.value;
+    const domain = `${CONFIG.siteUrl}${API_ENDPOINTS.BASE}`;
+    const tokenParam = apiKey ? `apiKey=${encodeURIComponent(apiKey)}` : token ? `token=${encodeURIComponent(token)}` : "";
+    const templateVal = templateInput ? templateInput.value.trim() : "";
+    const queryParams = `channel=${login}&${tokenParam}`;
+    const extraValues = {};
+    if (conf.extraSelectors) {
+      conf.extraSelectors.forEach((sel) => {
+        const selEl = document.getElementById(
+          `extra-${conf.id}-${sel.id}`
+        );
+        if (selEl) extraValues[sel.id] = selEl.value;
+      });
+    }
+    const result = conf.generate(
+      domain,
+      login,
+      tokenParam,
+      bot,
+      templateVal,
+      queryParams,
+      extraValues
+    );
+    const format = formatSelect ? formatSelect.value : "full";
+    const realCmd = format === "full" ? result.full : result.url;
+    const maskedCmd = realCmd.split(currentApiKey).join("**************");
+    output.value = maskedCmd;
+    output.dataset.realValue = realCmd;
+  },
+  setupTestCommand() {
+    const btn = document.getElementById("run-test-btn");
+    if (!btn) return;
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+    newBtn.addEventListener("click", async () => {
+      const channel = document.getElementById("test-channel").value.trim();
+      const user = document.getElementById("test-user").value.trim();
+      const resultBox = document.getElementById("test-result-container");
+      const resultText = document.getElementById("test-result-text");
+      if (!channel || !user) {
+        resultBox.classList.add("active", "error");
+        resultBox.classList.remove("success");
+        resultText.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${CommandsMessages.completeFields}`;
+        return;
+      }
+      resultBox.classList.add("active");
+      resultBox.classList.remove("success", "error");
+      resultText.innerHTML = CommandsMessages.testing;
+      if (!this.session) return;
+      const { apiKey, token } = this.session;
+      const domain = `${window.location.origin}${API_ENDPOINTS.BASE}`;
+      const tokenParam = apiKey ? `apiKey=${encodeURIComponent(apiKey)}` : token ? `token=${encodeURIComponent(token)}` : "";
+      const url = `${domain}/followage?user=${user}&channel=${channel}&${tokenParam}`;
+      try {
+        const response = await fetch(url);
+        const text = await response.text();
+        const safeText = UI.escapeHTML(text);
+        if (response.ok) {
+          resultBox.classList.add("success");
+          resultText.innerHTML = `<i class="fa-solid fa-check"></i> ${safeText}`;
+        } else {
+          resultBox.classList.add("error");
+          resultText.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${safeText}`;
+        }
+      } catch (err) {
+        resultText.innerHTML = CommandsMessages.connectionError;
+        console.error(err);
+      }
+    });
+  }
+};
+export {
+  CommandsModule
+};

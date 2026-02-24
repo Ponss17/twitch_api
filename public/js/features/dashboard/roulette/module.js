@@ -1,1 +1,305 @@
-import{UI as l}from"../../../core/ui.js";import{Messages as I}from"../../../shared/i18n/messages.js";import{RouletteMessages as d}from"./messages.js";import{DASHBOARD_CONFIG as v}from"../dashboard-config.js";const{API_ENDPOINTS:b,IGNORED_BOTS:T}=v;import{TmiService as u}from"../../../services/tmiService.js";const O={session:null,chatters:[],canvas:null,ctx:null,colors:["#a855f7","#3b82f6","#10b981","#f59e0b","#ef4444","#ec4899","#6366f1"],startAngle:0,arc:0,spinTimeout:null,spinAngleStart:10,spinTime:0,spinTimeTotal:0,isSpinning:!1,isOpen:!1,isConnected:!1,isInitialized:!1,cssLoaded:!1,uiInitialized:!1,init(t){this.session=t,this.cssLoaded||(import("../../../shared/utils/loader.js").then(({Loader:e})=>{e.loadCSS("css/sections/roulette.css")}),this.cssLoaded=!0),this.isInitialized=!0},activate(){this.uiInitialized||(this.setupUI(),this.updateUI(),this.uiInitialized=!0)},deactivate(){this.isOpen=!1,this.spinTimeout&&cancelAnimationFrame(this.spinTimeout),u.removeListener("roulette"),u.disconnect(),this.isConnected=!1,this.isSpinning=!1},setupUI(){if(this.canvas=document.getElementById("roulette-canvas"),!this.canvas)return;this.ctx=this.canvas.getContext("2d");const t=document.getElementById("btn-spin-roulette"),e=document.getElementById("toggle-roulette"),s=document.getElementById("btn-refresh-roulette"),i=document.getElementById("close-winner-display");t&&!t.dataset.listener&&(t.addEventListener("click",()=>this.spin()),t.dataset.listener="true"),e&&!e.dataset.listener&&(e.addEventListener("click",()=>this.toggleEntries()),e.dataset.listener="true"),s&&!s.dataset.listener&&(s.addEventListener("click",()=>{this.loadChatters(),l.showToast(d.updatedRaw,"success","fa-check")}),s.dataset.listener="true"),i&&!i.dataset.listener&&(i.addEventListener("click",()=>{document.getElementById("roulette-winner-display")?.classList.add("hidden")}),i.dataset.listener="true"),this.drawEmptyWheel()},toggleEntries(){this.isOpen=!this.isOpen;const t=document.getElementById("toggle-roulette");t&&(t.className=this.isOpen?"btn-icon btn-warning":"btn-icon btn-success",t.innerHTML=this.isOpen?'<i class="fa-solid fa-pause"></i>':'<i class="fa-solid fa-play"></i>'),this.isOpen?(l.showToast(d.openRaw,"success","fa-door-open"),this.loadChatters(),this.connectTmi()):(l.showToast(d.closedRaw,"warning","fa-door-closed"),u.disconnect(),this.isConnected=!1)},async connectTmi(){if(this.isConnected||!this.session)return;const t=this.session.token?{username:this.session.login,token:this.session.token}:void 0;try{await u.connect(this.session.login,t),this.isConnected=!0,u.addListener("roulette",(e,s,i)=>{if(this.isSpinning||!this.isOpen)return;const n=s.username;T.has(n.toLowerCase())||this.chatters.some(o=>o.user_login.toLowerCase()===n.toLowerCase())||(this.chatters.push({user_login:n,user_name:s["display-name"]||n}),this.updateUI(),this.pulseCounter())})}catch(e){console.error("Roulette TMI Error:",e),l.showToast(I.Common.connectionError||"Error connecting to chat","error"),this.toggleEntries()}},pulseCounter(){const t=document.getElementById("roulette-count");t&&(t.classList.add("count-pulse"),setTimeout(()=>t.classList.remove("count-pulse"),500))},updateUI(){const t=document.getElementById("roulette-count");t&&(t.textContent=String(this.chatters.length)),this.drawRouletteWheel()},loadChatters(){if(!this.session)return;const{apiKey:t,token:e,login:s,displayName:i}=this.session,n=new Set(this.chatters.map(r=>r.user_login));let o=0;n.has(s)||(this.chatters.push({user_login:s,user_name:i||s}),n.add(s),o++),o>0&&this.updateUI();const c=t?`apiKey=${encodeURIComponent(t)}`:e?`token=${encodeURIComponent(e)}`:"",a={};e&&(a.Authorization=`Bearer ${e}`),fetch(`${b.CHATTERS}?channel=${s}&${c}`,{headers:a}).then(r=>r.json()).then(r=>{const m=r,g=Array.isArray(m)?m:m.chatters||[];if(Array.isArray(g)){const x=new Set(this.chatters.map(h=>h.user_login.toLowerCase()));let w=0;g.forEach(h=>{const p=typeof h=="string"?h:h.user_login,y=typeof h=="string"?h:h.user_name;if(!p)return;const f=p.toLowerCase();!x.has(f)&&!T.has(f)&&(this.chatters.push({user_login:p,user_name:y}),x.add(f),w++)}),w>0&&(this.updateUI(),this.pulseCounter())}}).catch(r=>{console.error("Error loading chatters:",r),l.showToast("Error al cargar usuarios del chat","error")})},spin(){this.isSpinning||this.chatters.length===0||(this.isSpinning=!0,this.spinAngleStart=Math.random()*10+10,this.spinTime=0,this.spinTimeTotal=Math.random()*3e3+4e3,this.rotateWheel())},rotateWheel(){if(this.spinTime+=20,this.spinTime>=this.spinTimeTotal){this.stopRotateWheel();return}const t=this.spinAngleStart-this.easeOut(this.spinTime,0,this.spinAngleStart,this.spinTimeTotal);this.startAngle+=t*Math.PI/180,this.drawRouletteWheel(),this.spinTimeout=requestAnimationFrame(()=>this.rotateWheel())},stopRotateWheel(){this.spinTimeout&&cancelAnimationFrame(this.spinTimeout),this.isSpinning=!1;const t=this.startAngle*180/Math.PI%360,e=360/this.chatters.length,s=Math.floor((360-(t+90)%360)%360/e),i=this.chatters[s%this.chatters.length];this.showWinner(i)},easeOut(t,e,s,i){const n=(t/=i)*t,o=n*t;return e+s*(o+-3*n+3*t)},showWinner(t){const e=document.getElementById("roulette-winner-display"),s=document.getElementById("winner-name");if(e&&s){const i=this.chatters.length,n=l.escapeHTML(t.user_name);s.innerHTML=d.winner(n,i),e.classList.remove("hidden"),l.showToast(d.winner(n,i),"success","fa-trophy"),this.session&&this.session.login&&this.session.token&&u.sendMessage(this.session.login,`\u{1F3C6} \xA1El ganador es @${t.user_name}! (De ${i} participantes) \xA1Felicidades! \u{1F389}`)}},drawRouletteWheel(){if(!this.canvas||!this.ctx)return;const t=200,e=160,s=50;this.ctx.clearRect(0,0,500,500);const i=this.chatters.length;if(i===0){this.drawEmptyWheel();return}this.arc=Math.PI*2/i;const n=this.canvas.width/2,o=this.canvas.height/2;for(let c=0;c<i;c++){const a=this.startAngle+c*this.arc;this.ctx.fillStyle=this.colors[c%this.colors.length],this.ctx.beginPath(),this.ctx.arc(n,o,t,a,a+this.arc,!1),this.ctx.arc(n,o,s,a+this.arc,a,!0),this.ctx.stroke(),this.ctx.fill(),this.ctx.save(),this.ctx.shadowOffsetX=-1,this.ctx.shadowOffsetY=-1,this.ctx.shadowBlur=0,this.ctx.fillStyle="white",this.ctx.font="bold 14px Poppins, sans-serif",this.ctx.translate(n+Math.cos(a+this.arc/2)*e,o+Math.sin(a+this.arc/2)*e),this.ctx.rotate(a+this.arc/2+Math.PI/2);const r=this.chatters[c].user_name;this.ctx.fillText(r,-this.ctx.measureText(r).width/2,0),this.ctx.restore()}},drawEmptyWheel(){if(!this.canvas||!this.ctx)return;const t=this.canvas.width/2,e=this.canvas.height/2;this.ctx.clearRect(0,0,500,500),this.ctx.beginPath(),this.ctx.arc(t,e,200,0,2*Math.PI),this.ctx.fillStyle="#1a1625",this.ctx.fill(),this.ctx.lineWidth=3,this.ctx.strokeStyle="#9146ff",this.ctx.stroke(),this.ctx.fillStyle="#ffffff",this.ctx.font="bold 22px Poppins, sans-serif",this.ctx.textAlign="center",this.ctx.shadowBlur=10,this.ctx.shadowColor="#9146ff",this.ctx.fillText("Esperando",t,e-10),this.ctx.fillText("Participantes...",t,e+22),this.ctx.shadowBlur=0}};export{O as RouletteModule};
+import { UI } from "../../../core/ui.js";
+import { Messages } from "../../../shared/i18n/messages.js";
+import { RouletteMessages } from "./messages.js";
+import { DASHBOARD_CONFIG } from "../dashboard-config.js";
+const { API_ENDPOINTS, IGNORED_BOTS } = DASHBOARD_CONFIG;
+import { TmiService } from "../../../services/tmiService.js";
+const RouletteModule = {
+  session: null,
+  chatters: [],
+  canvas: null,
+  ctx: null,
+  colors: ["#a855f7", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#ec4899", "#6366f1"],
+  startAngle: 0,
+  arc: 0,
+  spinTimeout: null,
+  spinAngleStart: 10,
+  spinTime: 0,
+  spinTimeTotal: 0,
+  isSpinning: false,
+  isOpen: false,
+  isConnected: false,
+  isInitialized: false,
+  cssLoaded: false,
+  uiInitialized: false,
+  init(session) {
+    this.session = session;
+    if (!this.cssLoaded) {
+      import("../../../shared/utils/loader.js").then(({ Loader }) => {
+        Loader.loadCSS("css/sections/roulette.css");
+      });
+      this.cssLoaded = true;
+    }
+    this.isInitialized = true;
+  },
+  activate() {
+    if (!this.uiInitialized) {
+      this.setupUI();
+      this.updateUI();
+      this.uiInitialized = true;
+    }
+  },
+  deactivate() {
+    this.isOpen = false;
+    if (this.spinTimeout) cancelAnimationFrame(this.spinTimeout);
+    TmiService.removeListener("roulette");
+    TmiService.disconnect();
+    this.isConnected = false;
+    this.isSpinning = false;
+  },
+  setupUI() {
+    this.canvas = document.getElementById("roulette-canvas");
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext("2d");
+    const spinBtn = document.getElementById("btn-spin-roulette");
+    const toggleBtn = document.getElementById("toggle-roulette");
+    const refreshBtn = document.getElementById("btn-refresh-roulette");
+    const closeWinnerBtn = document.getElementById("close-winner-display");
+    if (spinBtn && !spinBtn.dataset.listener) {
+      spinBtn.addEventListener("click", () => this.spin());
+      spinBtn.dataset.listener = "true";
+    }
+    if (toggleBtn && !toggleBtn.dataset.listener) {
+      toggleBtn.addEventListener("click", () => this.toggleEntries());
+      toggleBtn.dataset.listener = "true";
+    }
+    if (refreshBtn && !refreshBtn.dataset.listener) {
+      refreshBtn.addEventListener("click", () => {
+        this.loadChatters();
+        UI.showToast(RouletteMessages.updatedRaw, "success", "fa-check");
+      });
+      refreshBtn.dataset.listener = "true";
+    }
+    if (closeWinnerBtn && !closeWinnerBtn.dataset.listener) {
+      closeWinnerBtn.addEventListener("click", () => {
+        document.getElementById("roulette-winner-display")?.classList.add("hidden");
+      });
+      closeWinnerBtn.dataset.listener = "true";
+    }
+    this.drawEmptyWheel();
+  },
+  toggleEntries() {
+    this.isOpen = !this.isOpen;
+    const btn = document.getElementById("toggle-roulette");
+    if (btn) {
+      btn.className = this.isOpen ? "btn-icon btn-warning" : "btn-icon btn-success";
+      btn.innerHTML = this.isOpen ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+    }
+    if (this.isOpen) {
+      UI.showToast(RouletteMessages.openRaw, "success", "fa-door-open");
+      this.loadChatters();
+      this.connectTmi();
+    } else {
+      UI.showToast(RouletteMessages.closedRaw, "warning", "fa-door-closed");
+      TmiService.disconnect();
+      this.isConnected = false;
+    }
+  },
+  async connectTmi() {
+    if (this.isConnected) return;
+    if (!this.session) return;
+    const auth = this.session.token ? {
+      username: this.session.login,
+      token: this.session.token
+    } : void 0;
+    try {
+      await TmiService.connect(this.session.login, auth);
+      this.isConnected = true;
+      TmiService.addListener(
+        "roulette",
+        (_channel, tags, _message) => {
+          if (this.isSpinning || !this.isOpen) return;
+          const login = tags.username;
+          if (IGNORED_BOTS.has(login.toLowerCase())) return;
+          if (!this.chatters.some(
+            (u) => u.user_login.toLowerCase() === login.toLowerCase()
+          )) {
+            this.chatters.push({
+              user_login: login,
+              user_name: tags["display-name"] || login
+            });
+            this.updateUI();
+            this.pulseCounter();
+          }
+        }
+      );
+    } catch (err) {
+      console.error("Roulette TMI Error:", err);
+      UI.showToast(Messages.Common.connectionError || "Error connecting to chat", "error");
+      this.toggleEntries();
+    }
+  },
+  pulseCounter() {
+    const countDisplay = document.getElementById("roulette-count");
+    if (countDisplay) {
+      countDisplay.classList.add("count-pulse");
+      setTimeout(() => countDisplay.classList.remove("count-pulse"), 500);
+    }
+  },
+  updateUI() {
+    const countDisplay = document.getElementById("roulette-count");
+    if (countDisplay) countDisplay.textContent = String(this.chatters.length);
+    this.drawRouletteWheel();
+  },
+  loadChatters() {
+    if (!this.session) return;
+    const { apiKey, token, login, displayName } = this.session;
+    const existing = new Set(this.chatters.map((u) => u.user_login));
+    let added = 0;
+    if (!existing.has(login)) {
+      this.chatters.push({
+        user_login: login,
+        user_name: displayName || login
+      });
+      existing.add(login);
+      added++;
+    }
+    if (added > 0) {
+      this.updateUI();
+    }
+    const tokenParam = apiKey ? `apiKey=${encodeURIComponent(apiKey)}` : token ? `token=${encodeURIComponent(token)}` : "";
+    const headers = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}&${tokenParam}`, { headers }).then((res) => res.json()).then((data) => {
+      const safeData = data;
+      const chattersList = Array.isArray(safeData) ? safeData : safeData.chatters || [];
+      if (Array.isArray(chattersList)) {
+        const currentChatters = new Set(
+          this.chatters.map((u) => u.user_login.toLowerCase())
+        );
+        let newAdded = 0;
+        const typedList = chattersList;
+        typedList.forEach((item) => {
+          const login2 = typeof item === "string" ? item : item.user_login;
+          const name = typeof item === "string" ? item : item.user_name;
+          if (!login2) return;
+          const lowerLogin = login2.toLowerCase();
+          if (!currentChatters.has(lowerLogin) && !IGNORED_BOTS.has(lowerLogin)) {
+            this.chatters.push({ user_login: login2, user_name: name });
+            currentChatters.add(lowerLogin);
+            newAdded++;
+          }
+        });
+        if (newAdded > 0) {
+          this.updateUI();
+          this.pulseCounter();
+        }
+      }
+    }).catch((err) => {
+      console.error("Error loading chatters:", err);
+      UI.showToast("Error al cargar usuarios del chat", "error");
+    });
+  },
+  spin() {
+    if (this.isSpinning || this.chatters.length === 0) return;
+    this.isSpinning = true;
+    this.spinAngleStart = Math.random() * 10 + 10;
+    this.spinTime = 0;
+    this.spinTimeTotal = Math.random() * 3e3 + 4e3;
+    this.rotateWheel();
+  },
+  rotateWheel() {
+    this.spinTime += 20;
+    if (this.spinTime >= this.spinTimeTotal) {
+      this.stopRotateWheel();
+      return;
+    }
+    const spinAngle = this.spinAngleStart - this.easeOut(this.spinTime, 0, this.spinAngleStart, this.spinTimeTotal);
+    this.startAngle += spinAngle * Math.PI / 180;
+    this.drawRouletteWheel();
+    this.spinTimeout = requestAnimationFrame(() => this.rotateWheel());
+  },
+  stopRotateWheel() {
+    if (this.spinTimeout) cancelAnimationFrame(this.spinTimeout);
+    this.isSpinning = false;
+    const degrees = this.startAngle * 180 / Math.PI % 360;
+    const arcd = 360 / this.chatters.length;
+    const index = Math.floor((360 - (degrees + 90) % 360) % 360 / arcd);
+    const winner = this.chatters[index % this.chatters.length];
+    this.showWinner(winner);
+  },
+  easeOut(t, b, c, d) {
+    const ts = (t /= d) * t;
+    const tc = ts * t;
+    return b + c * (tc + -3 * ts + 3 * t);
+  },
+  showWinner(winner) {
+    const display = document.getElementById("roulette-winner-display");
+    const nameEl = document.getElementById("winner-name");
+    if (display && nameEl) {
+      const count = this.chatters.length;
+      const safeName = UI.escapeHTML(winner.user_name);
+      nameEl.innerHTML = RouletteMessages.winner(safeName, count);
+      display.classList.remove("hidden");
+      UI.showToast(RouletteMessages.winner(safeName, count), "success", "fa-trophy");
+      if (this.session && this.session.login && this.session.token) {
+        TmiService.sendMessage(
+          this.session.login,
+          `\u{1F3C6} \xA1El ganador es @${winner.user_name}! (De ${count} participantes) \xA1Felicidades! \u{1F389}`
+        );
+      }
+    }
+  },
+  drawRouletteWheel() {
+    if (!this.canvas || !this.ctx) return;
+    const outsideRadius = 200;
+    const textRadius = 160;
+    const insideRadius = 50;
+    this.ctx.clearRect(0, 0, 500, 500);
+    const len = this.chatters.length;
+    if (len === 0) {
+      this.drawEmptyWheel();
+      return;
+    }
+    this.arc = Math.PI * 2 / len;
+    const cx = this.canvas.width / 2;
+    const cy = this.canvas.height / 2;
+    for (let i = 0; i < len; i++) {
+      const angle = this.startAngle + i * this.arc;
+      this.ctx.fillStyle = this.colors[i % this.colors.length];
+      this.ctx.beginPath();
+      this.ctx.arc(cx, cy, outsideRadius, angle, angle + this.arc, false);
+      this.ctx.arc(cx, cy, insideRadius, angle + this.arc, angle, true);
+      this.ctx.stroke();
+      this.ctx.fill();
+      this.ctx.save();
+      this.ctx.shadowOffsetX = -1;
+      this.ctx.shadowOffsetY = -1;
+      this.ctx.shadowBlur = 0;
+      this.ctx.fillStyle = "white";
+      this.ctx.font = "bold 14px Poppins, sans-serif";
+      this.ctx.translate(
+        cx + Math.cos(angle + this.arc / 2) * textRadius,
+        cy + Math.sin(angle + this.arc / 2) * textRadius
+      );
+      this.ctx.rotate(angle + this.arc / 2 + Math.PI / 2);
+      const text = this.chatters[i].user_name;
+      this.ctx.fillText(text, -this.ctx.measureText(text).width / 2, 0);
+      this.ctx.restore();
+    }
+  },
+  drawEmptyWheel() {
+    if (!this.canvas || !this.ctx) return;
+    const cx = this.canvas.width / 2;
+    const cy = this.canvas.height / 2;
+    this.ctx.clearRect(0, 0, 500, 500);
+    this.ctx.beginPath();
+    this.ctx.arc(cx, cy, 200, 0, 2 * Math.PI);
+    this.ctx.fillStyle = "#1a1625";
+    this.ctx.fill();
+    this.ctx.lineWidth = 3;
+    this.ctx.strokeStyle = "#9146ff";
+    this.ctx.stroke();
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.font = "bold 22px Poppins, sans-serif";
+    this.ctx.textAlign = "center";
+    this.ctx.shadowBlur = 10;
+    this.ctx.shadowColor = "#9146ff";
+    this.ctx.fillText("Esperando", cx, cy - 10);
+    this.ctx.fillText("Participantes...", cx, cy + 22);
+    this.ctx.shadowBlur = 0;
+  }
+};
+export {
+  RouletteModule
+};

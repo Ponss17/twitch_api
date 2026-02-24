@@ -1,1 +1,47 @@
-var g=Object.defineProperty;var r=(t,s)=>g(t,"name",{value:s,configurable:!0});const u={masks:{apiKey:"**************",token:"**************"},bots:{nightbot:{urlfetch:r(t=>`$(urlfetch ${t})`,"urlfetch"),arg:r(t=>t==="user"?"$(touser)":t==="query"?"$(querystring)":`$(${t})`,"arg")},streamelements:{urlfetch:r(t=>`$(customapi ${t})`,"urlfetch"),arg:r(t=>`\${${t}}`,"arg")},fossabot:{urlfetch:r(t=>`$(customapi ${t})`,"urlfetch"),arg:r(t=>t==="user"?"{{user.name}}":`{{${t}}}`,"arg")},wizebot:{urlfetch:r(t=>`$(urlfetch ${t})`,"urlfetch"),arg:r(t=>`$(arg_${t==="user"?"1":t})`,"arg")}},generate(t,s,i){const n=this.bots[t]||this.bots.nightbot,e=`${s}?${i}`;return n.urlfetch(e)},maskSecrets(t,s={}){let i=t;return s.apiKey&&(i=i.split(s.apiKey).join(this.masks.apiKey)),s.token&&(i=i.split(s.token).join(this.masks.token)),i}};export{u as CommandGenerator};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const CommandGenerator = {
+  masks: {
+    apiKey: "**************",
+    token: "**************"
+  },
+  bots: {
+    nightbot: {
+      urlfetch: /* @__PURE__ */ __name((url) => `$(urlfetch ${url})`, "urlfetch"),
+      arg: /* @__PURE__ */ __name((name) => {
+        if (name === "user") return "$(touser)";
+        if (name === "query") return "$(querystring)";
+        return `$(${name})`;
+      }, "arg")
+    },
+    streamelements: {
+      urlfetch: /* @__PURE__ */ __name((url) => `$(customapi ${url})`, "urlfetch"),
+      arg: /* @__PURE__ */ __name((name) => `\${${name}}`, "arg")
+    },
+    fossabot: {
+      urlfetch: /* @__PURE__ */ __name((url) => `$(customapi ${url})`, "urlfetch"),
+      arg: /* @__PURE__ */ __name((name) => {
+        if (name === "user") return "{{user.name}}";
+        return `{{${name}}}`;
+      }, "arg")
+    },
+    wizebot: {
+      urlfetch: /* @__PURE__ */ __name((url) => `$(urlfetch ${url})`, "urlfetch"),
+      arg: /* @__PURE__ */ __name((name) => `$(arg_${name === "user" ? "1" : name})`, "arg")
+    }
+  },
+  generate(botName, url, queryParams) {
+    const bot = this.bots[botName] || this.bots.nightbot;
+    const fullUrl = `${url}?${queryParams}`;
+    return bot.urlfetch(fullUrl);
+  },
+  maskSecrets(cmd, secrets = {}) {
+    let masked = cmd;
+    if (secrets.apiKey) masked = masked.split(secrets.apiKey).join(this.masks.apiKey);
+    if (secrets.token) masked = masked.split(secrets.token).join(this.masks.token);
+    return masked;
+  }
+};
+export {
+  CommandGenerator
+};

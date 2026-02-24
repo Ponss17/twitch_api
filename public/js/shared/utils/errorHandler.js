@@ -1,1 +1,59 @@
-var c=Object.defineProperty;var s=(l,r)=>c(l,"name",{value:r,configurable:!0});import{UI as h}from"../../core/ui.js";import{Messages as i}from"../i18n/messages.js";import{AuthMessages as a}from"../i18n/authMessages.js";const t=class t{constructor(){this.isDevelopment=window.location.hostname==="localhost"||window.location.hostname==="127.0.0.1",this.init()}init(){window.onerror=(r,e,o,d,u)=>(this.handleError(u||new Error(String(r)),{source:e,lineno:o,colno:d}),!0),window.onunhandledrejection=r=>{this.handleError(r.reason,{type:"unhandledRejection"}),r.preventDefault()}}handleError(r,e={}){this.isDevelopment&&(console.error("\u{1F534} Error capturado por ErrorHandler:",r),console.error("Contexto:",e));const o=this.getUserMessage(r);h.showToast(o,"error")}getUserMessage(r){const e=r instanceof Error?r.message:String(r||"");return e.includes("fetch")||e.includes("network")||e.includes("Failed to fetch")?i.Common.networkError:e.includes("401")||e.includes("unauthorized")||e==="auth_error"?a.sessionExpired:e.includes("403")||e.includes("forbidden")?a.validationError:this.isDevelopment?`Error: ${e}`:i.Common.error("Algo sali\xF3 mal. Intenta de nuevo.")}reportError(r,e){this.isDevelopment&&console.warn("Reported Error:",r,e)}};s(t,"ErrorHandler");let n=t;const E=new n;export{E as errorHandler};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { UI } from "../../core/ui.js";
+import { Messages } from "../i18n/messages.js";
+import { AuthMessages } from "../i18n/authMessages.js";
+const _ErrorHandler = class _ErrorHandler {
+  constructor() {
+    this.isDevelopment = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    this.init();
+  }
+  init() {
+    window.onerror = (message, source, lineno, colno, error) => {
+      this.handleError(error || new Error(String(message)), {
+        source,
+        lineno,
+        colno
+      });
+      return true;
+    };
+    window.onunhandledrejection = (event) => {
+      this.handleError(event.reason, {
+        type: "unhandledRejection"
+      });
+      event.preventDefault();
+    };
+  }
+  handleError(error, context = {}) {
+    if (this.isDevelopment) {
+      console.error("\u{1F534} Error capturado por ErrorHandler:", error);
+      console.error("Contexto:", context);
+    }
+    const userMessage = this.getUserMessage(error);
+    UI.showToast(userMessage, "error");
+  }
+  getUserMessage(error) {
+    const msg = error instanceof Error ? error.message : String(error || "");
+    if (msg.includes("fetch") || msg.includes("network") || msg.includes("Failed to fetch")) {
+      return Messages.Common.networkError;
+    }
+    if (msg.includes("401") || msg.includes("unauthorized") || msg === "auth_error") {
+      return AuthMessages.sessionExpired;
+    }
+    if (msg.includes("403") || msg.includes("forbidden")) {
+      return AuthMessages.validationError;
+    }
+    return this.isDevelopment ? `Error: ${msg}` : Messages.Common.error("Algo sali\xF3 mal. Intenta de nuevo.");
+  }
+  reportError(error, context) {
+    if (this.isDevelopment) {
+      console.warn("Reported Error:", error, context);
+    }
+  }
+};
+__name(_ErrorHandler, "ErrorHandler");
+let ErrorHandler = _ErrorHandler;
+const errorHandler = new ErrorHandler();
+export {
+  errorHandler
+};

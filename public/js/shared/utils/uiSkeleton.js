@@ -1,13 +1,27 @@
-const l={card(){return`
+const Skeleton = {
+  card() {
+    return `
             <div class="skeleton-card">
                 <div class="skeleton-header"></div>
                 <div class="skeleton-line"></div>
                 <div class="skeleton-line short"></div>
             </div>
-        `},list(e=3){return Array(e).fill(this.card()).join("")},table(e=5){return Array(e).fill(`
+        `;
+  },
+  list(count = 3) {
+    return Array(count).fill(this.card()).join("");
+  },
+  table(rows = 5) {
+    const row = `
             <tr class="skeleton-row">
                 <td><div class="skeleton-line"></div></td>
                 <td><div class="skeleton-line"></div></td>
                 <td><div class="skeleton-line short"></div></td>
             </tr>
-        `).join("")}};export{l as Skeleton};
+        `;
+    return Array(rows).fill(row).join("");
+  }
+};
+export {
+  Skeleton
+};

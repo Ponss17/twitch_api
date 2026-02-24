@@ -1,1 +1,119 @@
-var T=Object.defineProperty;var u=(e,a)=>T(e,"name",{value:a,configurable:!0});import{UIMessages as p}from"../shared/i18n/uiMessages.js";const M={clipboardInitialized:!1,escapeHTML(e){return e?e.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"):""},showToast(e,a="success",i){let n=document.querySelector(".toast-container");n||(n=document.createElement("div"),n.className="toast-container",document.body.appendChild(n));const t=document.createElement("div");t.className=`toast ${a}`,t.setAttribute("role","alert");const s=i||(a==="success"?"fa-check-circle":"fa-triangle-exclamation");t.innerHTML=`<i class="fa-solid ${s}" aria-hidden="true"></i> <span></span>`;const r=t.querySelector("span");r.innerHTML=e,n.appendChild(t),setTimeout(()=>{t.classList.add("hiding"),t.addEventListener("animationend",()=>{t.parentElement&&t.remove()})},4e3)},copyToClipboard(e){e&&navigator.clipboard.writeText(e).then(()=>{this.showToast(`<i class="fa-solid fa-check"></i> ${p.Clipboard.copied}`)}).catch(()=>{this.showToast(`<i class="fa-solid fa-xmark"></i> ${p.Clipboard.error}`,"error")})},setupClipboard(){this.clipboardInitialized||(this.clipboardInitialized=!0,document.addEventListener("click",e=>{const a=e.target.closest(".copy-btn");if(!a)return;const i=a.dataset.target;if(i){const n=document.getElementById(i);if(n){const t=n.dataset.realValue||n.value||n.innerText;this.copyToClipboard(t)}}}))},setButtonLoading(e,a){e&&(a?(e.classList.add("btn-loading"),e.disabled=!0,e.dataset.originalText=e.textContent||""):(e.classList.remove("btn-loading"),e.disabled=!1,e.dataset.originalText&&(e.textContent=e.dataset.originalText)))},disableButton(e){e&&(e.disabled=!0,e.classList.add("btn-disabled"))},enableButton(e){e&&(e.disabled=!1,e.classList.remove("btn-disabled"))},setCardLoading(e,a){e&&(a?e.classList.add("card-loading"):e.classList.remove("card-loading"))},animateValue(e,a,i,n=1500,t=""){const s=e.innerHTML.replace(/<[^>]*>?/gm,""),r=parseInt(s.replace(/[^0-9.-]+/g,""))||0,l=a!==null?a:r;if(l===i){e.innerHTML=`${i.toLocaleString()}${t}`;return}let o=null;const d=u(m=>{o||(o=m);const c=Math.min((m-o)/n,1),g=c===1?1:1-Math.pow(2,-10*c),L=Math.floor(g*(i-l)+l);e.innerHTML=`${L.toLocaleString()}${t}`,c<1?window.requestAnimationFrame(d):e.innerHTML=`${i.toLocaleString()}${t}`},"step");window.requestAnimationFrame(d)}};export{M as UI};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { UIMessages } from "../shared/i18n/uiMessages.js";
+const UI = {
+  clipboardInitialized: false,
+  escapeHTML(str) {
+    if (!str) return "";
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  },
+  showToast(message, type = "success", customIcon) {
+    let container = document.querySelector(".toast-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.className = "toast-container";
+      document.body.appendChild(container);
+    }
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.setAttribute("role", "alert");
+    const icon = customIcon || (type === "success" ? "fa-check-circle" : "fa-triangle-exclamation");
+    toast.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i> <span></span>`;
+    const textSpan = toast.querySelector("span");
+    textSpan.innerHTML = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add("hiding");
+      toast.addEventListener("animationend", () => {
+        if (toast.parentElement) {
+          toast.remove();
+        }
+      });
+    }, 4e3);
+  },
+  copyToClipboard(text) {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      this.showToast(`<i class="fa-solid fa-check"></i> ${UIMessages.Clipboard.copied}`);
+    }).catch(() => {
+      this.showToast(
+        `<i class="fa-solid fa-xmark"></i> ${UIMessages.Clipboard.error}`,
+        "error"
+      );
+    });
+  },
+  setupClipboard() {
+    if (this.clipboardInitialized) return;
+    this.clipboardInitialized = true;
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest(".copy-btn");
+      if (!btn) return;
+      const targetId = btn.dataset.target;
+      if (targetId) {
+        const target = document.getElementById(targetId);
+        if (target) {
+          const valueToCopy = target.dataset.realValue || target.value || target.innerText;
+          this.copyToClipboard(valueToCopy);
+        }
+      }
+    });
+  },
+  setButtonLoading(button, isLoading) {
+    if (!button) return;
+    if (isLoading) {
+      button.classList.add("btn-loading");
+      button.disabled = true;
+      button.dataset.originalText = button.textContent || "";
+    } else {
+      button.classList.remove("btn-loading");
+      button.disabled = false;
+      if (button.dataset.originalText) {
+        button.textContent = button.dataset.originalText;
+      }
+    }
+  },
+  disableButton(button) {
+    if (!button) return;
+    button.disabled = true;
+    button.classList.add("btn-disabled");
+  },
+  enableButton(button) {
+    if (!button) return;
+    button.disabled = false;
+    button.classList.remove("btn-disabled");
+  },
+  setCardLoading(card, isLoading) {
+    if (!card) return;
+    if (isLoading) {
+      card.classList.add("card-loading");
+    } else {
+      card.classList.remove("card-loading");
+    }
+  },
+  animateValue(obj, start, end, duration = 1500, suffix = "") {
+    const textWithoutHtml = obj.innerHTML.replace(/<[^>]*>?/gm, "");
+    const currentVal = parseInt(textWithoutHtml.replace(/[^0-9.-]+/g, "")) || 0;
+    const actualStart = start !== null ? start : currentVal;
+    if (actualStart === end) {
+      obj.innerHTML = `${end.toLocaleString()}${suffix}`;
+      return;
+    }
+    let startTimestamp = null;
+    const step = /* @__PURE__ */ __name((timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      const current = Math.floor(easeProgress * (end - actualStart) + actualStart);
+      obj.innerHTML = `${current.toLocaleString()}${suffix}`;
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      } else {
+        obj.innerHTML = `${end.toLocaleString()}${suffix}`;
+      }
+    }, "step");
+    window.requestAnimationFrame(step);
+  }
+};
+export {
+  UI
+};

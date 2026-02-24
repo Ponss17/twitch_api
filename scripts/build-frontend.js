@@ -48,7 +48,7 @@ async function build() {
             entryPoints: entryPoints,
             outdir: OUT_DIR,
             bundle: false,
-            minify: true,
+            minify: false,
             keepNames: true,
             legalComments: 'none',
             sourcemap: false,
