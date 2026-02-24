@@ -10,6 +10,7 @@ import { TwitchUser, Session, ApiResponse } from './types.js';
 document.addEventListener('DOMContentLoaded', async () => {
     FooterComponent.render('main-footer');
     UI.setupClipboard();
+    UI.setupMobileMenu();
 
     const sessionParams: Session = Auth.parseUrlParams();
     const { apiKey, token } = sessionParams;
