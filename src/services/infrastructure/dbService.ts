@@ -161,8 +161,16 @@ export const incrementUserStats = async (userId: string, command: string): Promi
     }
 };
 
+// Memoria caché para estadísticas (L1) para evitar hits constantes a Redis
+const STATS_CACHE = new Map<string, { data: Record<string, number>; expiry: number }>();
+const STATS_TTL = 30 * 1000; // 30 segundos
+
 export const getUserStats = async (userId: string): Promise<Record<string, number>> => {
     try {
+        const now = Date.now();
+        const cached = STATS_CACHE.get(userId);
+        if (cached && cached.expiry > now) return cached.data;
+
         const key = `stats:${userId}`;
         const stats = await kv.hgetall(key);
 
@@ -188,6 +196,7 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
             numericStats[statKey] = parseInt(value as string) || 0;
         }
 
+        STATS_CACHE.set(userId, { data: numericStats, expiry: Date.now() + STATS_TTL });
         return numericStats;
     } catch (e) {
         logger.error('Error getting user stats:', e);
