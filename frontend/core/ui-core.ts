@@ -152,5 +152,31 @@ export const UI = {
             }
         };
         window.requestAnimationFrame(step);
+    },
+
+    setupMobileMenu() {
+        const toggleBtn = document.getElementById('mobile-menu-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        if (!toggleBtn || !sidebar || !overlay) return;
+
+        const toggle = () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        };
+
+        const close = () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        };
+
+        toggleBtn.addEventListener('click', toggle);
+        overlay.addEventListener('click', close);
+
+        navItems.forEach((item) => {
+            item.addEventListener('click', close);
+        });
     }
 };
