@@ -1,1 +1,68 @@
-var c=Object.defineProperty;var e=(n,t)=>c(n,"name",{value:t,configurable:!0});const a="admin_password",d=e(()=>sessionStorage.getItem(a),"getAdminPassword"),m=e(n=>{sessionStorage.setItem(a,n)},"setAdminPassword"),r=e(()=>{const n=window.location.pathname;return n.includes("/admin")?n.split("/admin")[0]:""},"getApiBase"),w=e(()=>{sessionStorage.removeItem(a),window.location.href=`${r()}/admin`},"logout"),l=e(()=>{const n=r(),s=new URLSearchParams(window.location.search).get("session");if(s){m(s);const o=window.location.pathname;window.history.replaceState({},document.title,o)}if(!d())window.location.pathname.endsWith("/admin")||window.location.pathname.endsWith("/admin/")||(window.location.href=`${n}/admin`);else{const o=document.getElementById("dashboard-page");o&&(o.style.display="flex"),(window.location.pathname.endsWith("/admin")||window.location.pathname.endsWith("/admin/"))&&(window.location.href=`${n}/admin-dashboard`)}},"checkAuth"),p=e(async(n,t={})=>{const s=d();if(!s)throw new Error("No admin password found");const o=new Headers(t.headers);o.set("x-admin-api-key",s),o.set("Content-Type","application/json");const i=await fetch(n,{...t,headers:o});return i.status===401&&(console.warn("Admin Unauthorized (401). Logging out..."),w()),i},"fetchAdmin");export{a as ADMIN_AUTH_KEY,l as checkAuth,p as fetchAdmin,d as getAdminPassword,w as logout,m as setAdminPassword};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const ADMIN_AUTH_KEY = "admin_password";
+const getAdminPassword = /* @__PURE__ */ __name(() => {
+  return sessionStorage.getItem(ADMIN_AUTH_KEY);
+}, "getAdminPassword");
+const setAdminPassword = /* @__PURE__ */ __name((password) => {
+  sessionStorage.setItem(ADMIN_AUTH_KEY, password);
+}, "setAdminPassword");
+const getApiBase = /* @__PURE__ */ __name(() => {
+  const path = window.location.pathname;
+  if (path.includes("/admin")) {
+    return path.split("/admin")[0];
+  }
+  return "";
+}, "getApiBase");
+const logout = /* @__PURE__ */ __name(() => {
+  sessionStorage.removeItem(ADMIN_AUTH_KEY);
+  window.location.href = `${getApiBase()}/admin`;
+}, "logout");
+const checkAuth = /* @__PURE__ */ __name(() => {
+  const apiBase = getApiBase();
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionToken = urlParams.get("session");
+  if (sessionToken) {
+    setAdminPassword(sessionToken);
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
+  if (!getAdminPassword()) {
+    const isLoginPage = window.location.pathname.endsWith("/admin") || window.location.pathname.endsWith("/admin/");
+    if (!isLoginPage) {
+      window.location.href = `${apiBase}/admin`;
+    }
+  } else {
+    const dashboard = document.getElementById("dashboard-page");
+    if (dashboard) dashboard.style.display = "flex";
+    if (window.location.pathname.endsWith("/admin") || window.location.pathname.endsWith("/admin/")) {
+      window.location.href = `${apiBase}/admin-dashboard`;
+    }
+  }
+}, "checkAuth");
+const fetchAdmin = /* @__PURE__ */ __name(async (url, options = {}) => {
+  const password = getAdminPassword();
+  if (!password) {
+    throw new Error("No admin password found");
+  }
+  const headers = new Headers(options.headers);
+  headers.set("x-admin-api-key", password);
+  headers.set("Content-Type", "application/json");
+  const response = await fetch(url, {
+    ...options,
+    headers
+  });
+  if (response.status === 401) {
+    console.warn("Admin Unauthorized (401). Logging out...");
+    logout();
+  }
+  return response;
+}, "fetchAdmin");
+export {
+  ADMIN_AUTH_KEY,
+  checkAuth,
+  fetchAdmin,
+  getAdminPassword,
+  logout,
+  setAdminPassword
+};

@@ -1,9 +1,211 @@
-import{DASHBOARD_CONFIG as u}from"./dashboard-config.js";const{API_ENDPOINTS:d}=u;import{Loader as m}from"../../shared/utils/loader.js";const v={session:null,isInitialized:!1,pollInterval:null,countdown:15,lastStats:{todayRequests:-1,successRate:-1,latency:-1},init(t){this.session=t,this.isInitialized=!0},get authHeaders(){const t={};return this.session?.token&&(t.Authorization=`Bearer ${this.session.token}`),t},get authQuery(){return this.session?.apiKey?`apiKey=${encodeURIComponent(this.session.apiKey)}`:this.session?.token?`token=${encodeURIComponent(this.session.token)}`:""},activate(){m.loadCSS("./css/sections/home.css"),this.setupUI(),this.startSmartPolling()},deactivate(){this.pollInterval&&(clearInterval(this.pollInterval),this.pollInterval=null)},startSmartPolling(){this.pollInterval&&clearInterval(this.pollInterval);const t=localStorage.getItem("dashboard_last_sync"),e=Date.now(),s=15e3;if(t){const a=e-parseInt(t);a<s?this.countdown=Math.ceil((s-a)/1e3):(this.countdown=15,this.performSync())}else this.countdown=15,this.performSync();this.updateSyncIndicator(),this.pollInterval=setInterval(()=>{this.countdown--,this.countdown<=0&&(this.performSync(),this.countdown=15),this.updateSyncIndicator()},1e3)},async performSync(){const t=document.getElementById("home-sync-indicator");t&&t.classList.add("syncing"),localStorage.setItem("dashboard_last_sync",Date.now().toString()),await Promise.all([this.loadRealActivity(),this.loadRealStats(),this.loadRealHealth()]),setTimeout(()=>{t&&t.classList.remove("syncing")},1e3)},updateSyncIndicator(){const t=document.getElementById("home-sync-indicator");t&&(t.textContent="Auto")},updateValues(){if(this.session){const t=document.getElementById("hero-user-name");t&&(t.textContent=this.session.displayName||this.session.login||"Streamer")}},setupUI(){this.updateValues(),this.setupNavigation()},setupNavigation(){document.querySelectorAll(".clickable-tab").forEach(e=>{e.addEventListener("click",()=>{const s=e.dataset.tab;if(!s)return;const a=document.querySelector(`.nav-item[data-tab="${s}"]`);a&&a.click()})})},async loadRealHealth(){const t=document.getElementById("home-health-pill"),e=t?.querySelector(".status-label");if(!(!t||!e||!this.session))try{const s=this.authQuery?`?${this.authQuery}`:"",a=await fetch(`${d.HEALTH}${s}`,{headers:this.authHeaders});if(a.ok){const n=await a.json();e.textContent=n.status==="operational"?"Todos los Sistemas Operativos":"Sistemas Degradados",t.className=`system-status-pill ${n.status}`}}catch(s){console.error("[Home] Error loading health:",s),e.textContent="Error de Conexi\xF3n",t.className="system-status-pill down"}},async loadRealActivity(){const t=document.getElementById("home-activity-logs");if(!(!t||!this.session))try{const e=this.authQuery?`&${this.authQuery}`:"",s=await fetch(`${d.ACTIVITY}?_=${Date.now()}${e}`,{headers:this.authHeaders});if(s.ok){const a=await s.json();if(t.innerHTML="",a.length===0){t.classList.add("is-empty"),t.innerHTML=`
+import { DASHBOARD_CONFIG } from "./dashboard-config.js";
+const { API_ENDPOINTS } = DASHBOARD_CONFIG;
+import { Loader } from "../../shared/utils/loader.js";
+const HomeModule = {
+  session: null,
+  isInitialized: false,
+  pollInterval: null,
+  countdown: 15,
+  lastStats: {
+    todayRequests: -1,
+    successRate: -1,
+    latency: -1
+  },
+  init(session) {
+    this.session = session;
+    this.isInitialized = true;
+  },
+  get authHeaders() {
+    const headers = {};
+    if (this.session?.token) headers["Authorization"] = `Bearer ${this.session.token}`;
+    return headers;
+  },
+  get authQuery() {
+    if (this.session?.apiKey) return `apiKey=${encodeURIComponent(this.session.apiKey)}`;
+    if (this.session?.token) return `token=${encodeURIComponent(this.session.token)}`;
+    return "";
+  },
+  activate() {
+    Loader.loadCSS("./css/sections/home.css");
+    this.setupUI();
+    this.startSmartPolling();
+  },
+  deactivate() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
+  },
+  startSmartPolling() {
+    if (this.pollInterval) clearInterval(this.pollInterval);
+    const lastSync = localStorage.getItem("dashboard_last_sync");
+    const now = Date.now();
+    const pollMs = 15e3;
+    if (lastSync) {
+      const elapsed = now - parseInt(lastSync);
+      if (elapsed < pollMs) {
+        this.countdown = Math.ceil((pollMs - elapsed) / 1e3);
+      } else {
+        this.countdown = 15;
+        this.performSync();
+      }
+    } else {
+      this.countdown = 15;
+      this.performSync();
+    }
+    this.updateSyncIndicator();
+    this.pollInterval = setInterval(() => {
+      this.countdown--;
+      if (this.countdown <= 0) {
+        this.performSync();
+        this.countdown = 15;
+      }
+      this.updateSyncIndicator();
+    }, 1e3);
+  },
+  async performSync() {
+    const syncEl = document.getElementById("home-sync-indicator");
+    if (syncEl) syncEl.classList.add("syncing");
+    localStorage.setItem("dashboard_last_sync", Date.now().toString());
+    await Promise.all([this.loadRealActivity(), this.loadRealStats(), this.loadRealHealth()]);
+    setTimeout(() => {
+      if (syncEl) syncEl.classList.remove("syncing");
+    }, 1e3);
+  },
+  updateSyncIndicator() {
+    const syncEl = document.getElementById("home-sync-indicator");
+    if (!syncEl) return;
+    syncEl.textContent = "Auto";
+  },
+  updateValues() {
+    if (this.session) {
+      const heroName = document.getElementById("hero-user-name");
+      if (heroName) {
+        heroName.textContent = this.session.displayName || this.session.login || "Streamer";
+      }
+    }
+  },
+  setupUI() {
+    this.updateValues();
+    this.setupNavigation();
+  },
+  setupNavigation() {
+    const btns = document.querySelectorAll(".clickable-tab");
+    btns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tabId = btn.dataset.tab;
+        if (!tabId) return;
+        const sidebarBtn = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
+        if (sidebarBtn) {
+          sidebarBtn.click();
+        }
+      });
+    });
+  },
+  async loadRealHealth() {
+    const pill = document.getElementById("home-health-pill");
+    const label = pill?.querySelector(".status-label");
+    if (!pill || !label || !this.session) return;
+    try {
+      const q = this.authQuery ? `?${this.authQuery}` : "";
+      const response = await fetch(`${API_ENDPOINTS.HEALTH}${q}`, {
+        headers: this.authHeaders
+      });
+      if (response.ok) {
+        const health = await response.json();
+        label.textContent = health.status === "operational" ? "Todos los Sistemas Operativos" : "Sistemas Degradados";
+        pill.className = `system-status-pill ${health.status}`;
+      }
+    } catch (e) {
+      console.error("[Home] Error loading health:", e);
+      label.textContent = "Error de Conexi\xF3n";
+      pill.className = "system-status-pill down";
+    }
+  },
+  async loadRealActivity() {
+    const logContainer = document.getElementById("home-activity-logs");
+    if (!logContainer || !this.session) return;
+    try {
+      const q = this.authQuery ? `&${this.authQuery}` : "";
+      const response = await fetch(`${API_ENDPOINTS.ACTIVITY}?_=${Date.now()}${q}`, {
+        headers: this.authHeaders
+      });
+      if (response.ok) {
+        const logs = await response.json();
+        logContainer.innerHTML = "";
+        if (logs.length === 0) {
+          logContainer.classList.add("is-empty");
+          logContainer.innerHTML = `
                         <div class="feed-empty-state">
                             <span class="empty-msg">esperando actividad...</span>
                             <span class="empty-cursor">_</span>
                         </div>
-                    `;return}t.classList.remove("is-empty"),a.forEach(n=>{const i=new Date(n.timestamp).toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"}),o=document.createElement("div");o.className="log-entry",o.innerHTML=`
-                        <span class="log-time">[${i}]</span>
-                        <span class="log-msg">${n.action}</span>
-                    `,t.appendChild(o)})}}catch(e){console.error("[Home] Error loading activity:",e),t.innerHTML='<div class="log-placeholder text-danger">Error al conectar con el feed de actividad.</div>'}},async loadRealStats(){if(this.session)try{const t=this.authQuery?`&${this.authQuery}`:"",e=await fetch(`${d.ANALYTICS}?_=${Date.now()}${t}`,{headers:this.authHeaders});if(e.ok){const s=await e.json(),{UI:a}=await import("../../core/ui.js"),n=s.todayRequests||0,i=s.rawSuccessRate||0,o=s.avgLatencyMs||0,l=document.getElementById("home-stat-requests"),r=document.getElementById("home-stat-success"),c=document.getElementById("home-stat-latency");if(l&&this.lastStats.todayRequests!==n?(a.animateValue(l,null,n),this.lastStats.todayRequests=n):l&&(l.textContent=n.toLocaleString()),r&&this.lastStats.successRate!==i?(a.animateValue(r,null,i,1500,"%"),this.lastStats.successRate=i):r&&(r.textContent=`${i}%`),c)if(this.lastStats.latency!==o){const h=`ms <span class="stat-unit-alt">(${(o/1e3).toFixed(1)}s)</span>`;a.animateValue(c,null,o,1500,h),this.lastStats.latency=o}else o===0&&c.textContent==="0ms"&&(c.innerHTML='0ms <span class="stat-unit-alt">(0.0s)</span>')}}catch(t){console.error("[Home] Error loading stats:",t)}}};export{v as HomeModule};
+                    `;
+          return;
+        }
+        logContainer.classList.remove("is-empty");
+        logs.forEach((log) => {
+          const time = new Date(log.timestamp).toLocaleTimeString("es-ES", {
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+          const logElement = document.createElement("div");
+          logElement.className = "log-entry";
+          logElement.innerHTML = `
+                        <span class="log-time">[${time}]</span>
+                        <span class="log-msg">${log.action}</span>
+                    `;
+          logContainer.appendChild(logElement);
+        });
+      }
+    } catch (e) {
+      console.error("[Home] Error loading activity:", e);
+      logContainer.innerHTML = '<div class="log-placeholder text-danger">Error al conectar con el feed de actividad.</div>';
+    }
+  },
+  async loadRealStats() {
+    if (!this.session) return;
+    try {
+      const q = this.authQuery ? `&${this.authQuery}` : "";
+      const response = await fetch(`${API_ENDPOINTS.ANALYTICS}?_=${Date.now()}${q}`, {
+        headers: this.authHeaders
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const { UI } = await import("../../core/ui.js");
+        const todayRequests = data.todayRequests || 0;
+        const successRate = data.rawSuccessRate || 0;
+        const avgLatencyMs = data.avgLatencyMs || 0;
+        const reqEl = document.getElementById("home-stat-requests");
+        const successEl = document.getElementById("home-stat-success");
+        const latencyEl = document.getElementById("home-stat-latency");
+        if (reqEl && this.lastStats.todayRequests !== todayRequests) {
+          UI.animateValue(reqEl, null, todayRequests);
+          this.lastStats.todayRequests = todayRequests;
+        } else if (reqEl) {
+          reqEl.textContent = todayRequests.toLocaleString();
+        }
+        if (successEl && this.lastStats.successRate !== successRate) {
+          UI.animateValue(successEl, null, successRate, 1500, "%");
+          this.lastStats.successRate = successRate;
+        } else if (successEl) {
+          successEl.textContent = `${successRate}%`;
+        }
+        if (latencyEl) {
+          if (this.lastStats.latency !== avgLatencyMs) {
+            const unit = `ms <span class="stat-unit-alt">(${(avgLatencyMs / 1e3).toFixed(1)}s)</span>`;
+            UI.animateValue(latencyEl, null, avgLatencyMs, 1500, unit);
+            this.lastStats.latency = avgLatencyMs;
+          } else if (avgLatencyMs === 0 && latencyEl.textContent === "0ms") {
+            latencyEl.innerHTML = '0ms <span class="stat-unit-alt">(0.0s)</span>';
+          }
+        }
+      }
+    } catch (e) {
+      console.error("[Home] Error loading stats:", e);
+    }
+  }
+};
+export {
+  HomeModule
+};

@@ -1,1 +1,116 @@
-var h=Object.defineProperty;var m=(i,e)=>h(i,"name",{value:e,configurable:!0});import{Auth as u}from"../core/auth.js";import{UI as c}from"../core/ui.js";import{AuthMessages as f}from"../shared/i18n/authMessages.js";const v={client:null,listeners:new Map,isConnected:!1,activeClients:0,connectionPromise:null,async connect(i,e){if(this.activeClients++,this.connectionPromise)return this.connectionPromise;if(this.isConnected&&this.client)return Promise.resolve();if(typeof window.tmi>"u")return this.activeClients=Math.max(0,this.activeClients-1),Promise.reject("TMI not loaded");const n={channels:[i],connection:{secure:!0,reconnect:!0},options:{skipUpdatingEmotesets:!0,messages:{emotes:!1}}};e&&(n.identity={username:e.username,password:`oauth:${e.token.replace("oauth:","")}`}),this.client=new window.tmi.Client(n);const a=m(o=>{o.on("message",(...t)=>{const[s,l,r,g]=t;g||this.listeners.forEach(d=>d(s,l,r))})},"attachListeners");return a(this.client),this.client?(this.connectionPromise=new Promise((o,t)=>{if(!this.client)return t("Client not found");this.client.connect().then(()=>{this.isConnected=!0,o()}).catch(async s=>{if(e&&(s==="Login unsuccessful"||typeof s=="string"&&s.includes("Login unsuccessful"))){console.error("\u274C TMI Auth failed. Access Token may be invalid/expired for IRC."),console.warn("\u26A0\uFE0F Retrying anonymously...",s),delete n.identity,this.client=new window.tmi.Client(n),a(this.client);try{await this.client.connect(),this.isConnected=!0,c.showToast("Conectado al chat de forma an\xF3nima (Lectura)","warning"),o()}catch(r){this.isConnected=!1,this.activeClients=0,t(r)}}else console.error("\u274C TMI Connection Error:",s),this.isConnected=!1,this.activeClients=0,t(s)})}),this.connectionPromise):Promise.reject("Client initialization failed")},addListener(i,e){this.listeners.set(i,e)},removeListener(i){this.listeners.delete(i)},sendMessage(i,e){this.client&&this.isConnected?this.client.say(i,e).catch(n=>{console.error("Error sending message:",n),n==="Cannot send anonymous messages"||typeof n=="string"&&n.includes("anonymous")?c.showToast("Inicia sesi\xF3n con Twitch para enviar mensajes","warning"):typeof n=="string"&&n.includes("Login unsuccessful")&&(c.showToast(f.sessionExpired,"error"),setTimeout(()=>u.relogin(),2e3))}):console.warn("Cannot send message: TMI not connected")},disconnect(){this.activeClients>0&&this.activeClients--,this.activeClients===0&&this.client&&this.isConnected&&this.client.disconnect().then(()=>{this.isConnected=!1,this.client=null,this.connectionPromise=null,this.listeners.clear()})}};export{v as TmiService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Auth } from "../core/auth.js";
+import { UI } from "../core/ui.js";
+import { AuthMessages } from "../shared/i18n/authMessages.js";
+const TmiService = {
+  client: null,
+  listeners: /* @__PURE__ */ new Map(),
+  isConnected: false,
+  activeClients: 0,
+  connectionPromise: null,
+  async connect(channel, auth) {
+    this.activeClients++;
+    if (this.connectionPromise) return this.connectionPromise;
+    if (this.isConnected && this.client) return Promise.resolve();
+    if (typeof window.tmi === "undefined") {
+      this.activeClients = Math.max(0, this.activeClients - 1);
+      return Promise.reject("TMI not loaded");
+    }
+    const options = {
+      channels: [channel],
+      connection: { secure: true, reconnect: true },
+      options: {
+        skipUpdatingEmotesets: true,
+        messages: {
+          emotes: false
+        }
+      }
+    };
+    if (auth) {
+      options.identity = {
+        username: auth.username,
+        password: `oauth:${auth.token.replace("oauth:", "")}`
+      };
+    }
+    this.client = new window.tmi.Client(options);
+    const attachListeners = /* @__PURE__ */ __name((clientInstance) => {
+      clientInstance.on("message", (...args) => {
+        const [channel2, tags, message, self] = args;
+        if (self) return;
+        this.listeners.forEach((callback) => callback(channel2, tags, message));
+      });
+    }, "attachListeners");
+    attachListeners(this.client);
+    if (!this.client) return Promise.reject("Client initialization failed");
+    this.connectionPromise = new Promise((resolve, reject) => {
+      if (!this.client) return reject("Client not found");
+      this.client.connect().then(() => {
+        this.isConnected = true;
+        resolve();
+      }).catch(async (err) => {
+        const isLoginError = auth && (err === "Login unsuccessful" || typeof err === "string" && err.includes("Login unsuccessful"));
+        if (isLoginError) {
+          console.error(
+            "\u274C TMI Auth failed. Access Token may be invalid/expired for IRC."
+          );
+          console.warn("\u26A0\uFE0F Retrying anonymously...", err);
+          delete options.identity;
+          this.client = new window.tmi.Client(options);
+          attachListeners(this.client);
+          try {
+            await this.client.connect();
+            this.isConnected = true;
+            UI.showToast("Conectado al chat de forma an\xF3nima (Lectura)", "warning");
+            resolve();
+          } catch (anonErr) {
+            this.isConnected = false;
+            this.activeClients = 0;
+            reject(anonErr);
+          }
+        } else {
+          console.error("\u274C TMI Connection Error:", err);
+          this.isConnected = false;
+          this.activeClients = 0;
+          reject(err);
+        }
+      });
+    });
+    return this.connectionPromise;
+  },
+  addListener(id, callback) {
+    this.listeners.set(id, callback);
+  },
+  removeListener(id) {
+    this.listeners.delete(id);
+  },
+  sendMessage(channel, message) {
+    if (this.client && this.isConnected) {
+      this.client.say(channel, message).catch((err) => {
+        console.error("Error sending message:", err);
+        if (err === "Cannot send anonymous messages" || typeof err === "string" && err.includes("anonymous")) {
+          UI.showToast("Inicia sesi\xF3n con Twitch para enviar mensajes", "warning");
+        } else if (typeof err === "string" && err.includes("Login unsuccessful")) {
+          UI.showToast(AuthMessages.sessionExpired, "error");
+          setTimeout(() => Auth.relogin(), 2e3);
+        }
+      });
+    } else {
+      console.warn("Cannot send message: TMI not connected");
+    }
+  },
+  disconnect() {
+    if (this.activeClients > 0) this.activeClients--;
+    if (this.activeClients === 0 && this.client && this.isConnected) {
+      this.client.disconnect().then(() => {
+        this.isConnected = false;
+        this.client = null;
+        this.connectionPromise = null;
+        this.listeners.clear();
+      });
+    }
+  }
+};
+export {
+  TmiService
+};

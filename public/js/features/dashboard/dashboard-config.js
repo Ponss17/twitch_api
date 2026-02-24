@@ -1,1 +1,60 @@
-const e="/api/twitch",t={API_ENDPOINTS:{BASE:e,MAGIC8:`${e}/minigames/magic8`,ANALYTICS:`${e}/dashboard/analytics`,REGENERATE_KEY:`${e}/system/regenerate-key`,FEEDBACK:`${e}/system/feedback`,CHATTERS:`${e}/dashboard/chatters`,USER_INFO:`${e}/dashboard/user-info`,SEND_MESSAGE:`${e}/send-message`,CLIPS:`${e}/dashboard/get-clips`,ACTIVITY:`${e}/dashboard/activity`,CLEAR_DATA:`${e}/dashboard/clear-data`,DELETE_ACCOUNT:`${e}/dashboard/delete-account`,HEALTH:"/api/twitch/system/health",DUEL:`${e}/minigames/duel`},IGNORED_BOTS:new Set(["nightbot","streamelements","fossabot","moobot","wizebot","soundalert","rainmaker","botrixoficial","trackerggbot","streamlabs","cloudbot","deepbot","phantombot","streamerbot","stayhydratedbot","commanderroot","own3d","streamholics","anotherttvviewer","electricallongboard"]),DOM_IDS:{MAGIC8:{INPUT:"magic8-question",BUTTON:"btn-ask-magic8",RESPONSE:"magic8-response",COMMAND_OUTPUT:"magic8-command-output",BOT_SELECT:"magic8-bot-select",MOOD_SELECT:"magic8-mood-select"},DUEL:{INPUT_TARGET:"duel-target",INPUT_CHALLENGER:"duel-challenger",BUTTON:"btn-fight-duel",RESPONSE:"duel-response"}}};export{t as DASHBOARD_CONFIG};
+const API_BASE = "/api/twitch";
+const DASHBOARD_CONFIG = {
+  API_ENDPOINTS: {
+    BASE: API_BASE,
+    MAGIC8: `${API_BASE}/minigames/magic8`,
+    ANALYTICS: `${API_BASE}/dashboard/analytics`,
+    REGENERATE_KEY: `${API_BASE}/system/regenerate-key`,
+    FEEDBACK: `${API_BASE}/system/feedback`,
+    CHATTERS: `${API_BASE}/dashboard/chatters`,
+    USER_INFO: `${API_BASE}/dashboard/user-info`,
+    SEND_MESSAGE: `${API_BASE}/send-message`,
+    CLIPS: `${API_BASE}/dashboard/get-clips`,
+    ACTIVITY: `${API_BASE}/dashboard/activity`,
+    CLEAR_DATA: `${API_BASE}/dashboard/clear-data`,
+    DELETE_ACCOUNT: `${API_BASE}/dashboard/delete-account`,
+    HEALTH: `/api/twitch/system/health`,
+    DUEL: `${API_BASE}/minigames/duel`
+  },
+  IGNORED_BOTS: /* @__PURE__ */ new Set([
+    "nightbot",
+    "streamelements",
+    "fossabot",
+    "moobot",
+    "wizebot",
+    "soundalert",
+    "rainmaker",
+    "botrixoficial",
+    "trackerggbot",
+    "streamlabs",
+    "cloudbot",
+    "deepbot",
+    "phantombot",
+    "streamerbot",
+    "stayhydratedbot",
+    "commanderroot",
+    "own3d",
+    "streamholics",
+    "anotherttvviewer",
+    "electricallongboard"
+  ]),
+  DOM_IDS: {
+    MAGIC8: {
+      INPUT: "magic8-question",
+      BUTTON: "btn-ask-magic8",
+      RESPONSE: "magic8-response",
+      COMMAND_OUTPUT: "magic8-command-output",
+      BOT_SELECT: "magic8-bot-select",
+      MOOD_SELECT: "magic8-mood-select"
+    },
+    DUEL: {
+      INPUT_TARGET: "duel-target",
+      INPUT_CHALLENGER: "duel-challenger",
+      BUTTON: "btn-fight-duel",
+      RESPONSE: "duel-response"
+    }
+  }
+};
+export {
+  DASHBOARD_CONFIG
+};

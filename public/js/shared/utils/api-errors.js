@@ -1,1 +1,23 @@
-var a=Object.defineProperty;var s=(t,r)=>a(t,"name",{value:r,configurable:!0});const o=s(async t=>{try{const r=await t.text();try{const e=JSON.parse(r);return e.details&&Array.isArray(e.details)&&e.details.length>0?e.details[0].message:e.error?e.error:e.message?e.message:r}catch{return r.length>100?r.substring(0,97)+"...":r}}catch{return"Error desconocido al procesar la respuesta del servidor"}},"formatApiError");export{o as formatApiError};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const formatApiError = /* @__PURE__ */ __name(async (response) => {
+  try {
+    const text = await response.text();
+    try {
+      const json = JSON.parse(text);
+      if (json.details && Array.isArray(json.details) && json.details.length > 0) {
+        return json.details[0].message;
+      }
+      if (json.error) return json.error;
+      if (json.message) return json.message;
+      return text;
+    } catch {
+      return text.length > 100 ? text.substring(0, 97) + "..." : text;
+    }
+  } catch (_e) {
+    return "Error desconocido al procesar la respuesta del servidor";
+  }
+}, "formatApiError");
+export {
+  formatApiError
+};

@@ -1,7 +1,591 @@
-var I=Object.defineProperty;var f=(e,t)=>I(e,"name",{value:t,configurable:!0});import{UI as a}from"./ui.js";import{DASHBOARD_CONFIG as h}from"../features/dashboard/dashboard-config.js";import{AccountMessages as g}from"../features/dashboard/account/messages.js";import{HtmlLoader as y}from"../shared/utils/htmlLoader.js";import{Loader as w}from"../shared/utils/loader.js";const C={session:null,isInitialized:!1,rateLimitPollInterval:null,countdown:30,lastData:{followers:-1,analytics:{},summaries:{}},get authHeaders(){const e={};return this.session?.token&&(e.Authorization=`Bearer ${this.session.token}`),e},get authQuery(){return this.session?.apiKey?`apiKey=${encodeURIComponent(this.session.apiKey)}`:this.session?.token?`token=${encodeURIComponent(this.session.token)}`:""},init(e){this.session=e,this.isInitialized=!0},activate(){w.loadCSS("./css/sections/profile.css"),this.setupUIInternal(),this.loadProfileData(),this.loadAnalytics(),this.startSmartPolling()},deactivate(){this.rateLimitPollInterval&&(clearInterval(this.rateLimitPollInterval),this.rateLimitPollInterval=null)},startSmartPolling(){this.rateLimitPollInterval&&clearInterval(this.rateLimitPollInterval);const e=localStorage.getItem("dashboard_last_sync"),t=Date.now(),s=3e4;if(e){const n=t-parseInt(e);n<s?this.countdown=Math.ceil((s-n)/1e3):(this.countdown=30,this.performSync())}else this.countdown=30,this.performSync();this.updateSyncIndicator(),this.rateLimitPollInterval=setInterval(()=>{typeof this.countdown=="number"&&(this.countdown--,this.countdown<=0&&(this.performSync(),this.countdown=30)),this.updateSyncIndicator()},1e3)},updateSyncIndicator(){const e=document.getElementById("profile-sync-indicator");e&&(e.textContent="Auto")},async performSync(){const e=document.getElementById("profile-sync-indicator");this.session&&(localStorage.setItem("dashboard_last_sync",Date.now().toString()),await Promise.all([this.pollRateLimit(),this.loadAnalytics()])),setTimeout(()=>{e&&e.classList.remove("syncing")},1e3)},setupUIInternal(){if(!this.session)return;const e=document.getElementById("profile-user-id"),t=document.getElementById("profile-display-name"),s=document.getElementById("profile-large-avatar");e&&(e.textContent=this.session.userId||"---"),t&&(t.textContent=this.session.displayName||this.session.login||"Streamer"),s&&this.session.profile_image_url&&(s.src=this.session.profile_image_url);const n=document.getElementById("profile-api-key");if(n){const o=this.session.apiKey||this.session.token||"";n.value=o,n.dataset.realValue=o}this.setupTokenVisibility(),this.setupRegenerate(),this.setupCopyId(),this.setupDangerToggle(),this.setupDataExport(),this.setupDangerZone()},setupDangerToggle(){const e=document.getElementById("profile-toggle-danger"),t=document.getElementById("danger-zone-section");e&&t&&!e.dataset.listener&&(e.addEventListener("click",()=>{t.classList.contains("is-hidden")?(t.classList.remove("is-hidden"),e.classList.add("active"),e.title="Ocultar Zona de Peligro",setTimeout(()=>{const n=window.pageYOffset,r=document.documentElement.scrollHeight-window.innerHeight-n,i=1200;let l=null;const d=f((c,u,p,E)=>p*((c=c/E-1)*c*c*c*c+1)+u,"easeOutQuint"),m=f(c=>{l===null&&(l=c);const u=c-l,p=d(u,n,r,i);window.scrollTo(0,p),u<i?requestAnimationFrame(m):window.scrollTo(0,document.documentElement.scrollHeight)},"animation");requestAnimationFrame(m)},400)):(t.classList.add("is-hidden"),e.classList.remove("active"),e.title="Mostrar Zona de Peligro")}),e.dataset.listener="true")},async loadProfileData(){if(this.session)try{const e=this.authQuery?`&${this.authQuery}`:"",t=`${h.API_ENDPOINTS.USER_INFO}?login=${this.session.login}${e}`,s=await fetch(t,{headers:this.authHeaders});if(s.ok){const n=await s.json();this.updateProfileStatsInternal(n),this.updateBadgesInternal(n)}}catch(e){console.error("[Profile] Error loading data:",e)}},async pollRateLimit(){if(this.session)try{const e=this.authQuery?`&${this.authQuery}`:"",t=`${h.API_ENDPOINTS.USER_INFO}?login=${this.session.login}${e}`,s=await fetch(t,{headers:this.authHeaders});if(s.ok){const n=await s.json(),o=document.getElementById("profile-stat-ratelimit");o&&n.rateLimit&&(o.textContent=`${n.rateLimit} req/min`)}}catch{}},async loadAnalytics(){if(this.session)try{const e=this.authQuery?`?${this.authQuery}`:"",t=await fetch(`${h.API_ENDPOINTS.ANALYTICS}${e}`,{headers:this.authHeaders});if(t.ok){const s=await t.json();this.renderCommandStatsInternal(s)}}catch(e){console.error("Error updating statistics",e)}},renderCommandStatsInternal(e){const t=document.getElementById("profile-stats-summary-grid");if(!t)return;t.innerHTML="",[{id:"cat-commands",label:"Comandos",icon:"fa-terminal",keys:["clips","followage","so"]},{id:"cat-tools",label:"Herramientas",icon:"fa-screwdriver-wrench",keys:["stalker","trends","roulette"]},{id:"cat-minigames",label:"Minijuegos",icon:"fa-gamepad",keys:["russian","magic8","duel"]}].forEach(n=>{const o=n.keys.reduce((l,d)=>l+(e[d]||0),0),r=document.createElement("div");r.className="stat-card",r.innerHTML=`
-                <div class="stat-icon"><i class="fa-solid ${n.icon}"></i></div>
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { UI } from "./ui.js";
+import { DASHBOARD_CONFIG } from "../features/dashboard/dashboard-config.js";
+import { AccountMessages } from "../features/dashboard/account/messages.js";
+import { HtmlLoader } from "../shared/utils/htmlLoader.js";
+import { Loader } from "../shared/utils/loader.js";
+const ProfileModule = {
+  session: null,
+  isInitialized: false,
+  rateLimitPollInterval: null,
+  countdown: 30,
+  lastData: {
+    followers: -1,
+    analytics: {},
+    summaries: {}
+  },
+  get authHeaders() {
+    const headers = {};
+    if (this.session?.token) headers["Authorization"] = `Bearer ${this.session.token}`;
+    return headers;
+  },
+  get authQuery() {
+    if (this.session?.apiKey) return `apiKey=${encodeURIComponent(this.session.apiKey)}`;
+    if (this.session?.token) return `token=${encodeURIComponent(this.session.token)}`;
+    return "";
+  },
+  init(session) {
+    this.session = session;
+    this.isInitialized = true;
+  },
+  activate() {
+    Loader.loadCSS("./css/sections/profile.css");
+    this.setupUIInternal();
+    this.loadProfileData();
+    this.loadAnalytics();
+    this.startSmartPolling();
+  },
+  deactivate() {
+    if (this.rateLimitPollInterval) {
+      clearInterval(this.rateLimitPollInterval);
+      this.rateLimitPollInterval = null;
+    }
+  },
+  startSmartPolling() {
+    if (this.rateLimitPollInterval) clearInterval(this.rateLimitPollInterval);
+    const lastSync = localStorage.getItem("dashboard_last_sync");
+    const now = Date.now();
+    const pollMs = 3e4;
+    if (lastSync) {
+      const elapsed = now - parseInt(lastSync);
+      if (elapsed < pollMs) {
+        this.countdown = Math.ceil((pollMs - elapsed) / 1e3);
+      } else {
+        this.countdown = 30;
+        this.performSync();
+      }
+    } else {
+      this.countdown = 30;
+      this.performSync();
+    }
+    this.updateSyncIndicator();
+    this.rateLimitPollInterval = setInterval(() => {
+      if (typeof this.countdown === "number") {
+        this.countdown--;
+        if (this.countdown <= 0) {
+          this.performSync();
+          this.countdown = 30;
+        }
+      }
+      this.updateSyncIndicator();
+    }, 1e3);
+  },
+  updateSyncIndicator() {
+    const syncEl = document.getElementById("profile-sync-indicator");
+    if (!syncEl) return;
+    syncEl.textContent = "Auto";
+  },
+  async performSync() {
+    const syncEl = document.getElementById("profile-sync-indicator");
+    if (this.session) {
+      localStorage.setItem("dashboard_last_sync", Date.now().toString());
+      await Promise.all([this.pollRateLimit(), this.loadAnalytics()]);
+    }
+    setTimeout(() => {
+      if (syncEl) syncEl.classList.remove("syncing");
+    }, 1e3);
+  },
+  setupUIInternal() {
+    if (!this.session) return;
+    const userIdTag = document.getElementById("profile-user-id");
+    const displayName = document.getElementById("profile-display-name");
+    const avatar = document.getElementById("profile-large-avatar");
+    if (userIdTag) userIdTag.textContent = this.session.userId || "---";
+    if (displayName)
+      displayName.textContent = this.session.displayName || this.session.login || "Streamer";
+    if (avatar && this.session.profile_image_url) {
+      avatar.src = this.session.profile_image_url;
+    }
+    const tokenInput = document.getElementById("profile-api-key");
+    if (tokenInput) {
+      const realKey = this.session.apiKey || this.session.token || "";
+      tokenInput.value = realKey;
+      tokenInput.dataset.realValue = realKey;
+    }
+    this.setupTokenVisibility();
+    this.setupRegenerate();
+    this.setupCopyId();
+    this.setupDangerToggle();
+    this.setupDataExport();
+    this.setupDangerZone();
+  },
+  setupDangerToggle() {
+    const toggleBtn = document.getElementById("profile-toggle-danger");
+    const dangerSection = document.getElementById("danger-zone-section");
+    if (toggleBtn && dangerSection && !toggleBtn.dataset.listener) {
+      toggleBtn.addEventListener("click", () => {
+        const isHidden = dangerSection.classList.contains("is-hidden");
+        if (isHidden) {
+          dangerSection.classList.remove("is-hidden");
+          toggleBtn.classList.add("active");
+          toggleBtn.title = "Ocultar Zona de Peligro";
+          setTimeout(() => {
+            const start = window.pageYOffset;
+            const end = document.documentElement.scrollHeight - window.innerHeight;
+            const distance = end - start;
+            const duration = 1200;
+            let startTime = null;
+            const easeOutQuint = /* @__PURE__ */ __name((t, b, c, d) => {
+              return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
+            }, "easeOutQuint");
+            const animation = /* @__PURE__ */ __name((currentTime) => {
+              if (startTime === null) startTime = currentTime;
+              const timeElapsed = currentTime - startTime;
+              const run = easeOutQuint(timeElapsed, start, distance, duration);
+              window.scrollTo(0, run);
+              if (timeElapsed < duration) {
+                requestAnimationFrame(animation);
+              } else {
+                window.scrollTo(0, document.documentElement.scrollHeight);
+              }
+            }, "animation");
+            requestAnimationFrame(animation);
+          }, 400);
+        } else {
+          dangerSection.classList.add("is-hidden");
+          toggleBtn.classList.remove("active");
+          toggleBtn.title = "Mostrar Zona de Peligro";
+        }
+      });
+      toggleBtn.dataset.listener = "true";
+    }
+  },
+  async loadProfileData() {
+    if (!this.session) return;
+    try {
+      const q = this.authQuery ? `&${this.authQuery}` : "";
+      const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}${q}`;
+      const response = await fetch(url, {
+        headers: this.authHeaders
+      });
+      if (response.ok) {
+        const data = await response.json();
+        this.updateProfileStatsInternal(data);
+        this.updateBadgesInternal(data);
+      }
+    } catch (e) {
+      console.error("[Profile] Error loading data:", e);
+    }
+  },
+  async pollRateLimit() {
+    if (!this.session) return;
+    try {
+      const q = this.authQuery ? `&${this.authQuery}` : "";
+      const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}${q}`;
+      const response = await fetch(url, {
+        headers: this.authHeaders
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const rateLimitEl = document.getElementById("profile-stat-ratelimit");
+        if (rateLimitEl && data.rateLimit) {
+          rateLimitEl.textContent = `${data.rateLimit} req/min`;
+        }
+      }
+    } catch (_e) {
+    }
+  },
+  async loadAnalytics() {
+    if (!this.session) return;
+    try {
+      const q = this.authQuery ? `?${this.authQuery}` : "";
+      const response = await fetch(`${DASHBOARD_CONFIG.API_ENDPOINTS.ANALYTICS}${q}`, {
+        headers: this.authHeaders
+      });
+      if (response.ok) {
+        const data = await response.json();
+        this.renderCommandStatsInternal(data);
+      }
+    } catch (_e) {
+      console.error("Error updating statistics", _e);
+    }
+  },
+  renderCommandStatsInternal(data) {
+    const statsGrid = document.getElementById("profile-stats-summary-grid");
+    if (!statsGrid) return;
+    statsGrid.innerHTML = "";
+    const categories = [
+      {
+        id: "cat-commands",
+        label: "Comandos",
+        icon: "fa-terminal",
+        keys: ["clips", "followage", "so"]
+      },
+      {
+        id: "cat-tools",
+        label: "Herramientas",
+        icon: "fa-screwdriver-wrench",
+        keys: ["stalker", "trends", "roulette"]
+      },
+      {
+        id: "cat-minigames",
+        label: "Minijuegos",
+        icon: "fa-gamepad",
+        keys: ["russian", "magic8", "duel"]
+      }
+    ];
+    categories.forEach((cat) => {
+      const totalSum = cat.keys.reduce((sum, key) => sum + (data[key] || 0), 0);
+      const card = document.createElement("div");
+      card.className = "stat-card";
+      card.innerHTML = `
+                <div class="stat-icon"><i class="fa-solid ${cat.icon}"></i></div>
                 <div class="stat-info">
-                    <h3 id="profile-sum-${n.id}">0</h3>
-                    <span>${n.label}</span>
+                    <h3 id="profile-sum-${cat.id}">0</h3>
+                    <span>${cat.label}</span>
                 </div>
-            `,t.appendChild(r);const i=document.getElementById(`profile-sum-${n.id}`);i&&((this.lastData.summaries?.[n.id]??0)!==o?(a.animateValue(i,null,o),this.lastData.summaries||(this.lastData.summaries={}),this.lastData.summaries[n.id]=o):i.textContent=o.toLocaleString())})},updateProfileStatsInternal(e){const t=document.getElementById("profile-stat-followers"),s=document.getElementById("profile-bio"),n=document.getElementById("profile-stat-broadcaster"),o=document.getElementById("profile-stat-created");if(t){t.classList.remove("skeleton","skeleton-text"),t.style.width="",t.style.height="";const i=e.followers||0;this.lastData.followers!==i?(a.animateValue(t,0,i,1500),this.lastData.followers=i):t.textContent=i.toLocaleString()}if(s&&(s.classList.remove("skeleton","skeleton-text"),s.style.width="",s.style.height="",s.textContent=e.description||"Sin biograf\xEDa disponible. \xA1Este streamer es un misterio!"),n){n.classList.remove("skeleton","skeleton-text"),n.style.width="",n.style.height="";const i={partner:"Partner",affiliate:"Afiliado","":"Streamer"},l=e.broadcaster_type||"";n.textContent=i[l]||"Streamer"}if(o&&e.created_at){o.classList.remove("skeleton","skeleton-text"),o.style.width="",o.style.height="";try{const i=new Date(e.created_at),l={day:"2-digit",month:"short",year:"numeric"};o.textContent=i.toLocaleDateString("es-ES",l)}catch{o.textContent="---"}}const r=document.getElementById("profile-stat-ratelimit");r&&e.rateLimit&&(r.textContent=`${e.rateLimit} req/min`)},updateBadgesInternal(e){const t=document.getElementById("profile-badges-container");if(!t)return;let s="";e.broadcaster_type==="partner"?s+='<span class="profile-badge-status"><i class="fa-solid fa-check-circle"></i> Partner de Twitch</span>':e.broadcaster_type==="affiliate"?s+='<span class="profile-badge-status"><i class="fa-solid fa-star"></i> Afiliado de Twitch</span>':s+='<span class="profile-badge-status secondary"><i class="fa-solid fa-user"></i> Streamer</span>',s+='<span class="profile-badge-status secondary"><i class="fa-solid fa-key"></i> LosPerris Access</span>',t.innerHTML=s},setupTokenVisibility(){const e=document.getElementById("profile-toggle-key"),t=document.getElementById("profile-api-key");e&&t&&!e.dataset.listener&&(e.addEventListener("click",()=>{t.type==="password"?(t.type="text",t.value=t.dataset.realValue||"",e.innerHTML='<i class="fa-regular fa-eye-slash"></i>'):(t.type="password",e.innerHTML='<i class="fa-regular fa-eye"></i>')}),e.dataset.listener="true")},setupCopyId(){const e=document.getElementById("profile-copy-id-btn");e&&!e.dataset.listener&&(e.addEventListener("click",()=>{const s=document.getElementById("profile-user-id")?.textContent?.trim();!s||s==="---"||navigator.clipboard.writeText(s).then(()=>{const n=e.querySelector("i");n&&(n.className="fa-solid fa-check",n.style.opacity="1",n.style.color="var(--success)",setTimeout(()=>{n.className="fa-regular fa-copy",n.style.opacity="0.5",n.style.color=""},1500))})}),e.dataset.listener="true")},setupRegenerate(){const e=document.getElementById("profile-regen-key"),t=document.getElementById("regen-modal");e&&!e.dataset.listener&&(e.addEventListener("click",async()=>{if(!t)return;if(!document.getElementById("confirm-regen-btn")&&t.dataset.src)try{await y.load(t.dataset.src,t.id)}catch{a.showToast("Error al cargar modal de regeneraci\xF3n","error");return}const s=document.getElementById("confirm-regen-btn");s&&!s.dataset.listener&&(s.addEventListener("click",async()=>{const r=document.getElementById("close-regen-btn");r?r.click():t.close(),a.setButtonLoading(e,!0);try{const l=await(await fetch(`${h.API_ENDPOINTS.REGENERATE_KEY}?userId=${this.session?.userId}`)).json();if(l.apiKey&&this.session){this.session.apiKey=l.apiKey,(await import("./auth.js")).Auth.saveSession(this.session);const m=document.getElementById("profile-api-key");m&&(m.dataset.realValue=l.apiKey,m.type==="text"&&(m.value=l.apiKey)),a.showToast(g.regenerateSuccess,"success")}}catch{a.showToast(g.regenerateError,"error")}finally{a.setButtonLoading(e,!1)}}),s.dataset.listener="true");const n=document.getElementById("close-regen-btn"),o=document.getElementById("cancel-regen-btn");n&&(n.onclick=()=>t.close()),o&&(o.onclick=()=>t.close()),t.showModal()}),e.dataset.listener="true")},async openDangerModal(e){const t=document.getElementById("danger-action-modal");if(!t){a.showToast("Error: Modal de seguridad no encontrado","error");return}if(!document.getElementById("danger-modal-title")&&t.dataset.src)try{await y.load(t.dataset.src,t.id)}catch{a.showToast("Error al cargar componente de seguridad","error");return}const s=document.getElementById("danger-modal-title"),n=document.getElementById("danger-modal-desc"),o=document.getElementById("danger-modal-word"),r=document.getElementById("danger-modal-confirm"),i=document.getElementById("danger-modal-submit"),l=document.getElementById("danger-modal-close"),d=document.getElementById("danger-modal-cancel");if(!s||!n||!o||!r||!i){a.showToast("Error: Componentes del modal incompletos","error"),console.error("[Profile] Missing modal elements:",{titleEl:s,descEl:n,wordEl:o,inputEl:r,submitBtn:i});return}s.innerText=e.title,n.innerText=e.desc,o.innerText=e.word,r.value="",i.disabled=!0,t.classList.remove("shake");const m=f(()=>{i.disabled=r.value.trim().toUpperCase()!==e.word},"validate");return r.oninput=m,new Promise(c=>{const u=f(()=>{r.oninput=null,l&&(l.onclick=null),d&&(d.onclick=null),i.onclick=null,t.open&&t.close(),c()},"cleanup");i.onclick=async()=>{if(r.value.trim().toUpperCase()===e.word){a.setButtonLoading(i,!0);try{await e.onConfirm(),u()}catch{a.showToast("Error en la acci\xF3n confirmada","error")}finally{a.setButtonLoading(i,!1)}}else t.classList.add("shake"),setTimeout(()=>t.classList.remove("shake"),500)},l&&(l.onclick=u),d&&(d.onclick=u),t.showModal()})},setupDataExport(){const e=document.getElementById("profile-export-data-btn");e&&!e.dataset.listener&&(e.addEventListener("click",async()=>{if(this.session){a.setButtonLoading(e,!0);try{const{DataExport:t}=await import("../features/dashboard/account/dataExport.js");await t.export(this.session)}catch(t){console.error("[Profile] Export error:",t),a.showToast("Error al exportar datos","error")}finally{a.setButtonLoading(e,!1)}}}),e.dataset.listener="true")},setupDangerZone(){const e=document.getElementById("profile-clear-data-btn"),t=document.getElementById("profile-delete-account-btn");e&&!e.dataset.listener&&(e.addEventListener("click",()=>{this.openDangerModal({title:"Reiniciar Estad\xEDsticas",desc:"Esta acci\xF3n borrar\xE1 todo el historial de comandos, clips y latencia. Tu cuenta y API Key seguir\xE1n activas.",word:"LIMPIAR",onConfirm:f(async()=>{try{const s=this.authQuery?`?${this.authQuery}`:"",o=await(await fetch(`${h.API_ENDPOINTS.CLEAR_DATA}${s}`,{method:"POST",headers:{"Content-Type":"application/json",...this.authHeaders},body:JSON.stringify({confirm:"LIMPIAR"})})).json();o.success?(a.showToast(o.message,"success"),setTimeout(()=>window.location.reload(),1500)):a.showToast(o.error||"Error al limpiar datos","error")}catch{a.showToast("Error de conexi\xF3n","error")}},"onConfirm")})}),e.dataset.listener="true"),t&&!t.dataset.listener&&(t.addEventListener("click",()=>{this.openDangerModal({title:"Eliminar Perfil de LosPerris API",desc:"\xA1ATENCI\xD3N! Esta acci\xF3n es irreversible dentro de nuestra plataforma. Se borrar\xE1n tus datos y API Key. Esto NO afectar\xE1 a tu canal ni cuenta de Twitch de ninguna manera.",word:"ELIMINAR",onConfirm:f(async()=>{try{const s=this.authQuery?`?${this.authQuery}`:"",o=await(await fetch(`${h.API_ENDPOINTS.DELETE_ACCOUNT}${s}`,{method:"DELETE",headers:{"Content-Type":"application/json",...this.authHeaders},body:JSON.stringify({confirm:"ELIMINAR"})})).json();o.success?(a.showToast("Cuenta eliminada. Redirigiendo...","success"),setTimeout(()=>{window.location.href="/logout"},2e3)):a.showToast(o.error||"Error al eliminar cuenta","error")}catch{a.showToast("Error de conexi\xF3n","error")}},"onConfirm")})}),t.dataset.listener="true")}};export{C as ProfileModule};
+            `;
+      statsGrid.appendChild(card);
+      const valueEl = document.getElementById(`profile-sum-${cat.id}`);
+      if (valueEl) {
+        const prevSum = this.lastData.summaries?.[cat.id] ?? 0;
+        if (prevSum !== totalSum) {
+          UI.animateValue(valueEl, null, totalSum);
+          if (!this.lastData.summaries) this.lastData.summaries = {};
+          this.lastData.summaries[cat.id] = totalSum;
+        } else {
+          valueEl.textContent = totalSum.toLocaleString();
+        }
+      }
+    });
+  },
+  updateProfileStatsInternal(data) {
+    const followers = document.getElementById("profile-stat-followers");
+    const bio = document.getElementById("profile-bio");
+    const broadcasterType = document.getElementById("profile-stat-broadcaster");
+    const createdAt = document.getElementById("profile-stat-created");
+    if (followers) {
+      followers.classList.remove("skeleton", "skeleton-text");
+      followers.style.width = "";
+      followers.style.height = "";
+      const targetValue = data.followers || 0;
+      if (this.lastData.followers !== targetValue) {
+        UI.animateValue(followers, 0, targetValue, 1500);
+        this.lastData.followers = targetValue;
+      } else {
+        followers.textContent = targetValue.toLocaleString();
+      }
+    }
+    if (bio) {
+      bio.classList.remove("skeleton", "skeleton-text");
+      bio.style.width = "";
+      bio.style.height = "";
+      bio.textContent = data.description || "Sin biograf\xEDa disponible. \xA1Este streamer es un misterio!";
+    }
+    if (broadcasterType) {
+      broadcasterType.classList.remove("skeleton", "skeleton-text");
+      broadcasterType.style.width = "";
+      broadcasterType.style.height = "";
+      const types = {
+        partner: "Partner",
+        affiliate: "Afiliado",
+        "": "Streamer"
+      };
+      const type = data.broadcaster_type || "";
+      broadcasterType.textContent = types[type] || "Streamer";
+    }
+    if (createdAt && data.created_at) {
+      createdAt.classList.remove("skeleton", "skeleton-text");
+      createdAt.style.width = "";
+      createdAt.style.height = "";
+      try {
+        const date = new Date(data.created_at);
+        const options = {
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        };
+        createdAt.textContent = date.toLocaleDateString("es-ES", options);
+      } catch (_e) {
+        createdAt.textContent = "---";
+      }
+    }
+    const rateLimitEl = document.getElementById("profile-stat-ratelimit");
+    if (rateLimitEl && data.rateLimit) {
+      rateLimitEl.textContent = `${data.rateLimit} req/min`;
+    }
+  },
+  updateBadgesInternal(data) {
+    const container = document.getElementById("profile-badges-container");
+    if (!container) return;
+    let badgesHtml = "";
+    if (data.broadcaster_type === "partner") {
+      badgesHtml += `<span class="profile-badge-status"><i class="fa-solid fa-check-circle"></i> Partner de Twitch</span>`;
+    } else if (data.broadcaster_type === "affiliate") {
+      badgesHtml += `<span class="profile-badge-status"><i class="fa-solid fa-star"></i> Afiliado de Twitch</span>`;
+    } else {
+      badgesHtml += `<span class="profile-badge-status secondary"><i class="fa-solid fa-user"></i> Streamer</span>`;
+    }
+    badgesHtml += `<span class="profile-badge-status secondary"><i class="fa-solid fa-key"></i> LosPerris Access</span>`;
+    container.innerHTML = badgesHtml;
+  },
+  setupTokenVisibility() {
+    const toggleBtn = document.getElementById("profile-toggle-key");
+    const tokenInput = document.getElementById("profile-api-key");
+    if (toggleBtn && tokenInput && !toggleBtn.dataset.listener) {
+      toggleBtn.addEventListener("click", () => {
+        const isHidden = tokenInput.type === "password";
+        if (isHidden) {
+          tokenInput.type = "text";
+          tokenInput.value = tokenInput.dataset.realValue || "";
+          toggleBtn.innerHTML = '<i class="fa-regular fa-eye-slash"></i>';
+        } else {
+          tokenInput.type = "password";
+          toggleBtn.innerHTML = '<i class="fa-regular fa-eye"></i>';
+        }
+      });
+      toggleBtn.dataset.listener = "true";
+    }
+  },
+  setupCopyId() {
+    const copyBtn = document.getElementById("profile-copy-id-btn");
+    if (copyBtn && !copyBtn.dataset.listener) {
+      copyBtn.addEventListener("click", () => {
+        const idEl = document.getElementById("profile-user-id");
+        const id = idEl?.textContent?.trim();
+        if (!id || id === "---") return;
+        navigator.clipboard.writeText(id).then(() => {
+          const icon = copyBtn.querySelector("i");
+          if (icon) {
+            icon.className = "fa-solid fa-check";
+            icon.style.opacity = "1";
+            icon.style.color = "var(--success)";
+            setTimeout(() => {
+              icon.className = "fa-regular fa-copy";
+              icon.style.opacity = "0.5";
+              icon.style.color = "";
+            }, 1500);
+          }
+        });
+      });
+      copyBtn.dataset.listener = "true";
+    }
+  },
+  setupRegenerate() {
+    const regenBtn = document.getElementById("profile-regen-key");
+    const modal = document.getElementById("regen-modal");
+    if (regenBtn && !regenBtn.dataset.listener) {
+      regenBtn.addEventListener("click", async () => {
+        if (!modal) return;
+        if (!document.getElementById("confirm-regen-btn") && modal.dataset.src) {
+          try {
+            await HtmlLoader.load(modal.dataset.src, modal.id);
+          } catch (_e) {
+            UI.showToast("Error al cargar modal de regeneraci\xF3n", "error");
+            return;
+          }
+        }
+        const confirmBtn = document.getElementById("confirm-regen-btn");
+        if (confirmBtn && !confirmBtn.dataset.listener) {
+          confirmBtn.addEventListener("click", async () => {
+            const closeBtn2 = document.getElementById("close-regen-btn");
+            if (closeBtn2) closeBtn2.click();
+            else modal.close();
+            UI.setButtonLoading(regenBtn, true);
+            try {
+              const response = await fetch(
+                `${DASHBOARD_CONFIG.API_ENDPOINTS.REGENERATE_KEY}?userId=${this.session?.userId}`
+              );
+              const data = await response.json();
+              if (data.apiKey && this.session) {
+                this.session.apiKey = data.apiKey;
+                const auth = await import("./auth.js");
+                auth.Auth.saveSession(this.session);
+                const tokenInput = document.getElementById(
+                  "profile-api-key"
+                );
+                if (tokenInput) {
+                  tokenInput.dataset.realValue = data.apiKey;
+                  if (tokenInput.type === "text") tokenInput.value = data.apiKey;
+                }
+                UI.showToast(AccountMessages.regenerateSuccess, "success");
+              }
+            } catch (_e) {
+              UI.showToast(AccountMessages.regenerateError, "error");
+            } finally {
+              UI.setButtonLoading(regenBtn, false);
+            }
+          });
+          confirmBtn.dataset.listener = "true";
+        }
+        const closeBtn = document.getElementById("close-regen-btn");
+        const cancelBtn = document.getElementById("cancel-regen-btn");
+        if (closeBtn) closeBtn.onclick = () => modal.close();
+        if (cancelBtn) cancelBtn.onclick = () => modal.close();
+        modal.showModal();
+      });
+      regenBtn.dataset.listener = "true";
+    }
+  },
+  async openDangerModal(options) {
+    const modal = document.getElementById("danger-action-modal");
+    if (!modal) {
+      UI.showToast("Error: Modal de seguridad no encontrado", "error");
+      return;
+    }
+    if (!document.getElementById("danger-modal-title") && modal.dataset.src) {
+      try {
+        await HtmlLoader.load(modal.dataset.src, modal.id);
+      } catch (_e) {
+        UI.showToast("Error al cargar componente de seguridad", "error");
+        return;
+      }
+    }
+    const titleEl = document.getElementById("danger-modal-title");
+    const descEl = document.getElementById("danger-modal-desc");
+    const wordEl = document.getElementById("danger-modal-word");
+    const inputEl = document.getElementById("danger-modal-confirm");
+    const submitBtn = document.getElementById("danger-modal-submit");
+    const closeBtn = document.getElementById("danger-modal-close");
+    const cancelBtn = document.getElementById("danger-modal-cancel");
+    if (!titleEl || !descEl || !wordEl || !inputEl || !submitBtn) {
+      UI.showToast("Error: Componentes del modal incompletos", "error");
+      console.error("[Profile] Missing modal elements:", {
+        titleEl,
+        descEl,
+        wordEl,
+        inputEl,
+        submitBtn
+      });
+      return;
+    }
+    titleEl.innerText = options.title;
+    descEl.innerText = options.desc;
+    wordEl.innerText = options.word;
+    inputEl.value = "";
+    submitBtn.disabled = true;
+    modal.classList.remove("shake");
+    const validate = /* @__PURE__ */ __name(() => {
+      submitBtn.disabled = inputEl.value.trim().toUpperCase() !== options.word;
+    }, "validate");
+    inputEl.oninput = validate;
+    return new Promise((resolve) => {
+      const cleanup = /* @__PURE__ */ __name(() => {
+        inputEl.oninput = null;
+        if (closeBtn) closeBtn.onclick = null;
+        if (cancelBtn) cancelBtn.onclick = null;
+        submitBtn.onclick = null;
+        if (modal.open) modal.close();
+        resolve();
+      }, "cleanup");
+      submitBtn.onclick = async () => {
+        if (inputEl.value.trim().toUpperCase() === options.word) {
+          UI.setButtonLoading(submitBtn, true);
+          try {
+            await options.onConfirm();
+            cleanup();
+          } catch (_e) {
+            UI.showToast("Error en la acci\xF3n confirmada", "error");
+          } finally {
+            UI.setButtonLoading(submitBtn, false);
+          }
+        } else {
+          modal.classList.add("shake");
+          setTimeout(() => modal.classList.remove("shake"), 500);
+        }
+      };
+      if (closeBtn) closeBtn.onclick = cleanup;
+      if (cancelBtn) cancelBtn.onclick = cleanup;
+      modal.showModal();
+    });
+  },
+  setupDataExport() {
+    const exportBtn = document.getElementById("profile-export-data-btn");
+    if (exportBtn && !exportBtn.dataset.listener) {
+      exportBtn.addEventListener("click", async () => {
+        if (!this.session) return;
+        UI.setButtonLoading(exportBtn, true);
+        try {
+          const { DataExport } = await import("../features/dashboard/account/dataExport.js");
+          await DataExport.export(this.session);
+        } catch (e) {
+          console.error("[Profile] Export error:", e);
+          UI.showToast("Error al exportar datos", "error");
+        } finally {
+          UI.setButtonLoading(exportBtn, false);
+        }
+      });
+      exportBtn.dataset.listener = "true";
+    }
+  },
+  setupDangerZone() {
+    const clearBtn = document.getElementById("profile-clear-data-btn");
+    const deleteBtn = document.getElementById("profile-delete-account-btn");
+    if (clearBtn && !clearBtn.dataset.listener) {
+      clearBtn.addEventListener("click", () => {
+        this.openDangerModal({
+          title: "Reiniciar Estad\xEDsticas",
+          desc: "Esta acci\xF3n borrar\xE1 todo el historial de comandos, clips y latencia. Tu cuenta y API Key seguir\xE1n activas.",
+          word: "LIMPIAR",
+          onConfirm: /* @__PURE__ */ __name(async () => {
+            try {
+              const q = this.authQuery ? `?${this.authQuery}` : "";
+              const response = await fetch(
+                `${DASHBOARD_CONFIG.API_ENDPOINTS.CLEAR_DATA}${q}`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    ...this.authHeaders
+                  },
+                  body: JSON.stringify({ confirm: "LIMPIAR" })
+                }
+              );
+              const data = await response.json();
+              if (data.success) {
+                UI.showToast(data.message, "success");
+                setTimeout(() => window.location.reload(), 1500);
+              } else {
+                UI.showToast(data.error || "Error al limpiar datos", "error");
+              }
+            } catch (_e) {
+              UI.showToast("Error de conexi\xF3n", "error");
+            }
+          }, "onConfirm")
+        });
+      });
+      clearBtn.dataset.listener = "true";
+    }
+    if (deleteBtn && !deleteBtn.dataset.listener) {
+      deleteBtn.addEventListener("click", () => {
+        this.openDangerModal({
+          title: "Eliminar Perfil de LosPerris API",
+          desc: "\xA1ATENCI\xD3N! Esta acci\xF3n es irreversible dentro de nuestra plataforma. Se borrar\xE1n tus datos y API Key. Esto NO afectar\xE1 a tu canal ni cuenta de Twitch de ninguna manera.",
+          word: "ELIMINAR",
+          onConfirm: /* @__PURE__ */ __name(async () => {
+            try {
+              const q = this.authQuery ? `?${this.authQuery}` : "";
+              const response = await fetch(
+                `${DASHBOARD_CONFIG.API_ENDPOINTS.DELETE_ACCOUNT}${q}`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                    ...this.authHeaders
+                  },
+                  body: JSON.stringify({ confirm: "ELIMINAR" })
+                }
+              );
+              const data = await response.json();
+              if (data.success) {
+                UI.showToast("Cuenta eliminada. Redirigiendo...", "success");
+                setTimeout(() => {
+                  window.location.href = "/logout";
+                }, 2e3);
+              } else {
+                UI.showToast(data.error || "Error al eliminar cuenta", "error");
+              }
+            } catch (_e) {
+              UI.showToast("Error de conexi\xF3n", "error");
+            }
+          }, "onConfirm")
+        });
+      });
+      deleteBtn.dataset.listener = "true";
+    }
+  }
+};
+export {
+  ProfileModule
+};
