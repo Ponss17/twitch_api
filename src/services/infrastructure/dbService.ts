@@ -234,9 +234,11 @@ export const recordUserRequest = async (
 
 export const updateLastActive = async (userId: string): Promise<void> => {
     try {
-        // Optimización: hset parcial en lugar de leer todo el objeto
-        // Redis permite actualizar campos específicos de un hash
-        await kv.hset(USERS_KEY, { [userId]: { lastActive: new Date().toISOString() } });
+        const user = await kv.hget<StoredUser>(USERS_KEY, userId);
+        if (user) {
+            user.lastActive = new Date().toISOString();
+            await kv.hset(USERS_KEY, { [userId]: user });
+        }
     } catch (e) {
         logger.error('Error updating last active:', e);
     }
