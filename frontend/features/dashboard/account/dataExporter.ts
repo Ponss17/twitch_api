@@ -1,5 +1,14 @@
 import { UI } from '../../../core/ui.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
+import { Session } from '../../../types.js';
+
+interface AnalyticsData {
+    todayRequests?: number;
+    totalRequests?: number;
+    averageLatency?: string;
+    successRate?: string;
+    [key: string]: number | string | undefined;
+}
 
 const COMMAND_INTEGRATIONS = [
     {
@@ -129,14 +138,14 @@ const COMMAND_INTEGRATIONS = [
 ];
 
 const DataExport = {
-    async fetchAnalytics(session: any) {
+    async fetchAnalytics(session: Session): Promise<AnalyticsData> {
         try {
             const authQuery = session.apiKey
                 ? `apiKey=${encodeURIComponent(session.apiKey)}`
                 : session.token
                   ? `token=${encodeURIComponent(session.token)}`
                   : '';
-            const headers: any = {};
+            const headers: Record<string, string> = {};
             if (session.token) headers.Authorization = `Bearer ${session.token}`;
 
             const queryParam = authQuery ? `?${authQuery}` : '';
@@ -151,14 +160,14 @@ const DataExport = {
         return {};
     },
 
-    async fetchUserInfo(session: any) {
+    async fetchUserInfo(session: Session) {
         try {
             const authQuery = session.apiKey
                 ? `apiKey=${encodeURIComponent(session.apiKey)}`
                 : session.token
                   ? `token=${encodeURIComponent(session.token)}`
                   : '';
-            const headers: any = {};
+            const headers: Record<string, string> = {};
             if (session.token) headers.Authorization = `Bearer ${session.token}`;
 
             const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${encodeURIComponent(session.login)}&${authQuery}`;
@@ -190,7 +199,7 @@ const DataExport = {
         return `${protocol}//${host}/api/twitch`;
     },
 
-    buildCommandRows(analytics: any, apiKey: string) {
+    buildCommandRows(analytics: AnalyticsData, apiKey: string) {
         const rows: string[] = [];
         const apiBaseUrl = this.getApiBaseUrl();
 
@@ -260,7 +269,7 @@ const DataExport = {
         return rows.join('');
     },
 
-    async export(session: any) {
+    async export(session: Session) {
         const user = session;
         const name = user.displayName || user.login || 'Usuario';
         const now = new Date();
