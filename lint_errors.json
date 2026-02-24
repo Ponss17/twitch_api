@@ -1,0 +1,1747 @@
+[
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\api\\index.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\dashboard_ts_old.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\eslint.config.mjs",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\admin\\auth.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\admin\\dashboard.ts",
+        "messages": [],
+        "suppressedMessages": [
+            {
+                "ruleId": "@typescript-eslint/no-explicit-any",
+                "severity": 1,
+                "message": "Unexpected any. Specify a different type.",
+                "line": 19,
+                "column": 22,
+                "nodeType": "TSAnyKeyword",
+                "messageId": "unexpectedAny",
+                "endLine": 19,
+                "endColumn": 25,
+                "suggestions": [
+                    {
+                        "messageId": "suggestUnknown",
+                        "fix": { "range": [476, 479], "text": "unknown" },
+                        "desc": "Use `unknown` instead, this will force you to explicitly, and safely assert the type is correct."
+                    },
+                    {
+                        "messageId": "suggestNever",
+                        "fix": { "range": [476, 479], "text": "never" },
+                        "desc": "Use `never` instead, this is useful when instantiating generic type parameters that you don't need to know the type of."
+                    }
+                ],
+                "suppressions": [{ "kind": "directive", "justification": "" }]
+            },
+            {
+                "ruleId": "@typescript-eslint/no-explicit-any",
+                "severity": 1,
+                "message": "Unexpected any. Specify a different type.",
+                "line": 25,
+                "column": 12,
+                "nodeType": "TSAnyKeyword",
+                "messageId": "unexpectedAny",
+                "endLine": 25,
+                "endColumn": 15,
+                "suggestions": [
+                    {
+                        "messageId": "suggestUnknown",
+                        "fix": { "range": [645, 648], "text": "unknown" },
+                        "desc": "Use `unknown` instead, this will force you to explicitly, and safely assert the type is correct."
+                    },
+                    {
+                        "messageId": "suggestNever",
+                        "fix": { "range": [645, 648], "text": "never" },
+                        "desc": "Use `never` instead, this is useful when instantiating generic type parameters that you don't need to know the type of."
+                    }
+                ],
+                "suppressions": [{ "kind": "directive", "justification": "" }]
+            },
+            {
+                "ruleId": "@typescript-eslint/no-explicit-any",
+                "severity": 1,
+                "message": "Unexpected any. Specify a different type.",
+                "line": 62,
+                "column": 20,
+                "nodeType": "TSAnyKeyword",
+                "messageId": "unexpectedAny",
+                "endLine": 62,
+                "endColumn": 23,
+                "suggestions": [
+                    {
+                        "messageId": "suggestUnknown",
+                        "fix": { "range": [2054, 2057], "text": "unknown" },
+                        "desc": "Use `unknown` instead, this will force you to explicitly, and safely assert the type is correct."
+                    },
+                    {
+                        "messageId": "suggestNever",
+                        "fix": { "range": [2054, 2057], "text": "never" },
+                        "desc": "Use `never` instead, this is useful when instantiating generic type parameters that you don't need to know the type of."
+                    }
+                ],
+                "suppressions": [{ "kind": "directive", "justification": "" }]
+            },
+            {
+                "ruleId": "@typescript-eslint/no-explicit-any",
+                "severity": 1,
+                "message": "Unexpected any. Specify a different type.",
+                "line": 67,
+                "column": 12,
+                "nodeType": "TSAnyKeyword",
+                "messageId": "unexpectedAny",
+                "endLine": 67,
+                "endColumn": 15,
+                "suggestions": [
+                    {
+                        "messageId": "suggestUnknown",
+                        "fix": { "range": [2158, 2161], "text": "unknown" },
+                        "desc": "Use `unknown` instead, this will force you to explicitly, and safely assert the type is correct."
+                    },
+                    {
+                        "messageId": "suggestNever",
+                        "fix": { "range": [2158, 2161], "text": "never" },
+                        "desc": "Use `never` instead, this is useful when instantiating generic type parameters that you don't need to know the type of."
+                    }
+                ],
+                "suppressions": [{ "kind": "directive", "justification": "" }]
+            },
+            {
+                "ruleId": "@typescript-eslint/no-explicit-any",
+                "severity": 1,
+                "message": "Unexpected any. Specify a different type.",
+                "line": 83,
+                "column": 23,
+                "nodeType": "TSAnyKeyword",
+                "messageId": "unexpectedAny",
+                "endLine": 83,
+                "endColumn": 26,
+                "suggestions": [
+                    {
+                        "messageId": "suggestUnknown",
+                        "fix": { "range": [2699, 2702], "text": "unknown" },
+                        "desc": "Use `unknown` instead, this will force you to explicitly, and safely assert the type is correct."
+                    },
+                    {
+                        "messageId": "suggestNever",
+                        "fix": { "range": [2699, 2702], "text": "never" },
+                        "desc": "Use `never` instead, this is useful when instantiating generic type parameters that you don't need to know the type of."
+                    }
+                ],
+                "suppressions": [{ "kind": "directive", "justification": "" }]
+            }
+        ],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\app-dashboard.ts",
+        "messages": [],
+        "suppressedMessages": [
+            {
+                "ruleId": "@typescript-eslint/no-explicit-any",
+                "severity": 1,
+                "message": "Unexpected any. Specify a different type.",
+                "line": 27,
+                "column": 82,
+                "nodeType": "TSAnyKeyword",
+                "messageId": "unexpectedAny",
+                "endLine": 27,
+                "endColumn": 85,
+                "suggestions": [
+                    {
+                        "messageId": "suggestUnknown",
+                        "fix": { "range": [967, 970], "text": "unknown" },
+                        "desc": "Use `unknown` instead, this will force you to explicitly, and safely assert the type is correct."
+                    },
+                    {
+                        "messageId": "suggestNever",
+                        "fix": { "range": [967, 970], "text": "never" },
+                        "desc": "Use `never` instead, this is useful when instantiating generic type parameters that you don't need to know the type of."
+                    }
+                ],
+                "suppressions": [{ "kind": "directive", "justification": "" }]
+            }
+        ],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\config.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\core\\auth.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\core\\dashboard.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\core\\profile.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\core\\ui-core.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\core\\ui.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\account\\dataExport.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\account\\messages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\analytics\\messages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\clips.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\clips\\messages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\commands.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\commands\\config.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\commands\\messages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\commands\\module.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\commands\\templates.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\commands\\types.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\dashboard-config.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\duel.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\duel\\messages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\duel\\module.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\feedback.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\feedback\\messages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\home.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\magic8.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\magic8\\messages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\magic8\\module.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\roulette.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\roulette\\messages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\roulette\\module.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\russian\\module.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\stalker.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\stalker\\messages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\stalker\\module.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\stalker\\templates.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\trends.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\trends\\messages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\trends\\module.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\dashboard\\trends\\templates.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\features\\docs\\docs.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\landing\\landing.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\landing\\ui-landing.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\pages\\about.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\services\\cacheService.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\services\\tmiService.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\components\\footer.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\components\\header.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\components\\ui\\button.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\components\\ui\\index.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\i18n\\authMessages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\i18n\\messages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\i18n\\profileMessages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\i18n\\uiMessages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\utils\\api-errors.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\utils\\apiCache.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\utils\\commandGenerator.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\utils\\errorHandler.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\utils\\htmlLoader.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\utils\\loader.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\utils\\logger.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\utils\\profileModal.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\utils\\profileTemplates.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\shared\\utils\\uiSkeleton.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\frontend\\types.ts",
+        "messages": [],
+        "suppressedMessages": [
+            {
+                "ruleId": "@typescript-eslint/no-explicit-any",
+                "severity": 1,
+                "message": "Unexpected any. Specify a different type.",
+                "line": 92,
+                "column": 20,
+                "nodeType": "TSAnyKeyword",
+                "messageId": "unexpectedAny",
+                "endLine": 92,
+                "endColumn": 23,
+                "suggestions": [
+                    {
+                        "messageId": "suggestUnknown",
+                        "fix": { "range": [2187, 2190], "text": "unknown" },
+                        "desc": "Use `unknown` instead, this will force you to explicitly, and safely assert the type is correct."
+                    },
+                    {
+                        "messageId": "suggestNever",
+                        "fix": { "range": [2187, 2190], "text": "never" },
+                        "desc": "Use `never` instead, this is useful when instantiating generic type parameters that you don't need to know the type of."
+                    }
+                ],
+                "suppressions": [{ "kind": "directive", "justification": "" }]
+            }
+        ],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\jest.config.js",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\app.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\config\\env.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\config\\limits.ts",
+        "messages": [
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Delete `ÔÉì`",
+                "line": 1,
+                "column": 29,
+                "nodeType": null,
+                "messageId": "delete",
+                "endLine": 1,
+                "endColumn": 30,
+                "fix": { "range": [28, 29], "text": "" }
+            },
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Delete `ÔÉì`",
+                "line": 2,
+                "column": 64,
+                "nodeType": null,
+                "messageId": "delete",
+                "endLine": 2,
+                "endColumn": 65,
+                "fix": { "range": [93, 94], "text": "" }
+            },
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Delete `ÔÉì`",
+                "line": 3,
+                "column": 62,
+                "nodeType": null,
+                "messageId": "delete",
+                "endLine": 3,
+                "endColumn": 63,
+                "fix": { "range": [156, 157], "text": "" }
+            },
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Delete `ÔÉì`",
+                "line": 4,
+                "column": 69,
+                "nodeType": null,
+                "messageId": "delete",
+                "endLine": 4,
+                "endColumn": 70,
+                "fix": { "range": [226, 227], "text": "" }
+            },
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Delete `ÔÉì`",
+                "line": 5,
+                "column": 73,
+                "nodeType": null,
+                "messageId": "delete",
+                "endLine": 5,
+                "endColumn": 74,
+                "fix": { "range": [300, 301], "text": "" }
+            },
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Delete `ÔÉì`",
+                "line": 6,
+                "column": 47,
+                "nodeType": null,
+                "messageId": "delete",
+                "endLine": 6,
+                "endColumn": 48,
+                "fix": { "range": [348, 349], "text": "" }
+            },
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Delete `ÔÉì`",
+                "line": 7,
+                "column": 3,
+                "nodeType": null,
+                "messageId": "delete",
+                "endLine": 7,
+                "endColumn": 4,
+                "fix": { "range": [352, 353], "text": "" }
+            }
+        ],
+        "suppressedMessages": [],
+        "errorCount": 7,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 7,
+        "fixableWarningCount": 0,
+        "source": "export const RATE_LIMITS = {\r\n    DEFAULT: 120, // L├¡mite por defecto para usuarios (req/min)\r\n    DASHBOARD: 1000, // L├¡mite para uso interno del dashboard\r\n    PUBLIC: 1000, // L├¡mite para recursos est├íticos y rutas p├║blicas\r\n    ADMIN_API: 100, // L├¡mite para la API de administraci├│n (por 15 min)\r\n    LOGIN: 5 // Intentos de login (por 15 min)\r\n};\r\n",
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\config\\messages.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\controllers\\auth\\authController.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\controllers\\games\\gamesController.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\controllers\\system\\seoController.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\controllers\\system\\systemController.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\controllers\\twitch\\commandsController.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\controllers\\twitch\\dashboardController.ts",
+        "messages": [
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Insert `┬À┬À`",
+                "line": 43,
+                "column": 25,
+                "nodeType": null,
+                "messageId": "insert",
+                "endLine": 43,
+                "endColumn": 25,
+                "fix": { "range": [1571, 1571], "text": "  " }
+            },
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Insert `┬À┬À`",
+                "line": 44,
+                "column": 1,
+                "nodeType": null,
+                "messageId": "insert",
+                "endLine": 44,
+                "endColumn": 1,
+                "fix": { "range": [1593, 1593], "text": "  " }
+            },
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Insert `┬À┬À`",
+                "line": 45,
+                "column": 25,
+                "nodeType": null,
+                "messageId": "insert",
+                "endLine": 45,
+                "endColumn": 25,
+                "fix": { "range": [1664, 1664], "text": "  " }
+            },
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Insert `┬À┬À`",
+                "line": 46,
+                "column": 1,
+                "nodeType": null,
+                "messageId": "insert",
+                "endLine": 46,
+                "endColumn": 1,
+                "fix": { "range": [1669, 1669], "text": "  " }
+            },
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Insert `┬À┬À`",
+                "line": 57,
+                "column": 21,
+                "nodeType": null,
+                "messageId": "insert",
+                "endLine": 57,
+                "endColumn": 21,
+                "fix": { "range": [2199, 2199], "text": "  " }
+            },
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Insert `┬À┬À`",
+                "line": 58,
+                "column": 1,
+                "nodeType": null,
+                "messageId": "insert",
+                "endLine": 58,
+                "endColumn": 1,
+                "fix": { "range": [2273, 2273], "text": "  " }
+            }
+        ],
+        "suppressedMessages": [],
+        "errorCount": 6,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 6,
+        "fixableWarningCount": 0,
+        "source": "import { kv } from '@vercel/kv';\nimport { Response } from 'express';\nimport * as dbService from '../../services/infrastructure/dbService';\nimport * as apiService from '../../services/twitch/apiService';\nimport * as cacheService from '../../services/infrastructure/cacheService';\nimport { MESSAGES } from '../../config/messages';\nimport { logger } from '../../utils/logger';\n\nimport { AuthenticatedRequest } from '../../types/twitch';\nimport { RATE_LIMITS } from '../../config/limits';\n\nimport { safeString } from '../../utils/validationHelpers';\n\nexport const getAnalytics = async (req: AuthenticatedRequest, res: Response) => {\n    const userId = req.userId;\n\n    if (!userId) {\n        return res.json({\n            todayRequests: 0,\n            totalRequests: 0,\n            averageLatency: '0ms (0.0s)',\n            avgLatencyMs: 0,\n            successRate: '100%',\n            rawSuccessRate: 100\n        });\n    }\n\n    try {\n        const stats = await dbService.getUserStats(userId);\n        const today = new Date().toISOString().split('T')[0];\n        const dailyStats =\n            ((await kv.hgetall(`stats:${userId}:daily:${today}`)) as Record<string, string>) || {};\n\n        const todayRequests = parseInt(dailyStats?.requests) || 0;\n\n        res.json({\n            ...stats,\n            todayRequests,\n            totalRequests: stats.total_requests || 0,\n            averageLatency:\n                stats.total_latency && stats.total_requests\n                    ? `${Math.round(stats.total_latency / stats.total_requests)}ms (${(\n                        stats.total_latency /\n                        stats.total_requests /\n                        1000\n                    ).toFixed(1)}s)`\n                    : '0ms (0.0s)',\n            avgLatencyMs:\n                stats.total_latency && stats.total_requests\n                    ? Math.round(stats.total_latency / stats.total_requests)\n                    : 0,\n            successRate: stats.total_requests\n                ? `${((1 - (stats.total_errors || 0) / stats.total_requests) * 100).toFixed(1)}%`\n                : '100%',\n            rawSuccessRate: stats.total_requests\n                ? parseFloat(\n                    ((1 - (stats.total_errors || 0) / stats.total_requests) * 100).toFixed(1)\n                )\n                : 100\n        });\n    } catch (e) {\n        logger.error('Error analytics:', e);\n        res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });\n    }\n};\n\nexport const getLogs = async (req: AuthenticatedRequest, res: Response) => {\n    const userId = req.userId;\n    if (!userId) return res.json([]);\n\n    try {\n        const logs = await dbService.getUserActivity(userId);\n        const formattedLogs = logs.map((log) => {\n            let actionText = '';\n            switch (log.type) {\n                case 'clip':\n                    actionText = `­ƒô║ Nuevo clip creado por @${log.user} (${log.detail})`;\n                    break;\n                case 'followage':\n                    actionText = `ÔÅ▒´©Å @${log.user} revis├│ su followage en ${log.detail}`;\n                    break;\n                case 'shoutout':\n                    actionText = `­ƒùú´©Å Shoutout de @${log.user}`;\n                    break;\n                case 'message':\n                    actionText = `­ƒÆ¼ Mensaje enviado: \"${log.detail}\"`;\n                    break;\n                case 'russian':\n                    actionText = `­ƒö½ @${log.user} jug├│ la Ruleta Rusa`;\n                    break;\n                case 'magic8':\n                    actionText = `­ƒÄ▒ @${log.user} pregunt├│ a la Bola 8`;\n                    break;\n                case 'duel':\n                    actionText = `ÔÜö´©Å @${log.user} inici├│ un duelo con @${log.detail}`;\n                    break;\n                default:\n                    actionText = `­ƒö╣ Actividad: ${log.type} por @${log.user}`;\n            }\n            return {\n                ...log,\n                action: actionText\n            };\n        });\n        res.json(formattedLogs);\n    } catch (e) {\n        logger.error('Error logs activity:', e);\n        res.status(500).json({ error: MESSAGES.DASHBOARD.LOGS_ERROR });\n    }\n};\n\nexport const getClips = async (req: AuthenticatedRequest, res: Response) => {\n    const channel = safeString(req.query.channel);\n    const limit = safeString(req.query.limit);\n    let limitNum = parseInt(limit) || 20;\n    if (limitNum > 100) limitNum = 100;\n    const token = req.twitchToken;\n\n    if (!channel) return res.status(400).send(MESSAGES.COMMANDS.MISSING_CHANNEL);\n\n    const cacheKey = `cache:cmd:getClips:channel:${channel}:limit:${limitNum}`;\n    const cached = await cacheService.get(cacheKey);\n    if (cached) return res.json(cached);\n\n    try {\n        const result = await apiService.getClips(channel, limitNum, token || '');\n        await cacheService.set(cacheKey, result, 60);\n        return res.json(result);\n    } catch (error: unknown) {\n        logger.error('Error fetching clips:', { error });\n        const err = error as {\n            status?: number;\n            response?: { status?: number; data?: { message?: string } };\n            message?: string;\n        };\n        const status = err.status || err.response?.status || 500;\n        const message =\n            err.message || err.response?.data?.message || MESSAGES.DASHBOARD.CLIPS_ERROR;\n        return res.status(status).json({ error: message });\n    }\n};\n\nexport const getChatters = async (req: AuthenticatedRequest, res: Response) => {\n    const token = req.twitchToken;\n    const channel = safeString(req.query.channel);\n    const userId = req.userId;\n\n    if (!channel) return res.status(400).send(MESSAGES.COMMANDS.MISSING_CHANNEL);\n    if (!userId) return res.status(401).send(MESSAGES.SYSTEM.USER_NOT_FOUND);\n\n    try {\n        const broadcasterId = await apiService.getUserId(channel, token || '');\n        const chatters = await apiService.getChatters(broadcasterId, userId, token || '');\n        res.json(chatters);\n    } catch (error: unknown) {\n        const err = error as Error;\n        logger.error('Error getting chatters:', { error: err.message });\n        res.status(500).json({ error: MESSAGES.DASHBOARD.CHATTERS_ERROR });\n    }\n};\n\nexport const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {\n    const token = req.twitchToken;\n    const login = safeString(req.query.login);\n    if (!login) return res.status(400).send(MESSAGES.COMMANDS.MISSING_LOGIN);\n\n    try {\n        const info = await apiService.getUserInfo(login, token || '');\n        const followers = await apiService.getFollowersCount(info.id, token || '');\n\n        const apiUser = res.locals.apiUser;\n        const rateLimit = apiUser?.customRateLimit || RATE_LIMITS.DEFAULT;\n\n        res.json({\n            ...info,\n            followers,\n            views: info.view_count,\n            rateLimit\n        });\n    } catch (_error: unknown) {\n        res.status(500).json({ error: MESSAGES.DASHBOARD.USER_INFO_ERROR });\n    }\n};\nexport const clearUserData = async (req: AuthenticatedRequest, res: Response) => {\n    const userId = req.userId;\n    const { confirm } = req.body;\n\n    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });\n    if (confirm !== 'LIMPIAR') {\n        return res\n            .status(400)\n            .json({ error: 'Debes escribir LIMPIAR para confirmar esta acci├│n.' });\n    }\n\n    try {\n        await dbService.clearUserStatsAndLogs(userId);\n        res.json({ success: true, message: 'Estad├¡sticas y actividad reiniciadas correctamente.' });\n    } catch (e) {\n        logger.error('Error clearing user data:', e);\n        res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });\n    }\n};\n\nexport const deleteAccount = async (req: AuthenticatedRequest, res: Response) => {\n    const userId = req.userId;\n    const { confirm } = req.body;\n\n    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });\n    if (confirm !== 'ELIMINAR') {\n        return res\n            .status(400)\n            .json({ error: 'Debes escribir ELIMINAR para confirmar esta acci├│n.' });\n    }\n\n    try {\n        await dbService.deleteUser(userId);\n        res.json({ success: true, message: 'Cuenta eliminada permanentemente del sistema.' });\n    } catch (e) {\n        logger.error('Error deleting account:', e);\n        res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });\n    }\n};\n",
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\middleware\\apiKeyValidator.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\middleware\\authMiddleware.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\middleware\\csrfProtection.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\middleware\\errorMiddleware.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\middleware\\rateLimiter.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\middleware\\validate.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\routes\\admin.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\routes\\authRoutes.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\routes\\commandsRoutes.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\routes\\dashboardRoutes.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\routes\\gamesRoutes.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\routes\\index.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\routes\\systemRoutes.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\schemas\\requestSchemas.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\services\\auth\\authService.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\services\\games\\duelService.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\services\\games\\magic8Service.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\services\\games\\russianService.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\services\\infrastructure\\cacheService.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\services\\infrastructure\\dbService.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\services\\twitch\\apiService.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\startup\\config-check.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\startup\\middleware.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\startup\\routes.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\startup\\static.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\types\\express.d.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\types\\twitch.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\utils\\logger.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\utils\\routeHelpers.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\utils\\twitchAuthHelpers.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\src\\utils\\validationHelpers.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\__mocks__\\@vercel\\kv.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\controllers\\authController.test.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\controllers\\commandsController.test.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\controllers\\dashboardController.test.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\controllers\\gamesController.test.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\controllers\\systemController.test.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\infrastructure\\dbService.test.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\infrastructure\\health.test.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\middleware\\apiKeyValidator.test.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\middleware\\errorMiddleware.test.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\middleware\\rateLimiter.test.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\middleware\\validate.test.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\services\\authService.test.ts",
+        "messages": [
+            {
+                "ruleId": "prettier/prettier",
+                "severity": 2,
+                "message": "Replace `┬ÀgetValidToken,┬ÀregenerateApiKey,┬ÀrefreshUserToken,┬ÀhandleCallback┬À` with `ÔÅÄ┬À┬À┬À┬ÀgetValidToken,ÔÅÄ┬À┬À┬À┬ÀregenerateApiKey,ÔÅÄ┬À┬À┬À┬ÀrefreshUserToken,ÔÅÄ┬À┬À┬À┬ÀhandleCallbackÔÅÄ`",
+                "line": 15,
+                "column": 9,
+                "nodeType": null,
+                "messageId": "replace",
+                "endLine": 15,
+                "endColumn": 76,
+                "fix": {
+                    "range": [376, 443],
+                    "text": "\n    getValidToken,\n    regenerateApiKey,\n    refreshUserToken,\n    handleCallback\n"
+                }
+            }
+        ],
+        "suppressedMessages": [],
+        "errorCount": 1,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 1,
+        "fixableWarningCount": 0,
+        "source": "jest.mock('@/services/infrastructure/dbService', () => ({\n    getUser: jest.fn(),\n    getUserByApiKey: jest.fn(),\n    saveUser: jest.fn()\n}));\n\njest.mock('axios');\n\njest.mock('@/utils/logger', () => ({\n    logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }\n}));\n\nimport axios from 'axios';\nimport * as dbService from '@/services/infrastructure/dbService';\nimport { getValidToken, regenerateApiKey, refreshUserToken, handleCallback } from '@/services/auth/authService';\nimport { StoredUser } from '@/types/twitch';\n\nconst mockStoredUser: StoredUser = {\n    userId: '123',\n    login: 'testuser',\n    displayName: 'Test User',\n    accessToken: 'valid_access_token',\n    refreshToken: 'valid_refresh_token',\n    expiresIn: 3600,\n    obtainedAt: Date.now(),\n    createdAt: '2026-01-01T00:00:00.000Z',\n    apiKey: 'test-api-key',\n    profileImageUrl: 'http://img.url'\n};\n\ndescribe('authService', () => {\n    beforeEach(() => jest.clearAllMocks());\n\n    describe('getValidToken', () => {\n        it('should return token if not expired', async () => {\n            // Token obtenido hace 1 minuto, expira en 1 hora\n            const freshUser = {\n                ...mockStoredUser,\n                obtainedAt: Date.now() - 60_000,\n                expiresIn: 3600\n            };\n\n            (dbService.getUserByApiKey as jest.Mock).mockResolvedValue(freshUser);\n\n            const result = await getValidToken('test-api-key');\n\n            expect(result.accessToken).toBe('valid_access_token');\n            expect(result.userId).toBe('123');\n        });\n\n        it('should throw if API key is invalid', async () => {\n            (dbService.getUserByApiKey as jest.Mock).mockResolvedValue(null);\n\n            await expect(getValidToken('bad-key')).rejects.toThrow('API Key inv├ílida');\n        });\n\n        it('should attempt refresh if token is near expiration', async () => {\n            // Token obtenido hace 59 minutos, expira en 1 hora (dentro de 5 min margin)\n            const nearlyExpiredUser = {\n                ...mockStoredUser,\n                obtainedAt: Date.now() - 55 * 60 * 1000,\n                expiresIn: 3600\n            };\n\n            (dbService.getUserByApiKey as jest.Mock).mockResolvedValue(nearlyExpiredUser);\n            (dbService.getUser as jest.Mock).mockResolvedValue(nearlyExpiredUser);\n\n            // El refresh fallar├í, pero como el token A├ÜN no ha expirado, retornar├í el token actual\n            (axios.post as jest.Mock).mockRejectedValue(new Error('Refresh failed'));\n\n            const result = await getValidToken('test-api-key');\n\n            // Deber├¡a retornar el token existente ya que a├║n no ha expirado del todo\n            expect(result.accessToken).toBe('valid_access_token');\n        });\n    });\n\n    describe('regenerateApiKey', () => {\n        it('should generate a new API key', async () => {\n            (dbService.getUser as jest.Mock).mockResolvedValue(mockStoredUser);\n\n            const newKey = await regenerateApiKey('123');\n\n            expect(newKey).toBeDefined();\n            expect(typeof newKey).toBe('string');\n            expect(newKey).not.toBe('test-api-key');\n            expect(dbService.saveUser).toHaveBeenCalledWith(\n                expect.objectContaining({\n                    userId: '123',\n                    apiKey: newKey\n                })\n            );\n        });\n\n        it('should throw if user not found', async () => {\n            (dbService.getUser as jest.Mock).mockResolvedValue(null);\n\n            await expect(regenerateApiKey('999')).rejects.toThrow('Usuario no encontrado');\n        });\n    });\n\n    describe('refreshUserToken', () => {\n        it('should throw if user has no refresh token', async () => {\n            (dbService.getUser as jest.Mock).mockResolvedValue({\n                ...mockStoredUser,\n                refreshToken: undefined\n            });\n\n            await expect(refreshUserToken('123')).rejects.toThrow();\n        });\n\n        it('should throw if user not found', async () => {\n            (dbService.getUser as jest.Mock).mockResolvedValue(null);\n\n            await expect(refreshUserToken('999')).rejects.toThrow();\n        });\n    });\n\n    describe('handleCallback', () => {\n        const mockTwitchUser = {\n            id: '123',\n            login: 'testuser',\n            display_name: 'Test User',\n            profile_image_url: 'http://img.url'\n        };\n\n        const mockTokenResponse = {\n            data: {\n                access_token: 'new_access_token',\n                refresh_token: 'new_refresh_token',\n                expires_in: 3600\n            }\n        };\n\n        const mockUserResponse = {\n            data: {\n                data: [mockTwitchUser]\n            }\n        };\n\n        it('should preserve custom user data when user already exists', async () => {\n            const existingUser: StoredUser = {\n                ...mockStoredUser,\n                customRateLimit: 500,\n                isActive: false,\n                blockedReason: 'Test reason',\n                stats: { clips: 10 },\n                totalRequests: 10,\n                lastActive: '2026-02-23T00:00:00.000Z'\n            };\n\n            (dbService.getUser as jest.Mock).mockResolvedValue(existingUser);\n            (axios.post as jest.Mock).mockResolvedValue(mockTokenResponse);\n            (axios.get as jest.Mock).mockResolvedValue(mockUserResponse);\n\n            const result = await handleCallback('mock_code', 'mock_state');\n\n            expect(result.user.id).toBe('123');\n            expect(dbService.saveUser).toHaveBeenCalledWith(\n                expect.objectContaining({\n                    userId: '123',\n                    customRateLimit: 500,\n                    isActive: false,\n                    blockedReason: 'Test reason',\n                    stats: { clips: 10 },\n                    totalRequests: 10,\n                    lastActive: '2026-02-23T00:00:00.000Z',\n                    createdAt: '2026-01-01T00:00:00.000Z' // preserved\n                })\n            );\n        });\n\n        it('should use default values for new users', async () => {\n            (dbService.getUser as jest.Mock).mockResolvedValue(null);\n            (axios.post as jest.Mock).mockResolvedValue(mockTokenResponse);\n            (axios.get as jest.Mock).mockResolvedValue(mockUserResponse);\n\n            await handleCallback('mock_code', 'mock_state');\n\n            expect(dbService.saveUser).toHaveBeenCalledWith(\n                expect.objectContaining({\n                    userId: '123',\n                    isActive: true, // default\n                    customRateLimit: undefined // default\n                })\n            );\n        });\n    });\n});\n",
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\setup.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    },
+    {
+        "filePath": "D:\\zzzapi\\twitch_api\\tests\\utils\\validationHelpers.test.ts",
+        "messages": [],
+        "suppressedMessages": [],
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0,
+        "usedDeprecatedRules": []
+    }
+]

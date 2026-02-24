@@ -78,6 +78,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
                 expiry: now + CACHE_TTL_MS
             });
             res.locals.apiUser = user;
+            res.locals.isApiKeyRequest = true;
         }
     } catch (error) {
         logger.warn('API Key validation failed in validator:', (error as Error).message);

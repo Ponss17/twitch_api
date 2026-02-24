@@ -20,11 +20,13 @@ import { logger } from '../utils/logger';
 import { invalidateUserCache } from '../middleware/apiKeyValidator';
 import { CONFIG } from '../config/env';
 
+import { RATE_LIMITS } from '../config/limits';
+
 const router = Router();
 
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 5,
+    limit: RATE_LIMITS.LOGIN,
     message: {
         error: 'Demasiados intentos de inicio de sesión. Inténtalo de nuevo en 15 minutos.'
     },
@@ -34,7 +36,7 @@ const loginLimiter = rateLimit({
 
 const adminApiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 100,
+    limit: RATE_LIMITS.ADMIN_API,
     standardHeaders: true,
     legacyHeaders: false
 });
@@ -157,7 +159,7 @@ router.post('/users/:userId/rate-limit', async (req, res) => {
         if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
 
         user.customRateLimit = limit;
-        if (limit === 0) delete user.customRateLimit; // 0 o null vuelve al default (120)
+        if (limit === 0) delete user.customRateLimit; // 0 o null vuelve al default (RATE_LIMITS.DEFAULT)
 
         await saveUser(user);
 

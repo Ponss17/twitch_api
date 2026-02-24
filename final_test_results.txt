@@ -1,0 +1,239 @@
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/zzzapi/twitch_api/tsconfig.test.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/zzzapi/twitch_api/tsconfig.test.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/zzzapi/twitch_api/tsconfig.test.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/zzzapi/twitch_api/tsconfig.test.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/zzzapi/twitch_api/tsconfig.test.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/zzzapi/twitch_api/tsconfig.test.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/zzzapi/twitch_api/tsconfig.test.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/zzzapi/twitch_api/tsconfig.test.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/zzzapi/twitch_api/tsconfig.test.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/zzzapi/twitch_api/tsconfig.test.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/zzzapi/twitch_api/tsconfig.test.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/zzzapi/twitch_api/tsconfig.test.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/zzzapi/twitch_api/tsconfig.test.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+PASS tests/middleware/errorMiddleware.test.ts
+  errorMiddleware
+    errorHandler
+      ÔêÜ should send plain text for API routes (11 ms)
+      ÔêÜ should send plain text for /twitch routes (1 ms)
+      ÔêÜ should return JSON for non-API routes that do not accept HTML (4 ms)
+      ÔêÜ should default to status 500 and generic message (3 ms)
+    requestLogger
+      ÔêÜ should call next and register finish listener (2 ms)
+
+PASS tests/infrastructure/health.test.ts
+  Environment Health Check
+    ÔêÜ should have NODE_ENV set to test (8 ms)
+    ÔêÜ should have basic arithmetic working (2 ms)
+
+PASS tests/utils/validationHelpers.test.ts
+  validationHelpers
+    safeString
+      ÔêÜ should return string as-is (10 ms)
+      ÔêÜ should return empty string for undefined (1 ms)
+      ÔêÜ should return empty string for null (1 ms)
+      ÔêÜ should return empty string for numbers (2 ms)
+      ÔêÜ should return first element of string array (2 ms)
+      ÔêÜ should return empty string for empty array
+      ÔêÜ should return empty string for array of non-strings
+    sanitizeHtml
+      ÔêÜ should escape & character
+      ÔêÜ should escape < and > characters (1 ms)
+      ÔêÜ should escape double quotes (1 ms)
+      ÔêÜ should escape single quotes (1 ms)
+      ÔêÜ should handle string with no special chars
+      ÔêÜ should handle all special chars together (1 ms)
+
+PASS tests/controllers/commandsController.test.ts
+  commandsController
+    createClip
+      ÔêÜ should create a clip and track activity (19 ms)
+      ÔêÜ should return 400 if no channel provided (1 ms)
+    sendMessage
+      ÔêÜ should send message and track activity (2 ms)
+      ÔêÜ should return 400 if no message provided (1 ms)
+    getShoutout
+      ÔêÜ should send shoutout and track activity (2 ms)
+      ÔêÜ should return 400 if no target user or channel (2 ms)
+
+PASS tests/controllers/gamesController.test.ts
+  gamesController
+    askMagic8
+      ÔêÜ should return an answer and track activity (13 ms)
+      ÔêÜ should return 400 if no question provided (2 ms)
+      ÔêÜ should return 500 on service error (1 ms)
+    playRussian
+      ÔêÜ should return result and track activity (5 ms)
+      ÔêÜ should return 401 if no twitchToken (2 ms)
+    startDuel
+      ÔêÜ should start duel and track activity (1 ms)
+      ÔêÜ should use default challenger name if not provided (1 ms)
+      ÔêÜ should return 400 if no target (1 ms)
+
+  console.log
+    [dotenv@17.2.3] injecting env (10) from .env -- tip: ­ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (10) from .env -- tip: ÔÜÖ´©Å  load multiple .env files with { path: ['.env.local', '.env'] }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+PASS tests/middleware/rateLimiter.test.ts
+  Rate Limiter Middleware
+    ÔêÜ should implement a rate limit function (21 ms)
+
+PASS tests/services/authService.test.ts
+  authService
+    getValidToken
+      ÔêÜ should return token if not expired (18 ms)
+      ÔêÜ should throw if API key is invalid (33 ms)
+      ÔêÜ should attempt refresh if token is near expiration (1 ms)
+    regenerateApiKey
+      ÔêÜ should generate a new API key (4 ms)
+      ÔêÜ should throw if user not found (2 ms)
+    refreshUserToken
+      ÔêÜ should throw if user has no refresh token (2 ms)
+      ÔêÜ should throw if user not found (1 ms)
+    handleCallback
+      ÔêÜ should preserve custom user data when user already exists (1 ms)
+      ÔêÜ should use default values for new users (3 ms)
+
+PASS tests/controllers/authController.test.ts
+  authController
+    login
+      ÔêÜ should redirect to Twitch authorize URL (17 ms)
+      ÔêÜ should pass redirect_origin to service (1 ms)
+      ÔêÜ should pass isAdmin flag when admin=true (2 ms)
+    callback
+      ÔêÜ should redirect to error if no code (4 ms)
+      ÔêÜ should redirect to dashboard on successful auth (4 ms)
+      ÔêÜ should redirect to error on auth failure (2 ms)
+      ÔêÜ should deny non-admin users on admin login flow (1 ms)
+
+PASS tests/controllers/dashboardController.test.ts
+  dashboardController
+    getAnalytics
+      ÔêÜ should return analytics with calculated averages (11 ms)
+      ÔêÜ should handle missing stats gracefully (2 ms)
+      ÔêÜ should return zeroed data if no userId (1 ms)
+    getLogs
+      ÔêÜ should return activity logs array directly (1 ms)
+      ÔêÜ should return empty array if no userId (1 ms)
+
+  console.log
+    [dotenv@17.2.3] injecting env (0) from .env -- tip: ­ƒöÉ prevent building .env in docker: https://dotenvx.com/prebuild
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+PASS tests/middleware/validate.test.ts
+  validate middleware
+    ÔêÜ should call next() for valid input (8 ms)
+    ÔêÜ should return 400 with Zod errors for invalid input (3 ms)
+    ÔêÜ should include path info in error details (2 ms)
+
+  console.log
+    [dotenv@17.2.3] injecting env (10) from .env -- tip: ÔÜÖ´©Å  specify custom .env file path with { path: '/custom/path/.env' }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    [dotenv@17.2.3] injecting env (10) from .env -- tip: ­ƒôí add observability to secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+  console.log
+    Ôä╣´©Å [INFO] ­ƒº╣ Datos limpiados para usuario: 123
+
+      at Object.info (src/utils/logger.ts:17:17)
+
+  console.log
+    Ôä╣´©Å [INFO] ­ƒùæ´©Å Usuario eliminado por completo: testuser (123)
+
+      at Object.info (src/utils/logger.ts:17:17)
+
+PASS tests/infrastructure/dbService.test.ts
+  dbService
+    saveUser
+      ÔêÜ should encrypt tokens and save user to KV (7 ms)
+    getUser
+      ÔêÜ should retrieve user from KV (1 ms)
+      ÔêÜ should return null if user does not exist (1 ms)
+    deleteUser
+      ÔêÜ should delete user and stats from KV (5 ms)
+    addSystemLog
+      ÔêÜ should push log to KV (3 ms)
+
+PASS tests/controllers/systemController.test.ts
+  systemController
+    validateToken
+      ÔêÜ should return valid=true for authenticated user with valid token (10 ms)
+      ÔêÜ should return 401 if no token (1 ms)
+      ÔêÜ should return 401 if token validation fails (1 ms)
+    regenerateKey
+      ÔêÜ should regenerate API key for authenticated user session (1 ms)
+      ÔêÜ should return 401 if userId is missing from session (2 ms)
+      ÔêÜ should return 500 if regeneration service fails (1 ms)
+    submitFeedback
+      ÔêÜ should return 400 if no message provided (2 ms)
+    getHealth
+      ÔêÜ should return health status with checks (4 ms)
+
+  console.log
+    [dotenv@17.2.3] injecting env (0) from .env -- tip: ­ƒöÉ prevent building .env in docker: https://dotenvx.com/prebuild
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+  console.warn
+    ÔÜá´©Å [WARN] API Key validation failed in validator: API Key inv├ílida
+
+    [0m [90m 18 |[39m     }[33m,[39m
+     [90m 19 |[39m     warn[33m:[39m (msg[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[]) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 20 |[39m         console[33m.[39mwarn([32m`${symbols.warn} [WARN]`[39m[33m,[39m msg[33m,[39m [33m...[39margs)[33m;[39m
+     [90m    |[39m                 [31m[1m^[22m[39m
+     [90m 21 |[39m         addSystemLog([32m'warn'[39m[33m,[39m msg[33m,[39m args[33m.[39mlength [33m?[39m { details[33m:[39m args } [33m:[39m undefined)[33m;[39m
+     [90m 22 |[39m     }[33m,[39m
+     [90m 23 |[39m     error[33m:[39m (msg[33m:[39m string[33m,[39m [33m...[39margs[33m:[39m unknown[]) [33m=>[39m {[0m
+
+      at Object.warn (src/utils/logger.ts:20:17)
+      at apiKeyValidator (src/middleware/apiKeyValidator.ts:84:16)
+      at Object.<anonymous> (tests/middleware/apiKeyValidator.test.ts:64:9)
+
+PASS tests/middleware/apiKeyValidator.test.ts
+  API Key Validator Middleware
+    ÔêÜ should call next() without user if no API key is provided (10 ms)
+    ÔêÜ should call next() and populate user if valid API key is provided (2 ms)
+    ÔêÜ should call next() without user if API key is invalid (7 ms)
+
+Test Suites: 13 passed, 13 total
+Tests:       75 passed, 75 total
+Snapshots:   0 total
+Time:        3.273 s
+Ran all test suites.

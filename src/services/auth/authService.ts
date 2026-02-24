@@ -63,9 +63,15 @@ export const handleCallback = async (
         refreshToken: refresh_token,
         expiresIn: expires_in,
         obtainedAt: Date.now(),
-        createdAt: new Date().toISOString(),
+        createdAt: existingUser?.createdAt || new Date().toISOString(),
         apiKey,
-        profileImageUrl: user.profile_image_url
+        profileImageUrl: user.profile_image_url,
+        isActive: existingUser?.isActive ?? true,
+        blockedReason: existingUser?.blockedReason,
+        customRateLimit: existingUser?.customRateLimit,
+        stats: existingUser?.stats,
+        totalRequests: existingUser?.totalRequests,
+        lastActive: existingUser?.lastActive
     };
 
     if (!refresh_token) {
