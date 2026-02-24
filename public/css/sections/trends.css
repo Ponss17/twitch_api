@@ -3,3 +3,17 @@
     border-left: 4px solid #FFD700 !important;
     transform: scale(1.02);
 }
+
+@media (max-width: 600px) {
+    .rank-medal {
+        font-size: 1rem;
+    }
+
+    .word-text {
+        font-size: 0.9rem;
+    }
+
+    .count-text {
+        font-size: 1rem !important;
+    }
+}

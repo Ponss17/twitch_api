@@ -18,6 +18,17 @@
     .response-card {
         flex-direction: column;
         text-align: center;
-        gap: 10px;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .response-card i {
+        font-size: 2rem;
+    }
+
+    .magic8-loading {
+        flex-direction: column;
+        text-align: center;
+        font-size: 0.9rem;
     }
 }

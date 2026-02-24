@@ -538,6 +538,17 @@ code {
 }
 
 @media (max-width: 600px) {
+    .card-footer-flex {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .card-footer-flex p {
+        max-width: 100% !important;
+    }
+
     .toast-container {
         right: 0;
         left: 0;
