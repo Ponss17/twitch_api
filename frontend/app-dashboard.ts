@@ -4,6 +4,9 @@ import { Dashboard } from './core/dashboard.js';
 import { FooterComponent } from './shared/components/footer.js';
 import { Messages } from './shared/i18n/messages.js';
 import { AuthMessages } from './shared/i18n/authMessages.js';
+import { injectSpeedInsights } from '@vercel/speed-insights';
+
+injectSpeedInsights();
 
 import { TwitchUser, Session, ApiResponse } from './types.js';
 
