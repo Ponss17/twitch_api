@@ -6,7 +6,7 @@ export const HeaderComponent = {
         const html = `
             <div class="container">
                 <div class="logo-container">
-                    <img src="img/LosPerris-minimal.webp" alt="Logo" class="logo-img" loading="lazy">
+                    <img src="img/logo.svg" alt="Logo" class="logo-img" loading="lazy" draggable="false">
                     <h1 class="brand-logo">LosPerris <span class="accent-text">Twitch Api</span></h1>
                 </div>
                 <nav class="top-nav">

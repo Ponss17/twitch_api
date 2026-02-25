@@ -15,7 +15,7 @@ const urlsToCache = [
     '/js/utils/htmlLoader.js',
     '/js/utils/loader.js',
     '/js/vendor/tmi.min.js',
-    '/img/LosPerris-minimal.webp'
+    '/img/logo.svg'
 ];
 
 self.addEventListener('install', (event) => {

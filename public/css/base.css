@@ -58,6 +58,15 @@ html {
     background: var(--border-hover);
 }
 
+img[src*="logo.svg"] {
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+
 * {
     scrollbar-width: thin;
     scrollbar-color: var(--bg-secondary) var(--bg-primary);
