@@ -1,0 +1,10 @@
+
+D:\zzzapi\twitch_api\src\controllers\twitch\dashboardController.ts
+  1:10  error  'kv' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\zzzapi\twitch_api\src\services\infrastructure\dbService.ts
+  158:72  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  164:70  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Ô£û 3 problems (1 error, 2 warnings)
+

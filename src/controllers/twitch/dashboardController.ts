@@ -1,4 +1,3 @@
-import { kv } from '@vercel/kv';
 import { Response } from 'express';
 import * as dbService from '../../services/infrastructure/dbService';
 import * as apiService from '../../services/twitch/apiService';
@@ -28,10 +27,10 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
     try {
         const stats = await dbService.getUserStats(userId);
         const today = new Date().toISOString().split('T')[0];
-        const dailyStats =
-            ((await kv.hgetall(`stats:${userId}:daily:${today}`)) as Record<string, string>) || {};
 
-        const todayRequests = parseInt(dailyStats?.requests) || 0;
+        // Los datos diarios ahora están integrados en el mismo hash stats:userId
+        // El campo tiene el prefijo d: seguido de la fecha ISO
+        const todayRequests = stats[`d:${today}`] || 0;
 
         res.json({
             ...stats,

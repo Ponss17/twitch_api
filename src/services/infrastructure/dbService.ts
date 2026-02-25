@@ -10,6 +10,7 @@ import { CONFIG } from '../../config/env';
 
 const USERS_KEY = 'twitch_users';
 const API_KEYS_KEY = 'twitch_api_keys';
+const GLOBAL_STATS_KEY = 'twitch_stats_all';
 const ALGORITHM = 'aes-256-cbc';
 const ENCRYPTION_KEY = crypto
     .createHash('sha256')
@@ -153,17 +154,40 @@ export const updateUserStatus = async (
 // Estadísticas (Por Usuario)
 // ==========================================
 
-export const incrementUserStats = async (userId: string, command: string): Promise<void> => {
-    try {
-        await kv.hincrby(`stats:${userId}`, command, 1);
-    } catch (e) {
-        logger.error('Error incrementing user stats:', e);
-    }
-};
+interface UserStatsData {
+    activity?: StoredActivityLog[];
+    [key: string]: any; // Para permitir campos dinámicos como d:YYYY-MM-DD
+}
+
+// Helper para manejar el Mega Hash global
+async function getRawUserStats(userId: string): Promise<UserStatsData> {
+    const data = await kv.hget<string>(GLOBAL_STATS_KEY, userId);
+    if (!data) return {};
+    return typeof data === 'string' ? JSON.parse(data) : (data as UserStatsData);
+}
+
+async function saveRawUserStats(userId: string, data: UserStatsData): Promise<void> {
+    await kv.hset(GLOBAL_STATS_KEY, { [userId]: JSON.stringify(data) });
+
+    // Auto-limpieza proactiva de claves individuales antiguas
+    const oldKey = `stats:${userId}`;
+    await kv.del(oldKey);
+}
 
 // Memoria caché para estadísticas (L1) para evitar hits constantes a Redis
 const STATS_CACHE = new Map<string, { data: Record<string, number>; expiry: number }>();
 const STATS_TTL = 30 * 1000; // 30 segundos
+
+export const incrementUserStats = async (userId: string, command: string): Promise<void> => {
+    try {
+        const stats = await getRawUserStats(userId);
+        stats[command] = (parseInt(stats[command]) || 0) + 1;
+        await saveRawUserStats(userId, stats);
+        STATS_CACHE.delete(userId); // Limpiar caché L1
+    } catch (e) {
+        logger.error('Error incrementing user stats:', e);
+    }
+};
 
 export const getUserStats = async (userId: string): Promise<Record<string, number>> => {
     try {
@@ -171,29 +195,29 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         const cached = STATS_CACHE.get(userId);
         if (cached && cached.expiry > now) return cached.data;
 
-        const key = `stats:${userId}`;
-        const stats = await kv.hgetall(key);
+        const stats = await getRawUserStats(userId);
 
         const numericStats: Record<string, number> = {
-            // Comandos
             clips: 0,
             followage: 0,
             so: 0,
-            // Herramientas
             stalker: 0,
             trends: 0,
             roulette: 0,
             message: 0,
-            // Minijuegos
             russian: 0,
             magic8: 0,
-            duel: 0
+            duel: 0,
+            total_requests: 0,
+            total_latency: 0,
+            total_errors: 0
         };
 
-        if (!stats) return numericStats;
-
+        // Mezclar con los datos del JSON
         for (const [statKey, value] of Object.entries(stats)) {
-            numericStats[statKey] = parseInt(value as string) || 0;
+            if (statKey !== 'activity') {
+                numericStats[statKey] = parseInt(value as string) || 0;
+            }
         }
 
         STATS_CACHE.set(userId, { data: numericStats, expiry: Date.now() + STATS_TTL });
@@ -221,21 +245,19 @@ export const recordUserRequest = async (
     success: boolean
 ): Promise<void> => {
     try {
-        const key = `stats:${userId}`;
+        const stats = await getRawUserStats(userId);
         const today = new Date().toISOString().split('T')[0];
-        const dailyKey = `stats:${userId}:daily:${today}`;
+        const dailyField = `d:${today}`;
 
-        // Usar pipeline para agrupar todas las actualizaciones en una sola llamada de red
-        const pipeline = kv.pipeline();
-        pipeline.hincrby(key, 'total_requests', 1);
-        pipeline.hincrby(key, 'total_latency', latency);
+        stats['total_requests'] = (parseInt(stats['total_requests']) || 0) + 1;
+        stats['total_latency'] = (parseInt(stats['total_latency']) || 0) + latency;
         if (!success) {
-            pipeline.hincrby(key, 'total_errors', 1);
+            stats['total_errors'] = (parseInt(stats['total_errors']) || 0) + 1;
         }
-        pipeline.hincrby(dailyKey, 'requests', 1);
-        pipeline.expire(dailyKey, 60 * 60 * 24 * 7); // 7 días
+        stats[dailyField] = (parseInt(stats[dailyField]) || 0) + 1;
 
-        await pipeline.exec();
+        await saveRawUserStats(userId, stats);
+        STATS_CACHE.delete(userId);
     } catch (e) {
         logger.error('Error recording user request stats:', e);
     }
@@ -278,23 +300,20 @@ export const deleteUser = async (userId: string): Promise<void> => {
 
 export const clearUserStatsAndLogs = async (userId: string): Promise<void> => {
     try {
-        // Borrar hashes de estadísticas
+        // Borrar del Mega Hash
+        await kv.hdel(GLOBAL_STATS_KEY, userId);
+
+        // Borrar rastro de claves legacy
         const statsKey = `stats:${userId}`;
         await kv.del(statsKey);
-
-        // Borrar logs de actividad
         const activityKey = `${USER_ACTIVITY_PREFIX}${userId}`;
         await kv.del(activityKey);
-
-        // Borrar estadísticas diarias (scan de llaves por patrón)
-        // Nota: En KV de Vercel (Redis) esto es un poco costoso pero necesario
         const dailyPattern = `stats:${userId}:daily:*`;
-        const keys = await kv.keys(dailyPattern);
-        if (keys.length > 0) {
-            await kv.del(...keys);
-        }
+        const oldKeys = await kv.keys(dailyPattern);
+        if (oldKeys.length > 0) await kv.del(...oldKeys);
 
-        logger.info(`🧹 Datos limpiados para usuario: ${userId}`);
+        STATS_CACHE.delete(userId);
+        logger.info(`🧹 Datos limpiados y eliminados del Mega Hash para: ${userId}`);
     } catch (e) {
         logger.error('Error clearing user stats and logs:', e);
         throw e;
@@ -412,9 +431,19 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
             user: entry.user,
             ...(entry.detail && { detail: entry.detail })
         };
-        const key = `${USER_ACTIVITY_PREFIX}${userId}`;
-        await kv.lpush(key, JSON.stringify(logEntry));
-        await kv.ltrim(key, 0, MAX_USER_LOGS - 1);
+
+        const stats = await getRawUserStats(userId);
+        const logs: StoredActivityLog[] = stats.activity || [];
+
+        // Añadir nuevo log al principio y limitar a 50
+        logs.unshift(logEntry);
+        stats.activity = logs.slice(0, MAX_USER_LOGS);
+
+        await saveRawUserStats(userId, stats);
+
+        // Limpieza de clave legacy (proactivo)
+        const legacyKey = `${USER_ACTIVITY_PREFIX}${userId}`;
+        await kv.del(legacyKey);
     } catch (e) {
         logger.error('Error adding user activity:', e);
     }
@@ -422,9 +451,8 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
 
 export const getUserActivity = async (userId: string): Promise<StoredActivityLog[]> => {
     try {
-        const key = `${USER_ACTIVITY_PREFIX}${userId}`;
-        const logs = await kv.lrange(key, 0, -1);
-        return logs.map((l) => (typeof l === 'string' ? JSON.parse(l) : l)) as StoredActivityLog[];
+        const stats = await getRawUserStats(userId);
+        return stats.activity || [];
     } catch (e) {
         logger.error('Error getting user activity:', e);
         return [];
