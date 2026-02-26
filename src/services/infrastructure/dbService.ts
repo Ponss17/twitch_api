@@ -248,13 +248,17 @@ export const recordUserRequest = async (
         const stats = await getRawUserStats(userId);
         const today = new Date().toISOString().split('T')[0];
         const dailyField = `d:${today}`;
+        const dailyErrorField = `e:${today}`;
+        const dailyLatencyField = `l:${today}`;
 
         stats['total_requests'] = (parseInt(stats['total_requests']) || 0) + 1;
         stats['total_latency'] = (parseInt(stats['total_latency']) || 0) + latency;
         if (!success) {
             stats['total_errors'] = (parseInt(stats['total_errors']) || 0) + 1;
+            stats[dailyErrorField] = (parseInt(stats[dailyErrorField]) || 0) + 1;
         }
         stats[dailyField] = (parseInt(stats[dailyField]) || 0) + 1;
+        stats[dailyLatencyField] = (parseInt(stats[dailyLatencyField]) || 0) + latency;
 
         await saveRawUserStats(userId, stats);
         STATS_CACHE.delete(userId);
