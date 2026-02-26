@@ -28,34 +28,30 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
         const stats = await dbService.getUserStats(userId);
         const today = new Date().toISOString().split('T')[0];
 
-        // Los datos diarios ahora están integrados en el mismo hash stats:userId
-        // El campo tiene el prefijo d: seguido de la fecha ISO
-        const todayRequests = stats[`d:${today}`] || 0;
+        const todayRequests = parseInt(String(stats[`d:${today}`] || '0'));
+        const todayErrors = parseInt(String(stats[`e:${today}`] || '0'));
+        const todayLatency = parseInt(String(stats[`l:${today}`] || '0'));
+
+        const hasTodayData = todayRequests > 0;
+
+        // Calcular éxito de hoy
+        const todaySuccessRate = hasTodayData
+            ? parseFloat(((1 - todayErrors / todayRequests) * 100).toFixed(1))
+            : 100;
+
+        // Calcular latencia de hoy
+        const todayAvgLatencyMs = hasTodayData ? Math.round(todayLatency / todayRequests) : 0;
 
         res.json({
             ...stats,
             todayRequests,
             totalRequests: stats.total_requests || 0,
-            averageLatency:
-                stats.total_latency && stats.total_requests
-                    ? `${Math.round(stats.total_latency / stats.total_requests)}ms (${(
-                          stats.total_latency /
-                          stats.total_requests /
-                          1000
-                      ).toFixed(1)}s)`
-                    : '0ms (0.0s)',
-            avgLatencyMs:
-                stats.total_latency && stats.total_requests
-                    ? Math.round(stats.total_latency / stats.total_requests)
-                    : 0,
-            successRate: stats.total_requests
-                ? `${((1 - (stats.total_errors || 0) / stats.total_requests) * 100).toFixed(1)}%`
-                : '100%',
-            rawSuccessRate: stats.total_requests
-                ? parseFloat(
-                      ((1 - (stats.total_errors || 0) / stats.total_requests) * 100).toFixed(1)
-                  )
-                : 100
+            // Sobrescribimos con los datos de hoy para el Dashboard
+            avgLatencyMs: todayAvgLatencyMs,
+            rawSuccessRate: todaySuccessRate,
+            // Mantenemos los strings formateados por si se usan en algún sitio, pero ahora basados en HOY
+            averageLatency: `${todayAvgLatencyMs}ms (${(todayAvgLatencyMs / 1000).toFixed(1)}s)`,
+            successRate: `${todaySuccessRate}%`
         });
     } catch (e) {
         logger.error('Error analytics:', e);

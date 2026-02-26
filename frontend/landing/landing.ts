@@ -4,7 +4,7 @@ import { HeaderComponent } from '../shared/components/header.js';
 import { FooterComponent } from '../shared/components/footer.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
-injectSpeedInsights();
+injectSpeedInsights({ debug: false });
 
 function setupFAQ() {
     const faqItems = document.querySelectorAll('.faq-item');
