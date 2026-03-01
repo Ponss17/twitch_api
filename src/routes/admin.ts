@@ -14,7 +14,9 @@ import {
     getAllAdmins,
     getUserByApiKey,
     getSystemLogs,
-    clearSystemLogs
+    clearSystemLogs,
+    addAuditLog,
+    getAuditLogs
 } from '../services/infrastructure/dbService';
 import { logger } from '../utils/logger';
 import { invalidateUserCache } from '../middleware/apiKeyValidator';
@@ -105,6 +107,7 @@ router.post('/users/:userId/status', async (req, res) => {
     try {
         const { userId } = req.params;
         const { isActive, reason } = req.body;
+        const admin = res.locals.adminUser;
 
         if (typeof isActive !== 'boolean') {
             return res.status(400).json({ error: 'isActive debe ser booleano' });
@@ -112,6 +115,10 @@ router.post('/users/:userId/status', async (req, res) => {
 
         await updateUserStatus(userId, isActive, reason);
         invalidateUserCache(userId);
+
+        const action = isActive ? 'user_unblocked' : 'user_blocked';
+        await addAuditLog(action, userId, admin?.userId, reason ? { reason } : undefined);
+
         logger.info(`Admin updated user ${userId} status: isActive=${isActive}`);
         res.json({ success: true });
     } catch (e) {
@@ -136,8 +143,10 @@ router.post('/users/:userId/reset-key', async (req, res) => {
 router.delete('/users/:userId', async (req, res) => {
     try {
         const { userId } = req.params;
+        const admin = res.locals.adminUser;
         await deleteUser(userId);
         invalidateUserCache(userId);
+        await addAuditLog('user_deleted', userId, admin?.userId);
         logger.info(`Admin deleted user ${userId}`);
         res.json({ success: true });
     } catch (e) {
@@ -305,6 +314,16 @@ router.post('/logs/clear', authorizeAdmin, async (req, res) => {
         res.json({ success: true });
     } catch (_error) {
         res.status(500).json({ error: 'Error al limpiar logs' });
+    }
+});
+
+router.get('/audit-logs', authorizeAdmin, async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit as string) || 100;
+        const logs = await getAuditLogs(Math.min(limit, 500));
+        res.json(logs);
+    } catch (_error) {
+        res.status(500).json({ error: 'Error al obtener audit logs' });
     }
 });
 
