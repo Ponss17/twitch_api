@@ -7,6 +7,7 @@ export const HomeModule = {
     session: null as Session | null,
     isInitialized: false,
     pollInterval: null as ReturnType<typeof setInterval> | null,
+    visibilityHandler: null as (() => void) | null,
     countdown: 15,
     lastStats: {
         todayRequests: -1,
@@ -42,6 +43,10 @@ export const HomeModule = {
             clearInterval(this.pollInterval);
             this.pollInterval = null;
         }
+        if (this.visibilityHandler) {
+            document.removeEventListener('visibilitychange', this.visibilityHandler);
+            this.visibilityHandler = null;
+        }
     },
 
     startSmartPolling(): void {
@@ -67,6 +72,7 @@ export const HomeModule = {
         this.updateSyncIndicator();
 
         this.pollInterval = setInterval(() => {
+            if (document.visibilityState === 'hidden') return;
             this.countdown--;
             if (this.countdown <= 0) {
                 this.performSync();
@@ -74,6 +80,14 @@ export const HomeModule = {
             }
             this.updateSyncIndicator();
         }, 1000);
+
+        this.visibilityHandler = () => {
+            if (document.visibilityState === 'visible' && this.countdown <= 0) {
+                this.performSync();
+                this.countdown = 15;
+            }
+        };
+        document.addEventListener('visibilitychange', this.visibilityHandler);
     },
 
     async performSync(): Promise<void> {
@@ -156,7 +170,7 @@ export const HomeModule = {
 
         try {
             const q = this.authQuery ? `&${this.authQuery}` : '';
-            const response = await fetch(`${API_ENDPOINTS.ACTIVITY}?_=${Date.now()}${q}`, {
+            const response = await fetch(`${API_ENDPOINTS.ACTIVITY}?${q}`, {
                 headers: this.authHeaders
             });
 
@@ -202,7 +216,7 @@ export const HomeModule = {
 
         try {
             const q = this.authQuery ? `&${this.authQuery}` : '';
-            const response = await fetch(`${API_ENDPOINTS.ANALYTICS}?_=${Date.now()}${q}`, {
+            const response = await fetch(`${API_ENDPOINTS.ANALYTICS}?${q}`, {
                 headers: this.authHeaders
             });
 
