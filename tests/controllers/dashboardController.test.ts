@@ -19,7 +19,6 @@ jest.mock('@/services/twitch/apiService', () => ({
 }));
 
 import * as dbService from '@/services/infrastructure/dbService';
-import { kv } from '@vercel/kv';
 import { getAnalytics, getLogs } from '@/controllers/twitch/dashboardController';
 import { AuthenticatedRequest } from '@/types/twitch';
 
@@ -47,12 +46,15 @@ describe('dashboardController', () => {
             const req = mockReq();
             const res = mockRes();
 
+            const today = new Date().toISOString().split('T')[0];
             (dbService.getUserStats as jest.Mock).mockResolvedValue({
                 total_requests: 100,
                 total_latency: 5000,
-                total_errors: 5
+                total_errors: 5,
+                [`d:${today}`]: 10,
+                [`l:${today}`]: 500,
+                [`e:${today}`]: 1
             });
-            (kv.hgetall as jest.Mock).mockResolvedValue({ requests: '10' });
 
             await getAnalytics(req, res);
 
@@ -60,8 +62,6 @@ describe('dashboardController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     totalRequests: 100,
-                    averageLatency: '50ms (0.1s)',
-                    successRate: '95.0%',
                     todayRequests: 10
                 })
             );

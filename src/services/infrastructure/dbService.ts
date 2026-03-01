@@ -190,11 +190,6 @@ async function getRawActivity(userId: string): Promise<UserStatsData> {
     return typeof data === 'string' ? JSON.parse(data) : (data as UserStatsData);
 }
 
-async function saveRawActivity(userId: string, data: UserStatsData): Promise<void> {
-    await kv.hset(GLOBAL_STATS_KEY, { [userId]: JSON.stringify(data) });
-    await kv.del(`stats:${userId}`);
-}
-
 /**
  * Migra contadores legacy del Mega Hash al nuevo hash atómico (se ejecuta una sola vez).
  */
@@ -455,6 +450,8 @@ interface StoredActivityLog {
     detail?: string;
 }
 
+const ACTIVITY_LIST_PREFIX = 'activity_v2:';
+
 export const addUserActivity = async (userId: string, entry: ActivityLogEntry): Promise<void> => {
     try {
         const logEntry: StoredActivityLog = {
@@ -464,16 +461,12 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
             ...(entry.detail && { detail: entry.detail })
         };
 
-        const data = await getRawActivity(userId);
-        const logs: StoredActivityLog[] = data.activity || [];
+        const listKey = `${ACTIVITY_LIST_PREFIX}${userId}`;
+        await kv.lpush(listKey, JSON.stringify(logEntry));
+        await kv.ltrim(listKey, 0, MAX_USER_LOGS - 1);
 
-        logs.unshift(logEntry);
-        data.activity = logs.slice(0, MAX_USER_LOGS);
-
-        await saveRawActivity(userId, data);
-
-        const legacyKey = `${USER_ACTIVITY_PREFIX}${userId}`;
-        await kv.del(legacyKey);
+        // Limpieza de claves legacy (proactivo)
+        await kv.del(`${USER_ACTIVITY_PREFIX}${userId}`);
     } catch (e) {
         logger.error('Error adding user activity:', e);
     }
@@ -481,8 +474,27 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
 
 export const getUserActivity = async (userId: string): Promise<StoredActivityLog[]> => {
     try {
-        const data = await getRawActivity(userId);
-        return data.activity || [];
+        const listKey = `${ACTIVITY_LIST_PREFIX}${userId}`;
+        const items = await kv.lrange<string>(listKey, 0, MAX_USER_LOGS - 1);
+
+        if (items && items.length > 0) {
+            return items.map((i) =>
+                typeof i === 'string' ? JSON.parse(i) : i
+            ) as StoredActivityLog[];
+        }
+
+        // Fallback: leer del Mega Hash si la lista nueva está vacía (datos legacy)
+        const legacyData = await getRawActivity(userId);
+        if (legacyData.activity && legacyData.activity.length > 0) {
+            logger.info(`[Activity] Migrando actividad legacy para userId: ${userId}`);
+            for (let i = legacyData.activity.length - 1; i >= 0; i--) {
+                await kv.lpush(listKey, JSON.stringify(legacyData.activity[i]));
+            }
+            await kv.ltrim(listKey, 0, MAX_USER_LOGS - 1);
+            return legacyData.activity;
+        }
+
+        return [];
     } catch (e) {
         logger.error('Error getting user activity:', e);
         return [];

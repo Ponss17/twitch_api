@@ -3,7 +3,8 @@ import { Response } from 'express';
 jest.mock('@/services/infrastructure/dbService', () => ({
     getUser: jest.fn(),
     saveUser: jest.fn(),
-    getUserByApiKey: jest.fn()
+    getUserByApiKey: jest.fn(),
+    addAuditLog: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('@/services/auth/authService', () => ({
@@ -16,7 +17,11 @@ jest.mock('@/services/twitch/apiService', () => ({
     validateToken: jest.fn()
 }));
 
-jest.mock('axios');
+jest.mock('@vercel/kv', () => ({
+    kv: {
+        ping: jest.fn().mockResolvedValue('PONG')
+    }
+}));
 
 jest.mock('@/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
@@ -160,19 +165,19 @@ describe('systemController', () => {
             const req = mockReq();
             const res = mockRes();
 
-            (dbService.getUser as jest.Mock).mockResolvedValue(null);
             (apiService.validateToken as jest.Mock).mockResolvedValue({ login: 'test' });
 
             await getHealth(req, res);
 
+            expect(res.status).toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     status: expect.any(String),
                     checks: expect.objectContaining({
-                        database: expect.any(String),
-                        twitch: expect.any(String)
+                        redis: expect.objectContaining({ status: expect.any(String) }),
+                        twitch: expect.objectContaining({ status: expect.any(String) })
                     }),
-                    latency: expect.any(String)
+                    uptime: expect.any(String)
                 })
             );
         });
