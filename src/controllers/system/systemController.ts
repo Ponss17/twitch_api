@@ -2,6 +2,7 @@ import { Response } from 'express';
 import * as authService from '../../services/auth/authService';
 import * as dbService from '../../services/infrastructure/dbService';
 import * as apiService from '../../services/twitch/apiService';
+import { kv } from '@vercel/kv';
 import axios from 'axios';
 import { CONFIG } from '../../config/env';
 import { MESSAGES } from '../../config/messages';
@@ -47,6 +48,9 @@ export const regenerateKey = async (req: AuthenticatedRequest, res: Response) =>
 
     try {
         const newKey = await authService.regenerateApiKey(userId);
+
+        await dbService.addAuditLog('api_key_regenerated', userId, userId);
+
         res.json({ apiKey: newKey });
     } catch (e) {
         logger.error('Error regenerando key:', e);
@@ -128,33 +132,43 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
 
 export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
     const token = req.twitchToken;
-    const startTime = Date.now();
 
     try {
-        const dbStatus = await dbService
-            .getUser('ping')
-            .then(() => 'online')
-            .catch(() => 'offline');
+        const dbStart = Date.now();
+        let dbStatus: 'online' | 'offline';
+        try {
+            await kv.ping();
+            dbStatus = 'online';
+        } catch (_e) {
+            dbStatus = 'offline';
+        }
+        const dbLatency = Date.now() - dbStart;
 
-        let twitchStatus = 'offline';
+        let twitchStatus: 'online' | 'offline' | 'skipped' = 'skipped';
+        let twitchLatency = 0;
         if (token) {
+            const twitchStart = Date.now();
             try {
                 const validation = await apiService.validateToken(token);
-                if (validation) twitchStatus = 'online';
+                twitchStatus = validation ? 'online' : 'offline';
             } catch (_e) {
-                twitchStatus = 'error';
+                twitchStatus = 'offline';
             }
+            twitchLatency = Date.now() - twitchStart;
         }
 
-        const latency = Date.now() - startTime;
+        const isOperational = dbStatus === 'online';
 
-        res.json({
-            status: dbStatus === 'online' && twitchStatus === 'online' ? 'operational' : 'degraded',
+        res.status(isOperational ? 200 : 503).json({
+            status: isOperational ? 'operational' : 'degraded',
             checks: {
-                database: dbStatus,
-                twitch: twitchStatus
+                redis: { status: dbStatus, latency: `${dbLatency}ms` },
+                twitch: {
+                    status: twitchStatus,
+                    latency: twitchLatency ? `${twitchLatency}ms` : 'n/a'
+                }
             },
-            latency: `${latency}ms (${(latency / 1000).toFixed(1)}s)`,
+            uptime: `${Math.floor(process.uptime())}s`,
             timestamp: new Date().toISOString()
         });
     } catch (e) {
