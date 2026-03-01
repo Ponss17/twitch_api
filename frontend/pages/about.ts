@@ -52,13 +52,13 @@ if (canvas) {
             }
         }
 
-        window.addEventListener('mousemove', (e) => {
-            for (let i = 0; i < 1; i++) {
-                particles.push(new Particle(e.clientX, e.clientY));
-            }
-        });
+        let animating = false;
 
         const animate = () => {
+            if (particles.length === 0) {
+                animating = false;
+                return;
+            }
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let i = 0; i < particles.length; i++) {
                 particles[i].update();
@@ -70,7 +70,14 @@ if (canvas) {
             }
             requestAnimationFrame(animate);
         };
-        animate();
+
+        window.addEventListener('mousemove', (e) => {
+            particles.push(new Particle(e.clientX, e.clientY));
+            if (!animating) {
+                animating = true;
+                requestAnimationFrame(animate);
+            }
+        });
     }
 }
 
