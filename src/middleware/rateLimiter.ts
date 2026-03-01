@@ -74,7 +74,7 @@ const limiter = rateLimit({
 
 export const authLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
-    max: 100, // Aumentado de 10 a 100 para evitar bloqueos en pruebas
+    max: RATE_LIMITS.LOGIN * 4, // 20 intentos por hora
     message: { error: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en una hora.' },
     standardHeaders: true,
     legacyHeaders: false

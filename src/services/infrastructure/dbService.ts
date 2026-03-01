@@ -118,7 +118,10 @@ export const getAllUsers = async (): Promise<StoredUser[]> => {
                 }
 
                 const stats = await getUserStats(u.userId);
-                const totalRequests = Object.values(stats).reduce((a, b) => a + b, 0);
+                const totalRequests = Object.entries(stats).reduce((acc, [key, val]) => {
+                    if (key === 'activity') return acc;
+                    return acc + (typeof val === 'number' ? val : 0);
+                }, 0);
 
                 return {
                     ...safeUser,

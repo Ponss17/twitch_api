@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
-import { sanitizeHtml } from '../utils/validationHelpers';
 
 export const errorHandler = (
     err: { status?: number; message?: string },
@@ -21,9 +20,7 @@ export const errorHandler = (
         if (status === 404) {
             return res.status(404).sendFile('404.html', { root: './public' });
         }
-        return res
-            .status(status)
-            .send(`<h1>Error ${status}</h1><p>${sanitizeHtml(message)}</p><a href="/">Volver</a>`);
+        return res.status(status).sendFile('500.html', { root: './public' });
     }
 
     res.status(status).json({

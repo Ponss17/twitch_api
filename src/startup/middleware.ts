@@ -4,6 +4,10 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import { requestLogger } from '../middleware/errorMiddleware';
+import { registerCacheInvalidator } from '../services/auth/authService';
+import { invalidateUserCache } from '../middleware/apiKeyValidator';
+
+registerCacheInvalidator(invalidateUserCache);
 
 export const configureMiddleware = (app: Application) => {
     app.set('trust proxy', 1);
