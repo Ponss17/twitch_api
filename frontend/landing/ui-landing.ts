@@ -4,6 +4,19 @@ export const LandingUI = {
     setupHeroAnimation(heroCodeDisplay: HTMLElement) {
         if (!heroCodeDisplay) return;
 
+        const base = window.location.pathname.includes('/api/twitch') ? '/api/twitch' : '';
+
+        const mkBadge = (src: string, alt = '') => {
+            const img = document.createElement('img');
+            img.src = `${base}/img/${src}`;
+            img.className = 'badge-icon';
+            img.alt = alt;
+            return img;
+        };
+
+        const badgeBroadcaster = mkBadge('badge-broadcaster.png', 'Broadcaster');
+        const badgeBot = mkBadge('badge-bot.png', 'Bot');
+
         heroCodeDisplay.innerHTML = `
             <div class="twitch-chat-container">
                 <div class="chat-messages" id="sim-messages">
@@ -11,9 +24,7 @@ export const LandingUI = {
                 </div>
                 <div class="chat-input-area">
                     <div class="fake-input" id="sim-input-box">
-                        <div class="input-icon-area">
-                         <img src="/img/badge-broadcaster.png" class="badge-icon input-badge" alt="Broadcaster">
-                        </div>
+                        <div class="input-icon-area" id="sim-input-badge"></div>
                         <div class="input-content-wrapper" style="position:relative; flex:1;">
                             <span class="input-text" id="sim-input-text"></span>
                             <span class="input-placeholder" id="sim-placeholder">${UIMessages.ChatSim.placeholder}</span>
@@ -26,6 +37,10 @@ export const LandingUI = {
             </div>
         `;
 
+        document
+            .getElementById('sim-input-badge')!
+            .appendChild(badgeBroadcaster.cloneNode() as HTMLElement);
+
         const messagesContainer = document.getElementById('sim-messages')!;
         const inputText = document.getElementById('sim-input-text')!;
         const placeholder = document.getElementById('sim-placeholder')!;
@@ -34,15 +49,22 @@ export const LandingUI = {
         const scenarios = [
             {
                 cmd: '!followage',
-                response: `<span class="chat-badges"><img src="/img/badge-bot.png" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${UIMessages.ChatSim.followage('ponss17', 'LosPerris', '1 año, 4 meses y 20 días')}</span>`
+                response: UIMessages.ChatSim.followage(
+                    'ponss17',
+                    'LosPerris',
+                    '1 año, 4 meses y 20 días'
+                )
             },
             {
                 cmd: '!clip',
-                response: `<span class="chat-badges"><img src="/img/badge-bot.png" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${UIMessages.ChatSim.clip('ponss17', 'https://clips.twitch.tv/WiseDeliciousCurryHassanChop-Df293...')}</span>`
+                response: UIMessages.ChatSim.clip(
+                    'ponss17',
+                    'https://clips.twitch.tv/WiseDeliciousCurryHassanChop-Df293...'
+                )
             },
             {
                 cmd: '!so  @mynana17',
-                response: `<span class="chat-badges"><img src="/img/badge-bot.png" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${UIMessages.ChatSim.shoutout('mynana17', 'Just Chatting')}</span>`
+                response: UIMessages.ChatSim.shoutout('mynana17', 'Just Chatting')
             }
         ];
 
@@ -53,7 +75,6 @@ export const LandingUI = {
                 inputBox.classList.add('typing');
                 placeholder.style.display = 'none';
                 inputText.innerText = '';
-
                 let i = 0;
                 const interval = setInterval(() => {
                     inputText.innerText += text.charAt(i);
@@ -66,11 +87,48 @@ export const LandingUI = {
             });
         };
 
-        const addMessage = (html: string) => {
-            const div = document.createElement('div');
-            div.className = 'chat-line';
-            div.innerHTML = html;
-            messagesContainer.appendChild(div);
+        const addUserMessage = (cmd: string): HTMLElement => {
+            const line = document.createElement('div');
+            line.className = 'chat-line';
+            const badgeWrap = document.createElement('span');
+            badgeWrap.className = 'chat-badges';
+            badgeWrap.appendChild(badgeBroadcaster.cloneNode() as HTMLElement);
+            const user = document.createElement('span');
+            user.className = 'chat-username';
+            user.style.color = '#FF69B4';
+            user.textContent = 'ponss17';
+            const colon = document.createElement('span');
+            colon.className = 'chat-colon';
+            colon.textContent = ':';
+            const text = document.createElement('span');
+            text.className = 'chat-text';
+            text.textContent = cmd;
+            line.append(badgeWrap, user, colon, text);
+            return line;
+        };
+
+        const addBotMessage = (html: string): HTMLElement => {
+            const line = document.createElement('div');
+            line.className = 'chat-line';
+            const badgeWrap = document.createElement('span');
+            badgeWrap.className = 'chat-badges';
+            badgeWrap.appendChild(badgeBot.cloneNode() as HTMLElement);
+            const user = document.createElement('span');
+            user.className = 'chat-username';
+            user.style.color = '#00f2ea';
+            user.textContent = 'LosPerrisBot';
+            const colon = document.createElement('span');
+            colon.className = 'chat-colon';
+            colon.textContent = ':';
+            const text = document.createElement('span');
+            text.className = 'chat-text';
+            text.innerHTML = html;
+            line.append(badgeWrap, user, colon, text);
+            return line;
+        };
+
+        const appendMessage = (el: HTMLElement) => {
+            messagesContainer.appendChild(el);
             if (messagesContainer.children.length > 5) {
                 messagesContainer.removeChild(messagesContainer.children[0]);
             }
@@ -88,15 +146,10 @@ export const LandingUI = {
                 placeholder.style.display = 'block';
                 inputBox.classList.remove('typing');
 
-                addMessage(`
-                    <span class="chat-badges"><img src="/img/badge-broadcaster.png" class="badge-icon" alt="Broadcaster"></span>
-                    <span class="chat-username" style="color:#FF69B4">ponss17</span>
-                    <span class="chat-colon">:</span>
-                    <span class="chat-text">${scenario.cmd}</span>
-                `);
+                appendMessage(addUserMessage(scenario.cmd));
 
                 await sleep(1500);
-                addMessage(scenario.response);
+                appendMessage(addBotMessage(scenario.response));
 
                 currentScenario = (currentScenario + 1) % scenarios.length;
                 if (currentScenario === 0) {
@@ -106,7 +159,6 @@ export const LandingUI = {
                     inputText.innerText = '';
                     placeholder.style.display = 'block';
                     inputBox.classList.remove('typing');
-
                     messagesContainer.innerHTML = `<div class="chat-line" style="opacity:0.5"><span class="chat-text">${UIMessages.ChatSim.welcome}</span></div>`;
                     await sleep(1000);
                 }
