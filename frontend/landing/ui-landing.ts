@@ -12,7 +12,7 @@ export const LandingUI = {
                 <div class="chat-input-area">
                     <div class="fake-input" id="sim-input-box">
                         <div class="input-icon-area">
-                             <img src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1" class="badge-icon input-badge" alt="Broadcaster">
+                         <img src="/img/badge-broadcaster.png" class="badge-icon input-badge" alt="Broadcaster">
                         </div>
                         <div class="input-content-wrapper" style="position:relative; flex:1;">
                             <span class="input-text" id="sim-input-text"></span>
@@ -34,15 +34,15 @@ export const LandingUI = {
         const scenarios = [
             {
                 cmd: '!followage',
-                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${UIMessages.ChatSim.followage('ponss17', 'LosPerris', '1 año, 4 meses y 20 días')}</span>`
+                response: `<span class="chat-badges"><img src="/img/badge-bot.png" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${UIMessages.ChatSim.followage('ponss17', 'LosPerris', '1 año, 4 meses y 20 días')}</span>`
             },
             {
                 cmd: '!clip',
-                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${UIMessages.ChatSim.clip('ponss17', 'https://clips.twitch.tv/WiseDeliciousCurryHassanChop-Df293...')}</span>`
+                response: `<span class="chat-badges"><img src="/img/badge-bot.png" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${UIMessages.ChatSim.clip('ponss17', 'https://clips.twitch.tv/WiseDeliciousCurryHassanChop-Df293...')}</span>`
             },
             {
                 cmd: '!so  @mynana17',
-                response: `<span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${UIMessages.ChatSim.shoutout('mynana17', 'Just Chatting')}</span>`
+                response: `<span class="chat-badges"><img src="/img/badge-bot.png" class="badge-icon"></span><span class="chat-username" style="color:#00f2ea">LosPerrisBot</span><span class="chat-colon">:</span><span class="chat-text">${UIMessages.ChatSim.shoutout('mynana17', 'Just Chatting')}</span>`
             }
         ];
 
@@ -89,7 +89,7 @@ export const LandingUI = {
                 inputBox.classList.remove('typing');
 
                 addMessage(`
-                    <span class="chat-badges"><img src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1" class="badge-icon" alt="Broadcaster"></span>
+                    <span class="chat-badges"><img src="/img/badge-broadcaster.png" class="badge-icon" alt="Broadcaster"></span>
                     <span class="chat-username" style="color:#FF69B4">ponss17</span>
                     <span class="chat-colon">:</span>
                     <span class="chat-text">${scenario.cmd}</span>
