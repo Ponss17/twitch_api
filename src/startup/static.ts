@@ -7,7 +7,25 @@ export const configureStatic = (app: Application) => {
     const distPublicPath = path.resolve(__dirname, '../../dist/public');
 
     const staticOptions = { fallthrough: true, extensions: ['html', 'js', 'css'] };
+    const staticOptionsWithCache = {
+        fallthrough: true,
+        maxAge: '7d',
+        immutable: true
+    };
 
+    // Imágenes y fuentes: caché larga (7 días)
+    app.use(
+        '/api/twitch/img',
+        express.static(path.join(publicPath, 'img'), staticOptionsWithCache)
+    );
+    app.use('/img', express.static(path.join(publicPath, 'img'), staticOptionsWithCache));
+    app.use(
+        '/api/twitch/img',
+        express.static(path.join(distPublicPath, 'img'), staticOptionsWithCache)
+    );
+    app.use('/img', express.static(path.join(distPublicPath, 'img'), staticOptionsWithCache));
+
+    // Resto de assets: caché estándar
     app.use('/api/twitch', express.static(publicPath, staticOptions));
     app.use(express.static(publicPath, staticOptions));
 
