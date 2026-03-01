@@ -32,12 +32,22 @@ export const Dashboard = {
     },
 
     preloadAllTabsBackground() {
-        const panes = document.querySelectorAll('.tab-pane');
-        panes.forEach((pane) => {
-            if (pane instanceof HTMLElement && pane.dataset.src && pane.id !== 'tab-home') {
-                HtmlLoader.load(pane.dataset.src, pane.id).catch(console.error);
-            }
-        });
+        const panes = Array.from(document.querySelectorAll('.tab-pane')).filter(
+            (p) => p instanceof HTMLElement && p.dataset.src && p.id !== 'tab-home'
+        ) as HTMLElement[];
+
+        panes.reduce((promise, pane, i) => {
+            return promise.then(
+                () =>
+                    new Promise<void>((resolve) => {
+                        setTimeout(() => {
+                            HtmlLoader.load(pane.dataset.src!, pane.id)
+                                .catch(console.error)
+                                .finally(resolve);
+                        }, i * 200);
+                    })
+            );
+        }, Promise.resolve());
     },
 
     initAllModules() {
