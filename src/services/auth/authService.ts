@@ -5,13 +5,38 @@ import * as dbService from '../infrastructure/dbService';
 import crypto from 'crypto';
 import { logger } from '../../utils/logger';
 
+const TWITCH_AUTH_URL = 'https://id.twitch.tv/oauth2';
+const TWITCH_API_URL = 'https://api.twitch.tv/helix';
+
+const signState = (payload: object): string => {
+    const data = Buffer.from(JSON.stringify(payload)).toString('base64');
+    const secret = CONFIG.TWITCH_CLIENT_SECRET as string;
+    const sig = crypto.createHmac('sha256', secret).update(data).digest('hex');
+    return `${data}.${sig}`;
+};
+
+const verifyState = (state: string): Record<string, unknown> | null => {
+    const lastDot = state.lastIndexOf('.');
+    if (lastDot === -1) return null;
+    const data = state.slice(0, lastDot);
+    const sig = state.slice(lastDot + 1);
+    const secret = CONFIG.TWITCH_CLIENT_SECRET as string;
+    const expected = crypto.createHmac('sha256', secret).update(data).digest('hex');
+    if (!crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) return null;
+    try {
+        return JSON.parse(Buffer.from(data, 'base64').toString());
+    } catch {
+        return null;
+    }
+};
+
 export const getAuthorizeUrl = (
     redirectOrigin: string,
     extraData?: Record<string, unknown>
 ): string => {
     const scope =
         'user:read:email moderator:read:followers clips:edit moderator:read:chatters user:write:chat chat:read chat:edit';
-    const state = Buffer.from(JSON.stringify({ redirectOrigin, ...extraData })).toString('base64');
+    const state = signState({ redirectOrigin, ...extraData });
 
     const params = new URLSearchParams({
         client_id: CONFIG.TWITCH_CLIENT_ID as string,
@@ -21,14 +46,14 @@ export const getAuthorizeUrl = (
         state: state
     });
 
-    return `https://id.twitch.tv/oauth2/authorize?${params.toString()}`;
+    return `${TWITCH_AUTH_URL}/authorize?${params.toString()}`;
 };
 
 export const handleCallback = async (
     code: string,
     state: string
 ): Promise<{ user: TwitchUser; access_token: string; redirectOrigin: string; apiKey: string }> => {
-    const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', null, {
+    const tokenResponse = await axios.post(`${TWITCH_AUTH_URL}/token`, null, {
         params: {
             client_id: CONFIG.TWITCH_CLIENT_ID,
             client_secret: CONFIG.TWITCH_CLIENT_SECRET,
@@ -40,7 +65,7 @@ export const handleCallback = async (
 
     const { access_token, refresh_token, expires_in } = tokenResponse.data;
 
-    const userResponse = await axios.get('https://api.twitch.tv/helix/users', {
+    const userResponse = await axios.get(`${TWITCH_API_URL}/users`, {
         headers: {
             'Client-ID': CONFIG.TWITCH_CLIENT_ID,
             Authorization: `Bearer ${access_token}`
@@ -84,11 +109,11 @@ export const handleCallback = async (
 
     let redirectOrigin = '';
     if (state) {
-        try {
-            const decoded = JSON.parse(Buffer.from(state, 'base64').toString());
-            redirectOrigin = decoded.redirectOrigin || '';
-        } catch (e) {
-            logger.error('Error decoding state:', e);
+        const decoded = verifyState(state);
+        if (!decoded) {
+            logger.warn('⚠ OAuth state inválido o manipulado. Ignorando redirectOrigin.');
+        } else {
+            redirectOrigin = (decoded.redirectOrigin as string) || '';
         }
     }
 
@@ -113,7 +138,7 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
         }
 
         try {
-            const response = await axios.post('https://id.twitch.tv/oauth2/token', null, {
+            const response = await axios.post(`${TWITCH_AUTH_URL}/token`, null, {
                 params: {
                     client_id: CONFIG.TWITCH_CLIENT_ID,
                     client_secret: CONFIG.TWITCH_CLIENT_SECRET,
@@ -181,6 +206,12 @@ export const getValidToken = async (
     return { accessToken: user.accessToken, userId: user.userId };
 };
 
+let _invalidateCacheFn: ((userId: string) => void) | null = null;
+
+export const registerCacheInvalidator = (fn: (userId: string) => void): void => {
+    _invalidateCacheFn = fn;
+};
+
 export const regenerateApiKey = async (userId: string): Promise<string> => {
     const user = await dbService.getUser(userId);
     if (!user) throw new Error('Usuario no encontrado');
@@ -189,5 +220,9 @@ export const regenerateApiKey = async (userId: string): Promise<string> => {
     user.apiKey = newApiKey;
 
     await dbService.saveUser(user);
+
+    // Invalidar caché para que la clave vieja deje de funcionar inmediatamente
+    _invalidateCacheFn?.(userId);
+
     return newApiKey;
 };
