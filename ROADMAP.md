@@ -16,6 +16,18 @@ Migrado `addUserActivity` / `getUserActivity` a Redis List nativa (`LPUSH`, `LRA
 - Cache-Control `immutable` para assets.
 - Loop de partículas en `about.ts` pausado en idle (0% CPU en espera).
 
+### Polling del Dashboard
+
+- Sin cache-bust (`?_=Date.now()` eliminado).
+- Pausado automáticamente cuando la pestaña está en background.
+- Preload de tabs secuencial (sin ráfaga de requests).
+
+### Rate limiting por endpoint costoso
+
+- `/analytics`, `/chatters`, `/get-clips` limitados a **10 req/min** para API Key externa.
+- Dashboard (sesión) sin cambios: 1000/min.
+- Comandos y minijuegos sin cambios: 120/min.
+
 ---
 
 ## 🔜 Próximo
@@ -39,16 +51,6 @@ Añadir prefijo de versión en las rutas para poder hacer cambios breaking en el
 ```
 
 ---
-
-## 💡 Ideas
-
-### Rate limiting por endpoint específico
-
-No todos los endpoints "cuestan" lo mismo. El plan es asignar límites distintos según la carga que generen:
-
-- **Rutas Ligeras (Ej: `!followage`, `!user`):** Límites altos (Ej: 100 req/min). Son consultas rápidas a Redis.
-- **Rutas Pesadas (Ej: `!analytics`, `!stalker`):** Límites bajos (Ej: 10 req/min). Requieren procesar más datos o hacer múltiples llamadas a Twitch.
-- **Rutas Críticas (Ej: `/auth`, `/regenerate-key`):** Límites muy estrictos por seguridad.
 
 ### Notificaciones de salud del sistema
 
