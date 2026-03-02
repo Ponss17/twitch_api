@@ -12,5 +12,6 @@ export const kv = {
     ltrim: jest.fn(),
     lrange: jest.fn(),
     hincrby: jest.fn(),
+    exists: jest.fn().mockResolvedValue(0),
     keys: jest.fn().mockResolvedValue([])
 };
