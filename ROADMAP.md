@@ -4,15 +4,25 @@ Cambios planeados para futuras versiones.
 
 ---
 
-## 🔜 Próximo
-
-### Tests unitarios
-
-Añadir tests para los servicios críticos (`authService`, middleware de auth) para detectar regresiones automáticamente.
+## ✅ Completado
 
 ### Hash de actividad (Redis List nativo)
 
-Migrar `addUserActivity` / `getUserActivity` del Mega Hash a una Redis List nativa (`LPUSH`, `LRANGE`, `LTRIM`) para eliminar el último punto de race condition.
+Migrado `addUserActivity` / `getUserActivity` a Redis List nativa (`LPUSH`, `LRANGE`). Eliminado el riesgo de race conditions en logs.
+
+### Optimización de Frontend (Landing & About)
+
+- Badges locales (0 requests externos).
+- Cache-Control `immutable` para assets.
+- Loop de partículas en `about.ts` pausado en idle (0% CPU en espera).
+
+---
+
+## 🔜 Próximo
+
+### Tests unitarios (En progreso: 77/77 OK)
+
+Seguir ampliando la cobertura de tests, especialmente en la lógica de `authService`.
 
 ---
 
@@ -32,5 +42,14 @@ Añadir prefijo de versión en las rutas para poder hacer cambios breaking en el
 
 ## 💡 Ideas
 
-- Rate limiting por endpoint específico (rutas costosas como `/analytics`)
-- Notificaciones push (webhook) cuando la API supera un umbral de errores
+### Rate limiting por endpoint específico
+
+No todos los endpoints "cuestan" lo mismo. El plan es asignar límites distintos según la carga que generen:
+
+- **Rutas Ligeras (Ej: `!followage`, `!user`):** Límites altos (Ej: 100 req/min). Son consultas rápidas a Redis.
+- **Rutas Pesadas (Ej: `!analytics`, `!stalker`):** Límites bajos (Ej: 10 req/min). Requieren procesar más datos o hacer múltiples llamadas a Twitch.
+- **Rutas Críticas (Ej: `/auth`, `/regenerate-key`):** Límites muy estrictos por seguridad.
+
+### Notificaciones de salud del sistema
+
+Notificaciones push o Webhooks cuando la latencia sube de un umbral o el ratio de errores 5xx aumenta.

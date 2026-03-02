@@ -2,12 +2,13 @@ import { Router } from 'express';
 import * as dashboardController from '../controllers/twitch/dashboardController';
 import checkToken from '../middleware/authMiddleware';
 import { csrfProtection } from '../middleware/csrfProtection';
+import { heavyLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
-router.get('/get-clips', checkToken, dashboardController.getClips);
-router.get('/analytics', checkToken, dashboardController.getAnalytics);
-router.get('/chatters', checkToken, dashboardController.getChatters);
+router.get('/get-clips', checkToken, heavyLimiter, dashboardController.getClips);
+router.get('/analytics', checkToken, heavyLimiter, dashboardController.getAnalytics);
+router.get('/chatters', checkToken, heavyLimiter, dashboardController.getChatters);
 router.get('/user-info', checkToken, dashboardController.getUserInfo);
 router.get('/activity', checkToken, dashboardController.getLogs);
 
