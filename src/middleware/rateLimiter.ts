@@ -80,4 +80,29 @@ export const authLimiter = rateLimit({
     legacyHeaders: false
 });
 
+export const heavyLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000,
+    max: (req: Request, res: Response) => {
+        // Solo aplica el límite reducido si es una petición con API Key externa
+        // Si es una sesión del dashboard (userId en el request), no limitar extra
+        const isApiKeyRequest = res.locals?.isApiKeyRequest;
+        if (isApiKeyRequest) return RATE_LIMITS.HEAVY;
+        return RATE_LIMITS.DASHBOARD;
+    },
+    keyGenerator: (req: Request, res: Response): string => {
+        const apiUser = res.locals?.apiUser;
+        if (apiUser) return `heavy:${(req.query.apiKey as string) || apiUser.userId}`;
+        const userId = (req as AuthenticatedRequest).userId;
+        return `heavy:sess:${userId || 'anon'}`;
+    },
+    handler: (_req: Request, res: Response) => {
+        res.setHeader('Content-Type', 'text/plain');
+        res.status(429).send(
+            'Este endpoint es costoso. Máximo 10 peticiones por minuto con API Key.'
+        );
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
 export default limiter;
