@@ -232,26 +232,39 @@ export const HomeModule = {
                 const successEl = document.getElementById('home-stat-success');
                 const latencyEl = document.getElementById('home-stat-latency');
 
-                if (reqEl && this.lastStats.todayRequests !== todayRequests) {
-                    UI.animateValue(reqEl, null, todayRequests);
-                    this.lastStats.todayRequests = todayRequests;
-                } else if (reqEl) {
-                    reqEl.textContent = todayRequests.toLocaleString();
+                if (reqEl) {
+                    reqEl.classList.remove('skeleton', 'skeleton-text');
+                    reqEl.style.width = '';
+                    reqEl.style.height = '';
+                    if (this.lastStats.todayRequests !== todayRequests) {
+                        UI.animateValue(reqEl, null, todayRequests);
+                        this.lastStats.todayRequests = todayRequests;
+                    } else {
+                        reqEl.textContent = todayRequests.toLocaleString();
+                    }
                 }
 
-                if (successEl && this.lastStats.successRate !== successRate) {
-                    UI.animateValue(successEl, null, successRate, 1500, '%');
-                    this.lastStats.successRate = successRate;
-                } else if (successEl) {
-                    successEl.textContent = `${successRate}%`;
+                if (successEl) {
+                    successEl.classList.remove('skeleton', 'skeleton-text');
+                    successEl.style.width = '';
+                    successEl.style.height = '';
+                    if (this.lastStats.successRate !== successRate) {
+                        UI.animateValue(successEl, null, successRate, 1500, '%');
+                        this.lastStats.successRate = successRate;
+                    } else {
+                        successEl.textContent = `${successRate}%`;
+                    }
                 }
 
                 if (latencyEl) {
+                    latencyEl.classList.remove('skeleton', 'skeleton-text');
+                    latencyEl.style.width = '';
+                    latencyEl.style.height = '';
                     if (this.lastStats.latency !== avgLatencyMs) {
                         const unit = `ms <span class="stat-unit-alt">(${(avgLatencyMs / 1000).toFixed(1)}s)</span>`;
                         UI.animateValue(latencyEl, null, avgLatencyMs, 1500, unit);
                         this.lastStats.latency = avgLatencyMs;
-                    } else if (avgLatencyMs === 0 && latencyEl.textContent === '0ms') {
+                    } else if (avgLatencyMs === 0) {
                         latencyEl.innerHTML = '0ms <span class="stat-unit-alt">(0.0s)</span>';
                     }
                 }

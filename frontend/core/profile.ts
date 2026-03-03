@@ -393,17 +393,7 @@ export const ProfileModule: DashboardModule = {
                 const id = idEl?.textContent?.trim();
                 if (!id || id === '---') return;
                 navigator.clipboard.writeText(id).then(() => {
-                    const icon = copyBtn.querySelector('i');
-                    if (icon) {
-                        icon.className = 'fa-solid fa-check';
-                        icon.style.opacity = '1';
-                        icon.style.color = 'var(--success)';
-                        setTimeout(() => {
-                            icon.className = 'fa-regular fa-copy';
-                            icon.style.opacity = '0.5';
-                            icon.style.color = '';
-                        }, 1500);
-                    }
+                    UI.showToast('ID copiado al portapapeles', 'success');
                 });
             });
             copyBtn.dataset.listener = 'true';

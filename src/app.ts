@@ -8,6 +8,8 @@ validateConfig();
 
 const app: Application = express();
 
+app.set('etag', 'strong');
+
 // 1. Middleware Global (Logs, Security, Body Parser)
 configureMiddleware(app);
 
