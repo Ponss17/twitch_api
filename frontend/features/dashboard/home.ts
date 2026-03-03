@@ -233,9 +233,6 @@ export const HomeModule = {
                 const latencyEl = document.getElementById('home-stat-latency');
 
                 if (reqEl) {
-                    reqEl.classList.remove('skeleton', 'skeleton-text');
-                    reqEl.style.width = '';
-                    reqEl.style.height = '';
                     if (this.lastStats.todayRequests !== todayRequests) {
                         UI.animateValue(reqEl, null, todayRequests);
                         this.lastStats.todayRequests = todayRequests;
@@ -245,9 +242,6 @@ export const HomeModule = {
                 }
 
                 if (successEl) {
-                    successEl.classList.remove('skeleton', 'skeleton-text');
-                    successEl.style.width = '';
-                    successEl.style.height = '';
                     if (this.lastStats.successRate !== successRate) {
                         UI.animateValue(successEl, null, successRate, 1500, '%');
                         this.lastStats.successRate = successRate;
@@ -257,9 +251,6 @@ export const HomeModule = {
                 }
 
                 if (latencyEl) {
-                    latencyEl.classList.remove('skeleton', 'skeleton-text');
-                    latencyEl.style.width = '';
-                    latencyEl.style.height = '';
                     if (this.lastStats.latency !== avgLatencyMs) {
                         const unit = `ms <span class="stat-unit-alt">(${(avgLatencyMs / 1000).toFixed(1)}s)</span>`;
                         UI.animateValue(latencyEl, null, avgLatencyMs, 1500, unit);
