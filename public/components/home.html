@@ -12,21 +12,21 @@
                     <div class="h-stat-icon p-icon"><i class="fa-solid fa-bolt"></i></div>
                     <div class="h-stat-content">
                         <span class="h-stat-label">PETICIONES (HOY)</span>
-                        <span class="h-stat-value skeleton skeleton-text" id="home-stat-requests" style="width:3rem; height:1.4em; display:inline-block;"></span>
+                        <span class="h-stat-value" id="home-stat-requests">0</span>
                     </div>
                 </div>
                 <div class="h-stat">
                     <div class="h-stat-icon s-icon"><i class="fa-solid fa-circle-check"></i></div>
                     <div class="h-stat-content">
                         <span class="h-stat-label">ÉXITO (HOY)</span>
-                        <span class="h-stat-value success skeleton skeleton-text" id="home-stat-success" style="width:3.5rem; height:1.4em; display:inline-block;"></span>
+                        <span class="h-stat-value success" id="home-stat-success">0%</span>
                     </div>
                 </div>
                 <div class="h-stat">
                     <div class="h-stat-icon w-icon"><i class="fa-solid fa-gauge-high"></i></div>
                     <div class="h-stat-content">
                         <span class="h-stat-label">LATENCIA (HOY)</span>
-                        <span class="h-stat-value warning skeleton skeleton-text" id="home-stat-latency" style="width:4rem; height:1.4em; display:inline-block;"></span>
+                        <span class="h-stat-value warning" id="home-stat-latency">0ms</span>
                     </div>
                 </div>
             </div>
@@ -42,7 +42,8 @@
             <div class="card-title-group">
                 <div class="card-icon"><i class="fa-solid fa-terminal"></i></div>
                 <div>
-                    <h3>Actividad en Vivo <span style="font-size: 0.7em; opacity: 0.8; font-weight: normal;">(Histórico)</span></h3>
+                    <h3>Actividad en Vivo <span
+                            style="font-size: 0.7em; opacity: 0.8; font-weight: normal;">(Histórico)</span></h3>
                     <p class="card-desc">Registro en tiempo real del uso de comandos (<span id="home-sync-indicator"
                             class="sync-subticker">Auto</span>)</p>
                 </div>

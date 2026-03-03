@@ -290,9 +290,6 @@ export const ProfileModule: DashboardModule = {
         const createdAt = document.getElementById('profile-stat-created');
 
         if (followers) {
-            followers.classList.remove('skeleton', 'skeleton-text');
-            followers.style.width = '';
-            followers.style.height = '';
             const targetValue = data.followers || 0;
             if (this.lastData.followers !== targetValue) {
                 UI.animateValue(followers, 0, targetValue, 1500);
@@ -303,17 +300,11 @@ export const ProfileModule: DashboardModule = {
         }
 
         if (bio) {
-            bio.classList.remove('skeleton', 'skeleton-text');
-            bio.style.width = '';
-            bio.style.height = '';
             bio.textContent =
                 data.description || 'Sin biografía disponible. ¡Este streamer es un misterio!';
         }
 
         if (broadcasterType) {
-            broadcasterType.classList.remove('skeleton', 'skeleton-text');
-            broadcasterType.style.width = '';
-            broadcasterType.style.height = '';
             const types: Record<string, string> = {
                 partner: 'Partner',
                 affiliate: 'Afiliado',
@@ -324,9 +315,6 @@ export const ProfileModule: DashboardModule = {
         }
 
         if (createdAt && data.created_at) {
-            createdAt.classList.remove('skeleton', 'skeleton-text');
-            createdAt.style.width = '';
-            createdAt.style.height = '';
             try {
                 const date = new Date(data.created_at);
                 const options: Intl.DateTimeFormatOptions = {
