@@ -23,18 +23,20 @@ Migrado `addUserActivity` / `getUserActivity` a Redis List nativa (`LPUSH`, `LRA
 - Preload de tabs secuencial (sin ráfaga de requests).
 
 ### Rate limiting por endpoint costoso
-
 - `/analytics`, `/chatters`, `/get-clips` limitados a **10 req/min** para API Key externa.
 - Dashboard (sesión) sin cambios: 1000/min.
 - Comandos y minijuegos sin cambios: 120/min.
+
+### Tests unitarios (95/95 OK)
+- Cobertura ampliada en `authService` (casos de error y regeneración).
+- Cobertura completa de `dbService` (stats atómicas, Redis Lists v2, auditoría).
+- Pruebas reales para el middleware de `rateLimiter` (heavyLimiter).
 
 ---
 
 ## 🔜 Próximo
 
-### Tests unitarios (En progreso: 77/77 OK)
-
-Seguir ampliando la cobertura de tests, especialmente en la lógica de `authService`.
+*Pendiente de priorizar nuevas tareas.*
 
 ---
 
