@@ -2,8 +2,8 @@
     margin-top: auto;
     padding: 2rem 0;
     border-top: 1px solid var(--border);
-    border-top: 1px solid var(--border);
     width: 100%;
+    background: #080808;
 }
 
 .footer-content {
@@ -44,9 +44,6 @@
     border-radius: 50%;
 }
 
-.accent-text {
-    color: var(--accent);
-}
 
 .footer-url {
     font-family: 'Consolas', monospace;
