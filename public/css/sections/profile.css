@@ -123,13 +123,14 @@
 
 
 
-.profile-bio {
+.profile-master-info .profile-bio {
     font-size: 0.82rem;
     color: var(--text-secondary);
     line-height: 1.45;
     margin: 0;
     max-width: 100%;
     font-weight: 400;
+    text-align: left;
 }
 
 .profile-stats-grid-inline {
