@@ -2,6 +2,7 @@ import { DuelMessages } from './messages.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 const { API_ENDPOINTS, DOM_IDS } = DASHBOARD_CONFIG;
 import { Session, DashboardModule } from '../../../types.js';
+import { BaseModule } from '../../../shared/utils/baseModule.js';
 
 interface IDuelModule extends DashboardModule {
     cssLoaded: boolean;
@@ -14,23 +15,14 @@ interface IDuelModule extends DashboardModule {
 }
 
 export const DuelModule: IDuelModule = {
+    ...BaseModule,
     session: null,
     initialized: false,
     uiInitialized: false,
-
     cssLoaded: false,
 
     init(session: Session): void {
-        this.session = session;
-
-        if (!this.cssLoaded) {
-            import('../../../shared/utils/loader.js').then(({ Loader }) => {
-                Loader.loadCSS('css/sections/duel.css');
-            });
-            this.cssLoaded = true;
-        }
-
-        this.initialized = true;
+        this.initBase(session, 'css/sections/duel.css');
     },
 
     activate() {
@@ -101,19 +93,10 @@ export const DuelModule: IDuelModule = {
         this.setLoading(true);
         try {
             if (!this.session) throw new Error('No active session');
-            const { apiKey, token } = this.session;
-
-            const tokenParam = apiKey
-                ? `apiKey=${encodeURIComponent(apiKey)}`
-                : token
-                  ? `token=${encodeURIComponent(token)}`
-                  : '';
+            const tokenParam = this.authQuery();
             const url = `${API_ENDPOINTS.DUEL}?${tokenParam}&target=${encodeURIComponent(target)}&challenger=${encodeURIComponent(challenger)}`;
 
-            const headers: Record<string, string> = {};
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const res = await fetch(url, { headers });
+            const res = await fetch(url, { headers: this.authHeaders() });
             if (res.ok) {
                 const answer = await res.text();
                 this.showResponse(answer, 'success');

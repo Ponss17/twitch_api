@@ -2,8 +2,10 @@ import { DASHBOARD_CONFIG } from './dashboard-config.js';
 const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { Session } from '../../types.js';
 import { Loader } from '../../shared/utils/loader.js';
+import { BaseModule } from '../../shared/utils/baseModule.js';
 
 export const HomeModule = {
+    ...BaseModule,
     session: null as Session | null,
     isInitialized: false,
     pollInterval: null as ReturnType<typeof setInterval> | null,
@@ -18,18 +20,6 @@ export const HomeModule = {
     init(session: Session): void {
         this.session = session;
         this.isInitialized = true;
-    },
-
-    get authHeaders(): Record<string, string> {
-        const headers: Record<string, string> = {};
-        if (this.session?.token) headers['Authorization'] = `Bearer ${this.session.token}`;
-        return headers;
-    },
-
-    get authQuery(): string {
-        if (this.session?.apiKey) return `apiKey=${encodeURIComponent(this.session.apiKey)}`;
-        if (this.session?.token) return `token=${encodeURIComponent(this.session.token)}`;
-        return '';
     },
 
     activate(): void {
@@ -143,9 +133,9 @@ export const HomeModule = {
         if (!pill || !label || !this.session) return;
 
         try {
-            const q = this.authQuery ? `?${this.authQuery}` : '';
+            const q = this.authQuery() ? `?${this.authQuery()}` : '';
             const response = await fetch(`${API_ENDPOINTS.HEALTH}${q}`, {
-                headers: this.authHeaders
+                headers: this.authHeaders()
             });
 
             if (response.ok) {
@@ -169,9 +159,9 @@ export const HomeModule = {
         if (!logContainer || !this.session) return;
 
         try {
-            const q = this.authQuery ? `&${this.authQuery}` : '';
+            const q = this.authQuery() ? `&${this.authQuery()}` : '';
             const response = await fetch(`${API_ENDPOINTS.ACTIVITY}?${q}`, {
-                headers: this.authHeaders
+                headers: this.authHeaders()
             });
 
             if (response.ok) {
@@ -215,9 +205,9 @@ export const HomeModule = {
         if (!this.session) return;
 
         try {
-            const q = this.authQuery ? `&${this.authQuery}` : '';
+            const q = this.authQuery() ? `&${this.authQuery()}` : '';
             const response = await fetch(`${API_ENDPOINTS.ANALYTICS}?${q}`, {
-                headers: this.authHeaders
+                headers: this.authHeaders()
             });
 
             if (response.ok) {

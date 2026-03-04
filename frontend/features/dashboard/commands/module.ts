@@ -30,9 +30,10 @@ export const CommandsModule = {
     },
 
     activate() {
+        this.renderCommandCards();
+        this.setupGenericCommands();
+
         if (!this.uiInitialized) {
-            this.renderCommandCards();
-            this.setupGenericCommands();
             this.setupTestCommand();
             this.uiInitialized = true;
         }
@@ -48,9 +49,10 @@ export const CommandsModule = {
         Object.values(COMMAND_CONFIG).forEach((conf) => {
             const config = conf as CommandConfigItem;
             const container = document.getElementById(config.containerId);
-            if (!container) return;
+            if (!container || container.dataset.rendered === 'true') return;
 
             container.innerHTML = CommandTemplates.generateCard(config);
+            container.dataset.rendered = 'true';
         });
     },
 
@@ -62,7 +64,7 @@ export const CommandsModule = {
             const templateInput = document.getElementById(`${config.id}-template`);
             const formatSelect = document.getElementById(`copy-format-${config.id}`);
 
-            if (botSelect && output) {
+            if (botSelect && output && !botSelect.dataset.listener) {
                 const updateFn = () => this.updateCommand(config);
 
                 botSelect.addEventListener('change', updateFn);
@@ -75,6 +77,7 @@ export const CommandsModule = {
                     });
                 }
 
+                botSelect.dataset.listener = 'true';
                 updateFn();
             }
         });

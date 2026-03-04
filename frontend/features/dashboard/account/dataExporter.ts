@@ -137,22 +137,25 @@ const COMMAND_INTEGRATIONS = [
     }
 ];
 
+const getAuthParts = (session: Session) => ({
+    query: session.apiKey
+        ? `apiKey=${encodeURIComponent(session.apiKey)}`
+        : session.token
+          ? `token=${encodeURIComponent(session.token)}`
+          : '',
+    headers: session.token
+        ? { Authorization: `Bearer ${session.token}` }
+        : ({} as Record<string, string>)
+});
+
 const DataExport = {
     async fetchAnalytics(session: Session): Promise<AnalyticsData> {
         try {
-            const authQuery = session.apiKey
-                ? `apiKey=${encodeURIComponent(session.apiKey)}`
-                : session.token
-                  ? `token=${encodeURIComponent(session.token)}`
-                  : '';
-            const headers: Record<string, string> = {};
-            if (session.token) headers.Authorization = `Bearer ${session.token}`;
-
-            const queryParam = authQuery ? `?${authQuery}` : '';
+            const { query, headers } = getAuthParts(session);
+            const queryParam = query ? `?${query}` : '';
             const res = await fetch(`${DASHBOARD_CONFIG.API_ENDPOINTS.ANALYTICS}${queryParam}`, {
                 headers
             });
-
             if (res.ok) return await res.json();
         } catch (error) {
             console.error('[DataExport] Error fetching analytics:', error);
@@ -162,17 +165,9 @@ const DataExport = {
 
     async fetchUserInfo(session: Session) {
         try {
-            const authQuery = session.apiKey
-                ? `apiKey=${encodeURIComponent(session.apiKey)}`
-                : session.token
-                  ? `token=${encodeURIComponent(session.token)}`
-                  : '';
-            const headers: Record<string, string> = {};
-            if (session.token) headers.Authorization = `Bearer ${session.token}`;
-
-            const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${encodeURIComponent(session.login)}&${authQuery}`;
+            const { query, headers } = getAuthParts(session);
+            const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${encodeURIComponent(session.login)}&${query}`;
             const res = await fetch(url, { headers });
-
             if (res.ok) return await res.json();
         } catch (error) {
             console.error('[DataExport] Error fetching user info:', error);

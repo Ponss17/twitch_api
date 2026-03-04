@@ -3,15 +3,14 @@ import { DASHBOARD_CONFIG } from './dashboard-config.js';
 const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { UI } from '../../core/ui.js';
 import { Session } from '../../types.js';
+import { BaseModule } from '../../shared/utils/baseModule.js';
 
 export const FeedbackModule = {
-    session: null as Session | null,
-    initialized: false,
+    ...BaseModule,
     uiInitialized: false,
 
     init(session: Session): void {
-        this.session = session;
-        this.initialized = true;
+        this.initBase(session, '');
     },
 
     activate() {
@@ -49,12 +48,9 @@ export const FeedbackModule = {
 
         try {
             const headers: Record<string, string> = {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                ...this.authHeaders()
             };
-
-            if (this.session?.token) {
-                headers['Authorization'] = `Bearer ${this.session.token}`;
-            }
 
             const body: { message: string; apiKey?: string } = {
                 message: message

@@ -3,7 +3,7 @@
     padding: 2rem 0;
     border-top: 1px solid var(--border);
     width: 100%;
-    background: #080808;
+    background: var(--footer-bg, var(--bg-primary));
 }
 
 .footer-content {

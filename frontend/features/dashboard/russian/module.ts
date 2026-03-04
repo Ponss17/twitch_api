@@ -1,5 +1,6 @@
 import { Session, DashboardModule } from '../../../types.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
+import { BaseModule } from '../../../shared/utils/baseModule.js';
 
 interface IRussianModule extends DashboardModule {
     session: Session | null;
@@ -11,19 +12,11 @@ interface IRussianModule extends DashboardModule {
 }
 
 export const RussianModule: IRussianModule = {
-    session: null,
+    ...BaseModule,
     gameEndpoint: `${DASHBOARD_CONFIG.API_ENDPOINTS.BASE}/minigames/russian`,
-    cssLoaded: false,
 
     init(session: Session): void {
-        this.session = session;
-
-        if (!this.cssLoaded) {
-            import('../../../shared/utils/loader.js').then(({ Loader }) => {
-                Loader.loadCSS('css/sections/russian.css');
-            });
-            this.cssLoaded = true;
-        }
+        this.initBase(session, 'css/sections/russian.css');
     },
 
     activate(): void {
@@ -94,22 +87,11 @@ export const RussianModule: IRussianModule = {
         this.setLoading(true);
 
         try {
-            const { apiKey, token } = this.session;
-            const params = new URLSearchParams({
-                user: this.session.login,
-                channel: this.session.login,
-                hardcore: 'false',
-                format: 'json'
-            });
+            const tokenParam = this.authQuery();
+            const url = `${this.gameEndpoint}?user=${encodeURIComponent(this.session.login)}&channel=${encodeURIComponent(this.session.login)}&hardcore=false&format=json&${tokenParam}`;
 
-            if (apiKey) params.set('apiKey', apiKey);
-            else if (token) params.set('token', token);
-
-            const headers: Record<string, string> = {};
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const response = await fetch(`${this.gameEndpoint}?${params.toString()}`, {
-                headers
+            const response = await fetch(url, {
+                headers: this.authHeaders()
             });
 
             if (response.ok) {

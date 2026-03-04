@@ -4,8 +4,10 @@ import { DASHBOARD_CONFIG } from '../features/dashboard/dashboard-config.js';
 import { AccountMessages } from '../features/dashboard/account/messages.js';
 import { HtmlLoader } from '../shared/utils/htmlLoader.js';
 import { Loader } from '../shared/utils/loader.js';
+import { BaseModule } from '../shared/utils/baseModule.js';
 
 export const ProfileModule: DashboardModule = {
+    ...BaseModule,
     session: null as Session | null,
     isInitialized: false,
     rateLimitPollInterval: null as ReturnType<typeof setInterval> | null,
@@ -14,18 +16,6 @@ export const ProfileModule: DashboardModule = {
         followers: -1,
         analytics: {} as Record<string, number>,
         summaries: {} as Record<string, number>
-    },
-
-    get authHeaders(): Record<string, string> {
-        const headers: Record<string, string> = {};
-        if (this.session?.token) headers['Authorization'] = `Bearer ${this.session.token}`;
-        return headers;
-    },
-
-    get authQuery(): string {
-        if (this.session?.apiKey) return `apiKey=${encodeURIComponent(this.session.apiKey)}`;
-        if (this.session?.token) return `token=${encodeURIComponent(this.session.token)}`;
-        return '';
     },
 
     init(session: Session): void {
@@ -178,10 +168,10 @@ export const ProfileModule: DashboardModule = {
     async loadProfileData(): Promise<void> {
         if (!this.session) return;
         try {
-            const q = this.authQuery ? `&${this.authQuery}` : '';
+            const q = this.authQuery() ? `&${this.authQuery()}` : '';
             const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}${q}`;
             const response = await fetch(url, {
-                headers: this.authHeaders
+                headers: this.authHeaders()
             });
             if (response.ok) {
                 const data = await response.json();
@@ -196,10 +186,10 @@ export const ProfileModule: DashboardModule = {
     async pollRateLimit(): Promise<void> {
         if (!this.session) return;
         try {
-            const q = this.authQuery ? `&${this.authQuery}` : '';
+            const q = this.authQuery() ? `&${this.authQuery()}` : '';
             const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}${q}`;
             const response = await fetch(url, {
-                headers: this.authHeaders
+                headers: this.authHeaders()
             });
             if (response.ok) {
                 const data = await response.json();
@@ -216,9 +206,9 @@ export const ProfileModule: DashboardModule = {
     async loadAnalytics(): Promise<void> {
         if (!this.session) return;
         try {
-            const q = this.authQuery ? `?${this.authQuery}` : '';
+            const q = this.authQuery() ? `?${this.authQuery()}` : '';
             const response = await fetch(`${DASHBOARD_CONFIG.API_ENDPOINTS.ANALYTICS}${q}`, {
-                headers: this.authHeaders
+                headers: this.authHeaders()
             });
             if (response.ok) {
                 const data: Record<string, number> = await response.json();
@@ -574,14 +564,14 @@ export const ProfileModule: DashboardModule = {
                     word: 'LIMPIAR',
                     onConfirm: async () => {
                         try {
-                            const q = this.authQuery ? `?${this.authQuery}` : '';
+                            const q = this.authQuery() ? `?${this.authQuery()}` : '';
                             const response = await fetch(
                                 `${DASHBOARD_CONFIG.API_ENDPOINTS.CLEAR_DATA}${q}`,
                                 {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
-                                        ...this.authHeaders
+                                        ...this.authHeaders()
                                     },
                                     body: JSON.stringify({ confirm: 'LIMPIAR' })
                                 }
@@ -611,14 +601,14 @@ export const ProfileModule: DashboardModule = {
                     word: 'ELIMINAR',
                     onConfirm: async () => {
                         try {
-                            const q = this.authQuery ? `?${this.authQuery}` : '';
+                            const q = this.authQuery() ? `?${this.authQuery()}` : '';
                             const response = await fetch(
                                 `${DASHBOARD_CONFIG.API_ENDPOINTS.DELETE_ACCOUNT}${q}`,
                                 {
                                     method: 'DELETE',
                                     headers: {
                                         'Content-Type': 'application/json',
-                                        ...this.authHeaders
+                                        ...this.authHeaders()
                                     },
                                     body: JSON.stringify({ confirm: 'ELIMINAR' })
                                 }

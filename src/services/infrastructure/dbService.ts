@@ -159,7 +159,7 @@ export const updateUserStatus = async (
 
 interface UserStatsData {
     activity?: StoredActivityLog[];
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 const STATS_CNT_PREFIX = 'twitch_stats_cnt:';
@@ -333,7 +333,8 @@ export const clearUserStatsAndLogs = async (userId: string): Promise<void> => {
             kv.hdel(GLOBAL_STATS_KEY, userId),
             kv.del(`${STATS_CNT_PREFIX}${userId}`),
             kv.del(`stats:${userId}`),
-            kv.del(`${USER_ACTIVITY_PREFIX}${userId}`)
+            kv.del(`${USER_ACTIVITY_PREFIX}${userId}`),
+            kv.del(`${ACTIVITY_LIST_PREFIX}${userId}`)
         ]);
 
         const oldKeys = await kv.keys(`stats:${userId}:daily:*`);

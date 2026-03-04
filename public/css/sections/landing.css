@@ -81,6 +81,7 @@ html {
 }
 
 #landing-page {
+    --footer-bg: #080808;
     min-height: 100vh;
     display: flex;
     flex-direction: column;

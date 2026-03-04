@@ -6,6 +6,7 @@ import { UI } from '../../../core/ui.js';
 import { TmiService, TmiTags } from '../../../services/tmiService.js';
 import { TrendsTemplates } from './templates.js';
 import { Session, ChatLogItem, DashboardModule } from '../../../types.js';
+import { BaseModule } from '../../../shared/utils/baseModule.js';
 
 interface ITrendsModule extends DashboardModule {
     wordCounts: Record<string, number>;
@@ -34,6 +35,7 @@ interface ITrendsModule extends DashboardModule {
 }
 
 export const TrendsModule: ITrendsModule = {
+    ...BaseModule,
     wordCounts: {} as Record<string, number>,
     isIgnored: new Set([
         'el',
@@ -110,16 +112,7 @@ export const TrendsModule: ITrendsModule = {
     uiInitialized: false,
 
     init(session: Session): void {
-        this.session = session;
-
-        if (!this.cssLoaded) {
-            import('../../../shared/utils/loader.js').then(({ Loader }) => {
-                Loader.loadCSS('css/sections/trends.css');
-            });
-            this.cssLoaded = true;
-        }
-
-        this.initialized = true;
+        this.initBase(session, 'css/sections/trends.css');
     },
 
     activate() {
