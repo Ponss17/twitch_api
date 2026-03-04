@@ -438,6 +438,7 @@ html {
     color: #71717a;
     max-width: 600px;
     line-height: 1.6;
+    margin: 0 auto;
 }
 
 .bento-grid {
