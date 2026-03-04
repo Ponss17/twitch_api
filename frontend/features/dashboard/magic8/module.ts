@@ -2,6 +2,7 @@ import { Magic8Messages } from './messages.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 const { API_ENDPOINTS, DOM_IDS } = DASHBOARD_CONFIG;
 import { Session, DashboardModule } from '../../../types.js';
+import { BaseModule } from '../../../shared/utils/baseModule.js';
 
 interface IMagic8Module extends DashboardModule {
     cssLoaded: boolean;
@@ -14,23 +15,14 @@ interface IMagic8Module extends DashboardModule {
 }
 
 export const Magic8Module: IMagic8Module = {
+    ...BaseModule,
     session: null,
     initialized: false,
     uiInitialized: false,
-
     cssLoaded: false,
 
     init(session: Session): void {
-        this.session = session;
-
-        if (!this.cssLoaded) {
-            import('../../../shared/utils/loader.js').then(({ Loader }) => {
-                Loader.loadCSS('css/sections/magic8.css');
-            });
-            this.cssLoaded = true;
-        }
-
-        this.initialized = true;
+        this.initBase(session, 'css/sections/magic8.css');
     },
 
     activate() {
@@ -89,21 +81,14 @@ export const Magic8Module: IMagic8Module = {
         this.setLoading(true);
         try {
             if (!this.session) throw new Error('No active session');
-            const { apiKey, token, login } = this.session;
+            const { login } = this.session;
             const mood =
                 (document.getElementById('extra-magic8-mood') as HTMLSelectElement)?.value ||
                 'classic';
-            const tokenParam = apiKey
-                ? `apiKey=${encodeURIComponent(apiKey)}`
-                : token
-                  ? `token=${encodeURIComponent(token)}`
-                  : '';
+            const tokenParam = this.authQuery();
             const url = `${API_ENDPOINTS.MAGIC8}?${tokenParam}&question=${encodeURIComponent(question)}&mood=${mood}&user=${encodeURIComponent(login || '')}`;
 
-            const headers: Record<string, string> = {};
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-
-            const res = await fetch(url, { headers });
+            const res = await fetch(url, { headers: this.authHeaders() });
             if (res.ok) {
                 const answer = await res.text();
                 this.showResponse(answer, 'success');

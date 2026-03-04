@@ -7,6 +7,7 @@ import { cache, CACHE_TTL } from '../../../services/cacheService.js';
 import { TmiService, TmiTags } from '../../../services/tmiService.js';
 import { StalkerTemplates } from './templates.js';
 import { Session, StalkerUser, DashboardModule, TwitchUser } from '../../../types.js';
+import { BaseModule } from '../../../shared/utils/baseModule.js';
 
 interface IStalkerModule extends DashboardModule {
     isScanning: boolean;
@@ -26,39 +27,18 @@ interface IStalkerModule extends DashboardModule {
 }
 
 export const StalkerModule: IStalkerModule = {
+    ...BaseModule,
     session: null,
     isScanning: false,
     chatters: [] as StalkerUser[],
     searchTimeout: null,
     isConnected: false,
     initialized: false,
-
     cssLoaded: false,
     uiInitialized: false,
 
-    get authHeaders(): Record<string, string> {
-        const headers: Record<string, string> = {};
-        if (this.session?.token) headers['Authorization'] = `Bearer ${this.session.token}`;
-        return headers;
-    },
-
-    get authQuery(): string {
-        if (this.session?.apiKey) return `apiKey=${encodeURIComponent(this.session.apiKey)}`;
-        if (this.session?.token) return `token=${encodeURIComponent(this.session.token)}`;
-        return '';
-    },
-
     init(session: Session): void {
-        this.session = session;
-
-        if (!this.cssLoaded) {
-            import('../../../shared/utils/loader.js').then(({ Loader }) => {
-                Loader.loadCSS('css/sections/stalker.css');
-            });
-            this.cssLoaded = true;
-        }
-
-        this.initialized = true;
+        this.initBase(session, 'css/sections/stalker.css');
     },
 
     activate() {
@@ -233,9 +213,9 @@ export const StalkerModule: IStalkerModule = {
         try {
             if (!this.session) return;
             const { login } = this.session;
-            const q = this.authQuery ? `&${this.authQuery}` : '';
+            const q = this.authQuery() ? `&${this.authQuery()}` : '';
             const res = await fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}${q}`, {
-                headers: this.authHeaders
+                headers: this.authHeaders()
             });
             if (!res.ok)
                 throw new Error(
@@ -330,9 +310,9 @@ export const StalkerModule: IStalkerModule = {
                 return;
             }
 
-            const q = this.authQuery ? `&${this.authQuery}` : '';
+            const q = this.authQuery() ? `&${this.authQuery()}` : '';
             const res = await fetch(`${API_ENDPOINTS.USER_INFO}?login=${login}${q}`, {
-                headers: this.authHeaders
+                headers: this.authHeaders()
             });
             if (!res.ok) throw new Error();
             const info = await res.json();

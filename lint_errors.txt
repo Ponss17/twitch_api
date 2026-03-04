@@ -1,0 +1,134 @@
+
+D:\zzzapi\twitch_api\frontend\core\profile.ts
+  636:1  error  Delete `ÔÉìÔÅÄ`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\account\dataExporter.ts
+  144:11  error  Delete `┬À┬À`                                                                                                                                                                                       prettier/prettier
+  145:11  error  Delete `┬À┬À`                                                                                                                                                                                       prettier/prettier
+  146:27  error  Replace `┬À?┬À{┬ÀAuthorization:┬À`Bearer┬À${session.token}`┬À}┬À:┬À{}┬Àas┬ÀRecord<string,┬Àstring>` with `ÔÅÄ┬À┬À┬À┬À┬À┬À┬À┬À?┬À{┬ÀAuthorization:┬À`Bearer┬À${session.token}`┬À}ÔÅÄ┬À┬À┬À┬À┬À┬À┬À┬À:┬À({}┬Àas┬ÀRecord<string,┬Àstring>)`  prettier/prettier
+  154:98  error  Replace `┬Àheaders` with `ÔÅÄ┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬ÀheadersÔÅÄ┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À`                                                                                                                                    prettier/prettier
+  290:19  error  Delete `┬À┬À`                                                                                                                                                                                       prettier/prettier
+  291:1   error  Delete `┬À┬À`                                                                                                                                                                                       prettier/prettier
+  302:17  error  Insert `┬À┬À`                                                                                                                                                                                       prettier/prettier
+  303:1   error  Insert `┬À┬À`                                                                                                                                                                                       prettier/prettier
+  304:17  error  Insert `┬À┬À`                                                                                                                                                                                       prettier/prettier
+  305:1   error  Insert `┬À┬À`                                                                                                                                                                                       prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\commands\module.ts
+   46:19  error  Delete `┬À`                                        prettier/prettier
+   57:7   error  Delete `ÔÅÄ`                                        prettier/prettier
+  104:15  error  Delete `┬À┬À`                                       prettier/prettier
+  105:1   error  Replace `┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À` with `┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À`  prettier/prettier
+  169:19  error  Delete `┬À┬À`                                       prettier/prettier
+  170:1   error  Delete `┬À┬À`                                       prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\duel\module.ts
+   35:19  error  Delete `┬À`                                                                         prettier/prettier
+   96:21  error  'apiKey' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   96:29  error  'token' is assigned a value but never used. Allowed unused vars must match /^_/u   @typescript-eslint/no-unused-vars
+  129:1   error  Delete `ÔÉìÔÅÄ`                                                                        prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\feedback.ts
+  23:19  error  Delete `┬À`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\home.ts
+  258:1  error  Delete `ÔÉìÔÅÄ`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\magic8\module.ts
+   35:19  error  Delete `┬À`                                                                         prettier/prettier
+   84:21  error  'apiKey' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   84:29  error  'token' is assigned a value but never used. Allowed unused vars must match /^_/u   @typescript-eslint/no-unused-vars
+  123:1   error  Delete `ÔÉìÔÅÄ`                                                                        prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\roulette\module.ts
+  149:17  error  Insert `┬À┬À`  prettier/prettier
+  150:17  error  Insert `┬À┬À`  prettier/prettier
+  151:1   error  Insert `┬À┬À`  prettier/prettier
+  221:15  error  Delete `┬À┬À`  prettier/prettier
+  222:1   error  Delete `┬À┬À`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\russian\module.ts
+  30:25  error  Delete `┬À`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\stalker\module.ts
+  116:17  error  Insert `┬À┬À`  prettier/prettier
+  117:17  error  Insert `┬À┬À`  prettier/prettier
+  118:1   error  Insert `┬À┬À`  prettier/prettier
+  330:1   error  Delete `ÔÉìÔÅÄ`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\features\dashboard\trends\module.ts
+  166:17  error  Insert `┬À┬À`  prettier/prettier
+  167:17  error  Insert `┬À┬À`  prettier/prettier
+  168:1   error  Insert `┬À┬À`  prettier/prettier
+
+D:\zzzapi\twitch_api\frontend\shared\utils\baseModule.ts
+   1:42  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+   2:59  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+   3:1   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+   4:28  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+   5:37  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+   6:24  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+   7:22  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+   8:26  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+   9:24  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  10:1   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  11:77  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  12:52  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  13:92  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  14:24  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  15:7   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  16:1   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  17:59  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  18:94  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  19:91  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  20:19  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  21:7   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  22:1   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  23:56  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  24:32  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  25:1   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  26:31  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  27:57  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  28:41  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  29:16  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  30:35  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  31:10  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  32:1   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  33:33  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  34:7   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  35:1   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  36:20  error  Replace `ÔÉìÔÅÄ┬À┬À┬À┬À┬À┬À┬À┬ÀonConnected:┬À()┬À=>┬Àvoid,ÔÉìÔÅÄ┬À┬À┬À┬À┬À┬À┬À┬ÀonError?:┬À()┬À=>┬ÀvoidÔÉìÔÅÄ┬À┬À┬À┬À):┬Àvoid┬À{ÔÉì` with `onConnected:┬À()┬À=>┬Àvoid,┬ÀonError?:┬À()┬À=>┬Àvoid):┬Àvoid┬À{`  prettier/prettier
+  40:38  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  41:35  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  42:1   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  43:40  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  44:16  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  45:1   error  Replace `┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬Àusername:┬Àthis.session.login,ÔÉì` with `┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬Àusername:┬Àthis.session.login,`                                           prettier/prettier
+  46:1   error  Replace `┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬Àtoken:┬Àthis.session.tokenÔÉì` with `┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬Àtoken:┬Àthis.session.token`                                                   prettier/prettier
+  47:1   error  Replace `┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À}ÔÉì` with `┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À┬À}`                                                                                                           prettier/prettier
+  48:25  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  49:1   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  50:53  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  51:26  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  52:41  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  53:31  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  54:15  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  55:39  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  56:63  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  57:40  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  58:16  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  59:7   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  60:1   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  61:47  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  62:48  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  63:33  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  64:34  error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  65:6   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+  66:3   error  Delete `ÔÉì`                                                                                                                                                prettier/prettier
+
+D:\zzzapi\twitch_api\src\services\infrastructure\dbService.ts
+  162:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Ô£û 104 problems (103 errors, 1 warning)
+  99 errors and 0 warnings potentially fixable with the `--fix` option.
+

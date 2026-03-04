@@ -6,6 +6,7 @@ const { API_ENDPOINTS, IGNORED_BOTS } = DASHBOARD_CONFIG;
 
 import { TmiService, TmiTags } from '../../../services/tmiService.js';
 import { Session, RouletteUser, DashboardModule } from '../../../types.js';
+import { BaseModule } from '../../../shared/utils/baseModule.js';
 
 interface IRouletteModule extends DashboardModule {
     chatters: RouletteUser[];
@@ -39,6 +40,7 @@ interface IRouletteModule extends DashboardModule {
 }
 
 export const RouletteModule: IRouletteModule = {
+    ...BaseModule,
     session: null,
     chatters: [] as RouletteUser[],
     canvas: null,
@@ -54,20 +56,11 @@ export const RouletteModule: IRouletteModule = {
     isOpen: false,
     isConnected: false,
     isInitialized: false,
-
     cssLoaded: false,
     uiInitialized: false,
 
     init(session: Session): void {
-        this.session = session;
-
-        if (!this.cssLoaded) {
-            import('../../../shared/utils/loader.js').then(({ Loader }) => {
-                Loader.loadCSS('css/sections/roulette.css');
-            });
-            this.cssLoaded = true;
-        }
-
+        this.initBase(session, 'css/sections/roulette.css');
         this.isInitialized = true;
     },
 
