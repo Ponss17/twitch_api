@@ -1,5 +1,4 @@
 import { Auth } from '../core/auth.js';
-import { LandingUI } from './ui-landing.js';
 import { HeaderComponent } from '../shared/components/header.js';
 import { FooterComponent } from '../shared/components/footer.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
@@ -101,9 +100,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
-
-    const heroCode = document.getElementById('hero-code-display');
-    if (heroCode) LandingUI.setupHeroAnimation(heroCode);
 
     HeaderComponent.render('main-header');
     FooterComponent.render('main-footer');

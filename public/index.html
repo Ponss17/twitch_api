@@ -35,12 +35,6 @@
 </head>
 
 <body>
-    <div class="animated-bg">
-        <div class="gradient-orb orb-1"></div>
-        <div class="gradient-orb orb-2"></div>
-        <div class="gradient-orb orb-3"></div>
-    </div>
-
     <header id="main-header"></header>
 
     <div id="landing-page">
@@ -48,18 +42,18 @@
 
             <section id="login-section" class="hero-section fade-in">
                 <div class="hero-content">
-                    <div class="badge">BETA</div>
-                    <h2 class="hero-title">Comandos útiles para tu <span class="gradient-text">Stream</span></h2>
+                    <div class="hero-badge"><i class="fa-brands fa-twitch"></i> BETA — Twitch API</div>
+                    <h2 class="hero-title">Comandos para tu<br><span class="gradient-text">Stream.</span></h2>
                     <p class="hero-subtitle">
-                        Una API simple para Twitch. Configura comandos como <code>!followage</code>, <code>!clip</code>,
-                        <code>!shoutout</code> y más. Fácil de usar.
+                        Configura <code>!followage</code>, <code>!clip</code>, <code>!shoutout</code> y más en segundos.
+                        Sin complicaciones.
                     </p>
                     <div class="cta-area">
                         <button class="btn-hero" id="login-btn">
                             <i class="fa-brands fa-twitch"></i> Iniciar Sesión con Twitch
                         </button>
-                        <a href="#features" class="btn-secondary">
-                            Explorar Funciones <i class="fa-solid fa-arrow-down"></i>
+                        <a href="#features" class="btn-ghost">
+                            Ver funciones <i class="fa-solid fa-arrow-right"></i>
                         </a>
                     </div>
                     <p class="disclaimer">
@@ -67,38 +61,39 @@
                     </p>
                 </div>
                 <div class="hero-visual">
-                    <div class="visual-card floating">
-                        <div class="fake-header">
+                    <div class="terminal-card">
+                        <div class="terminal-header">
                             <span class="dot red"></span>
                             <span class="dot yellow"></span>
                             <span class="dot green"></span>
+                            <span class="terminal-title">bash — 80x24</span>
                         </div>
-                        <div id="hero-code-display" class="fake-body code-transition">
-                            <div class="twitch-chat-container">
-                                <div class="chat-messages" id="sim-messages">
-                                    <div class="chat-line" style="opacity:0.5"><span class="chat-text">¡Bienvenido al
-                                            chat!</span></div>
-                                </div>
-                                <div class="chat-input-area">
-                                    <div class="fake-input" id="sim-input-box">
-                                        <div class="input-icon-area">
-                                            <img src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1"
-                                                class="badge-icon input-badge" alt="Broadcaster">
-                                        </div>
-                                        <div class="input-content-wrapper" style="position:relative; flex:1;">
-                                            <span class="input-text" id="sim-input-text"></span>
-                                            <span class="input-placeholder" id="sim-placeholder">Enviar un
-                                                mensaje</span>
-                                        </div>
-                                    </div>
-                                    <div class="input-actions">
-                                        <button class="twitch-btn">Chat</button>
-                                    </div>
-                                </div>
+                        <div class="terminal-body">
+                            <div class="terminal-line">
+                                <span class="t-prompt">$</span>
+                                <span class="t-cmd"> curl</span>
+                                <span class="t-url"> -G "https://api.losperris.site/twitch/followage"</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="t-cmd"> -d</span>
+                                <span class="t-url"> "channel=losperris"</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="t-cmd"> -d</span>
+                                <span class="t-url"> "user=mynana17"</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="t-cmd"> -d</span>
+                                <span class="t-url"> "apiKey=</span><span class="t-cmd">sk_a1b2c3d4...</span><span
+                                    class="t-url">"</span>
+                            </div>
+                            <div class="terminal-line">&nbsp;</div>
+                            <div class="terminal-line terminal-output">
+                                <span class="t-result">@mynana17 sigue losperris desde hace 2 años y 1 mes.</span>
                             </div>
                         </div>
                     </div>
-                    <div class="glow-bg"></div>
+                    <div class="hero-glow"></div>
                 </div>
             </section>
 
@@ -179,7 +174,7 @@
                     </div>
                 </div>
 
-                <div class="features-category align-left">
+                <div class="features-category">
                     <div class="category-header">
                         <h3 class="category-title">Minijuegos</h3>
                         <p class="category-description">Mantén a tu audiencia entretenida incluso cuando no estás.
@@ -214,7 +209,7 @@
                     </div>
                 </div>
 
-                <div class="features-category align-right">
+                <div class="features-category">
                     <div class="category-header">
                         <h3 class="category-title">Soporte</h3>
                         <p class="category-description">Ayuda y documentación para que nunca te quedes atrás.</p>
@@ -229,7 +224,7 @@
                                 <p>Reporta errores o sugiere nuevas funciones directamente.</p>
                             </div>
                         </div>
-                        <div class="bento-card accent-card">
+                        <div class="bento-card">
                             <div class="bento-content">
                                 <div class="icon-box" aria-hidden="true"><i class="fa-solid fa-book"></i></div>
                                 <h4>Documentación</h4>
