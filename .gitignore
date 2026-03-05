@@ -39,3 +39,7 @@ public/js/*
 
 
 .agents/*
+
+# Panel admin (solo local, no se sube a GitHub)
+public/admin/
+src/routes/admin.ts

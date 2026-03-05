@@ -25,5 +25,6 @@ export const CONFIG = {
     DISCORD_FEEDBACK_WEBHOOK_URL: process.env.DISCORD_FEEDBACK_WEBHOOK_URL,
     GROQ_API_KEY: process.env.GROQ_API_KEY,
     BASE_URL: process.env.BASE_URL || 'https://www.losperris.site/api/twitch',
-    ADMIN_ROOT_ID: process.env.ADMIN_ROOT_ID // Tu ID de Twitch para acceso root
+    ADMIN_ROOT_ID: process.env.ADMIN_ROOT_ID, // Tu ID de Twitch para acceso root
+    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD // Contraseña para el panel admin local
 };
