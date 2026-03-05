@@ -302,11 +302,8 @@
         const errorMsg = document.getElementById('error');
         const apiBase = window.location.pathname.replace(/\/admin\/?$/, '');
 
-        import(`./js/admin/auth.js`).then(module => {
+        import(`/api/twitch/js/admin/auth.js`).then(module => {
             module.checkAuth();
-        }).catch(err => {
-            console.warn('Fallback to absolute path for auth.js');
-            import(`/js/admin/auth.js`).then(m => m.checkAuth());
         });
 
         loginBtn.addEventListener('click', (e) => {
