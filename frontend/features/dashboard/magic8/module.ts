@@ -10,7 +10,6 @@ interface IMagic8Module extends DashboardModule {
     uiInitialized: boolean;
     setupUI(): void;
     askQuestion(): Promise<void>;
-    showResponse(_text: string, _type: string): void;
     setLoading(_isLoading: boolean): void;
 }
 
@@ -51,22 +50,14 @@ export const Magic8Module: IMagic8Module = {
         const input = document.getElementById(DOM_IDS.MAGIC8.INPUT) as HTMLInputElement;
         const responseEl = document.getElementById(DOM_IDS.MAGIC8.RESPONSE);
 
-        if (isLoading) {
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = Magic8Messages.consulting;
-            }
-            if (input) input.disabled = true;
-            if (responseEl) {
-                responseEl.className = 'response-card active';
-                responseEl.innerHTML = Magic8Messages.loading;
-            }
-        } else {
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = Magic8Messages.askButton;
-            }
-            if (input) input.disabled = false;
+        if (btn) {
+            btn.disabled = isLoading;
+            btn.innerHTML = isLoading ? Magic8Messages.consulting : Magic8Messages.askButton;
+        }
+        if (input) input.disabled = isLoading;
+        if (isLoading && responseEl) {
+            responseEl.className = 'response-card active';
+            responseEl.innerHTML = Magic8Messages.loading;
         }
     },
 
@@ -91,32 +82,24 @@ export const Magic8Module: IMagic8Module = {
             const res = await fetch(url, { headers: this.authHeaders() });
             if (res.ok) {
                 const answer = await res.text();
-                this.showResponse(answer, 'success');
+                this.showResponseIn(DOM_IDS.MAGIC8.RESPONSE, answer, 'success');
             } else {
                 const { formatApiError } = await import('../../../shared/utils/api-errors.js');
                 const errorMsg = await formatApiError(res);
-                this.showResponse(`Error: ${errorMsg}`, 'error');
+                this.showResponseIn(DOM_IDS.MAGIC8.RESPONSE, `Error: ${errorMsg}`, 'error');
             }
         } catch (error) {
-            this.showResponse(Magic8Messages.error((error as Error).message), 'error');
+            this.showResponseIn(
+                DOM_IDS.MAGIC8.RESPONSE,
+                Magic8Messages.error((error as Error).message),
+                'error'
+            );
         } finally {
             this.setLoading(false);
             if (input) {
                 input.value = '';
                 input.focus();
             }
-        }
-    },
-
-    showResponse(text: string, type: string) {
-        const responseEl = document.getElementById(DOM_IDS.MAGIC8.RESPONSE);
-        if (responseEl) {
-            responseEl.className = `response-card ${type} active`;
-            const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
-            responseEl.innerHTML = `
-                <i class="fa-solid ${icon}"></i>
-                <span>${text}</span>
-            `;
         }
     }
 };

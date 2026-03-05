@@ -163,7 +163,7 @@
 
 .dashboard-content {
     flex: 1;
-    padding: 16px 24px;
+    padding: 12px 16px;
     max-width: 1600px;
     margin: 0 auto;
     width: 100%;
@@ -521,8 +521,8 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 16px;
+    padding: 12px;
+    margin-bottom: 12px;
     box-shadow: var(--shadow-sm);
     opacity: 0;
     animation: fadeInSoft 0.4s ease-out forwards;
@@ -574,7 +574,7 @@
 }
 
 .card-header h3 {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     margin-bottom: 2px;
 }

@@ -42,7 +42,7 @@ body.minimal-tech-vibe {
 .minimal-container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 120px 24px 80px;
+    padding: 140px 1.25rem 60px;
     position: relative;
     z-index: 2;
 }
@@ -189,7 +189,7 @@ body.minimal-tech-vibe {
 }
 
 .narrative-item {
-    padding: 30px;
+    padding: 20px;
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--border-subtle);
     border-radius: 16px;
@@ -389,6 +389,7 @@ body.minimal-tech-vibe {
 @media (max-width: 768px) {
     .narrative-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
 
     .narrative-item.full-width {
@@ -397,24 +398,31 @@ body.minimal-tech-vibe {
 
     .tech-grid {
         grid-template-columns: 1fr;
+        gap: 12px;
     }
 
     .profile-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 24px;
+        gap: 20px;
+        margin-bottom: 40px;
     }
 
     .contact-footer {
         flex-direction: column;
         align-items: flex-start;
+        gap: 25px;
     }
 
     .profile-title h1 {
-        font-size: 2.2rem;
+        font-size: 2rem;
+    }
+
+    .narrative-item h2 {
+        font-size: 1.5rem;
     }
 
     .minimal-container {
-        padding-top: 100px;
+        padding-top: 80px;
     }
 }

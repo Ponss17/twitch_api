@@ -10,7 +10,6 @@ interface IDuelModule extends DashboardModule {
     uiInitialized: boolean;
     setupUI(): void;
     startDuel(): Promise<void>;
-    showResponse(text: string, type: string): void;
     setLoading(isLoading: boolean): void;
 }
 
@@ -55,24 +54,15 @@ export const DuelModule: IDuelModule = {
         ) as HTMLInputElement;
         const responseEl = document.getElementById(DOM_IDS.DUEL.RESPONSE);
 
-        if (isLoading) {
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = DuelMessages.fighting;
-            }
-            if (inputTarget) inputTarget.disabled = true;
-            if (inputChallenger) inputChallenger.disabled = true;
-            if (responseEl) {
-                responseEl.className = 'response-card active';
-                responseEl.innerHTML = DuelMessages.loading;
-            }
-        } else {
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = DuelMessages.fightButton;
-            }
-            if (inputTarget) inputTarget.disabled = false;
-            if (inputChallenger) inputChallenger.disabled = false;
+        if (btn) {
+            btn.disabled = isLoading;
+            btn.innerHTML = isLoading ? DuelMessages.fighting : DuelMessages.fightButton;
+        }
+        if (inputTarget) inputTarget.disabled = isLoading;
+        if (inputChallenger) inputChallenger.disabled = isLoading;
+        if (isLoading && responseEl) {
+            responseEl.className = 'response-card active';
+            responseEl.innerHTML = DuelMessages.loading;
         }
     },
 
@@ -86,7 +76,7 @@ export const DuelModule: IDuelModule = {
         const challenger = inputChallenger?.value.trim();
 
         if (!target) {
-            this.showResponse(DuelMessages.emptyTarget, 'error');
+            this.showResponseIn(DOM_IDS.DUEL.RESPONSE, DuelMessages.emptyTarget, 'error');
             return;
         }
 
@@ -99,28 +89,20 @@ export const DuelModule: IDuelModule = {
             const res = await fetch(url, { headers: this.authHeaders() });
             if (res.ok) {
                 const answer = await res.text();
-                this.showResponse(answer, 'success');
+                this.showResponseIn(DOM_IDS.DUEL.RESPONSE, answer, 'success');
             } else {
                 const { formatApiError } = await import('../../../shared/utils/api-errors.js');
                 const errorMsg = await formatApiError(res);
-                this.showResponse(`Error: ${errorMsg}`, 'error');
+                this.showResponseIn(DOM_IDS.DUEL.RESPONSE, `Error: ${errorMsg}`, 'error');
             }
         } catch (error) {
-            this.showResponse(DuelMessages.error((error as Error).message), 'error');
+            this.showResponseIn(
+                DOM_IDS.DUEL.RESPONSE,
+                DuelMessages.error((error as Error).message),
+                'error'
+            );
         } finally {
             this.setLoading(false);
-        }
-    },
-
-    showResponse(_text: string, _type: string) {
-        const responseEl = document.getElementById(DOM_IDS.DUEL.RESPONSE);
-        if (responseEl) {
-            responseEl.className = `response-card ${_type} active`;
-            const icon = _type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
-            responseEl.innerHTML = `
-                <i class="fa-solid ${icon}"></i>
-                <span>${_text}</span>
-            `;
         }
     }
 };

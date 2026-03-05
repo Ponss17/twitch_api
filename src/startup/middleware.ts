@@ -45,6 +45,8 @@ export const configureMiddleware = (app: Application) => {
                         'data:',
                         'https://*.jtvnw.net',
                         'https://*.twitch.tv',
+                        'https://flagcdn.com',
+                        'https://*.flagcdn.com',
                         'blob:'
                     ],
                     connectSrc: [

@@ -59,5 +59,13 @@ export const BaseModule = {
         TmiService.removeListener(listenerKey);
         TmiService.disconnect();
         this.isConnected = false;
+    },
+
+    showResponseIn(containerId: string, text: string, type: 'success' | 'error'): void {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        el.className = `response-card ${type} active`;
+        const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
+        el.innerHTML = `<i class="fa-solid ${icon}"></i><span>${text}</span>`;
     }
 };
