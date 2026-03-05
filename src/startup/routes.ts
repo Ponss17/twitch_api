@@ -1,14 +1,24 @@
-import { Application, Request, Response } from 'express';
+import { Application, Request, Response, NextFunction } from 'express';
 import path from 'path';
 import { CONFIG } from '../config/env';
 import rateLimiter, { authLimiter } from '../middleware/rateLimiter';
 import { apiKeyValidator } from '../middleware/apiKeyValidator';
 import checkToken from '../middleware/authMiddleware';
 import authRoutes from '../routes/authRoutes';
-import adminRouter from '../routes/admin';
+import { loadAdminRouter } from '../routes/adminProxy';
 import apiRouter from '../routes/index';
 import { getRobotsTxt, getSitemapXml } from '../controllers/system/seoController';
 import { errorHandler } from '../middleware/errorMiddleware';
+
+// El adminRouter es opcional: solo existe localmente (está en .gitignore)
+const adminRouter = loadAdminRouter();
+
+const localOnly = (req: Request, res: Response, next: NextFunction) => {
+    const ip = req.ip || req.socket?.remoteAddress || '';
+    const isLocal = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
+    if (!isLocal) return res.status(404).send('Not Found');
+    next();
+};
 
 export const configurePageRoutes = (app: Application) => {
     // --- VISTAS Y RUTAS ESTATICAS (HTML) ---
@@ -26,13 +36,17 @@ export const configurePageRoutes = (app: Application) => {
         res.sendFile(path.join(__dirname, '../../public/sobre-la-api.html'));
     });
 
-    app.get(['/admin', '/api/twitch/admin'], (req: Request, res: Response) => {
+    app.get(['/admin', '/api/twitch/admin'], localOnly, (req: Request, res: Response) => {
         res.sendFile(path.join(__dirname, '../../public/admin/login.html'));
     });
 
-    app.get(['/admin-dashboard', '/api/twitch/admin-dashboard'], (req: Request, res: Response) => {
-        res.sendFile(path.join(__dirname, '../../public/admin/dashboard.html'));
-    });
+    app.get(
+        ['/admin-dashboard', '/api/twitch/admin-dashboard'],
+        localOnly,
+        (req: Request, res: Response) => {
+            res.sendFile(path.join(__dirname, '../../public/admin/dashboard.html'));
+        }
+    );
 
     // SEO (Servidos como páginas/archivos)
     app.get(['/robots.txt', '/api/twitch/robots.txt'], getRobotsTxt);
@@ -53,8 +67,14 @@ export const configureRoutes = (app: Application) => {
     app.use(checkToken);
     app.use(rateLimiter);
 
-    // Rutas de Admin (API)
-    app.use(['/api/admin', '/api/twitch/admin', '/admin/api', '/admin'], adminRouter);
+    // Rutas de Admin (API) — solo local, solo si el módulo existe
+    if (adminRouter) {
+        app.use(
+            ['/api/admin', '/api/twitch/admin', '/admin/api', '/admin'],
+            localOnly,
+            adminRouter
+        );
+    }
 
     // Rutas API/Twitch
     // Usamos montajes individuales para mayor claridad en Express
