@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 
-jest.mock('@/services/auth/authService', () => ({
+jest.mock('../../src/features/auth/auth.service', () => ({
     getAuthorizeUrl: jest.fn(),
     handleCallback: jest.fn()
 }));
 
-jest.mock('@/services/infrastructure/dbService', () => ({
+jest.mock('../../src/core/database/dbService', () => ({
     isAdmin: jest.fn()
 }));
 
@@ -13,9 +13,9 @@ jest.mock('@/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }
 }));
 
-import * as authService from '@/services/auth/authService';
-import * as dbService from '@/services/infrastructure/dbService';
-import { login, callback } from '@/controllers/auth/authController';
+import * as authService from '../../src/features/auth/auth.service';
+import * as dbService from '../../src/core/database/dbService';
+import { login, callback } from '../../src/features/auth/auth.controller';
 
 const mockReq = (overrides = {}) =>
     ({

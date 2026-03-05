@@ -4,7 +4,7 @@ jest.mock('@/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
-import { errorHandler, requestLogger } from '@/middleware/errorMiddleware';
+import { errorHandler, requestLogger } from '../../src/core/middleware/errorMiddleware';
 
 const mockReq = (overrides = {}) =>
     ({

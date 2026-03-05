@@ -1,4 +1,4 @@
-jest.mock('@/services/infrastructure/dbService', () => ({
+jest.mock('../../src/core/database/dbService', () => ({
     getUser: jest.fn(),
     getUserByApiKey: jest.fn(),
     saveUser: jest.fn()
@@ -11,13 +11,13 @@ jest.mock('@/utils/logger', () => ({
 }));
 
 import axios from 'axios';
-import * as dbService from '@/services/infrastructure/dbService';
+import * as dbService from '../../src/core/database/dbService';
 import {
     getValidToken,
     regenerateApiKey,
     refreshUserToken,
     handleCallback
-} from '@/services/auth/authService';
+} from '../../src/features/auth/auth.service';
 import { StoredUser } from '@/types/twitch';
 
 const mockStoredUser: StoredUser = {

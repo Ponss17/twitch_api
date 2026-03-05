@@ -1,8 +1,8 @@
 import express, { Application } from 'express';
-import { configureMiddleware } from './startup/middleware';
-import { configureStatic } from './startup/static';
-import { configureRoutes, configurePageRoutes } from './startup/routes';
-import { validateConfig } from './startup/config-check';
+import { configureMiddleware } from './core/startup/middleware';
+import { configureStatic } from './core/startup/static';
+import { configureRoutes, configurePageRoutes } from './core/startup/routes';
+import { validateConfig } from './core/startup/config-check';
 
 validateConfig();
 

@@ -1,6 +1,6 @@
 import { Response } from 'express';
 
-jest.mock('@/services/infrastructure/dbService', () => ({
+jest.mock('../../src/core/database/dbService', () => ({
     getUserStats: jest.fn(),
     getUserActivity: jest.fn()
 }));
@@ -11,15 +11,15 @@ jest.mock('@/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
-jest.mock('@/services/twitch/apiService', () => ({
+jest.mock('../../src/features/twitch/twitch.service', () => ({
     getClips: jest.fn(),
     getChatters: jest.fn(),
     getUserInfo: jest.fn(),
     validateToken: jest.fn()
 }));
 
-import * as dbService from '@/services/infrastructure/dbService';
-import { getAnalytics, getLogs } from '@/controllers/twitch/dashboardController';
+import * as dbService from '../../src/core/database/dbService';
+import { getAnalytics, getLogs } from '../../src/features/dashboard/dashboard.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
 const mockReq = (overrides = {}) =>

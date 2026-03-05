@@ -7,7 +7,7 @@ import {
     addUserActivity,
     addAuditLog,
     getAuditLogs
-} from '@/services/infrastructure/dbService';
+} from '../../src/core/database/dbService';
 import { kv } from '@vercel/kv';
 
 jest.mock('@/utils/logger', () => ({

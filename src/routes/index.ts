@@ -1,8 +1,8 @@
 import express from 'express';
-import gamesRoutes from './gamesRoutes';
-import commandsRoutes from './commandsRoutes';
-import dashboardRoutes from './dashboardRoutes';
-import systemRoutes from './systemRoutes';
+import gamesRoutes from '../features/games/games.routes';
+import commandsRoutes from '../features/commands/commands.routes';
+import dashboardRoutes from '../features/dashboard/dashboard.routes';
+import systemRoutes from '../features/system/system.routes';
 
 const router = express.Router();
 

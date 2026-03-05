@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { validate } from '@/middleware/validate';
+import { validate } from '../../src/core/middleware/validate';
 
 const mockReq = (overrides = {}) =>
     ({
