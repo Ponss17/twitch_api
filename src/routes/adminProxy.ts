@@ -8,7 +8,7 @@ import { Router } from 'express';
 export function loadAdminRouter(): Router | null {
     try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
-        return require('./admin').default as Router;
+        return require('../../admin/api').default as Router;
     } catch {
         return null;
     }

@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SRC_DIR = path.join(__dirname, '../frontend');
+const ADMIN_DIR = path.join(__dirname, '../admin');
 const OUT_DIR = path.join(__dirname, '../public/js');
 
 function getEntryPoints(dir) {
@@ -29,8 +30,18 @@ async function build() {
     console.log('🚀 Iniciando build de Frontend con Esbuild...');
 
     const entryPoints = getEntryPoints(SRC_DIR);
-
     console.log(`📂 Encontrados ${entryPoints.length} archivos TypeScript.`);
+
+    // Archivos admin (solo existen localmente, en .gitignore)
+    const adminEntries = [];
+    if (fs.existsSync(ADMIN_DIR)) {
+        fs.readdirSync(ADMIN_DIR)
+            .filter((f) => f.endsWith('.ts') && !f.endsWith('.d.ts') && f !== 'api.ts')
+            .forEach((f) => adminEntries.push(path.join(ADMIN_DIR, f)));
+        if (adminEntries.length) {
+            console.log(`🔐 Encontrados ${adminEntries.length} archivos TypeScript de admin.`);
+        }
+    }
 
     try {
         if (fs.existsSync(OUT_DIR)) {
@@ -46,9 +57,7 @@ async function build() {
             fs.cpSync(vendorSrc, vendorDest, { recursive: true });
         }
 
-        await esbuild.build({
-            entryPoints: entryPoints,
-            outdir: OUT_DIR,
+        const sharedConfig = {
             bundle: true,
             minify: false,
             keepNames: true,
@@ -59,7 +68,17 @@ async function build() {
             format: 'esm',
             tsconfig: path.join(__dirname, '../tsconfig.frontend.json'),
             loader: { '.ts': 'ts' }
-        });
+        };
+
+        await esbuild.build({ ...sharedConfig, entryPoints, outdir: OUT_DIR });
+
+        if (adminEntries.length) {
+            await esbuild.build({
+                ...sharedConfig,
+                entryPoints: adminEntries,
+                outdir: path.join(OUT_DIR, 'admin')
+            });
+        }
 
         console.log('✅ Build completado exitosamente en public/js/');
     } catch (e) {

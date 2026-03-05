@@ -1,6 +1,6 @@
 import { Response, Request } from 'express';
 import rateLimit from 'express-rate-limit';
-import { RATE_LIMITS } from '@/config/limits';
+import { RATE_LIMITS } from '../../src/core/config/limits';
 
 describe('Rate Limiter Middleware', () => {
     it('should implement a rate limit function', () => {

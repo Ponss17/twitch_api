@@ -32,3 +32,18 @@ export const shoutoutSchema = z.object({
         touser: z.string().min(1, 'El usuario a destacar es requerido')
     })
 });
+
+export const russianSchema = z.object({
+    query: z.object({
+        channel: z.string().min(1, 'El canal es requerido'),
+        user: z.string().min(1, 'El usuario es requerido')
+    })
+});
+
+export const duelSchema = z.object({
+    query: z.object({
+        channel: z.string().min(1, 'El canal es requerido'),
+        user1: z.string().min(1, 'El usuario retador es requerido'),
+        user2: z.string().min(1, 'El usuario retado es requerido')
+    })
+});

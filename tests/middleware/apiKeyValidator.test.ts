@@ -1,11 +1,11 @@
-import { apiKeyValidator } from '@/middleware/apiKeyValidator';
+import { apiKeyValidator } from '../../src/core/middleware/apiKeyValidator';
 import { Request, Response } from 'express';
-import * as authService from '@/services/auth/authService';
-import * as dbService from '@/services/infrastructure/dbService';
+import * as authService from '../../src/features/auth/auth.service';
+import * as dbService from '../../src/core/database/dbService';
 
 // Mock de servicios
-jest.mock('@/services/infrastructure/dbService');
-jest.mock('@/services/auth/authService');
+jest.mock('../../src/core/database/dbService');
+jest.mock('../../src/features/auth/auth.service');
 
 describe('API Key Validator Middleware', () => {
     let mockRequest: Partial<Request>;

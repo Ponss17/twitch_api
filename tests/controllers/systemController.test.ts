@@ -1,18 +1,18 @@
 import { Response } from 'express';
 
-jest.mock('@/services/infrastructure/dbService', () => ({
+jest.mock('../../src/core/database/dbService', () => ({
     getUser: jest.fn(),
     saveUser: jest.fn(),
     getUserByApiKey: jest.fn(),
     addAuditLog: jest.fn().mockResolvedValue(undefined)
 }));
 
-jest.mock('@/services/auth/authService', () => ({
+jest.mock('../../src/features/auth/auth.service', () => ({
     getValidToken: jest.fn(),
     regenerateApiKey: jest.fn()
 }));
 
-jest.mock('@/services/twitch/apiService', () => ({
+jest.mock('../../src/features/twitch/twitch.service', () => ({
     getUserInfo: jest.fn(),
     validateToken: jest.fn()
 }));
@@ -27,15 +27,15 @@ jest.mock('@/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
-import * as dbService from '@/services/infrastructure/dbService';
-import * as authService from '@/services/auth/authService';
-import * as apiService from '@/services/twitch/apiService';
+import * as dbService from '../../src/core/database/dbService';
+import * as authService from '../../src/features/auth/auth.service';
+import * as apiService from '../../src/features/twitch/twitch.service';
 import {
     validateToken,
     regenerateKey,
     submitFeedback,
     getHealth
-} from '@/controllers/system/systemController';
+} from '../../src/features/system/system.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
 const mockReq = (overrides = {}) =>
