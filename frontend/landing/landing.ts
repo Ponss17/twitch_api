@@ -1,6 +1,7 @@
 import { Auth } from '../core/auth.js';
 import { HeaderComponent } from '../shared/components/header.js';
 import { FooterComponent } from '../shared/components/footer.js';
+import { DisclaimerComponent } from '../shared/components/modals/disclaimerComponent.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
 injectSpeedInsights({ debug: false });
@@ -30,6 +31,8 @@ function setupFAQ() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    DisclaimerComponent.render('modal-container');
+
     const modal = document.getElementById('disclaimer-modal') as HTMLDialogElement;
     const loginBtn = document.getElementById('login-btn');
     const confirmBtn = document.getElementById('confirm-login-btn');
