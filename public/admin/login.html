@@ -297,18 +297,23 @@
         </div>
     </div>
 
-    <script type="module">
-        const loginBtn = document.getElementById('loginBtn');
-        const errorMsg = document.getElementById('error');
+    <script>
+        const ADMIN_AUTH_KEY = 'admin_password';
         const apiBase = window.location.pathname.replace(/\/admin\/?$/, '');
 
-        import(`/api/twitch/js/admin/auth.js`).then(module => {
-            module.checkAuth();
-        });
+        const sessionToken = new URLSearchParams(window.location.search).get('session');
+        if (sessionToken) {
+            sessionStorage.setItem(ADMIN_AUTH_KEY, sessionToken);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
 
+        if (sessionStorage.getItem(ADMIN_AUTH_KEY)) {
+            window.location.href = `${apiBase}/admin-dashboard`;
+        }
+
+        const loginBtn = document.getElementById('loginBtn');
         loginBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Redirigiendo a Twitch OAuth...');
             loginBtn.style.opacity = '0.7';
             loginBtn.querySelector('span').textContent = 'Redirigiendo...';
             window.location.href = `${apiBase}/auth/twitch?admin=true`;
