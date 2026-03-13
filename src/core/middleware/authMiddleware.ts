@@ -104,6 +104,16 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                 const user = await dbService.getUser(req.userId);
                 if (user) {
                     res.locals.apiUser = user;
+
+                    if (userCache.size >= 1000) {
+                        const entriesToRemove = Math.floor(1000 * 0.25);
+                        const iterator = userCache.keys();
+                        for (let i = 0; i < entriesToRemove; i++) {
+                            const key = iterator.next().value;
+                            if (key) userCache.delete(key);
+                        }
+                    }
+
                     userCache.set(req.userId, { user, expiry: now + CACHE_TTL });
                 }
             }

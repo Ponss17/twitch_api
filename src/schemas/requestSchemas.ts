@@ -42,8 +42,7 @@ export const russianSchema = z.object({
 
 export const duelSchema = z.object({
     query: z.object({
-        channel: z.string().min(1, 'El canal es requerido'),
-        user1: z.string().min(1, 'El usuario retador es requerido'),
-        user2: z.string().min(1, 'El usuario retado es requerido')
+        target: z.string().min(1, 'El usuario retado es requerido'),
+        challenger: z.string().optional()
     })
 });

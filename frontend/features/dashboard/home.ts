@@ -133,8 +133,7 @@ export const HomeModule = {
         if (!pill || !label || !this.session) return;
 
         try {
-            const q = this.authQuery() ? `?${this.authQuery()}` : '';
-            const response = await fetch(`${API_ENDPOINTS.HEALTH}${q}`, {
+            const response = await fetch(`${API_ENDPOINTS.HEALTH}`, {
                 headers: this.authHeaders()
             });
 
@@ -159,8 +158,7 @@ export const HomeModule = {
         if (!logContainer || !this.session) return;
 
         try {
-            const q = this.authQuery() ? `&${this.authQuery()}` : '';
-            const response = await fetch(`${API_ENDPOINTS.ACTIVITY}?${q}`, {
+            const response = await fetch(`${API_ENDPOINTS.ACTIVITY}`, {
                 headers: this.authHeaders()
             });
 
@@ -205,8 +203,7 @@ export const HomeModule = {
         if (!this.session) return;
 
         try {
-            const q = this.authQuery() ? `&${this.authQuery()}` : '';
-            const response = await fetch(`${API_ENDPOINTS.ANALYTICS}?${q}`, {
+            const response = await fetch(`${API_ENDPOINTS.ANALYTICS}`, {
                 headers: this.authHeaders()
             });
 

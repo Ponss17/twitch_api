@@ -65,7 +65,7 @@ export const getLogs = async (req: AuthenticatedRequest, res: Response) => {
 
     try {
         const logs = await dbService.getUserActivity(userId);
-        const formattedLogs = logs.map((log: any) => {
+        const formattedLogs = logs.map((log: { type: string; user: string; detail?: string }) => {
             let actionText = '';
             switch (log.type) {
                 case 'clip':

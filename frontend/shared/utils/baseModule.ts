@@ -10,13 +10,17 @@ export const BaseModule = {
 
     authHeaders(this: { session: Session | null }): Record<string, string> {
         const headers: Record<string, string> = {};
-        if (this.session?.token) headers['Authorization'] = `Bearer ${this.session.token}`;
+        if (this.session?.token) {
+            headers['Authorization'] = `Bearer ${this.session.token}`;
+        }
+        if (this.session?.apiKey) {
+            headers['x-api-key'] = this.session.apiKey;
+        }
         return headers;
     },
 
     authQuery(this: { session: Session | null }): string {
-        if (this.session?.apiKey) return `apiKey=${encodeURIComponent(this.session.apiKey)}`;
-        if (this.session?.token) return `token=${encodeURIComponent(this.session.token)}`;
+        // Deprecated: API Key now sent via headers for security
         return '';
     },
 
