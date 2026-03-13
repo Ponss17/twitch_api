@@ -700,7 +700,7 @@ html {
 @media (max-width: 600px) {
     #landing-page .container {
         gap: 2rem;
-        padding: 0 1rem;
+        padding: 7.5rem 1rem 0;
     }
 
     .hero-title {
@@ -767,7 +767,7 @@ html {
 
 @media (max-width: 450px) {
     #landing-page .container {
-        padding: 0 1.25rem;
+        padding: 7.5rem 1.25rem 0;
     }
 
     .hero-title {

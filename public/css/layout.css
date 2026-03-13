@@ -84,23 +84,33 @@
 
 @media (max-width: 768px) {
     .main-header .container {
-        padding: 1rem 1.5rem;
+        padding: 0.8rem 1rem;
+        flex-direction: column;
+        gap: 12px;
     }
 
     .main-header.scrolled .container {
-        padding: 0.8rem 1.5rem;
+        padding: 0.6rem 1rem;
+    }
+
+    .logo-img {
+        width: 36px;
+        height: 36px;
     }
 
     .brand-logo {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
+        white-space: nowrap;
     }
 
     .top-nav {
-        gap: 5px;
+        gap: 10px;
+        width: 100%;
+        justify-content: center;
     }
 
     .nav-link {
-        padding: 6px 10px;
+        padding: 6px 12px;
         font-size: 0.85rem;
     }
 }
