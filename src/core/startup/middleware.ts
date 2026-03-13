@@ -22,6 +22,8 @@ export const configureMiddleware = (app: Application) => {
                     defaultSrc: ["'self'"],
                     scriptSrc: [
                         "'self'",
+                        "'unsafe-inline'",
+                        "'unsafe-eval'",
                         'https://cdnjs.cloudflare.com',
                         'https://unpkg.com',
                         'https://*.twitch.tv',

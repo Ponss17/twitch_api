@@ -213,8 +213,7 @@ export const StalkerModule: IStalkerModule = {
         try {
             if (!this.session) return;
             const { login } = this.session;
-            const q = this.authQuery() ? `&${this.authQuery()}` : '';
-            const res = await fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}${q}`, {
+            const res = await fetch(`${API_ENDPOINTS.CHATTERS}?channel=${login}`, {
                 headers: this.authHeaders()
             });
             if (!res.ok)
@@ -310,8 +309,7 @@ export const StalkerModule: IStalkerModule = {
                 return;
             }
 
-            const q = this.authQuery() ? `&${this.authQuery()}` : '';
-            const res = await fetch(`${API_ENDPOINTS.USER_INFO}?login=${login}${q}`, {
+            const res = await fetch(`${API_ENDPOINTS.USER_INFO}?login=${login}`, {
                 headers: this.authHeaders()
             });
             if (!res.ok) throw new Error();

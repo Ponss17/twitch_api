@@ -28,9 +28,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let validationResult = null;
 
     try {
-        const credentialParam = apiKey ? `apiKey=${apiKey}` : `token=${token}`;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        validationResult = (await Auth.validateCurrentToken(credentialParam)) as any;
+        validationResult = (await Auth.validateCurrentToken({ apiKey, token })) as any;
     } catch (e) {
         console.error('Error executing validation:', e);
         validationResult = { valid: true, error: true };

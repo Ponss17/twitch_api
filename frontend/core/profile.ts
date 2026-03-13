@@ -168,8 +168,7 @@ export const ProfileModule: DashboardModule = {
     async loadProfileData(): Promise<void> {
         if (!this.session) return;
         try {
-            const q = this.authQuery() ? `&${this.authQuery()}` : '';
-            const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}${q}`;
+            const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}`;
             const response = await fetch(url, {
                 headers: this.authHeaders()
             });
@@ -186,8 +185,7 @@ export const ProfileModule: DashboardModule = {
     async pollRateLimit(): Promise<void> {
         if (!this.session) return;
         try {
-            const q = this.authQuery() ? `&${this.authQuery()}` : '';
-            const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}${q}`;
+            const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}`;
             const response = await fetch(url, {
                 headers: this.authHeaders()
             });
@@ -206,8 +204,7 @@ export const ProfileModule: DashboardModule = {
     async loadAnalytics(): Promise<void> {
         if (!this.session) return;
         try {
-            const q = this.authQuery() ? `?${this.authQuery()}` : '';
-            const response = await fetch(`${DASHBOARD_CONFIG.API_ENDPOINTS.ANALYTICS}${q}`, {
+            const response = await fetch(`${DASHBOARD_CONFIG.API_ENDPOINTS.ANALYTICS}`, {
                 headers: this.authHeaders()
             });
             if (response.ok) {
@@ -564,9 +561,8 @@ export const ProfileModule: DashboardModule = {
                     word: 'LIMPIAR',
                     onConfirm: async () => {
                         try {
-                            const q = this.authQuery() ? `?${this.authQuery()}` : '';
                             const response = await fetch(
-                                `${DASHBOARD_CONFIG.API_ENDPOINTS.CLEAR_DATA}${q}`,
+                                `${DASHBOARD_CONFIG.API_ENDPOINTS.CLEAR_DATA}`,
                                 {
                                     method: 'POST',
                                     headers: {
@@ -601,9 +597,8 @@ export const ProfileModule: DashboardModule = {
                     word: 'ELIMINAR',
                     onConfirm: async () => {
                         try {
-                            const q = this.authQuery() ? `?${this.authQuery()}` : '';
                             const response = await fetch(
-                                `${DASHBOARD_CONFIG.API_ENDPOINTS.DELETE_ACCOUNT}${q}`,
+                                `${DASHBOARD_CONFIG.API_ENDPOINTS.DELETE_ACCOUNT}`,
                                 {
                                     method: 'DELETE',
                                     headers: {

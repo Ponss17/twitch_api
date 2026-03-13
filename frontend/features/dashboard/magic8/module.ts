@@ -76,8 +76,7 @@ export const Magic8Module: IMagic8Module = {
             const mood =
                 (document.getElementById('extra-magic8-mood') as HTMLSelectElement)?.value ||
                 'classic';
-            const tokenParam = this.authQuery();
-            const url = `${API_ENDPOINTS.MAGIC8}?${tokenParam}&question=${encodeURIComponent(question)}&mood=${mood}&user=${encodeURIComponent(login || '')}`;
+            const url = `${API_ENDPOINTS.MAGIC8}?question=${encodeURIComponent(question)}&mood=${mood}&user=${encodeURIComponent(login || '')}`;
 
             const res = await fetch(url, { headers: this.authHeaders() });
             if (res.ok) {

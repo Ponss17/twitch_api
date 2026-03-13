@@ -24,18 +24,24 @@ export const Auth = {
         window.location.href = window.location.origin + window.location.pathname;
     },
 
-    async validateCurrentToken(
-        credentialParam: string
-    ): Promise<
+    async validateCurrentToken(session: {
+        token?: string | null;
+        apiKey?: string | null;
+    }): Promise<
         | ApiResponse
         | false
         | { valid: boolean; error?: boolean; reason?: string; status?: number }
         | null
     > {
         try {
-            if (!credentialParam) return { valid: false, reason: 'no_credentials' };
+            if (!session || (!session.apiKey && !session.token))
+                return { valid: false, reason: 'no_credentials' };
 
-            const response = await fetch(`${CONFIG.API_URL}/system/validate?${credentialParam}`);
+            const headers: Record<string, string> = {};
+            if (session.token) headers['Authorization'] = `Bearer ${session.token}`;
+            if (session.apiKey) headers['x-api-key'] = session.apiKey;
+
+            const response = await fetch(`${CONFIG.API_URL}/system/validate`, { headers });
 
             if (!response.ok) {
                 if (response.status === 401) {
@@ -67,11 +73,10 @@ export const Auth = {
         if (!session.userId) return session;
 
         try {
-            const credentialParam = session.token
-                ? `token=${session.token}`
-                : `apiKey=${session.apiKey}`;
-
-            const validation = await this.validateCurrentToken(credentialParam);
+            const validation = await this.validateCurrentToken({
+                apiKey: session.apiKey,
+                token: session.token
+            });
 
             if (validation && typeof validation === 'object' && 'apiKey' in validation) {
                 const serverApiKey = validation.apiKey;

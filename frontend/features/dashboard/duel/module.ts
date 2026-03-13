@@ -83,8 +83,7 @@ export const DuelModule: IDuelModule = {
         this.setLoading(true);
         try {
             if (!this.session) throw new Error('No active session');
-            const tokenParam = this.authQuery();
-            const url = `${API_ENDPOINTS.DUEL}?${tokenParam}&target=${encodeURIComponent(target)}&challenger=${encodeURIComponent(challenger)}`;
+            const url = `${API_ENDPOINTS.DUEL}?target=${encodeURIComponent(target)}&challenger=${encodeURIComponent(challenger)}`;
 
             const res = await fetch(url, { headers: this.authHeaders() });
             if (res.ok) {

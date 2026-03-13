@@ -411,7 +411,7 @@ export const addSystemLog = async (
         await kv.lpush(LOGS_KEY, JSON.stringify(logEntry));
         await kv.ltrim(LOGS_KEY, 0, MAX_LOGS - 1);
     } catch (_e) {
-        console.error('Failed to log to KV:', _e);
+        logger.error('Failed to log to KV:', _e);
     }
 };
 

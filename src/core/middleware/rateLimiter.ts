@@ -37,7 +37,11 @@ const limiter = rateLimit({
         const userId = (req as AuthenticatedRequest).userId;
 
         if (apiUser) {
-            return (req.query.apiKey as string) || apiUser.userId;
+            return (
+                (req.query.apiKey as string) ||
+                (req.headers['x-api-key'] as string) ||
+                apiUser.userId
+            );
         }
         if (userId) {
             return `sess:${userId}`;
@@ -94,7 +98,13 @@ export const heavyLimiter = rateLimit({
     },
     keyGenerator: (req: Request, res: Response): string => {
         const apiUser = res.locals?.apiUser;
-        if (apiUser) return `heavy:${(req.query.apiKey as string) || apiUser.userId}`;
+        if (apiUser) {
+            const apiKey =
+                (req.query.apiKey as string) ||
+                (req.headers['x-api-key'] as string) ||
+                apiUser.userId;
+            return `heavy:${apiKey}`;
+        }
         const userId = (req as AuthenticatedRequest).userId;
         return `heavy:sess:${userId || 'anon'}`;
     },

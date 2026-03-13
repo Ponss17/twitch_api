@@ -87,8 +87,7 @@ export const RussianModule: IRussianModule = {
         this.setLoading(true);
 
         try {
-            const tokenParam = this.authQuery();
-            const url = `${this.gameEndpoint}?user=${encodeURIComponent(this.session.login)}&channel=${encodeURIComponent(this.session.login)}&hardcore=false&format=json&${tokenParam}`;
+            const url = `${this.gameEndpoint}?user=${encodeURIComponent(this.session.login)}&channel=${encodeURIComponent(this.session.login)}&hardcore=false&format=json`;
 
             const response = await fetch(url, {
                 headers: this.authHeaders()
