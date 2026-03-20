@@ -3,25 +3,25 @@ html {
     scrollbar-gutter: stable;
 }
 
-/* Smooth Scroll (Lenis) */
-html.lenis, html.lenis body {
-  height: auto;
+html.lenis,
+html.lenis body {
+    height: auto;
 }
 
 .lenis.lenis-smooth {
-  scroll-behavior: auto !important;
+    scroll-behavior: auto !important;
 }
 
 .lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
+    overscroll-behavior: contain;
 }
 
 .lenis.lenis-stopped {
-  overflow: hidden;
+    overflow: hidden;
 }
 
 .lenis.lenis-smooth iframe {
-  pointer-events: none;
+    pointer-events: none;
 }
 
 :root {
