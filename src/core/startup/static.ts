@@ -1,5 +1,6 @@
 import express, { Application } from 'express';
 import path from 'path';
+import { localOnly } from '../middleware/localOnly';
 
 export const configureStatic = (app: Application) => {
     // Desarrollo: public/ en raíz | Producción (Vercel): dist/public/
@@ -34,8 +35,8 @@ export const configureStatic = (app: Application) => {
 
     // Assets del panel admin (solo accesibles desde localhost vía localOnly en routes.ts)
     const adminPath = path.join(process.cwd(), 'admin');
-    app.use('/api/twitch/admin', express.static(adminPath, staticOptions));
-    app.use('/admin', express.static(adminPath, staticOptions));
+    app.use('/api/twitch/admin', localOnly, express.static(adminPath, staticOptions));
+    app.use('/admin', localOnly, express.static(adminPath, staticOptions));
 
     // Interceptar 404 de assets estáticos para evitar que caigan al router
     app.use((req, res, next) => {

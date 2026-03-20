@@ -1,4 +1,4 @@
-import { Application, Request, Response, NextFunction } from 'express';
+import { Application, Request, Response } from 'express';
 import path from 'path';
 import { CONFIG } from '../config/env';
 import rateLimiter, { authLimiter } from '../middleware/rateLimiter';
@@ -9,16 +9,10 @@ import { loadAdminRouter } from '../../routes/adminProxy';
 import apiRouter from '../../routes/index';
 import { getRobotsTxt, getSitemapXml } from '../../features/system/seo.controller';
 import { errorHandler } from '../middleware/errorMiddleware';
+import { localOnly } from '../middleware/localOnly';
 
 // El adminRouter es opcional: solo existe localmente (está en .gitignore)
 const adminRouter = loadAdminRouter();
-
-const localOnly = (req: Request, res: Response, next: NextFunction) => {
-    const ip = req.ip || req.socket?.remoteAddress || '';
-    const isLocal = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
-    if (!isLocal) return res.status(404).send('Not Found');
-    next();
-};
 
 export const configurePageRoutes = (app: Application) => {
     // --- VISTAS Y RUTAS ESTATICAS (HTML) ---
