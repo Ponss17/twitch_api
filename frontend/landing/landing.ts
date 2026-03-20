@@ -3,8 +3,40 @@ import { HeaderComponent } from '../shared/components/header.js';
 import { FooterComponent } from '../shared/components/footer.js';
 import { DisclaimerComponent } from '../shared/components/modals/disclaimerComponent.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
+import Lenis from 'lenis';
 
 injectSpeedInsights({ debug: false });
+function setupSmoothScroll() {
+    const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        touchMultiplier: 2,
+        infinite: false
+    });
+
+    function raf(time: number) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener('click', (e) => {
+            e.preventDefault();
+            const href = anchor.getAttribute('href');
+            if (href && href !== '#') {
+                lenis.scrollTo(href);
+            }
+        });
+    });
+
+    return lenis;
+}
 
 function setupFAQ() {
     const faqItems = document.querySelectorAll('.faq-item');
@@ -31,6 +63,7 @@ function setupFAQ() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    setupSmoothScroll();
     DisclaimerComponent.render('modal-container');
 
     const modal = document.getElementById('disclaimer-modal') as HTMLDialogElement;
