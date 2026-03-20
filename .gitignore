@@ -42,3 +42,6 @@ public/js/*
 
 # Panel admin (solo local, no se sube a GitHub)
 admin/
+
+# Workspace
+twitch_api.code-workspace
