@@ -19,12 +19,12 @@ export const CONFIG = {
     TWITCH_CLIENT_SECRET: TWITCH_CLIENT_SECRET,
     TWITCH_REDIRECT_URI:
         process.env.TWITCH_REDIRECT_URI ||
-        'https://www.losperris.site/api/twitch/auth/twitch/callback',
+        'https://www.losperris.dev/api/twitch/auth/twitch/callback',
     NODE_ENV: process.env.NODE_ENV || 'development',
     MAX_MESSAGE_TOKENS: 100,
     DISCORD_FEEDBACK_WEBHOOK_URL: process.env.DISCORD_FEEDBACK_WEBHOOK_URL,
     GROQ_API_KEY: process.env.GROQ_API_KEY,
-    BASE_URL: process.env.BASE_URL || 'https://www.losperris.site/api/twitch',
+    BASE_URL: process.env.BASE_URL || 'https://www.losperris.dev/api/twitch',
     ADMIN_ROOT_ID: process.env.ADMIN_ROOT_ID, // Tu ID de Twitch para acceso root
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD // Contraseña para el panel admin local
 };

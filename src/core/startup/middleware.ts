@@ -84,8 +84,8 @@ export const configureMiddleware = (app: Application) => {
             if (!origin) return callback(null, { origin: true, credentials: true });
 
             const allowedOrigins = [
-                'https://www.losperris.site',
-                'https://losperris.site',
+                'https://www.losperris.dev',
+                'https://losperris.dev',
                 'http://localhost:3000',
                 'http://localhost:5173'
             ];
