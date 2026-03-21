@@ -27,6 +27,7 @@ export const configureMiddleware = (app: Application) => {
                         "'unsafe-eval'",
                         'https://cdnjs.cloudflare.com',
                         'https://unpkg.com',
+                        'https://cdn.jsdelivr.net',
                         'https://*.twitch.tv',
                         'https://*.jtvnw.net',
                         'https://va.vercel-scripts.com',
