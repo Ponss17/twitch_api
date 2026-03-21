@@ -52,7 +52,7 @@ describe('authController', () => {
         });
 
         it('should pass redirect_origin to service', () => {
-            const req = mockReq({ query: { redirect_origin: 'https://losperris.site' } });
+            const req = mockReq({ query: { redirect_origin: 'https://losperris.dev' } });
             const res = mockRes();
 
             (authService.getAuthorizeUrl as jest.Mock).mockReturnValue('https://twitch.tv/auth');
@@ -60,7 +60,7 @@ describe('authController', () => {
             login(req, res);
 
             expect(authService.getAuthorizeUrl).toHaveBeenCalledWith(
-                'https://losperris.site',
+                'https://losperris.dev',
                 undefined
             );
         });

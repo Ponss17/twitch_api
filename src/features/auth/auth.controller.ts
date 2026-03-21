@@ -23,8 +23,8 @@ const isAllowedOrigin = (origin: string, req: Request): boolean => {
         }
 
         const allowedOrigins = [
-            'https://www.losperris.site',
-            'https://losperris.site',
+            'https://www.losperris.dev',
+            'https://losperris.dev',
             'http://localhost:3000',
             'http://localhost:5173'
         ];
