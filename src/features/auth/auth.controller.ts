@@ -4,17 +4,32 @@ import * as dbService from '../../core/database/dbService';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 
-const ALLOWED_REDIRECT_ORIGINS = [
-    'https://www.losperris.site',
-    'https://losperris.site',
-    'http://localhost:3000',
-    'http://localhost:5173'
-];
+import { CONFIG } from '../../core/config/env';
 
-const isAllowedOrigin = (origin: string): boolean => {
+const isAllowedOrigin = (origin: string, req: Request): boolean => {
     try {
         const url = new URL(origin);
-        return ALLOWED_REDIRECT_ORIGINS.includes(url.origin);
+        const host = req.get('host');
+
+        if (host && url.host.includes(host)) return true;
+
+        if (url.hostname.endsWith('.vercel.app')) return true;
+
+        try {
+            const baseUrlHost = new URL(CONFIG.BASE_URL).hostname;
+            if (url.hostname.includes(baseUrlHost)) return true;
+        } catch {
+            /* ignore */
+        }
+
+        const allowedOrigins = [
+            'https://www.losperris.site',
+            'https://losperris.site',
+            'http://localhost:3000',
+            'http://localhost:5173'
+        ];
+
+        return allowedOrigins.includes(url.origin);
     } catch {
         return false;
     }
@@ -63,7 +78,7 @@ export const callback = async (req: Request, res: Response) => {
         const params = `?apiKey=${apiKey}&userId=${user.id}&login=${user.login}&displayName=${encodeURIComponent(user.display_name)}`;
 
         let redirectUrl = `/api/twitch/dashboard${params}`;
-        if (redirectOrigin && isAllowedOrigin(redirectOrigin)) {
+        if (redirectOrigin && isAllowedOrigin(redirectOrigin, req)) {
             redirectUrl = `${redirectOrigin}${params}`;
         }
 
@@ -76,7 +91,7 @@ export const callback = async (req: Request, res: Response) => {
         if (state) {
             try {
                 const decoded = JSON.parse(Buffer.from(state, 'base64').toString());
-                if (decoded.redirectOrigin && isAllowedOrigin(decoded.redirectOrigin))
+                if (decoded.redirectOrigin && isAllowedOrigin(decoded.redirectOrigin, req))
                     errorRedirect = `${decoded.redirectOrigin}?error=auth_failed`;
             } catch (_e) {
                 // Ignore state decode errors in error handler
