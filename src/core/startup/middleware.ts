@@ -1,4 +1,4 @@
-import { Application } from 'express';
+import { Application, Request } from 'express';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -6,6 +6,7 @@ import compression from 'compression';
 import { requestLogger } from '../middleware/errorMiddleware';
 import { registerCacheInvalidator } from '../../features/auth/auth.service';
 import { invalidateUserCache } from '../middleware/apiKeyValidator';
+import { CONFIG } from '../config/env';
 
 registerCacheInvalidator(invalidateUserCache);
 
@@ -76,25 +77,35 @@ export const configureMiddleware = (app: Application) => {
     );
 
     app.use(
-        cors({
-            origin: (origin, callback) => {
-                if (!origin) return callback(null, true);
+        cors((req: Request, callback) => {
+            const origin = req.header('Origin');
+            const host = req.get('host');
 
-                const allowedOrigins = [
-                    'https://www.losperris.site',
-                    'https://losperris.site',
-                    'http://localhost:3000',
-                    'http://localhost:5173'
-                ];
+            if (!origin) return callback(null, { origin: true, credentials: true });
 
-                if (allowedOrigins.includes(origin)) {
-                    return callback(null, true);
-                }
+            const allowedOrigins = [
+                'https://www.losperris.site',
+                'https://losperris.site',
+                'http://localhost:3000',
+                'http://localhost:5173'
+            ];
 
-                // Si hay origin y no es de la lista blanca, bloquear
+            const isVercel = origin.endsWith('.vercel.app');
+            const isSameHost = host && origin.includes(host);
+
+            let isBaseUrl = false;
+            try {
+                const baseUrlHost = new URL(CONFIG.BASE_URL).hostname;
+                isBaseUrl = origin.includes(baseUrlHost);
+            } catch (_e) {
+                // ignore
+            }
+
+            if (allowedOrigins.includes(origin) || isVercel || isSameHost || isBaseUrl) {
+                callback(null, { origin: true, credentials: true });
+            } else {
                 callback(new Error('Bloqueado por reglas de CORS de la API'));
-            },
-            credentials: true
+            }
         })
     );
     app.use(
