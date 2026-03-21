@@ -193,6 +193,13 @@ export const getFollowAge = async (
             getUserId(user, token)
         ]);
 
+        if (channelId === userId) {
+            return {
+                text: `${user} es el dueño del canal.`,
+                timePhrase: 'toda la vida'
+            };
+        }
+
         const headers = getHeaders(token);
         const followRes = await apiClient.get('https://api.twitch.tv/helix/channels/followers', {
             headers,
