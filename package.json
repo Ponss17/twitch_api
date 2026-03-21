@@ -35,7 +35,7 @@
     "homepage": "https://github.com/Ponss17/twitch_api#readme",
     "dependencies": {
         "@vercel/kv": "^3.0.0",
-        "@vercel/speed-insights": "^1.2.0",
+        "@vercel/speed-insights": "^2.0.0",
         "axios": "^1.13.2",
         "axios-retry": "^4.5.0",
         "compression": "^1.8.1",
