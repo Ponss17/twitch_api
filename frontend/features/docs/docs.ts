@@ -1,4 +1,7 @@
 import { FooterComponent } from '../../shared/components/footer.js';
+import { injectSpeedInsights } from '@vercel/speed-insights';
+
+injectSpeedInsights({ debug: false });
 
 declare global {
     interface Window {
