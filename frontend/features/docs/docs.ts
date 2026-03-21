@@ -1,4 +1,5 @@
 import { FooterComponent } from '../../shared/components/footer.js';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
 declare global {
     interface Window {
@@ -7,6 +8,8 @@ declare global {
         copyCode: (btn: HTMLElement) => void;
     }
 }
+
+injectSpeedInsights({ debug: false });
 
 document.addEventListener('DOMContentLoaded', () => {
     const mobileToggle = document.querySelector('.mobile-nav-toggle');
