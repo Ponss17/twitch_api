@@ -6,6 +6,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
 const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
 
 if (!TWITCH_CLIENT_ID || !TWITCH_CLIENT_SECRET) {
     throw new Error(
@@ -13,10 +14,17 @@ if (!TWITCH_CLIENT_ID || !TWITCH_CLIENT_SECRET) {
     );
 }
 
+if (!ENCRYPTION_KEY) {
+    throw new Error(
+        "❌ Falta la variable de entorno ENCRYPTION_KEY. Genera una con: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""
+    );
+}
+
 export const CONFIG = {
     PORT: process.env.PORT || 3000,
     TWITCH_CLIENT_ID: TWITCH_CLIENT_ID,
     TWITCH_CLIENT_SECRET: TWITCH_CLIENT_SECRET,
+    ENCRYPTION_KEY: ENCRYPTION_KEY,
     TWITCH_REDIRECT_URI:
         process.env.TWITCH_REDIRECT_URI ||
         'https://www.losperris.dev/api/twitch/auth/twitch/callback',

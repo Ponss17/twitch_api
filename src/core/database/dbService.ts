@@ -12,10 +12,8 @@ const USERS_KEY = 'twitch_users';
 const API_KEYS_KEY = 'twitch_api_keys';
 const GLOBAL_STATS_KEY = 'twitch_stats_all';
 const ALGORITHM = 'aes-256-cbc';
-const ENCRYPTION_KEY = crypto
-    .createHash('sha256')
-    .update(String(CONFIG.TWITCH_CLIENT_SECRET))
-    .digest();
+// Clave derivada de ENCRYPTION_KEY independiente, no del Client Secret de Twitch
+const ENCRYPTION_KEY = crypto.createHash('sha256').update(String(CONFIG.ENCRYPTION_KEY)).digest();
 const IV_LENGTH = 16;
 
 // ==========================================
