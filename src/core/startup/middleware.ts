@@ -6,6 +6,7 @@ import compression from 'compression';
 import { requestLogger } from '../middleware/errorMiddleware';
 import { registerCacheInvalidator } from '../../features/auth/auth.service';
 import { invalidateUserCache } from '../middleware/apiKeyValidator';
+import { cspNonce } from '../middleware/cspNonce';
 import { CONFIG } from '../config/env';
 
 registerCacheInvalidator(invalidateUserCache);
@@ -15,6 +16,9 @@ export const configureMiddleware = (app: Application) => {
 
     app.use(requestLogger);
 
+    // Generar nonce único por request antes de Helmet para usarlo en la CSP
+    app.use(cspNonce);
+
     app.use(
         helmet({
             contentSecurityPolicy: {
@@ -23,8 +27,9 @@ export const configureMiddleware = (app: Application) => {
                     defaultSrc: ["'self'"],
                     scriptSrc: [
                         "'self'",
-                        "'unsafe-inline'",
-                        "'unsafe-eval'",
+                        // Nonce dinámico por request: elimina la necesidad de 'unsafe-inline'
+                        (_req, res) =>
+                            `'nonce-${(res as unknown as { locals: { cspNonce: string } }).locals.cspNonce}'`,
                         'https://cdnjs.cloudflare.com',
                         'https://unpkg.com',
                         'https://cdn.jsdelivr.net',
@@ -69,7 +74,6 @@ export const configureMiddleware = (app: Application) => {
                 }
             },
             crossOriginEmbedderPolicy: false,
-            // Stricter anti-sniffing and frame guarding
             noSniff: true,
             xssFilter: true,
             hidePoweredBy: true,

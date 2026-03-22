@@ -3,14 +3,6 @@ import { injectSpeedInsights } from '@vercel/speed-insights';
 
 injectSpeedInsights({ debug: false });
 
-declare global {
-    interface Window {
-        switchFormat: (btn: HTMLElement, format: string) => void;
-        switchTab: (btn: HTMLElement, botName: string) => void;
-        copyCode: (btn: HTMLElement) => void;
-    }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     const mobileToggle = document.querySelector('.mobile-nav-toggle');
     const sidebar = document.querySelector('.sidebar');
@@ -154,21 +146,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    window.switchFormat = (btn: HTMLElement, format: string) => {
+    function switchFormat(btn: HTMLElement, format: string) {
         const container = btn.closest('.code-tab-container') as HTMLElement;
-
         container.querySelectorAll('.format-btn').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
-
         updateCodeBlock(container, format);
-    };
+    }
 
-    window.switchTab = (btn: HTMLElement, botName: string) => {
+    function switchTab(btn: HTMLElement, botName: string) {
         const container = btn.closest('.code-tab-container') as HTMLElement;
-
         container.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
-
         container.querySelectorAll('.tab-content').forEach((c) => c.classList.remove('active'));
         const targetTab = container.querySelector(`.tab-content[data-bot="${botName}"]`);
         if (targetTab) targetTab.classList.add('active');
@@ -181,9 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
             : 'dashboard';
 
         updateCodeBlock(container, currentFormat);
-    };
+    }
 
-    window.copyCode = (btn: HTMLElement) => {
+    function copyCode(btn: HTMLElement) {
         const codeElement = btn.parentElement?.querySelector('code');
         const code = codeElement?.textContent || '';
 
@@ -196,7 +184,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.classList.remove('success');
             }, 2000);
         });
-    };
+    }
+
+    // Registrar event listeners en lugar de depender de onclick= en el HTML
+    document.querySelectorAll<HTMLElement>('.tab-btn').forEach((btn) => {
+        const label = btn.textContent?.trim().toLowerCase() || '';
+        const botMap: Record<string, string> = {
+            nightbot: 'nightbot',
+            streamelements: 'streamelements',
+            fossabot: 'fossabot'
+        };
+        const resolved = botMap[label];
+        if (resolved) {
+            btn.addEventListener('click', () => switchTab(btn, resolved));
+        }
+    });
+
+    document.querySelectorAll<HTMLElement>('.format-btn').forEach((btn) => {
+        const label = btn.textContent?.trim().toLowerCase() || '';
+        const format = label === 'chat' ? 'chat' : 'dashboard';
+        btn.addEventListener('click', () => switchFormat(btn, format));
+    });
+
+    document.querySelectorAll<HTMLElement>('.btn-copy-doc').forEach((btn) => {
+        btn.addEventListener('click', () => copyCode(btn));
+    });
 
     setTimeout(() => {
         document
