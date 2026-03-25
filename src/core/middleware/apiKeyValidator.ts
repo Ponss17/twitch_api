@@ -12,7 +12,9 @@ interface CachedApiKey {
 }
 
 const validKeysCache = new Map<string, CachedApiKey>();
-const CACHE_TTL_MS = 1 * 60 * 1000; // Reducido a 1 minuto para mayor seguridad con tokens
+const invalidKeysCache = new Map<string, number>(); // Cache negativa: apiKey -> timestamp expiración
+const CACHE_TTL_MS = 1 * 60 * 1000;
+const NEGATIVE_CACHE_TTL_MS = 30 * 1000; // Bloquear llaves inválidas por 30 segundos
 const MAX_CACHE_SIZE = 1000;
 
 /**
@@ -40,11 +42,26 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
     let apiKey = (req.query.apiKey as string) || (req.headers['x-api-key'] as string);
     const cleanPath = req.originalUrl.split('?')[0];
 
-    // Mantenemos sanitize estricto del apiKey: no puede tener más de 64 chars ni caracteres raros
+    const now = Date.now();
+
+    // 1. Sanitizar y Validar Formato Estricto (UUID)
+    // Las API Keys generadas por nosotros siempre son UUID v4.
     if (apiKey) {
-        if (apiKey.length > 64 || /[^a-zA-Z0-9-]/.test(apiKey)) {
-            apiKey = ''; // Se anula como string malicioso
+        const uuidRegex =
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(apiKey)) {
+            logger.warn(`[Security] API Key con formato inválido detectada desde IP: ${req.ip}`);
+            apiKey = '';
         }
+    }
+
+    // 2. Caché Negativa (Evitar ataques de fuerza bruta a la DB)
+    if (apiKey && invalidKeysCache.has(apiKey)) {
+        const expiry = invalidKeysCache.get(apiKey)!;
+        if (now < expiry) {
+            return res.status(401).json({ error: 'Clave API bloqueada temporalmente.' });
+        }
+        invalidKeysCache.delete(apiKey);
     }
 
     // Si hay una API Key, la validamos SIEMPRE, incluso si la ruta parece pública (ej. /minigames/russian)
@@ -56,8 +73,6 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
     }
 
     try {
-        const now = Date.now();
-
         if (validKeysCache.has(apiKey)) {
             const cached = validKeysCache.get(apiKey)!;
             if (cached.expiry > now) {
@@ -87,8 +102,24 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             });
             res.locals.apiUser = user;
             res.locals.isApiKeyRequest = true;
+        } else if (user && !user.isActive) {
+            return res.status(403).json({ error: 'Cuenta suspendida.' });
         }
     } catch (error) {
+        // Registro en caché negativa para evitar re-consultar esta llave inválida en los próximos 30s
+        if (apiKey) {
+            invalidKeysCache.set(apiKey, now + NEGATIVE_CACHE_TTL_MS);
+
+            // Limpieza periódica de la caché negativa si crece demasiado
+            if (invalidKeysCache.size > 2000) {
+                const iterator = invalidKeysCache.keys();
+                for (let i = 0; i < 500; i++) {
+                    const key = iterator.next().value;
+                    if (key) invalidKeysCache.delete(key);
+                }
+            }
+        }
+
         logger.warn('API Key validation failed in validator:', (error as Error).message);
 
         if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {

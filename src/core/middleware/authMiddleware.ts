@@ -7,7 +7,9 @@ import { logger } from '../utils/logger';
 import { isPublicRoute } from '../utils/routeHelpers';
 
 const userCache = new Map<string, { user: StoredUser; expiry: number }>();
+const invalidTokensCache = new Map<string, number>(); // Cache negativa: token -> timestamp expiración
 const CACHE_TTL = 60 * 1000;
+const NEGATIVE_CACHE_TTL = 30 * 1000;
 
 // Throttle updateLastActive to once per 5 minutes per user
 const lastActiveThrottle = new Map<string, number>();
@@ -58,14 +60,29 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         return res.status(401).json({ error: MESSAGES.AUTH.MISSING_TOKEN_URL });
     }
 
+    const now = Date.now();
+
+    if (token && invalidTokensCache.has(token)) {
+        if (now < invalidTokensCache.get(token)!) {
+            return res.status(401).json({ error: MESSAGES.AUTH.INVALID_TOKEN });
+        }
+        invalidTokensCache.delete(token);
+    }
+
     if (!req.userId || !req.login) {
         try {
             const validation = await apiService.validateToken(token);
             if (validation) {
                 if (validation.user_id) req.userId = validation.user_id;
                 if (validation.login) req.login = validation.login;
+            } else {
+                // Token inválido: meter en caché negativa
+                invalidTokensCache.set(token, now + NEGATIVE_CACHE_TTL);
+                return res.status(401).json({ error: MESSAGES.AUTH.INVALID_TOKEN });
             }
         } catch (_e) {
+            // Guardamos en caché negativa incluso en error para evitar reintento inmediato
+            invalidTokensCache.set(token, now + NEGATIVE_CACHE_TTL);
             logger.warn('Error Middleware Auth: Could not validate token to extract user data');
         }
     }
