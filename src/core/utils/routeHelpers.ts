@@ -44,16 +44,26 @@ export const isPublicRoute = (path: string): boolean => {
         return true;
     }
 
-    // 4. Public Views (Served as HTML)
-    const publicViewPrefixes = ['/dashboard', '/minigames', '/admin'];
-    if (
-        publicViewPrefixes.some(
-            (prefix) => cleanPath === prefix || cleanPath.startsWith(`${prefix}/`)
-        )
-    ) {
-        if (cleanPath.endsWith('/system/validate')) return true;
+    // 4. Public HTML Views (Served as HTML)
+    // Solo las entradas principales del dashboard/minigames son públicas
+    const publicHtmlPaths = ['/dashboard', '/minigames', '/admin'];
+    const isHtmlPath = publicHtmlPaths.some(
+        (prefix) => cleanPath === prefix || cleanPath.startsWith(`${prefix}/`)
+    );
 
-        if (!cleanPath.includes('/api/')) return true;
+    if (isHtmlPath) {
+        // PERO si contiene /api/ o es una de las subrutas de datos conocidas, NO es pública
+        const isApiDataRoute =
+            cleanPath.includes('/api/') ||
+            cleanPath.includes('/activity') ||
+            cleanPath.includes('/analytics') ||
+            cleanPath.includes('/chatters') ||
+            cleanPath.includes('/user-info') ||
+            cleanPath.includes('/get-clips');
+
+        if (isApiDataRoute) return false;
+
+        return true;
     }
 
     return false;
