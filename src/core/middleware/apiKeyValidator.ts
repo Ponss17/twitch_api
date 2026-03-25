@@ -47,10 +47,11 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         }
     }
 
-    // Use centralized check
+    // Si hay una API Key, la validamos SIEMPRE, incluso si la ruta parece pública (ej. /minigames/russian)
+    // Esto previene que una clasificación fallida de isPublicRoute bloquee la autenticación.
     const isSystemRoute = isPublicRoute(cleanPath);
 
-    if (!apiKey || isSystemRoute) {
+    if (isSystemRoute && !apiKey) {
         return next();
     }
 
