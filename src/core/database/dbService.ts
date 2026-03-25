@@ -12,8 +12,13 @@ const USERS_KEY = 'twitch_users';
 const API_KEYS_KEY = 'twitch_api_keys';
 const GLOBAL_STATS_KEY = 'twitch_stats_all';
 const ALGORITHM = 'aes-256-cbc';
-// Clave derivada de ENCRYPTION_KEY independiente, no del Client Secret de Twitch
+// Clave derivada de ENCRYPTION_KEY independiente
 const ENCRYPTION_KEY = crypto.createHash('sha256').update(String(CONFIG.ENCRYPTION_KEY)).digest();
+// Clave legacy (retrocompatibilidad con datos cifrados antes del cambio)
+const LEGACY_ENCRYPTION_KEY = crypto
+    .createHash('sha256')
+    .update(String(CONFIG.TWITCH_CLIENT_SECRET))
+    .digest();
 const IV_LENGTH = 16;
 
 // ==========================================
@@ -29,14 +34,14 @@ function encrypt(text: string): string {
     return iv.toString('hex') + ':' + encrypted.toString('hex');
 }
 
-function decrypt(text: string): string {
+function decrypt(text: string, key: Buffer = ENCRYPTION_KEY): string {
     if (!text) return text;
     const textParts = text.split(':');
     if (textParts.length < 2) return text;
     const iv = Buffer.from(textParts.shift()!, 'hex');
     const encryptedText = Buffer.from(textParts.join(':'), 'hex');
 
-    const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
+    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
     let decrypted = decipher.update(encryptedText);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
@@ -65,8 +70,38 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
     const user = await kv.hget<StoredUser>(USERS_KEY, userId);
     if (!user) return null;
 
-    if (user.accessToken) user.accessToken = decrypt(user.accessToken);
-    if (user.refreshToken) user.refreshToken = decrypt(user.refreshToken);
+    let needsMigration = false;
+
+    const decryptWithFallback = (text: string): string => {
+        try {
+            // Intentar con la clave nueva (ENCRYPTION_KEY)
+            return decrypt(text, ENCRYPTION_KEY);
+        } catch (_e) {
+            try {
+                // Si falla, intentar con la clave antigua (LEGACY_ENCRYPTION_KEY)
+                const decrypted = decrypt(text, LEGACY_ENCRYPTION_KEY);
+                needsMigration = true;
+                return decrypted;
+            } catch (_e2) {
+                // Si ambos fallan, el dato es ilegible o corrupto
+                logger.error(`❌ Fallo crítico de descifrado para usuario ${userId}`);
+                throw _e; // Lanza el error original de la clave nueva
+            }
+        }
+    };
+
+    try {
+        if (user.accessToken) user.accessToken = decryptWithFallback(user.accessToken);
+        if (user.refreshToken) user.refreshToken = decryptWithFallback(user.refreshToken);
+    } catch (e) {
+        // Logueamos pero devolvemos el usuario (sus tokens no funcionarán pero la app no explotará)
+        logger.error(`⚠️ Error en descifrado para ${userId}:`, (e as Error).message);
+    }
+
+    if (needsMigration) {
+        logger.info(`🔄 Migrando claves de cifrado para usuario: ${user.login} (${userId})`);
+        await saveUser(user);
+    }
 
     return user;
 };
