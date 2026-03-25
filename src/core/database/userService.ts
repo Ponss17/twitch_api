@@ -1,32 +1,82 @@
-import { kv } from '@vercel/kv';
+import { supabase } from './supabaseClient';
 import crypto from 'crypto';
 import { StoredUser } from '../../types/twitch';
 import { encrypt, decrypt, ENCRYPTION_KEY, LEGACY_ENCRYPTION_KEY } from './cryptoService';
-import { clearUserStatsAndLogs } from './statsService';
 import { logger } from '../utils/logger';
-import { USERS_KEY, API_KEYS_KEY } from './keys';
 
-export { USERS_KEY, API_KEYS_KEY };
+// Convierte un StoredUser del sistema al formato de columnas de Supabase
+function toRow(user: StoredUser): Record<string, unknown> {
+    return {
+        user_id: user.userId,
+        login: user.login,
+        display_name: user.displayName,
+        access_token: user.accessToken ?? null,
+        refresh_token: user.refreshToken ?? null,
+        api_key: user.apiKey ?? null,
+        is_active: user.isActive ?? true,
+        blocked_reason: user.blockedReason ?? null,
+        custom_rate_limit: user.customRateLimit ?? null,
+        profile_image_url: user.profileImageUrl ?? null,
+        last_active: user.lastActive
+            ? new Date(user.lastActive).toISOString()
+            : new Date().toISOString(),
+        created_at: user.createdAt
+            ? new Date(user.createdAt).toISOString()
+            : new Date().toISOString()
+    };
+}
+
+// Convierte una fila de Supabase al tipo StoredUser de la aplicación
+function fromRow(row: Record<string, unknown>): StoredUser {
+    return {
+        userId: row.user_id as string,
+        login: row.login as string,
+        displayName: row.display_name as string,
+        accessToken: (row.access_token as string) ?? '',
+        refreshToken: (row.refresh_token as string) ?? '',
+        expiresIn: 0,
+        obtainedAt: 0,
+        apiKey: (row.api_key as string) ?? undefined,
+        isActive: row.is_active as boolean,
+        blockedReason: (row.blocked_reason as string) ?? undefined,
+        customRateLimit: (row.custom_rate_limit as number) ?? undefined,
+        profileImageUrl: (row.profile_image_url as string) ?? undefined,
+        lastActive: (row.last_active as string) ?? undefined,
+        createdAt: (row.created_at as string) ?? undefined
+    };
+}
 
 export const saveUser = async (user: StoredUser): Promise<void> => {
+    // Clonamos sin modificar el objeto original
     const secureUser = { ...user };
-    // Por defecto isActive a true si no está presente
     if (secureUser.isActive === undefined) secureUser.isActive = true;
 
-    if (secureUser.accessToken) secureUser.accessToken = encrypt(secureUser.accessToken);
-    if (secureUser.refreshToken) secureUser.refreshToken = encrypt(secureUser.refreshToken);
+    // Solo ciframos si el token NO está ya cifrado (contiene ':' que usa el formato iv:encrypted)
+    const isAlreadyEncrypted = (val: string) => val.includes(':') && val.length > 60;
 
-    await kv.hset(USERS_KEY, { [user.userId]: secureUser });
+    if (secureUser.accessToken && !isAlreadyEncrypted(secureUser.accessToken)) {
+        secureUser.accessToken = encrypt(secureUser.accessToken);
+    }
+    if (secureUser.refreshToken && !isAlreadyEncrypted(secureUser.refreshToken)) {
+        secureUser.refreshToken = encrypt(secureUser.refreshToken);
+    }
 
-    if (user.apiKey) {
-        await kv.hset(API_KEYS_KEY, { [user.apiKey]: user.userId });
+    const { error } = await supabase
+        .from('users')
+        .upsert(toRow(secureUser), { onConflict: 'user_id' });
+
+    if (error) {
+        logger.error('Error guardando usuario en Supabase:', error.message);
+        throw error;
     }
 };
 
 export const getUser = async (userId: string): Promise<StoredUser | null> => {
-    const user = await kv.hget<StoredUser>(USERS_KEY, userId);
-    if (!user) return null;
+    const { data, error } = await supabase.from('users').select('*').eq('user_id', userId).single();
 
+    if (error || !data) return null;
+
+    const user = fromRow(data as Record<string, unknown>);
     let needsMigration = false;
 
     const decryptWithFallback = (text: string): string => {
@@ -60,15 +110,23 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
 };
 
 export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null> => {
-    const cachedUserId = await kv.hget<string>(API_KEYS_KEY, apiKey);
-    if (!cachedUserId) return null;
+    const { data, error } = await supabase.from('users').select('*').eq('api_key', apiKey).single();
 
-    const user = await getUser(cachedUserId);
-    if (!user) return null;
+    if (error || !data) return null;
+
+    const user = fromRow(data as Record<string, unknown>);
 
     if (user.isActive === false) {
         logger.warn(`🛑 Blocked user attempted access: ${user.login}`);
-        return null; // Denegar acceso implícitamente retornando null
+        return null;
+    }
+
+    // Desencriptar tokens
+    try {
+        if (user.accessToken) user.accessToken = decrypt(user.accessToken, ENCRYPTION_KEY);
+        if (user.refreshToken) user.refreshToken = decrypt(user.refreshToken, ENCRYPTION_KEY);
+    } catch (_e) {
+        logger.error(`⚠️ Error descifrando tokens para api_key: ${apiKey}`);
     }
 
     return user;
@@ -76,11 +134,12 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
 
 export const updateLastActive = async (userId: string): Promise<void> => {
     try {
-        const user = await kv.hget<StoredUser>(USERS_KEY, userId);
-        if (user) {
-            user.lastActive = new Date().toISOString();
-            await kv.hset(USERS_KEY, { [userId]: user });
-        }
+        const { error } = await supabase
+            .from('users')
+            .update({ last_active: new Date().toISOString() })
+            .eq('user_id', userId);
+
+        if (error) logger.error('Error actualizando last_active:', error.message);
     } catch (e) {
         logger.error('Error updating last active:', e);
     }
@@ -91,16 +150,11 @@ export const deleteUser = async (userId: string): Promise<void> => {
         const user = await getUser(userId);
         if (!user) return;
 
-        // 1. Borrar objeto principal
-        await kv.hdel(USERS_KEY, userId);
+        // El CASCADE definido en el esquema SQL de Supabase borra automáticamente
+        // los registros relacionados en user_stats, activity_logs y admins.
+        const { error } = await supabase.from('users').delete().eq('user_id', userId);
 
-        // 2. Borrar mapeo de API Key
-        if (user.apiKey) {
-            await kv.hdel(API_KEYS_KEY, user.apiKey);
-        }
-
-        // 3. Borrar rastro de estadísticas y actividad
-        await clearUserStatsAndLogs(userId);
+        if (error) throw error;
 
         logger.info(`🗑️ Usuario eliminado por completo: ${user.login} (${userId})`);
     } catch (e) {
@@ -113,16 +167,14 @@ export const resetUserApiKey = async (userId: string): Promise<string> => {
     const user = await getUser(userId);
     if (!user) throw new Error('User not found');
 
-    const oldKey = user.apiKey;
     const newKey = crypto.randomUUID();
-    user.apiKey = newKey;
 
-    await saveUser(user);
+    const { error } = await supabase
+        .from('users')
+        .update({ api_key: newKey })
+        .eq('user_id', userId);
 
-    if (oldKey) {
-        await kv.hdel(API_KEYS_KEY, oldKey);
-    }
-    await kv.hset(API_KEYS_KEY, { [newKey]: user.userId });
+    if (error) throw error;
 
     return newKey;
 };

@@ -1,4 +1,4 @@
-export const isStaticAsset = (path: string): boolean => {
+const isStaticAsset = (path: string): boolean => {
     return (
         /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(path) ||
         /\/(css|js|img)\//i.test(path)

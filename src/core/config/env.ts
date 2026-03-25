@@ -34,5 +34,8 @@ export const CONFIG = {
     GROQ_API_KEY: process.env.GROQ_API_KEY,
     BASE_URL: process.env.BASE_URL || 'https://www.losperris.dev/api/twitch',
     ADMIN_ROOT_ID: process.env.ADMIN_ROOT_ID, // Tu ID de Twitch para acceso root
-    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD // Contraseña para el panel admin local
+    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD, // Contraseña para el panel admin local
+    SUPABASE_URL: process.env.SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
 };

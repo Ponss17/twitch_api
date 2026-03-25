@@ -1,52 +1,48 @@
-import { kv } from '@vercel/kv';
+import { supabase } from './supabaseClient';
 import { logger } from '../utils/logger';
 import { CONFIG } from '../config/env';
 import { StoredUser } from '../../types/twitch';
-import { getUserStats } from './statsService';
-import { getUser, saveUser, USERS_KEY } from './userService';
+import { getUser, saveUser } from './userService';
 import { addSystemLog } from './auditService';
-import { ADMINS_KEY } from './keys';
 
 export const getAllUsers = async (): Promise<StoredUser[]> => {
     try {
-        const allUsers = await kv.hgetall<Record<string, StoredUser>>(USERS_KEY);
-        if (!allUsers) return [];
+        // JOIN en una sola query para evitar el problema N+1 de consultas individuales
+        const { data, error } = await supabase.from('users').select(`
+            *,
+            user_stats (
+                total_requests, total_errors, total_latency,
+                clips_count, followage_count, so_count, stalker_count,
+                trends_count, roulette_count, message_count, russian_count,
+                magic8_count, duel_count
+            )
+        `);
 
-        const users = Object.values(allUsers);
-        const enhancedUsers = await Promise.all(
-            users.map(async (u) => {
-                const safeUser = { ...u };
-                const safeAnyUser = safeUser as unknown as Record<string, unknown>;
-                delete safeAnyUser.accessToken;
-                delete safeAnyUser.refreshToken;
+        if (error || !data) return [];
 
-                if (safeUser.isActive === undefined) safeUser.isActive = true;
+        return data.map((row) => {
+            const stats = (row.user_stats as Record<string, number> | null) ?? {};
+            const totalRequests = stats.total_requests ?? 0;
 
-                if (!safeUser.createdAt) {
-                    if (safeUser.obtainedAt) {
-                        try {
-                            safeUser.createdAt = new Date(safeUser.obtainedAt).toISOString();
-                        } catch {
-                            // Fecha inválida, ignorar
-                        }
-                    }
-                }
-
-                const stats = await getUserStats(u.userId);
-                const totalRequests = Object.entries(stats).reduce((acc, [key, val]) => {
-                    if (key === 'activity') return acc;
-                    return acc + (typeof val === 'number' ? val : 0);
-                }, 0);
-
-                return {
-                    ...safeUser,
-                    totalRequests,
-                    stats
-                };
-            })
-        );
-
-        return enhancedUsers;
+            return {
+                userId: row.user_id as string,
+                login: row.login as string,
+                displayName: row.display_name as string,
+                apiKey: (row.api_key as string) ?? undefined,
+                isActive: (row.is_active as boolean) ?? true,
+                blockedReason: (row.blocked_reason as string) ?? undefined,
+                customRateLimit: (row.custom_rate_limit as number) ?? undefined,
+                profileImageUrl: (row.profile_image_url as string) ?? undefined,
+                lastActive: (row.last_active as string) ?? undefined,
+                createdAt: (row.created_at as string) ?? undefined,
+                accessToken: '',
+                refreshToken: '',
+                expiresIn: 0,
+                obtainedAt: 0,
+                totalRequests,
+                stats
+            } as StoredUser & { totalRequests: number; stats: Record<string, number> };
+        });
     } catch (e: unknown) {
         logger.error('Error getting all users:', e);
         return [];
@@ -70,22 +66,25 @@ export const updateUserStatus = async (
 
 export const isAdmin = async (userId: string): Promise<boolean> => {
     if (CONFIG.ADMIN_ROOT_ID && userId === CONFIG.ADMIN_ROOT_ID) return true;
-    const isWhiteListed = await kv.sismember(ADMINS_KEY, userId);
-    return isWhiteListed === 1;
+
+    const { data } = await supabase.from('admins').select('user_id').eq('user_id', userId).single();
+
+    return !!data;
 };
 
 export const addAdmin = async (userId: string): Promise<void> => {
-    await kv.sadd(ADMINS_KEY, userId);
+    await supabase.from('admins').upsert({ user_id: userId }, { onConflict: 'user_id' });
     logger.info(`✨ Nuevo administrador añadido: ${userId}`);
     await addSystemLog('info', `Admin añadido: ${userId}`);
 };
 
 export const removeAdmin = async (userId: string): Promise<void> => {
-    await kv.srem(ADMINS_KEY, userId);
+    await supabase.from('admins').delete().eq('user_id', userId);
     logger.info(`🗑️ Administrador eliminado: ${userId}`);
     await addSystemLog('warn', `Admin eliminado: ${userId}`);
 };
 
 export const getAllAdmins = async (): Promise<string[]> => {
-    return await kv.smembers(ADMINS_KEY);
+    const { data } = await supabase.from('admins').select('user_id');
+    return data ? data.map((row) => row.user_id as string) : [];
 };
