@@ -29,29 +29,25 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
         const today = new Date().toISOString().split('T')[0];
 
         const todayRequests = parseInt(String(stats[`d:${today}`] || '0'));
-        const todayErrors = parseInt(String(stats[`e:${today}`] || '0'));
-        const todayLatency = parseInt(String(stats[`l:${today}`] || '0'));
+        const totalReqs = stats.total_requests || 0;
+        const totalErrs = stats.total_errors || 0;
+        const totalLat = stats.total_latency || 0;
 
-        const hasTodayData = todayRequests > 0;
+        // Calcular éxito global
+        const successRateVal =
+            totalReqs > 0 ? parseFloat(((1 - totalErrs / totalReqs) * 100).toFixed(1)) : 100;
 
-        // Calcular éxito de hoy
-        const todaySuccessRate = hasTodayData
-            ? parseFloat(((1 - todayErrors / todayRequests) * 100).toFixed(1))
-            : 100;
-
-        // Calcular latencia de hoy
-        const todayAvgLatencyMs = hasTodayData ? Math.round(todayLatency / todayRequests) : 0;
+        // Calcular latencia promedio global
+        const avgLatencyMs = totalReqs > 0 ? Math.round(totalLat / totalReqs) : 0;
 
         res.json({
             ...stats,
             todayRequests,
-            totalRequests: stats.total_requests || 0,
-            // Sobrescribimos con los datos de hoy para el Dashboard
-            avgLatencyMs: todayAvgLatencyMs,
-            rawSuccessRate: todaySuccessRate,
-            // Mantenemos los strings formateados por si se usan en algún sitio, pero ahora basados en HOY
-            averageLatency: `${todayAvgLatencyMs}ms (${(todayAvgLatencyMs / 1000).toFixed(1)}s)`,
-            successRate: `${todaySuccessRate}%`
+            totalRequests: totalReqs,
+            avgLatencyMs: avgLatencyMs,
+            rawSuccessRate: successRateVal,
+            averageLatency: `${avgLatencyMs}ms (${(avgLatencyMs / 1000).toFixed(1)}s)`,
+            successRate: `${successRateVal}%`
         });
     } catch (e) {
         logger.error('Error analytics:', e);

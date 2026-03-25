@@ -1,67 +1,81 @@
-import { kv } from '@vercel/kv';
+import { supabase } from './supabaseClient';
 import { logger } from '../utils/logger';
-import {
-    GLOBAL_STATS_KEY,
-    STATS_CNT_PREFIX,
-    USER_ACTIVITY_PREFIX,
-    ACTIVITY_LIST_PREFIX
-} from './keys';
+
 const DEFAULT_STAT_FIELDS = [
-    'clips',
-    'followage',
-    'so',
-    'stalker',
-    'trends',
-    'roulette',
-    'message',
-    'russian',
-    'magic8',
-    'duel',
+    'clips_count',
+    'followage_count',
+    'so_count',
+    'stalker_count',
+    'trends_count',
+    'roulette_count',
+    'message_count',
+    'russian_count',
+    'magic8_count',
+    'duel_count',
     'total_requests',
     'total_latency',
     'total_errors'
 ];
 
-// Caché L1 para lecturas frecuentes
+// Caché L1 en memoria para evitar lecturas excesivas de Supabase
 const STATS_CACHE = new Map<string, { data: Record<string, number>; expiry: number }>();
 const STATS_TTL = 30 * 1000;
 
-/**
- * Migra contadores legacy del Mega Hash al nuevo hash atómico (se ejecuta una sola vez).
- */
-async function migrateStatsIfNeeded(userId: string): Promise<void> {
-    const cntKey = `${STATS_CNT_PREFIX}${userId}`;
-    const exists = await kv.exists(cntKey);
-    if (exists) return;
+// Asegura que exista la fila de stats para el usuario antes de incrementar
+async function ensureStatsRow(userId: string): Promise<void> {
+    const defaultRow = DEFAULT_STAT_FIELDS.reduce(
+        (acc, f) => {
+            acc[f] = 0;
+            return acc;
+        },
+        {} as Record<string, number>
+    );
 
-    const legacyData = await kv.hget<string>(GLOBAL_STATS_KEY, userId);
-    if (!legacyData) return;
-
-    try {
-        const parsed = typeof legacyData === 'string' ? JSON.parse(legacyData) : legacyData;
-        const toMigrate: Record<string, number> = {};
-        for (const [key, val] of Object.entries(parsed)) {
-            if (key !== 'activity' && typeof val !== 'object') {
-                const num = parseInt(val as string);
-                if (!isNaN(num) && num > 0) toMigrate[key] = num;
-            }
-        }
-        if (Object.keys(toMigrate).length > 0) {
-            await kv.hset(cntKey, toMigrate);
-            logger.info(
-                `[Stats] Migrados ${Object.keys(toMigrate).length} contadores para userId: ${userId}`
-            );
-        }
-    } catch (e) {
-        logger.warn(`[Stats] No se pudo migrar datos legacy para ${userId}:`, (e as Error).message);
-    }
+    await supabase
+        .from('user_stats')
+        .upsert(
+            { user_id: userId, ...defaultRow },
+            { onConflict: 'user_id', ignoreDuplicates: true }
+        );
 }
 
 export const incrementUserStats = async (userId: string, command: string): Promise<void> => {
     try {
-        const cntKey = `${STATS_CNT_PREFIX}${userId}`;
-        await migrateStatsIfNeeded(userId);
-        await kv.hincrby(cntKey, command, 1);
+        const columnMap: Record<string, string> = {
+            clips: 'clips_count',
+            followage: 'followage_count',
+            so: 'so_count',
+            stalker: 'stalker_count',
+            trends: 'trends_count',
+            roulette: 'roulette_count',
+            message: 'message_count',
+            russian: 'russian_count',
+            magic8: 'magic8_count',
+            duel: 'duel_count'
+        };
+
+        const column = columnMap[command];
+        // Si el comando no está mapeado, lo ignoramos para evitar inyección de columnas
+        if (!column) {
+            logger.warn(`Comando desconocido ignorado en stats: ${command}`);
+            return;
+        }
+
+        await ensureStatsRow(userId);
+
+        // Incremento atómico en una sola operación SQL, sin READ-MODIFY-WRITE
+        const { error } = await supabase.rpc('increment_user_stat', {
+            p_user_id: userId,
+            p_column: column
+        });
+
+        if (error) {
+            logger.error(
+                `Error de Supabase incrementando {${column}} para {${userId}}:`,
+                error.message
+            );
+        }
+
         STATS_CACHE.delete(userId);
     } catch (e) {
         logger.error('Error incrementando estadísticas de usuario:', e);
@@ -74,25 +88,55 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         const cached = STATS_CACHE.get(userId);
         if (cached && cached.expiry > now) return cached.data;
 
-        await migrateStatsIfNeeded(userId);
-        const cntKey = `${STATS_CNT_PREFIX}${userId}`;
-        const raw = await kv.hgetall<Record<string, string>>(cntKey);
+        // 1. Obtener totales históricos de user_stats
+        const { data: totals, error: totalsError } = await supabase
+            .from('user_stats')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
 
+        // 2. Calcular de forma dinámica las peticiones de HOY desde activity_logs
+        // Esto evita que tengamos que crear columnas de fechas infinitas en SQL
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const { count: todayCount } = await supabase
+            .from('activity_logs')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .gte('created_at', startOfToday.toISOString());
+
+        // Combinar datos
         const numericStats: Record<string, number> = {};
-        for (const field of DEFAULT_STAT_FIELDS) numericStats[field] = 0;
+        for (const field of DEFAULT_STAT_FIELDS) {
+            const legacyKey = field.replace('_count', '');
+            numericStats[legacyKey] = 0;
+        }
 
-        if (raw) {
-            for (const [key, val] of Object.entries(raw)) {
-                numericStats[key] = parseInt(val) || 0;
+        if (!totalsError && totals) {
+            for (const field of DEFAULT_STAT_FIELDS) {
+                const legacyKey = field.replace('_count', '');
+                numericStats[legacyKey] =
+                    ((totals as Record<string, unknown>)[field] as number) ?? 0;
             }
         }
+
+        // Inyectar llaves legacy que el Dashboard espera para "Hoy"
+        const todayStr = new Date().toISOString().split('T')[0];
+        numericStats[`d:${todayStr}`] = todayCount || 0;
+        // Para errores y latencia hoy, usamos los totales como fallback o 0
+        numericStats[`e:${todayStr}`] = 0;
+        numericStats[`l:${todayStr}`] = 0;
 
         STATS_CACHE.set(userId, { data: numericStats, expiry: now + STATS_TTL });
         return numericStats;
     } catch (e) {
         logger.error('Error obteniendo estadísticas de usuario:', e);
         const empty: Record<string, number> = {};
-        for (const f of DEFAULT_STAT_FIELDS) empty[f] = 0;
+        for (const field of DEFAULT_STAT_FIELDS) {
+            const legacyKey = field.replace('_count', '');
+            empty[legacyKey] = 0;
+        }
         return empty;
     }
 };
@@ -103,25 +147,27 @@ export const recordUserRequest = async (
     success: boolean
 ): Promise<void> => {
     try {
-        const cntKey = `${STATS_CNT_PREFIX}${userId}`;
-        await migrateStatsIfNeeded(userId);
+        await ensureStatsRow(userId);
 
-        const today = new Date().toISOString().split('T')[0];
+        const { data: current } = await supabase
+            .from('user_stats')
+            .select('total_requests, total_errors, total_latency')
+            .eq('user_id', userId)
+            .single();
 
-        // Pipeline de operaciones atómicas con Promise.all
-        const ops: Promise<unknown>[] = [
-            kv.hincrby(cntKey, 'total_requests', 1),
-            kv.hincrby(cntKey, 'total_latency', latency),
-            kv.hincrby(cntKey, `d:${today}`, 1),
-            kv.hincrby(cntKey, `l:${today}`, latency)
-        ];
+        const row = (current as Record<string, number>) ?? {};
+        const updates: Record<string, number | string> = {
+            total_requests: (row.total_requests ?? 0) + 1,
+            total_latency: (row.total_latency ?? 0) + latency,
+            last_updated: new Date().toISOString()
+        };
 
         if (!success) {
-            ops.push(kv.hincrby(cntKey, 'total_errors', 1));
-            ops.push(kv.hincrby(cntKey, `e:${today}`, 1));
+            updates.total_errors = (row.total_errors ?? 0) + 1;
         }
 
-        await Promise.all(ops);
+        await supabase.from('user_stats').update(updates).eq('user_id', userId);
+
         STATS_CACHE.delete(userId);
     } catch (e) {
         logger.error('Error registrando estadísticas de petición:', e);
@@ -131,15 +177,9 @@ export const recordUserRequest = async (
 export const clearUserStatsAndLogs = async (userId: string): Promise<void> => {
     try {
         await Promise.all([
-            kv.hdel(GLOBAL_STATS_KEY, userId),
-            kv.del(`${STATS_CNT_PREFIX}${userId}`),
-            kv.del(`stats:${userId}`),
-            kv.del(`${USER_ACTIVITY_PREFIX}${userId}`),
-            kv.del(`${ACTIVITY_LIST_PREFIX}${userId}`)
+            supabase.from('user_stats').delete().eq('user_id', userId),
+            supabase.from('activity_logs').delete().eq('user_id', userId)
         ]);
-
-        const oldKeys = await kv.keys(`stats:${userId}:daily:*`);
-        if (oldKeys.length > 0) await kv.del(...oldKeys);
 
         STATS_CACHE.delete(userId);
         logger.info(`🧹 Stats y actividad eliminados para: ${userId}`);

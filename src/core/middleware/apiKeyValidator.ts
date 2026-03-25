@@ -89,6 +89,12 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         }
     } catch (error) {
         logger.warn('API Key validation failed in validator:', (error as Error).message);
+
+        if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
+            res.setHeader('Content-Type', 'text/plain');
+            return res.status(401).send('Error de autenticación. Clave API inválida.');
+        }
+        return res.status(401).json({ error: 'Clave API inválida.' });
     }
 
     next();
