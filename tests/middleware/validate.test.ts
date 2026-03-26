@@ -50,7 +50,7 @@ describe('validate middleware', () => {
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith(
             expect.objectContaining({
-                error: 'Validation failed',
+                error: 'Error de validación',
                 details: expect.any(Array)
             })
         );

@@ -15,18 +15,18 @@ jest.mock('../../src/features/twitch/twitch.service', () => ({
     getChannelInfo: jest.fn()
 }));
 
-jest.mock('@/services/infrastructure/cacheService', () => ({
+jest.mock('@/core/database/cacheService', () => ({
     get: jest.fn(),
     set: jest.fn(),
     getCachedUserId: jest.fn(),
     setCachedUserId: jest.fn()
 }));
 
-jest.mock('@/utils/twitchAuthHelpers', () => ({
+jest.mock('@/core/utils/twitchAuthHelpers', () => ({
     withTwitchAuth: jest.fn((_req, _res, action, _ctx) => action('mock_token'))
 }));
 
-jest.mock('@/utils/logger', () => ({
+jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
@@ -136,15 +136,6 @@ describe('commandsController', () => {
                 })
             );
         });
-
-        it('should return 400 if no channel provided', async () => {
-            const req = mockReq({ query: {} });
-            const res = mockRes();
-
-            await createClip(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-        });
     });
 
     describe('sendMessage', () => {
@@ -160,15 +151,6 @@ describe('commandsController', () => {
                 '123',
                 expect.objectContaining({ type: 'message' })
             );
-        });
-
-        it('should return 400 if no message provided', async () => {
-            const req = mockReq({ body: {} });
-            const res = mockRes();
-
-            await sendMessage(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(400);
         });
     });
 
@@ -186,15 +168,6 @@ describe('commandsController', () => {
                 '123',
                 expect.objectContaining({ type: 'shoutout', user: 'TargetUser' })
             );
-        });
-
-        it('should return 400 if no target user or channel', async () => {
-            const req = mockReq({ query: {} });
-            const res = mockRes();
-
-            await getShoutout(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(400);
         });
     });
 });

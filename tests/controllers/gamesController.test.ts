@@ -17,11 +17,11 @@ jest.mock('../../src/features/games/duel.service', () => ({
     playDuel: jest.fn()
 }));
 
-jest.mock('@/utils/twitchAuthHelpers', () => ({
+jest.mock('@/core/utils/twitchAuthHelpers', () => ({
     withTwitchAuth: jest.fn((_req, _res, action, _ctx) => action('mock_token'))
 }));
 
-jest.mock('@/utils/logger', () => ({
+jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
@@ -69,15 +69,6 @@ describe('gamesController', () => {
                 expect.objectContaining({ type: 'magic8', user: 'Player1' })
             );
             expect(res.send).toHaveBeenCalledWith('Sí, definitivamente');
-        });
-
-        it('should return 400 if no question provided', async () => {
-            const req = mockReq({ query: {} });
-            const res = mockRes();
-
-            await askMagic8(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(400);
         });
 
         it('should return 500 on service error', async () => {
@@ -149,15 +140,6 @@ describe('gamesController', () => {
             await startDuel(req, res);
 
             expect(playDuel).toHaveBeenCalledWith('Keanu Reeves', 'Enemy');
-        });
-
-        it('should return 400 if no target', async () => {
-            const req = mockReq({ query: {} });
-            const res = mockRes();
-
-            await startDuel(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(400);
         });
     });
 });

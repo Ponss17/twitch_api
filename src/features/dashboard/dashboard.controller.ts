@@ -8,8 +8,6 @@ import { logger } from '../../core/utils/logger';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { RATE_LIMITS } from '../../core/config/limits';
 
-import { safeString } from '../../core/utils/validationHelpers';
-
 export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
 
@@ -101,13 +99,11 @@ export const getLogs = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const getClips = async (req: AuthenticatedRequest, res: Response) => {
-    const channel = safeString(req.query.channel);
-    const limit = safeString(req.query.limit);
-    let limitNum = parseInt(limit) || 20;
-    if (limitNum > 100) limitNum = 100;
+    const { channel, limit: limitNum } = req.query as unknown as {
+        channel: string;
+        limit: number;
+    };
     const token = req.twitchToken;
-
-    if (!channel) return res.status(400).send(MESSAGES.COMMANDS.MISSING_CHANNEL);
 
     const cacheKey = `cache:cmd:getClips:channel:${channel}:limit:${limitNum}`;
     const cached = await cacheService.get(cacheKey);
@@ -133,10 +129,9 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
 
 export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
     const token = req.twitchToken;
-    const channel = safeString(req.query.channel);
+    const channel = req.query.channel as string;
     const userId = req.userId;
 
-    if (!channel) return res.status(400).send(MESSAGES.COMMANDS.MISSING_CHANNEL);
     if (!userId) return res.status(401).send(MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     const cacheKey = `cache:cmd:getChatters:channel:${channel}`;
@@ -159,8 +154,7 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
 
 export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
     const token = req.twitchToken;
-    const login = safeString(req.query.login);
-    if (!login) return res.status(400).send(MESSAGES.COMMANDS.MISSING_LOGIN);
+    const login = req.query.login as string;
 
     const apiUser = res.locals.apiUser;
     const rateLimit = apiUser?.customRateLimit || RATE_LIMITS.DEFAULT;
@@ -203,14 +197,7 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
 };
 export const clearUserData = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
-    const { confirm } = req.body;
-
     if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
-    if (confirm !== 'LIMPIAR') {
-        return res
-            .status(400)
-            .json({ error: 'Debes escribir LIMPIAR para confirmar esta acción.' });
-    }
 
     try {
         await dbService.clearUserStatsAndLogs(userId);
@@ -223,14 +210,7 @@ export const clearUserData = async (req: AuthenticatedRequest, res: Response) =>
 
 export const deleteAccount = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
-    const { confirm } = req.body;
-
     if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
-    if (confirm !== 'ELIMINAR') {
-        return res
-            .status(400)
-            .json({ error: 'Debes escribir ELIMINAR para confirmar esta acción.' });
-    }
 
     try {
         await dbService.deleteUser(userId);

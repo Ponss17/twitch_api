@@ -59,7 +59,7 @@ async function build() {
 
         const sharedConfig = {
             bundle: true,
-            minify: false,
+            minify: true,
             keepNames: true,
             legalComments: 'none',
             sourcemap: false,

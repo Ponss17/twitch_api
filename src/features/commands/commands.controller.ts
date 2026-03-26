@@ -35,11 +35,9 @@ const trackCommand = async <T>(
 };
 
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
-    const channel = safeString(req.query.channel);
+    const channel = req.query.channel as string;
     const userId = req.userId;
-    const customTitle = safeString(req.query.q) || safeString(req.query.title);
-
-    if (!channel) return res.status(400).send(MESSAGES.COMMANDS.MISSING_PARAMS);
+    const customTitle = (req.query.q as string) || (req.query.title as string);
 
     return await trackCommand(userId, async () => {
         let finalTitle = customTitle;
@@ -90,11 +88,9 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const followage = async (req: AuthenticatedRequest, res: Response) => {
-    const channel = safeString(req.query.channel);
-    const user = safeString(req.query.user);
+    const channel = req.query.channel as string;
+    const user = req.query.user as string;
     const userId = req.userId;
-
-    if (!channel || !user) return res.status(400).send(MESSAGES.COMMANDS.MISSING_PARAMS);
 
     return await trackCommand(userId, async () => {
         const cacheKey = `cache:cmd:followage:v2:channel:${channel}:user:${user}`;
@@ -161,11 +157,9 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
-    const message = safeString(req.body.message);
+    const message = req.body.message as string;
     const userId = req.userId;
 
-    if (!message) return res.status(400).send(MESSAGES.COMMANDS.MISSING_MESSAGE);
-    if (message.length > 500) return res.status(400).send(MESSAGES.COMMANDS.MESSAGE_TOO_LONG);
     if (!userId) return res.status(401).send(MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     return await trackCommand(userId, async () => {
@@ -190,9 +184,7 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
-    const channel = safeString(req.query.channel);
-    const touser = safeString(req.query.touser);
-    if (!channel || !touser) return res.status(400).send(MESSAGES.COMMANDS.MISSING_PARAMS);
+    const touser = req.query.touser as string;
 
     return await trackCommand(req.userId, async () => {
         const result = await withTwitchAuth(

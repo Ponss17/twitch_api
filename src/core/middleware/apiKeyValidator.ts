@@ -7,7 +7,7 @@ import { invalidateAuthCache } from './authMiddleware';
 import { StoredUser } from '../../types/twitch';
 
 interface CachedApiKey {
-    user: StoredUser; // StoredUser is no longer imported, this will cause a type error.
+    user: StoredUser;
     expiry: number;
 }
 

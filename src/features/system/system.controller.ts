@@ -2,7 +2,6 @@ import { Response } from 'express';
 import * as authService from '../auth/auth.service';
 import * as dbService from '../../core/database/dbService';
 import * as apiService from '../twitch/twitch.service';
-import { kv } from '@vercel/kv';
 import axios from 'axios';
 import { CONFIG } from '../../core/config/env';
 import { MESSAGES } from '../../core/config/messages';
@@ -88,14 +87,6 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
         }
     }
 
-    if (!message) {
-        return res.status(400).json({ error: MESSAGES.FEEDBACK.MESSAGE_REQUIRED });
-    }
-
-    if (message.length > 2000) {
-        return res.status(400).json({ error: MESSAGES.FEEDBACK.MESSAGE_TOO_LONG });
-    }
-
     if (!CONFIG.DISCORD_FEEDBACK_WEBHOOK_URL) {
         return res.status(500).json({ error: MESSAGES.SYSTEM.INTERNAL_CONFIG_ERROR });
     }
@@ -137,7 +128,8 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
         const dbStart = Date.now();
         let dbStatus: 'online' | 'offline';
         try {
-            await kv.ping();
+            // Reemplazamos kv.ping() por una consulta ligera a Supabase
+            await dbService.getUser('ping');
             dbStatus = 'online';
         } catch (_e) {
             dbStatus = 'offline';

@@ -6,7 +6,6 @@ import * as duelService from './duel.service';
 import * as dbService from '../../core/database/dbService';
 import { MESSAGES } from '../../core/config/messages';
 import { AuthenticatedRequest } from '../../types/twitch';
-import { safeString } from '../../core/utils/validationHelpers';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 
 // ==========================================
@@ -19,15 +18,9 @@ import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 
 export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const question = safeString(req.query.question);
-        const mood = safeString(req.query.mood);
-        const user = safeString(req.query.user);
-
-        if (!question) {
-            return res.status(400).json({
-                error: MESSAGES.MAGIC8.QUESTION_REQUIRED
-            });
-        }
+        const question = req.query.question as string;
+        const mood = req.query.mood as string;
+        const user = req.query.user as string;
 
         const answer = await magic8Service.generateMagic8Response(
             question,
@@ -106,22 +99,16 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
 
 export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const target = safeString(req.query.target);
-        const challenger = safeString(req.query.challenger);
+        const target = req.query.target as string;
+        const challenger = (req.query.challenger as string) || 'Keanu Reeves';
 
-        if (!target) {
-            return res.status(400).send(MESSAGES.COMMANDS.MISSING_OPPONENT);
-        }
-
-        const challengerStr = challenger || 'Keanu Reeves';
-
-        const result = await duelService.playDuel(challengerStr, target);
+        const result = await duelService.playDuel(challenger, target);
 
         if (req.userId) {
             await dbService.incrementUserStats(req.userId, 'duel');
             await dbService.addUserActivity(req.userId, {
                 type: 'duel',
-                user: challengerStr,
+                user: challenger,
                 detail: target
             });
         }
