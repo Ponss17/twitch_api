@@ -5,7 +5,7 @@ import { DisclaimerComponent } from '../shared/components/modals/disclaimerCompo
 import { injectSpeedInsights } from '@vercel/speed-insights';
 import Lenis from 'lenis';
 
-injectSpeedInsights({ debug: true });
+injectSpeedInsights({ debug: true, basePath: '/api/twitch' });
 function setupSmoothScroll() {
     const lenis = new Lenis({
         duration: 1.2,
