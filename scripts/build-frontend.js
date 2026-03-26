@@ -67,7 +67,11 @@ async function build() {
             platform: 'browser',
             format: 'esm',
             tsconfig: path.join(__dirname, '../tsconfig.frontend.json'),
-            loader: { '.ts': 'ts' }
+            loader: { '.ts': 'ts' },
+            define: {
+                'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
+                'process.env.VERCEL': JSON.stringify(process.env.VERCEL || '1')
+            }
         };
 
         await esbuild.build({ ...sharedConfig, entryPoints, outdir: OUT_DIR });
