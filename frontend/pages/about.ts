@@ -2,7 +2,7 @@ import { HeaderComponent } from '../shared/components/header.js';
 import { FooterComponent } from '../shared/components/footer.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
-injectSpeedInsights({ debug: false });
+injectSpeedInsights({ debug: true });
 
 HeaderComponent.render('main-header');
 FooterComponent.render('main-footer');

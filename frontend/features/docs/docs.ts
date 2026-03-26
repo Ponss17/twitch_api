@@ -1,7 +1,7 @@
 import { FooterComponent } from '../../shared/components/footer.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
-injectSpeedInsights({ debug: false });
+injectSpeedInsights({ debug: true });
 
 document.addEventListener('DOMContentLoaded', () => {
     const mobileToggle = document.querySelector('.mobile-nav-toggle');
