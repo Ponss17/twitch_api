@@ -7,7 +7,10 @@ import { Messages } from './shared/i18n/messages.js';
 import { AuthMessages } from './shared/i18n/authMessages.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
-injectSpeedInsights({ debug: true, scriptSrc: '/api/twitch/_vercel/speed-insights/script.js' });
+injectSpeedInsights({
+    debug: true,
+    scriptSrc: 'https://va.vercel-scripts.com/v1/speed-insights/script.debug.js'
+});
 
 import { TwitchUser, Session, ApiResponse } from './types.js';
 

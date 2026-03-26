@@ -66,6 +66,7 @@ export const configureMiddleware = (app: Application) => {
                         'wss://*.twitch.tv',
                         'https://va.vercel-scripts.com',
                         'https://vitals.vercel-insights.com',
+                        'https://*.google-analytics.com',
                         'blob:'
                     ],
                     objectSrc: ["'none'"],
