@@ -9,7 +9,7 @@ import { injectSpeedInsights } from '@vercel/speed-insights';
 
 injectSpeedInsights({
     debug: false,
-    scriptSrc: '/_vercel/speed-insights/script.js'
+    scriptSrc: 'https://va.vercel-scripts.com/v1/speed-insights/script.js'
 });
 
 import { TwitchUser, Session, ApiResponse } from './types.js';
