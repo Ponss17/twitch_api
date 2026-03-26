@@ -2,8 +2,7 @@
     "version": 2,
     "functions": {
         "api/index.ts": {
-            "maxDuration": 60,
-            "memory": 256
+            "maxDuration": 60
         }
     },
     "headers": [
