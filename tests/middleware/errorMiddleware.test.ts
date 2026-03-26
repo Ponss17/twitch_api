@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-jest.mock('@/utils/logger', () => ({
+jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 

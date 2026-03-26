@@ -23,7 +23,7 @@ jest.mock('@vercel/kv', () => ({
     }
 }));
 
-jest.mock('@/utils/logger', () => ({
+jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
@@ -150,13 +150,13 @@ describe('systemController', () => {
     });
 
     describe('submitFeedback', () => {
-        it('should return 400 if no message provided', async () => {
-            const req = mockReq({ body: {} });
+        it('should return 200 on success', async () => {
+            const req = mockReq({ body: { message: 'Test message' } });
             const res = mockRes();
 
             await submitFeedback(req, res);
 
-            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
     });
 

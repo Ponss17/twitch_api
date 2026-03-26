@@ -9,7 +9,7 @@ jest.mock('../../src/core/database/dbService', () => ({
     isAdmin: jest.fn()
 }));
 
-jest.mock('@/utils/logger', () => ({
+jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }
 }));
 

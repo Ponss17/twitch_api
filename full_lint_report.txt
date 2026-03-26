@@ -1,0 +1,21 @@
+
+D:\zzzapi\twitch_api\src\core\middleware\validate.ts
+  14:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  15:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\tests\infrastructure\dbService.test.ts
+  14:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  18:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  43:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  49:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  67:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  68:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\zzzapi\twitch_api\tests\middleware\apiKeyValidator.test.ts
+  40:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  48:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  49:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Ô£û 12 problems (0 errors, 12 warnings)
+

@@ -6,7 +6,7 @@ jest.mock('../../src/core/database/dbService', () => ({
 
 jest.mock('axios');
 
-jest.mock('@/utils/logger', () => ({
+jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
