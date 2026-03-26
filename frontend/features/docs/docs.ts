@@ -1,7 +1,7 @@
 import { FooterComponent } from '../../shared/components/footer.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
-injectSpeedInsights({ debug: true });
+injectSpeedInsights({ debug: true, basePath: '/api/twitch' });
 
 document.addEventListener('DOMContentLoaded', () => {
     const mobileToggle = document.querySelector('.mobile-nav-toggle');

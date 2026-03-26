@@ -1,6 +1,6 @@
 export type SyncMessage = {
     type: string;
-    payload?: any;
+    payload?: unknown;
     leaderId?: string;
 };
 
@@ -10,7 +10,7 @@ export class TabSyncService {
     private tabId = crypto.randomUUID();
     private electionTimeout: number | null = null;
     private heartbeatInterval: number | null = null;
-    private listeners: Map<string, ((payload: any) => void)[]> = new Map();
+    private listeners: Map<string, ((payload: unknown) => void)[]> = new Map();
 
     private readonly ELECTION_WAIT_MS = 1500;
     private readonly HEARTBEAT_MS = 3000;
@@ -50,13 +50,21 @@ export class TabSyncService {
 
         window.addEventListener('beforeunload', () => {
             if (this.isLeader) {
-                this.channel.postMessage({ type: 'LEADER_RESIGNED' });
+                try {
+                    this.channel.postMessage({ type: 'LEADER_RESIGNED' });
+                } catch (_e) {
+                    /* ignore */
+                }
             }
         });
     }
 
     private startElectionProcess() {
-        this.channel.postMessage({ type: 'ELECTION' });
+        try {
+            this.channel.postMessage({ type: 'ELECTION' });
+        } catch (_e) {
+            console.warn('[TabSync] Error en proceso de elección:', _e);
+        }
 
         this.electionTimeout = window.setTimeout(() => {
             const now = Date.now();
@@ -93,7 +101,11 @@ export class TabSyncService {
     }
 
     private sendHeartbeat() {
-        this.channel.postMessage({ type: 'HEARTBEAT', leaderId: this.tabId });
+        try {
+            this.channel.postMessage({ type: 'HEARTBEAT', leaderId: this.tabId });
+        } catch (_e) {
+            /* ignore */
+        }
     }
 
     private stopHeartbeat() {
@@ -108,18 +120,22 @@ export class TabSyncService {
         return this.isLeader;
     }
 
-    public broadcast(type: string, payload: any) {
-        this.channel.postMessage({ type, payload });
+    public broadcast(type: string, payload: unknown) {
+        try {
+            this.channel.postMessage({ type, payload });
+        } catch (_e) {
+            console.warn('[TabSync] Error al emitir mensaje:', _e);
+        }
     }
 
-    public on(type: string, callback: (payload: any) => void) {
+    public on(type: string, callback: (payload: unknown) => void) {
         if (!this.listeners.has(type)) {
             this.listeners.set(type, []);
         }
         this.listeners.get(type)!.push(callback);
     }
 
-    public triggerListeners(type: string, payload: any) {
+    public triggerListeners(type: string, payload: unknown) {
         const callbacks = this.listeners.get(type);
         if (callbacks) {
             callbacks.forEach((cb) => cb(payload));
@@ -128,7 +144,11 @@ export class TabSyncService {
 
     public destroy() {
         if (this.isLeader) {
-            this.channel.postMessage({ type: 'LEADER_RESIGNED' });
+            try {
+                this.channel.postMessage({ type: 'LEADER_RESIGNED' });
+            } catch (_e) {
+                /* ignore */
+            }
         }
         if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
         if (this.electionTimeout) clearTimeout(this.electionTimeout);

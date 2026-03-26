@@ -5,6 +5,21 @@ import { Loader } from '../../shared/utils/loader.js';
 import { BaseModule } from '../../shared/utils/baseModule.js';
 import { TabSyncService } from '../../shared/utils/tabSyncService.js';
 
+interface HealthStatus {
+    status: string;
+}
+
+interface ActivityLog {
+    action: string;
+    timestamp: string;
+}
+
+interface StatsData {
+    todayRequests?: number;
+    rawSuccessRate?: number;
+    avgLatencyMs?: number;
+}
+
 export const HomeModule = {
     ...BaseModule,
     session: null as Session | null,
@@ -39,19 +54,26 @@ export const HomeModule = {
     setupSyncListeners(): void {
         if (!this.syncService) return;
 
-        this.syncService.on('LEADER_CHANGED', (payload) => {
+        this.syncService.on('LEADER_CHANGED', (payload: unknown) => {
+            const data = payload as { isLeader: boolean };
             const syncEl = document.getElementById('home-sync-indicator');
             if (syncEl) {
-                syncEl.textContent = payload.isLeader ? 'Leader' : 'Follower';
+                syncEl.textContent = data.isLeader ? 'Leader' : 'Follower';
             }
-            if (payload.isLeader) {
+            if (data.isLeader) {
                 this.performSync();
             }
         });
 
-        this.syncService.on('SYNC_ACTIVITY', (logs) => this.renderActivity(logs));
-        this.syncService.on('SYNC_STATS', (stats) => this.renderStats(stats));
-        this.syncService.on('SYNC_HEALTH', (health) => this.renderHealth(health));
+        this.syncService.on('SYNC_ACTIVITY', (payload: unknown) =>
+            this.renderActivity(payload as ActivityLog[])
+        );
+        this.syncService.on('SYNC_STATS', (payload: unknown) =>
+            this.renderStats(payload as StatsData)
+        );
+        this.syncService.on('SYNC_HEALTH', (payload: unknown) =>
+            this.renderHealth(payload as HealthStatus)
+        );
     },
 
     deactivate(): void {
@@ -192,7 +214,7 @@ export const HomeModule = {
         }
     },
 
-    renderHealth(health: any): void {
+    renderHealth(health: HealthStatus): void {
         const pill = document.getElementById('home-health-pill');
         const label = pill?.querySelector('.status-label');
         if (!pill || !label) return;
@@ -233,7 +255,7 @@ export const HomeModule = {
         }
     },
 
-    renderActivity(logs: any[]): void {
+    renderActivity(logs: ActivityLog[]): void {
         const logContainer = document.getElementById('home-activity-logs');
         if (!logContainer) return;
         logContainer.innerHTML = '';
@@ -283,7 +305,7 @@ export const HomeModule = {
         }
     },
 
-    async renderStats(data: any): Promise<void> {
+    async renderStats(data: StatsData): Promise<void> {
         const { UI } = await import('../../core/ui.js');
 
         const todayRequests = data.todayRequests || 0;
