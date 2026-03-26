@@ -49,7 +49,7 @@
     ],
     "rewrites": [
         {
-            "source": "/((?!_vercel).*)",
+            "source": "/((?!.*_vercel).*)",
             "destination": "/api/index.ts"
         }
     ],
