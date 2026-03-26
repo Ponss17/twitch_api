@@ -65,6 +65,7 @@ export const configureMiddleware = (app: Application) => {
                         'https://*.twitch.tv',
                         'wss://*.twitch.tv',
                         'https://va.vercel-scripts.com',
+                        'https://vitals.vercel-insights.com',
                         'blob:'
                     ],
                     objectSrc: ["'none'"],
