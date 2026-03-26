@@ -6,8 +6,8 @@ import { injectSpeedInsights } from '@vercel/speed-insights';
 import Lenis from 'lenis';
 
 injectSpeedInsights({
-    debug: true,
-    scriptSrc: 'https://va.vercel-scripts.com/v1/speed-insights/script.debug.js'
+    debug: false,
+    scriptSrc: '/_vercel/speed-insights/script.js'
 });
 function setupSmoothScroll() {
     const lenis = new Lenis({

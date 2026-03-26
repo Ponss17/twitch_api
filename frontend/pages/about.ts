@@ -3,8 +3,8 @@ import { FooterComponent } from '../shared/components/footer.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
 injectSpeedInsights({
-    debug: true,
-    scriptSrc: 'https://va.vercel-scripts.com/v1/speed-insights/script.debug.js'
+    debug: false,
+    scriptSrc: '/_vercel/speed-insights/script.js'
 });
 
 HeaderComponent.render('main-header');
