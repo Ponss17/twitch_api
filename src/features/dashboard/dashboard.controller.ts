@@ -175,10 +175,24 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
         const info = await apiService.getUserInfo(login, token || '');
         const followers = await apiService.getFollowersCount(info.id, token || '');
 
+        // Utilizamos un patrón ALLOWLIST para guardar y enviar SOLO datos 100% públicos
+        const safeInfo = {
+            id: info.id,
+            login: info.login,
+            display_name: info.display_name,
+            type: info.type,
+            broadcaster_type: info.broadcaster_type,
+            description: info.description,
+            profile_image_url: info.profile_image_url,
+            offline_image_url: info.offline_image_url,
+            created_at: info.created_at,
+            view_count: info.view_count
+        };
+
         const result = {
-            ...info,
+            ...safeInfo,
             followers,
-            views: info.view_count
+            views: safeInfo.view_count
         };
 
         await cacheService.set(cacheKey, result, 3600);
