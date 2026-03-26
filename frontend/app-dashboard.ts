@@ -8,8 +8,8 @@ import { AuthMessages } from './shared/i18n/authMessages.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
 injectSpeedInsights({
-    debug: true,
-    scriptSrc: 'https://va.vercel-scripts.com/v1/speed-insights/script.debug.js'
+    debug: false,
+    scriptSrc: '/_vercel/speed-insights/script.js'
 });
 
 import { TwitchUser, Session, ApiResponse } from './types.js';
