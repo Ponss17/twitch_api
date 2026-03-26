@@ -41,6 +41,10 @@ export const configureStatic = (app: Application) => {
     // Interceptar 404 de assets estáticos para evitar que caigan al router
     app.use((req, res, next) => {
         const cleanPath = req.originalUrl.split('?')[0];
+        // No interceptar rutas internas de Vercel
+        if (cleanPath.includes('_vercel')) {
+            return next();
+        }
         if (/\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(cleanPath)) {
             return res.status(404).send('Not Found');
         }

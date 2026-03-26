@@ -2,7 +2,10 @@ import { HeaderComponent } from '../shared/components/header.js';
 import { FooterComponent } from '../shared/components/footer.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
-injectSpeedInsights({ debug: true, scriptSrc: '/api/twitch/_vercel/speed-insights/script.js' });
+injectSpeedInsights({
+    debug: true,
+    scriptSrc: 'https://va.vercel-scripts.com/v1/speed-insights/script.debug.js'
+});
 
 HeaderComponent.render('main-header');
 FooterComponent.render('main-footer');

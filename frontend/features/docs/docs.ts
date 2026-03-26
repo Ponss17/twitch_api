@@ -1,7 +1,10 @@
 import { FooterComponent } from '../../shared/components/footer.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
-injectSpeedInsights({ debug: true, scriptSrc: '/api/twitch/_vercel/speed-insights/script.js' });
+injectSpeedInsights({
+    debug: true,
+    scriptSrc: 'https://va.vercel-scripts.com/v1/speed-insights/script.debug.js'
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     const mobileToggle = document.querySelector('.mobile-nav-toggle');
