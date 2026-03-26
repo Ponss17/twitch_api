@@ -19,7 +19,7 @@ const DEFAULT_STAT_FIELDS = [
 
 // Caché L1 en memoria para evitar lecturas excesivas de Supabase
 const STATS_CACHE = new Map<string, { data: Record<string, number>; expiry: number }>();
-const STATS_TTL = 30 * 1000;
+const STATS_TTL = 60 * 1000; // Incrementado a 60s para reducir carga en Supabase
 
 // Asegura que exista la fila de stats para el usuario antes de incrementar
 async function ensureStatsRow(userId: string): Promise<void> {

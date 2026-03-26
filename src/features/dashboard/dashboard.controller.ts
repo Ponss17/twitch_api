@@ -139,9 +139,16 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
     if (!channel) return res.status(400).send(MESSAGES.COMMANDS.MISSING_CHANNEL);
     if (!userId) return res.status(401).send(MESSAGES.SYSTEM.USER_NOT_FOUND);
 
+    const cacheKey = `cache:cmd:getChatters:channel:${channel}`;
+    const cached = await cacheService.get(cacheKey);
+    if (cached) return res.json(cached);
+
     try {
         const broadcasterId = await apiService.getUserId(channel, token || '');
         const chatters = await apiService.getChatters(broadcasterId, userId, token || '');
+
+        await cacheService.set(cacheKey, chatters, 30);
+
         res.json(chatters);
     } catch (error: unknown) {
         const err = error as Error;
@@ -155,19 +162,27 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
     const login = safeString(req.query.login);
     if (!login) return res.status(400).send(MESSAGES.COMMANDS.MISSING_LOGIN);
 
+    const apiUser = res.locals.apiUser;
+    const rateLimit = apiUser?.customRateLimit || RATE_LIMITS.DEFAULT;
+
+    const cacheKey = `cache:cmd:getUserInfo:login:${login}`;
+    const cached = await cacheService.get(cacheKey);
+    if (cached && typeof cached === 'object') {
+        return res.json({ ...cached, rateLimit });
+    }
+
     try {
         const info = await apiService.getUserInfo(login, token || '');
         const followers = await apiService.getFollowersCount(info.id, token || '');
 
-        const apiUser = res.locals.apiUser;
-        const rateLimit = apiUser?.customRateLimit || RATE_LIMITS.DEFAULT;
-
-        res.json({
+        const result = {
             ...info,
             followers,
-            views: info.view_count,
-            rateLimit
-        });
+            views: info.view_count
+        };
+
+        await cacheService.set(cacheKey, result, 3600);
+        res.json({ ...result, rateLimit });
     } catch (_error: unknown) {
         res.status(500).json({ error: MESSAGES.DASHBOARD.USER_INFO_ERROR });
     }

@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     DashboardModalsComponent.render('dashboard-modals-container');
     UI.setupClipboard();
     UI.setupMobileMenu();
+    Auth.initAuthSync();
 
     const sessionParams: Session = Auth.parseUrlParams();
     const { apiKey, token } = sessionParams;
