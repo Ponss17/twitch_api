@@ -7,6 +7,7 @@ import { TmiService, TmiTags } from '../../../services/tmiService.js';
 import { TrendsTemplates } from './templates.js';
 import { Session, ChatLogItem, DashboardModule } from '../../../types.js';
 import { BaseModule } from '../../../shared/utils/baseModule.js';
+import { TabSyncService } from '../../../shared/utils/tabSyncService.js';
 
 interface ITrendsModule extends DashboardModule {
     wordCounts: Record<string, number>;
@@ -19,8 +20,10 @@ interface ITrendsModule extends DashboardModule {
     cssLoaded: boolean;
     renderPending: boolean;
     uiInitialized: boolean;
+    syncService: TabSyncService | null;
     updateUIState(): void;
     setupUI(): void;
+    setupSyncListeners(): void;
     attachListeners(): void;
     processMessage(msg: string): void;
     connect(): void;
@@ -110,6 +113,7 @@ export const TrendsModule: ITrendsModule = {
 
     cssLoaded: false,
     uiInitialized: false,
+    syncService: null,
 
     init(session: Session): void {
         this.initBase(session, 'css/sections/trends.css');
@@ -119,8 +123,62 @@ export const TrendsModule: ITrendsModule = {
         if (!this.uiInitialized) {
             this.setupUI();
             this.updateUIState();
+
+            if (!this.syncService) {
+                this.syncService = new TabSyncService('dashboard_trends_sync');
+                this.setupSyncListeners();
+            }
+
             this.uiInitialized = true;
         }
+    },
+
+    setupSyncListeners() {
+        if (!this.syncService) return;
+
+        this.syncService.on('TRENDS_START', (minutes: number) => {
+            this.isTracking = true;
+            document.getElementById('tracker-input-container')?.classList.add('hidden');
+            document.getElementById('tracker-timer')?.classList.remove('hidden');
+            this.wordCounts = {};
+            this.messageLog = [];
+            this.runTimer(minutes * 60);
+            this.render();
+            if (!this.syncService?.getIsLeader()) {
+                UI.showToast(
+                    TrackerMessages.startedRaw(minutes),
+                    'success',
+                    'fa-hourglass-start fa-spin'
+                );
+            }
+        });
+
+        this.syncService.on(
+            'TRENDS_UPDATE_COUNTS',
+            (data: { counts: Record<string, number>; log: ChatLogItem[] }) => {
+                this.wordCounts = data.counts;
+                this.messageLog = data.log.slice(0, 50);
+                this.render();
+            }
+        );
+
+        this.syncService.on('TRENDS_END', () => {
+            this.localEndTimer();
+        });
+
+        this.syncService.on('TRENDS_RESET', () => {
+            this.localReset();
+        });
+
+        this.syncService.on('LEADER_CHANGED', (payload) => {
+            if (payload.isLeader && this.isTracking && !this.isConnected) {
+                this.connect();
+            } else if (!payload.isLeader && this.isConnected) {
+                TmiService.disconnect();
+                this.isConnected = false;
+                this.updateStatus(false);
+            }
+        });
     },
 
     updateUIState() {
@@ -207,11 +265,18 @@ export const TrendsModule: ITrendsModule = {
     },
 
     startTimer() {
-        this.isTracking = true;
-        this.connect();
+        if (this.isTracking) return;
 
         const minutes =
             parseInt((document.getElementById('tracker-minutes') as HTMLInputElement)?.value) || 5;
+
+        this.syncService?.broadcast('TRENDS_START', minutes);
+
+        this.isTracking = true;
+        if (this.syncService?.getIsLeader()) {
+            this.connect();
+        }
+
         document.getElementById('tracker-input-container')?.classList.add('hidden');
         document.getElementById('tracker-timer')?.classList.remove('hidden');
 
@@ -239,10 +304,17 @@ export const TrendsModule: ITrendsModule = {
     },
 
     endTimer() {
+        this.syncService?.broadcast('TRENDS_END', null);
+        this.localEndTimer();
+    },
+
+    localEndTimer() {
         if (this.timerInterval) clearInterval(this.timerInterval);
         this.isTracking = false;
-        TmiService.disconnect();
-        this.isConnected = false;
+        if (this.syncService?.getIsLeader()) {
+            TmiService.disconnect();
+            this.isConnected = false;
+        }
         this.updateStatus(false);
 
         const display = document.getElementById('tracker-timer');
@@ -271,16 +343,31 @@ export const TrendsModule: ITrendsModule = {
         if (firstWord && firstWord.length > 2 && !this.isIgnored.has(firstWord)) {
             this.wordCounts[firstWord] = (this.wordCounts[firstWord] || 0) + 1;
             this.render();
+            // Emitir actualización al resto de pestañas
+            if (this.syncService?.getIsLeader()) {
+                this.syncService.broadcast('TRENDS_UPDATE_COUNTS', {
+                    counts: this.wordCounts,
+                    log: this.messageLog.slice(0, 20) // Mandamos un trozo pequeño para no saturar
+                });
+            }
         }
     },
 
     reset() {
+        this.syncService?.broadcast('TRENDS_RESET', null);
+        this.localReset();
+    },
+
+    localReset() {
         this.wordCounts = {};
         if (this.timerInterval) clearInterval(this.timerInterval);
         this.isTracking = false;
-        TmiService.removeListener('trends');
-        TmiService.disconnect();
-        this.isConnected = false;
+
+        if (this.syncService?.getIsLeader() || this.isConnected) {
+            TmiService.removeListener('trends');
+            TmiService.disconnect();
+            this.isConnected = false;
+        }
         this.updateStatus(false);
 
         document.getElementById('tracker-input-container')?.classList.remove('hidden');
@@ -302,6 +389,10 @@ export const TrendsModule: ITrendsModule = {
         TmiService.disconnect();
         this.isConnected = false;
         this.isTracking = false;
+        if (this.syncService) {
+            this.syncService.destroy();
+            this.syncService = null;
+        }
     },
 
     render() {

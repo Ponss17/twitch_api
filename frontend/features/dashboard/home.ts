@@ -3,6 +3,7 @@ const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { Session } from '../../types.js';
 import { Loader } from '../../shared/utils/loader.js';
 import { BaseModule } from '../../shared/utils/baseModule.js';
+import { TabSyncService } from '../../shared/utils/tabSyncService.js';
 
 export const HomeModule = {
     ...BaseModule,
@@ -10,7 +11,8 @@ export const HomeModule = {
     isInitialized: false,
     pollInterval: null as ReturnType<typeof setInterval> | null,
     visibilityHandler: null as (() => void) | null,
-    countdown: 15,
+    syncService: null as TabSyncService | null,
+    countdown: 30,
     lastStats: {
         todayRequests: -1,
         successRate: -1,
@@ -25,7 +27,31 @@ export const HomeModule = {
     activate(): void {
         Loader.loadCSS('./css/sections/home.css');
         this.setupUI();
+
+        if (!this.syncService) {
+            this.syncService = new TabSyncService('dashboard_home_sync');
+            this.setupSyncListeners();
+        }
+
         this.startSmartPolling();
+    },
+
+    setupSyncListeners(): void {
+        if (!this.syncService) return;
+
+        this.syncService.on('LEADER_CHANGED', (payload) => {
+            const syncEl = document.getElementById('home-sync-indicator');
+            if (syncEl) {
+                syncEl.textContent = payload.isLeader ? 'Leader' : 'Follower';
+            }
+            if (payload.isLeader) {
+                this.performSync();
+            }
+        });
+
+        this.syncService.on('SYNC_ACTIVITY', (logs) => this.renderActivity(logs));
+        this.syncService.on('SYNC_STATS', (stats) => this.renderStats(stats));
+        this.syncService.on('SYNC_HEALTH', (health) => this.renderHealth(health));
     },
 
     deactivate(): void {
@@ -37,6 +63,10 @@ export const HomeModule = {
             document.removeEventListener('visibilitychange', this.visibilityHandler);
             this.visibilityHandler = null;
         }
+        if (this.syncService) {
+            this.syncService.destroy();
+            this.syncService = null;
+        }
     },
 
     startSmartPolling(): void {
@@ -44,19 +74,19 @@ export const HomeModule = {
 
         const lastSync = localStorage.getItem('dashboard_last_sync');
         const now = Date.now();
-        const pollMs = 15000;
+        const pollMs = 30000;
 
         if (lastSync) {
             const elapsed = now - parseInt(lastSync);
             if (elapsed < pollMs) {
                 this.countdown = Math.ceil((pollMs - elapsed) / 1000);
             } else {
-                this.countdown = 15;
-                this.performSync();
+                this.countdown = 30;
+                if (this.syncService?.getIsLeader()) this.performSync();
             }
         } else {
-            this.countdown = 15;
-            this.performSync();
+            this.countdown = 30;
+            if (this.syncService?.getIsLeader()) this.performSync();
         }
 
         this.updateSyncIndicator();
@@ -65,27 +95,39 @@ export const HomeModule = {
             if (document.visibilityState === 'hidden') return;
             this.countdown--;
             if (this.countdown <= 0) {
-                this.performSync();
-                this.countdown = 15;
+                if (this.syncService?.getIsLeader()) this.performSync();
+                this.countdown = 30;
             }
             this.updateSyncIndicator();
         }, 1000);
 
         this.visibilityHandler = () => {
             if (document.visibilityState === 'visible' && this.countdown <= 0) {
-                this.performSync();
-                this.countdown = 15;
+                if (this.syncService?.getIsLeader()) this.performSync();
+                this.countdown = 30;
             }
         };
         document.addEventListener('visibilitychange', this.visibilityHandler);
     },
 
     async performSync(): Promise<void> {
+        if (!this.syncService?.getIsLeader()) return;
+
         const syncEl = document.getElementById('home-sync-indicator');
         if (syncEl) syncEl.classList.add('syncing');
 
         localStorage.setItem('dashboard_last_sync', Date.now().toString());
-        await Promise.all([this.loadRealActivity(), this.loadRealStats(), this.loadRealHealth()]);
+
+        // Escalonar peticiones (staggering)
+        try {
+            await this.loadRealActivity();
+            await new Promise((r) => setTimeout(r, 500));
+            await this.loadRealStats();
+            await new Promise((r) => setTimeout(r, 500));
+            await this.loadRealHealth();
+        } catch (e) {
+            console.error('[Home] Error en sync escalonado:', e);
+        }
 
         setTimeout(() => {
             if (syncEl) syncEl.classList.remove('syncing');
@@ -95,7 +137,9 @@ export const HomeModule = {
     updateSyncIndicator(): void {
         const syncEl = document.getElementById('home-sync-indicator');
         if (!syncEl) return;
-        syncEl.textContent = 'Auto';
+        if (!syncEl.classList.contains('syncing') && this.syncService) {
+            syncEl.textContent = this.syncService.getIsLeader() ? 'Leader' : 'Follower';
+        }
     },
 
     updateValues(): void {
@@ -139,18 +183,31 @@ export const HomeModule = {
 
             if (response.ok) {
                 const health = await response.json();
-
-                label.textContent =
-                    health.status === 'operational'
-                        ? 'Todos los Sistemas Operativos'
-                        : 'Sistemas Degradados';
-                pill.className = `system-status-pill ${health.status}`;
+                this.syncService?.broadcast('SYNC_HEALTH', health);
+                this.renderHealth(health);
             }
         } catch (e) {
             console.error('[Home] Error loading health:', e);
+            this.renderHealth({ status: 'error' });
+        }
+    },
+
+    renderHealth(health: any): void {
+        const pill = document.getElementById('home-health-pill');
+        const label = pill?.querySelector('.status-label');
+        if (!pill || !label) return;
+
+        if (health.status === 'error') {
             label.textContent = 'Error de Conexión';
             pill.className = 'system-status-pill down';
+            return;
         }
+
+        label.textContent =
+            health.status === 'operational'
+                ? 'Todos los Sistemas Operativos'
+                : 'Sistemas Degradados';
+        pill.className = `system-status-pill ${health.status}`;
     },
 
     async loadRealActivity(): Promise<void> {
@@ -163,40 +220,49 @@ export const HomeModule = {
             });
 
             if (response.ok) {
-                const logs = (await response.json()) as { action: string; timestamp: string }[];
-                logContainer.innerHTML = '';
-
-                if (logs.length === 0) {
-                    logContainer.classList.add('is-empty');
-                    logContainer.innerHTML = `
-                        <div class="feed-empty-state">
-                            <span class="empty-msg">esperando actividad...</span>
-                            <span class="empty-cursor">_</span>
-                        </div>
-                    `;
-                    return;
-                }
-                logContainer.classList.remove('is-empty');
-
-                logs.forEach((log: { action: string; timestamp: string }) => {
-                    const time = new Date(log.timestamp).toLocaleTimeString('es-ES', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                    const logElement = document.createElement('div');
-                    logElement.className = 'log-entry';
-                    logElement.innerHTML = `
-                        <span class="log-time">[${time}]</span>
-                        <span class="log-msg">${log.action}</span>
-                    `;
-                    logContainer.appendChild(logElement);
-                });
+                const logs = await response.json();
+                this.syncService?.broadcast('SYNC_ACTIVITY', logs);
+                this.renderActivity(logs);
             }
         } catch (e) {
             console.error('[Home] Error loading activity:', e);
-            logContainer.innerHTML =
-                '<div class="log-placeholder text-danger">Error al conectar con el feed de actividad.</div>';
+            const logContainer = document.getElementById('home-activity-logs');
+            if (logContainer)
+                logContainer.innerHTML =
+                    '<div class="log-placeholder text-danger">Error al conectar con el feed de actividad.</div>';
         }
+    },
+
+    renderActivity(logs: any[]): void {
+        const logContainer = document.getElementById('home-activity-logs');
+        if (!logContainer) return;
+        logContainer.innerHTML = '';
+
+        if (!logs || logs.length === 0) {
+            logContainer.classList.add('is-empty');
+            logContainer.innerHTML = `
+                <div class="feed-empty-state">
+                    <span class="empty-msg">esperando actividad...</span>
+                    <span class="empty-cursor">_</span>
+                </div>
+            `;
+            return;
+        }
+        logContainer.classList.remove('is-empty');
+
+        logs.forEach((log: { action: string; timestamp: string }) => {
+            const time = new Date(log.timestamp).toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const logElement = document.createElement('div');
+            logElement.className = 'log-entry';
+            logElement.innerHTML = `
+                <span class="log-time">[${time}]</span>
+                <span class="log-msg">${log.action}</span>
+            `;
+            logContainer.appendChild(logElement);
+        });
     },
 
     async loadRealStats(): Promise<void> {
@@ -209,46 +275,51 @@ export const HomeModule = {
 
             if (response.ok) {
                 const data = await response.json();
-                const { UI } = await import('../../core/ui.js');
-
-                const todayRequests = data.todayRequests || 0;
-                const successRate = data.rawSuccessRate || 0;
-                const avgLatencyMs = data.avgLatencyMs || 0;
-
-                const reqEl = document.getElementById('home-stat-requests');
-                const successEl = document.getElementById('home-stat-success');
-                const latencyEl = document.getElementById('home-stat-latency');
-
-                if (reqEl) {
-                    if (this.lastStats.todayRequests !== todayRequests) {
-                        UI.animateValue(reqEl, null, todayRequests);
-                        this.lastStats.todayRequests = todayRequests;
-                    } else {
-                        reqEl.textContent = todayRequests.toLocaleString();
-                    }
-                }
-
-                if (successEl) {
-                    if (this.lastStats.successRate !== successRate) {
-                        UI.animateValue(successEl, null, successRate, 1500, '%');
-                        this.lastStats.successRate = successRate;
-                    } else {
-                        successEl.textContent = `${successRate}%`;
-                    }
-                }
-
-                if (latencyEl) {
-                    if (this.lastStats.latency !== avgLatencyMs) {
-                        const unit = `ms <span class="stat-unit-alt">(${(avgLatencyMs / 1000).toFixed(1)}s)</span>`;
-                        UI.animateValue(latencyEl, null, avgLatencyMs, 1500, unit);
-                        this.lastStats.latency = avgLatencyMs;
-                    } else if (avgLatencyMs === 0) {
-                        latencyEl.innerHTML = '0ms <span class="stat-unit-alt">(0.0s)</span>';
-                    }
-                }
+                this.syncService?.broadcast('SYNC_STATS', data);
+                await this.renderStats(data);
             }
         } catch (e) {
             console.error('[Home] Error loading stats:', e);
+        }
+    },
+
+    async renderStats(data: any): Promise<void> {
+        const { UI } = await import('../../core/ui.js');
+
+        const todayRequests = data.todayRequests || 0;
+        const successRate = data.rawSuccessRate || 0;
+        const avgLatencyMs = data.avgLatencyMs || 0;
+
+        const reqEl = document.getElementById('home-stat-requests');
+        const successEl = document.getElementById('home-stat-success');
+        const latencyEl = document.getElementById('home-stat-latency');
+
+        if (reqEl) {
+            if (this.lastStats.todayRequests !== todayRequests) {
+                UI.animateValue(reqEl, null, todayRequests);
+                this.lastStats.todayRequests = todayRequests;
+            } else {
+                reqEl.textContent = todayRequests.toLocaleString();
+            }
+        }
+
+        if (successEl) {
+            if (this.lastStats.successRate !== successRate) {
+                UI.animateValue(successEl, null, successRate, 1500, '%');
+                this.lastStats.successRate = successRate;
+            } else {
+                successEl.textContent = `${successRate}%`;
+            }
+        }
+
+        if (latencyEl) {
+            if (this.lastStats.latency !== avgLatencyMs) {
+                const unit = `ms <span class="stat-unit-alt">(${(avgLatencyMs / 1000).toFixed(1)}s)</span>`;
+                UI.animateValue(latencyEl, null, avgLatencyMs, 1500, unit);
+                this.lastStats.latency = avgLatencyMs;
+            } else if (avgLatencyMs === 0) {
+                latencyEl.innerHTML = '0ms <span class="stat-unit-alt">(0.0s)</span>';
+            }
         }
     }
 };

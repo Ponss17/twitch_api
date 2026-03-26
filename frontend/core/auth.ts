@@ -2,6 +2,20 @@ import { CONFIG } from '../config.js';
 import { Session, ApiResponse } from '../types.js';
 
 export const Auth = {
+    authChannel: null as BroadcastChannel | null,
+
+    initAuthSync(): void {
+        if (!this.authChannel) {
+            this.authChannel = new BroadcastChannel('auth_sync_channel');
+            this.authChannel.onmessage = (event) => {
+                if (event.data.type === 'LOGOUT') {
+                    console.log('[AuthSync] Logout received from another tab.');
+                    this.clearSession();
+                    window.location.href = window.location.origin + window.location.pathname;
+                }
+            };
+        }
+    },
     getSession(): Session | null {
         try {
             const item = localStorage.getItem('twitch_api_session');
@@ -21,6 +35,13 @@ export const Auth = {
 
     logout(): void {
         this.clearSession();
+        if (this.authChannel) {
+            this.authChannel.postMessage({ type: 'LOGOUT' });
+        } else {
+            const tempChannel = new BroadcastChannel('auth_sync_channel');
+            tempChannel.postMessage({ type: 'LOGOUT' });
+            tempChannel.close();
+        }
         window.location.href = window.location.origin + window.location.pathname;
     },
 
