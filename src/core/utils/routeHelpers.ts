@@ -21,7 +21,8 @@ export const isPublicRoute = (path: string): boolean => {
         '/sitemap.xml',
         '/api/twitch/sitemap.xml',
         '/docs',
-        '/api/twitch/docs'
+        '/api/twitch/docs',
+        '/_vercel/speed-insights/vitals'
     ];
     if (publicExactRoutes.includes(cleanPath)) return true;
 

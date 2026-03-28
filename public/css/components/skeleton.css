@@ -43,3 +43,10 @@
     width: 100%;
     height: 100%;
 }
+.profile-stat-skeleton { height: 1.5rem; width: 60%; margin-bottom: 0.5rem; }
+.profile-bio-skeleton { height: 3rem; width: 100%; margin-top: 1rem; }
+.profile-badge-skeleton { height: 2rem; width: 120px; display: inline-block; margin-right: 0.5rem; }
+
+.is-loading .hide-on-loading { display: none !important; }
+.is-loading .show-on-loading { display: block !important; }
+.show-on-loading { display: none; }

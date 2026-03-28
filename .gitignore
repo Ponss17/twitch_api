@@ -22,8 +22,7 @@ Thumbs.db
 
 
 #Pendientes e ia context
-pendientes.txt
-CONTEXT_FOR_NEXT_AGENT.md
+memorias/
 
 # Archivos archivados
 _archived/
@@ -42,6 +41,3 @@ public/js/*
 
 # Panel admin (solo local, no se sube a GitHub)
 admin/
-
-# Workspace
-twitch_api.code-workspace

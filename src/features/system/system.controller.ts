@@ -2,6 +2,7 @@ import { Response } from 'express';
 import * as authService from '../auth/auth.service';
 import * as dbService from '../../core/database/dbService';
 import * as apiService from '../twitch/twitch.service';
+import * as cacheService from '../../core/database/cacheService';
 import axios from 'axios';
 import { CONFIG } from '../../core/config/env';
 import { MESSAGES } from '../../core/config/messages';
@@ -17,8 +18,11 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
         const validation = await apiService.validateToken(token);
         if (validation) {
             try {
-                const userProfile = await apiService.getUserInfo(validation.login, token);
-                const dbUser = await dbService.getUser(userProfile.id);
+                // Paralelizamos la obtención de info de Twitch y de nuestra DB
+                const [userProfile, dbUser] = await Promise.all([
+                    apiService.getUserInfo(validation.login, token),
+                    dbService.getUserByLogin(validation.login) // Usamos login para paralelizar antes de tener la ID si es posible, o simplemente la ID
+                ]);
 
                 return res.json({
                     valid: true,
@@ -30,7 +34,8 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                         profile_image_url: userProfile.profile_image_url
                     }
                 });
-            } catch (_e) {
+            } catch (err) {
+                logger.error('Error fetching supplementary user info:', err);
                 return res.json({ valid: true, user: { login: validation.login } });
             }
         } else {
@@ -125,46 +130,88 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
     const token = req.twitchToken;
 
     try {
-        const dbStart = Date.now();
-        let dbStatus: 'online' | 'offline';
-        try {
-            // Reemplazamos kv.ping() por una consulta ligera a Supabase
-            await dbService.getUser('ping');
-            dbStatus = 'online';
-        } catch (_e) {
-            dbStatus = 'offline';
-        }
-        const dbLatency = Date.now() - dbStart;
+        // Ejecutamos TODAS las comprobaciones en paralelo para reducir latencia drásticamente
+        const [dbResult, redisResult, twitchResult] = await Promise.all([
+            // 1. DB Check
+            (async () => {
+                const start = Date.now();
+                try {
+                    const { error } = await dbService.supabase
+                        .from('users')
+                        .select('user_id')
+                        .limit(1);
+                    return { status: error ? 'offline' : 'online', latency: Date.now() - start };
+                } catch {
+                    return { status: 'offline', latency: Date.now() - start };
+                }
+            })(),
+            // 2. Redis Check
+            (async () => {
+                const start = Date.now();
+                try {
+                    await cacheService.get('health-ping');
+                    return { status: 'online', latency: Date.now() - start };
+                } catch {
+                    return { status: 'offline', latency: Date.now() - start };
+                }
+            })(),
+            // 3. Twitch Check (si hay token)
+            (async () => {
+                if (!token) return { status: 'skipped', latency: 0 };
+                const start = Date.now();
+                try {
+                    const val = await apiService.validateToken(token);
+                    return { status: val ? 'online' : 'offline', latency: Date.now() - start };
+                } catch {
+                    return { status: 'offline', latency: Date.now() - start };
+                }
+            })()
+        ]);
 
-        let twitchStatus: 'online' | 'offline' | 'skipped' = 'skipped';
-        let twitchLatency = 0;
-        if (token) {
-            const twitchStart = Date.now();
-            try {
-                const validation = await apiService.validateToken(token);
-                twitchStatus = validation ? 'online' : 'offline';
-            } catch (_e) {
-                twitchStatus = 'offline';
-            }
-            twitchLatency = Date.now() - twitchStart;
-        }
+        const dbStatus = dbResult.status as 'online' | 'offline';
+        const redisStatus = redisResult.status as 'online' | 'offline';
+        const twitchStatus = twitchResult.status as 'online' | 'offline' | 'skipped';
 
-        const isOperational = dbStatus === 'online';
+        const isOperational = dbStatus === 'online' && redisStatus === 'online';
+
+        // --- 4. Métricas de Sistema ---
+        const memoryUsage = process.memoryUsage();
 
         res.status(isOperational ? 200 : 503).json({
-            status: isOperational ? 'operational' : 'degraded',
-            checks: {
-                redis: { status: dbStatus, latency: `${dbLatency}ms` },
+            status: isOperational ? 'operational' : dbStatus === 'online' ? 'degraded' : 'down',
+            timestamp: new Date().toISOString(),
+            version: '2.9.7',
+            uptime: `${Math.floor(process.uptime())}s`,
+            services: {
+                database: {
+                    status: dbStatus,
+                    latency: `${dbResult.latency}ms`,
+                    provider: 'Supabase'
+                },
+                cache: {
+                    status: redisStatus,
+                    latency: `${redisResult.latency}ms`,
+                    provider: 'Vercel KV'
+                },
                 twitch: {
                     status: twitchStatus,
-                    latency: twitchLatency ? `${twitchLatency}ms` : 'n/a'
+                    latency: twitchResult.latency ? `${twitchResult.latency}ms` : 'n/a'
                 }
             },
-            uptime: `${Math.floor(process.uptime())}s`,
-            timestamp: new Date().toISOString()
+            system: {
+                memory: {
+                    heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)}MB`,
+                    heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)}MB`,
+                    rss: `${Math.round(memoryUsage.rss / 1024 / 1024)}MB`
+                }
+            }
         });
     } catch (e) {
         logger.error('Error in health check:', e);
-        res.status(500).json({ status: 'down', error: 'Internal health check failed' });
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal health check failure',
+            error: (e as Error).message
+        });
     }
 };

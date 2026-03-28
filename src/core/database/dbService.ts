@@ -13,3 +13,4 @@ export * from './activityService';
 export * from './statsService';
 export * from './userService';
 export * from './adminService';
+export { supabase } from './supabaseClient';

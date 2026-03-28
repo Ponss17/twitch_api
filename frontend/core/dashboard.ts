@@ -22,32 +22,7 @@ export const Dashboard = {
         this.setupTabs();
         this.setupUserBadge();
 
-        this.initAllModules();
-
         await this.loadTab('tab-home');
-
-        setTimeout(() => {
-            this.preloadAllTabsBackground();
-        }, 1000);
-    },
-
-    preloadAllTabsBackground() {
-        const panes = Array.from(document.querySelectorAll('.tab-pane')).filter(
-            (p) => p instanceof HTMLElement && p.dataset.src && p.id !== 'tab-home'
-        ) as HTMLElement[];
-
-        panes.reduce((promise, pane, i) => {
-            return promise.then(
-                () =>
-                    new Promise<void>((resolve) => {
-                        setTimeout(() => {
-                            HtmlLoader.load(pane.dataset.src!, pane.id)
-                                .catch(console.error)
-                                .finally(resolve);
-                        }, i * 200);
-                    })
-            );
-        }, Promise.resolve());
     },
 
     initAllModules() {
@@ -189,6 +164,7 @@ export const Dashboard = {
 
         this.updatePageTitle(tabId);
 
+        // Desactivar módulos activos
         this.activeModules.forEach((mod) => {
             if (mod && typeof mod.deactivate === 'function') {
                 try {
@@ -203,6 +179,7 @@ export const Dashboard = {
         const pane = document.getElementById(tabId);
         if (pane && pane.dataset.src) {
             try {
+                // Si el pane no está cargado, HtmlLoader lo descarga
                 await HtmlLoader.load(pane.dataset.src, pane.id);
             } catch (error) {
                 console.error(`Error loading HTML for tab ${tabId}:`, error);
@@ -224,13 +201,27 @@ export const Dashboard = {
             'tab-feedback': [FeedbackModule as DashboardModule]
         };
 
-        if (moduleMap[tabId]) {
-            this.activeModules = moduleMap[tabId];
-            this.activeModules.forEach((mod) => {
-                if (mod && typeof mod.activate === 'function') {
+        const selectedModules = moduleMap[tabId] || [];
+
+        // Inicializar y activar módulos bajo demanda (Lazy Init)
+        for (const mod of selectedModules) {
+            if (mod) {
+                // Si el módulo tiene init y NO ha sido inicializado aún
+                // (Podemos verificar una propiedad 'initialized' si el módulo la tiene)
+                if (typeof mod.init === 'function' && !mod.initialized) {
+                    try {
+                        mod.init(this.session);
+                        mod.initialized = true;
+                    } catch (e) {
+                        console.error('Error lazy-initializing module:', e);
+                    }
+                }
+
+                if (typeof mod.activate === 'function') {
                     mod.activate();
                 }
-            });
+                this.activeModules.push(mod);
+            }
         }
     }
 };

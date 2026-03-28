@@ -16,7 +16,7 @@ interface ITrendsModule extends DashboardModule {
     MAX_LOG_SIZE: number;
     isTracking: boolean;
     isConnected: boolean;
-    timerInterval: NodeJS.Timeout | null;
+    timerInterval: any;
     cssLoaded: boolean;
     renderPending: boolean;
     uiInitialized: boolean;
@@ -107,7 +107,7 @@ export const TrendsModule: ITrendsModule = {
     MAX_LOG_SIZE: 500,
     isTracking: false,
     isConnected: false,
-    timerInterval: null,
+    timerInterval: null as any,
     session: null,
     initialized: false,
 
@@ -136,7 +136,8 @@ export const TrendsModule: ITrendsModule = {
     setupSyncListeners() {
         if (!this.syncService) return;
 
-        this.syncService.on('TRENDS_START', (minutes: number) => {
+        this.syncService.on('TRENDS_START', (payload: unknown) => {
+            const minutes = payload as number;
             this.isTracking = true;
             document.getElementById('tracker-input-container')?.classList.add('hidden');
             document.getElementById('tracker-timer')?.classList.remove('hidden');
@@ -153,14 +154,12 @@ export const TrendsModule: ITrendsModule = {
             }
         });
 
-        this.syncService.on(
-            'TRENDS_UPDATE_COUNTS',
-            (data: { counts: Record<string, number>; log: ChatLogItem[] }) => {
-                this.wordCounts = data.counts;
-                this.messageLog = data.log.slice(0, 50);
-                this.render();
-            }
-        );
+        this.syncService.on('TRENDS_UPDATE_COUNTS', (payload: unknown) => {
+            const data = payload as { counts: Record<string, number>; log: ChatLogItem[] };
+            this.wordCounts = data.counts;
+            this.messageLog = data.log.slice(0, 50);
+            this.render();
+        });
 
         this.syncService.on('TRENDS_END', () => {
             this.localEndTimer();
@@ -170,10 +169,11 @@ export const TrendsModule: ITrendsModule = {
             this.localReset();
         });
 
-        this.syncService.on('LEADER_CHANGED', (payload) => {
-            if (payload.isLeader && this.isTracking && !this.isConnected) {
+        this.syncService.on('LEADER_CHANGED', (payload: unknown) => {
+            const data = payload as { isLeader: boolean };
+            if (data.isLeader && this.isTracking && !this.isConnected) {
                 this.connect();
-            } else if (!payload.isLeader && this.isConnected) {
+            } else if (!data.isLeader && this.isConnected) {
                 TmiService.disconnect();
                 this.isConnected = false;
                 this.updateStatus(false);
@@ -275,6 +275,12 @@ export const TrendsModule: ITrendsModule = {
         this.isTracking = true;
         if (this.syncService?.getIsLeader()) {
             this.connect();
+            // Notificar al backend del uso de la herramienta
+            fetch(`${DASHBOARD_CONFIG.API_ENDPOINTS.BASE}/dashboard/track-usage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...this.authHeaders() }, // heredado de BaseModule
+                body: JSON.stringify({ tool: 'trends' })
+            }).catch((e) => console.warn('Error tracking trends usage:', e));
         }
 
         document.getElementById('tracker-input-container')?.classList.add('hidden');

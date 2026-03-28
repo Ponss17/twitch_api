@@ -11,12 +11,60 @@ import {
 } from '../../types/twitch';
 import * as cacheService from '../../core/database/cacheService';
 import { logger } from '../../core/utils/logger';
+import { getTimePhraseBetween } from '../../core/utils/time';
+import { TwitchApiError } from '../../core/errors/AppError';
 
 const httpsAgent = new https.Agent({ keepAlive: true });
 const apiClient = axios.create({
     httpsAgent,
     timeout: 10000
 });
+
+// Circuit Breaker State
+const CIRCUIT_BREAKER = {
+    failures: 0,
+    lastFailure: 0,
+    threshold: 5,
+    cooldownMs: 30000, // 30 segundos
+    state: 'CLOSED' as 'CLOSED' | 'OPEN' | 'HALF_OPEN'
+};
+
+/**
+ * Verifica si el circuito está abierto y corta la petición si Twitch está fallando.
+ */
+const checkCircuit = () => {
+    if (CIRCUIT_BREAKER.state === 'OPEN') {
+        const now = Date.now();
+        if (now - CIRCUIT_BREAKER.lastFailure > CIRCUIT_BREAKER.cooldownMs) {
+            CIRCUIT_BREAKER.state = 'HALF_OPEN';
+            return;
+        }
+        throw new TwitchApiError(
+            'Servicio de Twitch temporalmente inhabilitado (Circuit Breaker)',
+            503
+        );
+    }
+};
+
+/**
+ * Registra un fallo en el circuito.
+ */
+const recordFailure = () => {
+    CIRCUIT_BREAKER.failures++;
+    CIRCUIT_BREAKER.lastFailure = Date.now();
+    if (CIRCUIT_BREAKER.failures >= CIRCUIT_BREAKER.threshold) {
+        CIRCUIT_BREAKER.state = 'OPEN';
+        logger.error('🚨 CIRCUIT BREAKER OPEN: Twitch API is failing consistently.');
+    }
+};
+
+/**
+ * Registra un éxito en el circuito.
+ */
+const recordSuccess = () => {
+    CIRCUIT_BREAKER.failures = 0;
+    CIRCUIT_BREAKER.state = 'CLOSED';
+};
 
 axiosRetry(apiClient, {
     retries: 3,
@@ -56,18 +104,16 @@ const getHeaders = (token: string) => ({
 
 const handleTwitchError = (error: unknown, context: string): never => {
     logger.error(`Error in ${context}:`, error);
+
+    recordFailure();
+
     if (axios.isAxiosError(error)) {
-        throw {
-            status: error.response?.status || 500,
-            message: error.response?.data?.message || error.message || 'Error en la API de Twitch',
-            name: 'TwitchApiError'
-        } as TwitchError;
+        throw new TwitchApiError(
+            error.response?.data?.message || error.message || 'Error en la API de Twitch',
+            error.response?.status || 500
+        );
     }
-    throw {
-        status: 500,
-        message: 'Error interno desconocido',
-        name: 'UnknownError'
-    } as TwitchError;
+    throw new TwitchApiError('Error interno desconocido', 500);
 };
 
 export const getUserId = async (username: string, token: string): Promise<string> => {
@@ -84,6 +130,7 @@ export const getUserId = async (username: string, token: string): Promise<string
 };
 
 export const getUserInfo = async (username: string, token: string): Promise<TwitchUser> => {
+    checkCircuit();
     const headers = getHeaders(token);
     const response = await apiClient.get(
         `https://api.twitch.tv/helix/users?login=${encodeURIComponent(username)}`,
@@ -93,9 +140,10 @@ export const getUserInfo = async (username: string, token: string): Promise<Twit
     );
 
     if (response.data.data.length === 0) {
-        throw { status: 404, message: `El usuario/canal ${username} no existe.` } as TwitchError;
+        throw new TwitchApiError(`El usuario/canal ${username} no existe.`, 404);
     }
 
+    recordSuccess();
     return response.data.data[0];
 };
 
@@ -139,6 +187,7 @@ export const createClip = async (channel: string, token: string): Promise<string
 
         const clipRes = await apiClient.post(url, null, { headers });
         const clipData = clipRes.data.data[0];
+        recordSuccess();
         return `https://clips.twitch.tv/${clipData.id}`;
     } catch (error: unknown) {
         if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -217,31 +266,7 @@ export const getFollowAge = async (
         }
 
         const followDate = new Date(followRes.data.data[0].followed_at);
-        const now = new Date();
-        const diff = Math.abs(now.getTime() - followDate.getTime());
-
-        const parts = {
-            años: Math.floor(diff / (1000 * 60 * 60 * 24 * 365)),
-            meses: Math.floor((diff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30)),
-            días: Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24)),
-            horas: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-            minutos: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
-            segundos: Math.floor((diff % (1000 * 60)) / 1000)
-        };
-
-        const timeString: string[] = [];
-        if (parts.años > 0) timeString.push(`${parts.años} años`);
-        if (parts.meses > 0) timeString.push(`${parts.meses} meses`);
-        if (parts.días > 0) timeString.push(`${parts.días} días`);
-        if (parts.horas > 0) timeString.push(`${parts.horas} horas`);
-        if (parts.minutos > 0) timeString.push(`${parts.minutos} minutos`);
-        if (parts.segundos > 0 || timeString.length === 0)
-            timeString.push(`${parts.segundos} segundos`);
-
-        const timePhrase =
-            timeString.length > 1
-                ? timeString.slice(0, -1).join(', ') + ' y ' + timeString.slice(-1)
-                : timeString[0];
+        const timePhrase = getTimePhraseBetween(followDate);
 
         return {
             text: `${user} ha seguido a ${channel} por ${timePhrase}.`,
