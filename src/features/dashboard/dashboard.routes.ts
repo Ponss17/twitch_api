@@ -2,12 +2,15 @@ import { Router } from 'express';
 import * as dashboardController from './dashboard.controller';
 import checkToken from '../../core/middleware/authMiddleware';
 import { csrfProtection } from '../../core/middleware/csrfProtection';
-import { heavyLimiter } from '../../core/middleware/rateLimiter';
+import { heavyRateLimiter } from '../../core/middleware/redisRateLimiter';
 import { validate } from '../../core/middleware/validate';
 import {
     getClipsSchema,
     getChattersSchema,
     getUserInfoSchema,
+    getSummarySchema,
+    getAnalyticsSchema,
+    getActivitySchema,
     clearUserDataSchema,
     deleteAccountSchema
 } from './dashboard.schema';
@@ -17,20 +20,28 @@ const router = Router();
 router.get(
     '/get-clips',
     checkToken,
-    heavyLimiter,
+    heavyRateLimiter,
     validate(getClipsSchema),
     dashboardController.getClips
 );
-router.get('/analytics', checkToken, heavyLimiter, dashboardController.getAnalytics);
+router.get(
+    '/analytics',
+    checkToken,
+    heavyRateLimiter,
+    validate(getAnalyticsSchema),
+    dashboardController.getAnalytics
+);
 router.get(
     '/chatters',
     checkToken,
-    heavyLimiter,
+    heavyRateLimiter,
     validate(getChattersSchema),
     dashboardController.getChatters
 );
 router.get('/user-info', checkToken, validate(getUserInfoSchema), dashboardController.getUserInfo);
-router.get('/activity', checkToken, dashboardController.getLogs);
+router.get('/summary', checkToken, validate(getSummarySchema), dashboardController.getSummary);
+router.get('/activity', checkToken, validate(getActivitySchema), dashboardController.getLogs);
+router.post('/track-usage', checkToken, dashboardController.trackToolUsage);
 
 // Danger Zone — CSRF protected with validation
 router.post(

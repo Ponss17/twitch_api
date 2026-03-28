@@ -12,7 +12,7 @@ import { BaseModule } from '../../../shared/utils/baseModule.js';
 interface IStalkerModule extends DashboardModule {
     isScanning: boolean;
     chatters: StalkerUser[];
-    searchTimeout: NodeJS.Timeout | null;
+    searchTimeout: any;
     isConnected: boolean;
     cssLoaded: boolean;
     uiInitialized: boolean;
@@ -31,7 +31,7 @@ export const StalkerModule: IStalkerModule = {
     session: null,
     isScanning: false,
     chatters: [] as StalkerUser[],
-    searchTimeout: null,
+    searchTimeout: null as any,
     isConnected: false,
     initialized: false,
     cssLoaded: false,
@@ -100,6 +100,13 @@ export const StalkerModule: IStalkerModule = {
             UI.showToast(StalkerMessages.scanStartedRaw, 'success', 'fa-satellite-dish fa-beat');
             this.loadChatters();
             this.connectTmi();
+
+            // Notificar al backend del uso de la herramienta
+            fetch(`${API_ENDPOINTS.BASE}/dashboard/track-usage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...this.authHeaders() },
+                body: JSON.stringify({ tool: 'stalker' })
+            }).catch((e) => console.warn('Error tracking stalker usage:', e));
         } else {
             UI.showToast(StalkerMessages.scanPausedRaw, 'warning', 'fa-snowflake');
             TmiService.disconnect();

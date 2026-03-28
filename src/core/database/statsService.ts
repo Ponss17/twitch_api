@@ -17,12 +17,17 @@ const DEFAULT_STAT_FIELDS = [
     'total_errors'
 ];
 
+// Cache para saber si un usuario ya tiene fila de stats y evitar upserts constantes
+const EXISTS_CACHE = new Set<string>();
+
 // Caché L1 en memoria para evitar lecturas excesivas de Supabase
 const STATS_CACHE = new Map<string, { data: Record<string, number>; expiry: number }>();
-const STATS_TTL = 60 * 1000; // Incrementado a 60s para reducir carga en Supabase
+const STATS_TTL = 15 * 1000; // 15 segundos de caché para fluidez y precisión
 
 // Asegura que exista la fila de stats para el usuario antes de incrementar
 async function ensureStatsRow(userId: string): Promise<void> {
+    if (EXISTS_CACHE.has(userId)) return;
+
     const defaultRow = DEFAULT_STAT_FIELDS.reduce(
         (acc, f) => {
             acc[f] = 0;
@@ -31,12 +36,14 @@ async function ensureStatsRow(userId: string): Promise<void> {
         {} as Record<string, number>
     );
 
-    await supabase
+    const { error } = await supabase
         .from('user_stats')
         .upsert(
             { user_id: userId, ...defaultRow },
             { onConflict: 'user_id', ignoreDuplicates: true }
         );
+
+    if (!error) EXISTS_CACHE.add(userId);
 }
 
 export const incrementUserStats = async (userId: string, command: string): Promise<void> => {
@@ -55,30 +62,32 @@ export const incrementUserStats = async (userId: string, command: string): Promi
         };
 
         const column = columnMap[command];
-        // Si el comando no está mapeado, lo ignoramos para evitar inyección de columnas
-        if (!column) {
-            logger.warn(`Comando desconocido ignorado en stats: ${command}`);
-            return;
-        }
+        if (!column) return;
 
-        await ensureStatsRow(userId);
-
-        // Incremento atómico en una sola operación SQL, sin READ-MODIFY-WRITE
+        // Intentar incremento atómico via RPC
         const { error } = await supabase.rpc('increment_user_stat', {
             p_user_id: userId,
             p_column: column
         });
 
+        // Si el RPC falla (ej. usuario no existe aún), asegurar fila y reintentar manual
         if (error) {
-            logger.error(
-                `Error de Supabase incrementando {${column}} para {${userId}}:`,
-                error.message
-            );
+            await ensureStatsRow(userId);
+            const { data: current } = await supabase
+                .from('user_stats')
+                .select(column)
+                .eq('user_id', userId)
+                .single();
+            const newVal = ((current as unknown as Record<string, number>)?.[column] || 0) + 1;
+            await supabase
+                .from('user_stats')
+                .update({ [column]: newVal })
+                .eq('user_id', userId);
         }
 
         STATS_CACHE.delete(userId);
     } catch (e) {
-        logger.error('Error incrementando estadísticas de usuario:', e);
+        logger.error('Error incrementando estadísticas:', e);
     }
 };
 
@@ -88,23 +97,27 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         const cached = STATS_CACHE.get(userId);
         if (cached && cached.expiry > now) return cached.data;
 
-        // 1. Obtener totales históricos de user_stats
-        const { data: totals, error: totalsError } = await supabase
-            .from('user_stats')
-            .select('*')
-            .eq('user_id', userId)
-            .single();
-
-        // 2. Calcular de forma dinámica las peticiones de HOY desde activity_logs
-        // Esto evita que tengamos que crear columnas de fechas infinitas en SQL
         const startOfToday = new Date();
         startOfToday.setHours(0, 0, 0, 0);
 
-        const { count: todayCount } = await supabase
-            .from('activity_logs')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', userId)
-            .gte('created_at', startOfToday.toISOString());
+        // Lanzamos ambas peticiones a Supabase en PARALELO para reducir latencia
+        const [totalsResult, activityResult] = await Promise.all([
+            supabase.from('user_stats').select('*').eq('user_id', userId).single(),
+            supabase
+                .from('activity_logs')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId)
+                .gte('created_at', startOfToday.toISOString())
+        ]);
+
+        const totals = totalsResult.data;
+        const todayCount = activityResult.count || 0;
+
+        if (!totals && !totalsResult.error) {
+            await ensureStatsRow(userId);
+        } else {
+            EXISTS_CACHE.add(userId);
+        }
 
         // Combinar datos
         const numericStats: Record<string, number> = {};
@@ -113,7 +126,7 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
             numericStats[legacyKey] = 0;
         }
 
-        if (!totalsError && totals) {
+        if (totals) {
             for (const field of DEFAULT_STAT_FIELDS) {
                 const legacyKey = field.replace('_count', '');
                 numericStats[legacyKey] =
@@ -121,23 +134,16 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
             }
         }
 
-        // Inyectar llaves legacy que el Dashboard espera para "Hoy"
         const todayStr = new Date().toISOString().split('T')[0];
-        numericStats[`d:${todayStr}`] = todayCount || 0;
-        // Para errores y latencia hoy, usamos los totales como fallback o 0
-        numericStats[`e:${todayStr}`] = 0;
-        numericStats[`l:${todayStr}`] = 0;
+        numericStats[`d:${todayStr}`] = todayCount;
+        numericStats[`e:${todayStr}`] = numericStats.total_errors || 0;
+        numericStats[`l:${todayStr}`] = numericStats.total_latency || 0;
 
         STATS_CACHE.set(userId, { data: numericStats, expiry: now + STATS_TTL });
         return numericStats;
     } catch (e) {
-        logger.error('Error obteniendo estadísticas de usuario:', e);
-        const empty: Record<string, number> = {};
-        for (const field of DEFAULT_STAT_FIELDS) {
-            const legacyKey = field.replace('_count', '');
-            empty[legacyKey] = 0;
-        }
-        return empty;
+        logger.error('Error obteniendo estadísticas:', e);
+        return {};
     }
 };
 
@@ -147,7 +153,11 @@ export const recordUserRequest = async (
     success: boolean
 ): Promise<void> => {
     try {
-        await ensureStatsRow(userId);
+        // Obtenemos valores actuales (podríamos optimizar esto con un RPC si fuera posible)
+        // Pero al menos saltamos el ensureStatsRow si ya sabemos que existe.
+        if (!EXISTS_CACHE.has(userId)) {
+            await ensureStatsRow(userId);
+        }
 
         const { data: current } = await supabase
             .from('user_stats')
@@ -155,7 +165,13 @@ export const recordUserRequest = async (
             .eq('user_id', userId)
             .single();
 
-        const row = (current as Record<string, number>) ?? {};
+        if (!current) {
+            // Caso borde: si el select falla aunque pensáramos que existía
+            EXISTS_CACHE.delete(userId);
+            return;
+        }
+
+        const row = current as Record<string, number>;
         const updates: Record<string, number | string> = {
             total_requests: (row.total_requests ?? 0) + 1,
             total_latency: (row.total_latency ?? 0) + latency,
@@ -182,6 +198,7 @@ export const clearUserStatsAndLogs = async (userId: string): Promise<void> => {
         ]);
 
         STATS_CACHE.delete(userId);
+        EXISTS_CACHE.delete(userId);
         logger.info(`🧹 Stats y actividad eliminados para: ${userId}`);
     } catch (e) {
         logger.error('Error clearing user stats and logs:', e);

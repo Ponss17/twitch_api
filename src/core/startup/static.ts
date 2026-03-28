@@ -10,7 +10,7 @@ export const configureStatic = (app: Application) => {
     const staticOptions = { fallthrough: true, extensions: ['html', 'js', 'css'] };
     const staticOptionsWithCache = {
         fallthrough: true,
-        maxAge: '7d',
+        maxAge: '365d', // 1 año (Vercel CDN)
         immutable: true
     };
 
@@ -26,12 +26,14 @@ export const configureStatic = (app: Application) => {
     );
     app.use('/img', express.static(path.join(distPublicPath, 'img'), staticOptionsWithCache));
 
-    // Resto de assets: caché estándar
-    app.use('/api/twitch', express.static(publicPath, staticOptions));
-    app.use(express.static(publicPath, staticOptions));
+    // Resto de assets (JS/CSS): caché media (1 día) para balancear frescura y performance
+    const standardCache = { ...staticOptions, maxAge: '1d' };
 
-    app.use('/api/twitch', express.static(distPublicPath, staticOptions));
-    app.use(express.static(distPublicPath, staticOptions));
+    app.use('/api/twitch', express.static(publicPath, standardCache));
+    app.use(express.static(publicPath, standardCache));
+
+    app.use('/api/twitch', express.static(distPublicPath, standardCache));
+    app.use(express.static(distPublicPath, standardCache));
 
     // Assets del panel admin (solo accesibles desde localhost vía localOnly en routes.ts)
     const adminPath = path.join(process.cwd(), 'admin');

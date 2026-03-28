@@ -4,7 +4,9 @@ export const loginSchema = z.object({
     query: z.object({
         redirect_origin: z.string().optional(),
         admin: z.enum(['true', 'false']).optional()
-    })
+    }),
+    body: z.any().optional(),
+    params: z.any().optional()
 });
 
 export const callbackSchema = z.object({

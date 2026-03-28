@@ -9,6 +9,7 @@ export const DASHBOARD_CONFIG = {
         FEEDBACK: `${API_BASE}/system/feedback`,
         CHATTERS: `${API_BASE}/dashboard/chatters`,
         USER_INFO: `${API_BASE}/dashboard/user-info`,
+        SUMMARY: `${API_BASE}/dashboard/summary`,
         SEND_MESSAGE: `${API_BASE}/send-message`,
         CLIPS: `${API_BASE}/dashboard/get-clips`,
         ACTIVITY: `${API_BASE}/dashboard/activity`,

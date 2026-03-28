@@ -13,10 +13,20 @@ export const getChattersSchema = z.object({
     })
 });
 
-export const getUserInfoSchema = z.object({
-    query: z.object({
-        login: z.string().min(1, 'El login es obligatorio')
-    })
+const loginQuery = z.object({
+    login: z.string().min(1, 'El login es obligatorio')
+});
+
+export const getUserInfoSchema = z.object({ query: loginQuery });
+
+export const getSummarySchema = z.object({ query: loginQuery });
+
+export const getAnalyticsSchema = z.object({
+    query: z.object({}).optional()
+});
+
+export const getActivitySchema = z.object({
+    query: z.object({}).optional()
 });
 
 export const clearUserDataSchema = z.object({

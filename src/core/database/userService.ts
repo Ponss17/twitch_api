@@ -109,6 +109,11 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
     return user;
 };
 
+export const getUserByLogin = async (login: string): Promise<StoredUser | null> => {
+    const { data } = await supabase.from('users').select('*').eq('login', login).single();
+    return data ? fromRow(data as Record<string, unknown>) : null;
+};
+
 export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null> => {
     const { data, error } = await supabase.from('users').select('*').eq('api_key', apiKey).single();
 

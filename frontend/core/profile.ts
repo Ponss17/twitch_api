@@ -26,8 +26,7 @@ export const ProfileModule: DashboardModule = {
     activate(): void {
         Loader.loadCSS('./css/sections/profile.css');
         this.setupUIInternal();
-        this.loadProfileData();
-        this.loadAnalytics();
+        this.syncSummary();
         this.startSmartPolling();
     },
 
@@ -82,7 +81,7 @@ export const ProfileModule: DashboardModule = {
         const syncEl = document.getElementById('profile-sync-indicator');
         if (this.session) {
             localStorage.setItem('dashboard_last_sync', Date.now().toString());
-            await Promise.all([this.pollRateLimit(), this.loadAnalytics()]);
+            await this.syncSummary();
         }
 
         setTimeout(() => {
@@ -165,54 +164,40 @@ export const ProfileModule: DashboardModule = {
         }
     },
 
-    async loadProfileData(): Promise<void> {
+    async syncSummary(): Promise<void> {
         if (!this.session) return;
+        const profileTab = document.getElementById('tab-profile');
+        if (profileTab) profileTab.classList.add('is-loading');
+
         try {
-            const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}`;
+            const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.SUMMARY}?login=${this.session.login}`;
             const response = await fetch(url, {
                 headers: this.authHeaders()
             });
+
             if (response.ok) {
                 const data = await response.json();
-                this.updateProfileStatsInternal(data);
-                this.updateBadgesInternal(data);
+                if (data.profile) {
+                    this.updateProfileStatsInternal(data.profile);
+                    this.updateBadgesInternal(data.profile);
+                }
+                if (data.analytics) {
+                    this.renderCommandStatsInternal(data.analytics);
+                }
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                const msg =
+                    errorData.error?.message || errorData.error || 'Error al sincronizar datos';
+                UI.showToast(msg, 'error');
             }
         } catch (e) {
-            console.error('[Profile] Error loading data:', e);
-        }
-    },
-
-    async pollRateLimit(): Promise<void> {
-        if (!this.session) return;
-        try {
-            const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.USER_INFO}?login=${this.session.login}`;
-            const response = await fetch(url, {
-                headers: this.authHeaders()
-            });
-            if (response.ok) {
-                const data = await response.json();
-                const rateLimitEl = document.getElementById('profile-stat-ratelimit');
-                if (rateLimitEl && data.rateLimit) {
-                    rateLimitEl.textContent = `${data.rateLimit} req/min`;
-                }
+            console.error('[Profile] Error syncing summary:', e);
+            UI.showToast('Error de conexión con el servidor', 'error');
+        } finally {
+            if (profileTab) {
+                // Pequeño delay para evitar parpadeo si la respuesta es instantánea
+                setTimeout(() => profileTab.classList.remove('is-loading'), 300);
             }
-        } catch (_e) {
-            /*  */
-        }
-    },
-
-    async loadAnalytics(): Promise<void> {
-        if (!this.session) return;
-        try {
-            const response = await fetch(`${DASHBOARD_CONFIG.API_ENDPOINTS.ANALYTICS}`, {
-                headers: this.authHeaders()
-            });
-            if (response.ok) {
-                const data: Record<string, number> = await response.json();
-                this.renderCommandStatsInternal(data);
-            }
-        } catch (_e) {
-            console.error('Error updating statistics', _e);
         }
     },
 
@@ -402,7 +387,14 @@ export const ProfileModule: DashboardModule = {
                         UI.setButtonLoading(regenBtn as HTMLButtonElement, true);
                         try {
                             const response = await fetch(
-                                `${DASHBOARD_CONFIG.API_ENDPOINTS.REGENERATE_KEY}?userId=${this.session?.userId}`
+                                DASHBOARD_CONFIG.API_ENDPOINTS.REGENERATE_KEY,
+                                {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        ...this.authHeaders()
+                                    }
+                                }
                             );
                             const data = await response.json();
 

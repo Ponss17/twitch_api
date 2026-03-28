@@ -1,7 +1,7 @@
 import { Application, Request, Response } from 'express';
 import path from 'path';
 import { CONFIG } from '../config/env';
-import rateLimiter, { authLimiter } from '../middleware/rateLimiter';
+import { globalRateLimiter, authRateLimiter } from '../middleware/redisRateLimiter';
 import { apiKeyValidator } from '../middleware/apiKeyValidator';
 import checkToken from '../middleware/authMiddleware';
 import authRoutes from '../../features/auth/auth.routes';
@@ -58,7 +58,7 @@ export const configureRoutes = (app: Application) => {
 
     app.use(apiKeyValidator);
     app.use(checkToken);
-    app.use(rateLimiter);
+    app.use(globalRateLimiter);
 
     // Rutas de Admin (API) — solo local, solo si el módulo existe
     if (adminRouter) {
@@ -71,9 +71,9 @@ export const configureRoutes = (app: Application) => {
 
     // Rutas API/Twitch
     // Usamos montajes individuales para mayor claridad en Express
-    app.use('/auth', authLimiter, authRoutes);
-    app.use('/api/twitch/auth', authLimiter, authRoutes);
-    app.use('/twitch/auth', authLimiter, authRoutes);
+    app.use('/auth', authRateLimiter, authRoutes);
+    app.use('/api/twitch/auth', authRateLimiter, authRoutes);
+    app.use('/twitch/auth', authRateLimiter, authRoutes);
 
     // Router API Principal (Agrega juegos, comandos, dashboard, sistema)
     app.use('/api/twitch', apiRouter);

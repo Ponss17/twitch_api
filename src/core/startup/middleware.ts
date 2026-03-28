@@ -36,8 +36,11 @@ export const configureMiddleware = (app: Application) => {
                         'https://*.twitch.tv',
                         'https://*.jtvnw.net',
                         'https://va.vercel-scripts.com',
+                        'https://*.google-analytics.com',
+                        'https://www.google-analytics.com',
                         'blob:'
                     ],
+                    scriptSrcAttr: ["'self'", "'unsafe-inline'"],
                     styleSrc: [
                         "'self'",
                         "'unsafe-inline'",
@@ -56,6 +59,7 @@ export const configureMiddleware = (app: Application) => {
                         'https://*.twitch.tv',
                         'https://flagcdn.com',
                         'https://*.flagcdn.com',
+                        'https://*.google-analytics.com',
                         'blob:'
                     ],
                     connectSrc: [
@@ -67,6 +71,7 @@ export const configureMiddleware = (app: Application) => {
                         'https://va.vercel-scripts.com',
                         'https://vitals.vercel-insights.com',
                         'https://*.google-analytics.com',
+                        'https://www.google-analytics.com',
                         'blob:'
                     ],
                     objectSrc: ["'none'"],
@@ -76,12 +81,28 @@ export const configureMiddleware = (app: Application) => {
                 }
             },
             crossOriginEmbedderPolicy: false,
+            crossOriginResourcePolicy: false,
             noSniff: true,
             xssFilter: true,
             hidePoweredBy: true,
-            frameguard: { action: 'deny' }
+            frameguard: { action: 'deny' },
+            hsts: {
+                maxAge: 31536000,
+                includeSubDomains: true,
+                preload: true
+            },
+            referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
         })
     );
+
+    // Permissions Policy: Restringir acceso a hardware innecesario
+    app.use((req, res, next) => {
+        res.setHeader(
+            'Permissions-Policy',
+            'camera=(), microphone=(), geolocation=(), interest-cohort=()'
+        );
+        next();
+    });
 
     app.use(
         cors((req: Request, callback) => {

@@ -7,6 +7,9 @@ import { logger } from '../../core/utils/logger';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 import { RATE_LIMITS } from '../../core/config/limits';
+import { TwitchApiError } from '../../core/errors/AppError';
+import { AppError } from '../../core/errors/AppError';
+import { trackRequest } from '../../core/utils/tracking';
 
 export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
@@ -31,11 +34,9 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
         const totalErrs = stats.total_errors || 0;
         const totalLat = stats.total_latency || 0;
 
-        // Calcular éxito global
         const successRateVal =
             totalReqs > 0 ? parseFloat(((1 - totalErrs / totalReqs) * 100).toFixed(1)) : 100;
 
-        // Calcular latencia promedio global
         const avgLatencyMs = totalReqs > 0 ? Math.round(totalLat / totalReqs) : 0;
 
         res.json({
@@ -49,7 +50,7 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
         });
     } catch (e) {
         logger.error('Error analytics:', e);
-        res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });
+        throw new AppError(MESSAGES.DASHBOARD.ANALYTICS_ERROR, 500);
     }
 };
 
@@ -83,13 +84,19 @@ export const getLogs = async (req: AuthenticatedRequest, res: Response) => {
                 case 'duel':
                     actionText = `⚔️ @${log.user} inició un duelo con @${log.detail}`;
                     break;
+                case 'stalker':
+                    actionText = `🕵️ @${log.user} inició escaneo de Stalker`;
+                    break;
+                case 'trends':
+                    actionText = `📊 @${log.user} inició rastreo de Tendencias`;
+                    break;
+                case 'roulette':
+                    actionText = `🎲 @${log.user} consultó la Ruleta de Chatters`;
+                    break;
                 default:
                     actionText = `🔹 Actividad: ${log.type} por @${log.user}`;
             }
-            return {
-                ...log,
-                action: actionText
-            };
+            return { ...log, action: actionText };
         });
         res.json(formattedLogs);
     } catch (e) {
@@ -103,98 +110,142 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
         channel: string;
         limit: number;
     };
-    const token = req.twitchToken;
+    const userId = req.userId;
 
-    const cacheKey = `cache:cmd:getClips:channel:${channel}:limit:${limitNum}`;
-    const cached = await cacheService.get(cacheKey);
-    if (cached) return res.json(cached);
+    return await trackRequest(
+        userId,
+        {
+            type: 'other',
+            user: channel,
+            detail: 'Dashboard Clips'
+        },
+        async () => {
+            const cacheKey = `cache:cmd:getClips:channel:${channel}:limit:${limitNum}`;
+            const cached = await cacheService.get(cacheKey);
+            if (cached) return res.json(cached);
 
-    try {
-        const result = await apiService.getClips(channel, limitNum, token || '');
-        await cacheService.set(cacheKey, result, 60);
-        return res.json(result);
-    } catch (error: unknown) {
-        logger.error('Error fetching clips:', { error });
-        const err = error as {
-            status?: number;
-            response?: { status?: number; data?: { message?: string } };
-            message?: string;
-        };
-        const status = err.status || err.response?.status || 500;
-        const message =
-            err.message || err.response?.data?.message || MESSAGES.DASHBOARD.CLIPS_ERROR;
-        return res.status(status).json({ error: message });
-    }
+            try {
+                const result = await apiService.getClips(channel, limitNum, req.twitchToken || '');
+                await cacheService.set(cacheKey, result, 60);
+                return res.json(result);
+            } catch (error: unknown) {
+                if (error instanceof TwitchApiError) throw error;
+                logger.error('Error fetching clips:', { error });
+                throw new AppError(MESSAGES.DASHBOARD.CLIPS_ERROR, 500);
+            }
+        }
+    );
 };
 
 export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
-    const token = req.twitchToken;
     const channel = req.query.channel as string;
     const userId = req.userId;
 
     if (!userId) return res.status(401).send(MESSAGES.SYSTEM.USER_NOT_FOUND);
 
-    const cacheKey = `cache:cmd:getChatters:channel:${channel}`;
-    const cached = await cacheService.get(cacheKey);
-    if (cached) return res.json(cached);
+    return await trackRequest(
+        userId,
+        {
+            type: 'stalker',
+            user: channel,
+            incrementStat: 'stalker'
+        },
+        async () => {
+            const cacheKey = `cache:cmd:getChatters:channel:${channel}`;
+            const cached = await cacheService.get(cacheKey);
+            if (cached) return res.json(cached);
+
+            try {
+                const broadcasterId = await apiService.getUserId(channel, req.twitchToken || '');
+                const chatters = await apiService.getChatters(
+                    broadcasterId,
+                    userId,
+                    req.twitchToken || ''
+                );
+                await cacheService.set(cacheKey, chatters, 30);
+                return res.json(chatters);
+            } catch (error: unknown) {
+                const err = error as Error;
+                logger.error('Error getting chatters:', { error: err.message });
+                res.status(500).json({ error: MESSAGES.DASHBOARD.CHATTERS_ERROR });
+            }
+        }
+    );
+};
+
+export const trackToolUsage = async (req: AuthenticatedRequest, res: Response) => {
+    const { tool } = req.body as { tool: 'trends' | 'stalker' | 'roulette' };
+    const userId = req.userId;
+
+    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
 
     try {
-        const broadcasterId = await apiService.getUserId(channel, token || '');
-        const chatters = await apiService.getChatters(broadcasterId, userId, token || '');
-
-        await cacheService.set(cacheKey, chatters, 30);
-
-        res.json(chatters);
-    } catch (error: unknown) {
-        const err = error as Error;
-        logger.error('Error getting chatters:', { error: err.message });
-        res.status(500).json({ error: MESSAGES.DASHBOARD.CHATTERS_ERROR });
+        await trackRequest(
+            userId,
+            {
+                type: tool,
+                user: req.login || 'User',
+                incrementStat: tool
+            },
+            async () => ({ success: true })
+        );
+        res.json({ success: true });
+    } catch (e) {
+        logger.error('Error tracking tool usage:', e);
+        res.status(500).json({ error: 'Error tracking usage' });
     }
 };
 
 export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
-    const token = req.twitchToken;
     const login = req.query.login as string;
+    const userId = req.userId;
 
-    const apiUser = res.locals.apiUser;
-    const rateLimit = apiUser?.customRateLimit || RATE_LIMITS.DEFAULT;
+    return await trackRequest(
+        userId,
+        {
+            type: 'other',
+            user: login,
+            detail: 'User Info Inspect'
+        },
+        async () => {
+            const apiUser = res.locals.apiUser;
+            const rateLimit = apiUser?.customRateLimit || RATE_LIMITS.DEFAULT;
 
-    const cacheKey = `cache:cmd:getUserInfo:login:${login}`;
-    const cached = await cacheService.get(cacheKey);
-    if (cached && typeof cached === 'object') {
-        return res.json({ ...cached, rateLimit });
-    }
+            const cacheKey = `cache:cmd:getUserInfo:login:${login}`;
+            const cached = await cacheService.get(cacheKey);
+            if (cached && typeof cached === 'object') {
+                return res.json({ ...cached, rateLimit });
+            }
 
-    try {
-        const info = await apiService.getUserInfo(login, token || '');
-        const followers = await apiService.getFollowersCount(info.id, token || '');
+            try {
+                const info = await apiService.getUserInfo(login, req.twitchToken || '');
+                const followers = await apiService.getFollowersCount(
+                    info.id,
+                    req.twitchToken || ''
+                );
 
-        // Utilizamos un patrón ALLOWLIST para guardar y enviar SOLO datos 100% públicos
-        const safeInfo = {
-            id: info.id,
-            login: info.login,
-            display_name: info.display_name,
-            type: info.type,
-            broadcaster_type: info.broadcaster_type,
-            description: info.description,
-            profile_image_url: info.profile_image_url,
-            offline_image_url: info.offline_image_url,
-            created_at: info.created_at,
-            view_count: info.view_count
-        };
+                const result = {
+                    id: info.id,
+                    login: info.login,
+                    display_name: info.display_name,
+                    broadcaster_type: info.broadcaster_type,
+                    description: info.description,
+                    profile_image_url: info.profile_image_url,
+                    created_at: info.created_at,
+                    view_count: info.view_count,
+                    followers,
+                    views: info.view_count
+                };
 
-        const result = {
-            ...safeInfo,
-            followers,
-            views: safeInfo.view_count
-        };
-
-        await cacheService.set(cacheKey, result, 3600);
-        res.json({ ...result, rateLimit });
-    } catch (_error: unknown) {
-        res.status(500).json({ error: MESSAGES.DASHBOARD.USER_INFO_ERROR });
-    }
+                await cacheService.set(cacheKey, result, 3600);
+                res.json({ ...result, rateLimit });
+            } catch (_error: unknown) {
+                res.status(500).json({ error: MESSAGES.DASHBOARD.USER_INFO_ERROR });
+            }
+        }
+    );
 };
+
 export const clearUserData = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
     if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
@@ -218,5 +269,65 @@ export const deleteAccount = async (req: AuthenticatedRequest, res: Response) =>
     } catch (e) {
         logger.error('Error deleting account:', e);
         res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });
+    }
+};
+
+export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
+    const token = req.twitchToken;
+    const login = req.query.login as string;
+    const userId = req.userId;
+
+    try {
+        const [info, stats] = await Promise.all([
+            apiService.getUserInfo(login, token || ''),
+            userId ? dbService.getUserStats(userId) : Promise.resolve(null)
+        ]);
+
+        const followers = await apiService.getFollowersCount(info.id, token || '');
+
+        const safeInfo = {
+            id: info.id,
+            login: info.login,
+            display_name: info.display_name,
+            broadcaster_type: info.broadcaster_type,
+            description: info.description,
+            profile_image_url: info.profile_image_url,
+            created_at: info.created_at
+        };
+
+        const today = new Date().toISOString().split('T')[0];
+        const analytics = stats
+            ? {
+                  ...stats,
+                  todayRequests: parseInt(String(stats[`d:${today}`] || '0')),
+                  totalRequests: stats.total_requests || 0,
+                  avgLatencyMs:
+                      stats.total_requests > 0
+                          ? Math.round(stats.total_latency / stats.total_requests)
+                          : 0,
+                  successRate:
+                      stats.total_requests > 0
+                          ? parseFloat(
+                                (
+                                    (1 - (stats.total_errors || 0) / stats.total_requests) *
+                                    100
+                                ).toFixed(1)
+                            )
+                          : 100
+              }
+            : null;
+
+        res.json({
+            profile: {
+                ...safeInfo,
+                followers,
+                rateLimit: res.locals.apiUser?.customRateLimit || RATE_LIMITS.DEFAULT
+            },
+            analytics
+        });
+    } catch (error) {
+        if (error instanceof TwitchApiError) throw error;
+        logger.error('Error in getSummary:', error);
+        throw new AppError(MESSAGES.DASHBOARD.USER_INFO_ERROR, 500);
     }
 };

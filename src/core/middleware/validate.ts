@@ -1,30 +1,56 @@
 import { Request, Response, NextFunction } from 'express';
-import { ZodSchema, ZodError } from 'zod';
+import { ZodSchema } from 'zod';
+import { logger } from '../utils/logger';
 
 export const validate =
     (schema: ZodSchema) => async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const parsed = (await schema.parseAsync({
-                body: req.body,
-                query: req.query,
-                params: req.params
-            })) as { body: unknown; query: unknown; params: unknown };
+        const result = await schema.safeParseAsync({
+            body: req.body,
+            query: req.query,
+            params: req.params
+        });
 
-            req.body = parsed.body || req.body;
-            req.query = (parsed.query as unknown as typeof req.query) || req.query;
-            req.params = (parsed.params as unknown as typeof req.params) || req.params;
+        if (result.success) {
+            const data = result.data as Record<string, unknown>;
+
+            // En Express 5, algunas propiedades como req.query pueden ser de solo lectura mediante asignación directa
+            if (data.body) req.body = data.body;
+
+            // Para query y params, intentamos actualizar las propiedades individuales para evitar el error de "only a getter"
+            if (data.query) {
+                try {
+                    // Si req.query es un objeto mutable, lo actualizamos
+                    Object.assign(req.query, data.query);
+                } catch (_e) {
+                    // Fallback para Express 5 si la propiedad es estrictamente de solo lectura
+                    res.locals.query = data.query;
+                }
+            }
+
+            if (data.params) {
+                try {
+                    Object.assign(req.params, data.params);
+                } catch (_e) {
+                    res.locals.params = data.params;
+                }
+            }
 
             return next();
-        } catch (error) {
-            if (error instanceof ZodError) {
-                return res.status(400).json({
-                    error: 'Error de validación',
-                    details: error.issues.map((e) => ({
-                        path: e.path.join('.'),
-                        message: e.message
-                    }))
-                });
-            }
-            return res.status(400).json({ error: 'Entrada inválida' });
         }
+
+        // Si la validación falla
+        const errorDetails = result.error.issues.map((e) => ({
+            path: e.path.join('.'),
+            message: e.message
+        }));
+
+        logger.error('❌ [Validation Error]:', {
+            path: req.originalUrl,
+            issues: errorDetails
+        });
+
+        return res.status(400).json({
+            error: 'Error de validación',
+            details: errorDetails
+        });
     };
