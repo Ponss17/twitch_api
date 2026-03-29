@@ -50,7 +50,7 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
         });
     } catch (e) {
         logger.error('Error analytics:', e);
-        throw new AppError(MESSAGES.DASHBOARD.ANALYTICS_ERROR, 500);
+        res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });
     }
 };
 

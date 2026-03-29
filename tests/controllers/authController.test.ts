@@ -6,7 +6,8 @@ jest.mock('../../src/features/auth/auth.service', () => ({
 }));
 
 jest.mock('../../src/core/database/dbService', () => ({
-    isAdmin: jest.fn()
+    isAdmin: jest.fn(),
+    recordUserRequest: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('@/core/utils/logger', () => ({

@@ -19,6 +19,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
         {
             type: 'clip',
             user: req.displayName || 'Streamer',
+            detail: customTitle ? `${channel} (${customTitle})` : channel,
             incrementStat: 'clips'
         },
         async () => {

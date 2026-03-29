@@ -2,7 +2,8 @@ import { Response } from 'express';
 
 jest.mock('../../src/core/database/dbService', () => ({
     getUserStats: jest.fn(),
-    getUserActivity: jest.fn()
+    getUserActivity: jest.fn(),
+    recordUserRequest: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('@vercel/kv');

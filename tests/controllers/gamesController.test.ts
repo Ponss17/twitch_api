@@ -1,6 +1,7 @@
 import { Response } from 'express';
 
 jest.mock('../../src/core/database/dbService', () => ({
+    recordUserRequest: jest.fn().mockResolvedValue(undefined),
     addUserActivity: jest.fn().mockResolvedValue(undefined),
     incrementUserStats: jest.fn().mockResolvedValue(undefined)
 }));
