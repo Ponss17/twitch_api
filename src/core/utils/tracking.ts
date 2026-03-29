@@ -34,7 +34,7 @@ export const trackRequest = async <T>(
                     await dbService.incrementUserStats(userId, options.incrementStat);
                 }
 
-                // 3. Registrar actividad en el log log
+                // 3. Registrar actividad en el log
                 await dbService.addUserActivity(userId, {
                     type: options.type,
                     user: options.user || 'Anónimo',
