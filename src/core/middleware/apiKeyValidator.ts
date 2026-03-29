@@ -46,14 +46,13 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
 
     // 1. Sanitizar y Validar Formato (UUID con o sin guiones)
     if (apiKey) {
+        apiKey = apiKey.trim().toLowerCase();
+
         // Acepta 32 caracteres hexadecimales (con o sin guiones opcionales)
         const apiKeyRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i;
         if (!apiKeyRegex.test(apiKey)) {
             logger.warn(`[Security] API Key con formato inválido detectada desde IP: ${req.ip}`);
             apiKey = '';
-        } else if (apiKey.length === 32) {
-            // Normalizar a formato UUID estándar con guiones (8-4-4-4-12)
-            apiKey = `${apiKey.slice(0, 8)}-${apiKey.slice(8, 12)}-${apiKey.slice(12, 16)}-${apiKey.slice(16, 20)}-${apiKey.slice(20)}`;
         }
     }
 
@@ -75,7 +74,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
     }
 
     try {
-        if (validKeysCache.has(apiKey)) {
+        if (apiKey && validKeysCache.has(apiKey)) {
             const cached = validKeysCache.get(apiKey)!;
             if (cached.expiry > now) {
                 res.locals.apiUser = cached.user;
