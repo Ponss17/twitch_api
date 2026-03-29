@@ -44,14 +44,16 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
 
     const now = Date.now();
 
-    // 1. Sanitizar y Validar Formato Estricto (UUID)
-    // Las API Keys generadas por nosotros siempre son UUID v4.
+    // 1. Sanitizar y Validar Formato (UUID con o sin guiones)
     if (apiKey) {
-        const uuidRegex =
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-        if (!uuidRegex.test(apiKey)) {
+        // Acepta 32 caracteres hexadecimales (con o sin guiones opcionales)
+        const apiKeyRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i;
+        if (!apiKeyRegex.test(apiKey)) {
             logger.warn(`[Security] API Key con formato inválido detectada desde IP: ${req.ip}`);
             apiKey = '';
+        } else if (apiKey.length === 32) {
+            // Normalizar a formato UUID estándar con guiones (8-4-4-4-12)
+            apiKey = `${apiKey.slice(0, 8)}-${apiKey.slice(8, 12)}-${apiKey.slice(12, 16)}-${apiKey.slice(16, 20)}-${apiKey.slice(20)}`;
         }
     }
 
