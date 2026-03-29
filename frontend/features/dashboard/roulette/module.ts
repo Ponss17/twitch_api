@@ -37,6 +37,7 @@ interface IRouletteModule extends DashboardModule {
     showWinner(winner: RouletteUser): void;
     drawRouletteWheel(): void;
     drawEmptyWheel(): void;
+    _sendWinnerViaApi(message: string): void;
 }
 
 export const RouletteModule: IRouletteModule = {
@@ -318,13 +319,42 @@ export const RouletteModule: IRouletteModule = {
 
             UI.showToast(RouletteMessages.winner(safeName, count), 'success', 'fa-trophy');
 
-            if (this.session && this.session.login && this.session.token) {
-                TmiService.sendMessage(
-                    this.session.login,
-                    `🏆 ¡El ganador es @${winner.user_name}! (De ${count} participantes) ¡Felicidades! 🎉`
-                );
+            if (!this.session || !this.session.login) return;
+
+            const winMsg = `🏆 ¡El ganador es @${winner.user_name}! (De ${count} participantes) ¡Felicidades! 🎉`;
+
+            if (TmiService.isConnected && TmiService.client) {
+                TmiService.client.say(this.session.login, winMsg).catch(() => {
+                    this._sendWinnerViaApi(winMsg);
+                });
+            } else {
+                this._sendWinnerViaApi(winMsg);
             }
         }
+    },
+
+    _sendWinnerViaApi(message: string) {
+        if (!this.session) return;
+        const { apiKey, token } = this.session;
+        const authParam = apiKey
+            ? `apiKey=${encodeURIComponent(apiKey)}`
+            : token
+              ? `token=${encodeURIComponent(token)}`
+              : '';
+        if (!authParam) {
+            UI.showToast('No se pudo enviar al chat: sin sesión activa', 'warning');
+            return;
+        }
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        fetch(`${API_ENDPOINTS.SEND_MESSAGE}?${authParam}`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ message })
+        }).catch(() => {
+            UI.showToast('No se pudo enviar el resultado al chat', 'warning');
+        });
     },
 
     drawRouletteWheel() {

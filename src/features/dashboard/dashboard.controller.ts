@@ -117,7 +117,8 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
         {
             type: 'other',
             user: channel,
-            detail: 'Dashboard Clips'
+            detail: 'Dashboard Clips',
+            skipActivityLog: true
         },
         async () => {
             const cacheKey = `cache:cmd:getClips:channel:${channel}:limit:${limitNum}`;
@@ -205,7 +206,8 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
         {
             type: 'other',
             user: login,
-            detail: 'User Info Inspect'
+            detail: 'User Info Inspect',
+            skipActivityLog: true
         },
         async () => {
             const apiUser = res.locals.apiUser;

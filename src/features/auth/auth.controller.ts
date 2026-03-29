@@ -82,17 +82,6 @@ export const callback = async (req: Request, res: Response) => {
             redirectUrl = `${redirectOrigin}${params}`;
         }
 
-        // Registrar actividad de inicio de sesión de forma asíncrona pero esperada
-        try {
-            await dbService.addUserActivity(user.id, {
-                type: 'other',
-                user: user.display_name,
-                detail: 'Sesión iniciada'
-            });
-        } catch (e) {
-            logger.error('Error logging login activity:', e);
-        }
-
         res.redirect(redirectUrl);
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : MESSAGES.AUTH.UNKNOWN_ERROR;
