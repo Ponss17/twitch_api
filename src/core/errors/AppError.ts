@@ -23,21 +23,3 @@ export class TwitchApiError extends AppError {
         super(message, statusCode);
     }
 }
-
-/**
- * Errores de validación de esquemas (Zod).
- */
-export class ValidationError extends AppError {
-    constructor(message: string) {
-        super(message, 400);
-    }
-}
-
-/**
- * Errores de base de datos / persistencia.
- */
-export class DatabaseError extends AppError {
-    constructor(message: string, statusCode: number = 500) {
-        super(message, statusCode);
-    }
-}

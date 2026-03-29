@@ -115,7 +115,26 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
 };
 
 export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null> => {
-    const { data, error } = await supabase.from('users').select('*').eq('api_key', apiKey).single();
+    let { data, error } = await supabase.from('users').select('*').eq('api_key', apiKey).single();
+
+    // Si no se encontró, intentar con el formato alternativo (con/sin guiones)
+    if ((error || !data) && apiKey.replace(/-/g, '').length === 32) {
+        const cleanKey = apiKey.replace(/-/g, '');
+        const altKey = apiKey.includes('-')
+            ? cleanKey
+            : `${cleanKey.slice(0, 8)}-${cleanKey.slice(8, 12)}-${cleanKey.slice(12, 16)}-${cleanKey.slice(16, 20)}-${cleanKey.slice(20)}`;
+
+        const { data: altData, error: altError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('api_key', altKey)
+            .single();
+
+        if (!altError && altData) {
+            data = altData;
+            error = null;
+        }
+    }
 
     if (error || !data) return null;
 
