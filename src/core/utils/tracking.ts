@@ -13,6 +13,7 @@ export const trackRequest = async <T>(
         user?: string;
         detail?: string;
         incrementStat?: string;
+        skipActivityLog?: boolean;
     },
     action: () => Promise<T>
 ): Promise<T> => {
@@ -34,12 +35,14 @@ export const trackRequest = async <T>(
                     await dbService.incrementUserStats(userId, options.incrementStat);
                 }
 
-                // 3. Registrar actividad en el log
-                await dbService.addUserActivity(userId, {
-                    type: options.type,
-                    user: options.user || 'Anónimo',
-                    detail: options.detail
-                });
+                // 3. Registrar actividad en el log (solo si no está marcado como interno)
+                if (!options.skipActivityLog) {
+                    await dbService.addUserActivity(userId, {
+                        type: options.type,
+                        user: options.user || 'Anónimo',
+                        detail: options.detail
+                    });
+                }
             } catch (metricsError) {
                 logger.error('Error guardando métricas/actividad:', metricsError);
             }
