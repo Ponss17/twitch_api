@@ -81,7 +81,7 @@ describe('commandsController', () => {
                 expect.objectContaining({
                     type: 'clip',
                     user: 'TestUser',
-                    detail: 'testchannel (Stream Original)'
+                    detail: 'testchannel'
                 })
             );
         });
@@ -132,7 +132,7 @@ describe('commandsController', () => {
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
                 expect.objectContaining({
-                    detail: 'testchannel (Valorant con amigos)'
+                    detail: 'testchannel'
                 })
             );
         });

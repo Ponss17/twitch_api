@@ -17,5 +17,7 @@ module.exports = {
     },
     setupFiles: ['<rootDir>/tests/setup.ts'],
     modulePathIgnorePatterns: ['<rootDir>/dist/'],
-    verbose: true
+    verbose: true,
+    forceExit: true,
+    detectOpenHandles: true
 };

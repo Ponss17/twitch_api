@@ -4,7 +4,9 @@ jest.mock('../../src/core/database/dbService', () => ({
     getUser: jest.fn(),
     saveUser: jest.fn(),
     getUserByApiKey: jest.fn(),
-    addAuditLog: jest.fn().mockResolvedValue(undefined)
+    getUserByLogin: jest.fn(),
+    addAuditLog: jest.fn().mockResolvedValue(undefined),
+    recordUserRequest: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('../../src/features/auth/auth.service', () => ({
@@ -66,6 +68,10 @@ describe('systemController', () => {
             const res = mockRes();
 
             (apiService.validateToken as jest.Mock).mockResolvedValue({ login: 'testuser' });
+            (dbService.getUserByLogin as jest.Mock).mockResolvedValue({
+                userId: '123',
+                apiKey: 'key-123'
+            });
             (apiService.getUserInfo as jest.Mock).mockResolvedValue({
                 id: '123',
                 login: 'testuser',
@@ -173,8 +179,8 @@ describe('systemController', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     status: expect.any(String),
-                    checks: expect.objectContaining({
-                        redis: expect.objectContaining({ status: expect.any(String) }),
+                    services: expect.objectContaining({
+                        cache: expect.objectContaining({ status: expect.any(String) }),
                         twitch: expect.objectContaining({ status: expect.any(String) })
                     }),
                     uptime: expect.any(String)
