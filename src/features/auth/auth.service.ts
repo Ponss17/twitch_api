@@ -2,6 +2,7 @@ import axios from 'axios';
 import { CONFIG } from '../../core/config/env';
 import { TwitchUser, StoredUser } from '../../types/twitch';
 import * as dbService from '../../core/database/dbService';
+import * as cacheService from '../../core/database/cacheService';
 import crypto from 'crypto';
 import { logger } from '../../core/utils/logger';
 
@@ -216,13 +217,17 @@ export const regenerateApiKey = async (userId: string): Promise<string> => {
     const user = await dbService.getUser(userId);
     if (!user) throw new Error('Usuario no encontrado');
 
+    const oldApiKey = user.apiKey;
     const newApiKey = crypto.randomUUID();
     user.apiKey = newApiKey;
 
     await dbService.saveUser(user);
 
-    // Invalidar caché para que la clave vieja deje de funcionar inmediatamente
+    // Invalidar caché en memoria y en KV para que la clave vieja deje de funcionar de inmediato
     _invalidateCacheFn?.(userId);
+    if (oldApiKey) {
+        cacheService.invalidateApiKeyCache(oldApiKey).catch(() => {});
+    }
 
     return newApiKey;
 };

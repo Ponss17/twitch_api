@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as dbService from '../database/dbService';
+import * as cacheService from '../database/cacheService';
 import { getValidToken } from '../../features/auth/auth.service';
 import { logger } from '../utils/logger';
 import { isPublicRoute } from '../utils/routeHelpers';
@@ -22,20 +23,25 @@ const MAX_CACHE_SIZE = 1000;
  * Llamar esto cuando el admin cambia el rate limit u otros datos del usuario.
  */
 export const invalidateUserCache = (userId: string): void => {
-    let invalidatedKeys = 0;
+    const keysToInvalidate: string[] = [];
+
     for (const [key, cached] of validKeysCache.entries()) {
         if (cached.user?.userId === userId) {
             validKeysCache.delete(key);
-            invalidatedKeys++;
+            keysToInvalidate.push(key);
         }
     }
 
-    // Invalidar también la caché de sesión (Dashboard)
-    invalidateAuthCache(userId);
-
-    if (invalidatedKeys > 0) {
-        logger.info(`[Cache] Invalidated ${invalidatedKeys} API Key entries for userId: ${userId}`);
+    if (keysToInvalidate.length > 0) {
+        for (const apiKey of keysToInvalidate) {
+            cacheService.invalidateApiKeyCache(apiKey).catch(() => {});
+        }
+        logger.info(
+            `[Cache] Invalidated ${keysToInvalidate.length} API Key entries for userId: ${userId}`
+        );
     }
+
+    invalidateAuthCache(userId);
 };
 
 export const apiKeyValidator = async (req: Request, res: Response, next: NextFunction) => {
@@ -83,12 +89,23 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             validKeysCache.delete(apiKey);
         }
 
+        // 3. Caché KV (cross-invocation en Vercel): hit = 0 consultas a Supabase
+        const kvCachedUser = await cacheService.getCachedApiUser(apiKey);
+        if (kvCachedUser) {
+            if (!kvCachedUser.isActive) {
+                return res.status(403).json({ error: 'Cuenta suspendida.' });
+            }
+            res.locals.apiUser = kvCachedUser;
+            res.locals.isApiKeyRequest = true;
+            validKeysCache.set(apiKey, { user: kvCachedUser, expiry: now + CACHE_TTL_MS });
+            return next();
+        }
+
         const authData = await getValidToken(apiKey);
         const user = await dbService.getUser(authData.userId);
 
         if (user && user.isActive) {
             if (validKeysCache.size >= MAX_CACHE_SIZE) {
-                // LRU-style eviction: remove oldest 25% of entries
                 const entriesToRemove = Math.floor(MAX_CACHE_SIZE * 0.25);
                 const iterator = validKeysCache.keys();
                 for (let i = 0; i < entriesToRemove; i++) {
@@ -97,10 +114,8 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
                 }
             }
 
-            validKeysCache.set(apiKey, {
-                user,
-                expiry: now + CACHE_TTL_MS
-            });
+            validKeysCache.set(apiKey, { user, expiry: now + CACHE_TTL_MS });
+            cacheService.setCachedApiUser(apiKey, user).catch(() => {});
             res.locals.apiUser = user;
             res.locals.isApiKeyRequest = true;
         } else if (user && !user.isActive) {
