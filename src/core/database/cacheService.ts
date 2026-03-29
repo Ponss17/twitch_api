@@ -1,4 +1,5 @@
 import { kv } from '@vercel/kv';
+import { StoredUser } from '../../types/twitch';
 
 type CacheEntry<T> = { value: T; expiry: number };
 
@@ -48,4 +49,20 @@ export const getCachedUserId = async (username: string): Promise<string | null> 
 
 export const setCachedUserId = async (username: string, id: string): Promise<void> => {
     await set(`cache:userId:${username.toLowerCase()}`, id, 24 * 60 * 60);
+};
+
+const API_USER_CACHE_TTL_S = 60;
+
+export const getCachedApiUser = async (apiKey: string): Promise<StoredUser | null> => {
+    const key = `cache:apiuser:${apiKey}`;
+    return get<StoredUser>(key);
+};
+
+export const setCachedApiUser = async (apiKey: string, user: StoredUser): Promise<void> => {
+    await set(`cache:apiuser:${apiKey}`, user, API_USER_CACHE_TTL_S);
+};
+
+export const invalidateApiKeyCache = async (apiKey: string): Promise<void> => {
+    MEMORY_CACHE.delete(`cache:apiuser:${apiKey}`);
+    await kv.del(`cache:apiuser:${apiKey}`);
 };
