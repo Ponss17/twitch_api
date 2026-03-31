@@ -10,8 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Health Check
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          # Sustituye con tu URL real si es diferente
-          curl -f -X GET "https://www.losperris.dev/api/health-cron" \
-          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-          --fail-with-body
+          curl -fv "https://www.losperris.dev/api/health-cron" -H "Authorization: Bearer $CRON_SECRET" --fail-with-body
