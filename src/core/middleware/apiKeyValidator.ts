@@ -75,8 +75,13 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
     // Esto previene que una clasificación fallida de isPublicRoute bloquee la autenticación.
     const isSystemRoute = isPublicRoute(cleanPath);
 
-    if (isSystemRoute && !apiKey) {
+    // Si la ruta es pública (ej. el cron), saltamos el validador por completo
+    if (isSystemRoute) {
         return next();
+    }
+
+    if (!apiKey) {
+        // ... (el flujo continuará con otros middlewares de autenticación o fallará al final de este)
     }
 
     try {
