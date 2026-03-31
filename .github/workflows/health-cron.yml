@@ -13,4 +13,4 @@ jobs:
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          curl -fv "https://www.losperris.dev/api/health-cron" -H "Authorization: Bearer $CRON_SECRET" --fail-with-body
+          curl -v "https://www.losperris.dev/api/health-cron" -H "Authorization: Bearer $CRON_SECRET" --fail-with-body
