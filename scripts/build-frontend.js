@@ -85,6 +85,18 @@ async function build() {
         }
 
         console.log('✅ Build completado exitosamente en public/js/');
+
+        const swPath = path.join(__dirname, '../public/sw.js');
+        if (fs.existsSync(swPath)) {
+            const buildHash = Date.now().toString(36);
+            const swContent = fs.readFileSync(swPath, 'utf8');
+            const swUpdated = swContent.replace(
+                '__CACHE_VERSION__',
+                `losperris-twitch-${buildHash}`
+            );
+            fs.writeFileSync(swPath, swUpdated, 'utf8');
+            console.log(`🔖 Service Worker versionado: losperris-twitch-${buildHash}`);
+        }
     } catch (e) {
         console.error('❌ Error en el build:', e);
         process.exit(1);

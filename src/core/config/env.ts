@@ -23,7 +23,8 @@ const envSchema = z.object({
     ADMIN_PASSWORD: z.string().optional(),
     SUPABASE_URL: z.string().url().min(1, 'SUPABASE_URL es obligatorio'),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'SUPABASE_SERVICE_ROLE_KEY es obligatorio'),
-    SUPABASE_ANON_KEY: z.string().min(1, 'SUPABASE_ANON_KEY es obligatorio')
+    SUPABASE_ANON_KEY: z.string().min(1, 'SUPABASE_ANON_KEY es obligatorio'),
+    DISCORD_HEALTH_WEBHOOK_URL: z.string().url().optional()
 });
 
 const isTest = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined;
@@ -47,7 +48,8 @@ const envVars = {
     SUPABASE_ANON_KEY:
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
         process.env.SUPABASE_ANON_KEY ||
-        (isTest ? 'test_anon' : undefined)
+        (isTest ? 'test_anon' : undefined),
+    DISCORD_HEALTH_WEBHOOK_URL: process.env.DISCORD_HEALTH_WEBHOOK_URL
 };
 
 const isProd = process.env.NODE_ENV === 'production';

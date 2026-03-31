@@ -1,73 +1,64 @@
-import { Response, Request } from 'express';
-import rateLimit from 'express-rate-limit';
-import { RATE_LIMITS } from '../../src/core/config/limits';
+const mockKv = {
+    incr: jest.fn(),
+    expire: jest.fn()
+};
 
-describe('Rate Limiter Middleware', () => {
-    it('should implement a rate limit function', () => {
-        const limiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 100 });
-        expect(typeof limiter).toBe('function');
-    });
-});
+jest.mock('@vercel/kv', () => ({
+    kv: mockKv
+}));
 
-describe('heavyLimiter — lógica de max()', () => {
-    const buildRes = (isApiKeyRequest: boolean) =>
-        ({ locals: { isApiKeyRequest } }) as unknown as Response;
+jest.mock('@/core/utils/logger', () => ({
+    logger: { warn: jest.fn(), error: jest.fn() }
+}));
 
-    const buildReq = (apiKey?: string, userId?: string) =>
-        ({
-            query: apiKey ? { apiKey } : {},
-            userId
-        }) as unknown as Request;
+jest.mock('@/core/utils/routeHelpers', () => ({
+    isPublicRoute: jest.fn().mockReturnValue(false)
+}));
 
-    const extractMax = (config: { max: ((req: Request, res: Response) => number) | number }) => {
-        if (typeof config.max === 'function') return config.max;
-        return () => config.max as number;
-    };
+import { globalRateLimiter } from '../../src/core/middleware/redisRateLimiter';
 
-    it('debería devolver HEAVY (10) cuando es una petición con API Key externa', () => {
-        const maxFn = extractMax({
-            max: (req: Request, res: Response) => {
-                const isApiKeyRequest = res.locals?.isApiKeyRequest;
-                if (isApiKeyRequest) return RATE_LIMITS.HEAVY;
-                return RATE_LIMITS.DASHBOARD;
-            }
-        });
-        const result = maxFn(buildReq('test-key'), buildRes(true));
-        expect(result).toBe(RATE_LIMITS.HEAVY);
-        expect(result).toBe(10);
-    });
+describe('globalRateLimiter', () => {
+    let req: any;
+    let res: any;
+    let next: jest.Mock;
 
-    it('debería devolver DASHBOARD (1000) cuando es una sesión del dashboard', () => {
-        const maxFn = extractMax({
-            max: (req: Request, res: Response) => {
-                const isApiKeyRequest = res.locals?.isApiKeyRequest;
-                if (isApiKeyRequest) return RATE_LIMITS.HEAVY;
-                return RATE_LIMITS.DASHBOARD;
-            }
-        });
-        const result = maxFn(buildReq(undefined, 'sess_user_123'), buildRes(false));
-        expect(result).toBe(RATE_LIMITS.DASHBOARD);
-        expect(result).toBe(1000);
-    });
-
-    it('debería producir claves distintas para API Key vs sesión', () => {
-        const keyGenerator = (req: Request, res: Response): string => {
-            const apiUser = res.locals?.apiUser;
-            if (apiUser) return `heavy:${(req.query.apiKey as string) || apiUser.userId}`;
-            const userId = (req as unknown as { userId: string }).userId;
-            return `heavy:sess:${userId || 'anon'}`;
+    beforeEach(() => {
+        jest.clearAllMocks();
+        req = { originalUrl: '/api/test', ip: '1.2.3.4' };
+        res = {
+            locals: {},
+            setHeader: jest.fn(),
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+            json: jest.fn()
         };
+        next = jest.fn();
+    });
 
-        const apiKeyReq = buildReq('mi-api-key');
-        const apiKeyRes = { locals: { apiUser: { userId: '123' } } } as unknown as Response;
-        const sessReq = buildReq(undefined, 'user456');
-        const sessRes = { locals: {} } as unknown as Response;
+    it('permite la petición si está bajo el límite', async () => {
+        mockKv.incr.mockResolvedValue(5); // 5 de 1000
+        await globalRateLimiter(req, res, next);
+        expect(next).toHaveBeenCalled();
+        expect(res.setHeader).toHaveBeenCalledWith('X-RateLimit-Remaining', expect.any(Number));
+    });
 
-        const apiKey = keyGenerator(apiKeyReq, apiKeyRes);
-        const session = keyGenerator(sessReq, sessRes);
+    it('bloquea con 429 si supera el límite', async () => {
+        mockKv.incr.mockResolvedValue(2000); // Supera los 1000 del dashboard
+        req.userId = 'user1';
 
-        expect(apiKey).toMatch(/^heavy:mi-api-key/);
-        expect(session).toMatch(/^heavy:sess:user456/);
-        expect(apiKey).not.toBe(session);
+        await globalRateLimiter(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(429);
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('usa el límite de API Key si está presente', async () => {
+        res.locals.isApiKeyRequest = true;
+        res.locals.apiUser = { userId: 'api-user', customRateLimit: 50 };
+        mockKv.incr.mockResolvedValue(51);
+
+        await globalRateLimiter(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(429);
     });
 });

@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { StoredUser } from '../../types/twitch';
 import { encrypt, decrypt, ENCRYPTION_KEY, LEGACY_ENCRYPTION_KEY } from './cryptoService';
 import { logger } from '../utils/logger';
+import * as cacheService from './cacheService';
 
 // Convierte un StoredUser del sistema al formato de columnas de Supabase
 function toRow(user: StoredUser): Record<string, unknown> {
@@ -110,8 +111,17 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
 };
 
 export const getUserByLogin = async (login: string): Promise<StoredUser | null> => {
+    const cacheKey = `cache:user:login:${login.toLowerCase()}`;
+
+    const cached = await cacheService.get<StoredUser>(cacheKey);
+    if (cached) return cached;
+
     const { data } = await supabase.from('users').select('*').eq('login', login).single();
-    return data ? fromRow(data as Record<string, unknown>) : null;
+    if (!data) return null;
+
+    const user = fromRow(data as Record<string, unknown>);
+    await cacheService.set(cacheKey, user, 5 * 60);
+    return user;
 };
 
 export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null> => {

@@ -16,7 +16,7 @@ interface ITrendsModule extends DashboardModule {
     MAX_LOG_SIZE: number;
     isTracking: boolean;
     isConnected: boolean;
-    timerInterval: any;
+    timerInterval: ReturnType<typeof setInterval> | null;
     cssLoaded: boolean;
     renderPending: boolean;
     uiInitialized: boolean;
@@ -107,7 +107,7 @@ export const TrendsModule: ITrendsModule = {
     MAX_LOG_SIZE: 500,
     isTracking: false,
     isConnected: false,
-    timerInterval: null as any,
+    timerInterval: null as ReturnType<typeof setInterval> | null,
     session: null,
     initialized: false,
 

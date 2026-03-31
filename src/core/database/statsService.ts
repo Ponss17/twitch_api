@@ -147,42 +147,45 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
     }
 };
 
+/*
+ * IMPORTANTE: Antes de usar esta función, ejecuta el siguiente SQL en Supabase:
+ *
+ * CREATE OR REPLACE FUNCTION record_user_request(
+ *   p_user_id TEXT,
+ *   p_latency INT,
+ *   p_success BOOLEAN
+ * ) RETURNS VOID AS $$
+ * BEGIN
+ *   UPDATE user_stats SET
+ *     total_requests = total_requests + 1,
+ *     total_latency  = total_latency + p_latency,
+ *     total_errors   = total_errors + CASE WHEN NOT p_success THEN 1 ELSE 0 END,
+ *     last_updated   = NOW()
+ *   WHERE user_id = p_user_id;
+ * END;
+ * $$ LANGUAGE plpgsql;
+ */
 export const recordUserRequest = async (
     userId: string,
     latency: number,
     success: boolean
 ): Promise<void> => {
     try {
-        // Obtenemos valores actuales (podríamos optimizar esto con un RPC si fuera posible)
-        // Pero al menos saltamos el ensureStatsRow si ya sabemos que existe.
         if (!EXISTS_CACHE.has(userId)) {
             await ensureStatsRow(userId);
         }
 
-        const { data: current } = await supabase
-            .from('user_stats')
-            .select('total_requests, total_errors, total_latency')
-            .eq('user_id', userId)
-            .single();
+        const { error } = await supabase.rpc('record_user_request', {
+            p_user_id: userId,
+            p_latency: Math.round(latency),
+            p_success: success
+        });
 
-        if (!current) {
-            // Caso borde: si el select falla aunque pensáramos que existía
+        if (error) {
             EXISTS_CACHE.delete(userId);
+            logger.error('Error en RPC record_user_request:', error.message);
             return;
         }
-
-        const row = current as Record<string, number>;
-        const updates: Record<string, number | string> = {
-            total_requests: (row.total_requests ?? 0) + 1,
-            total_latency: (row.total_latency ?? 0) + latency,
-            last_updated: new Date().toISOString()
-        };
-
-        if (!success) {
-            updates.total_errors = (row.total_errors ?? 0) + 1;
-        }
-
-        await supabase.from('user_stats').update(updates).eq('user_id', userId);
 
         STATS_CACHE.delete(userId);
     } catch (e) {
