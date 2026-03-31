@@ -3,9 +3,6 @@
     "functions": {
         "api/index.ts": {
             "maxDuration": 10
-        },
-        "api/health-cron.ts": {
-            "maxDuration": 10
         }
     },
     "headers": [
@@ -56,7 +53,7 @@
     "rewrites": [
         { "source": "/api/twitch/_vercel/(.*)", "destination": "/api/twitch/_vercel/$1" },
         {
-            "source": "/((?!api/twitch/_vercel|api/health-cron|img|css|js|components|_vercel).*)",
+            "source": "/((?!api/twitch/_vercel|img|css|js|components|_vercel).*)",
             "destination": "/api/index.ts"
         }
     ]
