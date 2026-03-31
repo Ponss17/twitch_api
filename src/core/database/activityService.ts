@@ -41,7 +41,7 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
         if (error) {
             logger.error(`❌ Error Supabase guardando actividad {${entry.type}}:`, error.message);
         } else {
-            logger.info(`✅ Actividad registrada: ${entry.type} por ${userName}`);
+            logger.debug(`Actividad registrada: ${entry.type} por ${userName}`);
         }
     } catch (e) {
         logger.error('Error fatal al añadir actividad:', e);
@@ -63,12 +63,10 @@ export const getUserActivity = async (userId: string): Promise<StoredActivityLog
         }
 
         if (!data || data.length === 0) {
-            logger.info(`ℹ️ No se encontró historial de actividad para el usuario ${userId}`);
             return [];
         }
 
-        logger.info(`📊 Recuperados ${data.length} registros de actividad para ${userId}`);
-
+        logger.debug(`Actividad recuperada: ${data.length} registros para ${userId}`);
         return data.map((row) => ({
             timestamp: row.created_at as string,
             type: row.activity_type as string,

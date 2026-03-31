@@ -8,6 +8,11 @@ jest.mock('../../src/core/database/dbService', () => ({
     getUser: jest.fn(),
     addSystemLog: jest.fn().mockResolvedValue(undefined)
 }));
+jest.mock('../../src/core/database/cacheService', () => ({
+    getCachedApiUser: jest.fn().mockResolvedValue(null),
+    setCachedApiUser: jest.fn().mockResolvedValue(undefined),
+    invalidateApiKeyCache: jest.fn().mockResolvedValue(undefined)
+}));
 jest.mock('../../src/features/auth/auth.service');
 
 describe('API Key Validator Middleware', () => {

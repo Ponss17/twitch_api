@@ -12,7 +12,7 @@ import { BaseModule } from '../../../shared/utils/baseModule.js';
 interface IStalkerModule extends DashboardModule {
     isScanning: boolean;
     chatters: StalkerUser[];
-    searchTimeout: any;
+    searchTimeout: ReturnType<typeof setTimeout> | null;
     isConnected: boolean;
     cssLoaded: boolean;
     uiInitialized: boolean;
@@ -31,7 +31,7 @@ export const StalkerModule: IStalkerModule = {
     session: null,
     isScanning: false,
     chatters: [] as StalkerUser[],
-    searchTimeout: null as any,
+    searchTimeout: null as ReturnType<typeof setTimeout> | null,
     isConnected: false,
     initialized: false,
     cssLoaded: false,

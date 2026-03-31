@@ -1,6 +1,6 @@
 -- ========================================================
 -- BACKUP COMPLETO DE BASE DE DATOS - LosPerris API
--- Fecha: 2026-03-26
+-- Fecha: 2026-03-31
 -- Descripción: Esquema completo, Funciones, Índices y Seguridad
 -- ========================================================
 
@@ -80,6 +80,20 @@ CREATE OR REPLACE FUNCTION public.increment_user_stat(p_user_id TEXT, p_column T
 RETURNS void AS $$
 BEGIN
     EXECUTE format('UPDATE user_stats SET %I = %I + 1, last_updated = now() WHERE user_id = %L', p_column, p_column, p_user_id);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- Registro atómico de peticiones (Métricas de Latencia y Errores)
+CREATE OR REPLACE FUNCTION public.record_user_request(
+  p_user_id TEXT, p_latency INT, p_success BOOLEAN
+) RETURNS void AS $$
+BEGIN
+  UPDATE user_stats SET
+    total_requests = total_requests + 1,
+    total_latency  = total_latency + p_latency,
+    total_errors   = total_errors + CASE WHEN NOT p_success THEN 1 ELSE 0 END,
+    last_updated   = now()
+  WHERE user_id = p_user_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 

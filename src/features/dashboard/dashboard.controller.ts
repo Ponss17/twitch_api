@@ -287,6 +287,9 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
 
         const followers = await apiService.getFollowersCount(info.id, token || '');
 
+        // NOTA: followers requiere info.id, por lo que no puede ir en el Promise.all anterior.
+        // Si getUserInfo se cacheara con el ID, podría paralelizarse con un segundo Promise.all.
+
         const safeInfo = {
             id: info.id,
             login: info.login,
