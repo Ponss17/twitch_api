@@ -45,22 +45,21 @@ export const invalidateUserCache = (userId: string): void => {
 };
 
 export const apiKeyValidator = async (req: Request, res: Response, next: NextFunction) => {
-    let apiKey = (req.query.apiKey as string) || (req.headers['x-api-key'] as string);
-    const cleanPath = req.originalUrl.split('?')[0];
+    // 1. Obtención y normalización de la API Key
+    const rawApiKey = ((req.query.apiKey as string) || (req.headers['x-api-key'] as string) || '')
+        .trim()
+        .toLowerCase();
 
-    const now = Date.now();
+    // Validar formato (UUID hexadecimal de 32 caracteres con/sin guiones)
+    const apiKeyRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i;
+    const apiKey = rawApiKey && apiKeyRegex.test(rawApiKey) ? rawApiKey : '';
 
-    // 1. Sanitizar y Validar Formato (UUID con o sin guiones)
-    if (apiKey) {
-        apiKey = apiKey.trim().toLowerCase();
-
-        // Acepta 32 caracteres hexadecimales (con o sin guiones opcionales)
-        const apiKeyRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i;
-        if (!apiKeyRegex.test(apiKey)) {
-            logger.warn(`[Security] API Key con formato inválido detectada desde IP: ${req.ip}`);
-            apiKey = '';
-        }
+    if (rawApiKey && !apiKey) {
+        logger.warn(`[Security] API Key con formato inválido detectada desde IP: ${req.ip}`);
     }
+
+    const cleanPath = req.originalUrl.split('?')[0].replace(/\/+/g, '/');
+    const now = Date.now();
 
     // 2. Caché Negativa (Evitar ataques de fuerza bruta a la DB)
     if (apiKey && invalidKeysCache.has(apiKey)) {
@@ -73,10 +72,13 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
 
     // Si hay una API Key, la validamos SIEMPRE, incluso si la ruta parece pública (ej. /minigames/russian)
     // Esto previene que una clasificación fallida de isPublicRoute bloquee la autenticación.
-    const isSystemRoute = isPublicRoute(cleanPath);
+    // DEBUG: Logueamos la ruta limpia para depurar en Vercel
+    const isHealthCron = cleanPath.includes('health-cron');
+    const isSystemRoute = isPublicRoute(cleanPath) || isHealthCron;
 
-    // Si la ruta es pública (ej. el cron), saltamos el validador por completo
     if (isSystemRoute) {
+        if (isHealthCron)
+            console.info(`[Auth] Acceso público permitido a ruta de salud: ${cleanPath}`);
         return next();
     }
 
@@ -126,7 +128,8 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         } else if (user && !user.isActive) {
             return res.status(403).json({ error: 'Cuenta suspendida.' });
         }
-    } catch (error) {
+    } catch (e) {
+        const error = e as Error;
         // Registro en caché negativa para evitar re-consultar esta llave inválida en los próximos 30s
         if (apiKey) {
             invalidKeysCache.set(apiKey, now + NEGATIVE_CACHE_TTL_MS);
@@ -141,7 +144,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             }
         }
 
-        logger.warn('API Key validation failed in validator:', (error as Error).message);
+        logger.warn('API Key validation failed in validator:', error.message);
 
         if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
             res.setHeader('Content-Type', 'text/plain');
