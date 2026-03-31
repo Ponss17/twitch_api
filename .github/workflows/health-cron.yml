@@ -1,0 +1,17 @@
+name: System Health Cron
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Se ejecuta cada hora
+  workflow_dispatch: # Permite ejecutarlo manualmente desde GitHub para pruebas
+
+jobs:
+  health_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Health Check
+        run: |
+          # Sustituye con tu URL real si es diferente
+          curl -f -X GET "https://www.losperris.dev/api/health-cron" \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+          --fail-with-body

@@ -59,12 +59,5 @@
             "source": "/((?!api/twitch/_vercel|api/health-cron|img|css|js|components|_vercel).*)",
             "destination": "/api/index.ts"
         }
-    ],
-    "crons": [
-        {
-            "path": "/api/health-cron",
-            "schedule": "0 * * * *"
-        }
-    ],
-    "cleanUrls": false
+    ]
 }
