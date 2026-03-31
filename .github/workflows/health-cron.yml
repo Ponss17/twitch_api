@@ -1,20 +1,20 @@
 name: System Health Cron
 
 on:
-  schedule:
-    - cron: '0 * * * *' # Se ejecuta cada hora
-  workflow_dispatch: # Permite ejecutarlo manualmente desde GitHub para pruebas
+    schedule:
+        - cron: '0 * * * *' # Se ejecuta cada hora
+    workflow_dispatch: # Permite ejecutarlo manualmente desde GitHub para pruebas
 
 jobs:
-  health_check:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Health Check
-        env:
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
-        run: |
-          if [ -n "$CRON_SECRET" ]; then
-            curl -v "https://www.losperris.dev/api/twitch/system/health-cron" -H "Authorization: Bearer $CRON_SECRET" --fail-with-body
-          else
-            curl -v "https://www.losperris.dev/api/twitch/system/health-cron" --fail-with-body
-          fi
+    health_check:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Trigger Health Check
+              env:
+                  CRON_SECRET: ${{ secrets.CRON_SECRET }}
+              run: |
+                  if [ -n "$CRON_SECRET" ]; then
+                    curl -v "https://www.losperris.dev/api/twitch/system/health-cron" -H "Authorization: Bearer $CRON_SECRET" --fail-with-body
+                  else
+                    curl -v "https://www.losperris.dev/api/twitch/system/health-cron" --fail-with-body
+                  fi
