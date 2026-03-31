@@ -71,7 +71,18 @@ async function sendDiscordAlert(services: { name: string; ok: boolean; latency: 
     }
 }
 
-export const runHealthCron = async (_req: Request, res: Response) => {
+export const runHealthCron = async (req: Request, res: Response) => {
+    // 1. Verificación de Seguridad (Recomendado por Vercel)
+    // El CRON_SECRET es inyectado por Vercel automáticamente si se habilita la seguridad.
+    const cronSecret = process.env.CRON_SECRET;
+    if (CONFIG.NODE_ENV === 'production' && cronSecret) {
+        const authHeader = req.headers.authorization;
+        if (authHeader !== `Bearer ${cronSecret}`) {
+            logger.warn('[Security] Intento de ejecución de cron sin secreto válido.');
+            return res.status(401).json({ error: 'No autorizado' });
+        }
+    }
+
     try {
         const services = await checkServices();
         await sendDiscordAlert(services);
