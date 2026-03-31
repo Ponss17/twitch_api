@@ -17,6 +17,7 @@ export const isPublicRoute = (path: string): boolean => {
         '/api/twitch/health',
         '/api/twitch/system/health',
         '/api/twitch/system/health-cron',
+        '/api/health-cron',
         '/robots.txt',
         '/api/twitch/robots.txt',
         '/sitemap.xml',
