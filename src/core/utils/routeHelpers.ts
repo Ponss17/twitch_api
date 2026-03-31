@@ -6,7 +6,7 @@ const isStaticAsset = (path: string): boolean => {
 };
 
 export const isPublicRoute = (path: string): boolean => {
-    const cleanPath = path.split('?')[0];
+    const cleanPath = path.split('?')[0].replace(/\/+/g, '/');
 
     // 1. Static Assets (Always public)
     if (isStaticAsset(cleanPath) || cleanPath.startsWith('/img/')) return true;
