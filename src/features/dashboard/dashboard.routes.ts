@@ -42,6 +42,7 @@ router.get('/user-info', checkToken, validate(getUserInfoSchema), dashboardContr
 router.get('/summary', checkToken, validate(getSummarySchema), dashboardController.getSummary);
 router.get('/activity', checkToken, validate(getActivitySchema), dashboardController.getLogs);
 router.post('/track-usage', checkToken, dashboardController.trackToolUsage);
+router.put('/timezone', checkToken, dashboardController.updateTimezone);
 
 // Danger Zone — CSRF protected with validation
 router.post(

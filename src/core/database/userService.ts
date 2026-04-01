@@ -18,6 +18,7 @@ function toRow(user: StoredUser): Record<string, unknown> {
         blocked_reason: user.blockedReason ?? null,
         custom_rate_limit: user.customRateLimit ?? null,
         profile_image_url: user.profileImageUrl ?? null,
+        timezone: user.timezone ?? 'UTC',
         last_active: user.lastActive
             ? new Date(user.lastActive).toISOString()
             : new Date().toISOString(),
@@ -42,6 +43,7 @@ function fromRow(row: Record<string, unknown>): StoredUser {
         blockedReason: (row.blocked_reason as string) ?? undefined,
         customRateLimit: (row.custom_rate_limit as number) ?? undefined,
         profileImageUrl: (row.profile_image_url as string) ?? undefined,
+        timezone: (row.timezone as string) ?? 'UTC',
         lastActive: (row.last_active as string) ?? undefined,
         createdAt: (row.created_at as string) ?? undefined
     };

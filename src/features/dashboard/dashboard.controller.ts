@@ -27,10 +27,9 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
 
     try {
         const stats = await dbService.getUserStats(userId);
-        const todayStr = new Date().toISOString().split('T')[0];
-        const todayRequests = parseInt(String(stats[`d:${todayStr}`] || '0'));
-        const todayErrors = parseInt(String(stats[`e:${todayStr}`] || '0'));
-        const todayLatency = parseInt(String(stats[`l:${todayStr}`] || '0'));
+        const todayRequests = stats['today_req_raw'] || 0;
+        const todayErrors = stats['today_err_raw'] || 0;
+        const todayLatency = stats['today_lat_raw'] || 0;
 
         // Éxito y Latencia enfocados en HOY
         const successRateVal =
@@ -303,26 +302,24 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             created_at: info.created_at
         };
 
-        const todayStr = new Date().toISOString().split('T')[0];
         const analytics = stats
             ? {
                   ...stats,
-                  todayRequests: parseInt(String(stats[`d:${todayStr}`] || '0')),
+                  todayRequests: stats['today_req_raw'] || 0,
                   totalRequests: stats.total_requests || 0,
                   avgLatencyMs:
-                      parseInt(String(stats[`d:${todayStr}`] || '0')) > 0
+                      (stats['today_req_raw'] || 0) > 0
                           ? Math.round(
-                                parseInt(String(stats[`l:${todayStr}`] || '0')) /
-                                    parseInt(String(stats[`d:${todayStr}`] || '0'))
+                                (stats['today_lat_raw'] || 0) / (stats['today_req_raw'] || 0)
                             )
                           : 0,
                   successRate:
-                      parseInt(String(stats[`d:${todayStr}`] || '0')) > 0
+                      (stats['today_req_raw'] || 0) > 0
                           ? parseFloat(
                                 (
                                     (1 -
-                                        parseInt(String(stats[`e:${todayStr}`] || '0')) /
-                                            parseInt(String(stats[`d:${todayStr}`] || '0'))) *
+                                        (stats['today_err_raw'] || 0) /
+                                            (stats['today_req_raw'] || 0)) *
                                     100
                                 ).toFixed(1)
                             )
@@ -342,5 +339,26 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
         if (error instanceof TwitchApiError) throw error;
         logger.error('Error in getSummary:', error);
         throw new AppError(MESSAGES.DASHBOARD.USER_INFO_ERROR, 500);
+    }
+};
+
+export const updateTimezone = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId;
+    const { timezone } = req.body;
+
+    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
+    if (!timezone || typeof timezone !== 'string')
+        return res.status(400).json({ error: 'Timezone inválida' });
+
+    try {
+        const { error } = await dbService.supabase
+            .from('users')
+            .update({ timezone })
+            .eq('user_id', userId);
+        if (error) throw error;
+        res.json({ success: true, timezone });
+    } catch (e) {
+        logger.error('Error updating timezone:', e);
+        res.status(500).json({ error: 'Error actualizando zona horaria' });
     }
 };

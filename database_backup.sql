@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS public.users (
     blocked_reason TEXT,
     custom_rate_limit INTEGER,
     profile_image_url TEXT,
+    timezone TEXT DEFAULT 'UTC',
     last_active TIMESTAMPTZ DEFAULT now(),
     created_at TIMESTAMPTZ DEFAULT now()
 );
@@ -36,6 +37,10 @@ CREATE TABLE IF NOT EXISTS public.user_stats (
     total_requests INTEGER DEFAULT 0,
     total_latency BIGINT DEFAULT 0,
     total_errors INTEGER DEFAULT 0,
+    today_requests INTEGER DEFAULT 0,
+    today_errors INTEGER DEFAULT 0,
+    today_latency BIGINT DEFAULT 0,
+    last_stats_date DATE DEFAULT CURRENT_DATE,
     last_updated TIMESTAMPTZ DEFAULT now()
 );
 
@@ -83,16 +88,24 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
--- Registro atómico de peticiones (Métricas de Latencia y Errores)
+-- Registro atómico de peticiones (Métricas de Latencia y Errores diarios y totales)
 CREATE OR REPLACE FUNCTION public.record_user_request(
-  p_user_id TEXT, p_latency INT, p_success BOOLEAN
+  p_user_id TEXT,
+  p_latency INT,
+  p_success BOOLEAN
 ) RETURNS void AS $$
+DECLARE
+  v_today DATE := CURRENT_DATE;
 BEGIN
   UPDATE user_stats SET
+    today_requests = CASE WHEN last_stats_date < v_today THEN 1 ELSE today_requests + 1 END,
+    today_errors   = CASE WHEN last_stats_date < v_today THEN (CASE WHEN NOT p_success THEN 1 ELSE 0 END) ELSE today_errors + (CASE WHEN NOT p_success THEN 1 ELSE 0 END) END,
+    today_latency  = CASE WHEN last_stats_date < v_today THEN p_latency ELSE today_latency + p_latency END,
+    last_stats_date = v_today,
     total_requests = total_requests + 1,
     total_latency  = total_latency + p_latency,
     total_errors   = total_errors + CASE WHEN NOT p_success THEN 1 ELSE 0 END,
-    last_updated   = now()
+    last_updated   = NOW()
   WHERE user_id = p_user_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
