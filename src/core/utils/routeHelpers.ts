@@ -6,7 +6,7 @@ const isStaticAsset = (path: string): boolean => {
 };
 
 export const isPublicRoute = (path: string): boolean => {
-    const cleanPath = path.split('?')[0].replace(/\/+/g, '/');
+    const cleanPath = path.split('?')[0];
 
     // 1. Static Assets (Always public)
     if (isStaticAsset(cleanPath) || cleanPath.startsWith('/img/')) return true;
@@ -16,8 +16,6 @@ export const isPublicRoute = (path: string): boolean => {
         '/health',
         '/api/twitch/health',
         '/api/twitch/system/health',
-        '/api/twitch/system/health-cron',
-        '/api/health-cron',
         '/robots.txt',
         '/api/twitch/robots.txt',
         '/sitemap.xml',
