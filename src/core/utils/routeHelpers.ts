@@ -5,13 +5,51 @@ const isStaticAsset = (path: string): boolean => {
     );
 };
 
-export const isPublicRoute = (path: string): boolean => {
-    const cleanPath = path.split('?')[0].replace(/\/+/g, '/');
+/**
+ * Determina si una ruta es una vista HTML pública (como la página del dashboard o docu).
+ * Si es una llamada de datos (API) o una acción (POST/DELETE), devuelve false para que el middleware valide la sesión.
+ *
+ * @param path Ruta limpia (sin queries ni barras múltiples)
+ * @param method Método HTTP (GET, POST, etc.)
+ * @returns true si se puede servir sin sesión de Twitch (página pública), false si requiere autenticación.
+ */
+export const isPublicRoute = (path: string, method: string = 'GET'): boolean => {
+    const cleanPath = path.split('?')[0].replace(/\/+/g, '/').replace(/\/$/, '') || '/';
 
     // 1. Static Assets (Always public)
     if (isStaticAsset(cleanPath) || cleanPath.startsWith('/img/')) return true;
 
-    // 2. System Critical Routes & Admin Routes
+    // 2. Siempre es privado si no es un GET (acciones de escritura) en rutas sensibles
+    // Las páginas HTML públicas siempre se sirven vía GET.
+    const sensitiveBases = ['/dashboard', '/minigames', '/admin', '/api/twitch/dashboard'];
+    const isSensitiveBase = sensitiveBases.some(
+        (prefix) => cleanPath === prefix || cleanPath.startsWith(`${prefix}/`)
+    );
+
+    if (isSensitiveBase && method !== 'GET') {
+        return false;
+    }
+
+    // 3. Rutas de Datos API (AJAX/Fetch): Siempre son PRIVADAS (requieren sesión o API Key)
+    // Bloqueamos cualquier sub-ruta que no sea la raíz de la vista o que explícitamente pida datos
+    const apiDataPatterns = [
+        '/api/',
+        '/activity',
+        '/summary',
+        '/analytics',
+        '/chatters',
+        '/user-info',
+        '/get-clips',
+        '/clear-data',
+        '/delete-account',
+        '/track-usage',
+        '/health-cron'
+    ];
+
+    const isApiDataRoute = apiDataPatterns.some((pattern) => cleanPath.includes(pattern));
+    if (isApiDataRoute) return false;
+
+    // 4. Rutas exactas públicas (System & SEO)
     const publicExactRoutes = [
         '/health',
         '/api/twitch/health',
@@ -26,16 +64,7 @@ export const isPublicRoute = (path: string): boolean => {
     ];
     if (publicExactRoutes.includes(cleanPath)) return true;
 
-    // 2.5 Admin API Routes (These have their own rate limiters and auth in routes/admin.ts)
-    if (
-        cleanPath.startsWith('/api/admin') ||
-        cleanPath.startsWith('/api/twitch/admin') ||
-        cleanPath.startsWith('/admin/api')
-    ) {
-        return true;
-    }
-
-    // 3. Auth Flows
+    // 5. Auth Flows
     if (
         cleanPath === '/auth' ||
         cleanPath.startsWith('/auth/') ||
@@ -45,28 +74,12 @@ export const isPublicRoute = (path: string): boolean => {
         return true;
     }
 
-    // 4. Public HTML Views (Served as HTML)
-    // Solo las entradas principales del dashboard/minigames son públicas
-    const publicHtmlPaths = ['/dashboard', '/minigames', '/admin'];
+    // 6. Vistas HTML Públicas (Servidas como archivos estáticos si no son API)
+    const publicHtmlPaths = ['/dashboard', '/minigames', '/admin', '/sobre-la-api'];
+
     const isHtmlPath = publicHtmlPaths.some(
         (prefix) => cleanPath === prefix || cleanPath.startsWith(`${prefix}/`)
     );
 
-    if (isHtmlPath) {
-        // PERO si contiene /api/ o es una de las subrutas de datos conocidas, NO es pública (DASHBOARD_SUMMARY_401)
-        const isApiDataRoute =
-            cleanPath.includes('/api/') ||
-            cleanPath.includes('/activity') ||
-            cleanPath.includes('/summary') ||
-            cleanPath.includes('/analytics') ||
-            cleanPath.includes('/chatters') ||
-            cleanPath.includes('/user-info') ||
-            cleanPath.includes('/get-clips');
-
-        if (isApiDataRoute) return false;
-
-        return true;
-    }
-
-    return false;
+    return isHtmlPath;
 };

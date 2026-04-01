@@ -116,7 +116,7 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         const totals = totalsResult.data;
         const todayCount = activityResult.count || 0;
 
-        if (!totals && !totalsResult.error) {
+        if (!totals) {
             await ensureStatsRow(userId);
         } else {
             EXISTS_CACHE.add(userId);
