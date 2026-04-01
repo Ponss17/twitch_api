@@ -70,20 +70,14 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         invalidKeysCache.delete(apiKey);
     }
 
-    // Si hay una API Key, la validamos SIEMPRE, incluso si la ruta parece pública (ej. /minigames/russian)
-    // Esto previene que una clasificación fallida de isPublicRoute bloquee la autenticación.
-    // DEBUG: Logueamos la ruta limpia para depurar en Vercel
-    const isHealthCron = cleanPath.includes('health-cron');
-    const isSystemRoute = isPublicRoute(cleanPath) || isHealthCron;
+    const isSystemRoute = isPublicRoute(cleanPath);
 
     if (isSystemRoute) {
-        if (isHealthCron)
-            console.info(`[Auth] Acceso público permitido a ruta de salud: ${cleanPath}`);
         return next();
     }
 
     if (!apiKey) {
-        // ... (el flujo continuará con otros middlewares de autenticación o fallará al final de este)
+        return next();
     }
 
     try {

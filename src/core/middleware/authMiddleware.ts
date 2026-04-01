@@ -48,10 +48,8 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     }
 
     if (!token) {
-        // PERMITIR PASO SI: Es una ruta pública oficial O contiene 'health-cron'
-        const isPublic = isPublicRoute(req.path) || req.originalUrl.includes('health-cron');
-
-        if (isPublic) {
+        // En rutas públicas, permitimos continuar aunque no haya token
+        if (isPublicRoute(req.path)) {
             return next();
         }
 
