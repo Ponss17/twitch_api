@@ -119,7 +119,8 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
             type: 'other',
             user: channel,
             detail: 'Dashboard Clips',
-            skipActivityLog: true
+            skipActivityLog: true,
+            skipRequestCount: true // Consultas del dashboard no inflan el contador de peticiones
         },
         async () => {
             const cacheKey = `cache:cmd:getClips:channel:${channel}:limit:${limitNum}`;
@@ -208,7 +209,8 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
             type: 'other',
             user: login,
             detail: 'User Info Inspect',
-            skipActivityLog: true
+            skipActivityLog: true,
+            skipRequestCount: true // Consultas de perfil no deben contar como uso de "recursos"
         },
         async () => {
             const apiUser = res.locals.apiUser;

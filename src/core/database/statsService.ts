@@ -178,12 +178,17 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
 export const recordUserRequest = async (
     userId: string,
     latency: number,
-    success: boolean
+    success: boolean,
+    skip: boolean = false // Nueva opción para ignorar el conteo
 ): Promise<void> => {
     try {
         if (!EXISTS_CACHE.has(userId)) {
             await ensureStatsRow(userId);
         }
+
+        // Si es una consulta interna, solo registramos latencia si quisiéramos,
+        // pero para máxima limpieza, si skip es true, no llamamos al RPC que incrementa contadores.
+        if (skip) return;
 
         const { error } = await supabase.rpc('record_user_request', {
             p_user_id: userId,
