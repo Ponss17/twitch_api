@@ -6,7 +6,7 @@ const isStaticAsset = (path: string): boolean => {
 };
 
 export const isPublicRoute = (path: string): boolean => {
-    const cleanPath = path.split('?')[0];
+    const cleanPath = path.split('?')[0].replace(/\/+/g, '/');
 
     // 1. Static Assets (Always public)
     if (isStaticAsset(cleanPath) || cleanPath.startsWith('/img/')) return true;
@@ -53,10 +53,11 @@ export const isPublicRoute = (path: string): boolean => {
     );
 
     if (isHtmlPath) {
-        // PERO si contiene /api/ o es una de las subrutas de datos conocidas, NO es pública
+        // PERO si contiene /api/ o es una de las subrutas de datos conocidas, NO es pública (DASHBOARD_SUMMARY_401)
         const isApiDataRoute =
             cleanPath.includes('/api/') ||
             cleanPath.includes('/activity') ||
+            cleanPath.includes('/summary') ||
             cleanPath.includes('/analytics') ||
             cleanPath.includes('/chatters') ||
             cleanPath.includes('/user-info') ||
