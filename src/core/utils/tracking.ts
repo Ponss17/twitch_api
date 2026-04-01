@@ -14,6 +14,7 @@ export const trackRequest = async <T>(
         detail?: string;
         incrementStat?: string;
         skipActivityLog?: boolean;
+        skipRequestCount?: boolean; // Nueva opción para no contar como "Petición Hoy" (ej. carga perfil)
     },
     action: () => Promise<T>
 ): Promise<T> => {
@@ -27,8 +28,8 @@ export const trackRequest = async <T>(
         if (userId) {
             // Registro asíncrono pero esperado (AWAIT) para entornos serverless
             try {
-                // 1. Guardar métricas de rendimiento
-                await dbService.recordUserRequest(userId, latency, true);
+                // 1. Guardar métricas de rendimiento (Omitimos conteo si es consulta interna)
+                await dbService.recordUserRequest(userId, latency, true, options.skipRequestCount);
 
                 // 2. Incrementar contador específico (si aplica)
                 if (options.incrementStat) {
@@ -53,7 +54,8 @@ export const trackRequest = async <T>(
         const latency = Date.now() - startTime;
         if (userId) {
             try {
-                await dbService.recordUserRequest(userId, latency, false);
+                // En caso de error, también respetamos si es una consulta que no debe contar
+                await dbService.recordUserRequest(userId, latency, false, options.skipRequestCount);
             } catch (err) {
                 logger.error('Error registrando métrica de fallo:', err);
             }

@@ -212,7 +212,7 @@ export const ProfileModule: DashboardModule = {
                 id: 'cat-commands',
                 label: 'Comandos',
                 icon: 'fa-terminal',
-                keys: ['clips', 'followage', 'so']
+                keys: ['clips', 'followage', 'so', 'message']
             },
             {
                 id: 'cat-tools',
