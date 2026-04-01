@@ -31,9 +31,8 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
     }
 
     // 3. Rutas de Datos API (AJAX/Fetch): Siempre son PRIVADAS (requieren sesión o API Key)
-    // Bloqueamos cualquier sub-ruta que no sea la raíz de la vista o que explícitamente pida datos
+    // Bloqueamos cualquier sub-ruta que pida datos sensitivos del usuario
     const apiDataPatterns = [
-        '/api/',
         '/activity',
         '/summary',
         '/analytics',

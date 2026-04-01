@@ -179,6 +179,31 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
     return refreshTask;
 };
 
+export const getValidTokenByLogin = async (
+    login: string
+): Promise<{ accessToken: string; userId: string }> => {
+    const user = await dbService.getUserByLogin(login);
+    if (!user) throw new Error('Usuario no encontrado en la base de datos');
+
+    const expiresAt = user.obtainedAt + user.expiresIn * 1000;
+    const now = Date.now();
+    const fiveMinutesFromNow = now + 5 * 60 * 1000;
+
+    if (now > expiresAt || fiveMinutesFromNow > expiresAt) {
+        try {
+            const newToken = await refreshUserToken(user.userId);
+            return { accessToken: newToken, userId: user.userId };
+        } catch (_error) {
+            if (now > expiresAt) {
+                logger.error(`Token expirado y refresh falló para login ${login}`);
+                throw new Error('Sesión de streamer expirada. Re-autentica en el Dashboard.');
+            }
+        }
+    }
+
+    return { accessToken: user.accessToken, userId: user.userId };
+};
+
 export const getValidToken = async (
     apiKey: string
 ): Promise<{ accessToken: string; userId: string }> => {
