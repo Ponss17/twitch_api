@@ -66,6 +66,7 @@ export interface StoredUser {
     lastActive?: string;
     createdAt?: string;
     profileImageUrl?: string;
+    timezone?: string;
 }
 
 export interface AuthenticatedRequest extends Request {
