@@ -14,7 +14,10 @@ const DEFAULT_STAT_FIELDS = [
     'duel_count',
     'total_requests',
     'total_latency',
-    'total_errors'
+    'total_errors',
+    'today_requests',
+    'today_errors',
+    'today_latency'
 ];
 
 // Cache para saber si un usuario ya tiene fila de stats y evitar upserts constantes
@@ -135,9 +138,10 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         }
 
         const todayStr = new Date().toISOString().split('T')[0];
-        numericStats[`d:${todayStr}`] = todayCount;
-        numericStats[`e:${todayStr}`] = numericStats.total_errors || 0;
-        numericStats[`l:${todayStr}`] = numericStats.total_latency || 0;
+        // Priorizamos los contadores reales de las nuevas columnas para los cuadros superiores
+        numericStats[`d:${todayStr}`] = totals?.today_requests ?? todayCount;
+        numericStats[`e:${todayStr}`] = totals?.today_errors ?? (numericStats.total_errors || 0);
+        numericStats[`l:${todayStr}`] = totals?.today_latency ?? (numericStats.total_latency || 0);
 
         STATS_CACHE.set(userId, { data: numericStats, expiry: now + STATS_TTL });
         return numericStats;
@@ -155,8 +159,14 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
  *   p_latency INT,
  *   p_success BOOLEAN
  * ) RETURNS VOID AS $$
+ * DECLARE
+ *   v_today DATE := CURRENT_DATE;
  * BEGIN
  *   UPDATE user_stats SET
+ *     today_requests = CASE WHEN last_stats_date < v_today THEN 1 ELSE today_requests + 1 END,
+ *     today_errors   = CASE WHEN last_stats_date < v_today THEN (CASE WHEN NOT p_success THEN 1 ELSE 0 END) ELSE today_errors + (CASE WHEN NOT p_success THEN 1 ELSE 0 END) END,
+ *     today_latency  = CASE WHEN last_stats_date < v_today THEN p_latency ELSE today_latency + p_latency END,
+ *     last_stats_date = v_today,
  *     total_requests = total_requests + 1,
  *     total_latency  = total_latency + p_latency,
  *     total_errors   = total_errors + CASE WHEN NOT p_success THEN 1 ELSE 0 END,
