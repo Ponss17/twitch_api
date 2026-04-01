@@ -70,7 +70,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         invalidKeysCache.delete(apiKey);
     }
 
-    const isSystemRoute = isPublicRoute(cleanPath);
+    const isSystemRoute = isPublicRoute(cleanPath, req.method);
 
     if (isSystemRoute) {
         return next();

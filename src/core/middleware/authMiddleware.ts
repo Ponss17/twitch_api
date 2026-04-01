@@ -48,8 +48,8 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     }
 
     if (!token) {
-        // En rutas públicas, permitimos continuar aunque no haya token
-        if (isPublicRoute(req.path)) {
+        // 1. Saltarse validación para archivos estáticos y rutas públicas configuradas
+        if (isPublicRoute(req.path, req.method)) {
             return next();
         }
 
