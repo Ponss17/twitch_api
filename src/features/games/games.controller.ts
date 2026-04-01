@@ -3,10 +3,25 @@ import { logger } from '../../core/utils/logger';
 import * as magic8Service from './magic8.service';
 import * as russianService from './russian.service';
 import * as duelService from './duel.service';
+import * as authService from '../../features/auth/auth.service';
 import { MESSAGES } from '../../core/config/messages';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
+
+/**
+ * Helper para obtener credenciales de respaldo si no hay sesión activa (para comandos de chat)
+ */
+const getFallbackAuth = async (req: AuthenticatedRequest) => {
+    const channel = (req.query.channel as string) || (req.query.user as string);
+    if (!channel) return null;
+    try {
+        return await authService.getValidTokenByLogin(channel);
+    } catch (error) {
+        logger.warn(`No se pudo obtener fallback auth para canal ${channel}:`, error);
+        return null;
+    }
+};
 
 // ==========================================
 // Bola 8 Mágica
@@ -18,8 +33,15 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
         const mood = req.query.mood as string;
         const user = req.query.user as string;
 
+        // Fallback para tracking si no hay sesión
+        let effectiveUserId = req.userId;
+        if (!effectiveUserId) {
+            const fallback = await getFallbackAuth(req);
+            effectiveUserId = fallback?.userId || 'anonymous';
+        }
+
         const answer = await trackRequest(
-            req.userId,
+            effectiveUserId,
             {
                 type: 'magic8',
                 user: user || 'Anónimo',
@@ -43,19 +65,30 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
 export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { user, channel, hardcore, format } = req.query;
-        if (!req.twitchToken) return res.status(401).send(MESSAGES.AUTH.NO_TOKEN);
+
+        // Fallback de Token: Si no hay token de sesión, buscamos el del propio canal/streamer
+        let twitchToken = req.twitchToken;
+        let effectiveUserId = req.userId;
+
+        if (!twitchToken) {
+            const fallback = await getFallbackAuth(req);
+            if (!fallback) return res.status(401).send(MESSAGES.AUTH.NO_TOKEN);
+            twitchToken = fallback.accessToken;
+            effectiveUserId = fallback.userId;
+        }
 
         const isHardcore = hardcore === 'true';
         const sendToChat = format !== 'json';
 
         const result = await trackRequest(
-            req.userId,
+            effectiveUserId || 'anonymous',
             {
                 type: 'russian',
                 user: (user as string) || 'Anónimo',
                 incrementStat: 'russian'
             },
             async () => {
+                req.twitchToken = twitchToken; // Inyectamos el token para el helper
                 return await withTwitchAuth(
                     req,
                     res,
@@ -92,8 +125,15 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
         const target = req.query.target as string;
         const challenger = (req.query.challenger as string) || 'Keanu Reeves';
 
+        // Fallback para tracking si no hay sesión
+        let effectiveUserId = req.userId;
+        if (!effectiveUserId) {
+            const fallback = await getFallbackAuth(req);
+            effectiveUserId = fallback?.userId || 'anonymous';
+        }
+
         const result = await trackRequest(
-            req.userId,
+            effectiveUserId,
             {
                 type: 'duel',
                 user: challenger,
