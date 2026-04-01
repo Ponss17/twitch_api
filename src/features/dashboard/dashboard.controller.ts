@@ -27,22 +27,23 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
 
     try {
         const stats = await dbService.getUserStats(userId);
-        const today = new Date().toISOString().split('T')[0];
+        const todayStr = new Date().toISOString().split('T')[0];
+        const todayRequests = parseInt(String(stats[`d:${todayStr}`] || '0'));
+        const todayErrors = parseInt(String(stats[`e:${todayStr}`] || '0'));
+        const todayLatency = parseInt(String(stats[`l:${todayStr}`] || '0'));
 
-        const todayRequests = parseInt(String(stats[`d:${today}`] || '0'));
-        const totalReqs = stats.total_requests || 0;
-        const totalErrs = stats.total_errors || 0;
-        const totalLat = stats.total_latency || 0;
-
+        // Éxito y Latencia enfocados en HOY
         const successRateVal =
-            totalReqs > 0 ? parseFloat(((1 - totalErrs / totalReqs) * 100).toFixed(1)) : 100;
+            todayRequests > 0
+                ? parseFloat(((1 - todayErrors / todayRequests) * 100).toFixed(1))
+                : 100;
 
-        const avgLatencyMs = totalReqs > 0 ? Math.round(totalLat / totalReqs) : 0;
+        const avgLatencyMs = todayRequests > 0 ? Math.round(todayLatency / todayRequests) : 0;
 
         res.json({
             ...stats,
             todayRequests,
-            totalRequests: totalReqs,
+            totalRequests: stats.total_requests || 0,
             avgLatencyMs: avgLatencyMs,
             rawSuccessRate: successRateVal,
             averageLatency: `${avgLatencyMs}ms (${(avgLatencyMs / 1000).toFixed(1)}s)`,
@@ -241,7 +242,7 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
 
                 await cacheService.set(cacheKey, result, 3600);
                 res.json({ ...result, rateLimit });
-            } catch (_error: unknown) {
+            } catch {
                 res.status(500).json({ error: MESSAGES.DASHBOARD.USER_INFO_ERROR });
             }
         }
@@ -300,21 +301,26 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             created_at: info.created_at
         };
 
-        const today = new Date().toISOString().split('T')[0];
+        const todayStr = new Date().toISOString().split('T')[0];
         const analytics = stats
             ? {
                   ...stats,
-                  todayRequests: parseInt(String(stats[`d:${today}`] || '0')),
+                  todayRequests: parseInt(String(stats[`d:${todayStr}`] || '0')),
                   totalRequests: stats.total_requests || 0,
                   avgLatencyMs:
-                      stats.total_requests > 0
-                          ? Math.round(stats.total_latency / stats.total_requests)
+                      parseInt(String(stats[`d:${todayStr}`] || '0')) > 0
+                          ? Math.round(
+                                parseInt(String(stats[`l:${todayStr}`] || '0')) /
+                                    parseInt(String(stats[`d:${todayStr}`] || '0'))
+                            )
                           : 0,
                   successRate:
-                      stats.total_requests > 0
+                      parseInt(String(stats[`d:${todayStr}`] || '0')) > 0
                           ? parseFloat(
                                 (
-                                    (1 - (stats.total_errors || 0) / stats.total_requests) *
+                                    (1 -
+                                        parseInt(String(stats[`e:${todayStr}`] || '0')) /
+                                            parseInt(String(stats[`d:${todayStr}`] || '0'))) *
                                     100
                                 ).toFixed(1)
                             )
