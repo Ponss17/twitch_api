@@ -44,8 +44,13 @@ export const validate =
             message: e.message
         }));
 
+        const safeUrl = req.originalUrl.replace(
+            /([?&])(apiKey|token|access_token|refresh_token)=([^&]*)/gi,
+            '$1$2=[REDACTED]'
+        );
+
         logger.error('❌ [Validation Error]:', {
-            path: req.originalUrl,
+            path: safeUrl,
             issues: errorDetails
         });
 
