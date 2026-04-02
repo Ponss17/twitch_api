@@ -20,21 +20,14 @@ class DatabaseTransport extends Transport {
     }
 
     log(info: { level: string; message: string; details?: unknown }, callback: () => void) {
-        setImmediate(() => {
-            const { level, message, details } = info;
-            if (level === 'error' || level === 'warn') {
-                const result = dbService.addSystemLog(
-                    level,
-                    message,
-                    details as Record<string, unknown>
-                );
-                if (result && typeof result.catch === 'function') {
-                    result.catch((err: Error) => {
-                        console.error('❌ Error saving log to DB:', err);
-                    });
-                }
-            }
-        });
+        const { level, message, details } = info;
+        if (level === 'error' || level === 'warn') {
+            dbService
+                .addSystemLog(level, message, details as Record<string, unknown>)
+                .catch((err: Error) => {
+                    console.error('❌ Error saving log to DB:', err);
+                });
+        }
         callback();
     }
 }

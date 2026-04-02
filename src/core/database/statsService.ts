@@ -100,22 +100,12 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         const cached = STATS_CACHE.get(userId);
         if (cached && cached.expiry > now) return cached.data;
 
-        const startOfToday = new Date();
-        startOfToday.setHours(0, 0, 0, 0);
-
-        // Lanzamos las peticiones a Supabase en PARALELO para reducir latencia
-        const [totalsResult, activityResult, userResult] = await Promise.all([
+        const [totalsResult, userResult] = await Promise.all([
             supabase.from('user_stats').select('*').eq('user_id', userId).single(),
-            supabase
-                .from('activity_logs')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', userId)
-                .gte('created_at', startOfToday.toISOString()),
             supabase.from('users').select('timezone').eq('user_id', userId).single()
         ]);
 
         const totals = totalsResult.data;
-        const todayCount = activityResult.count || 0;
 
         if (!totals) {
             await ensureStatsRow(userId);
@@ -148,13 +138,13 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         const todayStr = formatter.format(new Date()); // Formato YYYY-MM-DD
 
         // Priorizamos los contadores reales de las nuevas columnas para los cuadros superiores
-        numericStats[`d:${todayStr}`] = totals?.today_requests ?? todayCount;
-        numericStats[`e:${todayStr}`] = totals?.today_errors ?? (numericStats.total_errors || 0);
-        numericStats[`l:${todayStr}`] = totals?.today_latency ?? (numericStats.total_latency || 0);
+        numericStats[`d:${todayStr}`] = totals?.today_requests ?? 0;
+        numericStats[`e:${todayStr}`] = totals?.today_errors ?? 0;
+        numericStats[`l:${todayStr}`] = totals?.today_latency ?? 0;
 
-        numericStats['today_req_raw'] = totals?.today_requests ?? todayCount;
-        numericStats['today_err_raw'] = totals?.today_errors ?? (numericStats.total_errors || 0);
-        numericStats['today_lat_raw'] = totals?.today_latency ?? (numericStats.total_latency || 0);
+        numericStats['today_req_raw'] = totals?.today_requests ?? 0;
+        numericStats['today_err_raw'] = totals?.today_errors ?? 0;
+        numericStats['today_lat_raw'] = totals?.today_latency ?? 0;
 
         STATS_CACHE.set(userId, { data: numericStats, expiry: now + STATS_TTL });
         return numericStats;
@@ -164,35 +154,6 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
     }
 };
 
-/*
- * IMPORTANTE: Antes de usar esta función, ejecuta el siguiente SQL en Supabase:
- *
- * CREATE OR REPLACE FUNCTION record_user_request(
- *   p_user_id TEXT,
- *   p_latency INT,
- *   p_success BOOLEAN
- * ) RETURNS VOID AS $$
- * DECLARE
- *   v_tz TEXT;
- *   v_today DATE;
- * BEGIN
- *   SELECT timezone INTO v_tz FROM users WHERE user_id = p_user_id;
- *   IF v_tz IS NULL THEN v_tz := 'UTC'; END IF;
- *   v_today := (NOW() AT TIME ZONE v_tz)::DATE;
- *
- *   UPDATE user_stats SET
- *     today_requests = CASE WHEN last_stats_date < v_today THEN 1 ELSE today_requests + 1 END,
- *     today_errors   = CASE WHEN last_stats_date < v_today THEN (CASE WHEN NOT p_success THEN 1 ELSE 0 END) ELSE today_errors + (CASE WHEN NOT p_success THEN 1 ELSE 0 END) END,
- *     today_latency  = CASE WHEN last_stats_date < v_today THEN p_latency ELSE today_latency + p_latency END,
- *     last_stats_date = v_today,
- *     total_requests = total_requests + 1,
- *     total_latency  = total_latency + p_latency,
- *     total_errors   = total_errors + CASE WHEN NOT p_success THEN 1 ELSE 0 END,
- *     last_updated   = NOW()
- *   WHERE user_id = p_user_id;
- * END;
- * $$ LANGUAGE plpgsql;
- */
 export const recordUserRequest = async (
     userId: string,
     latency: number,

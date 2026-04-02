@@ -51,14 +51,17 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
 
             if (clipUrl) {
                 const template = safeString(req.query.template);
+                res.setHeader('Content-Type', 'text/plain; charset=utf-8');
                 if (template) {
-                    const message = sanitizeHtml(
+                    const safeUrl = sanitizeHtml(clipUrl);
+                    const safeChannel = sanitizeHtml(channel);
+                    const safeTitle = sanitizeHtml(finalTitle || '');
+                    return res.send(
                         template
-                            .replace('{url}', clipUrl)
-                            .replace('{channel}', channel)
-                            .replace('{title}', finalTitle || '')
+                            .replace('{url}', safeUrl)
+                            .replace('{channel}', safeChannel)
+                            .replace('{title}', safeTitle)
                     );
-                    return res.send(message);
                 }
                 return res.send(clipUrl);
             }
@@ -114,12 +117,13 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
 
             if (result) {
                 const template = safeString(req.query.template);
+                res.setHeader('Content-Type', 'text/plain; charset=utf-8');
                 if (template) {
                     return res.send(
                         template
-                            .replace('{time}', result.timePhrase)
-                            .replace('{user}', user)
-                            .replace('{channel}', channel)
+                            .replace('{time}', sanitizeHtml(result.timePhrase))
+                            .replace('{user}', sanitizeHtml(user))
+                            .replace('{channel}', sanitizeHtml(channel))
                     );
                 }
                 return res.send(result.text);

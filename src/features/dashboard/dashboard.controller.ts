@@ -351,11 +351,7 @@ export const updateTimezone = async (req: AuthenticatedRequest, res: Response) =
         return res.status(400).json({ error: 'Timezone inválida' });
 
     try {
-        const { error } = await dbService.supabase
-            .from('users')
-            .update({ timezone })
-            .eq('user_id', userId);
-        if (error) throw error;
+        await dbService.updateUserTimezone(userId, timezone);
         res.json({ success: true, timezone });
     } catch (e) {
         logger.error('Error updating timezone:', e);

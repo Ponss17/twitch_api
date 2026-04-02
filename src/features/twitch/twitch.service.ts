@@ -168,8 +168,7 @@ export const getChannelInfo = async (
         }
 
         const data = response.data.data[0];
-        // Cachear resultado por 30 minutos
-        await cacheService.set(cacheKey, data, 30);
+        await cacheService.set(cacheKey, data, 1800);
 
         return data;
     } catch (error) {
@@ -296,7 +295,11 @@ export const validateToken = async (token: string): Promise<TwitchValidationResp
     }
 };
 
-export const getChatters = async (broadcasterId: string, moderatorId: string, token: string) => {
+export const getChatters = async (
+    broadcasterId: string,
+    moderatorId: string,
+    token: string
+): Promise<{ user_id: string; user_login: string; user_name: string }[]> => {
     try {
         const response = await apiClient.get('https://api.twitch.tv/helix/chat/chatters', {
             params: {

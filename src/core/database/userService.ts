@@ -122,6 +122,26 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
     if (!data) return null;
 
     const user = fromRow(data as Record<string, unknown>);
+
+    try {
+        if (user.accessToken) {
+            try {
+                user.accessToken = decrypt(user.accessToken, ENCRYPTION_KEY);
+            } catch (_e) {
+                user.accessToken = decrypt(user.accessToken, LEGACY_ENCRYPTION_KEY);
+            }
+        }
+        if (user.refreshToken) {
+            try {
+                user.refreshToken = decrypt(user.refreshToken, ENCRYPTION_KEY);
+            } catch (_e) {
+                user.refreshToken = decrypt(user.refreshToken, LEGACY_ENCRYPTION_KEY);
+            }
+        }
+    } catch (e) {
+        logger.error(`⚠️ Error en descifrado para login ${login}:`, (e as Error).message);
+    }
+
     await cacheService.set(cacheKey, user, 5 * 60);
     return user;
 };
@@ -157,10 +177,21 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
         return null;
     }
 
-    // Desencriptar tokens
     try {
-        if (user.accessToken) user.accessToken = decrypt(user.accessToken, ENCRYPTION_KEY);
-        if (user.refreshToken) user.refreshToken = decrypt(user.refreshToken, ENCRYPTION_KEY);
+        if (user.accessToken) {
+            try {
+                user.accessToken = decrypt(user.accessToken, ENCRYPTION_KEY);
+            } catch (_e) {
+                user.accessToken = decrypt(user.accessToken, LEGACY_ENCRYPTION_KEY);
+            }
+        }
+        if (user.refreshToken) {
+            try {
+                user.refreshToken = decrypt(user.refreshToken, ENCRYPTION_KEY);
+            } catch (_e2) {
+                user.refreshToken = decrypt(user.refreshToken, LEGACY_ENCRYPTION_KEY);
+            }
+        }
     } catch (_e) {
         logger.error(`⚠️ Error descifrando tokens para api_key: ${apiKey}`);
     }
@@ -213,4 +244,10 @@ export const resetUserApiKey = async (userId: string): Promise<string> => {
     if (error) throw error;
 
     return newKey;
+};
+
+export const updateUserTimezone = async (userId: string, timezone: string): Promise<void> => {
+    const { error } = await supabase.from('users').update({ timezone }).eq('user_id', userId);
+
+    if (error) throw error;
 };

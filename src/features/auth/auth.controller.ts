@@ -54,19 +54,12 @@ export const callback = async (req: Request, res: Response) => {
     }
 
     try {
-        const { user, redirectOrigin, apiKey } = await authService.handleCallback(code, state);
+        const { user, redirectOrigin, apiKey, isAdmin } = await authService.handleCallback(
+            code,
+            state
+        );
 
-        let isAdminLogin = false;
-        if (state) {
-            try {
-                const decoded = JSON.parse(Buffer.from(state, 'base64').toString());
-                isAdminLogin = decoded.isAdmin === true;
-            } catch (_e) {
-                logger.debug('State decode failed', _e);
-            }
-        }
-
-        if (isAdminLogin) {
+        if (isAdmin) {
             const isAuthorized = await dbService.isAdmin(user.id);
             if (!isAuthorized) {
                 logger.warn(`🚫 Intento de acceso admin denegado para: ${user.login} (${user.id})`);
@@ -90,11 +83,15 @@ export const callback = async (req: Request, res: Response) => {
         let errorRedirect = '/?error=auth_failed';
         if (state) {
             try {
-                const decoded = JSON.parse(Buffer.from(state, 'base64').toString());
-                if (decoded.redirectOrigin && isAllowedOrigin(decoded.redirectOrigin, req))
+                const decoded = authService.verifyState(state);
+                if (
+                    decoded?.redirectOrigin &&
+                    isAllowedOrigin(decoded.redirectOrigin as string, req)
+                ) {
                     errorRedirect = `${decoded.redirectOrigin}?error=auth_failed`;
+                }
             } catch (_e) {
-                // Ignore state decode errors in error handler
+                // Ignorar errores de decodificación en el error handler
             }
         }
         res.redirect(errorRedirect);

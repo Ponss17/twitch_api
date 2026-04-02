@@ -37,7 +37,11 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
     const start = Date.now();
     res.on('finish', () => {
         const duration = Date.now() - start;
-        logger.info(`[${req.method}] ${req.originalUrl} - ${res.statusCode} (${duration}ms)`);
+        const safeUrl = req.originalUrl.replace(
+            /([?&])(apiKey|token|access_token|refresh_token)=([^&]*)/gi,
+            '$1$2=[REDACTED]'
+        );
+        logger.info(`[${req.method}] ${safeUrl} - ${res.statusCode} (${duration}ms)`);
     });
     next();
 };
