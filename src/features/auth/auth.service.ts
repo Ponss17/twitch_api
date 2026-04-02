@@ -16,7 +16,7 @@ const signState = (payload: object): string => {
     return `${data}.${sig}`;
 };
 
-const verifyState = (state: string): Record<string, unknown> | null => {
+export const verifyState = (state: string): Record<string, unknown> | null => {
     const lastDot = state.lastIndexOf('.');
     if (lastDot === -1) return null;
     const data = state.slice(0, lastDot);
@@ -53,7 +53,13 @@ export const getAuthorizeUrl = (
 export const handleCallback = async (
     code: string,
     state: string
-): Promise<{ user: TwitchUser; access_token: string; redirectOrigin: string; apiKey: string }> => {
+): Promise<{
+    user: TwitchUser;
+    access_token: string;
+    redirectOrigin: string;
+    apiKey: string;
+    isAdmin: boolean;
+}> => {
     const tokenResponse = await axios.post(`${TWITCH_AUTH_URL}/token`, null, {
         params: {
             client_id: CONFIG.TWITCH_CLIENT_ID,
@@ -109,16 +115,18 @@ export const handleCallback = async (
     await dbService.saveUser(storedUser);
 
     let redirectOrigin = '';
+    let isAdmin = false;
     if (state) {
         const decoded = verifyState(state);
         if (!decoded) {
             logger.warn('⚠ OAuth state inválido o manipulado. Ignorando redirectOrigin.');
         } else {
             redirectOrigin = (decoded.redirectOrigin as string) || '';
+            isAdmin = decoded.isAdmin === true;
         }
     }
 
-    return { user, access_token, redirectOrigin, apiKey };
+    return { user, access_token, redirectOrigin, apiKey, isAdmin };
 };
 
 // Para evitar que múltiples peticiones simultáneas refresquen el mismo token (Race Condition)

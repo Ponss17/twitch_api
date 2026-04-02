@@ -1,20 +1,27 @@
 import { z } from 'zod';
 
+const twitchUsername = z
+    .string()
+    .trim()
+    .min(1)
+    .max(25)
+    .regex(/^[a-zA-Z0-9_]+$/, 'Nombre de usuario Twitch inválido');
+
 export const getClipsSchema = z.object({
     query: z.object({
-        channel: z.string().min(1, 'El nombre del canal es obligatorio'),
+        channel: twitchUsername,
         limit: z.coerce.number().min(1).max(100).default(20)
     })
 });
 
 export const getChattersSchema = z.object({
     query: z.object({
-        channel: z.string().min(1, 'El nombre del canal es obligatorio')
+        channel: twitchUsername
     })
 });
 
 const loginQuery = z.object({
-    login: z.string().min(1, 'El login es obligatorio')
+    login: twitchUsername
 });
 
 export const getUserInfoSchema = z.object({ query: loginQuery });

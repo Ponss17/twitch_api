@@ -180,7 +180,7 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
         res.status(isOperational ? 200 : 503).json({
             status: isOperational ? 'operational' : dbStatus === 'online' ? 'degraded' : 'down',
             timestamp: new Date().toISOString(),
-            version: '2.9.7',
+            version: process.env.npm_package_version || '2.9.4',
             uptime: `${Math.floor(process.uptime())}s`,
             services: {
                 database: {
@@ -210,8 +210,7 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
         logger.error('Error in health check:', e);
         res.status(500).json({
             status: 'error',
-            message: 'Internal health check failure',
-            error: (e as Error).message
+            message: 'Internal health check failure'
         });
     }
 };

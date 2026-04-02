@@ -5,6 +5,16 @@ type CacheEntry<T> = { value: T; expiry: number };
 
 const MEMORY_CACHE = new Map<string, CacheEntry<unknown>>();
 const DEFAULT_L1_TTL_MS = 30 * 1000;
+const MAX_MEMORY_CACHE_SIZE = 500;
+
+const evictMemoryCache = (): void => {
+    const toRemove = Math.floor(MAX_MEMORY_CACHE_SIZE * 0.25);
+    const iterator = MEMORY_CACHE.keys();
+    for (let i = 0; i < toRemove; i++) {
+        const key = iterator.next().value;
+        if (key) MEMORY_CACHE.delete(key);
+    }
+};
 
 const getL1 = <T>(key: string): T | null => {
     const cached = MEMORY_CACHE.get(key) as CacheEntry<T> | undefined;
@@ -16,6 +26,9 @@ const getL1 = <T>(key: string): T | null => {
 };
 
 const setL1 = <T>(key: string, value: T, ttlMs: number = DEFAULT_L1_TTL_MS): void => {
+    if (MEMORY_CACHE.size >= MAX_MEMORY_CACHE_SIZE) {
+        evictMemoryCache();
+    }
     MEMORY_CACHE.set(key, { value, expiry: Date.now() + ttlMs });
 };
 

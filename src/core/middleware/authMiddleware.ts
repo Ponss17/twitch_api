@@ -90,7 +90,6 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     // Unificación de Rate Limit: Poblar res.locals.apiUser desde DB si tenemos userId
     if (req.userId && !res.locals.apiUser) {
         try {
-            const now = Date.now();
             const cached = userCache.get(req.userId);
 
             if (cached && cached.expiry > now) {

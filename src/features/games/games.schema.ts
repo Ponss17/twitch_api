@@ -1,20 +1,27 @@
 import { z } from 'zod';
 
+const twitchUsername = z
+    .string()
+    .trim()
+    .min(1)
+    .max(25)
+    .regex(/^[a-zA-Z0-9_]+$/, 'Nombre de usuario Twitch inválido');
+
 export const askMagic8Schema = z.object({
     query: z.object({
         question: z
             .string()
             .min(3, 'La pregunta debe tener al menos 3 caracteres')
             .max(500, 'Pregunta demasiado larga'),
-        mood: z.string().optional(),
-        user: z.string().optional()
+        mood: z.enum(['classic', 'sarcastic', 'toxic', 'helpful']).optional(),
+        user: twitchUsername.optional()
     })
 });
 
 export const playRussianSchema = z.object({
     query: z.object({
-        channel: z.string().min(1, 'El canal es obligatorio'),
-        user: z.string().min(1, 'El usuario es obligatorio'),
+        channel: twitchUsername,
+        user: twitchUsername,
         hardcore: z.enum(['true', 'false']).optional(),
         format: z.enum(['text', 'json']).optional()
     })
@@ -22,7 +29,7 @@ export const playRussianSchema = z.object({
 
 export const startDuelSchema = z.object({
     query: z.object({
-        target: z.string().min(1, 'El oponente es obligatorio'),
-        challenger: z.string().optional()
+        target: twitchUsername,
+        challenger: twitchUsername.optional()
     })
 });
