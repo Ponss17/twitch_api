@@ -15,23 +15,24 @@ jest.mock('@/core/utils/routeHelpers', () => ({
     isPublicRoute: jest.fn().mockReturnValue(false)
 }));
 
+import { Request, Response } from 'express';
 import { globalRateLimiter } from '../../src/core/middleware/redisRateLimiter';
 
 describe('globalRateLimiter', () => {
-    let req: any;
-    let res: any;
+    let req: Request;
+    let res: Response;
     let next: jest.Mock;
 
     beforeEach(() => {
         jest.clearAllMocks();
-        req = { originalUrl: '/api/test', ip: '1.2.3.4' };
+        req = { originalUrl: '/api/test', ip: '1.2.3.4' } as unknown as Request;
         res = {
             locals: {},
             setHeader: jest.fn(),
             status: jest.fn().mockReturnThis(),
             send: jest.fn(),
             json: jest.fn()
-        };
+        } as unknown as Response;
         next = jest.fn();
     });
 
@@ -44,7 +45,7 @@ describe('globalRateLimiter', () => {
 
     it('bloquea con 429 si supera el límite', async () => {
         mockKv.incr.mockResolvedValue(2000); // Supera los 1000 del dashboard
-        req.userId = 'user1';
+        (req as Request & { userId: string }).userId = 'user1';
 
         await globalRateLimiter(req, res, next);
 
