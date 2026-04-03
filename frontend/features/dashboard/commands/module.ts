@@ -20,7 +20,6 @@ window.CommandUtils = { CommandGenerator };
 export const CommandsModule = {
     session: null as Session | null,
     initialized: false,
-
     uiInitialized: false,
 
     async init(session: Session) {
@@ -35,7 +34,13 @@ export const CommandsModule = {
 
         if (!this.uiInitialized) {
             this.setupTestCommand();
+            this.setupTestShoutout();
             this.uiInitialized = true;
+        }
+
+        if (this.session?.login) {
+            const soChannel = document.getElementById('so-test-channel') as HTMLInputElement;
+            if (soChannel && !soChannel.value) soChannel.value = this.session.login;
         }
 
         Object.values(COMMAND_CONFIG).forEach((conf) => {
@@ -133,22 +138,25 @@ export const CommandsModule = {
         output.dataset.realValue = realCmd;
     },
 
-    setupTestCommand() {
-        const btn = document.getElementById('run-test-btn');
+    // Helper compartido para los paneles de prueba
+    _runApiTest(
+        btnId: string,
+        resultBoxId: string,
+        resultTextId: string,
+        buildUrl: () => string | null
+    ) {
+        const btn = document.getElementById(btnId);
         if (!btn) return;
 
         const newBtn = btn.cloneNode(true);
         btn.parentNode!.replaceChild(newBtn, btn);
 
         newBtn.addEventListener('click', async () => {
-            const channel = (
-                document.getElementById('test-channel') as HTMLInputElement
-            ).value.trim();
-            const user = (document.getElementById('test-user') as HTMLInputElement).value.trim();
-            const resultBox = document.getElementById('test-result-container')!;
-            const resultText = document.getElementById('test-result-text')!;
+            const resultBox = document.getElementById(resultBoxId)!;
+            const resultText = document.getElementById(resultTextId)!;
+            const url = buildUrl();
 
-            if (!channel || !user) {
+            if (!url) {
                 resultBox.classList.add('active', 'error');
                 resultBox.classList.remove('success');
                 resultText.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${CommandsMessages.completeFields}`;
@@ -159,21 +167,11 @@ export const CommandsModule = {
             resultBox.classList.remove('success', 'error');
             resultText.innerHTML = CommandsMessages.testing;
 
-            if (!this.session) return;
-            const { apiKey, token } = this.session;
-            const domain = `${window.location.origin}${API_ENDPOINTS.BASE}`;
-            const tokenParam = apiKey
-                ? `apiKey=${encodeURIComponent(apiKey)}`
-                : token
-                  ? `token=${encodeURIComponent(token)}`
-                  : '';
-            const url = `${domain}/followage?user=${user}&channel=${channel}&${tokenParam}`;
-
             try {
                 const response = await fetch(url);
                 const text = await response.text();
-
                 const safeText = UI.escapeHTML(text);
+
                 if (response.ok) {
                     resultBox.classList.add('success');
                     resultText.innerHTML = `<i class="fa-solid fa-check"></i> ${safeText}`;
@@ -186,5 +184,52 @@ export const CommandsModule = {
                 console.error(err);
             }
         });
+    },
+
+    setupTestCommand() {
+        if (!this.session) return;
+        const { apiKey, token } = this.session;
+        const domain = `${window.location.origin}${API_ENDPOINTS.BASE}`;
+        const tokenParam = apiKey
+            ? `apiKey=${encodeURIComponent(apiKey)}`
+            : token
+              ? `token=${encodeURIComponent(token)}`
+              : '';
+
+        this._runApiTest('run-test-btn', 'test-result-container', 'test-result-text', () => {
+            const channel = (
+                document.getElementById('test-channel') as HTMLInputElement
+            ).value.trim();
+            const user = (document.getElementById('test-user') as HTMLInputElement).value.trim();
+            if (!channel || !user) return null;
+            return `${domain}/followage?user=${user}&channel=${channel}&${tokenParam}`;
+        });
+    },
+
+    setupTestShoutout() {
+        if (!this.session) return;
+        const { apiKey, token, login } = this.session;
+        const domain = `${window.location.origin}${API_ENDPOINTS.BASE}`;
+        const tokenParam = apiKey
+            ? `apiKey=${encodeURIComponent(apiKey)}`
+            : token
+              ? `token=${encodeURIComponent(token)}`
+              : '';
+
+        this._runApiTest(
+            'run-so-test-btn',
+            'so-test-result-container',
+            'so-test-result-text',
+            () => {
+                const channel =
+                    (document.getElementById('so-test-channel') as HTMLInputElement).value.trim() ||
+                    login;
+                const touser = (
+                    document.getElementById('so-test-touser') as HTMLInputElement
+                ).value.trim();
+                if (!touser) return null;
+                return `${domain}/shoutout?channel=${channel}&touser=${touser}&${tokenParam}`;
+            }
+        );
     }
 };
