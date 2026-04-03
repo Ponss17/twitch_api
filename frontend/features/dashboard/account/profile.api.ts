@@ -7,7 +7,7 @@ export const ProfileAPI = {
     async syncSummary(
         session: Session | null,
         authHeaders: () => HeadersInit,
-        lastData: Record<string, any>
+        lastData: Record<string, unknown>
     ): Promise<void> {
         if (!session) return;
         const profileTab = document.getElementById('tab-profile');
