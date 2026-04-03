@@ -202,7 +202,6 @@ const DataExport = {
             const count = analytics[cmd.id] || 0;
             const countStr = typeof count === 'number' ? count.toLocaleString() : count;
 
-            // Determinar la ruta base según el comando
             const getPath = (id: string) => {
                 const paths: Record<string, string> = {
                     clips: '/dashboard/get-clips',
@@ -308,6 +307,22 @@ const DataExport = {
                   day: 'numeric'
               });
 
+        const cmdTotal =
+            ((analytics.clips as number) || 0) +
+            ((analytics.followage as number) || 0) +
+            ((analytics.so as number) || 0) +
+            ((analytics.message as number) || 0);
+        const toolTotal =
+            ((analytics.stalker as number) || 0) +
+            ((analytics.trends as number) || 0) +
+            ((analytics.roulette as number) || 0);
+        const gameTotal =
+            ((analytics.russian as number) || 0) +
+            ((analytics.magic8 as number) || 0) +
+            ((analytics.duel as number) || 0);
+
+        const reportId = `${user.login || 'usr'}-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+
         const commandRows = this.buildCommandRows(analytics, apiKey);
 
         const html = `<!DOCTYPE html>
@@ -315,98 +330,305 @@ const DataExport = {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Datos — LosPerris API</title>
+    <title>Reporte — ${name} · LosPerris API</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0e0e12; color: #e0e0e8; min-height: 100vh; padding: 2rem; }
-        .container { max-width: 720px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #2a2a35; }
-        .header h1 { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #a78bfa, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.3rem; }
-        .header p { color: #9090a0; font-size: 0.85rem; }
-        .avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #7c3aed; margin: 0 auto 1rem; display: block; object-fit: cover; }
-        .section { background: #16161d; border: 1px solid #2a2a35; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.2rem; }
-        .section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #7c3aed; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-        .section-title::before { content: ''; width: 3px; height: 14px; background: #7c3aed; border-radius: 2px; }
-        .row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid #1e1e28; }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0f;
+            --surface: #13131a;
+            --surface2: #1a1a24;
+            --border: #242430;
+            --border2: #1e1e2a;
+            --accent: #7c3aed;
+            --accent-light: #a78bfa;
+            --accent-glow: rgba(124,58,237,0.15);
+            --text: #e8e8f0;
+            --text-muted: #7a7a90;
+            --text-dim: #4a4a60;
+            --success: #10b981;
+            --success-bg: rgba(16,185,129,0.12);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245,158,11,0.12);
+            --info: #3b82f6;
+            --info-bg: rgba(59,130,246,0.12);
+        }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            line-height: 1.5;
+        }
+        .container { max-width: 760px; margin: 0 auto; }
+        .top-banner {
+            height: 4px;
+            background: linear-gradient(90deg, #7c3aed, #a78bfa, #ec4899, #7c3aed);
+            border-radius: 4px 4px 0 0;
+        }
+        .header {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 16px 16px;
+            padding: 1.8rem 2rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .header-avatar {
+            width: 76px; height: 76px;
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .header-avatar-placeholder {
+            width: 76px; height: 76px;
+            border-radius: 50%;
+            background: var(--surface2);
+            border: 3px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; flex-shrink: 0;
+        }
+        .header-info { flex: 1; min-width: 0; }
+        .header-name {
+            font-size: 1.5rem; font-weight: 800;
+            background: linear-gradient(135deg, #e8e8f0, #a78bfa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .header-login { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.1rem; }
+        .header-chips { display: flex; gap: 0.5rem; margin-top: 0.7rem; flex-wrap: wrap; }
+        .chip {
+            display: inline-flex; align-items: center; gap: 0.25rem;
+            padding: 0.2rem 0.6rem; border-radius: 20px;
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em;
+        }
+        .chip-purple { background: var(--accent-glow); color: var(--accent-light); border: 1px solid rgba(124,58,237,0.3); }
+        .chip-green  { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16,185,129,0.25); }
+        .chip-blue   { background: var(--info-bg); color: var(--info); border: 1px solid rgba(59,130,246,0.25); }
+        .header-right { text-align: right; flex-shrink: 0; }
+        .report-id { font-size: 0.62rem; color: var(--text-dim); font-family: monospace; letter-spacing: 0.05em; }
+        .report-date { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+        .quick-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.7rem; margin-bottom: 1.2rem; }
+        .qs-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.9rem; text-align: center; }
+        .qs-val { font-size: 1.4rem; font-weight: 800; color: var(--accent-light); line-height: 1; margin-bottom: 0.25rem; }
+        .qs-lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+
+        .section { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1.1rem; }
+        .section-head { display: flex; align-items: center; gap: 0.6rem; padding: 0.85rem 1.4rem; border-bottom: 1px solid var(--border2); background: var(--surface2); }
+        .section-icon { width: 26px; height: 26px; background: var(--accent-glow); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+        .section-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-light); }
+        .section-body { padding: 1.1rem 1.4rem; }
+
+        .row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--border2); }
         .row:last-child { border-bottom: none; }
-        .row .label { color: #9090a0; font-size: 0.85rem; font-weight: 500; }
-        .row .value { color: #e0e0e8; font-size: 0.85rem; font-weight: 600; text-align: right; max-width: 60%; word-break: break-all; }
-        .badge { display: inline-block; background: #7c3aed22; color: #a78bfa; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
-        .masked { font-family: monospace; letter-spacing: 1px; color: #9090a0; }
-        
-        /* Command Cards Styles */
-        .commands-container { display: flex; flex-direction: column; gap: 1.2rem; }
-        .command-card { background: #1a1a24; border: 1px solid #2a2a35; border-radius: 10px; overflow: hidden; }
-        .cmd-header { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem; border-bottom: 1px solid #2a2a35; background: #1c1c28;}
-        .cmd-title h3 { font-size: 1.1rem; color: #fff; margin-bottom: 0.2rem; font-weight: 600; }
-        .cmd-title p { font-size: 0.8rem; color: #9090a0; }
+        .row-label { color: var(--text-muted); font-size: 0.82rem; font-weight: 500; }
+        .row-value { color: var(--text); font-size: 0.82rem; font-weight: 600; text-align: right; max-width: 60%; word-break: break-all; }
+        .badge { display: inline-block; background: var(--accent-glow); color: var(--accent-light); padding: 0.18rem 0.6rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; border: 1px solid rgba(124,58,237,0.25); }
+        .badge-green { background: var(--success-bg); color: var(--success); border-color: rgba(16,185,129,0.25); }
+        .masked { font-family: monospace; letter-spacing: 1px; color: var(--text-muted); }
+
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+        .metric-card { background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 1rem; }
+        .metric-val { font-size: 1.35rem; font-weight: 800; margin-bottom: 0.2rem; }
+        .metric-lbl { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
+        .mv-purple { color: var(--accent-light); }
+        .mv-green  { color: var(--success); }
+        .mv-yellow { color: var(--warning); }
+        .mv-blue   { color: var(--info); }
+
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; margin-top: 0.8rem; }
+        .cat-card { background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 0.85rem; text-align: center; }
+        .cat-icon { font-size: 1.1rem; margin-bottom: 0.3rem; }
+        .cat-val { font-size: 1.1rem; font-weight: 800; color: var(--accent-light); margin-bottom: 0.15rem; }
+        .cat-lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; }
+
+        .commands-container { display: flex; flex-direction: column; gap: 0.9rem; }
+        .command-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+        .cmd-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.1rem; border-bottom: 1px solid var(--border2); }
+        .cmd-title h3 { font-size: 0.95rem; color: var(--text); margin-bottom: 0.12rem; font-weight: 700; }
+        .cmd-title p { font-size: 0.73rem; color: var(--text-muted); }
         .cmd-stat { display: flex; flex-direction: column; align-items: flex-end; }
-        .cmd-stat .s-val { font-size: 1.4rem; font-weight: 700; color: #a78bfa; line-height: 1; }
-        .cmd-stat .s-lbl { font-size: 0.65rem; color: #7a7a8a; letter-spacing: 1px; margin-top: 0.2rem; }
-        .cmd-variants { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
-        .variant-box { background: #15151e; border: 1px solid #252530; border-radius: 8px; padding: 0.8rem; }
-        .v-header { margin-bottom: 0.6rem; display: flex; flex-direction: column; }
-        .v-name { font-size: 0.85rem; font-weight: 600; color: #e0e0e8; }
-        .v-desc { font-size: 0.75rem; color: #7a7a8a; margin-top: 0.2rem; }
-        .bot-syntax-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 0.8rem; }
-        .bot-syntax { display: flex; flex-direction: column; gap: 0.4rem; min-width: 0; }
-        .bot-name { font-size: 0.75rem; color: #a78bfa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
-        .code-block { background: #0a0a0f; color: #a78bfa; font-family: monospace; font-size: 0.8rem; padding: 0.8rem; border-radius: 6px; border: 1px solid #2a2a35; word-wrap: break-word; overflow-x: auto; white-space: pre-wrap; user-select: all; }
-        @media(max-width: 600px) { .bot-syntax-grid { grid-template-columns: 1fr; } }
-        
-        .footer { text-align: center; margin-top: 2rem; padding-top: 1.2rem; border-top: 1px solid #2a2a35; color: #5a5a6a; font-size: 0.75rem; }
+        .cmd-stat .s-val { font-size: 1.25rem; font-weight: 800; color: var(--accent-light); line-height: 1; }
+        .cmd-stat .s-lbl { font-size: 0.58rem; color: var(--text-dim); letter-spacing: 0.08em; margin-top: 0.15rem; text-transform: uppercase; }
+        .cmd-variants { padding: 0.85rem; display: flex; flex-direction: column; gap: 0.75rem; }
+        .variant-box { background: var(--bg); border: 1px solid var(--border2); border-radius: 8px; padding: 0.75rem; }
+        .v-header { margin-bottom: 0.5rem; }
+        .v-name { font-size: 0.8rem; font-weight: 700; color: var(--text); display: block; }
+        .v-desc { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.12rem; }
+        .bot-syntax-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 0.6rem; }
+        .bot-syntax { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+        .bot-name { font-size: 0.65rem; color: var(--accent-light); font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; }
+        .code-block {
+            background: #06060a; color: #c4b5fd;
+            font-family: 'Courier New', monospace; font-size: 0.72rem;
+            padding: 0.55rem 0.75rem; border-radius: 6px;
+            border: 1px solid var(--border);
+            word-break: break-all; white-space: pre-wrap;
+            user-select: all; line-height: 1.4;
+        }
+        @media(max-width: 580px) {
+            .bot-syntax-grid, .metrics-grid { grid-template-columns: 1fr; }
+            .quick-stats, .cat-grid { grid-template-columns: 1fr 1fr; }
+            .header { flex-direction: column; text-align: center; }
+            .header-right { text-align: center; }
+            .header-chips { justify-content: center; }
+        }
+        .footer { text-align: center; margin-top: 2rem; padding-top: 1.4rem; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.7rem; line-height: 2; }
+        .footer a { color: var(--accent-light); text-decoration: none; }
+        .footer-brand { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.2rem; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            ${user.profile_image_url ? `<img src="${user.profile_image_url}" alt="Avatar" class="avatar">` : ''}
-            <h1>${name}</h1>
-            <p>Reporte de datos personales — LosPerris API</p>
-        </div>
+<div class="container">
 
-        <div class="section">
-            <div class="section-title">Información de Perfil</div>
-            <div class="row"><span class="label">Nombre</span><span class="value">${name}</span></div>
-            <div class="row"><span class="label">Login</span><span class="value">@${user.login || '---'}</span></div>
-            <div class="row"><span class="label">ID de Usuario</span><span class="value">${user.userId || '---'}</span></div>
-            <div class="row"><span class="label">Tipo de Canal</span><span class="value"><span class="badge">${channelType}</span></span></div>
-            <div class="row"><span class="label">Seguidores</span><span class="value">${followerCount}</span></div>
-            <div class="row"><span class="label">Miembro Desde</span><span class="value">${createdAtStr}</span></div>
-            <div class="row"><span class="label">Biografía</span><span class="value">${userInfo.description || '---'}</span></div>
-        </div>
+    <div class="top-banner"></div>
 
-        <div class="section">
-            <div class="section-title">Seguridad y Acceso</div>
-            <div class="row"><span class="label">API Key</span><span class="value masked">${maskedKey}</span></div>
-            <div class="row"><span class="label">Estado</span><span class="value"><span class="badge">Activa</span></span></div>
-            <div class="row"><span class="label">Límite de Peticiones</span><span class="value">${userInfo.rateLimit || 120}</span></div>
-            <div class="row"><span class="label">Nivel de Acceso</span><span class="value">Full API</span></div>
-        </div>
-
-        <div class="section">
-            <div class="section-title">Métricas Generales</div>
-            <div class="row"><span class="label">Peticiones Hoy</span><span class="value">${todayRequests}</span></div>
-            <div class="row"><span class="label">Peticiones Totales</span><span class="value">${totalRequests}</span></div>
-            <div class="row"><span class="label">Latencia Promedio</span><span class="value">${averageLatency}</span></div>
-            <div class="row"><span class="label">Tasa de Éxito</span><span class="value">${successRate}</span></div>
-        </div>
-
-        <div class="section">
-            <div class="section-title">Integraciones de Comandos</div>
-            <div class="commands-container">
-                ${commandRows || '<p style="text-align:center;color:#7a7a8a;margin-top:1rem">Aún no hay comandos registrados.</p>'}
+    <div class="header">
+        ${
+            user.profile_image_url
+                ? `<img src="${user.profile_image_url}" alt="Avatar" class="header-avatar">`
+                : `<div class="header-avatar-placeholder">👤</div>`
+        }
+        <div class="header-info">
+            <div class="header-name">${name}</div>
+            <div class="header-login">@${user.login || '---'}</div>
+            <div class="header-chips">
+                <span class="chip chip-purple">${channelType}</span>
+                <span class="chip chip-green">✓ API Activa</span>
+                <span class="chip chip-blue">LosPerris API</span>
             </div>
         </div>
-
-        <div class="footer">
-            <p>Exportado el ${dateStr} a las ${timeStr}</p>
-            <p style="margin-top: 0.3rem">LosPerris API — Reporte generado automáticamente</p>
+        <div class="header-right">
+            <div class="report-id">ID: ${reportId}</div>
+            <div class="report-date">${dateStr}</div>
+            <div class="report-date">${timeStr}</div>
         </div>
     </div>
+
+    <div class="quick-stats">
+        <div class="qs-card">
+            <div class="qs-val">${followerCount}</div>
+            <div class="qs-lbl">Seguidores</div>
+        </div>
+        <div class="qs-card">
+            <div class="qs-val">${todayRequests.toLocaleString()}</div>
+            <div class="qs-lbl">Hoy</div>
+        </div>
+        <div class="qs-card">
+            <div class="qs-val">${(totalRequests as number).toLocaleString()}</div>
+            <div class="qs-lbl">Total</div>
+        </div>
+        <div class="qs-card">
+            <div class="qs-val">${successRate}</div>
+            <div class="qs-lbl">Éxito</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-head">
+            <div class="section-icon">👤</div>
+            <span class="section-title">Información de Perfil</span>
+        </div>
+        <div class="section-body">
+            <div class="row"><span class="row-label">Nombre</span><span class="row-value">${name}</span></div>
+            <div class="row"><span class="row-label">Login</span><span class="row-value">@${user.login || '---'}</span></div>
+            <div class="row"><span class="row-label">ID de Usuario</span><span class="row-value">${user.userId || '---'}</span></div>
+            <div class="row"><span class="row-label">Tipo de Canal</span><span class="row-value"><span class="badge">${channelType}</span></span></div>
+            <div class="row"><span class="row-label">Seguidores</span><span class="row-value">${followerCount}</span></div>
+            <div class="row"><span class="row-label">Miembro desde</span><span class="row-value">${createdAtStr}</span></div>
+            <div class="row"><span class="row-label">Biografía</span><span class="row-value">${userInfo.description || '—'}</span></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-head">
+            <div class="section-icon">🔐</div>
+            <span class="section-title">Seguridad y Acceso</span>
+        </div>
+        <div class="section-body">
+            <div class="row"><span class="row-label">API Key</span><span class="row-value masked">${maskedKey}</span></div>
+            <div class="row"><span class="row-label">Estado</span><span class="row-value"><span class="badge badge-green">✓ Activa</span></span></div>
+            <div class="row"><span class="row-label">Límite de Peticiones</span><span class="row-value">${userInfo.rateLimit || 120} req/min</span></div>
+            <div class="row"><span class="row-label">Nivel de Acceso</span><span class="row-value">Full API</span></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-head">
+            <div class="section-icon">📊</div>
+            <span class="section-title">Métricas de Rendimiento</span>
+        </div>
+        <div class="section-body">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-val mv-purple">${todayRequests.toLocaleString()}</div>
+                    <div class="metric-lbl">Peticiones hoy</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-val mv-blue">${(totalRequests as number).toLocaleString()}</div>
+                    <div class="metric-lbl">Peticiones totales</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-val mv-yellow">${averageLatency}</div>
+                    <div class="metric-lbl">Latencia promedio</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-val mv-green">${successRate}</div>
+                    <div class="metric-lbl">Tasa de éxito</div>
+                </div>
+            </div>
+            <div class="cat-grid">
+                <div class="cat-card">
+                    <div class="cat-icon">🖥️</div>
+                    <div class="cat-val">${cmdTotal.toLocaleString()}</div>
+                    <div class="cat-lbl">Comandos</div>
+                </div>
+                <div class="cat-card">
+                    <div class="cat-icon">🔧</div>
+                    <div class="cat-val">${toolTotal.toLocaleString()}</div>
+                    <div class="cat-lbl">Herramientas</div>
+                </div>
+                <div class="cat-card">
+                    <div class="cat-icon">🎮</div>
+                    <div class="cat-val">${gameTotal.toLocaleString()}</div>
+                    <div class="cat-lbl">Minijuegos</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-head">
+            <div class="section-icon">⚙️</div>
+            <span class="section-title">Integraciones de Comandos</span>
+        </div>
+        <div class="section-body">
+            <div class="commands-container">
+                ${commandRows || '<p style="text-align:center;color:var(--text-dim);padding:1rem">Aún no hay comandos registrados.</p>'}
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-brand">LosPerris API</div>
+        <div>Reporte generado el <strong>${dateStr}</strong> a las <strong>${timeStr}</strong></div>
+        <div>ID del reporte: <code>${reportId}</code></div>
+        <div style="margin-top:0.5rem">
+            <a href="https://www.losperris.dev/api/twitch/dashboard" target="_blank">Abrir Dashboard</a>
+            &nbsp;·&nbsp;
+            <a href="https://www.losperris.dev/api/twitch/health" target="_blank">Estado del Sistema</a>
+        </div>
+    </div>
+
+</div>
 </body>
 </html>`;
 
