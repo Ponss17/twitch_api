@@ -20,8 +20,8 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
             totalRequests: 0,
             averageLatency: '0ms (0.0s)',
             avgLatencyMs: 0,
-            successRate: '100%',
-            rawSuccessRate: 100
+            successRate: '0%',
+            rawSuccessRate: 0
         });
     }
 
@@ -31,11 +31,10 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
         const todayErrors = stats['today_err_raw'] || 0;
         const todayLatency = stats['today_lat_raw'] || 0;
 
-        // Éxito y Latencia enfocados en HOY
         const successRateVal =
             todayRequests > 0
                 ? parseFloat(((1 - todayErrors / todayRequests) * 100).toFixed(1))
-                : 100;
+                : 0;
 
         const avgLatencyMs = todayRequests > 0 ? Math.round(todayLatency / todayRequests) : 0;
 
@@ -119,7 +118,7 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
             user: channel,
             detail: 'Dashboard Clips',
             skipActivityLog: true,
-            skipRequestCount: true // Consultas del dashboard no inflan el contador de peticiones
+            skipRequestCount: true
         },
         async () => {
             const cacheKey = `cache:cmd:getClips:channel:${channel}:limit:${limitNum}`;
@@ -209,7 +208,7 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
             user: login,
             detail: 'User Info Inspect',
             skipActivityLog: true,
-            skipRequestCount: true // Consultas de perfil no deben contar como uso de "recursos"
+            skipRequestCount: true
         },
         async () => {
             const apiUser = res.locals.apiUser;
@@ -289,9 +288,6 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
 
         const followers = await apiService.getFollowersCount(info.id, token || '');
 
-        // NOTA: followers requiere info.id, por lo que no puede ir en el Promise.all anterior.
-        // Si getUserInfo se cacheara con el ID, podría paralelizarse con un segundo Promise.all.
-
         const safeInfo = {
             id: info.id,
             login: info.login,
@@ -323,7 +319,7 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
                                     100
                                 ).toFixed(1)
                             )
-                          : 100
+                          : 0
               }
             : null;
 

@@ -140,7 +140,6 @@ export const HomeModule = {
 
         localStorage.setItem('dashboard_last_sync', Date.now().toString());
 
-        // Escalonar peticiones (staggering)
         try {
             await this.loadRealActivity();
             await new Promise((r) => setTimeout(r, 500));

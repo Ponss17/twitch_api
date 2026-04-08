@@ -164,7 +164,6 @@ export const Dashboard = {
 
         this.updatePageTitle(tabId);
 
-        // Desactivar módulos activos
         this.activeModules.forEach((mod) => {
             if (mod && typeof mod.deactivate === 'function') {
                 try {
@@ -179,7 +178,6 @@ export const Dashboard = {
         const pane = document.getElementById(tabId);
         if (pane && pane.dataset.src) {
             try {
-                // Si el pane no está cargado, HtmlLoader lo descarga
                 await HtmlLoader.load(pane.dataset.src, pane.id);
             } catch (error) {
                 console.error(`Error loading HTML for tab ${tabId}:`, error);
@@ -203,11 +201,8 @@ export const Dashboard = {
 
         const selectedModules = moduleMap[tabId] || [];
 
-        // Inicializar y activar módulos bajo demanda (Lazy Init)
         for (const mod of selectedModules) {
             if (mod) {
-                // Si el módulo tiene init y NO ha sido inicializado aún
-                // (Podemos verificar una propiedad 'initialized' si el módulo la tiene)
                 if (typeof mod.init === 'function' && !mod.initialized) {
                     try {
                         mod.init(this.session);

@@ -87,7 +87,6 @@ export interface DashboardModule {
     countdown?: number;
     pollInterval?: ReturnType<typeof setInterval> | null;
     rateLimitPollInterval?: ReturnType<typeof setInterval> | null;
-    // Index signature required: Dashboard modules use object literals with custom methods/properties
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
 }

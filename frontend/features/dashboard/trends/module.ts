@@ -275,10 +275,9 @@ export const TrendsModule: ITrendsModule = {
         this.isTracking = true;
         if (this.syncService?.getIsLeader()) {
             this.connect();
-            // Notificar al backend del uso de la herramienta
             fetch(`${DASHBOARD_CONFIG.API_ENDPOINTS.BASE}/dashboard/track-usage`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', ...this.authHeaders() }, // heredado de BaseModule
+                headers: { 'Content-Type': 'application/json', ...this.authHeaders() },
                 body: JSON.stringify({ tool: 'trends' })
             }).catch((e) => console.warn('Error tracking trends usage:', e));
         }
@@ -349,11 +348,10 @@ export const TrendsModule: ITrendsModule = {
         if (firstWord && firstWord.length > 2 && !this.isIgnored.has(firstWord)) {
             this.wordCounts[firstWord] = (this.wordCounts[firstWord] || 0) + 1;
             this.render();
-            // Emitir actualización al resto de pestañas
             if (this.syncService?.getIsLeader()) {
                 this.syncService.broadcast('TRENDS_UPDATE_COUNTS', {
                     counts: this.wordCounts,
-                    log: this.messageLog.slice(0, 20) // Mandamos un trozo pequeño para no saturar
+                    log: this.messageLog.slice(0, 20)
                 });
             }
         }
