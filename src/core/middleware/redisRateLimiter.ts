@@ -59,9 +59,16 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
 
         next();
     } catch (error) {
-        logger.error('Error in KV Rate Limiter:', error);
-        // Fail-safe: si Redis falla, permitimos la petición pero logueamos el error
-        next();
+        logger.error('Error in KV Rate Limiter (RateLimit Fail-Closed applied):', error);
+
+        if (cleanPath.startsWith('/api') || cleanPath.startsWith('/twitch')) {
+            res.setHeader('Content-Type', 'text/plain');
+            return res.status(503).send('Servicio temporalmente no disponible (KV Timeout).');
+        }
+        return res.status(503).json({
+            error: 'Service Unavailable',
+            message: 'Servicio no disponible debido a alta carga global.'
+        });
     }
 };
 
@@ -107,7 +114,8 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
         }
         next();
     } catch (_e) {
-        next();
+        res.setHeader('Content-Type', 'text/plain');
+        return res.status(503).send('Servicio temporalmente intermitente.');
     }
 };
 
@@ -132,6 +140,9 @@ export const authRateLimiter = async (req: Request, res: Response, next: NextFun
         }
         next();
     } catch (_e) {
-        next();
+        return res.status(503).json({
+            error: 'Service Unavailable',
+            message: 'Servicio de autenticación no disponible por alta carga global.'
+        });
     }
 };

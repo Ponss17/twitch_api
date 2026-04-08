@@ -118,7 +118,6 @@ export const configureMiddleware = (app: Application) => {
                 'http://localhost:5173'
             ];
 
-            const isVercel = origin.endsWith('.vercel.app');
             const isSameHost = host && origin.includes(host);
 
             let isBaseUrl = false;
@@ -129,7 +128,7 @@ export const configureMiddleware = (app: Application) => {
                 // ignore
             }
 
-            if (allowedOrigins.includes(origin) || isVercel || isSameHost || isBaseUrl) {
+            if (allowedOrigins.includes(origin) || isSameHost || isBaseUrl) {
                 callback(null, { origin: true, credentials: true });
             } else {
                 callback(new Error('Bloqueado por reglas de CORS de la API'));

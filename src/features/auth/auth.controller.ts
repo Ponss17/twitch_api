@@ -13,8 +13,6 @@ const isAllowedOrigin = (origin: string, req: Request): boolean => {
 
         if (host && url.host.includes(host)) return true;
 
-        if (url.hostname.endsWith('.vercel.app')) return true;
-
         try {
             const baseUrlHost = new URL(CONFIG.BASE_URL).hostname;
             if (url.hostname.includes(baseUrlHost)) return true;
