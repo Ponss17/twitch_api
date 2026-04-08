@@ -9,11 +9,13 @@ import {
     sendMessageSchema
 } from './commands.schema';
 
+import { csrfProtection } from '../../core/middleware/csrfProtection';
+
 const router = Router();
 
 router.get('/create-clip', checkToken, validate(createClipSchema), createClip);
 router.get('/followage', checkToken, validate(followageSchema), followage);
 router.get('/shoutout', checkToken, validate(shoutoutSchema), getShoutout);
-router.post('/send-message', checkToken, validate(sendMessageSchema), sendMessage);
+router.post('/send-message', checkToken, csrfProtection, validate(sendMessageSchema), sendMessage);
 
 export default router;
