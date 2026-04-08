@@ -101,7 +101,6 @@ export const StalkerModule: IStalkerModule = {
             this.loadChatters();
             this.connectTmi();
 
-            // Notificar al backend del uso de la herramienta
             fetch(`${API_ENDPOINTS.BASE}/dashboard/track-usage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...this.authHeaders() },

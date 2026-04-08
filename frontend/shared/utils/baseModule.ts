@@ -20,7 +20,6 @@ export const BaseModule = {
     },
 
     authQuery(this: { session: Session | null }): string {
-        // Deprecated: API Key now sent via headers for security
         return '';
     },
 

@@ -138,7 +138,6 @@ export const CommandsModule = {
         output.dataset.realValue = realCmd;
     },
 
-    // Helper compartido para los paneles de prueba
     _runApiTest(
         btnId: string,
         resultBoxId: string,

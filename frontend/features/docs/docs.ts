@@ -189,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Registrar event listeners en lugar de depender de onclick= en el HTML
     document.querySelectorAll<HTMLElement>('.tab-btn').forEach((btn) => {
         const label = btn.textContent?.trim().toLowerCase() || '';
         const botMap: Record<string, string> = {
