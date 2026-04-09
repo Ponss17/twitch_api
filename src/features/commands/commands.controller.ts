@@ -50,9 +50,10 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
             );
 
             if (clipUrl) {
-                const template = safeString(req.query.template);
+                const rawTemplate = safeString(req.query.template);
                 res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-                if (template) {
+                if (rawTemplate) {
+                    const template = rawTemplate.replace(/[\r\n]/g, '');
                     const safeUrl = sanitizeHtml(clipUrl);
                     const safeChannel = sanitizeHtml(channel);
                     const safeTitle = sanitizeHtml(finalTitle || '');
@@ -116,9 +117,10 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             );
 
             if (result) {
-                const template = safeString(req.query.template);
+                const rawTemplate = safeString(req.query.template);
                 res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-                if (template) {
+                if (rawTemplate) {
+                    const template = rawTemplate.replace(/[\r\n]/g, '');
                     return res.send(
                         template
                             .replace('{time}', sanitizeHtml(result.timePhrase))
@@ -182,8 +184,9 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
                     const gameName = channelInfo.game_name || 'Just Chatting';
                     const url = `https://twitch.tv/${touser}`;
 
-                    const messagePattern =
+                    const rawPattern =
                         safeString(req.query.template) || MESSAGES.COMMANDS.SHOUTOUT_HEADLINE;
+                    const messagePattern = rawPattern.replace(/[\r\n]/g, '');
                     const message = messagePattern
                         .replace('{user}', touser)
                         .replace('{game}', gameName)

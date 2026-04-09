@@ -51,3 +51,33 @@ export const deleteAccountSchema = z.object({
         })
     })
 });
+
+export const trackUsageSchema = z.object({
+    body: z.object({
+        tool: z.enum(['trends', 'stalker', 'roulette'] as const, {
+            message: 'Herramienta inválida. Valores: trends, stalker, roulette'
+        })
+    })
+});
+
+export const updateTimezoneSchema = z.object({
+    body: z.object({
+        timezone: z
+            .string()
+            .min(1)
+            .refine(
+                (tz) => {
+                    try {
+                        Intl.DateTimeFormat(undefined, { timeZone: tz });
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                },
+                {
+                    message:
+                        'Zona horaria inválida. Usa una zona IANA válida (ej: America/Mexico_City)'
+                }
+            )
+    })
+});

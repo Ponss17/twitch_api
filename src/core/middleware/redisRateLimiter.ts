@@ -35,8 +35,9 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
             key = `rl:sess:${userId}`;
             limit = RATE_LIMITS.DASHBOARD;
         } else {
-            key = `rl:ip:${req.ip || 'anon'}`;
-            limit = RATE_LIMITS.PUBLIC; // Fallback para anónimos en rutas no públicas
+            const safeIp = (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
+            key = `rl:ip:${safeIp}`;
+            limit = RATE_LIMITS.PUBLIC;
         }
 
         const currentWindow = Math.floor(Date.now() / 60000); // Ventana de 1 minuto
@@ -123,7 +124,8 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
  * Limitador para intentos de login (Fuerza Bruta).
  */
 export const authRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
-    const key = `rl:auth:${req.ip || 'anon'}`;
+    const safeIp = (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
+    const key = `rl:auth:${safeIp}`;
     const limit = RATE_LIMITS.LOGIN;
     const windowSeconds = 15 * 60; // 15 minutos
     const redisKey = `${key}:${Math.floor(Date.now() / (windowSeconds * 1000))}`;

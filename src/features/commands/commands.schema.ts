@@ -35,7 +35,6 @@ export const sendMessageSchema = z.object({
 
 export const shoutoutSchema = z.object({
     query: z.object({
-        channel: twitchUsername,
         touser: twitchUsername,
         template: z.string().max(500).optional()
     })
