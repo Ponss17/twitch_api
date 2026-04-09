@@ -18,10 +18,9 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
         const validation = await apiService.validateToken(token);
         if (validation) {
             try {
-                // Paralelizamos la obtención de info de Twitch y de nuestra DB
                 const [userProfile, dbUser] = await Promise.all([
                     apiService.getUserInfo(validation.login, token),
-                    dbService.getUserByLogin(validation.login) // Usamos login para paralelizar antes de tener la ID si es posible, o simplemente la ID
+                    dbService.getUser(validation.user_id)
                 ]);
 
                 return res.json({
