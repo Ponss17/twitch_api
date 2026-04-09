@@ -59,10 +59,13 @@ export const RussianModule: IRussianModule = {
         if (responseEl) {
             const icon = type === 'success' ? 'fa-circle-check' : 'fa-skull';
             responseEl.className = `response-card ${type} active`;
-            responseEl.innerHTML = `
-                <i class="fa-solid ${icon}"></i>
-                <span>${text}</span>
-            `;
+            const iconEl = document.createElement('i');
+            iconEl.className = `fa-solid ${icon}`;
+            const textEl = document.createElement('span');
+            textEl.textContent = text;
+            responseEl.innerHTML = '';
+            responseEl.appendChild(iconEl);
+            responseEl.appendChild(textEl);
 
             if (gunIcon) {
                 gunIcon.classList.remove('fa-shake');

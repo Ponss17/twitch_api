@@ -69,6 +69,9 @@ export const BaseModule = {
         if (!el) return;
         el.className = `response-card ${type} active`;
         const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
-        el.innerHTML = `<i class="fa-solid ${icon}"></i><span>${text}</span>`;
+        const span = document.createElement('span');
+        span.textContent = text;
+        el.innerHTML = `<i class="fa-solid ${icon}"></i>`;
+        el.appendChild(span);
     }
 };
