@@ -278,10 +278,17 @@ export const HomeModule = {
             });
             const logElement = document.createElement('div');
             logElement.className = 'log-entry';
-            logElement.innerHTML = `
-                <span class="log-time">[${time}]</span>
-                <span class="log-msg">${log.action}</span>
-            `;
+
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'log-time';
+            timeSpan.textContent = `[${time}]`;
+
+            const msgSpan = document.createElement('span');
+            msgSpan.className = 'log-msg';
+            msgSpan.textContent = log.action;
+
+            logElement.appendChild(timeSpan);
+            logElement.appendChild(msgSpan);
             logContainer.appendChild(logElement);
         });
     },
