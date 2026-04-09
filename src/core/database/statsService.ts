@@ -31,6 +31,16 @@ const STATS_TTL = 15 * 1000; // 15 segundos de caché para fluidez y precisión
 async function ensureStatsRow(userId: string): Promise<void> {
     if (EXISTS_CACHE.has(userId)) return;
 
+    const { count } = await supabase
+        .from('user_stats')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+    if (count && count > 0) {
+        EXISTS_CACHE.add(userId);
+        return;
+    }
+
     const defaultRow = DEFAULT_STAT_FIELDS.reduce(
         (acc, f) => {
             acc[f] = 0;

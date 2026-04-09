@@ -33,15 +33,33 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
         const { error } = await supabase.from('activity_logs').insert({
             user_id: userId,
             activity_type: entry.type,
-            user_name: userName, // Aseguramos que nunca sea null
+            user_name: userName,
             detail: entry.detail ?? null,
             created_at: new Date().toISOString()
         });
 
         if (error) {
             logger.error(`❌ Error Supabase guardando actividad {${entry.type}}:`, error.message);
-        } else {
-            logger.debug(`Actividad registrada: ${entry.type} por ${userName}`);
+            return;
+        }
+
+        const { count } = await supabase
+            .from('activity_logs')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId);
+
+        if (count && count > MAX_USER_LOGS) {
+            const { data: oldest } = await supabase
+                .from('activity_logs')
+                .select('id')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: true })
+                .limit(count - MAX_USER_LOGS);
+
+            if (oldest && oldest.length > 0) {
+                const ids = oldest.map((r) => r.id as string);
+                await supabase.from('activity_logs').delete().in('id', ids);
+            }
         }
     } catch (e) {
         logger.error('Error fatal al añadir actividad:', e);
