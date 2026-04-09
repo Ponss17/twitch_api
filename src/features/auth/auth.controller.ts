@@ -11,11 +11,12 @@ const isAllowedOrigin = (origin: string, req: Request): boolean => {
         const url = new URL(origin);
         const host = req.get('host');
 
-        if (host && url.host.includes(host)) return true;
+        if (host && (url.host === host || url.host.endsWith(`.${host}`))) return true;
 
         try {
             const baseUrlHost = new URL(CONFIG.BASE_URL).hostname;
-            if (url.hostname.includes(baseUrlHost)) return true;
+            if (url.hostname === baseUrlHost || url.hostname.endsWith(`.${baseUrlHost}`))
+                return true;
         } catch {
             /* ignore */
         }

@@ -118,12 +118,22 @@ export const configureMiddleware = (app: Application) => {
                 'http://localhost:5173'
             ];
 
-            const isSameHost = host && origin.includes(host);
+            let safeOrigin: URL | null = null;
+            try {
+                safeOrigin = new URL(origin);
+            } catch {
+                return callback(new Error('Bloqueado por reglas de CORS de la API'));
+            }
+
+            const isSameHost =
+                host && (safeOrigin.host === host || safeOrigin.host.endsWith(`.${host}`));
 
             let isBaseUrl = false;
             try {
                 const baseUrlHost = new URL(CONFIG.BASE_URL).hostname;
-                isBaseUrl = origin.includes(baseUrlHost);
+                isBaseUrl =
+                    safeOrigin.hostname === baseUrlHost ||
+                    safeOrigin.hostname.endsWith(`.${baseUrlHost}`);
             } catch (_e) {
                 // ignore
             }

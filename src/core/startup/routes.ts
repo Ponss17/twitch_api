@@ -85,9 +85,7 @@ export const configureRoutes = (app: Application) => {
         const isConfigured = !!(CONFIG.TWITCH_CLIENT_ID && CONFIG.TWITCH_CLIENT_SECRET);
         res.json({
             status: isConfigured ? 'ok' : 'maintenance',
-            timestamp: new Date().toISOString(),
-            uptime: process.uptime(),
-            version: process.env.npm_package_version || '2.9.4'
+            timestamp: new Date().toISOString()
         });
     });
 

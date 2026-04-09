@@ -12,7 +12,9 @@ import {
     getAnalyticsSchema,
     getActivitySchema,
     clearUserDataSchema,
-    deleteAccountSchema
+    deleteAccountSchema,
+    trackUsageSchema,
+    updateTimezoneSchema
 } from './dashboard.schema';
 
 const router = Router();
@@ -41,8 +43,20 @@ router.get(
 router.get('/user-info', checkToken, validate(getUserInfoSchema), dashboardController.getUserInfo);
 router.get('/summary', checkToken, validate(getSummarySchema), dashboardController.getSummary);
 router.get('/activity', checkToken, validate(getActivitySchema), dashboardController.getLogs);
-router.post('/track-usage', checkToken, csrfProtection, dashboardController.trackToolUsage);
-router.put('/timezone', checkToken, csrfProtection, dashboardController.updateTimezone);
+router.post(
+    '/track-usage',
+    checkToken,
+    csrfProtection,
+    validate(trackUsageSchema),
+    dashboardController.trackToolUsage
+);
+router.put(
+    '/timezone',
+    checkToken,
+    csrfProtection,
+    validate(updateTimezoneSchema),
+    dashboardController.updateTimezone
+);
 
 router.post(
     '/clear-data',
