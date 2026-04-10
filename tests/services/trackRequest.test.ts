@@ -24,7 +24,12 @@ describe('trackRequest', () => {
 
     it('llama a recordUserRequest con éxito=true cuando la acción pasa', async () => {
         await trackRequest('user1', { type: 'clip', user: 'test' }, async () => 'ok');
-        expect(mockRecordUserRequest).toHaveBeenCalledWith('user1', expect.any(Number), true);
+        expect(mockRecordUserRequest).toHaveBeenCalledWith(
+            'user1',
+            expect.any(Number),
+            true,
+            undefined
+        );
     });
 
     it('llama a addUserActivity cuando skipActivityLog es false', async () => {
@@ -64,7 +69,12 @@ describe('trackRequest', () => {
             })
         ).rejects.toThrow('fallo de prueba');
 
-        expect(mockRecordUserRequest).toHaveBeenCalledWith('user1', expect.any(Number), false);
+        expect(mockRecordUserRequest).toHaveBeenCalledWith(
+            'user1',
+            expect.any(Number),
+            false,
+            undefined
+        );
     });
 
     it('sin userId no hace ninguna llamada a DB', async () => {

@@ -20,19 +20,15 @@ const apiClient = axios.create({
     timeout: 10000
 });
 
-// Circuit Breaker State
-const CIRCUIT_BREAKER = {
+export const CIRCUIT_BREAKER = {
     failures: 0,
     lastFailure: 0,
     threshold: 5,
-    cooldownMs: 30000, // 30 segundos
+    cooldownMs: 30000,
     state: 'CLOSED' as 'CLOSED' | 'OPEN' | 'HALF_OPEN'
 };
 
-/**
- * Verifica si el circuito está abierto y corta la petición si Twitch está fallando.
- */
-const checkCircuit = () => {
+export const checkCircuit = () => {
     if (CIRCUIT_BREAKER.state === 'OPEN') {
         const now = Date.now();
         if (now - CIRCUIT_BREAKER.lastFailure > CIRCUIT_BREAKER.cooldownMs) {
@@ -46,10 +42,7 @@ const checkCircuit = () => {
     }
 };
 
-/**
- * Registra un fallo en el circuito.
- */
-const recordFailure = () => {
+export const recordFailure = () => {
     CIRCUIT_BREAKER.failures++;
     CIRCUIT_BREAKER.lastFailure = Date.now();
     if (CIRCUIT_BREAKER.failures >= CIRCUIT_BREAKER.threshold) {
@@ -58,10 +51,7 @@ const recordFailure = () => {
     }
 };
 
-/**
- * Registra un éxito en el circuito.
- */
-const recordSuccess = () => {
+export const recordSuccess = () => {
     CIRCUIT_BREAKER.failures = 0;
     CIRCUIT_BREAKER.state = 'CLOSED';
 };

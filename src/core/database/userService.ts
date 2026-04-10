@@ -5,6 +5,19 @@ import { encrypt, decrypt, ENCRYPTION_KEY, LEGACY_ENCRYPTION_KEY } from './crypt
 import { logger } from '../utils/logger';
 import * as cacheService from './cacheService';
 
+function decryptTokenWithFallback(text: string, context: string): string {
+    try {
+        return decrypt(text, ENCRYPTION_KEY);
+    } catch (_e) {
+        try {
+            return decrypt(text, LEGACY_ENCRYPTION_KEY);
+        } catch (_e2) {
+            logger.error(`❌ Fallo crítico de descifrado para: ${context}`);
+            throw _e;
+        }
+    }
+}
+
 // Convierte un StoredUser del sistema al formato de columnas de Supabase
 function toRow(user: StoredUser): Record<string, unknown> {
     return {
@@ -82,24 +95,17 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
     const user = fromRow(data as Record<string, unknown>);
     let needsMigration = false;
 
-    const decryptWithFallback = (text: string): string => {
-        try {
-            return decrypt(text, ENCRYPTION_KEY);
-        } catch (_e) {
-            try {
-                const decrypted = decrypt(text, LEGACY_ENCRYPTION_KEY);
-                needsMigration = true;
-                return decrypted;
-            } catch (_e2) {
-                logger.error(`❌ Fallo crítico de descifrado para usuario ${userId}`);
-                throw _e;
-            }
-        }
-    };
-
     try {
-        if (user.accessToken) user.accessToken = decryptWithFallback(user.accessToken);
-        if (user.refreshToken) user.refreshToken = decryptWithFallback(user.refreshToken);
+        if (user.accessToken) {
+            const plain = decryptTokenWithFallback(user.accessToken, `usuario ${userId}`);
+            if (plain !== user.accessToken) needsMigration = true;
+            user.accessToken = plain;
+        }
+        if (user.refreshToken) {
+            const plain = decryptTokenWithFallback(user.refreshToken, `usuario ${userId}`);
+            if (plain !== user.refreshToken) needsMigration = true;
+            user.refreshToken = plain;
+        }
     } catch (e) {
         logger.error(`⚠️ Error en descifrado para ${userId}:`, (e as Error).message);
     }
@@ -124,20 +130,10 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
     const user = fromRow(data as Record<string, unknown>);
 
     try {
-        if (user.accessToken) {
-            try {
-                user.accessToken = decrypt(user.accessToken, ENCRYPTION_KEY);
-            } catch (_e) {
-                user.accessToken = decrypt(user.accessToken, LEGACY_ENCRYPTION_KEY);
-            }
-        }
-        if (user.refreshToken) {
-            try {
-                user.refreshToken = decrypt(user.refreshToken, ENCRYPTION_KEY);
-            } catch (_e) {
-                user.refreshToken = decrypt(user.refreshToken, LEGACY_ENCRYPTION_KEY);
-            }
-        }
+        if (user.accessToken)
+            user.accessToken = decryptTokenWithFallback(user.accessToken, `login ${login}`);
+        if (user.refreshToken)
+            user.refreshToken = decryptTokenWithFallback(user.refreshToken, `login ${login}`);
     } catch (e) {
         logger.error(`⚠️ Error en descifrado para login ${login}:`, (e as Error).message);
     }
@@ -178,20 +174,10 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
     }
 
     try {
-        if (user.accessToken) {
-            try {
-                user.accessToken = decrypt(user.accessToken, ENCRYPTION_KEY);
-            } catch (_e) {
-                user.accessToken = decrypt(user.accessToken, LEGACY_ENCRYPTION_KEY);
-            }
-        }
-        if (user.refreshToken) {
-            try {
-                user.refreshToken = decrypt(user.refreshToken, ENCRYPTION_KEY);
-            } catch (_e2) {
-                user.refreshToken = decrypt(user.refreshToken, LEGACY_ENCRYPTION_KEY);
-            }
-        }
+        if (user.accessToken)
+            user.accessToken = decryptTokenWithFallback(user.accessToken, `api_key ${apiKey}`);
+        if (user.refreshToken)
+            user.refreshToken = decryptTokenWithFallback(user.refreshToken, `api_key ${apiKey}`);
     } catch (_e) {
         logger.error(`⚠️ Error descifrando tokens para api_key: ${apiKey}`);
     }

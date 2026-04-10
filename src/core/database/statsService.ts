@@ -23,9 +23,8 @@ const DEFAULT_STAT_FIELDS = [
 // Cache para saber si un usuario ya tiene fila de stats y evitar upserts constantes
 const EXISTS_CACHE = new Set<string>();
 
-// Caché L1 en memoria para evitar lecturas excesivas de Supabase
-const STATS_CACHE = new Map<string, { data: Record<string, number>; expiry: number }>();
-const STATS_TTL = 15 * 1000; // 15 segundos de caché para fluidez y precisión
+const STATS_CACHE = new Map<string, { data: Record<string, number>; expiry: number; tz: string }>();
+const STATS_TTL = 15 * 1000;
 
 // Asegura que exista la fila de stats para el usuario antes de incrementar
 async function ensureStatsRow(userId: string): Promise<void> {
@@ -110,9 +109,13 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         const cached = STATS_CACHE.get(userId);
         if (cached && cached.expiry > now) return cached.data;
 
+        const cachedTz = cached?.tz || null;
+
         const [totalsResult, userResult] = await Promise.all([
             supabase.from('user_stats').select('*').eq('user_id', userId).single(),
-            supabase.from('users').select('timezone').eq('user_id', userId).single()
+            cachedTz
+                ? Promise.resolve(null)
+                : supabase.from('users').select('timezone').eq('user_id', userId).single()
         ]);
 
         const totals = totalsResult.data;
@@ -123,7 +126,6 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
             EXISTS_CACHE.add(userId);
         }
 
-        // Combinar datos
         const numericStats: Record<string, number> = {};
         for (const field of DEFAULT_STAT_FIELDS) {
             const legacyKey = field.replace('_count', '');
@@ -138,16 +140,18 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
             }
         }
 
-        const tz = userResult.data?.timezone || 'UTC';
+        const tz =
+            cachedTz ||
+            (userResult as { data: { timezone: string } | null } | null)?.data?.timezone ||
+            'UTC';
         const formatter = new Intl.DateTimeFormat('en-CA', {
             timeZone: tz,
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'
         });
-        const todayStr = formatter.format(new Date()); // Formato YYYY-MM-DD
+        const todayStr = formatter.format(new Date());
 
-        // Priorizamos los contadores reales de las nuevas columnas para los cuadros superiores
         numericStats[`d:${todayStr}`] = totals?.today_requests ?? 0;
         numericStats[`e:${todayStr}`] = totals?.today_errors ?? 0;
         numericStats[`l:${todayStr}`] = totals?.today_latency ?? 0;
@@ -156,7 +160,7 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         numericStats['today_err_raw'] = totals?.today_errors ?? 0;
         numericStats['today_lat_raw'] = totals?.today_latency ?? 0;
 
-        STATS_CACHE.set(userId, { data: numericStats, expiry: now + STATS_TTL });
+        STATS_CACHE.set(userId, { data: numericStats, expiry: now + STATS_TTL, tz });
         return numericStats;
     } catch (e) {
         logger.error('Error obteniendo estadísticas:', e);
