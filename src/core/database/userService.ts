@@ -1,5 +1,4 @@
 import { supabase } from './supabaseClient';
-import crypto from 'crypto';
 import { StoredUser } from '../../types/twitch';
 import { encrypt, decrypt, ENCRYPTION_KEY, LEGACY_ENCRYPTION_KEY } from './cryptoService';
 import { logger } from '../utils/logger';
@@ -214,22 +213,6 @@ export const deleteUser = async (userId: string): Promise<void> => {
         logger.error('Error deleting user:', e);
         throw e;
     }
-};
-
-export const resetUserApiKey = async (userId: string): Promise<string> => {
-    const user = await getUser(userId);
-    if (!user) throw new Error('User not found');
-
-    const newKey = crypto.randomUUID();
-
-    const { error } = await supabase
-        .from('users')
-        .update({ api_key: newKey })
-        .eq('user_id', userId);
-
-    if (error) throw error;
-
-    return newKey;
 };
 
 export const updateUserTimezone = async (userId: string, timezone: string): Promise<void> => {

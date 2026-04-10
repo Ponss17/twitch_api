@@ -33,14 +33,6 @@ export interface TwitchClip {
     vod_offset: number | null;
 }
 
-export interface TwitchAuthResponse {
-    access_token: string;
-    expires_in: number;
-    refresh_token: string;
-    scope: string[];
-    token_type: string;
-}
-
 export interface TwitchError {
     status: number;
     message: string;
