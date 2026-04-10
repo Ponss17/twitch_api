@@ -16,6 +16,6 @@
         "noImplicitAny": true,
         "types": ["node", "express", "cors", "helmet", "compression", "jest"]
     },
-    "include": ["src/**/*", "api/**/*", "tests/**/*"],
+    "include": ["src/**/*", "api/**/*", "admin/**/*", "tests/**/*"],
     "exclude": ["node_modules", "public", "dist", "frontend"]
 }
