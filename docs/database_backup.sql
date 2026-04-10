@@ -89,18 +89,25 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Registro atómico de peticiones (Métricas de Latencia y Errores diarios y totales)
+-- El reset diario usa la zona horaria del usuario (columna timezone en users), no UTC.
 CREATE OR REPLACE FUNCTION public.record_user_request(
   p_user_id TEXT,
   p_latency INT,
   p_success BOOLEAN
 ) RETURNS void AS $$
 DECLARE
-  v_today DATE := CURRENT_DATE;
+  v_tz    TEXT;
+  v_today DATE;
 BEGIN
+  SELECT COALESCE(timezone, 'UTC') INTO v_tz
+  FROM users WHERE user_id = p_user_id;
+
+  v_today := (now() AT TIME ZONE v_tz)::DATE;
+
   UPDATE user_stats SET
-    today_requests = CASE WHEN last_stats_date < v_today THEN 1 ELSE today_requests + 1 END,
+    today_requests = CASE WHEN last_stats_date < v_today THEN 1               ELSE today_requests + 1 END,
     today_errors   = CASE WHEN last_stats_date < v_today THEN (CASE WHEN NOT p_success THEN 1 ELSE 0 END) ELSE today_errors + (CASE WHEN NOT p_success THEN 1 ELSE 0 END) END,
-    today_latency  = CASE WHEN last_stats_date < v_today THEN p_latency ELSE today_latency + p_latency END,
+    today_latency  = CASE WHEN last_stats_date < v_today THEN p_latency       ELSE today_latency + p_latency END,
     last_stats_date = v_today,
     total_requests = total_requests + 1,
     total_latency  = total_latency + p_latency,
