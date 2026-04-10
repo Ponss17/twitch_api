@@ -1,6 +1,7 @@
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
 import https from 'https';
+import { kv } from '@vercel/kv';
 import { CONFIG } from '../../core/config/env';
 import {
     TwitchClip,
@@ -13,6 +14,9 @@ import * as cacheService from '../../core/database/cacheService';
 import { logger } from '../../core/utils/logger';
 import { getTimePhraseBetween } from '../../core/utils/time';
 import { TwitchApiError } from '../../core/errors/AppError';
+
+const CB_KV_KEY = 'circuit_breaker:twitch';
+const CB_KV_TTL_S = 120;
 
 const httpsAgent = new https.Agent({ keepAlive: true });
 const apiClient = axios.create({
@@ -27,6 +31,28 @@ export const CIRCUIT_BREAKER = {
     cooldownMs: 30000,
     state: 'CLOSED' as 'CLOSED' | 'OPEN' | 'HALF_OPEN'
 };
+
+type CbState = { state: 'OPEN'; lastFailure: number } | { state: 'CLOSED' };
+
+const syncCbToKv = (state: CbState): void => {
+    if (state.state === 'OPEN') {
+        kv.set(CB_KV_KEY, state, { ex: CB_KV_TTL_S }).catch(() => {});
+    } else {
+        kv.del(CB_KV_KEY).catch(() => {});
+    }
+};
+
+// Al arrancar (cold start), sincronizar con KV sin bloquear
+kv.get<CbState>(CB_KV_KEY)
+    .then((stored) => {
+        if (stored?.state === 'OPEN') {
+            CIRCUIT_BREAKER.state = 'OPEN';
+            CIRCUIT_BREAKER.lastFailure = stored.lastFailure;
+            CIRCUIT_BREAKER.failures = CIRCUIT_BREAKER.threshold;
+            logger.warn('[CircuitBreaker] Reanudado desde KV: estado OPEN');
+        }
+    })
+    .catch(() => {});
 
 export const checkCircuit = () => {
     if (CIRCUIT_BREAKER.state === 'OPEN') {
@@ -48,12 +74,14 @@ export const recordFailure = () => {
     if (CIRCUIT_BREAKER.failures >= CIRCUIT_BREAKER.threshold) {
         CIRCUIT_BREAKER.state = 'OPEN';
         logger.error('🚨 CIRCUIT BREAKER OPEN: Twitch API is failing consistently.');
+        syncCbToKv({ state: 'OPEN', lastFailure: CIRCUIT_BREAKER.lastFailure });
     }
 };
 
 export const recordSuccess = () => {
     CIRCUIT_BREAKER.failures = 0;
     CIRCUIT_BREAKER.state = 'CLOSED';
+    syncCbToKv({ state: 'CLOSED' });
 };
 
 axiosRetry(apiClient, {

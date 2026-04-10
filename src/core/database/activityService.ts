@@ -43,26 +43,31 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
             return;
         }
 
-        const { count } = await supabase
-            .from('activity_logs')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', userId);
-
-        if (count && count > MAX_USER_LOGS) {
-            const { data: oldest } = await supabase
-                .from('activity_logs')
-                .select('id')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: true })
-                .limit(count - MAX_USER_LOGS);
-
-            if (oldest && oldest.length > 0) {
-                const ids = oldest.map((r) => r.id as string);
-                await supabase.from('activity_logs').delete().in('id', ids);
-            }
-        }
+        // Cleanup en background sin bloquear la respuesta al usuario
+        trimUserLogs(userId).catch(() => {});
     } catch (e) {
         logger.error('Error fatal al añadir actividad:', e);
+    }
+};
+
+const trimUserLogs = async (userId: string): Promise<void> => {
+    const { count } = await supabase
+        .from('activity_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+    if (count && count > MAX_USER_LOGS) {
+        const { data: oldest } = await supabase
+            .from('activity_logs')
+            .select('id')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: true })
+            .limit(count - MAX_USER_LOGS);
+
+        if (oldest && oldest.length > 0) {
+            const ids = oldest.map((r) => r.id as string);
+            await supabase.from('activity_logs').delete().in('id', ids);
+        }
     }
 };
 
