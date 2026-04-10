@@ -7,6 +7,7 @@ const mockReq = (overrides = {}) =>
         body: {},
         query: {},
         params: {},
+        originalUrl: '/api/test',
         ...overrides
     }) as unknown as Request;
 

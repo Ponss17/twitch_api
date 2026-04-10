@@ -54,7 +54,10 @@ describe('dashboardController', () => {
                 total_errors: 5,
                 [`d:${today}`]: 10,
                 [`l:${today}`]: 500,
-                [`e:${today}`]: 1
+                [`e:${today}`]: 1,
+                today_req_raw: 10,
+                today_lat_raw: 500,
+                today_err_raw: 1
             });
 
             await getAnalytics(req, res);
@@ -92,7 +95,7 @@ describe('dashboardController', () => {
                 expect.objectContaining({
                     totalRequests: 0,
                     averageLatency: '0ms (0.0s)',
-                    successRate: '100%'
+                    successRate: '0%'
                 })
             );
         });

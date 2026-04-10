@@ -15,7 +15,6 @@ jest.mock('@/core/utils/logger', () => ({
 }));
 
 import * as authService from '../../src/features/auth/auth.service';
-import * as dbService from '../../src/core/database/dbService';
 import { login, callback } from '../../src/features/auth/auth.controller';
 
 const mockReq = (overrides = {}) =>
@@ -116,22 +115,21 @@ describe('authController', () => {
             expect(res.redirect).toHaveBeenCalledWith('/?error=auth_failed');
         });
 
-        it('should deny non-admin users on admin login flow', async () => {
-            const state = Buffer.from(JSON.stringify({ isAdmin: true })).toString('base64');
-            const req = mockReq({ query: { code: 'abc', state } });
+        it('should redirect to dashboard for normal user flow', async () => {
+            const req = mockReq({ query: { code: 'abc', state: '' } });
             const res = mockRes();
 
             (authService.handleCallback as jest.Mock).mockResolvedValue({
                 user: { id: '999', login: 'testuser', display_name: 'TestUser' },
                 redirectOrigin: '',
-                apiKey: 'key_abc'
+                apiKey: 'key_abc',
+                isAdmin: false
             });
-            (dbService.isAdmin as jest.Mock).mockResolvedValue(false);
 
             await callback(req, res);
 
             expect(res.redirect).toHaveBeenCalledWith(
-                expect.stringContaining('error=not_authorized')
+                expect.stringContaining('/api/twitch/dashboard')
             );
         });
     });

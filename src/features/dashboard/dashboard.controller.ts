@@ -11,6 +11,24 @@ import { TwitchApiError } from '../../core/errors/AppError';
 import { AppError } from '../../core/errors/AppError';
 import { trackRequest } from '../../core/utils/tracking';
 
+function computeAnalyticsFromStats(stats: Record<string, number>) {
+    const todayRequests = stats['today_req_raw'] || 0;
+    const todayErrors = stats['today_err_raw'] || 0;
+    const todayLatency = stats['today_lat_raw'] || 0;
+
+    const avgLatencyMs = todayRequests > 0 ? Math.round(todayLatency / todayRequests) : 0;
+    const rawSuccessRate =
+        todayRequests > 0 ? parseFloat(((1 - todayErrors / todayRequests) * 100).toFixed(1)) : 0;
+
+    return {
+        todayRequests,
+        avgLatencyMs,
+        rawSuccessRate,
+        averageLatency: `${avgLatencyMs}ms (${(avgLatencyMs / 1000).toFixed(1)}s)`,
+        successRate: `${rawSuccessRate}%`
+    };
+}
+
 export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
 
@@ -27,25 +45,12 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
 
     try {
         const stats = await dbService.getUserStats(userId);
-        const todayRequests = stats['today_req_raw'] || 0;
-        const todayErrors = stats['today_err_raw'] || 0;
-        const todayLatency = stats['today_lat_raw'] || 0;
-
-        const successRateVal =
-            todayRequests > 0
-                ? parseFloat(((1 - todayErrors / todayRequests) * 100).toFixed(1))
-                : 0;
-
-        const avgLatencyMs = todayRequests > 0 ? Math.round(todayLatency / todayRequests) : 0;
+        const computed = computeAnalyticsFromStats(stats);
 
         res.json({
             ...stats,
-            todayRequests,
-            totalRequests: stats.total_requests || 0,
-            avgLatencyMs: avgLatencyMs,
-            rawSuccessRate: successRateVal,
-            averageLatency: `${avgLatencyMs}ms (${(avgLatencyMs / 1000).toFixed(1)}s)`,
-            successRate: `${successRateVal}%`
+            ...computed,
+            totalRequests: stats.total_requests || 0
         });
     } catch (e) {
         logger.error('Error analytics:', e);
@@ -301,25 +306,8 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
         const analytics = stats
             ? {
                   ...stats,
-                  todayRequests: stats['today_req_raw'] || 0,
                   totalRequests: stats.total_requests || 0,
-                  avgLatencyMs:
-                      (stats['today_req_raw'] || 0) > 0
-                          ? Math.round(
-                                (stats['today_lat_raw'] || 0) / (stats['today_req_raw'] || 0)
-                            )
-                          : 0,
-                  successRate:
-                      (stats['today_req_raw'] || 0) > 0
-                          ? parseFloat(
-                                (
-                                    (1 -
-                                        (stats['today_err_raw'] || 0) /
-                                            (stats['today_req_raw'] || 0)) *
-                                    100
-                                ).toFixed(1)
-                            )
-                          : 0
+                  ...computeAnalyticsFromStats(stats)
               }
             : null;
 

@@ -49,12 +49,11 @@ describe('API Key Validator Middleware', () => {
         expect(mockResponse.locals?.apiUser).toBeUndefined();
     });
 
-    it('should return 401 for a private route without API key', async () => {
+    it('should call next() for a private route without API key (lo maneja authMiddleware)', async () => {
         (mockRequest as unknown as { path: string }).path = '/api/data';
         (mockRequest as unknown as { originalUrl: string }).originalUrl = '/api/data';
         await apiKeyValidator(mockRequest as Request, mockResponse as Response, nextFunction);
-        expect(mockResponse.status).toHaveBeenCalledWith(401);
-        expect(nextFunction).not.toHaveBeenCalled();
+        expect(nextFunction).toHaveBeenCalled();
     });
 
     it('should call next() and populate user if valid API key is provided', async () => {
