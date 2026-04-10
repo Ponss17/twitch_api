@@ -1,4 +1,10 @@
-jest.mock('@vercel/kv', () => ({ kv: { get: jest.fn().mockResolvedValue(null), set: jest.fn() } }));
+const mockKvGet = jest.fn().mockResolvedValue(null);
+const mockKvSet = jest.fn().mockResolvedValue('OK');
+const mockKvDel = jest.fn().mockResolvedValue(1);
+
+jest.mock('@vercel/kv', () => ({
+    kv: { get: mockKvGet, set: mockKvSet, del: mockKvDel }
+}));
 jest.mock('@/core/database/cacheService', () => ({
     getCachedUserId: jest.fn().mockResolvedValue(null),
     setCachedUserId: jest.fn().mockResolvedValue(undefined),
@@ -27,7 +33,10 @@ const resetCB = () => {
 };
 
 describe('Circuit Breaker — lógica de estado', () => {
-    beforeEach(resetCB);
+    beforeEach(() => {
+        resetCB();
+        jest.clearAllMocks();
+    });
 
     it('circuito CLOSED: checkCircuit no lanza', () => {
         expect(() => checkCircuit()).not.toThrow();
@@ -42,6 +51,15 @@ describe('Circuit Breaker — lógica de estado', () => {
     it('abre el circuito al alcanzar el umbral (5 fallos)', () => {
         for (let i = 0; i < 5; i++) recordFailure();
         expect(CIRCUIT_BREAKER.state).toBe('OPEN');
+    });
+
+    it('persiste estado OPEN en KV al abrir el circuito', () => {
+        for (let i = 0; i < 5; i++) recordFailure();
+        expect(mockKvSet).toHaveBeenCalledWith(
+            'circuit_breaker:twitch',
+            expect.objectContaining({ state: 'OPEN', lastFailure: expect.any(Number) }),
+            { ex: 120 }
+        );
     });
 
     it('circuito OPEN: checkCircuit lanza TwitchApiError 503', () => {
@@ -62,11 +80,12 @@ describe('Circuit Breaker — lógica de estado', () => {
         expect(() => checkCircuit()).not.toThrow();
     });
 
-    it('recordSuccess cierra el circuito y resetea fallos', () => {
+    it('recordSuccess cierra el circuito y limpia KV', () => {
         for (let i = 0; i < 5; i++) recordFailure();
         expect(CIRCUIT_BREAKER.state).toBe('OPEN');
         recordSuccess();
         expect(CIRCUIT_BREAKER.state).toBe('CLOSED');
         expect(CIRCUIT_BREAKER.failures).toBe(0);
+        expect(mockKvDel).toHaveBeenCalledWith('circuit_breaker:twitch');
     });
 });
