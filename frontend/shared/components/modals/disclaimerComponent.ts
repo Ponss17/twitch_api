@@ -7,10 +7,10 @@ export const DisclaimerComponent = {
             <dialog id="disclaimer-modal" class="modal">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3><i class="fa-solid fa-shield-halved"></i> Aviso de Privacidad</h3>
+                        <h3 tabindex="-1" style="outline: none;" autofocus><i class="fa-solid fa-shield-halved"></i> Aviso de Privacidad</h3>
                         <button id="close-modal-btn" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" tabindex="-1">
                         <p>Para que los comandos funcionen correctamente, necesitamos acceder a cierta <strong>información pública</strong> de tu canal (como tu nombre de usuario, estado del stream, etc.).</p>
                         <p>Al conectar tu cuenta, aceptas que usemos estos datos únicamente para:</p>
                         <ul>
