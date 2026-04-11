@@ -113,10 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (confirmBtn) {
         confirmBtn.addEventListener('click', () => {
-            const icon = confirmBtn.querySelector('i');
-            if (icon) {
-                icon.className = 'fa-solid fa-spinner fa-spin';
-            }
+            confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Validando datos...';
             confirmBtn.style.opacity = '0.8';
             confirmBtn.style.pointerEvents = 'none';
             Auth.relogin();
