@@ -23,6 +23,17 @@ const DEFAULT_STAT_FIELDS = [
 // Cache para saber si un usuario ya tiene fila de stats y evitar upserts constantes
 const EXISTS_CACHE = new Set<string>();
 
+const addToExistsCache = (userId: string) => {
+    if (EXISTS_CACHE.size >= 1000) {
+        const iterator = EXISTS_CACHE.keys();
+        for (let i = 0; i < 250; i++) {
+            const val = iterator.next().value;
+            if (val) EXISTS_CACHE.delete(val);
+        }
+    }
+    EXISTS_CACHE.add(userId);
+};
+
 const STATS_CACHE = new Map<string, { data: Record<string, number>; expiry: number; tz: string }>();
 const STATS_TTL = 15 * 1000;
 
@@ -36,7 +47,7 @@ async function ensureStatsRow(userId: string): Promise<void> {
         .eq('user_id', userId);
 
     if (count && count > 0) {
-        EXISTS_CACHE.add(userId);
+        addToExistsCache(userId);
         return;
     }
 
@@ -55,7 +66,7 @@ async function ensureStatsRow(userId: string): Promise<void> {
             { onConflict: 'user_id', ignoreDuplicates: true }
         );
 
-    if (!error) EXISTS_CACHE.add(userId);
+    if (!error) addToExistsCache(userId);
 }
 
 export const incrementUserStats = async (userId: string, command: string): Promise<void> => {
@@ -90,7 +101,8 @@ export const incrementUserStats = async (userId: string, command: string): Promi
                 .select(column)
                 .eq('user_id', userId)
                 .single();
-            const newVal = ((current as unknown as Record<string, number>)?.[column] || 0) + 1;
+            const currentData = current as Record<string, number> | null;
+            const newVal = (currentData?.[column] || 0) + 1;
             await supabase
                 .from('user_stats')
                 .update({ [column]: newVal })
@@ -123,7 +135,7 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         if (!totals) {
             await ensureStatsRow(userId);
         } else {
-            EXISTS_CACHE.add(userId);
+            addToExistsCache(userId);
         }
 
         const numericStats: Record<string, number> = {};

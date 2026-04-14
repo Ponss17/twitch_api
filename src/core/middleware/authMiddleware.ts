@@ -14,12 +14,32 @@ const NEGATIVE_CACHE_TTL = 30 * 1000;
 // Throttle updateLastActive to once per 5 minutes per user
 const lastActiveThrottle = new Map<string, number>();
 const LAST_ACTIVE_THROTTLE_MS = 5 * 60 * 1000;
+const MAX_CACHE_SIZE = 1000;
+const pendingUserDbRequests = new Map<string, Promise<StoredUser | null>>();
+
+const setInvalidToken = (token: string, expiry: number) => {
+    if (invalidTokensCache.size >= MAX_CACHE_SIZE) {
+        const iterator = invalidTokensCache.keys();
+        for (let i = 0; i < 250; i++) {
+            const val = iterator.next().value;
+            if (val) invalidTokensCache.delete(val);
+        }
+    }
+    invalidTokensCache.set(token, expiry);
+};
 
 const throttledUpdateLastActive = (userId: string) => {
     const now = Date.now();
     const lastUpdate = lastActiveThrottle.get(userId) || 0;
     if (now - lastUpdate < LAST_ACTIVE_THROTTLE_MS) return;
 
+    if (lastActiveThrottle.size >= MAX_CACHE_SIZE) {
+        const iterator = lastActiveThrottle.keys();
+        for (let i = 0; i < 250; i++) {
+            const val = iterator.next().value;
+            if (val) lastActiveThrottle.delete(val);
+        }
+    }
     lastActiveThrottle.set(userId, now);
     dbService.updateLastActive(userId).catch((err) => {
         logger.error('Error updating last active:', err);
@@ -77,12 +97,12 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                 if (validation.login) req.login = validation.login;
             } else {
                 // Token inválido: meter en caché negativa
-                invalidTokensCache.set(token, now + NEGATIVE_CACHE_TTL);
+                setInvalidToken(token, now + NEGATIVE_CACHE_TTL);
                 return res.status(401).json({ error: MESSAGES.AUTH.INVALID_TOKEN });
             }
         } catch (_e) {
             // Guardamos en caché negativa incluso en error para evitar reintento inmediato
-            invalidTokensCache.set(token, now + NEGATIVE_CACHE_TTL);
+            setInvalidToken(token, now + NEGATIVE_CACHE_TTL);
             logger.warn('Error Middleware Auth: Could not validate token to extract user data');
         }
     }
@@ -95,12 +115,22 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             if (cached && cached.expiry > now) {
                 res.locals.apiUser = cached.user;
             } else {
-                const user = await dbService.getUser(req.userId);
+                let userPromise = pendingUserDbRequests.get(req.userId);
+
+                if (!userPromise) {
+                    userPromise = dbService.getUser(req.userId).finally(() => {
+                        pendingUserDbRequests.delete(req.userId!);
+                    });
+                    pendingUserDbRequests.set(req.userId, userPromise);
+                }
+
+                const user = await userPromise;
+
                 if (user) {
                     res.locals.apiUser = user;
 
-                    if (userCache.size >= 1000) {
-                        const entriesToRemove = Math.floor(1000 * 0.25);
+                    if (userCache.size >= MAX_CACHE_SIZE) {
+                        const entriesToRemove = Math.floor(MAX_CACHE_SIZE * 0.25);
                         const iterator = userCache.keys();
                         for (let i = 0; i < entriesToRemove; i++) {
                             const key = iterator.next().value;

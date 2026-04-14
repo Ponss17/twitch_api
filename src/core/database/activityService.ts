@@ -44,7 +44,7 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
         }
 
         // Cleanup en background sin bloquear la respuesta al usuario
-        trimUserLogs(userId).catch(() => {});
+        trimUserLogs(userId).catch((e) => logger.error('Error en trimUserLogs asíncrono:', e));
     } catch (e) {
         logger.error('Error fatal al añadir actividad:', e);
     }

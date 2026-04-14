@@ -187,29 +187,37 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
     return refreshTask;
 };
 
+const ensureValidToken = async (
+    user: StoredUser,
+    errorPrefix: string
+): Promise<{ accessToken: string; userId: string }> => {
+    const expiresAt = user.obtainedAt + user.expiresIn * 1000;
+    const fiveMinutesFromNow = Date.now() + 5 * 60 * 1000;
+
+    if (fiveMinutesFromNow > expiresAt) {
+        try {
+            const newToken = await refreshUserToken(user.userId);
+            return { accessToken: newToken, userId: user.userId };
+        } catch (_error) {
+            if (Date.now() > expiresAt) {
+                logger.error(`Token expirado y refresh falló para ${errorPrefix} ${user.userId}`);
+                throw new Error('Sesión expirada. Por favor, vuelve a autenticarte.');
+            }
+            logger.warn(
+                `Refresh falló pero token aún válido para ${errorPrefix} ${user.userId}, usando token actual`
+            );
+        }
+    }
+
+    return { accessToken: user.accessToken, userId: user.userId };
+};
+
 export const getValidTokenByLogin = async (
     login: string
 ): Promise<{ accessToken: string; userId: string }> => {
     const user = await dbService.getUserByLogin(login);
     if (!user) throw new Error('Usuario no encontrado en la base de datos');
-
-    const expiresAt = user.obtainedAt + user.expiresIn * 1000;
-    const now = Date.now();
-    const fiveMinutesFromNow = now + 5 * 60 * 1000;
-
-    if (now > expiresAt || fiveMinutesFromNow > expiresAt) {
-        try {
-            const newToken = await refreshUserToken(user.userId);
-            return { accessToken: newToken, userId: user.userId };
-        } catch (_error) {
-            if (now > expiresAt) {
-                logger.error(`Token expirado y refresh falló para login ${login}`);
-                throw new Error('Sesión de streamer expirada. Re-autentica en el Dashboard.');
-            }
-        }
-    }
-
-    return { accessToken: user.accessToken, userId: user.userId };
+    return ensureValidToken(user, `login ${login}`);
 };
 
 export const getValidToken = async (
@@ -217,27 +225,7 @@ export const getValidToken = async (
 ): Promise<{ accessToken: string; userId: string }> => {
     const user = await dbService.getUserByApiKey(apiKey);
     if (!user) throw new Error('API Key inválida');
-
-    const expiresAt = user.obtainedAt + user.expiresIn * 1000;
-    const now = Date.now();
-    const fiveMinutesFromNow = now + 5 * 60 * 1000;
-
-    if (now > expiresAt || fiveMinutesFromNow > expiresAt) {
-        try {
-            const newToken = await refreshUserToken(user.userId);
-            return { accessToken: newToken, userId: user.userId };
-        } catch (_error) {
-            if (now > expiresAt) {
-                logger.error(`Token expirado y refresh falló para usuario ${user.userId}`);
-                throw new Error('Tu sesión ha expirado. Por favor, vuelve a autenticarte.');
-            }
-            logger.warn(
-                `Refresh falló pero token aún válido para usuario ${user.userId}, usando token actual`
-            );
-        }
-    }
-
-    return { accessToken: user.accessToken, userId: user.userId };
+    return ensureValidToken(user, `API Key`);
 };
 
 let _invalidateCacheFn: ((userId: string) => void) | null = null;
@@ -259,7 +247,9 @@ export const regenerateApiKey = async (userId: string): Promise<string> => {
     // Invalidar caché en memoria y en KV para que la clave vieja deje de funcionar de inmediato
     _invalidateCacheFn?.(userId);
     if (oldApiKey) {
-        cacheService.invalidateApiKeyCache(oldApiKey).catch(() => {});
+        cacheService
+            .invalidateApiKeyCache(oldApiKey)
+            .catch((e) => logger.error('Error invalidate KV api key cache:', e));
     }
 
     return newApiKey;
