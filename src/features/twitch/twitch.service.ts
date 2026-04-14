@@ -36,9 +36,11 @@ type CbState = { state: 'OPEN'; lastFailure: number } | { state: 'CLOSED' };
 
 const syncCbToKv = (state: CbState): void => {
     if (state.state === 'OPEN') {
-        kv.set(CB_KV_KEY, state, { ex: CB_KV_TTL_S }).catch(() => {});
+        kv.set(CB_KV_KEY, state, { ex: CB_KV_TTL_S }).catch((e) =>
+            logger.error('Cache KV error syncing CB state OPEN:', e)
+        );
     } else {
-        kv.del(CB_KV_KEY).catch(() => {});
+        kv.del(CB_KV_KEY).catch((e) => logger.error('Cache KV error syncing CB state CLOSED:', e));
     }
 };
 
@@ -52,7 +54,7 @@ kv.get<CbState>(CB_KV_KEY)
             logger.warn('[CircuitBreaker] Reanudado desde KV: estado OPEN');
         }
     })
-    .catch(() => {});
+    .catch((e) => logger.error('Cache KV error during CB cold start:', e));
 
 export const checkCircuit = () => {
     if (CIRCUIT_BREAKER.state === 'OPEN') {
@@ -203,6 +205,9 @@ export const createClip = async (channel: string, token: string): Promise<string
         const url = `https://api.twitch.tv/helix/clips?broadcaster_id=${broadcasterId}`;
 
         const clipRes = await apiClient.post(url, null, { headers });
+        if (!clipRes.data.data || clipRes.data.data.length === 0) {
+            throw new TwitchApiError('La respuesta de Twitch no incluyó datos de clip', 500);
+        }
         const clipData = clipRes.data.data[0];
         recordSuccess();
         return `https://clips.twitch.tv/${clipData.id}`;

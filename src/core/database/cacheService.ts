@@ -32,13 +32,30 @@ const setL1 = <T>(key: string, value: T, ttlMs: number = DEFAULT_L1_TTL_MS): voi
     MEMORY_CACHE.set(key, { value, expiry: Date.now() + ttlMs });
 };
 
+const pendingKVRequests = new Map<string, Promise<unknown>>();
+
 export const get = async <T = unknown>(key: string): Promise<T | null> => {
     const l1Value = getL1<T>(key);
     if (l1Value !== null) return l1Value;
 
-    const value = await kv.get<T>(key);
-    if (value !== null) setL1<T>(key, value);
-    return value;
+    if (pendingKVRequests.has(key)) {
+        return pendingKVRequests.get(key) as Promise<T | null>;
+    }
+
+    const fetchPromise = kv
+        .get<T>(key)
+        .then((value) => {
+            if (value !== null) setL1<T>(key, value);
+            pendingKVRequests.delete(key);
+            return value;
+        })
+        .catch((error) => {
+            pendingKVRequests.delete(key);
+            throw error;
+        });
+
+    pendingKVRequests.set(key, fetchPromise);
+    return fetchPromise;
 };
 
 export const set = async <T = unknown>(

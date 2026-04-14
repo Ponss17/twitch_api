@@ -34,7 +34,9 @@ export const invalidateUserCache = (userId: string): void => {
 
     if (keysToInvalidate.length > 0) {
         for (const apiKey of keysToInvalidate) {
-            cacheService.invalidateApiKeyCache(apiKey).catch(() => {});
+            cacheService
+                .invalidateApiKeyCache(apiKey)
+                .catch((e) => logger.error('Error invalidate KV key cache iteration:', e));
         }
         logger.info(
             `[Cache] Invalidated ${keysToInvalidate.length} API Key entries for userId: ${userId}`
@@ -116,7 +118,9 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             }
 
             validKeysCache.set(apiKey, { user, expiry: now + CACHE_TTL_MS });
-            cacheService.setCachedApiUser(apiKey, user).catch(() => {});
+            cacheService
+                .setCachedApiUser(apiKey, user)
+                .catch((e) => logger.error('Error setCachedApiUser KV:', e));
             res.locals.apiUser = user;
             res.locals.isApiKeyRequest = true;
         } else if (user && !user.isActive) {

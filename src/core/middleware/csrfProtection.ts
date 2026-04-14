@@ -47,8 +47,8 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction) 
         return next();
     }
 
-    // Allow API key in query (bots like Nightbot send this way)
-    if (req.query.apiKey || req.headers['x-api-key']) {
+    // Allow API key in query (bots like Nightbot send this way) ONLY if there is no browser origin/referer
+    if ((req.query.apiKey || req.headers['x-api-key']) && !origin && !referer) {
         return next();
     }
 
