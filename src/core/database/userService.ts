@@ -146,18 +146,25 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
 };
 
 export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null> => {
-    // Normalizar a formato UUID con guiones
+    // Normalizar a formato UUID con guiones para la primera búsqueda
     const clean = apiKey.replace(/-/g, '');
     const normalizedKey =
         clean.length === 32
             ? `${clean.slice(0, 8)}-${clean.slice(8, 12)}-${clean.slice(12, 16)}-${clean.slice(16, 20)}-${clean.slice(20)}`
             : apiKey;
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('api_key', normalizedKey)
         .single();
+
+    // Fallback: si la key normalizada no coincide, intentar con el valor original
+    if ((error || !data) && normalizedKey !== apiKey) {
+        const fallback = await supabase.from('users').select('*').eq('api_key', apiKey).single();
+        data = fallback.data;
+        error = fallback.error;
+    }
 
     if (error || !data) return null;
 
