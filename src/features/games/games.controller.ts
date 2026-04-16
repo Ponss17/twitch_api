@@ -140,7 +140,7 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
                 detail: target,
                 incrementStat: 'duel'
             },
-            () => duelService.playDuel(challenger, target)
+            () => Promise.resolve(duelService.playDuel(challenger, target))
         );
 
         res.send(result.message);

@@ -78,7 +78,7 @@ const SCENARIOS: Scenario[] = [
     }
 ];
 
-export const playDuel = async (challenger: string, target: string) => {
+export const playDuel = (challenger: string, target: string) => {
     const isChallengerWinner = Math.random() < 0.5;
 
     const winner = isChallengerWinner ? challenger : target;

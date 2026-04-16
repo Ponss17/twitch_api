@@ -36,6 +36,26 @@ const addToExistsCache = (userId: string) => {
 
 const STATS_CACHE = new Map<string, { data: Record<string, number>; expiry: number; tz: string }>();
 const STATS_TTL = 15 * 1000;
+const MAX_STATS_CACHE_SIZE = 500;
+const dateFormatterCache = new Map<string, Intl.DateTimeFormat>();
+
+const getDateFormatter = (tz: string): Intl.DateTimeFormat => {
+    let formatter = dateFormatterCache.get(tz);
+    if (!formatter) {
+        if (dateFormatterCache.size >= 100) {
+            const first = dateFormatterCache.keys().next().value;
+            if (first) dateFormatterCache.delete(first);
+        }
+        formatter = new Intl.DateTimeFormat('en-CA', {
+            timeZone: tz,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+        dateFormatterCache.set(tz, formatter);
+    }
+    return formatter;
+};
 
 // Asegura que exista la fila de stats para el usuario antes de incrementar
 async function ensureStatsRow(userId: string): Promise<void> {
@@ -156,13 +176,7 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
             cachedTz ||
             (userResult as { data: { timezone: string } | null } | null)?.data?.timezone ||
             'UTC';
-        const formatter = new Intl.DateTimeFormat('en-CA', {
-            timeZone: tz,
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        });
-        const todayStr = formatter.format(new Date());
+        const todayStr = getDateFormatter(tz).format(new Date());
 
         numericStats[`d:${todayStr}`] = totals?.today_requests ?? 0;
         numericStats[`e:${todayStr}`] = totals?.today_errors ?? 0;
@@ -172,6 +186,13 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         numericStats['today_err_raw'] = totals?.today_errors ?? 0;
         numericStats['today_lat_raw'] = totals?.today_latency ?? 0;
 
+        if (STATS_CACHE.size >= MAX_STATS_CACHE_SIZE) {
+            const iterator = STATS_CACHE.keys();
+            for (let i = 0; i < 125; i++) {
+                const k = iterator.next().value;
+                if (k) STATS_CACHE.delete(k);
+            }
+        }
         STATS_CACHE.set(userId, { data: numericStats, expiry: now + STATS_TTL, tz });
         return numericStats;
     } catch (e) {

@@ -7,9 +7,14 @@ import { logger } from '../utils/logger';
 import { isPublicRoute } from '../utils/routeHelpers';
 
 const userCache = new Map<string, { user: StoredUser; expiry: number }>();
-const invalidTokensCache = new Map<string, number>(); // Cache negativa: token -> timestamp expiración
+const invalidTokensCache = new Map<string, number>();
+const validTokensCache = new Map<
+    string,
+    { data: { user_id: string; login: string }; expiry: number }
+>();
 const CACHE_TTL = 60 * 1000;
 const NEGATIVE_CACHE_TTL = 30 * 1000;
+const TOKEN_VALIDATION_TTL = 30 * 1000;
 
 // Throttle updateLastActive to once per 5 minutes per user
 const lastActiveThrottle = new Map<string, number>();
@@ -90,20 +95,37 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     }
 
     if (!req.userId || !req.login) {
-        try {
-            const validation = await apiService.validateToken(token);
-            if (validation) {
-                if (validation.user_id) req.userId = validation.user_id;
-                if (validation.login) req.login = validation.login;
-            } else {
-                // Token inválido: meter en caché negativa
+        const cachedValidation = validTokensCache.get(token);
+        if (cachedValidation && cachedValidation.expiry > now) {
+            req.userId = cachedValidation.data.user_id;
+            req.login = cachedValidation.data.login;
+        } else {
+            if (cachedValidation) validTokensCache.delete(token);
+            try {
+                const validation = await apiService.validateToken(token);
+                if (validation) {
+                    if (validation.user_id) req.userId = validation.user_id;
+                    if (validation.login) req.login = validation.login;
+
+                    if (validTokensCache.size >= MAX_CACHE_SIZE) {
+                        const iter = validTokensCache.keys();
+                        for (let i = 0; i < 250; i++) {
+                            const k = iter.next().value;
+                            if (k) validTokensCache.delete(k);
+                        }
+                    }
+                    validTokensCache.set(token, {
+                        data: { user_id: validation.user_id, login: validation.login },
+                        expiry: now + TOKEN_VALIDATION_TTL
+                    });
+                } else {
+                    setInvalidToken(token, now + NEGATIVE_CACHE_TTL);
+                    return res.status(401).json({ error: MESSAGES.AUTH.INVALID_TOKEN });
+                }
+            } catch (_e) {
                 setInvalidToken(token, now + NEGATIVE_CACHE_TTL);
-                return res.status(401).json({ error: MESSAGES.AUTH.INVALID_TOKEN });
+                logger.warn('Error Middleware Auth: Could not validate token to extract user data');
             }
-        } catch (_e) {
-            // Guardamos en caché negativa incluso en error para evitar reintento inmediato
-            setInvalidToken(token, now + NEGATIVE_CACHE_TTL);
-            logger.warn('Error Middleware Auth: Could not validate token to extract user data');
         }
     }
 

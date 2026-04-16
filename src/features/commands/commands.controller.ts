@@ -85,24 +85,19 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         },
         async () => {
             const cacheKey = `cache:cmd:followage:v2:channel:${channel}:user:${user}`;
-            const cached = await cacheService.get(cacheKey);
+            const cached = await cacheService.get<{ text: string; timePhrase: string }>(cacheKey);
 
-            if (cached && typeof cached === 'string') {
-                try {
-                    const result = JSON.parse(cached);
-                    const template = safeString(req.query.template);
-                    if (template && result.timePhrase) {
-                        return res.send(
-                            template
-                                .replace('{time}', result.timePhrase)
-                                .replace('{user}', user)
-                                .replace('{channel}', channel)
-                        );
-                    }
-                    return res.send(result.text);
-                } catch (_e) {
-                    cacheService.del(cacheKey);
+            if (cached && typeof cached === 'object') {
+                const template = safeString(req.query.template);
+                if (template && cached.timePhrase) {
+                    return res.send(
+                        template
+                            .replace('{time}', cached.timePhrase)
+                            .replace('{user}', user)
+                            .replace('{channel}', channel)
+                    );
                 }
+                return res.send(cached.text);
             }
 
             const result = await withTwitchAuth(
@@ -110,7 +105,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 res,
                 async (token: string) => {
                     const resApi = await apiService.getFollowAge(channel, user, token);
-                    await cacheService.set(cacheKey, JSON.stringify(resApi), 60);
+                    await cacheService.set(cacheKey, resApi, 60);
                     return resApi;
                 },
                 'FOLLOWAGE'
