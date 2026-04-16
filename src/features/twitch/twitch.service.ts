@@ -77,6 +77,15 @@ export const recordFailure = () => {
         CIRCUIT_BREAKER.state = 'OPEN';
         logger.error('🚨 CIRCUIT BREAKER OPEN: Twitch API is failing consistently.');
         syncCbToKv({ state: 'OPEN', lastFailure: CIRCUIT_BREAKER.lastFailure });
+
+        if (CONFIG.DISCORD_HEALTH_WEBHOOK_URL) {
+            axios
+                .post(CONFIG.DISCORD_HEALTH_WEBHOOK_URL, {
+                    content:
+                        '🚨 **CIRCUIT BREAKER ABIERTO** — La API de Twitch está fallando consecutivamente. Todas las peticiones serán bloqueadas por 30 segundos.'
+                })
+                .catch(() => {});
+        }
     }
 };
 
