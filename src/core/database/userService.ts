@@ -5,6 +5,8 @@ import { encrypt, decrypt, ENCRYPTION_KEY, LEGACY_ENCRYPTION_KEY } from './crypt
 import { logger } from '../utils/logger';
 import * as cacheService from './cacheService';
 
+const migratedUsersCache = new Set<string>();
+
 function decryptTokenWithFallback(text: string, context: string): string {
     try {
         return decrypt(text, ENCRYPTION_KEY);
@@ -110,7 +112,8 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
         logger.error(`⚠️ Error en descifrado para ${userId}:`, (e as Error).message);
     }
 
-    if (needsMigration) {
+    if (needsMigration && !migratedUsersCache.has(userId)) {
+        migratedUsersCache.add(userId);
         logger.info(`🔄 Migrando claves de cifrado para usuario: ${user.login} (${userId})`);
         await saveUser(user);
     }
@@ -143,26 +146,18 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
 };
 
 export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null> => {
-    let { data, error } = await supabase.from('users').select('*').eq('api_key', apiKey).single();
+    // Normalizar a formato UUID con guiones
+    const clean = apiKey.replace(/-/g, '');
+    const normalizedKey =
+        clean.length === 32
+            ? `${clean.slice(0, 8)}-${clean.slice(8, 12)}-${clean.slice(12, 16)}-${clean.slice(16, 20)}-${clean.slice(20)}`
+            : apiKey;
 
-    // Si no se encontró, intentar con el formato alternativo (con/sin guiones)
-    if ((error || !data) && apiKey.replace(/-/g, '').length === 32) {
-        const cleanKey = apiKey.replace(/-/g, '');
-        const altKey = apiKey.includes('-')
-            ? cleanKey
-            : `${cleanKey.slice(0, 8)}-${cleanKey.slice(8, 12)}-${cleanKey.slice(12, 16)}-${cleanKey.slice(16, 20)}-${cleanKey.slice(20)}`;
-
-        const { data: altData, error: altError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('api_key', altKey)
-            .single();
-
-        if (!altError && altData) {
-            data = altData;
-            error = null;
-        }
-    }
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('api_key', normalizedKey)
+        .single();
 
     if (error || !data) return null;
 

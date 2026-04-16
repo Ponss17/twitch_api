@@ -286,12 +286,12 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
 
     try {
-        const [info, stats] = await Promise.all([
-            apiService.getUserInfo(login, token || ''),
+        const info = await apiService.getUserInfo(login, token || '');
+
+        const [followers, stats] = await Promise.all([
+            apiService.getFollowersCount(info.id, token || ''),
             userId ? dbService.getUserStats(userId) : Promise.resolve(null)
         ]);
-
-        const followers = await apiService.getFollowersCount(info.id, token || '');
 
         const safeInfo = {
             id: info.id,

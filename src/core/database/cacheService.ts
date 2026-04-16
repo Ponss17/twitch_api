@@ -33,6 +33,7 @@ const setL1 = <T>(key: string, value: T, ttlMs: number = DEFAULT_L1_TTL_MS): voi
 };
 
 const pendingKVRequests = new Map<string, Promise<unknown>>();
+const MAX_PENDING_SIZE = 500;
 
 export const get = async <T = unknown>(key: string): Promise<T | null> => {
     const l1Value = getL1<T>(key);
@@ -40,6 +41,11 @@ export const get = async <T = unknown>(key: string): Promise<T | null> => {
 
     if (pendingKVRequests.has(key)) {
         return pendingKVRequests.get(key) as Promise<T | null>;
+    }
+
+    if (pendingKVRequests.size >= MAX_PENDING_SIZE) {
+        const first = pendingKVRequests.keys().next().value;
+        if (first) pendingKVRequests.delete(first);
     }
 
     const fetchPromise = kv
@@ -69,6 +75,7 @@ export const set = async <T = unknown>(
 
 export const del = async (key: string): Promise<void> => {
     MEMORY_CACHE.delete(key);
+    pendingKVRequests.delete(key);
     await kv.del(key);
 };
 

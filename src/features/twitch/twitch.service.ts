@@ -81,9 +81,11 @@ export const recordFailure = () => {
 };
 
 export const recordSuccess = () => {
+    if (CIRCUIT_BREAKER.state !== 'CLOSED') {
+        CIRCUIT_BREAKER.state = 'CLOSED';
+        syncCbToKv({ state: 'CLOSED' });
+    }
     CIRCUIT_BREAKER.failures = 0;
-    CIRCUIT_BREAKER.state = 'CLOSED';
-    syncCbToKv({ state: 'CLOSED' });
 };
 
 axiosRetry(apiClient, {

@@ -15,6 +15,9 @@ const logFormat = printf(({ level, message, timestamp, stack, ...metadata }) => 
 
 // Transporte personalizado para guardar en la base de datos (Supabase)
 class DatabaseTransport extends Transport {
+    private consecutiveFailures = 0;
+    private pausedUntil = 0;
+
     constructor(opts?: Transport.TransportStreamOptions) {
         super(opts);
     }
@@ -22,9 +25,22 @@ class DatabaseTransport extends Transport {
     log(info: { level: string; message: string; details?: unknown }, callback: () => void) {
         const { level, message, details } = info;
         if (level === 'error' || level === 'warn') {
+            if (Date.now() < this.pausedUntil) {
+                callback();
+                return;
+            }
+
             dbService
                 .addSystemLog(level, message, details as Record<string, unknown>)
+                .then(() => {
+                    this.consecutiveFailures = 0;
+                })
                 .catch((err: Error) => {
+                    this.consecutiveFailures++;
+                    if (this.consecutiveFailures >= 3) {
+                        this.pausedUntil = Date.now() + 60_000;
+                        this.consecutiveFailures = 0;
+                    }
                     console.error('❌ Error saving log to DB:', err);
                 });
         }
