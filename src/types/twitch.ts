@@ -33,12 +33,6 @@ export interface TwitchClip {
     vod_offset: number | null;
 }
 
-export interface TwitchError {
-    status: number;
-    message: string;
-    details?: unknown;
-}
-
 export interface StoredUser {
     userId: string;
     login: string;
