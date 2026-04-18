@@ -45,10 +45,7 @@ const envVars = {
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
-    SUPABASE_ANON_KEY:
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-        process.env.SUPABASE_ANON_KEY ||
-        (isTest ? 'test_anon' : undefined),
+    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || (isTest ? 'test_anon' : undefined),
     DISCORD_HEALTH_WEBHOOK_URL: process.env.DISCORD_HEALTH_WEBHOOK_URL
 };
 

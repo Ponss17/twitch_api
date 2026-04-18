@@ -5,7 +5,6 @@ import { kv } from '@vercel/kv';
 import { CONFIG } from '../../core/config/env';
 import {
     TwitchClip,
-    TwitchError,
     TwitchUser,
     TwitchChannelInfo,
     TwitchValidationResponse
@@ -210,7 +209,7 @@ export const getChannelInfo = async (
         );
 
         if (response.data.data.length === 0) {
-            throw { status: 404, message: `No se encontró información del canal.` } as TwitchError;
+            throw new TwitchApiError('No se encontró información del canal.', 404);
         }
 
         const data = response.data.data[0];
@@ -218,7 +217,7 @@ export const getChannelInfo = async (
 
         return data;
     } catch (error) {
-        if ((error as TwitchError).status === 404) throw error;
+        if (error instanceof TwitchApiError) throw error;
         return handleTwitchError(error, `getChannelInfo(${broadcasterId})`);
     }
 };
@@ -313,8 +312,8 @@ export const getFollowAge = async (
             const msg = error.response.data?.message || 'Usuario no encontrado';
             return { text: msg, timePhrase: 'error' };
         }
-        if ((error as TwitchError).status === 404) {
-            return { text: (error as TwitchError).message, timePhrase: 'error' };
+        if (error instanceof TwitchApiError && error.statusCode === 404) {
+            return { text: error.message, timePhrase: 'error' };
         }
 
         return handleTwitchError(error, `getFollowAge(${channel}, ${user})`);
