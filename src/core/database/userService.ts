@@ -95,6 +95,11 @@ export const saveUser = async (user: StoredUser): Promise<void> => {
         logger.error('Error guardando usuario en Supabase:', error.message);
         throw error;
     }
+
+    await Promise.all([
+        cacheService.del(`cache:user:id:${user.userId}`),
+        cacheService.del(`cache:user:login:${user.login.toLowerCase()}`)
+    ]).catch((e) => logger.error('Error invalidando caché de usuario:', e));
 };
 
 export const getUser = async (userId: string): Promise<StoredUser | null> => {
@@ -218,11 +223,14 @@ export const deleteUser = async (userId: string): Promise<void> => {
         const user = await getUser(userId);
         if (!user) return;
 
-        // El CASCADE definido en el esquema SQL de Supabase borra automáticamente
-        // los registros relacionados en user_stats, activity_logs y admins.
         const { error } = await supabase.from('users').delete().eq('user_id', userId);
 
         if (error) throw error;
+
+        await Promise.all([
+            cacheService.del(`cache:user:id:${userId}`),
+            cacheService.del(`cache:user:login:${user.login.toLowerCase()}`)
+        ]).catch(() => {});
 
         logger.info(`🗑️ Usuario eliminado por completo: ${user.login} (${userId})`);
     } catch (e) {
@@ -237,4 +245,6 @@ export const updateUserTimezone = async (userId: string, timezone: string): Prom
     if (error) {
         throw new Error('Error updating timezone');
     }
+
+    await cacheService.del(`cache:user:id:${userId}`).catch(() => {});
 };
