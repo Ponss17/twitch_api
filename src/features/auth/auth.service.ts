@@ -131,12 +131,18 @@ export const handleCallback = async (
 
 // Para evitar que múltiples peticiones simultáneas refresquen el mismo token (Race Condition)
 const refreshPromises = new Map<string, Promise<string>>();
+const MAX_REFRESH_PROMISES = 100;
+const REFRESH_TIMEOUT_MS = 15_000;
 
 export const refreshUserToken = async (userId: string): Promise<string> => {
-    // Si ya hay un refresco en curso para este usuario, devolvemos la misma promesa
     if (refreshPromises.has(userId)) {
         logger.info(`[Auth] Reusing existing refresh promise for user ${userId}`);
         return refreshPromises.get(userId)!;
+    }
+
+    if (refreshPromises.size >= MAX_REFRESH_PROMISES) {
+        const first = refreshPromises.keys().next().value;
+        if (first) refreshPromises.delete(first);
     }
 
     const refreshTask = (async () => {
@@ -147,7 +153,14 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
         }
 
         try {
-            const response = await axios.post(`${TWITCH_AUTH_URL}/token`, null, {
+            const timeoutPromise = new Promise<never>((_, reject) =>
+                setTimeout(
+                    () => reject(new Error('Token refresh timeout (15s)')),
+                    REFRESH_TIMEOUT_MS
+                )
+            );
+
+            const refreshRequest = axios.post(`${TWITCH_AUTH_URL}/token`, null, {
                 params: {
                     client_id: CONFIG.TWITCH_CLIENT_ID,
                     client_secret: CONFIG.TWITCH_CLIENT_SECRET,
@@ -155,6 +168,8 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
                     refresh_token: user.refreshToken
                 }
             });
+
+            const response = await Promise.race([refreshRequest, timeoutPromise]);
 
             const { access_token, refresh_token, expires_in } = response.data;
 
@@ -178,7 +193,6 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
             }
             throw new Error('No se pudo renovar el token. Relogueate.');
         } finally {
-            // Limpiar la promesa del mapa cuando termine (éxito o error)
             refreshPromises.delete(userId);
         }
     })();

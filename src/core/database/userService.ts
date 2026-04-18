@@ -1,11 +1,19 @@
 import { supabase } from './supabaseClient';
-import crypto from 'crypto';
 import { StoredUser } from '../../types/twitch';
 import { encrypt, decrypt, ENCRYPTION_KEY, LEGACY_ENCRYPTION_KEY } from './cryptoService';
 import { logger } from '../utils/logger';
 import * as cacheService from './cacheService';
 
 const migratedUsersCache = new Set<string>();
+const MAX_MIGRATED_CACHE = 500;
+
+const addToMigratedCache = (userId: string) => {
+    if (migratedUsersCache.size >= MAX_MIGRATED_CACHE) {
+        const first = migratedUsersCache.keys().next().value;
+        if (first) migratedUsersCache.delete(first);
+    }
+    migratedUsersCache.add(userId);
+};
 
 function decryptTokenWithFallback(text: string, context: string): string {
     try {
@@ -90,6 +98,10 @@ export const saveUser = async (user: StoredUser): Promise<void> => {
 };
 
 export const getUser = async (userId: string): Promise<StoredUser | null> => {
+    const cacheKey = `cache:user:id:${userId}`;
+    const cached = await cacheService.get<StoredUser>(cacheKey);
+    if (cached) return cached;
+
     const { data, error } = await supabase.from('users').select('*').eq('user_id', userId).single();
 
     if (error || !data) return null;
@@ -113,11 +125,12 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
     }
 
     if (needsMigration && !migratedUsersCache.has(userId)) {
-        migratedUsersCache.add(userId);
+        addToMigratedCache(userId);
         logger.info(`🔄 Migrando claves de cifrado para usuario: ${user.login} (${userId})`);
         await saveUser(user);
     }
 
+    await cacheService.set(cacheKey, user, 60);
     return user;
 };
 
@@ -224,20 +237,4 @@ export const updateUserTimezone = async (userId: string, timezone: string): Prom
     if (error) {
         throw new Error('Error updating timezone');
     }
-};
-
-export const resetUserApiKey = async (userId: string): Promise<string> => {
-    const user = await getUser(userId);
-    if (!user) throw new Error('User not found');
-
-    const newKey = crypto.randomUUID();
-
-    const { error } = await supabase
-        .from('users')
-        .update({ api_key: newKey })
-        .eq('user_id', userId);
-
-    if (error) throw error;
-
-    return newKey;
 };
