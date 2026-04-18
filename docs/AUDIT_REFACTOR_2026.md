@@ -59,3 +59,17 @@ Este documento detalla todas las modificaciones de optimización, prevención y 
 7. **Normalizaciones TS & Refactorización de Bloques Gemelos**
    Centralizamos la redundancia total al generar los Checkers lógicos `fiveMinutesFromNow` encontrados en 2 partes masivas en `auth.service`. Unidos bajo la utilería única `ensureValidToken`.
    Finalmente, los status API ahora aceptan el estandar global de Axios/Express (`err.statusCode` a la par que `err.status`).
+
+## Fase 4 - Estabilización y Reset Forzado (Abril 2026)
+
+Tras detectar regresiones en la integración del Dashboard y la lógica de comandos, se procedió a realizar un **Hard Reset** al punto de estabilidad conocido (`8bba712`).
+
+### Acciones ejecutadas:
+
+1. **Git Hard Reset**: Retorno al commit `8bba712` para limpiar el exceso de lógica de sanitización.
+2. **Force Push**: Sincronización del repositorio remoto y disparo de nuevo despliegue en Vercel.
+3. **Estado Actual**: El proyecto se encuentra en un estado minimalista funcional, priorizando la estabilidad del Timezone y OAuth sobre la limpieza agresiva de inputs.
+
+---
+
+Este documento es el registro oficial de la salud del proyecto. Todo cambio estructural debe ser auditado aquí.
