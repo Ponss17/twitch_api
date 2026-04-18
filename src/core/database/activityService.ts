@@ -2,6 +2,9 @@ import { supabase } from './supabaseClient';
 import { logger } from '../utils/logger';
 
 const MAX_USER_LOGS = 50;
+const TRIM_THROTTLE_MS = 60_000;
+const trimThrottle = new Map<string, number>();
+const MAX_TRIM_THROTTLE_SIZE = 500;
 
 export interface ActivityLogEntry {
     type:
@@ -43,8 +46,16 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
             return;
         }
 
-        // Cleanup en background sin bloquear la respuesta al usuario
-        trimUserLogs(userId).catch((e) => logger.error('Error en trimUserLogs asíncrono:', e));
+        const now = Date.now();
+        const lastTrim = trimThrottle.get(userId) || 0;
+        if (now - lastTrim > TRIM_THROTTLE_MS) {
+            if (trimThrottle.size >= MAX_TRIM_THROTTLE_SIZE) {
+                const first = trimThrottle.keys().next().value;
+                if (first) trimThrottle.delete(first);
+            }
+            trimThrottle.set(userId, now);
+            trimUserLogs(userId).catch((e) => logger.error('Error en trimUserLogs asíncrono:', e));
+        }
     } catch (e) {
         logger.error('Error fatal al añadir actividad:', e);
     }

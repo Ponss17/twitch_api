@@ -205,15 +205,9 @@ export const recordUserRequest = async (
     userId: string,
     latency: number,
     success: boolean,
-    skip: boolean = false // Nueva opción para ignorar el conteo
+    skip: boolean = false
 ): Promise<void> => {
     try {
-        if (!EXISTS_CACHE.has(userId)) {
-            await ensureStatsRow(userId);
-        }
-
-        // Si es una consulta interna, solo registramos latencia si quisiéramos,
-        // pero para máxima limpieza, si skip es true, no llamamos al RPC que incrementa contadores.
         if (skip) return;
 
         const { error } = await supabase.rpc('record_user_request', {
@@ -223,11 +217,14 @@ export const recordUserRequest = async (
         });
 
         if (error) {
-            EXISTS_CACHE.delete(userId);
+            if (!EXISTS_CACHE.has(userId)) {
+                await ensureStatsRow(userId);
+            }
             logger.error('Error en RPC record_user_request:', error.message);
             return;
         }
 
+        addToExistsCache(userId);
         STATS_CACHE.delete(userId);
     } catch (e) {
         logger.error('Error registrando estadísticas de petición:', e);

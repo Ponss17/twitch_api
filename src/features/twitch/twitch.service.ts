@@ -147,6 +147,10 @@ const handleTwitchError = (error: unknown, context: string): never => {
     throw new TwitchApiError('Error interno desconocido', 500);
 };
 
+const userInfoCache = new Map<string, { data: TwitchUser; expiry: number }>();
+const MAX_USER_INFO_CACHE = 200;
+const USER_INFO_TTL = 30_000;
+
 export const getUserId = async (username: string, token: string): Promise<string> => {
     try {
         const cachedId = await cacheService.getCachedUserId(username);
@@ -161,6 +165,9 @@ export const getUserId = async (username: string, token: string): Promise<string
 };
 
 export const getUserInfo = async (username: string, token: string): Promise<TwitchUser> => {
+    const cached = userInfoCache.get(username.toLowerCase());
+    if (cached && cached.expiry > Date.now()) return cached.data;
+
     checkCircuit();
     const headers = getHeaders(token);
     const response = await apiClient.get(
@@ -175,7 +182,15 @@ export const getUserInfo = async (username: string, token: string): Promise<Twit
     }
 
     recordSuccess();
-    return response.data.data[0];
+    const user = response.data.data[0];
+
+    if (userInfoCache.size >= MAX_USER_INFO_CACHE) {
+        const first = userInfoCache.keys().next().value;
+        if (first) userInfoCache.delete(first);
+    }
+    userInfoCache.set(username.toLowerCase(), { data: user, expiry: Date.now() + USER_INFO_TTL });
+
+    return user;
 };
 
 export const getChannelInfo = async (
@@ -223,21 +238,8 @@ export const createClip = async (channel: string, token: string): Promise<string
         recordSuccess();
         return `https://clips.twitch.tv/${clipData.id}`;
     } catch (error: unknown) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-            throw {
-                status: 404,
-                message: `No se pudo crear clip. Asegúrate de que ${channel} esté en vivo.`,
-                name: 'TwitchError'
-            } as TwitchError;
-        }
-        if (axios.isAxiosError(error)) {
-            throw {
-                status: error.response?.status || 500,
-                message: error.message,
-                name: 'TwitchError'
-            } as TwitchError;
-        }
-        throw error;
+        if (error instanceof TwitchApiError) throw error;
+        return handleTwitchError(error, `createClip(${channel})`);
     }
 };
 
