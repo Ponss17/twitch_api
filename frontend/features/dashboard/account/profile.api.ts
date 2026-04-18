@@ -42,31 +42,5 @@ export const ProfileAPI = {
                 setTimeout(() => profileTab.classList.remove('is-loading'), 300);
             }
         }
-    },
-
-    async detectAndSyncTimezone(
-        session: Session | null,
-        authHeaders: () => HeadersInit
-    ): Promise<void> {
-        if (!session) return;
-        const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const storageTz = localStorage.getItem(`dashboard_tz_${session.userId}`);
-
-        if (localTz && localTz !== storageTz) {
-            try {
-                const baseUrl = DASHBOARD_CONFIG.API_ENDPOINTS.SUMMARY.split('/summary')[0];
-                await fetch(`${baseUrl}/timezone`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...authHeaders()
-                    },
-                    body: JSON.stringify({ timezone: localTz })
-                });
-                localStorage.setItem(`dashboard_tz_${session.userId}`, localTz);
-            } catch (e) {
-                console.error('[Profile] Error syncing timezone:', e);
-            }
-        }
     }
 };

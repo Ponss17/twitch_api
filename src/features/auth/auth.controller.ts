@@ -36,10 +36,15 @@ const isAllowedOrigin = (origin: string, req: Request): boolean => {
 export const login = (req: Request, res: Response) => {
     const redirectOrigin = (req.query.redirect_origin as string) || '';
     const isAdmin = req.query.admin === 'true';
+    const tz = (req.query.tz as string) || '';
+
+    const extraData: Record<string, unknown> = {};
+    if (isAdmin) extraData.isAdmin = true;
+    if (tz) extraData.tz = tz;
 
     const url = authService.getAuthorizeUrl(
         redirectOrigin,
-        isAdmin ? { isAdmin: true } : undefined
+        Object.keys(extraData).length > 0 ? extraData : undefined
     );
     res.redirect(url);
 };
@@ -56,6 +61,15 @@ export const callback = async (req: Request, res: Response) => {
             code,
             state
         );
+
+        if (state) {
+            const decoded = authService.verifyState(state);
+            if (decoded?.tz && typeof decoded.tz === 'string') {
+                dbService
+                    .updateUserTimezone(user.id, decoded.tz as string)
+                    .catch((e) => logger.error('Error auto-saving timezone:', e));
+            }
+        }
 
         if (isAdmin) {
             const isAuthorized = await dbService.isAdmin(user.id);
