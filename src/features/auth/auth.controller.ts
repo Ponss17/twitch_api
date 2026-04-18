@@ -57,19 +57,16 @@ export const callback = async (req: Request, res: Response) => {
     }
 
     try {
+        let decodedState: Record<string, unknown> | null = null;
+        if (state) {
+            decodedState = authService.verifyState(state);
+        }
+
         const { user, redirectOrigin, apiKey, isAdmin } = await authService.handleCallback(
             code,
-            state
+            state,
+            decodedState
         );
-
-        if (state) {
-            const decoded = authService.verifyState(state);
-            if (decoded?.tz && typeof decoded.tz === 'string') {
-                dbService
-                    .updateUserTimezone(user.id, decoded.tz as string)
-                    .catch((e) => logger.error('Error auto-saving timezone:', e));
-            }
-        }
 
         if (isAdmin) {
             const isAuthorized = await dbService.isAdmin(user.id);

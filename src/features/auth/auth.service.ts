@@ -52,7 +52,8 @@ export const getAuthorizeUrl = (
 
 export const handleCallback = async (
     code: string,
-    state: string
+    state: string,
+    decodedState?: Record<string, unknown> | null
 ): Promise<{
     user: TwitchUser;
     access_token: string;
@@ -103,7 +104,8 @@ export const handleCallback = async (
         customRateLimit: existingUser?.customRateLimit,
         stats: existingUser?.stats,
         totalRequests: existingUser?.totalRequests,
-        lastActive: existingUser?.lastActive
+        lastActive: existingUser?.lastActive,
+        timezone: (decodedState?.tz as string) || existingUser?.timezone || 'UTC'
     };
 
     if (!refresh_token) {
@@ -117,7 +119,7 @@ export const handleCallback = async (
     let redirectOrigin = '';
     let isAdmin = false;
     if (state) {
-        const decoded = verifyState(state);
+        const decoded = decodedState ?? verifyState(state);
         if (!decoded) {
             logger.warn('⚠ OAuth state inválido o manipulado. Ignorando redirectOrigin.');
         } else {
