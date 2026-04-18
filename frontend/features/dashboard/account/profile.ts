@@ -26,7 +26,6 @@ export const ProfileModule: DashboardModule = {
         this.setupUI();
         this.syncSummary();
         this.startSmartPolling();
-        this.detectAndSyncTimezone();
     },
 
     deactivate(): void {
@@ -63,10 +62,6 @@ export const ProfileModule: DashboardModule = {
 
     async syncSummary(): Promise<void> {
         await ProfileAPI.syncSummary(this.session || null, () => this.authHeaders(), this.lastData);
-    },
-
-    async detectAndSyncTimezone(): Promise<void> {
-        await ProfileAPI.detectAndSyncTimezone(this.session || null, () => this.authHeaders());
     },
 
     startSmartPolling(): void {

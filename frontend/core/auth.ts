@@ -150,7 +150,10 @@ export const Auth = {
         let currentUrl = window.location.origin + window.location.pathname;
         currentUrl = currentUrl.replace('://www.', '://');
 
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
         const authPath = `${CONFIG.API_URL}/auth/twitch`;
-        window.location.href = `${authPath}?redirect_origin=${encodeURIComponent(currentUrl)}`;
+        let loginUrl = `${authPath}?redirect_origin=${encodeURIComponent(currentUrl)}`;
+        if (tz) loginUrl += `&tz=${encodeURIComponent(tz)}`;
+        window.location.href = loginUrl;
     }
 };
