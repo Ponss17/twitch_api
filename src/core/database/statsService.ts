@@ -178,13 +178,22 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
             'UTC';
         const todayStr = getDateFormatter(tz).format(new Date());
 
-        numericStats[`d:${todayStr}`] = totals?.today_requests ?? 0;
-        numericStats[`e:${todayStr}`] = totals?.today_errors ?? 0;
-        numericStats[`l:${todayStr}`] = totals?.today_latency ?? 0;
+        const lastStatsDate = totals?.last_stats_date as string | undefined;
+        // Si lastStatsDate es menor que la fecha actual (ej. '2026-04-18' < '2026-04-19'), 
+        // significa que las estadísticas de HOY aún no han sido pisadas (lazy reset).
+        const isOutdated = lastStatsDate && lastStatsDate < todayStr;
 
-        numericStats['today_req_raw'] = totals?.today_requests ?? 0;
-        numericStats['today_err_raw'] = totals?.today_errors ?? 0;
-        numericStats['today_lat_raw'] = totals?.today_latency ?? 0;
+        const effectiveTodayReqs = isOutdated ? 0 : (totals?.today_requests ?? 0);
+        const effectiveTodayErrs = isOutdated ? 0 : (totals?.today_errors ?? 0);
+        const effectiveTodayLat = isOutdated ? 0 : (totals?.today_latency ?? 0);
+
+        numericStats[`d:${todayStr}`] = effectiveTodayReqs;
+        numericStats[`e:${todayStr}`] = effectiveTodayErrs;
+        numericStats[`l:${todayStr}`] = effectiveTodayLat;
+
+        numericStats['today_req_raw'] = effectiveTodayReqs;
+        numericStats['today_err_raw'] = effectiveTodayErrs;
+        numericStats['today_lat_raw'] = effectiveTodayLat;
 
         if (STATS_CACHE.size >= MAX_STATS_CACHE_SIZE) {
             const iterator = STATS_CACHE.keys();
