@@ -74,7 +74,7 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
     }
 
     // 6. Vistas HTML Públicas (Servidas como archivos estáticos si no son API)
-    const publicHtmlPaths = ['/dashboard', '/minigames', '/admin', '/sobre-la-api'];
+    const publicHtmlPaths = ['/dashboard', '/admin', '/sobre-la-api'];
 
     const isHtmlPath = publicHtmlPaths.some(
         (prefix) => cleanPath === prefix || cleanPath.startsWith(`${prefix}/`)
