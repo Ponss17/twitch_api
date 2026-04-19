@@ -30,7 +30,8 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                         id: userProfile.id,
                         login: userProfile.login,
                         display_name: userProfile.display_name,
-                        profile_image_url: userProfile.profile_image_url
+                        profile_image_url: userProfile.profile_image_url,
+                        timezone: dbUser?.timezone || 'UTC'
                     }
                 });
             } catch (err) {

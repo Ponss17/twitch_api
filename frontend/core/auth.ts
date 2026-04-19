@@ -118,6 +118,27 @@ export const Auth = {
         }
     },
 
+    async updateTimezone(timezone: string, session: Session): Promise<boolean> {
+        try {
+            const headers: Record<string, string> = {
+                'Content-Type': 'application/json'
+            };
+            if (session.token) headers['Authorization'] = `Bearer ${session.token}`;
+            if (session.apiKey) headers['x-api-key'] = session.apiKey;
+
+            const response = await fetch(`${CONFIG.API_URL}/dashboard/timezone`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ timezone })
+            });
+
+            return response.ok;
+        } catch (e) {
+            console.error('Error updating timezone:', e);
+            return false;
+        }
+    },
+
     parseUrlParams(): Session {
         const params = new URLSearchParams(window.location.search);
         const savedSession = this.getSession();
