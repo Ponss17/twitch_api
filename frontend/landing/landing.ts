@@ -2,13 +2,8 @@ import { Auth } from '../core/auth.js';
 import { HeaderComponent } from '../shared/components/header.js';
 import { FooterComponent } from '../shared/components/footer.js';
 import { DisclaimerComponent } from '../shared/components/modals/disclaimerComponent.js';
-import { injectSpeedInsights } from '@vercel/speed-insights';
 import Lenis from 'lenis';
 
-injectSpeedInsights({
-    debug: false,
-    scriptSrc: 'https://va.vercel-scripts.com/v1/speed-insights/script.js'
-});
 function setupSmoothScroll() {
     const lenis = new Lenis({
         duration: 1.2,

@@ -5,12 +5,6 @@ import { FooterComponent } from './shared/components/footer.js';
 import { DashboardModalsComponent } from './shared/components/modals/dashboardModalsComponent.js';
 import { Messages } from './shared/i18n/messages.js';
 import { AuthMessages } from './shared/i18n/authMessages.js';
-import { injectSpeedInsights } from '@vercel/speed-insights';
-
-injectSpeedInsights({
-    debug: false,
-    scriptSrc: 'https://va.vercel-scripts.com/v1/speed-insights/script.js'
-});
 
 import { TwitchUser, Session, ApiResponse } from './types.js';
 
