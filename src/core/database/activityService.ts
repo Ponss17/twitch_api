@@ -31,6 +31,8 @@ export interface StoredActivityLog {
 }
 
 export const addUserActivity = async (userId: string, entry: ActivityLogEntry): Promise<void> => {
+    if (userId === 'anonymous') return; // Evita el error FK en la DB
+
     try {
         const userName = entry.user || 'Usuario anónimo';
         const { error } = await supabase.from('activity_logs').insert({

@@ -18,3 +18,15 @@ export const sanitizeHtml = (input: string): string => {
     };
     return input.replace(/[&<>"']/g, (char) => map[char] || char);
 };
+
+/**
+ * Valida si una cadena es una zona horaria IANA válida.
+ */
+export const isValidTimezone = (tz: string): boolean => {
+    try {
+        Intl.DateTimeFormat(undefined, { timeZone: tz });
+        return true;
+    } catch {
+        return false;
+    }
+};
