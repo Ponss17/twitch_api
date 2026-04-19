@@ -68,7 +68,11 @@ Tras detectar regresiones en la integración del Dashboard y la lógica de coman
 
 1. **Git Hard Reset**: Retorno al commit `8bba712` para limpiar el exceso de lógica de sanitización.
 2. **Force Push**: Sincronización del repositorio remoto y disparo de nuevo despliegue en Vercel.
-3. **Estado Actual**: El proyecto se encuentra en un estado minimalista funcional, priorizando la estabilidad del Timezone y OAuth sobre la limpieza agresiva de inputs.
+3. **Integridad de Base de Datos y Tracking de Duelos**:
+    - Se resolvió un error crítico de clave foránea (`FK constraint`) donde el servidor fallaba silenciosamente tras recibir comandos anónimos de Nightbot al intentar forzar el ID `'anonymous'` en Supabase.
+    - Se corrigió el middleware `apiKeyValidator.ts` que aplicaba una "ceguera" indeseada: bloqueaba tempranamente procesar las claves en la zona de minijuegos por considerarla "ruta UI". Ahora los comandos `!duel` o `!russian` con `apiKey` o `channel` registrarán la actividad perfecta en la DB para la cuenta del streamer.
+    - Seguridad mantenida: Esto **no abre vulnerabilidades** de denegación de servicio (DDoS) a la DB por spam, ya que el validador utiliza `invalidKeysCache`, la caché negativa en memoria RAM. Cualquier clave falsa repetida es bloqueada instantáneamente sin repetición de consultas a Supabase.
+4. **Sincronización Timezone**: Se re-introdujo la validación asíncrona de los husos horarios entre el navegador (frontend) y el validador de sesión (backend) de manera silenciosa, devolviendo `UTC` como fallback estricto.
 
 ---
 
