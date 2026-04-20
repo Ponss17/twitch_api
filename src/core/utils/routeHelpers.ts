@@ -59,9 +59,11 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
         '/api/twitch/sitemap.xml',
         '/docs',
         '/api/twitch/docs',
-        '/_vercel/speed-insights/vitals'
     ];
     if (publicExactRoutes.includes(cleanPath)) return true;
+
+    // 4.1 Rutas de Sistema Vercel (Speed Insights, Analytics)
+    if (cleanPath.startsWith('/_vercel')) return true;
 
     // 5. Auth Flows
     if (
