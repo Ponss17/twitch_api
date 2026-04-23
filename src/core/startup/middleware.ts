@@ -30,6 +30,8 @@ export const configureMiddleware = (app: Application) => {
                         // Nonce dinámico por request: elimina la necesidad de 'unsafe-inline'
                         (_req, res) =>
                             `'nonce-${(res as unknown as { locals: { cspNonce: string } }).locals.cspNonce}'`,
+                        // Permite scripts inyectados dinámicamente por código con nonce válido (Speed Insights SDK)
+                        "'strict-dynamic'",
                         'https://cdnjs.cloudflare.com',
                         'https://unpkg.com',
                         'https://cdn.jsdelivr.net',
