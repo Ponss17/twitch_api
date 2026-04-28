@@ -8,10 +8,10 @@ import { AuthMessages } from './shared/i18n/authMessages.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
 injectSpeedInsights({
-    endpoint: '/api/twitch/_vercel/speed-insights/vitals',
-    scriptSrc: '/api/twitch/_vercel/speed-insights/script.js',
+    endpoint: 'https://twitch-api-smoky.vercel.app/_vercel/speed-insights/vitals',
+    scriptSrc: 'https://twitch-api-smoky.vercel.app/_vercel/speed-insights/script.js',
     beforeSend: (data) => {
-        console.log('🚀 [Vercel Speed Insights] Enviando métricas con ruta aislada:', data);
+        console.log('🚀 [Vercel Speed Insights] Enviando métricas DIRECTO al proyecto:', data);
         return data;
     }
 });
