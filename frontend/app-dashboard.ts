@@ -7,7 +7,12 @@ import { Messages } from './shared/i18n/messages.js';
 import { AuthMessages } from './shared/i18n/authMessages.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
-injectSpeedInsights();
+injectSpeedInsights({
+    beforeSend: (data) => {
+        console.log('🚀 [Vercel Speed Insights] Enviando métricas reales:', data);
+        return data;
+    }
+});
 
 import { TwitchUser, Session, ApiResponse } from './types.js';
 

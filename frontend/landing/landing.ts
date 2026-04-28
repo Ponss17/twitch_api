@@ -5,7 +5,12 @@ import { DisclaimerComponent } from '../shared/components/modals/disclaimerCompo
 import { injectSpeedInsights } from '@vercel/speed-insights';
 import Lenis from 'lenis';
 
-injectSpeedInsights();
+injectSpeedInsights({
+    beforeSend: (data) => {
+        console.log('🚀 [Vercel Speed Insights] Enviando métricas reales:', data);
+        return data;
+    }
+});
 
 function setupSmoothScroll() {
     const lenis = new Lenis({
