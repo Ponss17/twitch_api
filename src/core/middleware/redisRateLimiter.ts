@@ -111,7 +111,9 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
 
         if (count > limit) {
             res.setHeader('Content-Type', 'text/plain');
-            return res.status(429).send('Límite de peticiones pesadas excedido (max 10/min).');
+            return res
+                .status(429)
+                .send(`Límite de peticiones pesadas excedido (max ${RATE_LIMITS.HEAVY}/min).`);
         }
         next();
     } catch (_e) {

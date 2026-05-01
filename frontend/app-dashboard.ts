@@ -10,10 +10,7 @@ import { injectSpeedInsights } from '@vercel/speed-insights';
 injectSpeedInsights({
     endpoint: 'https://twitch-api-smoky.vercel.app/_vercel/speed-insights/vitals',
     scriptSrc: 'https://twitch-api-smoky.vercel.app/_vercel/speed-insights/script.js',
-    beforeSend: (data) => {
-        console.log('🚀 [Speed Insights] Enviando:', data);
-        return { ...data, route: window.location.pathname };
-    }
+    route: window.location.pathname
 });
 
 import { TwitchUser, Session, ApiResponse } from './types.js';
