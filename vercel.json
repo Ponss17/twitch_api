@@ -57,7 +57,7 @@
     ],
     "rewrites": [
         {
-            "source": "/((?!api/twitch/_vercel|img|css|js|components|_vercel).*)",
+            "source": "/((?!api/twitch/_vercel|img|css|js|components|_vercel|sw\\.js).*)",
             "destination": "/api/index.ts"
         }
     ]

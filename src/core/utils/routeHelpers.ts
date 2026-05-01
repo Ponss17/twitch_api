@@ -59,6 +59,8 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
         '/api/twitch/sitemap.xml',
         '/docs',
         '/api/twitch/docs',
+        '/sobre-la-api',
+        '/api/twitch/sobre-la-api'
     ];
     if (publicExactRoutes.includes(cleanPath)) return true;
 
