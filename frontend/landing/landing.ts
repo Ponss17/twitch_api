@@ -9,8 +9,8 @@ injectSpeedInsights({
     endpoint: 'https://twitch-api-smoky.vercel.app/_vercel/speed-insights/vitals',
     scriptSrc: 'https://twitch-api-smoky.vercel.app/_vercel/speed-insights/script.js',
     beforeSend: (data) => {
-        console.log('🚀 [Vercel Speed Insights] Enviando métricas DIRECTO al proyecto:', data);
-        return data;
+        console.log('🚀 [Speed Insights] Enviando:', data);
+        return { ...data, route: window.location.pathname };
     }
 });
 
