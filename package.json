@@ -38,7 +38,7 @@
         "@supabase/supabase-js": "^2.100.0",
         "@vercel/kv": "^3.0.0",
         "@vercel/speed-insights": "^2.0.0",
-        "axios": "^1.13.2",
+        "axios": "^1.15.2",
         "axios-retry": "^4.5.0",
         "compression": "^1.8.1",
         "cors": "^2.8.5",
@@ -84,5 +84,10 @@
         "*.ts": [
             "eslint --fix"
         ]
+    },
+    "pnpm": {
+        "overrides": {
+            "follow-redirects": ">=1.16.0"
+        }
     }
 }
