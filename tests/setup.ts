@@ -16,6 +16,8 @@ process.env.SUPABASE_URL = 'https://test.supabase.co';
 process.env.SUPABASE_SERVICE_ROLE_KEY = 'test_service_role_key';
 process.env.SUPABASE_ANON_KEY = 'test_anon_key';
 process.env.API_URL = 'http://localhost:3000';
+process.env.GROQ_API_KEY = 'test_groq_api_key';
+process.env.DISCORD_FEEDBACK_WEBHOOK_URL = 'https://discord.com/api/webhooks/test';
 
 // Mock global de Supabase para evitar llamadas de red reales
 jest.mock('@supabase/supabase-js', () => ({
