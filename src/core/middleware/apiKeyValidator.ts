@@ -3,7 +3,6 @@ import * as dbService from '../database/dbService';
 import * as cacheService from '../database/cacheService';
 import { getValidToken } from '../../features/auth/auth.service';
 import { logger } from '../utils/logger';
-import { isPublicRoute } from '../utils/routeHelpers';
 import { invalidateAuthCache } from './authMiddleware';
 import { StoredUser } from '../../types/twitch';
 
@@ -60,7 +59,6 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         logger.warn(`[Security] API Key con formato inválido detectada desde IP: ${req.ip}`);
     }
 
-    const cleanPath = req.originalUrl.split('?')[0].replace(/\/+/g, '/');
     const now = Date.now();
 
     // 2. Caché Negativa (Evitar ataques de fuerza bruta a la DB)

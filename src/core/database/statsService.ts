@@ -179,7 +179,7 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         const todayStr = getDateFormatter(tz).format(new Date());
 
         const lastStatsDate = totals?.last_stats_date as string | undefined;
-        // Si lastStatsDate es menor que la fecha actual (ej. '2026-04-18' < '2026-04-19'), 
+        // Si lastStatsDate es menor que la fecha actual (ej. '2026-04-18' < '2026-04-19'),
         // significa que las estadísticas de HOY aún no han sido pisadas (lazy reset).
         const isOutdated = lastStatsDate && lastStatsDate < todayStr;
 
