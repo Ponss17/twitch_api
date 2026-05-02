@@ -1,4 +1,7 @@
 import { Response } from 'express';
+import axios from 'axios';
+
+jest.mock('axios');
 
 jest.mock('../../src/core/database/dbService', () => ({
     getUser: jest.fn(),
@@ -159,6 +162,8 @@ describe('systemController', () => {
         it('should return 200 on success', async () => {
             const req = mockReq({ body: { message: 'Test message' } });
             const res = mockRes();
+
+            (axios.post as jest.Mock).mockResolvedValue({ data: { success: true } });
 
             await submitFeedback(req, res);
 
