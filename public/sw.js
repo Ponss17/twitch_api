@@ -1,7 +1,9 @@
-const CACHE_NAME = 'losperris-twitch-mnetow7t';
+const CACHE_NAME = 'losperris-twitch-monu447u';
 const urlsToCache = [
     '/',
     '/dashboard',
+    '/offline.html',
+    '/manifest.json',
     '/css/base.css',
     '/css/dashboard.css',
     '/css/components/common.css',
@@ -60,7 +62,16 @@ self.addEventListener('fetch', (event) => {
                 return response;
             })
             .catch(() => {
-                return caches.match(event.request);
+                return caches.match(event.request).then((cachedResponse) => {
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
+                    // Si es una petición de navegación (HTML) devolver página offline
+                    if (event.request.mode === 'navigate') {
+                        return caches.match('/offline.html');
+                    }
+                    return new Response('', { status: 408, statusText: 'Offline' });
+                });
             })
     );
 });

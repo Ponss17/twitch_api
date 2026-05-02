@@ -91,8 +91,8 @@ async function build() {
             const buildHash = Date.now().toString(36);
             const swContent = fs.readFileSync(swPath, 'utf8');
             const swUpdated = swContent.replace(
-                '__CACHE_VERSION__',
-                `losperris-twitch-${buildHash}`
+                /const CACHE_NAME = 'losperris-twitch-[^']+';/,
+                `const CACHE_NAME = 'losperris-twitch-${buildHash}';`
             );
             fs.writeFileSync(swPath, swUpdated, 'utf8');
             console.log(`🔖 Service Worker versionado: losperris-twitch-${buildHash}`);

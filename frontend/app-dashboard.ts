@@ -22,6 +22,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     UI.setupMobileMenu();
     Auth.initAuthSync();
 
+    import('./core/dashboardStore.js').then(({ dashboardStore }) => {
+        let wasOffline = !dashboardStore.getState().isOnline;
+        dashboardStore.on('isOnline', (state) => {
+            if (!state.isOnline) {
+                UI.showToast('Sin conexión a internet. Modo offline activado.', 'warning');
+                wasOffline = true;
+            } else if (wasOffline) {
+                UI.showToast('Conexión restaurada', 'success');
+                wasOffline = false;
+            }
+        });
+    });
+
     const sessionParams: Session = Auth.parseUrlParams();
     const { apiKey, token } = sessionParams;
 

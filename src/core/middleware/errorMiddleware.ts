@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
+import { Sentry } from '../utils/sentry';
 
 export const errorHandler = (
-    err: { status?: number; statusCode?: number; message?: string },
+    err: { status?: number; statusCode?: number; message?: string; stack?: string },
     req: Request,
     res: Response,
     _next: NextFunction
@@ -11,6 +12,10 @@ export const errorHandler = (
 
     const status = err.statusCode || err.status || 500;
     const message = err.message || 'Error interno del servidor';
+
+    if (status >= 500) {
+        Sentry.captureException(err);
+    }
 
     if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
         return res.status(status).send(message);
