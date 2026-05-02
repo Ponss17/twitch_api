@@ -51,6 +51,23 @@ export const Dashboard = {
         });
     },
 
+    renderModuleError(tabId: string, error: unknown) {
+        const pane = document.getElementById(tabId);
+        if (!pane) return;
+
+        const msg = error instanceof Error ? error.message : 'Error desconocido';
+        pane.innerHTML = `
+            <div class="error-state" style="margin:20px;">
+                <div class="error-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h3>Este módulo tuvo un problema</h3>
+                <p>${msg}</p>
+                <button class="btn-primary btn-sm" onclick="location.reload()">
+                    <i class="fa-solid fa-rotate-right"></i> Reintentar
+                </button>
+            </div>
+        `;
+    },
+
     setupUserBadge() {
         if (!this.session) return;
         const { displayName, profile_image_url } = this.session;
@@ -208,12 +225,20 @@ export const Dashboard = {
                         mod.init(this.session);
                         mod.initialized = true;
                     } catch (e) {
-                        console.error('Error lazy-initializing module:', e);
+                        console.error(`Error inicializando módulo en ${tabId}:`, e);
+                        this.renderModuleError(tabId, e);
+                        return;
                     }
                 }
 
                 if (typeof mod.activate === 'function') {
-                    mod.activate();
+                    try {
+                        mod.activate();
+                    } catch (e) {
+                        console.error(`Error activando módulo en ${tabId}:`, e);
+                        this.renderModuleError(tabId, e);
+                        return;
+                    }
                 }
                 this.activeModules.push(mod);
             }
