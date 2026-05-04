@@ -1,54 +1,51 @@
 # Roadmap — LosPerris Twitch API
 
-Cambios planeados para futuras versiones.
+Cambios planeados para futuras versiones y registro de lo ya completado.
 
 ---
 
-## ✅ Completado
+## ✅ Completado (Estado 10/10 - Mayo 2026)
 
-### Optimización y Seguridad v2.9.5 🚀
+### Optimizaciones de Rendimiento y CI/CD
 
-- **Sincronización de Pestañas**: Liderazgo vía `BroadcastChannel` (90% menos tráfico redundante).
-- **Blindaje de Privacidad (DLP)**: Filtro de seguridad en la API para evitar fugas de datos sensibles (como emails).
-- **Hardening de Supabase**: RLS Activo en todas las tablas y protección de `search_path` en funciones SQL.
-- **Backup Estructural**: Generado `database_backup.sql` para recuperación de desastres.
+- **GitHub Actions (CI/CD)**: Pipeline automático para `eslint`, `type-check` y `jest` en cada push.
+- **Preload y Lazy Loading**: Optimización de fuentes de Google e imágenes para mejor LCP.
+- **PWA (Progressive Web App)**: Service Worker dinámico, caché robusta con rutas relativas, manifest instalable y página de fallback `offline.html`.
 
-### Hash de actividad (Redis List nativo)
+### Estabilidad y Seguridad (Hardening)
 
-Migrado `addUserActivity` / `getUserActivity` a Redis List nativa (`LPUSH`, `LRANGE`). Eliminado el riesgo de race conditions en logs.
+- **Manejo de Errores (Error Boundaries)**: Módulos del frontend aislados para evitar colapsos en cascada.
+- **Sentry Logging**: Integrado en backend para rastrear errores no controlados.
+- **Rate Limiting UI**: Página `429.html` con temporizador reactivo (`localStorage`) para gestionar cooldowns de 15 minutos en bloqueos de seguridad.
+- **Pruebas de Integración (Supertest)**: Verificación de rutas críticas, middlewares y rate limiters (128 tests al 100%).
 
-### Optimización de Frontend (Landing & About)
+### Optimizaciones Previas (v2.9.5)
 
-- Badges locales (0 requests externos).
-- Cache-Control `immutable` para assets.
-- Loop de partículas en `about.ts` pausado en idle (0% CPU en espera).
-
-### Polling del Dashboard
-
-- Sin cache-bust (`?_=Date.now()` eliminado).
-- Pausado automáticamente cuando la pestaña está en background.
-- Preload de tabs secuencial (sin ráfaga de requests).
-
-### Rate limiting por endpoint costoso
-
-- `/analytics`, `/chatters`, `/get-clips` limitados a **10 req/min** para API Key externa.
-- Dashboard (sesión) sin cambios: 1000/min.
+- **Sincronización de Pestañas**: Liderazgo vía `BroadcastChannel` (90% menos tráfico).
+- **Blindaje de Privacidad (DLP)**: Filtro de seguridad en la API.
+- **Hash de actividad**: Migrado a Redis List nativa (`LPUSH`, `LRANGE`).
+- **Hardening de Supabase**: RLS Activo y `database_backup.sql`.
 
 ---
 
-## 🔜 Próximo
+## 📅 Futuro / Backlog
 
-- **Notificaciones de salud del sistema**: Alertas vía Discord/Webhooks cuando la latencia sube de un umbral.
-- **Dashboard v3 (UI Refactor)**: Nuevos widgets de visualización y mejoras estéticas.
+### 1. Migración Total de la UI al Store Reactivo
+
+Refactorizar todos los módulos visuales para que escuchen pasivamente los cambios de estado en `dashboardStore.ts`, eliminando `document.getElementById` sueltos.
+
+### 2. Versionado Semántico de la API (`/v1/`, `/v2/`)
+
+Añadir prefijo de versión en las rutas para poder hacer cambios breaking en el futuro sin afectar a los usuarios actuales de la API pública.
+
+### 3. Documentación Interactiva (OpenAPI / Swagger)
+
+Implementar Swagger-UI para pruebas directas desde el navegador.
+
+### 4. Automatización del Changelog (Semantic Release)
+
+Generación automática de release notes basada en los commits.
 
 ---
 
-## 📅 Futuro
-
-### Versionado de la API (`/v1/`)
-
-Añadir prefijo de versión en las rutas para poder hacer cambios breaking en el futuro sin afectar a usuarios existentes.
-
----
-
-© 2026 LosPerrisAPI.
+© 2026 LosPerrisAPI. Calidad y Seguridad ante todo.
