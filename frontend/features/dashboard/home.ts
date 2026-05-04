@@ -4,21 +4,8 @@ import { Session } from '../../types.js';
 import { Loader } from '../../shared/utils/loader.js';
 import { BaseModule } from '../../shared/utils/baseModule.js';
 import { TabSyncService } from '../../shared/utils/tabSyncService.js';
-
-interface HealthStatus {
-    status: string;
-}
-
-interface ActivityLog {
-    action: string;
-    timestamp: string;
-}
-
-interface StatsData {
-    todayRequests?: number;
-    rawSuccessRate?: number;
-    avgLatencyMs?: number;
-}
+import { dashboardStore, ActivityLog, StatsData, HealthStatus } from '../../core/dashboardStore.js';
+import { UI } from '../../core/ui.js';
 
 export const HomeModule = {
     ...BaseModule,
@@ -27,7 +14,7 @@ export const HomeModule = {
     pollInterval: null as ReturnType<typeof setInterval> | null,
     visibilityHandler: null as (() => void) | null,
     syncService: null as TabSyncService | null,
-    countdown: 30,
+    unsubscribers: [] as Array<() => void>,
     lastStats: {
         todayRequests: -1,
         successRate: -1,
@@ -48,7 +35,27 @@ export const HomeModule = {
             this.setupSyncListeners();
         }
 
+        this.setupStoreSubscriptions();
         this.startSmartPolling();
+    },
+
+    setupStoreSubscriptions(): void {
+        this.unsubscribers.push(
+            dashboardStore.on('activityLogs', (state) => this.renderActivity(state.activityLogs))
+        );
+        this.unsubscribers.push(
+            dashboardStore.on('stats', (state) => {
+                if (state.stats) this.renderStats(state.stats);
+            })
+        );
+        this.unsubscribers.push(
+            dashboardStore.on('health', (state) => {
+                if (state.health) this.renderHealth(state.health);
+            })
+        );
+        this.unsubscribers.push(
+            dashboardStore.on('isLeader', (state) => this.updateSyncIndicator(state.isLeader))
+        );
     },
 
     setupSyncListeners(): void {
@@ -56,23 +63,20 @@ export const HomeModule = {
 
         this.syncService.on('LEADER_CHANGED', (payload: unknown) => {
             const data = payload as { isLeader: boolean };
-            const syncEl = document.getElementById('home-sync-indicator');
-            if (syncEl) {
-                syncEl.textContent = data.isLeader ? 'Leader' : 'Follower';
-            }
+            dashboardStore.setState({ isLeader: data.isLeader });
             if (data.isLeader) {
                 this.performSync();
             }
         });
 
         this.syncService.on('SYNC_ACTIVITY', (payload: unknown) =>
-            this.renderActivity(payload as ActivityLog[])
+            dashboardStore.setState({ activityLogs: payload as ActivityLog[] })
         );
         this.syncService.on('SYNC_STATS', (payload: unknown) =>
-            this.renderStats(payload as StatsData)
+            dashboardStore.setState({ stats: payload as StatsData })
         );
         this.syncService.on('SYNC_HEALTH', (payload: unknown) =>
-            this.renderHealth(payload as HealthStatus)
+            dashboardStore.setState({ health: payload as HealthStatus })
         );
     },
 
@@ -89,6 +93,10 @@ export const HomeModule = {
             this.syncService.destroy();
             this.syncService = null;
         }
+
+        // Limpiar suscripciones al Store reactivo
+        this.unsubscribers.forEach((unsub) => unsub());
+        this.unsubscribers = [];
     },
 
     startSmartPolling(): void {
@@ -98,35 +106,43 @@ export const HomeModule = {
         const now = Date.now();
         const pollMs = 30000;
 
+        // Inicializar isLeader si acaba de arrancar
+        if (this.syncService) {
+            dashboardStore.setState({ isLeader: this.syncService.getIsLeader() });
+        }
+
+        let countdown = 30;
         if (lastSync) {
             const elapsed = now - parseInt(lastSync);
             if (elapsed < pollMs) {
-                this.countdown = Math.ceil((pollMs - elapsed) / 1000);
+                countdown = Math.ceil((pollMs - elapsed) / 1000);
             } else {
-                this.countdown = 30;
                 if (this.syncService?.getIsLeader()) this.performSync();
             }
         } else {
-            this.countdown = 30;
             if (this.syncService?.getIsLeader()) this.performSync();
         }
 
-        this.updateSyncIndicator();
+        dashboardStore.setState({ pollingCountdown: countdown });
 
         this.pollInterval = setInterval(() => {
             if (document.visibilityState === 'hidden') return;
-            this.countdown--;
-            if (this.countdown <= 0) {
+
+            let currentCountdown = dashboardStore.getState().pollingCountdown - 1;
+            if (currentCountdown <= 0) {
                 if (this.syncService?.getIsLeader()) this.performSync();
-                this.countdown = 30;
+                currentCountdown = 30;
             }
-            this.updateSyncIndicator();
+            dashboardStore.setState({ pollingCountdown: currentCountdown });
         }, 1000);
 
         this.visibilityHandler = () => {
-            if (document.visibilityState === 'visible' && this.countdown <= 0) {
+            if (
+                document.visibilityState === 'visible' &&
+                dashboardStore.getState().pollingCountdown <= 0
+            ) {
                 if (this.syncService?.getIsLeader()) this.performSync();
-                this.countdown = 30;
+                dashboardStore.setState({ pollingCountdown: 30 });
             }
         };
         document.addEventListener('visibilitychange', this.visibilityHandler);
@@ -155,11 +171,11 @@ export const HomeModule = {
         }, 1000);
     },
 
-    updateSyncIndicator(): void {
+    updateSyncIndicator(isLeader: boolean): void {
         const syncEl = document.getElementById('home-sync-indicator');
         if (!syncEl) return;
-        if (!syncEl.classList.contains('syncing') && this.syncService) {
-            syncEl.textContent = this.syncService.getIsLeader() ? 'Leader' : 'Follower';
+        if (!syncEl.classList.contains('syncing')) {
+            syncEl.textContent = isLeader ? 'Leader' : 'Follower';
         }
     },
 
@@ -193,23 +209,18 @@ export const HomeModule = {
     },
 
     async loadRealHealth(): Promise<void> {
-        const pill = document.getElementById('home-health-pill');
-        const label = pill?.querySelector('.status-label');
-        if (!pill || !label || !this.session) return;
-
+        if (!this.session) return;
         try {
             const response = await fetch(`${API_ENDPOINTS.HEALTH}`, {
                 headers: this.authHeaders()
             });
-
             if (response.ok) {
                 const health = await response.json();
                 this.syncService?.broadcast('SYNC_HEALTH', health);
-                this.renderHealth(health);
+                dashboardStore.setState({ health });
             }
-        } catch (e) {
-            console.error('[Home] Error loading health:', e);
-            this.renderHealth({ status: 'error' });
+        } catch (_e) {
+            dashboardStore.setState({ health: { status: 'error' } });
         }
     },
 
@@ -232,18 +243,15 @@ export const HomeModule = {
     },
 
     async loadRealActivity(): Promise<void> {
-        const logContainer = document.getElementById('home-activity-logs');
-        if (!logContainer || !this.session) return;
-
+        if (!this.session) return;
         try {
             const response = await fetch(`${API_ENDPOINTS.ACTIVITY}`, {
                 headers: this.authHeaders()
             });
-
             if (response.ok) {
                 const logs = await response.json();
                 this.syncService?.broadcast('SYNC_ACTIVITY', logs);
-                this.renderActivity(logs);
+                dashboardStore.setState({ activityLogs: logs });
             }
         } catch (e) {
             console.error('[Home] Error loading activity:', e);
@@ -271,7 +279,7 @@ export const HomeModule = {
         }
         logContainer.classList.remove('is-empty');
 
-        logs.forEach((log: { action: string; timestamp: string }) => {
+        logs.forEach((log) => {
             const time = new Date(log.timestamp).toLocaleTimeString('es-ES', {
                 hour: '2-digit',
                 minute: '2-digit'
@@ -295,25 +303,21 @@ export const HomeModule = {
 
     async loadRealStats(): Promise<void> {
         if (!this.session) return;
-
         try {
             const response = await fetch(`${API_ENDPOINTS.ANALYTICS}`, {
                 headers: this.authHeaders()
             });
-
             if (response.ok) {
                 const data = await response.json();
                 this.syncService?.broadcast('SYNC_STATS', data);
-                await this.renderStats(data);
+                dashboardStore.setState({ stats: data });
             }
         } catch (e) {
             console.error('[Home] Error loading stats:', e);
         }
     },
 
-    async renderStats(data: StatsData): Promise<void> {
-        const { UI } = await import('../../core/ui.js');
-
+    renderStats(data: StatsData): void {
         const todayRequests = data.todayRequests || 0;
         const successRate = data.rawSuccessRate || 0;
         const avgLatencyMs = data.avgLatencyMs || 0;
