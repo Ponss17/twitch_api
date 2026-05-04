@@ -28,7 +28,7 @@ Estado actual del proyecto: **v4.0.0 (Estable / Producción)**
 
 ### 3. Infraestructura y API
 
-- [ ] **Logging con Winston:** Migrar a un sistema de logs estructurado.
+- [ ] **Logging Estructurado:** Aprovechar Winston (ya instalado) para implementar niveles de log y formato JSON en producción.
 - [ ] **Versionado v1:** Añadir prefijos a las rutas para mayor estabilidad.
 - [ ] **Swagger Docs:** Documentación interactiva automática.
 
