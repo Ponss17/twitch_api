@@ -79,13 +79,14 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
 function handleLimitExceeded(req: Request, res: Response, cleanPath: string) {
     const message = MESSAGES.AUTH.RATE_LIMIT_EXCEEDED;
 
+    // Si el cliente pide explícitamente HTML (es el navegador abriendo una página)
+    if (typeof req.headers.accept === 'string' && req.headers.accept.includes('text/html')) {
+        return res.status(429).sendFile('429.html', { root: path.join(process.cwd(), 'public') });
+    }
+
     if (cleanPath.startsWith('/api') || cleanPath.startsWith('/twitch')) {
         res.setHeader('Content-Type', 'text/plain');
         return res.status(429).send(message);
-    }
-
-    if (req.accepts('html')) {
-        return res.status(429).sendFile('429.html', { root: path.join(process.cwd(), 'public') });
     }
 
     res.status(429).json({ error: 'Too Many Requests', message });
@@ -137,6 +138,14 @@ export const authRateLimiter = async (req: Request, res: Response, next: NextFun
         if (count === 1) await kv.expire(redisKey, windowSeconds);
 
         if (count > limit) {
+            if (
+                typeof req.headers.accept === 'string' &&
+                req.headers.accept.includes('text/html')
+            ) {
+                return res
+                    .status(429)
+                    .sendFile('429.html', { root: path.join(process.cwd(), 'public') });
+            }
             return res.status(429).json({
                 error: 'Too Many Requests',
                 message: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en 15 minutos.'
