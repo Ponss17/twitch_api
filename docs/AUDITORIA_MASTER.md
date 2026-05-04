@@ -4,10 +4,10 @@ Este documento resume todos los hallazgos técnicos, correcciones críticas y me
 
 ---
 
-## 💎 Estado de Salud Global: 10/10
+## 💎 Estado de Salud Global: v4.0.0
 
 - **Tests:** 128/128 pasados (100% cobertura en rutas críticas).
-- **Seguridad:** RLS en Supabase, Rate Limiting dinámico, Sanitización de inputs y API Keys enmascaradas.
+- **Seguridad:** RLS en Supabase, Rate Limiting dinámico (Redis/Vercel KV), Validación Zod en todos los endpoints.
 - **Frontend:** Arquitectura reactiva basada en Store centralizado (`dashboardStore.ts`).
 
 ---
@@ -29,20 +29,20 @@ Este documento resume todos los hallazgos técnicos, correcciones críticas y me
 
 ---
 
-## 🔍 Auditoría de Frontend (Mayo 2026)
+## 🔍 Mejoras Pendientes de Frontend
 
-### Seguridad en Cliente
+### Seguridad en Cliente (Identificadas, No Implementadas)
 
-- **XSS Hardening:** Migración progresiva de `innerHTML` a `textContent` o sanitización estricta en módulos de comandos y actividad.
-- **Protección de API Keys:** Se eliminó la exposición de la API Key en el DOM visible. Ahora se maneja mediante atributos ocultos y botones de revelado seguro.
-- **Service Worker:** Implementación de caché L2 con versionado automático por hash para evitar archivos obsoletos.
+- **XSS Hardening:** Migrar `innerHTML` a `textContent` o sanitización estricta en módulos de comandos y plantillas.
+- **Enmascarar API Keys:** Ocultar la API Key visible en el DOM del perfil. Implementar botón de revelado temporal.
+- **Service Worker:** Implementación de caché L2 con versionado automático por hash (ya funcional).
 
 ---
 
 ## 📋 Bitácora de Auditorías (Archivo)
 
 - **Abril 2026:** Refactorización de seguridad backend y optimización de KV. (Resuelto)
-- **Mayo 2026:** Estabilización de PWA y migración a Store Reactivo. (En proceso/Completado)
+- **Mayo 2026:** Estabilización de PWA y migración a Store Reactivo. (Completado parcialmente: HomeModule migrado)
 
 ---
 

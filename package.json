@@ -1,6 +1,6 @@
 {
     "name": "twitch_api",
-    "version": "2.9.4",
+    "version": "4.0.0",
     "description": "Project initialized.",
     "main": "api/index.ts",
     "scripts": {

@@ -1,6 +1,6 @@
 # LosPerris Twitch API
 
-### Documentación de Referencia — v2.9.4
+### Documentación de Referencia — v4.0.0
 
 > API personalizada de integración con Twitch, diseñada para uso en streams en directo.
 > Desplegada en infraestructura serverless con alta disponibilidad.
@@ -102,7 +102,6 @@ Genera un mensaje de shoutout para otro streamer con su juego actual en directo.
 
 | Parámetro  | Tipo   | Requerido | Descripción                         |
 | ---------- | ------ | --------- | ----------------------------------- |
-| `channel`  | string | ✅        | Tu canal (ej. `ponss17`)            |
 | `touser`   | string | ✅        | Canal al que se hace el shoutout    |
 | `template` | string | ❌        | Plantilla personalizada del mensaje |
 | `apiKey`   | string | ✅        | Tu API Key personal                 |
@@ -254,12 +253,14 @@ https://www.losperris.dev/api/twitch/dashboard
 
 **Secciones disponibles:**
 
-| Sección    | Contenido                                               |
-| ---------- | ------------------------------------------------------- |
-| Inicio     | Resumen de uso del día: peticiones, errores, latencia   |
-| Actividad  | Registro cronológico de los últimos comandos ejecutados |
-| Analíticas | Gráficas de uso por categoría y por día                 |
-| Perfil     | Gestión de API Key, datos de cuenta y zona horaria      |
+| Sección    | Contenido                                             |
+| ---------- | ----------------------------------------------------- |
+| Inicio     | Resumen de uso del día: peticiones, errores, latencia |
+| Comandos   | Configuración y prueba de comandos del bot            |
+| Clips      | Historial y gestión de clips creados                  |
+| Analíticas | Gráficas de uso por categoría y por día               |
+| Minijuegos | Bola 8, Ruleta Rusa, Duelos y Stalker                 |
+| Cuenta     | Gestión de API Key, datos de cuenta y zona horaria    |
 
 El dashboard usa sesión propia — no requiere la API Key directamente.
 
@@ -276,9 +277,7 @@ GET https://www.losperris.dev/api/twitch/health
 ```json
 {
     "status": "ok",
-    "timestamp": "2026-04-03T12:00:00.000Z",
-    "uptime": 3600.5,
-    "version": "2.9.4"
+    "timestamp": "2026-05-04T12:00:00.000Z"
 }
 ```
 
@@ -296,8 +295,10 @@ Incluye estado de base de datos, sistema de caché y conexión con Twitch, adem�
 
 | Recurso                                        | Límite                               |
 | ---------------------------------------------- | ------------------------------------ |
-| Peticiones generales                           | 1.000 / minuto por usuario           |
+| Peticiones generales                           | 60 / minuto por usuario              |
 | Endpoints pesados (analytics, chatters, clips) | 10 / minuto por usuario              |
+| Dashboard (uso interno)                        | 1.000 / minuto por sesión            |
+| Intentos de login                              | 5 / cada 15 minutos                  |
 | Mensajes de chat                               | Máximo 500 caracteres                |
 | Preguntas a la Bola 8                          | Máximo 500 caracteres                |
 | Nombres de usuario/canal                       | `[a-zA-Z0-9_]`, máximo 25 caracteres |
