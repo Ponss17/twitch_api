@@ -1,51 +1,45 @@
-# Roadmap — LosPerris Twitch API
+# 🗺️ Roadmap y Backlog de Desarrollo
 
-Cambios planeados para futuras versiones y registro de lo ya completado.
-
----
-
-## ✅ Completado (Estado 10/10 - Mayo 2026)
-
-### Optimizaciones de Rendimiento y CI/CD
-
-- **GitHub Actions (CI/CD)**: Pipeline automático para `eslint`, `type-check` y `jest` en cada push.
-- **Preload y Lazy Loading**: Optimización de fuentes de Google e imágenes para mejor LCP.
-- **PWA (Progressive Web App)**: Service Worker dinámico, caché robusta con rutas relativas, manifest instalable y página de fallback `offline.html`.
-
-### Estabilidad y Seguridad (Hardening)
-
-- **Manejo de Errores (Error Boundaries)**: Módulos del frontend aislados para evitar colapsos en cascada.
-- **Sentry Logging**: Integrado en backend para rastrear errores no controlados.
-- **Rate Limiting UI**: Página `429.html` con temporizador reactivo (`localStorage`) para gestionar cooldowns de 15 minutos en bloqueos de seguridad.
-- **Pruebas de Integración (Supertest)**: Verificación de rutas críticas, middlewares y rate limiters (128 tests al 100%).
-
-### Optimizaciones Previas (v2.9.5)
-
-- **Sincronización de Pestañas**: Liderazgo vía `BroadcastChannel` (90% menos tráfico).
-- **Blindaje de Privacidad (DLP)**: Filtro de seguridad en la API.
-- **Hash de actividad**: Migrado a Redis List nativa (`LPUSH`, `LRANGE`).
-- **Hardening de Supabase**: RLS Activo y `database_backup.sql`.
+Estado actual del proyecto: **v4.0.0 (Estable / Producción)**
 
 ---
 
-## 📅 Futuro / Backlog
+## ✅ Completado (Mitos Logrados)
 
-### 1. Migración Total de la UI al Store Reactivo
-
-Refactorizar todos los módulos visuales para que escuchen pasivamente los cambios de estado en `dashboardStore.ts`, eliminando `document.getElementById` sueltos.
-
-### 2. Versionado Semántico de la API (`/v1/`, `/v2/`)
-
-Añadir prefijo de versión en las rutas para poder hacer cambios breaking en el futuro sin afectar a los usuarios actuales de la API pública.
-
-### 3. Documentación Interactiva (OpenAPI / Swagger)
-
-Implementar Swagger-UI para pruebas directas desde el navegador.
-
-### 4. Automatización del Changelog (Semantic Release)
-
-Generación automática de release notes basada en los commits.
+- [x] **Suite de Tests (128):** Cobertura total de la API.
+- [x] **PWA Estabilizada:** Service Worker y manifest funcionales.
+- [x] **Rate Limiter Pro:** Temporizador de 15 minutos persistente.
+- [x] **Dashboard Store:** Arquitectura reactiva iniciada (Módulo Home).
+- [x] **Sentry & CI/CD:** Monitoreo y validación automática configurados.
 
 ---
 
-© 2026 LosPerrisAPI. Calidad y Seguridad ante todo.
+## 🚀 Próximos Pasos (Backlog Futuro)
+
+### 1. Refactorización UI (Arquitectura Reactiva)
+
+- [ ] **Migrar Módulos:** Pasar Clips, Comandos y Perfil al `dashboardStore.ts`.
+- [ ] **Notificaciones Toast:** Sistema de avisos visuales conectado al estado global.
+
+### 2. Tiempo Real (Supabase Realtime)
+
+- [ ] **JWT Generator:** Crear endpoint para dar acceso seguro al frontend.
+- [ ] **Suscripción Directa:** Eliminar polling en el dashboard.
+
+### 3. Infraestructura y API
+
+- [ ] **Logging con Winston:** Migrar a un sistema de logs estructurado.
+- [ ] **Versionado v1:** Añadir prefijos a las rutas para mayor estabilidad.
+- [ ] **Swagger Docs:** Documentación interactiva automática.
+
+---
+
+## 📈 Visión a Largo Plazo
+
+- Integración de más minijuegos basados en LLM (Groq).
+- Panel de administración avanzado para moderadores.
+- Exportación de analíticas en PDF/CSV.
+
+---
+
+_Última actualización: Mayo 2026_
