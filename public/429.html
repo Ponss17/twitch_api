@@ -7,12 +7,10 @@
     <title>429 - Demasiadas Peticiones | LosPerris API</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/error.css">
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/error.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="icon" type="image/svg+xml" href="/img/logo.svg">
-    <script src="/vendor/speed-insights-stub.js"></script>
-    <script defer src="/_vercel/speed-insights/script.js"></script>
+    <link rel="icon" type="image/svg+xml" href="./img/logo.svg">
 </head>
 
 <body>
@@ -25,14 +23,58 @@
         <div class="error-container">
             <div class="error-code">429</div>
             <h1 class="error-title">¡Wow, vas muy rápido!</h1>
-            <p class="error-message">Has hecho demasiadas peticiones en muy poco tiempo. Por favor, toma un respiro y
-                vuelve a intentarlo en unos instantes.</p>
+            <p class="error-message">Has excedido el límite de peticiones de seguridad. Por favor, toma un respiro y
+                vuelve a intentarlo cuando el tiempo termine.</p>
 
-            <a href="/" class="btn-secondary">
-                <i class="fa-solid fa-rotate-right"></i> Intentar de nuevo
+            <div class="cooldown-timer"
+                style="margin: 20px 0; font-size: 2rem; color: #9146ff; font-weight: bold; font-variant-numeric: tabular-nums;">
+                <i class="fa-regular fa-clock"></i> <span id="timer-display">15:00</span>
+            </div>
+
+            <a href="/" id="retry-btn" class="btn-secondary" style="pointer-events: none; opacity: 0.5;">
+                <i class="fa-solid fa-lock"></i> Bloqueado
             </a>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const COOLDOWN_MINUTES = 15;
+            const timerDisplay = document.getElementById('timer-display');
+            const retryBtn = document.getElementById('retry-btn');
+
+            let cooldownEnd = localStorage.getItem('rate_limit_cooldown');
+            const now = Date.now();
+
+            if (!cooldownEnd || parseInt(cooldownEnd) < now) {
+                cooldownEnd = now + (COOLDOWN_MINUTES * 60 * 1000);
+                localStorage.setItem('rate_limit_cooldown', cooldownEnd.toString());
+            } else {
+                cooldownEnd = parseInt(cooldownEnd);
+            }
+
+            function updateTimer() {
+                const timeLeft = cooldownEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    timerDisplay.textContent = "00:00";
+                    retryBtn.style.pointerEvents = 'auto';
+                    retryBtn.style.opacity = '1';
+                    retryBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Intentar de nuevo';
+                    localStorage.removeItem('rate_limit_cooldown');
+                    return;
+                }
+
+                const minutes = Math.floor(timeLeft / 60000);
+                const seconds = Math.floor((timeLeft % 60000) / 1000);
+
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                requestAnimationFrame(updateTimer);
+            }
+
+            updateTimer();
+        });
+    </script>
 </body>
 
 </html>
