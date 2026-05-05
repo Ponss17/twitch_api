@@ -25,6 +25,7 @@ export const HomeModule = {
     useRealtime: false,
     unsubscribers: [] as Array<() => void>,
     _boundAuthFailed: null as (() => void) | null,
+    healthInterval: null as ReturnType<typeof setInterval> | null,
     lastStats: {
         todayRequests: -1,
         successRate: -1,
@@ -115,6 +116,10 @@ export const HomeModule = {
             clearInterval(this.pollInterval);
             this.pollInterval = null;
         }
+        if (this.healthInterval) {
+            clearInterval(this.healthInterval);
+            this.healthInterval = null;
+        }
         if (this.visibilityHandler) {
             document.removeEventListener('visibilitychange', this.visibilityHandler);
             this.visibilityHandler = null;
@@ -178,8 +183,11 @@ export const HomeModule = {
                 console.log('[Home] Realtime connected successfully');
                 this.useRealtime = true;
 
-                // Cargar datos iniciales
-                this.performSync();
+                // Cargar datos iniciales una sola vez por API
+                this.loadInitialData();
+
+                // Solo health check periódico (stats y activity llegan por WebSocket)
+                this.startHealthPolling();
 
                 // Actualizar indicador de sync
                 const syncEl = document.getElementById('home-sync-indicator');
@@ -198,6 +206,41 @@ export const HomeModule = {
             this.useRealtime = false;
             this.startSmartPolling();
         }
+    },
+
+    /**
+     * Carga inicial de todos los datos via API (una sola vez)
+     */
+    async loadInitialData(): Promise<void> {
+        const syncEl = document.getElementById('home-sync-indicator');
+        if (syncEl) syncEl.classList.add('syncing');
+
+        try {
+            await Promise.all([
+                this.loadRealActivity(),
+                this.loadRealStats(),
+                this.loadRealHealth()
+            ]);
+        } catch (e) {
+            console.error('[Home] Error en carga inicial:', e);
+        }
+
+        setTimeout(() => {
+            if (syncEl) syncEl.classList.remove('syncing');
+        }, 1000);
+    },
+
+    /**
+     * Health check periódico cuando Realtime está conectado (cada 60s)
+     * No necesita polling para stats/activity porque llegan por WebSocket
+     */
+    startHealthPolling(): void {
+        if (this.healthInterval) clearInterval(this.healthInterval);
+
+        this.healthInterval = setInterval(() => {
+            if (document.visibilityState === 'hidden') return;
+            this.loadRealHealth();
+        }, 60000);
     },
 
     startSmartPolling(): void {

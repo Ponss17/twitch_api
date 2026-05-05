@@ -3,6 +3,24 @@ import { CONFIG } from '../config.js';
 import { dashboardStore, ActivityLog, StatsData } from './dashboardStore.js';
 import { Session } from '../types.js';
 
+// Interfaz que mapea las columnas reales de la tabla user_stats en Supabase
+interface RawUserStats {
+    today_requests?: number;
+    today_errors?: number;
+    today_latency?: number;
+    total_requests?: number;
+    [key: string]: unknown;
+}
+
+// Interfaz que mapea las columnas reales de activity_logs en Supabase
+interface RawActivityLog {
+    activity_type?: string;
+    user_name?: string;
+    detail?: string;
+    created_at?: string;
+    [key: string]: unknown;
+}
+
 /**
  * Servicio de Supabase Realtime para sincronización en tiempo real
  * del dashboard. Se conecta a las tablas activity_logs y user_stats.
@@ -145,7 +163,7 @@ export class RealtimeService {
                         filter: `user_id=eq.${this.session.userId}`
                     },
                     (payload) => {
-                        this.handleActivityLogInsert(payload.new as ActivityLog);
+                        this.handleActivityLogInsert(payload.new as RawActivityLog);
                     }
                 )
                 .on(
@@ -157,7 +175,7 @@ export class RealtimeService {
                         filter: `user_id=eq.${this.session.userId}`
                     },
                     (payload) => {
-                        this.handleStatsUpdate(payload.new as StatsData);
+                        this.handleStatsUpdate(payload.new as RawUserStats);
                     }
                 )
                 .subscribe((status, err) => {
@@ -178,19 +196,87 @@ export class RealtimeService {
     }
 
     /**
+     * Transforma un activity_log crudo de Supabase al formato que usa el frontend
+     */
+    private formatActivityLog(raw: RawActivityLog): ActivityLog {
+        const type = raw.activity_type || 'other';
+        const user = raw.user_name || 'Usuario';
+        const detail = raw.detail || '';
+        let action = '';
+
+        switch (type) {
+            case 'clip':
+                action = `\u{1F4FA} Nuevo clip creado por @${user} (${detail})`;
+                break;
+            case 'followage':
+                action = `\u{23F1}\u{FE0F} @${user} revisó su followage en ${detail}`;
+                break;
+            case 'shoutout':
+                action = `\u{1F5E3}\u{FE0F} Shoutout de @${user}`;
+                break;
+            case 'message':
+                action = `\u{1F4AC} Mensaje enviado: "${detail}"`;
+                break;
+            case 'russian':
+                action = `\u{1F52B} @${user} jugó la Ruleta Rusa`;
+                break;
+            case 'magic8':
+                action = `\u{1F3B1} @${user} preguntó a la Bola 8`;
+                break;
+            case 'duel':
+                action = `\u{2694}\u{FE0F} @${user} inició un duelo con @${detail}`;
+                break;
+            case 'stalker':
+                action = `\u{1F575}\u{FE0F} @${user} inició escaneo de Stalker`;
+                break;
+            case 'trends':
+                action = `\u{1F4CA} @${user} inició rastreo de Tendencias`;
+                break;
+            case 'roulette':
+                action = `\u{1F3B2} @${user} consultó la Ruleta de Chatters`;
+                break;
+            default:
+                action = `\u{1F539} Actividad: ${type} por @${user}`;
+        }
+
+        return {
+            action,
+            timestamp: raw.created_at || new Date().toISOString()
+        };
+    }
+
+    /**
+     * Computa las métricas de stats a partir de las columnas crudas de la DB
+     */
+    private computeStats(raw: RawUserStats): StatsData {
+        const todayRequests = raw.today_requests || 0;
+        const todayErrors = raw.today_errors || 0;
+        const todayLatency = raw.today_latency || 0;
+
+        const avgLatencyMs = todayRequests > 0 ? Math.round(todayLatency / todayRequests) : 0;
+        const rawSuccessRate =
+            todayRequests > 0
+                ? parseFloat(((1 - todayErrors / todayRequests) * 100).toFixed(1))
+                : 0;
+
+        return { todayRequests, rawSuccessRate, avgLatencyMs };
+    }
+
+    /**
      * Maneja nuevos registros de activity_logs
      */
-    private handleActivityLogInsert(newLog: ActivityLog): void {
+    private handleActivityLogInsert(raw: RawActivityLog): void {
+        const newLog = this.formatActivityLog(raw);
         const currentLogs = dashboardStore.getState().activityLogs;
 
-        // Evitar duplicados
+        // Evitar duplicados por timestamp + action
         const exists = currentLogs.some(
             (log) => log.timestamp === newLog.timestamp && log.action === newLog.action
         );
 
         if (!exists) {
             dashboardStore.setState({
-                activityLogs: [newLog, ...currentLogs].slice(0, 50) // Mantener máximo 50 logs
+                activityLogs: [newLog, ...currentLogs].slice(0, 50)
             });
         }
     }
@@ -198,9 +284,9 @@ export class RealtimeService {
     /**
      * Maneja actualizaciones de user_stats
      */
-    private handleStatsUpdate(newStats: StatsData): void {
+    private handleStatsUpdate(raw: RawUserStats): void {
         dashboardStore.setState({
-            stats: newStats
+            stats: this.computeStats(raw)
         });
     }
 
