@@ -143,7 +143,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
 
         const errorMsg = error.message.includes('Sesión expirada')
             ? error.message
-            : 'Error de autenticación. Clave API inválida o expirada.';
+            : 'Error de autenticación. Clave API inválida o expirada. Regenerala o pide ayuda a Ponss 🦆';
 
         // Si es un comando de bot, devolvemos 200 siempre en formato texto para que Nightbot lo lea
         if (isBotCommand) {
