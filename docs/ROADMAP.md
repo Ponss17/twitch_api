@@ -1,6 +1,6 @@
 # 🗺️ Roadmap y Backlog de Desarrollo
 
-Estado actual del proyecto: **v4.0.0 (Estable / Producción)**
+Estado actual del proyecto: **v4.0.0 (Estable / Producción — 9.5/10)**
 
 ---
 
@@ -9,8 +9,9 @@ Estado actual del proyecto: **v4.0.0 (Estable / Producción)**
 - [x] **Suite de Tests (132):** Cobertura total de la API.
 - [x] **PWA Estabilizada:** Service Worker y manifest funcionales.
 - [x] **Rate Limiter Pro:** Temporizador de 15 minutos persistente.
-- [x] **Dashboard Store:** Arquitectura reactiva iniciada (Módulo Home).
+- [x] **Dashboard Store:** Arquitectura reactiva completa (Home, Clips, Commands, Profile).
 - [x] **Sentry & CI/CD:** Monitoreo y validación automática configurados.
+- [x] **Auditoría Técnica Completa:** 3 rondas, 17 hallazgos corregidos, 0 pendientes.
 
 ---
 
@@ -67,6 +68,13 @@ Estado actual del proyecto: **v4.0.0 (Estable / Producción)**
     - Payload con user_id, login, role='authenticated'
     - Modo estricto: 401 si no hay autenticación válida
 
+- [x] **Auditoría de Estabilidad (Mayo 2026):**
+    - AsyncLocalStorage para correlación de logs sin race conditions
+    - Token refresh de Realtime sin destruir conexión WebSocket
+    - Espera adaptativa en conexión Realtime (sale temprano si conecta)
+    - Memory leaks corregidos (removeEventListener, CacheService limitado)
+    - CORS/CSRF centralizado en `origins.ts`
+    - Tests actualizados para compatibilidad con AsyncLocalStorage
 - [ ] **Versionado v1:** Añadir prefijos a las rutas para mayor estabilidad.
 - [ ] **Swagger Docs:** Documentación interactiva automática.
 

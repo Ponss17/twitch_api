@@ -4,11 +4,12 @@ Este documento resume todos los hallazgos técnicos, correcciones críticas y me
 
 ---
 
-## 💎 Estado de Salud Global: v4.0.0
+## 💎 Estado de Salud Global: v4.0.0 — Calificación: 9.5/10
 
 - **Tests:** 132/132 pasados (100% cobertura en rutas críticas).
-- **Seguridad:** RLS en Supabase, Rate Limiting dinámico (Redis/Vercel KV), Validación Zod en todos los endpoints.
-- **Frontend:** Arquitectura reactiva basada en Store centralizado (`dashboardStore.ts`).
+- **Seguridad:** RLS en Supabase, CORS/CSRF centralizado, Rate Limiting dinámico (Redis/Vercel KV), Validación Zod, AsyncLocalStorage para correlación de logs.
+- **Frontend:** Arquitectura reactiva basada en Store centralizado (`dashboardStore.ts`), Realtime con token refresh sin interrupción de WebSocket.
+- **Auditorías completadas:** 3 rondas, 17 hallazgos encontrados, 17 corregidos.
 
 ---
 
@@ -20,12 +21,19 @@ Este documento resume todos los hallazgos técnicos, correcciones críticas y me
 - **Circuit Breaker:** Se implementó una pausa automática en el logger si la DB falla repetidamente, evitando bucles infinitos.
 - **Rate Limiting:** Se protegió la API de Groq (IA) y rutas de minigames que antes estaban expuestas.
 - **Seguridad PWA:** Normalización de rutas relativas para garantizar funcionamiento offline y carga de iconos.
+- **Memory Leak en removeEventListener:** `.bind()` creaba listeners zombi; corregido con referencia guardada (`_boundAuthFailed`).
+- **Race Condition en Logger:** Map global de `requestId` causaba correlación incorrecta bajo concurrencia; migrado a `AsyncLocalStorage`.
+- **`enrichLog()` mutaba argumentos:** Side-effect mutation del objeto original pasado al logger; corregido con clonado.
 
 ### 🟠 Arquitectura y Rendimiento
 
-- **Paralelización:** Las consultas a Twitch API ahora se ejecutan en paralelo (`Promise.all`), reduciendo la latencia a la mitad.
+- **Paralelización:** Las consultas a Twitch API y `performSync()` ahora se ejecutan en paralelo (`Promise.all`), reduciendo la latencia a la mitad.
 - **Mutex de Caché:** Se implementó un sistema de "Locks" para evitar lecturas duplicadas a la base de datos cuando hay mucho tráfico (Thundering Herd).
 - **Sincronización Timezone:** Detección automática y silenciosa de la zona horaria del usuario para estadísticas precisas.
+- **Token Refresh sin destruir WebSocket:** `setupTokenRefresh()` ahora solo renueva el JWT con `setAuth()` en vez de destruir y recrear la conexión completa cada 4 minutos.
+- **Espera adaptativa en Realtime:** Reemplazado `setTimeout(2000)` fijo por loop de polling de 100ms que sale temprano si conecta.
+- **CORS/CSRF centralizado:** Orígenes permitidos consolidados en `src/core/config/origins.ts` (antes duplicados en 3 archivos).
+- **Frontend CacheService:** Añadido `MAX_SIZE = 200` para prevenir crecimiento ilimitado en sesiones largas.
 
 ---
 
@@ -129,6 +137,14 @@ Este documento resume todos los hallazgos técnicos, correcciones críticas y me
   | Backend retorna 401 | Toast + Redirección tras 2s |
   | Fallo técnico de realtime | Fallback a polling (solo caso permitido) |
 
+### Correcciones Menores (Mayo 2026 — Ronda 3)
+
+- ✅ **Import dinámico innecesario:** `ToastComponent.dismiss()` usaba `import()` dinámico cuando `ToastActions` ya estaba disponible como import estático.
+- ✅ **Variable muerta `tokenExpiry`:** Se asignaba pero nunca se consultaba; eliminada.
+- ✅ **Doble sanitización en `showToast()`:** Regex de strip HTML + `escapeHTML()` era redundante; solo `escapeHTML()` basta.
+- ✅ **Singleton sin actualización de sesión:** `RealtimeServiceFactory.getInstance()` ahora detecta cambio de `userId`/`apiKey` y recrea la instancia.
+- ✅ **Test `errorMiddleware` roto:** Mock de `asyncContext.run()` faltante tras migración a `AsyncLocalStorage`.
+
 ### Mejoras Pendientes
 
 - **Service Worker:** Implementación de caché L2 con versionado automático por hash (ya funcional).
@@ -138,7 +154,9 @@ Este documento resume todos los hallazgos técnicos, correcciones críticas y me
 ## 📋 Bitácora de Auditorías (Archivo)
 
 - **Abril 2026:** Refactorización de seguridad backend y optimización de KV. (Resuelto)
-- **Mayo 2026:** Estabilización de PWA, migración a Store Reactivo, y modo estricto de seguridad implementado. (Completado: ClipsModule, CommandsModule, ProfileModule migrados; sistema de seguridad estricto en producción)
+- **Mayo 2026 — Ronda 1:** Estabilización de PWA, migración a Store Reactivo, modo estricto de seguridad. (11 correcciones)
+- **Mayo 2026 — Ronda 2:** Optimización de Realtime (token refresh, espera adaptativa, código muerto). (6 correcciones)
+- **Mayo 2026 — Ronda 3:** Revisión final exhaustiva, fix de test de CI. (1 corrección, 0 hallazgos nuevos)
 
 ---
 

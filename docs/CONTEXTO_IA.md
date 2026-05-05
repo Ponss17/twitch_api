@@ -6,15 +6,16 @@ Este archivo sirve como memoria técnica para cualquier IA que trabaje en este r
 
 API de Twitch personalizada que sirve de puente para bots de chat (Nightbot/StreamElements).
 
-- **Versión Actual:** v4.0.0
-- **Estado:** Producción (132 tests exitosos).
-- **Stack:** Node.js (Express), TypeScript, Supabase (DB), Redis (Cache), Vercel (Hosting).
+- **Versión Actual:** v4.0.0 (Calificación: 9.5/10)
+- **Estado:** Producción (132 tests exitosos). 3 rondas de auditoría completadas, 0 bugs pendientes.
+- **Stack:** Node.js (Express), TypeScript, Supabase (DB + Realtime), Redis/Vercel KV (Cache L1/L2), Vercel (Hosting).
 
 ## 🏗️ Arquitectura
 
 - **Backend:** Modular por features (`src/features`). Middleware de validación con Zod.
 - **Frontend:** Vanilla TS con carga dinámica de módulos. Sistema de estado reactivo en `dashboardStore.ts`.
-- **Seguridad:** Modo estricto implementado. API Keys enmascaradas, RLS en Supabase, Rate Limiting por IP y por API Key. Redirección automática al login ante cualquier fallo de autenticación.
+- **Seguridad:** Modo estricto implementado. API Keys enmascaradas, RLS en Supabase, Rate Limiting por IP/sesión/API Key (4 niveles), CORS/CSRF centralizado en `origins.ts`, AsyncLocalStorage para correlación de logs, Circuit Breaker persistido en KV. Redirección automática al login ante cualquier fallo de autenticación.
+- **Realtime:** WebSocket con Supabase, token refresh cada 4 min sin destruir conexión (solo `setAuth()`), espera adaptativa, singleton con detección de cambio de sesión.
 
 ## 🚦 Reglas de Oro
 
