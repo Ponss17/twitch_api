@@ -78,7 +78,10 @@ export const saveUser = async (user: StoredUser): Promise<void> => {
     if (secureUser.isActive === undefined) secureUser.isActive = true;
 
     // Solo ciframos si el token NO está ya cifrado (contiene ':' que usa el formato iv:encrypted)
-    const isAlreadyEncrypted = (val: string) => val.includes(':') && val.length > 60;
+    const isAlreadyEncrypted = (val: string) => {
+        const parts = val.split(':');
+        return parts.length === 2 && parts[0].length === 32 && /^[0-9a-f]+$/i.test(parts[0]);
+    };
 
     if (secureUser.accessToken && !isAlreadyEncrypted(secureUser.accessToken)) {
         secureUser.accessToken = encrypt(secureUser.accessToken);

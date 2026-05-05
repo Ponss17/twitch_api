@@ -3,8 +3,7 @@ import * as authService from './auth.service';
 import * as dbService from '../../core/database/dbService';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
-
-import { CONFIG } from '../../core/config/env';
+import { ALLOWED_ORIGINS } from '../../core/config/origins';
 
 const isAllowedOrigin = (origin: string, req: Request): boolean => {
     try {
@@ -13,21 +12,7 @@ const isAllowedOrigin = (origin: string, req: Request): boolean => {
 
         if (host && url.host === host) return true;
 
-        try {
-            const baseUrlHost = new URL(CONFIG.BASE_URL).hostname;
-            if (url.hostname === baseUrlHost) return true;
-        } catch {
-            /* ignore */
-        }
-
-        const allowedOrigins = [
-            'https://www.losperris.dev',
-            'https://losperris.dev',
-            'http://localhost:3000',
-            'http://localhost:5173'
-        ];
-
-        return allowedOrigins.includes(url.origin);
+        return ALLOWED_ORIGINS.includes(url.origin);
     } catch {
         return false;
     }

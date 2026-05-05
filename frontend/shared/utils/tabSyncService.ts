@@ -9,6 +9,7 @@ export class TabSyncService {
     private isLeader = false;
     private tabId = crypto.randomUUID();
     private electionTimeout: number | null = null;
+    private monitorInterval: number | null = null;
     private heartbeatInterval: number | null = null;
     private listeners: Map<string, ((payload: unknown) => void)[]> = new Map();
 
@@ -90,7 +91,7 @@ export class TabSyncService {
     }
 
     private monitorLeader() {
-        setInterval(() => {
+        this.monitorInterval = window.setInterval(() => {
             if (this.isLeader) return;
             const now = Date.now();
             if (now - this.lastLeaderHeartbeat > this.LEADER_TIMEOUT_MS) {
@@ -152,6 +153,7 @@ export class TabSyncService {
         }
         if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
         if (this.electionTimeout) clearTimeout(this.electionTimeout);
+        if (this.monitorInterval) clearInterval(this.monitorInterval);
         this.channel.close();
     }
 }

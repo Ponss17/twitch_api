@@ -2,10 +2,10 @@ const protocol = window.location.protocol;
 const host = window.location.host;
 const API_BASE = '/api/twitch';
 
-// Supabase configuration - URL pública del proyecto
-const SUPABASE_URL = 'https://hzqxfzsbkskcdtrcximx.supabase.co';
+// Supabase configuration - debe coincidir con el backend (.env)
+const SUPABASE_URL = 'https://tkwkgxetfcxojbsnecqy.supabase.co';
 const SUPABASE_ANON_KEY =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6cXhmenNia3NrY2R0cmN4aW14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDY4MTg0NDIsImV4cCI6MjAyMjM5NDQ0Mn0.nHfHQD_bD0bLK8e8I2OjZ0QvzKhykH3Fvz5Q0-2vQ1U';
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrd2tneGV0ZmN4b2pic25lY3F5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjUwNDgsImV4cCI6MjA5MDA0MTA0OH0.Zm7oPasbHE3k-kZMDSMIBii7ZG77xHBTGjkq_WdgK1A';
 
 export const CONFIG = {
     domain: host,

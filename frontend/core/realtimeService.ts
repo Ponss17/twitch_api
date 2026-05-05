@@ -57,8 +57,6 @@ export class RealtimeService {
             }
 
             const url = `${CONFIG.API_URL}/system/realtime-token`;
-            console.log('[Realtime] Fetching token from:', url);
-            console.log('[Realtime] Headers present:', Object.keys(headers));
 
             const response = await fetch(url, {
                 method: 'GET',
@@ -66,41 +64,25 @@ export class RealtimeService {
                 credentials: 'include'
             });
 
-            console.log('[Realtime] Response status:', response.status);
-
             if (!response.ok) {
                 if (response.status === 401) {
                     console.error('[Realtime] Authentication failed: Session expired or invalid');
-                    // Emitir evento para que el dashboard maneje la redirección al login
                     window.dispatchEvent(new CustomEvent('realtime:auth-failed'));
                 } else {
                     console.error('[Realtime] Failed to fetch token:', response.status);
-                    // Intentar leer el cuerpo del error
-                    try {
-                        const errorText = await response.text();
-                        console.error('[Realtime] Error response:', errorText);
-                    } catch (_e) {
-                        // Ignorar error al leer cuerpo
-                    }
                 }
                 return null;
             }
 
             const data = await response.json();
-            console.log('[Realtime] Response data:', data);
 
             if (!data.token) {
-                console.error('[Realtime] Token missing in response:', data);
+                console.error('[Realtime] Token missing in response');
                 return null;
             }
 
             this.token = data.token;
             this.tokenExpiry = data.expiresAt;
-
-            console.log(
-                '[Realtime] Token obtained successfully, expires at:',
-                new Date(data.expiresAt).toLocaleTimeString()
-            );
             return this.token;
         } catch (error) {
             console.error('[Realtime] Error fetching token:', error);
@@ -144,7 +126,6 @@ export class RealtimeService {
 
         try {
             const channelName = `dashboard:${this.session.userId}`;
-            console.log('[Realtime] Setting up channel:', channelName);
 
             // Crear canal
             this.channel = this.supabase.channel(channelName);
@@ -166,7 +147,6 @@ export class RealtimeService {
                         filter: `user_id=eq.${this.session.userId}`
                     },
                     (payload) => {
-                        console.log('[Realtime] Received activity log:', payload);
                         this.handleActivityLogInsert(payload.new as ActivityLog);
                     }
                 )
@@ -179,19 +159,15 @@ export class RealtimeService {
                         filter: `user_id=eq.${this.session.userId}`
                     },
                     (payload) => {
-                        console.log('[Realtime] Received stats update:', payload);
                         this.handleStatsUpdate(payload.new as StatsData);
                     }
                 )
                 .subscribe((status, err) => {
-                    console.log('[Realtime] Subscription status:', status);
-
                     if (status === 'SUBSCRIBED') {
                         this.isConnected = true;
-                        console.log('[Realtime] Successfully subscribed to channel');
                     } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
                         this.isConnected = false;
-                        console.error('[Realtime] Channel error or closed:', err);
+                        if (err) console.warn('[Realtime] Channel error:', err);
                         this.onDisconnectCallback?.();
                     }
                 });
@@ -207,8 +183,6 @@ export class RealtimeService {
      * Maneja nuevos registros de activity_logs
      */
     private handleActivityLogInsert(newLog: ActivityLog): void {
-        console.log('[Realtime] New activity log received:', newLog);
-
         const currentLogs = dashboardStore.getState().activityLogs;
 
         // Evitar duplicados
@@ -227,8 +201,6 @@ export class RealtimeService {
      * Maneja actualizaciones de user_stats
      */
     private handleStatsUpdate(newStats: StatsData): void {
-        console.log('[Realtime] Stats update received:', newStats);
-
         dashboardStore.setState({
             stats: newStats
         });
@@ -245,8 +217,6 @@ export class RealtimeService {
 
         // Renovar token cada 4 minutos (240 segundos)
         this.refreshInterval = setInterval(async () => {
-            console.log('[Realtime] Token refresh interval - reconnecting with new token...');
-            // Desconectar y reconectar con nuevo token
             this.disconnect();
             await this.connect(this.onDisconnectCallback || undefined);
         }, 240000); // 4 minutos
@@ -260,48 +230,26 @@ export class RealtimeService {
     async connect(onDisconnect?: () => void): Promise<boolean> {
         this.onDisconnectCallback = onDisconnect || null;
 
-        console.log('[Realtime] Connecting...');
-
-        // Verificar credenciales antes de intentar conectar
         if (!this.hasValidCredentials()) {
-            console.error('[Realtime] Cannot connect: No authentication credentials');
-            // Modo estricto: sin credenciales = redirigir al login
             window.dispatchEvent(new CustomEvent('realtime:auth-failed'));
             return false;
         }
 
-        // Verificar que haya userId
         if (!this.session?.userId) {
-            console.error('[Realtime] Cannot connect: No userId in session');
-            // Modo estricto: sin userId = redirigir al login
             window.dispatchEvent(new CustomEvent('realtime:auth-failed'));
             return false;
         }
 
         const initialized = this.initializeClient();
-        if (!initialized) {
-            console.error('[Realtime] Failed to initialize client');
-            return false;
-        }
+        if (!initialized) return false;
 
         const channelSetup = await this.setupChannel();
-        if (!channelSetup) {
-            console.error('[Realtime] Failed to setup channel');
-            return false;
-        }
+        if (!channelSetup) return false;
 
-        // Esperar un momento para ver si la conexión se establece
+        // Esperar a que la conexión se establezca
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        if (!this.isConnected) {
-            console.warn(
-                '[Realtime] Connection not established after 2s, will retry or use fallback'
-            );
-        }
-
         this.setupTokenRefresh();
-
-        console.log('[Realtime] Connection attempt completed, isConnected:', this.isConnected);
         return this.isConnected;
     }
 
@@ -309,8 +257,6 @@ export class RealtimeService {
      * Desconecta el canal y limpia recursos
      */
     disconnect(): void {
-        console.log('[Realtime] Disconnecting...');
-
         if (this.refreshInterval) {
             clearInterval(this.refreshInterval);
             this.refreshInterval = null;
@@ -328,8 +274,7 @@ export class RealtimeService {
 
         this.isConnected = false;
         this.token = null;
-
-        console.log('[Realtime] Disconnected');
+        this.tokenExpiry = 0;
     }
 
     /**

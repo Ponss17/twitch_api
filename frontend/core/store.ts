@@ -1,9 +1,6 @@
 type Listener<T> = (state: T) => void;
 
 export class Store<T extends object> {
-    showToast(_message: string, _type: string) {
-        throw new Error('Method not implemented.');
-    }
     private state: T;
     private listeners = new Set<Listener<T>>();
     private keyListeners = new Map<keyof T, Set<Listener<T>>>();

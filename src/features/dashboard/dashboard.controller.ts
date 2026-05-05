@@ -110,10 +110,8 @@ export const getLogs = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const getClips = async (req: AuthenticatedRequest, res: Response) => {
-    const { channel, limit: limitNum } = req.query as unknown as {
-        channel: string;
-        limit: number;
-    };
+    const channel = req.query.channel as string;
+    const limitNum = parseInt(req.query.limit as string, 10) || 20;
     const userId = req.userId;
 
     return await trackRequest(
