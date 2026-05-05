@@ -264,6 +264,14 @@ https://www.losperris.dev/api/twitch/dashboard
 
 El dashboard usa sesión propia — no requiere la API Key directamente.
 
+**Seguridad del Dashboard (Modo Estricto):**
+
+- Sin sesión válida → Redirección automática al login
+- Sin credenciales (token de Twitch o API Key) → Redirección automática
+- Token expirado → Notificación al usuario + Redirección tras 2 segundos
+- Conexión a Supabase Realtime requiere autenticación válida (401 si no hay)
+- Fallback a polling solo para fallos técnicos, nunca para errores de autenticación
+
 ---
 
 ## Estado del sistema
@@ -288,6 +296,44 @@ GET /api/twitch/system/health
 ```
 
 Incluye estado de base de datos, sistema de caché y conexión con Twitch, además de métricas de memoria en tiempo real.
+
+---
+
+### `GET /system/realtime-token`
+
+Genera un token JWT firmado para autenticación con Supabase Realtime. Requiere sesión válida.
+
+**Autenticación:**
+
+- Header `Authorization: Bearer <twitch_token>` o
+- Header `x-api-key: <api_key>`
+
+**Respuesta exitosa (200):**
+
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIs...",
+    "expiresAt": 1777944000000,
+    "expiresIn": 300
+}
+```
+
+**Campos:**
+
+| Campo       | Descripción                              |
+| ----------- | ---------------------------------------- |
+| `token`     | JWT firmado para Supabase Realtime       |
+| `expiresAt` | Timestamp de expiración (ms)             |
+| `expiresIn` | Segundos hasta expirar (300 = 5 minutos) |
+
+**Errores:**
+
+- `401` - No autenticado (sin token ni API Key válidos)
+- `404` - Usuario no encontrado en base de datos
+- `500` - Error al generar el token JWT
+
+**Uso típico:**
+Este endpoint es usado internamente por el dashboard para conectar con Supabase Realtime y recibir actualizaciones en tiempo real de activity_logs y daily_stats. El token se renueva automáticamente cada 4 minutos.
 
 ---
 

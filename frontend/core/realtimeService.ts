@@ -234,13 +234,17 @@ export class RealtimeService {
 
         // Verificar credenciales antes de intentar conectar
         if (!this.hasValidCredentials()) {
-            console.warn('[Realtime] Cannot connect: No authentication credentials');
+            console.error('[Realtime] Cannot connect: No authentication credentials');
+            // Modo estricto: sin credenciales = redirigir al login
+            window.dispatchEvent(new CustomEvent('realtime:auth-failed'));
             return false;
         }
 
         // Verificar que haya userId
         if (!this.session?.userId) {
-            console.warn('[Realtime] Cannot connect: No userId in session');
+            console.error('[Realtime] Cannot connect: No userId in session');
+            // Modo estricto: sin userId = redirigir al login
+            window.dispatchEvent(new CustomEvent('realtime:auth-failed'));
             return false;
         }
 

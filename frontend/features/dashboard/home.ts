@@ -133,12 +133,21 @@ export const HomeModule = {
 
     /**
      * Intenta conectar con Supabase Realtime para actualizaciones en tiempo real
-     * Si falla, usa polling como fallback
+     * Modo estricto: Sin sesion valida = redirigir al login (no fallback)
      */
     async connectRealtime(): Promise<void> {
+        // Modo estricto: Sin sesion = error de autenticacion
         if (!this.session) {
-            console.log('[Home] No session, using polling fallback');
-            this.startSmartPolling();
+            console.error('[Home] No session available - authentication required');
+            this.handleAuthFailed();
+            return;
+        }
+
+        // Modo estricto: Sin credenciales validas = error de autenticacion
+        const hasCredentials = this.session.token || this.session.apiKey;
+        if (!hasCredentials) {
+            console.error('[Home] No valid credentials in session - authentication required');
+            this.handleAuthFailed();
             return;
         }
 
@@ -150,7 +159,7 @@ export const HomeModule = {
 
             // Intentar conectar
             const connected = await this.realtimeService.connect(() => {
-                // Callback si se desconecta
+                // Callback si se desconecta - usar polling como fallback tecnico
                 console.warn('[Home] Realtime disconnected, switching to polling');
                 this.useRealtime = false;
                 this.startSmartPolling();
@@ -170,6 +179,7 @@ export const HomeModule = {
                     syncEl.classList.add('realtime-active');
                 }
             } else {
+                // Fallo tecnico (no de autenticacion) - usar polling
                 console.warn('[Home] Realtime connection failed, using polling fallback');
                 this.useRealtime = false;
                 this.startSmartPolling();
