@@ -6,6 +6,7 @@ import { BaseModule } from '../../shared/utils/baseModule.js';
 import { TabSyncService } from '../../shared/utils/tabSyncService.js';
 import { dashboardStore, ActivityLog, StatsData, HealthStatus } from '../../core/dashboardStore.js';
 import { UI } from '../../core/ui.js';
+import { RealtimeServiceFactory } from '../../core/realtimeService.js';
 
 export const HomeModule = {
     ...BaseModule,
@@ -14,6 +15,8 @@ export const HomeModule = {
     pollInterval: null as ReturnType<typeof setInterval> | null,
     visibilityHandler: null as (() => void) | null,
     syncService: null as TabSyncService | null,
+    realtimeService: null as ReturnType<typeof RealtimeServiceFactory.getInstance> | null,
+    useRealtime: false,
     unsubscribers: [] as Array<() => void>,
     lastStats: {
         todayRequests: -1,
@@ -36,7 +39,9 @@ export const HomeModule = {
         }
 
         this.setupStoreSubscriptions();
-        this.startSmartPolling();
+
+        // Intentar conectar con Supabase Realtime primero
+        this.connectRealtime();
     },
 
     setupStoreSubscriptions(): void {
@@ -94,9 +99,65 @@ export const HomeModule = {
             this.syncService = null;
         }
 
+        // Desconectar realtime
+        if (this.realtimeService) {
+            RealtimeServiceFactory.destroy();
+            this.realtimeService = null;
+        }
+
         // Limpiar suscripciones al Store reactivo
         this.unsubscribers.forEach((unsub) => unsub());
         this.unsubscribers = [];
+    },
+
+    /**
+     * Intenta conectar con Supabase Realtime para actualizaciones en tiempo real
+     * Si falla, usa polling como fallback
+     */
+    async connectRealtime(): Promise<void> {
+        if (!this.session) {
+            console.log('[Home] No session, using polling fallback');
+            this.startSmartPolling();
+            return;
+        }
+
+        try {
+            console.log('[Home] Attempting realtime connection...');
+
+            // Crear instancia del servicio de realtime
+            this.realtimeService = RealtimeServiceFactory.getInstance(this.session);
+
+            // Intentar conectar
+            const connected = await this.realtimeService.connect(() => {
+                // Callback si se desconecta
+                console.warn('[Home] Realtime disconnected, switching to polling');
+                this.useRealtime = false;
+                this.startSmartPolling();
+            });
+
+            if (connected) {
+                console.log('[Home] Realtime connected successfully');
+                this.useRealtime = true;
+
+                // Cargar datos iniciales
+                this.performSync();
+
+                // Actualizar indicador de sync
+                const syncEl = document.getElementById('home-sync-indicator');
+                if (syncEl) {
+                    syncEl.textContent = 'Realtime';
+                    syncEl.classList.add('realtime-active');
+                }
+            } else {
+                console.warn('[Home] Realtime connection failed, using polling fallback');
+                this.useRealtime = false;
+                this.startSmartPolling();
+            }
+        } catch (error) {
+            console.error('[Home] Error connecting to realtime:', error);
+            this.useRealtime = false;
+            this.startSmartPolling();
+        }
     },
 
     startSmartPolling(): void {

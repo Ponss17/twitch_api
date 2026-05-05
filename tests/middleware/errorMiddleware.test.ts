@@ -1,7 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 
 jest.mock('@/core/utils/logger', () => ({
-    logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
+    logger: {
+        info: jest.fn(),
+        error: jest.fn(),
+        warn: jest.fn(),
+        debug: jest.fn(),
+        startRequest: jest.fn().mockReturnValue('test-request-id'),
+        endRequest: jest.fn()
+    },
+    getRequestId: jest.fn().mockReturnValue(undefined),
+    setRequestId: jest.fn(),
+    clearRequestId: jest.fn()
 }));
 
 import { errorHandler, requestLogger } from '../../src/core/middleware/errorMiddleware';
@@ -12,6 +22,8 @@ const mockReq = (overrides = {}) =>
         method: 'GET',
         originalUrl: '/api/test',
         accepts: jest.fn().mockReturnValue(false),
+        get: jest.fn().mockReturnValue(''),
+        ip: '127.0.0.1',
         ...overrides
     }) as unknown as Request;
 
@@ -22,6 +34,7 @@ const mockRes = () => {
     res.send = jest.fn().mockReturnValue(res);
     res.sendFile = jest.fn().mockReturnValue(res);
     res.statusCode = 200;
+    res.locals = {};
     res.on = jest.fn().mockImplementation((event, cb) => {
         if (event === 'finish') cb();
         return res;

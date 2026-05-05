@@ -19,5 +19,6 @@ router.post(
     systemController.submitFeedback
 );
 router.get('/health', checkToken, systemController.getHealth);
+router.get('/realtime-token', checkToken, systemController.generateRealtimeToken);
 
 export default router;

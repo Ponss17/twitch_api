@@ -4,6 +4,7 @@ import * as dbService from '../../core/database/dbService';
 import * as apiService from '../twitch/twitch.service';
 import * as cacheService from '../../core/database/cacheService';
 import axios from 'axios';
+import jwt from 'jsonwebtoken';
 import { CONFIG } from '../../core/config/env';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
@@ -211,6 +212,76 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
         res.status(500).json({
             status: 'error',
             message: 'Internal health check failure'
+        });
+    }
+};
+
+/**
+ * Genera un token JWT firmado para acceso a Supabase Realtime
+ * Este token permite al frontend suscribirse a cambios en tiempo real
+ * de forma segura, con permisos limitados y tiempo de expiración corto
+ */
+export const generateRealtimeToken = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId;
+    const login = req.login;
+
+    if (!userId) {
+        return res.status(401).json({
+            error: 'Authentication required',
+            message: 'Se requiere autenticación para generar token de realtime'
+        });
+    }
+
+    try {
+        // Verificar que el usuario existe en la base de datos
+        const dbUser = await dbService.getUser(userId);
+        if (!dbUser) {
+            return res.status(404).json({
+                error: 'User not found',
+                message: 'Usuario no encontrado en el sistema'
+            });
+        }
+
+        // Crear payload del JWT para Supabase
+        // La estructura debe cumplir con lo que espera Supabase
+        const payload = {
+            sub: userId,
+            user_id: userId,
+            login: login || dbUser.login,
+            role: 'authenticated',
+            aud: 'authenticated',
+            iss: 'losperris-api',
+            iat: Math.floor(Date.now() / 1000),
+            exp: Math.floor(Date.now() / 1000) + 300 // 5 minutos de expiración
+        };
+
+        // Firmar el token con el JWT_SECRET de Supabase
+        const token = jwt.sign(payload, CONFIG.SUPABASE_JWT_SECRET, {
+            algorithm: 'HS256'
+        });
+
+        // Log de generación de token (sin exponer el token completo)
+        logger.info('Realtime token generado', {
+            userId,
+            login: login || dbUser.login,
+            requestId: res.locals.requestId
+        });
+
+        res.json({
+            token,
+            expiresAt: payload.exp * 1000, // Convertir a milisegundos para el frontend
+            expiresIn: 300 // segundos
+        });
+    } catch (error) {
+        logger.error('Error generando realtime token:', {
+            error: (error as Error).message,
+            userId,
+            requestId: res.locals.requestId
+        });
+
+        res.status(500).json({
+            error: 'Token generation failed',
+            message: 'Error al generar el token de acceso'
         });
     }
 };

@@ -3,6 +3,7 @@ import { UI } from './core/ui.js';
 import { Dashboard } from './core/dashboard.js';
 import { FooterComponent } from './shared/components/footer.js';
 import { DashboardModalsComponent } from './shared/components/modals/dashboardModalsComponent.js';
+import { ToastComponent } from './shared/components/toast.js';
 import { Messages } from './shared/i18n/messages.js';
 import { AuthMessages } from './shared/i18n/authMessages.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
@@ -18,6 +19,7 @@ import { TwitchUser, Session, ApiResponse } from './types.js';
 document.addEventListener('DOMContentLoaded', async () => {
     FooterComponent.render('main-footer');
     DashboardModalsComponent.render('dashboard-modals-container');
+    ToastComponent.init();
     UI.setupClipboard();
     UI.setupMobileMenu();
     Auth.initAuthSync();

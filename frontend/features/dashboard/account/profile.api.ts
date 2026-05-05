@@ -1,17 +1,12 @@
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
-import { UI } from '../../../core/ui.js';
-import { ProfileUI } from './profile.ui.js';
 import { Session } from '../../../types.js';
 
 export const ProfileAPI = {
-    async syncSummary(
+    async fetchSummary(
         session: Session | null,
-        authHeaders: () => HeadersInit,
-        lastData: Record<string, unknown>
-    ): Promise<void> {
-        if (!session) return;
-        const profileTab = document.getElementById('tab-profile');
-        if (profileTab) profileTab.classList.add('is-loading');
+        authHeaders: () => HeadersInit
+    ): Promise<{ profile?: Record<string, unknown>; analytics?: Record<string, number> }> {
+        if (!session) return {};
 
         try {
             const url = `${DASHBOARD_CONFIG.API_ENDPOINTS.SUMMARY}?login=${session.login}`;
@@ -20,27 +15,16 @@ export const ProfileAPI = {
             });
 
             if (response.ok) {
-                const data = await response.json();
-                if (data.profile) {
-                    ProfileUI.updateProfileStatsInternal(data.profile, lastData);
-                    ProfileUI.updateBadgesInternal(data.profile);
-                }
-                if (data.analytics) {
-                    ProfileUI.renderCommandStatsInternal(data.analytics, lastData);
-                }
+                return await response.json();
             } else {
                 const errorData = await response.json().catch(() => ({}));
-                const msg =
-                    errorData.error?.message || errorData.error || 'Error al sincronizar datos';
-                UI.showToast(msg, 'error');
+                throw new Error(
+                    errorData.error?.message || errorData.error || 'Error al sincronizar datos'
+                );
             }
         } catch (e) {
-            console.error('[Profile] Error syncing summary:', e);
-            UI.showToast('Error de conexión con el servidor', 'error');
-        } finally {
-            if (profileTab) {
-                setTimeout(() => profileTab.classList.remove('is-loading'), 300);
-            }
+            console.error('[Profile] Error fetching summary:', e);
+            throw e;
         }
     }
 };

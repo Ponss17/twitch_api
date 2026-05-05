@@ -122,5 +122,3 @@ twitch_api/
 ---
 
 © 2026 **LosPerrisAPI**. Desarrollado con orgullo y enfoque en la excelencia técnica para la comunidad de Twitch. 💜🦾
-
-
