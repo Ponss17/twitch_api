@@ -136,11 +136,20 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
 
         logger.warn('API Key validation failed in validator:', error.message);
 
+        const isBotCommand =
+            req.path.includes('/followage') ||
+            req.path.includes('/shoutout') ||
+            req.path.includes('/create-clip');
+        const errorMsg = error.message.includes('Sesión expirada')
+            ? error.message
+            : 'Error de autenticación. Clave API inválida o expirada.';
+
         if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
             res.setHeader('Content-Type', 'text/plain');
-            return res.status(401).send('Error de autenticación. Clave API inválida.');
+            // Si es un comando de bot, devolvemos 200 para que Nightbot muestre el texto en lugar de un error de server
+            return res.status(isBotCommand ? 200 : 401).send(errorMsg);
         }
-        return res.status(401).json({ error: 'Clave API inválida.' });
+        return res.status(401).json({ error: errorMsg });
     }
 
     next();
