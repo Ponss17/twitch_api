@@ -56,11 +56,17 @@ export class RealtimeService {
                 headers['x-api-key'] = this.session.apiKey;
             }
 
-            const response = await fetch(`${CONFIG.API_URL}/system/realtime-token`, {
+            const url = `${CONFIG.API_URL}/system/realtime-token`;
+            console.log('[Realtime] Fetching token from:', url);
+            console.log('[Realtime] Headers present:', Object.keys(headers));
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers,
                 credentials: 'include'
             });
+
+            console.log('[Realtime] Response status:', response.status);
 
             if (!response.ok) {
                 if (response.status === 401) {
@@ -69,16 +75,30 @@ export class RealtimeService {
                     window.dispatchEvent(new CustomEvent('realtime:auth-failed'));
                 } else {
                     console.error('[Realtime] Failed to fetch token:', response.status);
+                    // Intentar leer el cuerpo del error
+                    try {
+                        const errorText = await response.text();
+                        console.error('[Realtime] Error response:', errorText);
+                    } catch (_e) {
+                        // Ignorar error al leer cuerpo
+                    }
                 }
                 return null;
             }
 
             const data = await response.json();
+            console.log('[Realtime] Response data:', data);
+
+            if (!data.token) {
+                console.error('[Realtime] Token missing in response:', data);
+                return null;
+            }
+
             this.token = data.token;
             this.tokenExpiry = data.expiresAt;
 
             console.log(
-                '[Realtime] Token obtained, expires at:',
+                '[Realtime] Token obtained successfully, expires at:',
                 new Date(data.expiresAt).toLocaleTimeString()
             );
             return this.token;
@@ -97,6 +117,7 @@ export class RealtimeService {
 
         try {
             // Crear cliente de Supabase con el token personalizado
+            // El accessToken se usa para autenticación en WebSocket (Realtime)
             this.supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
                 auth: {
                     persistSession: false,
@@ -106,9 +127,13 @@ export class RealtimeService {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
+                },
+                realtime: {
+                    accessToken: () => Promise.resolve(token)
                 }
             });
 
+            console.log('[Realtime] Supabase client initialized with custom JWT');
             return true;
         } catch (error) {
             console.error('[Realtime] Error initializing Supabase client:', error);
