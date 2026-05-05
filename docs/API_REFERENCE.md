@@ -333,7 +333,7 @@ Genera un token JWT firmado para autenticación con Supabase Realtime. Requiere 
 - `500` - Error al generar el token JWT
 
 **Uso típico:**
-Este endpoint es usado internamente por el dashboard para conectar con Supabase Realtime y recibir actualizaciones en tiempo real de activity_logs y daily_stats. El token se renueva automáticamente cada 4 minutos.
+Este endpoint es usado internamente por el dashboard para conectar con Supabase Realtime y recibir actualizaciones en tiempo real de `activity_logs` y `user_stats`. El token se renueva automáticamente cada 4 minutos sin interrumpir la conexión WebSocket activa (solo se reasigna con `setAuth()`).
 
 ---
 

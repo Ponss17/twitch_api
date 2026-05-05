@@ -214,4 +214,6 @@ ALTER TABLE public.user_stats REPLICA IDENTITY FULL;
 -- 2. Sin políticas RLS, las consultas devuelven arrays vacíos (seguridad por defecto)
 -- 3. Realtime respeta las políticas RLS - solo envía cambios autorizados
 -- 4. Los tokens JWT expiran en 5 minutos y se renuevan automáticamente cada 4 minutos
+--    (sin interrumpir la conexión WebSocket activa, solo se reasigna con setAuth())
 -- 5. El backend valida la autenticación antes de generar tokens JWT
+-- 6. El logger usa AsyncLocalStorage para correlación de requestId por request (sin race conditions)
