@@ -61,6 +61,24 @@ export const HomeModule = {
         this.unsubscribers.push(
             dashboardStore.on('isLeader', (state) => this.updateSyncIndicator(state.isLeader))
         );
+
+        // Escuchar evento de fallo de autenticación en realtime
+        window.addEventListener('realtime:auth-failed', this.handleAuthFailed.bind(this));
+    },
+
+    /**
+     * Maneja fallo de autenticación en realtime
+     * Redirige al login después de un breve delay para permitir que el usuario vea el error
+     */
+    handleAuthFailed(): void {
+        console.warn('[Home] Authentication failed, redirecting to login...');
+        // Mostrar mensaje al usuario antes de redirigir
+        dashboardStore.showToast('Sesión expirada. Redirigiendo al login...', 'error');
+
+        // Redirigir al login después de 2 segundos
+        setTimeout(() => {
+            window.location.href = '/auth/login';
+        }, 2000);
     },
 
     setupSyncListeners(): void {
@@ -108,6 +126,9 @@ export const HomeModule = {
         // Limpiar suscripciones al Store reactivo
         this.unsubscribers.forEach((unsub) => unsub());
         this.unsubscribers = [];
+
+        // Remover event listener de auth failed
+        window.removeEventListener('realtime:auth-failed', this.handleAuthFailed.bind(this));
     },
 
     /**

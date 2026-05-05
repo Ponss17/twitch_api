@@ -25,21 +25,51 @@ export class RealtimeService {
     }
 
     /**
+     * Verifica si hay credenciales válidas para autenticación
+     */
+    private hasValidCredentials(): boolean {
+        return !!(this.session?.token || this.session?.apiKey);
+    }
+
+    /**
      * Obtiene un token JWT firmado del backend para autenticación con Supabase
      */
     private async fetchToken(): Promise<string | null> {
+        // Verificar que haya credenciales antes de intentar
+        if (!this.hasValidCredentials()) {
+            console.warn('[Realtime] No authentication credentials available');
+            return null;
+        }
+
         try {
+            const headers: Record<string, string> = {
+                'Content-Type': 'application/json'
+            };
+
+            // Agregar token de Twitch si existe
+            if (this.session?.token) {
+                headers['Authorization'] = `Bearer ${this.session.token}`;
+            }
+
+            // Agregar API Key si existe (fallback para autenticación)
+            if (this.session?.apiKey) {
+                headers['x-api-key'] = this.session.apiKey;
+            }
+
             const response = await fetch(`${CONFIG.API_URL}/system/realtime-token`, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${this.session?.token || ''}`
-                },
+                headers,
                 credentials: 'include'
             });
 
             if (!response.ok) {
-                console.error('[Realtime] Failed to fetch token:', response.status);
+                if (response.status === 401) {
+                    console.error('[Realtime] Authentication failed: Session expired or invalid');
+                    // Emitir evento para que el dashboard maneje la redirección al login
+                    window.dispatchEvent(new CustomEvent('realtime:auth-failed'));
+                } else {
+                    console.error('[Realtime] Failed to fetch token:', response.status);
+                }
                 return null;
             }
 
@@ -201,6 +231,18 @@ export class RealtimeService {
         this.onDisconnectCallback = onDisconnect || null;
 
         console.log('[Realtime] Connecting...');
+
+        // Verificar credenciales antes de intentar conectar
+        if (!this.hasValidCredentials()) {
+            console.warn('[Realtime] Cannot connect: No authentication credentials');
+            return false;
+        }
+
+        // Verificar que haya userId
+        if (!this.session?.userId) {
+            console.warn('[Realtime] Cannot connect: No userId in session');
+            return false;
+        }
 
         const initialized = await this.initializeClient();
         if (!initialized) {
