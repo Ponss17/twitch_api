@@ -6,7 +6,7 @@ Estado actual del proyecto: **v4.0.0 (Estable / Producción)**
 
 ## ✅ Completado (Mitos Logrados)
 
-- [x] **Suite de Tests (128):** Cobertura total de la API.
+- [x] **Suite de Tests (132):** Cobertura total de la API.
 - [x] **PWA Estabilizada:** Service Worker y manifest funcionales.
 - [x] **Rate Limiter Pro:** Temporizador de 15 minutos persistente.
 - [x] **Dashboard Store:** Arquitectura reactiva iniciada (Módulo Home).
@@ -39,7 +39,19 @@ Estado actual del proyecto: **v4.0.0 (Estable / Producción)**
     - Fallback a polling si falla la conexión
     - Indicador visual 'Realtime' en el dashboard
 
-### 3. Infraestructura y API
+### 3. Seguridad Frontend (Modo Estricto) ✅
+
+- [x] **Validación Estricta de Sesión:** Eliminados fallbacks permisivos.
+    - Sin credenciales válidas = Redirección inmediata al login
+    - Sin userId en sesión = Redirección inmediata al login
+    - Token expirado o inválido = Toast de error + Redirección
+    - Evento `realtime:auth-failed` para manejo centralizado de errores 401
+- [x] **Soporte Dual de Autenticación:** Realtime soporta token de Twitch o API Key.
+    - Prioridad: Bearer token (autenticación principal)
+    - Fallback: Header `x-api-key` (autenticación alternativa)
+    - Verificación estricta antes de cualquier operación de realtime
+
+### 4. Infraestructura y API
 
 - [x] **Logging Estructurado:** Implementado con Winston.
     - Niveles de log configurables: error, warn, info, debug
@@ -51,8 +63,9 @@ Estado actual del proyecto: **v4.0.0 (Estable / Producción)**
 - [x] **JWT Generator:** Endpoint creado para acceso seguro a Supabase Realtime.
     - `GET /api/twitch/system/realtime-token` - Genera token JWT firmado
     - Expiración de 5 minutos por seguridad
-    - Verificación de autenticación del usuario
+    - Verificación de autenticación del usuario (token o API Key)
     - Payload con user_id, login, role='authenticated'
+    - Modo estricto: 401 si no hay autenticación válida
 
 - [ ] **Versionado v1:** Añadir prefijos a las rutas para mayor estabilidad.
 - [ ] **Swagger Docs:** Documentación interactiva automática.
@@ -67,4 +80,4 @@ Estado actual del proyecto: **v4.0.0 (Estable / Producción)**
 
 ---
 
-_Última actualización: Mayo 2026_
+_Última actualización: 5 Mayo 2026_

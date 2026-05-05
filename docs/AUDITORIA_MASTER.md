@@ -6,7 +6,7 @@ Este documento resume todos los hallazgos técnicos, correcciones críticas y me
 
 ## 💎 Estado de Salud Global: v4.0.0
 
-- **Tests:** 128/128 pasados (100% cobertura en rutas críticas).
+- **Tests:** 132/132 pasados (100% cobertura en rutas críticas).
 - **Seguridad:** RLS en Supabase, Rate Limiting dinámico (Redis/Vercel KV), Validación Zod en todos los endpoints.
 - **Frontend:** Arquitectura reactiva basada en Store centralizado (`dashboardStore.ts`).
 
@@ -68,29 +68,66 @@ Este documento resume todos los hallazgos técnicos, correcciones críticas y me
     - Circuit breaker para el transporte a base de datos
     - Métodos mejorados: logger.debug(), info(), warn(), error(), request(), startRequest(), endRequest()
 
-### Supabase Realtime (Implementado ✅)
+### Supabase Realtime (Implementado ✅ - Modo Estricto)
 
 - ✅ **Endpoint para Tokens de Tiempo Real:**
     - `GET /api/twitch/system/realtime-token` - Genera JWT firmado para Supabase Realtime
     - Tokens con expiración de 5 minutos para mayor seguridad
     - Payload estructurado: sub, user_id, login, role='authenticated'
     - Firmado con SUPABASE_JWT_SECRET usando algoritmo HS256
-    - Verificación de autenticación antes de generar token
+    - **Modo estricto:** Verificación de autenticación antes de generar token
+    - **Soporta dual-auth:** Bearer token (Twitch) o header `x-api-key`
+    - Retorna 401 si no hay autenticación válida
     - Logs estructurados de generación de tokens
 
-- ✅ **Servicio de Conexión Realtime:**
+- ✅ **Servicio de Conexión Realtime (Modo Estricto):**
     - `frontend/core/realtimeService.ts` - Servicio dedicado para conexión WebSocket
     - Suscripción en tiempo real a tablas `activity_logs` y `daily_stats`
     - Renueva automáticamente el token cada 4 minutos (antes de expirar a los 5)
     - Manejo de reconexión automática y estados de conexión
     - Integración con dashboardStore para actualizaciones automáticas del UI
     - Singleton pattern para gestión única de la conexión
+    - **Modo estricto:**
+        - Sin credenciales válidas → Evento `realtime:auth-failed` → Redirección
+        - Sin userId en sesión → Evento `realtime:auth-failed` → Redirección
+        - Backend retorna 401 → Evento `realtime:auth-failed` → Redirección
 
-- ✅ **Integración en Dashboard:**
+- ✅ **Integración en Dashboard (Modo Estricto):**
     - `frontend/features/dashboard/home.ts` - Usa realtime como método principal
-    - Polling automático como fallback si realtime falla
+    - **Validación estricta antes de conectar:**
+        - Sin sesión → Redirección inmediata al login
+        - Sin credenciales (token o apiKey) → Redirección inmediata al login
+    - Polling automático como fallback **solo para fallos técnicos** (no de autenticación)
     - Indicador visual 'Realtime' cuando está conectado
-    - Sin interrupción de la experiencia del usuario
+    - Handler centralizado `handleAuthFailed()` para errores de autenticación
+    - Muestra toast "Sesión expirada. Redirigiendo al login..." antes de redirigir
+    - Redirección automática a `/auth/login` tras 2 segundos
+
+### Sistema de Seguridad Estricta (Implementado ✅)
+
+- ✅ **Flujo de Autenticación en 3 Niveles:**
+    1. **Nivel Global (app-dashboard.ts):**
+        - Verificación de apiKey/token en URL antes de cargar
+        - Validación con backend antes de inicializar dashboard
+        - Token inválido → clearSession + redirección
+    2. **Nivel Realtime (realtimeService.ts):**
+        - Verificación de credenciales antes de conectar
+        - Verificación de userId en sesión
+        - Evento `realtime:auth-failed` para manejo centralizado
+    3. **Nivel Dashboard/Home (home.ts):**
+        - Validación estricta de sesión y credenciales
+        - Handler `handleAuthFailed()` centralizado
+        - Notificación al usuario + redirección controlada
+
+- ✅ **Cobertura de Seguridad:**
+  | Escenario | Acción |
+  |-----------|--------|
+  | Sin apiKey/token en URL | Redirección inmediata a ./ |
+  | Token inválido según backend | Toast "Sesión expirada" + Redirección |
+  | Sin credenciales en sesión | Redirección inmediata al login |
+  | Sin userId en sesión | Redirección inmediata al login |
+  | Backend retorna 401 | Toast + Redirección tras 2s |
+  | Fallo técnico de realtime | Fallback a polling (solo caso permitido) |
 
 ### Mejoras Pendientes
 
@@ -101,7 +138,7 @@ Este documento resume todos los hallazgos técnicos, correcciones críticas y me
 ## 📋 Bitácora de Auditorías (Archivo)
 
 - **Abril 2026:** Refactorización de seguridad backend y optimización de KV. (Resuelto)
-- **Mayo 2026:** Estabilización de PWA y migración a Store Reactivo. (Completado parcialmente: HomeModule migrado)
+- **Mayo 2026:** Estabilización de PWA, migración a Store Reactivo, y modo estricto de seguridad implementado. (Completado: ClipsModule, CommandsModule, ProfileModule migrados; sistema de seguridad estricto en producción)
 
 ---
 
