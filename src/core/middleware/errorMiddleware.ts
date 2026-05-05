@@ -38,15 +38,19 @@ export const errorHandler = (
     // Limpiar requestId al finalizar
     clearRequestId();
 
-    if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
-        const isBotCommand =
-            req.path.includes('/followage') ||
-            req.path.includes('/shoutout') ||
-            req.path.includes('/create-clip') ||
-            req.path.includes('/send-message');
+    const isBotCommand =
+        req.path.includes('/followage') ||
+        req.path.includes('/shoutout') ||
+        req.path.includes('/create-clip') ||
+        req.path.includes('/send-message');
 
-        // Para comandos de bot, preferimos status 200 para que el bot diga el error en el chat
-        return res.status(isBotCommand ? 200 : status).send(message);
+    if (isBotCommand) {
+        res.setHeader('Content-Type', 'text/plain');
+        return res.status(200).send(message);
+    }
+
+    if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
+        return res.status(status).send(message);
     }
 
     if (req.accepts('html')) {
