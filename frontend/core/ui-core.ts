@@ -113,6 +113,8 @@ export const UI = {
         }
     },
 
+    _animations: new WeakMap<HTMLElement, number>(),
+
     animateValue(
         obj: HTMLElement,
         start: number | null,
@@ -120,6 +122,12 @@ export const UI = {
         duration: number = 1500,
         suffix: string = ''
     ) {
+        const prevRaf = this._animations.get(obj);
+        if (prevRaf !== undefined) {
+            window.cancelAnimationFrame(prevRaf);
+            this._animations.delete(obj);
+        }
+
         const textWithoutHtml = obj.innerHTML.replace(/<[^>]*>?/gm, '');
         const currentVal = parseInt(textWithoutHtml.replace(/[^0-9.-]+/g, '')) || 0;
         const actualStart = start !== null ? start : currentVal;
@@ -140,12 +148,13 @@ export const UI = {
             obj.innerHTML = `${current.toLocaleString()}${suffix}`;
 
             if (progress < 1) {
-                window.requestAnimationFrame(step);
+                this._animations.set(obj, window.requestAnimationFrame(step));
             } else {
+                this._animations.delete(obj);
                 obj.innerHTML = `${end.toLocaleString()}${suffix}`;
             }
         };
-        window.requestAnimationFrame(step);
+        this._animations.set(obj, window.requestAnimationFrame(step));
     },
 
     setupMobileMenu() {

@@ -2,6 +2,7 @@ import { ProfileStatsData } from '../../../types.js';
 import { UI } from '../../../core/ui.js';
 
 export const ProfileUI = {
+    _lastFollowers: undefined as number | undefined,
     renderCommandStatsInternal(
         data: Record<string, number>,
         lastData: { summaries?: Record<string, number> }
@@ -76,7 +77,7 @@ export const ProfileUI = {
         });
     },
 
-    updateProfileStatsInternal(data: ProfileStatsData, lastData: { followers?: number }): void {
+    updateProfileStatsInternal(data: ProfileStatsData): void {
         const followers = document.getElementById('profile-stat-followers');
         const bio = document.getElementById('profile-bio');
         const broadcasterType = document.getElementById('profile-stat-broadcaster');
@@ -84,9 +85,9 @@ export const ProfileUI = {
 
         if (followers) {
             const targetValue = data.followers || 0;
-            if (lastData.followers !== targetValue) {
+            if (this._lastFollowers !== targetValue) {
                 UI.animateValue(followers, 0, targetValue, 1500);
-                lastData.followers = targetValue;
+                this._lastFollowers = targetValue;
             } else {
                 followers.textContent = targetValue.toLocaleString();
             }
