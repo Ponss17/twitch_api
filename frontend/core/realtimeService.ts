@@ -109,35 +109,19 @@ export class RealtimeService {
     }
 
     /**
-     * Inicializa el cliente de Supabase con el token JWT
+     * Inicializa el cliente de Supabase
      */
-    private async initializeClient(): Promise<boolean> {
-        const token = await this.fetchToken();
-        if (!token) return false;
-
+    private initializeClient(): boolean {
         try {
-            // Crear cliente de Supabase con el token personalizado
-            // Para Realtime/WebSocket, debemos pasar el token en la configuración de auth
+            // Crear cliente de Supabase básico
             this.supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
                 auth: {
                     persistSession: false,
                     autoRefreshToken: false
-                },
-                global: {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
                 }
             });
 
-            // Configurar el token de autenticación para Realtime
-            // Esto reemplaza el anon key con nuestro JWT personalizado
-            await this.supabase.auth.setSession({
-                access_token: token,
-                refresh_token: ''
-            });
-
-            console.log('[Realtime] Supabase client initialized with custom JWT');
+            console.log('[Realtime] Supabase client initialized');
             return true;
         } catch (error) {
             console.error('[Realtime] Error initializing Supabase client:', error);
@@ -151,12 +135,28 @@ export class RealtimeService {
     private async setupChannel(): Promise<boolean> {
         if (!this.supabase || !this.session?.userId) return false;
 
+        // Obtener token JWT para autenticación
+        const token = await this.fetchToken();
+        if (!token) {
+            console.error('[Realtime] Cannot setup channel: No token available');
+            return false;
+        }
+
         try {
             const channelName = `dashboard:${this.session.userId}`;
             console.log('[Realtime] Setting up channel:', channelName);
 
-            this.channel = this.supabase
-                .channel(channelName)
+            // Crear canal
+            this.channel = this.supabase.channel(channelName);
+
+            // Establecer el token de autenticación para realtime
+            if (this.supabase.realtime) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (this.supabase.realtime as any).setAuth(token);
+            }
+
+            // Configurar listeners
+            this.channel
                 .on(
                     'postgres_changes',
                     {
@@ -245,22 +245,10 @@ export class RealtimeService {
 
         // Renovar token cada 4 minutos (240 segundos)
         this.refreshInterval = setInterval(async () => {
-            console.log('[Realtime] Refreshing token...');
-            const newToken = await this.fetchToken();
-
-            if (!newToken) {
-                console.error('[Realtime] Failed to refresh token');
-                return;
-            }
-
-            // Actualizar la sesión con el nuevo token
-            if (this.supabase) {
-                await this.supabase.auth.setSession({
-                    access_token: newToken,
-                    refresh_token: ''
-                });
-                console.log('[Realtime] Token refreshed successfully');
-            }
+            console.log('[Realtime] Token refresh interval - reconnecting with new token...');
+            // Desconectar y reconectar con nuevo token
+            this.disconnect();
+            await this.connect(this.onDisconnectCallback || undefined);
         }, 240000); // 4 minutos
     }
 
@@ -290,7 +278,7 @@ export class RealtimeService {
             return false;
         }
 
-        const initialized = await this.initializeClient();
+        const initialized = this.initializeClient();
         if (!initialized) {
             console.error('[Realtime] Failed to initialize client');
             return false;
