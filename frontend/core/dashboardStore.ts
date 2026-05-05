@@ -120,7 +120,7 @@ const initialState: DashboardState = {
     stats: null,
     health: null,
     activityLogs: [],
-    pollingCountdown: 30,
+    pollingCountdown: 60,
     isLeader: false,
 
     toasts: [],

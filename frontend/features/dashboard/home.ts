@@ -248,14 +248,14 @@ export const HomeModule = {
 
         const lastSync = localStorage.getItem('dashboard_last_sync');
         const now = Date.now();
-        const pollMs = 30000;
+        const pollMs = 60000;
 
         // Inicializar isLeader si acaba de arrancar
         if (this.syncService) {
             dashboardStore.setState({ isLeader: this.syncService.getIsLeader() });
         }
 
-        let countdown = 30;
+        let countdown = 60;
         if (lastSync) {
             const elapsed = now - parseInt(lastSync);
             if (elapsed < pollMs) {
@@ -275,7 +275,7 @@ export const HomeModule = {
             let currentCountdown = dashboardStore.getState().pollingCountdown - 1;
             if (currentCountdown <= 0) {
                 if (this.syncService?.getIsLeader()) this.performSync();
-                currentCountdown = 30;
+                currentCountdown = 60;
             }
             dashboardStore.setState({ pollingCountdown: currentCountdown });
         }, 1000);
@@ -286,7 +286,7 @@ export const HomeModule = {
                 dashboardStore.getState().pollingCountdown <= 0
             ) {
                 if (this.syncService?.getIsLeader()) this.performSync();
-                dashboardStore.setState({ pollingCountdown: 30 });
+                dashboardStore.setState({ pollingCountdown: 60 });
             }
         };
         document.addEventListener('visibilitychange', this.visibilityHandler);
