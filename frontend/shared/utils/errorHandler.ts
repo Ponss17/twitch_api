@@ -57,12 +57,6 @@ class ErrorHandler {
             ? `Error: ${msg}`
             : Messages.Common.error('Algo salió mal. Intenta de nuevo.');
     }
-
-    reportError(error: Error | unknown, context: Record<string, unknown>) {
-        if (this.isDevelopment) {
-            console.warn('Reported Error:', error, context);
-        }
-    }
 }
 
 export const errorHandler = new ErrorHandler();
