@@ -57,9 +57,7 @@ export const ProfileModule: IProfileModule = {
         this.unsubscribers.push(
             dashboardStore.on('profile', (state) => {
                 if (state.profile.data) {
-                    ProfileUI.updateProfileStatsInternal(state.profile.data, {
-                        followers: state.profile.stats.summaries?.followers
-                    });
+                    ProfileUI.updateProfileStatsInternal(state.profile.data);
                     ProfileUI.updateBadgesInternal(
                         state.profile.data as unknown as Record<string, string>
                     );
