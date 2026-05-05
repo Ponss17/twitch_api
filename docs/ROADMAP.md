@@ -34,7 +34,7 @@ Estado actual del proyecto: **v4.0.0 (Estable / Producción)**
     - Expiración de 5 minutos por seguridad
 - [x] **Suscripción Directa:** Realtime implementado con fallback a polling.
     - `frontend/core/realtimeService.ts` - Servicio dedicado
-    - Suscripción a tablas `activity_logs` y `daily_stats`
+    - Suscripción a tablas `activity_logs` y `user_stats`
     - Renueva token automáticamente cada 4 minutos
     - Fallback a polling si falla la conexión
     - Indicador visual 'Realtime' en el dashboard
