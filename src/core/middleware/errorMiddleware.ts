@@ -46,7 +46,9 @@ export const errorHandler = (
 
     if (isBotCommand) {
         res.setHeader('Content-Type', 'text/plain');
-        return res.status(200).send(message);
+        const finalMsg =
+            status >= 500 ? 'Error interno del servidor. Pide ayuda a Ponss 🦆' : message;
+        return res.status(200).send(finalMsg);
     }
 
     if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {

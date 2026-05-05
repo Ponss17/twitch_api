@@ -217,7 +217,9 @@ const ensureValidToken = async (
         } catch (_error) {
             if (Date.now() > expiresAt) {
                 logger.error(`Token expirado y refresh falló para ${errorPrefix} ${user.userId}`);
-                throw new Error('Sesión expirada. Por favor, vuelve a autenticarte.');
+                throw new Error(
+                    'Sesión expirada. Por favor, vuelve a autenticarte o pide ayuda a Ponss 🦆'
+                );
             }
             logger.warn(
                 `Refresh falló pero token aún válido para ${errorPrefix} ${user.userId}, usando token actual`
