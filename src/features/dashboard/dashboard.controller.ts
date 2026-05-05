@@ -4,30 +4,13 @@ import * as apiService from '../twitch/twitch.service';
 import * as cacheService from '../../core/database/cacheService';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
+import { computeAnalyticsFromStats, formatActivityLog } from '../../core/utils/dashboardHelpers';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 import { RATE_LIMITS } from '../../core/config/limits';
 import { TwitchApiError } from '../../core/errors/AppError';
 import { AppError } from '../../core/errors/AppError';
 import { trackRequest } from '../../core/utils/tracking';
-
-function computeAnalyticsFromStats(stats: Record<string, number>) {
-    const todayRequests = stats['today_req_raw'] || 0;
-    const todayErrors = stats['today_err_raw'] || 0;
-    const todayLatency = stats['today_lat_raw'] || 0;
-
-    const avgLatencyMs = todayRequests > 0 ? Math.round(todayLatency / todayRequests) : 0;
-    const rawSuccessRate =
-        todayRequests > 0 ? parseFloat(((1 - todayErrors / todayRequests) * 100).toFixed(1)) : 0;
-
-    return {
-        todayRequests,
-        avgLatencyMs,
-        rawSuccessRate,
-        averageLatency: `${avgLatencyMs}ms (${(avgLatencyMs / 1000).toFixed(1)}s)`,
-        successRate: `${rawSuccessRate}%`
-    };
-}
 
 export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
@@ -64,44 +47,10 @@ export const getLogs = async (req: AuthenticatedRequest, res: Response) => {
 
     try {
         const logs = await dbService.getUserActivity(userId);
-        const formattedLogs = logs.map((log: { type: string; user: string; detail?: string }) => {
-            let actionText = '';
-            switch (log.type) {
-                case 'clip':
-                    actionText = `📺 Nuevo clip creado por @${log.user} (${log.detail})`;
-                    break;
-                case 'followage':
-                    actionText = `⏱️ @${log.user} revisó su followage en ${log.detail}`;
-                    break;
-                case 'shoutout':
-                    actionText = `🗣️ Shoutout de @${log.user}`;
-                    break;
-                case 'message':
-                    actionText = `💬 Mensaje enviado: "${log.detail}"`;
-                    break;
-                case 'russian':
-                    actionText = `🔫 @${log.user} jugó la Ruleta Rusa`;
-                    break;
-                case 'magic8':
-                    actionText = `🎱 @${log.user} preguntó a la Bola 8`;
-                    break;
-                case 'duel':
-                    actionText = `⚔️ @${log.user} inició un duelo con @${log.detail}`;
-                    break;
-                case 'stalker':
-                    actionText = `🕵️ @${log.user} inició escaneo de Stalker`;
-                    break;
-                case 'trends':
-                    actionText = `📊 @${log.user} inició rastreo de Tendencias`;
-                    break;
-                case 'roulette':
-                    actionText = `🎲 @${log.user} consultó la Ruleta de Chatters`;
-                    break;
-                default:
-                    actionText = `🔹 Actividad: ${log.type} por @${log.user}`;
-            }
-            return { ...log, action: actionText };
-        });
+        const formattedLogs = logs.map((log: { type: string; user: string; detail?: string }) => ({
+            ...log,
+            action: formatActivityLog(log)
+        }));
         res.json(formattedLogs);
     } catch (e) {
         logger.error('Error logs activity:', e);

@@ -1,7 +1,6 @@
 import { kv } from '@vercel/kv';
 import { StoredUser } from '../../types/twitch';
-
-type CacheEntry<T> = { value: T; expiry: number };
+import { CacheEntry } from '../../types/cache';
 
 const MEMORY_CACHE = new Map<string, CacheEntry<unknown>>();
 const DEFAULT_L1_TTL_MS = 30 * 1000;

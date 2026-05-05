@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import { logger } from '../utils/logger';
+import { ANONYMOUS_USER_ID } from '../../types/constants';
 
 const MAX_USER_LOGS = 50;
 const TRIM_THROTTLE_MS = 60_000;
@@ -31,7 +32,7 @@ export interface StoredActivityLog {
 }
 
 export const addUserActivity = async (userId: string, entry: ActivityLogEntry): Promise<void> => {
-    if (userId === 'anonymous') return; // Evita el error FK en la DB
+    if (userId === ANONYMOUS_USER_ID) return;
 
     try {
         const userName = entry.user || 'Usuario anónimo';
