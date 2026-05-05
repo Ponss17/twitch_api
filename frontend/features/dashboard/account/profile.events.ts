@@ -4,6 +4,12 @@ import { AccountMessages } from './messages.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 import { HtmlLoader } from '../../../shared/utils/htmlLoader.js';
 
+/**
+ * Indica si la API Key está actualmente visible (desenmascarada)
+ * Esta variable persiste durante la sesión de la página
+ */
+let isApiKeyVisible = false;
+
 export interface ProfileContext {
     session: Session | null;
     authHeaders: () => HeadersInit;
@@ -25,14 +31,33 @@ export const ProfileEvents = {
 
         if (toggleBtn && tokenInput && !toggleBtn.dataset.listener) {
             toggleBtn.addEventListener('click', () => {
-                const isHidden = tokenInput.type === 'password';
-                if (isHidden) {
+                const realValue = tokenInput.dataset.realValue || '';
+
+                if (!isApiKeyVisible) {
+                    // Mostrar clave real
                     tokenInput.type = 'text';
-                    tokenInput.value = tokenInput.dataset.realValue || '';
+                    tokenInput.value = realValue;
                     toggleBtn.innerHTML = '<i class="fa-regular fa-eye-slash"></i>';
+                    toggleBtn.title = 'Ocultar API Key';
+                    isApiKeyVisible = true;
+
+                    // Auto-ocultar después de 30 segundos por seguridad
+                    setTimeout(() => {
+                        if (isApiKeyVisible && document.contains(tokenInput)) {
+                            tokenInput.type = 'password';
+                            tokenInput.value = UI.maskApiKey(realValue);
+                            toggleBtn.innerHTML = '<i class="fa-regular fa-eye"></i>';
+                            toggleBtn.title = 'Ver API Key';
+                            isApiKeyVisible = false;
+                        }
+                    }, 30000);
                 } else {
+                    // Enmascarar clave
                     tokenInput.type = 'password';
+                    tokenInput.value = UI.maskApiKey(realValue);
                     toggleBtn.innerHTML = '<i class="fa-regular fa-eye"></i>';
+                    toggleBtn.title = 'Ver API Key';
+                    isApiKeyVisible = false;
                 }
             });
             toggleBtn.dataset.listener = 'true';
@@ -147,7 +172,16 @@ export const ProfileEvents = {
                                 ) as HTMLInputElement;
                                 if (tokenInput) {
                                     tokenInput.dataset.realValue = data.apiKey;
-                                    if (tokenInput.type === 'text') tokenInput.value = data.apiKey;
+                                    // Siempre enmascarar después de regenerar por seguridad
+                                    tokenInput.value = UI.maskApiKey(data.apiKey);
+                                    tokenInput.type = 'password';
+                                    // Resetear estado visible
+                                    isApiKeyVisible = false;
+                                    const toggleBtn = document.getElementById('profile-toggle-key');
+                                    if (toggleBtn) {
+                                        toggleBtn.innerHTML = '<i class="fa-regular fa-eye"></i>';
+                                        toggleBtn.title = 'Ver API Key';
+                                    }
                                 }
                                 UI.showToast(AccountMessages.regenerateSuccess, 'success');
                             }

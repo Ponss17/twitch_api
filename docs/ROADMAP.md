@@ -16,19 +16,44 @@ Estado actual del proyecto: **v4.0.0 (Estable / Producción)**
 
 ## 🚀 Próximos Pasos (Backlog Futuro)
 
-### 1. Refactorización UI (Arquitectura Reactiva)
+### 1. Refactorización UI (Arquitectura Reactiva) ✅
 
-- [ ] **Migrar Módulos:** Pasar Clips, Comandos y Perfil al `dashboardStore.ts`.
-- [ ] **Notificaciones Toast:** Sistema de avisos visuales conectado al estado global.
+- [x] **Notificaciones Toast:** Sistema de avisos visuales conectado al estado global.
+    - ToastComponent conectado al dashboardStore
+    - ToastActions para mostrar/ocultar toasts programáticamente
+    - UI.showToast() ahora usa el sistema reactivo
+- [x] **Migrar Módulos al Store:**
+    - [x] ClipsModule: Completamente migrado al dashboardStore
+    - [x] CommandsModule: Completamente migrado al dashboardStore
+    - [x] ProfileModule: Completamente migrado al dashboardStore
 
-### 2. Tiempo Real (Supabase Realtime)
+### 2. Tiempo Real (Supabase Realtime) ✅
 
-- [ ] **JWT Generator:** Crear endpoint para dar acceso seguro al frontend.
-- [ ] **Suscripción Directa:** Eliminar polling en el dashboard.
+- [x] **JWT Generator:** Endpoint creado para dar acceso seguro al frontend.
+    - `GET /api/twitch/system/realtime-token` - Genera token JWT firmado
+    - Expiración de 5 minutos por seguridad
+- [x] **Suscripción Directa:** Realtime implementado con fallback a polling.
+    - `frontend/core/realtimeService.ts` - Servicio dedicado
+    - Suscripción a tablas `activity_logs` y `daily_stats`
+    - Renueva token automáticamente cada 4 minutos
+    - Fallback a polling si falla la conexión
+    - Indicador visual 'Realtime' en el dashboard
 
 ### 3. Infraestructura y API
 
-- [ ] **Logging Estructurado:** Aprovechar Winston (ya instalado) para implementar niveles de log y formato JSON en producción.
+- [x] **Logging Estructurado:** Implementado con Winston.
+    - Niveles de log configurables: error, warn, info, debug
+    - Formato JSON estructurado en producción
+    - Sanitización automática de datos sensibles (API keys, tokens)
+    - Correlación de requests con ID único
+    - Metadata contextual: requestId, userId, endpoint, duration, statusCode
+    - Fallback a DB con circuit breaker para logs de error/warn
+- [x] **JWT Generator:** Endpoint creado para acceso seguro a Supabase Realtime.
+    - `GET /api/twitch/system/realtime-token` - Genera token JWT firmado
+    - Expiración de 5 minutos por seguridad
+    - Verificación de autenticación del usuario
+    - Payload con user_id, login, role='authenticated'
+
 - [ ] **Versionado v1:** Añadir prefijos a las rutas para mayor estabilidad.
 - [ ] **Swagger Docs:** Documentación interactiva automática.
 

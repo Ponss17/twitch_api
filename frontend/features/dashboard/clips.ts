@@ -6,46 +6,24 @@ import { DASHBOARD_CONFIG } from './dashboard-config.js';
 const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { cache, CACHE_TTL } from '../../services/cacheService.js';
 import { Session, Clip, DashboardModule } from '../../types.js';
+import { dashboardStore, ClipsActions, Clip as StoreClip } from '../../core/dashboardStore.js';
 
 interface IClipsModule extends DashboardModule {
-    allClips: Clip[];
-    currentClips: Clip[];
-    favorites: string[];
     observer: IntersectionObserver | null;
-    currentPage: number;
-    ITEMS_PER_PAGE: number;
     cssLoaded: boolean;
-    loadFavorites(): void;
-    saveFavorites(): void;
-    toggleFavorite(clipId: string): void;
-    setupUI(): void;
-    setupFilters(): void;
-    debounce<T extends (...args: unknown[]) => void>(
-        func: T,
-        wait: number
-    ): (...args: Parameters<T>) => void;
-    loadClips(forceRefresh?: boolean): Promise<void>;
-    handleError(error: unknown, container: HTMLElement): void;
-    renderSkeleton(container: HTMLElement): void;
-    filterAndRender(): void;
-    renderPage(): void;
-    addLoadMoreButton(container: HTMLElement): void;
-    buildCard(clip: Clip): HTMLElement;
+    unsubscribers: Array<() => void>;
+    setupStoreSubscriptions(): void;
+    buildCard(clip: StoreClip): HTMLElement;
     attachCardEvents(card: HTMLElement, url: string, clipId: string): void;
-    updateFavoriteBtn(clipId: string): void;
 }
 
 export const ClipsModule: IClipsModule = {
     session: null,
     initialized: false,
-    allClips: [] as Clip[],
-    currentClips: [] as Clip[],
-    favorites: [] as string[],
     observer: null,
-    currentPage: 1,
-    ITEMS_PER_PAGE: 20,
     cssLoaded: false,
     uiInitialized: false,
+    unsubscribers: [],
 
     init(session: Session): void {
         this.session = session;
@@ -57,17 +35,23 @@ export const ClipsModule: IClipsModule = {
             this.cssLoaded = true;
         }
 
-        this.loadFavorites();
+        // Cargar favoritos desde localStorage al store
+        if (session.userId) {
+            ClipsActions.loadFavorites(session.userId);
+        }
 
+        // Inicializar IntersectionObserver para lazy loading
         if (!this.observer) {
             this.observer = new IntersectionObserver(
                 (entries, observer) => {
                     entries.forEach((entry) => {
                         if (entry.isIntersecting) {
                             const img = entry.target as HTMLImageElement;
-                            img.src = img.dataset.src!;
-                            img.classList.remove('lazy-img');
-                            observer.unobserve(img);
+                            if (img.dataset.src) {
+                                img.src = img.dataset.src;
+                                img.classList.remove('lazy-img');
+                                observer.unobserve(img);
+                            }
                         }
                     });
                 },
@@ -81,10 +65,13 @@ export const ClipsModule: IClipsModule = {
     activate() {
         if (!this.uiInitialized) {
             this.setupUI();
+            this.setupStoreSubscriptions();
             this.uiInitialized = true;
         }
 
-        if (this.allClips.length === 0) {
+        // Cargar clips si el store está vacío
+        const state = dashboardStore.getState().clips;
+        if (state.clips.length === 0 && !state.isLoading) {
             this.loadClips();
         }
     },
@@ -93,41 +80,18 @@ export const ClipsModule: IClipsModule = {
         if (this.observer) {
             this.observer.disconnect();
         }
+        // Limpiar suscripciones al store
+        this.unsubscribers.forEach((unsub) => unsub());
+        this.unsubscribers = [];
     },
 
-    loadFavorites() {
-        if (!this.session) return;
-        try {
-            const saved = localStorage.getItem(`clips_favs_${this.session.userId}`);
-            this.favorites = saved ? JSON.parse(saved) : [];
-        } catch (e) {
-            console.error('Error loading favorites', e);
-            this.favorites = [];
-        }
-    },
-
-    saveFavorites() {
-        if (!this.session) return;
-        try {
-            localStorage.setItem(
-                `clips_favs_${this.session.userId}`,
-                JSON.stringify(this.favorites)
-            );
-        } catch (e) {
-            console.error('Error saving favorites', e);
-        }
-    },
-
-    toggleFavorite(clipId: string) {
-        if (this.favorites.includes(clipId)) {
-            this.favorites = this.favorites.filter((id: string) => id !== clipId);
-            UI.showToast('Clip eliminado de favoritos', 'info');
-        } else {
-            this.favorites.push(clipId);
-            UI.showToast('Clip añadido a favoritos', 'success');
-        }
-        this.saveFavorites();
-        this.updateFavoriteBtn(clipId);
+    setupStoreSubscriptions(): void {
+        // Suscribirse a cambios en el estado de clips
+        this.unsubscribers.push(
+            dashboardStore.on('clips', (state) => {
+                this.render(state.clips);
+            })
+        );
     },
 
     setupUI() {
@@ -149,20 +113,20 @@ export const ClipsModule: IClipsModule = {
             searchInput.addEventListener(
                 'input',
                 this.debounce(() => {
-                    this.filterAndRender();
+                    ClipsActions.setSearchTerm(searchInput.value.toLowerCase());
                 }, 300)
             );
         }
 
         if (sortSelect) {
             sortSelect.addEventListener('change', () => {
-                this.filterAndRender();
+                ClipsActions.setSortValue((sortSelect as HTMLSelectElement).value);
             });
         }
     },
 
     debounce<T extends (...args: unknown[]) => void>(func: T, wait: number) {
-        let timeout: NodeJS.Timeout;
+        let timeout: ReturnType<typeof setTimeout>;
         return (...args: Parameters<T>) => {
             const later = () => {
                 clearTimeout(timeout);
@@ -174,23 +138,26 @@ export const ClipsModule: IClipsModule = {
     },
 
     async loadClips(forceRefresh = false) {
-        const container = document.getElementById('clips-gallery');
-        if (!container) return;
         if (!this.session) return;
 
         const cacheKey = `clips_${this.session.userId}`;
 
+        // Verificar cache primero
         if (!forceRefresh) {
             const cachedClips = cache.get<Clip[]>(cacheKey);
             if (cachedClips) {
-                this.allClips = cachedClips;
-                this.filterAndRender();
+                ClipsActions.setClips(cachedClips);
                 return;
             }
         }
 
-        this.renderSkeleton(container);
-        if (forceRefresh) UI.showToast('Actualizando clips...', 'info');
+        ClipsActions.setLoading(true);
+
+        if (forceRefresh) {
+            import('../../core/dashboardStore.js').then(({ ToastActions }) => {
+                ToastActions.info('Actualizando clips...');
+            });
+        }
 
         try {
             const { apiKey, token, login } = this.session;
@@ -213,40 +180,22 @@ export const ClipsModule: IClipsModule = {
             const data = await response.json();
             const clips = Array.isArray(data) ? data : data.clips || data.data || [];
 
-            this.allClips = clips;
+            ClipsActions.setClips(clips);
+
             if (clips.length > 0) {
                 cache.set(cacheKey, clips, CACHE_TTL);
             }
-
-            this.filterAndRender();
         } catch (error) {
-            this.handleError(error, container);
+            this.handleError(error);
         }
     },
 
-    handleError(error: unknown, container: HTMLElement) {
+    handleError(error: unknown) {
         const isAuthError = (error as Error).message === 'auth_error';
-        UI.showToast(isAuthError ? AuthMessages.expired : ClipsMessages.loadError, 'error');
-
-        if (isAuthError) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <h3>${AuthMessages.expiredTitle}</h3>
-                    <p>${AuthMessages.expiredMsg}</p>
-                    <button id="relogin-clips-btn" class="btn-primary" style="margin-top:10px;">
-                        ${AuthMessages.reloginBtn}
-                    </button>
-                </div>
-            `;
-            document.getElementById('relogin-clips-btn')?.addEventListener('click', () => {
-                import('../../core/auth.js').then((m) => m.Auth.relogin());
-            });
-        } else {
-            container.innerHTML = Messages.Common.error((error as Error).message);
-            const retryBtn = document.getElementById('retry-clips-btn');
-            if (retryBtn) retryBtn.onclick = () => this.loadClips();
-        }
+        import('../../core/dashboardStore.js').then(({ ToastActions }) => {
+            ToastActions.error(isAuthError ? AuthMessages.expired : ClipsMessages.loadError);
+        });
+        ClipsActions.setError(isAuthError ? 'auth_error' : 'fetch_error');
     },
 
     renderSkeleton(container: HTMLElement) {
@@ -269,68 +218,73 @@ export const ClipsModule: IClipsModule = {
             .join('');
     },
 
-    filterAndRender() {
-        const searchTerm =
-            (document.getElementById('clips-search') as HTMLInputElement)?.value.toLowerCase() ||
-            '';
-        const sortValue =
-            (document.getElementById('clips-sort') as HTMLSelectElement)?.value || 'date-desc';
+    render(clipsState: import('../../core/dashboardStore.js').ClipsState) {
+        const container = document.getElementById('clips-gallery');
+        if (!container) return;
 
-        const filtered = this.allClips.filter((clip: Clip) =>
-            clip.title.toLowerCase().includes(searchTerm)
-        );
-
-        filtered.sort((a: Clip, b: Clip) => {
-            switch (sortValue) {
-                case 'date-desc':
-                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-                case 'date-asc':
-                    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-                case 'views-desc':
-                    return b.view_count - a.view_count;
-                case 'views-asc':
-                    return a.view_count - b.view_count;
-                default:
-                    return 0;
-            }
-        });
-
-        this.currentClips = filtered;
-        this.currentPage = 1;
-
-        const clipsGallery = document.getElementById('clips-gallery');
-        if (clipsGallery) clipsGallery.innerHTML = '';
-
-        this.renderPage();
-    },
-
-    renderPage() {
-        const clipsGallery = document.getElementById('clips-gallery');
-        if (!clipsGallery) return;
-
-        if (this.currentClips.length === 0) {
-            clipsGallery.innerHTML = ClipsMessages.empty;
+        // Mostrar skeleton si está cargando y no hay clips
+        if (clipsState.isLoading && clipsState.clips.length === 0) {
+            this.renderSkeleton(container);
             return;
         }
 
-        const loadMore = document.getElementById('clips-load-more');
-        if (loadMore) loadMore.remove();
+        // Mostrar mensaje de error
+        if (clipsState.error === 'auth_error') {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h3>${AuthMessages.expiredTitle}</h3>
+                    <p>${AuthMessages.expiredMsg}</p>
+                    <button id="relogin-clips-btn" class="btn-primary" style="margin-top:10px;">
+                        ${AuthMessages.reloginBtn}
+                    </button>
+                </div>
+            `;
+            document.getElementById('relogin-clips-btn')?.addEventListener('click', () => {
+                import('../../core/auth.js').then((m) => m.Auth.relogin());
+            });
+            return;
+        }
 
-        const start = (this.currentPage - 1) * this.ITEMS_PER_PAGE;
-        const end = start + this.ITEMS_PER_PAGE;
-        const pageClips = this.currentClips.slice(start, end);
+        if (clipsState.error) {
+            container.innerHTML = Messages.Common.error(clipsState.error);
+            const retryBtn = document.getElementById('retry-clips-btn');
+            if (retryBtn) retryBtn.onclick = () => this.loadClips();
+            return;
+        }
 
+        // Mostrar estado vacío
+        if (clipsState.filteredClips.length === 0) {
+            container.innerHTML = ClipsMessages.empty;
+            this.removeLoadMoreButton();
+            return;
+        }
+
+        // Renderizar clips de la página actual
+        this.removeLoadMoreButton();
+
+        const start = (clipsState.currentPage - 1) * clipsState.itemsPerPage;
+        const end = start + clipsState.itemsPerPage;
+        const pageClips = clipsState.filteredClips.slice(0, end);
+
+        container.innerHTML = '';
         const fragment = document.createDocumentFragment();
 
-        pageClips.forEach((clip: Clip) => {
+        pageClips.forEach((clip) => {
             fragment.appendChild(this.buildCard(clip));
         });
 
-        clipsGallery.appendChild(fragment);
+        container.appendChild(fragment);
 
-        if (end < this.currentClips.length) {
-            this.addLoadMoreButton(clipsGallery);
+        // Agregar botón "Ver más" si hay más clips
+        if (end < clipsState.filteredClips.length) {
+            this.addLoadMoreButton(container);
         }
+    },
+
+    removeLoadMoreButton() {
+        const loadMore = document.getElementById('clips-load-more');
+        if (loadMore) loadMore.remove();
     },
 
     addLoadMoreButton(container: HTMLElement) {
@@ -340,17 +294,16 @@ export const ClipsModule: IClipsModule = {
 
         const btn = document.createElement('button');
         btn.className = 'btn-secondary';
-        btn.innerHTML = 'Ver más clips';
+        btn.textContent = 'Ver más clips';
         btn.onclick = () => {
-            this.currentPage++;
-            this.renderPage();
+            ClipsActions.nextPage();
         };
 
         btnContainer.appendChild(btn);
         container.after(btnContainer);
     },
 
-    buildCard(clip: Clip) {
+    buildCard(clip: StoreClip) {
         const card = document.createElement('div');
         card.className = 'clip-card fade-in';
         card.dataset.id = clip.id;
@@ -366,7 +319,8 @@ export const ClipsModule: IClipsModule = {
         });
         const viewsStr = clip.view_count.toLocaleString('es-ES');
 
-        const isFav = this.favorites.includes(clip.id);
+        const state = dashboardStore.getState().clips;
+        const isFav = state.favorites.includes(clip.id);
         const favIconClass = isFav ? 'fa-solid fa-star' : 'fa-regular fa-star';
         const favActiveClass = isFav ? 'active' : '';
 
@@ -411,7 +365,9 @@ export const ClipsModule: IClipsModule = {
                 const originalClass = icon.className;
 
                 icon.className = 'fa-solid fa-check';
-                UI.showToast('Enlace copiado', 'success');
+                import('../../core/dashboardStore.js').then(({ ToastActions }) => {
+                    ToastActions.success('Enlace copiado');
+                });
 
                 setTimeout(() => {
                     icon.className = originalClass;
@@ -422,7 +378,12 @@ export const ClipsModule: IClipsModule = {
         card.querySelector('.fav-btn')!.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            this.toggleFavorite(clipId);
+            const userId = this.session?.userId;
+            if (userId) {
+                ClipsActions.toggleFavorite(clipId, userId);
+                // Actualizar el botón visualmente
+                this.updateFavoriteBtn(clipId);
+            }
         });
     },
 
@@ -433,7 +394,8 @@ export const ClipsModule: IClipsModule = {
         const btn = card.querySelector('.fav-btn');
         if (!btn) return;
         const icon = btn.querySelector('i');
-        const isFav = this.favorites.includes(clipId);
+        const state = dashboardStore.getState().clips;
+        const isFav = state.favorites.includes(clipId);
 
         if (isFav) {
             btn.classList.add('active');

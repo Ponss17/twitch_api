@@ -3,18 +3,27 @@ import { BaseModule } from '../../../shared/utils/baseModule.js';
 import { Loader } from '../../../shared/utils/loader.js';
 import { ProfileAPI } from './profile.api.js';
 import { ProfileEvents } from './profile.events.js';
+import { ProfileUI } from './profile.ui.js';
+import { UI } from '../../../core/ui.js';
+import { dashboardStore, ProfileActions } from '../../../core/dashboardStore.js';
 
-export const ProfileModule: DashboardModule = {
+interface IProfileModule extends DashboardModule {
+    session: Session | null;
+    isInitialized: boolean;
+    pollInterval: ReturnType<typeof setInterval> | null;
+    unsubscribers: Array<() => void>;
+    setupStoreSubscriptions(): void;
+    setupUI(): void;
+    startSmartPolling(): void;
+    performSync(): Promise<void>;
+}
+
+export const ProfileModule: IProfileModule = {
     ...BaseModule,
-    session: null as Session | null,
+    session: null,
     isInitialized: false,
-    rateLimitPollInterval: null as ReturnType<typeof setInterval> | null,
-    countdown: 30,
-    lastData: {
-        followers: -1,
-        analytics: {} as Record<string, number>,
-        summaries: {} as Record<string, number>
-    },
+    pollInterval: null,
+    unsubscribers: [],
 
     init(session: Session): void {
         this.session = session;
@@ -24,15 +33,44 @@ export const ProfileModule: DashboardModule = {
     activate(): void {
         Loader.loadCSS('./css/sections/profile.css');
         this.setupUI();
-        this.syncSummary();
+        this.setupStoreSubscriptions();
         this.startSmartPolling();
+
+        // Cargar datos iniciales si no hay datos en el store
+        const profileState = dashboardStore.getState().profile;
+        if (!profileState.data && !profileState.isLoading) {
+            this.performSync();
+        }
     },
 
     deactivate(): void {
-        if (this.rateLimitPollInterval) {
-            clearInterval(this.rateLimitPollInterval);
-            this.rateLimitPollInterval = null;
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
         }
+        this.unsubscribers.forEach((unsub) => unsub());
+        this.unsubscribers = [];
+    },
+
+    setupStoreSubscriptions(): void {
+        // Suscribirse a cambios en el perfil
+        this.unsubscribers.push(
+            dashboardStore.on('profile', (state) => {
+                if (state.profile.data) {
+                    ProfileUI.updateProfileStatsInternal(state.profile.data, {
+                        followers: state.profile.stats.summaries?.followers
+                    });
+                    ProfileUI.updateBadgesInternal(
+                        state.profile.data as unknown as Record<string, string>
+                    );
+                }
+                if (state.profile.stats.analytics) {
+                    ProfileUI.renderCommandStatsInternal(state.profile.stats.analytics, {
+                        summaries: state.profile.stats.summaries
+                    });
+                }
+            })
+        );
     },
 
     setupUI(): void {
@@ -50,8 +88,12 @@ export const ProfileModule: DashboardModule = {
         const tokenInput = document.getElementById('profile-api-key') as HTMLInputElement;
         if (tokenInput) {
             const realKey = this.session.apiKey || this.session.token || '';
-            tokenInput.value = realKey;
+            // Guardar la clave real en dataset para uso interno
             tokenInput.dataset.realValue = realKey;
+            // Mostrar valor enmascarado por seguridad (evita exposición en DOM)
+            tokenInput.value = UI.maskApiKey(realKey);
+            // Asegurar que el input siempre comience como password
+            tokenInput.type = 'password';
         }
 
         ProfileEvents.setupAll({
@@ -60,58 +102,91 @@ export const ProfileModule: DashboardModule = {
         });
     },
 
-    async syncSummary(): Promise<void> {
-        await ProfileAPI.syncSummary(this.session || null, () => this.authHeaders(), this.lastData);
-    },
-
     startSmartPolling(): void {
-        if (this.rateLimitPollInterval) clearInterval(this.rateLimitPollInterval);
+        if (this.pollInterval) clearInterval(this.pollInterval);
 
         const lastSync = localStorage.getItem('dashboard_last_sync');
         const now = Date.now();
         const pollMs = 30000;
 
+        let countdown = 30;
         if (lastSync) {
             const elapsed = now - parseInt(lastSync);
             if (elapsed < pollMs) {
-                this.countdown = Math.ceil((pollMs - elapsed) / 1000);
+                countdown = Math.ceil((pollMs - elapsed) / 1000);
             } else {
-                this.countdown = 30;
+                countdown = 30;
                 this.performSync();
             }
         } else {
-            this.countdown = 30;
+            countdown = 30;
             this.performSync();
         }
 
-        this.updateSyncIndicator();
+        ProfileActions.setCountdown(countdown);
 
-        this.rateLimitPollInterval = setInterval(() => {
-            if (typeof this.countdown === 'number') {
-                this.countdown--;
-                if (this.countdown <= 0) {
-                    this.performSync();
-                    this.countdown = 30;
-                }
+        this.pollInterval = setInterval(() => {
+            const currentState = dashboardStore.getState().profile;
+            let currentCountdown = currentState.countdown - 1;
+            if (currentCountdown <= 0) {
+                this.performSync();
+                currentCountdown = 30;
             }
-            this.updateSyncIndicator();
+            ProfileActions.setCountdown(currentCountdown);
         }, 1000);
-    },
-
-    updateSyncIndicator(): void {
-        const syncEl = document.getElementById('profile-sync-indicator');
-        if (!syncEl) return;
-        syncEl.textContent = 'Auto';
     },
 
     async performSync(): Promise<void> {
-        const syncEl = document.getElementById('profile-sync-indicator');
-        if (this.session) {
-            localStorage.setItem('dashboard_last_sync', Date.now().toString());
-            await this.syncSummary();
+        if (!this.session) return;
+
+        ProfileActions.setLoading(true);
+
+        try {
+            const data = await ProfileAPI.fetchSummary(this.session, () => this.authHeaders());
+
+            if (data.profile) {
+                ProfileActions.setProfileData({
+                    followers: (data.profile.followers as number) || 0,
+                    broadcaster_type: (data.profile.broadcaster_type as string) || '',
+                    description: (data.profile.description as string) || '',
+                    created_at: (data.profile.created_at as string) || '',
+                    rateLimit: (data.profile.rateLimit as number) || 120
+                });
+            }
+
+            if (data.analytics) {
+                const summaries: Record<string, number> = {};
+
+                // Calcular totales por categoría
+                const categories = [
+                    { id: 'cat-commands', keys: ['clips', 'followage', 'so', 'message'] },
+                    { id: 'cat-tools', keys: ['stalker', 'trends', 'roulette'] },
+                    { id: 'cat-minigames', keys: ['russian', 'magic8', 'duel'] }
+                ];
+
+                categories.forEach((cat) => {
+                    summaries[cat.id] = cat.keys.reduce(
+                        (sum, key) => sum + ((data.analytics![key] as number) || 0),
+                        0
+                    );
+                });
+
+                ProfileActions.setStats({
+                    summaries,
+                    analytics: data.analytics
+                });
+            }
+
+            ProfileActions.updateLastSync();
+        } catch (error) {
+            console.error('[Profile] Error en sync:', error);
+        } finally {
+            ProfileActions.setLoading(false);
+            const syncEl = document.getElementById('profile-sync-indicator');
+            if (syncEl) {
+                syncEl.classList.add('syncing');
+                setTimeout(() => syncEl.classList.remove('syncing'), 1000);
+            }
         }
-        setTimeout(() => {
-            if (syncEl) syncEl.classList.remove('syncing');
-        }, 1000);
     }
 };

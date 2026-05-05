@@ -9,7 +9,8 @@ export const ProfileUI = {
         const statsGrid = document.getElementById('profile-stats-summary-grid');
         if (!statsGrid) return;
 
-        statsGrid.innerHTML = '';
+        // Limpiar usando textContent (más seguro que innerHTML = '')
+        statsGrid.textContent = '';
 
         const categories = [
             {
@@ -34,15 +35,31 @@ export const ProfileUI = {
 
         categories.forEach((cat) => {
             const totalSum = cat.keys.reduce((sum, key) => sum + (data[key] || 0), 0);
+
+            // Crear elementos usando DOM API en lugar de innerHTML
             const card = document.createElement('div');
             card.className = 'stat-card';
-            card.innerHTML = `
-                <div class="stat-icon"><i class="fa-solid ${cat.icon}"></i></div>
-                <div class="stat-info">
-                    <h3 id="profile-sum-${cat.id}">0</h3>
-                    <span>${cat.label}</span>
-                </div>
-            `;
+
+            const iconDiv = document.createElement('div');
+            iconDiv.className = 'stat-icon';
+            const icon = document.createElement('i');
+            icon.className = `fa-solid ${cat.icon}`;
+            iconDiv.appendChild(icon);
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'stat-info';
+
+            const heading = document.createElement('h3');
+            heading.id = `profile-sum-${cat.id}`;
+            heading.textContent = '0';
+
+            const label = document.createElement('span');
+            label.textContent = cat.label;
+
+            infoDiv.appendChild(heading);
+            infoDiv.appendChild(label);
+            card.appendChild(iconDiv);
+            card.appendChild(infoDiv);
             statsGrid.appendChild(card);
 
             const valueEl = document.getElementById(`profile-sum-${cat.id}`);
@@ -114,15 +131,29 @@ export const ProfileUI = {
         const container = document.getElementById('profile-badges-container');
         if (!container) return;
 
-        let badgesHtml = '';
+        // Limpiar contenedor de forma segura
+        container.textContent = '';
+
+        // Crear badges usando DOM API en lugar de innerHTML para mayor seguridad
+        const createBadge = (iconClass: string, text: string, isSecondary = false): HTMLElement => {
+            const badge = document.createElement('span');
+            badge.className = `profile-badge-status${isSecondary ? ' secondary' : ''}`;
+
+            const icon = document.createElement('i');
+            icon.className = `fa-solid ${iconClass}`;
+
+            badge.appendChild(icon);
+            badge.appendChild(document.createTextNode(` ${text}`));
+            return badge;
+        };
+
         if (data.broadcaster_type === 'partner') {
-            badgesHtml += `<span class="profile-badge-status"><i class="fa-solid fa-check-circle"></i> Partner de Twitch</span>`;
+            container.appendChild(createBadge('fa-check-circle', 'Partner de Twitch'));
         } else if (data.broadcaster_type === 'affiliate') {
-            badgesHtml += `<span class="profile-badge-status"><i class="fa-solid fa-star"></i> Afiliado de Twitch</span>`;
+            container.appendChild(createBadge('fa-star', 'Afiliado de Twitch'));
         } else {
-            badgesHtml += `<span class="profile-badge-status secondary"><i class="fa-solid fa-user"></i> Streamer</span>`;
+            container.appendChild(createBadge('fa-user', 'Streamer', true));
         }
-        badgesHtml += `<span class="profile-badge-status secondary"><i class="fa-solid fa-key"></i> LosPerris Access</span>`;
-        container.innerHTML = badgesHtml;
+        container.appendChild(createBadge('fa-key', 'LosPerris Access', true));
     }
 };

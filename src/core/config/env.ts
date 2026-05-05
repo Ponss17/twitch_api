@@ -24,6 +24,7 @@ const envSchema = z.object({
     SUPABASE_URL: z.string().url().min(1, 'SUPABASE_URL es obligatorio'),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'SUPABASE_SERVICE_ROLE_KEY es obligatorio'),
     SUPABASE_ANON_KEY: z.string().min(1, 'SUPABASE_ANON_KEY es obligatorio'),
+    SUPABASE_JWT_SECRET: z.string().min(1, 'SUPABASE_JWT_SECRET es obligatorio'),
     DISCORD_HEALTH_WEBHOOK_URL: z.string().url().optional()
 });
 
@@ -46,6 +47,9 @@ const envVars = {
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || (isTest ? 'test_anon' : undefined),
+    SUPABASE_JWT_SECRET:
+        process.env.SUPABASE_JWT_SECRET ||
+        (isTest ? 'test_jwt_secret_for_testing_purposes_only' : undefined),
     DISCORD_HEALTH_WEBHOOK_URL: process.env.DISCORD_HEALTH_WEBHOOK_URL
 };
 
