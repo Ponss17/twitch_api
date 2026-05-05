@@ -82,7 +82,7 @@ Este documento resume todos los hallazgos técnicos, correcciones críticas y me
 
 - ✅ **Servicio de Conexión Realtime (Modo Estricto):**
     - `frontend/core/realtimeService.ts` - Servicio dedicado para conexión WebSocket
-    - Suscripción en tiempo real a tablas `activity_logs` y `daily_stats`
+    - Suscripción en tiempo real a tablas `activity_logs` y `user_stats`
     - Renueva automáticamente el token cada 4 minutos (antes de expirar a los 5)
     - Manejo de reconexión automática y estados de conexión
     - Integración con dashboardStore para actualizaciones automáticas del UI

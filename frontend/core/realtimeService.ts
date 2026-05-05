@@ -5,7 +5,7 @@ import { Session } from '../types.js';
 
 /**
  * Servicio de Supabase Realtime para sincronización en tiempo real
- * del dashboard. Se conecta a las tablas activity_logs y daily_stats.
+ * del dashboard. Se conecta a las tablas activity_logs y user_stats.
  */
 export class RealtimeService {
     private supabase: ReturnType<typeof createClient> | null = null;
@@ -117,7 +117,7 @@ export class RealtimeService {
 
         try {
             // Crear cliente de Supabase con el token personalizado
-            // El accessToken se usa para autenticación en WebSocket (Realtime)
+            // Para Realtime/WebSocket, debemos pasar el token en la configuración de auth
             this.supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
                 auth: {
                     persistSession: false,
@@ -127,10 +127,14 @@ export class RealtimeService {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
-                },
-                realtime: {
-                    accessToken: () => Promise.resolve(token)
                 }
+            });
+
+            // Configurar el token de autenticación para Realtime
+            // Esto reemplaza el anon key con nuestro JWT personalizado
+            await this.supabase.auth.setSession({
+                access_token: token,
+                refresh_token: ''
             });
 
             console.log('[Realtime] Supabase client initialized with custom JWT');
@@ -149,6 +153,7 @@ export class RealtimeService {
 
         try {
             const channelName = `dashboard:${this.session.userId}`;
+            console.log('[Realtime] Setting up channel:', channelName);
 
             this.channel = this.supabase
                 .channel(channelName)
@@ -161,6 +166,7 @@ export class RealtimeService {
                         filter: `user_id=eq.${this.session.userId}`
                     },
                     (payload) => {
+                        console.log('[Realtime] Received activity log:', payload);
                         this.handleActivityLogInsert(payload.new as ActivityLog);
                     }
                 )
@@ -169,20 +175,23 @@ export class RealtimeService {
                     {
                         event: 'UPDATE',
                         schema: 'public',
-                        table: 'daily_stats',
+                        table: 'user_stats',
                         filter: `user_id=eq.${this.session.userId}`
                     },
                     (payload) => {
+                        console.log('[Realtime] Received stats update:', payload);
                         this.handleStatsUpdate(payload.new as StatsData);
                     }
                 )
-                .subscribe((status) => {
+                .subscribe((status, err) => {
                     console.log('[Realtime] Subscription status:', status);
 
                     if (status === 'SUBSCRIBED') {
                         this.isConnected = true;
+                        console.log('[Realtime] Successfully subscribed to channel');
                     } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
                         this.isConnected = false;
+                        console.error('[Realtime] Channel error or closed:', err);
                         this.onDisconnectCallback?.();
                     }
                 });
@@ -215,7 +224,7 @@ export class RealtimeService {
     }
 
     /**
-     * Maneja actualizaciones de daily_stats
+     * Maneja actualizaciones de user_stats
      */
     private handleStatsUpdate(newStats: StatsData): void {
         console.log('[Realtime] Stats update received:', newStats);
@@ -237,12 +246,20 @@ export class RealtimeService {
         // Renovar token cada 4 minutos (240 segundos)
         this.refreshInterval = setInterval(async () => {
             console.log('[Realtime] Refreshing token...');
-            const success = await this.initializeClient();
+            const newToken = await this.fetchToken();
 
-            if (success && this.channel) {
-                // Reconectar el canal con el nuevo token
-                await this.channel.unsubscribe();
-                await this.setupChannel();
+            if (!newToken) {
+                console.error('[Realtime] Failed to refresh token');
+                return;
+            }
+
+            // Actualizar la sesión con el nuevo token
+            if (this.supabase) {
+                await this.supabase.auth.setSession({
+                    access_token: newToken,
+                    refresh_token: ''
+                });
+                console.log('[Realtime] Token refreshed successfully');
             }
         }, 240000); // 4 minutos
     }
@@ -285,10 +302,19 @@ export class RealtimeService {
             return false;
         }
 
+        // Esperar un momento para ver si la conexión se establece
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        if (!this.isConnected) {
+            console.warn(
+                '[Realtime] Connection not established after 2s, will retry or use fallback'
+            );
+        }
+
         this.setupTokenRefresh();
 
-        console.log('[Realtime] Connected successfully');
-        return true;
+        console.log('[Realtime] Connection attempt completed, isConnected:', this.isConnected);
+        return this.isConnected;
     }
 
     /**
