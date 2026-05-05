@@ -9,6 +9,10 @@ jest.mock('@/core/utils/logger', () => ({
         startRequest: jest.fn().mockReturnValue('test-request-id'),
         endRequest: jest.fn()
     },
+    asyncContext: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        run: jest.fn((_store: any, callback: () => void) => callback())
+    },
     getRequestId: jest.fn().mockReturnValue(undefined),
     setRequestId: jest.fn(),
     clearRequestId: jest.fn()
