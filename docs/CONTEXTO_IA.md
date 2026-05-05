@@ -29,7 +29,7 @@ API de Twitch personalizada que sirve de puente para bots de chat (Nightbot/Stre
 - `docs/API_REFERENCE.md`: Guía completa de endpoints.
 - `docs/AUDITORIA_MASTER.md`: Resumen de seguridad y estabilidad.
 - `docs/ROADMAP.md`: Tareas pendientes y backlog.
-- `docs/database_backup.sql`: Esquema actual de la base de datos.
+- `docs/database_backup.sql`: Esquema completo de BD, funciones, índices, RLS, políticas y configuración de Realtime.
 
 ---
 

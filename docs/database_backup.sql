@@ -1,7 +1,7 @@
 -- ========================================================
 -- BACKUP COMPLETO DE BASE DE DATOS - LosPerris API
--- Fecha: 2026-03-31
--- Descripción: Esquema completo, Funciones, Índices y Seguridad
+-- Fecha: 2026-05-05
+-- Descripción: Esquema completo, Funciones, Índices, Seguridad y Realtime
 -- ========================================================
 
 -- 1. TABLA PRINCIPAL DE USUARIOS
@@ -140,3 +140,78 @@ ALTER TABLE public.system_logs ENABLE ROW LEVEL SECURITY;
 
 -- NOTA: El servidor de Vercel usa la Service Role Key, 
 -- por lo cual saltará el RLS automáticamente sin necesidad de políticas adicionales.
+
+-- ========================================================
+-- POLÍTICAS RLS PARA REALTIME (USUARIOS AUTENTICADOS)
+-- ========================================================
+
+-- Políticas para activity_logs: usuarios solo pueden leer sus propios logs
+CREATE POLICY IF NOT EXISTS "Allow users to read own activity logs"
+ON public.activity_logs
+FOR SELECT
+TO authenticated
+USING (auth.uid()::text = user_id);
+
+-- Políticas para user_stats: usuarios solo pueden leer sus propias stats
+CREATE POLICY IF NOT EXISTS "Allow users to read own stats"
+ON public.user_stats
+FOR SELECT
+TO authenticated
+USING (auth.uid()::text = user_id);
+
+-- Políticas para user_stats: usuarios pueden actualizar sus propias stats
+CREATE POLICY IF NOT EXISTS "Allow users to update own stats"
+ON public.user_stats
+FOR UPDATE
+TO authenticated
+USING (auth.uid()::text = user_id);
+
+-- ========================================================
+-- CONFIGURACIÓN DE REALTIME
+-- ========================================================
+
+-- Habilitar realtime para tablas específicas
+-- Estas tablas enviarán cambios en tiempo real a los clientes conectados
+
+-- Tabla activity_logs: notifica INSERTs (nuevos logs de actividad)
+ALTER TABLE public.activity_logs REPLICA IDENTITY FULL;
+
+-- Tabla user_stats: notifica UPDATEs (cambios en estadísticas)
+ALTER TABLE public.user_stats REPLICA IDENTITY FULL;
+
+-- NOTA: Para habilitar realtime en el dashboard de Supabase:
+-- 1. Ve a Database → Tables
+-- 2. Haz clic en los 3 puntos (⋮) de la tabla
+-- 3. Selecciona "Edit table"
+-- 4. Activa el toggle "Enable Realtime"
+-- 5. Guarda los cambios
+
+-- ========================================================
+-- CONFIGURACIÓN JWT PARA REALTIME
+-- ========================================================
+
+-- El backend genera tokens JWT firmados con SUPABASE_JWT_SECRET
+-- Payload esperado por Supabase Realtime:
+-- {
+--   "sub": "user_id",
+--   "user_id": "user_id", 
+--   "login": "username",
+--   "role": "authenticated",
+--   "aud": "authenticated",
+--   "iss": "losperris-api",
+--   "iat": 1234567890,
+--   "exp": 1234568190  -- 5 minutos de expiración
+-- }
+
+-- El frontend usa estos tokens para autenticar el WebSocket:
+-- supabase.auth.setSession({ access_token: jwt_token, refresh_token: '' })
+
+-- ========================================================
+-- NOTAS DE SEGURIDAD
+-- ========================================================
+
+-- 1. RLS debe estar habilitado en todas las tablas (ya configurado arriba)
+-- 2. Sin políticas RLS, las consultas devuelven arrays vacíos (seguridad por defecto)
+-- 3. Realtime respeta las políticas RLS - solo envía cambios autorizados
+-- 4. Los tokens JWT expiran en 5 minutos y se renuevan automáticamente cada 4 minutos
+-- 5. El backend valida la autenticación antes de generar tokens JWT
