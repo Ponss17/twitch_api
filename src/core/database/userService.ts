@@ -129,7 +129,13 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
             user.refreshToken = plain;
         }
     } catch (e) {
-        logger.error(`⚠️ Error en descifrado para ${userId}:`, (e as Error).message);
+        // Si falla el descifrado, retornamos null para forzar re-autenticación
+        // en vez de devolver un usuario con tokens cifrados inutilizables
+        logger.error(
+            `❌ Descifrado fallido para ${userId}, forzando re-auth:`,
+            (e as Error).message
+        );
+        return null;
     }
 
     if (needsMigration && !migratedUsersCache.has(userId)) {

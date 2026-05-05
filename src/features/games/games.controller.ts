@@ -6,6 +6,7 @@ import * as duelService from './duel.service';
 import * as authService from '../../features/auth/auth.service';
 import { MESSAGES } from '../../core/config/messages';
 import { AuthenticatedRequest } from '../../types/twitch';
+import { ANONYMOUS_USER_ID } from '../../types/constants';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
 
@@ -37,7 +38,7 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
         let effectiveUserId = req.userId;
         if (!effectiveUserId) {
             const fallback = await getFallbackAuth(req);
-            effectiveUserId = fallback?.userId || 'anonymous';
+            effectiveUserId = fallback?.userId || ANONYMOUS_USER_ID;
         }
 
         const answer = await trackRequest(
@@ -81,7 +82,7 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
         const sendToChat = format !== 'json';
 
         const result = await trackRequest(
-            effectiveUserId || 'anonymous',
+            effectiveUserId || ANONYMOUS_USER_ID,
             {
                 type: 'russian',
                 user: (user as string) || 'Anónimo',
@@ -129,7 +130,7 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
         let effectiveUserId = req.userId;
         if (!effectiveUserId) {
             const fallback = await getFallbackAuth(req);
-            effectiveUserId = fallback?.userId || 'anonymous';
+            effectiveUserId = fallback?.userId || ANONYMOUS_USER_ID;
         }
 
         const result = await trackRequest(

@@ -9,7 +9,7 @@
         "build": "shx rm -rf dist && pnpm run build:frontend && tsc",
         "postbuild": "shx cp -r public dist/",
         "start": "node -r dotenv/config dist/api/index.js",
-        "dev": "ts-node --files -r dotenv/config api/index.ts",
+        "dev": "tsx watch -r dotenv/config api/index.ts",
         "check-env": "node scripts/check-env.js",
         "lint": "eslint .",
         "format": "prettier --write .",
@@ -76,6 +76,7 @@
         "supertest": "^7.2.2",
         "ts-jest": "^29.4.6",
         "ts-node": "^10.9.2",
+        "tsx": "^4.21.0",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.54.0"
     },
