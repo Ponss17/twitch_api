@@ -11,7 +11,6 @@ export class RealtimeService {
     private supabase: ReturnType<typeof createClient> | null = null;
     private channel: RealtimeChannel | null = null;
     private token: string | null = null;
-    private tokenExpiry: number = 0;
     private refreshInterval: ReturnType<typeof setInterval> | null = null;
     private session: Session | null = null;
     private isConnected: boolean = false;
@@ -82,7 +81,6 @@ export class RealtimeService {
             }
 
             this.token = data.token;
-            this.tokenExpiry = data.expiresAt;
             return this.token;
         } catch (error) {
             console.error('[Realtime] Error fetching token:', error);
@@ -210,16 +208,18 @@ export class RealtimeService {
      * Configura el renovado automático del token cada 4 minutos
      */
     private setupTokenRefresh(): void {
-        // Limpiar intervalo anterior si existe
         if (this.refreshInterval) {
             clearInterval(this.refreshInterval);
         }
 
-        // Renovar token cada 4 minutos (240 segundos)
+        // Renovar token cada 4 minutos sin destruir la conexión
         this.refreshInterval = setInterval(async () => {
-            this.disconnect();
-            await this.connect(this.onDisconnectCallback || undefined);
-        }, 240000); // 4 minutos
+            const newToken = await this.fetchToken();
+            if (newToken && this.supabase?.realtime) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (this.supabase.realtime as any).setAuth(newToken);
+            }
+        }, 240000);
     }
 
     /**
@@ -246,8 +246,10 @@ export class RealtimeService {
         const channelSetup = await this.setupChannel();
         if (!channelSetup) return false;
 
-        // Esperar a que la conexión se establezca
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        // Esperar hasta 3s, pero salir temprano si ya conectó
+        for (let i = 0; i < 30 && !this.isConnected; i++) {
+            await new Promise((r) => setTimeout(r, 100));
+        }
 
         this.setupTokenRefresh();
         return this.isConnected;
@@ -274,7 +276,6 @@ export class RealtimeService {
 
         this.isConnected = false;
         this.token = null;
-        this.tokenExpiry = 0;
     }
 
     /**
@@ -295,7 +296,12 @@ export const RealtimeServiceFactory = {
      * Crea o retorna la instancia del servicio
      */
     getInstance(session: Session): RealtimeService {
-        if (!realtimeServiceInstance) {
+        if (
+            !realtimeServiceInstance ||
+            realtimeServiceInstance['session']?.userId !== session.userId ||
+            realtimeServiceInstance['session']?.apiKey !== session.apiKey
+        ) {
+            if (realtimeServiceInstance) realtimeServiceInstance.disconnect();
             realtimeServiceInstance = new RealtimeService(session);
         }
         return realtimeServiceInstance;

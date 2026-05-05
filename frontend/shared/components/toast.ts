@@ -1,4 +1,4 @@
-import { dashboardStore, Toast } from '../../core/dashboardStore.js';
+import { dashboardStore, Toast, ToastActions } from '../../core/dashboardStore.js';
 
 /**
  * Componente Toast conectado al dashboardStore.
@@ -143,9 +143,7 @@ export const ToastComponent = {
      * Cierra un toast manualmente
      */
     dismiss(id: string): void {
-        import('../../core/dashboardStore.js').then(({ ToastActions }) => {
-            ToastActions.remove(id);
-        });
+        ToastActions.remove(id);
     }
 };
 
