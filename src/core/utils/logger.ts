@@ -2,39 +2,31 @@ import winston from 'winston';
 import Transport from 'winston-transport';
 import * as dbService from '../database/dbService';
 import { randomUUID } from 'crypto';
+import { AsyncLocalStorage } from 'async_hooks';
 
 const { combine, timestamp, printf, colorize, errors, json } = winston.format;
 
-// Contexto de request actual (usado para correlación)
-const asyncLocalStorage = new Map<string, string>();
+const asyncContext = new AsyncLocalStorage<Map<string, string>>();
 
-/**
- * Genera un ID único de correlación para requests
- * Formato: req_<timestamp>_<random>
- */
+export { asyncContext };
+
 export function generateRequestId(): string {
     return `req_${Date.now()}_${randomUUID().slice(0, 8)}`;
 }
 
-/**
- * Establece el ID de request actual en el contexto
- */
 export function setRequestId(reqId: string): void {
-    asyncLocalStorage.set('requestId', reqId);
+    const store = asyncContext.getStore();
+    if (store) {
+        store.set('requestId', reqId);
+    }
 }
 
-/**
- * Obtiene el ID de request actual del contexto
- */
 export function getRequestId(): string | undefined {
-    return asyncLocalStorage.get('requestId');
+    return asyncContext.getStore()?.get('requestId');
 }
 
-/**
- * Limpia el ID de request del contexto
- */
 export function clearRequestId(): void {
-    asyncLocalStorage.delete('requestId');
+    asyncContext.getStore()?.delete('requestId');
 }
 
 // Formato para desarrollo: legible y coloreado
@@ -170,9 +162,8 @@ const enrichLog = (level: string, msg: string, args: unknown[]): Record<string, 
     if (args.length > 0) {
         // Si el primer argumento es un objeto, extraer metadata
         if (typeof args[0] === 'object' && args[0] !== null) {
-            const firstArg = args[0] as Record<string, unknown>;
+            const firstArg = { ...(args[0] as Record<string, unknown>) };
 
-            // Extraer campos especiales
             if (firstArg.requestId) {
                 meta.requestId = firstArg.requestId;
                 delete firstArg.requestId;

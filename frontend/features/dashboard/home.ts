@@ -4,7 +4,13 @@ import { Session } from '../../types.js';
 import { Loader } from '../../shared/utils/loader.js';
 import { BaseModule } from '../../shared/utils/baseModule.js';
 import { TabSyncService } from '../../shared/utils/tabSyncService.js';
-import { dashboardStore, ActivityLog, StatsData, HealthStatus } from '../../core/dashboardStore.js';
+import {
+    dashboardStore,
+    ActivityLog,
+    StatsData,
+    HealthStatus,
+    ToastActions
+} from '../../core/dashboardStore.js';
 import { UI } from '../../core/ui.js';
 import { RealtimeServiceFactory } from '../../core/realtimeService.js';
 
@@ -18,6 +24,7 @@ export const HomeModule = {
     realtimeService: null as ReturnType<typeof RealtimeServiceFactory.getInstance> | null,
     useRealtime: false,
     unsubscribers: [] as Array<() => void>,
+    _boundAuthFailed: null as (() => void) | null,
     lastStats: {
         todayRequests: -1,
         successRate: -1,
@@ -62,8 +69,8 @@ export const HomeModule = {
             dashboardStore.on('isLeader', (state) => this.updateSyncIndicator(state.isLeader))
         );
 
-        // Escuchar evento de fallo de autenticación en realtime
-        window.addEventListener('realtime:auth-failed', this.handleAuthFailed.bind(this));
+        this._boundAuthFailed = this.handleAuthFailed.bind(this);
+        window.addEventListener('realtime:auth-failed', this._boundAuthFailed);
     },
 
     /**
@@ -73,7 +80,7 @@ export const HomeModule = {
     handleAuthFailed(): void {
         console.warn('[Home] Authentication failed, redirecting to login...');
         // Mostrar mensaje al usuario antes de redirigir
-        dashboardStore.showToast('Sesión expirada. Redirigiendo al login...', 'error');
+        ToastActions.error('Sesión expirada. Redirigiendo al login...');
 
         // Redirigir al login después de 2 segundos
         setTimeout(() => {
@@ -127,8 +134,10 @@ export const HomeModule = {
         this.unsubscribers.forEach((unsub) => unsub());
         this.unsubscribers = [];
 
-        // Remover event listener de auth failed
-        window.removeEventListener('realtime:auth-failed', this.handleAuthFailed.bind(this));
+        if (this._boundAuthFailed) {
+            window.removeEventListener('realtime:auth-failed', this._boundAuthFailed);
+            this._boundAuthFailed = null;
+        }
     },
 
     /**
@@ -249,11 +258,11 @@ export const HomeModule = {
         localStorage.setItem('dashboard_last_sync', Date.now().toString());
 
         try {
-            await this.loadRealActivity();
-            await new Promise((r) => setTimeout(r, 500));
-            await this.loadRealStats();
-            await new Promise((r) => setTimeout(r, 500));
-            await this.loadRealHealth();
+            await Promise.all([
+                this.loadRealActivity(),
+                this.loadRealStats(),
+                this.loadRealHealth()
+            ]);
         } catch (e) {
             console.error('[Home] Error en sync escalonado:', e);
         }

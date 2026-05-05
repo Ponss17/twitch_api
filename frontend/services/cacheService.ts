@@ -8,6 +8,7 @@ export const CACHE_TTL = 60000;
 
 export class CacheService {
     private cache: Map<string, CacheEntry>;
+    private readonly MAX_SIZE = 200;
 
     constructor() {
         this.cache = new Map();
@@ -16,6 +17,10 @@ export class CacheService {
     }
 
     set<T>(key: string, data: T, ttl: number) {
+        if (this.cache.size >= this.MAX_SIZE && !this.cache.has(key)) {
+            const first = this.cache.keys().next().value;
+            if (first) this.cache.delete(first);
+        }
         this.cache.set(key, {
             data,
             timestamp: Date.now(),

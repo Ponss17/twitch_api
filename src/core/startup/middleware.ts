@@ -7,7 +7,7 @@ import { requestLogger } from '../middleware/errorMiddleware';
 import { registerCacheInvalidator } from '../../features/auth/auth.service';
 import { invalidateUserCache } from '../middleware/apiKeyValidator';
 import { cspNonce } from '../middleware/cspNonce';
-import { CONFIG } from '../config/env';
+import { ALLOWED_ORIGINS } from '../config/origins';
 
 registerCacheInvalidator(invalidateUserCache);
 
@@ -70,6 +70,8 @@ export const configureMiddleware = (app: Application) => {
                         'https://api.twitch.tv',
                         'https://*.twitch.tv',
                         'wss://*.twitch.tv',
+                        'https://*.supabase.co',
+                        'wss://*.supabase.co',
                         'https://va.vercel-scripts.com',
                         'https://vitals.vercel-insights.com',
                         'https://twitch-api-smoky.vercel.app',
@@ -114,13 +116,6 @@ export const configureMiddleware = (app: Application) => {
 
             if (!origin) return callback(null, { origin: true, credentials: true });
 
-            const allowedOrigins = [
-                'https://www.losperris.dev',
-                'https://losperris.dev',
-                'http://localhost:3000',
-                'http://localhost:5173'
-            ];
-
             let safeOrigin: URL | null = null;
             try {
                 safeOrigin = new URL(origin);
@@ -131,17 +126,7 @@ export const configureMiddleware = (app: Application) => {
             const isSameHost =
                 host && (safeOrigin.host === host || safeOrigin.host.endsWith(`.${host}`));
 
-            let isBaseUrl = false;
-            try {
-                const baseUrlHost = new URL(CONFIG.BASE_URL).hostname;
-                isBaseUrl =
-                    safeOrigin.hostname === baseUrlHost ||
-                    safeOrigin.hostname.endsWith(`.${baseUrlHost}`);
-            } catch (_e) {
-                // ignore
-            }
-
-            if (allowedOrigins.includes(origin) || isSameHost || isBaseUrl) {
+            if (ALLOWED_ORIGINS.includes(origin) || isSameHost) {
                 callback(null, { origin: true, credentials: true });
             } else {
                 callback(new Error('Bloqueado por reglas de CORS de la API'));

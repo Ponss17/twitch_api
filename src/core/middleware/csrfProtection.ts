@@ -1,19 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { MESSAGES } from '../config/messages';
-import { CONFIG } from '../config/env';
-
-const LOCAL_ORIGINS = ['http://localhost:3000', 'http://localhost:5500'];
-
-const buildAllowedOrigins = (): string[] => {
-    try {
-        const { origin } = new URL(CONFIG.BASE_URL);
-        return [origin, ...LOCAL_ORIGINS];
-    } catch (_e) {
-        return LOCAL_ORIGINS;
-    }
-};
-
-const ALLOWED_ORIGINS = buildAllowedOrigins();
+import { ALLOWED_ORIGINS } from '../config/origins';
 
 /**
  * CSRF protection for state-changing routes.
