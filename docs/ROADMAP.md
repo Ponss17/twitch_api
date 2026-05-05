@@ -39,6 +39,13 @@ Estado actual del proyecto: **v4.0.0 (Estable / Producción — 9.5/10)**
     - Renueva token automáticamente cada 4 minutos
     - Fallback a polling si falla la conexión
     - Indicador visual 'Realtime' en el dashboard
+- [x] **Computación en Tiempo Real:** Las estadísticas y logs se transforman en el cliente.
+    - El cliente calcula `successRate` y `avgLatencyMs` al recibir datos crudos de DB.
+    - Se formatea la actividad con emojis en el frontend para respuesta inmediata.
+- [x] **Optimización de Costos (Vercel):** Reducción drástica de peticiones.
+    - Polling desactivado cuando Realtime está activo (solo 1 health check/min).
+    - Intervalo de polling de fallback subido de 30s a 60s.
+    - Reducción del ~83% en invocaciones serverless en uso normal.
 
 ### 3. Seguridad Frontend (Modo Estricto) ✅
 

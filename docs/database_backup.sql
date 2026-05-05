@@ -217,3 +217,4 @@ ALTER TABLE public.user_stats REPLICA IDENTITY FULL;
 --    (sin interrumpir la conexión WebSocket activa, solo se reasigna con setAuth())
 -- 5. El backend valida la autenticación antes de generar tokens JWT
 -- 6. El logger usa AsyncLocalStorage para correlación de requestId por request (sin race conditions)
+-- 7. Polling de fallback optimizado a 60s para reducir costos en Vercel cuando Realtime no está disponible.
