@@ -37,7 +37,7 @@ export const UI = {
         duration = 4000
     ) {
         // Limpiar el mensaje de cualquier HTML para seguridad
-        const cleanMessage = this.escapeHTML(message.replace(/<[^>]*>?/gm, ''));
+        const cleanMessage = this.escapeHTML(message);
         ToastActions.add(cleanMessage, type, duration);
     },
 
