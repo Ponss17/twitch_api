@@ -68,12 +68,6 @@ export class CacheService {
             }
         }
     }
-
-    getStats() {
-        return {
-            size: this.cache.size
-        };
-    }
 }
 
 export const cache = new CacheService();
