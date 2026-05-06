@@ -142,7 +142,7 @@ export const authRateLimiter = async (req: Request, res: Response, next: NextFun
     const safeIp = (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
     const key = `rl:auth:${safeIp}`;
     const limit = RATE_LIMITS.LOGIN;
-    const windowSeconds = 15 * 60; // 15 minutos
+    const windowSeconds = 5 * 60; // 5 minutos
     const redisKey = `${key}:${Math.floor(Date.now() / (windowSeconds * 1000))}`;
 
     try {
