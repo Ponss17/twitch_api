@@ -27,10 +27,25 @@ try {
 }
 ```
 
-## 3. Auto-Migración
+## 3. Auto-Migración Inteligente
 
-Cuando el servidor detecta que ha tenido que usar la **Llave Legacy** para descifrar un dato, marca al usuario para una "auto-migración". La próxima vez que se guarden sus datos, se cifrarán automáticamente con la **Llave Primaria** actual.
+El sistema utiliza `decryptAndMigrateIfNeeded()` (en `userService.ts`) que funciona así:
 
-## 4. Rotación de API Keys
+1. Intenta descifrar con la **Llave Primaria**.
+2. Si falla, intenta con la **Llave Legacy**.
+3. **Solo si usó la llave legacy**: marca `usedLegacy = true` y, al terminar el request, llama `saveUser()` para re-encriptar con la llave primaria e invalida las cachés L1+L2.
+4. **Si la llave primaria funcionó**: no hace nada extra — no hay `saveUser` innecesario ni invalidación de caché.
+
+Esto significa que la migración ocurre **exactamente una vez** por usuario (o por cold start si la instancia se reinicia), en vez de re-encriptar y borrar cachés en **cada request** como ocurría antes.
+
+### Validación de formato
+
+La función `isAlreadyEncrypted()` verifica que el token tenga el formato `{iv_hex}:{ciphertext_hex}` y que **ambas partes sean hexadecimales válidos**. Un token `null`, vacío, o con formato incorrecto se considera "no encriptado" y se descifra como plaintext (compatibilidad hacia atrás).
+
+## 4. Manejo de errores en descifrado
+
+`getUserByApiKey()` retorna `null` si el descifrado falla con ambas llaves, en vez de devolver un usuario con tokens rotos. Esto evita que los comandos de Nightbot muestren respuestas con datos cifrados ilegibles.
+
+## 5. Rotación de API Keys
 
 Las API Keys no están cifradas para permitir búsquedas rápidas indexadas, pero su uso está protegido por el validador de tokens. Si un token no se puede descifrar, la API Key se considera inválida temporalmente hasta que el usuario se re-autentique.
