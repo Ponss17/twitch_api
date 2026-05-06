@@ -47,17 +47,18 @@ export const get = async <T = unknown>(key: string): Promise<T | null> => {
         if (first) pendingKVRequests.delete(first);
     }
 
-    const fetchPromise = kv
-        .get<T>(key)
-        .then((value) => {
+    const fetchPromise = (async () => {
+        try {
+            const value = await kv.get<T>(key);
             if (value !== null) setL1<T>(key, value);
-            pendingKVRequests.delete(key);
             return value;
-        })
-        .catch((error) => {
+        } catch (error) {
+            console.error(`[Cache] Error KV get (${key}):`, error);
+            return null; // Fail-soft: devolver null para que el sistema consulte la DB original
+        } finally {
             pendingKVRequests.delete(key);
-            throw error;
-        });
+        }
+    })();
 
     pendingKVRequests.set(key, fetchPromise);
     return fetchPromise;
@@ -69,13 +70,21 @@ export const set = async <T = unknown>(
     ttlSeconds: number = 60
 ): Promise<void> => {
     setL1<T>(key, value, ttlSeconds * 1000);
-    await kv.set(key, value, { ex: ttlSeconds });
+    try {
+        await kv.set(key, value, { ex: ttlSeconds });
+    } catch (error) {
+        console.error(`[Cache] Error KV set (${key}):`, error);
+    }
 };
 
 export const del = async (key: string): Promise<void> => {
     MEMORY_CACHE.delete(key);
     pendingKVRequests.delete(key);
-    await kv.del(key);
+    try {
+        await kv.del(key);
+    } catch (error) {
+        console.error(`[Cache] Error KV del (${key}):`, error);
+    }
 };
 
 export const getCachedUserId = async (username: string): Promise<string | null> => {
@@ -100,5 +109,9 @@ export const setCachedApiUser = async (apiKey: string, user: StoredUser): Promis
 
 export const invalidateApiKeyCache = async (apiKey: string): Promise<void> => {
     MEMORY_CACHE.delete(`cache:apiuser:${apiKey}`);
-    await kv.del(`cache:apiuser:${apiKey}`);
+    try {
+        await kv.del(`cache:apiuser:${apiKey}`);
+    } catch (error) {
+        console.error(`[Cache] Error KV del apiuser (${apiKey}):`, error);
+    }
 };
