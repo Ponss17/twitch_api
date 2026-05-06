@@ -3,6 +3,7 @@ import { CONFIG } from '../config/env';
 import { globalRateLimiter, authRateLimiter } from '../middleware/redisRateLimiter';
 import { apiKeyValidator } from '../middleware/apiKeyValidator';
 import checkToken from '../middleware/authMiddleware';
+import { isApiRoute } from '../utils/routeHelpers';
 import authRoutes from '../../features/auth/auth.routes';
 import { loadAdminRouter } from '../../routes/adminProxy';
 import apiRouter from '../../routes/index';
@@ -128,7 +129,7 @@ export const configureRoutes = (app: Application) => {
             return await serveHtml(res, 'public/404.html', 404);
         }
 
-        if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
+        if (isApiRoute(req.path)) {
             res.setHeader('Content-Type', 'text/plain');
             return res.status(404).send(message);
         }

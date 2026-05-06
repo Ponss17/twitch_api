@@ -1,5 +1,6 @@
 import { Session } from '../../types.js';
 import { TmiService } from '../../services/tmiService.js';
+import { Messages } from '../messages/messages.js';
 
 export const BaseModule = {
     session: null as Session | null,
@@ -73,5 +74,20 @@ export const BaseModule = {
         span.textContent = text;
         el.innerHTML = `<i class="fa-solid ${icon}"></i>`;
         el.appendChild(span);
+    },
+
+    setLoading(buttonId: string, responseId: string, loadingMsg: string): void {
+        const btn = document.getElementById(buttonId) as HTMLButtonElement | null;
+        const resp = document.getElementById(responseId);
+        if (btn) btn.disabled = true;
+        if (resp) {
+            resp.className = 'response-card active';
+            resp.innerHTML = Messages.Common.spinner(loadingMsg);
+        }
+    },
+
+    async formatApiError(res: Response): Promise<string> {
+        const { formatApiError } = await import('./api-errors.js');
+        return formatApiError(res);
     }
 };

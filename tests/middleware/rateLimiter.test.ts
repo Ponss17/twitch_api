@@ -11,7 +11,9 @@ jest.mock('@/core/utils/logger', () => ({
 }));
 
 jest.mock('@/core/utils/routeHelpers', () => ({
-    isPublicRoute: jest.fn().mockReturnValue(false)
+    isPublicRoute: jest.fn().mockReturnValue(false),
+    isBotCommand: jest.fn().mockReturnValue(false),
+    isApiRoute: jest.fn((path: string) => path.startsWith('/api') || path.startsWith('/twitch'))
 }));
 
 jest.mock('@vercel/kv', () => ({

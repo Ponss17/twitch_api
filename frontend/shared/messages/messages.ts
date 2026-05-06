@@ -10,6 +10,11 @@ export const Messages = {
         saveBtn: '<i class="fa-solid fa-save"></i> Guardar',
         cancelBtn: '<i class="fa-solid fa-xmark"></i> Cancelar',
         connectionError: 'Error de conexión',
-        welcome: (name: string) => `Bienvenido, ${name}`
+        welcome: (name: string) => `Bienvenido, ${name}`,
+        spinner: (text: string) => `<i class="fa-solid fa-spinner fa-spin"></i> ${text}`,
+        dangerText: (text: string) =>
+            `<span class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> ${text}</span>`,
+        emptyState: (icon: string, text: string) =>
+            `<div class="empty-state"><i class="${icon}"></i><p>${text}</p></div>`
     }
 };

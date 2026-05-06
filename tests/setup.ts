@@ -8,6 +8,25 @@ global.console = {
     // error: jest.fn(),
 };
 
+// Mock global de logger para evitar ruido en todos los tests
+jest.mock('@/core/utils/logger', () => {
+    const { AsyncLocalStorage } = jest.requireActual('async_hooks');
+    const asyncContext = new AsyncLocalStorage();
+    return {
+        logger: {
+            info: jest.fn(),
+            error: jest.fn(),
+            warn: jest.fn(),
+            debug: jest.fn(),
+            startRequest: jest.fn().mockReturnValue('test-request-id')
+        },
+        getRequestId: jest.fn().mockReturnValue('test-request-id'),
+        setRequestId: jest.fn(),
+        clearRequestId: jest.fn(),
+        asyncContext
+    };
+});
+
 process.env.NODE_ENV = 'test';
 process.env.TWITCH_CLIENT_ID = 'test_client_id';
 process.env.TWITCH_CLIENT_SECRET = 'test_client_secret';

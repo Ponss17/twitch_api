@@ -231,31 +231,6 @@ export const logger = {
     },
 
     /**
-     * Log de request HTTP con estructura estándar
-     */
-    request: (
-        method: string,
-        url: string,
-        statusCode: number,
-        duration: number,
-        userId?: string
-    ) => {
-        const level = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
-        const requestId = getRequestId();
-
-        winstonLogger.log({
-            level,
-            message: `[${method}] ${url} - ${statusCode} (${duration}ms)`,
-            requestId,
-            method,
-            endpoint: url,
-            statusCode,
-            duration,
-            userId
-        });
-    },
-
-    /**
      * Log de inicio de request con correlación
      */
     startRequest: (method: string, url: string, userId?: string) => {
@@ -270,22 +245,5 @@ export const logger = {
         });
 
         return requestId;
-    },
-
-    /**
-     * Log de fin de request
-     */
-    endRequest: (requestId: string, statusCode: number, duration: number) => {
-        const level = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
-
-        winstonLogger.log({
-            level,
-            message: `← Request completed: ${statusCode} in ${duration}ms`,
-            requestId,
-            statusCode,
-            duration
-        });
-
-        clearRequestId();
     }
 };

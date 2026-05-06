@@ -100,8 +100,7 @@ export const RussianModule: IRussianModule = {
                 const data = await response.json();
                 this.showResponse(data.message, data.status === 'dead' ? 'error' : 'success');
             } else {
-                const { formatApiError } = await import('../../../shared/utils/api-errors.js');
-                const errorMsg = await formatApiError(response);
+                const errorMsg = await this.formatApiError(response);
                 this.showResponse(`Error: ${errorMsg}`, 'error');
             }
         } catch (error) {

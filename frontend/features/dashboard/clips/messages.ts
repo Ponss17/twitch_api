@@ -1,11 +1,7 @@
+import { Messages } from '../../../shared/messages/messages.js';
+
 export const ClipsMessages = {
-    loading:
-        '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Cargando clips...</div>',
-    empty: `
-        <div class="empty-state">
-            <i class="fa-solid fa-film"></i>
-            <p>No hay clips recientes</p>
-        </div>
-    `,
+    loading: `<div class="loading">${Messages.Common.spinner('Cargando clips...')}</div>`,
+    empty: Messages.Common.emptyState('fa-solid fa-film', 'No hay clips recientes'),
     loadError: '⚠️ Error al cargar clips'
 };

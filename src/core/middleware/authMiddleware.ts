@@ -4,47 +4,28 @@ import * as apiService from '../../features/twitch/twitch.service';
 import * as dbService from '../database/dbService';
 import { MESSAGES } from '../config/messages';
 import { logger } from '../utils/logger';
-import { isPublicRoute } from '../utils/routeHelpers';
+import { isPublicRoute, isApiRoute } from '../utils/routeHelpers';
+import { safeString } from '../utils/validationHelpers';
+import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 
-const userCache = new Map<string, { user: StoredUser; expiry: number }>();
-const invalidTokensCache = new Map<string, number>();
-const validTokensCache = new Map<
+const CACHE_TTL = 60 * 1000;
+const TOKEN_VALIDATION_TTL = 30 * 1000;
+const LAST_ACTIVE_THROTTLE_MS = 5 * 60 * 1000;
+
+const userCache = new BoundedMap<string, { user: StoredUser; expiry: number }>(1000);
+const invalidTokensCache = new NegativeCache<string>(30 * 1000);
+const validTokensCache = new BoundedMap<
     string,
     { data: { user_id: string; login: string }; expiry: number }
->();
-const CACHE_TTL = 60 * 1000;
-const NEGATIVE_CACHE_TTL = 30 * 1000;
-const TOKEN_VALIDATION_TTL = 30 * 1000;
-
-// Throttle updateLastActive to once per 5 minutes per user
-const lastActiveThrottle = new Map<string, number>();
-const LAST_ACTIVE_THROTTLE_MS = 5 * 60 * 1000;
-const MAX_CACHE_SIZE = 1000;
+>(1000);
+const lastActiveThrottle = new BoundedMap<string, number>(1000);
 const pendingUserDbRequests = new Map<string, Promise<StoredUser | null>>();
-
-const setInvalidToken = (token: string, expiry: number) => {
-    if (invalidTokensCache.size >= MAX_CACHE_SIZE) {
-        const iterator = invalidTokensCache.keys();
-        for (let i = 0; i < 250; i++) {
-            const val = iterator.next().value;
-            if (val) invalidTokensCache.delete(val);
-        }
-    }
-    invalidTokensCache.set(token, expiry);
-};
 
 const throttledUpdateLastActive = (userId: string) => {
     const now = Date.now();
-    const lastUpdate = lastActiveThrottle.get(userId) || 0;
-    if (now - lastUpdate < LAST_ACTIVE_THROTTLE_MS) return;
+    const lastUpdate = lastActiveThrottle.get(userId);
+    if (lastUpdate && now - lastUpdate < LAST_ACTIVE_THROTTLE_MS) return;
 
-    if (lastActiveThrottle.size >= MAX_CACHE_SIZE) {
-        const iterator = lastActiveThrottle.keys();
-        for (let i = 0; i < 250; i++) {
-            const val = iterator.next().value;
-            if (val) lastActiveThrottle.delete(val);
-        }
-    }
     lastActiveThrottle.set(userId, now);
     dbService.updateLastActive(userId).catch((err) => {
         logger.error('Error updating last active:', err);
@@ -52,8 +33,6 @@ const throttledUpdateLastActive = (userId: string) => {
 };
 
 const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    const safeString = (val: unknown) => (typeof val === 'string' ? val : '');
-
     if (res.locals.apiUser) {
         const user = res.locals.apiUser;
         req.userId = user.userId;
@@ -61,7 +40,6 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         req.displayName = user.displayName;
         req.twitchToken = user.accessToken;
 
-        // No esperamos a que termine para no bloquear el hilo de ejecución
         throttledUpdateLastActive(user.userId);
         return next();
     }
@@ -73,30 +51,24 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     }
 
     if (!token) {
-        // 1. Saltarse validación para archivos estáticos y rutas públicas configuradas
         if (isPublicRoute(req.path, req.method)) {
             return next();
         }
 
-        if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
+        if (isApiRoute(req.path)) {
             res.setHeader('Content-Type', 'text/plain');
             return res.status(401).send(MESSAGES.AUTH.MISSING_TOKEN_URL);
         }
         return res.status(401).json({ error: MESSAGES.AUTH.MISSING_TOKEN_URL });
     }
 
-    const now = Date.now();
-
-    if (token && invalidTokensCache.has(token)) {
-        if (now < invalidTokensCache.get(token)!) {
-            return res.status(401).json({ error: MESSAGES.AUTH.INVALID_TOKEN });
-        }
-        invalidTokensCache.delete(token);
+    if (invalidTokensCache.has(token)) {
+        return res.status(401).json({ error: MESSAGES.AUTH.INVALID_TOKEN });
     }
 
     if (!req.userId || !req.login) {
         const cachedValidation = validTokensCache.get(token);
-        if (cachedValidation && cachedValidation.expiry > now) {
+        if (cachedValidation && cachedValidation.expiry > Date.now()) {
             req.userId = cachedValidation.data.user_id;
             req.login = cachedValidation.data.login;
         } else {
@@ -107,34 +79,26 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                     if (validation.user_id) req.userId = validation.user_id;
                     if (validation.login) req.login = validation.login;
 
-                    if (validTokensCache.size >= MAX_CACHE_SIZE) {
-                        const iter = validTokensCache.keys();
-                        for (let i = 0; i < 250; i++) {
-                            const k = iter.next().value;
-                            if (k) validTokensCache.delete(k);
-                        }
-                    }
                     validTokensCache.set(token, {
                         data: { user_id: validation.user_id, login: validation.login },
-                        expiry: now + TOKEN_VALIDATION_TTL
+                        expiry: Date.now() + TOKEN_VALIDATION_TTL
                     });
                 } else {
-                    setInvalidToken(token, now + NEGATIVE_CACHE_TTL);
+                    invalidTokensCache.set(token);
                     return res.status(401).json({ error: MESSAGES.AUTH.INVALID_TOKEN });
                 }
             } catch (_e) {
-                setInvalidToken(token, now + NEGATIVE_CACHE_TTL);
+                invalidTokensCache.set(token);
                 logger.warn('Error Middleware Auth: Could not validate token to extract user data');
             }
         }
     }
 
-    // Unificación de Rate Limit: Poblar res.locals.apiUser desde DB si tenemos userId
     if (req.userId && !res.locals.apiUser) {
         try {
             const cached = userCache.get(req.userId);
 
-            if (cached && cached.expiry > now) {
+            if (cached && cached.expiry > Date.now()) {
                 res.locals.apiUser = cached.user;
             } else {
                 let userPromise = pendingUserDbRequests.get(req.userId);
@@ -150,17 +114,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
 
                 if (user) {
                     res.locals.apiUser = user;
-
-                    if (userCache.size >= MAX_CACHE_SIZE) {
-                        const entriesToRemove = Math.floor(MAX_CACHE_SIZE * 0.25);
-                        const iterator = userCache.keys();
-                        for (let i = 0; i < entriesToRemove; i++) {
-                            const key = iterator.next().value;
-                            if (key) userCache.delete(key);
-                        }
-                    }
-
-                    userCache.set(req.userId, { user, expiry: now + CACHE_TTL });
+                    userCache.set(req.userId, { user, expiry: Date.now() + CACHE_TTL });
                 }
             }
         } catch (e) {
@@ -176,9 +130,6 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     next();
 };
 
-/**
- * Invalida la caché de usuario local.
- */
 export const invalidateAuthCache = (userId: string) => {
     userCache.delete(userId);
 };

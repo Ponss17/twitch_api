@@ -83,8 +83,7 @@ export const Magic8Module: IMagic8Module = {
                 const answer = await res.text();
                 this.showResponseIn(DOM_IDS.MAGIC8.RESPONSE, answer, 'success');
             } else {
-                const { formatApiError } = await import('../../../shared/utils/api-errors.js');
-                const errorMsg = await formatApiError(res);
+                const errorMsg = await this.formatApiError(res);
                 this.showResponseIn(DOM_IDS.MAGIC8.RESPONSE, `Error: ${errorMsg}`, 'error');
             }
         } catch (error) {

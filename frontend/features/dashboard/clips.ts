@@ -1,12 +1,13 @@
-import { UI } from '../../core/ui.js';
-import { Messages } from '../../shared/i18n/messages.js';
+import { UI } from '../../core/ui-core.js';
+import { Messages } from '../../shared/messages/messages.js';
 import { ClipsMessages } from './clips/messages.js';
-import { AuthMessages } from '../../shared/i18n/authMessages.js';
+import { AuthMessages } from '../../shared/messages/authMessages.js';
 import { DASHBOARD_CONFIG } from './dashboard-config.js';
 const { API_ENDPOINTS } = DASHBOARD_CONFIG;
 import { cache, CACHE_TTL } from '../../services/cacheService.js';
 import { Session, Clip, DashboardModule } from '../../types.js';
 import { dashboardStore, ClipsActions, Clip as StoreClip } from '../../core/dashboardStore.js';
+import { BaseModule } from '../../shared/utils/baseModule.js';
 
 interface IClipsModule extends DashboardModule {
     observer: IntersectionObserver | null;
@@ -18,6 +19,7 @@ interface IClipsModule extends DashboardModule {
 }
 
 export const ClipsModule: IClipsModule = {
+    ...BaseModule,
     session: null,
     initialized: false,
     observer: null,
@@ -26,21 +28,12 @@ export const ClipsModule: IClipsModule = {
     unsubscribers: [],
 
     init(session: Session): void {
-        this.session = session;
+        this.initBase(session, 'css/sections/clips.css');
 
-        if (!this.cssLoaded) {
-            import('../../shared/utils/loader.js').then(({ Loader }) => {
-                Loader.loadCSS('css/sections/clips.css');
-            });
-            this.cssLoaded = true;
-        }
-
-        // Cargar favoritos desde localStorage al store
         if (session.userId) {
             ClipsActions.loadFavorites(session.userId);
         }
 
-        // Inicializar IntersectionObserver para lazy loading
         if (!this.observer) {
             this.observer = new IntersectionObserver(
                 (entries, observer) => {
@@ -58,8 +51,6 @@ export const ClipsModule: IClipsModule = {
                 { rootMargin: '50px' }
             );
         }
-
-        this.initialized = true;
     },
 
     activate() {
@@ -160,13 +151,16 @@ export const ClipsModule: IClipsModule = {
         }
 
         try {
-            const { apiKey, token, login } = this.session;
-            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const headers: Record<string, string> = {
+                'Content-Type': 'application/json',
+                ...this.authHeaders()
+            };
 
-            const params = [`channel=${login}`];
-            if (apiKey) params.push(`apiKey=${encodeURIComponent(apiKey)}`);
-            else if (token) params.push(`token=${encodeURIComponent(token)}`);
+            const params = [`channel=${this.session!.login}`];
+            if (this.session!.apiKey)
+                params.push(`apiKey=${encodeURIComponent(this.session!.apiKey)}`);
+            else if (this.session!.token)
+                params.push(`token=${encodeURIComponent(this.session!.token)}`);
 
             const url = `${API_ENDPOINTS.CLIPS}?${params.join('&')}`;
 

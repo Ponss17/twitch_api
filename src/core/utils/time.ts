@@ -2,11 +2,7 @@
  * Utilidades para formateo de tiempo y fechas.
  */
 
-/**
- * Formatea una duración en milisegundos a una cadena legible en español.
- * Ejemplo: "2 años, 3 meses y 5 días"
- */
-export const formatDurationSpanish = (ms: number): string => {
+const formatDurationSpanish = (ms: number): string => {
     const parts = {
         años: Math.floor(ms / (1000 * 60 * 60 * 24 * 365)),
         meses: Math.floor((ms % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30)),

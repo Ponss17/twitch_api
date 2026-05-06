@@ -1,3 +1,5 @@
+export const BIO_EMPTY = 'Sin biografía disponible.';
+
 export const ProfileMessages = {
     partner: 'Socio',
     affiliate: 'Afiliado',
@@ -9,7 +11,7 @@ export const ProfileMessages = {
     viewLogs: '<i class="fa-solid fa-comment-dots"></i> Ver Últimos Mensajes',
     historyTitle: '<i class="fa-solid fa-history"></i> Historial (Sesión actual)',
     noHistory: 'No hay mensajes registrados en esta sesión.',
-    bioEmpty: 'Sin biografía disponible.',
+    bioEmpty: BIO_EMPTY,
     labels: {
         rank: 'Rango',
         userId: 'ID de Usuario',

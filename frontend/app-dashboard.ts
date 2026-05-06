@@ -1,11 +1,11 @@
 import { Auth } from './core/auth.js';
-import { UI } from './core/ui.js';
+import { UI } from './core/ui-core.js';
 import { Dashboard } from './core/dashboard.js';
 import { FooterComponent } from './shared/components/footer.js';
 import { DashboardModalsComponent } from './shared/components/modals/dashboardModalsComponent.js';
 import { ToastComponent } from './shared/components/toast.js';
-import { Messages } from './shared/i18n/messages.js';
-import { AuthMessages } from './shared/i18n/authMessages.js';
+import { Messages } from './shared/messages/messages.js';
+import { AuthMessages } from './shared/messages/authMessages.js';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 
 injectSpeedInsights({

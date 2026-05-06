@@ -5,6 +5,15 @@ const isStaticAsset = (path: string): boolean => {
     );
 };
 
+export const isBotCommand = (path: string): boolean =>
+    path.includes('/followage') ||
+    path.includes('/shoutout') ||
+    path.includes('/create-clip') ||
+    path.includes('/send-message');
+
+export const isApiRoute = (path: string): boolean =>
+    path.startsWith('/api') || path.startsWith('/twitch');
+
 /**
  * Determina si una ruta es una vista HTML pública (como la página del dashboard o docu).
  * Si es una llamada de datos (API) o una acción (POST/DELETE), devuelve false para que el middleware valide la sesión.

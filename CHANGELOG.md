@@ -4,6 +4,88 @@ Todos los cambios notables del proyecto se documentan aquí.
 
 ---
 
+## [v4.1.0] - 2026-05-06
+
+### Refactor exhaustivo: eliminación de código duplicado e innecesario
+
+#### Archivos eliminados (código muerto)
+
+| Archivo                                 | Razón                                                        |
+| --------------------------------------- | ------------------------------------------------------------ |
+| `frontend/shared/utils/apiCache.ts`     | Cero imports, superado por `cacheService.ts`                 |
+| `frontend/shared/utils/uiSkeleton.ts`   | Cero imports, módulos usan skeletons inline                  |
+| `frontend/shared/utils/logger.ts`       | Cero imports (distinto del logger Winston en `src/`)         |
+| `frontend/shared/utils/errorHandler.ts` | Cero imports, nunca inicializado                             |
+| `frontend/core/ui.ts`                   | Re-export innecesario, 15 imports redirigidos a `ui-core.ts` |
+
+#### Funciones/exports eliminados
+
+| Archivo                                           | Función/Export                            | Razón                           |
+| ------------------------------------------------- | ----------------------------------------- | ------------------------------- |
+| `src/core/utils/validationHelpers.ts`             | `isValidTimezone()`                       | Cero imports                    |
+| `src/core/utils/logger.ts`                        | `logger.request()`, `logger.endRequest()` | Cero usos                       |
+| `src/core/utils/time.ts`                          | Export de `formatDurationSpanish`         | Solo se usa internamente        |
+| `frontend/features/dashboard/stalker/messages.ts` | `loadError`                               | Duplicado exacto de `infoError` |
+| `src/types/express.d.ts`                          | Campo `twitchUser`                        | Nunca leído ni escrito          |
+
+#### Carpetas renombradas
+
+| Antes                   | Después                     | Razón                                                       |
+| ----------------------- | --------------------------- | ----------------------------------------------------------- |
+| `frontend/shared/i18n/` | `frontend/shared/messages/` | No es un sistema i18n, solo strings hardcodeados en español |
+
+#### Bug fixes
+
+| Archivo                         | Fix                                                                                             |
+| ------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `public/css/base.css`           | Añadido `--text-tertiary: #52525b` (usado en `common.css` pero undefined)                       |
+| `public/css/dashboard.css`      | Eliminado `@keyframes fadeIn` duplicado (idéntico a `base.css`)                                 |
+| `public/css/dashboard.css`      | Eliminado bloque `@media (max-width: 640px)` duplicado                                          |
+| `public/css/sections/about.css` | Variables `:root` renombradas con prefijo `--about-` para evitar colisión con `base.css`        |
+| `public/index.html`             | Eliminado bloque `<style>` inline de 7KB (todo duplicaba `base.css`/`layout.css`/`landing.css`) |
+
+#### Nuevos archivos
+
+| Archivo                          | Contenido                                                                                           |
+| -------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `src/core/utils/boundedCache.ts` | Clases genéricas `BoundedMap`, `BoundedSet`, `NegativeCache` para reemplazar cache manual duplicado |
+| `tests/helpers/mockExpress.ts`   | Helpers compartidos `mockReq()`, `mockRes()`, `mockNext()`                                          |
+
+#### Refactors de backend
+
+| Cambio                                                                            | Archivos afectados                                                                                  |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Cache manual → `BoundedMap`/`BoundedSet`/`NegativeCache`                          | `apiKeyValidator.ts`, `authMiddleware.ts`                                                           |
+| `isBotCommand()` e `isApiRoute()` extraídos a `routeHelpers.ts`                   | `errorMiddleware.ts`, `apiKeyValidator.ts`, `authMiddleware.ts`, `redisRateLimiter.ts`, `routes.ts` |
+| `safeString` importado desde `validationHelpers` en vez de inline                 | `authMiddleware.ts`                                                                                 |
+| Interfaz local `TwitchApiError` eliminada de `twitchAuthHelpers.ts`               | `twitchAuthHelpers.ts`                                                                              |
+| Logger mock global añadido a `tests/setup.ts`                                     | Elimina mocks duplicados en 16 archivos de test                                                     |
+| `isBotCommand` ahora incluye `/send-message` (antes faltaba en `apiKeyValidator`) | `routeHelpers.ts`                                                                                   |
+
+#### Refactors de frontend
+
+| Cambio                                                                                  | Archivos afectados                                                      |
+| --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Carpeta `i18n/` → `messages/`                                                           | 10+ archivos con imports actualizados                                   |
+| `Messages.Common` enriquecido con `spinner()`, `dangerText()`, `emptyState()`           | `shared/messages/messages.ts`                                           |
+| 7 archivos de mensajes usan `Messages.Common` en vez de duplicar strings                | `commands`, `duel`, `magic8`, `clips`, `feedback`, `account`, `stalker` |
+| `BIO_EMPTY` constante compartida                                                        | `profileMessages.ts`, `stalker/messages.ts`                             |
+| `AuthMessages.sessionExpired` y `expired` delegan a `Messages.Common.sessionExpiredMsg` | `authMessages.ts`                                                       |
+| `BaseModule` extendido con `setLoading()` y `formatApiError()`                          | `baseModule.ts`                                                         |
+| 3 módulos usan `this.formatApiError()` en vez de `import()` dinámico                    | `duel/module.ts`, `magic8/module.ts`, `russian/module.ts`               |
+| `ClipsModule` migrado a `BaseModule.initBase()` y `authHeaders()`                       | `clips.ts`                                                              |
+| 15 imports actualizados `core/ui.js` → `core/ui-core.js`                                | Múltiples archivos frontend                                             |
+| `about.css` variables CSS renombradas con prefijo `--about-`                            | Evita colisión con `base.css`                                           |
+
+#### Escalabilidad de tests
+
+| Cambio                                           | Archivos afectados             |
+| ------------------------------------------------ | ------------------------------ |
+| Helper `mockExpress.ts` creado                   | `tests/helpers/mockExpress.ts` |
+| `authMiddleware.test.ts` usa helpers compartidos | Migrado parcialmente           |
+
+---
+
 ## [v4.0.1] - 2025-05-05
 
 ### Archivos modificados

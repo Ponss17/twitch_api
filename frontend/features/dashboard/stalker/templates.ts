@@ -1,6 +1,6 @@
 import { StalkerMessages } from './messages.js';
 import { StalkerUser } from '../../../types.js';
-import { UI } from '../../../core/ui.js';
+import { UI } from '../../../core/ui-core.js';
 
 export const StalkerTemplates = {
     renderMain() {

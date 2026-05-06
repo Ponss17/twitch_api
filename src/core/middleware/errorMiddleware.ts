@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { logger, clearRequestId, getRequestId, asyncContext } from '../utils/logger';
 import { Sentry } from '../utils/sentry';
 import { serveHtml } from '../utils/serveHtml';
+import { isBotCommand, isApiRoute } from '../utils/routeHelpers';
 
 export const errorHandler = async (
     err: {
@@ -39,20 +40,14 @@ export const errorHandler = async (
     // Limpiar requestId al finalizar
     clearRequestId();
 
-    const isBotCommand =
-        req.path.includes('/followage') ||
-        req.path.includes('/shoutout') ||
-        req.path.includes('/create-clip') ||
-        req.path.includes('/send-message');
-
-    if (isBotCommand) {
+    if (isBotCommand(req.path)) {
         res.setHeader('Content-Type', 'text/plain');
         const finalMsg =
             status >= 500 ? 'Error interno del servidor. Pide ayuda a Ponss 🦆' : message;
         return res.status(200).send(finalMsg);
     }
 
-    if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {
+    if (isApiRoute(req.path)) {
         return res.status(status).send(message);
     }
 

@@ -1,14 +1,14 @@
 :root {
-    --bg-black: #09090b;
-    --text-main: #ffffff;
-    --text-muted: #a1a1aa;
-    --accent: #9146ff;
-    --border-subtle: rgba(255, 255, 255, 0.05);
+    --about-bg: #09090b;
+    --about-text: #ffffff;
+    --about-text-muted: #a1a1aa;
+    --about-accent: #9146ff;
+    --about-border-subtle: rgba(255, 255, 255, 0.05);
 }
 
 body.minimal-tech-vibe {
-    background: var(--bg-black);
-    color: var(--text-main);
+    background: var(--about-bg);
+    color: var(--about-text);
     margin: 0;
     padding: 0;
     font-family: 'Outfit', sans-serif;
@@ -30,8 +30,8 @@ body.minimal-tech-vibe {
 }
 
 #main-header {
-    background: var(--bg-black) !important;
-    border-bottom: 1px solid var(--border-subtle) !important;
+    background: var(--about-bg) !important;
+    border-bottom: 1px solid var(--about-border-subtle) !important;
     position: fixed;
     top: 0;
     left: 0;
@@ -51,7 +51,7 @@ body.minimal-tech-vibe {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    color: var(--text-muted);
+    color: var(--about-text-muted);
     text-decoration: none;
     font-weight: 700;
     font-size: 0.85rem;
@@ -68,7 +68,7 @@ body.minimal-tech-vibe {
 }
 
 .nav-back-btn:hover {
-    color: var(--accent);
+    color: var(--about-accent);
 }
 
 .nav-back-btn:hover i {
@@ -80,7 +80,7 @@ body.minimal-tech-vibe {
     justify-content: space-between;
     align-items: flex-end;
     padding-bottom: 40px;
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--about-border-subtle);
     margin-bottom: 60px;
 }
 
@@ -101,7 +101,7 @@ body.minimal-tech-vibe {
 .badge-accent {
     font-size: 0.8rem;
     font-weight: 600;
-    color: var(--text-muted);
+    color: var(--about-text-muted);
     background: rgba(255, 255, 255, 0.04);
     padding: 4px 12px;
     border-radius: 6px;
@@ -123,7 +123,7 @@ body.minimal-tech-vibe {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    color: var(--accent);
+    color: var(--about-accent);
     font-weight: 700;
     display: block;
 }
@@ -156,12 +156,12 @@ body.minimal-tech-vibe {
     gap: 8px;
     padding: 10px 18px;
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--about-border-subtle);
     border-radius: 8px;
     cursor: pointer;
     font-size: 0.9rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    color: var(--text-muted);
+    color: var(--about-text-muted);
     text-decoration: none;
 }
 
@@ -191,7 +191,7 @@ body.minimal-tech-vibe {
 .narrative-item {
     padding: 20px;
     background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--about-border-subtle);
     border-radius: 16px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -200,7 +200,7 @@ body.minimal-tech-vibe {
 
 .narrative-item:hover {
     background: rgba(145, 70, 255, 0.04);
-    border-color: var(--accent);
+    border-color: var(--about-accent);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(145, 70, 255, 0.1);
     transform: translateY(-4px);
 }
@@ -208,7 +208,7 @@ body.minimal-tech-vibe {
 .narrative-item .label {
     font-size: 0.65rem;
     font-weight: 800;
-    color: var(--text-muted);
+    color: var(--about-text-muted);
     margin-bottom: 12px;
     display: block;
     letter-spacing: 0.15em;
@@ -223,7 +223,7 @@ body.minimal-tech-vibe {
 }
 
 .narrative-item p {
-    color: var(--text-muted);
+    color: var(--about-text-muted);
     line-height: 1.7;
     margin: 0;
     font-size: 1rem;
@@ -242,7 +242,7 @@ body.minimal-tech-vibe {
 .tech-card {
     padding: 16px;
     background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--about-border-subtle);
     border-radius: 12px;
     display: flex;
     flex-direction: column;
@@ -251,7 +251,7 @@ body.minimal-tech-vibe {
 }
 
 .tech-card:hover {
-    border-color: var(--accent);
+    border-color: var(--about-accent);
     background: rgba(145, 70, 255, 0.08);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4), 0 0 10px rgba(145, 70, 255, 0.1);
     transform: translateY(-2px);
@@ -261,7 +261,7 @@ body.minimal-tech-vibe {
     font-size: 0.6rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--text-muted);
+    color: var(--about-text-muted);
     font-weight: 700;
 }
 

@@ -11,41 +11,14 @@ jest.mock('../../src/core/database/dbService', () => ({
     updateLastActive: mockUpdateLastActive
 }));
 
-jest.mock('@/core/utils/logger', () => ({
-    logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }
-}));
-
 jest.mock('@/core/utils/routeHelpers', () => ({
-    isPublicRoute: jest.fn().mockReturnValue(false)
+    isPublicRoute: jest.fn().mockReturnValue(false),
+    isBotCommand: jest.fn().mockReturnValue(false),
+    isApiRoute: jest.fn((path: string) => path.startsWith('/api') || path.startsWith('/twitch'))
 }));
 
-import { Response } from 'express';
 import checkToken from '../../src/core/middleware/authMiddleware';
-import { AuthenticatedRequest } from '../../src/types/twitch';
-
-const mockRes = () => {
-    const res = {
-        locals: {} as Record<string, unknown>,
-        status: jest.fn(),
-        json: jest.fn(),
-        send: jest.fn(),
-        setHeader: jest.fn()
-    } as unknown as Response;
-    (res.status as jest.Mock).mockReturnValue(res);
-    (res.json as jest.Mock).mockReturnValue(res);
-    (res.send as jest.Mock).mockReturnValue(res);
-    return res;
-};
-
-const mockReq = (overrides: Partial<AuthenticatedRequest> = {}): AuthenticatedRequest =>
-    ({
-        query: {},
-        body: {},
-        headers: {},
-        path: '/api/data',
-        method: 'GET',
-        ...overrides
-    }) as unknown as AuthenticatedRequest;
+import { mockRes, mockReq } from '../helpers/mockExpress';
 
 describe('authMiddleware — checkToken', () => {
     let next: jest.Mock;

@@ -4,7 +4,7 @@ import { Loader } from '../../../shared/utils/loader.js';
 import { ProfileAPI } from './profile.api.js';
 import { ProfileEvents } from './profile.events.js';
 import { ProfileUI } from './profile.ui.js';
-import { UI } from '../../../core/ui.js';
+import { UI } from '../../../core/ui-core.js';
 import { dashboardStore, ProfileActions } from '../../../core/dashboardStore.js';
 
 interface IProfileModule extends DashboardModule {

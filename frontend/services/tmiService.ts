@@ -1,6 +1,6 @@
 import { Auth } from '../core/auth.js';
-import { UI } from '../core/ui.js';
-import { AuthMessages } from '../shared/i18n/authMessages.js';
+import { UI } from '../core/ui-core.js';
+import { AuthMessages } from '../shared/messages/authMessages.js';
 
 export interface TmiTags {
     username: string;

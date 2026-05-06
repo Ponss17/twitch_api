@@ -26,7 +26,7 @@ export const HtmlLoader = {
             );
         } catch (error) {
             console.error('[HtmlLoader] Error:', error);
-            const { Messages } = await import('../i18n/messages.js');
+            const { Messages } = await import('../messages/messages.js');
             container.innerHTML = `<div class="error-state">${Messages.Common.errorLoadingUI(url)}</div>`;
         }
     }
