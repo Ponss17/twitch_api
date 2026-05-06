@@ -35,10 +35,12 @@ export const configureStatic = (app: Application) => {
     app.use('/api/twitch', express.static(distPublicPath, standardCache));
     app.use(express.static(distPublicPath, standardCache));
 
-    // Assets del panel admin (solo accesibles desde localhost vía localOnly en routes.ts)
+    // Assets del panel admin (CSS, JS) — solo accesibles desde localhost
+    // Los HTML se sirven via serveHtml() en routes.ts para inyectar el nonce CSP
+    const adminStaticOptions = { fallthrough: true, extensions: ['js', 'css'] };
     const adminPath = path.join(process.cwd(), 'admin');
-    app.use('/api/twitch/admin', localOnly, express.static(adminPath, staticOptions));
-    app.use('/admin', localOnly, express.static(adminPath, staticOptions));
+    app.use('/api/twitch/admin', localOnly, express.static(adminPath, adminStaticOptions));
+    app.use('/admin', localOnly, express.static(adminPath, adminStaticOptions));
 
     // Interceptar 404 de assets estáticos para evitar que caigan al router
     app.use((req, res, next) => {

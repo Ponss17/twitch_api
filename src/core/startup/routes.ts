@@ -1,6 +1,4 @@
 import { Application, Request, Response } from 'express';
-import path from 'path';
-import fs from 'fs';
 import { CONFIG } from '../config/env';
 import { globalRateLimiter, authRateLimiter } from '../middleware/redisRateLimiter';
 import { apiKeyValidator } from '../middleware/apiKeyValidator';
@@ -11,55 +9,61 @@ import apiRouter from '../../routes/index';
 import { getRobotsTxt, getSitemapXml } from '../../features/system/seo.controller';
 import { errorHandler } from '../middleware/errorMiddleware';
 import { localOnly } from '../middleware/localOnly';
+import { serveHtml } from '../utils/serveHtml';
 
 // El adminRouter es opcional: solo existe localmente (está en .gitignore)
 const adminRouter = loadAdminRouter();
-
-/**
- * Función auxiliar para servir archivos HTML inyectando el nonce de la CSP
- */
-const serveHtml = (res: Response, filePath: string) => {
-    try {
-        let html = fs.readFileSync(path.join(process.cwd(), filePath), 'utf8');
-        // Inyectar el nonce generado en el middleware cspNonce
-        const nonce = (res.locals as { cspNonce: string }).cspNonce;
-        html = html.replace(/{{cspNonce}}/g, nonce || '');
-        res.send(html);
-    } catch (error) {
-        console.error(`Error sirviendo HTML (${filePath}):`, error);
-        res.status(500).send('Error interno del servidor al cargar la página');
-    }
-};
 
 export const configurePageRoutes = (app: Application) => {
     // --- VISTAS Y RUTAS ESTATICAS (HTML) ---
     // Estas rutas se configuran ANTES de los estáticos para evitar conflictos de carpetas (redirects 301)
 
-    app.get(['/', '/api/twitch/'], (req: Request, res: Response) => {
-        serveHtml(res, 'public/index.html');
+    app.get(['/', '/api/twitch/'], async (_req: Request, res: Response) => {
+        await serveHtml(res, 'public/index.html');
     });
 
-    app.get(['/docs', '/api/twitch/docs'], (req: Request, res: Response) => {
-        serveHtml(res, 'public/docs.html');
+    app.get(['/docs', '/api/twitch/docs'], async (_req: Request, res: Response) => {
+        await serveHtml(res, 'public/docs.html');
     });
 
-    app.get(['/dashboard', '/api/twitch/dashboard'], (req: Request, res: Response) => {
-        serveHtml(res, 'public/dashboard.html');
+    app.get(['/dashboard', '/api/twitch/dashboard'], async (_req: Request, res: Response) => {
+        await serveHtml(res, 'public/dashboard.html');
     });
 
-    app.get(['/sobre-la-api', '/api/twitch/sobre-la-api'], (req: Request, res: Response) => {
-        serveHtml(res, 'public/sobre-la-api.html');
+    app.get(['/sobre-la-api', '/api/twitch/sobre-la-api'], async (_req: Request, res: Response) => {
+        await serveHtml(res, 'public/sobre-la-api.html');
     });
 
-    app.get(['/admin', '/api/twitch/admin'], localOnly, (req: Request, res: Response) => {
-        serveHtml(res, 'admin/login.html');
-    });
+    // Admin routes — localOnly + nonce injection via serveHtml
+    // Se cubren todas las variantes (con y sin extensión .html) para evitar
+    // que express.static sirva los HTML sin inyectar el nonce CSP
+    app.get(
+        [
+            '/admin',
+            '/admin/login',
+            '/admin/login.html',
+            '/api/twitch/admin',
+            '/api/twitch/admin/login',
+            '/api/twitch/admin/login.html'
+        ],
+        localOnly,
+        async (_req: Request, res: Response) => {
+            await serveHtml(res, 'admin/login.html');
+        }
+    );
 
     app.get(
-        ['/admin-dashboard', '/api/twitch/admin-dashboard'],
+        [
+            '/admin-dashboard',
+            '/admin/dashboard',
+            '/admin/dashboard.html',
+            '/api/twitch/admin-dashboard',
+            '/api/twitch/admin/dashboard',
+            '/api/twitch/admin/dashboard.html'
+        ],
         localOnly,
-        (req: Request, res: Response) => {
-            serveHtml(res, 'admin/dashboard.html');
+        async (_req: Request, res: Response) => {
+            await serveHtml(res, 'admin/dashboard.html');
         }
     );
     // SEO (Servidos como páginas/archivos)
@@ -112,12 +116,10 @@ export const configureRoutes = (app: Application) => {
     });
 
     // 404 Handler - catches unmatched routes
-    app.use((req: Request, res: Response) => {
+    app.use(async (req: Request, res: Response) => {
         const message = 'Error 404: La ruta especificada no existe.';
         if (req.accepts('html')) {
-            return res
-                .status(404)
-                .sendFile('404.html', { root: path.join(process.cwd(), 'public') });
+            return await serveHtml(res, 'public/404.html', 404);
         }
 
         if (req.path.startsWith('/api') || req.path.startsWith('/twitch')) {

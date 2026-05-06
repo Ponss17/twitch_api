@@ -5,7 +5,7 @@ import { MESSAGES } from '../config/messages';
 import { isPublicRoute } from '../utils/routeHelpers';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { logger } from '../utils/logger';
-import path from 'path';
+import { serveHtml } from '../utils/serveHtml';
 
 /**
  * Middleware de Rate Limiting Global usando Vercel KV (Redis).
@@ -82,12 +82,11 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
 /**
  * Maneja la respuesta cuando se excede el límite.
  */
-function handleLimitExceeded(req: Request, res: Response, cleanPath: string) {
+async function handleLimitExceeded(req: Request, res: Response, cleanPath: string) {
     const message = MESSAGES.AUTH.RATE_LIMIT_EXCEEDED;
 
-    // Si el cliente pide explícitamente HTML (es el navegador abriendo una página)
     if (typeof req.headers.accept === 'string' && req.headers.accept.includes('text/html')) {
-        return res.status(429).sendFile('429.html', { root: path.join(process.cwd(), 'public') });
+        return await serveHtml(res, 'public/429.html', 429);
     }
 
     if (cleanPath.startsWith('/api') || cleanPath.startsWith('/twitch')) {
@@ -155,9 +154,7 @@ export const authRateLimiter = async (req: Request, res: Response, next: NextFun
                 typeof req.headers.accept === 'string' &&
                 req.headers.accept.includes('text/html')
             ) {
-                return res
-                    .status(429)
-                    .sendFile('429.html', { root: path.join(process.cwd(), 'public') });
+                return await serveHtml(res, 'public/429.html', 429);
             }
             return res.status(429).json({
                 error: 'Too Many Requests',
