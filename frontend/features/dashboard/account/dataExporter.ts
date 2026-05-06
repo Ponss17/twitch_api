@@ -29,6 +29,26 @@ const COMMAND_INTEGRATIONS = [
         ]
     },
     {
+        id: 'message',
+        label: '💬 Enviar Mensaje al Chat',
+        description: 'Envía un mensaje al chat de tu canal mediante la API',
+        method: 'POST' as const,
+        variants: [
+            {
+                name: 'Mensaje Simple',
+                params: '',
+                body: '{"message":"Hola chat!"}',
+                desc: 'Envía un mensaje de texto plano (máx 500 caracteres)'
+            },
+            {
+                name: 'Mensaje con Variables de Bot',
+                params: '',
+                body: '{"message":"$(user) acaba de usar el comando!"}',
+                desc: 'Incluye variables del bot en el mensaje'
+            }
+        ]
+    },
+    {
         id: 'followage',
         label: '⌛ Followage (Tiempo de Seguimiento)',
         description: 'Muestra cuánto tiempo lleva alguien siguiendo',
@@ -134,6 +154,32 @@ const COMMAND_INTEGRATIONS = [
                 desc: 'Apuestas de suerte estándar'
             }
         ]
+    },
+    {
+        id: 'stalker',
+        label: '🔍 Stalker (Escáner de Viewers)',
+        description: 'Analiza la lista de espectadores del canal (solo Dashboard)',
+        dashboard: true,
+        variants: [
+            {
+                name: 'Dashboard',
+                params: '',
+                desc: 'Herramienta exclusiva del panel de control — escanea viewers, detecta lurkers, mods y VIPs'
+            }
+        ]
+    },
+    {
+        id: 'trends',
+        label: '📈 Trends (Tendencias de Chat)',
+        description: 'Rastrea palabras y frases más usadas en el chat (solo Dashboard)',
+        dashboard: true,
+        variants: [
+            {
+                name: 'Dashboard',
+                params: '',
+                desc: 'Herramienta exclusiva del panel de control — monitorea tendencias en tiempo real del chat'
+            }
+        ]
     }
 ];
 
@@ -206,22 +252,68 @@ const DataExport = {
                 const paths: Record<string, string> = {
                     clips: '/dashboard/get-clips',
                     followage: '/followage',
+                    message: '/send-message',
                     so: '/shoutout',
                     magic8: '/minigames/magic8',
                     russian: '/minigames/russian',
                     duel: '/minigames/duel',
-                    roulette: '/minigames/roulette'
+                    roulette: '/minigames/roulette',
+                    stalker: '',
+                    trends: ''
                 };
                 return paths[id] || `/${id}`;
             };
 
+            const method = (cmd as Record<string, unknown>).method === 'POST' ? 'POST' : 'GET';
+            const isDashboard = !!(cmd as Record<string, unknown>).dashboard;
             const path = getPath(cmd.id);
             let variantsHtml = '';
 
             for (const variant of cmd.variants) {
-                const fullUrl = `${apiBaseUrl}${path}?${variant.params}&apiKey=${apiKey}`;
+                const fullUrl = isDashboard
+                    ? ''
+                    : `${apiBaseUrl}${path}${variant.params ? `?${variant.params}&apiKey=${apiKey}` : `?apiKey=${apiKey}`}`;
+                const variantBody = (variant as Record<string, string>).body || '';
 
-                variantsHtml += `
+                if (isDashboard) {
+                    variantsHtml += `
+                    <div class="variant-box dashboard-tool">
+                        <div class="v-header">
+                            <span class="v-name">🔒 ${variant.name}</span>
+                            <span class="v-desc">${variant.desc}</span>
+                        </div>
+                        <div class="dashboard-only-badge">
+                            <span>Solo disponible en el Dashboard</span>
+                        </div>
+                    </div>
+                `;
+                } else if (method === 'POST') {
+                    variantsHtml += `
+                    <div class="variant-box">
+                        <div class="v-header">
+                            <span class="v-name">${variant.name}</span>
+                            <span class="v-desc">${variant.desc}</span>
+                        </div>
+                        <div class="bot-syntax-grid">
+                            <div class="bot-syntax">
+                                <span class="bot-name">cURL</span>
+                                <div class="code-block">curl -X POST "${fullUrl}" \\
+  -H "Content-Type: application/json" \\
+  -d '${variantBody}'</div>
+                            </div>
+                            <div class="bot-syntax">
+                                <span class="bot-name">Fetch (JS)</span>
+                                <div class="code-block">fetch("${fullUrl}", {
+  method: "POST",
+  headers: {"Content-Type": "application/json"},
+  body: '${variantBody}'
+})</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                } else {
+                    variantsHtml += `
                     <div class="variant-box">
                         <div class="v-header">
                             <span class="v-name">${variant.name}</span>
@@ -239,13 +331,14 @@ const DataExport = {
                         </div>
                     </div>
                 `;
+                }
             }
 
             rows.push(`
                 <div class="command-card">
                     <div class="cmd-header">
                         <div class="cmd-title">
-                            <h3>${cmd.label}</h3>
+                            <h3>${cmd.label}${method === 'POST' ? '<span class="method-post">POST</span>' : ''}${isDashboard ? '<span class="method-post" style="background:rgba(59,130,246,0.12);color:var(--info)">DASHBOARD</span>' : ''}</h3>
                             <p>${cmd.description}</p>
                         </div>
                         <div class="cmd-stat">
@@ -435,6 +528,41 @@ const DataExport = {
         .badge-green { background: var(--success-bg); color: var(--success); border-color: rgba(16,185,129,0.25); }
         .masked { font-family: monospace; letter-spacing: 1px; color: var(--text-muted); }
 
+        .security-banner {
+            background: rgba(245,158,11,0.08);
+            border: 1px solid rgba(245,158,11,0.25);
+            border-radius: 10px;
+            padding: 0.85rem 1.1rem;
+            margin-bottom: 1.1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+        }
+        .security-banner .sb-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+        .security-banner .sb-text { font-size: 0.73rem; color: var(--warning); line-height: 1.45; }
+        .security-banner .sb-text strong { color: #fbbf24; }
+
+        .dashboard-only-badge {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            margin-top: 0.5rem; padding: 0.25rem 0.55rem;
+            background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 6px; font-size: 0.65rem; color: var(--info);
+            font-weight: 600;
+        }
+
+        .method-post {
+            display: inline-block;
+            background: rgba(245,158,11,0.12);
+            color: var(--warning);
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            margin-left: 0.35rem;
+            vertical-align: middle;
+        }
+
         .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
         .metric-card { background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 1rem; }
         .metric-val { font-size: 1.35rem; font-weight: 800; margin-bottom: 0.2rem; }
@@ -481,6 +609,24 @@ const DataExport = {
             .header-right { text-align: center; }
             .header-chips { justify-content: center; }
         }
+        @media print {
+            body { background: #fff; color: #111; padding: 1rem; font-size: 11px; }
+            .top-banner, .security-banner, .code-block, .bot-syntax-grid, .cmd-variants,
+            .section-icon, .footer a, .header-chips, .chip, .dashboard-only-badge { display: none; }
+            .header, .section, .qs-card, .metric-card, .cat-card, .command-card, .variant-box {
+                background: #fff; border: 1px solid #ccc; box-shadow: none;
+            }
+            .section-head { background: #f5f5f5; border-bottom: 1px solid #ccc; }
+            .section-title { color: #333; }
+            .qs-val, .cat-val, .metric-val, .cmd-stat .s-val { color: #111; }
+            .header-name { -webkit-text-fill-color: #111; }
+            .header-avatar { box-shadow: none; }
+            .row-label, .qs-lbl, .cat-lbl, .metric-lbl, .cmd-stat .s-lbl,
+            .report-date, .header-login, .report-id { color: #555; }
+            .container { max-width: 100%; }
+            .quick-stats { grid-template-columns: repeat(4, 1fr); }
+            .footer { border-top-color: #ccc; color: #555; }
+        }
         .footer { text-align: center; margin-top: 2rem; padding-top: 1.4rem; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.7rem; line-height: 2; }
         .footer a { color: var(--accent-light); text-decoration: none; }
         .footer-brand { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.2rem; }
@@ -513,6 +659,14 @@ const DataExport = {
         </div>
     </div>
 
+    <div class="security-banner">
+        <span class="sb-icon">⚠️</span>
+        <span class="sb-text">
+            <strong>Este reporte contiene tu API Key.</strong>
+            No lo compartas públicamente ni lo subas a redes sociales, streams o sitios web. Cualquiera con acceso a este archivo puede usar tu API Key para hacer peticiones en tu nombre.
+        </span>
+    </div>
+
     <div class="quick-stats">
         <div class="qs-card">
             <div class="qs-val">${followerCount}</div>
@@ -542,7 +696,6 @@ const DataExport = {
             <div class="row"><span class="row-label">Login</span><span class="row-value">@${user.login || '---'}</span></div>
             <div class="row"><span class="row-label">ID de Usuario</span><span class="row-value">${user.userId || '---'}</span></div>
             <div class="row"><span class="row-label">Tipo de Canal</span><span class="row-value"><span class="badge">${channelType}</span></span></div>
-            <div class="row"><span class="row-label">Seguidores</span><span class="row-value">${followerCount}</span></div>
             <div class="row"><span class="row-label">Miembro desde</span><span class="row-value">${createdAtStr}</span></div>
             <div class="row"><span class="row-label">Biografía</span><span class="row-value">${userInfo.description || '—'}</span></div>
         </div>
