@@ -1,5 +1,6 @@
 import { Application, Request, Response } from 'express';
 import path from 'path';
+import fs from 'fs';
 import { CONFIG } from '../config/env';
 import { globalRateLimiter, authRateLimiter } from '../middleware/redisRateLimiter';
 import { apiKeyValidator } from '../middleware/apiKeyValidator';
@@ -14,31 +15,51 @@ import { localOnly } from '../middleware/localOnly';
 // El adminRouter es opcional: solo existe localmente (está en .gitignore)
 const adminRouter = loadAdminRouter();
 
+/**
+ * Función auxiliar para servir archivos HTML inyectando el nonce de la CSP
+ */
+const serveHtml = (res: Response, filePath: string) => {
+    try {
+        let html = fs.readFileSync(path.join(process.cwd(), filePath), 'utf8');
+        // Inyectar el nonce generado en el middleware cspNonce
+        const nonce = (res.locals as { cspNonce: string }).cspNonce;
+        html = html.replace(/{{cspNonce}}/g, nonce || '');
+        res.send(html);
+    } catch (error) {
+        console.error(`Error sirviendo HTML (${filePath}):`, error);
+        res.status(500).send('Error interno del servidor al cargar la página');
+    }
+};
+
 export const configurePageRoutes = (app: Application) => {
     // --- VISTAS Y RUTAS ESTATICAS (HTML) ---
     // Estas rutas se configuran ANTES de los estáticos para evitar conflictos de carpetas (redirects 301)
 
+    app.get(['/', '/api/twitch/'], (req: Request, res: Response) => {
+        serveHtml(res, 'public/index.html');
+    });
+
     app.get(['/docs', '/api/twitch/docs'], (req: Request, res: Response) => {
-        res.sendFile(path.join(process.cwd(), 'public/docs.html'));
+        serveHtml(res, 'public/docs.html');
     });
 
     app.get(['/dashboard', '/api/twitch/dashboard'], (req: Request, res: Response) => {
-        res.sendFile(path.join(process.cwd(), 'public/dashboard.html'));
+        serveHtml(res, 'public/dashboard.html');
     });
 
     app.get(['/sobre-la-api', '/api/twitch/sobre-la-api'], (req: Request, res: Response) => {
-        res.sendFile(path.join(process.cwd(), 'public/sobre-la-api.html'));
+        serveHtml(res, 'public/sobre-la-api.html');
     });
 
     app.get(['/admin', '/api/twitch/admin'], localOnly, (req: Request, res: Response) => {
-        res.sendFile(path.join(process.cwd(), 'admin/login.html'));
+        serveHtml(res, 'admin/login.html');
     });
 
     app.get(
         ['/admin-dashboard', '/api/twitch/admin-dashboard'],
         localOnly,
         (req: Request, res: Response) => {
-            res.sendFile(path.join(process.cwd(), 'admin/dashboard.html'));
+            serveHtml(res, 'admin/dashboard.html');
         }
     );
     // SEO (Servidos como páginas/archivos)
@@ -56,11 +77,8 @@ export const configureRoutes = (app: Application) => {
         next();
     });
 
-    app.use(apiKeyValidator);
-    app.use(checkToken);
-    app.use(globalRateLimiter);
-
     // Rutas de Admin (API) — solo local, solo si el módulo existe
+    // Se montan ANTES de los validadores globales para que el login local funcione
     if (adminRouter) {
         app.use(
             ['/api/admin', '/api/twitch/admin', '/admin/api', '/admin'],
@@ -68,6 +86,10 @@ export const configureRoutes = (app: Application) => {
             adminRouter
         );
     }
+
+    app.use(apiKeyValidator);
+    app.use(checkToken);
+    app.use(globalRateLimiter);
 
     // Rutas API/Twitch
     // Usamos montajes individuales para mayor claridad en Express

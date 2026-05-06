@@ -15,6 +15,7 @@ export const configureMiddleware = (app: Application) => {
     app.set('trust proxy', 1);
 
     app.use(requestLogger);
+    app.use(express.json());
 
     // Generar nonce único por request antes de Helmet para usarlo en la CSP
     app.use(cspNonce);
@@ -138,5 +139,4 @@ export const configureMiddleware = (app: Application) => {
             threshold: 1024 // Solo comprimir respuestas mayores a 1KB
         })
     );
-    app.use(express.json());
 };

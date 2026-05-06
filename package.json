@@ -7,7 +7,7 @@
         "build:frontend": "node scripts/build-frontend.js",
         "watch:frontend": "tsc -p tsconfig.frontend.json --watch",
         "build": "shx rm -rf dist && pnpm run build:frontend && tsc",
-        "postbuild": "shx cp -r public dist/",
+        "postbuild": "shx cp -r public dist/ && shx cp -r admin dist/",
         "start": "node -r dotenv/config dist/api/index.js",
         "dev": "tsx watch -r dotenv/config api/index.ts",
         "check-env": "node scripts/check-env.js",

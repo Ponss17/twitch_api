@@ -60,7 +60,13 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
 
         next();
     } catch (error) {
-        logger.error('Error in KV Rate Limiter (RateLimit Fail-Closed applied):', error);
+        logger.error('Error in KV Rate Limiter:', error);
+
+        // En desarrollo, si falla Redis permitimos el paso para no bloquear el trabajo local
+        if (process.env.NODE_ENV !== 'production') {
+            logger.warn('⚠️ KV offline: Saltando rate limit global en desarrollo');
+            return next();
+        }
 
         if (cleanPath.startsWith('/api') || cleanPath.startsWith('/twitch')) {
             res.setHeader('Content-Type', 'text/plain');
@@ -117,7 +123,14 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
                 .send(`Límite de peticiones pesadas excedido (max ${RATE_LIMITS.HEAVY}/min).`);
         }
         next();
-    } catch (_e) {
+    } catch (error) {
+        logger.error('Error in Heavy Rate Limiter:', error);
+
+        if (process.env.NODE_ENV !== 'production') {
+            logger.warn('⚠️ KV offline: Saltando heavy rate limit en desarrollo');
+            return next();
+        }
+
         res.setHeader('Content-Type', 'text/plain');
         return res.status(503).send('Servicio temporalmente intermitente.');
     }
@@ -152,7 +165,14 @@ export const authRateLimiter = async (req: Request, res: Response, next: NextFun
             });
         }
         next();
-    } catch (_e) {
+    } catch (error) {
+        logger.error('Error in Auth Rate Limiter:', error);
+
+        if (process.env.NODE_ENV !== 'production') {
+            logger.warn('⚠️ KV offline: Saltando auth rate limit en desarrollo');
+            return next();
+        }
+
         return res.status(503).json({
             error: 'Service Unavailable',
             message: 'Servicio de autenticación no disponible por alta carga global.'

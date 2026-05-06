@@ -39,7 +39,7 @@
     <meta property="twitter:card" content="summary">
     <meta property="twitter:image" content="https://www.losperris.dev/api/twitch/img/logo.svg">
 
-    <script src="./js/vendor/tmi.min.js" defer></script>
+    <script nonce="{{cspNonce}}" src="./js/vendor/tmi.min.js" defer></script>
 </head>
 
 <body>
@@ -179,7 +179,7 @@
     <div id="dashboard-modals-container"></div>
 
 
-    <script type="module" src="./js/app-dashboard.js"></script>
+    <script nonce="{{cspNonce}}" type="module" src="./js/app-dashboard.js"></script>
 
 </body>
 
