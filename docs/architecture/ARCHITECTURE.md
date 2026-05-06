@@ -71,16 +71,19 @@ twitch_api/
 │   │   │   └── cryptoService.ts      # AES-256-CBC para tokens de Twitch
 │   │   ├── errors/           # Jerarquía de errores (AppError, TwitchApiError)
 │   │   ├── middleware/       # Middleware de Express
-│   │   │   ├── errorMiddleware.ts    # Handler global + request logger
+│   │   │   ├── errorMiddleware.ts    # Handler global async + serveHtml para errores
 │   │   │   ├── apiKeyValidator.ts    # Validación de API Key con caché
 │   │   │   ├── authMiddleware.ts     # Validación de token de sesión
-│   │   │   ├── redisRateLimiter.ts   # Rate limiting con KV
+│   │   │   ├── redisRateLimiter.ts   # Rate limiting con KV + serveHtml para 429
 │   │   │   ├── validate.ts           # Validación de schemas con Zod
 │   │   │   ├── cspNonce.ts           # Nonce único por request para CSP
 │   │   │   ├── csrfProtection.ts     # Protección CSRF
-│   │   │   └── localOnly.ts          # Restricción a localhost
+│   │   │   └── localOnly.ts          # Restricción a localhost (socket.remoteAddress)
 │   │   ├── startup/          # Configuración del pipeline de arranque
-│   │   └── utils/            # Helpers (logger, tracking, sentry, validación)
+│   │   │   ├── middleware.ts        # Orden de middlewares y Helmet CSP
+│   │   │   ├── routes.ts           # Rutas HTML con serveHtml + API routes
+│   │   │   └── static.ts          # Archivos estáticos (JS/CSS, no HTML)
+│   │   └── utils/            # Helpers (logger, tracking, sentry, validación, serveHtml)
 │   ├── features/             # Lógica de negocio (Feature-based)
 │   │   ├── auth/             # OAuth Twitch (login, callback, refresh)
 │   │   ├── commands/         # Comandos de chat (clip, followage, shoutout, send)
@@ -125,9 +128,9 @@ api/index.ts → app.ts
        │
        ├─ 1. validateConfig()          ← ¿Variables de entorno presentes?
        ├─ 2. initSentry()              ← ¿Monitoreo activo?
-       ├─ 3. configureMiddleware()     ← Helmet, CORS, CSP, Compression, JSON parser
-       ├─ 4. configurePageRoutes()     ← Rutas HTML antes que estáticos (evita redirects)
-       ├─ 5. configureStatic()         ← CSS, JS, imágenes
+├─ 3. configureMiddleware()     ← Helmet, CORS, CSP nonce, Compression, JSON parser
+├─ 4. configurePageRoutes()     ← Rutas HTML con serveHtml + inyección de nonce
+├─ 5. configureStatic()         ← CSS, JS (no HTML — los sirve serveHtml)
        ├─ 6. configureRoutes()         ← Middleware de auth + API routes
        │       │
        │       ├─ apiKeyValidator      ← ¿API Key en query/header? → Caché/KV/DB
@@ -329,12 +332,19 @@ Se genera un **nonce único por request** (`cspNonce.ts` → `res.locals.cspNonc
 
 Esto permite ejecutar scripts inline sin usar `'unsafe-inline'`. Combinado con `'strict-dynamic'`, los scripts cargados dinámicamente con el nonce correcto también funcionan.
 
+**Servido de HTML**: Toda página HTML se sirve a través de `serveHtml()` (`src/core/utils/serveHtml.ts`), que:
+
+- Lee el archivo HTML del disco solo la primera vez y lo guarda en un `Map<string, string>` en memoria (caché de templates).
+- Reemplaza `{{cspNonce}}` con el nonce del request actual usando regex.
+- Elimina `res.sendFile()` completo — todo HTML pasa por este pipeline.
+- Los archivos estáticos del admin solo sirven `.js` y `.css`, no `.html`, lo que previene servir HTML sin nonce.
+
 ### Encriptación de tokens
 
 - Algoritmo: AES-256-CBC con IV aleatorio por token
 - Formato: `{iv_hex}:{ciphertext_hex}`
 - Clave derivada: `SHA256(ENCRYPTION_KEY)` — independiente de otras claves
-- **Legacy fallback**: Clave derivada de `TWITCH_CLIENT_SECRET` para tokens antiguos, con migración automática al detectar datos cifrados con clave legacy.
+- **Legacy fallback**: Clave derivada de `TWITCH_CLIENT_SECRET` para tokens antiguos, con migración **bajo demanda** solo cuando se detecta cifrado con clave legacy (`decryptAndMigrateIfNeeded`). La migración solo ocurre una vez por usuario; los requests subsecuentes con la clave primaria no ejecutan `saveUser` ni invalidan caché.
 
 ### Sanitización
 
@@ -344,12 +354,14 @@ Esto permite ejecutar scripts inline sin usar `'unsafe-inline'`. Combinado con `
 
 ### Decisiones
 
-| Decisión                              | Alternativa rechazada    | Motivo                                                        |
-| ------------------------------------- | ------------------------ | ------------------------------------------------------------- |
-| Nonces CSP dinámicos                  | `'unsafe-inline'` global | Mejor seguridad sin sacrificar funcionalidad                  |
-| AES-256-CBC para tokens               | AES-256-GCM              | Compatibilidad con datos legacy en formato `iv:encrypted`     |
-| `SERVICE_ROLE_KEY` en backend         | Cliente anónimo + RLS    | Necesario para operaciones administrativas (CRUD de usuarios) |
-| 404 en lugar de 403 para admin routes | 403 Forbidden            | No revelar que la ruta existe                                 |
+| Decisión                               | Alternativa rechazada      | Motivo                                                                                         |
+| -------------------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------- |
+| Nonces CSP dinámicos                   | `'unsafe-inline'` global   | Mejor seguridad sin sacrificar funcionalidad                                                   |
+| AES-256-CBC para tokens                | AES-256-GCM                | Compatibilidad con datos legacy en formato `iv:encrypted`                                      |
+| `SERVICE_ROLE_KEY` en backend          | Cliente anónimo + RLS      | Necesario para operaciones administrativas (CRUD de usuarios)                                  |
+| `localOnly` usa `socket.remoteAddress` | `req.ip` con `trust proxy` | `req.ip` puede ser spoofed vía `X-Forwarded-For`; `remoteAddress` es el IP real de la conexión |
+| `serveHtml` para todo HTML             | `res.sendFile()`           | `sendFile` no inyecta nonce CSP; `serveHtml` cachea templates y reemplaza `{{cspNonce}}`       |
+| 404 en lugar de 403 para admin routes  | 403 Forbidden              | No revelar que la ruta existe                                                                  |
 
 ---
 

@@ -20,4 +20,5 @@ El servidor está configurado para nunca colapsar si Redis/KV falla.
 Para evitar que los usuarios vean datos obsoletos después de loguearse:
 
 - Cualquier llamada a `saveUser` invalida automáticamente la caché de la `userId`, el `login` y la `apiKey`.
-- Esto garantiza que los cambios en los tokens de Twitch se reflejen en los comandos de Nightbot en menos de 1 segundo.
+- Sin embargo, `saveUser` **solo se ejecuta cuando hay una migración real de token** (usuario cifrado con llave legacy que necesita re-encriptación). Ya no se llama en cada request, lo que elimina operaciones innecesarias de escritura en Supabase y borrado de caché L1+L2.
+- Esto garantiza que los cambios en los tokens de Twitch se reflejen en los comandos de Nightbot en menos de 1 segundo, **sin overhead en requests normales**.
