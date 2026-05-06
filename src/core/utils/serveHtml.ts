@@ -23,6 +23,7 @@ export const serveHtml = async (
         const template = await loadTemplate(filePath);
         const nonce = (res.locals as { cspNonce: string }).cspNonce;
         const html = template.replace(/{{cspNonce}}/g, nonce || '');
+        res.setHeader('Cache-Control', 'private, max-age=0, must-revalidate');
         res.status(status).send(html);
     } catch (error) {
         console.error(`Error sirviendo HTML (${filePath}):`, error);

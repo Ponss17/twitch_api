@@ -74,10 +74,16 @@ export const configurePageRoutes = (app: Application) => {
 export const configureRoutes = (app: Application) => {
     // --- MIDDLEWARES Y CONFIGURACIÓN ---
     app.use((req, res, next) => {
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-        res.setHeader('Surrogate-Control', 'no-store');
+        const isApiRoute =
+            req.path.startsWith('/api/') ||
+            req.path.startsWith('/twitch/') ||
+            req.path.startsWith('/auth');
+        if (isApiRoute) {
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+            res.setHeader('Surrogate-Control', 'no-store');
+        }
         next();
     });
 
