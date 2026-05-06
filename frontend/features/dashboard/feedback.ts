@@ -1,7 +1,7 @@
 import { FeedbackMessages } from './feedback/messages.js';
 import { DASHBOARD_CONFIG } from './dashboard-config.js';
 const { API_ENDPOINTS } = DASHBOARD_CONFIG;
-import { UI } from '../../core/ui.js';
+import { UI } from '../../core/ui-core.js';
 import { Session } from '../../types.js';
 import { BaseModule } from '../../shared/utils/baseModule.js';
 

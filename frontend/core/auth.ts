@@ -106,7 +106,7 @@ export const Auth = {
                     session.apiKey = serverApiKey;
                     this.saveSession(session);
 
-                    import('./ui.js').then(({ UI }) => {
+                    import('./ui-core.js').then(({ UI }) => {
                         UI.showToast('Tu API Key ha sido actualizada', 'info');
                     });
                 }

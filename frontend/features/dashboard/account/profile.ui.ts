@@ -1,5 +1,5 @@
 import { ProfileStatsData } from '../../../types.js';
-import { UI } from '../../../core/ui.js';
+import { UI } from '../../../core/ui-core.js';
 
 export const ProfileUI = {
     _lastFollowers: undefined as number | undefined,

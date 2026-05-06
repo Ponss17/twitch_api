@@ -1,17 +1,21 @@
+import { Messages } from '../../../shared/messages/messages.js';
+import { BIO_EMPTY } from '../../../shared/messages/profileMessages.js';
+
 export const StalkerMessages = {
-    loading: '<i class="fa-solid fa-spinner fa-spin"></i> Cargando Chat...',
-    empty: `
-        <div class="empty-state">
-            <i class="fa-solid fa-users-slash"></i>
-            <p>Nadie en el chat (o error de conexión)</p>
-        </div>
-    `,
+    loading: Messages.Common.spinner('Cargando Chat...'),
+    empty: Messages.Common.emptyState(
+        'fa-solid fa-users-slash',
+        'Nadie en el chat (o error de conexión)'
+    ),
     waiting: `
         <div class="empty-icon"><i class="fa-solid fa-satellite-dish"></i></div>
         <h3>Esperando señal...</h3>
         <p>Dale al botón <strong>Play</strong> para comenzar a escanear el chat.</p>
     `,
     syncNote: '* Lista sincronizada con API + Chat en vivo',
+    get connectionError() {
+        return Messages.Common.connectionError;
+    },
     reauthError: `
         <div class="error-msg" style="text-align: center; padding: 20px;">
             <i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; color: var(--accent);"></i>
@@ -35,11 +39,10 @@ export const StalkerMessages = {
     `,
     updated: '<i class="fa-solid fa-check"></i> Lista Stalker recargada',
     updatedRaw: 'Lista Stalker recargada',
-    bioEmpty: 'Sin biografía disponible.',
+    bioEmpty: BIO_EMPTY,
     apiError: 'Error API',
     infoError: 'No se pudo cargar info del usuario',
     reloginMsg: 'Necesitas re-login (Permisos)',
-    loadError: 'No se pudo cargar info del usuario',
     scanStarted:
         '<i class="fa-solid fa-satellite-dish fa-beat" style="--fa-beat-scale: 1.2;"></i> Escaneo iniciado',
     scanStartedRaw: 'Escaneo iniciado',

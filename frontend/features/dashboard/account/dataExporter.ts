@@ -1,4 +1,4 @@
-import { UI } from '../../../core/ui.js';
+import { UI } from '../../../core/ui-core.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 import { Session } from '../../../types.js';
 

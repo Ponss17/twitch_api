@@ -1,4 +1,4 @@
-import { UI } from '../../../core/ui.js';
+import { UI } from '../../../core/ui-core.js';
 
 export const TrendsTemplates = {
     renderRow(item: [string, number], index: number, maxCount: number) {

@@ -1,3 +1,4 @@
+// NOTE: TwitchUser must mirror src/types/twitch.ts — keep in sync
 export interface TwitchUser {
     id: string;
     login: string;

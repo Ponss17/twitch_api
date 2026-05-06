@@ -2,13 +2,6 @@ import { Request, Response } from 'express';
 import { logger } from '../utils/logger';
 import * as authService from '../../features/auth/auth.service';
 
-interface TwitchApiError extends Error {
-    status?: number;
-    response?: {
-        status?: number;
-    };
-}
-
 export const withTwitchAuth = async <T>(
     req: Request & { twitchToken?: string },
     res: Response,
@@ -26,7 +19,7 @@ export const withTwitchAuth = async <T>(
         try {
             return await action(token || '');
         } catch (error: unknown) {
-            const err = error as TwitchApiError;
+            const err = error as Error & { status?: number; response?: { status?: number } };
             const is401 =
                 err.message?.includes('401') || err.status === 401 || err.response?.status === 401;
 

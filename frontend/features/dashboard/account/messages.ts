@@ -1,5 +1,7 @@
+import { Messages } from '../../../shared/messages/messages.js';
+
 export const AccountMessages = {
-    testing: '<i class="fa-solid fa-spinner fa-spin"></i> Probando conexión...',
+    testing: Messages.Common.spinner('Probando conexión...'),
     testError: '⚠️ Error en la prueba de API',
     regenerateConfirm:
         '¿Generar una nueva API Key? La anterior dejará de funcionar inmediatamente.',

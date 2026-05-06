@@ -1,6 +1,6 @@
-import { ProfileMessages } from '../i18n/profileMessages.js';
+import { ProfileMessages } from '../messages/profileMessages.js';
 import { TwitchUser, ChatLogItem } from '../../types.js';
-import { UI } from '../../core/ui.js';
+import { UI } from '../../core/ui-core.js';
 
 export const ProfileTemplates = {
     renderContent(user: TwitchUser, ageText: string) {

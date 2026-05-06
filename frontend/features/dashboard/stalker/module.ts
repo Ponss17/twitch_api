@@ -1,5 +1,5 @@
-import { UI } from '../../../core/ui.js';
-import { Messages } from '../../../shared/i18n/messages.js';
+import { UI } from '../../../core/ui-core.js';
+import { Messages } from '../../../shared/messages/messages.js';
 import { StalkerMessages } from './messages.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 const { API_ENDPOINTS, IGNORED_BOTS } = DASHBOARD_CONFIG;
@@ -327,7 +327,7 @@ export const StalkerModule: IStalkerModule = {
                 ProfileModal.open(info)
             );
         } catch (_e) {
-            UI.showToast(StalkerMessages.loadError, 'error');
+            UI.showToast(StalkerMessages.infoError, 'error');
         }
     }
 };

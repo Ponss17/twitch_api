@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { kv } from '@vercel/kv';
 import { RATE_LIMITS } from '../config/limits';
 import { MESSAGES } from '../config/messages';
-import { isPublicRoute } from '../utils/routeHelpers';
+import { isPublicRoute, isApiRoute } from '../utils/routeHelpers';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { logger } from '../utils/logger';
 import { serveHtml } from '../utils/serveHtml';
@@ -68,7 +68,7 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
             return next();
         }
 
-        if (cleanPath.startsWith('/api') || cleanPath.startsWith('/twitch')) {
+        if (isApiRoute(cleanPath)) {
             res.setHeader('Content-Type', 'text/plain');
             return res.status(503).send('Servicio temporalmente no disponible (KV Timeout).');
         }
@@ -89,7 +89,7 @@ async function handleLimitExceeded(req: Request, res: Response, cleanPath: strin
         return await serveHtml(res, 'public/429.html', 429);
     }
 
-    if (cleanPath.startsWith('/api') || cleanPath.startsWith('/twitch')) {
+    if (isApiRoute(cleanPath)) {
         res.setHeader('Content-Type', 'text/plain');
         return res.status(429).send(message);
     }

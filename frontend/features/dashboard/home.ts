@@ -11,7 +11,7 @@ import {
     HealthStatus,
     ToastActions
 } from '../../core/dashboardStore.js';
-import { UI } from '../../core/ui.js';
+import { UI } from '../../core/ui-core.js';
 import { RealtimeServiceFactory } from '../../core/realtimeService.js';
 
 export const HomeModule = {

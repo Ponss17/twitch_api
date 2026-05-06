@@ -1,4 +1,4 @@
-import { ProfileMessages } from '../i18n/profileMessages.js';
+import { ProfileMessages } from '../messages/profileMessages.js';
 import { ProfileTemplates } from './profileTemplates.js';
 import { TwitchUser } from '../../types.js';
 

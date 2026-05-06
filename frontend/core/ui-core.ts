@@ -1,4 +1,4 @@
-import { UIMessages } from '../shared/i18n/uiMessages.js';
+import { UIMessages } from '../shared/messages/uiMessages.js';
 import { ToastActions } from './dashboardStore.js';
 
 export const UI = {

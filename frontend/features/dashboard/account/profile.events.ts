@@ -1,5 +1,5 @@
 import { Session } from '../../../types.js';
-import { UI } from '../../../core/ui.js';
+import { UI } from '../../../core/ui-core.js';
 import { AccountMessages } from './messages.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 import { HtmlLoader } from '../../../shared/utils/htmlLoader.js';

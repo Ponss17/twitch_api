@@ -1,8 +1,8 @@
-import { Messages } from '../../../shared/i18n/messages.js';
+import { Messages } from '../../../shared/messages/messages.js';
 import { TrendsMessages, TrackerMessages } from './messages.js';
 import { DASHBOARD_CONFIG } from '../dashboard-config.js';
 const { IGNORED_BOTS } = DASHBOARD_CONFIG;
-import { UI } from '../../../core/ui.js';
+import { UI } from '../../../core/ui-core.js';
 import { TmiService, TmiTags } from '../../../services/tmiService.js';
 import { TrendsTemplates } from './templates.js';
 import { Session, ChatLogItem, DashboardModule } from '../../../types.js';
