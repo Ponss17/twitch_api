@@ -15,17 +15,51 @@ const addToMigratedCache = (userId: string) => {
     migratedUsersCache.add(userId);
 };
 
-function decryptTokenWithFallback(text: string, context: string): string {
+const isAlreadyEncrypted = (val: string) => {
+    const parts = val.split(':');
+    return (
+        parts.length === 2 &&
+        parts[0].length === 32 &&
+        /^[0-9a-f]+$/i.test(parts[0]) &&
+        /^[0-9a-f]+$/i.test(parts[1])
+    );
+};
+
+async function decryptAndMigrateIfNeeded(
+    user: StoredUser,
+    context: string
+): Promise<StoredUser | null> {
+    let usedLegacy = false;
+
     try {
-        return decrypt(text, ENCRYPTION_KEY);
-    } catch (_e) {
-        try {
-            return decrypt(text, LEGACY_ENCRYPTION_KEY);
-        } catch (_e2) {
-            logger.error(`❌ Fallo crítico de descifrado para: ${context}`);
-            throw _e;
+        if (user.accessToken) {
+            try {
+                user.accessToken = decrypt(user.accessToken, ENCRYPTION_KEY);
+            } catch {
+                user.accessToken = decrypt(user.accessToken, LEGACY_ENCRYPTION_KEY);
+                usedLegacy = true;
+            }
         }
+        if (user.refreshToken) {
+            try {
+                user.refreshToken = decrypt(user.refreshToken, ENCRYPTION_KEY);
+            } catch {
+                user.refreshToken = decrypt(user.refreshToken, LEGACY_ENCRYPTION_KEY);
+                usedLegacy = true;
+            }
+        }
+    } catch (e) {
+        logger.error(`❌ Descifrado fallido para ${context}:`, (e as Error).message);
+        return null;
     }
+
+    if (usedLegacy && !migratedUsersCache.has(user.userId)) {
+        addToMigratedCache(user.userId);
+        logger.info(`🔄 Migrando claves de cifrado para usuario: ${user.login} (${user.userId})`);
+        await saveUser(user).catch((e) => logger.error('Error migrando usuario:', e));
+    }
+
+    return user;
 }
 
 // Convierte un StoredUser del sistema al formato de columnas de Supabase
@@ -78,11 +112,6 @@ export const saveUser = async (user: StoredUser): Promise<void> => {
     if (secureUser.isActive === undefined) secureUser.isActive = true;
 
     // Solo ciframos si el token NO está ya cifrado (contiene ':' que usa el formato iv:encrypted)
-    const isAlreadyEncrypted = (val: string) => {
-        const parts = val.split(':');
-        return parts.length === 2 && parts[0].length === 32 && /^[0-9a-f]+$/i.test(parts[0]);
-    };
-
     if (secureUser.accessToken && !isAlreadyEncrypted(secureUser.accessToken)) {
         secureUser.accessToken = encrypt(secureUser.accessToken);
     }
@@ -123,37 +152,11 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
     if (error || !data) return null;
 
     const user = fromRow(data as Record<string, unknown>);
-    let needsMigration = false;
+    const result = await decryptAndMigrateIfNeeded(user, `usuario ${userId}`);
+    if (!result) return null;
 
-    try {
-        if (user.accessToken) {
-            const plain = decryptTokenWithFallback(user.accessToken, `usuario ${userId}`);
-            if (plain !== user.accessToken) needsMigration = true;
-            user.accessToken = plain;
-        }
-        if (user.refreshToken) {
-            const plain = decryptTokenWithFallback(user.refreshToken, `usuario ${userId}`);
-            if (plain !== user.refreshToken) needsMigration = true;
-            user.refreshToken = plain;
-        }
-    } catch (e) {
-        // Si falla el descifrado, retornamos null para forzar re-autenticación
-        // en vez de devolver un usuario con tokens cifrados inutilizables
-        logger.error(
-            `❌ Descifrado fallido para ${userId}, forzando re-auth:`,
-            (e as Error).message
-        );
-        return null;
-    }
-
-    if (needsMigration && !migratedUsersCache.has(userId)) {
-        addToMigratedCache(userId);
-        logger.info(`🔄 Migrando claves de cifrado para usuario: ${user.login} (${userId})`);
-        await saveUser(user);
-    }
-
-    await cacheService.set(cacheKey, user, 60);
-    return user;
+    await cacheService.set(cacheKey, result, 60);
+    return result;
 };
 
 export const getUserByLogin = async (login: string): Promise<StoredUser | null> => {
@@ -166,18 +169,11 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
     if (!data) return null;
 
     const user = fromRow(data as Record<string, unknown>);
+    const result = await decryptAndMigrateIfNeeded(user, `login ${login}`);
+    if (!result) return null;
 
-    try {
-        if (user.accessToken)
-            user.accessToken = decryptTokenWithFallback(user.accessToken, `login ${login}`);
-        if (user.refreshToken)
-            user.refreshToken = decryptTokenWithFallback(user.refreshToken, `login ${login}`);
-    } catch (e) {
-        logger.error(`⚠️ Error en descifrado para login ${login}:`, (e as Error).message);
-    }
-
-    await cacheService.set(cacheKey, user, 5 * 60);
-    return user;
+    await cacheService.set(cacheKey, result, 5 * 60);
+    return result;
 };
 
 export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null> => {
@@ -210,16 +206,10 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
         return null;
     }
 
-    try {
-        if (user.accessToken)
-            user.accessToken = decryptTokenWithFallback(user.accessToken, `api_key ${apiKey}`);
-        if (user.refreshToken)
-            user.refreshToken = decryptTokenWithFallback(user.refreshToken, `api_key ${apiKey}`);
-    } catch (_e) {
-        logger.error(`⚠️ Error descifrando tokens para api_key: ${apiKey}`);
-    }
+    const result = await decryptAndMigrateIfNeeded(user, `api_key ${apiKey}`);
+    if (!result) return null;
 
-    return user;
+    return result;
 };
 
 export const updateLastActive = async (userId: string): Promise<void> => {

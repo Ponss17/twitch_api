@@ -19,7 +19,6 @@ async function migrateAllTokens() {
         console.log(`📂 Encontrados ${users.length} usuarios. Verificando encriptación...`);
 
         let migratedCount = 0;
-        let alreadyCorrectCount = 0;
         let failedCount = 0;
 
         for (const u of users) {

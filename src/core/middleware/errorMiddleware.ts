@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger, clearRequestId, getRequestId, asyncContext } from '../utils/logger';
 import { Sentry } from '../utils/sentry';
+import { serveHtml } from '../utils/serveHtml';
 
-export const errorHandler = (
+export const errorHandler = async (
     err: {
         status?: number;
         statusCode?: number;
@@ -57,9 +58,9 @@ export const errorHandler = (
 
     if (req.accepts('html')) {
         if (status === 404) {
-            return res.status(404).sendFile('404.html', { root: './public' });
+            return await serveHtml(res, 'public/404.html', 404);
         }
-        return res.status(status).sendFile('500.html', { root: './public' });
+        return await serveHtml(res, 'public/500.html', status);
     }
 
     res.status(status).json({
