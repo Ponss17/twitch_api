@@ -99,10 +99,18 @@ export const saveUser = async (user: StoredUser): Promise<void> => {
         throw error;
     }
 
-    await Promise.all([
+    const cachePromises = [
         cacheService.del(`cache:user:id:${user.userId}`),
         cacheService.del(`cache:user:login:${user.login.toLowerCase()}`)
-    ]).catch((e) => logger.error('Error invalidando caché de usuario:', e));
+    ];
+
+    if (user.apiKey) {
+        cachePromises.push(cacheService.invalidateApiKeyCache(user.apiKey));
+    }
+
+    await Promise.all(cachePromises).catch((e) =>
+        logger.error('Error invalidando caché de usuario:', e)
+    );
 };
 
 export const getUser = async (userId: string): Promise<StoredUser | null> => {
