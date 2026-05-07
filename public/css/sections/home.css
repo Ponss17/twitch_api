@@ -273,6 +273,35 @@
     animation: slideInSoft 0.3s ease-out forwards;
 }
 
+.log-date-divider {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 8px 0 4px;
+    margin-top: 4px;
+    position: relative;
+}
+
+.log-date-divider::before,
+.log-date-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 40px);
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.log-date-divider::before {
+    left: 0;
+}
+
+.log-date-divider::after {
+    right: 0;
+}
+
 .log-time {
     color: var(--text-muted);
     font-size: 0.8rem;
