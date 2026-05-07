@@ -29,16 +29,27 @@ export const UI = {
      * Muestra un toast notification usando el sistema conectado al dashboardStore.
      * @param message - Mensaje a mostrar (texto plano, se escapará automáticamente)
      * @param type - Tipo de toast: 'success' | 'error' | 'info' | 'warning'
-     * @param duration - Duración en ms (default: 4000)
+     * @param durationOrIcon - Duración en ms o string de icono (fa-check, etc)
+     * @param icon - Icono explícito (si el 3er parámetro fue duración)
      */
     showToast(
         message: string,
         type: 'success' | 'error' | 'info' | 'warning' = 'success',
-        duration = 4000
+        durationOrIcon: number | string = 4000,
+        icon?: string
     ) {
+        let duration = 4000;
+        let finalIcon = icon;
+
+        if (typeof durationOrIcon === 'string') {
+            finalIcon = durationOrIcon;
+        } else if (typeof durationOrIcon === 'number') {
+            duration = durationOrIcon;
+        }
+
         // Limpiar el mensaje de cualquier HTML para seguridad
         const cleanMessage = this.escapeHTML(message);
-        ToastActions.add(cleanMessage, type, duration);
+        ToastActions.add(cleanMessage, type, duration, finalIcon);
     },
 
     copyToClipboard(text: string) {
