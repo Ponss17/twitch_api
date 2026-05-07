@@ -316,6 +316,34 @@ code {
     animation: fadeOutRight 0.3s forwards;
 }
 
+.toast span {
+    flex: 1;
+}
+
+.toast-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+    margin-left: auto;
+}
+
+.toast-close i {
+    color: inherit !important;
+    font-size: 1rem !important;
+}
+
+.toast-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
 @keyframes slideInRight {
     from {
         opacity: 0;
