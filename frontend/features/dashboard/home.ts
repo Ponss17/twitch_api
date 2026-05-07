@@ -423,8 +423,34 @@ export const HomeModule = {
         }
         logContainer.classList.remove('is-empty');
 
+        const today = new Date().toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'long'
+        });
+        const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'long'
+        });
+        let lastDateLabel = '';
+
         logs.forEach((log) => {
-            const time = new Date(log.timestamp).toLocaleTimeString('es-ES', {
+            const logDate = new Date(log.timestamp);
+            const dateLabel = logDate.toLocaleDateString('es-ES', {
+                day: 'numeric',
+                month: 'long'
+            });
+
+            if (dateLabel !== lastDateLabel) {
+                lastDateLabel = dateLabel;
+                const dateDivider = document.createElement('div');
+                dateDivider.className = 'log-date-divider';
+                const displayLabel =
+                    dateLabel === today ? 'Hoy' : dateLabel === yesterday ? 'Ayer' : dateLabel;
+                dateDivider.textContent = displayLabel;
+                logContainer.appendChild(dateDivider);
+            }
+
+            const time = logDate.toLocaleTimeString('es-ES', {
                 hour: '2-digit',
                 minute: '2-digit'
             });
