@@ -5,9 +5,15 @@
             "maxDuration": 10
         }
     },
+    "crons": [
+        {
+            "path": "/health",
+            "schedule": "*/5 * * * *"
+        }
+    ],
     "headers": [
         {
-            "source": "/(img|css|js)/(.*)",
+            "source": "/(css|js|img|fonts)/(.*)",
             "headers": [
                 {
                     "key": "Cache-Control",
@@ -16,11 +22,20 @@
             ]
         },
         {
-            "source": "/api/twitch/(img|css|js)/(.*)",
+            "source": "/api/twitch/(css|js|img|fonts)/(.*)",
             "headers": [
                 {
                     "key": "Cache-Control",
                     "value": "public, max-age=31536000, immutable"
+                }
+            ]
+        },
+        {
+            "source": "/sw.js",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=0, must-revalidate"
                 }
             ]
         },
@@ -57,7 +72,7 @@
     ],
     "rewrites": [
         {
-            "source": "/((?!api/twitch/_vercel|img|css|js|components|_vercel|sw\\.js).*)",
+            "source": "/((?!api/twitch/_vercel|img|css|js|fonts|components|_vercel|sw\\.js|favicon\\.ico).*)",
             "destination": "/api/index.ts"
         }
     ]

@@ -3,10 +3,8 @@ import { configureMiddleware } from './core/startup/middleware';
 import { configureStatic } from './core/startup/static';
 import { configureRoutes, configurePageRoutes } from './core/startup/routes';
 import { validateConfig } from './core/startup/config-check';
-import { initSentry } from './core/utils/sentry';
 
 validateConfig();
-initSentry();
 
 const app: Application = express();
 
