@@ -1,16 +1,5 @@
 {
     "version": 2,
-    "functions": {
-        "api/index.ts": {
-            "maxDuration": 10
-        }
-    },
-    "crons": [
-        {
-            "path": "/health",
-            "schedule": "*/5 * * * *"
-        }
-    ],
     "headers": [
         {
             "source": "/(css|js|img|fonts)/(.*)",
