@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger, clearRequestId, getRequestId, asyncContext } from '../utils/logger';
-import { Sentry } from '../utils/sentry';
+
 import { serveHtml } from '../utils/serveHtml';
 import { isBotCommand, isApiRoute } from '../utils/routeHelpers';
 
@@ -32,10 +32,6 @@ export const errorHandler = async (
 
     const status = err.statusCode || err.status || 500;
     const message = err.message || 'Error interno del servidor';
-
-    if (status >= 500) {
-        Sentry.captureException(err);
-    }
 
     // Limpiar requestId al finalizar
     clearRequestId();
