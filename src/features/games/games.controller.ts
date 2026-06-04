@@ -79,7 +79,7 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
         }
 
         const isHardcore = hardcore === 'true';
-        const sendToChat = format !== 'json';
+        const sendToChat = req.query.sendToChat === 'true';
 
         const result = await trackRequest(
             effectiveUserId || ANONYMOUS_USER_ID,
