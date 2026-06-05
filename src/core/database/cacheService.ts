@@ -49,7 +49,7 @@ export const get = async <T = unknown>(key: string): Promise<T | null> => {
 
     const fetchPromise = (async () => {
         try {
-            const value = await kv.get<T>(key);
+            const value = await kv.get<T>(`twitch_api:${key}`);
             if (value !== null) setL1<T>(key, value);
             return value;
         } catch (error) {
@@ -71,7 +71,7 @@ export const set = async <T = unknown>(
 ): Promise<void> => {
     setL1<T>(key, value, ttlSeconds * 1000);
     try {
-        await kv.set(key, value, { ex: ttlSeconds });
+        await kv.set(`twitch_api:${key}`, value, { ex: ttlSeconds });
     } catch (error) {
         console.error(`[Cache] Error KV set (${key}):`, error);
     }
@@ -81,7 +81,7 @@ export const del = async (key: string): Promise<void> => {
     MEMORY_CACHE.delete(key);
     pendingKVRequests.delete(key);
     try {
-        await kv.del(key);
+        await kv.del(`twitch_api:${key}`);
     } catch (error) {
         console.error(`[Cache] Error KV del (${key}):`, error);
     }
@@ -110,7 +110,7 @@ export const setCachedApiUser = async (apiKey: string, user: StoredUser): Promis
 export const invalidateApiKeyCache = async (apiKey: string): Promise<void> => {
     MEMORY_CACHE.delete(`cache:apiuser:${apiKey}`);
     try {
-        await kv.del(`cache:apiuser:${apiKey}`);
+        await kv.del(`twitch_api:cache:apiuser:${apiKey}`);
     } catch (error) {
         console.error(`[Cache] Error KV del apiuser (${apiKey}):`, error);
     }

@@ -41,7 +41,7 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
         }
 
         const currentWindow = Math.floor(Date.now() / 60000); // Ventana de 1 minuto
-        const redisKey = `${key}:${currentWindow}`;
+        const redisKey = `twitch_api:${key}:${currentWindow}`;
 
         // Incrementar el contador en Redis
         const count = await kv.incr(redisKey);
@@ -109,7 +109,7 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
 
     const key = `rl:heavy:${apiUser.userId}`;
     const limit = RATE_LIMITS.HEAVY;
-    const redisKey = `${key}:${Math.floor(Date.now() / 60000)}`;
+    const redisKey = `twitch_api:${key}:${Math.floor(Date.now() / 60000)}`;
 
     try {
         const count = await kv.incr(redisKey);
@@ -143,7 +143,7 @@ export const authRateLimiter = async (req: Request, res: Response, next: NextFun
     const key = `rl:auth:${safeIp}`;
     const limit = RATE_LIMITS.LOGIN;
     const windowSeconds = 5 * 60; // 5 minutos
-    const redisKey = `${key}:${Math.floor(Date.now() / (windowSeconds * 1000))}`;
+    const redisKey = `twitch_api:${key}:${Math.floor(Date.now() / (windowSeconds * 1000))}`;
 
     try {
         const count = await kv.incr(redisKey);
