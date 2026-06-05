@@ -56,7 +56,7 @@ describe('Circuit Breaker — lógica de estado', () => {
     it('persiste estado OPEN en KV al abrir el circuito', () => {
         for (let i = 0; i < 5; i++) recordFailure();
         expect(mockKvSet).toHaveBeenCalledWith(
-            'circuit_breaker:twitch',
+            'twitch_api:circuit_breaker:twitch',
             expect.objectContaining({ state: 'OPEN', lastFailure: expect.any(Number) }),
             { ex: 120 }
         );
@@ -86,6 +86,6 @@ describe('Circuit Breaker — lógica de estado', () => {
         recordSuccess();
         expect(CIRCUIT_BREAKER.state).toBe('CLOSED');
         expect(CIRCUIT_BREAKER.failures).toBe(0);
-        expect(mockKvDel).toHaveBeenCalledWith('circuit_breaker:twitch');
+        expect(mockKvDel).toHaveBeenCalledWith('twitch_api:circuit_breaker:twitch');
     });
 });
