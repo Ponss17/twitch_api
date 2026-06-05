@@ -33,6 +33,7 @@
         "url": "https://github.com/Ponss17/twitch_api/issues"
     },
     "homepage": "https://github.com/Ponss17/twitch_api#readme",
+    "packageManager": "pnpm@11.1.2",
     "dependencies": {
         "@sentry/node": "^10.51.0",
         "@supabase/supabase-js": "^2.100.0",
