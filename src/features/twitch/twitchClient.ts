@@ -6,7 +6,7 @@ import { CONFIG } from '../../core/config/env';
 import { logger } from '../../core/utils/logger';
 import { TwitchApiError } from '../../core/errors/AppError';
 
-const CB_KV_KEY = 'circuit_breaker:twitch';
+const CB_KV_KEY = 'twitch_api:circuit_breaker:twitch';
 const CB_KV_TTL_S = 120;
 
 const httpsAgent = new https.Agent({ keepAlive: true });
