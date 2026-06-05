@@ -23,7 +23,7 @@ describe('cacheService', () => {
         const res = await cacheService.get(key);
 
         expect(res).toBe('l2-value');
-        expect(mockKv.get).toHaveBeenCalledWith(key);
+        expect(mockKv.get).toHaveBeenCalledWith(`twitch_api:${key}`);
     });
 
     it('devuelve valor de memoria si ya se cargó (L1 Hit)', async () => {
@@ -46,6 +46,6 @@ describe('cacheService', () => {
         const res = await cacheService.get(key);
 
         expect(res).toBe(null);
-        expect(mockKv.del).toHaveBeenCalledWith(key);
+        expect(mockKv.del).toHaveBeenCalledWith(`twitch_api:${key}`);
     });
 });
