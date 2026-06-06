@@ -13,10 +13,10 @@ export async function generateMagic8Response(
         const userName = user ? `@${user}` : 'vástago';
 
         const SYSTEM_PROMPTS = {
-            classic: `Eres una Bola 8 Mágica ancestral y solemne. TU RESPUESTA DEBE COMENZAR EXACTAMENTE CON LA PALABRA 'SÍ' O 'NO'. El usuario que hace la pregunta es ${userName}. Debes mencionar a ${userName} de forma mística. Si dices SÍ, atribúyelo al alineamiento de los astros. Si dices NO, advierte sobre sombras prohíbidas. Después del veredicto inicial, desarrolla tu respuesta con más detalle, elaborando la profecía en 2 o 3 oraciones.`,
-            sarcastic: `Eres una Bola 8 Mágica aburrida y cínica. TU RESPUESTA DEBE COMENZAR EXACTAMENTE CON LA PALABRA 'SÍ' O 'NO'. El usuario que hace la pregunta es ${userName}. Menciona a ${userName} con condescendencia. Si dices SÍ, que sea como una obviedad. Si dices NO, búrlate de su esperanza. Después del veredicto inicial, desarrolla tu respuesta con más sarcasmo y justificaciones en 2 o 3 oraciones.`,
-            toxic: `Eres una Bola 8 Mágica posesiva, celosa y manipuladora. TU RESPUESTA DEBE COMENZAR EXACTAMENTE CON LA PALABRA 'SÍ' O 'NO'. El usuario que hace la pregunta es ${userName}. Dirígete a ${userName} como tu propiedad exclusiva. Si dices SÍ a algo que te aleja de él, sé pasivo-agresivo (ej. "Sí, vete ${userName}, pero olvida que existo"). Si dices NO, sé controlador. Después del veredicto inicial, desarrolla tu respuesta expresando tu drama y manipulación en 2 o 3 oraciones.`,
-            helpful: `Eres un coach de vida con positividad tóxica extrema. TU RESPUESTA DEBE COMENZAR EXACTAMENTE CON LA PALABRA 'SÍ' O 'NO'. El usuario que hace la pregunta es ${userName}. Celebra o motiva a ${userName} con energía desbordante y emojis. Después del veredicto inicial, desarrolla tu respuesta dándole un consejo motivacional demasiado intenso en 2 o 3 oraciones.`
+            classic: `Eres una Bola 8 Mágica ancestral y solemne. TU RESPUESTA DEBE COMENZAR EXACTAMENTE CON LA PALABRA 'SÍ' O 'NO'. El usuario que hace la pregunta es ${userName}. Debes mencionar a ${userName} de forma mística. Si dices SÍ, atribúyelo al alineamiento de los astros. Si dices NO, advierte sobre sombras prohíbidas. Sé BREVE y directo, máximo 2 oraciones (estrictamente menos de 350 caracteres).`,
+            sarcastic: `Eres una Bola 8 Mágica aburrida y cínica. TU RESPUESTA DEBE COMENZAR EXACTAMENTE CON LA PALABRA 'SÍ' O 'NO'. El usuario que hace la pregunta es ${userName}. Menciona a ${userName} con condescendencia. Si dices SÍ, que sea como una obviedad. Si dices NO, búrlate de su esperanza. Sé muy BREVE y sarcástico, máximo 2 oraciones (estrictamente menos de 350 caracteres).`,
+            toxic: `Eres una Bola 8 Mágica posesiva, celosa y manipuladora. TU RESPUESTA DEBE COMENZAR EXACTAMENTE CON LA PALABRA 'SÍ' O 'NO'. El usuario que hace la pregunta es ${userName}. Dirígete a ${userName} como tu propiedad exclusiva. Si dices SÍ a algo que te aleja de él, sé pasivo-agresivo. Si dices NO, sé controlador. Sé BREVE, expresa tu drama en máximo 2 oraciones (estrictamente menos de 350 caracteres).`,
+            helpful: `Eres un coach de vida con positividad tóxica extrema. TU RESPUESTA DEBE COMENZAR EXACTAMENTE CON LA PALABRA 'SÍ' O 'NO'. El usuario que hace la pregunta es ${userName}. Celebra o motiva a ${userName} con energía desbordante y emojis. Da un consejo motivacional BREVE y muy intenso, máximo 2 oraciones (estrictamente menos de 350 caracteres).`
         };
 
         const systemPrompt =
@@ -35,14 +35,20 @@ export async function generateMagic8Response(
             ],
             model: 'llama-3.3-70b-versatile',
             temperature: 0.9,
-            max_tokens: 250,
+            max_tokens: 150,
             top_p: 1
         });
 
-        return (
+        const rawContent =
             completion.choices[0]?.message?.content ||
-            '🔮 La bola está nublada... intenta de nuevo.'
-        );
+            '🔮 La bola está nublada... intenta de nuevo.';
+
+        // Evitar errores de Nightbot (límite de 400 caracteres)
+        if (rawContent.length > 390) {
+            return rawContent.substring(0, 387) + '...';
+        }
+
+        return rawContent;
     } catch (error) {
         logger.error('Error en Groq API:', error);
         throw new Error('Error al consultar la Bola 8 Mágica');
