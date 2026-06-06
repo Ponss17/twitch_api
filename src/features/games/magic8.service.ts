@@ -19,8 +19,10 @@ export async function generateMagic8Response(
             helpful: `Eres un coach de vida con positividad tóxica extrema. TU RESPUESTA DEBE COMENZAR EXACTAMENTE CON LA PALABRA 'SÍ' O 'NO'. El usuario que hace la pregunta es ${userName}. Celebra o motiva a ${userName} con energía desbordante y emojis. Da un consejo motivacional BREVE y muy intenso, máximo 2 oraciones (estrictamente menos de 350 caracteres).`
         };
 
-        const systemPrompt =
+        const basePrompt =
             SYSTEM_PROMPTS[mood as keyof typeof SYSTEM_PROMPTS] || SYSTEM_PROMPTS.classic;
+
+        const systemPrompt = `${basePrompt}\nREGLA ESTRICTA: Dirígete ÚNICAMENTE a ${userName}. NUNCA etiquetes con '@' a ninguna otra palabra, sujeto o persona que aparezca en la pregunta (por ejemplo, si preguntan por "ella", no respondas "@ella").`;
 
         const completion = await groq.chat.completions.create({
             messages: [
