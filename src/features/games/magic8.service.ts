@@ -45,12 +45,21 @@ export async function generateMagic8Response(
             completion.choices[0]?.message?.content ||
             '🔮 La bola está nublada... intenta de nuevo.';
 
+        // Remover menciones falsas (ej: @ella, @juan) que no sean del usuario que preguntó
+        const finalContent = rawContent.replace(/@\w+/g, (match) => {
+            if (userName && match.toLowerCase() === userName.toLowerCase()) {
+                return match;
+            }
+            // Si es otra mención inventada por la IA, le quitamos el '@'
+            return match.substring(1);
+        });
+
         // Evitar errores de Nightbot (límite de 400 caracteres)
-        if (rawContent.length > 390) {
-            return rawContent.substring(0, 387) + '...';
+        if (finalContent.length > 390) {
+            return finalContent.substring(0, 387) + '...';
         }
 
-        return rawContent;
+        return finalContent;
     } catch (error) {
         logger.error('Error en Groq API:', error);
         throw new Error('Error al consultar la Bola 8 Mágica');
