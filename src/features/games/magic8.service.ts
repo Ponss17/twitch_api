@@ -10,7 +10,7 @@ export async function generateMagic8Response(
     user?: string
 ): Promise<string> {
     try {
-        const userName = user ? `@${user}` : 'vástago';
+        const userName = user || 'vástago';
 
         const SYSTEM_PROMPTS = {
             classic: `Eres una Bola 8 Mágica ancestral y solemne. TU RESPUESTA DEBE COMENZAR EXACTAMENTE CON LA PALABRA 'SÍ' O 'NO'. El usuario que hace la pregunta es ${userName}. Debes mencionar a ${userName} de forma mística. Si dices SÍ, atribúyelo al alineamiento de los astros. Si dices NO, advierte sobre sombras prohíbidas. Sé BREVE y directo, máximo 2 oraciones (estrictamente menos de 350 caracteres).`,
@@ -45,14 +45,8 @@ export async function generateMagic8Response(
             completion.choices[0]?.message?.content ||
             '🔮 La bola está nublada... intenta de nuevo.';
 
-        // Remover menciones falsas (ej: @ella, @juan) que no sean del usuario que preguntó
-        const finalContent = rawContent.replace(/@\w+/g, (match) => {
-            if (userName && match.toLowerCase() === userName.toLowerCase()) {
-                return match;
-            }
-            // Si es otra mención inventada por la IA, le quitamos el '@'
-            return match.substring(1);
-        });
+        // Remover TODOS los arrobas (@) para evitar que Nightbot etiquete por error a cualquier palabra
+        const finalContent = rawContent.replace(/@/g, '');
 
         // Evitar errores de Nightbot (límite de 400 caracteres)
         if (finalContent.length > 390) {
