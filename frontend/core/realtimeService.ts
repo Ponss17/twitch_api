@@ -110,6 +110,7 @@ export class RealtimeService {
      * Inicializa el cliente de Supabase
      */
     private initializeClient(): boolean {
+        if (this.supabase) return true;
         try {
             // Crear cliente de Supabase básico
             this.supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
@@ -131,6 +132,7 @@ export class RealtimeService {
      * Crea y configura el canal de realtime para el usuario
      */
     private async setupChannel(): Promise<boolean> {
+        if (this.channel) return true;
         if (!this.supabase || !this.session?.userId) return false;
 
         // Obtener token JWT para autenticación
