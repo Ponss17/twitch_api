@@ -64,17 +64,6 @@ describe('authController', () => {
                 undefined
             );
         });
-
-        it('should pass isAdmin flag when admin=true', () => {
-            const req = mockReq({ query: { admin: 'true' } });
-            const res = mockRes();
-
-            (authService.getAuthorizeUrl as jest.Mock).mockReturnValue('https://twitch.tv/auth');
-
-            login(req, res);
-
-            expect(authService.getAuthorizeUrl).toHaveBeenCalledWith('', { isAdmin: true });
-        });
     });
 
     describe('callback', () => {
@@ -122,8 +111,7 @@ describe('authController', () => {
             (authService.handleCallback as jest.Mock).mockResolvedValue({
                 user: { id: '999', login: 'testuser', display_name: 'TestUser' },
                 redirectOrigin: '',
-                apiKey: 'key_abc',
-                isAdmin: false
+                apiKey: 'key_abc'
             });
 
             await callback(req, res);
