@@ -59,7 +59,6 @@ export const handleCallback = async (
     access_token: string;
     redirectOrigin: string;
     apiKey: string;
-    isAdmin: boolean;
 }> => {
     const tokenResponse = await axios.post(`${TWITCH_AUTH_URL}/token`, null, {
         params: {
@@ -117,18 +116,16 @@ export const handleCallback = async (
     await dbService.saveUser(storedUser);
 
     let redirectOrigin = '';
-    let isAdmin = false;
     if (state) {
         const decoded = decodedState ?? verifyState(state);
         if (!decoded) {
             logger.warn('⚠ OAuth state inválido o manipulado. Ignorando redirectOrigin.');
         } else {
             redirectOrigin = (decoded.redirectOrigin as string) || '';
-            isAdmin = decoded.isAdmin === true;
         }
     }
 
-    return { user, access_token, redirectOrigin, apiKey, isAdmin };
+    return { user, access_token, redirectOrigin, apiKey };
 };
 
 // Para evitar que múltiples peticiones simultáneas refresquen el mismo token (Race Condition)

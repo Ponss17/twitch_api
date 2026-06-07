@@ -19,8 +19,7 @@ const envSchema = z.object({
     DISCORD_FEEDBACK_WEBHOOK_URL: z.string().url().optional(),
     GROQ_API_KEY: z.string().optional(),
     BASE_URL: z.string().url().default('https://www.losperris.dev/api/twitch'),
-    ADMIN_ROOT_ID: z.string().optional(),
-    ADMIN_PASSWORD: z.string().optional(),
+    // Admin vars removed
     SUPABASE_URL: z.string().url().min(1, 'SUPABASE_URL es obligatorio'),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'SUPABASE_SERVICE_ROLE_KEY es obligatorio'),
     SUPABASE_ANON_KEY: z.string().min(1, 'SUPABASE_ANON_KEY es obligatorio'),
@@ -42,8 +41,7 @@ const envVars = {
     DISCORD_FEEDBACK_WEBHOOK_URL: process.env.DISCORD_FEEDBACK_WEBHOOK_URL,
     GROQ_API_KEY: process.env.GROQ_API_KEY,
     BASE_URL: process.env.BASE_URL || (isTest ? 'http://localhost' : undefined),
-    ADMIN_ROOT_ID: process.env.ADMIN_ROOT_ID,
-    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
+    // Admin vars removed
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || (isTest ? 'test_anon' : undefined),

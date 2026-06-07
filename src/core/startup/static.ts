@@ -1,6 +1,5 @@
 import express, { Application } from 'express';
 import path from 'path';
-import { localOnly } from '../middleware/localOnly';
 
 export const configureStatic = (app: Application) => {
     // Desarrollo: public/ en raíz | Producción (Vercel): dist/public/
@@ -35,12 +34,7 @@ export const configureStatic = (app: Application) => {
     app.use('/api/twitch', express.static(distPublicPath, standardCache));
     app.use(express.static(distPublicPath, standardCache));
 
-    // Assets del panel admin (CSS, JS) — solo accesibles desde localhost
-    // Los HTML se sirven via serveHtml() en routes.ts para inyectar el nonce CSP
-    const adminStaticOptions = { fallthrough: true, extensions: ['js', 'css'] };
-    const adminPath = path.join(process.cwd(), 'admin');
-    app.use('/api/twitch/admin', localOnly, express.static(adminPath, adminStaticOptions));
-    app.use('/admin', localOnly, express.static(adminPath, adminStaticOptions));
+    // Ya no se sirven estáticos de Admin
 
     // Interceptar 404 de assets estáticos para evitar que caigan al router
     app.use((req, res, next) => {

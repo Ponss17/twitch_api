@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import * as authService from './auth.service';
-import * as dbService from '../../core/database/dbService';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { ALLOWED_ORIGINS } from '../../core/config/origins';
@@ -20,11 +19,9 @@ const isAllowedOrigin = (origin: string, req: Request): boolean => {
 
 export const login = (req: Request, res: Response) => {
     const redirectOrigin = (req.query.redirect_origin as string) || '';
-    const isAdmin = req.query.admin === 'true';
     const tz = (req.query.tz as string) || '';
 
     const extraData: Record<string, unknown> = {};
-    if (isAdmin) extraData.isAdmin = true;
     if (tz) extraData.tz = tz;
 
     const url = authService.getAuthorizeUrl(
@@ -47,20 +44,11 @@ export const callback = async (req: Request, res: Response) => {
             decodedState = authService.verifyState(state);
         }
 
-        const { user, redirectOrigin, apiKey, isAdmin } = await authService.handleCallback(
+        const { user, redirectOrigin, apiKey } = await authService.handleCallback(
             code,
             state,
             decodedState
         );
-
-        if (isAdmin) {
-            const isAuthorized = await dbService.isAdmin(user.id);
-            if (!isAuthorized) {
-                logger.warn(`🚫 Intento de acceso admin denegado para: ${user.login} (${user.id})`);
-                return res.redirect('/api/twitch/admin/login?error=not_authorized');
-            }
-            return res.redirect(`/api/twitch/admin-dashboard?session=${apiKey}`);
-        }
 
         const params = `?apiKey=${apiKey}&userId=${user.id}&login=${user.login}&displayName=${encodeURIComponent(user.display_name)}`;
 

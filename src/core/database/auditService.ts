@@ -61,8 +61,7 @@ export type AuditAction =
     | 'user_deleted'
     | 'user_blocked'
     | 'user_unblocked'
-    | 'admin_added'
-    | 'admin_removed'
+    | 'user_unblocked'
     | 'stats_cleared';
 
 export interface AuditLogEntry {
