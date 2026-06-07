@@ -131,7 +131,8 @@ export const HomeModule = {
 
         // Desconectar realtime
         if (this.realtimeService) {
-            RealtimeServiceFactory.destroy();
+            // Ya NO destruimos la conexión aquí para mantener el WebSockets vivo entre pestañas
+            // y evitar el log spam de "Multiple GoTrueClient instances".
             this.realtimeService = null;
         }
 
