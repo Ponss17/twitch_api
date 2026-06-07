@@ -13,8 +13,8 @@ app.set('etag', 'strong');
 // 1. Middleware Global (Logs, Security, Body Parser)
 configureMiddleware(app);
 
-// 2. Rutas de Páginas (HTML, Admin, Docs) - PRIORITARIAS antes de estáticos
-// Esto evita que carpetas como /public/admin causen redirects (301) indeseados
+// 2. Rutas de Páginas (HTML, Docs) - PRIORITARIAS antes de estáticos
+// Esto evita que carpetas como /public/ causen redirects (301) indeseados
 configurePageRoutes(app);
 
 // 3. Archivos Estáticos (Assets, CSS, JS)

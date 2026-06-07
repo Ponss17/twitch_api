@@ -2,8 +2,7 @@ import { z } from 'zod';
 
 export const loginSchema = z.object({
     query: z.object({
-        redirect_origin: z.string().optional(),
-        admin: z.enum(['true', 'false']).optional()
+        redirect_origin: z.string().optional()
     }),
     body: z.any().optional(),
     params: z.any().optional()

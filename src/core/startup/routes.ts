@@ -5,15 +5,10 @@ import { apiKeyValidator } from '../middleware/apiKeyValidator';
 import checkToken from '../middleware/authMiddleware';
 import { isApiRoute } from '../utils/routeHelpers';
 import authRoutes from '../../features/auth/auth.routes';
-import { loadAdminRouter } from '../../routes/adminProxy';
 import apiRouter from '../../routes/index';
 import { getRobotsTxt, getSitemapXml } from '../../features/system/seo.controller';
 import { errorHandler } from '../middleware/errorMiddleware';
-import { localOnly } from '../middleware/localOnly';
 import { serveHtml } from '../utils/serveHtml';
-
-// El adminRouter es opcional: solo existe localmente (está en .gitignore)
-const adminRouter = loadAdminRouter();
 
 export const configurePageRoutes = (app: Application) => {
     // --- VISTAS Y RUTAS ESTATICAS (HTML) ---
@@ -35,38 +30,6 @@ export const configurePageRoutes = (app: Application) => {
         await serveHtml(res, 'public/sobre-la-api.html');
     });
 
-    // Admin routes — localOnly + nonce injection via serveHtml
-    // Se cubren todas las variantes (con y sin extensión .html) para evitar
-    // que express.static sirva los HTML sin inyectar el nonce CSP
-    app.get(
-        [
-            '/admin',
-            '/admin/login',
-            '/admin/login.html',
-            '/api/twitch/admin',
-            '/api/twitch/admin/login',
-            '/api/twitch/admin/login.html'
-        ],
-        localOnly,
-        async (_req: Request, res: Response) => {
-            await serveHtml(res, 'admin/login.html');
-        }
-    );
-
-    app.get(
-        [
-            '/admin-dashboard',
-            '/admin/dashboard',
-            '/admin/dashboard.html',
-            '/api/twitch/admin-dashboard',
-            '/api/twitch/admin/dashboard',
-            '/api/twitch/admin/dashboard.html'
-        ],
-        localOnly,
-        async (_req: Request, res: Response) => {
-            await serveHtml(res, 'admin/dashboard.html');
-        }
-    );
     // SEO (Servidos como páginas/archivos)
     app.get(['/robots.txt', '/api/twitch/robots.txt'], getRobotsTxt);
     app.get(['/sitemap.xml', '/api/twitch/sitemap.xml'], getSitemapXml);
@@ -88,15 +51,7 @@ export const configureRoutes = (app: Application) => {
         next();
     });
 
-    // Rutas de Admin (API) — solo local, solo si el módulo existe
-    // Se montan ANTES de los validadores globales para que el login local funcione
-    if (adminRouter) {
-        app.use(
-            ['/api/admin', '/api/twitch/admin', '/admin/api', '/admin'],
-            localOnly,
-            adminRouter
-        );
-    }
+    // Rutas de Admin removidas, el proyecto twitch_api ya no sirve al admin.
 
     app.use(apiKeyValidator);
     app.use(checkToken);

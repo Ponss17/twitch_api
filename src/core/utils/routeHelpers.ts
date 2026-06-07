@@ -30,7 +30,7 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
 
     // 2. Siempre es privado si no es un GET (acciones de escritura) en rutas sensibles
     // Las páginas HTML públicas siempre se sirven vía GET.
-    const sensitiveBases = ['/dashboard', '/minigames', '/admin', '/api/twitch/dashboard'];
+    const sensitiveBases = ['/minigames'];
     const isSensitiveBase = sensitiveBases.some(
         (prefix) => cleanPath === prefix || cleanPath.startsWith(`${prefix}/`)
     );
@@ -87,7 +87,7 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
     }
 
     // 6. Vistas HTML Públicas (Servidas como archivos estáticos si no son API)
-    const publicHtmlPaths = ['/dashboard', '/admin', '/sobre-la-api'];
+    const publicHtmlPaths = ['/sobre-la-api'];
 
     const isHtmlPath = publicHtmlPaths.some(
         (prefix) => cleanPath === prefix || cleanPath.startsWith(`${prefix}/`)

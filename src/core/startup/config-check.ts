@@ -3,12 +3,12 @@ import { logger } from '../utils/logger';
 
 export const validateConfig = () => {
     const isProd = CONFIG.NODE_ENV === 'production';
-    const missing = [];
+    const missing: string[] = [];
 
     // NOTE: TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET are validated at import time in env.ts
     // Here we only check production-specific variables
     if (isProd) {
-        if (!CONFIG.ADMIN_ROOT_ID) missing.push('ADMIN_ROOT_ID');
+        // Admin check eliminado
     }
 
     if (missing.length > 0) {

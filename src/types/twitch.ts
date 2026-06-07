@@ -41,7 +41,6 @@ export interface StoredUser {
     refreshToken: string;
     expiresIn: number;
     obtainedAt: number;
-    // Admin
     apiKey?: string;
     isActive?: boolean;
     blockedReason?: string;
