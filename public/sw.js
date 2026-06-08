@@ -1,4 +1,4 @@
-const CACHE_NAME = 'losperris-twitch-mq5dj6pb';
+const CACHE_NAME = 'losperris-twitch-mq5f82rc';
 const urlsToCache = [
     './',
     './dashboard',

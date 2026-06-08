@@ -124,6 +124,10 @@ export const HomeModule = {
             document.removeEventListener('visibilitychange', this.visibilityHandler);
             this.visibilityHandler = null;
         }
+        if (this._boundAuthFailed) {
+            window.removeEventListener('realtime:auth-failed', this._boundAuthFailed);
+            this._boundAuthFailed = null;
+        }
         if (this.syncService) {
             this.syncService.destroy();
             this.syncService = null;
