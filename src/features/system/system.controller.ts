@@ -127,10 +127,17 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
     }
 };
 
-export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
-    const token = req.twitchToken;
+let cachedHealthResult: any = null;
+let healthCacheExpiry = 0;
 
+export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
     try {
+        const now = Date.now();
+        // Si tenemos caché válida, responder inmediatamente sin hacer comprobaciones pesadas
+        if (cachedHealthResult && healthCacheExpiry > now) {
+            return res.status(cachedHealthResult.httpStatus).json(cachedHealthResult.data);
+        }
+
         // Ejecutamos TODAS las comprobaciones en paralelo para reducir latencia drásticamente
         const [dbResult, redisResult, twitchResult] = await Promise.all([
             // 1. DB Check
@@ -156,13 +163,12 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
                     return { status: 'offline', latency: Date.now() - start };
                 }
             })(),
-            // 3. Twitch Check (si hay token)
+            // 3. Twitch Check (Rápido, sin validar token para no consumir cuota/CPU)
             (async () => {
-                if (!token) return { status: 'skipped', latency: 0 };
                 const start = Date.now();
                 try {
-                    const val = await apiService.validateToken(token);
-                    return { status: val ? 'online' : 'offline', latency: Date.now() - start };
+                    await axios.get('https://id.twitch.tv', { timeout: 2000 });
+                    return { status: 'online', latency: Date.now() - start };
                 } catch {
                     return { status: 'offline', latency: Date.now() - start };
                 }
@@ -171,14 +177,15 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
 
         const dbStatus = dbResult.status as 'online' | 'offline';
         const redisStatus = redisResult.status as 'online' | 'offline';
-        const twitchStatus = twitchResult.status as 'online' | 'offline' | 'skipped';
+        const twitchStatus = twitchResult.status as 'online' | 'offline';
 
         const isOperational = dbStatus === 'online' && redisStatus === 'online';
 
         // --- 4. Métricas de Sistema ---
         const memoryUsage = process.memoryUsage();
 
-        res.status(isOperational ? 200 : 503).json({
+        const httpStatus = isOperational ? 200 : 503;
+        const responseData = {
             status: isOperational ? 'operational' : dbStatus === 'online' ? 'degraded' : 'down',
             timestamp: new Date().toISOString(),
             version: process.env.npm_package_version || '2.9.4',
@@ -196,7 +203,7 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
                 },
                 twitch: {
                     status: twitchStatus,
-                    latency: twitchResult.latency ? `${twitchResult.latency}ms` : 'n/a'
+                    latency: `${twitchResult.latency}ms`
                 }
             },
             system: {
@@ -206,7 +213,13 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
                     rss: `${Math.round(memoryUsage.rss / 1024 / 1024)}MB`
                 }
             }
-        });
+        };
+
+        // Guardar en caché por 60 segundos
+        cachedHealthResult = { httpStatus, data: responseData };
+        healthCacheExpiry = now + 60000;
+
+        res.status(httpStatus).json(responseData);
     } catch (e) {
         logger.error('Error in health check:', e);
         res.status(500).json({

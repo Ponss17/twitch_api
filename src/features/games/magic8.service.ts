@@ -46,7 +46,7 @@ export async function generateMagic8Response(
             '🔮 La bola está nublada... intenta de nuevo.';
 
         // Remover menciones falsas (ej: @ella, @juan) que no sean del usuario que preguntó
-        const finalContent = rawContent.replace(/@\w+/g, (match) => {
+        const finalContent = rawContent.replace(/@\w+/g, (match: string) => {
             if (userName && match.toLowerCase() === userName.toLowerCase()) {
                 return match;
             }

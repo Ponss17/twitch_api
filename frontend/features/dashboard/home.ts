@@ -241,7 +241,7 @@ export const HomeModule = {
         this.healthInterval = setInterval(() => {
             if (document.visibilityState === 'hidden') return;
             this.loadRealHealth();
-        }, 60000);
+        }, 300000); // Poll cada 5 minutos
     },
 
     startSmartPolling(): void {
@@ -256,7 +256,7 @@ export const HomeModule = {
             dashboardStore.setState({ isLeader: this.syncService.getIsLeader() });
         }
 
-        let countdown = 60;
+        let countdown = 300;
         if (lastSync) {
             const elapsed = now - parseInt(lastSync);
             if (elapsed < pollMs) {
@@ -276,7 +276,7 @@ export const HomeModule = {
             let currentCountdown = dashboardStore.getState().pollingCountdown - 1;
             if (currentCountdown <= 0) {
                 if (this.syncService?.getIsLeader()) this.performSync();
-                currentCountdown = 60;
+                currentCountdown = 300;
             }
             dashboardStore.setState({ pollingCountdown: currentCountdown });
         }, 1000);
@@ -287,7 +287,7 @@ export const HomeModule = {
                 dashboardStore.getState().pollingCountdown <= 0
             ) {
                 if (this.syncService?.getIsLeader()) this.performSync();
-                dashboardStore.setState({ pollingCountdown: 60 });
+                dashboardStore.setState({ pollingCountdown: 300 });
             }
         };
         document.addEventListener('visibilitychange', this.visibilityHandler);
