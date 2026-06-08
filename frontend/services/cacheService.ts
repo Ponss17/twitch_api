@@ -8,12 +8,17 @@ export const CACHE_TTL = 60000;
 
 export class CacheService {
     private cache: Map<string, CacheEntry>;
+    private cleanupInterval: ReturnType<typeof setInterval>;
     private readonly MAX_SIZE = 200;
 
     constructor() {
         this.cache = new Map();
 
-        setInterval(() => this.cleanup(), 60000);
+        this.cleanupInterval = setInterval(() => this.cleanup(), 60000);
+    }
+
+    destroy() {
+        if (this.cleanupInterval) clearInterval(this.cleanupInterval);
     }
 
     set<T>(key: string, data: T, ttl: number) {

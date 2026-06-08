@@ -151,13 +151,14 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
             throw new Error('Usuario no encontrado o sin refresh token');
         }
 
+        let timeoutId: NodeJS.Timeout | undefined;
         try {
-            const timeoutPromise = new Promise<never>((_, reject) =>
-                setTimeout(
+            const timeoutPromise = new Promise<never>((_, reject) => {
+                timeoutId = setTimeout(
                     () => reject(new Error('Token refresh timeout (15s)')),
                     REFRESH_TIMEOUT_MS
-                )
-            );
+                );
+            });
 
             const refreshRequest = axios.post(`${TWITCH_AUTH_URL}/token`, null, {
                 params: {
@@ -192,6 +193,7 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
             }
             throw new Error('No se pudo renovar el token. Relogueate.');
         } finally {
+            if (timeoutId) clearTimeout(timeoutId);
             refreshPromises.delete(userId);
         }
     })();
