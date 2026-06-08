@@ -76,6 +76,12 @@ CREATE TABLE IF NOT EXISTS public.system_logs (
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- 7. TABLA DE ESTADÍSTICAS GLOBALES DIARIAS
+CREATE TABLE IF NOT EXISTS public.platform_daily_stats (
+    date DATE PRIMARY KEY,
+    total_requests INTEGER DEFAULT 0
+);
+
 -- ========================================================
 -- FUNCIONES PERSONALIZADAS
 -- ========================================================
@@ -114,6 +120,11 @@ BEGIN
     total_errors   = total_errors + CASE WHEN NOT p_success THEN 1 ELSE 0 END,
     last_updated   = NOW()
   WHERE user_id = p_user_id;
+
+  -- NEW: Track global daily stats
+  INSERT INTO platform_daily_stats (date, total_requests)
+  VALUES (v_today, 1)
+  ON CONFLICT (date) DO UPDATE SET total_requests = platform_daily_stats.total_requests + 1;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
