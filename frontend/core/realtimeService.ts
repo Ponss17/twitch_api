@@ -29,6 +29,7 @@ export class RealtimeService {
     private supabase: ReturnType<typeof createClient> | null = null;
     private channel: RealtimeChannel | null = null;
     private token: string | null = null;
+    private tokenExpiry: number = 0; // timestamp ms en que expira el token actual
     private refreshInterval: ReturnType<typeof setInterval> | null = null;
     private session: Session | null = null;
     private isConnected: boolean = false;
@@ -52,6 +53,12 @@ export class RealtimeService {
      * Obtiene un token JWT firmado del backend para autenticación con Supabase
      */
     private async fetchToken(): Promise<string | null> {
+        // Reusar token en memoria si sigue válido (con 60s de margen de seguridad)
+        // Evita un round-trip innecesario a Vercel en cada resume()
+        if (this.token && Date.now() < this.tokenExpiry - 60_000) {
+            return this.token;
+        }
+
         // Verificar que haya credenciales antes de intentar
         if (!this.hasValidCredentials()) {
             console.warn('[Realtime] No authentication credentials available');
@@ -99,6 +106,9 @@ export class RealtimeService {
             }
 
             this.token = data.token;
+            // Guardar cuándo expira para reutilizarlo en futuros resume()
+            // El backend ahora devuelve expiresAt en ms
+            this.tokenExpiry = data.expiresAt ?? Date.now() + (data.expiresIn ?? 900) * 1000;
             return this.token;
         } catch (error) {
             console.error('[Realtime] Error fetching token:', error);
@@ -293,21 +303,22 @@ export class RealtimeService {
     }
 
     /**
-     * Configura el renovado automático del token cada 4 minutos
+     * Configura el renovado automático del token cada 10 minutos.
+     * El JWT ahora dura 15 min → margen de 5 min de seguridad.
+     * Antes era cada 4 min con tokens de 5 min → -60% de llamadas a Vercel.
      */
     private setupTokenRefresh(): void {
         if (this.refreshInterval) {
             clearInterval(this.refreshInterval);
         }
 
-        // Renovar token cada 4 minutos sin destruir la conexión
         this.refreshInterval = setInterval(async () => {
             const newToken = await this.fetchToken();
             if (newToken && this.supabase?.realtime) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (this.supabase.realtime as any).setAuth(newToken);
             }
-        }, 240000);
+        }, 600_000); // 10 minutos
     }
 
     /**
