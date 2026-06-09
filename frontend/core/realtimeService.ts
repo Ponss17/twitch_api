@@ -344,19 +344,57 @@ export class RealtimeService {
     }
 
     /**
-     * Desconecta el canal y limpia recursos
+     * PAUSA el servicio sin cerrar el WebSocket de Supabase.
+     * Solo detiene el renovado automático del token para no despertar
+     * a Vercel cada 4 minutos mientras el usuario no está en Home.
+     * Llamar cuando el módulo Home se desactiva.
+     */
+    pause(): void {
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+            this.refreshInterval = null;
+        }
+        console.log('[Realtime] Paused – WebSocket kept alive, token refresh stopped');
+    }
+
+    /**
+     * REANUDA el servicio después de una pausa.
+     * Si el WebSocket sigue vivo, solo reinicia el timer de refresco.
+     * Si el canal se cayó mientras estaba en pausa, reconecta completamente.
+     * Llamar cuando el módulo Home se activa de nuevo.
+     * @returns true si está (o quedó) conectado
+     */
+    async resume(): Promise<boolean> {
+        if (!this.isConnected || !this.channel) {
+            // El canal se cayó mientras estábamos pausados → reconexión completa
+            console.warn('[Realtime] Resuming but channel is gone, reconnecting...');
+            return this.connect(this.onDisconnectCallback ?? undefined);
+        }
+        // WebSocket sigue activo, solo reiniciamos el timer
+        this.setupTokenRefresh();
+        console.log('[Realtime] Resumed – token refresh restarted');
+        return true;
+    }
+
+    /**
+     * DESTRUYE completamente la conexión y limpia todos los recursos.
+     * Usar únicamente en logout o cuando cambia el usuario.
+     * Para navegación normal entre secciones, usar pause() / resume().
      */
     disconnect(): void {
+        // Limpiar interval de refresco
         if (this.refreshInterval) {
             clearInterval(this.refreshInterval);
             this.refreshInterval = null;
         }
 
+        // Desuscribir y destruir el canal
         if (this.channel) {
             this.channel.unsubscribe();
             this.channel = null;
         }
 
+        // Destruir cliente Supabase completamente
         if (this.supabase) {
             this.supabase.removeAllChannels();
             this.supabase = null;
@@ -364,10 +402,11 @@ export class RealtimeService {
 
         this.isConnected = false;
         this.token = null;
+        console.log('[Realtime] Disconnected – all resources released');
     }
 
     /**
-     * Verifica si está conectado
+     * Verifica si el canal está conectado
      */
     getIsConnected(): boolean {
         return this.isConnected;
