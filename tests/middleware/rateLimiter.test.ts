@@ -16,15 +16,23 @@ jest.mock('@/core/utils/routeHelpers', () => ({
     isApiRoute: jest.fn((path: string) => path.startsWith('/api') || path.startsWith('/twitch'))
 }));
 
-jest.mock('@vercel/kv', () => ({
-    kv: {
-        incr: jest.fn((key: string) => {
-            console.log('KV incr called with key:', key);
-            return Promise.resolve(0);
-        }),
-        expire: jest.fn()
-    }
-}));
+jest.mock('@vercel/kv', () => {
+    const incrMock = jest.fn((_key: string) => Promise.resolve(0));
+    return {
+        kv: {
+            incr: incrMock,
+            expire: jest.fn(),
+            pipeline: jest.fn().mockReturnValue({
+                incr: jest.fn().mockReturnThis(),
+                expire: jest.fn().mockReturnThis(),
+                exec: jest.fn().mockImplementation(async () => {
+                    const val = await incrMock('test');
+                    return [val, 1];
+                })
+            })
+        }
+    };
+});
 
 describe('globalRateLimiter', () => {
     let req: Request;
