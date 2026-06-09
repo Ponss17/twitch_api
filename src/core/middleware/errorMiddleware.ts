@@ -66,45 +66,39 @@ export const errorHandler = async (
 };
 
 /**
- * Middleware de logging estructurado para requests HTTP
- * Genera un ID de correlación único por request y logea información estructurada
+ * Middleware de logging estructurado para requests HTTP.
+ * Optimizado: omite logging para assets estáticos y solo logea errores al terminar.
  */
 export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
+    // Skip completo para assets estáticos: no gastar CPU en logging para .css, .js, imágenes, etc.
+    if (/\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(req.path)) {
+        return next();
+    }
+
     asyncContext.run(new Map(), () => {
         const start = Date.now();
 
         const requestId = logger.startRequest(req.method, req.path);
-
         res.locals.requestId = requestId;
 
-        const safeUrl = req.originalUrl.replace(
-            /([?&])(apiKey|token|access_token|refresh_token)=([^&]*)/gi,
-            '$1$2=[REDACTED]'
-        );
-
-        logger.info(`→ Request started`, {
-            requestId,
-            method: req.method,
-            url: safeUrl,
-            ip: req.ip,
-            userAgent: req.get('user-agent')?.slice(0, 100)
-        });
-
+        // Solo logear al finalizar si hay error (4xx/5xx) para reducir CPU
         res.on('finish', () => {
-            const duration = Date.now() - start;
-
-            const level = res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info';
-
-            const logMethod =
-                level === 'error' ? logger.error : level === 'warn' ? logger.warn : logger.info;
-            logMethod(`← Request completed: ${res.statusCode} in ${duration}ms`, {
-                requestId,
-                method: req.method,
-                endpoint: safeUrl,
-                statusCode: res.statusCode,
-                duration,
-                userId: (req as unknown as { user?: { id?: string } }).user?.id
-            });
+            if (res.statusCode >= 400) {
+                const duration = Date.now() - start;
+                const safeUrl = req.originalUrl.replace(
+                    /([?&])(apiKey|token|access_token|refresh_token)=([^&]*)/gi,
+                    '$1$2=[REDACTED]'
+                );
+                const logMethod = res.statusCode >= 500 ? logger.error : logger.warn;
+                logMethod(`← Request completed: ${res.statusCode} in ${duration}ms`, {
+                    requestId,
+                    method: req.method,
+                    endpoint: safeUrl,
+                    statusCode: res.statusCode,
+                    duration,
+                    userId: (req as unknown as { user?: { id?: string } }).user?.id
+                });
+            }
 
             clearRequestId();
         });
