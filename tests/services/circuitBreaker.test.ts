@@ -30,6 +30,7 @@ const resetCB = () => {
     CIRCUIT_BREAKER.failures = 0;
     CIRCUIT_BREAKER.lastFailure = 0;
     CIRCUIT_BREAKER.state = 'CLOSED';
+    CIRCUIT_BREAKER._synced = false;
 };
 
 describe('Circuit Breaker — lógica de estado', () => {
@@ -38,8 +39,8 @@ describe('Circuit Breaker — lógica de estado', () => {
         jest.clearAllMocks();
     });
 
-    it('circuito CLOSED: checkCircuit no lanza', () => {
-        expect(() => checkCircuit()).not.toThrow();
+    it('circuito CLOSED: checkCircuit no lanza', async () => {
+        await expect(checkCircuit()).resolves.not.toThrow();
     });
 
     it('recordFailure incrementa el contador', () => {
@@ -62,22 +63,22 @@ describe('Circuit Breaker — lógica de estado', () => {
         );
     });
 
-    it('circuito OPEN: checkCircuit lanza TwitchApiError 503', () => {
+    it('circuito OPEN: checkCircuit lanza TwitchApiError 503', async () => {
         for (let i = 0; i < 5; i++) recordFailure();
-        expect(() => checkCircuit()).toThrow(TwitchApiError);
-        expect(() => checkCircuit()).toThrow(expect.objectContaining({ statusCode: 503 }));
+        await expect(checkCircuit()).rejects.toThrow(TwitchApiError);
+        await expect(checkCircuit()).rejects.toMatchObject({ statusCode: 503 });
     });
 
-    it('pasa a HALF_OPEN tras el cooldown', () => {
+    it('pasa a HALF_OPEN tras el cooldown', async () => {
         for (let i = 0; i < 5; i++) recordFailure();
         CIRCUIT_BREAKER.lastFailure = Date.now() - 31_000;
-        expect(() => checkCircuit()).not.toThrow();
+        await expect(checkCircuit()).resolves.not.toThrow();
         expect(CIRCUIT_BREAKER.state).toBe('HALF_OPEN');
     });
 
-    it('circuito HALF_OPEN: checkCircuit no lanza, permite un intento', () => {
+    it('circuito HALF_OPEN: checkCircuit no lanza, permite un intento', async () => {
         CIRCUIT_BREAKER.state = 'HALF_OPEN';
-        expect(() => checkCircuit()).not.toThrow();
+        await expect(checkCircuit()).resolves.not.toThrow();
     });
 
     it('recordSuccess cierra el circuito y limpia KV', () => {
