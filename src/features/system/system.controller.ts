@@ -127,15 +127,26 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
     }
 };
 
-let cachedHealthResult: any = null;
+interface HealthCacheEntry {
+    httpStatus: number;
+    data: Record<string, unknown>;
+}
+let cachedHealthResult: HealthCacheEntry | null = null;
 let healthCacheExpiry = 0;
 
 export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const now = Date.now();
-        // Si tenemos caché válida, responder inmediatamente sin hacer comprobaciones pesadas
+        // 1. Cache en memoria (warm start): respuesta instantánea
         if (cachedHealthResult && healthCacheExpiry > now) {
             return res.status(cachedHealthResult.httpStatus).json(cachedHealthResult.data);
+        }
+        // 2. Cache en KV (cold start): evita 3 requests paralelas al arrancar
+        const kvCached = await cacheService.get<HealthCacheEntry>('health:result');
+        if (kvCached) {
+            cachedHealthResult = kvCached;
+            healthCacheExpiry = now + 60_000;
+            return res.status(kvCached.httpStatus).json(kvCached.data);
         }
 
         // Ejecutamos TODAS las comprobaciones en paralelo para reducir latencia drásticamente
@@ -215,9 +226,12 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
             }
         };
 
-        // Guardar en caché por 60 segundos
+        // Guardar en caché en memoria por 60 segundos (sobrevive warm starts)
         cachedHealthResult = { httpStatus, data: responseData };
-        healthCacheExpiry = now + 60000;
+        healthCacheExpiry = now + 60_000;
+
+        // Persistir en KV para sobrevivir cold starts de Vercel
+        cacheService.set('health:result', { httpStatus, data: responseData }, 60).catch(() => {}); // fire-and-forget, no bloquear la respuesta
 
         res.status(httpStatus).json(responseData);
     } catch (e) {
@@ -246,17 +260,20 @@ export const generateRealtimeToken = async (req: AuthenticatedRequest, res: Resp
     }
 
     try {
-        // Verificar que el usuario existe en la base de datos
-        const dbUser = await dbService.getUser(userId);
+        // checkToken ya validó al usuario y lo dejó en res.locals.apiUser.
+        // No es necesario volver a consultar Supabase — ahorramos 1 round-trip por renovación.
+        const dbUser = res.locals.apiUser;
         if (!dbUser) {
-            return res.status(404).json({
-                error: 'User not found',
-                message: 'Usuario no encontrado en el sistema'
+            return res.status(401).json({
+                error: 'Authentication required',
+                message: 'Usuario no autenticado'
             });
         }
 
-        // Crear payload del JWT para Supabase
-        // La estructura debe cumplir con lo que espera Supabase
+        // Token JWT con 15 minutos de vida (antes: 5 min).
+        // El frontend lo renueva cada 10 min → 60% menos llamadas a este endpoint.
+        const TOKEN_TTL_S = 900; // 15 minutos
+        const now = Math.floor(Date.now() / 1000);
         const payload = {
             sub: userId,
             user_id: userId,
@@ -264,26 +281,21 @@ export const generateRealtimeToken = async (req: AuthenticatedRequest, res: Resp
             role: 'authenticated',
             aud: 'authenticated',
             iss: 'losperris-api',
-            iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + 300 // 5 minutos de expiración
+            iat: now,
+            exp: now + TOKEN_TTL_S
         };
 
-        // Firmar el token con el JWT_SECRET de Supabase
         const token = jwt.sign(payload, CONFIG.SUPABASE_JWT_SECRET, {
             algorithm: 'HS256'
         });
 
-        // Log de generación de token (sin exponer el token completo)
-        logger.info('Realtime token generado', {
-            userId,
-            login: login || dbUser.login,
-            requestId: res.locals.requestId
-        });
+        // Debug: no llenar los logs con una línea por cada renovación periódica
+        logger.debug('Realtime token generado', { userId });
 
         res.json({
             token,
-            expiresAt: payload.exp * 1000, // Convertir a milisegundos para el frontend
-            expiresIn: 300 // segundos
+            expiresAt: payload.exp * 1000, // milisegundos para el frontend
+            expiresIn: TOKEN_TTL_S
         });
     } catch (error) {
         logger.error('Error generando realtime token:', {

@@ -143,11 +143,6 @@ export const HomeModule = {
         // Limpiar suscripciones al Store reactivo
         this.unsubscribers.forEach((unsub) => unsub());
         this.unsubscribers = [];
-
-        if (this._boundAuthFailed) {
-            window.removeEventListener('realtime:auth-failed', this._boundAuthFailed);
-            this._boundAuthFailed = null;
-        }
     },
 
     /**
@@ -287,7 +282,7 @@ export const HomeModule = {
             dashboardStore.setState({ isLeader: this.syncService.getIsLeader() });
         }
 
-        let countdown = 300;
+        let countdown = 60; // sincronizado con pollMs (1 minuto)
         if (lastSync) {
             const elapsed = now - parseInt(lastSync);
             if (elapsed < pollMs) {
