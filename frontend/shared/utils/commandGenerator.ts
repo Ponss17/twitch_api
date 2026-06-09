@@ -8,8 +8,9 @@ export const CommandGenerator = {
         nightbot: {
             urlfetch: (url: string) => `$(urlfetch ${url})`,
             arg: (name: string) => {
-                if (name === 'user') return '$(touser)';
-                if (name === 'query') return '$(querystring)';
+                if (name === 'user' || name === 'sender') return '$(user)';
+                if (name === 'touser') return '$(touser)';
+                if (name === 'query') return '$(1+)';
                 return `$(${name})`;
             }
         },
