@@ -133,11 +133,11 @@ export const HomeModule = {
             this.syncService = null;
         }
 
-        // Desconectar realtime
+        // Pausar realtime: el WebSocket de Supabase sigue vivo,
+        // pero dejamos de renovar el token cada 4 min para no consumir CPU en Vercel.
+        // NO nulleamos la referencia para poder reanudar en el próximo activate().
         if (this.realtimeService) {
-            // Ya NO destruimos la conexión aquí para mantener el WebSockets vivo entre pestañas
-            // y evitar el log spam de "Multiple GoTrueClient instances".
-            this.realtimeService = null;
+            this.realtimeService.pause();
         }
 
         // Limpiar suscripciones al Store reactivo
@@ -151,7 +151,9 @@ export const HomeModule = {
     },
 
     /**
-     * Intenta conectar con Supabase Realtime para actualizaciones en tiempo real
+     * Intenta conectar o reanudar Supabase Realtime.
+     * - Primera vez: inicialización completa (fetch token, abrir WebSocket).
+     * - Visitas subsiguientes: solo reinicia el timer de refresh (WebSocket ya está vivo).
      * Modo estricto: Sin sesion valida = redirigir al login (no fallback)
      */
     async connectRealtime(): Promise<void> {
@@ -170,6 +172,31 @@ export const HomeModule = {
             return;
         }
 
+        // ─── FAST PATH: ya existe una instancia pausada ───────────────────────
+        // El WebSocket de Supabase sigue abierto. Solo reiniciamos el timer
+        // de renovación de token. Costo en Vercel: 0.
+        if (this.realtimeService) {
+            console.log('[Home] Resuming paused realtime connection...');
+            const resumed = await this.realtimeService.resume();
+            if (resumed) {
+                this.useRealtime = true;
+                this.loadInitialData();
+                this.startHealthPolling();
+                const syncEl = document.getElementById('home-sync-indicator');
+                if (syncEl) {
+                    syncEl.textContent = 'Realtime';
+                    syncEl.classList.add('realtime-active');
+                }
+                return;
+            }
+            // resume() falló (canal caído) → intentó reconectar por su cuenta,
+            // si también falló caemos al bloque de abajo para el fallback de polling.
+            this.useRealtime = false;
+            this.startSmartPolling();
+            return;
+        }
+
+        // ─── SLOW PATH: primera vez ───────────────────────────────────────────
         try {
             console.log('[Home] Attempting realtime connection...');
 
