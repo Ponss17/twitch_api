@@ -210,7 +210,7 @@ export const COMMAND_CONFIG = {
         ) => {
             const botUtils = CommandGenerator.bots[bot];
             const challengerArg = bot === 'wizebot' ? '$(user_name)' : botUtils.arg('user');
-            const targetArg = botUtils.arg('touser') || botUtils.arg('1');
+            const targetArg = botUtils.arg('1') || botUtils.arg('touser');
 
             queryParams += `&challenger=${challengerArg}&target=${targetArg}`;
 
