@@ -24,7 +24,9 @@ jest.mock('../../src/features/twitch/twitch.service', () => ({
 
 jest.mock('@vercel/kv', () => ({
     kv: {
-        ping: jest.fn().mockResolvedValue('PONG')
+        ping: jest.fn().mockResolvedValue('PONG'),
+        get: jest.fn().mockResolvedValue(null),
+        set: jest.fn().mockResolvedValue('OK')
     }
 }));
 

@@ -17,5 +17,10 @@ export const kv = {
     lrange: jest.fn(),
     hincrby: jest.fn(),
     exists: jest.fn().mockResolvedValue(0),
-    keys: jest.fn().mockResolvedValue([])
+    keys: jest.fn().mockResolvedValue([]),
+    pipeline: jest.fn().mockReturnValue({
+        incr: jest.fn().mockReturnThis(),
+        expire: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue([1, 1])
+    })
 };
