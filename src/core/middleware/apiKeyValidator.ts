@@ -13,7 +13,9 @@ interface CachedApiKey {
     expiry: number;
 }
 
-const CACHE_TTL_MS = 60 * 1000;
+// 10 minutos: suficiente para no re-validar en cada comando del bot,
+// pero lo suficientemente corto para reflejar cambios de cuenta (suspensions, regenerar key).
+const CACHE_TTL_MS = 10 * 60 * 1000;
 const validKeysCache = new BoundedMap<string, CachedApiKey>(1000);
 const invalidKeysCache = new NegativeCache<string>(30 * 1000);
 

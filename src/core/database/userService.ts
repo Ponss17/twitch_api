@@ -155,7 +155,8 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
     const result = await decryptAndMigrateIfNeeded(user, `usuario ${userId}`);
     if (!result) return null;
 
-    await cacheService.set(cacheKey, result, 60);
+    // 10 min: suficiente para no re-consultar Supabase en cada comando del bot
+    await cacheService.set(cacheKey, result, 10 * 60);
     return result;
 };
 
@@ -172,7 +173,8 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
     const result = await decryptAndMigrateIfNeeded(user, `login ${login}`);
     if (!result) return null;
 
-    await cacheService.set(cacheKey, result, 5 * 60);
+    // 15 min: el login no cambia frecuentemente
+    await cacheService.set(cacheKey, result, 15 * 60);
     return result;
 };
 
