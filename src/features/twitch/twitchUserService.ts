@@ -2,6 +2,7 @@ import { TwitchUser, TwitchValidationResponse } from '../../types/twitch';
 import * as cacheService from '../../core/database/cacheService';
 import { getTimePhraseBetween } from '../../core/utils/time';
 import { TwitchApiError } from '../../core/errors/AppError';
+import { logger } from '../../core/utils/logger';
 import {
     apiClient,
     checkCircuit,
@@ -135,6 +136,3 @@ export const getFollowersCount = async (broadcasterId: string, token: string): P
         return 0;
     }
 };
-
-// Importación local para evitar ciclos
-import { logger } from '../../core/utils/logger';

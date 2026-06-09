@@ -43,11 +43,11 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
         const currentWindow = Math.floor(Date.now() / 60000); // Ventana de 1 minuto
         const redisKey = `twitch_api:${key}:${currentWindow}`;
 
-        // Incrementar el contador en Redis
-        const count = await kv.incr(redisKey);
-        if (count === 1) {
-            await kv.expire(redisKey, 60); // Caduca en 1 minuto
-        }
+        // Pipeline atómico: INCR + EXPIRE en un solo round-trip a Redis
+        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
+            number,
+            number
+        ];
 
         // Añadir headers estándares de Rate Limit
         res.setHeader('X-RateLimit-Limit', limit);
@@ -112,8 +112,10 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
     const redisKey = `twitch_api:${key}:${Math.floor(Date.now() / 60000)}`;
 
     try {
-        const count = await kv.incr(redisKey);
-        if (count === 1) await kv.expire(redisKey, 60);
+        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
+            number,
+            number
+        ];
 
         if (count > limit) {
             res.setHeader('Content-Type', 'text/plain');
@@ -146,8 +148,11 @@ export const authRateLimiter = async (req: Request, res: Response, next: NextFun
     const redisKey = `twitch_api:${key}:${Math.floor(Date.now() / (windowSeconds * 1000))}`;
 
     try {
-        const count = await kv.incr(redisKey);
-        if (count === 1) await kv.expire(redisKey, windowSeconds);
+        const [count] = (await kv
+            .pipeline()
+            .incr(redisKey)
+            .expire(redisKey, windowSeconds)
+            .exec()) as [number, number];
 
         if (count > limit) {
             if (
