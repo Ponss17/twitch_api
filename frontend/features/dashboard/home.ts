@@ -302,7 +302,7 @@ export const HomeModule = {
             let currentCountdown = dashboardStore.getState().pollingCountdown - 1;
             if (currentCountdown <= 0) {
                 if (this.syncService?.getIsLeader()) this.performSync();
-                currentCountdown = 300;
+                currentCountdown = Math.ceil(pollMs / 1000); // 60s, sincronizado con pollMs
             }
             dashboardStore.setState({ pollingCountdown: currentCountdown });
         }, 1000);
@@ -313,7 +313,7 @@ export const HomeModule = {
                 dashboardStore.getState().pollingCountdown <= 0
             ) {
                 if (this.syncService?.getIsLeader()) this.performSync();
-                dashboardStore.setState({ pollingCountdown: 300 });
+                dashboardStore.setState({ pollingCountdown: Math.ceil(pollMs / 1000) }); // 60s
             }
         };
         document.addEventListener('visibilitychange', this.visibilityHandler);
