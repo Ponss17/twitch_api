@@ -8,9 +8,12 @@ import { isPublicRoute, isApiRoute } from '../utils/routeHelpers';
 import { safeString } from '../utils/validationHelpers';
 import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 
-const CACHE_TTL = 60 * 1000;
-const TOKEN_VALIDATION_TTL = 30 * 1000;
-const LAST_ACTIVE_THROTTLE_MS = 5 * 60 * 1000;
+// TTLs amplios para reducir llamadas externas por comandos del bot de Twitch.
+// El bot puede mandar !followage, !clips, etc. cada pocos segundos en el chat:
+// con estos valores, el token y el usuario se validan UNA vez cada 10 min en lugar de cada 30s/60s.
+const CACHE_TTL = 10 * 60 * 1000; // 10 min — user lookup en Supabase
+const TOKEN_VALIDATION_TTL = 10 * 60 * 1000; // 10 min — validación de token contra Twitch API
+const LAST_ACTIVE_THROTTLE_MS = 30 * 60 * 1000; // 30 min — update de last_active en DB
 
 const userCache = new BoundedMap<string, { user: StoredUser; expiry: number }>(1000);
 const invalidTokensCache = new NegativeCache<string>(30 * 1000);

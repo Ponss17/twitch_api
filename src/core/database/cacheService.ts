@@ -96,7 +96,9 @@ export const setCachedUserId = async (username: string, id: string): Promise<voi
     await set(`cache:userId:${username.toLowerCase()}`, id, 24 * 60 * 60);
 };
 
-const API_USER_CACHE_TTL_S = 60;
+// TTL de 10 min en KV (Redis): comparte el usuario entre instancias serverless.
+// Sin esto, cada nueva función fría consultaría Supabase en el primer comando del bot.
+const API_USER_CACHE_TTL_S = 10 * 60; // 600s
 
 export const getCachedApiUser = async (apiKey: string): Promise<StoredUser | null> => {
     const key = `cache:apiuser:${apiKey}`;

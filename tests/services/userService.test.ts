@@ -58,7 +58,7 @@ describe('userService', () => {
             expect(mockCache.set).toHaveBeenCalledWith(
                 expect.stringContaining('test'),
                 expect.any(Object),
-                300
+                900 // 15 min (extendido para reducir queries a Supabase por comandos del bot)
             );
         });
     });
