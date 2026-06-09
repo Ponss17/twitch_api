@@ -33,7 +33,7 @@ export const getUserInfo = async (username: string, token: string): Promise<Twit
     const cached = userInfoCache.get(username.toLowerCase());
     if (cached && cached.expiry > Date.now()) return cached.data;
 
-    checkCircuit();
+    await checkCircuit();
     const headers = getHeaders(token);
     const response = await apiClient.get(
         `https://api.twitch.tv/helix/users?login=${encodeURIComponent(username)}`,

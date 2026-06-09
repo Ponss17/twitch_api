@@ -20,7 +20,8 @@ export const CIRCUIT_BREAKER = {
     lastFailure: 0,
     threshold: 5,
     cooldownMs: 30000,
-    state: 'CLOSED' as 'CLOSED' | 'OPEN' | 'HALF_OPEN'
+    state: 'CLOSED' as 'CLOSED' | 'OPEN' | 'HALF_OPEN',
+    _synced: false
 };
 
 type CbState = { state: 'OPEN'; lastFailure: number } | { state: 'CLOSED' };
@@ -35,19 +36,27 @@ const syncCbToKv = (state: CbState): void => {
     }
 };
 
-// Al arrancar (cold start), sincronizar con KV sin bloquear
-kv.get<CbState>(CB_KV_KEY)
-    .then((stored) => {
+// Lazy sync: solo se ejecuta la primera vez que se necesita el circuit breaker,
+// no al importar el módulo (ahorra 1 round-trip a Redis por cold start)
+const ensureCbSynced = async (): Promise<void> => {
+    if (CIRCUIT_BREAKER._synced) return;
+    CIRCUIT_BREAKER._synced = true;
+    try {
+        const stored = await kv.get<CbState>(CB_KV_KEY);
         if (stored?.state === 'OPEN') {
             CIRCUIT_BREAKER.state = 'OPEN';
             CIRCUIT_BREAKER.lastFailure = stored.lastFailure;
             CIRCUIT_BREAKER.failures = CIRCUIT_BREAKER.threshold;
             logger.warn('[CircuitBreaker] Reanudado desde KV: estado OPEN');
         }
-    })
-    .catch((e) => logger.error('Cache KV error during CB cold start:', e));
+    } catch (e) {
+        logger.error('Cache KV error during CB sync:', e);
+    }
+};
 
-export const checkCircuit = () => {
+export const checkCircuit = async () => {
+    await ensureCbSynced();
+
     if (CIRCUIT_BREAKER.state === 'OPEN') {
         const now = Date.now();
         if (now - CIRCUIT_BREAKER.lastFailure > CIRCUIT_BREAKER.cooldownMs) {
