@@ -14,6 +14,24 @@ registerCacheInvalidator(invalidateUserCache);
 export const configureMiddleware = (app: Application) => {
     app.set('trust proxy', 1);
 
+    // Fast Drop: Rechazo inmediato de escáneres y bots basura para no gastar CPU ni Redis
+    app.use((req, res, next) => {
+        const url = req.url.toLowerCase();
+        if (
+            url.includes('.php') ||
+            url.includes('.env') ||
+            url.includes('.git') ||
+            url.includes('wp-admin') ||
+            url.includes('wp-login') ||
+            url.endsWith('.sql') ||
+            url.endsWith('.bak') ||
+            url.endsWith('.zip')
+        ) {
+            return res.status(403).send('Forbidden');
+        }
+        next();
+    });
+
     app.use(requestLogger);
     app.use(express.json());
 

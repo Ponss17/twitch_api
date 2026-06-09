@@ -4,6 +4,20 @@ Todos los cambios notables del proyecto se documentan aquí.
 
 ---
 
+## [v4.2.0] - 2026-06-08
+
+### Optimización Crítica de Vercel (CPU/Latencia)
+
+- **Fast Drop (Bot Firewall)**: Implementado en `middleware.ts` para rechazar de inmediato escáneres web (`.php`, `.env`, `wp-login`, etc.) y evitar picos de "Active CPU".
+- **Micro-caché Edge (CDN)**: Añadidos headers `Cache-Control` en `commands.controller.ts` para cachear peticiones concurrentes de bots a `!followage` y `!shoutout`, y en `seo.controller.ts` para rutas SEO.
+- **Paralelización de Tracking**: El guardado de métricas, estadísticas y logs de actividad en `tracking.ts` ahora usa `Promise.allSettled`, reduciendo la latencia percibida por los bots de Twitch.
+
+### Funcionalidades / Seguridad
+
+- **Ruleta Rusa (Hardcore)**: Añadido permiso `moderator:manage:banned_users` a `auth.service.ts` para habilitar correctamente el timeout automático al perder en la ruleta rusa.
+
+---
+
 ## [v4.1.0] - 2026-05-06
 
 ### Refactor exhaustivo: eliminación de código duplicado e innecesario

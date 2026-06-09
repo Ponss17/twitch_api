@@ -36,7 +36,7 @@ export const getAuthorizeUrl = (
     extraData?: Record<string, unknown>
 ): string => {
     const scope =
-        'user:read:email moderator:read:followers clips:edit moderator:read:chatters user:write:chat chat:read chat:edit';
+        'user:read:email moderator:read:followers clips:edit moderator:read:chatters user:write:chat chat:read chat:edit moderator:manage:banned_users';
     const state = signState({ redirectOrigin, ...extraData });
 
     const params = new URLSearchParams({
