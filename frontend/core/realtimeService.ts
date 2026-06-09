@@ -413,6 +413,7 @@ export class RealtimeService {
 
         this.isConnected = false;
         this.token = null;
+        this.tokenExpiry = 0;
         console.log('[Realtime] Disconnected – all resources released');
     }
 
