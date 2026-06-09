@@ -10,12 +10,15 @@ Estructura diseñada bajo parámetros industriales de integridad, velocidad y ro
 
 - **🛡️ Blindaje de Seguridad Integral**:
     - **CORS & Whitelist**: Políticas restrictivas que solo permiten el acceso desde dominios autorizados (`losperris.dev`, `vercel.app`, `localhost`).
+    - **Fast Drop (Bot Firewall)**: Intercepción y rechazo ultra-veloz de escáneres web maliciosos antes de consumir recursos de servidor.
     - **XSS-Shield (v3)**: Sanitización proactiva de cada string mediante `UI.escapeHTML`.
     - **DLP (Data Loss Prevention)**: Sistema de filtrado por **Lista Blanca (Allowlist)** en el backend que intercepta y elimina datos privados (como emails o tokens internos) antes de que lleguen a la red.
     - **Cifrado de Grado Bancario**: Uso de **AES-256-CBC** con vectores de inicialización (IV) dinámicos para la persistencia de tokens en Supabase.
-- **⚡ Ingeniería de Rendimiento (Lado del Cliente)**:
+- **⚡ Ingeniería de Rendimiento (Lado del Cliente y Vercel)**:
+    - **Triple Capa de Caché**: Orquestación entre Memoria Hot (L1), Vercel KV/Redis (L2) y Edge CDN (L3).
+    - **Micro-caché para Bots**: Uso de Edge CDN para cachear respuestas concurrentes de Nightbot/StreamElements, bajando el "Active CPU" a ~25ms por request.
+    - **Paralelización de Tracking**: Escrituras no bloqueantes mediante `Promise.allSettled` hacia la base de datos Supabase, eliminando la latencia secuencial.
     - **Patrón Leader Election**: Uso de `BroadcastChannel` para sincronizar estados entre pestañas. Solo una pestaña (la líder) consume ancho de banda y CPU; las demás actúan como espejos en tiempo real.
-    - **Triple Capa de Caché**: Orquestación entre Memoria Hot (L1), Vercel KV/Redis (L2) y CDN (L3).
     - **Latencia Ultra-Baja**: Optimización de consultas SQL mediante índices compuestos B-Tree, logrando tiempos de respuesta de base de datos menores a 10ms.
 - **🧪 Calidad de Software**: Suite de **37 tests unitarios automatizados** (Jest) que validan el 100% de los flujos críticos de autenticación y lógica de comandos.
 

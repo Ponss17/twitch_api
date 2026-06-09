@@ -89,6 +89,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
 
             if (cached && typeof cached === 'object') {
                 const template = safeString(req.query.template);
+                res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
                 if (template && cached.timePhrase) {
                     return res.send(
                         template
@@ -114,6 +115,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             if (result) {
                 const rawTemplate = safeString(req.query.template);
                 res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+                res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
                 if (rawTemplate) {
                     const template = rawTemplate.replace(/[\r\n]/g, '');
                     return res.send(
@@ -192,7 +194,10 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
                 'SHOUTOUT'
             );
 
-            if (result) return res.send(result);
+            if (result) {
+                res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
+                return res.send(result);
+            }
         }
     );
 };

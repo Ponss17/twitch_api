@@ -7,6 +7,7 @@ Allow: /
 Sitemap: ${CONFIG.BASE_URL}/sitemap.xml`;
 
     res.header('Content-Type', 'text/plain');
+    res.header('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate');
     res.send(robotsContent);
 };
 
@@ -26,5 +27,6 @@ export const getSitemapXml = (req: Request, res: Response): void => {
 </urlset>`;
 
     res.header('Content-Type', 'application/xml');
+    res.header('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate');
     res.send(sitemapContent);
 };

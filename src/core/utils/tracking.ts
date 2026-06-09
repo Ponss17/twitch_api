@@ -28,22 +28,25 @@ export const trackRequest = async <T>(
         if (userId) {
             // Registro asíncrono pero esperado (AWAIT) para entornos serverless
             try {
-                // 1. Guardar métricas de rendimiento (Omitimos conteo si es consulta interna)
-                await dbService.recordUserRequest(userId, latency, true, options.skipRequestCount);
+                const tasks = [
+                    dbService.recordUserRequest(userId, latency, true, options.skipRequestCount)
+                ];
 
-                // 2. Incrementar contador específico (si aplica)
                 if (options.incrementStat) {
-                    await dbService.incrementUserStats(userId, options.incrementStat);
+                    tasks.push(dbService.incrementUserStats(userId, options.incrementStat));
                 }
 
-                // 3. Registrar actividad en el log (solo si no está marcado como interno)
                 if (!options.skipActivityLog) {
-                    await dbService.addUserActivity(userId, {
-                        type: options.type,
-                        user: options.user || 'Anónimo',
-                        detail: options.detail
-                    });
+                    tasks.push(
+                        dbService.addUserActivity(userId, {
+                            type: options.type,
+                            user: options.user || 'Anónimo',
+                            detail: options.detail
+                        })
+                    );
                 }
+
+                await Promise.allSettled(tasks);
             } catch (metricsError) {
                 logger.error('Error guardando métricas/actividad:', metricsError);
             }
