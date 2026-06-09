@@ -63,7 +63,14 @@ export const getChatters = async (
     moderatorId: string,
     token: string
 ): Promise<{ user_id: string; user_login: string; user_name: string }[]> => {
+    const cacheKey = `cache:chatters:${broadcasterId}`;
     try {
+        const cached =
+            await cacheService.get<{ user_id: string; user_login: string; user_name: string }[]>(
+                cacheKey
+            );
+        if (cached) return cached;
+
         const response = await apiClient.get('https://api.twitch.tv/helix/chat/chatters', {
             params: {
                 broadcaster_id: broadcasterId,
@@ -72,7 +79,10 @@ export const getChatters = async (
             },
             headers: getHeaders(token)
         });
-        return response.data.data;
+        const chatters = response.data.data;
+        // Cachear por 30 segundos — suficiente para evitar ráfagas repetidas
+        await cacheService.set(cacheKey, chatters, 30);
+        return chatters;
     } catch (error) {
         return handleTwitchError(error, `getChatters(${broadcasterId})`);
     }

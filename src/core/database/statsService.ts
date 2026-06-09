@@ -35,7 +35,7 @@ const addToExistsCache = (userId: string) => {
 };
 
 const STATS_CACHE = new Map<string, { data: Record<string, number>; expiry: number; tz: string }>();
-const STATS_TTL = 15 * 1000;
+const STATS_TTL = 60 * 1000; // 60s — más eficiente en serverless (warm start aprovecha mejor el cache en memoria)
 const MAX_STATS_CACHE_SIZE = 500;
 const dateFormatterCache = new Map<string, Intl.DateTimeFormat>();
 
