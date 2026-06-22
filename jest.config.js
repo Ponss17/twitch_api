@@ -1,23 +1,55 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
+const backendTransform = {
+    '^.+\\.tsx?$': [
+        'ts-jest',
+        {
+            tsconfig: 'tsconfig.test.json',
+            isolatedModules: true
+        }
+    ]
+};
+
+const frontendTransform = {
+    '^.+\\.tsx?$': [
+        'ts-jest',
+        {
+            tsconfig: 'tsconfig.test.frontend.json',
+            isolatedModules: true
+        }
+    ]
+};
+
 module.exports = {
-    preset: 'ts-jest',
-    testEnvironment: 'node',
-    transform: {
-        '^.+\\.tsx?$': [
-            'ts-jest',
-            {
-                tsconfig: 'tsconfig.test.json',
-                isolatedModules: true
-            }
-        ]
-    },
-    moduleNameMapper: {
-        '^@/(.*)$': '<rootDir>/src/$1',
-        '^@vercel/kv$': '<rootDir>/tests/__mocks__/@vercel/kv.ts'
-    },
-    setupFiles: ['<rootDir>/tests/setup.ts'],
-    modulePathIgnorePatterns: ['<rootDir>/dist/'],
-    verbose: true,
     forceExit: true,
-    detectOpenHandles: true
+    detectOpenHandles: true,
+    projects: [
+        {
+            displayName: 'backend',
+            preset: 'ts-jest',
+            testEnvironment: 'node',
+            testMatch: ['<rootDir>/tests/**/*.test.ts'],
+            testPathIgnorePatterns: ['<rootDir>/tests/unit/frontend/', '<rootDir>/e2e/'],
+            transform: backendTransform,
+            moduleNameMapper: {
+                '^@/(.*)$': '<rootDir>/backend/src/$1',
+                '^@vercel/kv$': '<rootDir>/tests/__mocks__/@vercel/kv.ts'
+            },
+            setupFiles: ['<rootDir>/tests/setup.ts'],
+            modulePathIgnorePatterns: ['<rootDir>/dist/'],
+            verbose: true
+        },
+        {
+            displayName: 'frontend',
+            preset: 'ts-jest',
+            testEnvironment: 'jsdom',
+            testMatch: ['<rootDir>/tests/unit/frontend/**/*.test.ts', '<rootDir>/tests/unit/frontend/**/*.test.tsx'],
+            transform: frontendTransform,
+            moduleNameMapper: {
+                '^@/(.*)$': '<rootDir>/src/$1'
+            },
+            setupFilesAfterEnv: ['<rootDir>/tests/frontend/setup.ts'],
+            modulePathIgnorePatterns: ['<rootDir>/dist/'],
+            verbose: true
+        }
+    ]
 };

@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../src/types/twitch';
+import { AuthenticatedRequest } from '../../backend/src/types/twitch';
 
 type MockRes = Response & {
     locals: Record<string, unknown>;

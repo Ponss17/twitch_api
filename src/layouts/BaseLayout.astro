@@ -1,0 +1,125 @@
+---
+export interface Props {
+    title?: string;
+    description?: string;
+    canonical?: string;
+    keywords?: string;
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: string;
+    ogUrl?: string;
+    robots?: string;
+    noindex?: boolean;
+    /** Muestra el footer global al final de la página. */
+    footer?: boolean;
+}
+
+const {
+    title = 'LosPerris Twitch API',
+    description = 'Comandos y herramientas para streamers',
+    canonical,
+    keywords = 'Twitch API, comandos twitch, bot twitch gratis, followage, minijuegos twitch, herramientas para streamers, losperris',
+    ogTitle,
+    ogDescription,
+    ogImage,
+    ogUrl,
+    robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+    noindex = false,
+    footer = false
+} = Astro.props;
+
+import '../styles/global.css';
+import { Footer } from '../components/layout/Footer';
+import { staticPath, absoluteAssetUrl } from '../lib/paths';
+
+const siteOrigin = canonical ? new URL(canonical).origin : Astro.url.origin;
+const canonicalUrl = canonical ?? Astro.url.href;
+const shareTitle = ogTitle ?? title;
+const shareDesc = ogDescription ?? description;
+const shareImage = ogImage ?? absoluteAssetUrl('/img/logo.svg', siteOrigin);
+const shareUrl = ogUrl ?? canonicalUrl;
+const robotsContent = noindex ? 'noindex, nofollow' : robots;
+const isDev = import.meta.env.DEV;
+const swUrl = staticPath('/sw.js');
+const swScope = staticPath('/');
+---
+
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content={description} />
+        <meta name="keywords" content={keywords} />
+        <meta name="author" content="LosPerris" />
+        <meta name="robots" content={robotsContent} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta name="theme-color" content="#9146ff" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={shareUrl} />
+        <meta property="og:title" content={shareTitle} />
+        <meta property="og:description" content={shareDesc} />
+        <meta property="og:image" content={shareImage} />
+        <meta property="twitter:card" content="summary" />
+        <meta property="twitter:url" content={shareUrl} />
+        <meta property="twitter:title" content={shareTitle} />
+        <meta property="twitter:description" content={shareDesc} />
+        <meta property="twitter:image" content={shareImage} />
+        <link rel="icon" type="image/svg+xml" href={staticPath('/img/logo.svg')} />
+        <link rel="manifest" href={staticPath('/manifest.json')} />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        />
+        <title>{title}</title>
+        {isDev && (
+            <script is:inline>
+                (function () {
+                    if (!('serviceWorker' in navigator)) return;
+                    if (sessionStorage.getItem('sw-cleared') === '1') return;
+                    var hadController = !!navigator.serviceWorker.controller;
+                    navigator.serviceWorker.getRegistrations().then(function (regs) {
+                        if (!regs.length && !hadController) return;
+                        return Promise.all(
+                            regs.map(function (reg) {
+                                return reg.unregister();
+                            })
+                        )
+                            .then(function () {
+                                if (!('caches' in window)) return;
+                                return caches.keys().then(function (keys) {
+                                    return Promise.all(
+                                        keys.map(function (key) {
+                                            return caches.delete(key);
+                                        })
+                                    );
+                                });
+                            })
+                            .then(function () {
+                                sessionStorage.setItem('sw-cleared', '1');
+                                if (hadController || regs.length) location.reload();
+                            });
+                    });
+                })();
+            </script>
+        )}
+    </head>
+    <body class:list={[footer && 'flex min-h-screen flex-col']}>
+        <div class:list={[footer && 'flex min-h-0 flex-1 flex-col']}>
+            <slot />
+        </div>
+        {footer && <Footer client:load />}
+        <script is:inline define:vars={{ isDev, swUrl, swScope }}>
+            if ('serviceWorker' in navigator && !isDev) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register(swUrl, { scope: swScope }).catch(() => {});
+                });
+            }
+        </script>
+    </body>
+</html>

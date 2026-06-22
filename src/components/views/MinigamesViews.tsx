@@ -1,0 +1,473 @@
+import { useState, type ReactNode } from 'react';
+import { API_ENDPOINTS } from '@/lib/config';
+import { authHeaders } from '@/lib/auth';
+import { useRequiredSession } from '@/hooks/useSession';
+import { COMMAND_CONFIG } from '@/lib/commands/config';
+import {
+    btnPrimary,
+    card,
+    cardFooterFlex,
+    fadeIn,
+    formGrid,
+    formGroupLabel,
+    gameResponseCard,
+    inputLabel,
+    textInput,
+    textareaXl
+} from '@/lib/tw';
+import { CommandGeneratorCard } from './CommandGeneratorCard';
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
+import { useToast } from '@/components/ui/ToastProvider';
+
+
+type TestResult = { status: 'idle' | 'loading' | 'success' | 'error'; message: string };
+
+const TWITCH_LOGIN = /^@?[a-zA-Z0-9_]{1,25}$/;
+
+function normalizeTwitchLogin(raw: string): string {
+    return raw.trim().replace(/^@+/, '');
+}
+
+function parseApiError(text: string): string {
+    try {
+        const json = JSON.parse(text) as { details?: { message: string }[]; error?: string };
+        const detail = json.details?.[0]?.message;
+        if (detail) return `⚠️ ${detail}`;
+        if (json.error) return `⚠️ ${json.error}`;
+    } catch {
+        /* plain text */
+    }
+    return text.startsWith('Error:') ? text : `Error: ${text}`;
+}
+
+function MinigameCard({
+    icon,
+    title,
+    description,
+    info,
+    children,
+    staggered = false,
+    centerBody = false
+}: {
+    icon: string;
+    title: string;
+    description: string;
+    info?: string;
+    children: ReactNode;
+    staggered?: boolean;
+    centerBody?: boolean;
+}) {
+    return (
+        <div
+            className={`${card} ${fadeIn} mb-3 opacity-0 ${staggered ? '[animation-delay:120ms]' : ''}`}
+        >
+            <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
+                        <i className={`fa-solid ${icon}`} aria-hidden />
+                    </div>
+                    <div>
+                        <h3 className="mb-0.5 text-[0.95rem] font-bold">{title}</h3>
+                        <p className="text-[0.8rem] text-[#a1a1aa]">{description}</p>
+                    </div>
+                </div>
+                {info && (
+                    <div className="shrink-0">
+                        <InfoTooltip text={info} />
+                    </div>
+                )}
+            </div>
+            <div className={`text-[#fafafa] ${centerBody ? 'text-center' : ''}`}>{children}</div>
+        </div>
+    );
+}
+
+function GameResponse({
+    result,
+    loadingNode,
+    successIcon = 'fa-check',
+    errorIcon = 'fa-triangle-exclamation'
+}: {
+    result: TestResult;
+    loadingNode?: ReactNode;
+    successIcon?: string;
+    errorIcon?: string;
+}) {
+    const isActive = result.status === 'success' || result.status === 'error';
+    if (!isActive && result.status !== 'loading') return null;
+
+    const success = result.status === 'success';
+    const loading = result.status === 'loading';
+
+    return (
+        <div
+            className={`${gameResponseCard} animate-reveal-card ${
+                loading
+                    ? 'border-white/[0.08] bg-[rgba(15,23,42,0.6)] text-[#fafafa]'
+                    : success
+                      ? 'border-primary/30 border-l-4 border-l-primary bg-[rgba(16,185,129,0.15)] text-success'
+                      : 'border-l-4 border-l-error border-error/30 bg-[rgba(239,68,68,0.15)] text-error'
+            }`}
+        >
+            {loading && loadingNode}
+            {success && (
+                <i className={`fa-solid ${successIcon} text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]`} aria-hidden />
+            )}
+            {result.status === 'error' && (
+                <i
+                    className={`fa-solid ${errorIcon} text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]`}
+                    aria-hidden
+                />
+            )}
+            {!loading && <div className="min-w-0 flex-1">{result.message}</div>}
+        </div>
+    );
+}
+
+export function Magic8View() {
+    const session = useRequiredSession();
+    const [question, setQuestion] = useState('');
+    const [commandExtras, setCommandExtras] = useState<Record<string, string>>({});
+    const [result, setResult] = useState<TestResult>({ status: 'idle', message: '' });
+
+    const ask = async () => {
+        if (!question.trim()) {
+            setResult({ status: 'error', message: '⚠️ Debes hacer una pregunta primero.' });
+            return;
+        }
+
+        setResult({ status: 'loading', message: '' });
+        const mood = commandExtras.mood || 'classic';
+
+        try {
+            const url = `${API_ENDPOINTS.MAGIC8}?question=${encodeURIComponent(question)}&mood=${mood}&user=${encodeURIComponent(session.login ?? '')}`;
+            const res = await fetch(url, { headers: authHeaders(session) });
+            const text = await res.text();
+            setResult({ status: res.ok ? 'success' : 'error', message: res.ok ? text : `Error: ${text}` });
+            if (res.ok) setQuestion('');
+        } catch (e) {
+            setResult({ status: 'error', message: `❌ ${(e as Error).message}` });
+        }
+    };
+
+    return (
+        <>
+            <CommandGeneratorCard
+                config={COMMAND_CONFIG.magic8}
+                onExtraValuesChange={setCommandExtras}
+            />
+            <MinigameCard
+                icon="fa-flask"
+                title="Prueba la Bola 8"
+                description="Verifica que la IA responda correctamente"
+                info="Haz una pregunta directamente aquí para ver cómo respondería la IA en tu chat."
+                staggered
+            >
+                <div className={formGrid}>
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="magic8-question" className={formGroupLabel}>
+                            Tu pregunta
+                        </label>
+                        <input
+                            id="magic8-question"
+                            type="text"
+                            value={question}
+                            onChange={(e) => setQuestion(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && void ask()}
+                            placeholder="¿Debo comprar bitcoin?"
+                            className={textInput}
+                            disabled={result.status === 'loading'}
+                        />
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => void ask()}
+                    disabled={result.status === 'loading'}
+                    className={`${btnPrimary} mt-5`}
+                >
+                    <i
+                        className={`fa-solid ${result.status === 'loading' ? 'fa-spinner fa-spin' : 'fa-play'}`}
+                        aria-hidden
+                    />
+                    {result.status === 'loading' ? 'Consultando...' : 'Preguntar'}
+                </button>
+                <GameResponse
+                    result={result}
+                    loadingNode={
+                        <div className="flex items-center gap-3 font-medium text-primary italic">
+                            <i className="fa-solid fa-crystal-ball animate-pulse text-[1.8rem] drop-shadow-[0_0_10px_rgba(168,85,247,0.6)]" aria-hidden />
+                            Consultando a los espíritus...
+                        </div>
+                    }
+                />
+            </MinigameCard>
+        </>
+    );
+}
+
+export function DuelView() {
+    const session = useRequiredSession();
+    const [target, setTarget] = useState('');
+    const [challenger, setChallenger] = useState('');
+    const [result, setResult] = useState<TestResult>({ status: 'idle', message: '' });
+
+    const fight = async () => {
+        const targetLogin = normalizeTwitchLogin(target);
+        const challengerLogin = normalizeTwitchLogin(challenger);
+
+        if (!targetLogin) {
+            setResult({ status: 'error', message: '⚠️ Debes especificar un oponente.' });
+            return;
+        }
+
+        if (!TWITCH_LOGIN.test(targetLogin) || (challengerLogin && !TWITCH_LOGIN.test(challengerLogin))) {
+            setResult({
+                status: 'error',
+                message:
+                    '⚠️ Usa el login de Twitch (sin espacios). Ej: pepe_grillo — no el nombre visible con espacios.'
+            });
+            return;
+        }
+
+        setResult({ status: 'loading', message: '' });
+
+        try {
+            const params = new URLSearchParams({ target: targetLogin });
+            if (challengerLogin) params.set('challenger', challengerLogin);
+            const url = `${API_ENDPOINTS.DUEL}?${params}`;
+            const res = await fetch(url, { headers: authHeaders(session) });
+            const text = await res.text();
+            setResult({
+                status: res.ok ? 'success' : 'error',
+                message: res.ok ? text : parseApiError(text)
+            });
+        } catch (e) {
+            setResult({ status: 'error', message: `❌ ${(e as Error).message}` });
+        }
+    };
+
+    return (
+        <>
+            <CommandGeneratorCard config={COMMAND_CONFIG.duel} />
+            <MinigameCard
+                icon="fa-khanda"
+                title="Duelo 1vs1"
+                description="Simula un duelo 1vs1 rápido"
+                info="Prueba el comando !duelo directamente desde aquí."
+                staggered
+            >
+                <div className={formGrid}>
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="duel-target" className={formGroupLabel}>
+                            Oponente (Usuario)
+                        </label>
+                        <input
+                            id="duel-target"
+                            type="text"
+                            value={target}
+                            onChange={(e) => setTarget(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && void fight()}
+                            placeholder="Ej: nightbot (login, sin espacios)"
+                            className={textInput}
+                            disabled={result.status === 'loading'}
+                        />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="duel-challenger" className={formGroupLabel}>
+                            Retador (Opcional)
+                        </label>
+                        <input
+                            id="duel-challenger"
+                            type="text"
+                            value={challenger}
+                            onChange={(e) => setChallenger(e.target.value)}
+                            placeholder="Tu login (opcional)"
+                            className={textInput}
+                            disabled={result.status === 'loading'}
+                        />
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => void fight()}
+                    disabled={result.status === 'loading'}
+                    className={`${btnPrimary} mt-5`}
+                >
+                    <i
+                        className={`fa-solid ${result.status === 'loading' ? 'fa-spinner fa-spin' : 'fa-gavel'}`}
+                        aria-hidden
+                    />
+                    {result.status === 'loading' ? 'Peleando...' : '¡DUELO!'}
+                </button>
+                <GameResponse
+                    result={result}
+                    loadingNode={
+                        <div className="flex items-center gap-3 font-medium text-[#f97316] italic">
+                            <i className="fa-solid fa-khanda animate-[gunShake_1s_infinite_linear] text-[1.8rem] drop-shadow-[0_0_10px_rgba(249,115,22,0.6)]" aria-hidden />
+                            Calculando ganador...
+                        </div>
+                    }
+                />
+            </MinigameCard>
+        </>
+    );
+}
+
+export function RussianView() {
+    const session = useRequiredSession();
+    const [result, setResult] = useState<TestResult>({ status: 'idle', message: '' });
+    const [gunDead, setGunDead] = useState(false);
+    const [gunSuccess, setGunSuccess] = useState(false);
+    const loading = result.status === 'loading';
+
+    const pullTrigger = async () => {
+        setResult({ status: 'loading', message: '' });
+        setGunDead(false);
+        setGunSuccess(false);
+
+        try {
+            const url = `${API_ENDPOINTS.BASE}/minigames/russian?user=${encodeURIComponent(session.login ?? '')}&channel=${encodeURIComponent(session.login ?? '')}&hardcore=false&format=json`;
+            const res = await fetch(url, { headers: authHeaders(session) });
+            if (res.ok) {
+                const data = (await res.json()) as { status?: string; message: string };
+                const dead = data.status === 'dead';
+                setResult({ status: dead ? 'error' : 'success', message: data.message });
+                if (dead) {
+                    setGunDead(true);
+                    window.setTimeout(() => setGunDead(false), 3000);
+                } else {
+                    setGunSuccess(true);
+                    window.setTimeout(() => setGunSuccess(false), 3000);
+                }
+            } else {
+                const err = await res.text();
+                setResult({ status: 'error', message: err ? `Error: ${err}` : 'Error' });
+            }
+        } catch {
+            setResult({ status: 'error', message: 'La pistola se encasquilló (Error de API)' });
+        }
+    };
+
+    return (
+        <>
+            <CommandGeneratorCard config={COMMAND_CONFIG.russian} />
+            <MinigameCard
+                icon="fa-skull-crossbones"
+                title="Ruleta Rusa"
+                description="Juego de azar extremo. ¿Te atreves?"
+                staggered
+                centerBody
+            >
+                <div className="relative z-[1] my-5 px-5 py-5">
+                    <i
+                        className={`fa-solid text-[4rem] transition-all max-[600px]:text-[3rem] ${
+                            gunDead ? 'fa-skull text-error' : 'fa-gun'
+                        } ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : gunDead ? '' : 'text-[#71717a] drop-shadow-[0_0_15px_rgba(0,0,0,0.4)] hover:scale-110 hover:rotate-[-5deg] hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]'}`}
+                        aria-hidden
+                    />
+                </div>
+
+                <div className="relative before:absolute before:top-[-10px] before:left-1/2 before:h-0.5 before:w-[200px] before:-translate-x-1/2 before:bg-gradient-to-r before:from-transparent before:via-primary/30 before:to-transparent max-[600px]:before:w-[100px]">
+                    <button
+                        type="button"
+                        onClick={() => void pullTrigger()}
+                        disabled={loading}
+                        className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-white/10 bg-gradient-to-br from-[#dc2626] to-[#991b1b] px-10 py-3.5 text-[1rem] font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.3),inset_0_0_0_1px_rgba(255,255,255,0.1)] transition hover:-translate-y-0.5 hover:scale-105 hover:from-[#ef4444] hover:to-[#dc2626] hover:shadow-[0_15px_35px_rgba(220,38,38,0.5)] active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
+                    >
+                        <i className={`fa-solid ${loading ? 'fa-spinner fa-spin' : 'fa-person-rifle'}`} aria-hidden />
+                        Jalar Gatillo
+                    </button>
+                </div>
+
+                <GameResponse
+                    result={result}
+                    successIcon="fa-circle-check"
+                    errorIcon="fa-skull"
+                    loadingNode={
+                        <>
+                            <i className="fa-solid fa-spinner fa-spin text-lg" aria-hidden />
+                            <span>Girando el cilindro...</span>
+                        </>
+                    }
+                />
+            </MinigameCard>
+        </>
+    );
+}
+
+export function FeedbackView() {
+    const session = useRequiredSession();
+    const { showToast } = useToast();
+    const [message, setMessage] = useState('');
+    const [sending, setSending] = useState(false);
+
+    const send = async () => {
+        if (!message.trim()) {
+            showToast('Por favor, escribe un mensaje.', 'error');
+            return;
+        }
+
+        setSending(true);
+        try {
+            const body: { message: string; apiKey?: string } = { message: message.trim() };
+            if (!session.token && session.apiKey) body.apiKey = session.apiKey;
+
+            const res = await fetch(API_ENDPOINTS.FEEDBACK, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
+                body: JSON.stringify(body)
+            });
+            const data = (await res.json()) as { error?: string; message?: string };
+
+            if (res.ok) {
+                setMessage('');
+                showToast('¡Feedback enviado! Gracias por tu aporte.', 'success');
+            } else {
+                throw new Error(data.error || data.message || 'Error al enviar');
+            }
+        } catch (e) {
+            showToast((e as Error).message || 'Error al enviar. Intenta más tarde.', 'error');
+        } finally {
+            setSending(false);
+        }
+    };
+
+    return (
+        <MinigameCard
+            icon="fa-comment-dots"
+            title="Feedback & Sugerencias"
+            description="Ayúdanos a mejorar LosPerris API"
+            info="Tu mensaje llegará directo a nuestro Discord. ¡Gracias por ayudarnos a mejorar!"
+        >
+            <div className="flex flex-col gap-1.5">
+                <label htmlFor="feedback-message" className={inputLabel}>
+                    Tu Mensaje
+                </label>
+                <textarea
+                    id="feedback-message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Cuéntanos qué te gustaría ver, reporta un bug, o danos tu opinión..."
+                    className={textareaXl}
+                />
+            </div>
+
+            <div className={cardFooterFlex}>
+                <p className="max-w-[60%] text-[0.8125rem] text-[#71717a] max-[600px]:max-w-full">
+                    <i className="fa-solid fa-shield-halved mr-1" aria-hidden />
+                    Tu mensaje se enviará de forma segura y anónima a nuestro servidor de Discord.
+                </p>
+                <button
+                    type="button"
+                    onClick={() => void send()}
+                    disabled={sending || !message.trim()}
+                    className={`${btnPrimary} shrink-0 max-[600px]:w-full max-[600px]:justify-center`}
+                >
+                    <i className={`fa-solid ${sending ? 'fa-circle-notch fa-spin' : 'fa-paper-plane'}`} aria-hidden />
+                    {sending ? 'Enviando...' : 'Enviar Feedback'}
+                </button>
+            </div>
+        </MinigameCard>
+    );
+}

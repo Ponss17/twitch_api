@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "outDir": "dist",
+        "rootDir": ".",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "resolveJsonModule": true,
+        "declaration": false,
+        "sourceMap": true,
+        "verbatimModuleSyntax": false,
+        "isolatedModules": false
+    },
+    "include": ["backend/**/*"],
+    "exclude": ["node_modules", "dist", "tests"]
+}

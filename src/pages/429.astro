@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { RateLimitPage } from '../components/errors/RateLimitPage';
+---
+
+<BaseLayout title="429 - Límite Excedido | LosPerris API" footer>
+    <RateLimitPage client:only="react" />
+</BaseLayout>

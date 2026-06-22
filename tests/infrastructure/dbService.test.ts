@@ -8,8 +8,8 @@ import {
     addAuditLog,
     getAuditLogs,
     encrypt
-} from '../../src/core/database/dbService';
-import { supabase } from '../../src/core/database/supabaseClient';
+} from '../../backend/src/core/database/dbService';
+import { supabase } from '../../backend/src/core/database/supabaseClient';
 
 const s = supabase as unknown as {
     from: jest.Mock;
@@ -23,7 +23,7 @@ const s = supabase as unknown as {
 };
 
 // Mock de Supabase robusto
-jest.mock('../../src/core/database/supabaseClient', () => {
+jest.mock('../../backend/src/core/database/supabaseClient', () => {
     const m: { [key: string]: jest.Mock } = {
         from: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),

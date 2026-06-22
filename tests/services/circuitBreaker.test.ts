@@ -23,8 +23,8 @@ import {
     checkCircuit,
     recordFailure,
     recordSuccess
-} from '../../src/features/twitch/twitch.service';
-import { TwitchApiError } from '../../src/core/errors/AppError';
+} from '../../backend/src/features/twitch/twitch.service';
+import { TwitchApiError } from '../../backend/src/core/errors/AppError';
 
 const resetCB = () => {
     CIRCUIT_BREAKER.failures = 0;

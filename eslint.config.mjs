@@ -1,33 +1,34 @@
-import globals from 'globals';
-import pluginJs from '@eslint/js';
+import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import reactHooks from 'eslint-plugin-react-hooks';
+import astro from 'eslint-plugin-astro';
+import globals from 'globals';
 
-export default [
-    {
-        files: ['**/*.{js,mjs,cjs,ts}'],
-        languageOptions: {
-            globals: { ...globals.browser, ...globals.node }
-        }
-    },
+export default tseslint.config(
     {
         ignores: [
-            'dist/',
-            'public/',
-            'node_modules/',
-            '.vercel/',
-            'frontend/vendor/',
-            'scripts/',
-            '*.txt'
+            'dist/**',
+            'node_modules/**',
+            '.astro/**',
+            '.vercel/**',
+            'test-results/**',
+            'playwright-report/**',
+            'coverage/**',
+            'src/env.d.ts'
         ]
     },
-    pluginJs.configs.recommended,
+    js.configs.recommended,
     ...tseslint.configs.recommended,
-    eslintPluginPrettierRecommended,
+    ...astro.configs.recommended,
     {
+        files: ['**/*.{ts,tsx}'],
+        plugins: { 'react-hooks': reactHooks },
+        languageOptions: {
+            globals: { ...globals.browser, ...globals.node }
+        },
         rules: {
-            '@typescript-eslint/explicit-module-boundary-types': 'off',
-            '@typescript-eslint/no-explicit-any': 'warn',
+            'react-hooks/rules-of-hooks': 'error',
+            'react-hooks/exhaustive-deps': 'warn',
             '@typescript-eslint/no-unused-vars': [
                 'error',
                 {
@@ -37,5 +38,27 @@ export default [
                 }
             ]
         }
+    },
+    {
+        // Node CommonJS scripts and config files (require/module.exports).
+        files: ['scripts/**/*.js', '**/*.config.js', '**/*.cjs'],
+        languageOptions: {
+            sourceType: 'commonjs',
+            globals: { ...globals.node }
+        },
+        rules: {
+            '@typescript-eslint/no-require-imports': 'off'
+        }
+    },
+    {
+        // Static browser/service-worker assets shipped as-is.
+        files: ['public/**/*.js'],
+        languageOptions: {
+            globals: { ...globals.browser, ...globals.serviceworker }
+        }
+    },
+    {
+        files: ['tests/**', 'e2e/**', '**/*.test.{ts,tsx}'],
+        languageOptions: { globals: { ...globals.node, ...globals.jest } }
     }
-];
+);

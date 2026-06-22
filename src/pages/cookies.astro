@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CookiesPage } from '../components/legal/CookiesPage';
+---
+
+<BaseLayout
+    title="Política de Cookies | LosPerris"
+    description="Cookies, almacenamiento local y PWA en LosPerris Twitch API."
+    canonical="https://www.losperris.dev/api/twitch/cookies"
+    footer
+>
+    <CookiesPage client:load />
+</BaseLayout>

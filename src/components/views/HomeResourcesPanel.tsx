@@ -1,0 +1,77 @@
+import type { DashboardTab } from '@/lib/config';
+import { appPath, saveDocsReturnPath } from '@/lib/paths';
+import { card, fadeIn } from '@/lib/tw';
+
+interface HomeResourcesPanelProps {
+    onNavigate?: (tab: DashboardTab) => void;
+}
+
+const QUICK_COMMANDS = [
+    { tab: 'followage' as DashboardTab, icon: 'fa-user-plus', label: 'Followage' },
+    { tab: 'clips' as DashboardTab, icon: 'fa-clapperboard', label: 'Clips' },
+    { tab: 'shoutout' as DashboardTab, icon: 'fa-bullhorn', label: 'Shoutout' }
+] as const;
+
+const USEFUL_LINKS: Array<{
+    href: string;
+    icon: string;
+    label: string;
+    external?: boolean;
+}> = [
+    { href: '/sobre-la-api', icon: 'fa-solid fa-circle-info', label: 'Sobre la API' },
+    { href: '/docs', icon: 'fa-solid fa-book', label: 'Documentación' },
+    {
+        href: 'https://discord.gg/8uN3qY5E',
+        icon: 'fa-brands fa-discord',
+        label: 'Discord Soporte',
+        external: true
+    }
+];
+
+export function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
+    return (
+        <div className={`${card} ${fadeIn} mb-0 flex h-[420px] flex-col`} style={{ animationDelay: '60ms' }}>
+            <div className="mb-2 flex items-center gap-3 border-b border-white/[0.08] pb-2">
+                <h3 className="text-[0.95rem] font-bold">Recursos</h3>
+            </div>
+
+            <div className="flex flex-1 flex-col text-[#fafafa]">
+                <p className="mb-2 text-[0.65rem] font-extrabold uppercase tracking-[0.1em] text-primary opacity-80">
+                    Comandos Frecuentes
+                </p>
+                <div className="mb-3 flex flex-col gap-1.5">
+                    {QUICK_COMMANDS.map((link) => (
+                        <button
+                            key={link.tab}
+                            type="button"
+                            onClick={() => onNavigate?.(link.tab)}
+                            className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-primary/[0.03] px-2.5 py-1.5 text-left text-[0.75rem] font-semibold text-[#a1a1aa] transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
+                        >
+                            <i className={`fa-solid ${link.icon} w-5 text-center text-base`} aria-hidden />
+                            {link.label}
+                        </button>
+                    ))}
+                </div>
+
+                <p className="mb-2 text-[0.65rem] font-extrabold uppercase tracking-[0.1em] text-primary opacity-80">
+                    Enlaces Útiles
+                </p>
+                <div className="flex flex-col gap-1.5">
+                    {USEFUL_LINKS.map((link) => (
+                        <a
+                            key={link.href}
+                            href={link.external ? link.href : appPath(link.href)}
+                            target={link.external ? '_blank' : undefined}
+                            rel={link.external ? 'noopener noreferrer' : undefined}
+                            onClick={link.href === '/docs' ? saveDocsReturnPath : undefined}
+                            className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2 text-[0.8rem] font-semibold text-[#a1a1aa] no-underline transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
+                        >
+                            <i className={`${link.icon} w-5 text-center text-base`} aria-hidden />
+                            {link.label}
+                        </a>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}

@@ -1,21 +1,3 @@
 {
-    "compilerOptions": {
-        "target": "es2020",
-        "module": "commonjs",
-        "rootDir": "./",
-        "moduleResolution": "node",
-        "baseUrl": ".",
-        "paths": {
-            "@/*": ["src/*"]
-        },
-        "outDir": "./dist",
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "strict": true,
-        "skipLibCheck": true,
-        "noImplicitAny": true,
-        "types": ["node", "express", "cors", "helmet", "compression", "jest"]
-    },
-    "include": ["src/**/*", "api/**/*", "admin/**/*", "tests/**/*"],
-    "exclude": ["node_modules", "public", "dist", "frontend"]
+    "extends": "./tsconfig.astro.json"
 }

@@ -8,7 +8,7 @@ jest.mock('@vercel/kv', () => ({
     kv: mockKv
 }));
 
-import * as cacheService from '../../src/core/database/cacheService';
+import * as cacheService from '../../backend/src/core/database/cacheService';
 
 describe('cacheService', () => {
     beforeEach(() => {

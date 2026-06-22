@@ -1,0 +1,12 @@
+---
+import DocsLayout from '../layouts/DocsLayout.astro';
+import { DocsApp } from '../components/docs/DocsApp';
+---
+
+<DocsLayout
+    title="Documentación API | LosPerris"
+    description="Referencia de endpoints de la API de Twitch"
+    canonical="https://www.losperris.dev/api/twitch/docs"
+>
+    <DocsApp client:load />
+</DocsLayout>

@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 
-jest.mock('../../src/features/auth/auth.service', () => ({
+jest.mock('../../backend/src/features/auth/auth.service', () => ({
     getAuthorizeUrl: jest.fn(),
     handleCallback: jest.fn()
 }));
 
-jest.mock('../../src/core/database/dbService', () => ({
+jest.mock('../../backend/src/core/database/dbService', () => ({
     isAdmin: jest.fn(),
     recordUserRequest: jest.fn().mockResolvedValue(undefined)
 }));
@@ -14,8 +14,8 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }
 }));
 
-import * as authService from '../../src/features/auth/auth.service';
-import { login, callback } from '../../src/features/auth/auth.controller';
+import * as authService from '../../backend/src/features/auth/auth.service';
+import { login, callback } from '../../backend/src/features/auth/auth.controller';
 
 const mockReq = (overrides = {}) =>
     ({
@@ -73,7 +73,9 @@ describe('authController', () => {
 
             await callback(req, res);
 
-            expect(res.redirect).toHaveBeenCalledWith('/?error=no_code');
+            expect(res.redirect).toHaveBeenCalledWith(
+                expect.stringMatching(/\/api\/twitch\/\?error=no_code/)
+            );
         });
 
         it('should redirect to dashboard on successful auth', async () => {
@@ -89,7 +91,7 @@ describe('authController', () => {
             await callback(req, res);
 
             expect(res.redirect).toHaveBeenCalledWith(
-                expect.stringContaining('/api/twitch/dashboard')
+                expect.stringMatching(/\/api\/twitch\/dashboard\?apiKey=key_abc/)
             );
         });
 
@@ -101,7 +103,9 @@ describe('authController', () => {
 
             await callback(req, res);
 
-            expect(res.redirect).toHaveBeenCalledWith('/?error=auth_failed');
+            expect(res.redirect).toHaveBeenCalledWith(
+                expect.stringMatching(/\/api\/twitch\/\?error=auth_failed/)
+            );
         });
 
         it('should redirect to dashboard for normal user flow', async () => {
@@ -117,7 +121,7 @@ describe('authController', () => {
             await callback(req, res);
 
             expect(res.redirect).toHaveBeenCalledWith(
-                expect.stringContaining('/api/twitch/dashboard')
+                expect.stringMatching(/\/api\/twitch\/dashboard\?apiKey=key_abc/)
             );
         });
     });

@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ErrorPage } from '../components/errors/ErrorPage';
+---
+
+<BaseLayout title="404 - Página No Encontrada | LosPerris API" footer>
+    <ErrorPage
+        code="Extraviado"
+        title="¡Ups! Te has perdido"
+        message="La página que buscas no existe o ha sido movida a otra dimensión."
+    />
+</BaseLayout>

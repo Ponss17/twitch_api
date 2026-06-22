@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { kv } from '@vercel/kv';
-import { globalRateLimiter } from '../../src/core/middleware/redisRateLimiter';
+import { globalRateLimiter } from '../../backend/src/core/middleware/redisRateLimiter';
 
 jest.mock('@/core/utils/logger', () => ({
     logger: {

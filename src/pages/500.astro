@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ErrorPage } from '../components/errors/ErrorPage';
+---
+
+<BaseLayout title="500 - Error del Servidor | LosPerris API" footer>
+    <ErrorPage
+        code="Error"
+        title="Algo salió mal"
+        message="El servidor tuvo un problema inesperado. Intenta de nuevo en unos momentos."
+    />
+</BaseLayout>

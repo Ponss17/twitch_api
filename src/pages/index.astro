@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { LandingPage } from '../components/landing/LandingPage';
+---
+
+<BaseLayout
+    title="LosPerris Twitch API - Comandos y Herramientas para Streamers"
+    description="Herramientas avanzadas para tu Stream de Twitch. Genera tu API Key y configura comandos gratis como !followage, !clip, minijuegos y estadísticas en segundos."
+    canonical="https://www.losperris.dev/api/twitch/"
+    ogTitle="LosPerris Twitch Api"
+    ogDescription="Herramientas para tu Stream. Genera tu API Key y configura comandos como !followage o !clip en segundos."
+    footer
+>
+    <LandingPage client:load />
+</BaseLayout>
+
+<script>
+    import { saveSession } from '../lib/auth';
+    import { appPath } from '../lib/paths';
+
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const apiKey = params.get('apiKey');
+
+    if (token || apiKey) {
+        saveSession({
+            token: token ?? undefined,
+            apiKey: apiKey ?? undefined,
+            displayName: params.get('displayName') ?? undefined,
+            login: params.get('login') ?? undefined,
+            profile_image_url: params.get('profile_image_url') ?? undefined,
+            userId: params.get('userId') ?? undefined
+        });
+        const dashboard = appPath('/dashboard');
+        window.history.replaceState({}, '', dashboard);
+        window.location.href = dashboard;
+    }
+</script>
