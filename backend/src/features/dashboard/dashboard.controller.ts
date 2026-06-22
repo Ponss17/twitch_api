@@ -320,15 +320,18 @@ export const exportCheck = async (req: AuthenticatedRequest, res: Response) => {
     if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
 
     const key = `export_cooldown:${userId}`;
-    const COOLDOWN_MINUTES = 15;
+    const COOLDOWN_MINUTES = 4;
     
     try {
-        const cached = await cacheService.get(key);
-        if (cached) {
-            return res.status(429).json({ error: `Debes esperar ${COOLDOWN_MINUTES} minutos para generar otro reporte.` });
+        const cachedExpiresAt = await cacheService.get<number>(key);
+        if (cachedExpiresAt) {
+            const remainingMins = Math.max(1, Math.ceil((cachedExpiresAt - Date.now()) / 60000));
+            return res.status(429).json({ 
+                error: `Debes esperar ${remainingMins} minuto${remainingMins > 1 ? 's' : ''} para generar otro reporte.` 
+            });
         }
         
-        await cacheService.set(key, '1', COOLDOWN_MINUTES * 60);
+        await cacheService.set(key, Date.now() + COOLDOWN_MINUTES * 60000, COOLDOWN_MINUTES * 60);
         res.json({ success: true });
     } catch (e) {
         logger.error('Error checking export rate limit:', e);
