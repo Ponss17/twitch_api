@@ -1,7 +1,7 @@
 /** Docs — utilidades Tailwind (sin CSS externo en public/) */
 
 export const docsPage =
-    'min-h-screen overflow-x-hidden bg-bg-main font-[Outfit,sans-serif] text-[#f4f4f5] [background-image:radial-gradient(circle_at_15%_50%,rgba(145,70,255,0.08),transparent_25%),radial-gradient(circle_at_85%_30%,rgba(76,29,149,0.08),transparent_25%)] bg-fixed';
+    'min-h-screen overflow-x-hidden bg-bg-main font-[Outfit,sans-serif] text-[#f4f4f5] bg-fixed';
 
 export const docsContainer = 'flex min-h-screen';
 
@@ -14,7 +14,7 @@ export const docsSidebar = (open: boolean) =>
 export const docsSidebarHeader =
     'mb-[30px] flex items-center gap-3 border-b border-white/[0.08] pb-5';
 
-export const docsSidebarLogo = 'h-8 w-8 rounded-lg shadow-[0_0_10px_rgba(145,70,255,0.3)]';
+export const docsSidebarLogo = 'h-8 w-8 rounded-lg';
 
 export const docsSidebarTitle = 'm-0 text-[1.1rem] font-bold tracking-tight text-white';
 
@@ -43,13 +43,13 @@ export const docsReturnHome =
     'mt-auto flex items-center justify-center gap-3 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 font-semibold text-white no-underline transition hover:bg-white/[0.08]';
 
 export const docsContent =
-    'ml-[280px] w-full max-w-[1200px] px-[100px] py-20 max-[900px]:ml-0 max-[900px]:px-5 max-[900px]:py-[60px] [&_a]:font-semibold [&_a]:text-primary [&_a]:no-underline [&_a]:transition hover:[&_a]:text-[#a78bfa] [&_code]:rounded [&_code]:border [&_code]:border-white/[0.05] [&_code]:bg-white/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-[#e2e8f0] [&_h2]:relative [&_h2]:mb-[30px] [&_h2]:flex [&_h2]:items-center [&_h2]:gap-[15px] [&_h2]:border-b [&_h2]:border-white/[0.08] [&_h2]:pb-[15px] [&_h2]:text-[2rem] [&_h2]:tracking-tight [&_h2]:text-white [&_h2]:after:absolute [&_h2]:after:bottom-[-1px] [&_h2]:after:left-0 [&_h2]:after:h-0.5 [&_h2]:after:w-[60px] [&_h2]:after:bg-primary [&_h2]:after:shadow-[0_0_10px_#9146ff] [&_h2]:after:content-[""] [&_h2_i]:text-[1.5rem] [&_h2_i]:text-primary [&_h2_i]:drop-shadow-[0_0_10px_rgba(145,70,255,0.4)] [&_h3]:my-6 [&_h3]:text-[1.2rem] [&_h3]:font-bold [&_h3]:text-white [&_p]:mb-5 [&_p]:text-[1.05rem] [&_p]:text-[#a1a1aa]';
+    'ml-[280px] w-full max-w-[1200px] px-[100px] py-20 max-[900px]:ml-0 max-[900px]:px-5 max-[900px]:py-[60px] [&_a]:font-semibold [&_a]:text-primary [&_a]:no-underline [&_a]:transition hover:[&_a]:text-[#a78bfa] [&_code]:rounded [&_code]:border [&_code]:border-white/[0.05] [&_code]:bg-white/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-[#e2e8f0] [&_h2]:relative [&_h2]:mb-[30px] [&_h2]:flex [&_h2]:items-center [&_h2]:gap-[15px] [&_h2]:border-b [&_h2]:border-white/[0.08] [&_h2]:pb-[15px] [&_h2]:text-[1.8rem] [&_h2]:tracking-tight [&_h2]:text-white [&_h2_i]:text-[1.3rem] [&_h2_i]:text-primary [&_h3]:my-6 [&_h3]:text-[1.15rem] [&_h3]:font-bold [&_h3]:text-white [&_p]:mb-5 [&_p]:text-[1rem] [&_p]:text-[#a1a1aa]';
 
 export const docSection =
     'mb-[100px] min-h-[400px] scroll-mt-10 opacity-0 [transform:translateY(20px)] [animation:docsFadeInUp_0.6s_cubic-bezier(0.2,0.8,0.2,1)_forwards]';
 
 export const docsMainTitle =
-    'mb-6 bg-gradient-to-b from-white to-white/70 bg-clip-text text-[3.5rem] leading-[1.1] font-extrabold tracking-tight text-transparent max-[900px]:text-center max-[900px]:text-[2.2rem]';
+    'mb-6 text-[3rem] leading-[1.1] font-extrabold tracking-tight text-white max-[900px]:text-center max-[900px]:text-[2.2rem]';
 
 export const docsAccent = 'text-primary [webkit-text-fill-color:#9146ff]';
 
@@ -62,12 +62,12 @@ export const docsIntroGrid =
 export const docsStepSeparator = 'text-[0.75rem] text-[#71717a] opacity-50';
 
 export const docsInfoCard =
-    'mb-[30px] flex gap-5 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/15 to-[rgba(76,29,149,0.05)] p-6 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] backdrop-blur-[10px] transition hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_10px_40px_-10px_rgba(145,70,255,0.15)] [&_i]:mt-0.5 [&_i]:text-primary [&_p]:mb-0 [&_p]:text-[0.95rem] [&_p]:text-[#dedede]';
+    'mb-[30px] flex gap-4 rounded-xl border border-primary/20 bg-primary/5 p-5 transition hover:border-primary/30 [&_i]:mt-1 [&_i]:text-primary [&_p]:mb-0 [&_p]:text-[0.9rem] [&_p]:text-[#dedede]';
 
 export const docsInfoCardFlat = `${docsInfoCard} m-0 h-full`;
 
 export const docsEndpoint =
-    'mb-[30px] flex flex-wrap items-center gap-[15px] rounded-xl border border-white/[0.08] bg-[rgba(19,19,22,0.6)] p-[18px_25px] font-mono shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-[10px] transition hover:-translate-y-1 hover:border-primary/30';
+    'mb-[30px] flex flex-wrap items-center gap-[15px] rounded-xl border border-white/[0.08] bg-white/[0.02] p-[15px_20px] font-mono transition hover:border-primary/30';
 
 export const docsMethodGet =
     'rounded-md bg-gradient-to-br from-sky-500 to-sky-600 px-2.5 py-1.5 text-[0.75rem] font-extrabold tracking-wide text-white shadow-[0_4px_12px_rgba(14,165,233,0.3)]';
@@ -80,7 +80,7 @@ export const docsParamsTable =
     'my-[30px] w-full overflow-hidden rounded-2xl border border-white/[0.08] border-separate border-spacing-0 bg-[rgba(19,19,22,0.6)] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.2)] backdrop-blur-[10px] [&_td]:border-b [&_td]:border-white/[0.08] [&_td]:px-[25px] [&_td]:py-[18px] [&_th]:bg-white/[0.02] [&_th]:px-[25px] [&_th]:py-[18px] [&_th]:text-left [&_th]:text-[0.9rem] [&_th]:font-bold [&_th]:tracking-wide [&_th]:text-white [&_th]:uppercase [&_tr:last-child_td]:border-b-0 [&_tr:hover_td]:bg-white/[0.02]';
 
 export const docsCodeBlock =
-    'relative my-[30px] rounded-xl border border-white/[0.08] bg-black p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] before:absolute before:top-3 before:left-[15px] before:text-[1.5rem] before:leading-none before:tracking-[2px] before:text-[#3f3f46] before:content-["•••"] [&_code]:mt-4 [&_code]:block [&_code]:border-none [&_code]:bg-transparent [&_code]:pr-10 [&_code]:font-mono [&_code]:text-[0.9rem] [&_code]:leading-relaxed [&_code]:text-[#e2e8f0]';
+    'relative my-[30px] rounded-xl border border-white/[0.08] bg-[#0e0e11] p-5 before:absolute before:top-2.5 before:left-[15px] before:text-[1.2rem] before:leading-none before:tracking-[2px] before:text-[#3f3f46] before:content-["•••"] [&_code]:mt-3 [&_code]:block [&_code]:border-none [&_code]:bg-transparent [&_code]:pr-10 [&_code]:font-mono [&_code]:text-[0.85rem] [&_code]:leading-relaxed [&_code]:text-[#e2e8f0]';
 
 export const docsStepsMini =
     'mb-4 flex items-center gap-[15px] text-[0.9rem] font-medium text-[#a1a1aa]';
@@ -92,7 +92,7 @@ export const docsStepsGrid =
     'mt-[30px] grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-5';
 
 export const docsStepCard =
-    'relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(19,19,22,0.6)] p-6 backdrop-blur-[10px] [&_h3]:mb-2.5 [&_h3]:text-[1.1rem] [&_h3]:font-bold [&_h3]:text-white [&_p]:mb-0 [&_p]:text-[0.9rem]';
+    'relative overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 [&_h3]:mb-2 [&_h3]:text-[1.05rem] [&_h3]:font-bold [&_h3]:text-white [&_p]:mb-0 [&_p]:text-[0.85rem]';
 
 export const docsStepNumber =
     'pointer-events-none absolute -top-[15px] -right-[15px] text-[4rem] leading-none font-extrabold text-white/[0.03]';
@@ -110,13 +110,13 @@ export const docsLimitLabel =
     'text-[0.85rem] font-semibold tracking-wide text-[#a1a1aa] uppercase';
 
 export const docsTabContainer =
-    'my-[30px] overflow-hidden rounded-xl border border-white/[0.08] bg-black shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)]';
+    'my-[30px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#0e0e11]';
 
 export const docsTabHeader =
-    'flex flex-wrap items-center gap-2 border-b border-white/[0.08] bg-white/[0.03] max-[600px]:flex-col max-[600px]:items-stretch max-[600px]:gap-2 max-[600px]:p-3';
+    'flex flex-wrap items-center gap-1.5 border-b border-white/[0.08] bg-white/[0.02] max-[600px]:flex-col max-[600px]:items-stretch max-[600px]:gap-2 max-[600px]:p-3';
 
 export const docsTabBtn = (active: boolean) =>
-    `cursor-pointer border-r border-white/[0.08] px-5 py-3 text-[0.9rem] font-semibold whitespace-nowrap transition max-[600px]:w-full max-[600px]:rounded-lg max-[600px]:border max-[600px]:border-white/[0.05] max-[600px]:text-center ${active ? 'bg-primary/10 text-white shadow-[inset_0_-2px_0_#9146ff] max-[600px]:border-primary max-[600px]:bg-primary max-[600px]:shadow-none' : 'bg-transparent text-[#a1a1aa] hover:bg-white/5 hover:text-white max-[600px]:bg-white/[0.02]'}`;
+    `cursor-pointer border-r border-white/[0.08] px-4 py-2.5 text-[0.85rem] font-medium whitespace-nowrap transition max-[600px]:w-full max-[600px]:rounded-lg max-[600px]:border max-[600px]:border-white/[0.05] max-[600px]:text-center ${active ? 'bg-primary/10 text-white shadow-[inset_0_-2px_0_#9146ff] max-[600px]:border-primary max-[600px]:bg-primary max-[600px]:shadow-none' : 'bg-transparent text-[#a1a1aa] hover:bg-white/5 hover:text-white max-[600px]:bg-white/[0.02]'}`;
 
 export const docsFormatSelector =
     'ml-auto flex gap-0.5 rounded-md bg-white/5 p-0.5 max-[600px]:order-first max-[600px]:ml-0 max-[600px]:w-full max-[600px]:justify-center';
@@ -132,19 +132,19 @@ export const docsCopyBtn =
 export const docsCopyBtnSuccess = 'border-success bg-success text-white';
 
 export const docsInfoCardGreen =
-    'mb-[30px] flex gap-5 rounded-2xl border border-l-4 border-l-success border-success/20 bg-[rgba(34,197,94,0.05)] p-6 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] backdrop-blur-[10px] [&_i]:mt-0.5 [&_i]:text-success [&_p]:mb-0 [&_p]:text-[0.95rem] [&_p]:text-[#dedede]';
+    'mb-[30px] flex gap-4 rounded-xl border border-l-4 border-l-success border-white/[0.08] bg-white/[0.02] p-5 [&_i]:mt-1 [&_i]:text-success [&_p]:mb-0 [&_p]:text-[0.9rem] [&_p]:text-[#dedede]';
 
 export const docsInfoCardBlue =
-    'mb-[30px] flex gap-5 rounded-2xl border border-l-4 border-l-blue-500 border-blue-500/20 bg-[rgba(59,130,246,0.05)] p-6 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] backdrop-blur-[10px] [&_i]:mt-0.5 [&_i]:text-blue-500 [&_p]:mb-0 [&_p]:text-[0.95rem] [&_p]:text-[#dedede]';
+    'mb-[30px] flex gap-4 rounded-xl border border-l-4 border-l-blue-500 border-white/[0.08] bg-white/[0.02] p-5 [&_i]:mt-1 [&_i]:text-blue-500 [&_p]:mb-0 [&_p]:text-[0.9rem] [&_p]:text-[#dedede]';
 
 export const docsInfoCardRed =
-    'mb-[30px] flex gap-5 rounded-2xl border border-l-4 border-l-error border-error/20 bg-[rgba(239,68,68,0.05)] p-6 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] backdrop-blur-[10px] [&_i]:mt-0.5 [&_i]:text-error [&_p]:mb-0 [&_p]:text-[0.95rem] [&_p]:text-[#dedede]';
+    'mb-[30px] flex gap-4 rounded-xl border border-l-4 border-l-error border-white/[0.08] bg-white/[0.02] p-5 [&_i]:mt-1 [&_i]:text-error [&_p]:mb-0 [&_p]:text-[0.9rem] [&_p]:text-[#dedede]';
 
 export const docsInfoCardPurple =
-    'mb-[30px] flex gap-5 rounded-2xl border border-l-4 border-l-purple-500 border-purple-500/20 bg-[rgba(168,85,247,0.05)] p-6 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] backdrop-blur-[10px] [&_i]:mt-0.5 [&_i]:text-purple-500 [&_p]:mb-0 [&_p]:text-[0.95rem] [&_p]:text-[#dedede]';
+    'mb-[30px] flex gap-4 rounded-xl border border-l-4 border-l-purple-500 border-white/[0.08] bg-white/[0.02] p-5 [&_i]:mt-1 [&_i]:text-purple-500 [&_p]:mb-0 [&_p]:text-[0.9rem] [&_p]:text-[#dedede]';
 
 export const docsInfoCardPrimary =
-    'mb-[30px] flex gap-5 rounded-2xl border border-l-4 border-l-primary border-primary/20 bg-gradient-to-br from-primary/15 to-[rgba(76,29,149,0.05)] p-6 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] backdrop-blur-[10px] [&_i]:mt-0.5 [&_i]:text-primary [&_p]:mb-0 [&_p]:text-[0.95rem] [&_p]:text-[#dedede]';
+    'mb-[30px] flex gap-4 rounded-xl border border-l-4 border-l-primary border-white/[0.08] bg-white/[0.02] p-5 [&_i]:mt-1 [&_i]:text-primary [&_p]:mb-0 [&_p]:text-[0.9rem] [&_p]:text-[#dedede]';
 
 export const docsMethodBadge = (bg: string) =>
     `${docsMethodGet} ${bg}`;
