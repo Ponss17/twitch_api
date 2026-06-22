@@ -240,11 +240,12 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
     const login = req.query.login as string;
     const userId = req.userId;
 
-    const cacheKey = userId || login?.toLowerCase() || '';
-    if (cacheKey) {
-        const cached = summaryMemoryCache.get(cacheKey);
-        if (cached && cached.expiry > Date.now()) {
-            return res.json(cached.payload);
+    const cacheKey = `cache:summary:${userId || login?.toLowerCase() || ''}`;
+    
+    if (cacheKey !== 'cache:summary:') {
+        const cached = await cacheService.get<Record<string, unknown>>(cacheKey);
+        if (cached) {
+            return res.json(cached);
         }
     }
 
@@ -283,11 +284,8 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             analytics
         };
 
-        if (cacheKey) {
-            summaryMemoryCache.set(cacheKey, {
-                expiry: Date.now() + SUMMARY_CACHE_MS,
-                payload
-            });
+        if (cacheKey !== 'cache:summary:') {
+            await cacheService.set(cacheKey, payload, 5 * 60); // 5 minutos de caché global
         }
 
         res.json(payload);
