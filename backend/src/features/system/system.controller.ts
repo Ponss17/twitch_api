@@ -29,6 +29,22 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
             }
         }
 
+        // Si el middleware checkToken ya identificó al usuario (usando caché global), retornar rápido
+        if (apiUser && (apiUser as any).userId) {
+            const user = apiUser as any;
+            return res.json({
+                valid: true,
+                apiKey: user.apiKey || null,
+                user: {
+                    id: user.userId,
+                    login: user.login,
+                    display_name: user.displayName || user.login,
+                    profile_image_url: user.profileImageUrl,
+                    timezone: user.timezone || 'UTC'
+                }
+            });
+        }
+
         if (!token) {
             return res.status(401).send(MESSAGES.AUTH.NO_TOKEN);
         }

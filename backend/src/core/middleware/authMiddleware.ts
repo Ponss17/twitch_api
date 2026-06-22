@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest, StoredUser } from '../../types/twitch';
 import * as apiService from '../../features/twitch/twitch.service';
 import * as dbService from '../database/dbService';
+import * as cacheService from '../database/cacheService';
 import { MESSAGES } from '../config/messages';
 import { logger } from '../utils/logger';
 import { isPublicRoute, isApiRoute } from '../utils/routeHelpers';
@@ -17,10 +18,6 @@ const LAST_ACTIVE_THROTTLE_MS = 30 * 60 * 1000; // 30 min — update de last_act
 
 const userCache = new BoundedMap<string, { user: StoredUser; expiry: number }>(1000);
 const invalidTokensCache = new NegativeCache<string>(30 * 1000);
-const validTokensCache = new BoundedMap<
-    string,
-    { data: { user_id: string; login: string }; expiry: number }
->(1000);
 const lastActiveThrottle = new BoundedMap<string, number>(1000);
 const pendingUserDbRequests = new Map<string, Promise<StoredUser | null>>();
 
@@ -71,22 +68,24 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     }
 
     if (!req.userId || !req.login) {
-        const cachedValidation = validTokensCache.get(token);
-        if (cachedValidation && cachedValidation.expiry > Date.now()) {
-            req.userId = cachedValidation.data.user_id;
-            req.login = cachedValidation.data.login;
+        const cacheKey = `cache:tokenValidation:${token}`;
+        const cachedValidation = await cacheService.get<{ user_id: string; login: string }>(cacheKey);
+        
+        if (cachedValidation) {
+            req.userId = cachedValidation.user_id;
+            req.login = cachedValidation.login;
         } else {
-            if (cachedValidation) validTokensCache.delete(token);
             try {
                 const validation = await apiService.validateToken(token);
                 if (validation) {
                     if (validation.user_id) req.userId = validation.user_id;
                     if (validation.login) req.login = validation.login;
 
-                    validTokensCache.set(token, {
-                        data: { user_id: validation.user_id, login: validation.login },
-                        expiry: Date.now() + TOKEN_VALIDATION_TTL
-                    });
+                    await cacheService.set(
+                        cacheKey, 
+                        { user_id: validation.user_id, login: validation.login }, 
+                        TOKEN_VALIDATION_TTL / 1000
+                    );
                 } else {
                     invalidTokensCache.set(token);
                     return res.status(401).json({ error: MESSAGES.AUTH.INVALID_TOKEN });
