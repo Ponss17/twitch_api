@@ -1,0 +1,103 @@
+---
+import '../styles/global.css';
+import { docsPage } from '../lib/docsTw';
+
+export interface Props {
+    title?: string;
+    description?: string;
+    canonical?: string;
+    ogTitle?: string;
+    ogDescription?: string;
+    footer?: boolean;
+}
+
+const {
+    title = 'LosPerris Twitch API Docs',
+    description = 'Documentación oficial de LosPerris Twitch API. Guía técnica de uso, comandos y herramientas para streamers.',
+    canonical,
+    ogTitle,
+    ogDescription,
+    footer = true
+} = Astro.props;
+
+import { Footer } from '../components/layout/Footer';
+import { staticPath, absoluteAssetUrl } from '../lib/paths';
+
+const canonicalUrl = canonical ?? `${Astro.url.origin}${staticPath('/docs')}`;
+const siteOrigin = canonical ? new URL(canonical).origin : new URL(canonicalUrl).origin;
+const shareTitle = ogTitle ?? title;
+const shareDesc = ogDescription ?? description;
+const shareImage = absoluteAssetUrl('/img/logo.svg', siteOrigin);
+const isDev = import.meta.env.DEV;
+const swUrl = staticPath('/sw.js');
+const swScope = staticPath('/');
+---
+
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#9146ff" />
+        <meta name="description" content={description} />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={shareTitle} />
+        <meta property="og:description" content={shareDesc} />
+        <meta property="og:image" content={shareImage} />
+        <meta property="twitter:card" content="summary" />
+        <meta property="twitter:url" content={canonicalUrl} />
+        <meta property="twitter:title" content={shareTitle} />
+        <meta property="twitter:description" content={shareDesc} />
+        <meta property="twitter:image" content={shareImage} />
+        <link rel="icon" type="image/svg+xml" href={staticPath('/img/logo.svg')} />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        />
+        <title>{title}</title>
+        {isDev && (
+            <script is:inline>
+                (function () {
+                    if (!('serviceWorker' in navigator)) return;
+                    if (sessionStorage.getItem('sw-cleared') === '1') return;
+                    var hadController = !!navigator.serviceWorker.controller;
+                    navigator.serviceWorker.getRegistrations().then(function (regs) {
+                        if (!regs.length && !hadController) return;
+                        return Promise.all(regs.map(function (reg) { return reg.unregister(); }))
+                            .then(function () {
+                                if (!('caches' in window)) return;
+                                return caches.keys().then(function (keys) {
+                                    return Promise.all(keys.map(function (key) { return caches.delete(key); }));
+                                });
+                            })
+                            .then(function () {
+                                sessionStorage.setItem('sw-cleared', '1');
+                                if (hadController || regs.length) location.reload();
+                            });
+                    });
+                })();
+            </script>
+        )}
+    </head>
+    <body class:list={[docsPage, footer && 'flex min-h-screen flex-col']}>
+        <div class:list={[footer && 'flex min-h-0 flex-1 flex-col']}>
+            <slot />
+        </div>
+        {footer && <Footer client:load />}
+        <script is:inline define:vars={{ isDev, swUrl, swScope }}>
+            if ('serviceWorker' in navigator && !isDev) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register(swUrl, { scope: swScope }).catch(() => {});
+                });
+            }
+        </script>
+    </body>
+</html>

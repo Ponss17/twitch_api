@@ -1,12 +1,13 @@
 {
-    "extends": "./tsconfig.json",
+    "extends": "./tsconfig.backend.json",
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
-            "@/*": ["src/*"]
+            "@/*": ["backend/src/*"]
         },
         "types": ["jest", "node"],
-        "isolatedModules": true
+        "isolatedModules": true,
+        "rootDir": "."
     },
-    "include": ["src/**/*", "tests/**/*"]
+    "include": ["backend/**/*", "tests/**/*"]
 }

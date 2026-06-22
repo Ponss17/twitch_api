@@ -1,4 +1,4 @@
-import { safeString, sanitizeHtml } from '../../src/core/utils/validationHelpers';
+import { safeString, sanitizeHtml } from '../../backend/src/core/utils/validationHelpers';
 
 describe('validationHelpers', () => {
     describe('safeString', () => {

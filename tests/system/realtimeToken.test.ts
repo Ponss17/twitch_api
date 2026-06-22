@@ -16,8 +16,8 @@ jest.mock('jsonwebtoken', () => ({
     sign: jest.fn().mockReturnValue('mock.jwt.token')
 }));
 
-import { generateRealtimeToken } from '../../src/features/system/system.controller';
-import { AuthenticatedRequest } from '../../src/types/twitch';
+import { generateRealtimeToken } from '../../backend/src/features/system/system.controller';
+import { AuthenticatedRequest } from '../../backend/src/types/twitch';
 
 const mockReq = (overrides = {}) =>
     ({ userId: '12345', login: 'testuser', ...overrides }) as unknown as AuthenticatedRequest;

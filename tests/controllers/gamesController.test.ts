@@ -1,20 +1,20 @@
 import { Response } from 'express';
 
-jest.mock('../../src/core/database/dbService', () => ({
+jest.mock('../../backend/src/core/database/dbService', () => ({
     recordUserRequest: jest.fn().mockResolvedValue(undefined),
     addUserActivity: jest.fn().mockResolvedValue(undefined),
     incrementUserStats: jest.fn().mockResolvedValue(undefined)
 }));
 
-jest.mock('../../src/features/games/magic8.service', () => ({
+jest.mock('../../backend/src/features/games/magic8.service', () => ({
     generateMagic8Response: jest.fn()
 }));
 
-jest.mock('../../src/features/games/russian.service', () => ({
+jest.mock('../../backend/src/features/games/russian.service', () => ({
     playRussianRoulette: jest.fn()
 }));
 
-jest.mock('../../src/features/games/duel.service', () => ({
+jest.mock('../../backend/src/features/games/duel.service', () => ({
     playDuel: jest.fn()
 }));
 
@@ -26,11 +26,11 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
-import * as dbService from '../../src/core/database/dbService';
-import { generateMagic8Response } from '../../src/features/games/magic8.service';
-import { playRussianRoulette } from '../../src/features/games/russian.service';
-import { playDuel } from '../../src/features/games/duel.service';
-import { askMagic8, playRussian, startDuel } from '../../src/features/games/games.controller';
+import * as dbService from '../../backend/src/core/database/dbService';
+import { generateMagic8Response } from '../../backend/src/features/games/magic8.service';
+import { playRussianRoulette } from '../../backend/src/features/games/russian.service';
+import { playDuel } from '../../backend/src/features/games/duel.service';
+import { askMagic8, playRussian, startDuel } from '../../backend/src/features/games/games.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
 const mockReq = (overrides = {}) =>

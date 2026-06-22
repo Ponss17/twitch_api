@@ -2,11 +2,11 @@ const mockValidateToken = jest.fn();
 const mockGetUser = jest.fn();
 const mockUpdateLastActive = jest.fn().mockResolvedValue(undefined);
 
-jest.mock('../../src/features/twitch/twitch.service', () => ({
+jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
     validateToken: mockValidateToken
 }));
 
-jest.mock('../../src/core/database/dbService', () => ({
+jest.mock('../../backend/src/core/database/dbService', () => ({
     getUser: mockGetUser,
     updateLastActive: mockUpdateLastActive
 }));
@@ -17,7 +17,7 @@ jest.mock('@/core/utils/routeHelpers', () => ({
     isApiRoute: jest.fn((path: string) => path.startsWith('/api') || path.startsWith('/twitch'))
 }));
 
-import checkToken from '../../src/core/middleware/authMiddleware';
+import checkToken from '../../backend/src/core/middleware/authMiddleware';
 import { mockRes, mockReq } from '../helpers/mockExpress';
 
 describe('authMiddleware — checkToken', () => {

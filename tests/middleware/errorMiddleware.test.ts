@@ -18,7 +18,7 @@ jest.mock('@/core/utils/logger', () => ({
     clearRequestId: jest.fn()
 }));
 
-import { errorHandler, requestLogger } from '../../src/core/middleware/errorMiddleware';
+import { errorHandler, requestLogger } from '../../backend/src/core/middleware/errorMiddleware';
 
 const mockReq = (overrides = {}) =>
     ({

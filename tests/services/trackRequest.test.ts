@@ -2,7 +2,7 @@ const mockRecordUserRequest = jest.fn().mockResolvedValue(undefined);
 const mockIncrementUserStats = jest.fn().mockResolvedValue(undefined);
 const mockAddUserActivity = jest.fn().mockResolvedValue(undefined);
 
-jest.mock('../../src/core/database/dbService', () => ({
+jest.mock('../../backend/src/core/database/dbService', () => ({
     recordUserRequest: (...args: unknown[]) => mockRecordUserRequest(...args),
     incrementUserStats: (...args: unknown[]) => mockIncrementUserStats(...args),
     addUserActivity: (...args: unknown[]) => mockAddUserActivity(...args)
@@ -12,7 +12,7 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }
 }));
 
-import { trackRequest } from '../../src/core/utils/tracking';
+import { trackRequest } from '../../backend/src/core/utils/tracking';
 
 describe('trackRequest', () => {
     beforeEach(() => jest.clearAllMocks());

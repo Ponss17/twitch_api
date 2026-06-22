@@ -1,0 +1,160 @@
+import { card, fadeIn } from '@/lib/tw';
+
+interface ProfileSecuritySectionProps {
+    apiKey: string;
+    keyVisible: boolean;
+    showDanger: boolean;
+    userId?: string;
+    rateLimit: number;
+    onToggleKey: () => void;
+    onCopyKey: () => void;
+    onRegenKey: () => void;
+    onToggleDanger: () => void;
+    onCopyId: () => void;
+}
+
+const cardShell = `${card} ${fadeIn} mb-3 opacity-0`;
+
+export function ProfileSecuritySection({
+    apiKey,
+    keyVisible,
+    showDanger,
+    userId,
+    rateLimit,
+    onToggleKey,
+    onCopyKey,
+    onRegenKey,
+    onToggleDanger,
+    onCopyId
+}: ProfileSecuritySectionProps) {
+    return (
+        <div className={`${cardShell} [animation-delay:60ms]`}>
+            <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
+                        <i className="fa-solid fa-shield-halved" aria-hidden />
+                    </div>
+                    <div>
+                        <h3 className="mb-0.5 text-[0.95rem] font-bold">Seguridad y Conexión</h3>
+                        <p className="text-[0.8rem] text-[#a1a1aa]">
+                            Gestiona tus credenciales privadas de LosPerris API
+                        </p>
+                    </div>
+                </div>
+                <div className="group/tooltip relative flex cursor-help items-center text-[#71717a] transition hover:text-primary">
+                    <i className="fa-solid fa-circle-info" aria-hidden />
+                    <span className="pointer-events-none absolute bottom-[calc(100%+12px)] right-0 z-[100] w-max max-w-[220px] translate-y-2.5 rounded-lg border border-white/[0.08] bg-bg-tertiary px-4 py-2.5 text-left text-[0.8rem] font-semibold leading-snug text-[#fafafa] opacity-0 shadow-lg transition group-hover/tooltip:translate-y-0 group-hover/tooltip:opacity-100">
+                        Mantén esta información privada. No la compartas nunca en directo.
+                    </span>
+                </div>
+            </div>
+
+            <form className="text-[#fafafa]" onSubmit={(e) => e.preventDefault()} autoComplete="off">
+                <div className="relative mt-1 overflow-hidden rounded-xl border border-primary/15 bg-black/25 p-3 pl-4 backdrop-blur-[10px] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-gradient-to-b before:from-primary before:to-transparent before:opacity-60">
+                    <label
+                        htmlFor="profile-api-key"
+                        className="mb-3 flex items-center text-[0.65rem] font-extrabold uppercase tracking-[0.12em] text-primary opacity-90"
+                    >
+                        <i className="fa-solid fa-key mr-1" aria-hidden />
+                        <span>TU API KEY PRIVADA</span>
+                    </label>
+
+                    <div className="flex overflow-hidden rounded-xl border border-white/[0.05] bg-black/30 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition focus-within:border-primary/50 focus-within:bg-primary/[0.03] focus-within:shadow-[0_0_15px_rgba(145,70,255,0.1),inset_0_2px_4px_rgba(0,0,0,0.2)]">
+                        <input
+                            id="profile-api-key"
+                            readOnly
+                            type={keyVisible ? 'text' : 'password'}
+                            value={apiKey}
+                            autoComplete="new-password"
+                            className="flex-1 border-none bg-transparent px-3 py-2 font-[Consolas,monospace] text-[0.9rem] text-white outline-none"
+                        />
+                        <div className="flex border-l border-white/[0.08] bg-white/[0.02]">
+                            <button
+                                type="button"
+                                onClick={onToggleKey}
+                                className="flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] text-[#a1a1aa] transition first:border-l-0 hover:bg-white/[0.05] hover:text-white"
+                                title="Ver/Ocultar"
+                            >
+                                <i className={`fa-regular ${keyVisible ? 'fa-eye-slash' : 'fa-eye'}`} />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={onCopyKey}
+                                className="flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] text-[#a1a1aa] transition hover:bg-primary/10 hover:text-primary"
+                                title="Copiar"
+                            >
+                                <i className="fa-regular fa-copy" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={onRegenKey}
+                                className="flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] text-[#a1a1aa] transition hover:bg-[#ef4444]/[0.08] hover:text-[#ef4444]"
+                                title="Regenerar"
+                            >
+                                <i className="fa-solid fa-rotate" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={onToggleDanger}
+                                className={`flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] transition hover:bg-[#ef4444]/[0.08] hover:text-[#ef4444] ${
+                                    showDanger
+                                        ? 'bg-[#ef4444] text-white shadow-[0_0_10px_rgba(239,68,68,0.3)] hover:bg-[#ef4444] hover:text-white'
+                                        : 'text-[#a1a1aa]'
+                                }`}
+                                title={showDanger ? 'Ocultar Zona de Peligro' : 'Mostrar Zona de Peligro'}
+                            >
+                                <i className="fa-solid fa-triangle-exclamation" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3 pt-2.5">
+                        <div className="flex items-center gap-1.5 rounded-lg border border-[#10b981]/10 bg-[#10b981]/[0.03] px-2.5 py-1.5 backdrop-blur-[8px]">
+                            <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.05em] text-[#a1a1aa]">
+                                ESTADO:
+                            </span>
+                            <span className="font-[Outfit,sans-serif] text-[0.85rem] font-bold text-[#10b981]">
+                                <i className="fa-solid fa-check mr-1" />
+                                ACTIVA
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 rounded-lg border border-[#3b82f6]/10 bg-[#3b82f6]/[0.03] px-2.5 py-1.5 backdrop-blur-[8px]">
+                            <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.05em] text-[#a1a1aa]">
+                                ACCESO:
+                            </span>
+                            <span className="font-[Outfit,sans-serif] text-[0.85rem] font-bold text-[#3b82f6]">
+                                FULL API
+                            </span>
+                        </div>
+                        <div
+                            className="flex items-center gap-1.5 rounded-lg border border-white/[0.05] bg-black/20 px-2.5 py-1.5 backdrop-blur-[8px]"
+                            title="Peticiones máximas por minuto con tu API Key"
+                        >
+                            <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.05em] text-[#a1a1aa]">
+                                LÍMITE/MIN:
+                            </span>
+                            <span className="font-[Outfit,sans-serif] text-[0.85rem] font-bold text-white">
+                                {rateLimit} req/min
+                            </span>
+                            <i className="fa-solid fa-gauge-high ml-1 text-[0.7rem] text-primary opacity-70" />
+                        </div>
+                        <button
+                            type="button"
+                            onClick={onCopyId}
+                            className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/[0.05] bg-black/20 px-2.5 py-1.5 text-left font-[inherit] text-inherit backdrop-blur-[8px] transition hover:border-primary/25 hover:bg-primary/[0.08] hover:[&_.s-value]:text-primary"
+                            title="Copiar ID de cuenta"
+                        >
+                            <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.05em] text-[#a1a1aa]">
+                                ID:
+                            </span>
+                            <span className="s-value font-[Outfit,sans-serif] text-[0.85rem] font-bold text-white">
+                                {userId ?? '---'}
+                            </span>
+                            <i className="fa-regular fa-copy ml-1 text-[0.65rem] opacity-50" />
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    );
+}

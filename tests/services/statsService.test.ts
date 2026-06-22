@@ -13,7 +13,7 @@ const mockSupabase = {
     rpc: jest.fn()
 };
 
-jest.mock('../../src/core/database/supabaseClient', () => ({
+jest.mock('../../backend/src/core/database/supabaseClient', () => ({
     supabase: mockSupabase
 }));
 
@@ -21,7 +21,7 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }
 }));
 
-import * as statsService from '../../src/core/database/statsService';
+import * as statsService from '../../backend/src/core/database/statsService';
 
 describe('statsService', () => {
     beforeEach(() => {

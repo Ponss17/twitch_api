@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { TermsPage } from '../components/legal/TermsPage';
+---
+
+<BaseLayout
+    title="Términos de Uso | LosPerris"
+    description="Condiciones de uso de LosPerris Twitch API."
+    canonical="https://www.losperris.dev/api/twitch/terminos"
+    footer
+>
+    <TermsPage client:load />
+</BaseLayout>

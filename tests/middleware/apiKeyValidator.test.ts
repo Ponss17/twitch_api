@@ -1,19 +1,19 @@
-import { apiKeyValidator } from '../../src/core/middleware/apiKeyValidator';
+import { apiKeyValidator } from '../../backend/src/core/middleware/apiKeyValidator';
 import { Request, Response } from 'express';
-import * as authService from '../../src/features/auth/auth.service';
-import * as dbService from '../../src/core/database/dbService';
+import * as authService from '../../backend/src/features/auth/auth.service';
+import * as dbService from '../../backend/src/core/database/dbService';
 
 // Mock de servicios
-jest.mock('../../src/core/database/dbService', () => ({
+jest.mock('../../backend/src/core/database/dbService', () => ({
     getUser: jest.fn(),
     addSystemLog: jest.fn().mockResolvedValue(undefined)
 }));
-jest.mock('../../src/core/database/cacheService', () => ({
+jest.mock('../../backend/src/core/database/cacheService', () => ({
     getCachedApiUser: jest.fn().mockResolvedValue(null),
     setCachedApiUser: jest.fn().mockResolvedValue(undefined),
     invalidateApiKeyCache: jest.fn().mockResolvedValue(undefined)
 }));
-jest.mock('../../src/features/auth/auth.service');
+jest.mock('../../backend/src/features/auth/auth.service');
 
 describe('API Key Validator Middleware', () => {
     let mockRequest: Partial<Request>;

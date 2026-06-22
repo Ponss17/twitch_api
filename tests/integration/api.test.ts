@@ -1,5 +1,5 @@
 import request from 'supertest';
-import app from '../../src/app';
+import app from '../../backend/src/app';
 
 describe('Integration: Rutas del sistema', () => {
     describe('GET /health', () => {

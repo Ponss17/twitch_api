@@ -1,0 +1,18 @@
+{
+    "name": "LosPerris Twitch API",
+    "short_name": "LosPerris",
+    "description": "Comandos y Herramientas para Streamers",
+    "start_url": "/api/twitch/",
+    "scope": "/api/twitch/",
+    "display": "standalone",
+    "background_color": "#09090b",
+    "theme_color": "#9146ff",
+    "icons": [
+        {
+            "src": "/api/twitch/img/logo.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}

@@ -2,44 +2,67 @@ const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
 
-const envPath = path.join(__dirname, '../.env');
-if (!fs.existsSync(envPath)) {
-    console.error('❌ No se encontró el archivo .env');
-    console.log('💡 Tip: Ejecuta "vercel env pull .env" si usas Vercel CLI.');
-    process.exit(1);
-}
-
-const envConfig = dotenv.parse(fs.readFileSync(envPath));
+const root = path.join(__dirname, '..');
+const envPath = path.join(root, '.env');
+const legacyEnvPath = path.join(root, '..', 'twitch_api', '.env');
 
 const REQUIRED_VARS = [
     'TWITCH_CLIENT_ID',
     'TWITCH_CLIENT_SECRET',
     'TWITCH_REDIRECT_URI',
-    'KV_REST_API_URL',
-    'KV_REST_API_TOKEN',
-    'GROQ_API_KEY',
-    'ADMIN_PASSWORD'
+    'ENCRYPTION_KEY',
+    'SUPABASE_URL',
+    'SUPABASE_SERVICE_ROLE_KEY',
+    'SUPABASE_ANON_KEY',
+    'SUPABASE_JWT_SECRET'
 ];
 
+const KV_VARS = ['KV_REST_API_URL', 'KV_REST_API_TOKEN'];
+
+if (!fs.existsSync(envPath)) {
+    console.error('❌ No se encontró .env en twitch_api_modern/');
+    console.log('');
+    console.log('Opciones:');
+    console.log('  1. Copiar desde el proyecto original (si ya lo tenías configurado):');
+    console.log('     copy ..\\twitch_api\\.env .env');
+    console.log('');
+    console.log('  2. Crear desde la plantilla y rellenar valores:');
+    console.log('     copy .env.example .env');
+    console.log('');
+    if (fs.existsSync(legacyEnvPath)) {
+        console.log('💡 Detectado ..\\twitch_api\\.env — puedes copiarlo con el comando de arriba.');
+    }
+    process.exit(1);
+}
+
+const envConfig = dotenv.parse(fs.readFileSync(envPath));
 let hasError = false;
 
 console.log('🔍 Verificando variables de entorno...');
 
-REQUIRED_VARS.forEach((key) => {
-    if (!envConfig[key]) {
-        console.error(`❌ Faltante: ${key}`);
+for (const key of REQUIRED_VARS) {
+    if (!envConfig[key]?.trim()) {
+        console.error(`❌ Faltante o vacía: ${key}`);
         hasError = true;
-    } else {
-        if (key === 'KV_REST_API_TOKEN' && envConfig[key].length < 20) {
-            console.warn(`⚠️  Advertencia: ${key} parece demasiado corto. ¿Es el token correcto?`);
+    }
+}
+
+const nodeEnv = envConfig.NODE_ENV || process.env.NODE_ENV || 'development';
+const isProd = nodeEnv === 'production';
+
+for (const key of KV_VARS) {
+    if (!envConfig[key]?.trim()) {
+        if (isProd) {
+            console.error(`❌ Faltante en producción: ${key} (rate limit → 503)`);
+            hasError = true;
+        } else {
+            console.warn(`⚠️  ${key} no configurado — rate limit global omitido en dev`);
         }
     }
-});
-
-if (hasError) {
-    console.log('\n❌ Faltan variables críticas. Tu entorno local puede fallar.');
-    console.log('💡 Tip: Sincroniza con Vercel usando: vercel env pull .env');
-    process.exit(1);
-} else {
-    console.log('✅ Todo parece correcto en .env');
 }
+if (hasError) {
+    console.log('\n❌ Completa las variables en .env antes de arrancar la API.');
+    process.exit(1);
+}
+
+console.log('✅ .env OK');

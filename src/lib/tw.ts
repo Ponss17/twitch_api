@@ -1,0 +1,140 @@
+/** Clases Tailwind reutilizables — sin CSS custom externo */
+export const card =
+    'rounded-xl border border-white/[0.08] bg-bg-card p-3 shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-[border-color] duration-200 hover:border-primary';
+
+export const cardBody = 'text-[#fafafa]';
+
+export const fadeIn = 'animate-fade-soft opacity-0';
+
+const selectChevron =
+    "bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239146ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\")]";
+
+/** Comandos — paridad con common.css (tipografía y padding compactos) */
+export const toolSelector = 'mb-3 flex items-center justify-between gap-2.5 max-sm:flex-col max-sm:items-stretch';
+
+export const toolLabel =
+    'flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-tight text-primary';
+
+export const selectInput =
+    `min-w-[180px] w-auto max-w-[min(100%,240px)] shrink-0 cursor-pointer appearance-none rounded-lg border border-white/[0.08] bg-bg-secondary bg-size-[14px] bg-position-[right_8px_center] bg-no-repeat py-[7px] pr-9 pl-3 text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:shadow-[0_0_0_3px_rgba(145,70,255,0.2)] ${selectChevron}`;
+
+export const textInput =
+    'w-full rounded-lg border border-white/[0.08] bg-bg-secondary px-3 py-[7px] text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:shadow-[0_0_0_3px_rgba(145,70,255,0.2)]';
+
+export const inputLabel =
+    'block text-[0.8125rem] font-medium leading-tight text-[#a1a1aa]';
+
+export const codeBox =
+    'relative rounded-xl border border-white/[0.08] border-l-4 border-l-primary bg-bg-main px-3.5 py-2.5';
+
+export const codeTextarea =
+    'block h-[38px] w-full resize-none overflow-hidden border-none bg-transparent pr-[96px] font-[Consolas,monospace] text-[0.8125rem] leading-[1.45] text-[#fafafa] outline-none';
+
+export const btnCopy =
+    'absolute top-1/2 right-2.5 flex -translate-y-1/2 items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-[0.8125rem] font-semibold text-white transition hover:bg-primary-hover';
+
+export const btnPrimary =
+    'mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-[0.8125rem] font-semibold text-white shadow-[0_4px_12px_rgba(145,70,255,0.3)] transition hover:-translate-y-0.5 hover:bg-primary-hover disabled:opacity-50';
+
+export const responseCard =
+    'mt-3 items-center gap-3 rounded-xl border border-white/[0.08] bg-[rgba(15,23,42,0.6)] px-4 py-3 text-[0.8125rem] leading-normal text-[#fafafa] shadow-lg backdrop-blur-[10px]';
+
+export const formGrid = 'grid grid-cols-1 gap-3 min-[768px]:grid-cols-2';
+
+export const formGroupLabel =
+    'mb-1.5 block text-[0.8125rem] font-semibold tracking-wide text-[#a1a1aa] uppercase';
+
+export const textareaXl =
+    'min-h-[180px] w-full resize-y rounded-xl border border-white/[0.08] bg-bg-secondary px-4 py-4 text-[0.8125rem] leading-relaxed text-[#fafafa] outline-none transition focus:border-primary focus:bg-primary/[0.02]';
+
+export const cardFooterFlex =
+    'mt-6 flex items-center justify-between gap-5 border-t border-white/[0.08] pt-5 max-[600px]:flex-col max-[600px]:text-center';
+
+export const gameResponseCard =
+    'mt-4 flex items-center gap-3 rounded-xl border px-5 py-3 text-[0.8125rem] leading-normal shadow-lg backdrop-blur-[10px]';
+
+/* —— Toasts —— */
+export const toastContainer =
+    'pointer-events-none fixed top-[90px] right-[30px] z-[10000] flex flex-col gap-[15px] max-sm:top-auto max-sm:right-5 max-sm:bottom-5 max-sm:left-5';
+
+export const toastBase =
+    'pointer-events-auto flex min-w-[300px] max-w-[400px] items-center gap-3 rounded-xl border border-white/[0.08] bg-[rgba(14,14,16,0.95)] px-6 py-4 text-[#fafafa] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] backdrop-blur-[10px] animate-toast-in max-sm:min-w-0 max-sm:w-full max-sm:max-w-none';
+
+export const toastHiding = 'animate-toast-out';
+
+export const toastIcon = {
+    success: 'text-success',
+    error: 'text-error',
+    info: 'text-primary',
+    warning: 'text-warning'
+} as const;
+
+export const toastBorder = {
+    success: 'border-l-4 border-l-success',
+    error: 'border-l-4 border-l-error',
+    info: 'border-l-4 border-l-primary',
+    warning: 'border-l-4 border-l-warning'
+} as const;
+
+export const toastMessage = 'flex-1 leading-snug';
+
+export const toastCloseBtn =
+    'ml-auto flex items-center justify-center rounded p-1 text-[#71717a] transition hover:bg-white/10 hover:text-[#fafafa]';
+
+/* —— Modales —— */
+export const dialogBase =
+    'fixed inset-0 z-[2000] m-auto w-[90%] max-w-[500px] border-none bg-transparent p-0 shadow-none backdrop:bg-black/60 backdrop:backdrop-blur-sm';
+
+export const modalPanel = 'overflow-hidden rounded-xl border border-white/[0.08] bg-bg-card animate-fade-soft';
+
+export const modalHeader =
+    'flex items-center justify-between border-b border-white/[0.08] bg-bg-secondary px-5 py-4';
+
+export const modalTitle = 'm-0 flex items-center gap-2 text-[1.05rem] font-bold text-[#fafafa]';
+
+export const modalTitleIcon = 'text-primary';
+
+export const modalBody =
+    'px-5 py-5 text-[0.875rem] leading-relaxed text-[#a1a1aa] [&_p]:mb-3.5 [&_p:last-child]:mb-0 [&_strong]:text-[#fafafa] [&_ul]:my-3 [&_ul]:list-none [&_ul]:space-y-2 [&_ul]:pl-2.5 [&_li]:flex [&_li]:items-start [&_li]:gap-2 [&_li_i]:mt-0.5 [&_li_i]:text-primary';
+
+export const modalFooter =
+    'flex flex-row-reverse gap-2.5 border-t border-white/[0.08] bg-bg-secondary px-5 py-4';
+
+const modalBtnBase =
+    'inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[0.8125rem] font-semibold transition disabled:cursor-not-allowed disabled:opacity-50';
+
+export const modalBtnPrimary =
+    `${modalBtnBase} bg-primary font-semibold text-white shadow-[0_4px_12px_rgba(145,70,255,0.25)] hover:-translate-y-0.5 hover:bg-primary-hover`;
+
+export const btnSecondary =
+    `${modalBtnBase} border border-white/15 bg-white/10 font-semibold text-[#fafafa] hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/15`;
+
+export const btnDanger =
+    `${modalBtnBase} border border-error bg-error font-bold text-white hover:-translate-y-0.5 hover:bg-red-600`;
+
+export const btnIcon =
+    'rounded-lg border-none bg-transparent px-2 py-1.5 text-[#a1a1aa] transition hover:bg-white/5 hover:text-[#fafafa] disabled:opacity-50';
+
+export const dangerModalPanel =
+    'overflow-hidden rounded-xl border border-red-500/30 bg-bg-card shadow-[0_0_30px_rgba(239,68,68,0.15)]';
+
+export const dangerModalHeader =
+    'flex items-center justify-between border-b border-red-500/20 bg-red-500/[0.05] px-5 py-4';
+
+export const dangerModalTitleIcon = 'text-error';
+
+export const dangerInputGroup =
+    'mt-5 rounded-xl border border-dashed border-red-500/20 bg-red-500/[0.03] p-4';
+
+export const dangerInputLabel = 'mb-2.5 block text-[0.85rem] text-[#a1a1aa]';
+
+export const confirmWordBadge =
+    'rounded bg-red-500/10 px-1.5 py-0.5 font-mono text-sm font-extrabold tracking-wide text-error';
+
+export const dangerInput =
+    'w-full rounded-lg border border-white/[0.08] bg-black/20 px-3 py-3 text-center text-base font-semibold uppercase tracking-[0.2em] text-white outline-none transition placeholder:font-normal placeholder:normal-case placeholder:tracking-normal placeholder:opacity-50 focus:border-error focus:bg-red-500/[0.05] focus:shadow-[0_0_0_4px_rgba(239,68,68,0.1)]';
+
+export const modalShake = 'animate-modal-shake';
+
+export const aboutFadeIn = 'opacity-0 animate-about-in';
+export const aboutLegoIn = 'opacity-0 animate-about-lego';

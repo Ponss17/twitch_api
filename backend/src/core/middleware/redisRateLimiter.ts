@@ -1,0 +1,217 @@
+import { Request, Response, NextFunction } from 'express';
+import { kv } from '@vercel/kv';
+import { isKvWriteAvailable } from '../database/cacheService';
+import { RATE_LIMITS } from '../config/limits';
+import { MESSAGES } from '../config/messages';
+import { isPublicRoute, isApiRoute } from '../utils/routeHelpers';
+import { AuthenticatedRequest } from '../../types/twitch';
+import { logger } from '../utils/logger';
+import { frontendPagePath } from '../utils/frontendPaths';
+
+import { BoundedMap } from '../utils/boundedCache';
+
+/** Contador en memoria por instancia — evita KV en sesiones OAuth del dashboard. */
+const sessionRateMemory = new BoundedMap<string, { window: number; count: number }>(500);
+
+/**
+ * Middleware de Rate Limiting Global usando Vercel KV (Redis).
+ * Sesiones OAuth del dashboard usan solo memoria local (límite alto, sin coste KV).
+ * Bot/API Key e IPs anónimas siguen en KV para consistencia entre instancias.
+ */
+export const globalRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
+    const cleanPath = req.originalUrl.split('?')[0];
+
+    // 1. Excepciones para rutas públicas (Alta disponibilidad)
+    if (isPublicRoute(cleanPath)) {
+        return next();
+    }
+
+    try {
+        const apiUser = res.locals?.apiUser;
+        const userId = (req as AuthenticatedRequest).userId;
+        const isApiKeyRequest = res.locals?.isApiKeyRequest;
+
+        // Determinar el identificador único (Key) y el límite
+        let key = '';
+        let limit = 0;
+
+        if (apiUser && isApiKeyRequest) {
+            key = `rl:api:${apiUser.userId}`;
+            limit = apiUser.customRateLimit || RATE_LIMITS.DEFAULT;
+        } else if (userId) {
+            key = `rl:sess:${userId}`;
+            limit = RATE_LIMITS.DASHBOARD;
+        } else {
+            const safeIp = (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
+            key = `rl:ip:${safeIp}`;
+            limit = RATE_LIMITS.PUBLIC;
+        }
+
+        const currentWindow = Math.floor(Date.now() / 60000); // Ventana de 1 minuto
+
+        // Dashboard OAuth: rate limit solo en memoria (0 ops KV por poll)
+        if (userId && !isApiKeyRequest) {
+            const mem = sessionRateMemory.get(key);
+            const count =
+                mem && mem.window === currentWindow ? mem.count + 1 : 1;
+            sessionRateMemory.set(key, { window: currentWindow, count });
+
+            res.setHeader('X-RateLimit-Limit', limit);
+            res.setHeader('X-RateLimit-Remaining', Math.max(0, limit - count));
+
+            if (count > limit) {
+                logger.warn(`🛑 Rate limit exceeded for ${key} on ${cleanPath}`);
+                return handleLimitExceeded(req, res, cleanPath);
+            }
+            return next();
+        }
+
+        if (!isKvWriteAvailable()) {
+            return next();
+        }
+
+        const redisKey = `twitch_api:${key}:${currentWindow}`;
+
+        // Pipeline atómico: INCR + EXPIRE en un solo round-trip a Redis
+        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
+            number,
+            number
+        ];
+
+        // Añadir headers estándares de Rate Limit
+        res.setHeader('X-RateLimit-Limit', limit);
+        res.setHeader('X-RateLimit-Remaining', Math.max(0, limit - count));
+
+        if (count > limit) {
+            logger.warn(`🛑 Rate limit exceeded for ${key} on ${cleanPath}`);
+            return handleLimitExceeded(req, res, cleanPath);
+        }
+
+        next();
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            logger.debug('KV rate limit omitido en desarrollo', { error });
+            return next();
+        }
+
+        logger.error('Error in KV Rate Limiter:', error);
+
+        if (isApiRoute(cleanPath)) {
+            res.setHeader('Content-Type', 'text/plain');
+            return res.status(503).send('Servicio temporalmente no disponible (KV Timeout).');
+        }
+        return res.status(503).json({
+            error: 'Service Unavailable',
+            message: 'Servicio no disponible debido a alta carga global.'
+        });
+    }
+};
+
+/**
+ * Maneja la respuesta cuando se excede el límite.
+ */
+async function handleLimitExceeded(req: Request, res: Response, cleanPath: string) {
+    const message = MESSAGES.AUTH.RATE_LIMIT_EXCEEDED;
+
+    if (typeof req.headers.accept === 'string' && req.headers.accept.includes('text/html')) {
+        return res.redirect(302, frontendPagePath('/429'));
+    }
+
+    if (isApiRoute(cleanPath)) {
+        res.setHeader('Content-Type', 'text/plain');
+        return res.status(429).send(message);
+    }
+
+    res.status(429).json({ error: 'Too Many Requests', message });
+}
+
+/**
+ * Limitador específico para endpoints pesados (clips, etc).
+ */
+export const heavyRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
+    // Solo aplica para peticiones con API Key externa
+    if (!res.locals?.isApiKeyRequest) return next();
+
+    const apiUser = res.locals?.apiUser;
+    if (!apiUser) return next();
+
+    const key = `rl:heavy:${apiUser.userId}`;
+    const limit = RATE_LIMITS.HEAVY;
+    const redisKey = `twitch_api:${key}:${Math.floor(Date.now() / 60000)}`;
+
+    if (!isKvWriteAvailable()) {
+        return next();
+    }
+
+    try {
+        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
+            number,
+            number
+        ];
+
+        if (count > limit) {
+            res.setHeader('Content-Type', 'text/plain');
+            return res
+                .status(429)
+                .send(`Límite de peticiones pesadas excedido (max ${RATE_LIMITS.HEAVY}/min).`);
+        }
+        next();
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            logger.debug('KV heavy rate limit omitido en desarrollo', { error });
+            return next();
+        }
+
+        logger.error('Error in Heavy Rate Limiter:', error);
+        res.setHeader('Content-Type', 'text/plain');
+        return res.status(503).send('Servicio temporalmente intermitente.');
+    }
+};
+
+/**
+ * Limitador para intentos de login (Fuerza Bruta).
+ */
+export const authRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
+    const safeIp = (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
+    const key = `rl:auth:${safeIp}`;
+    const limit = RATE_LIMITS.LOGIN;
+    const windowSeconds = 5 * 60; // 5 minutos
+    const redisKey = `twitch_api:${key}:${Math.floor(Date.now() / (windowSeconds * 1000))}`;
+
+    if (!isKvWriteAvailable()) {
+        return next();
+    }
+
+    try {
+        const [count] = (await kv
+            .pipeline()
+            .incr(redisKey)
+            .expire(redisKey, windowSeconds)
+            .exec()) as [number, number];
+
+        if (count > limit) {
+            if (
+                typeof req.headers.accept === 'string' &&
+                req.headers.accept.includes('text/html')
+            ) {
+                return res.redirect(302, frontendPagePath('/429'));
+            }
+            return res.status(429).json({
+                error: 'Too Many Requests',
+                message: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en 5 minutos.'
+            });
+        }
+        next();
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            logger.debug('KV auth rate limit omitido en desarrollo', { error });
+            return next();
+        }
+
+        logger.error('Error in Auth Rate Limiter:', error);
+        return res.status(503).json({
+            error: 'Service Unavailable',
+            message: 'Servicio de autenticación no disponible por alta carga global.'
+        });
+    }
+};

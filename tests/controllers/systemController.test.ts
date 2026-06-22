@@ -3,7 +3,7 @@ import axios from 'axios';
 
 jest.mock('axios');
 
-jest.mock('../../src/core/database/dbService', () => ({
+jest.mock('../../backend/src/core/database/dbService', () => ({
     getUser: jest.fn(),
     saveUser: jest.fn(),
     getUserByApiKey: jest.fn(),
@@ -12,12 +12,12 @@ jest.mock('../../src/core/database/dbService', () => ({
     recordUserRequest: jest.fn().mockResolvedValue(undefined)
 }));
 
-jest.mock('../../src/features/auth/auth.service', () => ({
+jest.mock('../../backend/src/features/auth/auth.service', () => ({
     getValidToken: jest.fn(),
     regenerateApiKey: jest.fn()
 }));
 
-jest.mock('../../src/features/twitch/twitch.service', () => ({
+jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
     getUserInfo: jest.fn(),
     validateToken: jest.fn()
 }));
@@ -34,15 +34,15 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
-import * as dbService from '../../src/core/database/dbService';
-import * as authService from '../../src/features/auth/auth.service';
-import * as apiService from '../../src/features/twitch/twitch.service';
+import * as dbService from '../../backend/src/core/database/dbService';
+import * as authService from '../../backend/src/features/auth/auth.service';
+import * as apiService from '../../backend/src/features/twitch/twitch.service';
 import {
     validateToken,
     regenerateKey,
     submitFeedback,
     getHealth
-} from '../../src/features/system/system.controller';
+} from '../../backend/src/features/system/system.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
 const mockReq = (overrides = {}) =>

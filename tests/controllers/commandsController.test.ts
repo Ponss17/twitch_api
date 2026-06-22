@@ -1,13 +1,13 @@
 import { Response } from 'express';
 
-jest.mock('../../src/core/database/dbService', () => ({
+jest.mock('../../backend/src/core/database/dbService', () => ({
     recordUserRequest: jest.fn().mockResolvedValue(undefined),
     addUserActivity: jest.fn().mockResolvedValue(undefined),
     incrementUserStats: jest.fn().mockResolvedValue(undefined),
     getUser: jest.fn()
 }));
 
-jest.mock('../../src/features/twitch/twitch.service', () => ({
+jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
     createClip: jest.fn(),
     getFollowage: jest.fn(),
     sendChatMessage: jest.fn(),
@@ -30,13 +30,13 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
-import * as dbService from '../../src/core/database/dbService';
-import * as apiService from '../../src/features/twitch/twitch.service';
+import * as dbService from '../../backend/src/core/database/dbService';
+import * as apiService from '../../backend/src/features/twitch/twitch.service';
 import {
     createClip,
     sendMessage,
     getShoutout
-} from '../../src/features/commands/commands.controller';
+} from '../../backend/src/features/commands/commands.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
 const mockReq = (overrides = {}) =>
@@ -149,7 +149,11 @@ describe('commandsController', () => {
 
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
-                expect.objectContaining({ type: 'message' })
+                expect.objectContaining({
+                    type: 'message',
+                    user: 'TestUser',
+                    detail: 'Hello World from chat!'
+                })
             );
         });
     });

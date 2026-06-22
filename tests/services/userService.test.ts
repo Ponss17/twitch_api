@@ -6,7 +6,7 @@ const mockSupabase = {
     upsert: jest.fn().mockResolvedValue({ error: null })
 };
 
-jest.mock('../../src/core/database/supabaseClient', () => ({
+jest.mock('../../backend/src/core/database/supabaseClient', () => ({
     supabase: mockSupabase
 }));
 
@@ -15,7 +15,7 @@ const mockCache = {
     set: jest.fn()
 };
 
-jest.mock('../../src/core/database/cacheService', () => ({
+jest.mock('../../backend/src/core/database/cacheService', () => ({
     get: mockCache.get,
     set: mockCache.set
 }));
@@ -24,7 +24,7 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }
 }));
 
-import * as userService from '../../src/core/database/userService';
+import * as userService from '../../backend/src/core/database/userService';
 
 describe('userService', () => {
     beforeEach(() => {

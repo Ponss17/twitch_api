@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { AboutPage } from '../components/about/AboutPage';
+---
+
+<BaseLayout
+    title="Sobre la API | Ponss"
+    description="Conoce la tecnología y el equipo detrás de LosPerris Twitch API"
+    footer
+>
+    <AboutPage client:load />
+</BaseLayout>
