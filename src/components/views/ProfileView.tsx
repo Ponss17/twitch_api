@@ -335,7 +335,24 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                 onExport={async () => {
                     setExportLoading(true);
                     try {
+                        const res = await fetch(API_ENDPOINTS.EXPORT_CHECK, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', ...authHeaders(session) }
+                        });
+                        
+                        if (res.status === 429) {
+                            const data = await res.json() as { error?: string };
+                            showToast(data.error || 'Debes esperar para generar otro reporte.', 'warning');
+                            return;
+                        }
+                        if (!res.ok) {
+                            showToast('Error de conexión al verificar límite.', 'error');
+                            return;
+                        }
+
                         await DataExport.export(session, (msg) => showToast(msg, 'success'));
+                    } catch (e) {
+                        showToast('Error de conexión.', 'error');
                     } finally {
                         setExportLoading(false);
                     }
@@ -374,7 +391,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                 description={dangerModal?.desc ?? ''}
                 confirmWord={dangerModal?.word ?? ''}
                 confirmLabel={dangerModal?.confirmLabel}
-                onConfirm={dangerModal?.action ?? (async () => {})}
+                onConfirm={dangerModal?.action ?? (async () => { })}
             />
         </div>
     );

@@ -447,23 +447,23 @@ const DataExport = {
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg: #0a0a0f;
-            --surface: #13131a;
-            --surface2: #1a1a24;
-            --border: #242430;
-            --border2: #1e1e2a;
-            --accent: #7c3aed;
+            --bg: #000000;
+            --surface: #09090b;
+            --surface2: #18181b;
+            --border: #27272a;
+            --border2: #27272a;
+            --accent: #9146ff;
             --accent-light: #a78bfa;
-            --accent-glow: rgba(124,58,237,0.15);
-            --text: #e8e8f0;
-            --text-muted: #7a7a90;
-            --text-dim: #4a4a60;
-            --success: #10b981;
-            --success-bg: rgba(16,185,129,0.12);
+            --accent-glow: rgba(145,70,255,0.05);
+            --text: #fafafa;
+            --text-muted: #a1a1aa;
+            --text-dim: #71717a;
+            --success: #22c55e;
+            --success-bg: rgba(34,197,94,0.1);
             --warning: #f59e0b;
-            --warning-bg: rgba(245,158,11,0.12);
+            --warning-bg: rgba(245,158,11,0.1);
             --info: #3b82f6;
-            --info-bg: rgba(59,130,246,0.12);
+            --info-bg: rgba(59,130,246,0.1);
         }
         body {
             font-family: 'Inter', -apple-system, sans-serif;
@@ -476,7 +476,7 @@ const DataExport = {
         .container { max-width: 760px; margin: 0 auto; }
         .top-banner {
             height: 4px;
-            background: linear-gradient(90deg, #7c3aed, #a78bfa, #ec4899, #7c3aed);
+            background: var(--accent);
             border-radius: 4px 4px 0 0;
         }
         .header {
@@ -493,10 +493,9 @@ const DataExport = {
         .header-avatar {
             width: 76px; height: 76px;
             border-radius: 50%;
-            border: 3px solid var(--accent);
+            border: 2px solid var(--border);
             object-fit: cover;
             flex-shrink: 0;
-            box-shadow: 0 0 20px var(--accent-glow);
         }
         .header-avatar-placeholder {
             width: 76px; height: 76px;
@@ -508,9 +507,7 @@ const DataExport = {
         }
         .header-info { flex: 1; min-width: 0; }
         .header-name {
-            font-size: 1.5rem; font-weight: 800;
-            background: linear-gradient(135deg, #e8e8f0, #a78bfa);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 1.6rem; font-weight: 800; color: var(--text);
         }
         .header-login { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.1rem; }
         .header-chips { display: flex; gap: 0.5rem; margin-top: 0.7rem; flex-wrap: wrap; }
@@ -519,9 +516,9 @@ const DataExport = {
             padding: 0.2rem 0.6rem; border-radius: 20px;
             font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em;
         }
-        .chip-purple { background: var(--accent-glow); color: var(--accent-light); border: 1px solid rgba(124,58,237,0.3); }
-        .chip-green  { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16,185,129,0.25); }
-        .chip-blue   { background: var(--info-bg); color: var(--info); border: 1px solid rgba(59,130,246,0.25); }
+        .chip-purple { background: rgba(145,70,255,0.1); color: var(--accent); border: 1px solid rgba(145,70,255,0.2); }
+        .chip-green  { background: var(--success-bg); color: var(--success); border: 1px solid rgba(34,197,94,0.2); }
+        .chip-blue   { background: var(--info-bg); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
         .header-right { text-align: right; flex-shrink: 0; }
         .report-id { font-size: 0.62rem; color: var(--text-dim); font-family: monospace; letter-spacing: 0.05em; }
         .report-date { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; }
