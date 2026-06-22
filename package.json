@@ -1,5 +1,5 @@
 {
-    "name": "twitch_api_modern",
+    "name": "twitch_api",
     "version": "5.0.0",
     "description": "LosPerris Twitch API — Astro + React + Tailwind frontend, Express backend (API compatible)",
     "private": true,
