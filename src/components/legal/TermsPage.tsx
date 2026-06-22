@@ -10,7 +10,7 @@ export function TermsPage() {
             title="Términos de Uso"
             description="Condiciones para usar LosPerris Twitch API."
             current="/terminos"
-            updated="20 de junio de 2026"
+            updated="22 de junio de 2026"
         >
             <p>
                 Estos Términos de Uso («Términos») regulan el acceso y uso de <strong>LosPerris Twitch API</strong> (el

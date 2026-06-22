@@ -10,7 +10,7 @@ export function PrivacyPolicyPage() {
             title="Política de Privacidad"
             description="Cómo LosPerris Twitch API trata tus datos personales."
             current="/privacidad"
-            updated="20 de junio de 2026"
+            updated="22 de junio de 2026"
         >
             <p>
                 Esta Política de Privacidad describe cómo <strong>LosPerris Twitch API</strong> («LosPerris»,
