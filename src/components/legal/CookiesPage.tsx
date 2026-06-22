@@ -9,7 +9,7 @@ export function CookiesPage() {
             title="Política de Cookies y Almacenamiento Local"
             description="Qué guardamos en tu navegador y para qué."
             current="/cookies"
-            updated="20 de junio de 2026"
+            updated="22 de junio de 2026"
         >
             <p>
                 Esta página complementa la <a href={appPath('/privacidad')}>Política de Privacidad</a> y explica cómo
