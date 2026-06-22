@@ -22,7 +22,8 @@ export const API_ENDPOINTS = {
     VALIDATE: `${API_BASE}/system/validate`,
     REALTIME_TOKEN: `${API_BASE}/system/realtime-token`,
     DUEL: `${API_BASE}/minigames/duel`,
-    AUTH_LOGIN: `${API_BASE}/auth/twitch`
+    AUTH_LOGIN: `${API_BASE}/auth/twitch`,
+    EXPORT_CHECK: `${API_BASE}/dashboard/export-check`
 } as const;
 
 /** Debe coincidir con twitch_api/frontend/features/dashboard/dashboard-config.ts */

@@ -314,3 +314,24 @@ export const updateTimezone = async (req: AuthenticatedRequest, res: Response) =
         res.status(500).json({ error: 'Error actualizando zona horaria' });
     }
 };
+
+export const exportCheck = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId;
+    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
+
+    const key = `export_cooldown:${userId}`;
+    const COOLDOWN_MINUTES = 15;
+    
+    try {
+        const cached = await cacheService.get(key);
+        if (cached) {
+            return res.status(429).json({ error: `Debes esperar ${COOLDOWN_MINUTES} minutos para generar otro reporte.` });
+        }
+        
+        await cacheService.set(key, '1', COOLDOWN_MINUTES * 60);
+        res.json({ success: true });
+    } catch (e) {
+        logger.error('Error checking export rate limit:', e);
+        res.status(500).json({ error: 'Error al verificar límite' });
+    }
+};

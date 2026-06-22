@@ -60,4 +60,6 @@ router.delete(
     dashboardController.deleteAccount
 );
 
+router.post('/export-check', csrfProtection, dashboardController.exportCheck);
+
 export default router;
