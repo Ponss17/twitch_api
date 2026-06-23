@@ -64,7 +64,7 @@ export const docsStepSeparator = 'text-[0.75rem] text-[#71717a] opacity-50';
 export const docsInfoCard =
     'mb-[30px] flex gap-4 rounded-xl border border-primary/20 bg-primary/5 p-5 transition hover:border-primary/30 [&_i]:mt-1 [&_i]:text-primary [&_p]:mb-0 [&_p]:text-[0.9rem] [&_p]:text-[#dedede]';
 
-export const docsInfoCardFlat = `${docsInfoCard} m-0 h-full`;
+export const docsInfoCardFlat = `${docsInfoCard} m-0 h-fit items-center [&_i]:mt-0`;
 
 export const docsEndpoint =
     'mb-[30px] flex flex-wrap items-center gap-[15px] rounded-xl border border-white/[0.08] bg-white/[0.02] p-[15px_20px] font-mono transition hover:border-primary/30';
