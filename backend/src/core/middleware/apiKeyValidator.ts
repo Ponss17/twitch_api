@@ -109,7 +109,9 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         }
     } catch (e) {
         const error = e as Error;
-        if (apiKey) {
+        const isAuthError = error.message.includes('inválid') || error.message.includes('expirad');
+
+        if (apiKey && isAuthError) {
             invalidKeysCache.set(apiKey);
         }
 
@@ -119,7 +121,9 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
 
         const errorMsg = error.message.includes('Sesión expirada')
             ? error.message
-            : 'Error de autenticación. Clave API inválida o expirada. Regenerala o pide ayuda a Ponss 🦆';
+            : isAuthError 
+                ? 'Error de autenticación. Clave API inválida o expirada. Regenerala o pide ayuda a Ponss 🦆'
+                : 'Servicio no disponible temporalmente (timeout).';
 
         if (isBotCmd) {
             res.setHeader('Content-Type', 'text/plain');
@@ -128,10 +132,10 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
 
         if (isApiRoute(req.path)) {
             res.setHeader('Content-Type', 'text/plain');
-            return res.status(401).send(errorMsg);
+            return res.status(isAuthError ? 401 : 503).send(errorMsg);
         }
 
-        return res.status(401).json({ error: errorMsg });
+        return res.status(isAuthError ? 401 : 503).json({ error: errorMsg });
     }
 
     next();
