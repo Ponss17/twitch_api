@@ -113,10 +113,10 @@ export const docsTabContainer =
     'my-[30px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#0e0e11]';
 
 export const docsTabHeader =
-    'flex flex-wrap items-center gap-1.5 border-b border-white/[0.08] bg-white/[0.02] max-[600px]:flex-col max-[600px]:items-stretch max-[600px]:gap-2 max-[600px]:p-3';
+    'flex flex-wrap items-center gap-2 border-b border-white/[0.08] bg-white/[0.02] p-2 max-[600px]:flex-col max-[600px]:items-stretch max-[600px]:p-3';
 
 export const docsTabBtn = (active: boolean) =>
-    `cursor-pointer border-r border-white/[0.08] px-4 py-2.5 text-[0.85rem] font-medium whitespace-nowrap transition max-[600px]:w-full max-[600px]:rounded-lg max-[600px]:border max-[600px]:border-white/[0.05] max-[600px]:text-center ${active ? 'bg-primary/10 text-white shadow-[inset_0_-2px_0_#9146ff] max-[600px]:border-primary max-[600px]:bg-primary max-[600px]:shadow-none' : 'bg-transparent text-[#a1a1aa] hover:bg-white/5 hover:text-white max-[600px]:bg-white/[0.02]'}`;
+    `cursor-pointer rounded-md px-3 py-1.5 text-[0.85rem] font-medium whitespace-nowrap transition max-[600px]:w-full max-[600px]:text-center ${active ? 'bg-primary text-white shadow-[0_0_15px_rgba(145,70,255,0.2)]' : 'bg-transparent text-[#a1a1aa] hover:bg-white/10 hover:text-white'}`;
 
 export const docsFormatSelector =
     'ml-auto flex gap-0.5 rounded-md bg-white/5 p-0.5 max-[600px]:order-first max-[600px]:ml-0 max-[600px]:w-full max-[600px]:justify-center';
