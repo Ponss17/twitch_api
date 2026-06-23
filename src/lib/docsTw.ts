@@ -70,7 +70,7 @@ export const docsEndpoint =
     'mb-[30px] flex flex-wrap items-center gap-[15px] rounded-xl border border-white/[0.08] bg-white/[0.02] p-[15px_20px] font-mono transition hover:border-primary/30';
 
 export const docsMethodGet =
-    'rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-1 text-[0.7rem] font-bold tracking-wide text-sky-400';
+    'rounded-md border border-primary/30 bg-primary/10 px-2 py-1 text-[0.7rem] font-bold tracking-wide text-primary';
 
 export const docsUrl = 'break-all text-[0.95rem] text-[#e2e8f0]';
 
@@ -80,7 +80,7 @@ export const docsParamsTable =
     'my-[30px] w-full overflow-hidden rounded-2xl border border-white/[0.08] border-separate border-spacing-0 bg-[rgba(19,19,22,0.6)] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.2)] backdrop-blur-[10px] [&_td]:border-b [&_td]:border-white/[0.08] [&_td]:px-[25px] [&_td]:py-[18px] [&_th]:bg-white/[0.02] [&_th]:px-[25px] [&_th]:py-[18px] [&_th]:text-left [&_th]:text-[0.9rem] [&_th]:font-bold [&_th]:tracking-wide [&_th]:text-white [&_th]:uppercase [&_tr:last-child_td]:border-b-0 [&_tr:hover_td]:bg-white/[0.02]';
 
 export const docsCodeBlock =
-    'relative my-[30px] rounded-xl border border-white/[0.08] bg-[#0e0e11] p-5 before:absolute before:top-2.5 before:left-[15px] before:text-[1.2rem] before:leading-none before:tracking-[2px] before:text-[#3f3f46] before:content-["•••"] [&_code]:mt-3 [&_code]:block [&_code]:border-none [&_code]:bg-transparent [&_code]:pr-10 [&_code]:font-mono [&_code]:text-[0.85rem] [&_code]:leading-relaxed [&_code]:text-[#e2e8f0]';
+    'relative my-[30px] rounded-xl border border-white/[0.08] bg-[#0e0e11] p-5 pr-[100px] before:absolute before:top-2.5 before:left-[15px] before:text-[1.2rem] before:leading-none before:tracking-[2px] before:text-[#3f3f46] before:content-["•••"] [&_code]:mt-3 [&_code]:block [&_code]:border-none [&_code]:bg-transparent [&_code]:pr-10 [&_code]:font-mono [&_code]:text-[0.85rem] [&_code]:leading-relaxed [&_code]:text-[#e2e8f0]';
 
 export const docsStepsMini =
     'mb-4 flex items-center gap-[15px] text-[0.9rem] font-medium text-[#a1a1aa]';
@@ -127,7 +127,7 @@ export const docsFormatBtn = (active: boolean) =>
 export const docsTabContent = 'p-0';
 
 export const docsCopyBtn =
-    'absolute top-[15px] right-[15px] flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-[0.8rem] font-medium text-[#a1a1aa] transition hover:border-primary hover:bg-primary hover:text-white hover:shadow-[0_0_15px_rgba(145,70,255,0.4)]';
+    'absolute top-2 right-2 flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-primary bg-primary px-3 py-1.5 text-[0.8rem] font-medium text-white shadow-[0_0_15px_rgba(145,70,255,0.2)] transition hover:brightness-110';
 
 export const docsCopyBtnSuccess = 'border-success bg-success text-white';
 
