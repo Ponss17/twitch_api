@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     btnDanger,
     btnIcon,
@@ -45,7 +46,7 @@ export function Modal({
         const dialog = dialogRef.current;
         if (!dialog) return;
         if (open && !dialog.open) dialog.showModal();
-        else if (!open && dialog.open) dialog.close();
+        // Do not close immediately, wait for animation exit
     }, [open]);
 
     useEffect(() => {
@@ -67,19 +68,35 @@ export function Modal({
                 if (closeOnBackdrop && e.target === dialogRef.current) onClose();
             }}
         >
-            <div className={modalPanel}>
-                <div className={modalHeader}>
-                    <h3 className={modalTitle}>
-                        <i className={`fa-solid ${titleIcon} ${modalTitleIcon}`} aria-hidden />
-                        {title}
-                    </h3>
-                    <button type="button" className={btnIcon} aria-label="Cerrar" onClick={onClose}>
-                        <i className="fa-solid fa-xmark" aria-hidden />
-                    </button>
-                </div>
-                <div className={modalBody}>{children}</div>
-                {footer ? <div className={modalFooter}>{footer}</div> : null}
-            </div>
+            <AnimatePresence
+                onExitComplete={() => {
+                    if (!open && dialogRef.current?.open) {
+                        dialogRef.current.close();
+                    }
+                }}
+            >
+                {open && (
+                    <motion.div
+                        className={modalPanel}
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                    >
+                        <div className={modalHeader}>
+                            <h3 className={modalTitle}>
+                                <i className={`fa-solid ${titleIcon} ${modalTitleIcon}`} aria-hidden />
+                                {title}
+                            </h3>
+                            <button type="button" className={btnIcon} aria-label="Cerrar" onClick={onClose}>
+                                <i className="fa-solid fa-xmark" aria-hidden />
+                            </button>
+                        </div>
+                        <div className={modalBody}>{children}</div>
+                        {footer ? <div className={modalFooter}>{footer}</div> : null}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </dialog>
     );
 }
@@ -159,70 +176,86 @@ export function DangerConfirmModal({
                 if (e.target === dialogRef.current && !loading) onClose();
             }}
         >
-            <div className={dangerModalPanel}>
-                <div className={dangerModalHeader}>
-                    <h3 className={modalTitle}>
-                        <i className={`fa-solid fa-triangle-exclamation ${dangerModalTitleIcon}`} aria-hidden />
-                        <span>{title}</span>
-                    </h3>
-                    <button
-                        type="button"
-                        className={btnIcon}
-                        aria-label="Cerrar"
-                        disabled={loading}
-                        onClick={onClose}
+            <AnimatePresence
+                onExitComplete={() => {
+                    if (!open && dialogRef.current?.open) {
+                        dialogRef.current.close();
+                    }
+                }}
+            >
+                {open && (
+                    <motion.div
+                        className={dangerModalPanel}
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                     >
-                        <i className="fa-solid fa-xmark" aria-hidden />
-                    </button>
-                </div>
-                <div className={modalBody}>
-                    <p>{description}</p>
-                    <div className={dangerInputGroup}>
-                        <label htmlFor="danger-modal-confirm" className={dangerInputLabel}>
-                            Escribe <span className={confirmWordBadge}>{confirmWord}</span> para confirmar:
-                        </label>
-                        <input
-                            id="danger-modal-confirm"
-                            type="text"
-                            className={dangerInput}
-                            value={confirmInput}
-                            autoComplete="off"
-                            placeholder="Escribe aquí..."
-                            disabled={loading}
-                            onChange={(e) => setConfirmInput(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && wordOk && !loading) {
-                                    e.preventDefault();
-                                    void handleSubmit();
-                                }
-                            }}
-                        />
-                    </div>
-                </div>
-                <div className={modalFooter}>
-                    <button
-                        type="button"
-                        className={btnDanger}
-                        disabled={!wordOk || loading}
-                        onClick={() => void handleSubmit()}
-                    >
-                        {loading ? (
-                            <>
-                                <i className="fa-solid fa-spinner fa-spin" aria-hidden />
-                                Procesando...
-                            </>
-                        ) : (
-                            <>
-                                <i className="fa-solid fa-trash-can" aria-hidden />
-                                {confirmLabel}
-                            </>
-                        )}
-                    </button>
-                    <button type="button" className={btnSecondary} disabled={loading} onClick={onClose}>
-                        Cancelar
-                    </button>
-                </div>
-            </div>
+                        <div className={dangerModalHeader}>
+                            <h3 className={modalTitle}>
+                                <i className={`fa-solid fa-triangle-exclamation ${dangerModalTitleIcon}`} aria-hidden />
+                                <span>{title}</span>
+                            </h3>
+                            <button
+                                type="button"
+                                className={btnIcon}
+                                aria-label="Cerrar"
+                                disabled={loading}
+                                onClick={onClose}
+                            >
+                                <i className="fa-solid fa-xmark" aria-hidden />
+                            </button>
+                        </div>
+                        <div className={modalBody}>
+                            <p>{description}</p>
+                            <div className={dangerInputGroup}>
+                                <label htmlFor="danger-modal-confirm" className={dangerInputLabel}>
+                                    Escribe <span className={confirmWordBadge}>{confirmWord}</span> para confirmar:
+                                </label>
+                                <input
+                                    id="danger-modal-confirm"
+                                    type="text"
+                                    className={dangerInput}
+                                    value={confirmInput}
+                                    autoComplete="off"
+                                    placeholder="Escribe aquí..."
+                                    disabled={loading}
+                                    onChange={(e) => setConfirmInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && wordOk && !loading) {
+                                            e.preventDefault();
+                                            void handleSubmit();
+                                        }
+                                    }}
+                                />
+                            </div>
+                        </div>
+                        <div className={modalFooter}>
+                            <button
+                                type="button"
+                                className={btnDanger}
+                                disabled={!wordOk || loading}
+                                onClick={() => void handleSubmit()}
+                            >
+                                {loading ? (
+                                    <>
+                                        <i className="fa-solid fa-spinner fa-spin" aria-hidden />
+                                        Procesando...
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fa-solid fa-trash-can" aria-hidden />
+                                        {confirmLabel}
+                                    </>
+                                )}
+                            </button>
+                            <button type="button" className={btnSecondary} disabled={loading} onClick={onClose}>
+                                Cancelar
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </dialog>
     );
 }
