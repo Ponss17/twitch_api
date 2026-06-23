@@ -35,6 +35,16 @@
   --animate-modal-in: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-modal-out: modalOut 0.15s ease-in both;
 
+  @keyframes splashProgress {
+    0%   { width: 0%; }
+    10%  { width: 25%; }
+    30%  { width: 52%; }
+    60%  { width: 72%; }
+    80%  { width: 82%; }
+    100% { width: 88%; }
+  }
+
+
   @keyframes fadeInSoft {
     from {
       opacity: 0;

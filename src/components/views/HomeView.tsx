@@ -294,8 +294,12 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     }, [active]);
 
     useEffect(() => {
-        if (stats !== null) setLoading(false);
+        if (stats !== null) {
+            setLoading(false);
+            window.dispatchEvent(new CustomEvent('home:data-ready'));
+        }
     }, [stats]);
+
 
     if (loading && !stats) {
         return <HomeViewSkeleton />;

@@ -1,20 +1,19 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Toaster } from 'sonner';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { DashboardHeader } from '@/components/layout/DashboardHeader';
 import { DashboardContent } from '@/components/views/DashboardContent';
 import { ToastProvider } from '@/components/ui/ToastProvider';
 import { OnlineStatusMonitor } from '@/components/ui/OnlineStatusMonitor';
-import { LoginDisclaimerModal } from '@/components/ui/LoginDisclaimerModal';
+import { VerifyingSessionModal } from '@/components/ui/VerifyingSessionModal';
 import { SessionProvider } from '@/components/providers/SessionProvider';
 import { useSession } from '@/hooks/useSession';
-import { AppLogo } from '@/components/ui/AppLogo';
 import { DashboardSessionSkeleton } from '@/components/ui/Skeleton';
 import { logout } from '@/lib/auth';
 import { initSpeedInsights } from '@/lib/speedInsights';
 import { initGlobalErrorLogging } from '@/lib/logError';
 import { parseTabFromUrl, setTabInUrl } from '@/lib/dashboardTabUrl';
-import { card, fadeIn } from '@/lib/tw';
+import { fadeIn } from '@/lib/tw';
 import type { DashboardTab } from '@/lib/config';
 
 export function DashboardApp() {
@@ -31,8 +30,15 @@ export function DashboardApp() {
 function DashboardAppShell() {
     const { session, loading, authenticated } = useSession();
     const [tab, setTabState] = useState<DashboardTab>(() => parseTabFromUrl());
-    const [disclaimerOpen, setDisclaimerOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    // Splash modal: se muestra si venimos de la Landing (bandera en sessionStorage)
+    const [splashOpen, setSplashOpen] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        return sessionStorage.getItem('dashboard_splash') === '1';
+    });
+    const [splashDone, setSplashDone] = useState(false);
+    const splashCleanedUp = useRef(false);
 
     const setTab = useCallback((next: DashboardTab) => {
         setTabState(next);
@@ -54,10 +60,39 @@ function DashboardAppShell() {
         };
     }, []);
 
-    // Canonicaliza ?tab=legacy → #tab al cargar (sin perder otros query params).
+    // Canonicaliza ?tab=legacy → #tab al cargar
     useEffect(() => {
         setTabInUrl(tab);
         // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al montar
+    }, []);
+
+    // Escuchar cuando el Home ya cargó los datos
+    useEffect(() => {
+        if (!splashOpen) return;
+
+        const onReady = () => {
+            if (splashCleanedUp.current) return;
+            setSplashDone(true);
+        };
+
+        window.addEventListener('home:data-ready', onReady);
+
+        // Safety: si el evento nunca llega (error de red, etc.), cerrar el modal después de 6s
+        const fallback = setTimeout(() => {
+            setSplashDone(true);
+        }, 6000);
+
+        return () => {
+            window.removeEventListener('home:data-ready', onReady);
+            clearTimeout(fallback);
+        };
+    }, [splashOpen]);
+
+    const handleSplashExited = useCallback(() => {
+        splashCleanedUp.current = true;
+        setSplashOpen(false);
+        setSplashDone(false);
+        sessionStorage.removeItem('dashboard_splash');
     }, []);
 
     if (loading) {
@@ -65,14 +100,21 @@ function DashboardAppShell() {
     }
 
     if (!authenticated || !session) {
-        // SessionProvider se encarga de redirigir a '/' si requireAuth es true,
-        // así que mientras el navegador cambia de página, mostramos el skeleton.
+        // SessionProvider se encarga de redirigir a '/' si requireAuth es true
         return <DashboardSessionSkeleton />;
     }
 
     return (
         <>
             <OnlineStatusMonitor />
+
+            {/* Splash modal de bienvenida (solo al llegar desde la Landing) */}
+            <VerifyingSessionModal
+                open={splashOpen}
+                done={splashDone}
+                onExited={handleSplashExited}
+            />
+
             <div id="dashboard-page" className="flex min-h-full flex-1 flex-col bg-[#09090b]">
                 <Sidebar
                     active={tab}
@@ -94,7 +136,6 @@ function DashboardAppShell() {
                             <DashboardContent tab={tab} onNavigate={setTab} />
                         </div>
                     </div>
-
                 </main>
             </div>
         </>
