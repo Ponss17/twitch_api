@@ -131,6 +131,7 @@ export function LandingPage() {
             const params = new URLSearchParams(window.location.search);
             if (params.get('token') || params.get('apiKey')) {
                 setIsVerifying(true);
+                sessionStorage.setItem('dashboard_splash', '1');
                 window.location.href = appPath('/dashboard') + window.location.search;
                 return;
             }
@@ -147,6 +148,7 @@ export function LandingPage() {
                 return;
             }
 
+            sessionStorage.setItem('dashboard_splash', '1');
             window.location.href = appPath('/dashboard');
         })();
 
