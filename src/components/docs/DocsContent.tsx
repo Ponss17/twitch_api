@@ -165,7 +165,7 @@ export function DocsContent() {
                         que puedas monitorear tu consumo.
                     </p>
                 </div>
-                <div className={docsInfoCardBlue}>
+                <div className={docsInfoCardPrimary}>
                     <i className="fa-solid fa-weight-hanging" />
                     <div className="flex-1">
                         <p style={{ fontWeight: 'bold', marginBottom: '0.25rem', color: 'white' }}>¿Qué son los Endpoints "Pesados"?</p>
