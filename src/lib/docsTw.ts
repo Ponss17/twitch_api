@@ -127,7 +127,7 @@ export const docsFormatBtn = (active: boolean) =>
 export const docsTabContent = 'p-0';
 
 export const docsCopyBtn =
-    'absolute top-2 right-2 flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-primary bg-primary px-3 py-1.5 text-[0.8rem] font-medium text-white shadow-[0_0_15px_rgba(145,70,255,0.2)] transition hover:brightness-110';
+    'absolute top-4 right-4 flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-primary bg-primary px-3 py-1.5 text-[0.8rem] font-medium text-white shadow-[0_0_15px_rgba(145,70,255,0.2)] transition hover:brightness-110';
 
 export const docsCopyBtnSuccess = 'border-success bg-success text-white';
 
