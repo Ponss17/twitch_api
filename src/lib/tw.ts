@@ -25,7 +25,7 @@ export const inputLabel =
     'block text-[0.8125rem] font-medium leading-tight text-[#a1a1aa]';
 
 export const codeBox =
-    'relative rounded-xl border border-white/[0.08] border-l-4 border-l-primary bg-bg-main px-3.5 py-2.5';
+    'relative rounded-xl border border-white/[0.04] border-l-4 border-l-primary bg-black/40 px-3.5 py-2.5';
 
 export const codeTextarea =
     'block h-[38px] w-full resize-none overflow-hidden border-none bg-transparent pr-[96px] font-[Consolas,monospace] text-[0.8125rem] leading-[1.45] text-[#fafafa] outline-none';
