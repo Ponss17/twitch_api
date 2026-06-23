@@ -74,35 +74,44 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
 
             if (!response.ok) {
                 if (response.status === 401) {
-                    return { valid: false, error: true, message: 'unauthorized' as const };
+                    return { valid: false, error: true, message: 'unauthorized' as const, networkError: false };
                 }
+                // Otros errores HTTP (503 cold-start, etc.) → tratar como red inestable, no borrar sesión
                 return {
                     valid: false,
                     error: true,
-                    message: `HTTP ${response.status}`
+                    message: `HTTP ${response.status}`,
+                    networkError: true
                 };
             }
 
             const contentType = response.headers.get('content-type');
             if (contentType?.includes('application/json')) {
                 const data = (await response.json()) as ApiResponse;
-                return data.valid ? data : { valid: false, error: true };
+                return data.valid ? { ...data, networkError: false } : { valid: false, error: true, networkError: false };
             }
 
-            return { valid: true };
+            return { valid: true, networkError: false };
         } catch {
-            return { valid: true, error: true, message: 'network_error' };
+            // Error de red puro (sin respuesta del servidor) → no borrar sesión
+            return { valid: true, error: true, message: 'network_error', networkError: true };
         }
     };
 
     let result = await attempt(session);
 
     // El token OAuth caduca; la API Key en localStorage sigue siendo válida.
-    if (result.valid !== true && session.apiKey && session.token) {
+    // Solo intentar con apiKey si el fallo NO es de red (para no rechazar por cold-start).
+    if (result.valid !== true && !result.networkError && session.apiKey && session.token) {
         result = await attempt({ apiKey: session.apiKey });
         if (result.valid === true) {
             saveSession({ ...session, ...pickSessionFromValidate(result) });
         }
+    }
+
+    // Si fue error de red (cold-start/inestabilidad), fingir sesión válida para no expulsar al usuario.
+    if (result.valid !== true && result.networkError) {
+        return { valid: true, error: true, message: result.message, networkError: true };
     }
 
     if (result.valid === true && !result.error && typeof window !== 'undefined') {
@@ -114,7 +123,8 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
         } catch {
             /* quota exceeded — omitir caché cliente */
         }
-    } else if (typeof window !== 'undefined') {
+    } else if (!result.networkError && typeof window !== 'undefined') {
+        // Solo borrar el caché si la sesión fue rechazada de verdad (no por error de red).
         sessionStorage.removeItem(VALIDATE_CACHE_KEY);
     }
 
