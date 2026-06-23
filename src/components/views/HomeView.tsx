@@ -4,7 +4,9 @@ import type { DashboardTab } from '@/lib/config';
 import { apiFetch } from '@/lib/auth';
 import { appPath } from '@/lib/paths';
 import { TabSyncService } from '@/lib/tabSyncService';
-import { RealtimeServiceFactory, isRealtimeInCooldown } from '@/lib/realtimeService';
+
+// Lazy-loaded to avoid pulling ~178KB Supabase into the initial bundle
+const loadRealtimeModule = () => import('@/lib/realtimeService');
 import { HomeHero } from '@/components/views/HomeHero';
 import { HomeActivityFeed } from '@/components/views/HomeActivityFeed';
 import { HomeResourcesPanel } from '@/components/views/HomeResourcesPanel';
@@ -47,7 +49,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     const syncRef = useRef<TabSyncService | null>(null);
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const healthPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-    const realtimeRef = useRef<ReturnType<typeof RealtimeServiceFactory.getInstance> | null>(null);
+    const realtimeRef = useRef<{ setCallbacks: (cb: any) => void; resume: () => Promise<boolean>; connect: (onDisconnect?: () => void) => Promise<boolean>; pause: () => void; disconnect: () => void } | null>(null);
     const useRealtimeRef = useRef(false);
     const performSyncRef = useRef<() => Promise<void>>(async () => {});
     const connectRealtimeRef = useRef<() => Promise<void>>(async () => {});
@@ -158,6 +160,8 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     }, [performSync]);
 
     const connectRealtime = useCallback(async () => {
+        const { RealtimeServiceFactory, isRealtimeInCooldown } = await loadRealtimeModule();
+
         if (isRealtimeInCooldown()) {
             useRealtimeRef.current = false;
             startSmartPolling();
@@ -271,6 +275,9 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         };
         window.addEventListener('realtime:auth-failed', onAuthFailed);
 
+        // Fire data fetch immediately so the user sees stats ASAP,
+        // while realtime connects in background
+        void performSyncRef.current();
         void connectRealtimeRef.current();
 
         return () => {

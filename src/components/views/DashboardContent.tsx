@@ -83,7 +83,11 @@ export function DashboardContent({ tab, onNavigate }: DashboardContentProps) {
             {Array.from(mountedTabs).map((panelTab) => {
                 const isActive = panelTab === tab;
                 return (
-                    <div key={panelTab} className={isActive ? undefined : 'hidden'} aria-hidden={!isActive}>
+                    <div
+                        key={panelTab}
+                        className={isActive ? 'animate-tab-in' : 'hidden'}
+                        aria-hidden={!isActive}
+                    >
                         <ErrorBoundary title={`Error al cargar la pestaña «${panelTab}»`}>
                             <Suspense fallback={isActive ? <TabFallback tab={panelTab} /> : null}>
                                 {renderTabPanel(panelTab, { active: isActive, onNavigate })}

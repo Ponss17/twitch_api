@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
     btnDanger,
     btnIcon,
@@ -41,12 +40,16 @@ export function Modal({
     closeOnBackdrop = true
 }: ModalProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
+    const [closing, setClosing] = useState(false);
 
     useEffect(() => {
         const dialog = dialogRef.current;
         if (!dialog) return;
-        if (open && !dialog.open) dialog.showModal();
-        // Do not close immediately, wait for animation exit
+        if (open && !dialog.open) {
+            setClosing(false);
+            dialog.showModal();
+        }
     }, [open]);
 
     useEffect(() => {
@@ -54,49 +57,54 @@ export function Modal({
         if (!dialog) return;
         const onCancel = (e: Event) => {
             e.preventDefault();
-            onClose();
+            handleClose();
         };
         dialog.addEventListener('cancel', onCancel);
         return () => dialog.removeEventListener('cancel', onCancel);
     }, [onClose]);
+
+    const handleClose = () => {
+        setClosing(true);
+        const panel = panelRef.current;
+        if (panel) {
+            const onEnd = () => {
+                panel.removeEventListener('animationend', onEnd);
+                setClosing(false);
+                dialogRef.current?.close();
+                onClose();
+            };
+            panel.addEventListener('animationend', onEnd);
+        } else {
+            setClosing(false);
+            dialogRef.current?.close();
+            onClose();
+        }
+    };
 
     return (
         <dialog
             ref={dialogRef}
             className={dialogBase}
             onClick={(e) => {
-                if (closeOnBackdrop && e.target === dialogRef.current) onClose();
+                if (closeOnBackdrop && e.target === dialogRef.current) handleClose();
             }}
         >
-            <AnimatePresence
-                onExitComplete={() => {
-                    if (!open && dialogRef.current?.open) {
-                        dialogRef.current.close();
-                    }
-                }}
+            <div
+                ref={panelRef}
+                className={`${modalPanel} ${closing ? 'animate-modal-out' : 'animate-modal-in'}`}
             >
-                {open && (
-                    <motion.div
-                        className={modalPanel}
-                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                    >
-                        <div className={modalHeader}>
-                            <h3 className={modalTitle}>
-                                <i className={`fa-solid ${titleIcon} ${modalTitleIcon}`} aria-hidden />
-                                {title}
-                            </h3>
-                            <button type="button" className={btnIcon} aria-label="Cerrar" onClick={onClose}>
-                                <i className="fa-solid fa-xmark" aria-hidden />
-                            </button>
-                        </div>
-                        <div className={modalBody}>{children}</div>
-                        {footer ? <div className={modalFooter}>{footer}</div> : null}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                <div className={modalHeader}>
+                    <h3 className={modalTitle}>
+                        <i className={`fa-solid ${titleIcon} ${modalTitleIcon}`} aria-hidden />
+                        {title}
+                    </h3>
+                    <button type="button" className={btnIcon} aria-label="Cerrar" onClick={handleClose}>
+                        <i className="fa-solid fa-xmark" aria-hidden />
+                    </button>
+                </div>
+                <div className={modalBody}>{children}</div>
+                {footer ? <div className={modalFooter}>{footer}</div> : null}
+            </div>
         </dialog>
     );
 }
@@ -123,7 +131,9 @@ export function DangerConfirmModal({
     const [confirmInput, setConfirmInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [shake, setShake] = useState(false);
+    const [closing, setClosing] = useState(false);
     const dialogRef = useRef<HTMLDialogElement>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!open) {
@@ -136,8 +146,10 @@ export function DangerConfirmModal({
     useEffect(() => {
         const dialog = dialogRef.current;
         if (!dialog) return;
-        if (open && !dialog.open) dialog.showModal();
-        else if (!open && dialog.open) dialog.close();
+        if (open && !dialog.open) {
+            setClosing(false);
+            dialog.showModal();
+        }
     }, [open]);
 
     useEffect(() => {
@@ -145,11 +157,29 @@ export function DangerConfirmModal({
         if (!dialog) return;
         const onCancel = (e: Event) => {
             e.preventDefault();
-            if (!loading) onClose();
+            if (!loading) handleClose();
         };
         dialog.addEventListener('cancel', onCancel);
         return () => dialog.removeEventListener('cancel', onCancel);
     }, [loading, onClose]);
+
+    const handleClose = () => {
+        setClosing(true);
+        const panel = panelRef.current;
+        if (panel) {
+            const onEnd = () => {
+                panel.removeEventListener('animationend', onEnd);
+                setClosing(false);
+                dialogRef.current?.close();
+                onClose();
+            };
+            panel.addEventListener('animationend', onEnd);
+        } else {
+            setClosing(false);
+            dialogRef.current?.close();
+            onClose();
+        }
+    };
 
     const wordOk = confirmInput.trim().toUpperCase() === confirmWord.toUpperCase();
 
@@ -162,7 +192,7 @@ export function DangerConfirmModal({
         setLoading(true);
         try {
             await onConfirm();
-            onClose();
+            handleClose();
         } finally {
             setLoading(false);
         }
@@ -173,89 +203,76 @@ export function DangerConfirmModal({
             ref={dialogRef}
             className={`${dialogBase} ${shake ? modalShake : ''}`}
             onClick={(e) => {
-                if (e.target === dialogRef.current && !loading) onClose();
+                if (e.target === dialogRef.current && !loading) handleClose();
             }}
         >
-            <AnimatePresence
-                onExitComplete={() => {
-                    if (!open && dialogRef.current?.open) {
-                        dialogRef.current.close();
-                    }
-                }}
+            <div
+                ref={panelRef}
+                className={`${dangerModalPanel} ${closing ? 'animate-modal-out' : 'animate-modal-in'}`}
             >
-                {open && (
-                    <motion.div
-                        className={dangerModalPanel}
-                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                <div className={dangerModalHeader}>
+                    <h3 className={modalTitle}>
+                        <i className={`fa-solid fa-triangle-exclamation ${dangerModalTitleIcon}`} aria-hidden />
+                        <span>{title}</span>
+                    </h3>
+                    <button
+                        type="button"
+                        className={btnIcon}
+                        aria-label="Cerrar"
+                        disabled={loading}
+                        onClick={handleClose}
                     >
-                        <div className={dangerModalHeader}>
-                            <h3 className={modalTitle}>
-                                <i className={`fa-solid fa-triangle-exclamation ${dangerModalTitleIcon}`} aria-hidden />
-                                <span>{title}</span>
-                            </h3>
-                            <button
-                                type="button"
-                                className={btnIcon}
-                                aria-label="Cerrar"
-                                disabled={loading}
-                                onClick={onClose}
-                            >
-                                <i className="fa-solid fa-xmark" aria-hidden />
-                            </button>
-                        </div>
-                        <div className={modalBody}>
-                            <p>{description}</p>
-                            <div className={dangerInputGroup}>
-                                <label htmlFor="danger-modal-confirm" className={dangerInputLabel}>
-                                    Escribe <span className={confirmWordBadge}>{confirmWord}</span> para confirmar:
-                                </label>
-                                <input
-                                    id="danger-modal-confirm"
-                                    type="text"
-                                    className={dangerInput}
-                                    value={confirmInput}
-                                    autoComplete="off"
-                                    placeholder="Escribe aquí..."
-                                    disabled={loading}
-                                    onChange={(e) => setConfirmInput(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && wordOk && !loading) {
-                                            e.preventDefault();
-                                            void handleSubmit();
-                                        }
-                                    }}
-                                />
-                            </div>
-                        </div>
-                        <div className={modalFooter}>
-                            <button
-                                type="button"
-                                className={btnDanger}
-                                disabled={!wordOk || loading}
-                                onClick={() => void handleSubmit()}
-                            >
-                                {loading ? (
-                                    <>
-                                        <i className="fa-solid fa-spinner fa-spin" aria-hidden />
-                                        Procesando...
-                                    </>
-                                ) : (
-                                    <>
-                                        <i className="fa-solid fa-trash-can" aria-hidden />
-                                        {confirmLabel}
-                                    </>
-                                )}
-                            </button>
-                            <button type="button" className={btnSecondary} disabled={loading} onClick={onClose}>
-                                Cancelar
-                            </button>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        <i className="fa-solid fa-xmark" aria-hidden />
+                    </button>
+                </div>
+                <div className={modalBody}>
+                    <p>{description}</p>
+                    <div className={dangerInputGroup}>
+                        <label htmlFor="danger-modal-confirm" className={dangerInputLabel}>
+                            Escribe <span className={confirmWordBadge}>{confirmWord}</span> para confirmar:
+                        </label>
+                        <input
+                            id="danger-modal-confirm"
+                            type="text"
+                            className={dangerInput}
+                            value={confirmInput}
+                            autoComplete="off"
+                            placeholder="Escribe aquí..."
+                            disabled={loading}
+                            onChange={(e) => setConfirmInput(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && wordOk && !loading) {
+                                    e.preventDefault();
+                                    void handleSubmit();
+                                }
+                            }}
+                        />
+                    </div>
+                </div>
+                <div className={modalFooter}>
+                    <button
+                        type="button"
+                        className={btnDanger}
+                        disabled={!wordOk || loading}
+                        onClick={() => void handleSubmit()}
+                    >
+                        {loading ? (
+                            <>
+                                <i className="fa-solid fa-spinner fa-spin" aria-hidden />
+                                Procesando...
+                            </>
+                        ) : (
+                            <>
+                                <i className="fa-solid fa-trash-can" aria-hidden />
+                                {confirmLabel}
+                            </>
+                        )}
+                    </button>
+                    <button type="button" className={btnSecondary} disabled={loading} onClick={handleClose}>
+                        Cancelar
+                    </button>
+                </div>
+            </div>
         </dialog>
     );
 }
