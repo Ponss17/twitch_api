@@ -105,7 +105,7 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
         }
     }
 
-    if (result.valid === true && typeof window !== 'undefined') {
+    if (result.valid === true && !result.error && typeof window !== 'undefined') {
         try {
             sessionStorage.setItem(
                 VALIDATE_CACHE_KEY,
