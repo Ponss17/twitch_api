@@ -11,7 +11,8 @@ import {
     docsTabBtn,
     docsTabContainer,
     docsTabContent,
-    docsTabHeader
+    docsTabHeader,
+    docsBotSelector
 } from '@/lib/docsTw';
 
 export type Bot = 'nightbot' | 'streamelements' | 'fossabot';
@@ -95,16 +96,18 @@ export function DocsCodeTabs({ snippets, trigger }: DocsCodeTabsProps) {
     return (
         <div className={docsTabContainer}>
             <div className={docsTabHeader}>
-                {(Object.keys(BOT_LABELS) as Bot[]).map((b) => (
-                    <button
-                        key={b}
-                        type="button"
-                        className={docsTabBtn(bot === b)}
-                        onClick={() => setBot(b)}
-                    >
-                        {BOT_LABELS[b]}
-                    </button>
-                ))}
+                <div className={docsBotSelector}>
+                    {(Object.keys(BOT_LABELS) as Bot[]).map((b) => (
+                        <button
+                            key={b}
+                            type="button"
+                            className={docsTabBtn(bot === b)}
+                            onClick={() => setBot(b)}
+                        >
+                            {BOT_LABELS[b]}
+                        </button>
+                    ))}
+                </div>
                 <div className={docsFormatSelector}>
                     <button
                         type="button"
