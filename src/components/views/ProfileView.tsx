@@ -5,6 +5,7 @@ import { useRequiredSession, useSession } from '@/hooks/useSession';
 import { maskApiKey } from '@/lib/utils';
 import { DataExport } from '@/lib/dataExporter';
 import { fadeIn } from '@/lib/tw';
+import confetti from 'canvas-confetti';
 import { appPath } from '@/lib/paths';
 import { DangerConfirmModal, RegenKeyModal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/ToastProvider';
@@ -214,6 +215,12 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                 saveSession(updated);
                 setKeyVisible(false);
                 if (keyHideTimerRef.current) clearTimeout(keyHideTimerRef.current);
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#ef4444', '#f97316', '#fcd34d']
+                });
                 showToast('Nueva API Key generada', 'success');
                 void refresh();
             }

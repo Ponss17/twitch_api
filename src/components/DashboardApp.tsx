@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Toaster } from 'sonner';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { DashboardHeader } from '@/components/layout/DashboardHeader';
 import { DashboardContent } from '@/components/views/DashboardContent';
@@ -19,6 +20,7 @@ import type { DashboardTab } from '@/lib/config';
 export function DashboardApp() {
     return (
         <ToastProvider>
+            <Toaster theme="dark" richColors position="bottom-right" />
             <SessionProvider requireAuth>
                 <DashboardAppShell />
             </SessionProvider>
