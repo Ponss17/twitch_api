@@ -7,7 +7,11 @@ const LEGAL_LINKS = [
     { href: '/cookies', label: 'Cookies' }
 ] as const;
 
-export function Footer() {
+interface FooterProps {
+    isDashboard?: boolean;
+}
+
+export function Footer({ isDashboard = false }: FooterProps) {
     const year = new Date().getFullYear();
     const [site, setSite] = useState({ hostname: 'www.losperris.dev', origin: 'https://www.losperris.dev' });
 
@@ -19,7 +23,7 @@ export function Footer() {
     }, []);
 
     return (
-        <footer className="app-footer mt-auto w-full shrink-0 border-t border-white/[0.08] bg-[#09090b] py-8">
+        <footer className={`app-footer mt-auto w-full shrink-0 border-t border-white/[0.08] bg-[#09090b] py-8 ${isDashboard ? 'lg:pl-[280px]' : ''}`}>
             <div className="footer-content mx-auto flex w-full max-w-[1200px] flex-col items-center px-5 text-center text-[0.9rem] text-[#71717a]">
                 <div className="mb-3 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[0.8rem]">
                     {LEGAL_LINKS.map((link) => (
