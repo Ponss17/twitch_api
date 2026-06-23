@@ -24,8 +24,15 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                 req.userId = auth.userId;
                 req.twitchToken = token;
             } catch (err) {
-                logger.warn('validateToken: no se pudo obtener token con API Key', (err as Error).message);
-                return res.status(401).send(MESSAGES.AUTH.INVALID_TOKEN);
+                const errorMsg = (err as Error).message;
+                const isAuthError = errorMsg.includes('inválid') || errorMsg.includes('expirad');
+                
+                logger.warn('validateToken: no se pudo obtener token con API Key', errorMsg);
+                if (isAuthError) {
+                    return res.status(401).send(MESSAGES.AUTH.INVALID_TOKEN);
+                } else {
+                    return res.status(503).json({ error: 'Red inestable validando API Key', offline: true });
+                }
             }
         }
 
