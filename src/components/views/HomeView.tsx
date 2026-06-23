@@ -55,6 +55,10 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     const connectRealtimeRef = useRef<() => Promise<void>>(async () => {});
     const showToastRef = useRef(showToast);
     showToastRef.current = showToast;
+    /** Garantiza que home:data-ready solo se dispara una vez por montaje */
+    const dataReadyFiredRef = useRef(false);
+    /** Timer de setSyncing(false) para cancelar si el componente se desmonta */
+    const syncingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const displayName = session.displayName ?? session.login ?? 'Streamer';
 
@@ -89,7 +93,8 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             logError('HomeView', e, 'Error cargando datos del panel');
             setError((prev) => prev ?? (e instanceof Error ? e.message : 'Error cargando datos'));
         } finally {
-            setTimeout(() => setSyncing(false), 800);
+            if (syncingTimerRef.current) clearTimeout(syncingTimerRef.current);
+            syncingTimerRef.current = setTimeout(() => setSyncing(false), 800);
         }
     }, [session]);
 
@@ -140,6 +145,8 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
 
         countdownRef.current = countdown;
         setSyncLabel(sync.getIsLeader() ? `${countdown}s` : 'Follower');
+        // El follower espera datos del líder vía broadcast; no mostrar loading indefinido
+        if (!sync.getIsLeader()) setLoading(false);
 
         if (pollRef.current) clearInterval(pollRef.current);
         pollRef.current = setInterval(() => {
@@ -287,16 +294,23 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             pollRef.current = null;
             if (healthPollRef.current) clearInterval(healthPollRef.current);
             healthPollRef.current = null;
+            if (syncingTimerRef.current) clearTimeout(syncingTimerRef.current);
             sync.destroy();
             syncRef.current = null;
             realtimeRef.current?.pause();
+            // Resetear el guard para que si el componente vuelve a montarse dispare el evento de nuevo
+            dataReadyFiredRef.current = false;
         };
     }, [active]);
 
     useEffect(() => {
         if (stats !== null) {
             setLoading(false);
-            window.dispatchEvent(new CustomEvent('home:data-ready'));
+            // Disparar solo la primera vez que llegan datos (no en cada polling)
+            if (!dataReadyFiredRef.current) {
+                dataReadyFiredRef.current = true;
+                window.dispatchEvent(new CustomEvent('home:data-ready'));
+            }
         }
     }, [stats]);
 
