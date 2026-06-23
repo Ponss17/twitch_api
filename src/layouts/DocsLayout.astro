@@ -87,8 +87,8 @@ const swScope = staticPath('/');
             </script>
         )}
     </head>
-    <body class:list={[docsPage, footer && 'flex min-h-screen flex-col']}>
-        <div class:list={[footer && 'flex min-h-0 flex-1 flex-col']}>
+    <body class:list={[docsPage, 'flex min-h-screen flex-col']}>
+        <div class="flex min-h-0 flex-1 flex-col">
             <slot />
         </div>
         {footer && <Footer client:load />}
