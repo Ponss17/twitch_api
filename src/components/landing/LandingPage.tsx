@@ -125,6 +125,8 @@ export function LandingPage() {
 
     useEffect(() => {
         initSpeedInsights();
+        // Limpiar flag stale del splash en caso de que una sesión anterior lo dejara sin limpiar
+        sessionStorage.removeItem('dashboard_splash');
 
         let cancelled = false;
         (async () => {
