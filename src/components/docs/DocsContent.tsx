@@ -115,21 +115,21 @@ export function DocsContent() {
                         comandos de chat.
                     </p>
                 </div>
-                <div className={docsInfoCardGreen}>
+                <div className={docsInfoCardPrimary}>
                     <i className="fa-solid fa-chart-simple" />
                     <p>
                         <strong>Resumen de Actividad:</strong> Consulta tus estadísticas de uso: total de requests,
                         latencia promedio, tasa de éxito y actividad reciente.
                     </p>
                 </div>
-                <div className={docsInfoCardBlue}>
+                <div className={docsInfoCardPrimary}>
                     <i className="fa-solid fa-id-card" />
                     <p>
                         <strong>Tu Identidad:</strong> Visualiza tu ID de Twitch, nombre de usuario y fecha de última
                         conexión. Puedes copiar tu ID directamente desde el panel.
                     </p>
                 </div>
-                <div className={docsInfoCardRed}>
+                <div className={docsInfoCardPrimary}>
                     <i className="fa-solid fa-skull-crossbones" />
                     <p>
                         <strong>Zona de Peligro:</strong> Accede a opciones críticas como el borrado de cuenta mediante
