@@ -128,35 +128,33 @@ export function LandingPage() {
         // Limpiar flag stale del splash en caso de que una sesión anterior lo dejara sin limpiar
         sessionStorage.removeItem('dashboard_splash');
 
-        let cancelled = false;
-        (async () => {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('token') || params.get('apiKey')) {
-                setIsVerifying(true);
-                sessionStorage.setItem('dashboard_splash', '1');
-                window.location.href = appPath('/dashboard') + window.location.search;
-                return;
-            }
+        const params = new URLSearchParams(window.location.search);
 
-            const sessionParams = parseUrlParams();
-            if (!sessionParams.apiKey && !sessionParams.token) return;
-
+        // Si viene de OAuth (token en URL) → al dashboard directamente, el SessionProvider valida
+        if (params.get('token') || params.get('apiKey')) {
             setIsVerifying(true);
-            const result = await validateSession(sessionParams);
+            sessionStorage.setItem('dashboard_splash', '1');
+            window.location.href = appPath('/dashboard') + window.location.search;
+            return;
+        }
+
+        // Si hay credenciales guardadas → validar antes de redirigir para no hacer doble redirect
+        const sessionParams = parseUrlParams();
+        if (!sessionParams.apiKey && !sessionParams.token) return;
+
+        let cancelled = false;
+        setIsVerifying(true);
+        validateSession(sessionParams).then((result) => {
             if (cancelled) return;
-            
             if (result.valid !== true) {
                 setIsVerifying(false);
                 return;
             }
-
             sessionStorage.setItem('dashboard_splash', '1');
             window.location.href = appPath('/dashboard');
-        })();
+        });
 
-        return () => {
-            cancelled = true;
-        };
+        return () => { cancelled = true; };
     }, []);
 
     useEffect(() => {
