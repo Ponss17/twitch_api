@@ -361,10 +361,10 @@ export function DocsContent() {
                     Tu centro de inteligencia. Investiga a cualquier usuario de Twitch al instante para obtener contexto
                     rápido.
                 </p>
-                <div className={docsInfoCardGreen}>
+                <div className={docsInfoCardPrimary}>
                     <i className="fa-solid fa-shield-halved" />
                     <p>
-                        <strong>Para Mods:</strong> Verifica cuándo se creó una cuenta, cuánto tiempo lleva siguiendo el
+                        <strong>Uso ideal:</strong> Verifica cuándo se creó una cuenta, cuánto tiempo lleva siguiendo el
                         canal y lee sus últimos mensajes en el chat (logs).
                     </p>
                 </div>
