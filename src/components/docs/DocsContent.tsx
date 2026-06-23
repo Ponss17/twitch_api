@@ -21,6 +21,10 @@ import {
     docsLimitValue,
     docsMainTitle,
     docsMethodGet,
+    docsBadgeSuccess,
+    docsBadgeWarning,
+    docsBadgeError,
+    docsBadgeNeutral,
     docsParamsTable,
     docsStepBadge,
     docsStepCard,
@@ -537,24 +541,32 @@ export function DocsContent() {
 
             <section id="errores" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-triangle-exclamation" /> Problemas Comunes
+                    <i className="fa-solid fa-triangle-exclamation" /> Respuestas HTTP
                 </h2>
                 <p>
-                    La API utiliza códigos de estado HTTP estándar para indicar el estado de las solicitudes. Si recibes
-                    un error, el cuerpo de la respuesta generalmente contendrá más detalles.
+                    La API utiliza códigos de estado HTTP estándar para indicar el resultado de las solicitudes.
                 </p>
                 <table className={docsParamsTable}>
                     <thead>
                         <tr>
                             <th>Código</th>
-                            <th>Qué pasa</th>
-                            <th>Solución</th>
+                            <th>Estado</th>
+                            <th>Descripción</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>
-                                <span className={`${docsMethodGet} bg-error`}>
+                                <span className={docsBadgeSuccess}>
+                                    200
+                                </span>
+                            </td>
+                            <td>OK</td>
+                            <td>Solicitud procesada correctamente.</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span className={docsBadgeError}>
                                     401
                                 </span>
                             </td>
@@ -563,7 +575,7 @@ export function DocsContent() {
                         </tr>
                         <tr>
                             <td>
-                                <span className={`${docsMethodGet} bg-yellow-500`}>
+                                <span className={docsBadgeWarning}>
                                     400
                                 </span>
                             </td>
@@ -572,7 +584,7 @@ export function DocsContent() {
                         </tr>
                         <tr>
                             <td>
-                                <span className={`${docsMethodGet} bg-slate-500`}>
+                                <span className={docsBadgeNeutral}>
                                     404
                                 </span>
                             </td>
@@ -581,12 +593,12 @@ export function DocsContent() {
                         </tr>
                         <tr>
                             <td>
-                                <span className={`${docsMethodGet} bg-error`}>
-                                    500
+                                <span className={docsBadgeError}>
+                                    500 / 503
                                 </span>
                             </td>
                             <td>Server Error</td>
-                            <td>Error interno. Contacta con el administrador si persiste.</td>
+                            <td>Error interno o red inestable temporalmente.</td>
                         </tr>
                     </tbody>
                 </table>
