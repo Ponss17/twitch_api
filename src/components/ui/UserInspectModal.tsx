@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { SlotText } from 'slot-text/react';
 import { createPortal } from 'react-dom';
 import type { ChatLogItem } from '@/lib/chatLogStore';
 import { chatLogStore } from '@/lib/chatLogStore';
@@ -15,6 +16,14 @@ interface UserInspectModalProps {
 export function UserInspectModal({ user, onClose, showLogs = true }: UserInspectModalProps) {
     const [logs, setLogs] = useState<ChatLogItem[]>([]);
     const [showHistory, setShowHistory] = useState(false);
+    const [isIdCopied, setIsIdCopied] = useState(false);
+
+    const copyUserId = async () => {
+        if (!user) return;
+        await navigator.clipboard.writeText(user.id);
+        setIsIdCopied(true);
+        setTimeout(() => setIsIdCopied(false), 2000);
+    };
 
     useEffect(() => {
         if (!user) {
@@ -95,9 +104,16 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                         </div>
                         <div className="flex flex-col gap-1 text-left">
                             <span className="text-[0.65rem] tracking-wide text-[#71717a] uppercase">ID Usuario</span>
-                            <span className="font-[Consolas,monospace] text-[0.85rem] font-medium text-[#a1a1aa]">
+                            <button
+                                type="button"
+                                onClick={() => void copyUserId()}
+                                className="flex items-center justify-start gap-1.5 font-[Consolas,monospace] text-[0.85rem] font-medium text-[#a1a1aa] transition hover:text-[#fafafa]"
+                                title="Copiar ID"
+                            >
                                 {user.id}
-                            </span>
+                                <i className={`fa-solid ${isIdCopied ? 'fa-check text-primary' : 'fa-copy'}`} />
+                                <SlotText text={isIdCopied ? 'Copiado' : ''} />
+                            </button>
                         </div>
                         <div className="flex flex-col gap-1 text-left">
                             <span className="text-[0.65rem] tracking-wide text-[#71717a] uppercase">Antigüedad</span>
