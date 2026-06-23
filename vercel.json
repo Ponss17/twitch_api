@@ -168,7 +168,7 @@
             "destination": "/api/index.js"
         },
         {
-            "source": "/api/twitch/dashboard/:endpoint(get-clips|analytics|chatters|user-info|summary|activity|track-usage|timezone|clear-data|delete-account)",
+            "source": "/api/twitch/dashboard/:endpoint(get-clips|analytics|chatters|user-info|summary|activity|track-usage|timezone|clear-data|delete-account|export-check)",
             "destination": "/api/index.js"
         },
         {

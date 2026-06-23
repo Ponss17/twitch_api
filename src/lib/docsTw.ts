@@ -18,7 +18,7 @@ export const docsSidebarLogo = 'h-8 w-8 rounded-lg';
 
 export const docsSidebarTitle = 'm-0 text-[1.1rem] font-bold tracking-tight text-white';
 
-export const docsSearchWrap = 'relative mb-5 flex flex-1 items-center px-1';
+export const docsSearchWrap = 'relative mb-5 flex shrink-0 items-center px-1';
 
 export const docsSearchIcon =
     'pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-[0.9rem] text-[#a1a1aa]';
@@ -27,7 +27,7 @@ export const docsSearchInput =
     'w-full rounded-lg border border-white/[0.08] bg-white/5 py-3 pr-3 pl-10 text-[0.9rem] text-white outline-none transition focus:border-primary focus:bg-white/[0.08] focus:shadow-[0_0_0_3px_rgba(145,70,255,0.2)]';
 
 export const docsNav =
-    'flex flex-col gap-1 overflow-y-auto pr-1 [scrollbar-color:rgba(255,255,255,0.08)_transparent] [scrollbar-width:thin]';
+    'flex flex-1 flex-col gap-1 overflow-y-auto pr-1 [scrollbar-color:rgba(255,255,255,0.08)_transparent] [scrollbar-width:thin]';
 
 export const docsNavItem = (active: boolean) =>
     `relative flex items-center gap-3 rounded-lg border px-3 py-2.5 text-[0.9rem] font-medium no-underline transition ${active ? 'border-primary/20 bg-primary/10 text-white shadow-[0_0_15px_rgba(145,70,255,0.1)] before:absolute before:top-1/2 before:-left-px before:h-4 before:w-[3px] before:-translate-y-1/2 before:rounded-r before:bg-primary before:shadow-[0_0_8px_#9146ff] before:content-[""]' : 'border-transparent text-[#a1a1aa] hover:bg-white/[0.03] hover:text-white'}`;
@@ -70,7 +70,7 @@ export const docsEndpoint =
     'mb-[30px] flex flex-wrap items-center gap-[15px] rounded-xl border border-white/[0.08] bg-white/[0.02] p-[15px_20px] font-mono transition hover:border-primary/30';
 
 export const docsMethodGet =
-    'rounded-md bg-gradient-to-br from-sky-500 to-sky-600 px-2.5 py-1.5 text-[0.75rem] font-extrabold tracking-wide text-white shadow-[0_4px_12px_rgba(14,165,233,0.3)]';
+    'rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-1 text-[0.7rem] font-bold tracking-wide text-sky-400';
 
 export const docsUrl = 'break-all text-[0.95rem] text-[#e2e8f0]';
 
@@ -127,7 +127,7 @@ export const docsFormatBtn = (active: boolean) =>
 export const docsTabContent = 'p-0';
 
 export const docsCopyBtn =
-    'absolute top-[15px] right-[15px] flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/5 text-[#a1a1aa] transition hover:border-primary hover:bg-primary hover:text-white hover:shadow-[0_0_15px_rgba(145,70,255,0.4)]';
+    'absolute top-[15px] right-[15px] flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-[0.8rem] font-medium text-[#a1a1aa] transition hover:border-primary hover:bg-primary hover:text-white hover:shadow-[0_0_15px_rgba(145,70,255,0.4)]';
 
 export const docsCopyBtnSuccess = 'border-success bg-success text-white';
 
@@ -146,5 +146,14 @@ export const docsInfoCardPurple =
 export const docsInfoCardPrimary =
     'mb-[30px] flex gap-4 rounded-xl border border-l-4 border-l-primary border-white/[0.08] bg-white/[0.02] p-5 [&_i]:mt-1 [&_i]:text-primary [&_p]:mb-0 [&_p]:text-[0.9rem] [&_p]:text-[#dedede]';
 
-export const docsMethodBadge = (bg: string) =>
-    `${docsMethodGet} ${bg}`;
+export const docsBadgeSuccess =
+    'rounded-md border border-success/30 bg-success/10 px-2 py-1 text-[0.7rem] font-bold tracking-wide text-success';
+
+export const docsBadgeWarning =
+    'rounded-md border border-warning/30 bg-warning/10 px-2 py-1 text-[0.7rem] font-bold tracking-wide text-warning';
+
+export const docsBadgeError =
+    'rounded-md border border-error/30 bg-error/10 px-2 py-1 text-[0.7rem] font-bold tracking-wide text-error';
+
+export const docsBadgeNeutral =
+    'rounded-md border border-white/20 bg-white/5 px-2 py-1 text-[0.7rem] font-bold tracking-wide text-[#a1a1aa]';
