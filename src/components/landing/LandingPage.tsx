@@ -2,7 +2,7 @@ import { useEffect, useId, useState } from 'react';
 import { LoginDisclaimerModal } from '@/components/ui/LoginDisclaimerModal';
 import { VerifyingSessionModal } from '@/components/ui/VerifyingSessionModal';
 import { AppLogo } from '@/components/ui/AppLogo';
-import { parseUrlParams, validateSession } from '@/lib/auth';
+import { parseUrlParams, saveSession } from '@/lib/auth';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
 import { initSpeedInsights } from '@/lib/speedInsights';
 import { SlotText } from 'slot-text/react';
@@ -129,32 +129,24 @@ export function LandingPage() {
         sessionStorage.removeItem('dashboard_splash');
 
         const params = new URLSearchParams(window.location.search);
+        const sessionParams = parseUrlParams();
 
-        // Si viene de OAuth (token en URL) → al dashboard directamente, el SessionProvider valida
-        if (params.get('token') || params.get('apiKey')) {
+        // Comportamiento idéntico al legacy:
+        // Si hay credenciales en URL o en localStorage, redirigir directo al dashboard.
+        // El SessionProvider del dashboard se encargará de validar con el servidor.
+        if (params.get('token') || params.get('apiKey') || sessionParams.token || sessionParams.apiKey) {
             setIsVerifying(true);
             sessionStorage.setItem('dashboard_splash', '1');
-            window.location.href = appPath('/dashboard') + window.location.search;
-            return;
-        }
-
-        // Si hay credenciales guardadas → validar antes de redirigir para no hacer doble redirect
-        const sessionParams = parseUrlParams();
-        if (!sessionParams.apiKey && !sessionParams.token) return;
-
-        let cancelled = false;
-        setIsVerifying(true);
-        validateSession(sessionParams).then((result) => {
-            if (cancelled) return;
-            if (result.valid !== true) {
-                setIsVerifying(false);
-                return;
+            
+            // Si viene de OAuth (nuevo login), guardamos la sesión inmediatamente
+            // para que no haya riesgo de perderla antes de llegar al dashboard
+            if (sessionParams.isNewLogin) {
+                saveSession(sessionParams);
             }
-            sessionStorage.setItem('dashboard_splash', '1');
-            window.location.href = appPath('/dashboard');
-        });
 
-        return () => { cancelled = true; };
+            const search = params.get('token') || params.get('apiKey') ? window.location.search : '';
+            window.location.href = appPath('/dashboard') + search;
+        }
     }, []);
 
     useEffect(() => {
