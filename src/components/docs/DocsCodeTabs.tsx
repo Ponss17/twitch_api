@@ -1,4 +1,5 @@
 import { useLayoutEffect, useMemo, useState } from 'react';
+import { SlotText } from 'slot-text/react';
 import { copyText } from '@/lib/clipboard';
 import { useToast } from '@/components/ui/ToastProvider';
 import {
@@ -24,7 +25,7 @@ const BOT_LABELS: Record<Bot, string> = {
 const COMMAND_PREFIXES: Record<Bot, string> = {
     nightbot: '!addcom {trigger} ',
     streamelements: '!command add {trigger} ',
-    fossabot: '!addcom {trigger} '
+    fossabot: '!addcmd {trigger} '
 };
 
 /** SSR-safe: keeps {baseURL} placeholder so server and client HTML match. */
@@ -126,11 +127,12 @@ export function DocsCodeTabs({ snippets, trigger }: DocsCodeTabsProps) {
                     <code suppressHydrationWarning>{code}</code>
                     <button
                         type="button"
-                        className={`${docsCopyBtn}${copied ? ` ${docsCopyBtnSuccess}` : ''}`}
+                        className={`${docsCopyBtn} flex items-center gap-1.5${copied ? ` ${docsCopyBtnSuccess}` : ''}`}
                         onClick={() => void copy()}
                         aria-label="Copiar código"
                     >
                         <i className={`fa-${copied ? 'solid fa-check' : 'regular fa-copy'}`} />
+                        <SlotText text={copied ? "Copiado" : "Copiar"} />
                     </button>
                 </div>
             </div>

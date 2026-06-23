@@ -5,6 +5,7 @@ import { AppLogo } from '@/components/ui/AppLogo';
 import { parseUrlParams, validateSession } from '@/lib/auth';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
 import { initSpeedInsights } from '@/lib/speedInsights';
+import { SlotText } from 'slot-text/react';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
@@ -113,6 +114,14 @@ export function LandingPage() {
     const [scrolled, setScrolled] = useState(false);
     const [disclaimerOpen, setDisclaimerOpen] = useState(false);
     const [isVerifying, setIsVerifying] = useState(false);
+    const [isCopied, setIsCopied] = useState(false);
+
+    const copyTerminal = async () => {
+        const text = 'curl -G "https://api.losperris.dev/twitch/followage" -d "channel=losperris" -d "user=mynana17" -d "apiKey=sk_a1b2c3d4..."';
+        await navigator.clipboard.writeText(text);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+    };
 
     useEffect(() => {
         initSpeedInsights();
@@ -280,11 +289,21 @@ export function LandingPage() {
 
                     <div className="relative hidden items-center justify-center md:flex">
                         <div className="w-full max-w-[500px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#111]">
-                            <div className="flex items-center gap-1.5 border-b border-white/[0.06] bg-[#1a1a1a] px-4 py-3">
-                                <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
-                                <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
-                                <span className="h-3 w-3 rounded-full bg-[#28c840]" />
-                                <span className="ml-2 font-mono text-xs text-white/30">bash — 80x24</span>
+                            <div className="flex items-center justify-between border-b border-white/[0.06] bg-[#1a1a1a] px-4 py-3">
+                                <div className="flex items-center gap-1.5">
+                                    <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
+                                    <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
+                                    <span className="h-3 w-3 rounded-full bg-[#28c840]" />
+                                    <span className="ml-2 font-mono text-xs text-white/30">bash — 80x24</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => void copyTerminal()}
+                                    className="flex items-center gap-1.5 text-xs text-white/40 transition hover:text-white/80"
+                                >
+                                    <i className={`fa-solid ${isCopied ? 'fa-check text-[#10b981]' : 'fa-copy'}`} />
+                                    <SlotText text={isCopied ? "Copiado" : "Copiar"} />
+                                </button>
                             </div>
                             <div className="space-y-0 p-5 font-mono text-[0.85rem] leading-8">
                                 <div>

@@ -1,4 +1,6 @@
-import { useEffect, useMemo, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { SlotText } from 'slot-text/react';
+import 'slot-text/style.css';
 import {
     btnCopy,
     btnPrimary,
@@ -104,6 +106,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
     const session = useRequiredSession();
     const { showToast } = useToast();
     const [stored, updateConfig] = useCommandConfig(config.id);
+    const [isCopied, setIsCopied] = useState(false);
 
     useEffect(() => {
         if (!config.extraSelectors?.length) return;
@@ -161,6 +164,10 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
             return;
         }
         const ok = await copyText(generated.full);
+        if (ok) {
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 2000);
+        }
         showToast(
             ok ? 'Comando copiado al portapapeles' : 'No se pudo copiar',
             ok ? 'success' : 'error'
@@ -245,7 +252,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                         onChange={(e) => updateConfig({ format: e.target.value as 'full' | 'url' })}
                         className={selectInput}
                     >
-                        <option value="full">Comando completo (!addcom)</option>
+                        <option value="full">Comando completo (!addcom / !command add)</option>
                         <option value="url">Solo URL</option>
                     </select>
                 </ToolSelector>
@@ -258,8 +265,8 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                         className={btnCopy}
                         disabled={!generated.full}
                     >
-                        <i className="fa-regular fa-copy" aria-hidden />
-                        Copiar
+                        <i className={`fa-solid ${isCopied ? 'fa-check' : 'fa-copy'}`} aria-hidden />
+                        <SlotText text={isCopied ? "Copiado" : "Copiar"} />
                     </button>
                 </div>
             </div>

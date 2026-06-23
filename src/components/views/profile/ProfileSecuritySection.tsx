@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { SlotText } from 'slot-text/react';
 import { card, fadeIn } from '@/lib/tw';
 
 interface ProfileSecuritySectionProps {
@@ -27,6 +29,22 @@ export function ProfileSecuritySection({
     onToggleDanger,
     onCopyId
 }: ProfileSecuritySectionProps) {
+    const [isKeyCopied, setIsKeyCopied] = useState(false);
+    
+    const handleCopyKey = () => {
+        onCopyKey();
+        setIsKeyCopied(true);
+        setTimeout(() => setIsKeyCopied(false), 2000);
+    };
+
+    const [isIdCopied, setIsIdCopied] = useState(false);
+    
+    const handleCopyId = () => {
+        onCopyId();
+        setIsIdCopied(true);
+        setTimeout(() => setIsIdCopied(false), 2000);
+    };
+
     return (
         <div className={`${cardShell} [animation-delay:60ms]`}>
             <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
@@ -79,11 +97,12 @@ export function ProfileSecuritySection({
                             </button>
                             <button
                                 type="button"
-                                onClick={onCopyKey}
-                                className="flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] text-[#a1a1aa] transition hover:bg-primary/10 hover:text-primary"
+                                onClick={handleCopyKey}
+                                className="flex items-center justify-center gap-1.5 border-l border-white/[0.05] px-3 text-[0.85rem] text-[#a1a1aa] transition hover:bg-primary/10 hover:text-primary"
                                 title="Copiar"
                             >
-                                <i className="fa-regular fa-copy" />
+                                <i className={`fa-solid ${isKeyCopied ? 'fa-check' : 'fa-copy'}`} />
+                                <SlotText text={isKeyCopied ? "Copiado" : "Copiar"} />
                             </button>
                             <button
                                 type="button"

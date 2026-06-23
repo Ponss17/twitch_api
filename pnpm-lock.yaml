@@ -89,6 +89,9 @@ importers:
       react-dom:
         specifier: ^19.2.7
         version: 19.2.7(react@19.2.7)
+      slot-text:
+        specifier: ^0.3.1
+        version: 0.3.1(react@19.2.7)
       tailwindcss:
         specifier: ^4.3.0
         version: 4.3.1
@@ -4418,6 +4421,23 @@ packages:
   slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
+
+  slot-text@0.3.1:
+    resolution: {integrity: sha512-gDHfMnFrz4CxqD7H8F3CqWVGYwTbgjpJiIH1bQg1Tj60TzgnLe47vuQDHNeyg4zbhsEAPFvUp05nG7lKsboCVw==}
+    peerDependencies:
+      react: '>=18 <20'
+      solid-js: '>=1.8 <2'
+      svelte: '>=4 <6'
+      vue: '>=3.4 <4'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      solid-js:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
 
   smol-toml@1.6.1:
     resolution: {integrity: sha512-dWUG8F5sIIARXih1DTaQAX4SsiTXhInKf1buxdY9DIg4ZYPZK5nGM1VRIYmEbDbsHt7USo99xSLFu5Q1IqTmsg==}
@@ -9980,6 +10000,10 @@ snapshots:
   sisteransi@1.0.5: {}
 
   slash@3.0.0: {}
+
+  slot-text@0.3.1(react@19.2.7):
+    optionalDependencies:
+      react: 19.2.7
 
   smol-toml@1.6.1: {}
 
