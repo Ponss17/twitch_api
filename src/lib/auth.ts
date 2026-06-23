@@ -101,8 +101,8 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
     let result = await attempt(session);
 
     // El token OAuth caduca; la API Key en localStorage sigue siendo válida.
-    // Solo intentar con apiKey si el fallo NO es de red (para no rechazar por cold-start).
-    if (result.valid !== true && !result.networkError && session.apiKey && session.token) {
+    // Solo intentar con apiKey si el fallo NO es de red y tenemos una apiKey guardada.
+    if (result.valid !== true && !result.networkError && session.apiKey) {
         result = await attempt({ apiKey: session.apiKey });
         if (result.valid === true) {
             saveSession({ ...session, ...pickSessionFromValidate(result) });
