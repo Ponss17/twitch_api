@@ -38,7 +38,6 @@ function DashboardAppShell() {
         return sessionStorage.getItem('dashboard_splash') === '1';
     });
     const [splashDone, setSplashDone] = useState(false);
-    const splashCleanedUp = useRef(false);
 
     const setTab = useCallback((next: DashboardTab) => {
         setTabState(next);
@@ -70,17 +69,11 @@ function DashboardAppShell() {
     useEffect(() => {
         if (!splashOpen) return;
 
-        const onReady = () => {
-            if (splashCleanedUp.current) return;
-            setSplashDone(true);
-        };
-
+        const onReady = () => setSplashDone(true);
         window.addEventListener('home:data-ready', onReady);
 
         // Safety: si el evento nunca llega (error de red, etc.), cerrar el modal después de 6s
-        const fallback = setTimeout(() => {
-            setSplashDone(true);
-        }, 6000);
+        const fallback = setTimeout(() => setSplashDone(true), 6000);
 
         return () => {
             window.removeEventListener('home:data-ready', onReady);
@@ -89,7 +82,6 @@ function DashboardAppShell() {
     }, [splashOpen]);
 
     const handleSplashExited = useCallback(() => {
-        splashCleanedUp.current = true;
         setSplashOpen(false);
         setSplashDone(false);
         sessionStorage.removeItem('dashboard_splash');

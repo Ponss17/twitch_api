@@ -3,142 +3,96 @@ import { AppLogo } from '@/components/ui/AppLogo';
 
 interface VerifyingSessionModalProps {
     open: boolean;
-    /** Si true, la barra salta al 100% y el modal hace fade-out */
+    /** Si true, la barra salta al 100% y el overlay hace fade-out */
     done?: boolean;
     onExited?: () => void;
 }
 
 export function VerifyingSessionModal({ open, done = false, onExited }: VerifyingSessionModalProps) {
-    const dialogRef = useRef<HTMLDialogElement>(null);
-    const [phase, setPhase] = useState<'hidden' | 'loading' | 'done' | 'exiting'>('hidden');
+    const [visible, setVisible] = useState(false);
+    const [isLeaving, setIsLeaving] = useState(false);
+    const [barDone, setBarDone] = useState(false);
+    const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const doneTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Controlar apertura/cierre del <dialog>
+    // Abrir overlay
     useEffect(() => {
-        const dialog = dialogRef.current;
-        if (!dialog) return;
-        if (open && !dialog.open) {
-            dialog.showModal();
-            setPhase('loading');
-        } else if (!open && dialog.open) {
-            setPhase('exiting');
+        if (open) {
+            setVisible(true);
+            setIsLeaving(false);
+            setBarDone(false);
         }
     }, [open]);
 
-    // Cuando done=true, avanzar la barra al 100% y salir
+    // Cuando done=true: completar barra y salir
     useEffect(() => {
-        if (!done || phase !== 'loading') return;
-        setPhase('done');
-        const timer = setTimeout(() => {
-            setPhase('exiting');
-        }, 600); // 600ms en 100% antes de salir
-        return () => clearTimeout(timer);
-    }, [done, phase]);
+        if (!done || !visible) return;
 
-    // Al salir, esperar el fade-out y cerrar
-    useEffect(() => {
-        if (phase !== 'exiting') return;
-        const timer = setTimeout(() => {
-            const dialog = dialogRef.current;
-            if (dialog?.open) dialog.close();
-            setPhase('hidden');
-            onExited?.();
-        }, 400); // duración del fade-out CSS
-        return () => clearTimeout(timer);
-    }, [phase, onExited]);
+        setBarDone(true);
 
-    // Bloquear tecla Escape
-    useEffect(() => {
-        const dialog = dialogRef.current;
-        if (!dialog) return;
-        const onCancel = (e: Event) => e.preventDefault();
-        dialog.addEventListener('cancel', onCancel);
-        return () => dialog.removeEventListener('cancel', onCancel);
-    }, []);
+        // Breve pausa en 100% antes de hacer fade-out
+        doneTimerRef.current = setTimeout(() => {
+            setIsLeaving(true);
+            exitTimerRef.current = setTimeout(() => {
+                setVisible(false);
+                setIsLeaving(false);
+                setBarDone(false);
+                onExited?.();
+            }, 400);
+        }, 500);
 
-    const isExiting = phase === 'exiting';
-    const isDone = phase === 'done';
+        return () => {
+            if (doneTimerRef.current) clearTimeout(doneTimerRef.current);
+            if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
+        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [done]);
+
+    if (!visible) return null;
 
     return (
-        <dialog
-            ref={dialogRef}
-            className="m-0 h-full w-full max-w-none bg-transparent p-0 outline-none backdrop:bg-black/80 backdrop:backdrop-blur-sm"
+        <div
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#080808]"
             style={{
-                opacity: isExiting ? 0 : 1,
+                opacity: isLeaving ? 0 : 1,
                 transition: 'opacity 0.4s ease',
+                pointerEvents: isLeaving ? 'none' : 'all',
             }}
+            aria-live="polite"
+            aria-label="Cargando dashboard"
         >
-            <div className="flex h-full w-full items-center justify-center px-4">
+            {/* Barra de progreso en la parte superior */}
+            <div className="absolute inset-x-0 top-0 h-[3px] bg-[#1a1a2e]">
                 <div
-                    className="w-full max-w-sm overflow-hidden rounded-2xl border border-[#9146ff]/30 bg-[#0a0a0f] shadow-[0_0_60px_rgba(145,70,255,0.15)]"
+                    className="h-full bg-gradient-to-r from-[#7c3aed] via-[#9146ff] to-[#a78bfa] rounded-full"
                     style={{
-                        transform: isExiting ? 'scale(0.96) translateY(8px)' : 'scale(1) translateY(0)',
-                        transition: 'transform 0.4s ease',
+                        width: barDone ? '100%' : undefined,
+                        animation: barDone ? 'none' : 'splashProgress 3s cubic-bezier(0.1, 0.8, 0.3, 1) forwards',
+                        transition: barDone ? 'width 0.4s ease' : undefined,
                     }}
-                >
-                    {/* Barra de progreso top */}
-                    <div className="h-0.5 w-full bg-[#1a1a2e] overflow-hidden">
-                        <div
-                            className="h-full bg-gradient-to-r from-[#7c3aed] via-[#9146ff] to-[#a78bfa]"
-                            style={{
-                                width: isDone ? '100%' : undefined,
-                                animation: isDone ? 'none' : 'splashProgress 3s cubic-bezier(0.1, 0.8, 0.3, 1) forwards',
-                                transition: isDone ? 'width 0.5s ease' : undefined,
-                            }}
-                        />
-                    </div>
+                />
+            </div>
 
-                    {/* Contenido */}
-                    <div className="flex flex-col items-center px-8 py-10 text-center">
-                        {/* Logo con glow */}
-                        <div className="relative mb-6">
-                            <div className="absolute inset-0 rounded-2xl bg-[#9146ff]/20 blur-xl" />
-                            <AppLogo
-                                alt="LosPerris"
-                                className="relative h-20 w-20 rounded-2xl object-contain"
-                                draggable={false}
-                            />
-                        </div>
+            {/* Contenido centrado */}
+            <div className="flex flex-col items-center gap-5 px-6 text-center">
+                <div className="relative">
+                    <div className="absolute inset-0 rounded-2xl bg-[#9146ff]/20 blur-2xl" />
+                    <AppLogo
+                        alt="LosPerris"
+                        className="relative h-16 w-16 rounded-2xl object-contain"
+                        draggable={false}
+                    />
+                </div>
 
-                        <h3 className="mb-2 text-xl font-bold tracking-tight text-white">
-                            {isDone ? '¡Listo!' : 'Verificando sesión...'}
-                        </h3>
-
-                        <p className="max-w-[240px] text-sm leading-relaxed text-[#71717a]">
-                            {isDone
-                                ? 'Bienvenido de vuelta.'
-                                : 'Validando tus datos con Twitch, un momento.'}
-                        </p>
-
-                        {/* Indicador de pasos */}
-                        <div className="mt-8 flex items-center gap-2">
-                            <Step active={!isDone} done={false} label="Sesión" />
-                            <div className="h-px w-8 bg-[#27272a]" />
-                            <Step active={isDone} done={isDone} label="Dashboard" />
-                        </div>
-                    </div>
+                <div>
+                    <p className="text-base font-semibold text-white">
+                        {barDone ? '¡Listo!' : 'Verificando sesión...'}
+                    </p>
+                    <p className="mt-1 text-sm text-[#52525b]">
+                        {barDone ? 'Bienvenido de vuelta.' : 'Validando tus datos con Twitch.'}
+                    </p>
                 </div>
             </div>
-        </dialog>
-    );
-}
-
-function Step({ active, done, label }: { active: boolean; done: boolean; label: string }) {
-    return (
-        <div className="flex flex-col items-center gap-1.5">
-            <div
-                className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold transition-all duration-500 ${
-                    done
-                        ? 'border-[#9146ff] bg-[#9146ff] text-white'
-                        : active
-                          ? 'border-[#9146ff] bg-[#9146ff]/10 text-[#9146ff]'
-                          : 'border-[#27272a] bg-transparent text-[#52525b]'
-                }`}
-            >
-                {done ? <i className="fa-solid fa-check text-[10px]" /> : active ? <i className="fa-solid fa-circle-notch fa-spin text-[10px]" /> : '2'}
-            </div>
-            <span className={`text-[10px] font-medium ${active || done ? 'text-[#9146ff]' : 'text-[#52525b]'}`}>
-                {label}
-            </span>
         </div>
     );
 }
