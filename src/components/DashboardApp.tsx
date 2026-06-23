@@ -69,7 +69,12 @@ function DashboardAppShell() {
     useEffect(() => {
         if (!splashOpen) return;
 
-        const onReady = () => setSplashDone(true);
+        const startTime = Date.now();
+        const onReady = () => {
+            const elapsed = Date.now() - startTime;
+            const remaining = Math.max(0, 2000 - elapsed); // Asegurar al menos 2 segundos de animación
+            setTimeout(() => setSplashDone(true), remaining);
+        };
         window.addEventListener('home:data-ready', onReady);
 
         // Safety: si el evento nunca llega (error de red, etc.), cerrar el modal después de 6s
