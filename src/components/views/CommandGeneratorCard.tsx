@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { SlotText } from 'slot-text/react';
 import 'slot-text/style.css';
-import confetti from 'canvas-confetti';
 import {
     btnCopy,
     btnPrimary,
@@ -167,12 +166,6 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
         const ok = await copyText(generated.full);
         if (ok) {
             setIsCopied(true);
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#9146ff', '#f59e0b', '#10b981']
-            });
             setTimeout(() => setIsCopied(false), 2000);
         }
         showToast(

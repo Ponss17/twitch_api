@@ -7,6 +7,7 @@ import type { RouletteUser } from '@/lib/twitchTypes';
 import { card, fadeIn } from '@/lib/tw';
 import { useToast } from '@/components/ui/ToastProvider';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
+import confetti from 'canvas-confetti';
 
 const COLORS = ['#9146ff', '#772ce8', '#3b82f6', '#06b6d4', '#10b981', '#eab308', '#f97316', '#ef4444'];
 const LISTENER_ID = 'roulette';
@@ -334,6 +335,12 @@ export function RouletteView({ active = true }: { active?: boolean }) {
             sendWinnerMessage(
                 `🏆 ¡El ganador es @${picked.user_name}! (De ${count} participantes) ¡Felicidades! 🎉`
             );
+            confetti({
+                particleCount: 200,
+                spread: 100,
+                origin: { y: 0.5 },
+                colors: ['#9146ff', '#f59e0b', '#10b981', '#ec4899', '#3b82f6']
+            });
         };
 
         const animate = (timestamp: number) => {
