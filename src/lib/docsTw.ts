@@ -27,10 +27,16 @@ export const docsSearchInput =
     'w-full rounded-lg border border-white/[0.08] bg-white/5 py-3 pr-3 pl-10 text-[0.9rem] text-white outline-none transition focus:border-primary focus:bg-white/[0.08] focus:shadow-[0_0_0_3px_rgba(145,70,255,0.2)]';
 
 export const docsNav =
-    'flex flex-1 flex-col gap-1 overflow-y-auto pr-1 [scrollbar-color:rgba(255,255,255,0.08)_transparent] [scrollbar-width:thin]';
+    'flex flex-1 flex-col overflow-y-auto pt-2 [scrollbar-color:rgba(255,255,255,0.08)_transparent] [scrollbar-width:thin]';
 
-export const docsNavItem = (active: boolean) =>
-    `relative flex items-center gap-3 rounded-lg border px-3 py-2.5 text-[0.9rem] font-medium no-underline transition ${active ? 'border-primary/20 bg-primary/10 text-white shadow-[0_0_15px_rgba(145,70,255,0.1)] before:absolute before:top-1/2 before:-left-px before:h-4 before:w-[3px] before:-translate-y-1/2 before:rounded-r before:bg-primary before:shadow-[0_0_8px_#9146ff] before:content-[""]' : 'border-transparent text-[#a1a1aa] hover:bg-white/[0.03] hover:text-white'}`;
+export const docsNavItem = (active: boolean) => {
+    const width = active ? 'ml-3 w-[calc(100%-28px)]' : 'mx-auto w-[calc(100%-16px)]';
+    const base = 'relative mb-0.5 flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-1 text-left font-[inherit] text-[0.9rem] font-semibold transition-all no-underline';
+    if (active) {
+        return `${base} ${width} bg-[#18181b] text-white before:pointer-events-none before:absolute before:top-1/2 before:left-0 before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-r before:bg-primary before:shadow-[0_0_8px_#9146ff] before:content-[""]`;
+    }
+    return `${base} ${width} text-[#a1a1aa] hover:bg-[#18181b] hover:text-white`;
+};
 
 export const docsNavGroup = 'mt-6 flex flex-col gap-1';
 
