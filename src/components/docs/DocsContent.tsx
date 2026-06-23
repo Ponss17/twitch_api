@@ -161,6 +161,23 @@ export function DocsContent() {
                         que puedas monitorear tu consumo.
                     </p>
                 </div>
+                <div className={docsInfoCardBlue}>
+                    <i className="fa-solid fa-weight-hanging" />
+                    <div className="flex-1">
+                        <p style={{ fontWeight: 'bold', marginBottom: '0.25rem', color: 'white' }}>¿Qué son los Endpoints "Pesados"?</p>
+                        <p style={{ margin: 0, fontSize: '0.9rem', color: '#dedede' }}>
+                            Son comandos complejos que requieren mayor procesamiento o realizar múltiples consultas en tiempo real a los servidores de Twitch. Actualmente, los endpoints pesados son:
+                        </p>
+                        <ul style={{ margin: '0.5rem 0 0 1.25rem', padding: 0, fontSize: '0.9rem', color: '#dedede', listStyleType: 'disc', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                            <li><strong>Crear Clip:</strong> Requiere verificar el estado del stream en vivo y ordenar el procesamiento del video.</li>
+                            <li><strong>Shoutout (!so):</strong> Descarga la información actualizada del canal objetivo y su categoría de juego en tiempo real.</li>
+                            <li><strong>Tendencias:</strong> Analiza grandes volúmenes de mensajes recientes del chat para calcular estadísticas.</li>
+                        </ul>
+                        <p style={{ marginTop: '0.5rem', marginBottom: 0, fontSize: '0.85rem', color: '#a1a1aa' }}>
+                            <em>Nota:</em> Los comandos normales (como Followage, Bola 8 o Ruleta) son muy rápidos y utilizan el límite general de 60 peticiones por minuto.
+                        </p>
+                    </div>
+                </div>
             </section>
 
             <section id="quick-start" className={docSection} data-doc-section>
