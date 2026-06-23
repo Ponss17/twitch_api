@@ -139,25 +139,38 @@ export class RealtimeService {
         }
     }
 
+    private isTearingDown = false;
+
     private tearDownClient(): void {
-        if (this.channel) {
+        if (this.isTearingDown) return;
+        this.isTearingDown = true;
+
+        this.isConnected = false;
+        
+        const chan = this.channel;
+        const supa = this.supabase;
+        
+        this.channel = null;
+        this.supabase = null;
+
+        if (chan) {
             try {
-                this.channel.unsubscribe();
+                chan.unsubscribe();
             } catch {
                 /* ignore */
             }
-            this.channel = null;
         }
 
-        if (this.supabase) {
+        if (supa) {
             try {
-                this.supabase.removeAllChannels();
-                this.supabase.realtime.disconnect();
+                supa.removeAllChannels();
+                supa.realtime.disconnect();
             } catch {
                 /* ignore */
             }
-            this.supabase = null;
         }
+        
+        this.isTearingDown = false;
     }
 
     private async initializeClient(): Promise<boolean> {
