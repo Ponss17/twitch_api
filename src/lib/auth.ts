@@ -153,7 +153,6 @@ export function startTwitchLogin(): void {
     clearSession();
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
     let redirectOrigin = window.location.origin + window.location.pathname;
-    redirectOrigin = redirectOrigin.replace('://www.', '://');
 
     const params = new URLSearchParams({
         redirect_origin: redirectOrigin
