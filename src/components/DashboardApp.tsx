@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { DashboardHeader } from '@/components/layout/DashboardHeader';
+import { Footer } from '@/components/layout/Footer';
 import { DashboardContent } from '@/components/views/DashboardContent';
 import { ToastProvider } from '@/components/ui/ToastProvider';
 import { OnlineStatusMonitor } from '@/components/ui/OnlineStatusMonitor';
@@ -108,6 +109,7 @@ function DashboardAppShell() {
                         </div>
                     </div>
 
+                    <Footer />
                 </main>
             </div>
         </>
