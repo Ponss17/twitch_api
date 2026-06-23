@@ -50,6 +50,9 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
             setSession(null);
             setLoading(false);
             setAuthenticated(false);
+            if (requireAuth) {
+                window.location.href = appPath('/');
+            }
             return;
         }
 

@@ -65,24 +65,9 @@ function DashboardAppShell() {
     }
 
     if (!authenticated || !session) {
-        return (
-            <div className="flex min-h-full flex-1 items-center justify-center bg-[#09090b] px-4">
-                <div className={`${card} max-w-md p-8 text-center`}>
-                    <AppLogo alt="" className="mx-auto mb-4 h-16 w-16" />
-                    <h1 className="text-2xl font-bold">Dashboard LosPerris</h1>
-                    <p className="mt-2 text-[#71717a]">Inicia sesión con Twitch para acceder a tu panel.</p>
-                    <button
-                        type="button"
-                        onClick={() => setDisclaimerOpen(true)}
-                        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#9146ff] px-6 py-3 font-semibold text-white transition hover:bg-[#7c3aed]"
-                    >
-                        <i className="fa-brands fa-twitch" />
-                        Conectar con Twitch
-                    </button>
-                </div>
-                <LoginDisclaimerModal open={disclaimerOpen} onClose={() => setDisclaimerOpen(false)} />
-            </div>
-        );
+        // SessionProvider se encarga de redirigir a '/' si requireAuth es true,
+        // así que mientras el navegador cambia de página, mostramos el skeleton.
+        return <DashboardSessionSkeleton />;
     }
 
     return (
