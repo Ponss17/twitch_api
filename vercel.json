@@ -132,10 +132,6 @@
             "destination": "/_astro/:path*"
         },
         {
-            "source": "/api/twitch/_vercel/:path*",
-            "destination": "/_vercel/:path*"
-        },
-        {
             "source": "/api/twitch/img/:path*",
             "destination": "/img/:path*"
         },
