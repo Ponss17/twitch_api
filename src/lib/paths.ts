@@ -6,7 +6,7 @@ export function getAppBasePath(): string {
 }
 
 /** Normaliza BASE_URL de Astro (path o URL absoluta) al mount /api/twitch. */
-export function normalizeAppBase(base: string = getAppBasePath()): string {
+function normalizeAppBase(base: string = getAppBasePath()): string {
     const trimmed = base.trim().replace(/\/$/, '');
     if (/^https?:\/\//i.test(trimmed)) {
         try {
@@ -34,7 +34,7 @@ export function appPath(path: string): string {
     return segment === '/' ? `${base}/` : joinAppPath(base, segment);
 }
 
-export function getOrigin(): string {
+function getOrigin(): string {
     if (typeof window === 'undefined') return '';
     return window.location.origin;
 }

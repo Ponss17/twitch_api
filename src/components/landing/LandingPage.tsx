@@ -4,7 +4,8 @@ import { VerifyingSessionModal } from '@/components/ui/VerifyingSessionModal';
 import { AppLogo } from '@/components/ui/AppLogo';
 import { parseUrlParams, saveSession } from '@/lib/auth';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
-import { initSpeedInsights } from '@/lib/speedInsights';
+import { Accordion } from '@/components/ui/Accordion';
+
 import { SlotText } from 'slot-text/react';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
@@ -79,36 +80,6 @@ const FAQ_ITEMS = [
     }
 ];
 
-function FaqItem({ question, answer }: { question: string; answer: string }) {
-    const [open, setOpen] = useState(false);
-    const panelId = useId();
-    return (
-        <div
-            className={`overflow-hidden rounded-lg border bg-[#0a0a0b] transition ${
-                open ? 'border-[#9146ff]/40 bg-[#9146ff]/[0.03]' : 'border-white/10 hover:border-[#9146ff]/30'
-            }`}
-        >
-            <button
-                type="button"
-                onClick={() => setOpen((v) => !v)}
-                aria-expanded={open}
-                aria-controls={panelId}
-                className="flex w-full items-center justify-between px-6 py-5 text-left hover:bg-white/[0.02]"
-            >
-                <h3 className="flex-1 text-center text-base font-semibold">{question}</h3>
-                <i className={`fa-solid fa-chevron-down text-[#9146ff] transition ${open ? 'rotate-180' : ''}`} />
-            </button>
-            {open && (
-                <div
-                    id={panelId}
-                    className="border-t border-white/5 px-6 py-4 text-sm leading-relaxed text-[#a1a1aa]"
-                >
-                    {answer}
-                </div>
-            )}
-        </div>
-    );
-}
 
 export function LandingPage() {
     const [scrolled, setScrolled] = useState(false);
@@ -124,7 +95,6 @@ export function LandingPage() {
     };
 
     useEffect(() => {
-        initSpeedInsights();
         // Limpiar flag stale del splash en caso de que una sesión anterior lo dejara sin limpiar
         sessionStorage.removeItem('dashboard_splash');
 
@@ -387,10 +357,14 @@ export function LandingPage() {
                         </h2>
                         <p className="mt-3 text-[#71717a]">Resuelve tus dudas sobre la API</p>
                     </div>
-                    <div className="mx-auto flex max-w-[800px] flex-col gap-4">
-                        {FAQ_ITEMS.map((item) => (
-                            <FaqItem key={item.q} question={item.q} answer={item.a} />
-                        ))}
+                    <div className="mx-auto flex max-w-[800px] flex-col">
+                        <Accordion 
+                            items={FAQ_ITEMS.map((item) => ({
+                                id: item.q,
+                                title: item.q,
+                                content: item.a
+                            }))} 
+                        />
                     </div>
                 </section>
             </div>
