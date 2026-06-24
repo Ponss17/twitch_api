@@ -5,6 +5,8 @@ import { AppLogo } from '@/components/ui/AppLogo';
 import { parseUrlParams, saveSession } from '@/lib/auth';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
 import { Accordion } from '@/components/ui/Accordion';
+import { TwitchIcon, DiscordIcon } from '@/components/ui/icons/BrandIcons';
+import { Heart, Video, Megaphone, Star, ScanFace, Dices, HelpCircle, Skull, Swords, MessageSquare, Book, MessageCircle, ArrowRight, Copy, Check } from 'lucide-react';
 
 import { SlotText } from 'slot-text/react';
 import Lenis from 'lenis';
@@ -23,36 +25,36 @@ const FEATURE_CATEGORIES = [
         title: 'Comandos',
         description: 'Interacción directa y automática para dinamizar tu chat.',
         cards: [
-            { icon: 'fa-heart', title: 'Followage', text: 'Muestra cuánto tiempo lleva un usuario siguiendo el canal. ¡Celebra la lealtad!', tag: '!followage' },
-            { icon: 'fa-video', title: 'Clips', text: 'Captura los mejores momentos al instante.', tag: '!clip' },
-            { icon: 'fa-bullhorn', title: 'Shoutout', text: 'Promociona a otros streamers con un solo comando.', tag: '!so @user' }
+            { icon: Heart, title: 'Followage', text: 'Muestra cuánto tiempo lleva un usuario siguiendo el canal. ¡Celebra la lealtad!', tag: '!followage' },
+            { icon: Video, title: 'Clips', text: 'Captura los mejores momentos al instante.', tag: '!clip' },
+            { icon: Megaphone, title: 'Shoutout', text: 'Promociona a otros streamers con un solo comando.', tag: '!so @user' }
         ]
     },
     {
         title: 'Herramientas',
         description: 'Análisis avanzado para entender el crecimiento de tu canal.',
         cards: [
-            { icon: 'fa-ranking-star', title: 'Tendencias', text: 'Ranking de palabras en tiempo real. Descubre de qué habla tu chat.' },
-            { icon: 'fa-user-secret', title: 'Stalker', text: 'Investiga perfiles y obtén info pública detallada.' },
-            { icon: 'fa-dice', title: 'Ruleta', text: 'Juego de azar para sorteos o decisiones rápidas en vivo.' }
+            { icon: Star, title: 'Tendencias', text: 'Ranking de palabras en tiempo real. Descubre de qué habla tu chat.' },
+            { icon: ScanFace, title: 'Stalker', text: 'Investiga perfiles y obtén info pública detallada.' },
+            { icon: Dices, title: 'Ruleta', text: 'Juego de azar para sorteos o decisiones rápidas en vivo.' }
         ]
     },
     {
         title: 'Minijuegos',
         description: 'Mantén a tu audiencia entretenida incluso cuando no estás.',
         cards: [
-            { icon: 'fa-circle-question', title: 'Bola 8', text: 'Respuestas aleatorias para las dudas más existenciales de tu chat.' },
-            { icon: 'fa-skull-crossbones', title: 'Ruleta Rusa', text: 'Prueba tu suerte con un revólver virtual. ¿Sobrevivirás?' },
-            { icon: 'fa-khanda', title: 'Duelo', text: 'Desafía a otros usuarios a un combate narrativo 1vs1 épico.' }
+            { icon: HelpCircle, title: 'Bola 8', text: 'Respuestas aleatorias para las dudas más existenciales de tu chat.' },
+            { icon: Skull, title: 'Ruleta Rusa', text: 'Prueba tu suerte con un revólver virtual. ¿Sobrevivirás?' },
+            { icon: Swords, title: 'Duelo', text: 'Desafía a otros usuarios a un combate narrativo 1vs1 épico.' }
         ]
     },
     {
         title: 'Soporte',
         description: 'Ayuda y documentación para que nunca te quedes atrás.',
         cards: [
-            { icon: 'fa-comment-dots', title: 'Feedback', text: 'Reporta errores o sugiere nuevas funciones directamente.' },
-            { icon: 'fa-book', title: 'Documentación', text: 'Guías paso a paso para configurar tu bot en segundos.' },
-            { icon: 'fa-brands fa-discord', title: 'Discord', text: 'Únete a nuestra comunidad para obtener soporte en vivo y compartir ideas.' }
+            { icon: MessageSquare, title: 'Feedback', text: 'Reporta errores o sugiere nuevas funciones directamente.' },
+            { icon: Book, title: 'Documentación', text: 'Guías paso a paso para configurar tu bot en segundos.' },
+            { icon: DiscordIcon, title: 'Discord', text: 'Únete a nuestra comunidad para obtener soporte en vivo y compartir ideas.' }
         ]
     }
 ] as const;
@@ -186,7 +188,7 @@ export function LandingPage() {
                             onClick={saveDocsReturnPath}
                             className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#a1a1aa] no-underline transition hover:bg-white/5 hover:text-[#fafafa]"
                         >
-                            <i className="fa-solid fa-book" /> Documentación
+                            <Book className="w-4" /> Documentación
                         </a>
                         <a
                             href="https://discord.gg/8uN3qY5E"
@@ -194,7 +196,7 @@ export function LandingPage() {
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#a1a1aa] no-underline transition hover:bg-white/5 hover:text-[#fafafa]"
                         >
-                            <i className="fa-brands fa-discord" /> Comunidad
+                            <DiscordIcon className="w-4" /> Comunidad
                         </a>
                     </nav>
                 </div>
@@ -204,7 +206,7 @@ export function LandingPage() {
                 <section className="grid min-h-0 items-center gap-16 py-24 md:min-h-[88vh] md:grid-cols-2 md:gap-16 md:py-0">
                     <div className="max-w-[600px] text-center md:text-left">
                         <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#9146ff]/25 bg-[#9146ff]/[0.08] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#a78bfa]">
-                            <i className="fa-brands fa-twitch" /> BETA — Twitch API
+                            <TwitchIcon className="w-3.5 fill-current" /> BETA — Twitch API
                         </div>
                         <h2 className="mb-5 text-[clamp(2.8rem,4.5vw,4.5rem)] font-extrabold leading-[1.1] tracking-[-0.03em] text-[#fafafa]">
                             Comandos para tu
@@ -222,14 +224,14 @@ export function LandingPage() {
                                 onClick={() => setDisclaimerOpen(true)}
                                 className="inline-flex items-center gap-2.5 rounded-lg bg-[#9146ff] px-7 py-3 text-[0.95rem] font-semibold text-white transition hover:bg-[#7c3aed]"
                             >
-                                <i className="fa-brands fa-twitch" />
+                                <TwitchIcon className="w-4 fill-current" />
                                 Iniciar Sesión con Twitch
                             </button>
                             <a
                                 href="#features"
                                 className="inline-flex items-center gap-2 rounded-lg border border-white/[0.12] px-[22px] py-[11px] text-[0.9rem] font-medium text-[#a1a1aa] no-underline transition hover:border-white/25 hover:text-[#fafafa]"
                             >
-                                Ver funciones <i className="fa-solid fa-arrow-right" />
+                                Ver funciones <ArrowRight className="w-4" />
                             </a>
                         </div>
                         <p className="mb-6 text-[0.8rem] text-[#71717a]">
@@ -265,7 +267,7 @@ export function LandingPage() {
                                     onClick={() => void copyTerminal()}
                                     className="flex items-center gap-1.5 text-xs text-white/40 transition hover:text-white/80"
                                 >
-                                    <i className={`fa-solid ${isCopied ? 'fa-check text-[#10b981]' : 'fa-copy'}`} />
+                                    {isCopied ? <Check className="w-3.5 text-[#10b981]" /> : <Copy className="w-3.5" />}
                                     <SlotText text={isCopied ? "Copiado" : "Copiar"} />
                                 </button>
                             </div>
@@ -327,13 +329,7 @@ export function LandingPage() {
                                             className="flex min-h-[200px] flex-col items-center rounded-xl border border-white/[0.08] bg-[#0a0a0b] p-8 text-center transition hover:border-[#9146ff]/40"
                                         >
                                             <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-[10px] border border-[#9146ff]/20 bg-[#9146ff]/10 text-xl text-[#a78bfa]">
-                                                <i
-                                                    className={
-                                                        card.icon.includes(' ')
-                                                            ? card.icon
-                                                            : `fa-solid ${card.icon}`
-                                                    }
-                                                />
+                                                <card.icon className="w-5 h-5" />
                                             </div>
                                             <h4 className="text-xl font-semibold text-white">{card.title}</h4>
                                             <p className="mt-1.5 text-[#a1a1aa]">{card.text}</p>

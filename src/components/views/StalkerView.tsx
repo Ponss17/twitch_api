@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Play, Pause, Users, Radio, Snowflake, Search, RotateCw, User, Eye } from 'lucide-react';
 import { API_ENDPOINTS, IGNORED_BOTS } from '@/lib/config';
 import { authHeaders, apiFetch } from '@/lib/auth';
 import { useRequiredSession } from '@/hooks/useSession';
@@ -185,7 +186,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-2 max-md:flex-col max-md:items-start">
                     <div className="flex items-center gap-3">
                         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                            <i className="fa-solid fa-users" aria-hidden />
+                            <Users />
                         </div>
                         <div>
                             <h3 className="mb-0.5 text-[0.95rem] font-bold">Visor de Chat (Stalker)</h3>
@@ -199,12 +200,12 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                         >
                             {scanning ? (
                                 <>
-                                    <i className="fa-solid fa-satellite-dish fa-beat mr-1" aria-hidden />
+                                    <Radio className="animate-pulse mr-1" />
                                     Escaneo iniciado
                                 </>
                             ) : (
                                 <>
-                                    <i className="fa-solid fa-snowflake mr-1 text-[#00f2ea]" aria-hidden />
+                                    <Snowflake className="mr-1 text-[#00f2ea]" />
                                     Vista Congelada (Pausado)
                                 </>
                             )}
@@ -212,10 +213,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
 
                         <div className="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:flex-col max-md:items-stretch">
                             <div className="relative w-[200px] max-md:w-full">
-                                <i
-                                    className="fa-solid fa-magnifying-glass pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[0.8125rem] text-[#a1a1aa]"
-                                    aria-hidden
-                                />
+                                <Search className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[0.8125rem] text-[#a1a1aa]" />
                                 <input
                                     type="search"
                                     value={search}
@@ -235,7 +233,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                     scanning ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'
                                 }`}
                             >
-                                <i className={`fa-solid ${scanning ? 'fa-pause' : 'fa-play'}`} aria-hidden />
+                                {scanning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                             </button>
 
                             <button
@@ -250,7 +248,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                 aria-label="Recargar lista"
                                 className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#a1a1aa] transition hover:bg-white/5 hover:text-[#fafafa]"
                             >
-                                <i className="fa-solid fa-rotate-right" aria-hidden />
+                                <RotateCw />
                             </button>
                         </div>
 
@@ -284,7 +282,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                     <tr>
                                         <td colSpan={4} className="px-5 py-12 text-center">
                                             <div className="mb-4 text-[3rem] text-[#71717a] opacity-50">
-                                                <i className="fa-solid fa-satellite-dish" aria-hidden />
+                                                <Radio />
                                             </div>
                                             <h3 className="mb-2 text-[0.95rem] font-bold text-[#fafafa]">
                                                 Esperando señal...
@@ -301,7 +299,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                             colSpan={4}
                                             className="px-5 py-10 text-center text-[0.8125rem] text-[#71717a]"
                                         >
-                                            <i className="fa-solid fa-satellite-dish fa-beat mr-2" aria-hidden />
+                                            <Radio className="animate-pulse mr-2" />
                                             Esperando usuarios en el chat...
                                         </td>
                                     </tr>
@@ -326,7 +324,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                                     />
                                                 ) : (
                                                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-secondary text-[#71717a]">
-                                                        <i className="fa-solid fa-user text-[0.75rem]" aria-hidden />
+                                                        <User className="text-[0.75rem]" />
                                                     </div>
                                                 )}
                                             </td>
@@ -345,7 +343,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                                     }}
                                                     className="inline-flex items-center gap-1 rounded-md border border-white/[0.08] bg-transparent px-3 py-1.5 text-[0.8125rem] text-[#a1a1aa] transition hover:border-primary hover:bg-primary hover:text-[#fafafa]"
                                                 >
-                                                    <i className="fa-solid fa-eye" aria-hidden />
+                                                    <Eye />
                                                     Ver
                                                 </button>
                                             </td>

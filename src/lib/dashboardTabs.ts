@@ -1,16 +1,19 @@
 import type { DashboardTab } from '@/lib/config';
 
-export const TAB_META: Record<DashboardTab, { title: string; icon: string }> = {
-    home: { title: 'Inicio', icon: 'fa-house' },
-    profile: { title: 'Mi Perfil', icon: 'fa-user' },
-    followage: { title: 'Followage', icon: 'fa-clock-rotate-left' },
-    clips: { title: 'Clips', icon: 'fa-film' },
-    shoutout: { title: 'Shoutout', icon: 'fa-bullhorn' },
-    trends: { title: 'Tendencias', icon: 'fa-chart-line' },
-    stalker: { title: 'Stalker', icon: 'fa-users-viewfinder' },
-    roulette: { title: 'Ruleta', icon: 'fa-dice' },
-    magic8: { title: 'Bola 8 Mágica', icon: 'fa-8' },
-    russian: { title: 'Ruleta Rusa', icon: 'fa-skull-crossbones' },
-    duel: { title: 'Duelo', icon: 'fa-khanda' },
-    feedback: { title: 'Feedback', icon: 'fa-comment-dots' }
+import { Home, User, History, Clapperboard, Megaphone, TrendingUp, ScanFace, Dices, Circle, Skull, Swords, MessageSquare } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+
+export const TAB_META: Record<DashboardTab, { title: string; icon: LucideIcon }> = {
+    home: { title: 'Inicio', icon: Home },
+    profile: { title: 'Mi Perfil', icon: User },
+    followage: { title: 'Followage', icon: History },
+    clips: { title: 'Clips', icon: Clapperboard },
+    shoutout: { title: 'Shoutout', icon: Megaphone },
+    trends: { title: 'Tendencias', icon: TrendingUp },
+    stalker: { title: 'Stalker', icon: ScanFace },
+    roulette: { title: 'Ruleta', icon: Dices },
+    magic8: { title: 'Bola 8 Mágica', icon: Circle },
+    russian: { title: 'Ruleta Rusa', icon: Skull },
+    duel: { title: 'Duelo', icon: Swords },
+    feedback: { title: 'Feedback', icon: MessageSquare }
 };

@@ -2,6 +2,7 @@ import { useLayoutEffect, useMemo, useState } from 'react';
 import { SlotText } from 'slot-text/react';
 import { copyText } from '@/lib/clipboard';
 import { useToast } from '@/components/ui/ToastProvider';
+import { Check, Copy } from 'lucide-react';
 import {
     docsCodeBlock,
     docsCopyBtn,
@@ -134,7 +135,7 @@ export function DocsCodeTabs({ snippets, trigger }: DocsCodeTabsProps) {
                         onClick={() => void copy()}
                         aria-label="Copiar código"
                     >
-                        <i className={`fa-${copied ? 'solid fa-check' : 'regular fa-copy'}`} />
+                        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                         <SlotText text={copied ? "Copiado" : "Copiar"} />
                     </button>
                 </div>

@@ -19,6 +19,8 @@ import {
 } from '@/lib/docsTw';
 import { ToastProvider } from '@/components/ui/ToastProvider';
 import { DocsContent } from '@/components/docs/DocsContent';
+import { X, Search } from 'lucide-react';
+
 
 
 const NAV_TOP = [
@@ -143,7 +145,7 @@ function DocsAppShell() {
                 aria-label="Abrir menú de navegación"
                 onClick={() => setSidebarOpen((v) => !v)}
             >
-                <i className={`fa-solid ${sidebarOpen ? 'fa-xmark' : 'fa-bars'}`} />
+                <X className={` ${sidebarOpen ? '' : 'fa-bars'}`} />
             </button>
 
             <div className={docsContainer}>
@@ -159,7 +161,7 @@ function DocsAppShell() {
                     </div>
 
                     <div className={docsSearchWrap}>
-                        <i className={`fa-solid fa-magnifying-glass ${docsSearchIcon}`} />
+                        <Search className={` ${docsSearchIcon}`} />
                         <input
                             type="text"
                             id="docs-search"

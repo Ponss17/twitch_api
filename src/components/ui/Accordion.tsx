@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 
 interface AccordionItemProps {
     title: string;
@@ -17,8 +18,8 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, i
                 aria-expanded={isOpen}
             >
                 <span className="text-[0.9375rem] font-medium text-[#fafafa]">{title}</span>
-                <i
-                    className={`fa-solid fa-chevron-down text-[0.8rem] text-[#a1a1aa] transition-transform duration-300 ease-[cubic-bezier(0.87,_0,_0.13,_1)] ${
+                <ChevronDown
+                    className={`w-4 h-4 text-[#a1a1aa] transition-transform duration-300 ease-[cubic-bezier(0.87,_0,_0.13,_1)] ${
                         isOpen ? 'rotate-180 text-primary' : ''
                     }`}
                     aria-hidden="true"

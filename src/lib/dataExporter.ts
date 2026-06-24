@@ -443,7 +443,7 @@ const DataExport = {
     <title>Reporte — ${name} · LosPerris API</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -466,7 +466,7 @@ const DataExport = {
             --info-bg: rgba(59,130,246,0.1);
         }
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Geist', -apple-system, sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;

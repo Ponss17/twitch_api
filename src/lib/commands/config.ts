@@ -1,16 +1,17 @@
 import { CommandGenerator } from '../commandGenerator';
+import { Wrench, Video, Megaphone, Circle, Theater, Skull, Swords } from 'lucide-react';
 
 export interface ExtraSelector {
     id: string;
     label: string;
-    icon: string;
+    icon: any;
     options: { value: string; label: string }[];
 }
 
 export interface CommandConfigItem {
     id: string;
     title: string;
-    icon: string;
+    icon: any;
     desc: string;
     info: string;
     templatePlaceholder?: string;
@@ -31,7 +32,7 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     follow: {
         id: 'follow',
         title: 'Comando !followage',
-        icon: 'fa-wrench',
+        icon: Wrench,
         desc: 'Muestra cuánto tiempo lleva alguien siguiéndote',
         info: 'Genera el código para que tu bot responda con el tiempo exacto que un usuario te sigue.',
         templatePlaceholder: 'Ej: {user} lleva sufriendo {time}.',
@@ -48,7 +49,7 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     clip: {
         id: 'clip',
         title: 'Comando !clip',
-        icon: 'fa-video',
+        icon: Video,
         desc: 'Permite crear clips desde el chat',
         info: 'Tus moderadores podrán crear clips instantáneos escribiendo !clip. Requiere estar en vivo.',
         templatePlaceholder: 'Ej: ¡Miren este clip de {user}! 👉 {url}',
@@ -69,7 +70,7 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     shoutout: {
         id: 'shoutout',
         title: 'Comando !so',
-        icon: 'fa-bullhorn',
+        icon: Megaphone,
         desc: 'Promociona a otro streamer',
         info: 'Genera un enlace para que tu bot haga un Shoutout con el juego y el enlace del canal.',
         templatePlaceholder: 'Ej: Dale follow a {user}, jugando {game} 👉 {url}',
@@ -86,14 +87,14 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     magic8: {
         id: 'magic8',
         title: 'Comando !8ball',
-        icon: 'fa-8',
+        icon: Circle,
         desc: 'Comando para que tus viewers pregunten a la IA',
         info: 'Genera el código para añadir el comando de la Bola 8 a tu bot de chat.',
         extraSelectors: [
             {
                 id: 'mood',
                 label: 'Personalidad',
-                icon: 'fa-masks-theater',
+                icon: Theater,
                 options: [
                     { value: 'classic', label: 'Clásica' },
                     { value: 'sarcastic', label: 'Sarcástica' },
@@ -119,14 +120,14 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     russian: {
         id: 'russian',
         title: 'Comando !ruleta',
-        icon: 'fa-skull-crossbones',
+        icon: Skull,
         desc: 'Juego de Ruleta Rusa para el chat',
         info: 'Tus viewers podrán jugar a la Ruleta Rusa escribiendo !ruleta.',
         extraSelectors: [
             {
                 id: 'hardcore',
                 label: 'Modo Hardcore',
-                icon: 'fa-skull',
+                icon: Skull,
                 options: [
                     { value: 'false', label: 'Desactivado' },
                     { value: 'true', label: 'Activado (60s timeout)' }
@@ -144,7 +145,7 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     duel: {
         id: 'duel',
         title: 'Comando !duelo',
-        icon: 'fa-khanda',
+        icon: Swords,
         desc: 'Juego de Duelo 1vs1 para el chat',
         info: 'Tus viewers podrán retarse a duelos narrativos escribiendo !duelo @usuario.',
         generate: (domain, _login, _tokenParam, bot, _templateVal, queryParams) => {

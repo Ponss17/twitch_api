@@ -1,3 +1,5 @@
+import { Edit, Check, Loader2, AlertTriangle } from 'lucide-react';
+
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { SlotText } from 'slot-text/react';
 import 'slot-text/style.css';
@@ -230,7 +232,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                 {config.templatePlaceholder && (
                     <div className="mb-4 flex flex-col gap-1">
                         <label htmlFor={`${config.id}-template`} className={inputLabel}>
-                            <i className="fa-solid fa-pen-to-square mr-1" aria-hidden />
+                            <Edit className="mr-1" />
                             <span>Mensaje Personalizado (Opcional)</span>
                         </label>
                         <input
@@ -265,7 +267,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                         className={btnCopy}
                         disabled={!generated.full}
                     >
-                        <i className={`fa-solid ${isCopied ? 'fa-check' : 'fa-copy'}`} aria-hidden />
+                        <Check className={` ${isCopied ? '' : 'fa-copy'}`} />
                         <SlotText text={isCopied ? "Copiado" : "Copiar"} />
                     </button>
                 </div>
@@ -319,10 +321,7 @@ export function ApiTestCard({
                     disabled={result.status === 'loading'}
                     className={btnPrimary}
                 >
-                    <i
-                        className={`fa-solid ${result.status === 'loading' ? 'fa-spinner fa-spin' : 'fa-play'}`}
-                        aria-hidden
-                    />
+                    <Loader2 className={` ${result.status === 'loading' ? ' animate-spin' : 'fa-play'}`} />
                     {result.status === 'loading' ? 'Probando...' : buttonLabel}
                 </button>
 
@@ -338,16 +337,10 @@ export function ApiTestCard({
                     }`}
                 >
                     {result.status === 'success' && (
-                        <i
-                            className="fa-solid fa-check text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]"
-                            aria-hidden
-                        />
+                        <Check className="text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
                     )}
                     {result.status === 'error' && (
-                        <i
-                            className="fa-solid fa-triangle-exclamation text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]"
-                            aria-hidden
-                        />
+                        <AlertTriangle className="text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
                     )}
                     <div className="min-w-0 flex-1">{result.message}</div>
                 </div>

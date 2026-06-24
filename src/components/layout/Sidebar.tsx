@@ -1,26 +1,29 @@
 import type { DashboardTab } from '@/lib/config';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
+import { DiscordIcon } from '@/components/ui/icons/BrandIcons';
 import { AppLogo } from '@/components/ui/AppLogo';
+import { Home, History, Clapperboard, Megaphone, TrendingUp, ScanFace, Dices, Circle, Skull, Swords, MessageSquare, Book, MessageCircle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 export interface NavItem {
     id: DashboardTab;
     label: string;
-    icon: string;
+    icon: LucideIcon;
     category?: string;
 }
 
 export const NAV_ITEMS: NavItem[] = [
-    { id: 'home', label: 'Inicio', icon: 'fa-house', category: 'General' },
-    { id: 'followage', label: 'Followage', icon: 'fa-clock-rotate-left', category: 'Comandos' },
-    { id: 'clips', label: 'Clips', icon: 'fa-film', category: 'Comandos' },
-    { id: 'shoutout', label: 'Shoutout', icon: 'fa-bullhorn', category: 'Comandos' },
-    { id: 'trends', label: 'Tendencias', icon: 'fa-chart-line', category: 'Herramientas' },
-    { id: 'stalker', label: 'Stalker', icon: 'fa-users-viewfinder', category: 'Herramientas' },
-    { id: 'roulette', label: 'Ruleta', icon: 'fa-dice', category: 'Herramientas' },
-    { id: 'magic8', label: 'Bola 8', icon: 'fa-8', category: 'Minijuegos' },
-    { id: 'russian', label: 'Ruleta Rusa', icon: 'fa-skull-crossbones', category: 'Minijuegos' },
-    { id: 'duel', label: 'Duelo', icon: 'fa-khanda', category: 'Minijuegos' },
-    { id: 'feedback', label: 'Feedback', icon: 'fa-comment-dots', category: 'Soporte' }
+    { id: 'home', label: 'Inicio', icon: Home, category: 'General' },
+    { id: 'followage', label: 'Followage', icon: History, category: 'Comandos' },
+    { id: 'clips', label: 'Clips', icon: Clapperboard, category: 'Comandos' },
+    { id: 'shoutout', label: 'Shoutout', icon: Megaphone, category: 'Comandos' },
+    { id: 'trends', label: 'Tendencias', icon: TrendingUp, category: 'Herramientas' },
+    { id: 'stalker', label: 'Stalker', icon: ScanFace, category: 'Herramientas' },
+    { id: 'roulette', label: 'Ruleta', icon: Dices, category: 'Herramientas' },
+    { id: 'magic8', label: 'Bola 8', icon: Circle, category: 'Minijuegos' },
+    { id: 'russian', label: 'Ruleta Rusa', icon: Skull, category: 'Minijuegos' },
+    { id: 'duel', label: 'Duelo', icon: Swords, category: 'Minijuegos' },
+    { id: 'feedback', label: 'Feedback', icon: MessageSquare, category: 'Soporte' }
 ];
 
 interface SidebarProps {
@@ -90,8 +93,8 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                                     className={navButtonClass(isActive)}
                                     aria-label={item.label}
                                 >
-                                    <i
-                                        className={`fa-solid ${item.icon} w-5 text-center text-[1.1rem] ${
+                                    <item.icon
+                                        className={`w-5 text-center text-[1.1rem] ${
                                             isActive ? 'animate-nav-icon-bounce text-white' : ''
                                         }`}
                                         aria-hidden
@@ -107,7 +110,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                         className={supportLinkClass}
                         onClick={saveDocsReturnPath}
                     >
-                        <i className="fa-solid fa-book w-5 text-center text-[1.1rem]" />
+                        <Book className="w-5 text-center text-[1.1rem]" />
                         <span>Documentación</span>
                     </a>
                     <a
@@ -116,7 +119,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                         rel="noopener noreferrer"
                         className={supportLinkClass}
                     >
-                        <i className="fa-brands fa-discord w-5 text-center text-[1.1rem]" />
+                        <DiscordIcon className="w-5 text-center text-[1.1rem]" />
                         <span>Discord</span>
                     </a>
                 </nav>

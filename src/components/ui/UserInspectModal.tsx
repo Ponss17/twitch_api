@@ -6,6 +6,8 @@ import { chatLogStore } from '@/lib/chatLogStore';
 import { calculateAccountAge, broadcasterLabel, type TwitchUser } from '@/lib/twitchTypes';
 import { formatDate } from '@/lib/utils';
 import { staticPath } from '@/lib/paths';
+import { X, Check } from 'lucide-react';
+
 
 interface UserInspectModalProps {
     user: TwitchUser | null;
@@ -52,7 +54,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                 aria-label="Cerrar"
                 className="absolute top-[15px] right-[15px] z-10 flex h-8 w-8 items-center justify-center rounded-full border-none bg-white/5 text-[1.2rem] text-white transition hover:rotate-90 hover:bg-error"
             >
-                <i className="fa-solid fa-xmark" aria-hidden />
+                <X />
             </button>
 
             <div className="flex items-center gap-5 border-b border-white/[0.08] bg-gradient-to-r from-white/[0.03] to-transparent p-6 max-md:flex-col max-md:text-center">
@@ -90,7 +92,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                             title="Copiar ID"
                         >
                             {user.id}
-                            <i className={`fa-solid ${isIdCopied ? 'fa-check text-primary' : 'fa-copy'}`} />
+                            <Check className={` ${isIdCopied ? ' text-primary' : 'fa-copy'}`} />
                             <SlotText text={isIdCopied ? 'Copiado' : ''} />
                         </button>
                     </div>
