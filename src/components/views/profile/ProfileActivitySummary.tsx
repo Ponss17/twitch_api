@@ -28,7 +28,7 @@ export function ProfileActivitySummary({
         <div className={`${cardShell} [animation-delay:120ms]`}>
             <div className="mb-2 flex items-center gap-3 border-b border-white/[0.08] pb-2">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                    <TrendingUp />
+                    <TrendingUp className="w-4 h-4" />
                 </div>
                 <div>
                     <h3 className="mb-0.5 text-[0.95rem] font-bold">Resumen de Actividad</h3>
@@ -64,7 +64,7 @@ export function ProfileActivitySummary({
                                 className="relative flex items-center gap-5 overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary p-5 transition hover:-translate-y-0.5 hover:border-primary hover:shadow-[0_5px_15px_rgba(0,0,0,0.2)] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-primary before:opacity-50"
                             >
                                 <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-[15px] bg-primary/10 text-2xl text-primary">
-                                    <cat.icon className="text-[1.1rem]" aria-hidden="true" />
+                                    <cat.icon className="w-6 h-6" aria-hidden="true" />
                                 </div>
                                 <div>
                                     <h3 className="mb-1 text-[1.8rem] font-bold leading-tight text-[#fafafa]">

@@ -44,7 +44,7 @@ export function ProfileSecuritySection({
             <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
                 <div className="flex items-center gap-3">
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                        <Shield />
+                        <Shield className="w-4 h-4" />
                     </div>
                     <div>
                         <h3 className="mb-0.5 text-[0.95rem] font-bold">Seguridad y Conexión</h3>
