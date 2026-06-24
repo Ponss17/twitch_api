@@ -1,4 +1,5 @@
 import type { ReactNode, MouseEvent } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { appPath } from '@/lib/paths';
 
 const LEGAL_LINKS = [
@@ -35,7 +36,7 @@ export function LegalPageShell({ title, description, current, updated, children 
                         onClick={handleBack}
                         className="inline-flex items-center gap-2 text-sm font-medium text-[#a1a1aa] no-underline transition hover:text-white"
                     >
-                        <i className="fa-solid fa-arrow-left" aria-hidden />
+                        <ArrowLeft className="w-4 h-4" aria-hidden="true" />
                         Volver
                     </a>
                     <nav className="flex gap-1 rounded-lg border border-white/[0.08] bg-black/20 p-1">

@@ -3,7 +3,8 @@ import type { DashboardTab } from '@/lib/config';
 import { useRequiredSession } from '@/hooks/useSession';
 import { staticPath } from '@/lib/paths';
 import { TAB_META } from '@/lib/dashboardTabs';
-import { User, ChevronDown, LogOut, LayoutDashboard } from 'lucide-react';
+import { User, ChevronDown, LogOut, LayoutDashboard, Menu, CreditCard } from 'lucide-react';
+import { TwitchIcon } from '@/components/ui/icons/BrandIcons';
 
 interface DashboardHeaderProps {
     tab: DashboardTab;
@@ -46,11 +47,11 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                     className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-[#a1a1aa] transition hover:bg-white/5 hover:text-white lg:hidden"
                     aria-label="Abrir menú"
                 >
-                    <i className="fa-solid fa-bars" />
+                    <Menu className="w-5 h-5" />
                 </button>
 
                 <h1 className="flex flex-1 items-center gap-3 text-xl font-bold tracking-tight text-[#fafafa] md:text-[1.8rem]">
-                    <i className={`fa-solid ${meta.icon} text-[1.2rem] text-[#9146ff] opacity-90`} aria-hidden />
+                    <meta.icon className="text-[1.2rem] text-[#9146ff] opacity-90" aria-hidden="true" />
                     {meta.title}
                 </h1>
 
@@ -62,7 +63,7 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                         className="hidden items-center gap-2 rounded-full border border-white/[0.05] bg-white/[0.03] px-3 py-1.5 text-[0.85rem] font-semibold text-[#a1a1aa] no-underline transition hover:-translate-y-px hover:border-[#0070ba]/20 hover:bg-[#0070ba]/[0.08] hover:text-[#fafafa] sm:flex"
                         title="Apoyar el proyecto"
                     >
-                        <i className="fa-brands fa-paypal text-[#0070ba]" />
+                        <CreditCard className="text-[#0070ba] w-4" />
                         <span>Donación</span>
                     </a>
 
@@ -112,7 +113,7 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#a1a1aa] no-underline transition hover:bg-[#9146ff]/10 hover:text-[#fafafa]"
                             >
-                                <i className="fa-brands fa-twitch w-4 text-center" />
+                                <TwitchIcon className="w-4 text-center" />
                                 Perfil de Twitch
                             </a>
                             <div className="my-1 border-t border-white/5" />
@@ -124,7 +125,7 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                                 }}
                                 className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm font-medium text-[#ef4444] transition hover:bg-[#ef4444]/10"
                             >
-                                <i className="fa-solid fa-right-from-bracket w-4 text-center" />
+                                <LogOut className="w-4 text-center" />
                                 Cerrar Sesión
                             </button>
                         </div>

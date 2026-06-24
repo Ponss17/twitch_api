@@ -8,7 +8,7 @@ import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import { cache, CACHE_TTL } from '@/lib/cacheService';
 import { card, fadeIn, selectInput } from '@/lib/tw';
 import { ClipCommandView } from './CommandsViews';
-import { Star, RotateCw, Link, Eye } from 'lucide-react';
+import { Star, RotateCw, Link, Eye, Images, Search } from 'lucide-react';
 
 
 interface Clip {
@@ -167,7 +167,7 @@ export function ClipsView() {
                 <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
                     <div className="flex items-center gap-3">
                         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                            <i className="fa-solid fa-images" aria-hidden />
+                            <Images className="w-5 text-center" aria-hidden="true" />
                         </div>
                         <div>
                             <h3 className="mb-0.5 text-[0.95rem] font-bold">Clips Recientes</h3>
@@ -183,7 +183,7 @@ export function ClipsView() {
                                 showFavsOnly ? 'text-[#ffd700]' : 'text-[#a1a1aa] hover:text-[#fafafa]'
                             }`}
                         >
-                            <Star className={`fa-${showFavsOnly ? 'solid' : 'regular'} `} />
+                            <Star className={`${showFavsOnly ? 'fill-current' : ''}`} />
                         </button>
                         <button
                             type="button"
@@ -200,9 +200,9 @@ export function ClipsView() {
                 <div className="text-[#fafafa]">
                     <div className="mb-5 flex flex-wrap gap-[15px] max-[600px]:flex-col">
                         <div className="relative min-w-[200px] flex-1">
-                            <i
-                                className="fa-solid fa-search pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[0.8125rem] text-[#71717a]"
-                                aria-hidden
+                            <Search
+                                className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[0.8125rem] text-[#71717a] w-3.5 h-3.5"
+                                aria-hidden="true"
                             />
                             <input
                                 type="search"
@@ -260,7 +260,7 @@ export function ClipsView() {
                                                     title="Favorito"
                                                     className={`${CLIP_ACTION_BTN} ${isFav ? 'text-[#ffd700] hover:bg-[rgba(255,215,0,0.2)]' : ''}`}
                                                 >
-                                                    <Star className={`fa-${isFav ? 'solid' : 'regular'} text-[0.75rem]`} />
+                                                    <Star className={`${isFav ? 'fill-current' : ''} text-[0.75rem]`} />
                                                 </button>
                                                 <button
                                                     type="button"

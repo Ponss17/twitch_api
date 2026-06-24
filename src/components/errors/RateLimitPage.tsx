@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ErrorPage } from '@/components/errors/ErrorPage';
-import { Clock, RotateCw } from 'lucide-react';
+import { Clock, RotateCw, Lock } from 'lucide-react';
 
 
 export function RateLimitPage() {
@@ -51,7 +51,7 @@ export function RateLimitPage() {
                 onClick={() => window.location.reload()}
                 className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-[#9146ff] px-8 py-4 text-lg font-bold text-white disabled:cursor-not-allowed disabled:border disabled:border-white/5 disabled:bg-[#27272a] disabled:text-[#71717a] disabled:shadow-none"
             >
-                <RotateCw className={` ${ready ? '' : 'fa-lock'}`} />
+                {ready ? <RotateCw /> : <Lock />}
                 {ready ? 'Intentar de nuevo' : 'Bloqueado'}
             </button>
         </ErrorPage>
