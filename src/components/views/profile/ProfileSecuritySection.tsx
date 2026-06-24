@@ -122,47 +122,38 @@ export function ProfileSecuritySection({
                     </div>
 
                     <div className="flex flex-wrap gap-3 pt-2.5">
-                        <div className="flex items-center gap-1.5 rounded-lg border border-[#10b981]/10 bg-[#10b981]/[0.03] px-2.5 py-1.5 backdrop-blur-[8px]">
-                            <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.05em] text-[#a1a1aa]">
+                        <div className="flex items-center gap-1.5 rounded-lg border border-[#10b981]/10 bg-[#10b981]/[0.03] px-2.5 py-1 backdrop-blur-[8px]">
+                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#a1a1aa]">
                                 ESTADO:
                             </span>
-                            <span className="font-[Outfit,sans-serif] text-[0.85rem] font-bold text-[#10b981]">
-                                <Check className="w-3.5 h-3.5 mr-1" />
-                                ACTIVA
-                            </span>
+                            <span className="flex items-center text-[0.8rem] font-semibold text-[#10b981]"><Check className="w-3.5 h-3.5 mr-1" />ACTIVA</span>
                         </div>
-                        <div className="flex items-center gap-1.5 rounded-lg border border-[#3b82f6]/10 bg-[#3b82f6]/[0.03] px-2.5 py-1.5 backdrop-blur-[8px]">
-                            <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.05em] text-[#a1a1aa]">
+                        <div className="flex items-center gap-1.5 rounded-lg border border-[#3b82f6]/10 bg-[#3b82f6]/[0.03] px-2.5 py-1 backdrop-blur-[8px]">
+                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#a1a1aa]">
                                 ACCESO:
                             </span>
-                            <span className="font-[Outfit,sans-serif] text-[0.85rem] font-bold text-[#3b82f6]">
-                                FULL API
-                            </span>
+                            <span className="text-[0.8rem] font-semibold text-[#3b82f6]">FULL API</span>
                         </div>
                         <div
-                            className="flex items-center gap-1.5 rounded-lg border border-white/[0.05] bg-black/20 px-2.5 py-1.5 backdrop-blur-[8px]"
+                            className="flex items-center gap-1.5 rounded-lg border border-white/[0.05] bg-black/20 px-2.5 py-1 backdrop-blur-[8px]"
                             title="Peticiones máximas por minuto con tu API Key"
                         >
-                            <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.05em] text-[#a1a1aa]">
+                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#a1a1aa]">
                                 LÍMITE/MIN:
                             </span>
-                            <span className="font-[Outfit,sans-serif] text-[0.85rem] font-bold text-white">
-                                {rateLimit} req/min
-                            </span>
+                            <span className="text-[0.8rem] font-semibold text-white">{rateLimit} req/min</span>
                             <Gauge className="w-3.5 h-3.5 ml-1 text-primary opacity-70" />
                         </div>
                         <button
                             type="button"
                             onClick={onCopyId}
-                            className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/[0.05] bg-black/20 px-2.5 py-1.5 text-left font-[inherit] text-inherit backdrop-blur-[8px] transition hover:border-primary/25 hover:bg-primary/[0.08] hover:[&_.s-value]:text-primary"
+                            className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/[0.05] bg-black/20 px-2.5 py-1 text-left font-[inherit] text-inherit backdrop-blur-[8px] transition hover:border-primary/25 hover:bg-primary/[0.08] hover:[&_.s-value]:text-primary"
                             title="Copiar ID de cuenta"
                         >
-                            <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.05em] text-[#a1a1aa]">
+                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#a1a1aa]">
                                 ID:
                             </span>
-                            <span className="s-value font-[Outfit,sans-serif] text-[0.85rem] font-bold text-white">
-                                {userId ?? '---'}
-                            </span>
+                            <span className="s-value text-[0.8rem] font-semibold text-white">{userId ?? '---'}</span>
                             <Copy className="w-3.5 h-3.5 ml-1 opacity-50" />
                         </button>
                     </div>
