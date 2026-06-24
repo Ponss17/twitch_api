@@ -3,7 +3,7 @@ import type { DashboardTab } from '@/lib/config';
 import { useRequiredSession } from '@/hooks/useSession';
 import { staticPath } from '@/lib/paths';
 import { TAB_META } from '@/lib/dashboardTabs';
-import { User, ChevronDown, LogOut, Menu, CreditCard } from 'lucide-react';
+import { User, ChevronDown, LogOut, Menu } from 'lucide-react';
 import { TwitchIcon, PaypalIcon } from '@/components/ui/icons/BrandIcons';
 
 interface DashboardHeaderProps {
