@@ -186,7 +186,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-2 max-md:flex-col max-md:items-start">
                     <div className="flex items-center gap-3">
                         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                            <Users />
+                            <Users className="w-4 h-4" />
                         </div>
                         <div>
                             <h3 className="mb-0.5 text-[0.95rem] font-bold">Visor de Chat (Stalker)</h3>
@@ -248,7 +248,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                 aria-label="Recargar lista"
                                 className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#a1a1aa] transition hover:bg-white/5 hover:text-[#fafafa]"
                             >
-                                <RotateCw />
+                                <RotateCw className="w-4 h-4" />
                             </button>
                         </div>
 
@@ -282,7 +282,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                     <tr>
                                         <td colSpan={4} className="px-5 py-12 text-center">
                                             <div className="mb-4 text-[3rem] text-[#71717a] opacity-50">
-                                                <Radio />
+                                                <Radio className="w-4 h-4" />
                                             </div>
                                             <h3 className="mb-2 text-[0.95rem] font-bold text-[#fafafa]">
                                                 Esperando señal...
@@ -343,7 +343,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                                     }}
                                                     className="inline-flex items-center gap-1 rounded-md border border-white/[0.08] bg-transparent px-3 py-1.5 text-[0.8125rem] text-[#a1a1aa] transition hover:border-primary hover:bg-primary hover:text-[#fafafa]"
                                                 >
-                                                    <Eye />
+                                                    <Eye className="w-4 h-4" />
                                                     Ver
                                                 </button>
                                             </td>

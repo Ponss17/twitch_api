@@ -19,6 +19,10 @@ import { logError } from '@/lib/logError';
 import { AlertTriangle } from 'lucide-react';
 
 
+interface HealthStatus {
+    status?: string;
+}
+
 interface AnalyticsData {
     todayRequests?: number;
     rawSuccessRate?: number;
@@ -42,8 +46,8 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     const { showToast } = useToast();
     const [stats, setStats] = useState<AnalyticsData | null>(null);
     const [activity, setActivity] = useState<ActivityLogItem[]>([]);
-    const [, setHealth] = useState<HealthStatus | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [, setHealth] = useState<{ status?: string } | null>(null);
+        const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [syncing, setSyncing] = useState(false);
     const [syncLabel, setSyncLabel] = useState('90s');
@@ -111,10 +115,8 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
                 r.ok ? r.json() : { status: 'error' }
             );
             sync.broadcast('SYNC_HEALTH', healthRes);
-            setHealth(healthRes as HealthStatus);
-        } catch {
-            setHealth({ status: 'error' });
-        }
+                    } catch {
+                    }
     }, []);
 
     const startHealthPolling = useCallback(() => {
