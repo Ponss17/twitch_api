@@ -11,3 +11,5 @@ api/_bundle/
 test-results/
 playwright-report/
 coverage/
+
+.agents/

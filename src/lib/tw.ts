@@ -2,8 +2,6 @@
 export const card =
     'rounded-xl border border-white/[0.08] bg-bg-card p-3 shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-[border-color] duration-200 hover:border-primary';
 
-export const cardBody = 'text-[#fafafa]';
-
 export const fadeIn = 'animate-fade-soft opacity-0';
 
 const selectChevron =
@@ -52,34 +50,6 @@ export const cardFooterFlex =
 
 export const gameResponseCard =
     'mt-4 flex items-center gap-3 rounded-xl border px-5 py-3 text-[0.8125rem] leading-normal shadow-lg backdrop-blur-[10px]';
-
-/* —— Toasts —— */
-export const toastContainer =
-    'pointer-events-none fixed top-[90px] right-[30px] z-[10000] flex flex-col gap-[15px] max-sm:top-auto max-sm:right-5 max-sm:bottom-5 max-sm:left-5';
-
-export const toastBase =
-    'pointer-events-auto flex min-w-[300px] max-w-[400px] items-center gap-3 rounded-xl border border-white/[0.08] bg-[rgba(14,14,16,0.95)] px-6 py-4 text-[#fafafa] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] backdrop-blur-[10px] animate-toast-in max-sm:min-w-0 max-sm:w-full max-sm:max-w-none';
-
-export const toastHiding = 'animate-toast-out';
-
-export const toastIcon = {
-    success: 'text-success',
-    error: 'text-error',
-    info: 'text-primary',
-    warning: 'text-warning'
-} as const;
-
-export const toastBorder = {
-    success: 'border-l-4 border-l-success',
-    error: 'border-l-4 border-l-error',
-    info: 'border-l-4 border-l-primary',
-    warning: 'border-l-4 border-l-warning'
-} as const;
-
-export const toastMessage = 'flex-1 leading-snug';
-
-export const toastCloseBtn =
-    'ml-auto flex items-center justify-center rounded p-1 text-[#71717a] transition hover:bg-white/10 hover:text-[#fafafa]';
 
 /* —— Modales —— */
 export const dialogBase =

@@ -1,12 +1,7 @@
 import { supabase } from './supabaseClient';
 import { logger } from '../utils/logger';
 
-export interface SystemLogEntry {
-    timestamp: string;
-    level: 'info' | 'warn' | 'error';
-    message: string;
-    details?: Record<string, unknown>;
-}
+
 
 export const addSystemLog = async (
     level: 'info' | 'warn' | 'error',
@@ -27,30 +22,7 @@ export const addSystemLog = async (
     }
 };
 
-export const getSystemLogs = async (): Promise<SystemLogEntry[]> => {
-    try {
-        const { data, error } = await supabase
-            .from('system_logs')
-            .select('*')
-            .order('timestamp', { ascending: false })
-            .limit(200);
 
-        if (error || !data) return [];
-
-        return data.map((row) => ({
-            timestamp: row.timestamp as string,
-            level: row.level as 'info' | 'warn' | 'error',
-            message: row.message as string,
-            details: (row.details as Record<string, unknown>) ?? undefined
-        }));
-    } catch (_e) {
-        return [];
-    }
-};
-
-export const clearSystemLogs = async (): Promise<void> => {
-    await supabase.from('system_logs').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-};
 
 // ==========================================
 // Log de Auditoría (Acciones Sensibles)
