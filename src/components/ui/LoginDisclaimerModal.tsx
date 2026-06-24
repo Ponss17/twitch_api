@@ -60,15 +60,15 @@ export function LoginDisclaimerModal({ open, onClose }: LoginDisclaimerModalProp
             <p>Al conectar tu cuenta, aceptas que usemos estos datos únicamente para:</p>
             <ul>
                 <li>
-                    <Check />
+                    <Check className="w-4 h-4" />
                     Verificar tu identidad.
                 </li>
                 <li>
-                    <Check />
+                    <Check className="w-4 h-4" />
                     Ejecutar los comandos que configures.
                 </li>
                 <li>
-                    <Check />
+                    <Check className="w-4 h-4" />
                     Generar estadísticas de uso (anonimizadas).
                 </li>
             </ul>

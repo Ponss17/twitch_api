@@ -191,7 +191,7 @@ export function ClipsView() {
                             title="Recargar lista de clips"
                             className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#a1a1aa] transition hover:bg-white/5 hover:text-[#fafafa]"
                         >
-                            <RotateCw />
+                            <RotateCw className="w-4 h-4" />
                         </button>
                         <InfoTooltip text="Galería de tus clips más recientes. Se actualiza automáticamente." />
                     </div>

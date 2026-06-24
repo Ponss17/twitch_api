@@ -385,7 +385,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
             <div className="mb-2 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-2 max-md:flex-col max-md:items-start">
                 <div className="flex items-center gap-3">
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                        <Dices />
+                        <Dices className="w-4 h-4" />
                     </div>
                     <div>
                         <h3 className="mb-0.5 text-[0.95rem] font-bold">Ruleta de Viewers</h3>
@@ -411,7 +411,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                             isOpen ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'
                         }`}
                     >
-                        {isOpen ? <Pause /> : <Play />}
+                        {isOpen ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                     </button>
 
                     <button
@@ -424,7 +424,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         aria-label="Recargar usuarios"
                         className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#a1a1aa] transition hover:bg-white/5 hover:text-[#fafafa]"
                     >
-                        <RotateCw />
+                        <RotateCw className="w-4 h-4" />
                     </button>
 
                     <InfoTooltip text="Sorteo en vivo. Los usuarios entran automáticamente al hablar en el chat." />
@@ -542,7 +542,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         disabled={isSpinning || chatters.length === 0}
                         className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-br from-primary to-primary-hover px-10 py-3.5 text-[1rem] font-semibold text-white shadow-[0_10px_20px_rgba(0,0,0,0.3)] transition hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_15px_30px_rgba(168,85,247,0.4)] active:translate-y-px disabled:opacity-50 disabled:hover:scale-100 max-[480px]:w-full max-[480px]:justify-center max-[480px]:px-8 max-[480px]:py-3 max-[480px]:text-[0.9375rem]"
                     >
-                        {isSpinning ? <Loader2 className="animate-spin" /> : <Play />}
+                        {isSpinning ? <Loader2 className="animate-spin" /> : <Play className="w-4 h-4" />}
                         {isSpinning ? 'Girando...' : 'GIRAR RULETA'}
                     </button>
                 </div>
