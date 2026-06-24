@@ -22,6 +22,7 @@ const {
 
 import { Footer } from '../components/layout/Footer';
 import { staticPath, absoluteAssetUrl } from '../lib/paths';
+import SpeedInsights from '@vercel/speed-insights/astro';
 
 const canonicalUrl = canonical ?? `${Astro.url.origin}${staticPath('/docs')}`;
 const siteOrigin = canonical ? new URL(canonical).origin : new URL(canonicalUrl).origin;
@@ -63,6 +64,7 @@ const swScope = staticPath('/');
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
         />
         <title>{title}</title>
+        <SpeedInsights />
         {isDev && (
             <script is:inline>
                 (function () {
