@@ -61,7 +61,7 @@ export function ProfileActivitySummary({
                         return (
                             <div
                                 key={cat.id}
-                                className="relative flex items-center gap-5 overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary p-5 transition hover:-translate-y-0.5 hover:border-primary hover:shadow-[0_5px_15px_rgba(0,0,0,0.2)] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-primary before:opacity-50"
+                                className="relative flex items-center gap-5 overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary p-5 transition hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(0,0,0,0.2)] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-primary before:opacity-50"
                             >
                                 <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-[15px] bg-primary/10 text-2xl text-primary">
                                     <cat.icon className="w-6 h-6" aria-hidden="true" />

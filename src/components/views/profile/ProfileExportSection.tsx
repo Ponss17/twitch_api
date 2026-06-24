@@ -24,7 +24,7 @@ export function ProfileExportSection({ onExport, loading = false }: ProfileExpor
                 </div>
             </div>
 
-            <div className="relative flex items-center justify-between gap-4 overflow-hidden rounded-xl border border-primary/15 bg-black/25 p-4 pl-5 backdrop-blur-[10px] transition hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-[0_0_20px_rgba(145,70,255,0.08)] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-gradient-to-b before:from-primary before:to-transparent before:opacity-60 max-md:flex-col max-md:text-center">
+            <div className="relative flex items-center justify-between gap-4 overflow-hidden rounded-xl border border-primary/15 bg-black/25 p-4 pl-5 backdrop-blur-[10px] transition hover:bg-primary/[0.03] hover:shadow-[0_0_20px_rgba(145,70,255,0.08)] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-gradient-to-b before:from-primary before:to-transparent before:opacity-60 max-md:flex-col max-md:text-center">
                 <div className="flex-1 text-[#fafafa]">
                     <h4 className="mb-2 text-[1.15rem] font-bold text-white">Reporte de Cuenta Completo</h4>
                     <p className="m-0 max-w-[600px] text-[0.9rem] leading-normal text-[#a1a1aa] max-md:mx-auto">
