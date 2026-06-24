@@ -116,7 +116,7 @@ export function ProfileSecuritySection({
                                 }`}
                                 title={showDanger ? 'Ocultar Zona de Peligro' : 'Mostrar Zona de Peligro'}
                             >
-                                <AlertTriangle />
+                                <AlertTriangle className="w-4 h-4" />
                             </button>
                         </div>
                     </div>
@@ -127,7 +127,7 @@ export function ProfileSecuritySection({
                                 ESTADO:
                             </span>
                             <span className="font-[Outfit,sans-serif] text-[0.85rem] font-bold text-[#10b981]">
-                                <Check className="mr-1" />
+                                <Check className="w-3.5 h-3.5 mr-1" />
                                 ACTIVA
                             </span>
                         </div>
@@ -149,7 +149,7 @@ export function ProfileSecuritySection({
                             <span className="font-[Outfit,sans-serif] text-[0.85rem] font-bold text-white">
                                 {rateLimit} req/min
                             </span>
-                            <Gauge className="ml-1 text-[0.7rem] text-primary opacity-70" />
+                            <Gauge className="w-3.5 h-3.5 ml-1 text-primary opacity-70" />
                         </div>
                         <button
                             type="button"
@@ -163,7 +163,7 @@ export function ProfileSecuritySection({
                             <span className="s-value font-[Outfit,sans-serif] text-[0.85rem] font-bold text-white">
                                 {userId ?? '---'}
                             </span>
-                            <Copy className="ml-1 text-[0.65rem] opacity-50" />
+                            <Copy className="w-3.5 h-3.5 ml-1 opacity-50" />
                         </button>
                     </div>
                 </div>
