@@ -50,7 +50,7 @@ export function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
                             onClick={() => onNavigate?.(link.tab)}
                             className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-primary/[0.03] px-2.5 py-1.5 text-left text-[0.75rem] font-semibold text-[#a1a1aa] transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
                         >
-                            <link.icon className="w-5 text-center text-base" aria-hidden="true" />
+                            <link.icon className="w-5 h-5 text-center text-base" aria-hidden="true" />
                             {link.label}
                         </button>
                     ))}
@@ -69,7 +69,7 @@ export function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
                             onClick={link.href === '/docs' ? saveDocsReturnPath : undefined}
                             className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2 text-[0.8rem] font-semibold text-[#a1a1aa] no-underline transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
                         >
-                            <i className={`${link.icon} w-5 text-center text-base`} aria-hidden />
+                            <i className={`${link.icon} w-5 h-5 text-center text-base`} aria-hidden />
                             {link.label}
                         </a>
                     ))}

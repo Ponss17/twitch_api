@@ -94,7 +94,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                                     aria-label={item.label}
                                 >
                                     <item.icon
-                                        className={`w-5 text-center text-[1.1rem] ${
+                                        className={`w-5 h-5 text-center text-[1.1rem] ${
                                             isActive ? 'animate-nav-icon-bounce text-white' : ''
                                         }`}
                                         aria-hidden
@@ -110,7 +110,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                         className={supportLinkClass}
                         onClick={saveDocsReturnPath}
                     >
-                        <Book className="w-5 text-center text-[1.1rem]" />
+                        <Book className="w-5 h-5 text-center text-[1.1rem]" />
                         <span>Documentación</span>
                     </a>
                     <a
@@ -119,7 +119,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                         rel="noopener noreferrer"
                         className={supportLinkClass}
                     >
-                        <DiscordIcon className="w-5 text-center text-[1.1rem]" />
+                        <DiscordIcon className="w-5 h-5 text-center text-[1.1rem]" />
                         <span>Discord</span>
                     </a>
                 </nav>
