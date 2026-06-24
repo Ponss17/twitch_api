@@ -30,15 +30,21 @@ interface ModalProps {
     closeOnBackdrop?: boolean;
 }
 
-export function Modal({
+export interface BaseModalProps {
+    open: boolean;
+    onClose: () => void;
+    children: ReactNode;
+    closeOnBackdrop?: boolean;
+    className?: string;
+}
+
+export function BaseModal({
     open,
     onClose,
-    title,
-    titleIcon = 'fa-triangle-exclamation',
     children,
-    footer,
-    closeOnBackdrop = true
-}: ModalProps) {
+    closeOnBackdrop = true,
+    className = ''
+}: BaseModalProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
     const [closing, setClosing] = useState(false);
@@ -91,21 +97,38 @@ export function Modal({
         >
             <div
                 ref={panelRef}
-                className={`${modalPanel} ${closing ? 'animate-modal-out' : 'animate-modal-in'}`}
+                className={`${className} ${closing ? 'animate-modal-out' : 'animate-modal-in'}`}
+                onClick={(e) => e.stopPropagation()}
             >
-                <div className={modalHeader}>
-                    <h3 className={modalTitle}>
-                        <i className={`fa-solid ${titleIcon} ${modalTitleIcon}`} aria-hidden />
-                        {title}
-                    </h3>
-                    <button type="button" className={btnIcon} aria-label="Cerrar" onClick={handleClose}>
-                        <i className="fa-solid fa-xmark" aria-hidden />
-                    </button>
-                </div>
-                <div className={modalBody}>{children}</div>
-                {footer ? <div className={modalFooter}>{footer}</div> : null}
+                {children}
             </div>
         </dialog>
+    );
+}
+
+export function Modal({
+    open,
+    onClose,
+    title,
+    titleIcon = 'fa-triangle-exclamation',
+    children,
+    footer,
+    closeOnBackdrop = true
+}: ModalProps) {
+    return (
+        <BaseModal open={open} onClose={onClose} closeOnBackdrop={closeOnBackdrop} className={modalPanel}>
+            <div className={modalHeader}>
+                <h3 className={modalTitle}>
+                    <i className={`fa-solid ${titleIcon} ${modalTitleIcon}`} aria-hidden />
+                    {title}
+                </h3>
+                <button type="button" className={btnIcon} aria-label="Cerrar" onClick={onClose}>
+                    <i className="fa-solid fa-xmark" aria-hidden />
+                </button>
+            </div>
+            <div className={modalBody}>{children}</div>
+            {footer ? <div className={modalFooter}>{footer}</div> : null}
+        </BaseModal>
     );
 }
 

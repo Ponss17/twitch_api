@@ -19,7 +19,7 @@ import {
 } from '@/lib/docsTw';
 import { ToastProvider } from '@/components/ui/ToastProvider';
 import { DocsContent } from '@/components/docs/DocsContent';
-import { initSpeedInsights } from '@/lib/speedInsights';
+
 
 const NAV_TOP = [
     { id: 'intro', icon: 'fa-house', label: 'Introducción' },
@@ -78,7 +78,6 @@ function DocsAppShell() {
     const [returnPath, setReturnPath] = useState(() => appPath('/dashboard'));
 
     useEffect(() => {
-        initSpeedInsights();
         setReturnPath(docsReturnPath());
     }, []);
 

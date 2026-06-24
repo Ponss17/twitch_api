@@ -10,7 +10,7 @@ import { SessionProvider } from '@/components/providers/SessionProvider';
 import { useSession } from '@/hooks/useSession';
 import { DashboardSessionSkeleton } from '@/components/ui/Skeleton';
 import { logout } from '@/lib/auth';
-import { initSpeedInsights } from '@/lib/speedInsights';
+
 import { initGlobalErrorLogging } from '@/lib/logError';
 import { parseTabFromUrl, setTabInUrl } from '@/lib/dashboardTabUrl';
 import { fadeIn } from '@/lib/tw';
@@ -46,7 +46,6 @@ function DashboardAppShell() {
 
     useEffect(() => {
         initGlobalErrorLogging();
-        initSpeedInsights();
     }, []);
 
     useEffect(() => {
