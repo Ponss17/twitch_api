@@ -152,7 +152,7 @@ function pickSessionFromValidate(result: ApiResponse): Partial<Session> {
 export function startTwitchLogin(): void {
     clearSession();
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-    let redirectOrigin = window.location.origin + window.location.pathname;
+    const redirectOrigin = window.location.origin + window.location.pathname;
 
     const params = new URLSearchParams({
         redirect_origin: redirectOrigin

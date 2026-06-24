@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Toaster } from 'sonner';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { DashboardHeader } from '@/components/layout/DashboardHeader';

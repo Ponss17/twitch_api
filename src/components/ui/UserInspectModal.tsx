@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { SlotText } from 'slot-text/react';
 import { BaseModal } from '@/components/ui/Modal';
 import type { ChatLogItem } from '@/lib/chatLogStore';
