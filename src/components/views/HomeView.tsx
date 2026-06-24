@@ -16,6 +16,8 @@ import type { ActivityLogItem } from '@/lib/activityLogDisplay';
 import { useToast } from '@/components/ui/ToastProvider';
 import { HomeViewSkeleton } from '@/components/ui/Skeleton';
 import { logError } from '@/lib/logError';
+import { AlertTriangle } from 'lucide-react';
+
 
 interface AnalyticsData {
     todayRequests?: number;
@@ -322,7 +324,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     if (error && !stats) {
         return (
             <div className="rounded-xl border border-red-500/30 bg-[#0f0f11] p-6 text-red-400">
-                <i className="fa-solid fa-triangle-exclamation mr-2" />
+                <AlertTriangle className="mr-2" />
                 {error}
             </div>
         );

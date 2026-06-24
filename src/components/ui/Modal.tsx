@@ -1,4 +1,7 @@
+import { AlertTriangle, Loader2 } from 'lucide-react';
+
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { X } from 'lucide-react';
 import {
     btnDanger,
     btnIcon,
@@ -123,7 +126,7 @@ export function Modal({
                     {title}
                 </h3>
                 <button type="button" className={btnIcon} aria-label="Cerrar" onClick={onClose}>
-                    <i className="fa-solid fa-xmark" aria-hidden />
+                    <X className="w-5 h-5" />
                 </button>
             </div>
             <div className={modalBody}>{children}</div>
@@ -235,7 +238,7 @@ export function DangerConfirmModal({
             >
                 <div className={dangerModalHeader}>
                     <h3 className={modalTitle}>
-                        <i className={`fa-solid fa-triangle-exclamation ${dangerModalTitleIcon}`} aria-hidden />
+                        <AlertTriangle className={` ${dangerModalTitleIcon}`} />
                         <span>{title}</span>
                     </h3>
                     <button
@@ -245,7 +248,7 @@ export function DangerConfirmModal({
                         disabled={loading}
                         onClick={handleClose}
                     >
-                        <i className="fa-solid fa-xmark" aria-hidden />
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
                 <div className={modalBody}>
@@ -281,7 +284,7 @@ export function DangerConfirmModal({
                     >
                         {loading ? (
                             <>
-                                <i className="fa-solid fa-spinner fa-spin" aria-hidden />
+                                <Loader2 className="animate-spin" />
                                 Procesando...
                             </>
                         ) : (
@@ -335,12 +338,12 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
                     >
                         {loading ? (
                             <>
-                                <i className="fa-solid fa-spinner fa-spin" aria-hidden />
+                                <Loader2 className="animate-spin" />
                                 Regenerando...
                             </>
                         ) : (
                             <>
-                                <i className="fa-solid fa-arrows-rotate" aria-hidden />
+                                <X className="w-5 h-5 text-[#a1a1aa] group-hover:text-white transition" />
                                 Sí, regenerar
                             </>
                         )}

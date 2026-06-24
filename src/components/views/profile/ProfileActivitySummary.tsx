@@ -1,3 +1,5 @@
+import { TrendingUp } from 'lucide-react';
+
 import { card, fadeIn } from '@/lib/tw';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 
@@ -26,7 +28,7 @@ export function ProfileActivitySummary({
         <div className={`${cardShell} [animation-delay:120ms]`}>
             <div className="mb-2 flex items-center gap-3 border-b border-white/[0.08] pb-2">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                    <i className="fa-solid fa-chart-line" aria-hidden />
+                    <TrendingUp />
                 </div>
                 <div>
                     <h3 className="mb-0.5 text-[0.95rem] font-bold">Resumen de Actividad</h3>

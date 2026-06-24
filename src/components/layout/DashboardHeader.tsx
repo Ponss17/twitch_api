@@ -3,6 +3,7 @@ import type { DashboardTab } from '@/lib/config';
 import { useRequiredSession } from '@/hooks/useSession';
 import { staticPath } from '@/lib/paths';
 import { TAB_META } from '@/lib/dashboardTabs';
+import { User, ChevronDown, LogOut, LayoutDashboard } from 'lucide-react';
 
 interface DashboardHeaderProps {
     tab: DashboardTab;
@@ -81,7 +82,7 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                         <span className="hidden max-w-[120px] truncate text-sm font-semibold text-[#fafafa] md:inline">
                             {displayName}
                         </span>
-                        <i className="fa-solid fa-chevron-down text-xs text-[#71717a]" />
+                        <ChevronDown className="w-4 h-4 text-[#71717a]" />
                     </button>
 
                     {menuOpen && (
@@ -102,7 +103,7 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                                 }}
                                 className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm font-medium text-[#a1a1aa] transition hover:bg-[#9146ff]/10 hover:text-[#fafafa]"
                             >
-                                <i className="fa-solid fa-user w-4 text-center" />
+                                <User className="w-4 text-center" />
                                 Mi Perfil
                             </button>
                             <a

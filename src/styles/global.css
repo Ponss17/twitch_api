@@ -12,7 +12,8 @@
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
 
   --animate-fade-soft: fadeInSoft 0.4s ease-out forwards;
   --animate-border-flow: borderFlow 8s linear infinite;

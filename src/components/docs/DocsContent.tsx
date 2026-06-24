@@ -1,3 +1,5 @@
+import { Info, Zap, Key, ShieldAlert, UserCog, BarChart2, IdCard, Skull, Gauge, Server, Weight, Rocket, Clock, Film, AlertCircle, ChevronRight, Megaphone, TrendingUp, Lightbulb, Binoculars, Shield, Dices, Wand2, Search, AlertTriangle, Swords, List } from 'lucide-react';
+
 import { DocsCodeTabs } from '@/components/docs/DocsCodeTabs';
 import { appPath } from '@/lib/paths';
 import {
@@ -70,13 +72,13 @@ export function DocsContent() {
                 </p>
                 <div className={docsIntroGrid}>
                     <div className={docsInfoCardFlat}>
-                        <i className="fa-solid fa-circle-info" />
+                        <Info />
                         <p>
                             <strong>Compatible:</strong> Nightbot, StreamElements, Fossabot y Wizebot.
                         </p>
                     </div>
                     <div className={docsInfoCardFlat}>
-                        <i className="fa-solid fa-bolt" />
+                        <Zap />
                         <p>
                             <strong>Actualización:</strong> Datos frescos cada <strong>30 segundos</strong> de forma
                             automática.
@@ -87,14 +89,14 @@ export function DocsContent() {
 
             <section id="auth" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-key" /> Tu API Key
+                    <Key /> Tu API Key
                 </h2>
                 <p>
                     La mayoría de los endpoints requieren una <code>apiKey</code> para funcionar. Puedes obtener tu
                     Clave Permanente conectando tu cuenta en el <a href={appPath('/')}>panel principal</a>.
                 </p>
                 <div className={docsInfoCard} style={{ marginTop: '1.5rem' }}>
-                    <i className="fa-solid fa-user-shield" />
+                    <ShieldAlert />
                     <p>
                         <strong>¿Por qué verificar?</strong> Solo necesitamos permiso para{' '}
                         <strong>leer datos públicos</strong> y <strong>crear clips</strong> en tu nombre. No tocamos tu
@@ -105,32 +107,32 @@ export function DocsContent() {
 
             <section id="profile" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-user-gear" /> Perfil y Seguridad
+                    <UserCog /> Perfil y Seguridad
                 </h2>
                 <p>Gestiona tu identidad en la plataforma y configura las opciones de seguridad de tu cuenta.</p>
                 <div className={docsInfoCardPrimary}>
-                    <i className="fa-solid fa-key" />
+                    <Key />
                     <p>
                         <strong>API Key Manager:</strong> Visualiza y regenera tu clave permanente usada para los
                         comandos de chat.
                     </p>
                 </div>
                 <div className={docsInfoCardPrimary}>
-                    <i className="fa-solid fa-chart-simple" />
+                    <BarChart2 />
                     <p>
                         <strong>Resumen de Actividad:</strong> Consulta tus estadísticas de uso: total de requests,
                         latencia promedio, tasa de éxito y actividad reciente.
                     </p>
                 </div>
                 <div className={docsInfoCardPrimary}>
-                    <i className="fa-solid fa-id-card" />
+                    <IdCard />
                     <p>
                         <strong>Tu Identidad:</strong> Visualiza tu ID de Twitch, nombre de usuario y fecha de última
                         conexión. Puedes copiar tu ID directamente desde el panel.
                     </p>
                 </div>
                 <div className={docsInfoCardPrimary}>
-                    <i className="fa-solid fa-skull-crossbones" />
+                    <Skull />
                     <p>
                         <strong>Zona de Peligro:</strong> Accede a opciones críticas como el borrado de cuenta mediante
                         el toggle de advertencia y confirmación de seguridad.
@@ -140,7 +142,7 @@ export function DocsContent() {
 
             <section id="limits" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-gauge-high" /> Rate Limiting
+                    <Gauge /> Rate Limiting
                 </h2>
                 <p>Para asegurar la estabilidad del servicio para todos los streamers, aplicamos los siguientes límites:</p>
                 <div className={docsLimitsGrid}>
@@ -158,7 +160,7 @@ export function DocsContent() {
                     </div>
                 </div>
                 <div className={docsInfoCard}>
-                    <i className="fa-solid fa-server" />
+                    <Server />
                     <p>
                         <strong>Headers de Respuesta:</strong> Incluimos <code>X-RateLimit-Limit</code>,{' '}
                         <code>X-RateLimit-Remaining</code> y <code>X-RateLimit-Reset</code> en todas las respuestas para
@@ -166,7 +168,7 @@ export function DocsContent() {
                     </p>
                 </div>
                 <div className={docsInfoCardPrimary}>
-                    <i className="fa-solid fa-weight-hanging" />
+                    <Weight />
                     <div className="flex-1">
                         <p style={{ fontWeight: 'bold', marginBottom: '0.25rem', color: 'white' }}>¿Qué son los Endpoints "Pesados"?</p>
                         <p style={{ margin: 0, fontSize: '0.9rem', color: '#dedede' }}>
@@ -186,7 +188,7 @@ export function DocsContent() {
 
             <section id="quick-start" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-rocket" /> ¡Comienza Ya!
+                    <Rocket /> ¡Comienza Ya!
                 </h2>
                 <div className={docsStepsGrid}>
                     <div className={docsStepCard}>
@@ -216,7 +218,7 @@ export function DocsContent() {
 
             <section id="followage" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-regular fa-clock" /> Followage
+                    <Clock /> Followage
                 </h2>
                 <p>Calcula cuánto tiempo lleva un usuario siguiendo al canal.</p>
                 <table className={docsParamsTable}>
@@ -262,11 +264,11 @@ export function DocsContent() {
 
             <section id="create-clip" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-film" /> Crear Clip
+                    <Film /> Crear Clip
                 </h2>
                 <p>Genera un clip instantáneo del canal. Ideal para capturar momentos épicos.</p>
                 <div className={docsInfoCard}>
-                    <i className="fa-solid fa-circle-exclamation" />
+                    <AlertCircle />
                     <p>
                         <strong>Requisito:</strong> El canal debe estar <strong>en vivo</strong> para poder generar un
                         clip. Si el stream está offline, recibirás un mensaje de error.
@@ -274,9 +276,9 @@ export function DocsContent() {
                 </div>
                 <div className={docsStepsMini}>
                     <span className={docsStepBadge}>1</span> Selecciona tu bot
-                    <i className={`fa-solid fa-chevron-right ${docsStepSeparator}`} />
+                    <ChevronRight className={` ${docsStepSeparator}`} />
                     <span className={docsStepBadge}>2</span> Copia el código
-                    <i className={`fa-solid fa-chevron-right ${docsStepSeparator}`} />
+                    <ChevronRight className={` ${docsStepSeparator}`} />
                     <span className={docsStepBadge}>3</span> Pega en el chat
                 </div>
                 <DocsCodeTabs
@@ -294,7 +296,7 @@ export function DocsContent() {
 
             <section id="shoutout" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-bullhorn" /> Shoutout (!so)
+                    <Megaphone /> Shoutout (!so)
                 </h2>
                 <p>Genera un mensaje promocionando a otro streamer con su último juego y enlace directo.</p>
                 <div className={docsEndpoint}>
@@ -338,14 +340,14 @@ export function DocsContent() {
 
             <section id="trends" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-chart-line" /> Tendencias
+                    <TrendingUp /> Tendencias
                 </h2>
                 <p>
                     ¿Qué está es lo más comentado en tu chat? Esta herramienta analiza los mensajes en vivo y genera un
                     ranking (Top 10) de las palabras o emotes más repetidos.
                 </p>
                 <div className={docsInfoCard}>
-                    <i className="fa-solid fa-lightbulb" />
+                    <Lightbulb />
                     <p>
                         <strong>Uso ideal:</strong> Mide el &quot;hype&quot; de un momento específico o descubre qué emote
                         está spameando tu comunidad. Incluye un temporizador para sesiones de análisis.
@@ -355,14 +357,14 @@ export function DocsContent() {
 
             <section id="stalker" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-binoculars" /> Stalker
+                    <Binoculars /> Stalker
                 </h2>
                 <p>
                     Tu centro de inteligencia. Investiga a cualquier usuario de Twitch al instante para obtener contexto
                     rápido.
                 </p>
                 <div className={docsInfoCardPrimary}>
-                    <i className="fa-solid fa-shield-halved" />
+                    <Shield />
                     <p>
                         <strong>Uso ideal:</strong> Verifica cuándo se creó una cuenta, cuánto tiempo lleva siguiendo el
                         canal y lee sus últimos mensajes en el chat (logs).
@@ -372,11 +374,11 @@ export function DocsContent() {
 
             <section id="roulette" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-dice" /> Ruleta
+                    <Dices /> Ruleta
                 </h2>
                 <p>La herramienta definitiva para sorteos y giveaways en tu stream.</p>
                 <div className={docsInfoCardPurple}>
-                    <i className="fa-solid fa-wand-magic-sparkles" />
+                    <Wand2 />
                     <p>
                         <strong>Lógica Híbrida:</strong> Puedes crear una lista manual de opciones o dejar que la API
                         cargue automáticamente a los <strong>usuarios activos</strong> del chat en tiempo real.
@@ -386,7 +388,7 @@ export function DocsContent() {
 
             <section id="magic8" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-8" /> Bola 8 Mágica (IA)
+                    <Search /> Bola 8 Mágica (IA)
                 </h2>
                 <p>Respuestas místicas (o sarcásticas) a tus preguntas.</p>
                 <div className={docsEndpoint}>
@@ -445,7 +447,7 @@ export function DocsContent() {
 
             <section id="russian" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-skull-crossbones" /> Ruleta Rusa
+                    <Skull /> Ruleta Rusa
                 </h2>
                 <p>
                     Un juego de alto riesgo para tu chat. Los usuarios prueban su suerte con un revólver virtual de 6
@@ -456,7 +458,7 @@ export function DocsContent() {
                     <span className={docsUrl}>/api/twitch/minigames/russian?user={'{usuario}'}&apiKey={'{clave}'}</span>
                 </div>
                 <div className={`${docsInfoCardRed} mt-6`}>
-                    <i className="fa-solid fa-triangle-exclamation" />
+                    <AlertTriangle />
                     <p>
                         <strong>Cuidado:</strong> Este comando puede expulsar temporalmente a tus usuarios. Úsalo bajo tu
                         propio riesgo.
@@ -477,7 +479,7 @@ export function DocsContent() {
 
             <section id="duel" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-khanda" /> Duelo
+                    <Swords /> Duelo
                 </h2>
                 <p>Desafía a otros usuarios a un duelo a muerte (simulado). El ganador se lleva la gloria.</p>
                 <div className={docsEndpoint}>
@@ -524,7 +526,7 @@ export function DocsContent() {
 
             <section id="get-clips" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-list" /> Listar Clips
+                    <List /> Listar Clips
                 </h2>
                 <p>Endpoint para desarrolladores: obtén un JSON con los clips más recientes.</p>
                 <div className={docsEndpoint}>
@@ -541,7 +543,7 @@ export function DocsContent() {
 
             <section id="errores" className={docSection} data-doc-section>
                 <h2>
-                    <i className="fa-solid fa-triangle-exclamation" /> Respuestas HTTP
+                    <AlertTriangle /> Respuestas HTTP
                 </h2>
                 <p>
                     La API utiliza códigos de estado HTTP estándar para indicar el resultado de las solicitudes.

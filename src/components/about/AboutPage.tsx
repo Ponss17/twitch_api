@@ -1,3 +1,5 @@
+import { Book } from 'lucide-react';
+
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
 import { appPath, staticPath } from '@/lib/paths';
 import { aboutFadeIn, aboutLegoIn } from '@/lib/tw';
@@ -34,7 +36,7 @@ function AboutHeader() {
                         href={appPath('/docs')}
                         className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#a1a1aa] no-underline transition hover:bg-white/5 hover:text-white"
                     >
-                        <i className="fa-solid fa-book" aria-hidden />
+                        <Book />
                         Documentación
                     </a>
                     <a

@@ -3,6 +3,8 @@ import { startTwitchLogin } from '@/lib/auth';
 import { appPath } from '@/lib/paths';
 import { btnSecondary, modalBtnPrimary } from '@/lib/tw';
 import { Modal } from '@/components/ui/Modal';
+import { Loader2, Check } from 'lucide-react';
+
 
 interface LoginDisclaimerModalProps {
     open: boolean;
@@ -33,7 +35,7 @@ export function LoginDisclaimerModal({ open, onClose }: LoginDisclaimerModalProp
                     <button type="button" className={modalBtnPrimary} disabled={loading} onClick={handleConfirm}>
                         {loading ? (
                             <>
-                                <i className="fa-solid fa-spinner fa-spin" aria-hidden />
+                                <Loader2 className="animate-spin" />
                                 Validando datos...
                             </>
                         ) : (
@@ -57,15 +59,15 @@ export function LoginDisclaimerModal({ open, onClose }: LoginDisclaimerModalProp
             <p>Al conectar tu cuenta, aceptas que usemos estos datos únicamente para:</p>
             <ul>
                 <li>
-                    <i className="fa-solid fa-check" aria-hidden />
+                    <Check />
                     Verificar tu identidad.
                 </li>
                 <li>
-                    <i className="fa-solid fa-check" aria-hidden />
+                    <Check />
                     Ejecutar los comandos que configures.
                 </li>
                 <li>
-                    <i className="fa-solid fa-check" aria-hidden />
+                    <Check />
                     Generar estadísticas de uso (anonimizadas).
                 </li>
             </ul>

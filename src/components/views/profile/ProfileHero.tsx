@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { useRequiredSession } from '@/hooks/useSession';
 import { staticPath } from '@/lib/paths';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
+import { CheckCircle2, Star, User, Key, Heart, Video, Calendar } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface ProfileHeroProps {
     description?: string;
@@ -15,10 +17,11 @@ function ProfileBadge({
     label,
     secondary
 }: {
-    icon: string;
+    icon: LucideIcon;
     label: string;
     secondary?: boolean;
 }) {
+    const Icon = icon;
     return (
         <span
             className={`flex items-center gap-1.5 rounded-[10px] px-3.5 py-1.5 text-[0.7rem] font-extrabold uppercase tracking-[0.03em] ${
@@ -27,7 +30,7 @@ function ProfileBadge({
                     : 'border border-[#10b981]/20 bg-[#10b981]/10 text-[#10b981]'
             }`}
         >
-            <i className={`fa-solid ${icon}`} aria-hidden />
+            <Icon className="w-3.5 h-3.5" aria-hidden />
             {label}
         </span>
     );
@@ -39,11 +42,12 @@ function ProfileStatItem({
     label,
     showDivider
 }: {
-    icon: string;
+    icon: LucideIcon;
     value: ReactNode;
     label: string;
     showDivider?: boolean;
 }) {
+    const Icon = icon;
     return (
         <div
             className={`relative flex items-center gap-2 transition hover:-translate-y-0.5 ${
@@ -53,7 +57,7 @@ function ProfileStatItem({
             }`}
         >
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-[0.9rem] text-primary">
-                <i className={`fa-solid ${icon}`} aria-hidden />
+                <Icon className="w-4 h-4" aria-hidden />
             </span>
             <div className="flex flex-col">
                 <span className="text-[0.9rem] font-extrabold text-white">{value}</span>
@@ -99,15 +103,15 @@ export function ProfileHero({
                             </h2>
                             <div className="flex flex-wrap gap-2.5">
                                 {badgePartner && (
-                                    <ProfileBadge icon="fa-check-circle" label="Partner de Twitch" />
+                                    <ProfileBadge icon={CheckCircle2} label="Partner de Twitch" />
                                 )}
                                 {badgeAffiliate && !badgePartner && (
-                                    <ProfileBadge icon="fa-star" label="Afiliado de Twitch" />
+                                    <ProfileBadge icon={Star} label="Afiliado de Twitch" />
                                 )}
                                 {!badgePartner && !badgeAffiliate && (
-                                    <ProfileBadge icon="fa-user" label="Streamer" secondary />
+                                    <ProfileBadge icon={User} label="Streamer" secondary />
                                 )}
-                                <ProfileBadge icon="fa-key" label="LosPerris Access" secondary />
+                                <ProfileBadge icon={Key} label="LosPerris Access" secondary />
                             </div>
                         </div>
 
@@ -117,18 +121,18 @@ export function ProfileHero({
 
                         <div className="mt-2 flex flex-wrap items-center gap-4 pt-1 max-[900px]:justify-center">
                             <ProfileStatItem
-                                icon="fa-heart"
+                                icon={Heart}
                                 value={<AnimatedNumber value={followers} className="text-[0.9rem] font-extrabold text-white" />}
                                 label="Seguidores"
                                 showDivider
                             />
                             <ProfileStatItem
-                                icon="fa-video"
+                                icon={Video}
                                 value={broadcasterLabel}
                                 label="Tipo Canal"
                                 showDivider
                             />
-                            <ProfileStatItem icon="fa-calendar" value={memberSince} label="Miembro" />
+                            <ProfileStatItem icon={Calendar} value={memberSince} label="Miembro" />
                         </div>
                     </div>
                 </div>

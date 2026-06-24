@@ -1,3 +1,5 @@
+import { Download, Loader2 } from 'lucide-react';
+
 import { card, fadeIn } from '@/lib/tw';
 
 interface ProfileExportSectionProps {
@@ -12,7 +14,7 @@ export function ProfileExportSection({ onExport, loading = false }: ProfileExpor
         <div className={`${cardShell} [animation-delay:180ms]`}>
             <div className="mb-2 flex items-center gap-3 border-b border-white/[0.08] pb-2">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                    <i className="fa-solid fa-download" aria-hidden />
+                    <Download />
                 </div>
                 <div>
                     <h3 className="mb-0.5 text-[0.95rem] font-bold">Tus Datos</h3>
@@ -37,7 +39,7 @@ export function ProfileExportSection({ onExport, loading = false }: ProfileExpor
                         disabled={loading}
                         className="inline-flex items-center gap-2.5 whitespace-nowrap rounded-lg bg-primary px-7 py-3 text-base font-semibold text-white shadow-[0_4px_12px_rgba(145,70,255,0.3)] transition hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-[0_6px_20px_rgba(145,70,255,0.3)] disabled:cursor-not-allowed disabled:opacity-60 max-md:w-full max-md:justify-center"
                     >
-                        <i className={`fa-solid ${loading ? 'fa-spinner fa-spin' : 'fa-download'}`} aria-hidden />
+                        <Loader2 className={` ${loading ? ' animate-spin' : 'fa-download'}`} />
                         {loading ? 'Generando...' : 'Generar Reporte'}
                     </button>
                 </div>

@@ -1,3 +1,5 @@
+import { Zap, CheckCircle2, Gauge } from 'lucide-react';
+
 import { useEffect, useRef } from 'react';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import { animateValue } from '@/lib/animateValue';
@@ -62,7 +64,7 @@ export function HomeHero({ displayName, todayRequests, successRate, latencyMs }:
                     <div className={STATS_ROW}>
                         <div className={H_STAT}>
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.05] bg-black/30 text-[1.2rem] text-primary transition-all group-hover:scale-110 group-hover:-rotate-[8deg] group-hover:border-primary/30">
-                                <i className="fa-solid fa-bolt" aria-hidden />
+                                <Zap />
                             </div>
                             <div className="flex min-w-0 items-center gap-2">
                                 <span className="shrink-0 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-white/40">
@@ -77,7 +79,7 @@ export function HomeHero({ displayName, todayRequests, successRate, latencyMs }:
 
                         <div className={H_STAT}>
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.05] bg-black/30 text-[1.2rem] text-emerald-500 transition-all group-hover:scale-110 group-hover:-rotate-[8deg] group-hover:border-primary/30">
-                                <i className="fa-solid fa-circle-check" aria-hidden />
+                                <CheckCircle2 />
                             </div>
                             <div className="flex min-w-0 items-center gap-2">
                                 <span className="shrink-0 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-white/40">
@@ -93,7 +95,7 @@ export function HomeHero({ displayName, todayRequests, successRate, latencyMs }:
 
                         <div className={H_STAT}>
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.05] bg-black/30 text-[1.2rem] text-amber-500 transition-all group-hover:scale-110 group-hover:-rotate-[8deg] group-hover:border-primary/30">
-                                <i className="fa-solid fa-gauge-high" aria-hidden />
+                                <Gauge />
                             </div>
                             <div className="flex min-w-0 items-center gap-2">
                                 <span className="shrink-0 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-white/40">

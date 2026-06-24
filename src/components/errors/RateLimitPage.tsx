@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ErrorPage } from '@/components/errors/ErrorPage';
+import { Clock, RotateCw } from 'lucide-react';
+
 
 export function RateLimitPage() {
     const [timeLeft, setTimeLeft] = useState('05:00');
@@ -40,7 +42,7 @@ export function RateLimitPage() {
             message="Has excedido el límite de peticiones. Por seguridad, hemos activado un breve periodo de espera."
         >
             <div className="my-8 flex items-center justify-center gap-4 rounded-2xl border border-white/5 bg-white/[0.03] p-5">
-                <i className="fa-regular fa-clock text-2xl text-[#9146ff]" />
+                <Clock className="text-2xl text-[#9146ff]" />
                 <span className="font-mono text-4xl font-bold tabular-nums">{timeLeft}</span>
             </div>
             <button
@@ -49,7 +51,7 @@ export function RateLimitPage() {
                 onClick={() => window.location.reload()}
                 className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-[#9146ff] px-8 py-4 text-lg font-bold text-white disabled:cursor-not-allowed disabled:border disabled:border-white/5 disabled:bg-[#27272a] disabled:text-[#71717a] disabled:shadow-none"
             >
-                <i className={`fa-solid ${ready ? 'fa-rotate-right' : 'fa-lock'}`} />
+                <RotateCw className={` ${ready ? '' : 'fa-lock'}`} />
                 {ready ? 'Intentar de nuevo' : 'Bloqueado'}
             </button>
         </ErrorPage>
