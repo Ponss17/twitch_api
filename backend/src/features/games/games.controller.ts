@@ -52,6 +52,10 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
             () => magic8Service.generateMagic8Response(question, mood as string, user as string)
         );
 
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        
         res.send(answer);
     } catch (error) {
         logger.error('Error en askMagic8:', error);
