@@ -2,7 +2,7 @@ import type { DashboardTab } from '@/lib/config';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
 import { DiscordIcon } from '@/components/ui/icons/BrandIcons';
 import { AppLogo } from '@/components/ui/AppLogo';
-import { Home, History, Clapperboard, Megaphone, TrendingUp, ScanFace, Dices, Circle, Skull, Swords, MessageSquare, Book, MessageCircle } from 'lucide-react';
+import { Home, History, Clapperboard, Megaphone, TrendingUp, ScanFace, Dices, Circle, Skull, Swords, MessageSquare, Book } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface NavItem {

@@ -351,7 +351,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                         }
 
                         await DataExport.export(session, (msg) => showToast(msg, 'success'));
-                    } catch (e) {
+                    } catch {
                         showToast('Error de conexión.', 'error');
                     } finally {
                         setExportLoading(false);

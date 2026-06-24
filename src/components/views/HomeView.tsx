@@ -51,6 +51,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     const syncRef = useRef<TabSyncService | null>(null);
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const healthPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const realtimeRef = useRef<{ setCallbacks: (cb: any) => void; resume: () => Promise<boolean>; connect: (onDisconnect?: () => void) => Promise<boolean>; pause: () => void; disconnect: () => void } | null>(null);
     const useRealtimeRef = useRef(false);
     const performSyncRef = useRef<() => Promise<void>>(async () => {});

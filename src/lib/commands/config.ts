@@ -1,17 +1,18 @@
 import { CommandGenerator } from '../commandGenerator';
 import { Wrench, Video, Megaphone, Circle, Theater, Skull, Swords } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 export interface ExtraSelector {
     id: string;
     label: string;
-    icon: any;
+    icon: LucideIcon;
     options: { value: string; label: string }[];
 }
 
 export interface CommandConfigItem {
     id: string;
     title: string;
-    icon: any;
+    icon: LucideIcon;
     desc: string;
     info: string;
     templatePlaceholder?: string;

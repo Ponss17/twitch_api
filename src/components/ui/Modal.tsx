@@ -70,6 +70,7 @@ export function BaseModal({
         };
         dialog.addEventListener('cancel', onCancel);
         return () => dialog.removeEventListener('cancel', onCancel);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [onClose]);
 
     const handleClose = () => {
@@ -187,6 +188,7 @@ export function DangerConfirmModal({
         };
         dialog.addEventListener('cancel', onCancel);
         return () => dialog.removeEventListener('cancel', onCancel);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loading, onClose]);
 
     const handleClose = () => {

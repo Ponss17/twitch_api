@@ -80,7 +80,7 @@ const swScope = staticPath('/');
                 (function () {
                     if (!('serviceWorker' in navigator)) return;
                     if (sessionStorage.getItem('sw-cleared') === '1') return;
-                    var hadController = !!navigator.serviceWorker.controller;
+                    const hadController = !!navigator.serviceWorker.controller;
                     navigator.serviceWorker.getRegistrations().then(function (regs) {
                         if (!regs.length && !hadController) return;
                         return Promise.all(
