@@ -11,14 +11,9 @@ import { RATE_LIMITS } from '../../core/config/limits';
 import { TwitchApiError } from '../../core/errors/AppError';
 import { AppError } from '../../core/errors/AppError';
 import { trackRequest } from '../../core/utils/tracking';
-import { BoundedMap } from '../../core/utils/boundedCache';
 
-/** Caché L1 en memoria — evita llamadas a Twitch en cada poll del perfil (sin KV). */
-const summaryMemoryCache = new BoundedMap<
-    string,
-    { expiry: number; payload: Record<string, unknown> }
->(200);
-const SUMMARY_CACHE_MS = 120_000;
+
+
 
 export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;

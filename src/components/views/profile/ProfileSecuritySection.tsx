@@ -39,14 +39,6 @@ export function ProfileSecuritySection({
         setTimeout(() => setIsKeyCopied(false), 2000);
     };
 
-    const [isIdCopied, setIsIdCopied] = useState(false);
-    
-    const handleCopyId = () => {
-        onCopyId();
-        setIsIdCopied(true);
-        setTimeout(() => setIsIdCopied(false), 2000);
-    };
-
     return (
         <div className={`${cardShell} [animation-delay:60ms]`}>
             <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { startTwitchLogin } from '@/lib/auth';
 import { appPath } from '@/lib/paths';
 import { btnSecondary, modalBtnPrimary } from '@/lib/tw';

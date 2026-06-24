@@ -37,8 +37,8 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
         }
 
         // Si el middleware checkToken ya identificó al usuario (usando caché global), retornar rápido
-        if (apiUser && (apiUser as any).userId) {
-            const user = apiUser as any;
+        if (apiUser && typeof apiUser === 'object' && 'userId' in apiUser) {
+            const user = apiUser as { userId: string; apiKey?: string; login?: string; displayName?: string; profileImageUrl?: string; timezone?: string };
             return res.json({
                 valid: true,
                 apiKey: user.apiKey || null,

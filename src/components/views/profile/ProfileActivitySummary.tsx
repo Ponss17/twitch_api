@@ -1,5 +1,4 @@
 import { TrendingUp, Terminal, Wrench, Gamepad2 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 
 import { card, fadeIn } from '@/lib/tw';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';

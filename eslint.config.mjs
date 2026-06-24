@@ -14,7 +14,9 @@ export default tseslint.config(
             'test-results/**',
             'playwright-report/**',
             'coverage/**',
-            'src/env.d.ts'
+            'src/env.d.ts',
+            'api/**',
+            'astro.config.mjs'
         ]
     },
     js.configs.recommended,

@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LoginDisclaimerModal } from '@/components/ui/LoginDisclaimerModal';
 import { VerifyingSessionModal } from '@/components/ui/VerifyingSessionModal';
 import { AppLogo } from '@/components/ui/AppLogo';
@@ -6,7 +6,7 @@ import { parseUrlParams, saveSession } from '@/lib/auth';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
 import { Accordion } from '@/components/ui/Accordion';
 import { TwitchIcon, DiscordIcon } from '@/components/ui/icons/BrandIcons';
-import { Heart, Video, Megaphone, Star, ScanFace, Dices, HelpCircle, Skull, Swords, MessageSquare, Book, MessageCircle, ArrowRight, Copy, Check } from 'lucide-react';
+import { Heart, Video, Megaphone, Star, ScanFace, Dices, HelpCircle, Skull, Swords, MessageSquare, Book, ArrowRight, Copy, Check } from 'lucide-react';
 
 import { SlotText } from 'slot-text/react';
 import Lenis from 'lenis';
