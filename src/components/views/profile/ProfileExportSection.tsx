@@ -39,7 +39,7 @@ export function ProfileExportSection({ onExport, loading = false }: ProfileExpor
                         disabled={loading}
                         className="inline-flex items-center gap-2.5 whitespace-nowrap rounded-lg bg-primary px-7 py-3 text-base font-semibold text-white shadow-[0_4px_12px_rgba(145,70,255,0.3)] transition hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-[0_6px_20px_rgba(145,70,255,0.3)] disabled:cursor-not-allowed disabled:opacity-60 max-md:w-full max-md:justify-center"
                     >
-                        <Loader2 className={` ${loading ? ' animate-spin' : 'fa-download'}`} />
+                        {loading ? <Loader2 className="animate-spin" /> : <Download />}
                         {loading ? 'Generando...' : 'Generar Reporte'}
                     </button>
                 </div>

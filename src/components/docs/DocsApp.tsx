@@ -19,51 +19,55 @@ import {
 } from '@/lib/docsTw';
 import { ToastProvider } from '@/components/ui/ToastProvider';
 import { DocsContent } from '@/components/docs/DocsContent';
-import { X, Search } from 'lucide-react';
+import { X, Search, Menu, ArrowLeft } from 'lucide-react';
+import { Home, Key, UserCog, Gauge, Rocket, Clock, Film, Megaphone, TrendingUp, Binoculars, Dices, Circle, Skull, Swords, List, AlertTriangle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 
 
-const NAV_TOP = [
-    { id: 'intro', icon: 'fa-house', label: 'Introducción' },
-    { id: 'auth', icon: 'fa-key', label: 'Tu API Key' },
-    { id: 'profile', icon: 'fa-user-gear', label: 'Perfil y Seguridad' },
-    { id: 'limits', icon: 'fa-gauge-high', label: 'Límites' },
-    { id: 'quick-start', icon: 'fa-rocket', label: '¡Comienza Ya!' }
-] as const;
 
-const NAV_GROUPS = [
+
+const NAV_TOP: { id: string; icon: LucideIcon; label: string }[] = [
+    { id: 'intro', icon: Home, label: 'Introducción' },
+    { id: 'auth', icon: Key, label: 'Tu API Key' },
+    { id: 'profile', icon: UserCog, label: 'Perfil y Seguridad' },
+    { id: 'limits', icon: Gauge, label: 'Límites' },
+    { id: 'quick-start', icon: Rocket, label: '¡Comienza Ya!' }
+];
+
+const NAV_GROUPS: { title: string; items: { id: string; icon: LucideIcon; label: string }[] }[] = [
     {
         title: 'Comandos',
         items: [
-            { id: 'followage', icon: 'fa-clock', label: 'Followage' },
-            { id: 'create-clip', icon: 'fa-film', label: 'Clips' },
-            { id: 'shoutout', icon: 'fa-bullhorn', label: 'Shoutout' }
+            { id: 'followage', icon: Clock, label: 'Followage' },
+            { id: 'create-clip', icon: Film, label: 'Clips' },
+            { id: 'shoutout', icon: Megaphone, label: 'Shoutout' }
         ]
     },
     {
         title: 'Herramientas',
         items: [
-            { id: 'trends', icon: 'fa-chart-line', label: 'Tendencias' },
-            { id: 'stalker', icon: 'fa-binoculars', label: 'Stalker' },
-            { id: 'roulette', icon: 'fa-dice', label: 'Ruleta' }
+            { id: 'trends', icon: TrendingUp, label: 'Tendencias' },
+            { id: 'stalker', icon: Binoculars, label: 'Stalker' },
+            { id: 'roulette', icon: Dices, label: 'Ruleta' }
         ]
     },
     {
         title: 'Minijuegos',
         items: [
-            { id: 'magic8', icon: 'fa-8', label: 'Bola 8' },
-            { id: 'russian', icon: 'fa-skull-crossbones', label: 'Ruleta Rusa' },
-            { id: 'duel', icon: 'fa-khanda', label: 'Duelo' }
+            { id: 'magic8', icon: Circle, label: 'Bola 8' },
+            { id: 'russian', icon: Skull, label: 'Ruleta Rusa' },
+            { id: 'duel', icon: Swords, label: 'Duelo' }
         ]
     },
     {
         title: 'Extras',
         items: [
-            { id: 'get-clips', icon: 'fa-list', label: 'Listar Clips' },
-            { id: 'errores', icon: 'fa-triangle-exclamation', label: 'Ayuda' }
+            { id: 'get-clips', icon: List, label: 'Listar Clips' },
+            { id: 'errores', icon: AlertTriangle, label: 'Ayuda' }
         ]
     }
-] as const;
+];
 
 export function DocsApp() {
     return (
@@ -145,7 +149,7 @@ function DocsAppShell() {
                 aria-label="Abrir menú de navegación"
                 onClick={() => setSidebarOpen((v) => !v)}
             >
-                <X className={` ${sidebarOpen ? '' : 'fa-bars'}`} />
+                {sidebarOpen ? <X /> : <Menu />}
             </button>
 
             <div className={docsContainer}>
@@ -182,7 +186,7 @@ function DocsAppShell() {
                                 className={docsNavItem(activeId === item.id)}
                                 onClick={closeSidebar}
                             >
-                                <i className={`fa-solid ${item.icon}`} /> {item.label}
+                                <item.icon className="w-4 h-4" /> {item.label}
                             </a>
                         ))}
 
@@ -198,7 +202,7 @@ function DocsAppShell() {
                                             className={docsNavItem(activeId === item.id)}
                                             onClick={closeSidebar}
                                         >
-                                            <i className={`fa-solid ${item.icon}`} /> {item.label}
+                                            <item.icon className="w-4 h-4" /> {item.label}
                                         </a>
                                     ))}
                                 </div>
@@ -211,7 +215,7 @@ function DocsAppShell() {
                             className={docsReturnHome}
                             onClick={closeSidebar}
                         >
-                            <i className="fa-solid fa-arrow-left" /> Volver al Panel
+                            <ArrowLeft className="w-4 h-4" /> Volver al Panel
                         </a>
                     </nav>
                 </aside>

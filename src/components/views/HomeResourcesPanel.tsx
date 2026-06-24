@@ -1,28 +1,31 @@
 import type { DashboardTab } from '@/lib/config';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
 import { card, fadeIn } from '@/lib/tw';
+import { DiscordIcon } from '@/components/ui/icons/BrandIcons';
+import { UserPlus, Clapperboard, Megaphone, Info, Book } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface HomeResourcesPanelProps {
     onNavigate?: (tab: DashboardTab) => void;
 }
 
-const QUICK_COMMANDS = [
-    { tab: 'followage' as DashboardTab, icon: 'fa-user-plus', label: 'Followage' },
-    { tab: 'clips' as DashboardTab, icon: 'fa-clapperboard', label: 'Clips' },
-    { tab: 'shoutout' as DashboardTab, icon: 'fa-bullhorn', label: 'Shoutout' }
-] as const;
+const QUICK_COMMANDS: { tab: DashboardTab; icon: LucideIcon; label: string }[] = [
+    { tab: 'followage' as DashboardTab, icon: UserPlus, label: 'Followage' },
+    { tab: 'clips' as DashboardTab, icon: Clapperboard, label: 'Clips' },
+    { tab: 'shoutout' as DashboardTab, icon: Megaphone, label: 'Shoutout' }
+];
 
 const USEFUL_LINKS: Array<{
     href: string;
-    icon: string;
+    icon: LucideIcon | React.ElementType;
     label: string;
     external?: boolean;
 }> = [
-    { href: '/sobre-la-api', icon: 'fa-solid fa-circle-info', label: 'Sobre la API' },
-    { href: '/docs', icon: 'fa-solid fa-book', label: 'Documentación' },
+    { href: '/sobre-la-api', icon: Info, label: 'Sobre la API' },
+    { href: '/docs', icon: Book, label: 'Documentación' },
     {
         href: 'https://discord.gg/8uN3qY5E',
-        icon: 'fa-brands fa-discord',
+        icon: DiscordIcon,
         label: 'Discord Soporte',
         external: true
     }
@@ -47,7 +50,7 @@ export function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
                             onClick={() => onNavigate?.(link.tab)}
                             className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-primary/[0.03] px-2.5 py-1.5 text-left text-[0.75rem] font-semibold text-[#a1a1aa] transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
                         >
-                            <i className={`fa-solid ${link.icon} w-5 text-center text-base`} aria-hidden />
+                            <link.icon className="w-5 text-center text-base" aria-hidden="true" />
                             {link.label}
                         </button>
                     ))}

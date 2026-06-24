@@ -1,4 +1,4 @@
-import { Loader2, Gem, Swords, Shield } from 'lucide-react';
+import { Loader2, Gem, Swords, Shield, Check, AlertTriangle, FlaskConical, Play, Gavel, Skull, Crosshair, MessageCircle, Send, type LucideIcon } from 'lucide-react';
 
 import { useState, type ReactNode } from 'react';
 import { API_ENDPOINTS } from '@/lib/config';
@@ -43,7 +43,7 @@ function parseApiError(text: string): string {
 }
 
 function MinigameCard({
-    icon,
+    icon: Icon,
     title,
     description,
     info,
@@ -51,7 +51,7 @@ function MinigameCard({
     staggered = false,
     centerBody = false
 }: {
-    icon: string;
+    icon: LucideIcon;
     title: string;
     description: string;
     info?: string;
@@ -66,7 +66,7 @@ function MinigameCard({
             <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
                 <div className="flex items-center gap-3">
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                        <i className={`fa-solid ${icon}`} aria-hidden />
+                        <Icon className="w-5 text-center" aria-hidden="true" />
                     </div>
                     <div>
                         <h3 className="mb-0.5 text-[0.95rem] font-bold">{title}</h3>
@@ -87,13 +87,13 @@ function MinigameCard({
 function GameResponse({
     result,
     loadingNode,
-    successIcon = 'fa-check',
-    errorIcon = 'fa-triangle-exclamation'
+    successIcon: SuccessIcon = Check,
+    errorIcon: ErrorIcon = AlertTriangle
 }: {
     result: TestResult;
     loadingNode?: ReactNode;
-    successIcon?: string;
-    errorIcon?: string;
+    successIcon?: LucideIcon;
+    errorIcon?: LucideIcon;
 }) {
     const isActive = result.status === 'success' || result.status === 'error';
     if (!isActive && result.status !== 'loading') return null;
@@ -113,12 +113,12 @@ function GameResponse({
         >
             {loading && loadingNode}
             {success && (
-                <i className={`fa-solid ${successIcon} text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]`} aria-hidden />
+                <SuccessIcon className="text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" aria-hidden="true" />
             )}
             {result.status === 'error' && (
-                <i
-                    className={`fa-solid ${errorIcon} text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]`}
-                    aria-hidden
+                <ErrorIcon
+                    className="text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]"
+                    aria-hidden="true"
                 />
             )}
             {!loading && <div className="min-w-0 flex-1">{result.message}</div>}
@@ -159,7 +159,7 @@ export function Magic8View() {
                 onExtraValuesChange={setCommandExtras}
             />
             <MinigameCard
-                icon="fa-flask"
+                icon={FlaskConical}
                 title="Prueba la Bola 8"
                 description="Verifica que la IA responda correctamente"
                 info="Haz una pregunta directamente aquí para ver cómo respondería la IA en tu chat."
@@ -188,7 +188,7 @@ export function Magic8View() {
                     disabled={result.status === 'loading'}
                     className={`${btnPrimary} mt-5`}
                 >
-                    <Loader2 className={` ${result.status === 'loading' ? ' animate-spin' : 'fa-play'}`} />
+                    {result.status === 'loading' ? <Loader2 className="animate-spin" /> : <Play />}
                     {result.status === 'loading' ? 'Consultando...' : 'Preguntar'}
                 </button>
                 <GameResponse
@@ -250,7 +250,7 @@ export function DuelView() {
         <>
             <CommandGeneratorCard config={COMMAND_CONFIG.duel} />
             <MinigameCard
-                icon="fa-khanda"
+                icon={Swords}
                 title="Duelo 1vs1"
                 description="Simula un duelo 1vs1 rápido"
                 info="Prueba el comando !duelo directamente desde aquí."
@@ -293,7 +293,7 @@ export function DuelView() {
                     disabled={result.status === 'loading'}
                     className={`${btnPrimary} mt-5`}
                 >
-                    <Loader2 className={` ${result.status === 'loading' ? ' animate-spin' : 'fa-gavel'}`} />
+                    {result.status === 'loading' ? <Loader2 className="animate-spin" /> : <Gavel />}
                     {result.status === 'loading' ? 'Peleando...' : '¡DUELO!'}
                 </button>
                 <GameResponse
@@ -349,19 +349,19 @@ export function RussianView() {
         <>
             <CommandGeneratorCard config={COMMAND_CONFIG.russian} />
             <MinigameCard
-                icon="fa-skull-crossbones"
+                icon={Skull}
                 title="Ruleta Rusa"
                 description="Juego de azar extremo. ¿Te atreves?"
                 staggered
                 centerBody
             >
                 <div className="relative z-[1] my-5 px-5 py-5">
-                    <i
-                        className={`fa-solid text-[4rem] transition-all max-[600px]:text-[3rem] ${
-                            gunDead ? 'fa-skull text-error' : 'fa-gun'
-                        } ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : gunDead ? '' : 'text-[#71717a] drop-shadow-[0_0_15px_rgba(0,0,0,0.4)] hover:scale-110 hover:rotate-[-5deg] hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]'}`}
-                        aria-hidden
-                    />
+                    {gunDead ? (
+                        <Skull className={`text-[4rem] transition-all max-[600px]:text-[3rem] text-error ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : ''}`} aria-hidden="true" />
+                    ) : (
+                        <Crosshair className={`text-[4rem] transition-all max-[600px]:text-[3rem] ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : 'text-[#71717a] drop-shadow-[0_0_15px_rgba(0,0,0,0.4)] hover:scale-110 hover:rotate-[-5deg] hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]'}`} aria-hidden="true" />
+                    )}
+                    {/* gun render */}
                 </div>
 
                 <div className="relative before:absolute before:top-[-10px] before:left-1/2 before:h-0.5 before:w-[200px] before:-translate-x-1/2 before:bg-gradient-to-r before:from-transparent before:via-primary/30 before:to-transparent max-[600px]:before:w-[100px]">
@@ -371,15 +371,15 @@ export function RussianView() {
                         disabled={loading}
                         className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-white/10 bg-gradient-to-br from-[#dc2626] to-[#991b1b] px-10 py-3.5 text-[1rem] font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.3),inset_0_0_0_1px_rgba(255,255,255,0.1)] transition hover:-translate-y-0.5 hover:scale-105 hover:from-[#ef4444] hover:to-[#dc2626] hover:shadow-[0_15px_35px_rgba(220,38,38,0.5)] active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
                     >
-                        <Loader2 className={` ${loading ? ' animate-spin' : 'fa-person-rifle'}`} />
+                        {loading ? <Loader2 className="animate-spin" /> : <Crosshair />}
                         Jalar Gatillo
                     </button>
                 </div>
 
                 <GameResponse
                     result={result}
-                    successIcon="fa-circle-check"
-                    errorIcon="fa-skull"
+                    successIcon={Check}
+                    errorIcon={Skull}
                     loadingNode={
                         <>
                             <Loader2 className="animate-spin text-lg" />
@@ -431,7 +431,7 @@ export function FeedbackView() {
 
     return (
         <MinigameCard
-            icon="fa-comment-dots"
+            icon={MessageCircle}
             title="Feedback & Sugerencias"
             description="Ayúdanos a mejorar LosPerris API"
             info="Tu mensaje llegará directo a nuestro Discord. ¡Gracias por ayudarnos a mejorar!"
@@ -460,7 +460,7 @@ export function FeedbackView() {
                     disabled={sending || !message.trim()}
                     className={`${btnPrimary} shrink-0 max-[600px]:w-full max-[600px]:justify-center`}
                 >
-                    <Loader2 className={` ${sending ? ' animate-spin' : 'fa-paper-plane'}`} />
+                    {sending ? <Loader2 className="animate-spin" /> : <Send />}
                     {sending ? 'Enviando...' : 'Enviar Feedback'}
                 </button>
             </div>

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Home } from 'lucide-react';
 import { appPath } from '@/lib/paths';
 
 interface ErrorPageProps {
@@ -27,7 +28,7 @@ export function ErrorPage({ code, title, message, children }: ErrorPageProps) {
                         href={appPath('/')}
                         className="mt-8 inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-[#9146ff] px-8 py-4 text-lg font-bold text-white shadow-lg shadow-[#9146ff]/40 transition hover:bg-[#a970ff]"
                     >
-                        <i className="fa-solid fa-house" /> Volver al Inicio
+                        <Home className="w-5 h-5" /> Volver al Inicio
                     </a>
                 )}
             </div>

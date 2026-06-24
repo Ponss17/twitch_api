@@ -1,4 +1,5 @@
 import { Zap, CheckCircle2, Gauge } from 'lucide-react';
+import { TwitchIcon } from '@/components/ui/icons/BrandIcons';
 
 import { useEffect, useRef } from 'react';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
@@ -52,7 +53,7 @@ export function HomeHero({ displayName, todayRequests, successRate, latencyMs }:
                             {displayName}
                         </span>{' '}
                         <span className="ml-3.5 align-middle text-[1.8rem] text-primary">
-                            <i className="fa-brands fa-twitch" aria-hidden />
+                            <TwitchIcon className="w-[1em] h-[1em]" aria-hidden="true" />
                         </span>
                     </h1>
                     <p className="max-w-[500px] text-[1.05rem] leading-[1.7] tracking-[0.01em] text-white/[0.55]">

@@ -1,7 +1,7 @@
 import { AlertTriangle, Loader2 } from 'lucide-react';
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { X } from 'lucide-react';
+import { X, Trash2, type LucideIcon } from 'lucide-react';
 import {
     btnDanger,
     btnIcon,
@@ -27,7 +27,7 @@ interface ModalProps {
     open: boolean;
     onClose: () => void;
     title: string;
-    titleIcon?: string;
+    titleIcon?: LucideIcon;
     children: ReactNode;
     footer?: ReactNode;
     closeOnBackdrop?: boolean;
@@ -113,7 +113,7 @@ export function Modal({
     open,
     onClose,
     title,
-    titleIcon = 'fa-triangle-exclamation',
+    titleIcon: TitleIcon = AlertTriangle,
     children,
     footer,
     closeOnBackdrop = true
@@ -122,7 +122,7 @@ export function Modal({
         <BaseModal open={open} onClose={onClose} closeOnBackdrop={closeOnBackdrop} className={modalPanel}>
             <div className={modalHeader}>
                 <h3 className={modalTitle}>
-                    <i className={`fa-solid ${titleIcon} ${modalTitleIcon}`} aria-hidden />
+                    <TitleIcon className={modalTitleIcon} aria-hidden="true" />
                     {title}
                 </h3>
                 <button type="button" className={btnIcon} aria-label="Cerrar" onClick={onClose}>
@@ -289,7 +289,7 @@ export function DangerConfirmModal({
                             </>
                         ) : (
                             <>
-                                <i className="fa-solid fa-trash-can" aria-hidden />
+                                <Trash2 className="w-4 h-4 mr-2" aria-hidden="true" />
                                 {confirmLabel}
                             </>
                         )}
@@ -327,7 +327,7 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
             open={open}
             onClose={onClose}
             title="¿Estás seguro de regenerar tu API Key?"
-            titleIcon="fa-triangle-exclamation"
+            titleIcon={AlertTriangle}
             footer={
                 <>
                     <button

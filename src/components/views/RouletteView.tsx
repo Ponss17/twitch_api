@@ -1,4 +1,4 @@
-import { Dices, Pause, RotateCw, Loader2 } from 'lucide-react';
+import { Dices, Pause, RotateCw, Loader2, Play, Users } from 'lucide-react';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS, IGNORED_BOTS } from '@/lib/config';
@@ -411,7 +411,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                             isOpen ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'
                         }`}
                     >
-                        <Pause className={` ${isOpen ? '' : 'fa-play'}`} />
+                        {isOpen ? <Pause /> : <Play />}
                     </button>
 
                     <button
@@ -469,13 +469,11 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         className="pointer-events-none absolute top-1/2 left-1/2 z-10 flex h-[14%] w-[14%] min-h-[44px] min-w-[44px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[3px] border-primary/70 bg-[#18181b] shadow-[0_0_20px_rgba(0,0,0,0.6),inset_0_0_12px_rgba(145,70,255,0.15)]"
                         aria-hidden
                     >
-                        <i
-                            className={`fa-solid text-base ${
-                                chatters.length === 0
-                                    ? 'fa-users text-[#71717a]'
-                                    : `fa-dice text-primary ${isSpinning ? 'animate-pulse' : ''}`
-                            }`}
-                        />
+                        {chatters.length === 0 ? (
+                            <Users className="w-5 h-5 text-[#71717a]" aria-hidden="true" />
+                        ) : (
+                            <Dices className={`w-5 h-5 text-primary ${isSpinning ? 'animate-pulse' : ''}`} aria-hidden="true" />
+                        )}
                     </div>
 
                     {chatters.length === 0 && (
@@ -544,7 +542,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         disabled={isSpinning || chatters.length === 0}
                         className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-br from-primary to-primary-hover px-10 py-3.5 text-[1rem] font-semibold text-white shadow-[0_10px_20px_rgba(0,0,0,0.3)] transition hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_15px_30px_rgba(168,85,247,0.4)] active:translate-y-px disabled:opacity-50 disabled:hover:scale-100 max-[480px]:w-full max-[480px]:justify-center max-[480px]:px-8 max-[480px]:py-3 max-[480px]:text-[0.9375rem]"
                     >
-                        <Loader2 className={` ${isSpinning ? ' animate-spin' : 'fa-play'}`} />
+                        {isSpinning ? <Loader2 className="animate-spin" /> : <Play />}
                         {isSpinning ? 'Girando...' : 'GIRAR RULETA'}
                     </button>
                 </div>

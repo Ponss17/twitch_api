@@ -1,4 +1,5 @@
-import { Book } from 'lucide-react';
+import { Book, ArrowLeft } from 'lucide-react';
+import { DiscordIcon, InstagramIcon } from '@/components/ui/icons/BrandIcons';
 
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
 import { appPath, staticPath } from '@/lib/paths';
@@ -45,7 +46,7 @@ function AboutHeader() {
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#a1a1aa] no-underline transition hover:bg-white/5 hover:text-white"
                     >
-                        <i className="fa-brands fa-discord" aria-hidden />
+                        <DiscordIcon className="w-[1em] h-[1em]" aria-hidden="true" />
                         Comunidad
                     </a>
                 </nav>
@@ -324,7 +325,7 @@ export function AboutPage() {
                     style={animDelay(0.5)}
                     onClick={handleBack}
                 >
-                    <i className="fa-solid fa-arrow-left text-[0.9rem] transition group-hover:-translate-x-1" aria-hidden />
+                    <ArrowLeft className="w-4 h-4 transition group-hover:-translate-x-1" aria-hidden="true" />
                     Volver al Panel
                 </a>
 
@@ -350,7 +351,7 @@ export function AboutPage() {
                             className="flex cursor-pointer items-center gap-2 rounded-lg border border-white/5 bg-white/[0.03] px-[18px] py-2.5 text-[0.9rem] text-[#a1a1aa] transition hover:-translate-y-0.5 hover:border-[#5865f2] hover:bg-[#5865f2]/10 hover:text-white hover:shadow-[0_0_20px_rgba(88,101,242,0.15)]"
                             onClick={() => void copyDiscord()}
                         >
-                            <i className="fa-brands fa-discord" aria-hidden />
+                            <DiscordIcon className="w-5 h-5" aria-hidden="true" />
                             <span>Ponss</span>
                         </button>
                         <a
@@ -359,7 +360,7 @@ export function AboutPage() {
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.03] px-[18px] py-2.5 text-[0.9rem] text-[#a1a1aa] no-underline transition hover:-translate-y-0.5 hover:border-[#e4405f] hover:bg-[#e4405f]/10 hover:text-white hover:shadow-[0_0_20px_rgba(228,64,95,0.15)]"
                         >
-                            <i className="fa-brands fa-instagram" aria-hidden />
+                            <InstagramIcon className="w-5 h-5" aria-hidden="true" />
                             <span>ponss_jean</span>
                         </a>
                     </div>
@@ -429,7 +430,7 @@ export function AboutPage() {
                                     rel="noopener noreferrer"
                                     className="inline-flex shrink-0 items-center gap-3 rounded-xl border-2 border-[#5865f2] bg-transparent px-7 py-3.5 text-base font-extrabold whitespace-nowrap text-[#5865f2] no-underline transition hover:-translate-y-0.5 hover:scale-[1.02] hover:bg-[#5865f2] hover:text-white hover:shadow-[0_10px_30px_rgba(88,101,242,0.3)]"
                                 >
-                                    <i className="fa-brands fa-discord" aria-hidden /> Discord
+                                    <DiscordIcon className="w-[1em] h-[1em]" aria-hidden="true" /> Discord
                                 </a>
                             </div>
                         </div>
