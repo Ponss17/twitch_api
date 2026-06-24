@@ -1,3 +1,5 @@
+import { Loader2, Gem, Swords, Shield } from 'lucide-react';
+
 import { useState, type ReactNode } from 'react';
 import { API_ENDPOINTS } from '@/lib/config';
 import { authHeaders } from '@/lib/auth';
@@ -186,17 +188,14 @@ export function Magic8View() {
                     disabled={result.status === 'loading'}
                     className={`${btnPrimary} mt-5`}
                 >
-                    <i
-                        className={`fa-solid ${result.status === 'loading' ? 'fa-spinner fa-spin' : 'fa-play'}`}
-                        aria-hidden
-                    />
+                    <Loader2 className={` ${result.status === 'loading' ? ' animate-spin' : 'fa-play'}`} />
                     {result.status === 'loading' ? 'Consultando...' : 'Preguntar'}
                 </button>
                 <GameResponse
                     result={result}
                     loadingNode={
                         <div className="flex items-center gap-3 font-medium text-primary italic">
-                            <i className="fa-solid fa-crystal-ball animate-pulse text-[1.8rem] drop-shadow-[0_0_10px_rgba(168,85,247,0.6)]" aria-hidden />
+                            <Gem className="animate-pulse text-[1.8rem] drop-shadow-[0_0_10px_rgba(168,85,247,0.6)]" />
                             Consultando a los espíritus...
                         </div>
                     }
@@ -294,17 +293,14 @@ export function DuelView() {
                     disabled={result.status === 'loading'}
                     className={`${btnPrimary} mt-5`}
                 >
-                    <i
-                        className={`fa-solid ${result.status === 'loading' ? 'fa-spinner fa-spin' : 'fa-gavel'}`}
-                        aria-hidden
-                    />
+                    <Loader2 className={` ${result.status === 'loading' ? ' animate-spin' : 'fa-gavel'}`} />
                     {result.status === 'loading' ? 'Peleando...' : '¡DUELO!'}
                 </button>
                 <GameResponse
                     result={result}
                     loadingNode={
                         <div className="flex items-center gap-3 font-medium text-[#f97316] italic">
-                            <i className="fa-solid fa-khanda animate-[gunShake_1s_infinite_linear] text-[1.8rem] drop-shadow-[0_0_10px_rgba(249,115,22,0.6)]" aria-hidden />
+                            <Swords className="animate-[gunShake_1s_infinite_linear] text-[1.8rem] drop-shadow-[0_0_10px_rgba(249,115,22,0.6)]" />
                             Calculando ganador...
                         </div>
                     }
@@ -375,7 +371,7 @@ export function RussianView() {
                         disabled={loading}
                         className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-white/10 bg-gradient-to-br from-[#dc2626] to-[#991b1b] px-10 py-3.5 text-[1rem] font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.3),inset_0_0_0_1px_rgba(255,255,255,0.1)] transition hover:-translate-y-0.5 hover:scale-105 hover:from-[#ef4444] hover:to-[#dc2626] hover:shadow-[0_15px_35px_rgba(220,38,38,0.5)] active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
                     >
-                        <i className={`fa-solid ${loading ? 'fa-spinner fa-spin' : 'fa-person-rifle'}`} aria-hidden />
+                        <Loader2 className={` ${loading ? ' animate-spin' : 'fa-person-rifle'}`} />
                         Jalar Gatillo
                     </button>
                 </div>
@@ -386,7 +382,7 @@ export function RussianView() {
                     errorIcon="fa-skull"
                     loadingNode={
                         <>
-                            <i className="fa-solid fa-spinner fa-spin text-lg" aria-hidden />
+                            <Loader2 className="animate-spin text-lg" />
                             <span>Girando el cilindro...</span>
                         </>
                     }
@@ -455,7 +451,7 @@ export function FeedbackView() {
 
             <div className={cardFooterFlex}>
                 <p className="max-w-[60%] text-[0.8125rem] text-[#71717a] max-[600px]:max-w-full">
-                    <i className="fa-solid fa-shield-halved mr-1" aria-hidden />
+                    <Shield className="mr-1" />
                     Tu mensaje se enviará de forma segura y anónima a nuestro servidor de Discord.
                 </p>
                 <button
@@ -464,7 +460,7 @@ export function FeedbackView() {
                     disabled={sending || !message.trim()}
                     className={`${btnPrimary} shrink-0 max-[600px]:w-full max-[600px]:justify-center`}
                 >
-                    <i className={`fa-solid ${sending ? 'fa-circle-notch fa-spin' : 'fa-paper-plane'}`} aria-hidden />
+                    <Loader2 className={` ${sending ? ' animate-spin' : 'fa-paper-plane'}`} />
                     {sending ? 'Enviando...' : 'Enviar Feedback'}
                 </button>
             </div>

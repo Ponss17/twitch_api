@@ -8,6 +8,8 @@ import { TabSyncService } from '@/lib/tabSyncService';
 import { card, fadeIn } from '@/lib/tw';
 import { useToast } from '@/components/ui/ToastProvider';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
+import { Circle, Power, Loader2, Network, BarChart2, Minus, Plus, Play, Clock, RotateCw } from 'lucide-react';
+
 
 const STOP_WORDS = new Set([
     'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', 'y', 'o', 'pero', 'si', 'no', 'en', 'de', 'del',
@@ -343,22 +345,22 @@ export function TrendsView({ active = true }: { active?: boolean }) {
 
     const statusContent = connected ? (
         <span className="text-success">
-            <i className="fa-solid fa-circle mr-1" aria-hidden />
+            <Circle className="mr-1" />
             Conectado
         </span>
     ) : !tracking ? (
         <span className="text-[#71717a]">
-            <i className="fa-solid fa-power-off mr-1" aria-hidden />
+            <Power className="mr-1" />
             Reposo
         </span>
     ) : isLeader ? (
         <span className="text-warning">
-            <i className="fa-solid fa-spinner fa-spin mr-1" aria-hidden />
+            <Loader2 className="animate-spin mr-1" />
             Conectando...
         </span>
     ) : (
         <span className="text-success">
-            <i className="fa-solid fa-circle-nodes mr-1" aria-hidden />
+            <Network className="mr-1" />
             Sincronizado
         </span>
     );
@@ -377,7 +379,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                 draggable={false}
                             />
                         ) : (
-                            <i className="fa-solid fa-chart-simple" aria-hidden />
+                            <BarChart2 />
                         )}
                     </div>
                     <div>
@@ -399,7 +401,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                         aria-label="Reducir minutos"
                                         className="flex h-7 w-7 items-center justify-center rounded-md text-[#a1a1aa] transition hover:bg-white/10 hover:text-[#fafafa] disabled:cursor-not-allowed disabled:opacity-30"
                                     >
-                                        <i className="fa-solid fa-minus text-xs" aria-hidden />
+                                        <Minus className="text-xs" />
                                     </button>
                                     <div className="flex items-center">
                                         <input
@@ -420,7 +422,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                         aria-label="Aumentar minutos"
                                         className="flex h-7 w-7 items-center justify-center rounded-md text-[#a1a1aa] transition hover:bg-white/10 hover:text-[#fafafa] disabled:cursor-not-allowed disabled:opacity-30"
                                     >
-                                        <i className="fa-solid fa-plus text-xs" aria-hidden />
+                                        <Plus className="text-xs" />
                                     </button>
                                 </div>
                                 <button
@@ -429,7 +431,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                     title="Iniciar temporizador"
                                     className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-success transition hover:bg-success/10"
                                 >
-                                    <i className="fa-solid fa-play" aria-hidden />
+                                    <Play />
                                 </button>
                             </div>
                         )}
@@ -441,7 +443,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                 aria-live="polite"
                                 aria-label={`Cuenta atrás: ${formatTime(remaining)}`}
                             >
-                                <i className="fa-solid fa-clock text-warning" aria-hidden />
+                                <Clock className="text-warning" />
                                 <span className="text-[0.6875rem] font-semibold tracking-wide text-warning/80 uppercase">
                                     Restante
                                 </span>
@@ -463,7 +465,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                             title="Reiniciar: vuelve a la duración configurada y borra resultados"
                             className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-warning transition hover:bg-warning/10"
                         >
-                            <i className="fa-solid fa-rotate" aria-hidden />
+                            <RotateCw />
                         </button>
                     </div>
 
@@ -493,7 +495,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                 <tr>
                                     <td colSpan={4} className="px-5 py-10 text-center text-[#71717a]">
                                         <div className="mb-2.5 text-[2rem] text-[#fafafa]">
-                                            <i className="fa-solid fa-play" aria-hidden />
+                                            <Play />
                                         </div>
                                         <h4 className="mb-1 text-[0.8125rem] font-bold text-[#fafafa]">
                                             Listo para analizar

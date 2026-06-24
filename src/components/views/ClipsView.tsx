@@ -8,6 +8,8 @@ import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import { cache, CACHE_TTL } from '@/lib/cacheService';
 import { card, fadeIn, selectInput } from '@/lib/tw';
 import { ClipCommandView } from './CommandsViews';
+import { Star, RotateCw, Link, Eye } from 'lucide-react';
+
 
 interface Clip {
     id: string;
@@ -181,7 +183,7 @@ export function ClipsView() {
                                 showFavsOnly ? 'text-[#ffd700]' : 'text-[#a1a1aa] hover:text-[#fafafa]'
                             }`}
                         >
-                            <i className={`fa-${showFavsOnly ? 'solid' : 'regular'} fa-star`} aria-hidden />
+                            <Star className={`fa-${showFavsOnly ? 'solid' : 'regular'} `} />
                         </button>
                         <button
                             type="button"
@@ -189,7 +191,7 @@ export function ClipsView() {
                             title="Recargar lista de clips"
                             className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#a1a1aa] transition hover:bg-white/5 hover:text-[#fafafa]"
                         >
-                            <i className="fa-solid fa-rotate-right" aria-hidden />
+                            <RotateCw />
                         </button>
                         <InfoTooltip text="Galería de tus clips más recientes. Se actualiza automáticamente." />
                     </div>
@@ -258,10 +260,7 @@ export function ClipsView() {
                                                     title="Favorito"
                                                     className={`${CLIP_ACTION_BTN} ${isFav ? 'text-[#ffd700] hover:bg-[rgba(255,215,0,0.2)]' : ''}`}
                                                 >
-                                                    <i
-                                                        className={`fa-${isFav ? 'solid' : 'regular'} fa-star text-[0.75rem]`}
-                                                        aria-hidden
-                                                    />
+                                                    <Star className={`fa-${isFav ? 'solid' : 'regular'} text-[0.75rem]`} />
                                                 </button>
                                                 <button
                                                     type="button"
@@ -269,7 +268,7 @@ export function ClipsView() {
                                                     title="Copiar enlace"
                                                     className={CLIP_ACTION_BTN}
                                                 >
-                                                    <i className="fa-solid fa-link text-[0.75rem]" aria-hidden />
+                                                    <Link className="text-[0.75rem]" />
                                                 </button>
                                             </div>
                                             <a
@@ -296,7 +295,7 @@ export function ClipsView() {
                                                     </div>
                                                     <div className="flex justify-between text-[0.6875rem] text-[#a1a1aa]">
                                                         <span>
-                                                            <i className="fa-solid fa-eye mr-1" aria-hidden />
+                                                            <Eye className="mr-1" />
                                                             {viewsStr}
                                                         </span>
                                                         <span>{dateStr}</span>
