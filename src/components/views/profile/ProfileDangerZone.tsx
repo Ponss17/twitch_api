@@ -18,8 +18,8 @@ export const ProfileDangerZone = forwardRef<HTMLDivElement, ProfileDangerZonePro
         return (
             <div ref={ref} id="danger-zone-section" className={dangerCardShell}>
             <div className="mb-2 flex items-center gap-3 border-b border-white/[0.08] pb-2">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#ef4444]/20 bg-[#ef4444]/10 text-[0.9rem] text-[#ef4444]">
-                    <AlertTriangle />
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#ef4444]/20 bg-[#ef4444]/10 text-[#ef4444]">
+                    <AlertTriangle className="w-4 h-4" />
                 </div>
                 <div>
                     <h3 className="mb-0.5 text-[0.95rem] font-bold text-[#ef4444]">Zona de Peligro</h3>
