@@ -30,7 +30,7 @@ const CLIP_ACTION_BTN =
     'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-none bg-black/70 text-[#fafafa] backdrop-blur-[4px] transition hover:scale-110 hover:bg-primary';
 
 const CLIPS_SEARCH =
-    'w-full rounded-xl border border-white/[0.08] bg-bg-tertiary py-[10px] pr-2.5 pl-9 text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:shadow-[0_0_0_2px_rgba(145,70,255,0.1)]';
+    'w-full rounded-lg border border-white/[0.08] bg-bg-secondary py-[7px] pr-2.5 pl-9 text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:shadow-[0_0_0_3px_rgba(145,70,255,0.2)]';
 
 function loadFavorites(userId: string): string[] {
     try {
