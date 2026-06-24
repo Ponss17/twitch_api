@@ -188,7 +188,7 @@ export function Magic8View() {
                     disabled={result.status === 'loading'}
                     className={`${btnPrimary} mt-5`}
                 >
-                    {result.status === 'loading' ? <Loader2 className="animate-spin" /> : <Play />}
+                    {result.status === 'loading' ? <Loader2 className="animate-spin" /> : <Play className="w-4 h-4" />}
                     {result.status === 'loading' ? 'Consultando...' : 'Preguntar'}
                 </button>
                 <GameResponse
@@ -293,7 +293,7 @@ export function DuelView() {
                     disabled={result.status === 'loading'}
                     className={`${btnPrimary} mt-5`}
                 >
-                    {result.status === 'loading' ? <Loader2 className="animate-spin" /> : <Gavel />}
+                    {result.status === 'loading' ? <Loader2 className="animate-spin" /> : <Gavel className="w-4 h-4" />}
                     {result.status === 'loading' ? 'Peleando...' : '¡DUELO!'}
                 </button>
                 <GameResponse
@@ -371,7 +371,7 @@ export function RussianView() {
                         disabled={loading}
                         className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-white/10 bg-gradient-to-br from-[#dc2626] to-[#991b1b] px-10 py-3.5 text-[1rem] font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.3),inset_0_0_0_1px_rgba(255,255,255,0.1)] transition hover:-translate-y-0.5 hover:scale-105 hover:from-[#ef4444] hover:to-[#dc2626] hover:shadow-[0_15px_35px_rgba(220,38,38,0.5)] active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
                     >
-                        {loading ? <Loader2 className="animate-spin" /> : <Crosshair />}
+                        {loading ? <Loader2 className="animate-spin" /> : <Crosshair className="w-4 h-4" />}
                         Jalar Gatillo
                     </button>
                 </div>
@@ -460,7 +460,7 @@ export function FeedbackView() {
                     disabled={sending || !message.trim()}
                     className={`${btnPrimary} shrink-0 max-[600px]:w-full max-[600px]:justify-center`}
                 >
-                    {sending ? <Loader2 className="animate-spin" /> : <Send />}
+                    {sending ? <Loader2 className="animate-spin" /> : <Send className="w-4 h-4" />}
                     {sending ? 'Enviando...' : 'Enviar Feedback'}
                 </button>
             </div>
