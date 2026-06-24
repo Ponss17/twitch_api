@@ -1,4 +1,4 @@
-import { Shield, Info, Key, EyeOff, Check, RotateCw, AlertTriangle, Gauge, Copy } from 'lucide-react';
+import { Shield, Info, Key, EyeOff, Eye, Check, RotateCw, AlertTriangle, Gauge, Copy } from 'lucide-react';
 
 import { useState } from 'react';
 import { SlotText } from 'slot-text/react';
@@ -95,7 +95,7 @@ export function ProfileSecuritySection({
                                 className="flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] text-[#a1a1aa] transition first:border-l-0 hover:bg-white/[0.05] hover:text-white"
                                 title="Ver/Ocultar"
                             >
-                                <EyeOff className={` ${keyVisible ? '' : 'fa-eye'}`} />
+                                {keyVisible ? <EyeOff /> : <Eye />}
                             </button>
                             <button
                                 type="button"
@@ -103,7 +103,7 @@ export function ProfileSecuritySection({
                                 className="flex items-center justify-center gap-1.5 border-l border-white/[0.05] px-3 text-[0.85rem] text-[#a1a1aa] transition hover:bg-primary/10 hover:text-primary"
                                 title="Copiar"
                             >
-                                <Check className={` ${isKeyCopied ? '' : 'fa-copy'}`} />
+                                {isKeyCopied ? <Check /> : <Copy />}
                                 <SlotText text={isKeyCopied ? "Copiado" : "Copiar"} />
                             </button>
                             <button

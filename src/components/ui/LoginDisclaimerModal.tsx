@@ -3,7 +3,8 @@ import { startTwitchLogin } from '@/lib/auth';
 import { appPath } from '@/lib/paths';
 import { btnSecondary, modalBtnPrimary } from '@/lib/tw';
 import { Modal } from '@/components/ui/Modal';
-import { Loader2, Check } from 'lucide-react';
+import { Loader2, Check, Shield } from 'lucide-react';
+import { TwitchIcon } from '@/components/ui/icons/BrandIcons';
 
 
 interface LoginDisclaimerModalProps {
@@ -28,7 +29,7 @@ export function LoginDisclaimerModal({ open, onClose }: LoginDisclaimerModalProp
             open={open}
             onClose={() => { if (!loading) onClose(); }}
             title="Aviso de Privacidad"
-            titleIcon="fa-shield-halved"
+            titleIcon={Shield}
             closeOnBackdrop={!loading}
             footer={
                 <>
@@ -40,7 +41,7 @@ export function LoginDisclaimerModal({ open, onClose }: LoginDisclaimerModalProp
                             </>
                         ) : (
                             <>
-                                <i className="fa-brands fa-twitch" aria-hidden />
+                                <TwitchIcon className="w-5" aria-hidden="true" />
                                 Aceptar y Conectar
                             </>
                         )}

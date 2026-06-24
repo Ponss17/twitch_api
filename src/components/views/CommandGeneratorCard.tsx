@@ -1,4 +1,4 @@
-import { Edit, Check, Loader2, AlertTriangle } from 'lucide-react';
+import { Edit, Check, Loader2, AlertTriangle, Copy, Play, Bot, FileCode, FlaskConical } from 'lucide-react';
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { SlotText } from 'slot-text/react';
@@ -29,12 +29,12 @@ import { useCommandConfig } from '@/lib/hooks/useCommandStore';
 import { getCommandConfig } from '@/lib/commandStore';
 
 function CommandCardHeader({
-    icon,
+    icon: Icon,
     title,
     description,
     info
 }: {
-    icon: string;
+    icon: React.ElementType;
     title: string;
     description: string;
     info: string;
@@ -43,7 +43,7 @@ function CommandCardHeader({
         <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
             <div className="flex items-center gap-3">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                    <i className={`fa-solid ${icon}`} aria-hidden />
+                    <Icon className="w-4 h-4" aria-hidden="true" />
                 </div>
                 <div>
                     <h3 className="mb-0.5 text-[0.95rem] font-bold">{title}</h3>
@@ -57,19 +57,19 @@ function CommandCardHeader({
 
 function ToolSelector({
     label,
-    icon,
+    icon: Icon,
     controlId,
     children
 }: {
     label: string;
-    icon: string;
+    icon: React.ElementType;
     controlId: string;
     children: ReactNode;
 }) {
     return (
         <div className={toolSelector}>
             <label htmlFor={controlId} className={toolLabel}>
-                <i className={`fa-solid ${icon}`} aria-hidden />
+                <Icon className="w-4 h-4 mr-2" aria-hidden="true" />
                 <span>{label}</span>
             </label>
             {children}
@@ -186,7 +186,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
             />
 
             <div className="text-[#fafafa]">
-                <ToolSelector label="Selecciona tu bot:" icon="fa-robot" controlId={`${config.id}-bot`}>
+                <ToolSelector label="Selecciona tu bot:" icon={Bot} controlId={`${config.id}-bot`}>
                     <select
                         id={`${config.id}-bot`}
                         value={bot}
@@ -206,7 +206,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                     return (
                     <div key={sel.id} className={`${toolSelector} mt-2.5`}>
                         <label htmlFor={extraControlId} className={toolLabel}>
-                            <i className={`fa-solid ${sel.icon}`} aria-hidden />
+                            <sel.icon className="w-4 h-4 mr-2" aria-hidden="true" />
                             <span>{sel.label}:</span>
                         </label>
                         <select
@@ -247,7 +247,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                     </div>
                 )}
 
-                <ToolSelector label="Formato de copiado:" icon="fa-file-code" controlId={`${config.id}-format`}>
+                <ToolSelector label="Formato de copiado:" icon={FileCode} controlId={`${config.id}-format`}>
                     <select
                         id={`${config.id}-format`}
                         value={format}
@@ -267,7 +267,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                         className={btnCopy}
                         disabled={!generated.full}
                     >
-                        <Check className={` ${isCopied ? '' : 'fa-copy'}`} />
+                        {isCopied ? <Check /> : <Copy />}
                         <SlotText text={isCopied ? "Copiado" : "Copiar"} />
                     </button>
                 </div>
@@ -302,7 +302,7 @@ export function ApiTestCard({
             <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
                 <div className="flex items-center gap-3">
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                        <i className="fa-solid fa-flask" aria-hidden />
+                        <FlaskConical className="w-4 h-4" aria-hidden="true" />
                     </div>
                     <div>
                         <h3 className="mb-0.5 text-[0.95rem] font-bold">{title}</h3>
@@ -321,7 +321,7 @@ export function ApiTestCard({
                     disabled={result.status === 'loading'}
                     className={btnPrimary}
                 >
-                    <Loader2 className={` ${result.status === 'loading' ? ' animate-spin' : 'fa-play'}`} />
+                    {result.status === 'loading' ? <Loader2 className="animate-spin" /> : <Play />}
                     {result.status === 'loading' ? 'Probando...' : buttonLabel}
                 </button>
 

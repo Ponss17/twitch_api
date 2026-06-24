@@ -6,7 +6,7 @@ import { chatLogStore } from '@/lib/chatLogStore';
 import { calculateAccountAge, broadcasterLabel, type TwitchUser } from '@/lib/twitchTypes';
 import { formatDate } from '@/lib/utils';
 import { staticPath } from '@/lib/paths';
-import { X, Check } from 'lucide-react';
+import { X, Check, Copy } from 'lucide-react';
 
 
 interface UserInspectModalProps {
@@ -92,7 +92,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                             title="Copiar ID"
                         >
                             {user.id}
-                            <Check className={` ${isIdCopied ? ' text-primary' : 'fa-copy'}`} />
+                            {isIdCopied ? <Check className="text-primary" /> : <Copy />}
                             <SlotText text={isIdCopied ? 'Copiado' : ''} />
                         </button>
                     </div>
