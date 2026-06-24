@@ -379,7 +379,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                 draggable={false}
                             />
                         ) : (
-                            <BarChart2 />
+                            <BarChart2 className="w-4 h-4" />
                         )}
                     </div>
                     <div>
@@ -431,7 +431,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                     title="Iniciar temporizador"
                                     className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-success transition hover:bg-success/10"
                                 >
-                                    <Play />
+                                    <Play className="w-4 h-4" />
                                 </button>
                             </div>
                         )}
@@ -465,7 +465,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                             title="Reiniciar: vuelve a la duración configurada y borra resultados"
                             className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-warning transition hover:bg-warning/10"
                         >
-                            <RotateCw />
+                            <RotateCw className="w-4 h-4" />
                         </button>
                     </div>
 
@@ -495,7 +495,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                 <tr>
                                     <td colSpan={4} className="px-5 py-10 text-center text-[#71717a]">
                                         <div className="mb-2.5 text-[2rem] text-[#fafafa]">
-                                            <Play />
+                                            <Play className="w-4 h-4" />
                                         </div>
                                         <h4 className="mb-1 text-[0.8125rem] font-bold text-[#fafafa]">
                                             Listo para analizar

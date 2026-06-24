@@ -54,7 +54,7 @@ export function ProfileSecuritySection({
                     </div>
                 </div>
                 <div className="group/tooltip relative flex cursor-help items-center text-[#71717a] transition hover:text-primary">
-                    <Info />
+                    <Info className="w-4 h-4" />
                     <span className="pointer-events-none absolute bottom-[calc(100%+12px)] right-0 z-[100] w-max max-w-[220px] translate-y-2.5 rounded-lg border border-white/[0.08] bg-bg-tertiary px-4 py-2.5 text-left text-[0.8rem] font-semibold leading-snug text-[#fafafa] opacity-0 shadow-lg transition group-hover/tooltip:translate-y-0 group-hover/tooltip:opacity-100">
                         Mantén esta información privada. No la compartas nunca en directo.
                     </span>
@@ -87,7 +87,7 @@ export function ProfileSecuritySection({
                                 className="flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] text-[#a1a1aa] transition first:border-l-0 hover:bg-white/[0.05] hover:text-white"
                                 title="Ver/Ocultar"
                             >
-                                {keyVisible ? <EyeOff /> : <Eye />}
+                                {keyVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </button>
                             <button
                                 type="button"
@@ -95,7 +95,7 @@ export function ProfileSecuritySection({
                                 className="flex items-center justify-center gap-1.5 border-l border-white/[0.05] px-3 text-[0.85rem] text-[#a1a1aa] transition hover:bg-primary/10 hover:text-primary"
                                 title="Copiar"
                             >
-                                {isKeyCopied ? <Check /> : <Copy />}
+                                {isKeyCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                                 <SlotText text={isKeyCopied ? "Copiado" : "Copiar"} />
                             </button>
                             <button
@@ -104,7 +104,7 @@ export function ProfileSecuritySection({
                                 className="flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] text-[#a1a1aa] transition hover:bg-[#ef4444]/[0.08] hover:text-[#ef4444]"
                                 title="Regenerar"
                             >
-                                <RotateCw />
+                                <RotateCw className="w-4 h-4" />
                             </button>
                             <button
                                 type="button"

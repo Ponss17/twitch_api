@@ -345,11 +345,3 @@
 
 
 
-@layer base {
-  /* Fix Lucide icons default sizing to match FontAwesome */
-  svg.lucide:not([class*="w-"]):not([class*="size-"]) {
-    width: 1.2em;
-    height: 1.2em;
-    vertical-align: -0.125em;
-  }
-}
