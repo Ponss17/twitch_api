@@ -4,7 +4,7 @@ import { useRequiredSession } from '@/hooks/useSession';
 import { staticPath } from '@/lib/paths';
 import { TAB_META } from '@/lib/dashboardTabs';
 import { User, ChevronDown, LogOut, Menu, CreditCard } from 'lucide-react';
-import { TwitchIcon } from '@/components/ui/icons/BrandIcons';
+import { TwitchIcon, PaypalIcon } from '@/components/ui/icons/BrandIcons';
 
 interface DashboardHeaderProps {
     tab: DashboardTab;
@@ -63,7 +63,7 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                         className="hidden items-center gap-2 rounded-full border border-white/[0.05] bg-white/[0.03] px-3 py-1.5 text-[0.85rem] font-semibold text-[#a1a1aa] no-underline transition hover:-translate-y-px hover:border-[#0070ba]/20 hover:bg-[#0070ba]/[0.08] hover:text-[#fafafa] sm:flex"
                         title="Apoyar el proyecto"
                     >
-                        <CreditCard className="text-[#0070ba] w-4" />
+                        <PaypalIcon className="text-[#0070ba] w-4" />
                         <span>Donación</span>
                     </a>
 
