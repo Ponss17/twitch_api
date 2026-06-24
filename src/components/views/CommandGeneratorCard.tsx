@@ -267,7 +267,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                         className={btnCopy}
                         disabled={!generated.full}
                     >
-                        {isCopied ? <Check /> : <Copy />}
+                        {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                         <SlotText text={isCopied ? "Copiado" : "Copiar"} />
                     </button>
                 </div>
@@ -321,7 +321,7 @@ export function ApiTestCard({
                     disabled={result.status === 'loading'}
                     className={btnPrimary}
                 >
-                    {result.status === 'loading' ? <Loader2 className="animate-spin" /> : <Play />}
+                    {result.status === 'loading' ? <Loader2 className="animate-spin" /> : <Play className="w-4 h-4" />}
                     {result.status === 'loading' ? 'Probando...' : buttonLabel}
                 </button>
 
