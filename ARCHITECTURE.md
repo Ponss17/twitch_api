@@ -56,7 +56,7 @@ Entry serverless: `api/index.ts`. Local: `pnpm dev:api` (puerto 3000).
 
 ## OAuth seguro
 
-1. Callback Twitch → redirect con `?auth=<token>` (HMAC, 24 h), **sin** API key en URL permanente.
+1. Callback Twitch → redirect con `?auth=<token>` (HMAC, 5 min), **sin** API key en URL permanente.
 2. Frontend llama `GET /auth/exchange?auth=…` → recibe `apiKey` + perfil.
 3. Sesión en `sessionStorage` / validación vía `/system/validate`.
 

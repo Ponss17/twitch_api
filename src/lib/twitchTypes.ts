@@ -20,6 +20,9 @@ export interface StalkerUser {
 export interface RouletteUser {
     user_login: string;
     user_name: string;
+    mod?: boolean;
+    sub?: boolean;
+    vip?: boolean;
 }
 
 export function calculateAccountAge(dateStr?: string): string {

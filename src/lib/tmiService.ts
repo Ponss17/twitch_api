@@ -3,6 +3,10 @@ import type { Client, Options } from 'tmi.js';
 export interface TmiTags {
     username?: string;
     'display-name'?: string;
+    mod?: boolean | string | number;
+    subscriber?: boolean | string | number;
+    vip?: boolean | string | number;
+    badges?: Record<string, string> | string;
     [key: string]: unknown;
 }
 
@@ -56,7 +60,11 @@ class TmiChatService {
                 if (self) return;
                 const t: TmiTags = {
                     username: tags.username,
-                    'display-name': tags['display-name']
+                    'display-name': tags['display-name'],
+                    mod: tags.mod as TmiTags['mod'],
+                    subscriber: tags.subscriber as TmiTags['subscriber'],
+                    vip: tags.vip as TmiTags['vip'],
+                    badges: tags.badges as TmiTags['badges']
                 };
                 this.listeners.forEach((cb) => cb(_channel, t, message));
             });
@@ -118,21 +126,10 @@ class TmiChatService {
         }
     }
 
-    forceDisconnect() {
-        this.activeClients = 0;
-        if (this.client) {
-            void this.client.disconnect().then(() => this.resetConnection());
-        } else {
-            this.resetConnection();
-        }
-    }
-
     private resetConnection() {
         this.isConnected = false;
         this.client = null;
         this.connectionPromise = null;
-        this.listeners.clear();
-        this.activeClients = 0;
     }
 }
 

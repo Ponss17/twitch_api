@@ -61,6 +61,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
     const [syncCountdown, setSyncCountdown] = useState(120);
     const [profileSyncing, setProfileSyncing] = useState(false);
     const keyHideTimerRef = useRef<number | null>(null);
+    const profileSyncTimerRef = useRef<number | null>(null);
     const pollRef = useRef<number | null>(null);
     const [dangerModal, setDangerModal] = useState<{
         title: string;
@@ -92,7 +93,8 @@ export function ProfileView({ active = true }: { active?: boolean }) {
             showToast('Error al cargar perfil', 'error');
         } finally {
             setLoading(false);
-            window.setTimeout(() => setProfileSyncing(false), 1000);
+            if (profileSyncTimerRef.current) clearTimeout(profileSyncTimerRef.current);
+            profileSyncTimerRef.current = window.setTimeout(() => setProfileSyncing(false), 1000);
         }
     };
 
@@ -131,6 +133,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
     useEffect(() => {
         return () => {
             if (keyHideTimerRef.current) window.clearTimeout(keyHideTimerRef.current);
+            if (profileSyncTimerRef.current) window.clearTimeout(profileSyncTimerRef.current);
         };
     }, []);
 
@@ -145,6 +148,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
         return () => {
             if (pollRef.current) window.clearInterval(pollRef.current);
             pollRef.current = null;
+            if (profileSyncTimerRef.current) window.clearTimeout(profileSyncTimerRef.current);
         };
         // startProfilePolling se recrea en cada render; incluirlo reiniciaría el
         // polling constantemente. Solo queremos (re)arrancar al cambiar de sesión o
@@ -355,6 +359,11 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                         }
 
                         await DataExport.export(session, (msg) => showToast(msg, 'success'));
+
+                        await fetch(API_ENDPOINTS.EXPORT_COMPLETE, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', ...authHeaders(session) }
+                        });
                     } catch {
                         showToast('Error de conexión.', 'error');
                     } finally {

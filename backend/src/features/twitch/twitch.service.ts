@@ -11,4 +11,5 @@ export {
     getFollowersCount
 } from './twitchUserService';
 export { createClip, getClips } from './twitchClipService';
-export { getChannelInfo, sendChatMessage, getChatters, timeoutUser } from './twitchChatService';
+export { getChannelInfo, sendChatMessage, getChatters, timeoutUser, filterChattersByEligibility } from './twitchChatService';
+export type { ChatterEligibility } from './twitchChatService';

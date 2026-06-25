@@ -172,7 +172,7 @@
             "destination": "/api/index.js"
         },
         {
-            "source": "/api/twitch/dashboard/:endpoint(get-clips|analytics|chatters|user-info|summary|activity|track-usage|timezone|clear-data|delete-account|export-check)",
+            "source": "/api/twitch/dashboard/:endpoint(get-clips|analytics|chatters|user-info|summary|activity|track-usage|timezone|clear-data|delete-account|export-check|export-complete)",
             "destination": "/api/index.js"
         },
         {

@@ -24,7 +24,8 @@ export const API_ENDPOINTS = {
     DUEL: `${API_BASE}/minigames/duel`,
     AUTH_LOGIN: `${API_BASE}/auth/twitch`,
     AUTH_EXCHANGE: `${API_BASE}/auth/exchange`,
-    EXPORT_CHECK: `${API_BASE}/dashboard/export-check`
+    EXPORT_CHECK: `${API_BASE}/dashboard/export-check`,
+    EXPORT_COMPLETE: `${API_BASE}/dashboard/export-complete`
 } as const;
 
 /** Debe coincidir con twitch_api/frontend/features/dashboard/dashboard-config.ts */

@@ -13,39 +13,3 @@ import { LandingPage } from '../components/landing/LandingPage';
 >
     <LandingPage client:load />
 </BaseLayout>
-
-<script>
-    import { saveSession } from '../lib/auth';
-    import { API_ENDPOINTS } from '../lib/config';
-    import { appPath } from '../lib/paths';
-
-    const params = new URLSearchParams(window.location.search);
-    const auth = params.get('auth');
-    const token = params.get('token');
-    const apiKey = params.get('apiKey');
-
-    const redirectToDashboard = (session: Record<string, string | undefined>) => {
-        saveSession(session);
-        const dashboard = appPath('/dashboard');
-        window.history.replaceState({}, '', dashboard);
-        window.location.href = dashboard;
-    };
-
-    if (auth) {
-        fetch(`${API_ENDPOINTS.AUTH_EXCHANGE}?auth=${encodeURIComponent(auth)}`)
-            .then((response) => (response.ok ? response.json() : null))
-            .then((data) => {
-                if (data) redirectToDashboard(data);
-            })
-            .catch(() => undefined);
-    } else if (token || apiKey) {
-        redirectToDashboard({
-            token: token ?? undefined,
-            apiKey: apiKey ?? undefined,
-            displayName: params.get('displayName') ?? undefined,
-            login: params.get('login') ?? undefined,
-            profile_image_url: params.get('profile_image_url') ?? undefined,
-            userId: params.get('userId') ?? undefined
-        });
-    }
-</script>

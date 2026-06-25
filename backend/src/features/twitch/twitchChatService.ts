@@ -4,6 +4,105 @@ import * as cacheService from '../../core/database/cacheService';
 import { CACHE_TTL } from '../../core/config/cacheTtl';
 import { apiClient, handleTwitchError, getHeaders } from './twitchClient';
 
+export type ChatterEligibility = 'all' | 'subs' | 'mods' | 'vips';
+
+type ChatterRow = { user_id: string; user_login: string; user_name: string };
+
+async function paginateHelixLogins(
+    url: string,
+    params: Record<string, string | number>,
+    token: string
+): Promise<string[]> {
+    const logins: string[] = [];
+    let cursor: string | undefined;
+
+    do {
+        const response = await apiClient.get(url, {
+            params: {
+                ...params,
+                first: 100,
+                ...(cursor ? { after: cursor } : {})
+            },
+            headers: getHeaders(token)
+        });
+
+        const rows = response.data.data as { user_login?: string }[];
+        for (const row of rows) {
+            if (row.user_login) logins.push(row.user_login.toLowerCase());
+        }
+
+        cursor = response.data.pagination?.cursor;
+    } while (cursor);
+
+    return logins;
+}
+
+export const getModeratorLogins = async (broadcasterId: string, token: string): Promise<string[]> => {
+    const cacheKey = `cache:eligibility:mods:${broadcasterId}`;
+    const cached = await cacheService.get<string[]>(cacheKey);
+    if (cached) return cached;
+
+    const logins = await paginateHelixLogins(
+        'https://api.twitch.tv/helix/moderation/moderators',
+        { broadcaster_id: broadcasterId },
+        token
+    );
+
+    await cacheService.set(cacheKey, logins, CACHE_TTL.ELIGIBILITY);
+    return logins;
+};
+
+export const getVipLogins = async (broadcasterId: string, token: string): Promise<string[]> => {
+    const cacheKey = `cache:eligibility:vips:${broadcasterId}`;
+    const cached = await cacheService.get<string[]>(cacheKey);
+    if (cached) return cached;
+
+    const logins = await paginateHelixLogins(
+        'https://api.twitch.tv/helix/channels/vips',
+        { broadcaster_id: broadcasterId },
+        token
+    );
+
+    await cacheService.set(cacheKey, logins, CACHE_TTL.ELIGIBILITY);
+    return logins;
+};
+
+export const getSubscriberLogins = async (broadcasterId: string, token: string): Promise<string[]> => {
+    const cacheKey = `cache:eligibility:subs:${broadcasterId}`;
+    const cached = await cacheService.get<string[]>(cacheKey);
+    if (cached) return cached;
+
+    const logins = await paginateHelixLogins(
+        'https://api.twitch.tv/helix/subscriptions',
+        { broadcaster_id: broadcasterId },
+        token
+    );
+
+    await cacheService.set(cacheKey, logins, CACHE_TTL.ELIGIBILITY);
+    return logins;
+};
+
+export const filterChattersByEligibility = async (
+    chatters: ChatterRow[],
+    broadcasterId: string,
+    token: string,
+    eligibility: ChatterEligibility
+): Promise<ChatterRow[]> => {
+    if (eligibility === 'all') return chatters;
+
+    let allowed: string[];
+    if (eligibility === 'mods') {
+        allowed = await getModeratorLogins(broadcasterId, token);
+    } else if (eligibility === 'vips') {
+        allowed = await getVipLogins(broadcasterId, token);
+    } else {
+        allowed = await getSubscriberLogins(broadcasterId, token);
+    }
+
+    const allowedSet = new Set(allowed);
+    return chatters.filter((c) => allowedSet.has(c.user_login.toLowerCase()));
+};
+
 export const getChannelInfo = async (
     broadcasterId: string,
     token: string

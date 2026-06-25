@@ -98,17 +98,17 @@ describe('dashboardController', () => {
             );
         });
 
-        it('should return zeroed data if no userId', async () => {
+        it('should return 401 if no userId', async () => {
             const req = mockReq({ userId: undefined });
             const res = mockRes();
 
             await getAnalytics(req, res);
 
+            expect(res.status).toHaveBeenCalledWith(401);
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    totalRequests: 0,
-                    averageLatency: '0ms (0.0s)',
-                    successRate: '0%'
+                    success: false,
+                    error: expect.objectContaining({ message: expect.any(String) })
                 })
             );
         });

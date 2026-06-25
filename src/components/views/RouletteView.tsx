@@ -1,4 +1,4 @@
-import { Dices, Pause, RotateCw, Loader2, Play, Users } from 'lucide-react';
+import { Dices, Pause, RotateCw, Loader2, Play, Users, UserCheck } from 'lucide-react';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS, IGNORED_BOTS } from '@/lib/config';
@@ -7,7 +7,15 @@ import { buildAuthQueryParam } from '@/lib/authQuery';
 import { useRequiredSession } from '@/hooks/useSession';
 import { getTmiAuth, tmiService } from '@/lib/tmiService';
 import type { RouletteUser } from '@/lib/twitchTypes';
-import { card, fadeIn } from '@/lib/tw';
+import { card, fadeIn, selectInput } from '@/lib/tw';
+import {
+    ROULETTE_ELIGIBILITY_OPTIONS,
+    rolesForEligibility,
+    rolesFromTags,
+    tagsMatchEligibility,
+    userMatchesEligibility,
+    type RouletteEligibility
+} from '@/lib/rouletteEligibility';
 import { useToast } from '@/components/ui/ToastProvider';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import confetti from 'canvas-confetti';
@@ -38,15 +46,20 @@ export function RouletteView({ active = true }: { active?: boolean }) {
     const wheelWrapRef = useRef<HTMLDivElement>(null);
     const rotationDegRef = useRef(0);
     const [chatters, setChatters] = useState<RouletteUser[]>([]);
+    const [eligibility, setEligibility] = useState<RouletteEligibility>('all');
     const [isOpen, setIsOpen] = useState(false);
     const [isSpinning, setIsSpinning] = useState(false);
     const [winner, setWinner] = useState<RouletteUser | null>(null);
     const [countPulse, setCountPulse] = useState(false);
     const spinRef = useRef<number | null>(null);
+    const pulseTimerRef = useRef<number | null>(null);
+    const [lastSpinCount, setLastSpinCount] = useState(0);
     const isOpenRef = useRef(isOpen);
     const isSpinningRef = useRef(isSpinning);
+    const eligibilityRef = useRef(eligibility);
     isOpenRef.current = isOpen;
     isSpinningRef.current = isSpinning;
+    eligibilityRef.current = eligibility;
 
     const applyRotation = useCallback((deg: number) => {
         rotationDegRef.current = deg;
@@ -57,7 +70,8 @@ export function RouletteView({ active = true }: { active?: boolean }) {
 
     const pulseCounter = useCallback(() => {
         setCountPulse(true);
-        window.setTimeout(() => setCountPulse(false), 500);
+        if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
+        pulseTimerRef.current = window.setTimeout(() => setCountPulse(false), 500);
     }, []);
 
     const drawEmptyWheel = useCallback((ctx: CanvasRenderingContext2D, w: number, h: number) => {
@@ -208,24 +222,38 @@ export function RouletteView({ active = true }: { active?: boolean }) {
     const loadChatters = useCallback(async () => {
         if (!session.login) return;
 
-        setChatters((prev) => {
-            const existing = new Set(prev.map((u) => u.user_login.toLowerCase()));
-            if (existing.has(session.login!.toLowerCase())) return prev;
-            pulseCounter();
-            return [
-                ...prev,
-                { user_login: session.login!, user_name: session.displayName || session.login! }
-            ];
-        });
+        if (eligibilityRef.current === 'all') {
+            setChatters((prev) => {
+                const existing = new Set(prev.map((u) => u.user_login.toLowerCase()));
+                if (existing.has(session.login!.toLowerCase())) return prev;
+                pulseCounter();
+                return [
+                    ...prev,
+                    { user_login: session.login!, user_name: session.displayName || session.login! }
+                ];
+            });
+        }
 
         try {
-            const params = new URLSearchParams({ channel: session.login });
-            if (session.apiKey) params.set('apiKey', session.apiKey);
-            const res = await fetch(`${API_ENDPOINTS.CHATTERS}?${params}`, {
+                const params = new URLSearchParams({
+                    channel: session.login,
+                    eligibility: eligibilityRef.current
+                });
+                const res = await fetch(`${API_ENDPOINTS.CHATTERS}?${params}`, {
                 headers: authHeaders(session)
             });
+            if (!res.ok) {
+                if (eligibilityRef.current !== 'all') {
+                    showToast(
+                        'No se pudo filtrar participantes. Vuelve a iniciar sesión con Twitch si el filtro es nuevo.',
+                        'error'
+                    );
+                }
+                return;
+            }
             const data = await res.json();
             const list: (string | RouletteUser)[] = Array.isArray(data) ? data : data.chatters ?? [];
+            const roleDefaults = rolesForEligibility(eligibilityRef.current);
 
             setChatters((prev) => {
                 const existing = new Set(prev.map((u) => u.user_login.toLowerCase()));
@@ -237,13 +265,17 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     if (!login) return;
                     const lower = login.toLowerCase();
                     if (!existing.has(lower) && !IGNORED_BOTS.has(lower)) {
-                        next.push({ user_login: login, user_name: name || login });
+                        next.push({
+                            user_login: login,
+                            user_name: name || login,
+                            ...roleDefaults
+                        });
                         existing.add(lower);
                         added++;
                     }
                 });
                 if (added > 0) pulseCounter();
-                return next;
+                return next.filter((u) => userMatchesEligibility(u, eligibilityRef.current));
             });
         } catch {
             showToast('Error al cargar usuarios del chat', 'error');
@@ -256,14 +288,23 @@ export function RouletteView({ active = true }: { active?: boolean }) {
             await tmiService.connect(session.login, getTmiAuth(session));
             tmiService.addListener(LISTENER_ID, (_ch, tags) => {
                 if (isSpinningRef.current || !isOpenRef.current) return;
+                if (!tagsMatchEligibility(tags, eligibilityRef.current)) return;
                 const login = tags.username;
                 if (!login || IGNORED_BOTS.has(login.toLowerCase())) return;
+                const roles = rolesFromTags(tags);
                 setChatters((prev) => {
                     if (prev.some((u) => u.user_login.toLowerCase() === login.toLowerCase())) {
                         return prev;
                     }
                     pulseCounter();
-                    return [...prev, { user_login: login, user_name: tags['display-name'] || login }];
+                    return [
+                        ...prev,
+                        {
+                            user_login: login,
+                            user_name: tags['display-name'] || login,
+                            ...roles
+                        }
+                    ];
                 });
             });
         } catch {
@@ -281,6 +322,9 @@ export function RouletteView({ active = true }: { active?: boolean }) {
             return;
         }
         setIsOpen(true);
+        setChatters([]);
+        setWinner(null);
+        setLastSpinCount(0);
         showToast('Inscripciones Abiertas', 'success');
         await loadChatters();
         await connectTmi();
@@ -330,6 +374,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
             setWinner(picked);
 
             const count = participants.length;
+            setLastSpinCount(count);
             showToast(`Ganador: @${picked.user_name} (${count})`, 'success');
             sendWinnerMessage(
                 `🏆 ¡El ganador es @${picked.user_name}! (De ${count} participantes) ¡Felicidades! 🎉`
@@ -362,6 +407,11 @@ export function RouletteView({ active = true }: { active?: boolean }) {
     };
 
     useEffect(() => {
+        setChatters((prev) => prev.filter((u) => userMatchesEligibility(u, eligibility)));
+        if (isOpen) void loadChatters();
+    }, [eligibility, isOpen, loadChatters]);
+
+    useEffect(() => {
         if (active) return;
         if (spinRef.current) cancelAnimationFrame(spinRef.current);
         tmiService.removeListener(LISTENER_ID);
@@ -372,6 +422,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
     useEffect(() => {
         return () => {
             if (spinRef.current) cancelAnimationFrame(spinRef.current);
+            if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
             tmiService.removeListener(LISTENER_ID);
             tmiService.disconnect();
         };
@@ -390,7 +441,25 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5">
+                <div className="flex flex-wrap items-center gap-2.5 max-md:w-full">
+                    <label className="flex items-center gap-2 text-[0.75rem] font-semibold text-[#a1a1aa]">
+                        <UserCheck className="size-4 shrink-0 text-primary" aria-hidden />
+                        <span className="sr-only">Elegibilidad</span>
+                        <select
+                            value={eligibility}
+                            onChange={(e) => setEligibility(e.target.value as RouletteEligibility)}
+                            disabled={isSpinning}
+                            className={`${selectInput} min-w-[140px] max-w-[180px] py-1.5`}
+                            aria-label="Quién puede participar"
+                        >
+                            {ROULETTE_ELIGIBILITY_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+
                     <span
                         className={`inline-block rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-[0.6875rem] font-bold tracking-wide text-[#a78bfa] transition ${
                             countPulse ? 'scale-110 text-[#3b82f6]' : ''
@@ -424,7 +493,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         <RotateCw className="w-4 h-4" />
                     </button>
 
-                    <InfoTooltip text="Sorteo en vivo. Los usuarios entran automáticamente al hablar en el chat." />
+                    <InfoTooltip text="Sorteo en vivo. Al abrir inscripciones, entran quienes hablan en chat y cumplen el filtro elegido (subs, mods, VIPs o todos)." />
                 </div>
             </div>
 
@@ -518,7 +587,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                                 >
                                     👑 Ganador:{' '}
                                     <strong className="text-primary">{winner.user_name}</strong>{' '}
-                                    <span className="text-[0.9em] opacity-80">({chatters.length})</span>
+                                    <span className="text-[0.9em] opacity-80">({lastSpinCount || chatters.length})</span>
                                 </div>
                                 <button
                                     type="button"

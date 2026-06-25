@@ -339,6 +339,33 @@
   body {
     @apply min-h-screen bg-bg-main font-sans text-base leading-[1.6] text-[#fafafa] antialiased;
   }
+
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: #9146ff rgba(145, 70, 255, 0.1);
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: rgba(145, 70, 255, 0.08);
+    border-radius: 10px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: #9146ff;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: #7c3aed;
+    background-clip: padding-box;
+  }
 }
 
 

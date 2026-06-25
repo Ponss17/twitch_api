@@ -1,10 +1,21 @@
 import { API_ENDPOINTS, type ApiResponse, type Session } from './config';
 import { parseHttpErrorBody } from './apiError';
+import { reportSessionLoadProgress } from './sessionLoadProgress';
 
 const SESSION_KEY = 'twitch_api_session';
 const VALIDATE_CACHE_KEY = 'twitch_validate_cache';
 const VALIDATE_TTL_MS = 5 * 60 * 1000;
 const AUTH_SYNC_CHANNEL = 'auth_sync_channel';
+
+const SENSITIVE_QUERY_PARAMS = [
+    'auth',
+    'token',
+    'apiKey',
+    'login',
+    'displayName',
+    'profile_image_url',
+    'userId'
+] as const;
 
 let authChannel: BroadcastChannel | null = null;
 
@@ -41,95 +52,31 @@ export function clearSession(): void {
     }
 }
 
+/** Elimina credenciales y datos de perfil de la URL tras OAuth. */
+export function stripSensitiveQueryParams(): void {
+    if (typeof window === 'undefined') return;
+
+    const url = new URL(window.location.href);
+    let changed = false;
+
+    for (const key of SENSITIVE_QUERY_PARAMS) {
+        if (url.searchParams.has(key)) {
+            url.searchParams.delete(key);
+            changed = true;
+        }
+    }
+
+    if (!changed) return;
+
+    const next = `${url.pathname}${url.search}${url.hash}`;
+    window.history.replaceState({}, document.title, next);
+}
+
 export function authHeaders(session: Session | null): Record<string, string> {
     const headers: Record<string, string> = {};
     if (session?.token) headers.Authorization = `Bearer ${session.token}`;
     if (session?.apiKey) headers['x-api-key'] = session.apiKey;
     return headers;
-}
-
-export async function validateSession(session: Session): Promise<ApiResponse> {
-    if (!session.apiKey && !session.token) {
-        return { valid: false, error: true, message: 'no_credentials' };
-    }
-
-    if (typeof window !== 'undefined') {
-        try {
-            const raw = sessionStorage.getItem(VALIDATE_CACHE_KEY);
-            if (raw) {
-                const cached = JSON.parse(raw) as { at: number; result: ApiResponse };
-                if (Date.now() - cached.at < VALIDATE_TTL_MS && cached.result.valid === true) {
-                    return cached.result;
-                }
-            }
-        } catch {
-            sessionStorage.removeItem(VALIDATE_CACHE_KEY);
-        }
-    }
-
-    const attempt = async (credentials: Session) => {
-        try {
-            const response = await fetch(API_ENDPOINTS.VALIDATE, {
-                headers: authHeaders(credentials)
-            });
-
-            if (!response.ok) {
-                if (response.status === 401) {
-                    return { valid: false, error: true, message: 'unauthorized' as const, networkError: false };
-                }
-                // Otros errores HTTP (503 cold-start, etc.) → tratar como red inestable, no borrar sesión
-                return {
-                    valid: false,
-                    error: true,
-                    message: `HTTP ${response.status}`,
-                    networkError: true
-                };
-            }
-
-            const contentType = response.headers.get('content-type');
-            if (contentType?.includes('application/json')) {
-                const data = (await response.json()) as ApiResponse;
-                return data.valid ? { ...data, networkError: false } : { valid: false, error: true, networkError: false };
-            }
-
-            return { valid: true, networkError: false };
-        } catch {
-            // Error de red puro (sin respuesta del servidor) → no borrar sesión
-            return { valid: true, error: true, message: 'network_error', networkError: true };
-        }
-    };
-
-    let result = await attempt(session);
-
-    // El token OAuth caduca; la API Key en localStorage sigue siendo válida.
-    // Solo intentar con apiKey si el fallo NO es de red y tenemos una apiKey guardada.
-    if (result.valid !== true && !result.networkError && session.apiKey) {
-        result = await attempt({ apiKey: session.apiKey });
-        if (result.valid === true) {
-            saveSession({ ...session, ...pickSessionFromValidate(result) });
-        }
-    }
-
-    // Si fue error de red (cold-start/inestabilidad), fingir sesión válida para no expulsar al usuario.
-    if (result.valid !== true && result.networkError) {
-        return { valid: true, error: true, message: result.message, networkError: true };
-    }
-
-    if (result.valid === true && !result.error && typeof window !== 'undefined') {
-        try {
-            sessionStorage.setItem(
-                VALIDATE_CACHE_KEY,
-                JSON.stringify({ at: Date.now(), result })
-            );
-        } catch {
-            /* quota exceeded — omitir caché cliente */
-        }
-    } else if (!result.networkError && typeof window !== 'undefined') {
-        // Solo borrar el caché si la sesión fue rechazada de verdad (no por error de red).
-        sessionStorage.removeItem(VALIDATE_CACHE_KEY);
-    }
-
-    return result;
 }
 
 function pickSessionFromValidate(result: ApiResponse): Partial<Session> {
@@ -148,6 +95,145 @@ function pickSessionFromValidate(result: ApiResponse): Partial<Session> {
         if (typeof profile.id === 'string') partial.userId = profile.id;
     }
     return partial;
+}
+
+export function mergeSessionFromValidate(session: Session, result: ApiResponse): Session {
+    const merged: Session = { ...session, ...pickSessionFromValidate(result) };
+    saveSession(merged);
+    return merged;
+}
+
+function canUseDegradedSession(session: Session): boolean {
+    if (session.apiKey || session.token) return true;
+    const stored = getSession();
+    return !!(stored?.apiKey || stored?.token);
+}
+
+function resolveDegradedSession(session: Session): Session {
+    const stored = getSession();
+    return stored ? { ...stored, ...session } : session;
+}
+
+export async function validateSession(session: Session): Promise<ApiResponse> {
+    if (!session.apiKey && !session.token) {
+        return { valid: false, error: true, message: 'no_credentials' };
+    }
+
+    if (typeof window !== 'undefined') {
+        try {
+            const raw = sessionStorage.getItem(VALIDATE_CACHE_KEY);
+            if (raw) {
+                const cached = JSON.parse(raw) as { at: number; result: ApiResponse };
+                if (Date.now() - cached.at < VALIDATE_TTL_MS && cached.result.valid === true) {
+                    reportSessionLoadProgress({
+                        progress: 48,
+                        label: 'Sesión validada (caché local)',
+                        cached: true
+                    });
+                    return cached.result;
+                }
+            }
+        } catch {
+            sessionStorage.removeItem(VALIDATE_CACHE_KEY);
+        }
+    }
+
+    reportSessionLoadProgress({
+        progress: 28,
+        label: 'Validando con Twitch…',
+        cached: false
+    });
+
+    let driftProgress = 28;
+    const driftTimer =
+        typeof window !== 'undefined'
+            ? window.setInterval(() => {
+                  driftProgress = Math.min(driftProgress + 1, 46);
+                  reportSessionLoadProgress({
+                      progress: driftProgress,
+                      label: 'Despertando servidor (sin caché)…',
+                      cached: false
+                  });
+              }, 450)
+            : null;
+
+    const attempt = async (credentials: Session) => {
+        try {
+            const response = await fetch(API_ENDPOINTS.VALIDATE, {
+                headers: authHeaders(credentials)
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    return { valid: false, error: true, message: 'unauthorized' as const, networkError: false };
+                }
+                return {
+                    valid: false,
+                    error: true,
+                    message: `HTTP ${response.status}`,
+                    networkError: true
+                };
+            }
+
+            const contentType = response.headers.get('content-type');
+            if (contentType?.includes('application/json')) {
+                const data = (await response.json()) as ApiResponse;
+                return data.valid
+                    ? { ...data, networkError: false }
+                    : { valid: false, error: true, networkError: false };
+            }
+
+            return { valid: true, networkError: false };
+        } catch {
+            return { valid: false, error: true, message: 'network_error', networkError: true };
+        }
+    };
+
+    try {
+        let result = await attempt(session);
+
+        reportSessionLoadProgress({
+            progress: 52,
+            label: result.valid === true ? 'Sesión verificada' : 'Comprobando credenciales…',
+            cached: false
+        });
+
+        if (result.valid !== true && !result.networkError && session.apiKey) {
+            result = await attempt({ apiKey: session.apiKey });
+            if (result.valid === true) {
+                saveSession({ ...session, ...pickSessionFromValidate(result) });
+            }
+        }
+
+        if (result.valid !== true && result.networkError) {
+            if (canUseDegradedSession(session)) {
+                return {
+                    valid: true,
+                    error: true,
+                    message: result.message,
+                    networkError: true
+                };
+            }
+            return { valid: false, error: true, message: result.message ?? 'network_error' };
+        }
+
+        if (result.valid === true && !result.error && typeof window !== 'undefined') {
+            try {
+                sessionStorage.setItem(
+                    VALIDATE_CACHE_KEY,
+                    JSON.stringify({ at: Date.now(), result })
+                );
+            } catch {
+                /* quota exceeded */
+            }
+        } else if (!result.networkError && typeof window !== 'undefined') {
+            sessionStorage.removeItem(VALIDATE_CACHE_KEY);
+        }
+
+        return result;
+    } finally {
+        if (driftTimer) window.clearInterval(driftTimer);
+    }
 }
 
 export function startTwitchLogin(): void {
@@ -196,21 +282,16 @@ export async function apiFetch<T>(
     return (await response.json()) as T;
 }
 
-export function parseUrlParams(): Session {
-    if (typeof window === 'undefined') return {};
-
-    const params = new URLSearchParams(window.location.search);
+function parseStoredSession(): Session {
     const savedSession = getSession();
-
     return {
-        login: params.get('login') || savedSession?.login || '',
-        displayName: params.get('displayName') || savedSession?.displayName || '',
-        profile_image_url:
-            params.get('profile_image_url') || savedSession?.profile_image_url || '',
-        token: params.get('token') || savedSession?.token,
-        apiKey: params.get('apiKey') || savedSession?.apiKey,
-        userId: params.get('userId') || savedSession?.userId,
-        isNewLogin: !!params.get('token') || !!params.get('apiKey') || !!params.get('auth')
+        login: savedSession?.login || '',
+        displayName: savedSession?.displayName || '',
+        profile_image_url: savedSession?.profile_image_url || '',
+        token: savedSession?.token,
+        apiKey: savedSession?.apiKey,
+        userId: savedSession?.userId,
+        isNewLogin: false
     };
 }
 
@@ -227,6 +308,7 @@ export async function resolveSessionFromUrl(): Promise<Session> {
             );
             if (response.ok) {
                 const data = (await response.json()) as Session;
+                stripSensitiveQueryParams();
                 return {
                     login: data.login || '',
                     displayName: data.displayName || '',
@@ -238,24 +320,11 @@ export async function resolveSessionFromUrl(): Promise<Session> {
                 };
             }
         } catch {
-            /* usar params legacy si el exchange falla */
+            /* sin exchange válido */
         }
     }
 
-    return parseUrlParams();
+    return parseStoredSession();
 }
 
-/** @deprecated Usar resolveSessionFromUrl() en su lugar. */
-export function applyOAuthParamsFromUrl(): boolean {
-    const session = parseUrlParams();
-    if (!session.isNewLogin || paramsHasAuthToken()) return false;
-
-    saveSession(session);
-    window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
-    return true;
-}
-
-function paramsHasAuthToken(): boolean {
-    if (typeof window === 'undefined') return false;
-    return new URLSearchParams(window.location.search).has('auth');
-}
+export { resolveDegradedSession };
