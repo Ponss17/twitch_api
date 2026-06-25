@@ -6,7 +6,8 @@ import { resolveSessionFromUrl, saveSession } from '@/lib/auth';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
 import { Accordion } from '@/components/ui/Accordion';
 import { TwitchIcon, DiscordIcon } from '@/components/ui/icons/BrandIcons';
-import { UserRoundCheck, Clapperboard, Megaphone, TrendingUp, Binoculars, Dices, Sparkles, Skull, Swords, MessageSquare, Book, ArrowRight, Copy, Check } from 'lucide-react';
+import { UserRoundCheck, Clapperboard, Megaphone, TrendingUp, Binoculars, Dices, Swords, MessageSquare, Book, ArrowRight, Copy, Check } from 'lucide-react';
+import { MAGIC8_ICON, RUSSIAN_ICON } from '@/lib/dashboardTabs';
 
 import { SlotText } from 'slot-text/react';
 import Lenis from 'lenis';
@@ -43,8 +44,8 @@ const FEATURE_CATEGORIES = [
         title: 'Minijuegos',
         description: 'Mantén a tu audiencia entretenida incluso cuando no estás.',
         cards: [
-            { icon: Sparkles, title: 'Bola 8', text: 'Respuestas aleatorias para las dudas más existenciales de tu chat.' },
-            { icon: Skull, title: 'Ruleta Rusa', text: 'Prueba tu suerte con un revólver virtual. ¿Sobrevivirás?' },
+            { icon: MAGIC8_ICON, title: 'Bola 8', text: 'Respuestas aleatorias para las dudas más existenciales de tu chat.' },
+            { icon: RUSSIAN_ICON, title: 'Ruleta Rusa', text: 'Prueba tu suerte con un revólver virtual. ¿Sobrevivirás?' },
             { icon: Swords, title: 'Duelo', text: 'Desafía a otros usuarios a un combate narrativo 1vs1 épico.' }
         ]
     },

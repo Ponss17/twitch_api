@@ -1,6 +1,7 @@
 import { CommandGenerator } from '../commandGenerator';
-import { UserRoundCheck, Video, Megaphone, Sparkles, Theater, Skull, Swords } from 'lucide-react';
+import { UserRoundCheck, Video, Megaphone, Theater, Flame, Swords } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { MAGIC8_ICON, RUSSIAN_ICON } from '@/lib/dashboardTabs';
 
 export interface ExtraSelector {
     id: string;
@@ -88,7 +89,7 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     magic8: {
         id: 'magic8',
         title: 'Comando !8ball',
-        icon: Sparkles,
+        icon: MAGIC8_ICON,
         desc: 'Comando para que tus viewers pregunten a la IA',
         info: 'Genera el código para añadir el comando de la Bola 8 a tu bot de chat.',
         extraSelectors: [
@@ -121,14 +122,14 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     russian: {
         id: 'russian',
         title: 'Comando !ruleta',
-        icon: Skull,
+        icon: RUSSIAN_ICON,
         desc: 'Juego de Ruleta Rusa para el chat',
         info: 'Tus viewers podrán jugar a la Ruleta Rusa escribiendo !ruleta.',
         extraSelectors: [
             {
                 id: 'hardcore',
                 label: 'Modo Hardcore',
-                icon: Skull,
+                icon: Flame,
                 options: [
                     { value: 'false', label: 'Desactivado' },
                     { value: 'true', label: 'Activado (60s timeout)' }
