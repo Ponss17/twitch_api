@@ -7,8 +7,8 @@ const VALIDATE_CACHE_KEY = 'twitch_validate_cache';
 /** Revalidación en servidor; caché en localStorage para sobrevivir cierres de pestaña */
 const VALIDATE_TTL_MS = 4 * 60 * 60 * 1000;
 /** Tras OAuth / login nuevo — splash con barra de progreso en el dashboard */
-export const DASHBOARD_SPLASH_KEY = 'dashboard_splash';
-export const DASHBOARD_SPLASH_FRESH_KEY = 'dashboard_splash_fresh';
+const DASHBOARD_SPLASH_KEY = 'dashboard_splash';
+const DASHBOARD_SPLASH_FRESH_KEY = 'dashboard_splash_fresh';
 const AUTH_SYNC_CHANNEL = 'auth_sync_channel';
 
 const SENSITIVE_QUERY_PARAMS = [
