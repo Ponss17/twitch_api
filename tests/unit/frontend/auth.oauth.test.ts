@@ -2,6 +2,7 @@ jest.mock('@/lib/config', () => ({
     API_ENDPOINTS: {
         VALIDATE: '/api/twitch/system/validate',
         AUTH_LOGIN: '/api/twitch/auth/twitch',
+        AUTH_EXCHANGE: '/api/twitch/auth/exchange',
         TIMEZONE: '/api/twitch/dashboard/timezone'
     }
 }));

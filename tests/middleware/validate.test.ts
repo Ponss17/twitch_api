@@ -15,6 +15,7 @@ const mockRes = () => {
     const res = {} as Response;
     res.status = jest.fn().mockReturnValue(res);
     res.json = jest.fn().mockReturnValue(res);
+    res.setHeader = jest.fn().mockReturnValue(res);
     return res;
 };
 
@@ -51,8 +52,12 @@ describe('validate middleware', () => {
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith(
             expect.objectContaining({
-                error: 'Error de validación',
-                details: expect.any(Array)
+                success: false,
+                error: expect.objectContaining({
+                    message: 'Error de validación',
+                    code: 'VALIDATION_ERROR',
+                    details: expect.any(Array)
+                })
             })
         );
     });
@@ -66,7 +71,7 @@ describe('validate middleware', () => {
         await middleware(req, res, next);
 
         const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
-        expect(jsonCall.details[0]).toHaveProperty('path');
-        expect(jsonCall.details[0]).toHaveProperty('message');
+        expect(jsonCall.error.details[0]).toHaveProperty('path');
+        expect(jsonCall.error.details[0]).toHaveProperty('message');
     });
 });

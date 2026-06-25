@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import { CONFIG } from '../../core/config/env';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
+import { jsonError } from '../../core/utils/jsonResponse';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 
@@ -29,10 +30,12 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                 
                 logger.warn('validateToken: no se pudo obtener token con API Key', errorMsg);
                 if (isAuthError) {
-                    return res.status(401).send(MESSAGES.AUTH.INVALID_TOKEN);
-                } else {
-                    return res.status(503).json({ error: 'Red inestable validando API Key', offline: true });
+                    return jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN);
                 }
+                return jsonError(res, 503, 'Red inestable validando API Key.', {
+                    code: 'SERVICE_UNAVAILABLE',
+                    details: { offline: true }
+                });
             }
         }
 
@@ -53,12 +56,12 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
         }
 
         if (!token) {
-            return res.status(401).send(MESSAGES.AUTH.NO_TOKEN);
+            return jsonError(res, 401, MESSAGES.AUTH.NO_TOKEN);
         }
 
         const validation = await apiService.validateToken(token);
         if (!validation) {
-            return res.status(401).send(MESSAGES.AUTH.INVALID_TOKEN);
+            return jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN);
         }
 
         try {
@@ -84,13 +87,16 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
         }
     } catch (error) {
         logger.error('validateToken unexpected error:', error);
-        return res.status(503).json({ error: MESSAGES.AUTH.VALIDATION_ERROR, offline: true });
+        return jsonError(res, 503, MESSAGES.AUTH.VALIDATION_ERROR, {
+            code: 'SERVICE_UNAVAILABLE',
+            details: { offline: true }
+        });
     }
 };
 
 export const regenerateKey = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
-    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
+    if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     try {
         const newKey = await authService.regenerateApiKey(userId);
@@ -100,7 +106,7 @@ export const regenerateKey = async (req: AuthenticatedRequest, res: Response) =>
         res.json({ apiKey: newKey });
     } catch (e) {
         logger.error('Error regenerando key:', e);
-        res.status(500).json({ error: MESSAGES.SYSTEM.REGENERATE_KEY_ERROR });
+        return jsonError(res, 500, MESSAGES.SYSTEM.REGENERATE_KEY_ERROR);
     }
 };
 

@@ -1,96 +1,84 @@
-# LosPerris Twitch API — Modern Stack
+# LosPerris Twitch API (v5)
 
-Reescritura completa de `twitch_api` con **Astro + React + Tailwind** en el frontend y **Express** en el backend, manteniendo **la misma lógica y contratos de API** para no romper integraciones con Nightbot, StreamElements u otros bots.
+API y panel para streamers de Twitch: comandos de bot (Nightbot, StreamElements), dashboard con analíticas, clips, minijuegos con IA y OAuth seguro. Stack **Astro + React + Tailwind** (frontend) y **Express** (backend), desplegado en Vercel.
 
 ## Estructura
 
 ```text
-twitch_api_modern/
-├── api/                 # Entry point Vercel (Express serverless)
-├── backend/src/         # Lógica API (portada desde twitch_api/src)
+twitch_api/
+├── api/                 # Entry Vercel → Express serverless
+├── backend/src/         # API Express (features, middleware, Supabase, KV)
 ├── src/                 # Frontend Astro + React + Tailwind
-│   ├── components/      # Landing, Docs, Dashboard, vistas
+│   ├── components/      # Landing, docs, dashboard, vistas
 │   ├── layouts/         # BaseLayout.astro
-│   ├── lib/             # Auth, config, TabSync, cache, dataExporter
+│   ├── lib/             # Auth, config, TabSync, caché, exportación
 │   └── pages/           # /, /dashboard, /docs, /404, /429, /500, /offline
 ├── public/              # PWA (manifest, sw.js), assets
-├── tests/               # Jest (131 tests, backend)
-└── vercel.json          # API → Express, resto → Astro
+├── tests/               # Jest (backend + frontend) + Playwright E2E
+└── vercel.json          # Rewrites API + rutas del dashboard
 ```
 
-## Qué se mantiene igual
+## Requisitos
 
-- Todos los endpoints bajo `/api/twitch/*`, `/twitch/*` y `/auth/*`
-- Middlewares: API key, OAuth, rate limiting, CSRF
-- Servicios: Twitch Helix, Supabase, KV, Groq IA, cifrado AES
-- Esquema de base de datos (mismo Supabase)
-
-## Qué cambia
-
-| Antes (`twitch_api`)        | Ahora (`twitch_api_modern`)      |
-| --------------------------- | -------------------------------- |
-| HTML estático + Vanilla TS  | Astro SSR + React                |
-| CSS modular (~4800 líneas)  | Tailwind CSS v4                  |
-| Esbuild frontend            | Vite (via Astro)                 |
-| Express sirve HTML + API    | Astro sirve páginas, Express API |
+- Node.js ≥ 20
+- pnpm (recomendado)
 
 ## Desarrollo local
 
 ```bash
-cd twitch_api_modern
-cp .env.example .env   # rellena con tus credenciales
+cd twitch_api
+cp .env.example .env   # rellena credenciales (ver scripts/check-env.js)
 pnpm install
-pnpm dev               # Astro :4321 + API :3000 (proxy configurado)
+pnpm dev               # Astro :4321 + API :3000
 ```
 
-- Frontend: http://localhost:4321
-- API directa: http://localhost:3000/api/twitch/health
+| Servicio   | URL |
+| ---------- | --- |
+| Frontend   | http://localhost:4321/api/twitch/ |
+| API health | http://localhost:3000/api/twitch/health |
 
-## Build, tests y deploy
+## Scripts
 
 ```bash
-pnpm build           # Astro + compila backend TypeScript
-pnpm lint            # ESLint
-pnpm test            # Jest (backend + frontend)
-pnpm type-check      # Astro check + tsc backend
-pnpm test:e2e        # Playwright smoke
-pnpm smoke           # Imprime checklist manual de producción
-pnpm start           # Solo API (producción local)
+pnpm dev           # Frontend + API en paralelo
+pnpm build         # Compila backend + Astro (dist/)
+pnpm lint          # ESLint
+pnpm type-check    # Astro check + tsc backend
+pnpm test          # Jest (204 tests)
+pnpm test:e2e      # Playwright (API real + smoke UI; primera vez: npx playwright install chromium)
+pnpm smoke         # Checklist manual de producción
+pnpm check-env     # Valida .env antes de arrancar la API
 ```
 
-En Vercel: Astro maneja las páginas; `vercel.json` reescribe rutas API hacia `api/index.ts`.
+## Calidad y CI
 
-### Husky (hooks de git)
+- **Husky**: pre-commit (`lint` + `type-check`), pre-push (`test`)
+- **GitHub Actions**: `.github/workflows/ci.yml` — lint, type-check, test, build
 
-Tras `git init`, `pnpm install` activa Husky automáticamente:
+## Deploy (Vercel)
 
-- **pre-commit**: `lint` + `type-check`
-- **pre-push**: `pnpm test`
+- Páginas estáticas/SSR: Astro (`dist/`)
+- API: `vercel.json` reescribe `/api/twitch/*` hacia `api/index.ts`
+- Checklist de variables: [docs/SMOKE-PROD.md](docs/SMOKE-PROD.md) y `.env.example`
 
-### Smoke manual en producción
+### Logs en producción
 
-Checklist imprimible: `pnpm smoke` o [docs/SMOKE-PROD.md](docs/SMOKE-PROD.md)
+Con `VERCEL=1`, cada petición API se loguea en JSON (`requestId`, duración, status, región). En local: `LOG_VERBOSE=1`.
 
-### Logs en Vercel
+## Contratos de API
 
-En despliegues Vercel (`VERCEL=1`) cada petición API se logea en JSON con `requestId`, duración, status, IP, `userAgent`, región y `x-vercel-id`. Errores 4xx/5xx siempre se logean. En local: `LOG_VERBOSE=1` en `.env`.
+Los endpoints públicos para bots mantienen compatibilidad con integraciones existentes:
 
-## Estado de migración — 100% completa
+- Prefijos: `/api/twitch/*`, `/twitch/*`, `/auth/*`
+- Autenticación: API Key (`X-Api-Key`) u OAuth (dashboard)
+- Rate limiting: Vercel KV (bot/API key) o memoria (sesión dashboard)
 
-| Área | Estado |
-| ---- | ------ |
-| Landing (hero terminal, bento, FAQ) | ✅ |
-| Docs interactivas (sidebar, búsqueda, code tabs) | ✅ |
-| Sobre la API (narrativa + canvas sparks) | ✅ |
-| Dashboard (12 tabs) | ✅ |
-| TabSync leader election (Home) | ✅ |
-| Clips (caché, favoritos, paginación) | ✅ |
-| Export datos perfil (HTML) | ✅ |
-| PWA (manifest + service worker) | ✅ |
-| Páginas error 404/429/500/offline | ✅ |
-| Tests Jest backend | ✅ 131/131 |
-| API backend | ✅ Portado 1:1 |
+Documentación interactiva: `/api/twitch/docs`.
 
-## Origen
+## Arquitectura
 
-Este proyecto es una reescritura **únicamente** de `twitch_api` (no `twitch_api_dashboard`). El backend se portó desde `twitch_api/src/` y el frontend desde `twitch_api/frontend/` + `twitch_api/public/`.
+Detalle técnico: [ARCHITECTURE.md](ARCHITECTURE.md).
+
+## Licencia
+
+Proyecto privado — LosPerris.

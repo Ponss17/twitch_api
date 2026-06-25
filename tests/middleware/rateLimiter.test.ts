@@ -2,10 +2,14 @@ import { Request, Response } from 'express';
 import { kv } from '@vercel/kv';
 import { globalRateLimiter } from '../../backend/src/core/middleware/redisRateLimiter';
 
+jest.mock('@/core/database/cacheService', () => ({
+    isKvWriteAvailable: jest.fn().mockReturnValue(true)
+}));
+
 jest.mock('@/core/utils/logger', () => ({
     logger: {
         warn: jest.fn(),
-        error: jest.fn((...args) => console.log('ERROR LOG:', ...args)),
+        error: jest.fn(),
         info: jest.fn()
     }
 }));
@@ -59,14 +63,23 @@ describe('globalRateLimiter', () => {
         expect(next).toHaveBeenCalled();
     });
 
-    it('bloquea con 429 si supera el límite', async () => {
+    it('bloquea con 429 si supera el límite (IP anónima vía KV)', async () => {
         (kv.incr as jest.Mock).mockResolvedValue(2000);
-        (req as Request & { userId: string }).userId = 'user1';
 
         await globalRateLimiter(req, res, next);
 
         expect(res.status).toHaveBeenCalledWith(429);
         expect(next).not.toHaveBeenCalled();
+    });
+
+    it('bloquea sesión OAuth en memoria si supera el límite', async () => {
+        (req as Request & { userId: string }).userId = 'user1';
+
+        for (let i = 0; i < 1001; i += 1) {
+            await globalRateLimiter(req, res, next);
+        }
+
+        expect(res.status).toHaveBeenCalledWith(429);
     });
 
     it('usa el límite de API Key si está presente', async () => {

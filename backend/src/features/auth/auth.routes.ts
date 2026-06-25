@@ -7,5 +7,6 @@ const router = express.Router();
 
 router.get('/twitch', validate(loginSchema), authController.login);
 router.get('/twitch/callback', validate(callbackSchema), authController.callback);
+router.get('/exchange', authController.exchange);
 
 export default router;

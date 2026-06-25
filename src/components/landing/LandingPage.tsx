@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { LoginDisclaimerModal } from '@/components/ui/LoginDisclaimerModal';
 import { VerifyingSessionModal } from '@/components/ui/VerifyingSessionModal';
 import { AppLogo } from '@/components/ui/AppLogo';
-import { parseUrlParams, saveSession } from '@/lib/auth';
+import { resolveSessionFromUrl, saveSession } from '@/lib/auth';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
 import { Accordion } from '@/components/ui/Accordion';
 import { TwitchIcon, DiscordIcon } from '@/components/ui/icons/BrandIcons';
-import { Heart, Video, Megaphone, Star, ScanFace, Dices, HelpCircle, Skull, Swords, MessageSquare, Book, ArrowRight, Copy, Check } from 'lucide-react';
+import { UserRoundCheck, Clapperboard, Megaphone, TrendingUp, Binoculars, Dices, Sparkles, Skull, Swords, MessageSquare, Book, ArrowRight, Copy, Check } from 'lucide-react';
 
 import { SlotText } from 'slot-text/react';
 import Lenis from 'lenis';
@@ -25,8 +25,8 @@ const FEATURE_CATEGORIES = [
         title: 'Comandos',
         description: 'Interacción directa y automática para dinamizar tu chat.',
         cards: [
-            { icon: Heart, title: 'Followage', text: 'Muestra cuánto tiempo lleva un usuario siguiendo el canal. ¡Celebra la lealtad!', tag: '!followage' },
-            { icon: Video, title: 'Clips', text: 'Captura los mejores momentos al instante.', tag: '!clip' },
+            { icon: UserRoundCheck, title: 'Followage', text: 'Muestra cuánto tiempo lleva un usuario siguiendo el canal. ¡Celebra la lealtad!', tag: '!followage' },
+            { icon: Clapperboard, title: 'Clips', text: 'Captura los mejores momentos al instante.', tag: '!clip' },
             { icon: Megaphone, title: 'Shoutout', text: 'Promociona a otros streamers con un solo comando.', tag: '!so @user' }
         ]
     },
@@ -34,8 +34,8 @@ const FEATURE_CATEGORIES = [
         title: 'Herramientas',
         description: 'Análisis avanzado para entender el crecimiento de tu canal.',
         cards: [
-            { icon: Star, title: 'Tendencias', text: 'Ranking de palabras en tiempo real. Descubre de qué habla tu chat.' },
-            { icon: ScanFace, title: 'Stalker', text: 'Investiga perfiles y obtén info pública detallada.' },
+            { icon: TrendingUp, title: 'Tendencias', text: 'Ranking de palabras en tiempo real. Descubre de qué habla tu chat.' },
+            { icon: Binoculars, title: 'Stalker', text: 'Investiga perfiles y obtén info pública detallada.' },
             { icon: Dices, title: 'Ruleta', text: 'Juego de azar para sorteos o decisiones rápidas en vivo.' }
         ]
     },
@@ -43,7 +43,7 @@ const FEATURE_CATEGORIES = [
         title: 'Minijuegos',
         description: 'Mantén a tu audiencia entretenida incluso cuando no estás.',
         cards: [
-            { icon: HelpCircle, title: 'Bola 8', text: 'Respuestas aleatorias para las dudas más existenciales de tu chat.' },
+            { icon: Sparkles, title: 'Bola 8', text: 'Respuestas aleatorias para las dudas más existenciales de tu chat.' },
             { icon: Skull, title: 'Ruleta Rusa', text: 'Prueba tu suerte con un revólver virtual. ¿Sobrevivirás?' },
             { icon: Swords, title: 'Duelo', text: 'Desafía a otros usuarios a un combate narrativo 1vs1 épico.' }
         ]
@@ -100,25 +100,31 @@ export function LandingPage() {
         // Limpiar flag stale del splash en caso de que una sesión anterior lo dejara sin limpiar
         sessionStorage.removeItem('dashboard_splash');
 
-        const params = new URLSearchParams(window.location.search);
-        const sessionParams = parseUrlParams();
+        void (async () => {
+            const params = new URLSearchParams(window.location.search);
+            const sessionParams = await resolveSessionFromUrl();
 
-        // Comportamiento idéntico al legacy:
-        // Si hay credenciales en URL o en localStorage, redirigir directo al dashboard.
-        // El SessionProvider del dashboard se encargará de validar con el servidor.
-        if (params.get('token') || params.get('apiKey') || sessionParams.token || sessionParams.apiKey) {
-            setIsVerifying(true);
-            sessionStorage.setItem('dashboard_splash', '1');
-            
-            // Si viene de OAuth (nuevo login), guardamos la sesión inmediatamente
-            // para que no haya riesgo de perderla antes de llegar al dashboard
-            if (sessionParams.isNewLogin) {
-                saveSession(sessionParams);
+            if (
+                params.get('auth') ||
+                params.get('token') ||
+                params.get('apiKey') ||
+                sessionParams.token ||
+                sessionParams.apiKey
+            ) {
+                setIsVerifying(true);
+                sessionStorage.setItem('dashboard_splash', '1');
+
+                if (sessionParams.isNewLogin) {
+                    saveSession(sessionParams);
+                }
+
+                const search =
+                    params.get('auth') || params.get('token') || params.get('apiKey')
+                        ? window.location.search
+                        : '';
+                window.location.href = appPath('/dashboard') + search;
             }
-
-            const search = params.get('token') || params.get('apiKey') ? window.location.search : '';
-            window.location.href = appPath('/dashboard') + search;
-        }
+        })();
     }, []);
 
     useEffect(() => {

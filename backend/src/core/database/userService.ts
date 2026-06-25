@@ -3,6 +3,7 @@ import { StoredUser } from '../../types/twitch';
 import { encrypt, decrypt, ENCRYPTION_KEY, LEGACY_ENCRYPTION_KEY } from './cryptoService';
 import { logger } from '../utils/logger';
 import * as cacheService from './cacheService';
+import { CACHE_TTL } from '../config/cacheTtl';
 
 const migratedUsersCache = new Set<string>();
 const MAX_MIGRATED_CACHE = 500;
@@ -156,7 +157,7 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
     if (!result) return null;
 
     // 10 min: suficiente para no re-consultar Supabase en cada comando del bot
-    await cacheService.set(cacheKey, result, 10 * 60);
+    await cacheService.set(cacheKey, result, CACHE_TTL.API_USER);
     return result;
 };
 
@@ -174,7 +175,7 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
     if (!result) return null;
 
     // 15 min: el login no cambia frecuentemente
-    await cacheService.set(cacheKey, result, 15 * 60);
+    await cacheService.set(cacheKey, result, CACHE_TTL.USER_BY_LOGIN);
     return result;
 };
 

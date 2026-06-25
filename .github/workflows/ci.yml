@@ -1,0 +1,95 @@
+name: CI
+
+on:
+    push:
+        branches: [main, master]
+    pull_request:
+
+env:
+    TWITCH_CLIENT_ID: ci_test_id
+    TWITCH_CLIENT_SECRET: ci_test_secret
+    ENCRYPTION_KEY: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    TWITCH_REDIRECT_URI: https://www.losperris.dev/api/twitch/auth/twitch/callback
+    BASE_URL: http://localhost:3000/api/twitch
+    FRONTEND_URL: http://localhost:4321
+    SUPABASE_URL: https://example.supabase.co
+    SUPABASE_SERVICE_ROLE_KEY: ci_service_key
+    SUPABASE_ANON_KEY: ci_anon_key
+    SUPABASE_JWT_SECRET: ci_jwt_secret_for_testing_only
+    NODE_ENV: test
+
+jobs:
+    validate:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 9
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: pnpm
+                  cache-dependency-path: pnpm-lock.yaml
+
+            - name: Install
+              run: pnpm install --frozen-lockfile
+
+            - name: Lint
+              run: pnpm run lint
+
+            - name: Type check
+              run: pnpm run type-check
+
+            - name: Test
+              run: pnpm test
+
+            - name: Build
+              run: pnpm run build
+
+    e2e:
+        runs-on: ubuntu-latest
+        needs: validate
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 9
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: pnpm
+                  cache-dependency-path: pnpm-lock.yaml
+
+            - name: Install
+              run: pnpm install --frozen-lockfile
+
+            - name: Create CI .env for dev servers
+              run: |
+                  cat > .env << 'EOF'
+                  TWITCH_CLIENT_ID=ci_test_id
+                  TWITCH_CLIENT_SECRET=ci_test_secret
+                  ENCRYPTION_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  TWITCH_REDIRECT_URI=https://www.losperris.dev/api/twitch/auth/twitch/callback
+                  BASE_URL=http://localhost:3000/api/twitch
+                  FRONTEND_URL=http://localhost:4321
+                  SUPABASE_URL=https://example.supabase.co
+                  SUPABASE_SERVICE_ROLE_KEY=ci_service_key
+                  SUPABASE_ANON_KEY=ci_anon_key
+                  SUPABASE_JWT_SECRET=ci_jwt_secret_for_testing_only
+                  NODE_ENV=development
+                  EOF
+
+            - name: Install Playwright
+              run: pnpm exec playwright install --with-deps chromium
+
+            - name: E2E tests
+              run: pnpm test:e2e
+              env:
+                  CI: true

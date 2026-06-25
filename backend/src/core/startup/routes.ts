@@ -3,11 +3,12 @@ import { CONFIG } from '../config/env';
 import { globalRateLimiter, authRateLimiter } from '../middleware/redisRateLimiter';
 import { apiKeyValidator } from '../middleware/apiKeyValidator';
 import checkToken from '../middleware/authMiddleware';
-import { isApiRoute } from '../utils/routeHelpers';
+import { isApiRoute, isJsonApiRoute } from '../utils/routeHelpers';
 import authRoutes from '../../features/auth/auth.routes';
 import apiRouter from '../../routes/index';
 import { getRobotsTxt, getSitemapXml } from '../../features/system/seo.controller';
 import { errorHandler } from '../middleware/errorMiddleware';
+import { jsonError } from '../utils/jsonResponse';
 
 export const configureRoutes = (app: Application) => {
     app.use((req, res, next) => {
@@ -49,6 +50,10 @@ export const configureRoutes = (app: Application) => {
 
     app.use((req: Request, res: Response) => {
         const message = 'Error 404: La ruta especificada no existe.';
+
+        if (isJsonApiRoute(req.path)) {
+            return jsonError(res, 404, message, { code: 'NOT_FOUND' });
+        }
 
         if (isApiRoute(req.path)) {
             res.setHeader('Content-Type', 'text/plain; charset=utf-8');

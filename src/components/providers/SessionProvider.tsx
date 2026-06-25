@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { initAuthSync, saveSession, validateSession, parseUrlParams, clearSession } from '@/lib/auth';
+import { initAuthSync, saveSession, validateSession, resolveSessionFromUrl, clearSession } from '@/lib/auth';
 import type { Session } from '@/lib/config';
 import { appPath } from '@/lib/paths';
 import { SessionContext } from '@/lib/sessionContext';
@@ -44,7 +44,7 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
     }, []);
 
     const refresh = useCallback(async () => {
-        const sessionParams = parseUrlParams();
+        const sessionParams = await resolveSessionFromUrl();
 
         if (!sessionParams.token && !sessionParams.apiKey) {
             setSession(null);

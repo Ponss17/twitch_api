@@ -38,7 +38,7 @@ async function seedSession(page: Page) {
     }, e2eSession);
 }
 
-async function gotoAuthenticatedDashboard(page: Page, path = '/api/twitch/dashboard') {
+async function gotoAuthenticatedDashboard(page: Page, path = '/api/twitch/dashboard/') {
     await mockValidateRoute(page);
     const validated = waitForValidate(page);
     await page.goto(path);
@@ -47,13 +47,13 @@ async function gotoAuthenticatedDashboard(page: Page, path = '/api/twitch/dashbo
 }
 
 test.describe('smoke', () => {
-    test('landing at /api/twitch/', async ({ page }) => {
+    test('landing loads', async ({ page }) => {
         await page.goto('/api/twitch/');
         await expect(page).toHaveTitle(/LosPerris Twitch API/i);
     });
 
     test('docs page renders', async ({ page }) => {
-        await page.goto('/api/twitch/docs');
+        await page.goto('/api/twitch/docs/');
         await expect(page).toHaveTitle(/Documentación API/i);
     });
 
@@ -65,15 +65,17 @@ test.describe('smoke', () => {
 
 test.describe('dashboard', () => {
     test.describe.configure({ mode: 'serial' });
-    test('loads login shell when unauthenticated', async ({ page }) => {
-        await page.goto('/api/twitch/dashboard');
-        await expect(page.getByRole('heading', { name: /Dashboard LosPerris/i })).toBeVisible();
-        await expect(page.getByRole('button', { name: /Conectar con Twitch/i })).toBeVisible();
+    test('redirects unauthenticated users to landing', async ({ page }) => {
+        await page.goto('/api/twitch/dashboard/');
+        await expect(page).toHaveURL(/\/api\/twitch\/?$/);
+        await expect(page.getByRole('button', { name: /Iniciar Sesión con Twitch/i })).toBeVisible();
     });
 
-    test('syncs tab hash in URL', async ({ page }) => {
-        await page.goto('/api/twitch/dashboard?tab=clips');
-        await expect(page).toHaveURL(/#clips$/);
+    test('legacy ?tab= migrates to path-based URL', async ({ page }) => {
+        await seedSession(page);
+        await mockValidateRoute(page);
+        await page.goto('/api/twitch/dashboard/?tab=clips');
+        await expect(page).toHaveURL(/\/dashboard\/clips\/?/);
     });
 
     test('manifest.json is served under mount', async ({ request }) => {
@@ -87,10 +89,10 @@ test.describe('dashboard', () => {
         await mockValidateRoute(page);
 
         await page.goto(
-            '/api/twitch/dashboard?apiKey=e2e_oauth&login=e2euser&displayName=E2E%20User&userId=42'
+            '/api/twitch/dashboard/?apiKey=e2e_oauth&login=e2euser&displayName=E2E%20User&userId=42'
         );
 
-        await expect(page).toHaveURL(/\/api\/twitch\/dashboard$/);
+        await expect(page).toHaveURL(/\/api\/twitch\/dashboard\/?$/);
         await expect(page.locator('#dashboard-page')).toBeVisible({ timeout: 15000 });
         await expect(page.getByText(/E2E Streamer/i).first()).toBeVisible();
     });
@@ -105,7 +107,7 @@ test.describe('dashboard', () => {
         await seedSession(page);
         await gotoAuthenticatedDashboard(page);
 
-        await page.getByRole('button', { name: /Clips/i }).click();
-        await expect(page).toHaveURL(/#clips$/);
+        await page.locator('aside nav').getByRole('button', { name: 'Clips' }).click();
+        await expect(page).toHaveURL(/\/dashboard\/clips\/?/);
     });
 });

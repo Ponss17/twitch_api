@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { MESSAGES } from '../config/messages';
 import { ALLOWED_ORIGINS } from '../config/origins';
+import { jsonError } from '../utils/jsonResponse';
 
 /**
  * CSRF protection for state-changing routes.
@@ -50,8 +50,5 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction) 
         return next();
     }
 
-    return res.status(403).json({
-        error: MESSAGES.SYSTEM.UNAUTHORIZED,
-        message: 'Solicitud bloqueada por protección CSRF.'
-    });
+    return jsonError(res, 403, 'Solicitud bloqueada por protección CSRF.', { code: 'FORBIDDEN' });
 };
