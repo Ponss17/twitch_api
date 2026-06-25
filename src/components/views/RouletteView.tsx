@@ -10,16 +10,15 @@ import type { RouletteUser } from '@/lib/twitchTypes';
 import { card, fadeIn } from '@/lib/tw';
 import {
     DEFAULT_ELIGIBILITY_FILTERS,
-    ROULETTE_ROLE_OPTIONS,
     filtersToApiParam,
     hasAnyFilter,
     isAllFilters,
     rolesFromTags,
-    setAllFilters,
     tagsMatchFilters,
     userMatchesFilters,
     type RouletteEligibilityFilters
 } from '@/lib/rouletteEligibility';
+import { RouletteEligibilityDropdown } from '@/components/views/RouletteEligibilityDropdown';
 import { useToast } from '@/components/ui/ToastProvider';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import confetti from 'canvas-confetti';
@@ -461,43 +460,11 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2.5 max-md:w-full">
-                    <div
-                        className="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2"
-                        role="group"
-                        aria-label="Quién puede participar"
-                    >
-                        <label className="flex cursor-pointer items-center gap-1.5 text-[0.75rem] font-semibold text-[#fafafa]">
-                            <input
-                                type="checkbox"
-                                checked={isAllFilters(filters)}
-                                disabled={isSpinning}
-                                onChange={(e) => setFilters(setAllFilters(e.target.checked))}
-                                className="size-3.5 accent-[#9146ff]"
-                            />
-                            Todos
-                        </label>
-                        {ROULETTE_ROLE_OPTIONS.map(({ key, label }) => (
-                            <label
-                                key={key}
-                                className="flex cursor-pointer items-center gap-1.5 text-[0.75rem] font-medium text-[#a1a1aa]"
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={filters[key]}
-                                    disabled={isSpinning}
-                                    onChange={(e) => {
-                                        const checked = e.target.checked;
-                                        setFilters((prev) => ({
-                                            ...prev,
-                                            [key]: checked
-                                        }));
-                                    }}
-                                    className="size-3.5 accent-[#9146ff]"
-                                />
-                                {label}
-                            </label>
-                        ))}
-                    </div>
+                    <RouletteEligibilityDropdown
+                        filters={filters}
+                        disabled={isSpinning}
+                        onChange={setFilters}
+                    />
 
                     <span
                         className={`inline-block rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-[0.6875rem] font-bold tracking-wide text-[#a78bfa] transition ${
@@ -532,7 +499,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         <RotateCw className="w-4 h-4" />
                     </button>
 
-                    <InfoTooltip text="Sorteo en vivo. Marca quién puede entrar (Subs, Mods, VIPs, Viewers). «Todos» incluye a cualquiera del chat." />
+                    <InfoTooltip text="Sorteo en vivo. Abre el menú para elegir quién puede participar (Subs, Mods, VIPs, Viewers)." />
                 </div>
             </div>
 
