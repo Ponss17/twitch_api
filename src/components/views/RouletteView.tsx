@@ -1,4 +1,4 @@
-import { Dices, Pause, RotateCw, Loader2, Play, Users, UserCheck } from 'lucide-react';
+import { Dices, Pause, RotateCw, Loader2, Play, Users } from 'lucide-react';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS, IGNORED_BOTS } from '@/lib/config';
@@ -7,14 +7,18 @@ import { buildAuthQueryParam } from '@/lib/authQuery';
 import { useRequiredSession } from '@/hooks/useSession';
 import { getTmiAuth, tmiService } from '@/lib/tmiService';
 import type { RouletteUser } from '@/lib/twitchTypes';
-import { card, fadeIn, selectInput } from '@/lib/tw';
+import { card, fadeIn } from '@/lib/tw';
 import {
-    ROULETTE_ELIGIBILITY_OPTIONS,
-    rolesForEligibility,
+    DEFAULT_ELIGIBILITY_FILTERS,
+    ROULETTE_ROLE_OPTIONS,
+    filtersToApiParam,
+    hasAnyFilter,
+    isAllFilters,
     rolesFromTags,
-    tagsMatchEligibility,
-    userMatchesEligibility,
-    type RouletteEligibility
+    setAllFilters,
+    tagsMatchFilters,
+    userMatchesFilters,
+    type RouletteEligibilityFilters
 } from '@/lib/rouletteEligibility';
 import { useToast } from '@/components/ui/ToastProvider';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
@@ -44,9 +48,10 @@ export function RouletteView({ active = true }: { active?: boolean }) {
     const { showToast } = useToast();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const wheelWrapRef = useRef<HTMLDivElement>(null);
+    const listRef = useRef<HTMLUListElement>(null);
     const rotationDegRef = useRef(0);
     const [chatters, setChatters] = useState<RouletteUser[]>([]);
-    const [eligibility, setEligibility] = useState<RouletteEligibility>('all');
+    const [filters, setFilters] = useState<RouletteEligibilityFilters>(DEFAULT_ELIGIBILITY_FILTERS);
     const [isOpen, setIsOpen] = useState(false);
     const [isSpinning, setIsSpinning] = useState(false);
     const [winner, setWinner] = useState<RouletteUser | null>(null);
@@ -56,10 +61,10 @@ export function RouletteView({ active = true }: { active?: boolean }) {
     const [lastSpinCount, setLastSpinCount] = useState(0);
     const isOpenRef = useRef(isOpen);
     const isSpinningRef = useRef(isSpinning);
-    const eligibilityRef = useRef(eligibility);
+    const filtersRef = useRef(filters);
     isOpenRef.current = isOpen;
     isSpinningRef.current = isSpinning;
-    eligibilityRef.current = eligibility;
+    filtersRef.current = filters;
 
     const applyRotation = useCallback((deg: number) => {
         rotationDegRef.current = deg;
@@ -222,7 +227,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
     const loadChatters = useCallback(async () => {
         if (!session.login) return;
 
-        if (eligibilityRef.current === 'all') {
+        if (isAllFilters(filtersRef.current)) {
             setChatters((prev) => {
                 const existing = new Set(prev.map((u) => u.user_login.toLowerCase()));
                 if (existing.has(session.login!.toLowerCase())) return prev;
@@ -237,13 +242,13 @@ export function RouletteView({ active = true }: { active?: boolean }) {
         try {
                 const params = new URLSearchParams({
                     channel: session.login,
-                    eligibility: eligibilityRef.current
+                    eligibility: filtersToApiParam(filtersRef.current)
                 });
                 const res = await fetch(`${API_ENDPOINTS.CHATTERS}?${params}`, {
                 headers: authHeaders(session)
             });
             if (!res.ok) {
-                if (eligibilityRef.current !== 'all') {
+                if (!isAllFilters(filtersRef.current)) {
                     showToast(
                         'No se pudo filtrar participantes. Vuelve a iniciar sesión con Twitch si el filtro es nuevo.',
                         'error'
@@ -253,7 +258,6 @@ export function RouletteView({ active = true }: { active?: boolean }) {
             }
             const data = await res.json();
             const list: (string | RouletteUser)[] = Array.isArray(data) ? data : data.chatters ?? [];
-            const roleDefaults = rolesForEligibility(eligibilityRef.current);
 
             setChatters((prev) => {
                 const existing = new Set(prev.map((u) => u.user_login.toLowerCase()));
@@ -262,20 +266,25 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                 list.forEach((item) => {
                     const login = typeof item === 'string' ? item : item.user_login;
                     const name = typeof item === 'string' ? item : item.user_name;
+                    const mod = typeof item === 'string' ? undefined : item.mod;
+                    const sub = typeof item === 'string' ? undefined : item.sub;
+                    const vip = typeof item === 'string' ? undefined : item.vip;
                     if (!login) return;
                     const lower = login.toLowerCase();
                     if (!existing.has(lower) && !IGNORED_BOTS.has(lower)) {
                         next.push({
                             user_login: login,
                             user_name: name || login,
-                            ...roleDefaults
+                            mod,
+                            sub,
+                            vip
                         });
                         existing.add(lower);
                         added++;
                     }
                 });
                 if (added > 0) pulseCounter();
-                return next.filter((u) => userMatchesEligibility(u, eligibilityRef.current));
+                return next.filter((u) => userMatchesFilters(u, filtersRef.current));
             });
         } catch {
             showToast('Error al cargar usuarios del chat', 'error');
@@ -288,7 +297,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
             await tmiService.connect(session.login, getTmiAuth(session));
             tmiService.addListener(LISTENER_ID, (_ch, tags) => {
                 if (isSpinningRef.current || !isOpenRef.current) return;
-                if (!tagsMatchEligibility(tags, eligibilityRef.current)) return;
+                if (!tagsMatchFilters(tags, filtersRef.current)) return;
                 const login = tags.username;
                 if (!login || IGNORED_BOTS.has(login.toLowerCase())) return;
                 const roles = rolesFromTags(tags);
@@ -319,6 +328,10 @@ export function RouletteView({ active = true }: { active?: boolean }) {
             tmiService.disconnect();
             setIsOpen(false);
             showToast('Inscripciones Cerradas', 'info');
+            return;
+        }
+        if (!hasAnyFilter(filters)) {
+            showToast('Marca al menos un tipo de participante', 'warning');
             return;
         }
         setIsOpen(true);
@@ -407,9 +420,15 @@ export function RouletteView({ active = true }: { active?: boolean }) {
     };
 
     useEffect(() => {
-        setChatters((prev) => prev.filter((u) => userMatchesEligibility(u, eligibility)));
+        setChatters((prev) => prev.filter((u) => userMatchesFilters(u, filters)));
         if (isOpen) void loadChatters();
-    }, [eligibility, isOpen, loadChatters]);
+    }, [filters, isOpen, loadChatters]);
+
+    useEffect(() => {
+        const el = listRef.current;
+        if (!el) return;
+        el.scrollTop = el.scrollHeight;
+    }, [chatters]);
 
     useEffect(() => {
         if (active) return;
@@ -442,23 +461,43 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2.5 max-md:w-full">
-                    <label className="flex items-center gap-2 text-[0.75rem] font-semibold text-[#a1a1aa]">
-                        <UserCheck className="size-4 shrink-0 text-primary" aria-hidden />
-                        <span className="sr-only">Elegibilidad</span>
-                        <select
-                            value={eligibility}
-                            onChange={(e) => setEligibility(e.target.value as RouletteEligibility)}
-                            disabled={isSpinning}
-                            className={`${selectInput} min-w-[140px] max-w-[180px] py-1.5`}
-                            aria-label="Quién puede participar"
-                        >
-                            {ROULETTE_ELIGIBILITY_OPTIONS.map((opt) => (
-                                <option key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
+                    <div
+                        className="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2"
+                        role="group"
+                        aria-label="Quién puede participar"
+                    >
+                        <label className="flex cursor-pointer items-center gap-1.5 text-[0.75rem] font-semibold text-[#fafafa]">
+                            <input
+                                type="checkbox"
+                                checked={isAllFilters(filters)}
+                                disabled={isSpinning}
+                                onChange={(e) => setFilters(setAllFilters(e.target.checked))}
+                                className="size-3.5 accent-[#9146ff]"
+                            />
+                            Todos
+                        </label>
+                        {ROULETTE_ROLE_OPTIONS.map(({ key, label }) => (
+                            <label
+                                key={key}
+                                className="flex cursor-pointer items-center gap-1.5 text-[0.75rem] font-medium text-[#a1a1aa]"
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={filters[key]}
+                                    disabled={isSpinning}
+                                    onChange={(e) => {
+                                        const checked = e.target.checked;
+                                        setFilters((prev) => ({
+                                            ...prev,
+                                            [key]: checked
+                                        }));
+                                    }}
+                                    className="size-3.5 accent-[#9146ff]"
+                                />
+                                {label}
+                            </label>
+                        ))}
+                    </div>
 
                     <span
                         className={`inline-block rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-[0.6875rem] font-bold tracking-wide text-[#a78bfa] transition ${
@@ -493,7 +532,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         <RotateCw className="w-4 h-4" />
                     </button>
 
-                    <InfoTooltip text="Sorteo en vivo. Al abrir inscripciones, entran quienes hablan en chat y cumplen el filtro elegido (subs, mods, VIPs o todos)." />
+                    <InfoTooltip text="Sorteo en vivo. Marca quién puede entrar (Subs, Mods, VIPs, Viewers). «Todos» incluye a cualquiera del chat." />
                 </div>
             </div>
 
@@ -616,6 +655,52 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                 <p className="mt-2.5 text-[0.6875rem] italic opacity-60">
                     * Twitch tarda unos minutos en actualizar la lista
                 </p>
+
+                {(isOpen || chatters.length > 0) && (
+                    <div className="mt-4 text-left">
+                        <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-wide text-[#71717a]">
+                            Participantes ({chatters.length})
+                        </p>
+                        <ul
+                            ref={listRef}
+                            className="max-h-[200px] overflow-y-auto overflow-x-hidden rounded-lg border border-white/[0.08] bg-white/[0.02] p-1"
+                        >
+                            {chatters.length === 0 ? (
+                                <li className="px-3 py-4 text-center text-[0.75rem] text-[#52525b]">
+                                    Esperando mensajes en el chat…
+                                </li>
+                            ) : (
+                                chatters.map((u) => (
+                                    <li
+                                        key={u.user_login}
+                                        className="flex items-center gap-2 border-b border-white/[0.04] px-3 py-2 text-[0.8rem] last:border-0"
+                                    >
+                                        <span className="truncate font-semibold text-[#fafafa]">
+                                            {u.user_name}
+                                        </span>
+                                        <span className="ml-auto flex shrink-0 gap-1">
+                                            {u.sub && (
+                                                <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[0.6rem] font-bold text-primary">
+                                                    SUB
+                                                </span>
+                                            )}
+                                            {u.mod && (
+                                                <span className="rounded bg-green-500/20 px-1.5 py-0.5 text-[0.6rem] font-bold text-green-400">
+                                                    MOD
+                                                </span>
+                                            )}
+                                            {u.vip && (
+                                                <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[0.6rem] font-bold text-amber-400">
+                                                    VIP
+                                                </span>
+                                            )}
+                                        </span>
+                                    </li>
+                                ))
+                            )}
+                        </ul>
+                    </div>
+                )}
             </div>
         </div>
     );

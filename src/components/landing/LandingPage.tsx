@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { LoginDisclaimerModal } from '@/components/ui/LoginDisclaimerModal';
 import { VerifyingSessionModal } from '@/components/ui/VerifyingSessionModal';
 import { AppLogo } from '@/components/ui/AppLogo';
-import { resolveSessionFromUrl, saveSession } from '@/lib/auth';
+import { resolveSessionFromUrl, saveSession, markDashboardSplashForFreshLogin, clearDashboardSplashFlags } from '@/lib/auth';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
 import { reportSessionLoadProgress } from '@/lib/sessionLoadProgress';
 import { Accordion } from '@/components/ui/Accordion';
@@ -99,30 +99,30 @@ export function LandingPage() {
     };
 
     useEffect(() => {
-        // Limpiar flag stale del splash en caso de que una sesión anterior lo dejara sin limpiar
-        sessionStorage.removeItem('dashboard_splash');
+        clearDashboardSplashFlags();
 
         void (async () => {
             const params = new URLSearchParams(window.location.search);
             const sessionParams = await resolveSessionFromUrl();
+            const authParam = params.get('auth');
+            const isFreshLogin = !!authParam || sessionParams.isNewLogin === true;
 
-            if (params.get('auth') || sessionParams.token || sessionParams.apiKey) {
-                setIsVerifying(true);
-                reportSessionLoadProgress({
-                    progress: 12,
-                    label: 'Preparando tu panel…',
-                    cached: false
-                });
-                sessionStorage.setItem('dashboard_splash', '1');
+            if (!isFreshLogin) return;
 
-                if (sessionParams.isNewLogin) {
-                    saveSession(sessionParams);
-                }
+            setIsVerifying(true);
+            reportSessionLoadProgress({
+                progress: 12,
+                label: 'Preparando tu panel…',
+                cached: false
+            });
+            markDashboardSplashForFreshLogin();
 
-                const authParam = params.get('auth');
-                const search = authParam ? `?auth=${encodeURIComponent(authParam)}` : '';
-                window.location.href = appPath('/dashboard') + search;
+            if (sessionParams.isNewLogin) {
+                saveSession(sessionParams);
             }
+
+            const search = authParam ? `?auth=${encodeURIComponent(authParam)}` : '';
+            window.location.href = appPath('/dashboard') + search;
         })();
     }, []);
 

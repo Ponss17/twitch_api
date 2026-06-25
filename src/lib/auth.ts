@@ -4,7 +4,11 @@ import { reportSessionLoadProgress } from './sessionLoadProgress';
 
 const SESSION_KEY = 'twitch_api_session';
 const VALIDATE_CACHE_KEY = 'twitch_validate_cache';
-const VALIDATE_TTL_MS = 5 * 60 * 1000;
+/** Revalidación en servidor; caché en localStorage para sobrevivir cierres de pestaña */
+const VALIDATE_TTL_MS = 4 * 60 * 60 * 1000;
+/** Tras OAuth / login nuevo — splash con barra de progreso en el dashboard */
+export const DASHBOARD_SPLASH_KEY = 'dashboard_splash';
+export const DASHBOARD_SPLASH_FRESH_KEY = 'dashboard_splash_fresh';
 const AUTH_SYNC_CHANNEL = 'auth_sync_channel';
 
 const SENSITIVE_QUERY_PARAMS = [
@@ -48,8 +52,33 @@ export function saveSession(session: Session): void {
 export function clearSession(): void {
     localStorage.removeItem(SESSION_KEY);
     if (typeof window !== 'undefined') {
-        sessionStorage.removeItem(VALIDATE_CACHE_KEY);
+        localStorage.removeItem(VALIDATE_CACHE_KEY);
+        clearDashboardSplashFlags();
     }
+}
+
+export function markDashboardSplashForFreshLogin(): void {
+    if (typeof window === 'undefined') return;
+    sessionStorage.setItem(DASHBOARD_SPLASH_KEY, '1');
+    sessionStorage.setItem(DASHBOARD_SPLASH_FRESH_KEY, '1');
+}
+
+export function clearDashboardSplashFlags(): void {
+    if (typeof window === 'undefined') return;
+    sessionStorage.removeItem(DASHBOARD_SPLASH_KEY);
+    sessionStorage.removeItem(DASHBOARD_SPLASH_FRESH_KEY);
+}
+
+/** Solo splash tras OAuth; flags viejos no bloquean al volver con sesión guardada. */
+export function shouldShowDashboardSplash(): boolean {
+    if (typeof window === 'undefined') return false;
+    const wants = sessionStorage.getItem(DASHBOARD_SPLASH_KEY) === '1';
+    const fresh = sessionStorage.getItem(DASHBOARD_SPLASH_FRESH_KEY) === '1';
+    if (wants && !fresh) {
+        clearDashboardSplashFlags();
+        return false;
+    }
+    return wants && fresh;
 }
 
 /** Elimina credenciales y datos de perfil de la URL tras OAuth. */
@@ -114,6 +143,25 @@ function resolveDegradedSession(session: Session): Session {
     return stored ? { ...stored, ...session } : session;
 }
 
+/** Sesión en localStorage sin OAuth en curso — mostrar panel al instante. */
+export function readOptimisticAuthState(): {
+    session: Session | null;
+    loading: boolean;
+    authenticated: boolean;
+} {
+    if (typeof window === 'undefined') {
+        return { session: null, loading: true, authenticated: false };
+    }
+    if (new URLSearchParams(window.location.search).get('auth')) {
+        return { session: null, loading: true, authenticated: false };
+    }
+    const stored = getSession();
+    if (stored?.apiKey || stored?.token) {
+        return { session: stored, loading: false, authenticated: true };
+    }
+    return { session: null, loading: true, authenticated: false };
+}
+
 export async function validateSession(session: Session): Promise<ApiResponse> {
     if (!session.apiKey && !session.token) {
         return { valid: false, error: true, message: 'no_credentials' };
@@ -121,7 +169,7 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
 
     if (typeof window !== 'undefined') {
         try {
-            const raw = sessionStorage.getItem(VALIDATE_CACHE_KEY);
+            const raw = localStorage.getItem(VALIDATE_CACHE_KEY);
             if (raw) {
                 const cached = JSON.parse(raw) as { at: number; result: ApiResponse };
                 if (Date.now() - cached.at < VALIDATE_TTL_MS && cached.result.valid === true) {
@@ -134,7 +182,7 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
                 }
             }
         } catch {
-            sessionStorage.removeItem(VALIDATE_CACHE_KEY);
+            localStorage.removeItem(VALIDATE_CACHE_KEY);
         }
     }
 
@@ -219,7 +267,7 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
 
         if (result.valid === true && !result.error && typeof window !== 'undefined') {
             try {
-                sessionStorage.setItem(
+                localStorage.setItem(
                     VALIDATE_CACHE_KEY,
                     JSON.stringify({ at: Date.now(), result })
                 );
@@ -227,7 +275,7 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
                 /* quota exceeded */
             }
         } else if (!result.networkError && typeof window !== 'undefined') {
-            sessionStorage.removeItem(VALIDATE_CACHE_KEY);
+            localStorage.removeItem(VALIDATE_CACHE_KEY);
         }
 
         return result;

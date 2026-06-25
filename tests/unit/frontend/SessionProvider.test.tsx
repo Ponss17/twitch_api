@@ -14,6 +14,11 @@ jest.mock('@/lib/auth', () => ({
                 : session.login
     })),
     getSession: jest.fn(),
+    readOptimisticAuthState: jest.fn(() => ({
+        session: null,
+        loading: true,
+        authenticated: false
+    })),
     resolveDegradedSession: jest.fn((session) => session),
     stripSensitiveQueryParams: jest.fn(),
     validateSession: jest.fn(),
@@ -26,7 +31,7 @@ jest.mock('@/components/ui/ToastProvider', () => ({
     useToastOptional: () => showToastMock
 }));
 
-import { resolveSessionFromUrl, mergeSessionFromValidate, validateSession } from '@/lib/auth';
+import { resolveSessionFromUrl, mergeSessionFromValidate, validateSession, getSession, readOptimisticAuthState } from '@/lib/auth';
 
 const mockedResolveSessionFromUrl = resolveSessionFromUrl as jest.Mock;
 const mockedValidateSession = validateSession as jest.Mock;
@@ -46,6 +51,11 @@ describe('SessionProvider', () => {
     });
 
     it('resolves session from url before validating', async () => {
+        (readOptimisticAuthState as jest.Mock).mockReturnValue({
+            session: null,
+            loading: true,
+            authenticated: false
+        });
         const order: string[] = [];
         mockedResolveSessionFromUrl.mockImplementation(async () => {
             order.push('resolveSessionFromUrl');
@@ -71,7 +81,46 @@ describe('SessionProvider', () => {
         expect(mockedMergeSessionFromValidate).toHaveBeenCalled();
     });
 
+    it('shows stored session immediately while validation runs', async () => {
+        const stored = { apiKey: 'k', login: 'streamer', displayName: 'Streamer' };
+        (getSession as jest.Mock).mockReturnValue(stored);
+        (readOptimisticAuthState as jest.Mock).mockReturnValue({
+            session: stored,
+            loading: false,
+            authenticated: true
+        });
+
+        let resolveValidate: (value: unknown) => void = () => {};
+        mockedResolveSessionFromUrl.mockResolvedValue({ apiKey: 'k', login: 'streamer' });
+        mockedValidateSession.mockImplementation(
+            () =>
+                new Promise((resolve) => {
+                    resolveValidate = resolve;
+                })
+        );
+
+        render(
+            <SessionProvider>
+                <SessionProbe />
+            </SessionProvider>
+        );
+
+        expect(screen.getByText('user:streamer')).toBeInTheDocument();
+
+        await waitFor(() => expect(mockedValidateSession).toHaveBeenCalled());
+        resolveValidate({
+            valid: true,
+            apiKey: 'k',
+            user: { login: 'streamer', display_name: 'Streamer', id: '1' }
+        });
+    });
+
     it('shows anonymous state when validation fails', async () => {
+        (readOptimisticAuthState as jest.Mock).mockReturnValue({
+            session: null,
+            loading: true,
+            authenticated: false
+        });
         mockedResolveSessionFromUrl.mockResolvedValue({ apiKey: 'bad' });
         mockedValidateSession.mockResolvedValue({ valid: false, error: true });
 

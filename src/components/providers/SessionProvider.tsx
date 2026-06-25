@@ -7,7 +7,8 @@ import {
     mergeSessionFromValidate,
     getSession,
     resolveDegradedSession,
-    stripSensitiveQueryParams
+    stripSensitiveQueryParams,
+    readOptimisticAuthState
 } from '@/lib/auth';
 import type { Session } from '@/lib/config';
 import { appPath } from '@/lib/paths';
@@ -27,9 +28,11 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
     const showToastRef = useRef(showToast);
     showToastRef.current = showToast;
 
-    const [session, setSession] = useState<Session | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [authenticated, setAuthenticated] = useState(false);
+    const optimistic = readOptimisticAuthState();
+    const hydratedFromStorageRef = useRef(optimistic.authenticated);
+    const [session, setSession] = useState<Session | null>(optimistic.session);
+    const [loading, setLoading] = useState(optimistic.loading);
+    const [authenticated, setAuthenticated] = useState(optimistic.authenticated);
     const redirectTimerRef = useRef<number | null>(null);
 
     useEffect(() => {
@@ -37,11 +40,16 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
     }, []);
 
     const refresh = useCallback(async () => {
-        reportSessionLoadProgress({
-            progress: 8,
-            label: 'Recuperando sesión…',
-            cached: false
-        });
+        const skipInitialProgress = hydratedFromStorageRef.current;
+        hydratedFromStorageRef.current = false;
+
+        if (!skipInitialProgress) {
+            reportSessionLoadProgress({
+                progress: 8,
+                label: 'Recuperando sesión…',
+                cached: false
+            });
+        }
 
         const sessionParams = await resolveSessionFromUrl();
 

@@ -1,20 +1,45 @@
 import {
+    DEFAULT_ELIGIBILITY_FILTERS,
+    filtersToApiParam,
+    isAllFilters,
     rolesFromTags,
-    tagsMatchEligibility,
-    userMatchesEligibility
+    setAllFilters,
+    tagsMatchFilters,
+    userMatchesFilters
 } from '@/lib/rouletteEligibility';
 
 describe('rouletteEligibility', () => {
-    it('userMatchesEligibility allows all by default', () => {
-        expect(userMatchesEligibility({}, 'all')).toBe(true);
-        expect(userMatchesEligibility({ mod: false, sub: false, vip: false }, 'all')).toBe(true);
+    it('userMatchesFilters allows all when every role is enabled', () => {
+        expect(userMatchesFilters({}, DEFAULT_ELIGIBILITY_FILTERS)).toBe(true);
+        expect(userMatchesFilters({ mod: false, sub: false, vip: false }, DEFAULT_ELIGIBILITY_FILTERS)).toBe(
+            true
+        );
     });
 
-    it('userMatchesEligibility checks role flags', () => {
-        expect(userMatchesEligibility({ sub: true }, 'subs')).toBe(true);
-        expect(userMatchesEligibility({ mod: true }, 'mods')).toBe(true);
-        expect(userMatchesEligibility({ vip: true }, 'vips')).toBe(true);
-        expect(userMatchesEligibility({ sub: true }, 'mods')).toBe(false);
+    it('userMatchesFilters uses OR between selected roles', () => {
+        const subsAndMods = { subs: true, mods: true, vips: false, viewers: false };
+        expect(userMatchesFilters({ sub: true }, subsAndMods)).toBe(true);
+        expect(userMatchesFilters({ mod: true }, subsAndMods)).toBe(true);
+        expect(userMatchesFilters({ vip: true }, subsAndMods)).toBe(false);
+        expect(userMatchesFilters({}, subsAndMods)).toBe(false);
+    });
+
+    it('userMatchesFilters includes plain viewers when enabled', () => {
+        const viewersOnly = { subs: false, mods: false, vips: false, viewers: true };
+        expect(userMatchesFilters({}, viewersOnly)).toBe(true);
+        expect(userMatchesFilters({ sub: true }, viewersOnly)).toBe(false);
+    });
+
+    it('isAllFilters and setAllFilters stay in sync', () => {
+        expect(isAllFilters(setAllFilters(true))).toBe(true);
+        expect(isAllFilters(setAllFilters(false))).toBe(false);
+    });
+
+    it('filtersToApiParam serializes multi-select', () => {
+        expect(filtersToApiParam(DEFAULT_ELIGIBILITY_FILTERS)).toBe('all');
+        expect(
+            filtersToApiParam({ subs: true, mods: true, vips: false, viewers: false })
+        ).toBe('subs,mods');
     });
 
     it('rolesFromTags reads tmi flags and badges', () => {
@@ -27,9 +52,13 @@ describe('rouletteEligibility', () => {
         ).toEqual({ mod: true, sub: true, vip: true });
     });
 
-    it('tagsMatchEligibility gates chat joiners', () => {
-        expect(tagsMatchEligibility({ subscriber: true }, 'subs')).toBe(true);
-        expect(tagsMatchEligibility({ vip: true }, 'subs')).toBe(false);
-        expect(tagsMatchEligibility({ username: 'x' }, 'all')).toBe(true);
+    it('tagsMatchFilters gates chat joiners', () => {
+        expect(tagsMatchFilters({ subscriber: true }, { subs: true, mods: false, vips: false, viewers: false })).toBe(
+            true
+        );
+        expect(tagsMatchFilters({ vip: true }, { subs: true, mods: false, vips: false, viewers: false })).toBe(
+            false
+        );
+        expect(tagsMatchFilters({ username: 'x' }, DEFAULT_ELIGIBILITY_FILTERS)).toBe(true);
     });
 });

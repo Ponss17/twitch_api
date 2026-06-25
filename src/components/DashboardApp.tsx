@@ -9,7 +9,7 @@ import { VerifyingSessionModal } from '@/components/ui/VerifyingSessionModal';
 import { SessionProvider } from '@/components/providers/SessionProvider';
 import { useSession } from '@/hooks/useSession';
 import { DashboardSessionSkeleton } from '@/components/ui/Skeleton';
-import { logout } from '@/lib/auth';
+import { logout, shouldShowDashboardSplash, clearDashboardSplashFlags } from '@/lib/auth';
 
 import { initGlobalErrorLogging } from '@/lib/logError';
 import { resolveDashboardTab, setTabInUrl } from '@/lib/dashboardTabUrl';
@@ -33,11 +33,7 @@ function DashboardAppShell() {
     const [tab, setTabState] = useState<DashboardTab>(() => resolveDashboardTab());
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-    // Splash modal: se muestra si venimos de la Landing (bandera en sessionStorage)
-    const [splashOpen, setSplashOpen] = useState(() => {
-        if (typeof window === 'undefined') return false;
-        return sessionStorage.getItem('dashboard_splash') === '1';
-    });
+    const [splashOpen, setSplashOpen] = useState(() => shouldShowDashboardSplash());
     const [splashDone, setSplashDone] = useState(false);
 
     const setTab = useCallback((next: DashboardTab) => {
@@ -98,7 +94,7 @@ function DashboardAppShell() {
     const handleSplashExited = useCallback(() => {
         setSplashOpen(false);
         setSplashDone(false);
-        sessionStorage.removeItem('dashboard_splash');
+        clearDashboardSplashFlags();
     }, []);
 
     if (loading && !splashOpen) {
