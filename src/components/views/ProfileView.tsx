@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS } from '@/lib/config';
 import { authHeaders, saveSession } from '@/lib/auth';
+import { extractApiErrorMessage } from '@/lib/apiError';
 import { useRequiredSession, useSession } from '@/hooks/useSession';
 import { maskApiKey } from '@/lib/utils';
 import { DataExport } from '@/lib/dataExporter';
@@ -250,7 +251,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                 showToast((data.message as string) ?? 'Datos limpiados', 'success');
                 setTimeout(() => window.location.reload(), 1500);
             } else {
-                showToast((data.error as string) ?? 'No se pudieron limpiar los datos', 'error');
+                showToast(extractApiErrorMessage(data, 'No se pudieron limpiar los datos'), 'error');
             }
         } catch {
             showToast('Error de conexión al limpiar los datos', 'error');
@@ -271,7 +272,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                     window.location.href = appPath('/');
                 }, 2000);
             } else {
-                showToast((data.error as string) ?? 'No se pudo eliminar la cuenta', 'error');
+                showToast(extractApiErrorMessage(data, 'No se pudo eliminar la cuenta'), 'error');
             }
         } catch {
             showToast('Error de conexión al eliminar la cuenta', 'error');
@@ -342,7 +343,10 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                         
                         if (res.status === 429) {
                             const data = await res.json() as { error?: string };
-                            showToast(data.error || 'Debes esperar para generar otro reporte.', 'warning');
+                            showToast(
+                                extractApiErrorMessage(data, 'Debes esperar para generar otro reporte.'),
+                                'warning'
+                            );
                             return;
                         }
                         if (!res.ok) {

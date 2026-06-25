@@ -165,8 +165,7 @@ export const configureMiddleware = (app: Application) => {
                     return callback(new Error('Bloqueado por reglas de CORS de la API'));
                 }
 
-                const isSameHost =
-                    host && (safeOrigin.host === host || safeOrigin.host.endsWith(`.${host}`));
+                const isSameHost = host && safeOrigin.host === host;
 
                 if (ALLOWED_ORIGINS.includes(origin) || isSameHost) {
                     callback(null, { origin: true, credentials: true });

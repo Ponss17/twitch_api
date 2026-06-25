@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodSchema } from 'zod';
 import { logger } from '../utils/logger';
+import { jsonError } from '../utils/jsonResponse';
 
 export const validate =
     (schema: ZodSchema) => async (req: Request, res: Response, next: NextFunction) => {
@@ -54,8 +55,8 @@ export const validate =
             issues: errorDetails
         });
 
-        return res.status(400).json({
-            error: 'Error de validación',
+        return jsonError(res, 400, 'Error de validación', {
+            code: 'VALIDATION_ERROR',
             details: errorDetails
         });
     };

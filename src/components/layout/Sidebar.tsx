@@ -1,30 +1,10 @@
 import type { DashboardTab } from '@/lib/config';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
+import { NAV_ITEMS } from '@/lib/dashboardTabs';
 import { DiscordIcon } from '@/components/ui/icons/BrandIcons';
 import { AppLogo } from '@/components/ui/AppLogo';
-import { Home, History, Clapperboard, Megaphone, TrendingUp, ScanFace, Dices, Circle, Skull, Swords, MessageSquare, Book } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-
-export interface NavItem {
-    id: DashboardTab;
-    label: string;
-    icon: LucideIcon;
-    category?: string;
-}
-
-export const NAV_ITEMS: NavItem[] = [
-    { id: 'home', label: 'Inicio', icon: Home, category: 'General' },
-    { id: 'followage', label: 'Followage', icon: History, category: 'Comandos' },
-    { id: 'clips', label: 'Clips', icon: Clapperboard, category: 'Comandos' },
-    { id: 'shoutout', label: 'Shoutout', icon: Megaphone, category: 'Comandos' },
-    { id: 'trends', label: 'Tendencias', icon: TrendingUp, category: 'Herramientas' },
-    { id: 'stalker', label: 'Stalker', icon: ScanFace, category: 'Herramientas' },
-    { id: 'roulette', label: 'Ruleta', icon: Dices, category: 'Herramientas' },
-    { id: 'magic8', label: 'Bola 8', icon: Circle, category: 'Minijuegos' },
-    { id: 'russian', label: 'Ruleta Rusa', icon: Skull, category: 'Minijuegos' },
-    { id: 'duel', label: 'Duelo', icon: Swords, category: 'Minijuegos' },
-    { id: 'feedback', label: 'Feedback', icon: MessageSquare, category: 'Soporte' }
-];
+import { IconMd } from '@/components/ui/Icon';
+import { Book } from 'lucide-react';
 
 interface SidebarProps {
     active: DashboardTab;
@@ -37,7 +17,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
     let lastCategory = '';
 
     const navButtonBase =
-        'relative mb-0.5 flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-1 text-left font-[inherit] text-[0.9rem] font-semibold transition-all outline-none focus-visible:bg-[#18181b] focus-visible:text-[#fafafa] focus-visible:shadow-[0_0_0_2px_#9146ff]';
+        'relative mb-0.5 flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-2 text-left font-[inherit] text-[0.9rem] font-semibold transition-all outline-none focus-visible:bg-[#18181b] focus-visible:text-[#fafafa] focus-visible:shadow-[0_0_0_2px_#9146ff]';
 
     const navButtonClass = (isActive: boolean) => {
         const width = isActive ? 'ml-3 w-[calc(100%-28px)]' : 'mx-auto w-[calc(100%-16px)]';
@@ -92,12 +72,11 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                                     }}
                                     className={navButtonClass(isActive)}
                                     aria-label={item.label}
+                                    aria-current={isActive ? 'page' : undefined}
                                 >
-                                    <item.icon
-                                        className={`w-5 h-5 text-center text-[1.1rem] ${
-                                            isActive ? 'animate-nav-icon-bounce text-white' : ''
-                                        }`}
-                                        aria-hidden
+                                    <IconMd
+                                        icon={item.icon}
+                                        className={isActive ? 'animate-nav-icon-bounce text-white' : ''}
                                     />
                                     <span>{item.label}</span>
                                 </button>
@@ -110,7 +89,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                         className={supportLinkClass}
                         onClick={saveDocsReturnPath}
                     >
-                        <Book className="w-5 h-5 text-center text-[1.1rem]" />
+                        <IconMd icon={Book} />
                         <span>Documentación</span>
                     </a>
                     <a
@@ -119,7 +98,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                         rel="noopener noreferrer"
                         className={supportLinkClass}
                     >
-                        <DiscordIcon className="w-5 h-5 text-center text-[1.1rem]" />
+                        <DiscordIcon className="size-5 shrink-0" />
                         <span>Discord</span>
                     </a>
                 </nav>

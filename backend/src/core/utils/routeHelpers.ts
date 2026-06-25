@@ -11,6 +11,22 @@ export const isBotCommand = (path: string): boolean =>
     path.includes('/create-clip') ||
     path.includes('/send-message');
 
+/** Rutas JSON del dashboard, system y auth — errores con `{ success: false, error: { message, code } }`. */
+export const isJsonApiRoute = (path: string): boolean => {
+    if (isBotCommand(path)) return false;
+
+    const clean = path.split('?')[0];
+
+    if (clean.includes('/minigames/')) return false;
+
+    return (
+        clean.includes('/dashboard/') ||
+        clean.includes('/system/') ||
+        clean.includes('/auth/exchange') ||
+        clean.includes('/admin/')
+    );
+};
+
 export const isApiRoute = (path: string): boolean =>
     path.startsWith('/api') || path.startsWith('/twitch');
 

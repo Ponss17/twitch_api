@@ -3,8 +3,7 @@ const backendTransform = {
     '^.+\\.tsx?$': [
         'ts-jest',
         {
-            tsconfig: 'tsconfig.test.json',
-            isolatedModules: true
+            tsconfig: 'tsconfig.test.json'
         }
     ]
 };
@@ -13,8 +12,7 @@ const frontendTransform = {
     '^.+\\.tsx?$': [
         'ts-jest',
         {
-            tsconfig: 'tsconfig.test.frontend.json',
-            isolatedModules: true
+            tsconfig: 'tsconfig.test.frontend.json'
         }
     ]
 };

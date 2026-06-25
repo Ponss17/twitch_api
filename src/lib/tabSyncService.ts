@@ -1,4 +1,5 @@
 import { logError } from '@/lib/logError';
+import { debugLog } from '@/lib/debugLog';
 
 export type SyncMessage = {
     type: string;
@@ -54,7 +55,7 @@ export class TabSyncService {
                     if (this.tabId > (msg.leaderId || '')) {
                         this.isLeader = false;
                         this.stopHeartbeat();
-                        console.log('[TabSync] Cediendo liderazgo a otra pestaña.');
+                        debugLog('[TabSync] Cediendo liderazgo a otra pestaña.');
                     }
                 }
             } else if (msg.type === 'ELECTION') {
@@ -96,7 +97,7 @@ export class TabSyncService {
 
     private assumeLeadership() {
         if (this.destroyed) return;
-        console.log(`[TabSync] Asumiendo liderazgo (Tab ID: ${this.tabId})`);
+        debugLog(`[TabSync] Asumiendo liderazgo (Tab ID: ${this.tabId})`);
         this.isLeader = true;
         this.sendHeartbeat();
 
@@ -115,7 +116,7 @@ export class TabSyncService {
             if (this.destroyed || this.isLeader) return;
             const now = Date.now();
             if (now - this.lastLeaderHeartbeat > this.LEADER_TIMEOUT_MS) {
-                console.log('[TabSync] Líder desconectado. Iniciando nueva elección...');
+                debugLog('[TabSync] Líder desconectado. Iniciando nueva elección...');
                 this.startElectionProcess();
             }
         }, this.LEADER_TIMEOUT_MS / 2);

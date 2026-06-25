@@ -46,9 +46,15 @@ describe('Integration: Rutas protegidas', () => {
     });
 
     describe('GET /api/twitch/dashboard/analytics', () => {
-        it('debe rechazar sin autenticación', async () => {
-            const res = await request(app).get('/api/twitch/dashboard/analytics');
+        it('debe rechazar sin autenticación con error JSON unificado', async () => {
+            const res = await request(app)
+                .get('/api/twitch/dashboard/analytics')
+                .set('Accept', 'application/json');
+
             expect([401, 403]).toContain(res.status);
+            expect(res.body.success).toBe(false);
+            expect(res.body.error?.message).toEqual(expect.any(String));
+            expect(res.body.error?.code).toEqual(expect.any(String));
         });
     });
 

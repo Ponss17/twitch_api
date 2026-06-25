@@ -3,6 +3,7 @@ import { Dices, Pause, RotateCw, Loader2, Play, Users } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS, IGNORED_BOTS } from '@/lib/config';
 import { authHeaders } from '@/lib/auth';
+import { buildAuthQueryParam } from '@/lib/authQuery';
 import { useRequiredSession } from '@/hooks/useSession';
 import { getTmiAuth, tmiService } from '@/lib/tmiService';
 import type { RouletteUser } from '@/lib/twitchTypes';
@@ -295,11 +296,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
 
     const sendViaApi = (message: string) => {
         const { apiKey, token } = session;
-        const authParam = apiKey
-            ? `apiKey=${encodeURIComponent(apiKey)}`
-            : token
-              ? `token=${encodeURIComponent(token)}`
-              : '';
+        const authParam = buildAuthQueryParam({ apiKey, token });
         if (!authParam) return;
 
         void fetch(`${API_ENDPOINTS.SEND_MESSAGE}?${authParam}`, {

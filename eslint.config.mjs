@@ -15,6 +15,8 @@ export default tseslint.config(
             'playwright-report/**',
             'coverage/**',
             'src/env.d.ts',
+            '**/*.config.mjs',
+            '**/*.config.cjs',
             'api/**',
             'astro.config.mjs'
         ]
@@ -42,7 +44,20 @@ export default tseslint.config(
         }
     },
     {
-        // Node CommonJS scripts and config files (require/module.exports).
+        files: ['src/**/*.{ts,tsx}'],
+        rules: {
+            'no-console': ['error', { allow: ['warn', 'error'] }]
+        }
+    },
+    {
+        files: ['src/lib/debugLog.ts'],
+        rules: { 'no-console': 'off' }
+    },
+    {
+        files: ['backend/**/*.{ts,tsx}'],
+        rules: { 'no-console': 'off' }
+    },
+    {
         files: ['scripts/**/*.js', '**/*.config.js', '**/*.cjs'],
         languageOptions: {
             sourceType: 'commonjs',

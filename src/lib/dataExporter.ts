@@ -1,5 +1,6 @@
 import { API_ENDPOINTS } from '@/lib/config';
 import type { Session } from '@/lib/config';
+import { buildAuthQueryParam } from '@/lib/authQuery';
 import { appUrl } from '@/lib/paths';
 
 interface AnalyticsData {
@@ -184,11 +185,7 @@ const COMMAND_INTEGRATIONS = [
 ];
 
 const getAuthParts = (session: Session) => ({
-    query: session.apiKey
-        ? `apiKey=${encodeURIComponent(session.apiKey)}`
-        : session.token
-          ? `token=${encodeURIComponent(session.token)}`
-          : '',
+    query: buildAuthQueryParam(session),
     headers: session.token
         ? { Authorization: `Bearer ${session.token}` }
         : ({} as Record<string, string>)

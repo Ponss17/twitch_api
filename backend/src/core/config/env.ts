@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
-if (process.env.NODE_ENV !== 'production') {
-    dotenv.config();
+if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
+    dotenv.config({ quiet: true });
 }
 
 const envSchema = z.object({
@@ -55,7 +55,7 @@ const resolveProductionUrl = (
     const onVercel = process.env.VERCEL === '1' && process.env.NODE_ENV === 'production';
     if (!onVercel) return value;
     if (!value || isLocalhostUrl(value)) {
-        if (value) {
+        if (value && !process.env.JEST_WORKER_ID) {
             console.warn(
                 `[env] ${key} apunta a localhost en Vercel (${value}); usando ${PRODUCTION_URLS[key]}`
             );

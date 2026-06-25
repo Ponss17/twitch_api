@@ -16,6 +16,14 @@ interface CommandStoreState {
     testResults: Record<string, CommandTestResult>;
 }
 
+interface PersistedCommandStore {
+    configs: Record<string, CommandConfigState>;
+    testFields: Record<string, Record<string, string>>;
+}
+
+const STORAGE_KEY = 'twitch_command_store_v1';
+const PERSIST_DEBOUNCE_MS = 400;
+
 const DEFAULT_CONFIG: CommandConfigState = {
     bot: 'nightbot',
     template: '',
@@ -26,16 +34,60 @@ const DEFAULT_CONFIG: CommandConfigState = {
 /** Referencia estable para useSyncExternalStore cuando no hay resultado guardado */
 export const EMPTY_TEST_RESULT: CommandTestResult = { status: null, message: '' };
 
-let state: CommandStoreState = {
+const EMPTY_STATE: CommandStoreState = {
     configs: {},
     testFields: {},
     testResults: {}
 };
 
-const listeners = new Set<() => void>();
+function loadPersistedState(): Pick<CommandStoreState, 'configs' | 'testFields'> {
+    if (typeof window === 'undefined') {
+        return { configs: {}, testFields: {} };
+    }
 
-function emit() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { configs: {}, testFields: {} };
+
+        const parsed = JSON.parse(raw) as PersistedCommandStore;
+        return {
+            configs: parsed.configs && typeof parsed.configs === 'object' ? parsed.configs : {},
+            testFields: parsed.testFields && typeof parsed.testFields === 'object' ? parsed.testFields : {}
+        };
+    } catch {
+        return { configs: {}, testFields: {} };
+    }
+}
+
+let state: CommandStoreState = {
+    ...EMPTY_STATE,
+    ...loadPersistedState()
+};
+
+const listeners = new Set<() => void>();
+let persistTimer: ReturnType<typeof setTimeout> | null = null;
+
+function schedulePersist(): void {
+    if (typeof window === 'undefined') return;
+
+    if (persistTimer) clearTimeout(persistTimer);
+    persistTimer = setTimeout(() => {
+        persistTimer = null;
+        try {
+            const payload: PersistedCommandStore = {
+                configs: state.configs,
+                testFields: state.testFields
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        } catch {
+            /* quota exceeded */
+        }
+    }, PERSIST_DEBOUNCE_MS);
+}
+
+function emit(persist = true) {
     listeners.forEach((listener) => listener());
+    if (persist) schedulePersist();
 }
 
 function configsEqual(a: CommandConfigState, b: CommandConfigState): boolean {
@@ -118,5 +170,5 @@ export function setCommandTestResult(testId: string, result: CommandTestResult):
             [testId]: result
         }
     };
-    emit();
+    emit(false);
 }

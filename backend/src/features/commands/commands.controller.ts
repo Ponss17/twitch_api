@@ -2,6 +2,7 @@ import { Response } from 'express';
 
 import * as apiService from '../twitch/twitch.service';
 import * as cacheService from '../../core/database/cacheService';
+import { CACHE_TTL } from '../../core/config/cacheTtl';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { AuthenticatedRequest } from '../../types/twitch';
@@ -106,7 +107,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 res,
                 async (token: string) => {
                     const resApi = await apiService.getFollowAge(channel, user, token);
-                    await cacheService.set(cacheKey, resApi, 60);
+                    await cacheService.set(cacheKey, resApi, CACHE_TTL.COMMAND);
                     return resApi;
                 },
                 'FOLLOWAGE'

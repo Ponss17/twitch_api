@@ -1,3 +1,4 @@
+import { InlineIcon } from '@/components/ui/Icon';
 import { Loader2, Gem, Swords, Shield, Check, AlertTriangle, FlaskConical, Play, Gavel, Skull, Crosshair, MessageCircle, Send, type LucideIcon } from 'lucide-react';
 
 import { useState, type ReactNode } from 'react';
@@ -20,6 +21,7 @@ import {
 import { CommandGeneratorCard } from './CommandGeneratorCard';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import { useToast } from '@/components/ui/ToastProvider';
+import { extractApiErrorMessage, formatApiErrorForUi } from '@/lib/apiError';
 
 
 type TestResult = { status: 'idle' | 'loading' | 'success' | 'error'; message: string };
@@ -32,14 +34,10 @@ function normalizeTwitchLogin(raw: string): string {
 
 function parseApiError(text: string): string {
     try {
-        const json = JSON.parse(text) as { details?: { message: string }[]; error?: string };
-        const detail = json.details?.[0]?.message;
-        if (detail) return `⚠️ ${detail}`;
-        if (json.error) return `⚠️ ${json.error}`;
+        return formatApiErrorForUi(extractApiErrorMessage(JSON.parse(text) as unknown, text));
     } catch {
-        /* plain text */
+        return formatApiErrorForUi(text);
     }
-    return text.startsWith('Error:') ? text : `Error: ${text}`;
 }
 
 function MinigameCard({
@@ -145,7 +143,7 @@ export function Magic8View() {
             const url = `${API_ENDPOINTS.MAGIC8}?question=${encodeURIComponent(question)}&mood=${mood}&user=${encodeURIComponent(session.login ?? '')}`;
             const res = await fetch(url, { headers: authHeaders(session) });
             const text = await res.text();
-            setResult({ status: res.ok ? 'success' : 'error', message: res.ok ? text : `Error: ${text}` });
+            setResult({ status: res.ok ? 'success' : 'error', message: res.ok ? text : parseApiError(text) });
             if (res.ok) setQuestion('');
         } catch (e) {
             setResult({ status: 'error', message: `❌ ${(e as Error).message}` });
@@ -338,7 +336,7 @@ export function RussianView() {
                 }
             } else {
                 const err = await res.text();
-                setResult({ status: 'error', message: err ? `Error: ${err}` : 'Error' });
+                setResult({ status: 'error', message: err ? parseApiError(err) : '⚠️ Error desconocido' });
             }
         } catch {
             setResult({ status: 'error', message: 'La pistola se encasquilló (Error de API)' });
@@ -450,8 +448,8 @@ export function FeedbackView() {
             </div>
 
             <div className={cardFooterFlex}>
-                <p className="max-w-[60%] text-[0.8125rem] text-[#71717a] max-[600px]:max-w-full">
-                    <Shield className="mr-1" />
+                <p className="inline-flex max-w-[60%] items-start gap-1.5 text-[0.8125rem] text-[#71717a] max-[600px]:max-w-full">
+                    <InlineIcon icon={Shield} className="mt-0.5" />
                     Tu mensaje se enviará de forma segura y anónima a nuestro servidor de Discord.
                 </p>
                 <button

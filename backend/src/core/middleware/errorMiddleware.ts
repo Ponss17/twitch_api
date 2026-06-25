@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger, clearRequestId, getRequestId, asyncContext } from '../utils/logger';
 
-import { isBotCommand, isApiRoute } from '../utils/routeHelpers';
+import { isBotCommand, isApiRoute, isJsonApiRoute } from '../utils/routeHelpers';
 import { frontendPagePath } from '../utils/frontendPaths';
+import { jsonError } from '../utils/jsonResponse';
 
 export const errorHandler = async (
     err: {
@@ -41,6 +42,10 @@ export const errorHandler = async (
         const finalMsg =
             status >= 500 ? 'Error interno del servidor. Pide ayuda a Ponss 🦆' : message;
         return res.status(200).send(finalMsg);
+    }
+
+    if (isJsonApiRoute(req.path)) {
+        return jsonError(res, status, message);
     }
 
     if (isApiRoute(req.path)) {
