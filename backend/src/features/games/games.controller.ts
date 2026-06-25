@@ -59,6 +59,9 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
         res.send(answer);
     } catch (error) {
         logger.error('Error en askMagic8:', error);
+        if (error instanceof Error && error.message === MESSAGES.MAGIC8.MISSING_API_KEY) {
+            return res.status(503).send(MESSAGES.MAGIC8.MISSING_API_KEY);
+        }
         res.status(500).send(MESSAGES.MAGIC8.GROQ_ERROR);
     }
 };

@@ -1,8 +1,20 @@
 import Groq from 'groq-sdk';
 import { CONFIG } from '../../core/config/env';
+import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 
-const groq = new Groq({ apiKey: CONFIG.GROQ_API_KEY });
+let groqClient: Groq | null = null;
+
+function getGroqClient(): Groq {
+    const apiKey = CONFIG.GROQ_API_KEY?.trim();
+    if (!apiKey) {
+        throw new Error(MESSAGES.MAGIC8.MISSING_API_KEY);
+    }
+    if (!groqClient) {
+        groqClient = new Groq({ apiKey });
+    }
+    return groqClient;
+}
 
 export async function generateMagic8Response(
     question: string,
@@ -24,7 +36,7 @@ export async function generateMagic8Response(
 
         const systemPrompt = `${basePrompt}\nREGLA ESTRICTA: Dirígete ÚNICAMENTE a ${userName}. NUNCA etiquetes con '@' a ninguna otra palabra, sujeto o persona que aparezca en la pregunta (por ejemplo, si preguntan por "ella", no respondas "@ella").`;
 
-        const completion = await groq.chat.completions.create({
+        const completion = await getGroqClient().chat.completions.create({
             messages: [
                 {
                     role: 'system',
