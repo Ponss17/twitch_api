@@ -14,6 +14,8 @@ export const CACHE_TTL = {
     ANALYTICS: 45,
     /** Info de usuario para modal Stalker */
     USER_INFO: 3600,
+    /** Listas de mods / VIPs / subs para ruleta */
+    ELIGIBILITY: 60,
     /** Usuario por API key / id en Supabase */
     API_USER: 10 * 60,
     USER_BY_LOGIN: 15 * 60,

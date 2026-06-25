@@ -1,5 +1,5 @@
-import { InlineIcon } from '@/components/ui/Icon';
-import { Loader2, Gem, Swords, Shield, Check, AlertTriangle, Play, Gavel, Skull, Crosshair, MessageCircle, Send, type LucideIcon } from 'lucide-react';
+import { CardHeaderIcon, InlineIcon } from '@/components/ui/Icon';
+import { Loader2, Gem, Swords, Shield, Check, AlertTriangle, Play, Gavel, Skull, MessageCircle, Send, type LucideIcon } from 'lucide-react';
 import { MAGIC8_ICON, RUSSIAN_ICON } from '@/lib/dashboardTabs';
 
 import { useState, type ReactNode } from 'react';
@@ -64,9 +64,7 @@ function MinigameCard({
         >
             <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                        <Icon className="w-5 h-5 text-center" aria-hidden="true" />
-                    </div>
+                    <CardHeaderIcon icon={Icon} />
                     <div>
                         <h3 className="mb-0.5 text-[0.95rem] font-bold">{title}</h3>
                         <p className="text-[0.8rem] text-[#a1a1aa]">{description}</p>
@@ -354,13 +352,20 @@ export function RussianView() {
                 staggered
                 centerBody
             >
-                <div className="relative z-[1] my-5 px-5 py-5">
+                <div className="relative z-[1] my-5 flex justify-center px-5 py-5">
                     {gunDead ? (
-                        <Skull className={`text-[4rem] transition-all max-[600px]:text-[3rem] text-error ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : ''}`} aria-hidden="true" />
+                        <Skull
+                            className={`size-20 shrink-0 transition-all max-[600px]:size-16 text-error ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : ''}`}
+                            strokeWidth={1.75}
+                            aria-hidden
+                        />
                     ) : (
-                        <Crosshair className={`text-[4rem] transition-all max-[600px]:text-[3rem] ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : 'text-[#71717a] drop-shadow-[0_0_15px_rgba(0,0,0,0.4)] hover:scale-110 hover:rotate-[-5deg] hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]'}`} aria-hidden="true" />
+                        <RUSSIAN_ICON
+                            className={`size-20 shrink-0 transition-all max-[600px]:size-16 ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : 'text-[#71717a] drop-shadow-[0_0_15px_rgba(0,0,0,0.4)] hover:scale-110 hover:rotate-[-5deg] hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]'}`}
+                            strokeWidth={1.75}
+                            aria-hidden
+                        />
                     )}
-                    {/* gun render */}
                 </div>
 
                 <div className="relative before:absolute before:top-[-10px] before:left-1/2 before:h-0.5 before:w-[200px] before:-translate-x-1/2 before:bg-gradient-to-r before:from-transparent before:via-primary/30 before:to-transparent max-[600px]:before:w-[100px]">
@@ -370,7 +375,7 @@ export function RussianView() {
                         disabled={loading}
                         className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-white/10 bg-gradient-to-br from-[#dc2626] to-[#991b1b] px-10 py-3.5 text-[1rem] font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.3),inset_0_0_0_1px_rgba(255,255,255,0.1)] transition hover:-translate-y-0.5 hover:scale-105 hover:from-[#ef4444] hover:to-[#dc2626] hover:shadow-[0_15px_35px_rgba(220,38,38,0.5)] active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
                     >
-                        {loading ? <Loader2 className="animate-spin" /> : <Crosshair className="w-4 h-4" />}
+                        {loading ? <Loader2 className="size-4 animate-spin" /> : <RUSSIAN_ICON className="size-4" strokeWidth={2} />}
                         Jalar Gatillo
                     </button>
                 </div>

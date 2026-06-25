@@ -90,8 +90,6 @@ export function ClipsView() {
             setLoading(true);
             try {
                 const params = new URLSearchParams({ channel: session.login });
-                if (session.apiKey) params.set('apiKey', session.apiKey);
-                else if (session.token) params.set('token', session.token);
                 const data = await apiFetch<Clip[] | { clips?: Clip[]; data?: Clip[] }>(
                     `${API_ENDPOINTS.CLIPS}?${params}`,
                     session

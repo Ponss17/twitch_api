@@ -4,6 +4,7 @@ import { VerifyingSessionModal } from '@/components/ui/VerifyingSessionModal';
 import { AppLogo } from '@/components/ui/AppLogo';
 import { resolveSessionFromUrl, saveSession } from '@/lib/auth';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
+import { reportSessionLoadProgress } from '@/lib/sessionLoadProgress';
 import { Accordion } from '@/components/ui/Accordion';
 import { TwitchIcon, DiscordIcon } from '@/components/ui/icons/BrandIcons';
 import { UserRoundCheck, Clapperboard, Megaphone, TrendingUp, Binoculars, Dices, Swords, MessageSquare, Book, ArrowRight, Copy, Check } from 'lucide-react';
@@ -105,24 +106,21 @@ export function LandingPage() {
             const params = new URLSearchParams(window.location.search);
             const sessionParams = await resolveSessionFromUrl();
 
-            if (
-                params.get('auth') ||
-                params.get('token') ||
-                params.get('apiKey') ||
-                sessionParams.token ||
-                sessionParams.apiKey
-            ) {
+            if (params.get('auth') || sessionParams.token || sessionParams.apiKey) {
                 setIsVerifying(true);
+                reportSessionLoadProgress({
+                    progress: 12,
+                    label: 'Preparando tu panel…',
+                    cached: false
+                });
                 sessionStorage.setItem('dashboard_splash', '1');
 
                 if (sessionParams.isNewLogin) {
                     saveSession(sessionParams);
                 }
 
-                const search =
-                    params.get('auth') || params.get('token') || params.get('apiKey')
-                        ? window.location.search
-                        : '';
+                const authParam = params.get('auth');
+                const search = authParam ? `?auth=${encodeURIComponent(authParam)}` : '';
                 window.location.href = appPath('/dashboard') + search;
             }
         })();

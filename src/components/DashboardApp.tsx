@@ -70,18 +70,21 @@ function DashboardAppShell() {
         if (!splashOpen) return;
 
         const startTime = Date.now();
+        let readyTimer: ReturnType<typeof setTimeout> | null = null;
+
         const onReady = () => {
             const elapsed = Date.now() - startTime;
-            const remaining = Math.max(0, 600 - elapsed);
-            setTimeout(() => setSplashDone(true), remaining);
+            const remaining = Math.max(0, 800 - elapsed);
+            if (readyTimer) clearTimeout(readyTimer);
+            readyTimer = setTimeout(() => setSplashDone(true), remaining);
         };
         window.addEventListener('home:data-ready', onReady);
 
-        // Safety: si el evento nunca llega (error de red, etc.), cerrar el modal después de 6s
-        const fallback = setTimeout(() => setSplashDone(true), 4000);
+        const fallback = setTimeout(() => setSplashDone(true), 15000);
 
         return () => {
             window.removeEventListener('home:data-ready', onReady);
+            if (readyTimer) clearTimeout(readyTimer);
             clearTimeout(fallback);
         };
     }, [splashOpen]);
@@ -92,14 +95,15 @@ function DashboardAppShell() {
         sessionStorage.removeItem('dashboard_splash');
     }, []);
 
-    if (loading) {
+    if (loading && !splashOpen) {
         return <DashboardSessionSkeleton />;
     }
 
-    if (!authenticated || !session) {
-        // SessionProvider se encarga de redirigir a '/' si requireAuth es true
+    if (!loading && (!authenticated || !session)) {
         return <DashboardSessionSkeleton />;
     }
+
+    const dashboardReady = !loading && authenticated && !!session;
 
     return (
         <>
@@ -111,6 +115,11 @@ function DashboardAppShell() {
                 onExited={handleSplashExited}
             />
 
+            {loading && splashOpen && (
+                <div className="min-h-screen bg-[#09090b]" aria-hidden />
+            )}
+
+            {dashboardReady && (
             <div
                 id="dashboard-page"
                 className={`flex min-h-full flex-1 flex-col bg-[#09090b] transition-[filter,opacity] duration-300 ${
@@ -139,6 +148,7 @@ function DashboardAppShell() {
                     </div>
                 </main>
             </div>
+            )}
         </>
     );
 }

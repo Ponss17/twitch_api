@@ -18,6 +18,7 @@ import { useToast } from '@/components/ui/ToastProvider';
 import { HomeViewSkeleton } from '@/components/ui/Skeleton';
 import { logError } from '@/lib/logError';
 import { AlertTriangle } from 'lucide-react';
+import { reportSessionLoadProgress } from '@/lib/sessionLoadProgress';
 
 
 interface HealthStatus {
@@ -66,6 +67,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     const dataReadyFiredRef = useRef(false);
     /** Timer de setSyncing(false) para cancelar si el componente se desmonta */
     const syncingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const authRedirectTimerRef = useRef<number | null>(null);
 
     const displayName = session.displayName ?? session.login ?? 'Streamer';
 
@@ -73,6 +75,11 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         const sync = syncRef.current;
         if (!sync?.getIsLeader() || !sync.isActive()) return;
         setSyncing(true);
+        reportSessionLoadProgress({
+            progress: 70,
+            label: 'Obteniendo estadísticas del panel…',
+            cached: false
+        });
         localStorage.setItem('dashboard_last_sync', Date.now().toString());
 
         try {
@@ -95,6 +102,11 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
 
             setStats(analyticsRes);
             setActivity(activityLogs);
+            reportSessionLoadProgress({
+                progress: 94,
+                label: 'Preparando tu inicio…',
+                cached: false
+            });
             if (useRealtimeRef.current) {
                 setSyncLabel('Realtime');
             } else {
@@ -287,7 +299,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
 
         const onAuthFailed = () => {
             showToastRef.current('Sesión expirada. Redirigiendo al login...', 'error');
-            setTimeout(() => {
+            authRedirectTimerRef.current = window.setTimeout(() => {
                 window.location.href = appPath('/');
             }, 2000);
         };
@@ -306,6 +318,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             if (healthPollRef.current) clearInterval(healthPollRef.current);
             healthPollRef.current = null;
             if (syncingTimerRef.current) clearTimeout(syncingTimerRef.current);
+            if (authRedirectTimerRef.current) clearTimeout(authRedirectTimerRef.current);
             sync.destroy();
             syncRef.current = null;
             realtimeRef.current?.pause();
@@ -320,6 +333,11 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             // Disparar solo la primera vez que llegan datos (no en cada polling)
             if (!dataReadyFiredRef.current) {
                 dataReadyFiredRef.current = true;
+                reportSessionLoadProgress({
+                    progress: 99,
+                    label: 'Finalizando…',
+                    cached: false
+                });
                 window.dispatchEvent(new CustomEvent('home:data-ready'));
             }
         }

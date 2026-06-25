@@ -7,55 +7,64 @@ jest.mock('@/lib/config', () => ({
     }
 }));
 
-import { applyOAuthParamsFromUrl, getSession, saveSession } from '@/lib/auth';
+import { getSession, resolveSessionFromUrl, saveSession, stripSensitiveQueryParams } from '@/lib/auth';
 
-const SESSION_KEY = 'twitch_api_session';
-
-describe('applyOAuthParamsFromUrl', () => {
+describe('resolveSessionFromUrl', () => {
     beforeEach(() => {
         localStorage.clear();
         window.history.replaceState({}, '', '/api/twitch/dashboard');
+        global.fetch = jest.fn();
     });
 
-    it('returns false when no oauth params are present', () => {
-        expect(applyOAuthParamsFromUrl()).toBe(false);
-        expect(getSession()).toBeNull();
+    it('returns stored session when no auth token is in the URL', async () => {
+        saveSession({ apiKey: 'stored_key', login: 'streamer' });
+
+        const session = await resolveSessionFromUrl();
+
+        expect(session).toEqual({
+            login: 'streamer',
+            displayName: '',
+            profile_image_url: '',
+            token: undefined,
+            apiKey: 'stored_key',
+            userId: undefined,
+            isNewLogin: false
+        });
     });
 
-    it('persists session from query params and strips the URL', () => {
+    it('exchanges auth token and strips sensitive query params', async () => {
+        window.history.replaceState({}, '', '/api/twitch/dashboard?auth=signed');
+
+        (global.fetch as jest.Mock).mockResolvedValue({
+            ok: true,
+            json: async () => ({
+                apiKey: 'new_key',
+                login: 'streamer',
+                displayName: 'Streamer',
+                userId: '42'
+            })
+        });
+
+        const session = await resolveSessionFromUrl();
+
+        expect(session.isNewLogin).toBe(true);
+        expect(session.apiKey).toBe('new_key');
+        expect(window.location.search).toBe('');
+    });
+});
+
+describe('stripSensitiveQueryParams', () => {
+    it('removes legacy credential params from the URL', () => {
         window.history.replaceState(
             {},
             '',
-            '/api/twitch/dashboard?apiKey=test_key&login=streamer&displayName=Streamer&userId=42'
+            '/api/twitch/dashboard?apiKey=test_key&token=legacy&login=streamer'
         );
 
-        expect(applyOAuthParamsFromUrl()).toBe(true);
+        stripSensitiveQueryParams();
 
-        expect(getSession()).toEqual({
-            apiKey: 'test_key',
-            login: 'streamer',
-            displayName: 'Streamer',
-            userId: '42',
-            profile_image_url: '',
-            isNewLogin: true
-        });
         expect(window.location.pathname).toBe('/api/twitch/dashboard');
         expect(window.location.search).toBe('');
-    });
-
-    it('merges with an existing session', () => {
-        saveSession({ apiKey: 'old', login: 'oldlogin' });
-        window.history.replaceState({}, '', '/api/twitch/dashboard?apiKey=new_key&displayName=NewName');
-
-        expect(applyOAuthParamsFromUrl()).toBe(true);
-
-        expect(getSession()).toEqual({
-            apiKey: 'new_key',
-            login: 'oldlogin',
-            displayName: 'NewName',
-            profile_image_url: '',
-            isNewLogin: true
-        });
-        expect(localStorage.getItem(SESSION_KEY)).toContain('new_key');
+        expect(getSession()).toBeNull();
     });
 });
