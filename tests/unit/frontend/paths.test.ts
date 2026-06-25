@@ -1,7 +1,6 @@
 import {
     APP_MOUNT,
     appPath,
-    dashboardHomePath,
     docsReturnPath,
     getAppBasePath,
     normalizePanelReturnPath,
