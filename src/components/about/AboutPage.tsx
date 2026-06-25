@@ -1,8 +1,8 @@
 import { Book, ArrowLeft } from 'lucide-react';
 import { DiscordIcon, InstagramIcon } from '@/components/ui/icons/BrandIcons';
 
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
-import { appPath, staticPath } from '@/lib/paths';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { appPath, docsReturnPath, staticPath } from '@/lib/paths';
 import { aboutFadeIn, aboutLegoIn } from '@/lib/tw';
 
 const NARRATIVE_CARD =
@@ -37,7 +37,7 @@ function AboutHeader() {
                         href={appPath('/docs')}
                         className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#a1a1aa] no-underline transition hover:bg-white/5 hover:text-white"
                     >
-                        <Book />
+                        <Book className="size-5 shrink-0" aria-hidden />
                         Documentación
                     </a>
                     <a
@@ -46,7 +46,7 @@ function AboutHeader() {
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#a1a1aa] no-underline transition hover:bg-white/5 hover:text-white"
                     >
-                        <DiscordIcon className="w-[1em] h-[1em]" aria-hidden="true" />
+                        <DiscordIcon className="size-5 shrink-0" aria-hidden="true" />
                         Comunidad
                     </a>
                 </nav>
@@ -284,8 +284,13 @@ const TECH_CARDS = [
 ] as const;
 
 export function AboutPage() {
+    const [returnPath, setReturnPath] = useState(() => appPath('/dashboard/'));
     const [toastVisible, setToastVisible] = useState(false);
     const toastTimerRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        setReturnPath(docsReturnPath());
+    }, []);
 
     useEffect(() => {
         return () => {
@@ -306,13 +311,6 @@ export function AboutPage() {
         }
     };
 
-    const handleBack = (e: MouseEvent<HTMLAnchorElement>) => {
-        if (document.referrer && document.referrer.includes(window.location.hostname)) {
-            e.preventDefault();
-            window.history.back();
-        }
-    };
-
     return (
         <div className="relative flex flex-1 flex-col overflow-x-hidden bg-bg-main font-[Outfit,Inter,system-ui,sans-serif] text-sm text-white">
             <SparksCanvas />
@@ -320,10 +318,9 @@ export function AboutPage() {
 
             <main className="relative z-[2] mx-auto max-w-[900px] px-5 pt-20 pb-[60px] md:pt-[140px]">
                 <a
-                    href={appPath('/dashboard')}
+                    href={returnPath}
                     className={`mb-[30px] inline-flex items-center gap-2.5 py-2 text-[0.85rem] font-bold tracking-[0.1em] text-[#a1a1aa] uppercase no-underline transition hover:text-primary ${aboutFadeIn}`}
                     style={animDelay(0.5)}
-                    onClick={handleBack}
                 >
                     <ArrowLeft className="w-4 h-4 transition group-hover:-translate-x-1" aria-hidden="true" />
                     Volver al Panel

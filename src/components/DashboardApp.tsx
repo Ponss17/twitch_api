@@ -72,13 +72,13 @@ function DashboardAppShell() {
         const startTime = Date.now();
         const onReady = () => {
             const elapsed = Date.now() - startTime;
-            const remaining = Math.max(0, 2000 - elapsed); // Asegurar al menos 2 segundos de animación
+            const remaining = Math.max(0, 600 - elapsed);
             setTimeout(() => setSplashDone(true), remaining);
         };
         window.addEventListener('home:data-ready', onReady);
 
         // Safety: si el evento nunca llega (error de red, etc.), cerrar el modal después de 6s
-        const fallback = setTimeout(() => setSplashDone(true), 6000);
+        const fallback = setTimeout(() => setSplashDone(true), 4000);
 
         return () => {
             window.removeEventListener('home:data-ready', onReady);
@@ -105,14 +105,18 @@ function DashboardAppShell() {
         <>
             <OnlineStatusMonitor />
 
-            {/* Splash modal de bienvenida (solo al llegar desde la Landing) */}
             <VerifyingSessionModal
                 open={splashOpen}
                 done={splashDone}
                 onExited={handleSplashExited}
             />
 
-            <div id="dashboard-page" className="flex min-h-full flex-1 flex-col bg-[#09090b]">
+            <div
+                id="dashboard-page"
+                className={`flex min-h-full flex-1 flex-col bg-[#09090b] transition-[filter,opacity] duration-300 ${
+                    splashOpen && !splashDone ? 'pointer-events-none opacity-50 blur-[2px]' : ''
+                }`}
+            >
                 <Sidebar
                     active={tab}
                     onChange={setTab}

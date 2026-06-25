@@ -51,32 +51,60 @@ export function absoluteAssetUrl(path: string, origin: string): string {
     return `${origin.replace(/\/$/, '')}${staticPath(path)}`;
 }
 
-const DOCS_RETURN_PATH_KEY = 'twitch_docs_return_path';
-const DOCS_PAGE_SUFFIX = '/docs';
+const PANEL_RETURN_PATH_KEY = 'twitch_docs_return_path';
 
+/** Páginas secundarias: no guardar como origen ni usar como destino de retorno. */
+const SECONDARY_SEGMENTS = [
+    '/docs',
+    '/sobre-la-api',
+    '/privacidad',
+    '/terminos',
+    '/cookies',
+    '/404',
+    '/429',
+    '/500',
+    '/offline'
+] as const;
+
+function isSecondaryPage(pathname: string): boolean {
+    const base = getAppBasePath();
+    return SECONDARY_SEGMENTS.some((segment) => {
+        const full = `${base}${segment}`;
+        return pathname === full || pathname === `${full}/`;
+    });
+}
+
+function isValidPanelReturnTarget(pathname: string): boolean {
+    const base = getAppBasePath();
+    if (!pathname.startsWith(base)) return false;
+    if (isSecondaryPage(pathname)) return false;
+    return true;
+}
+
+/**
+ * Guarda la ruta actual antes de ir a docs, sobre-la-api, etc.
+ * Solo desde dashboard/landing; no sobrescribe si ya estás en una página secundaria.
+ */
 export function saveDocsReturnPath(): void {
     if (typeof window === 'undefined') return;
     const { pathname } = window.location;
-    if (pathname.endsWith(DOCS_PAGE_SUFFIX)) return;
-    sessionStorage.setItem(DOCS_RETURN_PATH_KEY, pathname);
+    if (isSecondaryPage(pathname)) return;
+    sessionStorage.setItem(PANEL_RETURN_PATH_KEY, pathname);
 }
 
+/** Ruta de retorno al panel (dashboard con pestaña) o landing. */
 export function docsReturnPath(): string {
-    if (typeof window === 'undefined') return appPath('/dashboard');
+    if (typeof window === 'undefined') return appPath('/dashboard/');
 
-    const saved = sessionStorage.getItem(DOCS_RETURN_PATH_KEY);
-    if (saved && isValidDocsReturnTarget(saved)) {
+    const saved = sessionStorage.getItem(PANEL_RETURN_PATH_KEY);
+    if (saved && isValidPanelReturnTarget(saved)) {
         return saved;
     }
 
-    return appPath('/dashboard');
+    return appPath('/dashboard/');
 }
 
-function isValidDocsReturnTarget(pathname: string): boolean {
-    const base = getAppBasePath();
-    if (!pathname.startsWith(base)) return false;
-    if (pathname === `${base}${DOCS_PAGE_SUFFIX}` || pathname === `${base}${DOCS_PAGE_SUFFIX}/`) {
-        return false;
-    }
-    return true;
+/** Enlaces internos del dashboard que deben recordar el origen al salir. */
+export function shouldSavePanelReturn(href: string): boolean {
+    return href === '/docs' || href === '/sobre-la-api';
 }
