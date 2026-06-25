@@ -2,7 +2,10 @@ import { Request, Response } from 'express';
 
 jest.mock('../../backend/src/features/auth/auth.service', () => ({
     getAuthorizeUrl: jest.fn(),
-    handleCallback: jest.fn()
+    handleCallback: jest.fn(),
+    signAuthExchange: jest.fn().mockReturnValue('signed-auth-token'),
+    verifyState: jest.fn(),
+    verifyAuthExchange: jest.fn()
 }));
 
 jest.mock('../../backend/src/core/database/dbService', () => ({
@@ -15,7 +18,7 @@ jest.mock('@/core/utils/logger', () => ({
 }));
 
 import * as authService from '../../backend/src/features/auth/auth.service';
-import { login, callback } from '../../backend/src/features/auth/auth.controller';
+import { login, callback, exchange } from '../../backend/src/features/auth/auth.controller';
 
 const mockReq = (overrides = {}) =>
     ({
@@ -28,6 +31,7 @@ const mockRes = () => {
     res.redirect = jest.fn().mockReturnValue(res);
     res.status = jest.fn().mockReturnValue(res);
     res.json = jest.fn().mockReturnValue(res);
+    res.setHeader = jest.fn().mockReturnValue(res);
     return res;
 };
 
@@ -91,7 +95,7 @@ describe('authController', () => {
             await callback(req, res);
 
             expect(res.redirect).toHaveBeenCalledWith(
-                expect.stringMatching(/\/api\/twitch\/dashboard\?apiKey=key_abc/)
+                expect.stringMatching(/\/api\/twitch\/dashboard\?auth=/)
             );
         });
 
@@ -121,8 +125,67 @@ describe('authController', () => {
             await callback(req, res);
 
             expect(res.redirect).toHaveBeenCalledWith(
-                expect.stringMatching(/\/api\/twitch\/dashboard\?apiKey=key_abc/)
+                expect.stringMatching(/\/api\/twitch\/dashboard\?auth=/)
             );
+        });
+    });
+
+    describe('exchange', () => {
+        it('should return 400 if auth param is missing', () => {
+            const req = mockReq({ query: {} });
+            const res = mockRes();
+
+            exchange(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                error: expect.objectContaining({
+                    message: expect.any(String),
+                    code: 'MISSING_AUTH'
+                })
+            });
+        });
+
+        it('should return 401 if auth token is invalid or expired', () => {
+            const req = mockReq({ query: { auth: 'bad-token' } });
+            const res = mockRes();
+
+            (authService.verifyAuthExchange as jest.Mock).mockReturnValue(null);
+
+            exchange(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                error: expect.objectContaining({
+                    message: expect.any(String),
+                    code: 'INVALID_AUTH'
+                })
+            });
+        });
+
+        it('should return session payload for valid auth token', () => {
+            const req = mockReq({ query: { auth: 'valid-token' } });
+            const res = mockRes();
+
+            (authService.verifyAuthExchange as jest.Mock).mockReturnValue({
+                apiKey: 'key_abc',
+                userId: '999',
+                login: 'testuser',
+                displayName: 'TestUser',
+                profile_image_url: 'https://img.test/avatar.png'
+            });
+
+            exchange(req, res);
+
+            expect(res.json).toHaveBeenCalledWith({
+                apiKey: 'key_abc',
+                userId: '999',
+                login: 'testuser',
+                displayName: 'TestUser',
+                profile_image_url: 'https://img.test/avatar.png'
+            });
         });
     });
 });

@@ -12,7 +12,7 @@ import { DashboardSessionSkeleton } from '@/components/ui/Skeleton';
 import { logout } from '@/lib/auth';
 
 import { initGlobalErrorLogging } from '@/lib/logError';
-import { parseTabFromUrl, setTabInUrl } from '@/lib/dashboardTabUrl';
+import { resolveDashboardTab, setTabInUrl } from '@/lib/dashboardTabUrl';
 import { fadeIn } from '@/lib/tw';
 import type { DashboardTab } from '@/lib/config';
 
@@ -29,7 +29,7 @@ export function DashboardApp() {
 
 function DashboardAppShell() {
     const { session, loading, authenticated } = useSession();
-    const [tab, setTabState] = useState<DashboardTab>(() => parseTabFromUrl());
+    const [tab, setTabState] = useState<DashboardTab>(() => resolveDashboardTab());
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // Splash modal: se muestra si venimos de la Landing (bandera en sessionStorage)
@@ -49,7 +49,7 @@ function DashboardAppShell() {
     }, []);
 
     useEffect(() => {
-        const syncFromUrl = () => setTabState(parseTabFromUrl());
+        const syncFromUrl = () => setTabState(resolveDashboardTab());
         window.addEventListener('popstate', syncFromUrl);
         window.addEventListener('hashchange', syncFromUrl);
         return () => {
@@ -58,10 +58,11 @@ function DashboardAppShell() {
         };
     }, []);
 
-    // Canonicaliza ?tab=legacy → #tab al cargar
+    // Canonicaliza URL (path-based) y migra hash/?tab= legacy al montar
     useEffect(() => {
-        setTabInUrl(tab);
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al montar
+        const resolved = resolveDashboardTab();
+        setTabState(resolved);
+        setTabInUrl(resolved, { replace: true });
     }, []);
 
     // Escuchar cuando el Home ya cargó los datos

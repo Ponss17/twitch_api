@@ -57,10 +57,11 @@ const mockReq = (overrides = {}) =>
     }) as unknown as AuthenticatedRequest;
 
 const mockRes = () => {
-    const res = {} as Response;
+    const res = { locals: {} } as Response;
     res.status = jest.fn().mockReturnValue(res);
     res.json = jest.fn().mockReturnValue(res);
     res.send = jest.fn().mockReturnValue(res);
+    res.setHeader = jest.fn().mockReturnValue(res);
     return res;
 };
 
@@ -72,7 +73,10 @@ describe('systemController', () => {
             const req = mockReq();
             const res = mockRes();
 
-            (apiService.validateToken as jest.Mock).mockResolvedValue({ login: 'testuser' });
+            (apiService.validateToken as jest.Mock).mockResolvedValue({
+                login: 'testuser',
+                user_id: '123'
+            });
             (dbService.getUserByLogin as jest.Mock).mockResolvedValue({
                 userId: '123',
                 apiKey: 'key-123'

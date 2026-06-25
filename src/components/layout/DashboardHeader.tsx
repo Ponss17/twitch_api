@@ -3,6 +3,7 @@ import type { DashboardTab } from '@/lib/config';
 import { useRequiredSession } from '@/hooks/useSession';
 import { staticPath } from '@/lib/paths';
 import { TAB_META } from '@/lib/dashboardTabs';
+import { IconMd } from '@/components/ui/Icon';
 import { User, ChevronDown, LogOut, Menu } from 'lucide-react';
 import { TwitchIcon, PaypalIcon } from '@/components/ui/icons/BrandIcons';
 
@@ -51,7 +52,7 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                 </button>
 
                 <h1 className="flex flex-1 items-center gap-3 text-xl font-bold tracking-tight text-[#fafafa] md:text-[1.8rem]">
-                    <meta.icon className="text-[1.2rem] text-[#9146ff] opacity-90" aria-hidden="true" />
+                    <IconMd icon={meta.icon} className="text-[#9146ff]" />
                     {meta.title}
                 </h1>
 

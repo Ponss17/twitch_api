@@ -7,6 +7,7 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
 }));
 
 jest.mock('../../backend/src/features/games/magic8.service', () => ({
+    __esModule: true,
     generateMagic8Response: jest.fn()
 }));
 
@@ -49,6 +50,7 @@ const mockRes = () => {
     res.status = jest.fn().mockReturnValue(res);
     res.json = jest.fn().mockReturnValue(res);
     res.send = jest.fn().mockReturnValue(res);
+    res.setHeader = jest.fn().mockReturnValue(res);
     return res;
 };
 
@@ -140,7 +142,7 @@ describe('gamesController', () => {
 
             await startDuel(req, res);
 
-            expect(playDuel).toHaveBeenCalledWith('Keanu Reeves', 'Enemy');
+            expect(playDuel).toHaveBeenCalledWith('KeanuReeves', 'Enemy');
         });
     });
 });

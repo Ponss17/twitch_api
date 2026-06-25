@@ -2,6 +2,7 @@ import { Response } from 'express';
 import * as dbService from '../../core/database/dbService';
 import * as apiService from '../twitch/twitch.service';
 import * as cacheService from '../../core/database/cacheService';
+import { CACHE_TTL } from '../../core/config/cacheTtl';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { computeAnalyticsFromStats, formatActivityLog } from '../../core/utils/dashboardHelpers';
@@ -11,6 +12,7 @@ import { RATE_LIMITS } from '../../core/config/limits';
 import { TwitchApiError } from '../../core/errors/AppError';
 import { AppError } from '../../core/errors/AppError';
 import { trackRequest } from '../../core/utils/tracking';
+import { jsonError } from '../../core/utils/jsonResponse';
 
 
 
@@ -30,17 +32,25 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
     }
 
     try {
+        const cacheKey = `cache:analytics:${userId}`;
+        const cached = await cacheService.get<Record<string, unknown>>(cacheKey);
+        if (cached) {
+            return res.json(cached);
+        }
+
         const stats = await dbService.getUserStats(userId);
         const computed = computeAnalyticsFromStats(stats);
-
-        res.json({
+        const payload = {
             ...stats,
             ...computed,
             totalRequests: stats.total_requests || 0
-        });
+        };
+
+        await cacheService.set(cacheKey, payload, CACHE_TTL.ANALYTICS);
+        res.json(payload);
     } catch (e) {
         logger.error('Error analytics:', e);
-        res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });
+        return jsonError(res, 500, MESSAGES.DASHBOARD.ANALYTICS_ERROR);
     }
 };
 
@@ -57,7 +67,7 @@ export const getLogs = async (req: AuthenticatedRequest, res: Response) => {
         res.json(formattedLogs);
     } catch (e) {
         logger.error('Error logs activity:', e);
-        res.status(500).json({ error: MESSAGES.DASHBOARD.LOGS_ERROR });
+        return jsonError(res, 500, MESSAGES.DASHBOARD.LOGS_ERROR);
     }
 };
 
@@ -82,7 +92,7 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
 
             try {
                 const result = await apiService.getClips(channel, limitNum, req.twitchToken || '');
-                await cacheService.set(cacheKey, result, 60);
+                await cacheService.set(cacheKey, result, CACHE_TTL.CLIPS);
                 return res.json(result);
             } catch (error: unknown) {
                 if (error instanceof TwitchApiError) throw error;
@@ -97,7 +107,7 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
     const channel = req.query.channel as string;
     const userId = req.userId;
 
-    if (!userId) return res.status(401).send(MESSAGES.SYSTEM.USER_NOT_FOUND);
+    if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     return await trackRequest(
         userId,
@@ -118,12 +128,12 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
                     userId,
                     req.twitchToken || ''
                 );
-                await cacheService.set(cacheKey, chatters, 30);
+                await cacheService.set(cacheKey, chatters, CACHE_TTL.CHATTERS);
                 return res.json(chatters);
             } catch (error: unknown) {
                 const err = error as Error;
                 logger.error('Error getting chatters:', { error: err.message });
-                res.status(500).json({ error: MESSAGES.DASHBOARD.CHATTERS_ERROR });
+                return jsonError(res, 500, MESSAGES.DASHBOARD.CHATTERS_ERROR);
             }
         }
     );
@@ -133,7 +143,7 @@ export const trackToolUsage = async (req: AuthenticatedRequest, res: Response) =
     const { tool } = req.body as { tool: 'trends' | 'stalker' | 'roulette' };
     const userId = req.userId;
 
-    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
+    if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     try {
         await trackRequest(
@@ -148,7 +158,7 @@ export const trackToolUsage = async (req: AuthenticatedRequest, res: Response) =
         res.json({ success: true });
     } catch (e) {
         logger.error('Error tracking tool usage:', e);
-        res.status(500).json({ error: 'Error tracking usage' });
+        return jsonError(res, 500, 'Error al registrar el uso de la herramienta.');
     }
 };
 
@@ -195,10 +205,10 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                     views: info.view_count
                 };
 
-                await cacheService.set(cacheKey, result, 3600);
+                await cacheService.set(cacheKey, result, CACHE_TTL.USER_INFO);
                 res.json({ ...result, rateLimit });
             } catch {
-                res.status(500).json({ error: MESSAGES.DASHBOARD.USER_INFO_ERROR });
+                return jsonError(res, 500, MESSAGES.DASHBOARD.USER_INFO_ERROR);
             }
         }
     );
@@ -206,27 +216,32 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
 
 export const clearUserData = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
-    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
+    if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     try {
         await dbService.clearUserStatsAndLogs(userId);
+        await cacheService.invalidateDashboardCache(userId, req.login);
         res.json({ success: true, message: 'Estadísticas y actividad reiniciadas correctamente.' });
     } catch (e) {
         logger.error('Error clearing user data:', e);
-        res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });
+        return jsonError(res, 500, MESSAGES.DASHBOARD.ANALYTICS_ERROR);
     }
 };
 
 export const deleteAccount = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
-    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
+    if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     try {
+        const login = req.login;
         await dbService.deleteUser(userId);
+        if (login) {
+            await cacheService.invalidateDashboardCache(userId, login);
+        }
         res.json({ success: true, message: 'Cuenta eliminada permanentemente del sistema.' });
     } catch (e) {
         logger.error('Error deleting account:', e);
-        res.status(500).json({ error: MESSAGES.DASHBOARD.ANALYTICS_ERROR });
+        return jsonError(res, 500, MESSAGES.DASHBOARD.ANALYTICS_ERROR);
     }
 };
 
@@ -234,56 +249,68 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
     const token = req.twitchToken;
     const login = req.query.login as string;
     const userId = req.userId;
+    const cacheId = userId || login?.toLowerCase() || '';
 
-    const cacheKey = `cache:summary:${userId || login?.toLowerCase() || ''}`;
-    
-    if (cacheKey !== 'cache:summary:') {
-        const cached = await cacheService.get<Record<string, unknown>>(cacheKey);
-        if (cached) {
-            return res.json(cached);
-        }
+    const profileKey = cacheId ? `cache:dashboard:profile:${cacheId}` : null;
+    const analyticsKey = userId && cacheId ? `cache:dashboard:analytics:${cacheId}` : null;
+
+    const [cachedProfile, cachedAnalytics] = await Promise.all([
+        profileKey ? cacheService.get<Record<string, unknown>>(profileKey) : Promise.resolve(null),
+        analyticsKey ? cacheService.get<Record<string, unknown>>(analyticsKey) : Promise.resolve(null)
+    ]);
+
+    if (cachedProfile && (!userId || cachedAnalytics)) {
+        return res.json({
+            profile: cachedProfile,
+            analytics: cachedAnalytics ?? null
+        });
     }
 
     try {
-        const info = await apiService.getUserInfo(login, token || '');
+        const needProfile = !cachedProfile;
+        const needAnalytics = Boolean(userId && !cachedAnalytics);
 
-        const [followers, stats] = await Promise.all([
-            apiService.getFollowersCount(info.id, token || ''),
-            userId ? dbService.getUserStats(userId) : Promise.resolve(null)
+        const [profile, analytics] = await Promise.all([
+            needProfile
+                ? (async () => {
+                      const info = await apiService.getUserInfo(login, token || '');
+                      const followers = await apiService.getFollowersCount(info.id, token || '');
+                      return {
+                          id: info.id,
+                          login: info.login,
+                          display_name: info.display_name,
+                          broadcaster_type: info.broadcaster_type,
+                          description: info.description,
+                          profile_image_url: info.profile_image_url,
+                          created_at: info.created_at,
+                          followers,
+                          rateLimit: res.locals.apiUser?.customRateLimit || RATE_LIMITS.DEFAULT
+                      };
+                  })()
+                : Promise.resolve(cachedProfile),
+            needAnalytics && userId
+                ? (async () => {
+                      const stats = await dbService.getUserStats(userId);
+                      return {
+                          ...stats,
+                          totalRequests: stats.total_requests || 0,
+                          ...computeAnalyticsFromStats(stats)
+                      };
+                  })()
+                : Promise.resolve(cachedAnalytics ?? null)
         ]);
 
-        const safeInfo = {
-            id: info.id,
-            login: info.login,
-            display_name: info.display_name,
-            broadcaster_type: info.broadcaster_type,
-            description: info.description,
-            profile_image_url: info.profile_image_url,
-            created_at: info.created_at
-        };
-
-        const analytics = stats
-            ? {
-                  ...stats,
-                  totalRequests: stats.total_requests || 0,
-                  ...computeAnalyticsFromStats(stats)
-              }
-            : null;
-
-        const payload = {
-            profile: {
-                ...safeInfo,
-                followers,
-                rateLimit: res.locals.apiUser?.customRateLimit || RATE_LIMITS.DEFAULT
-            },
-            analytics
-        };
-
-        if (cacheKey !== 'cache:summary:') {
-            await cacheService.set(cacheKey, payload, 5 * 60); // 5 minutos de caché global
+        if (needProfile && profileKey && profile) {
+            await cacheService.set(profileKey, profile, CACHE_TTL.DASHBOARD_PROFILE);
+        }
+        if (needAnalytics && analyticsKey && analytics) {
+            await cacheService.set(analyticsKey, analytics, CACHE_TTL.DASHBOARD_ANALYTICS);
         }
 
-        res.json(payload);
+        res.json({
+            profile,
+            analytics: analytics ?? null
+        });
     } catch (error) {
         if (error instanceof TwitchApiError) throw error;
         logger.error('Error in getSummary:', error);
@@ -295,22 +322,22 @@ export const updateTimezone = async (req: AuthenticatedRequest, res: Response) =
     const userId = req.userId;
     const { timezone } = req.body;
 
-    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
+    if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
     if (!timezone || typeof timezone !== 'string')
-        return res.status(400).json({ error: 'Timezone inválida' });
+        return jsonError(res, 400, 'Timezone inválida');
 
     try {
         await dbService.updateUserTimezone(userId, timezone);
         res.json({ success: true, timezone });
     } catch (e) {
         logger.error('Error updating timezone:', e);
-        res.status(500).json({ error: 'Error actualizando zona horaria' });
+        return jsonError(res, 500, 'Error actualizando zona horaria.');
     }
 };
 
 export const exportCheck = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
-    if (!userId) return res.status(401).json({ error: MESSAGES.SYSTEM.USER_NOT_FOUND });
+    if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     const key = `export_cooldown:${userId}`;
     const COOLDOWN_MINUTES = 4;
@@ -319,15 +346,18 @@ export const exportCheck = async (req: AuthenticatedRequest, res: Response) => {
         const cachedExpiresAt = await cacheService.get<number>(key);
         if (cachedExpiresAt) {
             const remainingMins = Math.max(1, Math.ceil((cachedExpiresAt - Date.now()) / 60000));
-            return res.status(429).json({ 
-                error: `Debes esperar ${remainingMins} minuto${remainingMins > 1 ? 's' : ''} para generar otro reporte.` 
-            });
+            return jsonError(
+                res,
+                429,
+                `Debes esperar ${remainingMins} minuto${remainingMins > 1 ? 's' : ''} para generar otro reporte.`,
+                { code: 'RATE_LIMITED' }
+            );
         }
         
         await cacheService.set(key, Date.now() + COOLDOWN_MINUTES * 60000, COOLDOWN_MINUTES * 60);
         res.json({ success: true });
     } catch (e) {
         logger.error('Error checking export rate limit:', e);
-        res.status(500).json({ error: 'Error al verificar límite' });
+        return jsonError(res, 500, 'Error al verificar límite de exportación.');
     }
 };

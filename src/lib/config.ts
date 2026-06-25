@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
     REALTIME_TOKEN: `${API_BASE}/system/realtime-token`,
     DUEL: `${API_BASE}/minigames/duel`,
     AUTH_LOGIN: `${API_BASE}/auth/twitch`,
+    AUTH_EXCHANGE: `${API_BASE}/auth/exchange`,
     EXPORT_CHECK: `${API_BASE}/dashboard/export-check`
 } as const;
 

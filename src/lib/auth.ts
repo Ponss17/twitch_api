@@ -1,4 +1,5 @@
 import { API_ENDPOINTS, type ApiResponse, type Session } from './config';
+import { parseHttpErrorBody } from './apiError';
 
 const SESSION_KEY = 'twitch_api_session';
 const VALIDATE_CACHE_KEY = 'twitch_validate_cache';
@@ -189,7 +190,7 @@ export async function apiFetch<T>(
 
     if (!response.ok) {
         const text = await response.text();
-        throw new Error(text || `HTTP ${response.status}`);
+        throw new Error(parseHttpErrorBody(text, `HTTP ${response.status}`));
     }
 
     return (await response.json()) as T;
@@ -204,20 +205,57 @@ export function parseUrlParams(): Session {
     return {
         login: params.get('login') || savedSession?.login || '',
         displayName: params.get('displayName') || savedSession?.displayName || '',
-        profile_image_url: savedSession?.profile_image_url || '',
+        profile_image_url:
+            params.get('profile_image_url') || savedSession?.profile_image_url || '',
         token: params.get('token') || savedSession?.token,
         apiKey: params.get('apiKey') || savedSession?.apiKey,
         userId: params.get('userId') || savedSession?.userId,
-        isNewLogin: !!params.get('token') || !!params.get('apiKey')
+        isNewLogin: !!params.get('token') || !!params.get('apiKey') || !!params.get('auth')
     };
 }
 
-/** @deprecated Usar parseUrlParams() en su lugar. */
+export async function resolveSessionFromUrl(): Promise<Session> {
+    if (typeof window === 'undefined') return {};
+
+    const params = new URLSearchParams(window.location.search);
+    const authToken = params.get('auth');
+
+    if (authToken) {
+        try {
+            const response = await fetch(
+                `${API_ENDPOINTS.AUTH_EXCHANGE}?auth=${encodeURIComponent(authToken)}`
+            );
+            if (response.ok) {
+                const data = (await response.json()) as Session;
+                return {
+                    login: data.login || '',
+                    displayName: data.displayName || '',
+                    profile_image_url: data.profile_image_url || '',
+                    token: data.token,
+                    apiKey: data.apiKey,
+                    userId: data.userId,
+                    isNewLogin: true
+                };
+            }
+        } catch {
+            /* usar params legacy si el exchange falla */
+        }
+    }
+
+    return parseUrlParams();
+}
+
+/** @deprecated Usar resolveSessionFromUrl() en su lugar. */
 export function applyOAuthParamsFromUrl(): boolean {
     const session = parseUrlParams();
-    if (!session.isNewLogin) return false;
+    if (!session.isNewLogin || paramsHasAuthToken()) return false;
 
     saveSession(session);
     window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
     return true;
+}
+
+function paramsHasAuthToken(): boolean {
+    if (typeof window === 'undefined') return false;
+    return new URLSearchParams(window.location.search).has('auth');
 }

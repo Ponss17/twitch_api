@@ -4,7 +4,7 @@ import { useSession } from '@/hooks/useSession';
 
 jest.mock('@/lib/auth', () => ({
     initAuthSync: jest.fn(),
-    parseUrlParams: jest.fn(),
+    resolveSessionFromUrl: jest.fn(),
     saveSession: jest.fn(),
     validateSession: jest.fn(),
     clearSession: jest.fn()
@@ -16,9 +16,9 @@ jest.mock('@/components/ui/ToastProvider', () => ({
     useToastOptional: () => showToastMock
 }));
 
-import { parseUrlParams, saveSession, validateSession } from '@/lib/auth';
+import { resolveSessionFromUrl, saveSession, validateSession } from '@/lib/auth';
 
-const mockedParseUrlParams = parseUrlParams as jest.Mock;
+const mockedResolveSessionFromUrl = resolveSessionFromUrl as jest.Mock;
 const mockedValidateSession = validateSession as jest.Mock;
 const mockedSaveSession = saveSession as jest.Mock;
 
@@ -35,10 +35,10 @@ describe('SessionProvider', () => {
         jest.clearAllMocks();
     });
 
-    it('parses url params before validating the session', async () => {
+    it('resolves session from url before validating', async () => {
         const order: string[] = [];
-        mockedParseUrlParams.mockImplementation(() => {
-            order.push('parseUrlParams');
+        mockedResolveSessionFromUrl.mockImplementation(async () => {
+            order.push('resolveSessionFromUrl');
             return { apiKey: 'k', login: 'streamer' };
         });
         mockedValidateSession.mockImplementation(async () => {
@@ -57,12 +57,12 @@ describe('SessionProvider', () => {
         );
 
         await waitFor(() => expect(screen.getByText('user:streamer')).toBeInTheDocument());
-        expect(order.indexOf('parseUrlParams')).toBeLessThan(order.indexOf('validate'));
+        expect(order.indexOf('resolveSessionFromUrl')).toBeLessThan(order.indexOf('validate'));
         expect(mockedSaveSession).toHaveBeenCalled();
     });
 
     it('shows anonymous state when validation fails', async () => {
-        mockedParseUrlParams.mockReturnValue({ apiKey: 'bad' });
+        mockedResolveSessionFromUrl.mockResolvedValue({ apiKey: 'bad' });
         mockedValidateSession.mockResolvedValue({ valid: false, error: true });
 
         render(
@@ -75,7 +75,7 @@ describe('SessionProvider', () => {
     });
 
     it('keeps session when validation succeeds with a network warning', async () => {
-        mockedParseUrlParams.mockReturnValue({ apiKey: 'k', login: 'streamer' });
+        mockedResolveSessionFromUrl.mockResolvedValue({ apiKey: 'k', login: 'streamer' });
         mockedValidateSession.mockResolvedValue({ valid: true, error: true, message: 'network_error' });
 
         render(
@@ -89,7 +89,7 @@ describe('SessionProvider', () => {
     });
 
     it('refresh updates session after validate returns a new api key', async () => {
-        mockedParseUrlParams.mockReturnValue({ apiKey: 'k', login: 'streamer' });
+        mockedResolveSessionFromUrl.mockResolvedValue({ apiKey: 'k', login: 'streamer' });
         mockedValidateSession
             .mockResolvedValueOnce({
                 valid: true,

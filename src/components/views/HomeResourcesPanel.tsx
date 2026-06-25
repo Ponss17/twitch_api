@@ -2,7 +2,8 @@ import type { DashboardTab } from '@/lib/config';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
 import { card, fadeIn } from '@/lib/tw';
 import { DiscordIcon } from '@/components/ui/icons/BrandIcons';
-import { UserPlus, Clapperboard, Megaphone, Info, Book } from 'lucide-react';
+import { IconMd } from '@/components/ui/Icon';
+import { UserRoundCheck, Clapperboard, Megaphone, Info, Book } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 interface HomeResourcesPanelProps {
@@ -10,7 +11,7 @@ interface HomeResourcesPanelProps {
 }
 
 const QUICK_COMMANDS: { tab: DashboardTab; icon: LucideIcon; label: string }[] = [
-    { tab: 'followage' as DashboardTab, icon: UserPlus, label: 'Followage' },
+    { tab: 'followage' as DashboardTab, icon: UserRoundCheck, label: 'Followage' },
     { tab: 'clips' as DashboardTab, icon: Clapperboard, label: 'Clips' },
     { tab: 'shoutout' as DashboardTab, icon: Megaphone, label: 'Shoutout' }
 ];
@@ -50,7 +51,7 @@ export function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
                             onClick={() => onNavigate?.(link.tab)}
                             className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-primary/[0.03] px-2.5 py-1.5 text-left text-[0.75rem] font-semibold text-[#a1a1aa] transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
                         >
-                            <link.icon className="w-5 h-5 text-center text-base" aria-hidden="true" />
+                            <IconMd icon={link.icon} />
                             {link.label}
                         </button>
                     ))}
@@ -60,7 +61,9 @@ export function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
                     Enlaces Útiles
                 </p>
                 <div className="flex flex-col gap-1.5">
-                    {USEFUL_LINKS.map((link) => (
+                    {USEFUL_LINKS.map((link) => {
+                        const LinkIcon = link.icon;
+                        return (
                         <a
                             key={link.href}
                             href={link.external ? link.href : appPath(link.href)}
@@ -69,10 +72,11 @@ export function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
                             onClick={link.href === '/docs' ? saveDocsReturnPath : undefined}
                             className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2 text-[0.8rem] font-semibold text-[#a1a1aa] no-underline transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
                         >
-                            <i className={`${link.icon} w-5 h-5 text-center text-base`} aria-hidden />
+                            <LinkIcon className="size-5 shrink-0" aria-hidden />
                             {link.label}
                         </a>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </div>

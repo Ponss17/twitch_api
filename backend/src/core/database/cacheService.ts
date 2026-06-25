@@ -1,6 +1,7 @@
 import { kv } from '@vercel/kv';
 import { StoredUser } from '../../types/twitch';
 import { CacheEntry } from '../../types/cache';
+import { CACHE_TTL } from '../config/cacheTtl';
 
 const MEMORY_CACHE = new Map<string, CacheEntry<unknown>>();
 const DEFAULT_L1_TTL_MS = 30 * 1000;
@@ -128,12 +129,8 @@ export const getCachedUserId = async (username: string): Promise<string | null> 
 };
 
 export const setCachedUserId = async (username: string, id: string): Promise<void> => {
-    await set(`cache:userId:${username.toLowerCase()}`, id, 24 * 60 * 60);
+    await set(`cache:userId:${username.toLowerCase()}`, id, CACHE_TTL.TWITCH_USER_ID);
 };
-
-// TTL de 10 min en KV (Redis): comparte el usuario entre instancias serverless.
-// Sin esto, cada nueva función fría consultaría Supabase en el primer comando del bot.
-const API_USER_CACHE_TTL_S = 10 * 60; // 600s
 
 export const getCachedApiUser = async (apiKey: string): Promise<StoredUser | null> => {
     const key = `cache:apiuser:${apiKey}`;
@@ -141,7 +138,26 @@ export const getCachedApiUser = async (apiKey: string): Promise<StoredUser | nul
 };
 
 export const setCachedApiUser = async (apiKey: string, user: StoredUser): Promise<void> => {
-    await set(`cache:apiuser:${apiKey}`, user, API_USER_CACHE_TTL_S);
+    await set(`cache:apiuser:${apiKey}`, user, CACHE_TTL.API_USER);
+};
+
+/** Invalida caché del dashboard tras borrar datos, eliminar cuenta, etc. */
+export const invalidateDashboardCache = async (
+    userId: string,
+    login?: string
+): Promise<void> => {
+    const keys = [
+        `cache:summary:${userId}`,
+        `cache:dashboard:profile:${userId}`,
+        `cache:dashboard:analytics:${userId}`,
+        `cache:analytics:${userId}`
+    ];
+
+    if (login) {
+        keys.push(`cache:cmd:getUserInfo:login:${login.toLowerCase()}`);
+    }
+
+    await Promise.all(keys.map((key) => del(key))).catch(() => {});
 };
 
 export const invalidateApiKeyCache = async (apiKey: string): Promise<void> => {

@@ -3,6 +3,7 @@ import { API_ENDPOINTS, SUPABASE_ANON_KEY, SUPABASE_URL, type Session } from './
 import type { ActivityLogItem } from './activityLogDisplay';
 import { authHeaders } from './auth';
 import { logError } from './logError';
+import { debugWarn } from './debugLog';
 
 let pageIsUnloading = false;
 let unloadGuardInstalled = false;
@@ -303,7 +304,7 @@ export class RealtimeService {
 
                         if (transportFailed && !this.intentionalClose) {
                             markRealtimeCooldown();
-                            console.warn(
+                            debugWarn(
                                 '[Realtime] WebSocket no disponible — el dashboard usará polling. ' +
                                     'Comprueba Realtime en Supabase (Database → Tables → Enable Realtime).'
                             );

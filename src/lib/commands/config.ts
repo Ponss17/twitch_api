@@ -1,5 +1,5 @@
 import { CommandGenerator } from '../commandGenerator';
-import { Wrench, Video, Megaphone, Circle, Theater, Skull, Swords } from 'lucide-react';
+import { UserRoundCheck, Video, Megaphone, Sparkles, Theater, Skull, Swords } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface ExtraSelector {
@@ -33,7 +33,7 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     follow: {
         id: 'follow',
         title: 'Comando !followage',
-        icon: Wrench,
+        icon: UserRoundCheck,
         desc: 'Muestra cuánto tiempo lleva alguien siguiéndote',
         info: 'Genera el código para que tu bot responda con el tiempo exacto que un usuario te sigue.',
         templatePlaceholder: 'Ej: {user} lleva sufriendo {time}.',
@@ -88,7 +88,7 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     magic8: {
         id: 'magic8',
         title: 'Comando !8ball',
-        icon: Circle,
+        icon: Sparkles,
         desc: 'Comando para que tus viewers pregunten a la IA',
         info: 'Genera el código para añadir el comando de la Bola 8 a tu bot de chat.',
         extraSelectors: [

@@ -4,7 +4,6 @@ const dotenv = require('dotenv');
 
 const root = path.join(__dirname, '..');
 const envPath = path.join(root, '.env');
-const legacyEnvPath = path.join(root, '..', 'twitch_api', '.env');
 
 const REQUIRED_VARS = [
     'TWITCH_CLIENT_ID',
@@ -20,18 +19,13 @@ const REQUIRED_VARS = [
 const KV_VARS = ['KV_REST_API_URL', 'KV_REST_API_TOKEN'];
 
 if (!fs.existsSync(envPath)) {
-    console.error('❌ No se encontró .env en twitch_api_modern/');
+    console.error('❌ No se encontró .env en twitch_api/');
     console.log('');
     console.log('Opciones:');
-    console.log('  1. Copiar desde el proyecto original (si ya lo tenías configurado):');
-    console.log('     copy ..\\twitch_api\\.env .env');
-    console.log('');
-    console.log('  2. Crear desde la plantilla y rellenar valores:');
+    console.log('  1. Crear desde la plantilla:');
     console.log('     copy .env.example .env');
     console.log('');
-    if (fs.existsSync(legacyEnvPath)) {
-        console.log('💡 Detectado ..\\twitch_api\\.env — puedes copiarlo con el comando de arriba.');
-    }
+    console.log('  2. Copiar desde otro entorno ya configurado.');
     process.exit(1);
 }
 

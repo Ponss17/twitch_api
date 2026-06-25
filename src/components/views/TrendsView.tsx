@@ -8,6 +8,7 @@ import { TabSyncService } from '@/lib/tabSyncService';
 import { card, fadeIn } from '@/lib/tw';
 import { useToast } from '@/components/ui/ToastProvider';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
+import { CardHeaderIcon, EmptyStateIcon, InlineIcon } from '@/components/ui/Icon';
 import { Circle, Power, Loader2, Network, BarChart2, Minus, Plus, Play, Clock, RotateCw } from 'lucide-react';
 
 
@@ -344,23 +345,23 @@ export function TrendsView({ active = true }: { active?: boolean }) {
     const showWaiting = tracking && ranked.length === 0;
 
     const statusContent = connected ? (
-        <span className="text-success">
-            <Circle className="mr-1" />
+        <span className="inline-flex items-center gap-1.5 text-success">
+            <InlineIcon icon={Circle} className="fill-current" />
             Conectado
         </span>
     ) : !tracking ? (
-        <span className="text-[#71717a]">
-            <Power className="mr-1" />
+        <span className="inline-flex items-center gap-1.5 text-[#71717a]">
+            <InlineIcon icon={Power} />
             Reposo
         </span>
     ) : isLeader ? (
-        <span className="text-warning">
-            <Loader2 className="animate-spin mr-1" />
+        <span className="inline-flex items-center gap-1.5 text-warning">
+            <InlineIcon icon={Loader2} className="animate-spin" />
             Conectando...
         </span>
     ) : (
-        <span className="text-success">
-            <Network className="mr-1" />
+        <span className="inline-flex items-center gap-1.5 text-success">
+            <InlineIcon icon={Network} />
             Sincronizado
         </span>
     );
@@ -369,19 +370,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
         <div className={`${card} ${fadeIn} mb-3`}>
             <div className="mb-2 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-2 max-md:flex-col max-md:items-start">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                        {session.profile_image_url ? (
-                            <img
-                                src={session.profile_image_url}
-                                alt=""
-                                className="h-full w-full rounded-full object-cover"
-                                loading="lazy"
-                                draggable={false}
-                            />
-                        ) : (
-                            <BarChart2 className="w-4 h-4" />
-                        )}
-                    </div>
+                    <CardHeaderIcon icon={BarChart2} />
                     <div>
                         <h3 className="mb-0.5 text-[0.95rem] font-bold">Tendencias de {displayName}</h3>
                         <p className="text-[0.8rem] text-[#a1a1aa]">Ranking de palabras en tiempo real</p>
@@ -429,9 +418,10 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                     type="button"
                                     onClick={() => void startTracking()}
                                     title="Iniciar temporizador"
-                                    className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-success transition hover:bg-success/10"
+                                    aria-label="Iniciar temporizador"
+                                    className="inline-flex items-center justify-center rounded-lg border-none px-3 py-1.5 text-success transition hover:bg-success/10"
                                 >
-                                    <Play className="w-4 h-4" />
+                                    <Play className="size-4 shrink-0" />
                                 </button>
                             </div>
                         )}
@@ -465,7 +455,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                             title="Reiniciar: vuelve a la duración configurada y borra resultados"
                             className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-warning transition hover:bg-warning/10"
                         >
-                            <RotateCw className="w-4 h-4" />
+                            <RotateCw className="size-4 shrink-0" />
                         </button>
                     </div>
 
@@ -494,9 +484,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                             {showReady ? (
                                 <tr>
                                     <td colSpan={4} className="px-5 py-10 text-center text-[#71717a]">
-                                        <div className="mb-2.5 text-[2rem] text-[#fafafa]">
-                                            <Play className="w-4 h-4" />
-                                        </div>
+                                        <EmptyStateIcon icon={Play} />
                                         <h4 className="mb-1 text-[0.8125rem] font-bold text-[#fafafa]">
                                             Listo para analizar
                                         </h4>

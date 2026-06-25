@@ -4,6 +4,7 @@ import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { ALLOWED_ORIGINS } from '../../core/config/origins';
 import { frontendPagePath } from '../../core/utils/frontendPaths';
+import { jsonError } from '../../core/utils/jsonResponse';
 
 const isAllowedOrigin = (origin: string, req: Request): boolean => {
     try {
@@ -51,17 +52,15 @@ export const callback = async (req: Request, res: Response) => {
             decodedState
         );
 
-        const params = new URLSearchParams({
+        const authToken = authService.signAuthExchange({
             apiKey,
             userId: user.id,
             login: user.login,
-            displayName: user.display_name
+            displayName: user.display_name,
+            profile_image_url: user.profile_image_url
         });
-        if (user.profile_image_url) {
-            params.set('profile_image_url', user.profile_image_url);
-        }
 
-        const query = params.toString();
+        const query = `auth=${encodeURIComponent(authToken)}`;
 
         let redirectUrl: string;
         if (redirectOrigin && isAllowedOrigin(redirectOrigin, req)) {
@@ -91,4 +90,25 @@ export const callback = async (req: Request, res: Response) => {
         }
         res.redirect(errorRedirect);
     }
+};
+
+export const exchange = (req: Request, res: Response) => {
+    const auth = req.query.auth as string;
+
+    if (!auth) {
+        return jsonError(res, 400, 'Falta el token de autenticación.', { code: 'MISSING_AUTH' });
+    }
+
+    const payload = authService.verifyAuthExchange(auth);
+    if (!payload) {
+        return jsonError(res, 401, 'Sesión inválida o expirada.', { code: 'INVALID_AUTH' });
+    }
+
+    return res.json({
+        apiKey: payload.apiKey,
+        userId: payload.userId,
+        login: payload.login,
+        displayName: payload.displayName,
+        profile_image_url: payload.profile_image_url
+    });
 };

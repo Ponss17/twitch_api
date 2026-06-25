@@ -1,6 +1,7 @@
 import { TwitchChannelInfo } from '../../types/twitch';
 import { TwitchApiError } from '../../core/errors/AppError';
 import * as cacheService from '../../core/database/cacheService';
+import { CACHE_TTL } from '../../core/config/cacheTtl';
 import { apiClient, handleTwitchError, getHeaders } from './twitchClient';
 
 export const getChannelInfo = async (
@@ -23,7 +24,7 @@ export const getChannelInfo = async (
         }
 
         const data = response.data.data[0];
-        await cacheService.set(cacheKey, data, 1800);
+        await cacheService.set(cacheKey, data, CACHE_TTL.CHANNEL_INFO);
 
         return data;
     } catch (error) {
@@ -81,7 +82,7 @@ export const getChatters = async (
         });
         const chatters = response.data.data;
         // Cachear por 30 segundos — suficiente para evitar ráfagas repetidas
-        await cacheService.set(cacheKey, chatters, 30);
+        await cacheService.set(cacheKey, chatters, CACHE_TTL.CHATTERS);
         return chatters;
     } catch (error) {
         return handleTwitchError(error, `getChatters(${broadcasterId})`);

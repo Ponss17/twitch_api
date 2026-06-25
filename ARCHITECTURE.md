@@ -1,20 +1,20 @@
 # Arquitectura — LosPerris Twitch API (v5)
 
-Stack activo en `twitch_api_modern/`. El monolito Express + vanilla TS de `twitch_api/` (v4) está **archivado** — ver [`../twitch_api/LEGACY.md`](../twitch_api/LEGACY.md).
+Stack activo en `twitch_api/`. El monolito v4 está archivado en `legacy/` (solo referencia).
 
 ## Vista general
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Vercel / Astro SSR (frontend)                              │
+│  Vercel / Astro (frontend)                                  │
 │  src/pages/api/twitch/*.astro  →  React islands             │
-│  Tailwind v4 (global.css) — sin public/css/                 │
+│  Tailwind v4 (global.css)                                   │
 └──────────────────────────┬──────────────────────────────────┘
                            │ fetch /api/twitch/*
 ┌──────────────────────────▼──────────────────────────────────┐
 │  Express API (backend/)                                     │
 │  api/index.ts → backend/src/app.ts                          │
-│  Zod schemas, JWT, Supabase, KV, Groq, tmi.js               │
+│  Zod, OAuth, Supabase, Vercel KV, Groq, tmi.js              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -26,78 +26,119 @@ Todas las páginas viven bajo **`/api/twitch/`**:
 |------|--------|
 | `/api/twitch/` | Landing |
 | `/api/twitch/dashboard` | Panel streamer |
+| `/api/twitch/dashboard/{tab}` | Tab del dashboard (followage, clips, …) |
 | `/api/twitch/docs` | Documentación API |
 | `/api/twitch/sobre-la-api` | Info del proyecto |
 | `/api/twitch/404`, `/429`, `/500`, `/offline` | Estados |
 
-Las rutas en la raíz (`/`, `/dashboard`, …) son **redirects 308** hacia `/api/twitch/…` (Astro + `vercel.json`).
+Las rutas en la raíz (`/`, `/dashboard`, …) redirigen (308) hacia `/api/twitch/…` (`vercel.json` + Astro).
+
+## Paths compartidos (backend ↔ frontend)
+
+Dos utilidades mantienen el mismo mount `/api/twitch`:
+
+| Contexto | Módulo | Uso |
+|----------|--------|-----|
+| Backend (redirects OAuth, 429 HTML) | `backend/src/core/utils/frontendPaths.ts` | `frontendPagePath('/dashboard')` |
+| Frontend (links, router) | `src/lib/paths.ts` | `appPath('/dashboard')` |
+
+Ambos deben seguir apuntando a `/api/twitch` — no mezclar con rutas raíz.
 
 ## API Express
 
-Montaje triple (compatibilidad legacy y proxies):
+Montaje triple (compatibilidad bots y proxies):
 
 - `/api/twitch/*` — prefijo principal
 - `/twitch/*` — alias
 - `/` — health y rutas raíz en dev
 
-Entry point serverless: `api/index.ts` (Vercel). Local: `pnpm dev:api` (puerto 3000).
+Entry serverless: `api/index.ts`. Local: `pnpm dev:api` (puerto 3000).
+
+## OAuth seguro
+
+1. Callback Twitch → redirect con `?auth=<token>` (HMAC, 24 h), **sin** API key en URL permanente.
+2. Frontend llama `GET /auth/exchange?auth=…` → recibe `apiKey` + perfil.
+3. Sesión en `sessionStorage` / validación vía `/system/validate`.
+
+## Caché (Vercel KV)
+
+- **L1**: memoria por instancia serverless (~60 s)
+- **L2**: Vercel KV (`twitch_api:` prefix)
+- TTLs centralizados: `backend/src/core/config/cacheTtl.ts`
+- Dashboard summary: perfil Twitch (5 min) + analytics Supabase (60 s)
+- Invalidación al borrar stats o eliminar cuenta: `invalidateDashboardCache()`
 
 ## Desarrollo local
 
 ```bash
-pnpm dev          # Astro :4321 + API :3000 (concurrently)
+pnpm dev          # Astro :4321 + API :3000
 pnpm type-check
 pnpm test
-pnpm test:e2e     # Playwright (requiere build o dev)
+pnpm test:e2e     # Playwright (dev:web o build previo)
 ```
 
 Variables clave en `.env`:
 
-- `FRONTEND_URL=http://localhost:4321` — callback OAuth hacia Astro
-- `PORT=3000` — API Express
-- `PUBLIC_SUPABASE_URL` / `PUBLIC_SUPABASE_ANON_KEY` — cliente realtime (Astro)
+- `TWITCH_REDIRECT_URI` — callback OAuth (obligatoria)
+- `FRONTEND_URL=http://localhost:4321`
+- `BASE_URL=http://localhost:3000/api/twitch`
+- `SUPABASE_URL`, `SUPABASE_ANON_KEY` — inyectadas en Astro vía `astro.config.mjs` (`define`)
+- `KV_REST_API_*` — opcional en dev; obligatorio en producción (rate limit)
 
 ## Proxy en dev (`astro.config.mjs`)
 
-Peticiones a `/api/twitch/*` que **no** son páginas Astro estáticas se proxean al backend `:3000`. La función `isTwitchFrontendRoute` excluye dashboard, docs, assets, etc.
+Peticiones a `/api/twitch/*` que no son páginas Astro se proxean al backend `:3000`.
 
 ## Deploy (`vercel.json`)
 
-- **Rewrites**: catch-all API → `/api/index.ts` (excluye páginas frontend)
+- **Rewrites**: API → `/api/index.ts`; tabs del dashboard → `/dashboard`
 - **Redirects**: raíz → `/api/twitch/…`
 - **Headers**: HSTS, X-Frame-Options, cache de `sw.js`
-- **Assets**: `/api/twitch/img/*` → `/img/*` (rewrite) + copia en `public/api/twitch/img/`
 
 ## Checklist producción (Vercel)
 
 ```
-KV_REST_API_URL + KV_REST_API_TOKEN   # rate limit (503 sin ellas)
-PUBLIC_SUPABASE_URL + PUBLIC_SUPABASE_ANON_KEY
-FRONTEND_URL=https://www.losperris.dev
+TWITCH_CLIENT_ID / TWITCH_CLIENT_SECRET / ENCRYPTION_KEY
+TWITCH_REDIRECT_URI=https://www.losperris.dev/api/twitch/auth/twitch/callback
 BASE_URL=https://www.losperris.dev/api/twitch
-TWITCH_REDIRECT_URI=.../api/twitch/auth/twitch/callback
+FRONTEND_URL=https://www.losperris.dev
+SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / SUPABASE_ANON_KEY / SUPABASE_JWT_SECRET
+KV_REST_API_URL + KV_REST_API_TOKEN
+GROQ_API_KEY (opcional — Bola 8)
 ```
 
-## Estado de sesión (frontend)
+## Sesión y dashboard (frontend)
 
-`SessionProvider` envuelve el dashboard y expone `useSession()`. Las vistas no reciben `session` por props.
-
-Tabs del dashboard sincronizados con `?tab=` en la URL (ej. `/api/twitch/dashboard?tab=clips`).
-
-Vistas visitadas usan **keep-alive**: permanecen montadas pero ocultas; Home/Trends/Stalker/Roulette/Profile pausan polling/TMI/realtime al cambiar de tab (paridad con legacy `deactivate()`).
+- `SessionProvider` + `useSession()` — sin pasar sesión por props
+- Tab activo: path `/dashboard/{tab}` + fallback `localStorage` + compatibilidad `?tab=` legacy
+- Vistas con **keep-alive**: Home/Trends/Stalker pausan polling/realtime al cambiar de tab
 
 ## PWA
 
-Un solo service worker canónico: `public/api/twitch/sw.js`. Los archivos raíz `public/sw.js` y `public/manifest.json` fueron eliminados; Vercel redirige `/sw.js` y `/manifest.json` al mount `/api/twitch/`.
+Service worker canónico: `public/api/twitch/sw.js`. Vercel redirige `/sw.js` al mount `/api/twitch/`.
+
+## Contratos de error (JSON)
+
+Rutas **dashboard**, **system** y **auth/exchange** devuelven errores con forma unificada:
+
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Descripción legible en español",
+    "code": "UNAUTHORIZED",
+    "details": []
+  }
+}
+```
+
+- Comandos de bot (`/followage`, `/create-clip`, …) siguen respondiendo **texto plano** (Nightbot).
+- El frontend usa `extractApiErrorMessage()` (`src/lib/apiError.ts`) — compatible con respuestas legacy `{ error: "..." }`.
+- Helper backend: `backend/src/core/utils/jsonResponse.ts` · detector: `isJsonApiRoute()`.
 
 ## Validación
 
-- **Backend**: Zod en `backend/src/**/*.schema.ts` y `env.ts`
-- **Tests unitarios**: Jest (`pnpm test`)
-- **E2E smoke**: Playwright (`pnpm test:e2e`)
-
-## Qué no usar
-
-- `backend/src/core/startup/static.ts` — eliminado (HTML servido por Astro)
-- `backend/src/core/utils/serveHtml.ts` — eliminado
-- `public/css/*.css` — migrado a Tailwind
+- **Backend**: Zod (`*.schema.ts`, `env.ts`)
+- **Tests**: Jest (`pnpm test`) — 204 tests · Playwright E2E en CI
+- **E2E**: Playwright smoke (`pnpm test:e2e`)
+- **CI**: GitHub Actions en push/PR

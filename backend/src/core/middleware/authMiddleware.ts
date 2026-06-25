@@ -5,9 +5,10 @@ import * as dbService from '../database/dbService';
 import * as cacheService from '../database/cacheService';
 import { MESSAGES } from '../config/messages';
 import { logger } from '../utils/logger';
-import { isPublicRoute, isApiRoute } from '../utils/routeHelpers';
+import { isPublicRoute, isApiRoute, isJsonApiRoute } from '../utils/routeHelpers';
 import { safeString } from '../utils/validationHelpers';
 import { BoundedMap, NegativeCache } from '../utils/boundedCache';
+import { jsonError } from '../utils/jsonResponse';
 
 // TTLs amplios para reducir llamadas externas por comandos del bot de Twitch.
 // El bot puede mandar !followage, !clips, etc. cada pocos segundos en el chat:
@@ -56,15 +57,19 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             return next();
         }
 
+        if (isJsonApiRoute(req.path)) {
+            return jsonError(res, 401, MESSAGES.AUTH.MISSING_TOKEN_URL);
+        }
+
         if (isApiRoute(req.path)) {
             res.setHeader('Content-Type', 'text/plain');
             return res.status(401).send(MESSAGES.AUTH.MISSING_TOKEN_URL);
         }
-        return res.status(401).json({ error: MESSAGES.AUTH.MISSING_TOKEN_URL });
+        return jsonError(res, 401, MESSAGES.AUTH.MISSING_TOKEN_URL);
     }
 
     if (invalidTokensCache.has(token)) {
-        return res.status(401).json({ error: MESSAGES.AUTH.INVALID_TOKEN });
+        return jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN);
     }
 
     if (!req.userId || !req.login) {
@@ -88,7 +93,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                     );
                 } else {
                     invalidTokensCache.set(token);
-                    return res.status(401).json({ error: MESSAGES.AUTH.INVALID_TOKEN });
+                    return jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN);
                 }
             } catch (e) {
                 // Error transitorio validando contra Twitch (red/timeout): NO marcar el
@@ -97,16 +102,26 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                     'Error Middleware Auth: fallo transitorio validando token contra Twitch',
                     (e as Error).message
                 );
+                if (isJsonApiRoute(req.path)) {
+                    return jsonError(
+                        res,
+                        503,
+                        'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.',
+                        { code: 'SERVICE_UNAVAILABLE' }
+                    );
+                }
                 if (isApiRoute(req.path)) {
                     res.setHeader('Content-Type', 'text/plain');
                     return res
                         .status(503)
                         .send('Servicio de autenticación no disponible. Intenta de nuevo.');
                 }
-                return res.status(503).json({
-                    error: 'Service Unavailable',
-                    message: 'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.'
-                });
+                return jsonError(
+                    res,
+                    503,
+                    'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.',
+                    { code: 'SERVICE_UNAVAILABLE' }
+                );
             }
         }
     }
@@ -147,16 +162,26 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     next();
     } catch (e) {
         logger.error('Error Middleware Auth:', e);
+        if (isJsonApiRoute(req.path)) {
+            return jsonError(
+                res,
+                503,
+                'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.',
+                { code: 'SERVICE_UNAVAILABLE' }
+            );
+        }
         if (isApiRoute(req.path)) {
             res.setHeader('Content-Type', 'text/plain');
             return res
                 .status(503)
                 .send('Servicio de autenticación no disponible. Intenta de nuevo.');
         }
-        return res.status(503).json({
-            error: 'Service Unavailable',
-            message: 'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.'
-        });
+        return jsonError(
+            res,
+            503,
+            'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.',
+            { code: 'SERVICE_UNAVAILABLE' }
+        );
     }
 };
 

@@ -7,6 +7,7 @@ import { TabSyncService } from '@/lib/tabSyncService';
 
 // Lazy-loaded to avoid pulling ~178KB Supabase into the initial bundle
 const loadRealtimeModule = () => import('@/lib/realtimeService');
+import type { RealtimeCallbacks, RealtimeService } from '@/lib/realtimeService';
 import { HomeHero } from '@/components/views/HomeHero';
 import { HomeActivityFeed } from '@/components/views/HomeActivityFeed';
 import { HomeResourcesPanel } from '@/components/views/HomeResourcesPanel';
@@ -23,14 +24,14 @@ interface HealthStatus {
     status?: string;
 }
 
+interface SummaryResponse {
+    analytics?: AnalyticsData | null;
+}
+
 interface AnalyticsData {
     todayRequests?: number;
     rawSuccessRate?: number;
     avgLatencyMs?: number;
-}
-
-interface HealthStatus {
-    status?: string;
 }
 
 interface HomeViewProps {
@@ -47,7 +48,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     const [stats, setStats] = useState<AnalyticsData | null>(null);
     const [activity, setActivity] = useState<ActivityLogItem[]>([]);
     const [, setHealth] = useState<{ status?: string } | null>(null);
-        const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [syncing, setSyncing] = useState(false);
     const [syncLabel, setSyncLabel] = useState('90s');
@@ -55,8 +56,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     const syncRef = useRef<TabSyncService | null>(null);
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const healthPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const realtimeRef = useRef<{ setCallbacks: (cb: any) => void; resume: () => Promise<boolean>; connect: (onDisconnect?: () => void) => Promise<boolean>; pause: () => void; disconnect: () => void } | null>(null);
+    const realtimeRef = useRef<RealtimeService | null>(null);
     const useRealtimeRef = useRef(false);
     const performSyncRef = useRef<() => Promise<void>>(async () => {});
     const connectRealtimeRef = useRef<() => Promise<void>>(async () => {});
@@ -76,13 +76,18 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         localStorage.setItem('dashboard_last_sync', Date.now().toString());
 
         try {
-            const [analyticsRes, activityRes] = await Promise.all([
-                apiFetch<AnalyticsData>(API_ENDPOINTS.ANALYTICS, session),
+            const summaryUrl = session.login
+                ? `${API_ENDPOINTS.SUMMARY}?login=${encodeURIComponent(session.login)}`
+                : API_ENDPOINTS.SUMMARY;
+
+            const [summaryRes, activityRes] = await Promise.all([
+                apiFetch<SummaryResponse>(summaryUrl, session),
                 apiFetch<ActivityLogItem[] | { logs?: ActivityLogItem[] }>(API_ENDPOINTS.ACTIVITY, session)
             ]);
 
             if (!sync.isActive() || syncRef.current !== sync) return;
 
+            const analyticsRes = summaryRes.analytics ?? {};
             const activityLogs = Array.isArray(activityRes) ? activityRes : (activityRes.logs ?? []);
 
             sync.broadcast('SYNC_STATS', analyticsRes);
@@ -115,8 +120,9 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
                 r.ok ? r.json() : { status: 'error' }
             );
             sync.broadcast('SYNC_HEALTH', healthRes);
-                    } catch {
-                    }
+        } catch {
+            void 0;
+        }
     }, []);
 
     const startHealthPolling = useCallback(() => {
@@ -180,7 +186,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             return;
         }
 
-        const callbacks = {
+        const callbacks: RealtimeCallbacks = {
             onStatsUpdate: (next: AnalyticsData) => {
                 setStats(next);
                 setLoading(false);

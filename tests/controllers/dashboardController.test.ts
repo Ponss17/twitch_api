@@ -3,7 +3,15 @@ import { Response } from 'express';
 jest.mock('../../backend/src/core/database/dbService', () => ({
     getUserStats: jest.fn(),
     getUserActivity: jest.fn(),
+    clearUserStatsAndLogs: jest.fn(),
+    deleteUser: jest.fn(),
     recordUserRequest: jest.fn().mockResolvedValue(undefined)
+}));
+
+jest.mock('../../backend/src/core/database/cacheService', () => ({
+    get: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue(undefined),
+    invalidateDashboardCache: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('@vercel/kv');
@@ -20,7 +28,8 @@ jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
 }));
 
 import * as dbService from '../../backend/src/core/database/dbService';
-import { getAnalytics, getLogs } from '../../backend/src/features/dashboard/dashboard.controller';
+import * as cacheService from '../../backend/src/core/database/cacheService';
+import { getAnalytics, getLogs, clearUserData, deleteAccount } from '../../backend/src/features/dashboard/dashboard.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
 const mockReq = (overrides = {}) =>
@@ -36,6 +45,7 @@ const mockRes = () => {
     res.status = jest.fn().mockReturnValue(res);
     res.json = jest.fn().mockReturnValue(res);
     res.send = jest.fn().mockReturnValue(res);
+    res.setHeader = jest.fn().mockReturnValue(res);
     return res;
 };
 
@@ -81,7 +91,10 @@ describe('dashboardController', () => {
 
             expect(res.status).toHaveBeenCalledWith(500);
             expect(res.json).toHaveBeenCalledWith(
-                expect.objectContaining({ error: expect.any(String) })
+                expect.objectContaining({
+                    success: false,
+                    error: expect.objectContaining({ message: expect.any(String) })
+                })
             );
         });
 
@@ -139,6 +152,64 @@ describe('dashboardController', () => {
             await getLogs(req, res);
 
             expect(res.json).toHaveBeenCalledWith([]);
+        });
+    });
+
+    describe('clearUserData', () => {
+        it('should clear stats and invalidate cache', async () => {
+            const req = mockReq({ login: 'streamer' });
+            const res = mockRes();
+
+            (dbService.clearUserStatsAndLogs as jest.Mock).mockResolvedValue(undefined);
+
+            await clearUserData(req, res);
+
+            expect(dbService.clearUserStatsAndLogs).toHaveBeenCalledWith('123');
+            expect(cacheService.invalidateDashboardCache).toHaveBeenCalledWith('123', 'streamer');
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ success: true })
+            );
+        });
+
+        it('should return 401 without userId', async () => {
+            const req = mockReq({ userId: undefined });
+            const res = mockRes();
+
+            await clearUserData(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    error: expect.objectContaining({ message: expect.any(String) })
+                })
+            );
+        });
+    });
+
+    describe('deleteAccount', () => {
+        it('should delete user and invalidate cache', async () => {
+            const req = mockReq({ login: 'streamer' });
+            const res = mockRes();
+
+            (dbService.deleteUser as jest.Mock).mockResolvedValue(undefined);
+
+            await deleteAccount(req, res);
+
+            expect(dbService.deleteUser).toHaveBeenCalledWith('123');
+            expect(cacheService.invalidateDashboardCache).toHaveBeenCalledWith('123', 'streamer');
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ success: true })
+            );
+        });
+
+        it('should return 401 without userId', async () => {
+            const req = mockReq({ userId: undefined });
+            const res = mockRes();
+
+            await deleteAccount(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
         });
     });
 });

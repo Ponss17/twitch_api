@@ -64,6 +64,10 @@
             "destination": "/dashboard/index.html"
         },
         {
+            "source": "/api/twitch/dashboard/:tab(followage|clips|shoutout|trends|stalker|magic8|roulette|russian|duel|profile|feedback)",
+            "destination": "/dashboard/index.html"
+        },
+        {
             "source": "/api/twitch/sobre-la-api",
             "destination": "/sobre-la-api/index.html"
         },

@@ -19,11 +19,13 @@ import {
     toolSelector
 } from '@/lib/tw';
 import { API_ENDPOINTS } from '@/lib/config';
+import { buildAuthQueryParam } from '@/lib/authQuery';
 import { BOT_OPTIONS } from '@/lib/commandGenerator';
 import type { CommandConfigItem } from '@/lib/commands/config';
 import { useRequiredSession } from '@/hooks/useSession';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import { useToast } from '@/components/ui/ToastProvider';
+import { CardHeaderIcon, IconSm } from '@/components/ui/Icon';
 import { copyText } from '@/lib/clipboard';
 import { useCommandConfig } from '@/lib/hooks/useCommandStore';
 import { getCommandConfig } from '@/lib/commandStore';
@@ -42,9 +44,7 @@ function CommandCardHeader({
     return (
         <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
             <div className="flex items-center gap-3">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                    <Icon className="w-4 h-4" aria-hidden="true" />
-                </div>
+                <CardHeaderIcon icon={Icon} />
                 <div>
                     <h3 className="mb-0.5 text-[0.95rem] font-bold">{title}</h3>
                     <p className="text-[0.8rem] text-[#a1a1aa]">{description}</p>
@@ -69,7 +69,7 @@ function ToolSelector({
     return (
         <div className={toolSelector}>
             <label htmlFor={controlId} className={toolLabel}>
-                <Icon className="w-4 h-4 mr-2" aria-hidden="true" />
+                <IconSm icon={Icon} className="mr-2" />
                 <span>{label}</span>
             </label>
             {children}
@@ -136,11 +136,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
         if (!login) return { masked: '', full: '' };
 
         const domain = `${window.location.origin}${API_ENDPOINTS.BASE}`;
-        const tokenParam = apiKey
-            ? `apiKey=${encodeURIComponent(apiKey)}`
-            : token
-              ? `token=${encodeURIComponent(token)}`
-              : '';
+        const tokenParam = buildAuthQueryParam({ apiKey, token });
         const queryParams = `channel=${login}&${tokenParam}`;
 
         const result = config.generate(
@@ -206,7 +202,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                     return (
                     <div key={sel.id} className={`${toolSelector} mt-2.5`}>
                         <label htmlFor={extraControlId} className={toolLabel}>
-                            <sel.icon className="w-4 h-4 mr-2" aria-hidden="true" />
+                            <IconSm icon={sel.icon} className="mr-2" />
                             <span>{sel.label}:</span>
                         </label>
                         <select
@@ -231,8 +227,8 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
 
                 {config.templatePlaceholder && (
                     <div className="mb-4 flex flex-col gap-1">
-                        <label htmlFor={`${config.id}-template`} className={inputLabel}>
-                            <Edit className="mr-1" />
+                        <label htmlFor={`${config.id}-template`} className={`${inputLabel} inline-flex items-center gap-1.5`}>
+                            <IconSm icon={Edit} />
                             <span>Mensaje Personalizado (Opcional)</span>
                         </label>
                         <input
@@ -267,7 +263,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                         className={btnCopy}
                         disabled={!generated.full}
                     >
-                        {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        {isCopied ? <Check className="size-4 shrink-0" /> : <Copy className="size-4 shrink-0" />}
                         <SlotText text={isCopied ? "Copiado" : "Copiar"} />
                     </button>
                 </div>
@@ -301,9 +297,7 @@ export function ApiTestCard({
         <div className={`${card} ${fadeIn} mb-3 [animation-delay:60ms]`}>
             <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                        <FlaskConical className="w-4 h-4" aria-hidden="true" />
-                    </div>
+                    <CardHeaderIcon icon={FlaskConical} />
                     <div>
                         <h3 className="mb-0.5 text-[0.95rem] font-bold">{title}</h3>
                         <p className="text-[0.8rem] text-[#a1a1aa]">{description}</p>
@@ -321,7 +315,11 @@ export function ApiTestCard({
                     disabled={result.status === 'loading'}
                     className={btnPrimary}
                 >
-                    {result.status === 'loading' ? <Loader2 className="animate-spin" /> : <Play className="w-4 h-4" />}
+                    {result.status === 'loading' ? (
+                        <Loader2 className="size-4 shrink-0 animate-spin" />
+                    ) : (
+                        <Play className="size-4 shrink-0" />
+                    )}
                     {result.status === 'loading' ? 'Probando...' : buttonLabel}
                 </button>
 
