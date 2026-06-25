@@ -81,27 +81,53 @@ function isValidPanelReturnTarget(pathname: string): boolean {
     return true;
 }
 
+/** Ruta canónica del dashboard (home) sin barra final — el proxy de losperris.dev falla con `/dashboard/`. */
+export function dashboardHomePath(): string {
+    return appPath('/dashboard').replace(/\/$/, '');
+}
+
 /**
- * Guarda la ruta actual antes de ir a docs, sobre-la-api, etc.
- * Solo desde dashboard/landing; no sobrescribe si ya estás en una página secundaria.
+ * Normaliza rutas del panel para navegación full-page tras el proxy.
+ * Quita la barra final en `/dashboard` y pestañas; deja intacta la landing `/api/twitch/`.
  */
-export function saveDocsReturnPath(): void {
+export function normalizePanelReturnPath(pathname: string): string {
+    const base = getAppBasePath();
+    const dash = dashboardHomePath();
+    if (pathname === `${dash}/` || pathname === dash) return dash;
+    if (pathname.startsWith(`${dash}/`)) {
+        const normalized = pathname.replace(/\/$/, '');
+        return normalized.length >= dash.length ? normalized : dash;
+    }
+    if (pathname === `${base}/` || pathname === base) return `${base}/`;
+    return pathname;
+}
+
+/**
+ * Persiste la ruta del panel (dashboard con pestaña o landing) para retorno desde docs/sobre-la-api.
+ * No escribe si la URL actual es una página secundaria.
+ */
+export function persistPanelReturnPath(): void {
     if (typeof window === 'undefined') return;
     const { pathname } = window.location;
-    if (isSecondaryPage(pathname)) return;
-    sessionStorage.setItem(PANEL_RETURN_PATH_KEY, pathname);
+    if (!isValidPanelReturnTarget(pathname)) return;
+    sessionStorage.setItem(PANEL_RETURN_PATH_KEY, normalizePanelReturnPath(pathname));
+}
+
+/** Guarda el origen al hacer clic en un enlace hacia docs, sobre-la-api, etc. */
+export function saveDocsReturnPath(): void {
+    persistPanelReturnPath();
 }
 
 /** Ruta de retorno al panel (dashboard con pestaña) o landing. */
 export function docsReturnPath(): string {
-    if (typeof window === 'undefined') return appPath('/dashboard/');
+    if (typeof window === 'undefined') return dashboardHomePath();
 
     const saved = sessionStorage.getItem(PANEL_RETURN_PATH_KEY);
     if (saved && isValidPanelReturnTarget(saved)) {
-        return saved;
+        return normalizePanelReturnPath(saved);
     }
 
-    return appPath('/dashboard/');
+    return dashboardHomePath();
 }
 
 /** Enlaces internos del dashboard que deben recordar el origen al salir. */

@@ -109,7 +109,7 @@ export function setTabInUrl(tab: DashboardTab, options?: { replace?: boolean }):
 
     const url = new URL(window.location.href);
     const base = getDashboardBasePath();
-    url.pathname = tab === 'home' ? `${base}/` : `${base}/${tab}`;
+    url.pathname = tab === 'home' ? base : `${base}/${tab}`;
     url.hash = '';
     url.searchParams.delete('tab');
 

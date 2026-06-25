@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { appPath, docsReturnPath, staticPath } from '@/lib/paths';
+import { dashboardHomePath, docsReturnPath, staticPath } from '@/lib/paths';
 import {
     docsContainer,
     docsGroupTitle,
@@ -82,7 +82,7 @@ function DocsAppShell() {
     const [search, setSearch] = useState('');
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeId, setActiveId] = useState('intro');
-    const [returnPath, setReturnPath] = useState(() => appPath('/dashboard/'));
+    const [returnPath, setReturnPath] = useState(() => dashboardHomePath());
 
     useEffect(() => {
         setReturnPath(docsReturnPath());
