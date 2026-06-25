@@ -92,15 +92,6 @@ export function resolveDashboardTab(
     return 'home';
 }
 
-/** @deprecated Usar resolveDashboardTab — mantiene compatibilidad con tests antiguos. */
-export function parseTabFromUrl(
-    search = typeof window !== 'undefined' ? window.location.search : '',
-    hash = typeof window !== 'undefined' ? window.location.hash : '',
-    pathname = typeof window !== 'undefined' ? window.location.pathname : getDashboardBasePath()
-): DashboardTab {
-    return resolveDashboardTab(search, hash, pathname);
-}
-
 /** Sincroniza la pestaña en la URL (`/dashboard/followage`) y guarda la última visitada. */
 export function setTabInUrl(tab: DashboardTab, options?: { replace?: boolean }): void {
     if (typeof window === 'undefined') return;
