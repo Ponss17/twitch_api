@@ -6,7 +6,8 @@ import { useToast } from '@/components/ui/ToastProvider';
 import { ClipsGridSkeleton } from '@/components/ui/Skeleton';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import { cache, CACHE_TTL } from '@/lib/cacheService';
-import { card, fadeIn, selectInput } from '@/lib/tw';
+import { card, fadeIn } from '@/lib/tw';
+import { SelectField } from '@/components/ui/SelectField';
 import { ClipCommandView } from './CommandsViews';
 import { Star, RotateCw, Link, Eye, Images, Search } from 'lucide-react';
 
@@ -21,6 +22,13 @@ interface Clip {
 }
 
 const ITEMS_PER_PAGE = 20;
+
+const CLIPS_SORT_OPTIONS = [
+    { value: 'date-desc', label: 'Más recientes' },
+    { value: 'date-asc', label: 'Más antiguos' },
+    { value: 'views-desc', label: 'Más vistos' },
+    { value: 'views-asc', label: 'Menos vistos' }
+] as const;
 
 const CLIPS_GRID =
     'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5 max-[600px]:grid-cols-1';
@@ -215,19 +223,16 @@ export function ClipsView() {
                             />
                         </div>
                         <div className="shrink-0 max-[600px]:w-full">
-                            <select
+                            <SelectField
                                 value={sort}
                                 onChange={(e) => {
                                     setSort(e.target.value);
                                     setPage(1);
                                 }}
-                                className={`${selectInput} max-[600px]:w-full max-[600px]:max-w-none`}
-                            >
-                                <option value="date-desc">Más recientes</option>
-                                <option value="date-asc">Más antiguos</option>
-                                <option value="views-desc">Más vistos</option>
-                                <option value="views-asc">Menos vistos</option>
-                            </select>
+                                aria-label="Ordenar clips"
+                                className="max-[600px]:w-full max-[600px]:max-w-none"
+                                options={[...CLIPS_SORT_OPTIONS]}
+                            />
                         </div>
                     </div>
 
