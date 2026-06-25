@@ -4,7 +4,7 @@ import { NAV_ITEMS } from '@/lib/dashboardTabs';
 import { DiscordIcon } from '@/components/ui/icons/BrandIcons';
 import { AppLogo } from '@/components/ui/AppLogo';
 import { IconMd } from '@/components/ui/Icon';
-import { Book } from 'lucide-react';
+import { Book, Info } from 'lucide-react';
 
 interface SidebarProps {
     active: DashboardTab;
@@ -84,6 +84,14 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                         );
                     })}
 
+                    <a
+                        href={appPath('/sobre-la-api')}
+                        className={supportLinkClass}
+                        onClick={saveDocsReturnPath}
+                    >
+                        <IconMd icon={Info} />
+                        <span>Sobre la API</span>
+                    </a>
                     <a
                         href={appPath('/docs')}
                         className={supportLinkClass}

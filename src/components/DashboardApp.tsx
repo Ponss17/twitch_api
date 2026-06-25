@@ -13,6 +13,7 @@ import { logout } from '@/lib/auth';
 
 import { initGlobalErrorLogging } from '@/lib/logError';
 import { resolveDashboardTab, setTabInUrl } from '@/lib/dashboardTabUrl';
+import { persistPanelReturnPath } from '@/lib/paths';
 import { fadeIn } from '@/lib/tw';
 import type { DashboardTab } from '@/lib/config';
 
@@ -42,6 +43,7 @@ function DashboardAppShell() {
     const setTab = useCallback((next: DashboardTab) => {
         setTabState(next);
         setTabInUrl(next);
+        persistPanelReturnPath();
     }, []);
 
     useEffect(() => {
@@ -49,7 +51,10 @@ function DashboardAppShell() {
     }, []);
 
     useEffect(() => {
-        const syncFromUrl = () => setTabState(resolveDashboardTab());
+        const syncFromUrl = () => {
+            setTabState(resolveDashboardTab());
+            persistPanelReturnPath();
+        };
         window.addEventListener('popstate', syncFromUrl);
         window.addEventListener('hashchange', syncFromUrl);
         return () => {
@@ -63,6 +68,7 @@ function DashboardAppShell() {
         const resolved = resolveDashboardTab();
         setTabState(resolved);
         setTabInUrl(resolved, { replace: true });
+        persistPanelReturnPath();
     }, []);
 
     // Escuchar cuando el Home ya cargó los datos
