@@ -13,11 +13,9 @@ import {
     formGrid,
     inputLabel,
     responseCard,
-    selectInput,
-    textInput,
-    toolLabel,
-    toolSelector
+    textInput
 } from '@/lib/tw';
+import { SelectFieldRow } from '@/components/ui/SelectField';
 import { API_ENDPOINTS } from '@/lib/config';
 import { buildAuthQueryParam } from '@/lib/authQuery';
 import { BOT_OPTIONS } from '@/lib/commandGenerator';
@@ -51,28 +49,6 @@ function CommandCardHeader({
                 </div>
             </div>
             <InfoTooltip text={info} />
-        </div>
-    );
-}
-
-function ToolSelector({
-    label,
-    icon: Icon,
-    controlId,
-    children
-}: {
-    label: string;
-    icon: React.ElementType;
-    controlId: string;
-    children: ReactNode;
-}) {
-    return (
-        <div className={toolSelector}>
-            <label htmlFor={controlId} className={toolLabel}>
-                <IconSm icon={Icon} className="mr-2" />
-                <span>{label}</span>
-            </label>
-            {children}
         </div>
     );
 }
@@ -182,48 +158,31 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
             />
 
             <div className="text-[#fafafa]">
-                <ToolSelector label="Selecciona tu bot:" icon={Bot} controlId={`${config.id}-bot`}>
-                    <select
-                        id={`${config.id}-bot`}
-                        value={bot}
-                        onChange={(e) => updateConfig({ bot: e.target.value })}
-                        className={selectInput}
-                    >
-                        {BOT_OPTIONS.map((opt) => (
-                            <option key={opt.value} value={opt.value} className="bg-bg-card text-[#fafafa]">
-                                {opt.label}
-                            </option>
-                        ))}
-                    </select>
-                </ToolSelector>
+                <SelectFieldRow
+                    label="Selecciona tu bot:"
+                    icon={Bot}
+                    controlId={`${config.id}-bot`}
+                    value={bot}
+                    onChange={(e) => updateConfig({ bot: e.target.value })}
+                    options={BOT_OPTIONS}
+                />
 
-                {config.extraSelectors?.map((sel) => {
-                    const extraControlId = `${config.id}-extra-${sel.id}`;
-                    return (
-                    <div key={sel.id} className={`${toolSelector} mt-2.5`}>
-                        <label htmlFor={extraControlId} className={toolLabel}>
-                            <IconSm icon={sel.icon} className="mr-2" />
-                            <span>{sel.label}:</span>
-                        </label>
-                        <select
-                            id={extraControlId}
-                            value={extraValues[sel.id] ?? ''}
-                            onChange={(e) =>
-                                updateConfig({
-                                    extraValues: { ...extraValues, [sel.id]: e.target.value }
-                                })
-                            }
-                            className={selectInput}
-                        >
-                            {sel.options.map((opt) => (
-                                <option key={opt.value} value={opt.value} className="bg-bg-card">
-                                    {opt.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    );
-                })}
+                {config.extraSelectors?.map((sel) => (
+                    <SelectFieldRow
+                        key={sel.id}
+                        rowClassName="mt-2.5"
+                        label={`${sel.label}:`}
+                        icon={sel.icon}
+                        controlId={`${config.id}-extra-${sel.id}`}
+                        value={extraValues[sel.id] ?? ''}
+                        onChange={(e) =>
+                            updateConfig({
+                                extraValues: { ...extraValues, [sel.id]: e.target.value }
+                            })
+                        }
+                        options={sel.options}
+                    />
+                ))}
 
                 {config.templatePlaceholder && (
                     <div className="mb-4 flex flex-col gap-1">
@@ -243,17 +202,17 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                     </div>
                 )}
 
-                <ToolSelector label="Formato de copiado:" icon={FileCode} controlId={`${config.id}-format`}>
-                    <select
-                        id={`${config.id}-format`}
-                        value={format}
-                        onChange={(e) => updateConfig({ format: e.target.value as 'full' | 'url' })}
-                        className={selectInput}
-                    >
-                        <option value="full">Comando completo (!addcom / !command add)</option>
-                        <option value="url">Solo URL</option>
-                    </select>
-                </ToolSelector>
+                <SelectFieldRow
+                    label="Formato de copiado:"
+                    icon={FileCode}
+                    controlId={`${config.id}-format`}
+                    value={format}
+                    onChange={(e) => updateConfig({ format: e.target.value as 'full' | 'url' })}
+                    options={[
+                        { value: 'full', label: 'Comando completo (!addcom / !command add)' },
+                        { value: 'url', label: 'Solo URL' }
+                    ]}
+                />
 
                 <div className={codeBox}>
                     <textarea readOnly value={generated.masked} className={codeTextarea} />
