@@ -1,31 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { initAuthSync, saveSession, validateSession, resolveSessionFromUrl, clearSession } from '@/lib/auth';
+import {
+    initAuthSync,
+    validateSession,
+    resolveSessionFromUrl,
+    clearSession,
+    mergeSessionFromValidate,
+    getSession,
+    resolveDegradedSession,
+    stripSensitiveQueryParams
+} from '@/lib/auth';
 import type { Session } from '@/lib/config';
 import { appPath } from '@/lib/paths';
 import { SessionContext } from '@/lib/sessionContext';
 import { useToastOptional } from '@/components/ui/ToastProvider';
+import { reportSessionLoadProgress } from '@/lib/sessionLoadProgress';
 
 export type { SessionContextValue } from '@/lib/sessionContext';
-
-function mergeValidatedSession(session: Session, result: Record<string, unknown>): Session {
-    const merged: Session = { ...session };
-    const apiKey = result.apiKey;
-    if (typeof apiKey === 'string' && apiKey) merged.apiKey = apiKey;
-
-    const user = result.user;
-    if (user && typeof user === 'object') {
-        const profile = user as Record<string, unknown>;
-        if (typeof profile.login === 'string') merged.login = profile.login;
-        if (typeof profile.display_name === 'string') merged.displayName = profile.display_name;
-        if (typeof profile.profile_image_url === 'string') {
-            merged.profile_image_url = profile.profile_image_url;
-        }
-        if (typeof profile.id === 'string') merged.userId = profile.id;
-    }
-
-    saveSession(merged);
-    return merged;
-}
 
 interface SessionProviderProps {
     children: ReactNode;
@@ -34,6 +24,9 @@ interface SessionProviderProps {
 
 export function SessionProvider({ children, requireAuth = false }: SessionProviderProps) {
     const showToast = useToastOptional();
+    const showToastRef = useRef(showToast);
+    showToastRef.current = showToast;
+
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
     const [authenticated, setAuthenticated] = useState(false);
@@ -44,6 +37,12 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
     }, []);
 
     const refresh = useCallback(async () => {
+        reportSessionLoadProgress({
+            progress: 8,
+            label: 'Recuperando sesión…',
+            cached: false
+        });
+
         const sessionParams = await resolveSessionFromUrl();
 
         if (!sessionParams.token && !sessionParams.apiKey) {
@@ -60,23 +59,26 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
         try {
             result = await validateSession(sessionParams);
         } catch {
-            result = { valid: true, error: true };
+            const stored = getSession();
+            if (stored?.apiKey || stored?.token) {
+                result = { valid: true, error: true, networkError: true };
+            } else {
+                result = { valid: false, error: true };
+            }
         }
 
         if (result.valid === true) {
             if (result.error) {
-                showToast('Conexión inestable con el servidor', 'warning');
+                showToastRef.current('Conexión inestable con el servidor', 'warning');
             }
 
-            const enriched = mergeValidatedSession(sessionParams, result as Record<string, unknown>);
+            const baseSession = result.networkError
+                ? resolveDegradedSession(sessionParams)
+                : sessionParams;
+            const enriched = mergeSessionFromValidate(baseSession, result);
 
             if (sessionParams.isNewLogin) {
-                window.history.replaceState(
-                    {},
-                    document.title,
-                    window.location.pathname + window.location.hash
-                );
-                saveSession(enriched);
+                stripSensitiveQueryParams();
             }
 
             if (
@@ -84,12 +86,17 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
                 enriched.apiKey &&
                 enriched.apiKey !== sessionParams.apiKey
             ) {
-                showToast('Tu API Key ha sido actualizada', 'info');
+                showToastRef.current('Tu API Key ha sido actualizada', 'info');
             }
 
             setSession(enriched);
             setAuthenticated(true);
             setLoading(false);
+            reportSessionLoadProgress({
+                progress: 58,
+                label: 'Preparando panel…',
+                cached: false
+            });
             return;
         }
 
@@ -99,12 +106,12 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
 
         if (requireAuth) {
             clearSession();
-            showToast('Sesión expirada. Redirigiendo...', 'error');
+            showToastRef.current('Sesión expirada. Redirigiendo...', 'error');
             redirectTimerRef.current = window.setTimeout(() => {
                 window.location.href = appPath('/');
             }, 2000);
         }
-    }, [requireAuth, showToast]);
+    }, [requireAuth]);
 
     useEffect(() => {
         void refresh();

@@ -61,5 +61,6 @@ router.delete(
 );
 
 router.post('/export-check', csrfProtection, dashboardController.exportCheck);
+router.post('/export-complete', csrfProtection, dashboardController.recordExportComplete);
 
 export default router;

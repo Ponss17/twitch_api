@@ -5,7 +5,17 @@ import { useSession } from '@/hooks/useSession';
 jest.mock('@/lib/auth', () => ({
     initAuthSync: jest.fn(),
     resolveSessionFromUrl: jest.fn(),
-    saveSession: jest.fn(),
+    mergeSessionFromValidate: jest.fn((session, result) => ({
+        ...session,
+        apiKey: typeof result.apiKey === 'string' ? result.apiKey : session.apiKey,
+        login:
+            result.user && typeof result.user === 'object' && 'login' in result.user
+                ? String((result.user as { login: string }).login)
+                : session.login
+    })),
+    getSession: jest.fn(),
+    resolveDegradedSession: jest.fn((session) => session),
+    stripSensitiveQueryParams: jest.fn(),
     validateSession: jest.fn(),
     clearSession: jest.fn()
 }));
@@ -16,11 +26,11 @@ jest.mock('@/components/ui/ToastProvider', () => ({
     useToastOptional: () => showToastMock
 }));
 
-import { resolveSessionFromUrl, saveSession, validateSession } from '@/lib/auth';
+import { resolveSessionFromUrl, mergeSessionFromValidate, validateSession } from '@/lib/auth';
 
 const mockedResolveSessionFromUrl = resolveSessionFromUrl as jest.Mock;
 const mockedValidateSession = validateSession as jest.Mock;
-const mockedSaveSession = saveSession as jest.Mock;
+const mockedMergeSessionFromValidate = mergeSessionFromValidate as jest.Mock;
 
 function SessionProbe() {
     const { session, loading, authenticated } = useSession();
@@ -58,7 +68,7 @@ describe('SessionProvider', () => {
 
         await waitFor(() => expect(screen.getByText('user:streamer')).toBeInTheDocument());
         expect(order.indexOf('resolveSessionFromUrl')).toBeLessThan(order.indexOf('validate'));
-        expect(mockedSaveSession).toHaveBeenCalled();
+        expect(mockedMergeSessionFromValidate).toHaveBeenCalled();
     });
 
     it('shows anonymous state when validation fails', async () => {

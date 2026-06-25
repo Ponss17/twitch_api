@@ -237,7 +237,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
 
         if (syncRef.current?.getIsLeader() || connectedRef.current) {
             tmiService.removeListener(LISTENER_ID);
-            tmiService.forceDisconnect();
+            tmiService.disconnect();
         }
         updateStatus(false);
     }, [updateStatus]);

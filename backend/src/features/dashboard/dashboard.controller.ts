@@ -6,6 +6,7 @@ import { CACHE_TTL } from '../../core/config/cacheTtl';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { computeAnalyticsFromStats, formatActivityLog } from '../../core/utils/dashboardHelpers';
+import { buildDashboardProfile } from '../../core/utils/dashboardProfile';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 import { RATE_LIMITS } from '../../core/config/limits';
@@ -21,14 +22,7 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
     const userId = req.userId;
 
     if (!userId) {
-        return res.json({
-            todayRequests: 0,
-            totalRequests: 0,
-            averageLatency: '0ms (0.0s)',
-            avgLatencyMs: 0,
-            successRate: '0%',
-            rawSuccessRate: 0
-        });
+        return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
     }
 
     try {
@@ -105,6 +99,7 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
 
 export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
     const channel = req.query.channel as string;
+    const eligibility = (req.query.eligibility as apiService.ChatterEligibility | undefined) ?? 'all';
     const userId = req.userId;
 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
@@ -117,7 +112,7 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
             incrementStat: 'stalker'
         },
         async () => {
-            const cacheKey = `cache:cmd:getChatters:channel:${channel}`;
+            const cacheKey = `cache:cmd:getChatters:channel:${channel}:eligibility:${eligibility}`;
             const cached = await cacheService.get(cacheKey);
             if (cached) return res.json(cached);
 
@@ -128,12 +123,19 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
                     userId,
                     req.twitchToken || ''
                 );
-                await cacheService.set(cacheKey, chatters, CACHE_TTL.CHATTERS);
-                return res.json(chatters);
+                const filtered = await apiService.filterChattersByEligibility(
+                    chatters,
+                    broadcasterId,
+                    req.twitchToken || '',
+                    eligibility
+                );
+                await cacheService.set(cacheKey, filtered, CACHE_TTL.CHATTERS);
+                return res.json(filtered);
             } catch (error: unknown) {
+                if (error instanceof TwitchApiError) throw error;
                 const err = error as Error;
                 logger.error('Error getting chatters:', { error: err.message });
-                return jsonError(res, 500, MESSAGES.DASHBOARD.CHATTERS_ERROR);
+                throw new AppError(MESSAGES.DASHBOARD.CHATTERS_ERROR, 500);
             }
         }
     );
@@ -192,18 +194,11 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                     req.twitchToken || ''
                 );
 
-                const result = {
-                    id: info.id,
-                    login: info.login,
-                    display_name: info.display_name,
-                    broadcaster_type: info.broadcaster_type,
-                    description: info.description,
-                    profile_image_url: info.profile_image_url,
-                    created_at: info.created_at,
-                    view_count: info.view_count,
+                const result = buildDashboardProfile(
+                    info,
                     followers,
-                    views: info.view_count
-                };
+                    rateLimit
+                );
 
                 await cacheService.set(cacheKey, result, CACHE_TTL.USER_INFO);
                 res.json({ ...result, rateLimit });
@@ -276,14 +271,7 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
                       const info = await apiService.getUserInfo(login, token || '');
                       const followers = await apiService.getFollowersCount(info.id, token || '');
                       return {
-                          id: info.id,
-                          login: info.login,
-                          display_name: info.display_name,
-                          broadcaster_type: info.broadcaster_type,
-                          description: info.description,
-                          profile_image_url: info.profile_image_url,
-                          created_at: info.created_at,
-                          followers,
+                          ...buildDashboardProfile(info, followers),
                           rateLimit: res.locals.apiUser?.customRateLimit || RATE_LIMITS.DEFAULT
                       };
                   })()
@@ -340,7 +328,6 @@ export const exportCheck = async (req: AuthenticatedRequest, res: Response) => {
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     const key = `export_cooldown:${userId}`;
-    const COOLDOWN_MINUTES = 4;
     
     try {
         const cachedExpiresAt = await cacheService.get<number>(key);
@@ -354,10 +341,25 @@ export const exportCheck = async (req: AuthenticatedRequest, res: Response) => {
             );
         }
         
-        await cacheService.set(key, Date.now() + COOLDOWN_MINUTES * 60000, COOLDOWN_MINUTES * 60);
         res.json({ success: true });
     } catch (e) {
         logger.error('Error checking export rate limit:', e);
         return jsonError(res, 500, 'Error al verificar límite de exportación.');
+    }
+};
+
+export const recordExportComplete = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId;
+    if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
+
+    const key = `export_cooldown:${userId}`;
+    const COOLDOWN_MINUTES = 4;
+
+    try {
+        await cacheService.set(key, Date.now() + COOLDOWN_MINUTES * 60000, COOLDOWN_MINUTES * 60);
+        res.json({ success: true });
+    } catch (e) {
+        logger.error('Error recording export cooldown:', e);
+        return jsonError(res, 500, 'Error al registrar exportación.');
     }
 };

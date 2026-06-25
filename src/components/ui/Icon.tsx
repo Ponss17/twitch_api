@@ -1,22 +1,48 @@
 import type { LucideIcon } from 'lucide-react';
 import type { ElementType } from 'react';
-import { ICON_LG, ICON_MD, ICON_SM } from '@/lib/dashboardTabs';
 
 type IconProps = {
     icon: LucideIcon | ElementType;
     className?: string;
 };
 
-export function IconSm({ icon: Icon, className = '' }: IconProps) {
-    return <Icon className={`${ICON_SM} ${className}`.trim()} aria-hidden />;
+const ICON_BOX = {
+    sm: 'size-4',
+    md: 'size-5',
+    lg: 'size-7'
+} as const;
+
+const ICON_INNER = {
+    sm: 'size-3.5',
+    md: 'size-4',
+    lg: 'size-5'
+} as const;
+
+function IconSlot({
+    icon: Icon,
+    size,
+    className = ''
+}: IconProps & { size: keyof typeof ICON_BOX }) {
+    return (
+        <span
+            className={`inline-flex ${ICON_BOX[size]} shrink-0 items-center justify-center ${className}`.trim()}
+            aria-hidden
+        >
+            <Icon className={ICON_INNER[size]} strokeWidth={2} />
+        </span>
+    );
 }
 
-export function IconMd({ icon: Icon, className = '' }: IconProps) {
-    return <Icon className={`${ICON_MD} ${className}`.trim()} aria-hidden />;
+export function IconSm({ icon, className = '' }: IconProps) {
+    return <IconSlot icon={icon} size="sm" className={className} />;
 }
 
-export function InlineIcon({ icon: Icon, className = '' }: IconProps) {
-    return <Icon className={`${ICON_SM} inline-block align-[-0.125em] ${className}`.trim()} aria-hidden />;
+export function IconMd({ icon, className = '' }: IconProps) {
+    return <IconSlot icon={icon} size="md" className={className} />;
+}
+
+export function InlineIcon({ icon, className = '' }: IconProps) {
+    return <IconSlot icon={icon} size="sm" className={className} />;
 }
 
 export function EmptyStateIcon({ icon: Icon, className = '' }: IconProps) {
@@ -24,7 +50,7 @@ export function EmptyStateIcon({ icon: Icon, className = '' }: IconProps) {
         <div
             className={`mx-auto mb-3 flex size-14 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-[#a1a1aa] ${className}`.trim()}
         >
-            <Icon className={ICON_LG} aria-hidden />
+            <Icon className="size-7" strokeWidth={2} aria-hidden />
         </div>
     );
 }
@@ -32,7 +58,7 @@ export function EmptyStateIcon({ icon: Icon, className = '' }: IconProps) {
 export function CardHeaderIcon({ icon: Icon }: IconProps) {
     return (
         <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-primary">
-            <Icon className={ICON_SM} aria-hidden />
+            <Icon className="size-4" strokeWidth={2} aria-hidden />
         </div>
     );
 }
