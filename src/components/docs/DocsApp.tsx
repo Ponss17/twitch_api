@@ -20,7 +20,8 @@ import {
 import { ToastProvider } from '@/components/ui/ToastProvider';
 import { DocsContent } from '@/components/docs/DocsContent';
 import { X, Search, Menu, ArrowLeft } from 'lucide-react';
-import { Home, Key, UserCog, Gauge, Rocket, Clock, Film, Megaphone, TrendingUp, Binoculars, Dices, Circle, Skull, Swords, List, AlertTriangle } from 'lucide-react';
+import { Home, Key, UserCog, Gauge, Rocket, Clock, Film, Megaphone, TrendingUp, Binoculars, Dices, Swords, List, AlertTriangle } from 'lucide-react';
+import { MAGIC8_ICON, RUSSIAN_ICON } from '@/lib/dashboardTabs';
 import type { LucideIcon } from 'lucide-react';
 
 
@@ -55,8 +56,8 @@ const NAV_GROUPS: { title: string; items: { id: string; icon: LucideIcon; label:
     {
         title: 'Minijuegos',
         items: [
-            { id: 'magic8', icon: Circle, label: 'Bola 8' },
-            { id: 'russian', icon: Skull, label: 'Ruleta Rusa' },
+            { id: 'magic8', icon: MAGIC8_ICON, label: 'Bola 8' },
+            { id: 'russian', icon: RUSSIAN_ICON, label: 'Ruleta Rusa' },
             { id: 'duel', icon: Swords, label: 'Duelo' }
         ]
     },
@@ -81,7 +82,7 @@ function DocsAppShell() {
     const [search, setSearch] = useState('');
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeId, setActiveId] = useState('intro');
-    const [returnPath, setReturnPath] = useState(() => appPath('/dashboard'));
+    const [returnPath, setReturnPath] = useState(() => appPath('/dashboard/'));
 
     useEffect(() => {
         setReturnPath(docsReturnPath());

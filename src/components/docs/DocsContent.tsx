@@ -1,4 +1,5 @@
-import { Info, Zap, Key, ShieldAlert, UserCog, BarChart2, IdCard, Skull, Gauge, Server, Weight, Rocket, Clock, Film, AlertCircle, ChevronRight, Megaphone, TrendingUp, Lightbulb, Binoculars, Shield, Dices, Wand2, Search, AlertTriangle, Swords, List } from 'lucide-react';
+import { Info, Zap, Key, ShieldAlert, UserCog, BarChart2, IdCard, Skull, Gauge, Server, Weight, Rocket, Clock, Film, AlertCircle, ChevronRight, Megaphone, TrendingUp, Lightbulb, Binoculars, Shield, Dices, AlertTriangle, Swords, List } from 'lucide-react';
+import { MAGIC8_ICON, RUSSIAN_ICON } from '@/lib/dashboardTabs';
 
 import { DocsCodeTabs } from '@/components/docs/DocsCodeTabs';
 import { appPath } from '@/lib/paths';
@@ -376,7 +377,7 @@ export function DocsContent() {
                 </h2>
                 <p>La herramienta definitiva para sorteos y giveaways en tu stream.</p>
                 <div className={docsInfoCardPurple}>
-                    <Wand2 />
+                    <Lightbulb />
                     <p>
                         <strong>Lógica Híbrida:</strong> Puedes crear una lista manual de opciones o dejar que la API
                         cargue automáticamente a los <strong>usuarios activos</strong> del chat en tiempo real.
@@ -386,7 +387,7 @@ export function DocsContent() {
 
             <section id="magic8" className={docSection} data-doc-section>
                 <h2>
-                    <Search /> Bola 8 Mágica (IA)
+                    <MAGIC8_ICON /> Bola 8 Mágica (IA)
                 </h2>
                 <p>Respuestas místicas (o sarcásticas) a tus preguntas.</p>
                 <div className={docsEndpoint}>
@@ -445,7 +446,7 @@ export function DocsContent() {
 
             <section id="russian" className={docSection} data-doc-section>
                 <h2>
-                    <Skull /> Ruleta Rusa
+                    <RUSSIAN_ICON /> Ruleta Rusa
                 </h2>
                 <p>
                     Un juego de alto riesgo para tu chat. Los usuarios prueban su suerte con un revólver virtual de 6

@@ -1,6 +1,19 @@
-import { APP_MOUNT, appPath, docsReturnPath, getAppBasePath, staticPath, joinAppPath } from '@/lib/paths';
+import {
+    APP_MOUNT,
+    appPath,
+    docsReturnPath,
+    getAppBasePath,
+    saveDocsReturnPath,
+    shouldSavePanelReturn,
+    staticPath,
+    joinAppPath
+} from '@/lib/paths';
 
 describe('paths (frontend)', () => {
+    beforeEach(() => {
+        sessionStorage.clear();
+    });
+
     it('expone el mount canónico /api/twitch', () => {
         expect(APP_MOUNT).toBe('/api/twitch');
     });
@@ -28,13 +41,31 @@ describe('paths (frontend)', () => {
         );
     });
 
-    it('docsReturnPath vuelve al dashboard guardado', () => {
-        sessionStorage.setItem('twitch_docs_return_path', '/api/twitch/dashboard');
-        expect(docsReturnPath()).toBe('/api/twitch/dashboard');
+    it('docsReturnPath vuelve al dashboard guardado con pestaña', () => {
+        sessionStorage.setItem('twitch_docs_return_path', '/api/twitch/dashboard/russian');
+        expect(docsReturnPath()).toBe('/api/twitch/dashboard/russian');
     });
 
     it('docsReturnPath usa dashboard por defecto sin origen guardado', () => {
         sessionStorage.removeItem('twitch_docs_return_path');
-        expect(docsReturnPath()).toBe('/api/twitch/dashboard');
+        expect(docsReturnPath()).toBe('/api/twitch/dashboard/');
+    });
+
+    it('saveDocsReturnPath no guarda desde páginas secundarias', () => {
+        window.history.pushState({}, '', '/api/twitch/sobre-la-api/');
+        saveDocsReturnPath();
+        expect(sessionStorage.getItem('twitch_docs_return_path')).toBeNull();
+    });
+
+    it('saveDocsReturnPath guarda la ruta del dashboard al salir', () => {
+        window.history.pushState({}, '', '/api/twitch/dashboard/clips');
+        saveDocsReturnPath();
+        expect(sessionStorage.getItem('twitch_docs_return_path')).toBe('/api/twitch/dashboard/clips');
+    });
+
+    it('shouldSavePanelReturn incluye docs y sobre-la-api', () => {
+        expect(shouldSavePanelReturn('/docs')).toBe(true);
+        expect(shouldSavePanelReturn('/sobre-la-api')).toBe(true);
+        expect(shouldSavePanelReturn('/privacidad')).toBe(false);
     });
 });

@@ -1,5 +1,5 @@
 import type { DashboardTab } from '@/lib/config';
-import { appPath, saveDocsReturnPath } from '@/lib/paths';
+import { appPath, saveDocsReturnPath, shouldSavePanelReturn } from '@/lib/paths';
 import { card, fadeIn } from '@/lib/tw';
 import { DiscordIcon } from '@/components/ui/icons/BrandIcons';
 import { IconMd } from '@/components/ui/Icon';
@@ -69,7 +69,7 @@ export function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
                             href={link.external ? link.href : appPath(link.href)}
                             target={link.external ? '_blank' : undefined}
                             rel={link.external ? 'noopener noreferrer' : undefined}
-                            onClick={link.href === '/docs' ? saveDocsReturnPath : undefined}
+                            onClick={shouldSavePanelReturn(link.href) ? saveDocsReturnPath : undefined}
                             className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2 text-[0.8rem] font-semibold text-[#a1a1aa] no-underline transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
                         >
                             <LinkIcon className="size-5 shrink-0" aria-hidden />

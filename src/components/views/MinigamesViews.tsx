@@ -1,5 +1,6 @@
 import { InlineIcon } from '@/components/ui/Icon';
-import { Loader2, Gem, Swords, Shield, Check, AlertTriangle, FlaskConical, Play, Gavel, Skull, Crosshair, MessageCircle, Send, type LucideIcon } from 'lucide-react';
+import { Loader2, Gem, Swords, Shield, Check, AlertTriangle, Play, Gavel, Skull, Crosshair, MessageCircle, Send, type LucideIcon } from 'lucide-react';
+import { MAGIC8_ICON, RUSSIAN_ICON } from '@/lib/dashboardTabs';
 
 import { useState, type ReactNode } from 'react';
 import { API_ENDPOINTS } from '@/lib/config';
@@ -157,7 +158,7 @@ export function Magic8View() {
                 onExtraValuesChange={setCommandExtras}
             />
             <MinigameCard
-                icon={FlaskConical}
+                icon={MAGIC8_ICON}
                 title="Prueba la Bola 8"
                 description="Verifica que la IA responda correctamente"
                 info="Haz una pregunta directamente aquí para ver cómo respondería la IA en tu chat."
@@ -347,7 +348,7 @@ export function RussianView() {
         <>
             <CommandGeneratorCard config={COMMAND_CONFIG.russian} />
             <MinigameCard
-                icon={Skull}
+                icon={RUSSIAN_ICON}
                 title="Ruleta Rusa"
                 description="Juego de azar extremo. ¿Te atreves?"
                 staggered
