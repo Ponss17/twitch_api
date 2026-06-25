@@ -1,6 +1,7 @@
 import {
     DEFAULT_ELIGIBILITY_FILTERS,
     filtersToApiParam,
+    filtersSummaryLabel,
     isAllFilters,
     rolesFromTags,
     setAllFilters,
@@ -40,6 +41,16 @@ describe('rouletteEligibility', () => {
         expect(
             filtersToApiParam({ subs: true, mods: true, vips: false, viewers: false })
         ).toBe('subs,mods');
+    });
+
+    it('filtersSummaryLabel describes selection for the dropdown', () => {
+        expect(filtersSummaryLabel(DEFAULT_ELIGIBILITY_FILTERS)).toBe('Todos');
+        expect(filtersSummaryLabel({ subs: false, mods: false, vips: false, viewers: false })).toBe(
+            'Ninguno'
+        );
+        expect(
+            filtersSummaryLabel({ subs: true, mods: true, vips: false, viewers: false })
+        ).toBe('Subs, Mods');
     });
 
     it('rolesFromTags reads tmi flags and badges', () => {

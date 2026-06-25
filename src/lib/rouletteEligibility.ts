@@ -88,5 +88,14 @@ export function filtersToApiParam(filters: RouletteEligibilityFilters): string {
     return parts.length > 0 ? parts.join(',') : 'all';
 }
 
+/** Texto del botón del selector de elegibilidad */
+export function filtersSummaryLabel(filters: RouletteEligibilityFilters): string {
+    if (isAllFilters(filters)) return 'Todos';
+    if (!hasAnyFilter(filters)) return 'Ninguno';
+    return ROULETTE_ROLE_OPTIONS.filter(({ key }) => filters[key])
+        .map(({ label }) => label)
+        .join(', ');
+}
+
 /** @deprecated Usar userMatchesFilters */
 export type RouletteEligibility = 'all' | 'subs' | 'mods' | 'vips';
