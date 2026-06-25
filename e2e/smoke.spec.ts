@@ -16,6 +16,21 @@ const e2eSession = {
     displayName: 'E2E Streamer'
 };
 
+async function mockAuthExchangeRoute(page: Page) {
+    await page.route('**/api/twitch/auth/exchange**', (route) =>
+        route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+                apiKey: 'e2e_test_key',
+                login: 'e2e_streamer',
+                displayName: 'E2E Streamer',
+                userId: '999'
+            })
+        })
+    );
+}
+
 async function mockValidateRoute(page: Page) {
     await page.route('**/api/twitch/system/validate**', (route) =>
         route.fulfill({
@@ -86,11 +101,18 @@ test.describe('dashboard', () => {
     });
 
     test('oauth callback applies session without page reload', async ({ page }) => {
+        await mockAuthExchangeRoute(page);
         await mockValidateRoute(page);
 
-        await page.goto(
-            '/api/twitch/dashboard/?apiKey=e2e_oauth&login=e2euser&displayName=E2E%20User&userId=42'
+        const exchanged = page.waitForResponse(
+            (response) => response.url().includes('/auth/exchange') && response.ok()
         );
+        const validated = waitForValidate(page);
+
+        await page.goto('/api/twitch/dashboard/?auth=e2e_oauth_token');
+
+        await exchanged;
+        await validated;
 
         await expect(page).toHaveURL(/\/api\/twitch\/dashboard\/?$/);
         await expect(page.locator('#dashboard-page')).toBeVisible({ timeout: 15000 });
