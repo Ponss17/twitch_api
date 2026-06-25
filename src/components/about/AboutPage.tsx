@@ -2,7 +2,7 @@ import { Book, ArrowLeft } from 'lucide-react';
 import { DiscordIcon, InstagramIcon } from '@/components/ui/icons/BrandIcons';
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { appPath, docsReturnPath, staticPath } from '@/lib/paths';
+import { appPath, dashboardHomePath, docsReturnPath, saveDocsReturnPath, staticPath } from '@/lib/paths';
 import { aboutFadeIn, aboutLegoIn } from '@/lib/tw';
 
 const NARRATIVE_CARD =
@@ -35,6 +35,7 @@ function AboutHeader() {
                 <nav className="flex gap-4">
                     <a
                         href={appPath('/docs')}
+                        onClick={saveDocsReturnPath}
                         className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#a1a1aa] no-underline transition hover:bg-white/5 hover:text-white"
                     >
                         <Book className="size-5 shrink-0" aria-hidden />
@@ -284,7 +285,7 @@ const TECH_CARDS = [
 ] as const;
 
 export function AboutPage() {
-    const [returnPath, setReturnPath] = useState(() => appPath('/dashboard/'));
+    const [returnPath, setReturnPath] = useState(() => dashboardHomePath());
     const [toastVisible, setToastVisible] = useState(false);
     const toastTimerRef = useRef<number | null>(null);
 
