@@ -17,7 +17,11 @@ export const getClipsSchema = z.object({
 export const getChattersSchema = z.object({
     query: z.object({
         channel: twitchUsername,
-        eligibility: z.enum(['all', 'subs', 'mods', 'vips']).optional()
+        eligibility: z
+            .string()
+            .max(48)
+            .regex(/^(all|(subs|mods|vips|viewers)(,(subs|mods|vips|viewers))*)$/)
+            .optional()
     })
 });
 

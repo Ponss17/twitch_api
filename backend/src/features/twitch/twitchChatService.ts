@@ -4,9 +4,30 @@ import * as cacheService from '../../core/database/cacheService';
 import { CACHE_TTL } from '../../core/config/cacheTtl';
 import { apiClient, handleTwitchError, getHeaders } from './twitchClient';
 
-export type ChatterEligibility = 'all' | 'subs' | 'mods' | 'vips';
+export type ChatterEligibility = 'subs' | 'mods' | 'vips' | 'viewers';
 
-type ChatterRow = { user_id: string; user_login: string; user_name: string };
+type ChatterRow = {
+    user_id: string;
+    user_login: string;
+    user_name: string;
+    mod?: boolean;
+    sub?: boolean;
+    vip?: boolean;
+};
+
+const VALID_ELIGIBILITY = new Set<ChatterEligibility>(['subs', 'mods', 'vips', 'viewers']);
+
+export function parseEligibilityQuery(raw?: string): 'all' | ChatterEligibility[] {
+    if (!raw || raw === 'all') return 'all';
+
+    const parts = raw
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s): s is ChatterEligibility => VALID_ELIGIBILITY.has(s as ChatterEligibility));
+
+    if (parts.length === 0 || parts.length === 4) return 'all';
+    return parts;
+}
 
 async function paginateHelixLogins(
     url: string,
@@ -82,25 +103,68 @@ export const getSubscriberLogins = async (broadcasterId: string, token: string):
     return logins;
 };
 
+export const annotateChatterRoles = async (
+    chatters: ChatterRow[],
+    broadcasterId: string,
+    token: string
+): Promise<ChatterRow[]> => {
+    const [modLogins, vipLogins, subLogins] = await Promise.all([
+        getModeratorLogins(broadcasterId, token),
+        getVipLogins(broadcasterId, token),
+        getSubscriberLogins(broadcasterId, token)
+    ]);
+
+    const modSet = new Set(modLogins);
+    const vipSet = new Set(vipLogins);
+    const subSet = new Set(subLogins);
+
+    return chatters.map((c) => {
+        const login = c.user_login.toLowerCase();
+        return {
+            ...c,
+            mod: modSet.has(login),
+            vip: vipSet.has(login),
+            sub: subSet.has(login)
+        };
+    });
+};
+
 export const filterChattersByEligibility = async (
     chatters: ChatterRow[],
     broadcasterId: string,
     token: string,
-    eligibility: ChatterEligibility
+    eligibility: 'all' | ChatterEligibility[]
 ): Promise<ChatterRow[]> => {
     if (eligibility === 'all') return chatters;
 
-    let allowed: string[];
-    if (eligibility === 'mods') {
-        allowed = await getModeratorLogins(broadcasterId, token);
-    } else if (eligibility === 'vips') {
-        allowed = await getVipLogins(broadcasterId, token);
-    } else {
-        allowed = await getSubscriberLogins(broadcasterId, token);
-    }
+    const needMods = eligibility.includes('mods');
+    const needVips = eligibility.includes('vips');
+    const needSubs = eligibility.includes('subs');
+    const needViewers = eligibility.includes('viewers');
 
-    const allowedSet = new Set(allowed);
-    return chatters.filter((c) => allowedSet.has(c.user_login.toLowerCase()));
+    const [modLogins, vipLogins, subLogins] = await Promise.all([
+        needMods || needViewers ? getModeratorLogins(broadcasterId, token) : Promise.resolve([]),
+        needVips || needViewers ? getVipLogins(broadcasterId, token) : Promise.resolve([]),
+        needSubs || needViewers ? getSubscriberLogins(broadcasterId, token) : Promise.resolve([])
+    ]);
+
+    const modSet = new Set(modLogins);
+    const vipSet = new Set(vipLogins);
+    const subSet = new Set(subLogins);
+
+    return chatters.filter((c) => {
+        const login = c.user_login.toLowerCase();
+        const isMod = modSet.has(login);
+        const isVip = vipSet.has(login);
+        const isSub = subSet.has(login);
+        const isViewer = !isMod && !isVip && !isSub;
+
+        if (needMods && isMod) return true;
+        if (needVips && isVip) return true;
+        if (needSubs && isSub) return true;
+        if (needViewers && isViewer) return true;
+        return false;
+    });
 };
 
 export const getChannelInfo = async (

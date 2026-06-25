@@ -99,7 +99,8 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
 
 export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
     const channel = req.query.channel as string;
-    const eligibility = (req.query.eligibility as apiService.ChatterEligibility | undefined) ?? 'all';
+    const eligibilityRaw = req.query.eligibility as string | undefined;
+    const eligibility = apiService.parseEligibilityQuery(eligibilityRaw);
     const userId = req.userId;
 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
@@ -112,7 +113,7 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
             incrementStat: 'stalker'
         },
         async () => {
-            const cacheKey = `cache:cmd:getChatters:channel:${channel}:eligibility:${eligibility}`;
+            const cacheKey = `cache:cmd:getChatters:channel:${channel}:eligibility:${eligibilityRaw ?? 'all'}`;
             const cached = await cacheService.get(cacheKey);
             if (cached) return res.json(cached);
 
@@ -129,8 +130,13 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
                     req.twitchToken || '',
                     eligibility
                 );
-                await cacheService.set(cacheKey, filtered, CACHE_TTL.CHATTERS);
-                return res.json(filtered);
+                const annotated = await apiService.annotateChatterRoles(
+                    filtered,
+                    broadcasterId,
+                    req.twitchToken || ''
+                );
+                await cacheService.set(cacheKey, annotated, CACHE_TTL.CHATTERS);
+                return res.json(annotated);
             } catch (error: unknown) {
                 if (error instanceof TwitchApiError) throw error;
                 const err = error as Error;
