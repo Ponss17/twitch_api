@@ -53,6 +53,7 @@ jobs:
     e2e:
         runs-on: ubuntu-latest
         needs: validate
+        timeout-minutes: 25
         env:
             TWITCH_CLIENT_ID: ci_test_id
             TWITCH_CLIENT_SECRET: ci_test_secret
@@ -67,6 +68,9 @@ jobs:
             NODE_ENV: development
 
         steps:
+            - name: E2E job start
+              run: echo "Iniciando job e2e (Playwright + servidores dev)…"
+
             - uses: actions/checkout@v4
 
             - uses: pnpm/action-setup@v4
@@ -101,8 +105,20 @@ jobs:
                   NODE_ENV=development
                   EOF
 
-            - name: Install Playwright
+            - name: Cache Playwright browsers
+              uses: actions/cache@v4
+              id: playwright-cache
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
+            - name: Install Playwright (full)
+              if: steps.playwright-cache.outputs.cache-hit != 'true'
               run: pnpm exec playwright install --with-deps chromium
+
+            - name: Install Playwright (from cache)
+              if: steps.playwright-cache.outputs.cache-hit == 'true'
+              run: pnpm exec playwright install chromium
 
             - name: E2E tests
               run: pnpm test:e2e
