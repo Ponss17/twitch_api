@@ -3,7 +3,6 @@ import {
     getDashboardBasePath,
     isDashboardTab,
     parseTabFromPathname,
-    parseTabFromUrl,
     resolveDashboardTab
 } from '../../src/lib/dashboardTabUrl';
 
@@ -31,17 +30,17 @@ describe('dashboardTabUrl', () => {
     });
 
     it('parses valid tab from hash (legacy)', () => {
-        expect(parseTabFromUrl('', '#clips', `${BASE}/`)).toBe('clips');
-        expect(parseTabFromUrl('', '#shoutout', `${BASE}/`)).toBe('shoutout');
-        expect(parseTabFromUrl('', '#invalid', `${BASE}/`)).toBe('home');
+        expect(resolveDashboardTab('', '#clips', `${BASE}/`)).toBe('clips');
+        expect(resolveDashboardTab('', '#shoutout', `${BASE}/`)).toBe('shoutout');
+        expect(resolveDashboardTab('', '#invalid', `${BASE}/`)).toBe('home');
     });
 
     it('parses legacy ?tab= query when path is bare dashboard', () => {
-        expect(parseTabFromUrl('?tab=clips', '', `${BASE}/`)).toBe('clips');
-        expect(parseTabFromUrl('?tab=invalid', '', `${BASE}/`)).toBe('home');
+        expect(resolveDashboardTab('?tab=clips', '', `${BASE}/`)).toBe('clips');
+        expect(resolveDashboardTab('?tab=invalid', '', `${BASE}/`)).toBe('home');
     });
 
     it('prefers hash over legacy query on bare dashboard', () => {
-        expect(parseTabFromUrl('?tab=clips', '#shoutout', `${BASE}/`)).toBe('shoutout');
+        expect(resolveDashboardTab('?tab=clips', '#shoutout', `${BASE}/`)).toBe('shoutout');
     });
 });

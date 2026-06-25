@@ -96,6 +96,3 @@ export function filtersSummaryLabel(filters: RouletteEligibilityFilters): string
         .map(({ label }) => label)
         .join(', ');
 }
-
-/** @deprecated Usar userMatchesFilters */
-export type RouletteEligibility = 'all' | 'subs' | 'mods' | 'vips';
