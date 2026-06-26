@@ -13,7 +13,8 @@ import { HomeActivityFeed } from '@/components/views/HomeActivityFeed';
 import { HomeResourcesPanel } from '@/components/views/HomeResourcesPanel';
 import { useRequiredSession } from '@/hooks/useSession';
 import { fadeIn } from '@/lib/tw';
-import type { ActivityLogItem } from '@/lib/activityLogDisplay';
+import { activityEntryKey, type ActivityLogItem } from '@/lib/activityLogDisplay';
+import { readScopedPref, writeScopedPref } from '@/lib/localPrefs';
 import { useToast } from '@/components/ui/ToastProvider';
 import { logError } from '@/lib/logError';
 import { AlertTriangle } from 'lucide-react';
@@ -41,6 +42,8 @@ interface HomeViewProps {
 
 const POLL_MS = 90000;
 const HEALTH_POLL_MS = 300000;
+const DASHBOARD_SYNC_PREF = 'dashboard_last_sync';
+const LEGACY_DASHBOARD_SYNC_KEY = 'dashboard_last_sync';
 
 const EMPTY_STATS: AnalyticsData = {
     todayRequests: 0,
@@ -58,7 +61,9 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     const [error, setError] = useState<string | null>(null);
     const [syncing, setSyncing] = useState(false);
     const [syncLabel, setSyncLabel] = useState('90s');
+    const [highlightKeys, setHighlightKeys] = useState<ReadonlySet<string>>(() => new Set());
     const countdownRef = useRef(90);
+    const highlightTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
     const syncRef = useRef<TabSyncService | null>(null);
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const healthPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -91,6 +96,30 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
 
     markDataReadyRef.current = markDataReady;
 
+    const markActivityHighlight = useCallback((key: string) => {
+        setHighlightKeys((prev) => {
+            const next = new Set(prev);
+            next.add(key);
+            return next;
+        });
+
+        const existing = highlightTimersRef.current.get(key);
+        if (existing) clearTimeout(existing);
+
+        highlightTimersRef.current.set(
+            key,
+            setTimeout(() => {
+                highlightTimersRef.current.delete(key);
+                setHighlightKeys((prev) => {
+                    if (!prev.has(key)) return prev;
+                    const next = new Set(prev);
+                    next.delete(key);
+                    return next;
+                });
+            }, 3000)
+        );
+    }, []);
+
     const performSync = useCallback(async () => {
         const sync = syncRef.current;
         if (!sync?.getIsLeader() || !sync.isActive()) return;
@@ -100,7 +129,6 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             label: 'Obteniendo estadísticas del panel…',
             cached: false
         });
-        localStorage.setItem('dashboard_last_sync', Date.now().toString());
 
         try {
             const summaryUrl = session.login
@@ -123,6 +151,12 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             setStats(analyticsRes);
             setActivity(activityLogs);
             markDataReadyRef.current();
+            writeScopedPref(
+                DASHBOARD_SYNC_PREF,
+                session.userId,
+                Date.now().toString(),
+                LEGACY_DASHBOARD_SYNC_KEY
+            );
             reportSessionLoadProgress({
                 progress: 94,
                 label: 'Preparando tu inicio…',
@@ -170,12 +204,16 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         const sync = syncRef.current;
         if (!sync) return;
 
-        const lastSync = localStorage.getItem('dashboard_last_sync');
+        const lastSyncRaw = readScopedPref(
+            DASHBOARD_SYNC_PREF,
+            session.userId,
+            LEGACY_DASHBOARD_SYNC_KEY
+        );
         const now = Date.now();
         let countdown = Math.ceil(POLL_MS / 1000);
 
-        if (lastSync) {
-            const elapsed = now - parseInt(lastSync, 10);
+        if (lastSyncRaw) {
+            const elapsed = now - parseInt(lastSyncRaw, 10);
             if (elapsed < POLL_MS) {
                 countdown = Math.ceil((POLL_MS - elapsed) / 1000);
             } else if (sync.getIsLeader()) {
@@ -204,7 +242,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             }
             setSyncLabel(`${countdownRef.current}s`);
         }, 1000);
-    }, [performSync]);
+    }, [performSync, session.userId]);
 
     const connectRealtime = useCallback(async () => {
         const { RealtimeServiceFactory, isRealtimeInCooldown } = await loadRealtimeModule();
@@ -221,13 +259,14 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
                 markDataReadyRef.current();
             },
             onActivityInsert: (log: ActivityLogItem) => {
+                const key = activityEntryKey(log);
+                let inserted = false;
                 setActivity((prev) => {
-                    const exists = prev.some(
-                        (item) => item.timestamp === log.timestamp && item.action === log.action
-                    );
-                    if (exists) return prev;
+                    if (prev.some((item) => activityEntryKey(item) === key)) return prev;
+                    inserted = true;
                     return [log, ...prev].slice(0, 50);
                 });
+                if (inserted) markActivityHighlight(key);
             }
         };
 
@@ -273,7 +312,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             realtimeRef.current = null;
             startSmartPolling();
         }
-    }, [performSync, session, startHealthPolling, startSmartPolling]);
+    }, [markActivityHighlight, performSync, session, startHealthPolling, startSmartPolling]);
 
     connectRealtimeRef.current = connectRealtime;
 
@@ -339,6 +378,10 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             healthPollRef.current = null;
             if (syncingTimerRef.current) clearTimeout(syncingTimerRef.current);
             if (authRedirectTimerRef.current) clearTimeout(authRedirectTimerRef.current);
+            for (const timer of highlightTimersRef.current.values()) {
+                clearTimeout(timer);
+            }
+            highlightTimersRef.current.clear();
             sync.destroy();
             syncRef.current = null;
             realtimeRef.current?.pause();
@@ -374,6 +417,8 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
                     syncing={syncing}
                     syncLabel={syncLabel}
                     isLoading={!hasLiveData}
+                    isLive={syncLabel === 'Realtime'}
+                    highlightKeys={highlightKeys}
                 />
                 <HomeResourcesPanel onNavigate={onNavigate} />
             </div>

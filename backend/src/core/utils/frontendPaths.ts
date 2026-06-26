@@ -27,3 +27,12 @@ export function frontendPagePath(page: string, search = ''): string {
         return `${mounted}${suffix}`;
     }
 }
+
+/** Fin de la ventana de rate limit (ms epoch) para redirigir a /429?until=… */
+export function rateLimitWindowEnd(windowMs: number, now = Date.now()): number {
+    return Math.floor(now / windowMs) * windowMs + windowMs;
+}
+
+export function rateLimitPagePath(windowMs: number): string {
+    return frontendPagePath('/429', `until=${rateLimitWindowEnd(windowMs)}`);
+}

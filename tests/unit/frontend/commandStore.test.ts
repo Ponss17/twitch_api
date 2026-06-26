@@ -1,10 +1,19 @@
 import {
+    bindCommandStoreUser,
     getCommandConfig,
     setCommandConfig,
     subscribeCommandStore
 } from '@/lib/commandStore';
 
 describe('commandStore', () => {
+    beforeEach(() => {
+        localStorage.clear();
+        bindCommandStoreUser('test-user');
+    });
+
+    afterEach(() => {
+        bindCommandStoreUser(undefined);
+    });
     it('getCommandConfig devuelve referencia estable para ids sin guardar', () => {
         const id = `missing-${Date.now()}`;
         const a = getCommandConfig(id);
@@ -34,5 +43,18 @@ describe('commandStore', () => {
         expect(before.template).toBe('');
         expect(after).not.toBe(before);
         expect(after.template).toBe('!clip');
+    });
+
+    it('bindCommandStoreUser aísla configs entre cuentas', () => {
+        const id = 'shared-command';
+
+        bindCommandStoreUser('user-a');
+        setCommandConfig(id, { bot: 'streamelements' });
+
+        bindCommandStoreUser('user-b');
+        expect(getCommandConfig(id).bot).toBe('nightbot');
+
+        bindCommandStoreUser('user-a');
+        expect(getCommandConfig(id).bot).toBe('streamelements');
     });
 });

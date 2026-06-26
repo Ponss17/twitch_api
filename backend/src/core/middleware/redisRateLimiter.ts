@@ -6,7 +6,7 @@ import { MESSAGES } from '../config/messages';
 import { isPublicRoute, isApiRoute } from '../utils/routeHelpers';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { logger } from '../utils/logger';
-import { frontendPagePath } from '../utils/frontendPaths';
+import { rateLimitPagePath } from '../utils/frontendPaths';
 
 import { BoundedMap } from '../utils/boundedCache';
 
@@ -114,7 +114,7 @@ async function handleLimitExceeded(req: Request, res: Response, cleanPath: strin
     const message = MESSAGES.AUTH.RATE_LIMIT_EXCEEDED;
 
     if (typeof req.headers.accept === 'string' && req.headers.accept.includes('text/html')) {
-        return res.redirect(302, frontendPagePath('/429'));
+        return res.redirect(302, rateLimitPagePath(60_000));
     }
 
     if (isApiRoute(cleanPath)) {
@@ -194,7 +194,7 @@ export const authRateLimiter = async (req: Request, res: Response, next: NextFun
                 typeof req.headers.accept === 'string' &&
                 req.headers.accept.includes('text/html')
             ) {
-                return res.redirect(302, frontendPagePath('/429'));
+                return res.redirect(302, rateLimitPagePath(windowSeconds * 1000));
             }
             return res.status(429).json({
                 error: 'Too Many Requests',

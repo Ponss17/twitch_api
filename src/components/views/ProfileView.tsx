@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS } from '@/lib/config';
 import { authHeaders, saveSession } from '@/lib/auth';
+import { readScopedPref, writeScopedPref } from '@/lib/localPrefs';
 import { extractApiErrorMessage } from '@/lib/apiError';
 import { useRequiredSession, useSession } from '@/hooks/useSession';
 import { maskApiKey } from '@/lib/utils';
@@ -47,6 +48,10 @@ function broadcasterLabel(type?: string): string {
     return 'Streamer';
 }
 
+const PROFILE_SYNC_PREF = 'profile_last_sync';
+const LEGACY_PROFILE_SYNC_KEY = 'profile_last_sync';
+const PROFILE_POLL_MS = 120000;
+
 export function ProfileView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
     const { refresh } = useSession();
@@ -88,7 +93,12 @@ export function ProfileView({ active = true }: { active?: boolean }) {
             const data = await res.json();
             if (data.profile) setProfile(data.profile);
             if (data.analytics) setAnalytics(data.analytics);
-            localStorage.setItem('profile_last_sync', Date.now().toString());
+            writeScopedPref(
+                PROFILE_SYNC_PREF,
+                session.userId,
+                Date.now().toString(),
+                LEGACY_PROFILE_SYNC_KEY
+            );
         } catch {
             showToast('Error al cargar perfil', 'error');
         } finally {
@@ -99,18 +109,21 @@ export function ProfileView({ active = true }: { active?: boolean }) {
     };
 
     const startProfilePolling = () => {
-        const pollMs = 120000;
-        const lastSync = localStorage.getItem('profile_last_sync');
+        const lastSyncRaw = readScopedPref(
+            PROFILE_SYNC_PREF,
+            session.userId,
+            LEGACY_PROFILE_SYNC_KEY
+        );
         const now = Date.now();
-        let countdown = 120;
+        let countdown = PROFILE_POLL_MS / 1000;
 
         // Siempre cargar al abrir la pestaña; el throttle solo aplica al polling en background.
         void syncProfile();
 
-        if (lastSync) {
-            const elapsed = now - parseInt(lastSync, 10);
-            if (elapsed < pollMs) {
-                countdown = Math.ceil((pollMs - elapsed) / 1000);
+        if (lastSyncRaw) {
+            const elapsed = now - parseInt(lastSyncRaw, 10);
+            if (elapsed < PROFILE_POLL_MS) {
+                countdown = Math.ceil((PROFILE_POLL_MS - elapsed) / 1000);
             }
         }
 
@@ -123,7 +136,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                 let next = prev - 1;
                 if (next <= 0) {
                     void syncProfile();
-                    next = 120;
+                    next = PROFILE_POLL_MS / 1000;
                 }
                 return next;
             });

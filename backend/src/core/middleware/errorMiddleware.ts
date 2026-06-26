@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { logger, clearRequestId, getRequestId, asyncContext } from '../utils/logger';
 
 import { isBotCommand, isApiRoute, isJsonApiRoute } from '../utils/routeHelpers';
-import { frontendPagePath } from '../utils/frontendPaths';
+import { frontendPagePath, rateLimitPagePath } from '../utils/frontendPaths';
 import { jsonError } from '../utils/jsonResponse';
 
 export const errorHandler = async (
@@ -57,7 +57,7 @@ export const errorHandler = async (
             return res.redirect(302, frontendPagePath('/404'));
         }
         if (status === 429) {
-            return res.redirect(302, frontendPagePath('/429'));
+            return res.redirect(302, rateLimitPagePath(60_000));
         }
         return res.redirect(302, frontendPagePath('/500'));
     }

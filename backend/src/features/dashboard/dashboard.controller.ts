@@ -5,7 +5,7 @@ import * as cacheService from '../../core/database/cacheService';
 import { CACHE_TTL } from '../../core/config/cacheTtl';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
-import { computeAnalyticsFromStats, formatActivityLog } from '../../core/utils/dashboardHelpers';
+import { computeAnalyticsFromStats } from '../../core/utils/dashboardHelpers';
 import { buildDashboardProfile } from '../../core/utils/dashboardProfile';
 
 import { AuthenticatedRequest } from '../../types/twitch';
@@ -54,11 +54,7 @@ export const getLogs = async (req: AuthenticatedRequest, res: Response) => {
 
     try {
         const logs = await dbService.getUserActivity(userId);
-        const formattedLogs = logs.map((log: { type: string; user: string; detail?: string }) => ({
-            ...log,
-            action: formatActivityLog(log)
-        }));
-        res.json(formattedLogs);
+        res.json(logs);
     } catch (e) {
         logger.error('Error logs activity:', e);
         return jsonError(res, 500, MESSAGES.DASHBOARD.LOGS_ERROR);
@@ -130,13 +126,16 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
                     req.twitchToken || '',
                     eligibility
                 );
-                const annotated = await apiService.annotateChatterRoles(
-                    filtered,
-                    broadcasterId,
-                    req.twitchToken || ''
-                );
-                await cacheService.set(cacheKey, annotated, CACHE_TTL.CHATTERS);
-                return res.json(annotated);
+                const payload =
+                    eligibility === 'all'
+                        ? filtered
+                        : await apiService.annotateChatterRoles(
+                              filtered,
+                              broadcasterId,
+                              req.twitchToken || ''
+                          );
+                await cacheService.set(cacheKey, payload, CACHE_TTL.CHATTERS);
+                return res.json(payload);
             } catch (error: unknown) {
                 if (error instanceof TwitchApiError) throw error;
                 const err = error as Error;
@@ -222,7 +221,7 @@ export const clearUserData = async (req: AuthenticatedRequest, res: Response) =>
     try {
         await dbService.clearUserStatsAndLogs(userId);
         await cacheService.invalidateDashboardCache(userId, req.login);
-        res.json({ success: true, message: 'Estad√≠sticas y actividad reiniciadas correctamente.' });
+        res.json({ success: true, message: 'Estadùsticas y actividad reiniciadas correctamente.' });
     } catch (e) {
         logger.error('Error clearing user data:', e);
         return jsonError(res, 500, MESSAGES.DASHBOARD.ANALYTICS_ERROR);
@@ -318,7 +317,7 @@ export const updateTimezone = async (req: AuthenticatedRequest, res: Response) =
 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
     if (!timezone || typeof timezone !== 'string')
-        return jsonError(res, 400, 'Timezone inv√°lida');
+        return jsonError(res, 400, 'Timezone invùlida');
 
     try {
         await dbService.updateUserTimezone(userId, timezone);
@@ -350,7 +349,7 @@ export const exportCheck = async (req: AuthenticatedRequest, res: Response) => {
         res.json({ success: true });
     } catch (e) {
         logger.error('Error checking export rate limit:', e);
-        return jsonError(res, 500, 'Error al verificar l√≠mite de exportaci√≥n.');
+        return jsonError(res, 500, 'Error al verificar lùmite de exportaciùn.');
     }
 };
 
@@ -366,6 +365,6 @@ export const recordExportComplete = async (req: AuthenticatedRequest, res: Respo
         res.json({ success: true });
     } catch (e) {
         logger.error('Error recording export cooldown:', e);
-        return jsonError(res, 500, 'Error al registrar exportaci√≥n.');
+        return jsonError(res, 500, 'Error al registrar exportaciùn.');
     }
 };

@@ -30,17 +30,21 @@ export function DashboardApp() {
 
 function DashboardAppShell() {
     const { session, loading, authenticated } = useSession();
+    const userId = session?.userId;
     const [tab, setTabState] = useState<DashboardTab>(() => resolveDashboardTab());
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const [splashOpen, setSplashOpen] = useState(() => shouldShowDashboardSplash());
     const [splashDone, setSplashDone] = useState(false);
 
-    const setTab = useCallback((next: DashboardTab) => {
-        setTabState(next);
-        setTabInUrl(next);
-        persistPanelReturnPath();
-    }, []);
+    const setTab = useCallback(
+        (next: DashboardTab) => {
+            setTabState(next);
+            setTabInUrl(next, { userId });
+            persistPanelReturnPath();
+        },
+        [userId]
+    );
 
     useEffect(() => {
         initGlobalErrorLogging();
@@ -48,7 +52,7 @@ function DashboardAppShell() {
 
     useEffect(() => {
         const syncFromUrl = () => {
-            setTabState(resolveDashboardTab());
+            setTabState(resolveDashboardTab(undefined, undefined, undefined, userId));
             persistPanelReturnPath();
         };
         window.addEventListener('popstate', syncFromUrl);
@@ -57,15 +61,15 @@ function DashboardAppShell() {
             window.removeEventListener('popstate', syncFromUrl);
             window.removeEventListener('hashchange', syncFromUrl);
         };
-    }, []);
+    }, [userId]);
 
     // Canonicaliza URL (path-based) y migra hash/?tab= legacy al montar
     useEffect(() => {
-        const resolved = resolveDashboardTab();
+        const resolved = resolveDashboardTab(undefined, undefined, undefined, userId);
         setTabState(resolved);
-        setTabInUrl(resolved, { replace: true });
+        setTabInUrl(resolved, { replace: true, userId });
         persistPanelReturnPath();
-    }, []);
+    }, [userId]);
 
     // Escuchar cuando el Home ya cargó los datos
     useEffect(() => {
