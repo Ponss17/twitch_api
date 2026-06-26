@@ -1,6 +1,6 @@
-import { Dices, Pause, RotateCw, Loader2, Play, Users } from 'lucide-react';
+import { Crown, Dices, Loader2, MessageSquare, Pause, Play, RotateCw, Sparkles, Users } from 'lucide-react';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type TransitionEvent } from 'react';
 import { API_ENDPOINTS, IGNORED_BOTS } from '@/lib/config';
 import { authHeaders } from '@/lib/auth';
 import { buildAuthQueryParam } from '@/lib/authQuery';
@@ -8,6 +8,7 @@ import { useRequiredSession } from '@/hooks/useSession';
 import { getTmiAuth, tmiService } from '@/lib/tmiService';
 import type { RouletteUser } from '@/lib/twitchTypes';
 import { card, fadeIn } from '@/lib/tw';
+import { readScopedPref, writeScopedPref } from '@/lib/localPrefs';
 import {
     DEFAULT_ELIGIBILITY_FILTERS,
     filtersToApiParam,
@@ -23,8 +24,51 @@ import { useToast } from '@/components/ui/ToastProvider';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import confetti from 'canvas-confetti';
 
-const COLORS = ['#9146ff', '#772ce8', '#3b82f6', '#06b6d4', '#10b981', '#eab308', '#f97316', '#ef4444'];
+/** Paleta morada/violeta alineada al brand; alterna tonos para distinguir segmentos */
+const WHEEL_HUES = [272, 258, 286, 248, 278, 264, 282, 252] as const;
+
+function segmentColors(index: number): { inner: string; outer: string; divider: string } {
+    const hue = WHEEL_HUES[index % WHEEL_HUES.length];
+    const even = index % 2 === 0;
+    return {
+        inner: even ? `hsl(${hue} 52% 46%)` : `hsl(${hue} 48% 38%)`,
+        outer: even ? `hsl(${hue} 55% 30%)` : `hsl(${hue} 50% 24%)`,
+        divider: 'rgba(255,255,255,0.14)'
+    };
+}
+
+function WheelPointer() {
+    return (
+        <svg
+            width="28"
+            height="34"
+            viewBox="0 0 28 34"
+            className="drop-shadow-[0_4px_10px_rgba(0,0,0,0.55)]"
+            aria-hidden
+        >
+            <path
+                d="M14 2 L25 30 Q14 26 3 30 Z"
+                fill="#fafafa"
+                stroke="rgba(145,70,255,0.45)"
+                strokeWidth="1"
+            />
+            <circle cx="14" cy="7" r="3.5" fill="#9146ff" />
+        </svg>
+    );
+}
+
 const LISTENER_ID = 'roulette';
+const ANNOUNCE_WINNER_PREF = 'roulette_announce_winner';
+const LEGACY_ANNOUNCE_WINNER_KEY = 'roulette_announce_winner_in_chat';
+
+function readAnnounceWinnerPref(userId: string): boolean {
+    const stored = readScopedPref(ANNOUNCE_WINNER_PREF, userId, LEGACY_ANNOUNCE_WINNER_KEY);
+    return stored === null ? true : stored === '1';
+}
+
+function writeAnnounceWinnerPref(userId: string, enabled: boolean): void {
+    writeScopedPref(ANNOUNCE_WINNER_PREF, userId, enabled ? '1' : '0', LEGACY_ANNOUNCE_WINNER_KEY);
+}
 
 function truncateLabel(name: string, max = 12): string {
     return name.length > max ? `${name.slice(0, max - 1)}…` : name;
@@ -46,31 +90,28 @@ export function RouletteView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
     const { showToast } = useToast();
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const wheelWrapRef = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLUListElement>(null);
-    const rotationDegRef = useRef(0);
+    const [wheelRotation, setWheelRotation] = useState(0);
+    const [wheelTransition, setWheelTransition] = useState('none');
+    const spinMetaRef = useRef<{
+        targetRotation: number;
+        participants: RouletteUser[];
+    } | null>(null);
     const [chatters, setChatters] = useState<RouletteUser[]>([]);
     const [filters, setFilters] = useState<RouletteEligibilityFilters>(DEFAULT_ELIGIBILITY_FILTERS);
     const [isOpen, setIsOpen] = useState(false);
     const [isSpinning, setIsSpinning] = useState(false);
     const [winner, setWinner] = useState<RouletteUser | null>(null);
     const [countPulse, setCountPulse] = useState(false);
-    const spinRef = useRef<number | null>(null);
     const pulseTimerRef = useRef<number | null>(null);
     const [lastSpinCount, setLastSpinCount] = useState(0);
+    const [announceWinnerInChat, setAnnounceWinnerInChat] = useState(true);
     const isOpenRef = useRef(isOpen);
     const isSpinningRef = useRef(isSpinning);
     const filtersRef = useRef(filters);
     isOpenRef.current = isOpen;
     isSpinningRef.current = isSpinning;
     filtersRef.current = filters;
-
-    const applyRotation = useCallback((deg: number) => {
-        rotationDegRef.current = deg;
-        if (wheelWrapRef.current) {
-            wheelWrapRef.current.style.transform = `rotate(${deg}deg)`;
-        }
-    }, []);
 
     const pulseCounter = useCallback(() => {
         setCountPulse(true);
@@ -88,14 +129,14 @@ export function RouletteView({ active = true }: { active?: boolean }) {
 
         ctx.beginPath();
         ctx.arc(cx, cy, outsideRadius + 12, 0, 2 * Math.PI);
-        ctx.fillStyle = '#0c0a12';
+        ctx.fillStyle = '#0a0810';
         ctx.fill();
 
-        const grad = ctx.createRadialGradient(cx, cy, insideRadius, cx, cy, outsideRadius);
-        grad.addColorStop(0, '#1a1625');
-        grad.addColorStop(1, '#14101f');
+        const emptyGrad = ctx.createRadialGradient(cx, cy, insideRadius, cx, cy, outsideRadius);
+        emptyGrad.addColorStop(0, 'hsl(272 45% 22%)');
+        emptyGrad.addColorStop(1, 'hsl(268 40% 14%)');
 
-        ctx.fillStyle = grad;
+        ctx.fillStyle = emptyGrad;
         ctx.beginPath();
         ctx.arc(cx, cy, outsideRadius, 0, 2 * Math.PI);
         ctx.arc(cx, cy, insideRadius, 0, 2 * Math.PI, true);
@@ -141,16 +182,15 @@ export function RouletteView({ active = true }: { active?: boolean }) {
 
             ctx.beginPath();
             ctx.arc(cx, cy, outsideRadius + 12, 0, 2 * Math.PI);
-            ctx.fillStyle = '#08060d';
+            ctx.fillStyle = '#07050c';
             ctx.fill();
 
             if (len === 1) {
-                const baseColor = COLORS[0];
-                const grad = ctx.createRadialGradient(cx, cy, insideRadius, cx, cy, outsideRadius);
-                grad.addColorStop(0, baseColor);
-                grad.addColorStop(1, baseColor + 'cc');
+                const ringGrad = ctx.createRadialGradient(cx, cy, insideRadius, cx, cy, outsideRadius);
+                ringGrad.addColorStop(0, 'hsl(272 58% 52%)');
+                ringGrad.addColorStop(1, 'hsl(268 55% 32%)');
 
-                ctx.fillStyle = grad;
+                ctx.fillStyle = ringGrad;
                 ctx.beginPath();
                 ctx.arc(cx, cy, outsideRadius, 0, 2 * Math.PI);
                 ctx.arc(cx, cy, insideRadius, 0, 2 * Math.PI, true);
@@ -167,12 +207,12 @@ export function RouletteView({ active = true }: { active?: boolean }) {
 
                 for (let i = 0; i < segments; i++) {
                     const angle = i * arc;
-                    const baseColor = COLORS[i % COLORS.length];
+                    const { inner, outer, divider } = segmentColors(i);
                     const participant = users[i];
 
                     const grad = ctx.createRadialGradient(cx, cy, insideRadius, cx, cy, outsideRadius);
-                    grad.addColorStop(0, baseColor);
-                    grad.addColorStop(1, baseColor + 'cc');
+                    grad.addColorStop(0, inner);
+                    grad.addColorStop(1, outer);
 
                     ctx.fillStyle = grad;
                     ctx.beginPath();
@@ -184,7 +224,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     ctx.beginPath();
                     ctx.moveTo(cx + Math.cos(angle) * insideRadius, cy + Math.sin(angle) * insideRadius);
                     ctx.lineTo(cx + Math.cos(angle) * outsideRadius, cy + Math.sin(angle) * outsideRadius);
-                    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+                    ctx.strokeStyle = divider;
                     ctx.lineWidth = 2;
                     ctx.stroke();
 
@@ -370,53 +410,68 @@ export function RouletteView({ active = true }: { active?: boolean }) {
         setWinner(null);
         drawWheel(participants, { labels: false });
 
-        const startRotation = rotationDegRef.current;
         const extraTurns = 5 + Math.random() * 4;
         const totalDelta = 360 * extraTurns + Math.random() * 360;
         const duration = 4200 + Math.random() * 2800;
-        let startTime: number | null = null;
+        const targetRotation = wheelRotation + totalDelta;
 
-        const finishSpin = (finalRotation: number) => {
-            applyRotation(finalRotation);
-            setIsSpinning(false);
-            drawWheel(participants, { labels: true });
+        spinMetaRef.current = { targetRotation, participants };
 
-            const index = winnerIndex(finalRotation, participants.length);
-            const picked = participants[index];
-            setWinner(picked);
+        const prefersReducedMotion =
+            typeof window !== 'undefined' &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-            const count = participants.length;
-            setLastSpinCount(count);
-            showToast(`Ganador: @${picked.user_name} (${count})`, 'success');
-            sendWinnerMessage(
-                `🏆 ¡El ganador es @${picked.user_name}! (De ${count} participantes) ¡Felicidades! 🎉`
-            );
-            confetti({
-                particleCount: 200,
-                spread: 100,
-                origin: { y: 0.5 },
-                colors: ['#9146ff', '#f59e0b', '#10b981', '#ec4899', '#3b82f6']
-            });
-        };
+        if (prefersReducedMotion) {
+            setWheelRotation(targetRotation);
+            setWheelTransition('none');
+            finishSpin(targetRotation, participants);
+            return;
+        }
 
-        const animate = (timestamp: number) => {
-            if (!startTime) startTime = timestamp;
-            const elapsed = timestamp - startTime;
-
-            if (elapsed >= duration) {
-                if (spinRef.current) cancelAnimationFrame(spinRef.current);
-                finishSpin(startRotation + totalDelta);
-                return;
-            }
-
-            const t = elapsed / duration;
-            const eased = 1 - Math.pow(1 - t, 4);
-            applyRotation(startRotation + totalDelta * eased);
-            spinRef.current = requestAnimationFrame(animate);
-        };
-
-        spinRef.current = requestAnimationFrame(animate);
+        setWheelTransition('none');
+        requestAnimationFrame(() => {
+            setWheelTransition(`transform ${Math.round(duration)}ms cubic-bezier(0.15, 0.85, 0.25, 1)`);
+            setWheelRotation(targetRotation);
+        });
     };
+
+    const finishSpin = (finalRotation: number, participants: RouletteUser[]) => {
+        setWheelTransition('none');
+        setIsSpinning(false);
+        drawWheel(participants, { labels: true });
+
+        const index = winnerIndex(finalRotation, participants.length);
+        const picked = participants[index];
+        setWinner(picked);
+
+        const count = participants.length;
+        setLastSpinCount(count);
+        showToast(`Ganador: @${picked.user_name} (${count})`, 'success');
+        if (announceWinnerInChat) {
+            sendWinnerMessage(
+                `¡El ganador es @${picked.user_name}! (De ${count} participantes) ¡Felicidades!`
+            );
+        }
+        confetti({
+            particleCount: 200,
+            spread: 100,
+            origin: { y: 0.5 },
+            colors: ['#9146ff', '#a78bfa', '#7c3aed', '#c4b5fd', '#6d28d9']
+        });
+    };
+
+    const onWheelTransitionEnd = (e: TransitionEvent<HTMLDivElement>) => {
+        if (e.propertyName !== 'transform') return;
+        const meta = spinMetaRef.current;
+        if (!meta || !isSpinningRef.current) return;
+        spinMetaRef.current = null;
+        finishSpin(meta.targetRotation, meta.participants);
+    };
+
+    useEffect(() => {
+        if (!session.userId) return;
+        setAnnounceWinnerInChat(readAnnounceWinnerPref(session.userId));
+    }, [session.userId]);
 
     useEffect(() => {
         setChatters((prev) => prev.filter((u) => userMatchesFilters(u, filters)));
@@ -431,7 +486,6 @@ export function RouletteView({ active = true }: { active?: boolean }) {
 
     useEffect(() => {
         if (active) return;
-        if (spinRef.current) cancelAnimationFrame(spinRef.current);
         tmiService.removeListener(LISTENER_ID);
         tmiService.disconnect();
         setIsOpen(false);
@@ -439,7 +493,6 @@ export function RouletteView({ active = true }: { active?: boolean }) {
 
     useEffect(() => {
         return () => {
-            if (spinRef.current) cancelAnimationFrame(spinRef.current);
             if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
             tmiService.removeListener(LISTENER_ID);
             tmiService.disconnect();
@@ -465,6 +518,42 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         disabled={isSpinning}
                         onChange={setFilters}
                     />
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            if (!session.userId) return;
+                            setAnnounceWinnerInChat((prev) => {
+                                const next = !prev;
+                                writeAnnounceWinnerPref(session.userId!, next);
+                                showToast(
+                                    next ? 'Ganador visible en chat' : 'Ganador solo en panel',
+                                    'info'
+                                );
+                                return next;
+                            });
+                        }}
+                        disabled={isSpinning}
+                        title={
+                            announceWinnerInChat
+                                ? 'Anunciar ganador en chat (activado)'
+                                : 'No anunciar ganador en chat (desactivado)'
+                        }
+                        aria-pressed={announceWinnerInChat}
+                        aria-label={
+                            announceWinnerInChat
+                                ? 'Anunciar ganador en chat, activado'
+                                : 'Anunciar ganador en chat, desactivado'
+                        }
+                        className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[0.75rem] font-semibold transition hover:bg-white/5 disabled:opacity-50 ${
+                            announceWinnerInChat
+                                ? 'border-primary/35 bg-primary/10 text-primary'
+                                : 'border-white/10 bg-white/[0.03] text-[#71717a]'
+                        }`}
+                    >
+                        <MessageSquare className="size-3.5 shrink-0" aria-hidden />
+                        En chat
+                    </button>
 
                     <span
                         className={`inline-block rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-[0.6875rem] font-bold tracking-wide text-[#a78bfa] transition ${
@@ -499,7 +588,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         <RotateCw className="w-4 h-4" />
                     </button>
 
-                    <InfoTooltip text="Sorteo en vivo. Abre el menú para elegir quién puede participar (Subs, Mods, VIPs, Viewers)." />
+                    <InfoTooltip text="Sorteo en vivo. Elige quién puede participar y si el ganador se anuncia en el chat de Twitch (botón Chat)." />
                 </div>
             </div>
 
@@ -515,11 +604,14 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     />
 
                     <div
-                        ref={wheelWrapRef}
                         className={`relative h-full w-full origin-center will-change-transform ${
                             isSpinning ? 'motion-safe:brightness-110' : ''
                         }`}
-                        style={{ transform: `rotate(${rotationDegRef.current}deg)` }}
+                        style={{
+                            transform: `rotate(${wheelRotation}deg)`,
+                            transition: wheelTransition
+                        }}
+                        onTransitionEnd={onWheelTransitionEnd}
                     >
                         <canvas
                             ref={canvasRef}
@@ -530,11 +622,10 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     </div>
 
                     <div
-                        className="pointer-events-none absolute top-2.5 left-1/2 z-20 -translate-x-1/2 drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)]"
+                        className="pointer-events-none absolute top-1 left-1/2 z-20 -translate-x-1/2"
                         aria-hidden
                     >
-                        <div className="h-0 w-0 border-x-[14px] border-t-[26px] border-x-transparent border-t-[#fafafa]" />
-                        <div className="mx-auto -mt-px h-1.5 w-1.5 rounded-full bg-[#fafafa]" />
+                        <WheelPointer />
                     </div>
 
                     <div
@@ -586,19 +677,29 @@ export function RouletteView({ active = true }: { active?: boolean }) {
 
                     {winner && (
                         <div className="absolute inset-0 z-30 flex items-center justify-center rounded-xl bg-black/60 backdrop-blur-[4px]">
-                            <div className="animate-[bounceIn_0.6s_cubic-bezier(0.68,-0.55,0.265,1.55)_forwards] rounded-2xl border-2 border-primary bg-bg-secondary px-10 py-5 text-center opacity-0 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
-                                <div
-                                    className="mb-2.5 text-[1.8rem] font-extrabold text-[#fafafa]"
-                                    style={{ textShadow: '0 0 20px rgba(145, 70, 255, 0.8)' }}
-                                >
-                                    👑 Ganador:{' '}
-                                    <strong className="text-primary">{winner.user_name}</strong>{' '}
-                                    <span className="text-[0.9em] opacity-80">({lastSpinCount || chatters.length})</span>
+                            <div className="animate-[bounceIn_0.6s_cubic-bezier(0.68,-0.55,0.265,1.55)_forwards] rounded-2xl border border-primary/40 bg-bg-secondary px-8 py-6 text-center opacity-0 shadow-[0_10px_40px_rgba(0,0,0,0.5),0_0_32px_rgba(145,70,255,0.15)] max-[480px]:px-6">
+                                <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full border border-amber-400/30 bg-amber-400/10">
+                                    <Crown className="size-6 text-amber-400" aria-hidden />
                                 </div>
+                                <p className="mb-1 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-[#a1a1aa]">
+                                    Ganador
+                                </p>
+                                <p className="mb-1 text-[1.6rem] font-extrabold leading-tight text-primary">
+                                    {winner.user_name}
+                                </p>
+                                <p className="mb-4 flex items-center justify-center gap-1.5 text-[0.85rem] text-[#a1a1aa]">
+                                    <Sparkles className="size-3.5 text-primary" aria-hidden />
+                                    {lastSpinCount || chatters.length} participantes
+                                </p>
+                                {!announceWinnerInChat ? (
+                                    <p className="mb-3 text-[0.75rem] text-[#71717a]">
+                                        No anunciado en chat (opción desactivada)
+                                    </p>
+                                ) : null}
                                 <button
                                     type="button"
                                     onClick={() => setWinner(null)}
-                                    className="mt-2.5 inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/10 px-5 py-2 text-[0.8125rem] font-semibold text-[#fafafa] transition hover:border-white/30 hover:bg-white/15"
+                                    className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/10 px-5 py-2 text-[0.8125rem] font-semibold text-[#fafafa] transition hover:border-white/30 hover:bg-white/15"
                                 >
                                     Cerrar
                                 </button>

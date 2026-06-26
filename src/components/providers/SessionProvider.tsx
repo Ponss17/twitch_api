@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { bindCommandStoreUser } from '@/lib/commandStore';
 import {
     initAuthSync,
     validateSession,
@@ -54,6 +55,7 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
         const sessionParams = await resolveSessionFromUrl();
 
         if (!sessionParams.token && !sessionParams.apiKey) {
+            bindCommandStoreUser(undefined);
             setSession(null);
             setLoading(false);
             setAuthenticated(false);
@@ -85,6 +87,8 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
                 : sessionParams;
             const enriched = mergeSessionFromValidate(baseSession, result);
 
+            bindCommandStoreUser(enriched.userId);
+
             if (sessionParams.isNewLogin) {
                 stripSensitiveQueryParams();
             }
@@ -111,6 +115,7 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
         setSession(null);
         setAuthenticated(false);
         setLoading(false);
+        bindCommandStoreUser(undefined);
 
         if (requireAuth) {
             clearSession();
