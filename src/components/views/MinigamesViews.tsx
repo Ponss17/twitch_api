@@ -173,7 +173,7 @@ export function Magic8View() {
                             value={question}
                             onChange={(e) => setQuestion(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && void ask()}
-                            placeholder="¿Debo comprar bitcoin?"
+                            placeholder="Ej: ella me quiere, ¿debo streamear hoy?"
                             className={textInput}
                             disabled={result.status === 'loading'}
                         />
