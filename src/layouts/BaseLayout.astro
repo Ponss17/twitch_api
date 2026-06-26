@@ -1,5 +1,14 @@
 ---
+import '../styles/global.css';
+import { Footer } from '../components/layout/Footer';
+import SpeedInsights from '@vercel/speed-insights/astro';
+import { staticPath, absoluteAssetUrl } from '../lib/paths';
+import { pageTitle } from '../lib/pageTitle';
+
 export interface Props {
+    /** Nombre de la página; se formatea como «Página | LosPerris». */
+    page?: string;
+    /** Título completo del documento (anula `page` si se pasa). */
     title?: string;
     description?: string;
     canonical?: string;
@@ -15,7 +24,8 @@ export interface Props {
 }
 
 const {
-    title = 'LosPerris Twitch API',
+    page,
+    title,
     description = 'Comandos y herramientas para streamers',
     canonical,
     keywords = 'Twitch API, comandos twitch, bot twitch gratis, followage, minijuegos twitch, herramientas para streamers, losperris',
@@ -28,14 +38,11 @@ const {
     footer = false
 } = Astro.props;
 
-import '../styles/global.css';
-import { Footer } from '../components/layout/Footer';
-import SpeedInsights from '@vercel/speed-insights/astro';
-import { staticPath, absoluteAssetUrl } from '../lib/paths';
+const documentTitle = title ?? (page ? pageTitle(page) : pageTitle('Inicio'));
 
 const siteOrigin = canonical ? new URL(canonical).origin : Astro.url.origin;
 const canonicalUrl = canonical ?? Astro.url.href;
-const shareTitle = ogTitle ?? title;
+const shareTitle = ogTitle ?? documentTitle;
 const shareDesc = ogDescription ?? description;
 const shareImage = ogImage ?? absoluteAssetUrl('/img/logo.svg', siteOrigin);
 const shareUrl = ogUrl ?? canonicalUrl;
@@ -73,7 +80,7 @@ const swScope = staticPath('/');
             rel="stylesheet"
             href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap"
         />
-        <title>{title}</title>
+        <title>{documentTitle}</title>
         <SpeedInsights scriptSrc="https://va.vercel-scripts.com/v1/speed-insights/script.js" />
         {isDev && (
             <script is:inline>
