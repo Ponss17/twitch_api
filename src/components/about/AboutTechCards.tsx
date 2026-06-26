@@ -1,15 +1,15 @@
-import { useCallback, useState, type CSSProperties, type ReactNode } from 'react';
+import { useCallback, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import {
     DndContext,
-    DragOverlay,
     KeyboardSensor,
     PointerSensor,
     closestCenter,
     useSensor,
     useSensors,
-    type DragEndEvent,
+    type DragOverEvent,
     type DragStartEvent
 } from '@dnd-kit/core';
+import { restrictToParentElement } from '@dnd-kit/modifiers';
 import {
     SortableContext,
     arrayMove,
@@ -26,7 +26,10 @@ const STORAGE_KEY = 'about_tech_card_order';
 const TECH_LINK = 'text-inherit underline decoration-inherit underline-offset-2';
 
 const TECH_CARD =
-    'group relative flex flex-col gap-1 rounded-xl border border-white/5 bg-white/[0.02] p-4 transition-[border-color,background-color,box-shadow,transform,opacity] duration-200 hover:border-primary/40 hover:bg-primary/[0.06]';
+    'group relative flex touch-none flex-col gap-1 rounded-xl border border-white/5 bg-[#121214] p-4 hover:border-primary/40 hover:bg-primary/[0.06]';
+
+const TECH_CARD_DRAGGING =
+    'z-20 scale-[1.02] border-primary/50 shadow-[0_12px_32px_rgba(0,0,0,0.35),0_0_20px_rgba(145,70,255,0.12)] ring-1 ring-primary/30';
 
 const DEFAULT_ORDER = ['backend', 'frontend', 'database', 'ai', 'build', 'api'] as const;
 
@@ -169,29 +172,29 @@ function TechCardContent({ card }: { card: TechCardDef }) {
     );
 }
 
-function SortableTechCard({ id, index }: { id: TechCardId; index: number }) {
+function SortableTechCard({ id, index, isSorting }: { id: TechCardId; index: number; isSorting: boolean }) {
     const card = CARD_MAP[id];
     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
-        useSortable({ id });
+        useSortable({ id, animateLayoutChanges: () => true });
 
     if (!card) return null;
 
     const style: CSSProperties = {
         transform: CSS.Transform.toString(transform),
-        transition,
-        ...animDelay(card.delay + index * 0.15)
+        transition: isDragging ? undefined : transition,
+        ...(isSorting ? {} : animDelay(card.delay + index * 0.15))
     };
 
     return (
         <div
             ref={setNodeRef}
             style={style}
-            className={`${TECH_CARD} ${aboutLegoIn} ${isDragging ? 'z-10 opacity-30' : ''}`}
+            className={`${TECH_CARD} ${isSorting ? '' : aboutLegoIn} ${isDragging ? TECH_CARD_DRAGGING : ''}`}
         >
             <button
                 ref={setActivatorNodeRef}
                 type="button"
-                className="absolute top-2.5 right-2 flex size-7 cursor-grab items-center justify-center rounded-md text-[#52525b] opacity-0 transition hover:bg-white/5 hover:text-[#a1a1aa] active:cursor-grabbing group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                className="absolute top-2.5 right-2 flex size-7 cursor-grab touch-none items-center justify-center rounded-md text-[#52525b] opacity-0 transition hover:bg-white/5 hover:text-[#a1a1aa] active:cursor-grabbing group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                 aria-label={`Reordenar tarjeta ${card.type}`}
                 {...attributes}
                 {...listeners}
@@ -206,14 +209,15 @@ function SortableTechCard({ id, index }: { id: TechCardId; index: number }) {
 export function AboutTechCards() {
     const [order, setOrder] = useState<TechCardId[]>(loadOrder);
     const [activeId, setActiveId] = useState<TechCardId | null>(null);
+    const orderRef = useRef(order);
+    orderRef.current = order;
 
     const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+        useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 
     const persistOrder = useCallback((next: TechCardId[]) => {
-        setOrder(next);
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
         } catch {
@@ -225,46 +229,49 @@ export function AboutTechCards() {
         setActiveId(active.id as TechCardId);
     };
 
-    const onDragEnd = ({ active, over }: DragEndEvent) => {
-        setActiveId(null);
+    const onDragOver = ({ active, over }: DragOverEvent) => {
         if (!over || active.id === over.id) return;
 
-        const oldIndex = order.indexOf(active.id as TechCardId);
-        const newIndex = order.indexOf(over.id as TechCardId);
-        if (oldIndex < 0 || newIndex < 0) return;
+        const activeKey = active.id as TechCardId;
+        const overKey = over.id as TechCardId;
+        const current = orderRef.current;
+        const oldIndex = current.indexOf(activeKey);
+        const newIndex = current.indexOf(overKey);
+        if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) return;
 
-        persistOrder(arrayMove(order, oldIndex, newIndex));
+        const next = arrayMove(current, oldIndex, newIndex);
+        orderRef.current = next;
+        setOrder(next);
     };
 
-    const onDragCancel = () => setActiveId(null);
+    const onDragEnd = () => {
+        setActiveId(null);
+        persistOrder(orderRef.current);
+    };
 
-    const activeCard = activeId ? CARD_MAP[activeId] : null;
+    const onDragCancel = () => {
+        setActiveId(null);
+    };
+
+    const isSorting = activeId !== null;
 
     return (
         <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
+            modifiers={[restrictToParentElement]}
             onDragStart={onDragStart}
+            onDragOver={onDragOver}
             onDragEnd={onDragEnd}
             onDragCancel={onDragCancel}
         >
             <SortableContext items={order} strategy={rectSortingStrategy}>
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
+                <div className="relative grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
                     {order.map((id, index) => (
-                        <SortableTechCard key={id} id={id} index={index} />
+                        <SortableTechCard key={id} id={id} index={index} isSorting={isSorting} />
                     ))}
                 </div>
             </SortableContext>
-
-            <DragOverlay dropAnimation={{ duration: 220, easing: 'cubic-bezier(0.25, 1, 0.5, 1)' }}>
-                {activeCard ? (
-                    <div
-                        className={`${TECH_CARD} cursor-grabbing border-primary/50 bg-[#121214] shadow-[0_16px_40px_rgba(0,0,0,0.45),0_0_24px_rgba(145,70,255,0.15)] ring-1 ring-primary/30`}
-                    >
-                        <TechCardContent card={activeCard} />
-                    </div>
-                ) : null}
-            </DragOverlay>
         </DndContext>
     );
 }
