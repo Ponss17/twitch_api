@@ -41,7 +41,7 @@ function parseApiError(text: string): string {
     }
 }
 
-function MinigameCard({
+export function MinigameCard({
     icon: Icon,
     title,
     description,
@@ -396,78 +396,3 @@ export function RussianView() {
     );
 }
 
-export function FeedbackView() {
-    const session = useRequiredSession();
-    const { showToast } = useToast();
-    const [message, setMessage] = useState('');
-    const [sending, setSending] = useState(false);
-
-    const send = async () => {
-        if (!message.trim()) {
-            showToast('Por favor, escribe un mensaje.', 'error');
-            return;
-        }
-
-        setSending(true);
-        try {
-            const body: { message: string; apiKey?: string } = { message: message.trim() };
-            if (!session.token && session.apiKey) body.apiKey = session.apiKey;
-
-            const res = await fetch(API_ENDPOINTS.FEEDBACK, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
-                body: JSON.stringify(body)
-            });
-            const data = (await res.json()) as { error?: string; message?: string };
-
-            if (res.ok) {
-                setMessage('');
-                showToast('¡Feedback enviado! Gracias por tu aporte.', 'success');
-            } else {
-                throw new Error(data.error || data.message || 'Error al enviar');
-            }
-        } catch (e) {
-            showToast((e as Error).message || 'Error al enviar. Intenta más tarde.', 'error');
-        } finally {
-            setSending(false);
-        }
-    };
-
-    return (
-        <MinigameCard
-            icon={MessageCircle}
-            title="Feedback & Sugerencias"
-            description="Ayúdanos a mejorar LosPerris API"
-            info="Tu mensaje llegará directo a nuestro Discord. ¡Gracias por ayudarnos a mejorar!"
-        >
-            <div className="flex flex-col gap-1.5">
-                <label htmlFor="feedback-message" className={inputLabel}>
-                    Tu Mensaje
-                </label>
-                <textarea
-                    id="feedback-message"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Cuéntanos qué te gustaría ver, reporta un bug, o danos tu opinión..."
-                    className={textareaXl}
-                />
-            </div>
-
-            <div className={cardFooterFlex}>
-                <p className="inline-flex max-w-[60%] items-start gap-1.5 text-[0.8125rem] text-[#71717a] max-[600px]:max-w-full">
-                    <InlineIcon icon={Shield} className="mt-0.5" />
-                    Tu mensaje se enviará de forma segura y anónima a nuestro servidor de Discord.
-                </p>
-                <button
-                    type="button"
-                    onClick={() => void send()}
-                    disabled={sending || !message.trim()}
-                    className={`${btnPrimary} shrink-0 max-[600px]:w-full max-[600px]:justify-center`}
-                >
-                    {sending ? <Loader2 className="animate-spin" /> : <Send className="w-4 h-4" />}
-                    {sending ? 'Enviando...' : 'Enviar Feedback'}
-                </button>
-            </div>
-        </MinigameCard>
-    );
-}

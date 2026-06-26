@@ -49,7 +49,7 @@ export function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
                             key={link.tab}
                             type="button"
                             onClick={() => onNavigate?.(link.tab)}
-                            className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-primary/[0.03] px-2.5 py-1.5 text-left text-[0.75rem] font-semibold text-[#a1a1aa] transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
+                            className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 py-1.5 text-left text-[0.75rem] font-semibold text-[#a1a1aa] transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
                         >
                             <IconMd icon={link.icon} />
                             {link.label}
