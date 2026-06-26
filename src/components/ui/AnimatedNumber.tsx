@@ -1,29 +1,57 @@
-import { useEffect, useRef } from 'react';
-import { animateValue } from '@/lib/animateValue';
-
-interface AnimatedNumberProps {
-    value: number;
-    duration?: number;
-    /** Suffix HTML (ej. `%` o `ms <span>...</span>`) */
-    suffix?: string;
-    className?: string;
-}
-
-export function AnimatedNumber({ value, duration = 1500, suffix = '', className }: AnimatedNumberProps) {
-    const ref = useRef<HTMLSpanElement>(null);
-    const prevRef = useRef<number | null>(null);
-
-    useEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-        animateValue(el, prevRef.current, value, duration, suffix);
-        prevRef.current = value;
-    }, [value, duration, suffix]);
-
-    return (
-        <span ref={ref} className={className}>
-            {value.toLocaleString('es-ES')}
-            {suffix && !suffix.includes('<') ? suffix : null}
-        </span>
-    );
-}
+import { useLayoutEffect, useRef } from 'react';
+import { animateValue } from '@/lib/animateValue';
+
+interface AnimatedNumberProps {
+    value: number;
+    duration?: number;
+    /** Suffix HTML (ej. `%` o `ms <span>...</span>`) */
+    suffix?: string;
+    className?: string;
+    /** Mientras carga: muestra "—" en lugar de 0 */
+    isLoading?: boolean;
+}
+
+const PLACEHOLDER_CLASS = 'text-white/35';
+
+export function AnimatedNumber({
+    value,
+    duration = 1500,
+    suffix = '',
+    className,
+    isLoading = false
+}: AnimatedNumberProps) {
+    const ref = useRef<HTMLSpanElement>(null);
+    const prevRef = useRef<number | null>(null);
+    const bootstrappedRef = useRef(false);
+    const wasLoadingRef = useRef(isLoading);
+
+    useLayoutEffect(() => {
+        if (isLoading) {
+            wasLoadingRef.current = true;
+            return;
+        }
+
+        const el = ref.current;
+        if (!el) return;
+
+        const isFirstReveal = wasLoadingRef.current || !bootstrappedRef.current;
+        const start = isFirstReveal ? 0 : prevRef.current;
+        animateValue(el, start, value, duration, suffix);
+        prevRef.current = value;
+        bootstrappedRef.current = true;
+        wasLoadingRef.current = false;
+    }, [value, duration, suffix, isLoading]);
+
+    if (isLoading) {
+        return <span className={[className, PLACEHOLDER_CLASS].filter(Boolean).join(' ')}>—</span>;
+    }
+
+    const plainSuffix = suffix && !suffix.includes('<') ? suffix : '';
+
+    return (
+        <span ref={ref} className={className}>
+            0{plainSuffix}
+        </span>
+    );
+}
+

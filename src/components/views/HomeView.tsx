@@ -15,7 +15,6 @@ import { useRequiredSession } from '@/hooks/useSession';
 import { fadeIn } from '@/lib/tw';
 import type { ActivityLogItem } from '@/lib/activityLogDisplay';
 import { useToast } from '@/components/ui/ToastProvider';
-import { HomeViewSkeleton } from '@/components/ui/Skeleton';
 import { logError } from '@/lib/logError';
 import { AlertTriangle } from 'lucide-react';
 import { reportSessionLoadProgress } from '@/lib/sessionLoadProgress';
@@ -43,13 +42,19 @@ interface HomeViewProps {
 const POLL_MS = 90000;
 const HEALTH_POLL_MS = 300000;
 
+const EMPTY_STATS: AnalyticsData = {
+    todayRequests: 0,
+    rawSuccessRate: 0,
+    avgLatencyMs: 0
+};
+
 export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     const session = useRequiredSession();
     const { showToast } = useToast();
-    const [stats, setStats] = useState<AnalyticsData | null>(null);
+    const [stats, setStats] = useState<AnalyticsData>(EMPTY_STATS);
     const [activity, setActivity] = useState<ActivityLogItem[]>([]);
+    const [hasLiveData, setHasLiveData] = useState(false);
     const [, setHealth] = useState<{ status?: string } | null>(null);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [syncing, setSyncing] = useState(false);
     const [syncLabel, setSyncLabel] = useState('90s');
@@ -68,8 +73,23 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     /** Timer de setSyncing(false) para cancelar si el componente se desmonta */
     const syncingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const authRedirectTimerRef = useRef<number | null>(null);
+    const markDataReadyRef = useRef<() => void>(() => {});
 
     const displayName = session.displayName ?? session.login ?? 'Streamer';
+
+    const markDataReady = useCallback(() => {
+        if (dataReadyFiredRef.current) return;
+        dataReadyFiredRef.current = true;
+        setHasLiveData(true);
+        reportSessionLoadProgress({
+            progress: 99,
+            label: 'Finalizando…',
+            cached: false
+        });
+        window.dispatchEvent(new CustomEvent('home:data-ready'));
+    }, []);
+
+    markDataReadyRef.current = markDataReady;
 
     const performSync = useCallback(async () => {
         const sync = syncRef.current;
@@ -102,6 +122,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
 
             setStats(analyticsRes);
             setActivity(activityLogs);
+            markDataReadyRef.current();
             reportSessionLoadProgress({
                 progress: 94,
                 label: 'Preparando tu inicio…',
@@ -162,14 +183,10 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             }
         } else if (sync.getIsLeader()) {
             void performSync();
-        } else {
-            setLoading(false);
         }
 
         countdownRef.current = countdown;
         setSyncLabel(sync.getIsLeader() ? `${countdown}s` : 'Follower');
-        // El follower espera datos del líder vía broadcast; no mostrar loading indefinido
-        if (!sync.getIsLeader()) setLoading(false);
 
         if (pollRef.current) clearInterval(pollRef.current);
         pollRef.current = setInterval(() => {
@@ -201,7 +218,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         const callbacks: RealtimeCallbacks = {
             onStatsUpdate: (next: AnalyticsData) => {
                 setStats(next);
-                setLoading(false);
+                markDataReadyRef.current();
             },
             onActivityInsert: (log: ActivityLogItem) => {
                 setActivity((prev) => {
@@ -287,7 +304,10 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         });
 
         sync.on('SYNC_ACTIVITY', (payload) => setActivity(payload as ActivityLogItem[]));
-        sync.on('SYNC_STATS', (payload) => setStats(payload as AnalyticsData));
+        sync.on('SYNC_STATS', (payload) => {
+            setStats(payload as AnalyticsData);
+            markDataReadyRef.current();
+        });
         sync.on('SYNC_HEALTH', (payload) => setHealth(payload as HealthStatus));
 
         const onVisible = () => {
@@ -327,28 +347,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         };
     }, [active]);
 
-    useEffect(() => {
-        if (stats !== null) {
-            setLoading(false);
-            // Disparar solo la primera vez que llegan datos (no en cada polling)
-            if (!dataReadyFiredRef.current) {
-                dataReadyFiredRef.current = true;
-                reportSessionLoadProgress({
-                    progress: 99,
-                    label: 'Finalizando…',
-                    cached: false
-                });
-                window.dispatchEvent(new CustomEvent('home:data-ready'));
-            }
-        }
-    }, [stats]);
-
-
-    if (loading && !stats) {
-        return <HomeViewSkeleton />;
-    }
-
-    if (error && !stats) {
+    if (error && !hasLiveData) {
         return (
             <div className="rounded-xl border border-red-500/30 bg-[#0f0f11] p-6 text-red-400">
                 <AlertTriangle className="mr-2" />
@@ -357,19 +356,25 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         );
     }
 
-    const latencyMs = stats?.avgLatencyMs ?? 0;
+    const latencyMs = stats.avgLatencyMs ?? 0;
 
     return (
         <div className={fadeIn}>
             <HomeHero
                 displayName={displayName}
-                todayRequests={stats?.todayRequests ?? 0}
-                successRate={stats?.rawSuccessRate ?? 0}
+                todayRequests={stats.todayRequests ?? 0}
+                successRate={stats.rawSuccessRate ?? 0}
                 latencyMs={latencyMs}
+                isLoading={!hasLiveData}
             />
 
             <div className="grid grid-cols-1 items-stretch gap-6 min-[1001px]:grid-cols-[1fr_300px]">
-                <HomeActivityFeed activity={activity} syncing={syncing} syncLabel={syncLabel} />
+                <HomeActivityFeed
+                    activity={activity}
+                    syncing={syncing}
+                    syncLabel={syncLabel}
+                    isLoading={!hasLiveData}
+                />
                 <HomeResourcesPanel onNavigate={onNavigate} />
             </div>
         </div>
