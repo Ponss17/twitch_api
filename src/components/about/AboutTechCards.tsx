@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import {
     DndContext,
     KeyboardSensor,
@@ -223,10 +223,15 @@ function SortableTechCard({ id, showIntro }: { id: TechCardId; showIntro: boolea
 }
 
 export function AboutTechCards() {
-    const [order, setOrder] = useState<TechCardId[]>(loadOrder);
+    /** Mismo orden en SSR y primer render del cliente (evita hydration mismatch) */
+    const [order, setOrder] = useState<TechCardId[]>(() => [...DEFAULT_ORDER]);
     const [introDone, setIntroDone] = useState(false);
     const orderRef = useRef(order);
     orderRef.current = order;
+
+    useLayoutEffect(() => {
+        setOrder(loadOrder());
+    }, []);
 
     useEffect(() => {
         const lastDelayMs = 11 * 120;
