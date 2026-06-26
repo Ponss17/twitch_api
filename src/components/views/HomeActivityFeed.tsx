@@ -8,16 +8,42 @@ interface HomeActivityFeedProps {
     activity: ActivityLogItem[];
     syncing: boolean;
     syncLabel: string;
+    isLoading?: boolean;
+}
+
+const SKELETON_ROWS = 5;
+
+function ActivityFeedSkeleton() {
+    return (
+        <div className="flex flex-col gap-1 px-1 py-2" aria-hidden>
+            {Array.from({ length: SKELETON_ROWS }, (_, i) => (
+                <div
+                    key={i}
+                    className="flex items-center gap-3 border-b border-white/[0.03] py-2.5"
+                    style={{ animationDelay: `${i * 80}ms` }}
+                >
+                    <div className="h-3.5 w-14 shrink-0 animate-pulse rounded bg-white/[0.06]" />
+                    <div
+                        className="h-3.5 animate-pulse rounded bg-white/[0.06]"
+                        style={{ width: `${58 + (i % 3) * 12}%` }}
+                    />
+                </div>
+            ))}
+        </div>
+    );
 }
 
 const LOG_DATE_DIVIDER =
     "relative mt-1 py-2 pb-1 text-center text-[0.75rem] uppercase tracking-[1px] text-[#71717a] before:absolute before:left-0 before:top-1/2 before:h-px before:w-[calc(50%-40px)] before:bg-white/[0.08] before:content-[''] after:absolute after:right-0 after:top-1/2 after:h-px after:w-[calc(50%-40px)] after:bg-white/[0.08] after:content-['']";
 
-export function HomeActivityFeed({ activity, syncing, syncLabel }: HomeActivityFeedProps) {
+export function HomeActivityFeed({ activity, syncing, syncLabel, isLoading = false }: HomeActivityFeedProps) {
     let lastDateLabel = '';
 
     return (
-        <div className={`group/card ${card} ${fadeIn} mb-0 flex h-[420px] flex-col`}>
+        <div
+            className={`group/card ${card} ${fadeIn} mb-0 flex h-[420px] flex-col`}
+            aria-busy={isLoading}
+        >
             <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
                 <div className="flex items-center gap-3">
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
@@ -45,12 +71,14 @@ export function HomeActivityFeed({ activity, syncing, syncLabel }: HomeActivityF
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden pb-5 text-[#fafafa]">
                 <div
                     className={`block h-full overflow-y-auto rounded-xl border border-white/[0.03] bg-black/15 p-4 [scrollbar-color:#9146ff_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-[10px] [&::-webkit-scrollbar-thumb]:bg-primary [&::-webkit-scrollbar]:w-1 ${
-                        activity.length === 0
+                        !isLoading && activity.length === 0
                             ? 'flex min-h-[320px] items-center justify-center !p-0'
                             : ''
                     }`}
                 >
-                    {activity.length === 0 ? (
+                    {isLoading ? (
+                        <ActivityFeedSkeleton />
+                    ) : activity.length === 0 ? (
                         <div className="flex w-full items-center justify-center gap-2 p-8 text-[0.9rem] text-[#a1a1aa] opacity-50">
                             <span className="inline-block w-0 overflow-hidden whitespace-nowrap border-r-0 tracking-[0.1em] animate-[emptyTyping_10s_steps(22)_infinite,emptyPulseOpacity_10s_infinite]">
                                 esperando actividad...

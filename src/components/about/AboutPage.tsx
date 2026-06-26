@@ -3,15 +3,11 @@ import { DiscordIcon, InstagramIcon } from '@/components/ui/icons/BrandIcons';
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { appPath, dashboardHomePath, docsReturnPath, saveDocsReturnPath, staticPath } from '@/lib/paths';
-import { aboutFadeIn, aboutLegoIn } from '@/lib/tw';
+import { aboutFadeIn } from '@/lib/tw';
+import { AboutTechCards } from '@/components/about/AboutTechCards';
 
 const NARRATIVE_CARD =
     'rounded-2xl border border-white/5 bg-white/[0.02] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:bg-primary/[0.04] hover:shadow-[0_10px_40px_rgba(0,0,0,0.5),0_0_20px_rgba(145,70,255,0.1)]';
-
-const TECH_CARD =
-    'flex flex-col gap-1 rounded-xl border border-white/5 bg-white/[0.02] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary hover:bg-primary/[0.08] hover:shadow-[0_5px_15px_rgba(0,0,0,0.4),0_0_10px_rgba(145,70,255,0.1)]';
-
-const TECH_LINK = 'text-inherit underline decoration-inherit underline-offset-2';
 
 function animDelay(delay: number): CSSProperties {
     return { animationDelay: `${delay * 0.12}s` };
@@ -56,98 +52,6 @@ function AboutHeader() {
     );
 }
 
-class SparkParticle {
-    x: number;
-    y: number;
-    size: number;
-    speedX: number;
-    speedY: number;
-    color: string;
-    life: number;
-
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-        this.size = Math.random() * 1.2 + 0.5;
-        this.speedX = (Math.random() - 0.5) * 1;
-        this.speedY = (Math.random() - 0.5) * 1;
-        this.color = '#9146ff';
-        this.life = 1;
-    }
-
-    update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        this.life -= 0.035;
-        if (this.size > 0.1) this.size -= 0.01;
-    }
-
-    draw(ctx: CanvasRenderingContext2D) {
-        ctx.globalAlpha = this.life;
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
-
-function SparksCanvas() {
-    const ref = useRef<HTMLCanvasElement>(null);
-
-    useEffect(() => {
-        const canvas = ref.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        const particles: SparkParticle[] = [];
-        let animating = false;
-        let raf = 0;
-
-        const resize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        };
-        resize();
-        window.addEventListener('resize', resize);
-
-        const animate = () => {
-            if (particles.length === 0) {
-                animating = false;
-                return;
-            }
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw(ctx);
-                if (particles[i].life <= 0) {
-                    particles.splice(i, 1);
-                    i--;
-                }
-            }
-            raf = requestAnimationFrame(animate);
-        };
-
-        const onMouseMove = (e: globalThis.MouseEvent) => {
-            particles.push(new SparkParticle(e.clientX, e.clientY));
-            if (!animating) {
-                animating = true;
-                raf = requestAnimationFrame(animate);
-            }
-        };
-
-        window.addEventListener('mousemove', onMouseMove);
-
-        return () => {
-            cancelAnimationFrame(raf);
-            window.removeEventListener('resize', resize);
-            window.removeEventListener('mousemove', onMouseMove);
-        };
-    }, []);
-
-    return <canvas ref={ref} className="pointer-events-none fixed inset-0 z-[999]" aria-hidden />;
-}
-
 const NARRATIVE_BLOCKS = [
     {
         label: '01 / UN POQUITO DE MÍ',
@@ -166,121 +70,6 @@ const NARRATIVE_BLOCKS = [
         title: 'Trabajo con mis amigos.',
         text: 'Hago todo con mis 2 amigos, aunque yo soy el principal porque tengo más entendimiento del código. También uso IA para que todo salga mas eficiente.',
         delay: 4
-    }
-] as const;
-
-const TECH_CARDS = [
-    {
-        type: 'Backend',
-        delay: 6,
-        content: (
-            <>
-                <a href="https://www.typescriptlang.org/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
-                    TypeScript
-                </a>{' '}
-                /{' '}
-                <a href="https://nodejs.org/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
-                    Node.js
-                </a>
-            </>
-        )
-    },
-    {
-        type: 'Frontend',
-        delay: 7,
-        content: (
-            <>
-                <a
-                    href="https://astro.build/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={TECH_LINK}
-                >
-                    Astro
-                </a>{' '}
-                +{' '}
-                <a
-                    href="https://react.dev/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={TECH_LINK}
-                >
-                    React
-                </a>{' '}
-                +{' '}
-                <a
-                    href="https://tailwindcss.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={TECH_LINK}
-                >
-                    Tailwind CSS
-                </a>
-            </>
-        )
-    },
-    {
-        type: 'Database',
-        delay: 8,
-        content: (
-            <>
-                <a href="https://supabase.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
-                    Supabase
-                </a>{' '}
-                +{' '}
-                <a
-                    href="https://vercel.com/docs/storage/vercel-kv"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={TECH_LINK}
-                >
-                    Vercel KV
-                </a>
-            </>
-        )
-    },
-    {
-        type: 'AI Context',
-        delay: 9,
-        content: (
-            <a href="https://console.groq.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
-                Groq SDK
-            </a>
-        )
-    },
-    {
-        type: 'Build',
-        delay: 10,
-        content: (
-            <>
-                <a href="https://esbuild.github.io/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
-                    Esbuild
-                </a>{' '}
-                /{' '}
-                <a href="https://vitejs.dev/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
-                    Vite
-                </a>
-            </>
-        )
-    },
-    {
-        type: 'API / Bot',
-        delay: 11,
-        content: (
-            <>
-                <a href="https://tmijs.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
-                    tmi.js
-                </a>{' '}
-                +{' '}
-                <a href="https://expressjs.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
-                    Express
-                </a>{' '}
-                +{' '}
-                <a href="https://zod.dev/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
-                    Zod
-                </a>
-            </>
-        )
     }
 ] as const;
 
@@ -314,7 +103,6 @@ export function AboutPage() {
 
     return (
         <div className="relative flex flex-1 flex-col overflow-x-hidden bg-bg-main font-[Outfit,Inter,system-ui,sans-serif] text-sm text-white">
-            <SparksCanvas />
             <AboutHeader />
 
             <main className="relative z-[2] mx-auto max-w-[900px] px-5 pt-20 pb-[60px] md:pt-[140px]">
@@ -392,20 +180,7 @@ export function AboutPage() {
                             <p className="mb-6 text-base leading-[1.7] text-[#a1a1aa]">
                                 Un enfoque técnico para los que se pregunten como funciona:
                             </p>
-                            <div className="grid grid-cols-1 gap-3 perspective-[1000px] md:grid-cols-3 md:gap-4">
-                                {TECH_CARDS.map((card) => (
-                                    <div
-                                        key={card.type}
-                                        className={`${TECH_CARD} ${aboutLegoIn}`}
-                                        style={animDelay(card.delay)}
-                                    >
-                                        <span className="text-[0.6rem] font-bold tracking-[0.1em] text-[#a1a1aa] uppercase">
-                                            {card.type}
-                                        </span>
-                                        <span className="text-[0.9rem] font-semibold text-white">{card.content}</span>
-                                    </div>
-                                ))}
-                            </div>
+                            <AboutTechCards />
                         </div>
 
                         <div className={`col-span-1 md:col-span-2 ${NARRATIVE_CARD} ${aboutFadeIn}`} style={animDelay(6)}>
