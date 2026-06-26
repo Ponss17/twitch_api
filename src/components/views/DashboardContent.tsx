@@ -21,7 +21,7 @@ const RussianView = lazy(() =>
     import('@/components/views/MinigamesViews').then((m) => ({ default: m.RussianView }))
 );
 const FeedbackView = lazy(() =>
-    import('@/components/views/MinigamesViews').then((m) => ({ default: m.FeedbackView }))
+    import('@/components/views/FeedbackView').then((m) => ({ default: m.FeedbackView }))
 );
 const TrendsView = lazy(() => import('@/components/views/TrendsView').then((m) => ({ default: m.TrendsView })));
 const StalkerView = lazy(() => import('@/components/views/StalkerView').then((m) => ({ default: m.StalkerView })));
