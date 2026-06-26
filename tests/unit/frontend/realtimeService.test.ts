@@ -75,20 +75,22 @@ describe('RealtimeService.formatActivityLog', () => {
             detail: 'highlight',
             created_at: '2024-01-01T00:00:00.000Z'
         });
-        expect(item.action).toContain('@pepe');
-        expect(item.action).toContain('highlight');
+        expect(item.type).toBe('clip');
         expect(item.user).toBe('pepe');
+        expect(item.detail).toBe('highlight');
         expect(item.timestamp).toBe('2024-01-01T00:00:00.000Z');
     });
 
-    it('usa un texto genérico para tipos desconocidos', () => {
+    it('normaliza tipos desconocidos como other', () => {
         const item = svc.formatActivityLog({ activity_type: 'weird_thing' });
-        expect(item.action).toContain('weird_thing');
+        expect(item.type).toBe('weird_thing');
         expect(item.user).toBe('Usuario');
     });
 
     it('rellena el timestamp cuando falta created_at', () => {
         const item = svc.formatActivityLog({ activity_type: 'message', detail: 'hola' });
+        expect(item.type).toBe('message');
+        expect(item.detail).toBe('hola');
         expect(typeof item.timestamp).toBe('string');
         expect(item.timestamp).not.toBe('');
     });

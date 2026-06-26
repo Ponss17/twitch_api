@@ -133,16 +133,7 @@ describe('dashboardController', () => {
             await getLogs(req, res);
 
             expect(dbService.getUserActivity).toHaveBeenCalledWith('123');
-            expect(res.json).toHaveBeenCalledWith([
-                {
-                    ...mockLogs[0],
-                    action: '📺 Nuevo clip creado por @TestUser (undefined)'
-                },
-                {
-                    ...mockLogs[1],
-                    action: '⏱️ @OtherUser revisó su followage en channel1'
-                }
-            ]);
+            expect(res.json).toHaveBeenCalledWith(mockLogs);
         });
 
         it('should return empty array if no userId', async () => {

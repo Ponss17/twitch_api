@@ -1,9 +1,12 @@
 import { API_ENDPOINTS, type ApiResponse, type Session } from './config';
 import { parseHttpErrorBody } from './apiError';
 import { reportSessionLoadProgress } from './sessionLoadProgress';
+import { bindCommandStoreUser } from './commandStore';
+import { sessionFingerprint } from './localPrefs';
 
 const SESSION_KEY = 'twitch_api_session';
-const VALIDATE_CACHE_KEY = 'twitch_validate_cache';
+const VALIDATE_CACHE_BASE = 'twitch_validate_cache';
+const LEGACY_VALIDATE_CACHE_KEY = 'twitch_validate_cache';
 /** Revalidación en servidor; caché en localStorage para sobrevivir cierres de pestaña */
 const VALIDATE_TTL_MS = 4 * 60 * 60 * 1000;
 /** Tras OAuth / login nuevo — splash con barra de progreso en el dashboard */
@@ -22,6 +25,18 @@ const SENSITIVE_QUERY_PARAMS = [
 ] as const;
 
 let authChannel: BroadcastChannel | null = null;
+
+function validateCacheKey(session: Session): string {
+    return `${VALIDATE_CACHE_BASE}_${sessionFingerprint(session)}`;
+}
+
+function clearValidateCache(session?: Session | null): void {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem(LEGACY_VALIDATE_CACHE_KEY);
+    if (session) {
+        localStorage.removeItem(validateCacheKey(session));
+    }
+}
 
 export function initAuthSync(): void {
     if (typeof window === 'undefined' || authChannel) return;
@@ -50,9 +65,11 @@ export function saveSession(session: Session): void {
 }
 
 export function clearSession(): void {
+    const previous = getSession();
+    bindCommandStoreUser(undefined);
     localStorage.removeItem(SESSION_KEY);
     if (typeof window !== 'undefined') {
-        localStorage.removeItem(VALIDATE_CACHE_KEY);
+        clearValidateCache(previous);
         clearDashboardSplashFlags();
     }
 }
@@ -169,7 +186,8 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
 
     if (typeof window !== 'undefined') {
         try {
-            const raw = localStorage.getItem(VALIDATE_CACHE_KEY);
+            const cacheKey = validateCacheKey(session);
+            const raw = localStorage.getItem(cacheKey);
             if (raw) {
                 const cached = JSON.parse(raw) as { at: number; result: ApiResponse };
                 if (Date.now() - cached.at < VALIDATE_TTL_MS && cached.result.valid === true) {
@@ -182,7 +200,7 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
                 }
             }
         } catch {
-            localStorage.removeItem(VALIDATE_CACHE_KEY);
+            clearValidateCache(session);
         }
     }
 
@@ -268,14 +286,15 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
         if (result.valid === true && !result.error && typeof window !== 'undefined') {
             try {
                 localStorage.setItem(
-                    VALIDATE_CACHE_KEY,
+                    validateCacheKey(session),
                     JSON.stringify({ at: Date.now(), result })
                 );
+                localStorage.removeItem(LEGACY_VALIDATE_CACHE_KEY);
             } catch {
                 /* quota exceeded */
             }
         } else if (!result.networkError && typeof window !== 'undefined') {
-            localStorage.removeItem(VALIDATE_CACHE_KEY);
+            clearValidateCache(session);
         }
 
         return result;

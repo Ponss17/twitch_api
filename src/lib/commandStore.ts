@@ -1,3 +1,5 @@
+import { userPrefKey } from '@/lib/localPrefs';
+
 export interface CommandConfigState {
     bot: string;
     template: string;
@@ -21,7 +23,8 @@ interface PersistedCommandStore {
     testFields: Record<string, Record<string, string>>;
 }
 
-const STORAGE_KEY = 'twitch_command_store_v1';
+const STORAGE_BASE = 'twitch_command_store_v1';
+const LEGACY_STORAGE_KEY = 'twitch_command_store_v1';
 const PERSIST_DEBOUNCE_MS = 400;
 
 const DEFAULT_CONFIG: CommandConfigState = {
@@ -40,13 +43,30 @@ const EMPTY_STATE: CommandStoreState = {
     testResults: {}
 };
 
-function loadPersistedState(): Pick<CommandStoreState, 'configs' | 'testFields'> {
+let currentUserId: string | null = null;
+let state: CommandStoreState = { ...EMPTY_STATE };
+
+const listeners = new Set<() => void>();
+let persistTimer: ReturnType<typeof setTimeout> | null = null;
+
+function loadPersistedState(userId: string): Pick<CommandStoreState, 'configs' | 'testFields'> {
     if (typeof window === 'undefined') {
         return { configs: {}, testFields: {} };
     }
 
     try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const key = userPrefKey(STORAGE_BASE, userId);
+        let raw = localStorage.getItem(key);
+
+        if (!raw) {
+            const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+            if (legacy) {
+                raw = legacy;
+                localStorage.setItem(key, legacy);
+                localStorage.removeItem(LEGACY_STORAGE_KEY);
+            }
+        }
+
         if (!raw) return { configs: {}, testFields: {} };
 
         const parsed = JSON.parse(raw) as PersistedCommandStore;
@@ -59,29 +79,35 @@ function loadPersistedState(): Pick<CommandStoreState, 'configs' | 'testFields'>
     }
 }
 
-let state: CommandStoreState = {
-    ...EMPTY_STATE,
-    ...loadPersistedState()
-};
+function persistNow(): void {
+    if (typeof window === 'undefined' || !currentUserId) return;
 
-const listeners = new Set<() => void>();
-let persistTimer: ReturnType<typeof setTimeout> | null = null;
+    try {
+        const payload: PersistedCommandStore = {
+            configs: state.configs,
+            testFields: state.testFields
+        };
+        localStorage.setItem(userPrefKey(STORAGE_BASE, currentUserId), JSON.stringify(payload));
+    } catch {
+        /* quota exceeded */
+    }
+}
+
+function flushPersist(): void {
+    if (persistTimer) {
+        clearTimeout(persistTimer);
+        persistTimer = null;
+    }
+    persistNow();
+}
 
 function schedulePersist(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !currentUserId) return;
 
     if (persistTimer) clearTimeout(persistTimer);
     persistTimer = setTimeout(() => {
         persistTimer = null;
-        try {
-            const payload: PersistedCommandStore = {
-                configs: state.configs,
-                testFields: state.testFields
-            };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-        } catch {
-            /* quota exceeded */
-        }
+        persistNow();
     }, PERSIST_DEBOUNCE_MS);
 }
 
@@ -96,6 +122,20 @@ function configsEqual(a: CommandConfigState, b: CommandConfigState): boolean {
     const bKeys = Object.keys(b.extraValues);
     if (aKeys.length !== bKeys.length) return false;
     return aKeys.every((key) => a.extraValues[key] === b.extraValues[key]);
+}
+
+/** Cambia el usuario activo del store (p. ej. login/logout). */
+export function bindCommandStoreUser(userId: string | undefined): void {
+    const nextId = userId ?? null;
+    if (nextId === currentUserId) return;
+
+    flushPersist();
+
+    currentUserId = nextId;
+    state = nextId
+        ? { ...EMPTY_STATE, ...loadPersistedState(nextId) }
+        : { ...EMPTY_STATE };
+    emit(false);
 }
 
 export function subscribeCommandStore(listener: () => void): () => void {

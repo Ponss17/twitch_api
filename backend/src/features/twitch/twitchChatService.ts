@@ -108,11 +108,15 @@ export const annotateChatterRoles = async (
     broadcasterId: string,
     token: string
 ): Promise<ChatterRow[]> => {
-    const [modLogins, vipLogins, subLogins] = await Promise.all([
+    const [modsResult, vipsResult, subsResult] = await Promise.allSettled([
         getModeratorLogins(broadcasterId, token),
         getVipLogins(broadcasterId, token),
         getSubscriberLogins(broadcasterId, token)
     ]);
+
+    const modLogins = modsResult.status === 'fulfilled' ? modsResult.value : [];
+    const vipLogins = vipsResult.status === 'fulfilled' ? vipsResult.value : [];
+    const subLogins = subsResult.status === 'fulfilled' ? subsResult.value : [];
 
     const modSet = new Set(modLogins);
     const vipSet = new Set(vipLogins);

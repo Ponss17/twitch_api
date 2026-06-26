@@ -1,5 +1,6 @@
 import type { DashboardTab } from './config';
 import { appPath } from './paths';
+import { readScopedPref, writeScopedPref } from './localPrefs';
 
 const VALID_TABS: ReadonlySet<DashboardTab> = new Set([
     'home',
@@ -16,7 +17,8 @@ const VALID_TABS: ReadonlySet<DashboardTab> = new Set([
     'feedback'
 ]);
 
-const LAST_TAB_KEY = 'twitch_dashboard_last_tab';
+const LAST_TAB_BASE = 'twitch_dashboard_last_tab';
+const LEGACY_LAST_TAB_KEY = 'twitch_dashboard_last_tab';
 
 export function isDashboardTab(value: string | null | undefined): value is DashboardTab {
     return value != null && value !== '' && VALID_TABS.has(value as DashboardTab);
@@ -46,23 +48,19 @@ export function parseTabFromPathname(pathname: string): DashboardTab | null {
     return isDashboardTab(segment) ? segment : null;
 }
 
-function getSavedTab(): DashboardTab | null {
+function getSavedTab(userId?: string): DashboardTab | null {
     if (typeof window === 'undefined') return null;
     try {
-        const saved = localStorage.getItem(LAST_TAB_KEY);
+        const saved = readScopedPref(LAST_TAB_BASE, userId, LEGACY_LAST_TAB_KEY);
         return isDashboardTab(saved) ? saved : null;
     } catch {
         return null;
     }
 }
 
-function saveLastTab(tab: DashboardTab): void {
+function saveLastTab(tab: DashboardTab, userId?: string): void {
     if (typeof window === 'undefined') return;
-    try {
-        localStorage.setItem(LAST_TAB_KEY, tab);
-    } catch {
-        /* quota exceeded */
-    }
+    writeScopedPref(LAST_TAB_BASE, userId, tab, LEGACY_LAST_TAB_KEY);
 }
 
 /**
@@ -71,7 +69,8 @@ function saveLastTab(tab: DashboardTab): void {
 export function resolveDashboardTab(
     search = typeof window !== 'undefined' ? window.location.search : '',
     hash = typeof window !== 'undefined' ? window.location.hash : '',
-    pathname = typeof window !== 'undefined' ? window.location.pathname : ''
+    pathname = typeof window !== 'undefined' ? window.location.pathname : '',
+    userId?: string
 ): DashboardTab {
     const fromPath = parseTabFromPathname(pathname);
     if (fromPath !== null && !isBareDashboardPath(pathname)) {
@@ -85,7 +84,7 @@ export function resolveDashboardTab(
     if (isDashboardTab(fromQuery)) return fromQuery;
 
     if (fromPath === 'home' && isBareDashboardPath(pathname)) {
-        const saved = getSavedTab();
+        const saved = getSavedTab(userId);
         if (saved && saved !== 'home') return saved;
     }
 
@@ -93,10 +92,13 @@ export function resolveDashboardTab(
 }
 
 /** Sincroniza la pestaña en la URL (`/dashboard/followage`) y guarda la última visitada. */
-export function setTabInUrl(tab: DashboardTab, options?: { replace?: boolean }): void {
+export function setTabInUrl(
+    tab: DashboardTab,
+    options?: { replace?: boolean; userId?: string }
+): void {
     if (typeof window === 'undefined') return;
 
-    saveLastTab(tab);
+    saveLastTab(tab, options?.userId);
 
     const url = new URL(window.location.href);
     const base = getDashboardBasePath();

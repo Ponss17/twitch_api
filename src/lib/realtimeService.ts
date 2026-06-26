@@ -5,18 +5,55 @@ import { authHeaders } from './auth';
 import { logError } from './logError';
 import { debugWarn } from './debugLog';
 
+const REALTIME_COOLDOWN_SESSION_KEY = 'realtime_cooldown_until';
+const REALTIME_COOLDOWN_MS = 5 * 60 * 1000;
+
 let pageIsUnloading = false;
 let unloadGuardInstalled = false;
 let realtimeCooldownUntil = 0;
 
-const REALTIME_COOLDOWN_MS = 5 * 60 * 1000;
+if (typeof window !== 'undefined') {
+    try {
+        const stored = sessionStorage.getItem(REALTIME_COOLDOWN_SESSION_KEY);
+        if (stored) {
+            const until = parseInt(stored, 10);
+            if (!Number.isNaN(until) && until > Date.now()) {
+                realtimeCooldownUntil = until;
+            } else {
+                sessionStorage.removeItem(REALTIME_COOLDOWN_SESSION_KEY);
+            }
+        }
+    } catch {
+        /* ignore */
+    }
+}
 
 export function isRealtimeInCooldown(): boolean {
+    if (typeof window !== 'undefined') {
+        try {
+            const stored = sessionStorage.getItem(REALTIME_COOLDOWN_SESSION_KEY);
+            if (stored) {
+                const until = parseInt(stored, 10);
+                if (!Number.isNaN(until)) {
+                    realtimeCooldownUntil = Math.max(realtimeCooldownUntil, until);
+                }
+            }
+        } catch {
+            /* ignore */
+        }
+    }
     return Date.now() < realtimeCooldownUntil;
 }
 
 function markRealtimeCooldown(): void {
     realtimeCooldownUntil = Date.now() + REALTIME_COOLDOWN_MS;
+    if (typeof window !== 'undefined') {
+        try {
+            sessionStorage.setItem(REALTIME_COOLDOWN_SESSION_KEY, String(realtimeCooldownUntil));
+        } catch {
+            /* ignore */
+        }
+    }
 }
 
 function isTransportFailure(err: unknown): boolean {
@@ -197,45 +234,14 @@ export class RealtimeService {
     private formatActivityLog(raw: RawActivityLog): ActivityLogItem {
         const type = raw.activity_type || 'other';
         const user = raw.user_name || 'Usuario';
-        const detail = raw.detail || '';
-        let action = '';
+        const detail = raw.detail?.trim() || undefined;
 
-        switch (type) {
-            case 'clip':
-                action = `📺 Nuevo clip creado por @${user} (${detail})`;
-                break;
-            case 'followage':
-                action = `⏱️ @${user} revisó su followage en ${detail}`;
-                break;
-            case 'shoutout':
-                action = `🗣️ Shoutout de @${user}`;
-                break;
-            case 'message':
-                action = `💬 Mensaje enviado: "${detail}"`;
-                break;
-            case 'russian':
-                action = `🔫 @${user} jugó la Ruleta Rusa`;
-                break;
-            case 'magic8':
-                action = `🎱 @${user} preguntó a la Bola 8`;
-                break;
-            case 'duel':
-                action = `⚔️ @${user} inició un duelo con @${detail}`;
-                break;
-            case 'stalker':
-                action = `🕵️ @${user} inició escaneo de Stalker`;
-                break;
-            case 'trends':
-                action = `📊 @${user} inició rastreo de Tendencias`;
-                break;
-            case 'roulette':
-                action = `🎲 @${user} consultó la Ruleta de Chatters`;
-                break;
-            default:
-                action = `🔹 Actividad: ${type} por @${user}`;
-        }
-
-        return { action, user, timestamp: raw.created_at || new Date().toISOString() };
+        return {
+            type,
+            user,
+            detail,
+            timestamp: raw.created_at || new Date().toISOString()
+        };
     }
 
     private computeStats(raw: RawUserStats): HomeStats {
