@@ -1,8 +1,12 @@
 ---
 import '../styles/global.css';
 import { docsPage } from '../lib/docsTw';
+import { pageTitle } from '../lib/pageTitle';
 
 export interface Props {
+    /** Nombre de la página; se formatea como «Página | LosPerris». */
+    page?: string;
+    /** Título completo del documento (anula `page` si se pasa). */
     title?: string;
     description?: string;
     canonical?: string;
@@ -12,7 +16,8 @@ export interface Props {
 }
 
 const {
-    title = 'LosPerris Twitch API Docs',
+    page,
+    title,
     description = 'Documentación oficial de LosPerris Twitch API. Guía técnica de uso, comandos y herramientas para streamers.',
     canonical,
     ogTitle,
@@ -24,9 +29,11 @@ import { Footer } from '../components/layout/Footer';
 import { staticPath, absoluteAssetUrl } from '../lib/paths';
 import SpeedInsights from '@vercel/speed-insights/astro';
 
+const documentTitle = title ?? (page ? pageTitle(page) : pageTitle('Documentación'));
+
 const canonicalUrl = canonical ?? `${Astro.url.origin}${staticPath('/docs')}`;
 const siteOrigin = canonical ? new URL(canonical).origin : new URL(canonicalUrl).origin;
-const shareTitle = ogTitle ?? title;
+const shareTitle = ogTitle ?? documentTitle;
 const shareDesc = ogDescription ?? description;
 const shareImage = absoluteAssetUrl('/img/logo.svg', siteOrigin);
 const isDev = import.meta.env.DEV;
@@ -59,7 +66,7 @@ const swScope = staticPath('/');
             rel="stylesheet"
             href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap"
         />
-        <title>{title}</title>
+        <title>{documentTitle}</title>
         <SpeedInsights scriptSrc="https://va.vercel-scripts.com/v1/speed-insights/script.js" />
         {isDev && (
             <script is:inline>
