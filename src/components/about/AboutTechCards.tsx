@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import {
     DndContext,
     KeyboardSensor,
@@ -6,10 +6,8 @@ import {
     closestCenter,
     useSensor,
     useSensors,
-    type DragOverEvent,
-    type DragStartEvent
+    type DragEndEvent
 } from '@dnd-kit/core';
-import { restrictToParentElement } from '@dnd-kit/modifiers';
 import {
     SortableContext,
     arrayMove,
@@ -26,7 +24,7 @@ const STORAGE_KEY = 'about_tech_card_order';
 const TECH_LINK = 'text-inherit underline decoration-inherit underline-offset-2';
 
 const TECH_CARD =
-    'group relative flex touch-none flex-col gap-1 rounded-xl border border-white/5 bg-[#121214] p-4 hover:border-primary/40 hover:bg-primary/[0.06]';
+    'relative flex cursor-grab flex-col gap-1 rounded-xl border border-white/5 bg-[#121214] p-4 active:cursor-grabbing hover:border-primary/40 hover:bg-primary/[0.06]';
 
 const TECH_CARD_DRAGGING =
     'z-20 scale-[1.02] border-primary/50 shadow-[0_12px_32px_rgba(0,0,0,0.35),0_0_20px_rgba(145,70,255,0.12)] ring-1 ring-primary/30';
@@ -42,6 +40,11 @@ interface TechCardDef {
     content: ReactNode;
 }
 
+/** Evita iniciar drag al hacer clic en enlaces dentro de la tarjeta */
+function stopDrag(e: PointerEvent) {
+    e.stopPropagation();
+}
+
 const TECH_CARDS: TechCardDef[] = [
     {
         id: 'backend',
@@ -49,11 +52,23 @@ const TECH_CARDS: TechCardDef[] = [
         delay: 6,
         content: (
             <>
-                <a href="https://www.typescriptlang.org/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
+                <a
+                    href="https://www.typescriptlang.org/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={TECH_LINK}
+                    onPointerDown={stopDrag}
+                >
                     TypeScript
                 </a>{' '}
                 /{' '}
-                <a href="https://nodejs.org/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
+                <a
+                    href="https://nodejs.org/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={TECH_LINK}
+                    onPointerDown={stopDrag}
+                >
                     Node.js
                 </a>
             </>
@@ -65,15 +80,15 @@ const TECH_CARDS: TechCardDef[] = [
         delay: 7,
         content: (
             <>
-                <a href="https://astro.build/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
+                <a href="https://astro.build/" target="_blank" rel="noopener noreferrer" className={TECH_LINK} onPointerDown={stopDrag}>
                     Astro
                 </a>{' '}
                 +{' '}
-                <a href="https://react.dev/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
+                <a href="https://react.dev/" target="_blank" rel="noopener noreferrer" className={TECH_LINK} onPointerDown={stopDrag}>
                     React
                 </a>{' '}
                 +{' '}
-                <a href="https://tailwindcss.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
+                <a href="https://tailwindcss.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK} onPointerDown={stopDrag}>
                     Tailwind CSS
                 </a>
             </>
@@ -85,11 +100,17 @@ const TECH_CARDS: TechCardDef[] = [
         delay: 8,
         content: (
             <>
-                <a href="https://supabase.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
+                <a href="https://supabase.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK} onPointerDown={stopDrag}>
                     Supabase
                 </a>{' '}
                 +{' '}
-                <a href="https://vercel.com/docs/storage/vercel-kv" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
+                <a
+                    href="https://vercel.com/docs/storage/vercel-kv"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={TECH_LINK}
+                    onPointerDown={stopDrag}
+                >
                     Vercel KV
                 </a>
             </>
@@ -100,7 +121,7 @@ const TECH_CARDS: TechCardDef[] = [
         type: 'AI Context',
         delay: 9,
         content: (
-            <a href="https://console.groq.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
+            <a href="https://console.groq.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK} onPointerDown={stopDrag}>
                 Groq SDK
             </a>
         )
@@ -111,11 +132,11 @@ const TECH_CARDS: TechCardDef[] = [
         delay: 10,
         content: (
             <>
-                <a href="https://esbuild.github.io/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
+                <a href="https://esbuild.github.io/" target="_blank" rel="noopener noreferrer" className={TECH_LINK} onPointerDown={stopDrag}>
                     Esbuild
                 </a>{' '}
                 /{' '}
-                <a href="https://vitejs.dev/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
+                <a href="https://vitejs.dev/" target="_blank" rel="noopener noreferrer" className={TECH_LINK} onPointerDown={stopDrag}>
                     Vite
                 </a>
             </>
@@ -127,15 +148,15 @@ const TECH_CARDS: TechCardDef[] = [
         delay: 11,
         content: (
             <>
-                <a href="https://tmijs.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
+                <a href="https://tmijs.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK} onPointerDown={stopDrag}>
                     tmi.js
                 </a>{' '}
                 +{' '}
-                <a href="https://expressjs.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
+                <a href="https://expressjs.com/" target="_blank" rel="noopener noreferrer" className={TECH_LINK} onPointerDown={stopDrag}>
                     Express
                 </a>{' '}
                 +{' '}
-                <a href="https://zod.dev/" target="_blank" rel="noopener noreferrer" className={TECH_LINK}>
+                <a href="https://zod.dev/" target="_blank" rel="noopener noreferrer" className={TECH_LINK} onPointerDown={stopDrag}>
                     Zod
                 </a>
             </>
@@ -172,35 +193,30 @@ function TechCardContent({ card }: { card: TechCardDef }) {
     );
 }
 
-function SortableTechCard({ id, index, isSorting }: { id: TechCardId; index: number; isSorting: boolean }) {
+function SortableTechCard({ id, showIntro }: { id: TechCardId; showIntro: boolean }) {
     const card = CARD_MAP[id];
-    const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
-        useSortable({ id, animateLayoutChanges: () => true });
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
     if (!card) return null;
 
     const style: CSSProperties = {
         transform: CSS.Transform.toString(transform),
         transition: isDragging ? undefined : transition,
-        ...(isSorting ? {} : animDelay(card.delay + index * 0.15))
+        ...(showIntro ? animDelay(card.delay) : {})
     };
 
     return (
         <div
             ref={setNodeRef}
             style={style}
-            className={`${TECH_CARD} ${isSorting ? '' : aboutLegoIn} ${isDragging ? TECH_CARD_DRAGGING : ''}`}
+            className={`${TECH_CARD} ${showIntro ? aboutLegoIn : ''} ${isDragging ? TECH_CARD_DRAGGING : ''}`}
+            {...attributes}
+            {...listeners}
         >
-            <button
-                ref={setActivatorNodeRef}
-                type="button"
-                className="absolute top-2.5 right-2 flex size-7 cursor-grab touch-none items-center justify-center rounded-md text-[#52525b] opacity-0 transition hover:bg-white/5 hover:text-[#a1a1aa] active:cursor-grabbing group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                aria-label={`Reordenar tarjeta ${card.type}`}
-                {...attributes}
-                {...listeners}
-            >
-                <GripVertical className="size-4" aria-hidden />
-            </button>
+            <GripVertical
+                className="pointer-events-none absolute top-3 right-2 size-4 text-[#52525b] opacity-40"
+                aria-hidden
+            />
             <TechCardContent card={card} />
         </div>
     );
@@ -208,12 +224,19 @@ function SortableTechCard({ id, index, isSorting }: { id: TechCardId; index: num
 
 export function AboutTechCards() {
     const [order, setOrder] = useState<TechCardId[]>(loadOrder);
-    const [activeId, setActiveId] = useState<TechCardId | null>(null);
+    const [introDone, setIntroDone] = useState(false);
     const orderRef = useRef(order);
     orderRef.current = order;
 
+    useEffect(() => {
+        const lastDelayMs = 11 * 120;
+        const animationMs = 700;
+        const t = window.setTimeout(() => setIntroDone(true), lastDelayMs + animationMs);
+        return () => window.clearTimeout(t);
+    }, []);
+
     const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+        useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 
@@ -225,50 +248,33 @@ export function AboutTechCards() {
         }
     }, []);
 
-    const onDragStart = ({ active }: DragStartEvent) => {
-        setActiveId(active.id as TechCardId);
-    };
-
-    const onDragOver = ({ active, over }: DragOverEvent) => {
+    const onDragEnd = ({ active, over }: DragEndEvent) => {
         if (!over || active.id === over.id) return;
 
         const activeKey = active.id as TechCardId;
         const overKey = over.id as TechCardId;
-        const current = orderRef.current;
-        const oldIndex = current.indexOf(activeKey);
-        const newIndex = current.indexOf(overKey);
+        const oldIndex = orderRef.current.indexOf(activeKey);
+        const newIndex = orderRef.current.indexOf(overKey);
         if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) return;
 
-        const next = arrayMove(current, oldIndex, newIndex);
+        const next = arrayMove(orderRef.current, oldIndex, newIndex);
         orderRef.current = next;
         setOrder(next);
+        persistOrder(next);
     };
 
-    const onDragEnd = () => {
-        setActiveId(null);
-        persistOrder(orderRef.current);
-    };
-
-    const onDragCancel = () => {
-        setActiveId(null);
-    };
-
-    const isSorting = activeId !== null;
+    const showIntro = !introDone;
 
     return (
         <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
-            modifiers={[restrictToParentElement]}
-            onDragStart={onDragStart}
-            onDragOver={onDragOver}
             onDragEnd={onDragEnd}
-            onDragCancel={onDragCancel}
         >
             <SortableContext items={order} strategy={rectSortingStrategy}>
-                <div className="relative grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
-                    {order.map((id, index) => (
-                        <SortableTechCard key={id} id={id} index={index} isSorting={isSorting} />
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
+                    {order.map((id) => (
+                        <SortableTechCard key={id} id={id} showIntro={showIntro} />
                     ))}
                 </div>
             </SortableContext>
