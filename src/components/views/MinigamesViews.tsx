@@ -1,5 +1,5 @@
-import { CardHeaderIcon, InlineIcon } from '@/components/ui/Icon';
-import { Loader2, Gem, Swords, Shield, Check, AlertTriangle, Play, Gavel, Skull, MessageCircle, Send, type LucideIcon } from 'lucide-react';
+import { CardHeaderIcon } from '@/components/ui/Icon';
+import { Loader2, Gem, Swords, Check, AlertTriangle, Play, Gavel, Skull, type LucideIcon } from 'lucide-react';
 import { MAGIC8_ICON, RUSSIAN_ICON } from '@/lib/dashboardTabs';
 
 import { useState, type ReactNode } from 'react';
@@ -10,18 +10,14 @@ import { COMMAND_CONFIG } from '@/lib/commands/config';
 import {
     btnPrimary,
     card,
-    cardFooterFlex,
     fadeIn,
     formGrid,
     formGroupLabel,
     gameResponseCard,
-    inputLabel,
-    textInput,
-    textareaXl
+    textInput
 } from '@/lib/tw';
 import { CommandGeneratorCard } from './CommandGeneratorCard';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
-import { useToast } from '@/components/ui/ToastProvider';
 import { extractApiErrorMessage, formatApiErrorForUi } from '@/lib/apiError';
 
 
