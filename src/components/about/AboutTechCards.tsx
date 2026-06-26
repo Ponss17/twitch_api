@@ -1,4 +1,23 @@
-import { useCallback, useState, type CSSProperties, type DragEvent, type ReactNode } from 'react';
+import { useCallback, useState, type CSSProperties, type ReactNode } from 'react';
+import {
+    DndContext,
+    DragOverlay,
+    KeyboardSensor,
+    PointerSensor,
+    closestCenter,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
+    type DragStartEvent
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    arrayMove,
+    rectSortingStrategy,
+    sortableKeyboardCoordinates,
+    useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
 import { aboutLegoIn } from '@/lib/tw';
 
@@ -7,7 +26,7 @@ const STORAGE_KEY = 'about_tech_card_order';
 const TECH_LINK = 'text-inherit underline decoration-inherit underline-offset-2';
 
 const TECH_CARD =
-    'group relative flex cursor-grab flex-col gap-1 rounded-xl border border-white/5 bg-white/[0.02] p-4 transition-[border-color,background-color,box-shadow,opacity] duration-200 active:cursor-grabbing hover:border-primary/40 hover:bg-primary/[0.06]';
+    'group relative flex flex-col gap-1 rounded-xl border border-white/5 bg-white/[0.02] p-4 transition-[border-color,background-color,box-shadow,transform,opacity] duration-200 hover:border-primary/40 hover:bg-primary/[0.06]';
 
 const DEFAULT_ORDER = ['backend', 'frontend', 'database', 'ai', 'build', 'api'] as const;
 
@@ -141,10 +160,57 @@ function animDelay(delay: number): CSSProperties {
     return { animationDelay: `${delay * 0.12}s` };
 }
 
+function TechCardContent({ card }: { card: TechCardDef }) {
+    return (
+        <>
+            <span className="text-[0.6rem] font-bold tracking-[0.1em] text-[#a1a1aa] uppercase">{card.type}</span>
+            <span className="text-[0.9rem] font-semibold text-white">{card.content}</span>
+        </>
+    );
+}
+
+function SortableTechCard({ id, index }: { id: TechCardId; index: number }) {
+    const card = CARD_MAP[id];
+    const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
+        useSortable({ id });
+
+    if (!card) return null;
+
+    const style: CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        ...animDelay(card.delay + index * 0.15)
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`${TECH_CARD} ${aboutLegoIn} ${isDragging ? 'z-10 opacity-30' : ''}`}
+        >
+            <button
+                ref={setActivatorNodeRef}
+                type="button"
+                className="absolute top-2.5 right-2 flex size-7 cursor-grab items-center justify-center rounded-md text-[#52525b] opacity-0 transition hover:bg-white/5 hover:text-[#a1a1aa] active:cursor-grabbing group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                aria-label={`Reordenar tarjeta ${card.type}`}
+                {...attributes}
+                {...listeners}
+            >
+                <GripVertical className="size-4" aria-hidden />
+            </button>
+            <TechCardContent card={card} />
+        </div>
+    );
+}
+
 export function AboutTechCards() {
     const [order, setOrder] = useState<TechCardId[]>(loadOrder);
-    const [draggingId, setDraggingId] = useState<TechCardId | null>(null);
-    const [overId, setOverId] = useState<TechCardId | null>(null);
+    const [activeId, setActiveId] = useState<TechCardId | null>(null);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    );
 
     const persistOrder = useCallback((next: TechCardId[]) => {
         setOrder(next);
@@ -155,82 +221,50 @@ export function AboutTechCards() {
         }
     }, []);
 
-    const reorder = useCallback(
-        (fromId: TechCardId, toId: TechCardId) => {
-            if (fromId === toId) return;
-            const next = [...order];
-            const fromIndex = next.indexOf(fromId);
-            const toIndex = next.indexOf(toId);
-            if (fromIndex < 0 || toIndex < 0) return;
-            next.splice(fromIndex, 1);
-            next.splice(toIndex, 0, fromId);
-            persistOrder(next);
-        },
-        [order, persistOrder]
-    );
-
-    const onDragStart = (e: DragEvent<HTMLDivElement>, id: TechCardId) => {
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', id);
-        setDraggingId(id);
+    const onDragStart = ({ active }: DragStartEvent) => {
+        setActiveId(active.id as TechCardId);
     };
 
-    const onDragOver = (e: DragEvent<HTMLDivElement>, id: TechCardId) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        if (overId !== id) setOverId(id);
+    const onDragEnd = ({ active, over }: DragEndEvent) => {
+        setActiveId(null);
+        if (!over || active.id === over.id) return;
+
+        const oldIndex = order.indexOf(active.id as TechCardId);
+        const newIndex = order.indexOf(over.id as TechCardId);
+        if (oldIndex < 0 || newIndex < 0) return;
+
+        persistOrder(arrayMove(order, oldIndex, newIndex));
     };
 
-    const onDrop = (e: DragEvent<HTMLDivElement>, id: TechCardId) => {
-        e.preventDefault();
-        const fromId = e.dataTransfer.getData('text/plain') as TechCardId;
-        if (fromId) reorder(fromId, id);
-        setDraggingId(null);
-        setOverId(null);
-    };
+    const onDragCancel = () => setActiveId(null);
 
-    const onDragEnd = () => {
-        setDraggingId(null);
-        setOverId(null);
-    };
+    const activeCard = activeId ? CARD_MAP[activeId] : null;
 
     return (
-        <div>
-            <p className="mb-3 text-[0.75rem] text-[#71717a]">
-                Arrastra las tarjetas para cambiar su orden.
-            </p>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
-                {order.map((id, index) => {
-                    const card = CARD_MAP[id];
-                    if (!card) return null;
-                    const isDragging = draggingId === id;
-                    const isOver = overId === id && draggingId !== id;
+        <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+            onDragCancel={onDragCancel}
+        >
+            <SortableContext items={order} strategy={rectSortingStrategy}>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
+                    {order.map((id, index) => (
+                        <SortableTechCard key={id} id={id} index={index} />
+                    ))}
+                </div>
+            </SortableContext>
 
-                    return (
-                        <div
-                            key={id}
-                            draggable
-                            onDragStart={(e) => onDragStart(e, id)}
-                            onDragOver={(e) => onDragOver(e, id)}
-                            onDrop={(e) => onDrop(e, id)}
-                            onDragEnd={onDragEnd}
-                            className={`${TECH_CARD} ${aboutLegoIn} ${
-                                isDragging ? 'opacity-40' : ''
-                            } ${isOver ? 'border-primary ring-1 ring-primary/30' : ''}`}
-                            style={animDelay(card.delay + index * 0.15)}
-                        >
-                            <GripVertical
-                                className="absolute top-3 right-2 size-4 text-[#52525b] opacity-0 transition group-hover:opacity-100"
-                                aria-hidden
-                            />
-                            <span className="text-[0.6rem] font-bold tracking-[0.1em] text-[#a1a1aa] uppercase">
-                                {card.type}
-                            </span>
-                            <span className="text-[0.9rem] font-semibold text-white">{card.content}</span>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
+            <DragOverlay dropAnimation={{ duration: 220, easing: 'cubic-bezier(0.25, 1, 0.5, 1)' }}>
+                {activeCard ? (
+                    <div
+                        className={`${TECH_CARD} cursor-grabbing border-primary/50 bg-[#121214] shadow-[0_16px_40px_rgba(0,0,0,0.45),0_0_24px_rgba(145,70,255,0.15)] ring-1 ring-primary/30`}
+                    >
+                        <TechCardContent card={activeCard} />
+                    </div>
+                ) : null}
+            </DragOverlay>
+        </DndContext>
     );
 }

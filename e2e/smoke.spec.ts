@@ -64,12 +64,12 @@ async function gotoAuthenticatedDashboard(page: Page, path = '/api/twitch/dashbo
 test.describe('smoke', () => {
     test('landing loads', async ({ page }) => {
         await page.goto('/api/twitch/');
-        await expect(page).toHaveTitle(/LosPerris Twitch API/i);
+        await expect(page).toHaveTitle(/Comandos y Herramientas para Streamers \| LosPerris/i);
     });
 
     test('docs page renders', async ({ page }) => {
         await page.goto('/api/twitch/docs/');
-        await expect(page).toHaveTitle(/Documentación API/i);
+        await expect(page).toHaveTitle(/Documentación API \| LosPerris/i);
     });
 
     test('PWA manifest icon resolves', async ({ request }) => {
