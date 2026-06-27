@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import { logger } from '../utils/logger';
+import * as cacheService from './cacheService';
 import { ANONYMOUS_USER_ID } from '../../types/constants';
 
 const MAX_USER_LOGS = 50;
@@ -49,6 +50,8 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
             return;
         }
 
+        void cacheService.del(`cache:activity:${userId}`).catch(() => {});
+
         const now = Date.now();
         const lastTrim = trimThrottle.get(userId) || 0;
         if (now - lastTrim > TRIM_THROTTLE_MS) {
@@ -65,6 +68,15 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
 };
 
 const trimUserLogs = async (userId: string): Promise<void> => {
+    const { error } = await supabase.rpc('trim_activity_logs', {
+        p_user_id: userId,
+        p_max: MAX_USER_LOGS
+    });
+
+    if (!error) return;
+
+    logger.warn('trim_activity_logs RPC no disponible, usando fallback:', error.message);
+
     const { count } = await supabase
         .from('activity_logs')
         .select('*', { count: 'exact', head: true })
@@ -89,7 +101,7 @@ export const getUserActivity = async (userId: string): Promise<StoredActivityLog
     try {
         const { data, error } = await supabase
             .from('activity_logs')
-            .select('*')
+            .select('created_at, activity_type, user_name, detail')
             .eq('user_id', userId)
             .order('created_at', { ascending: false })
             .limit(MAX_USER_LOGS);

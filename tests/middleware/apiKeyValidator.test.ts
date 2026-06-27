@@ -2,14 +2,17 @@ import { apiKeyValidator } from '../../backend/src/core/middleware/apiKeyValidat
 import { Request, Response } from 'express';
 import * as authService from '../../backend/src/features/auth/auth.service';
 import * as dbService from '../../backend/src/core/database/dbService';
+import * as cacheService from '../../backend/src/core/database/cacheService';
 
 // Mock de servicios
 jest.mock('../../backend/src/core/database/dbService', () => ({
     getUser: jest.fn(),
+    getUserByApiKey: jest.fn(),
     addSystemLog: jest.fn().mockResolvedValue(undefined)
 }));
 jest.mock('../../backend/src/core/database/cacheService', () => ({
     getCachedApiUser: jest.fn().mockResolvedValue(null),
+    getCachedApiUserMeta: jest.fn().mockResolvedValue(null),
     setCachedApiUser: jest.fn().mockResolvedValue(undefined),
     invalidateApiKeyCache: jest.fn().mockResolvedValue(undefined)
 }));
@@ -38,7 +41,9 @@ describe('API Key Validator Middleware', () => {
         jest.clearAllMocks();
         // Reset implementations to prevent leakage
         (authService.getValidToken as jest.Mock).mockReset();
+        (authService.getValidTokenForUser as jest.Mock).mockReset();
         (dbService.getUser as jest.Mock).mockReset();
+        (dbService.getUserByApiKey as jest.Mock).mockReset();
     });
 
     it('should call next() for a public route without API key', async () => {
@@ -61,16 +66,20 @@ describe('API Key Validator Middleware', () => {
         mockRequest.query = { apiKey: validKey };
 
         // Mock success flow
-        (authService.getValidToken as jest.Mock).mockResolvedValue({
+        (dbService.getUserByApiKey as jest.Mock).mockResolvedValue({
+            userId: 'user123',
+            isActive: true,
+            accessToken: 'token'
+        });
+        (authService.getValidTokenForUser as jest.Mock).mockResolvedValue({
             accessToken: 'token',
             userId: 'user123'
         });
-        (dbService.getUser as jest.Mock).mockResolvedValue({
-            userId: 'user123',
-            isActive: true
-        });
 
         await apiKeyValidator(mockRequest as Request, mockResponse as Response, nextFunction);
+
+        expect(dbService.getUser).not.toHaveBeenCalled();
+        expect(authService.getValidTokenForUser).toHaveBeenCalled();
 
         expect(nextFunction).toHaveBeenCalled();
         expect(mockResponse.locals?.apiUser).toBeDefined();
@@ -81,11 +90,27 @@ describe('API Key Validator Middleware', () => {
         mockRequest.query = { apiKey: '44444444-4444-4444-8444-444444444444' }; // Formato UUID válido pero inexistente
 
         // Mock failure flow
-        (authService.getValidToken as jest.Mock).mockRejectedValue(new Error('API Key inválida'));
+        (dbService.getUserByApiKey as jest.Mock).mockResolvedValue(null);
 
         await apiKeyValidator(mockRequest as Request, mockResponse as Response, nextFunction);
 
         expect(mockResponse.status).toHaveBeenCalledWith(401);
+        expect(nextFunction).not.toHaveBeenCalled();
+    });
+
+    it('returns 403 from KV meta when account is suspended without hitting getUser', async () => {
+        const validKey = '22222222-2222-4222-8222-222222222222';
+        mockRequest.query = { apiKey: validKey };
+
+        (cacheService.getCachedApiUserMeta as jest.Mock).mockResolvedValue({
+            userId: 'user-suspended',
+            isActive: false
+        });
+
+        await apiKeyValidator(mockRequest as Request, mockResponse as Response, nextFunction);
+
+        expect(dbService.getUser).not.toHaveBeenCalled();
+        expect(mockResponse.status).toHaveBeenCalledWith(403);
         expect(nextFunction).not.toHaveBeenCalled();
     });
 });

@@ -1,9 +1,23 @@
 import { supabase } from './supabaseClient';
 import { StoredUser } from '../../types/twitch';
 import { encrypt, decrypt, ENCRYPTION_KEY, LEGACY_ENCRYPTION_KEY } from './cryptoService';
-import { logger } from '../utils/logger';
+import { invalidateAllUserCaches } from '../utils/cacheInvalidation';
 import * as cacheService from './cacheService';
 import { CACHE_TTL } from '../config/cacheTtl';
+import { logger } from '../utils/logger';
+import { BoundedMap } from '../utils/boundedCache';
+import { invalidateStatsCache } from './statsService';
+import { setUserTimezone, clearUserTimezone } from './userTimezoneCache';
+
+/** L1 en RAM de la instancia serverless — evita round-trips a KV/Supabase en bots activos. */
+const userMemoryCache = new BoundedMap<string, { user: StoredUser; expiry: number }>(1000);
+const pendingGetUser = new Map<string, Promise<StoredUser | null>>();
+
+export const invalidateUserMemoryCache = (userId: string): void => {
+    userMemoryCache.delete(userId);
+    pendingGetUser.delete(userId);
+    clearUserTimezone(userId);
+};
 
 const migratedUsersCache = new Set<string>();
 const MAX_MIGRATED_CACHE = 500;
@@ -82,12 +96,26 @@ function toRow(user: StoredUser): Record<string, unknown> {
             : new Date().toISOString(),
         created_at: user.createdAt
             ? new Date(user.createdAt).toISOString()
-            : new Date().toISOString()
+            : new Date().toISOString(),
+        token_expires_at: resolveTokenExpiresAtIso(user)
     };
 }
 
-// Convierte una fila de Supabase al tipo StoredUser de la aplicación
-function fromRow(row: Record<string, unknown>): StoredUser {
+function resolveTokenExpiresAtIso(user: StoredUser): string | null {
+    if (user.tokenExpiresAt && user.tokenExpiresAt > 0) {
+        return new Date(user.tokenExpiresAt).toISOString();
+    }
+    if (user.obtainedAt && user.expiresIn) {
+        return new Date(user.obtainedAt + user.expiresIn * 1000).toISOString();
+    }
+    return null;
+}
+
+function hydrateUserFromRow(row: Record<string, unknown>): StoredUser {
+    const tokenExpiresAt = row.token_expires_at
+        ? new Date(row.token_expires_at as string).getTime()
+        : undefined;
+
     return {
         userId: row.user_id as string,
         login: row.login as string,
@@ -103,8 +131,22 @@ function fromRow(row: Record<string, unknown>): StoredUser {
         profileImageUrl: (row.profile_image_url as string) ?? undefined,
         timezone: (row.timezone as string) ?? 'UTC',
         lastActive: (row.last_active as string) ?? undefined,
-        createdAt: (row.created_at as string) ?? undefined
+        createdAt: (row.created_at as string) ?? undefined,
+        tokenExpiresAt
     };
+}
+
+function rememberUserCaches(user: StoredUser): void {
+    setUserTimezone(user.userId, user.timezone);
+    userMemoryCache.set(user.userId, {
+        user,
+        expiry: Date.now() + CACHE_TTL.API_USER * 1000
+    });
+}
+
+// Convierte una fila de Supabase al tipo StoredUser de la aplicación
+function fromRow(row: Record<string, unknown>): StoredUser {
+    return hydrateUserFromRow(row);
 }
 
 export const saveUser = async (user: StoredUser): Promise<void> => {
@@ -141,31 +183,59 @@ export const saveUser = async (user: StoredUser): Promise<void> => {
     await Promise.all(cachePromises).catch((e) =>
         logger.error('Error invalidando caché de usuario:', e)
     );
+    invalidateUserMemoryCache(user.userId);
 };
 
 export const getUser = async (userId: string): Promise<StoredUser | null> => {
-    const cacheKey = `cache:user:id:${userId}`;
-    const cached = await cacheService.get<StoredUser>(cacheKey);
-    if (cached) return cached;
+    const memoryHit = userMemoryCache.get(userId);
+    if (memoryHit && memoryHit.expiry > Date.now()) {
+        return memoryHit.user;
+    }
+    if (memoryHit) userMemoryCache.delete(userId);
 
-    const { data, error } = await supabase.from('users').select('*').eq('user_id', userId).single();
+    const inFlight = pendingGetUser.get(userId);
+    if (inFlight) return inFlight;
 
-    if (error || !data) return null;
+    const fetchPromise = (async (): Promise<StoredUser | null> => {
+        const cacheKey = `cache:user:id:${userId}`;
+        const cached = await cacheService.get<StoredUser>(cacheKey);
+        if (cached) {
+            rememberUserCaches(cached);
+            return cached;
+        }
 
-    const user = fromRow(data as Record<string, unknown>);
-    const result = await decryptAndMigrateIfNeeded(user, `usuario ${userId}`);
-    if (!result) return null;
+        const { data, error } = await supabase.from('users').select('*').eq('user_id', userId).single();
 
-    // 10 min: suficiente para no re-consultar Supabase en cada comando del bot
-    await cacheService.set(cacheKey, result, CACHE_TTL.API_USER);
-    return result;
+        if (error || !data) return null;
+
+        const user = fromRow(data as Record<string, unknown>);
+        const result = await decryptAndMigrateIfNeeded(user, `usuario ${userId}`);
+        if (!result) return null;
+
+        rememberUserCaches(result);
+
+        // 10 min: suficiente para no re-consultar Supabase en cada comando del bot
+        await cacheService.set(cacheKey, result, CACHE_TTL.API_USER);
+        return result;
+    })();
+
+    pendingGetUser.set(userId, fetchPromise);
+    try {
+        return await fetchPromise;
+    } finally {
+        pendingGetUser.delete(userId);
+    }
 };
 
 export const getUserByLogin = async (login: string): Promise<StoredUser | null> => {
-    const cacheKey = `cache:user:login:${login.toLowerCase()}`;
+    const normalizedLogin = login.toLowerCase();
+    const cacheKey = `cache:user:login:${normalizedLogin}`;
 
     const cached = await cacheService.get<StoredUser>(cacheKey);
-    if (cached) return cached;
+    if (cached) {
+        rememberUserCaches(cached);
+        return cached;
+    }
 
     const { data } = await supabase.from('users').select('*').eq('login', login).single();
     if (!data) return null;
@@ -174,31 +244,27 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
     const result = await decryptAndMigrateIfNeeded(user, `login ${login}`);
     if (!result) return null;
 
-    // 15 min: el login no cambia frecuentemente
+    rememberUserCaches(result);
+
     await cacheService.set(cacheKey, result, CACHE_TTL.USER_BY_LOGIN);
     return result;
 };
 
 export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null> => {
-    // Normalizar a formato UUID con guiones para la primera búsqueda
     const clean = apiKey.replace(/-/g, '');
     const normalizedKey =
         clean.length === 32
             ? `${clean.slice(0, 8)}-${clean.slice(8, 12)}-${clean.slice(12, 16)}-${clean.slice(16, 20)}-${clean.slice(20)}`
             : apiKey;
 
-    let { data, error } = await supabase
+    const lookupKeys = normalizedKey === apiKey ? [normalizedKey] : [normalizedKey, apiKey];
+
+    const { data, error } = await supabase
         .from('users')
         .select('*')
-        .eq('api_key', normalizedKey)
-        .single();
-
-    // Fallback: si la key normalizada no coincide, intentar con el valor original
-    if ((error || !data) && normalizedKey !== apiKey) {
-        const fallback = await supabase.from('users').select('*').eq('api_key', apiKey).single();
-        data = fallback.data;
-        error = fallback.error;
-    }
+        .in('api_key', lookupKeys)
+        .limit(1)
+        .maybeSingle();
 
     if (error || !data) return null;
 
@@ -211,6 +277,8 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
 
     const result = await decryptAndMigrateIfNeeded(user, `api_key ${apiKey}`);
     if (!result) return null;
+
+    rememberUserCaches(result);
 
     return result;
 };
@@ -242,6 +310,11 @@ export const deleteUser = async (userId: string): Promise<void> => {
             cacheService.del(`cache:user:login:${user.login.toLowerCase()}`)
         ]).catch(() => {});
 
+        await invalidateAllUserCaches(userId, {
+            apiKey: user.apiKey,
+            login: user.login
+        });
+
         logger.info(`🗑️ Usuario eliminado por completo: ${user.login} (${userId})`);
     } catch (e) {
         logger.error('Error deleting user:', e);
@@ -256,5 +329,16 @@ export const updateUserTimezone = async (userId: string, timezone: string): Prom
         throw new Error('Error updating timezone');
     }
 
-    await cacheService.del(`cache:user:id:${userId}`).catch(() => {});
+    const memUser = userMemoryCache.get(userId)?.user;
+    const loginKey = memUser?.login?.toLowerCase();
+
+    await Promise.all([
+        cacheService.del(`cache:user:id:${userId}`),
+        loginKey ? cacheService.del(`cache:user:login:${loginKey}`) : Promise.resolve(),
+        cacheService.del(`cache:dashboard:analytics:${userId}`),
+        cacheService.del(`cache:analytics:${userId}`)
+    ]).catch(() => {});
+
+    invalidateUserMemoryCache(userId);
+    invalidateStatsCache(userId);
 };

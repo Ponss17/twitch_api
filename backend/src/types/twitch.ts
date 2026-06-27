@@ -52,6 +52,8 @@ export interface StoredUser {
     createdAt?: string;
     profileImageUrl?: string;
     timezone?: string;
+    /** Epoch ms — persistido en Supabase como token_expires_at */
+    tokenExpiresAt?: number;
 }
 
 export interface AuthenticatedRequest extends Request {

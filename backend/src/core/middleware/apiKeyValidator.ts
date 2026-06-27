@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as dbService from '../database/dbService';
 import * as cacheService from '../database/cacheService';
-import { getValidToken } from '../../features/auth/auth.service';
+import { getValidTokenForUser } from '../../features/auth/auth.service';
 import { logger } from '../utils/logger';
 import { invalidateAuthCache } from './authMiddleware';
 import { StoredUser } from '../../types/twitch';
@@ -75,21 +75,28 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         }
         if (cached) validKeysCache.delete(apiKey);
 
-        const kvCachedUser = await cacheService.getCachedApiUser(apiKey);
-        if (kvCachedUser) {
-            if (!kvCachedUser.isActive) {
+        const kvCachedMeta = await cacheService.getCachedApiUserMeta(apiKey);
+        if (kvCachedMeta) {
+            if (kvCachedMeta.isActive === false) {
                 return res.status(403).json({ error: 'Cuenta suspendida.' });
             }
-            res.locals.apiUser = kvCachedUser;
-            res.locals.isApiKeyRequest = true;
-            validKeysCache.set(apiKey, { user: kvCachedUser, expiry: Date.now() + CACHE_TTL_MS });
-            return next();
+
+            const user = await dbService.getUser(kvCachedMeta.userId);
+            if (user && user.isActive) {
+                res.locals.apiUser = user;
+                res.locals.isApiKeyRequest = true;
+                validKeysCache.set(apiKey, { user, expiry: Date.now() + CACHE_TTL_MS });
+                return next();
+            }
+            if (user && !user.isActive) {
+                return res.status(403).json({ error: 'Cuenta suspendida.' });
+            }
         }
 
-        const authData = await getValidToken(apiKey);
-        const user = await dbService.getUser(authData.userId);
+        const user = await dbService.getUserByApiKey(apiKey);
 
         if (user && user.isActive) {
+            await getValidTokenForUser(user);
             validKeysCache.set(apiKey, { user, expiry: Date.now() + CACHE_TTL_MS });
             cacheService
                 .setCachedApiUser(apiKey, user)

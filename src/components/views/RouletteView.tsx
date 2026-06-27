@@ -5,7 +5,8 @@ import { API_ENDPOINTS, IGNORED_BOTS } from '@/lib/config';
 import { authHeaders } from '@/lib/auth';
 import { buildAuthQueryParam } from '@/lib/authQuery';
 import { useRequiredSession } from '@/hooks/useSession';
-import { getTmiAuth, tmiService } from '@/lib/tmiService';
+import { useTmiChat } from '@/hooks/useTmiChat';
+import { tmiService } from '@/lib/tmiService';
 import type { RouletteUser } from '@/lib/twitchTypes';
 import { card, fadeIn } from '@/lib/tw';
 import { readScopedPref, writeScopedPref } from '@/lib/localPrefs';
@@ -330,41 +331,44 @@ export function RouletteView({ active = true }: { active?: boolean }) {
         }
     }, [session, showToast, pulseCounter]);
 
-    const connectTmi = useCallback(async () => {
-        if (!session.login) return;
-        try {
-            await tmiService.connect(session.login, getTmiAuth(session));
-            tmiService.addListener(LISTENER_ID, (_ch, tags) => {
-                if (isSpinningRef.current || !isOpenRef.current) return;
-                if (!tagsMatchFilters(tags, filtersRef.current)) return;
-                const login = tags.username;
-                if (!login || IGNORED_BOTS.has(login.toLowerCase())) return;
-                const roles = rolesFromTags(tags);
-                setChatters((prev) => {
-                    if (prev.some((u) => u.user_login.toLowerCase() === login.toLowerCase())) {
-                        return prev;
+    const handleTmiMessage = useCallback(
+        (_ch: string, tags: Parameters<typeof tagsMatchFilters>[0]) => {
+            if (isSpinningRef.current || !isOpenRef.current) return;
+            if (!tagsMatchFilters(tags, filtersRef.current)) return;
+            const login = tags.username;
+            if (!login || IGNORED_BOTS.has(login.toLowerCase())) return;
+            const roles = rolesFromTags(tags);
+            setChatters((prev) => {
+                if (prev.some((u) => u.user_login.toLowerCase() === login.toLowerCase())) {
+                    return prev;
+                }
+                pulseCounter();
+                return [
+                    ...prev,
+                    {
+                        user_login: login,
+                        user_name: tags['display-name'] || login,
+                        ...roles
                     }
-                    pulseCounter();
-                    return [
-                        ...prev,
-                        {
-                            user_login: login,
-                            user_name: tags['display-name'] || login,
-                            ...roles
-                        }
-                    ];
-                });
+                ];
             });
-        } catch {
+        },
+        [pulseCounter]
+    );
+
+    useTmiChat(LISTENER_ID, {
+        channel: session.login,
+        session,
+        enabled: active && isOpen,
+        onMessage: handleTmiMessage,
+        onError: () => {
             showToast('Error al conectar con el chat', 'error');
             setIsOpen(false);
         }
-    }, [session, showToast, pulseCounter]);
+    });
 
     const toggleOpen = async () => {
         if (isOpen) {
-            tmiService.removeListener(LISTENER_ID);
-            tmiService.disconnect();
             setIsOpen(false);
             showToast('Inscripciones Cerradas', 'info');
             return;
@@ -379,7 +383,6 @@ export function RouletteView({ active = true }: { active?: boolean }) {
         setLastSpinCount(0);
         showToast('Inscripciones Abiertas', 'success');
         await loadChatters();
-        await connectTmi();
     };
 
     const sendWinnerMessage = (winMsg: string) => {
@@ -486,16 +489,12 @@ export function RouletteView({ active = true }: { active?: boolean }) {
 
     useEffect(() => {
         if (active) return;
-        tmiService.removeListener(LISTENER_ID);
-        tmiService.disconnect();
         setIsOpen(false);
     }, [active]);
 
     useEffect(() => {
         return () => {
             if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
-            tmiService.removeListener(LISTENER_ID);
-            tmiService.disconnect();
         };
     }, []);
 

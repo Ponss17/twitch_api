@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import { logger } from '../utils/logger';
+import { getUserTimezone } from './userTimezoneCache';
 
 const DEFAULT_STAT_FIELDS = [
     'clips_count',
@@ -20,6 +21,8 @@ const DEFAULT_STAT_FIELDS = [
     'today_latency'
 ];
 
+const USER_STATS_SELECT = [...DEFAULT_STAT_FIELDS, 'last_stats_date'].join(',');
+
 // Cache para saber si un usuario ya tiene fila de stats y evitar upserts constantes
 const EXISTS_CACHE = new Set<string>();
 
@@ -37,6 +40,11 @@ const addToExistsCache = (userId: string) => {
 const STATS_CACHE = new Map<string, { data: Record<string, number>; expiry: number; tz: string }>();
 const STATS_TTL = 60 * 1000; // 60s — más eficiente en serverless (warm start aprovecha mejor el cache en memoria)
 const MAX_STATS_CACHE_SIZE = 500;
+
+export function invalidateStatsCache(userId: string): void {
+    STATS_CACHE.delete(userId);
+    EXISTS_CACHE.delete(userId);
+}
 const dateFormatterCache = new Map<string, Intl.DateTimeFormat>();
 
 const getDateFormatter = (tz: string): Intl.DateTimeFormat => {
@@ -57,19 +65,15 @@ const getDateFormatter = (tz: string): Intl.DateTimeFormat => {
     return formatter;
 };
 
+function resolveLocalDateForUser(userId: string): string {
+    const cached = STATS_CACHE.get(userId);
+    const tz = cached?.tz ?? getUserTimezone(userId);
+    return getDateFormatter(tz).format(new Date());
+}
+
 // Asegura que exista la fila de stats para el usuario antes de incrementar
 async function ensureStatsRow(userId: string): Promise<void> {
     if (EXISTS_CACHE.has(userId)) return;
-
-    const { count } = await supabase
-        .from('user_stats')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
-
-    if (count && count > 0) {
-        addToExistsCache(userId);
-        return;
-    }
 
     const defaultRow = DEFAULT_STAT_FIELDS.reduce(
         (acc, f) => {
@@ -116,17 +120,13 @@ export const incrementUserStats = async (userId: string, command: string): Promi
         // Si el RPC falla (ej. usuario no existe aún), asegurar fila y reintentar manual
         if (error) {
             await ensureStatsRow(userId);
-            const { data: current } = await supabase
-                .from('user_stats')
-                .select(column)
-                .eq('user_id', userId)
-                .single();
-            const currentData = current as Record<string, number> | null;
-            const newVal = (currentData?.[column] || 0) + 1;
-            await supabase
-                .from('user_stats')
-                .update({ [column]: newVal })
-                .eq('user_id', userId);
+            const { error: retryError } = await supabase.rpc('increment_user_stat', {
+                p_user_id: userId,
+                p_column: column
+            });
+            if (retryError) {
+                logger.error('Error en retry increment_user_stat:', retryError.message);
+            }
         }
 
         STATS_CACHE.delete(userId);
@@ -144,13 +144,13 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         const cachedTz = cached?.tz || null;
 
         const [totalsResult, userResult] = await Promise.all([
-            supabase.from('user_stats').select('*').eq('user_id', userId).single(),
+            supabase.from('user_stats').select(USER_STATS_SELECT).eq('user_id', userId).single(),
             cachedTz
                 ? Promise.resolve(null)
                 : supabase.from('users').select('timezone').eq('user_id', userId).single()
         ]);
 
-        const totals = totalsResult.data;
+        const totals = totalsResult.data as Record<string, number | string | null> | null;
 
         if (!totals) {
             await ensureStatsRow(userId);
@@ -179,13 +179,11 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         const todayStr = getDateFormatter(tz).format(new Date());
 
         const lastStatsDate = totals?.last_stats_date as string | undefined;
-        // Si lastStatsDate es menor que la fecha actual (ej. '2026-04-18' < '2026-04-19'),
-        // significa que las estadísticas de HOY aún no han sido pisadas (lazy reset).
         const isOutdated = lastStatsDate && lastStatsDate < todayStr;
 
-        const effectiveTodayReqs = isOutdated ? 0 : (totals?.today_requests ?? 0);
-        const effectiveTodayErrs = isOutdated ? 0 : (totals?.today_errors ?? 0);
-        const effectiveTodayLat = isOutdated ? 0 : (totals?.today_latency ?? 0);
+        const effectiveTodayReqs = isOutdated ? 0 : Number(totals?.today_requests ?? 0);
+        const effectiveTodayErrs = isOutdated ? 0 : Number(totals?.today_errors ?? 0);
+        const effectiveTodayLat = isOutdated ? 0 : Number(totals?.today_latency ?? 0);
 
         numericStats[`d:${todayStr}`] = effectiveTodayReqs;
         numericStats[`e:${todayStr}`] = effectiveTodayErrs;
@@ -222,7 +220,8 @@ export const recordUserRequest = async (
         const { error } = await supabase.rpc('record_user_request', {
             p_user_id: userId,
             p_latency: Math.round(latency),
-            p_success: success
+            p_success: success,
+            p_local_date: resolveLocalDateForUser(userId)
         });
 
         if (error) {

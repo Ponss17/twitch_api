@@ -2,7 +2,10 @@ const mockSupabase = {
     from: jest.fn().mockReturnThis(),
     select: jest.fn().mockReturnThis(),
     eq: jest.fn().mockReturnThis(),
+    in: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockReturnThis(),
     single: jest.fn(),
+    maybeSingle: jest.fn(),
     upsert: jest.fn().mockResolvedValue({ error: null })
 };
 
@@ -32,6 +35,8 @@ describe('userService', () => {
         mockSupabase.from.mockReturnThis();
         mockSupabase.select.mockReturnThis();
         mockSupabase.eq.mockReturnThis();
+        mockSupabase.in.mockReturnThis();
+        mockSupabase.limit.mockReturnThis();
     });
 
     describe('getUserByLogin', () => {
@@ -65,7 +70,7 @@ describe('userService', () => {
 
     describe('getUserByApiKey', () => {
         it('retorna null si el usuario está marcado como inactivo', async () => {
-            mockSupabase.single.mockResolvedValue({
+            mockSupabase.maybeSingle.mockResolvedValue({
                 data: { user_id: '123', is_active: false, login: 'blocked' },
                 error: null
             });

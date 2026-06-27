@@ -44,7 +44,7 @@ export function initAuthSync(): void {
     authChannel = new BroadcastChannel(AUTH_SYNC_CHANNEL);
     authChannel.onmessage = (event) => {
         if (event.data?.type === 'LOGOUT') {
-            clearSession();
+            invalidateSession({ broadcast: false });
             window.location.href = window.location.origin + window.location.pathname;
         }
     };
@@ -71,6 +71,25 @@ export function clearSession(): void {
     if (typeof window !== 'undefined') {
         clearValidateCache(previous);
         clearDashboardSplashFlags();
+    }
+}
+
+/** Punto único para cerrar sesión local (opcionalmente avisar a otras pestañas). */
+export function invalidateSession(options?: { broadcast?: boolean }): void {
+    clearSession();
+
+    if (options?.broadcast === false || typeof window === 'undefined') return;
+
+    try {
+        if (authChannel) {
+            authChannel.postMessage({ type: 'LOGOUT' });
+        } else {
+            const tempChannel = new BroadcastChannel(AUTH_SYNC_CHANNEL);
+            tempChannel.postMessage({ type: 'LOGOUT' });
+            tempChannel.close();
+        }
+    } catch {
+        /* BroadcastChannel no disponible */
     }
 }
 
@@ -304,7 +323,7 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
 }
 
 export function startTwitchLogin(): void {
-    clearSession();
+    invalidateSession({ broadcast: false });
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
     const redirectOrigin = window.location.origin + window.location.pathname;
 
@@ -317,14 +336,7 @@ export function startTwitchLogin(): void {
 }
 
 export function logout(): void {
-    clearSession();
-    if (authChannel) {
-        authChannel.postMessage({ type: 'LOGOUT' });
-    } else {
-        const tempChannel = new BroadcastChannel(AUTH_SYNC_CHANNEL);
-        tempChannel.postMessage({ type: 'LOGOUT' });
-        tempChannel.close();
-    }
+    invalidateSession({ broadcast: true });
     window.location.href = window.location.origin + window.location.pathname;
 }
 

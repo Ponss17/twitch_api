@@ -12,6 +12,24 @@ import { BoundedMap } from '../utils/boundedCache';
 
 /** Contador en memoria por instancia — evita KV en sesiones OAuth del dashboard. */
 const sessionRateMemory = new BoundedMap<string, { window: number; count: number }>(500);
+/** Fallback en memoria cuando KV no está disponible (API key / IP). */
+const kvFallbackRateMemory = new BoundedMap<string, { window: number; count: number }>(2000);
+
+function incrementMemoryCounter(
+    store: BoundedMap<string, { window: number; count: number }>,
+    key: string,
+    currentWindow: number
+): number {
+    const mem = store.get(key);
+    const count = mem && mem.window === currentWindow ? mem.count + 1 : 1;
+    store.set(key, { window: currentWindow, count });
+    return count;
+}
+
+function applyRateLimitHeaders(res: Response, limit: number, count: number): void {
+    res.setHeader('X-RateLimit-Limit', limit);
+    res.setHeader('X-RateLimit-Remaining', Math.max(0, limit - count));
+}
 
 /**
  * Middleware de Rate Limiting Global usando Vercel KV (Redis).
@@ -51,13 +69,8 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
 
         // Dashboard OAuth: rate limit solo en memoria (0 ops KV por poll)
         if (userId && !isApiKeyRequest) {
-            const mem = sessionRateMemory.get(key);
-            const count =
-                mem && mem.window === currentWindow ? mem.count + 1 : 1;
-            sessionRateMemory.set(key, { window: currentWindow, count });
-
-            res.setHeader('X-RateLimit-Limit', limit);
-            res.setHeader('X-RateLimit-Remaining', Math.max(0, limit - count));
+            const count = incrementMemoryCounter(sessionRateMemory, key, currentWindow);
+            applyRateLimitHeaders(res, limit, count);
 
             if (count > limit) {
                 logger.warn(`🛑 Rate limit exceeded for ${key} on ${cleanPath}`);
@@ -67,6 +80,12 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
         }
 
         if (!isKvWriteAvailable()) {
+            const count = incrementMemoryCounter(kvFallbackRateMemory, key, currentWindow);
+            applyRateLimitHeaders(res, limit, count);
+            if (count > limit) {
+                logger.warn(`🛑 Rate limit exceeded for ${key} on ${cleanPath}`);
+                return handleLimitExceeded(req, res, cleanPath);
+            }
             return next();
         }
 
@@ -78,9 +97,7 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
             number
         ];
 
-        // Añadir headers estándares de Rate Limit
-        res.setHeader('X-RateLimit-Limit', limit);
-        res.setHeader('X-RateLimit-Remaining', Math.max(0, limit - count));
+        applyRateLimitHeaders(res, limit, count);
 
         if (count > limit) {
             logger.warn(`🛑 Rate limit exceeded for ${key} on ${cleanPath}`);
@@ -94,16 +111,34 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
             return next();
         }
 
-        logger.error('Error in KV Rate Limiter:', error);
+        logger.error('Error in KV Rate Limiter — usando fallback en memoria:', error);
 
-        if (isApiRoute(cleanPath)) {
-            res.setHeader('Content-Type', 'text/plain');
-            return res.status(503).send('Servicio temporalmente no disponible (KV Timeout).');
+        const apiUser = res.locals?.apiUser;
+        const userId = (req as AuthenticatedRequest).userId;
+        const isApiKeyRequest = res.locals?.isApiKeyRequest;
+        let key = '';
+        let limit = 0;
+
+        if (apiUser && isApiKeyRequest) {
+            key = `rl:api:${apiUser.userId}`;
+            limit = apiUser.customRateLimit || RATE_LIMITS.DEFAULT;
+        } else if (userId) {
+            key = `rl:sess:${userId}`;
+            limit = RATE_LIMITS.DASHBOARD;
+        } else {
+            const safeIp = (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
+            key = `rl:ip:${safeIp}`;
+            limit = RATE_LIMITS.PUBLIC;
         }
-        return res.status(503).json({
-            error: 'Service Unavailable',
-            message: 'Servicio no disponible debido a alta carga global.'
-        });
+
+        const currentWindow = Math.floor(Date.now() / 60000);
+        const count = incrementMemoryCounter(kvFallbackRateMemory, key, currentWindow);
+        applyRateLimitHeaders(res, limit, count);
+
+        if (count > limit) {
+            return handleLimitExceeded(req, res, cleanPath);
+        }
+        return next();
     }
 };
 

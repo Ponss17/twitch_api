@@ -3,9 +3,41 @@ import { StoredUser } from '../../types/twitch';
 import { CacheEntry } from '../../types/cache';
 import { CACHE_TTL } from '../config/cacheTtl';
 
+/** Metadatos cacheables sin tokens OAuth (resolver con getUser en apiKeyValidator). */
+export type CachedApiUserMeta = Pick<
+    StoredUser,
+    'userId' | 'login' | 'displayName' | 'apiKey' | 'isActive' | 'profileImageUrl' | 'customRateLimit'
+>;
+
 const MEMORY_CACHE = new Map<string, CacheEntry<unknown>>();
 const DEFAULT_L1_TTL_MS = 30 * 1000;
 const MAX_MEMORY_CACHE_SIZE = 500;
+
+/** Alinea TTL de L1 con el de KV para evitar re-lecturas prematuras a Redis. */
+function resolveL1TtlMs(key: string): number {
+    if (key.startsWith('cache:user:id:') || key.startsWith('cache:apiuser:')) {
+        return CACHE_TTL.API_USER * 1000;
+    }
+    if (key.startsWith('cache:user:login:')) {
+        return CACHE_TTL.USER_BY_LOGIN * 1000;
+    }
+    if (key.startsWith('cache:dashboard:profile:')) {
+        return CACHE_TTL.DASHBOARD_PROFILE * 1000;
+    }
+    if (key.startsWith('cache:dashboard:analytics:') || key.startsWith('cache:analytics:')) {
+        return CACHE_TTL.DASHBOARD_ANALYTICS * 1000;
+    }
+    if (key.startsWith('cache:activity:')) {
+        return CACHE_TTL.ACTIVITY_FEED * 1000;
+    }
+    if (key.startsWith('cache:cmd:getUserInfo:login:')) {
+        return CACHE_TTL.USER_INFO * 1000;
+    }
+    if (key.startsWith('cache:userId:')) {
+        return CACHE_TTL.TWITCH_USER_ID * 1000;
+    }
+    return DEFAULT_L1_TTL_MS;
+}
 
 const evictMemoryCache = (): void => {
     const toRemove = Math.floor(MAX_MEMORY_CACHE_SIZE * 0.25);
@@ -76,7 +108,7 @@ export const get = async <T = unknown>(key: string): Promise<T | null> => {
     const fetchPromise = (async () => {
         try {
             const value = await kv.get<T>(`twitch_api:${key}`);
-            if (value !== null) setL1<T>(key, value);
+            if (value !== null) setL1<T>(key, value, resolveL1TtlMs(key));
             return value;
         } catch (error) {
             console.error(`[Cache] Error KV get (${key}):`, error);
@@ -132,13 +164,27 @@ export const setCachedUserId = async (username: string, id: string): Promise<voi
     await set(`cache:userId:${username.toLowerCase()}`, id, CACHE_TTL.TWITCH_USER_ID);
 };
 
-export const getCachedApiUser = async (apiKey: string): Promise<StoredUser | null> => {
+export const getCachedApiUserMeta = async (apiKey: string): Promise<CachedApiUserMeta | null> => {
     const key = `cache:apiuser:${apiKey}`;
-    return get<StoredUser>(key);
+    return get<CachedApiUserMeta>(key);
+};
+
+/** @deprecated Usar getCachedApiUserMeta + getUser para no cachear tokens en KV. */
+export const getCachedApiUser = async (apiKey: string): Promise<StoredUser | null> => {
+    return getCachedApiUserMeta(apiKey) as Promise<StoredUser | null>;
 };
 
 export const setCachedApiUser = async (apiKey: string, user: StoredUser): Promise<void> => {
-    await set(`cache:apiuser:${apiKey}`, user, CACHE_TTL.API_USER);
+    const meta: CachedApiUserMeta = {
+        userId: user.userId,
+        login: user.login,
+        displayName: user.displayName,
+        apiKey: user.apiKey,
+        isActive: user.isActive,
+        profileImageUrl: user.profileImageUrl,
+        customRateLimit: user.customRateLimit
+    };
+    await set(`cache:apiuser:${apiKey}`, meta, CACHE_TTL.API_USER);
 };
 
 /** Invalida caché del dashboard tras borrar datos, eliminar cuenta, etc. */
@@ -147,10 +193,10 @@ export const invalidateDashboardCache = async (
     login?: string
 ): Promise<void> => {
     const keys = [
-        `cache:summary:${userId}`,
         `cache:dashboard:profile:${userId}`,
         `cache:dashboard:analytics:${userId}`,
-        `cache:analytics:${userId}`
+        `cache:analytics:${userId}`,
+        `cache:activity:${userId}`
     ];
 
     if (login) {
