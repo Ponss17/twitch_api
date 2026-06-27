@@ -89,7 +89,6 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
         '/offline',
         '/api/twitch',
         '/api/twitch/health',
-        '/api/twitch/system/health',
         '/robots.txt',
         '/api/twitch/robots.txt',
         '/sitemap.xml',

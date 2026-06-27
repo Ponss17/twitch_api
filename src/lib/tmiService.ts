@@ -31,12 +31,25 @@ class TmiChatService {
     private connectionPromise: Promise<void> | null = null;
     isConnected = false;
 
+    private acquireClient(): void {
+        this.activeClients++;
+    }
+
+    private shouldDisconnect(): boolean {
+        return (
+            this.activeClients <= 0 &&
+            this.listeners.size === 0 &&
+            !!this.client &&
+            this.isConnected
+        );
+    }
+
     async connect(
         channel: string,
         auth?: { username: string; token: string },
         onAnonymous?: () => void
     ): Promise<void> {
-        this.activeClients++;
+        this.acquireClient();
         if (this.connectionPromise) return this.connectionPromise;
         if (this.isConnected && this.client) return Promise.resolve();
 
@@ -121,8 +134,8 @@ class TmiChatService {
     disconnect() {
         if (this.activeClients > 0) this.activeClients--;
 
-        if (this.activeClients <= 0 && this.client && this.isConnected) {
-            void this.client.disconnect().then(() => this.resetConnection());
+        if (this.shouldDisconnect()) {
+            void this.client!.disconnect().then(() => this.resetConnection());
         }
     }
 

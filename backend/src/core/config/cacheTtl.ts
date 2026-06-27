@@ -14,6 +14,8 @@ export const CACHE_TTL = {
     ANALYTICS: 45,
     /** Info de usuario para modal Stalker */
     USER_INFO: 3600,
+    /** Feed de actividad del dashboard (polling / fallback sin Realtime) */
+    ACTIVITY_FEED: 20,
     /** Listas de mods / VIPs / subs para ruleta */
     ELIGIBILITY: 60,
     /** Usuario por API key / id en Supabase */

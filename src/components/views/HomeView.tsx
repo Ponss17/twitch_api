@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS } from '@/lib/config';
 import type { DashboardTab } from '@/lib/config';
 import { apiFetch } from '@/lib/auth';
+import { fetchDashboardSummary } from '@/lib/dashboardSummary';
 import { appPath } from '@/lib/paths';
 import { TabSyncService } from '@/lib/tabSyncService';
 
@@ -23,10 +24,6 @@ import { reportSessionLoadProgress } from '@/lib/sessionLoadProgress';
 
 interface HealthStatus {
     status?: string;
-}
-
-interface SummaryResponse {
-    analytics?: AnalyticsData | null;
 }
 
 interface AnalyticsData {
@@ -131,12 +128,8 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         });
 
         try {
-            const summaryUrl = session.login
-                ? `${API_ENDPOINTS.SUMMARY}?login=${encodeURIComponent(session.login)}`
-                : API_ENDPOINTS.SUMMARY;
-
             const [summaryRes, activityRes] = await Promise.all([
-                apiFetch<SummaryResponse>(summaryUrl, session),
+                fetchDashboardSummary(session),
                 apiFetch<ActivityLogItem[] | { logs?: ActivityLogItem[] }>(API_ENDPOINTS.ACTIVITY, session)
             ]);
 
@@ -245,6 +238,9 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     }, [performSync, session.userId]);
 
     const connectRealtime = useCallback(async () => {
+        const sync = syncRef.current;
+        if (!sync?.getIsLeader()) return;
+
         const { RealtimeServiceFactory, isRealtimeInCooldown } = await loadRealtimeModule();
 
         if (isRealtimeInCooldown()) {
@@ -326,7 +322,11 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
                 syncRef.current.destroy();
                 syncRef.current = null;
             }
-            realtimeRef.current?.pause();
+            void loadRealtimeModule().then(({ RealtimeServiceFactory }) => {
+                RealtimeServiceFactory.destroy();
+                realtimeRef.current = null;
+                useRealtimeRef.current = false;
+            });
             return;
         }
 
@@ -337,8 +337,15 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             const data = payload as { isLeader: boolean };
             if (data.isLeader) {
                 void performSyncRef.current();
-            } else if (!useRealtimeRef.current) {
-                setSyncLabel('Follower');
+                void connectRealtimeRef.current();
+            } else {
+                void loadRealtimeModule().then(({ RealtimeServiceFactory }) => {
+                    RealtimeServiceFactory.destroy();
+                    realtimeRef.current = null;
+                    useRealtimeRef.current = false;
+                    setSyncLabel('Follower');
+                    startSmartPolling();
+                });
             }
         });
 
@@ -384,11 +391,15 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             highlightTimersRef.current.clear();
             sync.destroy();
             syncRef.current = null;
-            realtimeRef.current?.pause();
+            void loadRealtimeModule().then(({ RealtimeServiceFactory }) => {
+                RealtimeServiceFactory.destroy();
+                realtimeRef.current = null;
+                useRealtimeRef.current = false;
+            });
             // Resetear el guard para que si el componente vuelve a montarse dispare el evento de nuevo
             dataReadyFiredRef.current = false;
         };
-    }, [active]);
+    }, [active, startSmartPolling]);
 
     if (error && !hasLiveData) {
         return (

@@ -71,10 +71,36 @@ const FRONTEND_EXACT = new Set([
     '/api/twitch/manifest.json'
 ]);
 
+const DASHBOARD_TAB_SLUGS = new Set([
+    'followage',
+    'clips',
+    'shoutout',
+    'trends',
+    'stalker',
+    'magic8',
+    'roulette',
+    'russian',
+    'duel',
+    'profile',
+    'feedback'
+]);
+
+/** Rutas SPA del dashboard (`/dashboard/profile`, etc.) — no proxy al backend en dev. */
+/** @param {string} path */
+function isDashboardTabRoute(path) {
+    const base = '/api/twitch/dashboard';
+    if (path === base || path === `${base}/`) return true;
+    const prefix = `${base}/`;
+    if (!path.startsWith(prefix)) return false;
+    const segment = path.slice(prefix.length).split('/').filter(Boolean)[0];
+    return DASHBOARD_TAB_SLUGS.has(segment);
+}
+
 /** @param {string | undefined} url */
 function isFrontendRoute(url) {
     const path = (url || '').split('?')[0];
     if (FRONTEND_EXACT.has(path)) return true;
+    if (isDashboardTabRoute(path)) return true;
     if (path.startsWith('/img/') || path.startsWith('/api/twitch/img/')) return true;
     if (path.startsWith('/api/twitch/_astro/')) return true;
     return false;

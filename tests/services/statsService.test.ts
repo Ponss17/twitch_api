@@ -59,7 +59,8 @@ describe('statsService', () => {
             expect(mockSupabase.rpc).toHaveBeenCalledWith('record_user_request', {
                 p_user_id: 'user1',
                 p_latency: 123,
-                p_success: true
+                p_success: true,
+                p_local_date: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
             });
         });
 

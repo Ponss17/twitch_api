@@ -58,15 +58,25 @@ Entry serverless: `api/index.ts`. Local: `pnpm dev:api` (puerto 3000).
 
 1. Callback Twitch → redirect con `?auth=<token>` (HMAC, 5 min), **sin** API key en URL permanente.
 2. Frontend llama `GET /auth/exchange?auth=…` → recibe `apiKey` + perfil.
-3. Sesión en `sessionStorage` / validación vía `/system/validate`.
+3. Sesión en `localStorage` (scoped por `userId` vía `src/lib/localPrefs.ts`); validación vía `/system/validate` con caché local por fingerprint de sesión.
+4. `invalidateSession()` centraliza logout local y sync entre pestañas (`BroadcastChannel`).
 
 ## Caché (Vercel KV)
 
-- **L1**: memoria por instancia serverless (~60 s)
-- **L2**: Vercel KV (`twitch_api:` prefix)
+Capas por tipo de dato:
+
+| Capa | Dónde | TTL típico | Uso |
+|------|--------|------------|-----|
+| **L1 RAM** | Instancia serverless (`userMemoryCache`, `validKeysCache`, rate limit dashboard) | 10 min / ventana 1 min | Bots activos y panel en la misma instancia — **0 ops KV** |
+| **L2 KV** | Vercel Redis (`twitch_api:` prefix) | Ver `cacheTtl.ts` | Compartido entre réplicas; metadatos API key **sin tokens OAuth** |
+| **L3 DB** | Supabase | — | Solo en miss de L1+L2 |
+
+**Migración Supabase (obligatoria en prod):** ejecutar `docs/supabase/optimizations.sql` — índices, `token_expires_at`, RPC `trim_activity_logs` y `record_user_request` con fecha local.
+
 - TTLs centralizados: `backend/src/core/config/cacheTtl.ts`
 - Dashboard summary: perfil Twitch (5 min) + analytics Supabase (60 s)
-- Invalidación al borrar stats o eliminar cuenta: `invalidateDashboardCache()`
+- Invalidación al borrar stats, regenerar key o eliminar cuenta: `invalidateAllUserCaches()` (`backend/src/core/utils/cacheInvalidation.ts`)
+- KV API key cache guarda solo metadatos (sin tokens OAuth); usuario completo en L1 RAM + `cache:user:id` en KV
 
 ## Desarrollo local
 

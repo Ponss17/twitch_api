@@ -3,9 +3,9 @@ import { Play, Pause, Users, Radio, Snowflake, Search, RotateCw, User, Eye } fro
 import { API_ENDPOINTS, IGNORED_BOTS } from '@/lib/config';
 import { authHeaders, apiFetch } from '@/lib/auth';
 import { useRequiredSession } from '@/hooks/useSession';
+import { useTmiChat } from '@/hooks/useTmiChat';
 import { cache, CACHE_TTL } from '@/lib/cacheService';
 import { chatLogStore } from '@/lib/chatLogStore';
-import { getTmiAuth, tmiService } from '@/lib/tmiService';
 import type { StalkerUser, TwitchUser } from '@/lib/twitchTypes';
 import { card, fadeIn } from '@/lib/tw';
 import { useToast } from '@/components/ui/ToastProvider';
@@ -74,49 +74,52 @@ export function StalkerView({ active = true }: { active?: boolean }) {
         }
     }, [session, showToast]);
 
-    const connectTmi = useCallback(async () => {
-        if (!session.login) return;
-        try {
-            await tmiService.connect(session.login, getTmiAuth(session));
-            tmiService.addListener(LISTENER_ID, (_ch, tags, message) => {
-                if (!scanningRef.current) return;
-                const login = tags.username;
-                if (!login || IGNORED_BOTS.has(login.toLowerCase())) return;
-                chatLogStore.add(login, message);
+    const handleChatMessage = useCallback(
+        (_ch: string, tags: { username?: string; 'display-name'?: string }, message: string) => {
+            if (!scanningRef.current) return;
+            const login = tags.username;
+            if (!login || IGNORED_BOTS.has(login.toLowerCase())) return;
+            chatLogStore.add(login, message);
 
-                const lower = login.toLowerCase();
-                if (chattersRef.current.some((u) => u.user_login.toLowerCase() === lower)) {
-                    return;
+            const lower = login.toLowerCase();
+            if (chattersRef.current.some((u) => u.user_login.toLowerCase() === lower)) {
+                return;
+            }
+
+            setHighlightLogin(lower);
+            if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+            highlightTimerRef.current = setTimeout(() => setHighlightLogin(null), 1000);
+
+            setChatters((prev) => {
+                if (prev.some((u) => u.user_login.toLowerCase() === lower)) {
+                    return prev;
                 }
-
-                setHighlightLogin(lower);
-                if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
-                highlightTimerRef.current = setTimeout(() => setHighlightLogin(null), 1000);
-
-                setChatters((prev) => {
-                    if (prev.some((u) => u.user_login.toLowerCase() === lower)) {
-                        return prev;
-                    }
-                    return [
-                        {
-                            user_login: login,
-                            user_name: tags['display-name'] || login,
-                            profile_image_url: null
-                        },
-                        ...prev
-                    ];
-                });
+                return [
+                    {
+                        user_login: login,
+                        user_name: tags['display-name'] || login,
+                        profile_image_url: null
+                    },
+                    ...prev
+                ];
             });
-        } catch {
+        },
+        []
+    );
+
+    useTmiChat(LISTENER_ID, {
+        channel: session.login,
+        session,
+        enabled: scanning && active,
+        onMessage: handleChatMessage,
+        onError: () => {
             showToast('Error al conectar con el chat', 'error');
             setScanning(false);
         }
-    }, [session, showToast]);
+    });
 
     const toggleScan = async () => {
         if (scanning) {
-            tmiService.removeListener(LISTENER_ID);
-            tmiService.disconnect();
             setScanning(false);
             showToast('Vista Congelada (Pausado)', 'info');
             return;
@@ -130,7 +133,6 @@ export function StalkerView({ active = true }: { active?: boolean }) {
             body: JSON.stringify({ tool: 'stalker' })
         }).catch(() => {});
         await loadChatters();
-        await connectTmi();
     };
 
     const inspect = async (login: string) => {
@@ -150,25 +152,14 @@ export function StalkerView({ active = true }: { active?: boolean }) {
     };
 
     useEffect(() => {
-        if (!active) {
-            // Pestaña oculta: soltar la conexión TMI pero conservar el estado `scanning`
-            // para reconectar al volver (keep-alive).
-            tmiService.removeListener(LISTENER_ID);
-            tmiService.disconnect();
-            return;
-        }
-        // Pestaña visible de nuevo: si seguíamos escaneando, reconectar el chat.
-        if (scanningRef.current) {
+        if (active && scanningRef.current) {
             void loadChatters();
-            void connectTmi();
         }
-    }, [active, loadChatters, connectTmi]);
+    }, [active, loadChatters]);
 
     useEffect(() => {
         return () => {
             if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
-            tmiService.removeListener(LISTENER_ID);
-            tmiService.disconnect();
         };
     }, []);
 

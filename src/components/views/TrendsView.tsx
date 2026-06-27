@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS, IGNORED_BOTS } from '@/lib/config';
 import { authHeaders } from '@/lib/auth';
 import { useRequiredSession } from '@/hooks/useSession';
+import { useTmiChat } from '@/hooks/useTmiChat';
 import { chatLogStore } from '@/lib/chatLogStore';
-import { getTmiAuth, tmiService } from '@/lib/tmiService';
 import { TabSyncService } from '@/lib/tabSyncService';
 import { card, fadeIn } from '@/lib/tw';
 import { useToast } from '@/components/ui/ToastProvider';
@@ -90,12 +90,9 @@ export function TrendsView({ active = true }: { active?: boolean }) {
     const syncRef = useRef<TabSyncService | null>(null);
     const trackingRef = useRef(tracking);
     trackingRef.current = tracking;
-    const connectedRef = useRef(connected);
-    connectedRef.current = connected;
     const endTimerRef = useRef<(fromError?: boolean) => void>(() => {});
     const completeTimerRef = useRef<() => void>(() => {});
     const remainingTickRef = useRef(0);
-    const connectChatRef = useRef<() => Promise<void>>(async () => {});
     const runTimerRef = useRef<(seconds: number) => void>(() => {});
     const localEndTimerRef = useRef<(fromError?: boolean) => void>(() => {});
     const localResetRef = useRef<() => void>(() => {});
@@ -141,23 +138,34 @@ export function TrendsView({ active = true }: { active?: boolean }) {
         setConnected(isConnected);
     }, []);
 
-    const connectChat = useCallback(async () => {
-        if (!session.login) return;
-        try {
-            await tmiService.connect(session.login, getTmiAuth(session));
-            updateStatus(true);
-            tmiService.addListener(LISTENER_ID, (_ch, tags, message) => {
-                if (!trackingRef.current) return;
-                const username = tags.username;
-                if (!username || IGNORED_BOTS.has(username.toLowerCase())) return;
-                processMessage(message, username);
-            });
-        } catch {
+    const handleChatMessage = useCallback(
+        (_ch: string, tags: { username?: string }, message: string) => {
+            if (!trackingRef.current) return;
+            const username = tags.username;
+            if (!username || IGNORED_BOTS.has(username.toLowerCase())) return;
+            processMessage(message, username);
+        },
+        [processMessage]
+    );
+
+    useTmiChat(LISTENER_ID, {
+        channel: session.login,
+        session,
+        enabled: active && tracking && isLeader,
+        onMessage: handleChatMessage,
+        onConnected: () => updateStatus(true),
+        onError: () => {
             updateStatus(false);
             showToast('Error al conectar con el chat', 'error');
             endTimerRef.current(true);
         }
-    }, [session, processMessage, showToast, updateStatus]);
+    });
+
+    useEffect(() => {
+        if (!(active && tracking && isLeader)) {
+            updateStatus(false);
+        }
+    }, [active, tracking, isLeader, updateStatus]);
 
     const localEndTimer = useCallback(
         (fromError = false) => {
@@ -166,11 +174,6 @@ export function TrendsView({ active = true }: { active?: boolean }) {
             remainingTickRef.current = 0;
             setTracking(false);
             setTimerEnded(true);
-
-            if (syncRef.current?.getIsLeader()) {
-                tmiService.removeListener(LISTENER_ID);
-                tmiService.disconnect();
-            }
             updateStatus(false);
 
             if (!fromError) {
@@ -234,11 +237,6 @@ export function TrendsView({ active = true }: { active?: boolean }) {
         setWordCounts({});
         setMinutes(durationMinutesRef.current);
         chatLogStore.clear();
-
-        if (syncRef.current?.getIsLeader() || connectedRef.current) {
-            tmiService.removeListener(LISTENER_ID);
-            tmiService.disconnect();
-        }
         updateStatus(false);
     }, [updateStatus]);
 
@@ -265,14 +263,11 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
                 body: JSON.stringify({ tool: 'trends' })
             }).catch(() => {});
-            await connectChat();
         }
 
         runTimer(minutes * 60);
         showToast(`Tracker iniciado (${minutes} min)`, 'success');
-    }, [minutes, session, connectChat, runTimer, showToast]);
-
-    connectChatRef.current = connectChat;
+    }, [minutes, session, runTimer, showToast]);
 
     useEffect(() => {
         if (!active) {
@@ -318,24 +313,15 @@ export function TrendsView({ active = true }: { active?: boolean }) {
         sync.on('LEADER_CHANGED', (payload) => {
             const data = payload as { isLeader: boolean };
             setIsLeader(data.isLeader);
-            if (data.isLeader && trackingRef.current) {
-                void connectChatRef.current();
-            } else if (!data.isLeader) {
-                tmiService.removeListener(LISTENER_ID);
-                tmiService.disconnect();
-                updateStatus(false);
-            }
         });
 
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
             timerRef.current = null;
-            tmiService.removeListener(LISTENER_ID);
-            tmiService.disconnect();
             sync.destroy();
             syncRef.current = null;
         };
-    }, [active, updateStatus]);
+    }, [active]);
 
     const ranked = Object.entries(wordCounts)
         .sort((a, b) => b[1] - a[1])
