@@ -143,7 +143,8 @@ describe('systemController', () => {
             expect(authService.regenerateApiKey).toHaveBeenCalledWith('123');
             expect(invalidateAllUserCaches).toHaveBeenCalledWith('123', {
                 apiKey: undefined,
-                login: undefined
+                login: undefined,
+                revokeApiKey: true
             });
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({

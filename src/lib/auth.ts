@@ -139,8 +139,12 @@ export function stripSensitiveQueryParams(): void {
 
 export function authHeaders(session: Session | null): Record<string, string> {
     const headers: Record<string, string> = {};
-    if (session?.token) headers.Authorization = `Bearer ${session.token}`;
-    if (session?.apiKey) headers['x-api-key'] = session.apiKey;
+    // Panel OAuth: priorizar token de Twitch; la API key es para bots/scripts.
+    if (session?.token) {
+        headers.Authorization = `Bearer ${session.token}`;
+    } else if (session?.apiKey) {
+        headers['x-api-key'] = session.apiKey;
+    }
     return headers;
 }
 

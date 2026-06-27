@@ -115,4 +115,19 @@ describe('API Key Validator Middleware', () => {
         expect(mockResponse.status).toHaveBeenCalledWith(403);
         expect(nextFunction).not.toHaveBeenCalled();
     });
+
+    it('falls through to OAuth when API key is revoked but Bearer token is present', async () => {
+        const revokedKey = '33333333-3333-4333-8333-333333333333';
+        mockRequest.headers = {
+            authorization: 'Bearer twitch-oauth-token',
+            'x-api-key': revokedKey
+        };
+
+        (cacheService.isApiKeyRevoked as jest.Mock).mockResolvedValue(true);
+
+        await apiKeyValidator(mockRequest as Request, mockResponse as Response, nextFunction);
+
+        expect(nextFunction).toHaveBeenCalled();
+        expect(mockResponse.status).not.toHaveBeenCalled();
+    });
 });
