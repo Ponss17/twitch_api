@@ -17,6 +17,7 @@ import { fadeIn } from '@/lib/tw';
 import { activityEntryKey, type ActivityLogItem } from '@/lib/activityLogDisplay';
 import { readScopedPref, writeScopedPref } from '@/lib/localPrefs';
 import { useToast } from '@/components/ui/ToastProvider';
+import { formatFetchErrorForUi, isFetchNetworkError } from '@/lib/apiError';
 import { logError } from '@/lib/logError';
 import { AlertTriangle } from 'lucide-react';
 import { reportSessionLoadProgress } from '@/lib/sessionLoadProgress';
@@ -68,6 +69,9 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     const useRealtimeRef = useRef(false);
     const performSyncRef = useRef<() => Promise<void>>(async () => {});
     const connectRealtimeRef = useRef<() => Promise<void>>(async () => {});
+    const fetchPanelDataRef = useRef<
+        (options?: { broadcast?: boolean; retryOnNetwork?: boolean }) => Promise<boolean>
+    >(async () => false);
     const showToastRef = useRef(showToast);
     showToastRef.current = showToast;
     /** Garantiza que home:data-ready solo se dispara una vez por montaje */
@@ -117,58 +121,139 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         );
     }, []);
 
+    const fetchPanelData = useCallback(
+        async (options?: { broadcast?: boolean; retryOnNetwork?: boolean }) => {
+            const sync = syncRef.current;
+            if (!sync?.isActive()) return false;
+
+            const broadcast = options?.broadcast === true && sync.getIsLeader();
+            setSyncing(true);
+            setError(null);
+            reportSessionLoadProgress({
+                progress: 70,
+                label: 'Obteniendo estadísticas del panel…',
+                cached: false
+            });
+
+            const loadOnce = async () => {
+                const [summaryResult, activityResult] = await Promise.allSettled([
+                    fetchDashboardSummary(session),
+                    apiFetch<ActivityLogItem[] | { logs?: ActivityLogItem[] }>(
+                        API_ENDPOINTS.ACTIVITY,
+                        session
+                    )
+                ]);
+
+                if (!sync.isActive() || syncRef.current !== sync) return null;
+
+                let analyticsRes: AnalyticsData = EMPTY_STATS;
+                let activityLogs: ActivityLogItem[] = [];
+                const failures: unknown[] = [];
+
+                if (summaryResult.status === 'fulfilled') {
+                    analyticsRes = summaryResult.value.analytics ?? EMPTY_STATS;
+                } else {
+                    failures.push(summaryResult.reason);
+                }
+
+                if (activityResult.status === 'fulfilled') {
+                    const activityRes = activityResult.value;
+                    activityLogs = Array.isArray(activityRes) ? activityRes : (activityRes.logs ?? []);
+                } else {
+                    failures.push(activityResult.reason);
+                }
+
+                if (failures.length === 2) {
+                    throw failures[0];
+                }
+
+                return { analyticsRes, activityLogs, partialFailure: failures[0] };
+            };
+
+            try {
+                let result = await loadOnce();
+                if (!result) return false;
+
+                const { analyticsRes, activityLogs, partialFailure } = result;
+
+                if (broadcast) {
+                    sync.broadcast('SYNC_STATS', analyticsRes);
+                    sync.broadcast('SYNC_ACTIVITY', activityLogs);
+                }
+
+                setStats(analyticsRes);
+                setActivity(activityLogs);
+                markDataReadyRef.current();
+                writeScopedPref(
+                    DASHBOARD_SYNC_PREF,
+                    session.userId,
+                    Date.now().toString(),
+                    LEGACY_DASHBOARD_SYNC_KEY
+                );
+                reportSessionLoadProgress({
+                    progress: 94,
+                    label: 'Preparando tu inicio…',
+                    cached: false
+                });
+                if (useRealtimeRef.current) {
+                    setSyncLabel('Realtime');
+                } else {
+                    countdownRef.current = Math.ceil(POLL_MS / 1000);
+                    setSyncLabel(`${countdownRef.current}s`);
+                }
+
+                if (partialFailure) {
+                    logError('HomeView', partialFailure, 'Carga parcial del panel');
+                }
+
+                return true;
+            } catch (e) {
+                if (!sync.isActive() || syncRef.current !== sync) return false;
+
+                if (isFetchNetworkError(e) && options?.retryOnNetwork !== false) {
+                    await new Promise((r) => setTimeout(r, 800));
+                    if (sync.isActive() && syncRef.current === sync) {
+                        try {
+                            const retry = await loadOnce();
+                            if (retry) {
+                                const { analyticsRes, activityLogs, partialFailure } = retry;
+                                if (broadcast) {
+                                    sync.broadcast('SYNC_STATS', analyticsRes);
+                                    sync.broadcast('SYNC_ACTIVITY', activityLogs);
+                                }
+                                setStats(analyticsRes);
+                                setActivity(activityLogs);
+                                markDataReadyRef.current();
+                                setError(null);
+                                if (partialFailure) {
+                                    logError('HomeView', partialFailure, 'Carga parcial del panel');
+                                }
+                                return true;
+                            }
+                        } catch {
+                            /* sigue al error de usuario */
+                        }
+                    }
+                }
+
+                logError('HomeView', e, 'Error cargando datos del panel');
+                setError(formatFetchErrorForUi(e));
+                return false;
+            } finally {
+                if (syncingTimerRef.current) clearTimeout(syncingTimerRef.current);
+                syncingTimerRef.current = setTimeout(() => setSyncing(false), 800);
+            }
+        },
+        [session]
+    );
+
+    fetchPanelDataRef.current = fetchPanelData;
+
     const performSync = useCallback(async () => {
         const sync = syncRef.current;
         if (!sync?.getIsLeader() || !sync.isActive()) return;
-        setSyncing(true);
-        reportSessionLoadProgress({
-            progress: 70,
-            label: 'Obteniendo estadísticas del panel…',
-            cached: false
-        });
-
-        try {
-            const [summaryRes, activityRes] = await Promise.all([
-                fetchDashboardSummary(session),
-                apiFetch<ActivityLogItem[] | { logs?: ActivityLogItem[] }>(API_ENDPOINTS.ACTIVITY, session)
-            ]);
-
-            if (!sync.isActive() || syncRef.current !== sync) return;
-
-            const analyticsRes = summaryRes.analytics ?? {};
-            const activityLogs = Array.isArray(activityRes) ? activityRes : (activityRes.logs ?? []);
-
-            sync.broadcast('SYNC_STATS', analyticsRes);
-            sync.broadcast('SYNC_ACTIVITY', activityLogs);
-
-            setStats(analyticsRes);
-            setActivity(activityLogs);
-            markDataReadyRef.current();
-            writeScopedPref(
-                DASHBOARD_SYNC_PREF,
-                session.userId,
-                Date.now().toString(),
-                LEGACY_DASHBOARD_SYNC_KEY
-            );
-            reportSessionLoadProgress({
-                progress: 94,
-                label: 'Preparando tu inicio…',
-                cached: false
-            });
-            if (useRealtimeRef.current) {
-                setSyncLabel('Realtime');
-            } else {
-                countdownRef.current = Math.ceil(POLL_MS / 1000);
-                setSyncLabel(`${countdownRef.current}s`);
-            }
-        } catch (e) {
-            logError('HomeView', e, 'Error cargando datos del panel');
-            setError((prev) => prev ?? (e instanceof Error ? e.message : 'Error cargando datos'));
-        } finally {
-            if (syncingTimerRef.current) clearTimeout(syncingTimerRef.current);
-            syncingTimerRef.current = setTimeout(() => setSyncing(false), 800);
-        }
-    }, [session]);
+        await fetchPanelData({ broadcast: true });
+    }, [fetchPanelData]);
 
     performSyncRef.current = performSync;
 
@@ -371,9 +456,8 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         };
         window.addEventListener('realtime:auth-failed', onAuthFailed);
 
-        // Fire data fetch immediately so the user sees stats ASAP,
-        // while realtime connects in background
-        void performSyncRef.current();
+        // Carga inmediata en esta pestaña (no espera elección de líder ~1.5s)
+        void fetchPanelDataRef.current({ broadcast: false });
         void connectRealtimeRef.current();
 
         return () => {
