@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { LoginDisclaimerModal } from '@/components/ui/LoginDisclaimerModal';
 import { VerifyingSessionModal } from '@/components/ui/VerifyingSessionModal';
 import { AppLogo } from '@/components/ui/AppLogo';
-import { resolveSessionFromUrl, saveSession, markDashboardSplashForFreshLogin, clearDashboardSplashFlags } from '@/lib/auth';
+import { resolveSessionFromUrl, markDashboardSplashForFreshLogin, clearDashboardSplashFlags } from '@/lib/auth';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
 import { reportSessionLoadProgress } from '@/lib/sessionLoadProgress';
 import { Accordion } from '@/components/ui/Accordion';
@@ -116,10 +116,6 @@ export function LandingPage() {
                 cached: false
             });
             markDashboardSplashForFreshLogin();
-
-            if (sessionParams.isNewLogin) {
-                saveSession(sessionParams);
-            }
 
             const search = authParam ? `?auth=${encodeURIComponent(authParam)}` : '';
             window.location.href = appPath('/dashboard') + search;

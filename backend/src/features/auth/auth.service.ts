@@ -142,6 +142,7 @@ export const handleCallback = async (
         refreshToken: refresh_token,
         expiresIn: expires_in,
         obtainedAt: Date.now(),
+        tokenExpiresAt: Date.now() + expires_in * 1000,
         createdAt: existingUser?.createdAt || new Date().toISOString(),
         apiKey,
         profileImageUrl: user.profile_image_url,
@@ -224,6 +225,7 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
             if (refresh_token) user.refreshToken = refresh_token;
             user.expiresIn = expires_in;
             user.obtainedAt = Date.now();
+            user.tokenExpiresAt = Date.now() + expires_in * 1000;
 
             await dbService.saveUser(user);
             return access_token;
@@ -274,20 +276,27 @@ const ensureValidToken = async (
     user: StoredUser,
     errorPrefix: string
 ): Promise<{ accessToken: string; userId: string }> => {
-    let expiresAt = user.obtainedAt + user.expiresIn * 1000;
     const fiveMinutesFromNow = Date.now() + 5 * 60 * 1000;
+    let expiresAt = 0;
 
-    // La expiración no se persiste en Supabase (obtainedAt/expiresIn vuelven como 0
-    // tras leer de la BD). Sin esto, expiresAt = 0 y se fuerza un refresh en cada
-    // cache-miss, además de lanzar falsos "sesión expirada" ante errores transitorios.
-    if (!user.obtainedAt || !user.expiresIn) {
+    if (user.tokenExpiresAt && user.tokenExpiresAt > 0) {
+        expiresAt = user.tokenExpiresAt;
+    } else if (user.obtainedAt && user.expiresIn) {
+        expiresAt = user.obtainedAt + user.expiresIn * 1000;
+    }
+
+    if (!expiresAt) {
         const probed = await probeTokenExpiresAt(user.accessToken);
         if (probed === null) {
-            // Error transitorio validando: asumimos token válido un rato para no
-            // forzar refresh ni romper el flujo del bot/dashboard.
             expiresAt = Date.now() + 10 * 60 * 1000;
         } else {
             expiresAt = probed;
+            if (probed > 0) {
+                user.tokenExpiresAt = probed;
+                void dbService.saveUser(user).catch((e) =>
+                    logger.warn('No se pudo persistir token_expires_at:', e)
+                );
+            }
         }
     }
 
@@ -319,12 +328,18 @@ export const getValidTokenByLogin = async (
     return ensureValidToken(user, `login ${login}`);
 };
 
+export const getValidTokenForUser = async (
+    user: StoredUser
+): Promise<{ accessToken: string; userId: string }> => {
+    return ensureValidToken(user, 'API Key');
+};
+
 export const getValidToken = async (
     apiKey: string
 ): Promise<{ accessToken: string; userId: string }> => {
     const user = await dbService.getUserByApiKey(apiKey);
     if (!user) throw new Error('API Key inválida');
-    return ensureValidToken(user, `API Key`);
+    return getValidTokenForUser(user);
 };
 
 let _invalidateCacheFn: ((userId: string) => void) | null = null;

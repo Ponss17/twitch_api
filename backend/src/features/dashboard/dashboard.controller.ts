@@ -5,15 +5,16 @@ import * as cacheService from '../../core/database/cacheService';
 import { CACHE_TTL } from '../../core/config/cacheTtl';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
-import { computeAnalyticsFromStats } from '../../core/utils/dashboardHelpers';
+import { computeAnalyticsFromStats } from './dashboardHelpers';
 import { buildDashboardProfile } from '../../core/utils/dashboardProfile';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 import { RATE_LIMITS } from '../../core/config/limits';
 import { TwitchApiError } from '../../core/errors/AppError';
 import { AppError } from '../../core/errors/AppError';
-import { trackRequest } from '../../core/utils/tracking';
+import { invalidateAllUserCaches } from '../../core/utils/cacheInvalidation';
 import { jsonError } from '../../core/utils/jsonResponse';
+import { trackRequest } from '../../core/utils/tracking';
 
 
 
@@ -26,7 +27,7 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
     }
 
     try {
-        const cacheKey = `cache:analytics:${userId}`;
+        const cacheKey = `cache:dashboard:analytics:${userId}`;
         const cached = await cacheService.get<Record<string, unknown>>(cacheKey);
         if (cached) {
             return res.json(cached);
@@ -40,7 +41,7 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
             totalRequests: stats.total_requests || 0
         };
 
-        await cacheService.set(cacheKey, payload, CACHE_TTL.ANALYTICS);
+        await cacheService.set(cacheKey, payload, CACHE_TTL.DASHBOARD_ANALYTICS);
         res.json(payload);
     } catch (e) {
         logger.error('Error analytics:', e);
@@ -53,7 +54,14 @@ export const getLogs = async (req: AuthenticatedRequest, res: Response) => {
     if (!userId) return res.json([]);
 
     try {
+        const cacheKey = `cache:activity:${userId}`;
+        const cached = await cacheService.get<unknown[]>(cacheKey);
+        if (cached) {
+            return res.json(cached);
+        }
+
         const logs = await dbService.getUserActivity(userId);
+        await cacheService.set(cacheKey, logs, CACHE_TTL.ACTIVITY_FEED);
         res.json(logs);
     } catch (e) {
         logger.error('Error logs activity:', e);
@@ -234,10 +242,11 @@ export const deleteAccount = async (req: AuthenticatedRequest, res: Response) =>
 
     try {
         const login = req.login;
+        const apiUser = res.locals?.apiUser as { apiKey?: string } | undefined;
+        const apiKey = apiUser?.apiKey;
+
         await dbService.deleteUser(userId);
-        if (login) {
-            await cacheService.invalidateDashboardCache(userId, login);
-        }
+        await invalidateAllUserCaches(userId, { apiKey, login });
         res.json({ success: true, message: 'Cuenta eliminada permanentemente del sistema.' });
     } catch (e) {
         logger.error('Error deleting account:', e);

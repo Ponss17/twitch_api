@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS } from '@/lib/config';
 import { authHeaders, saveSession } from '@/lib/auth';
+import { fetchDashboardSummary } from '@/lib/dashboardSummary';
 import { readScopedPref, writeScopedPref } from '@/lib/localPrefs';
 import { extractApiErrorMessage } from '@/lib/apiError';
 import { useRequiredSession, useSession } from '@/hooks/useSession';
@@ -87,12 +88,9 @@ export function ProfileView({ active = true }: { active?: boolean }) {
         setLoading(true);
         setProfileSyncing(true);
         try {
-            const url = `${API_ENDPOINTS.SUMMARY}?login=${session.login}`;
-            const res = await fetch(url, { headers: authHeaders(session) });
-            if (!res.ok) throw new Error('Error al sincronizar');
-            const data = await res.json();
+            const data = await fetchDashboardSummary(session);
             if (data.profile) setProfile(data.profile);
-            if (data.analytics) setAnalytics(data.analytics);
+            if (data.analytics) setAnalytics(data.analytics as Analytics);
             writeScopedPref(
                 PROFILE_SYNC_PREF,
                 session.userId,

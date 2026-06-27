@@ -1,11 +1,29 @@
 import { describe, expect, it, beforeEach } from '@jest/globals';
-import { getDashboardBasePath, resolveDashboardTab } from '@/lib/dashboardTabUrl';
+import {
+    getDashboardBasePath,
+    isDashboardTab,
+    parseTabFromPathname,
+    resolveDashboardTab
+} from '@/lib/dashboardTabUrl';
 
 const BASE = getDashboardBasePath();
 
-describe('dashboardTabUrl (scoped prefs)', () => {
+describe('dashboardTabUrl', () => {
     beforeEach(() => {
         localStorage.clear();
+    });
+
+    it('validates tab names', () => {
+        expect(isDashboardTab('profile')).toBe(true);
+        expect(isDashboardTab('nope')).toBe(false);
+        expect(isDashboardTab(null)).toBe(false);
+    });
+
+    it('parses tab from pathname', () => {
+        expect(parseTabFromPathname(`${BASE}/`)).toBe('home');
+        expect(parseTabFromPathname(BASE)).toBe('home');
+        expect(parseTabFromPathname(`${BASE}/roulette`)).toBe('roulette');
+        expect(parseTabFromPathname(`${BASE}/unknown`)).toBeNull();
     });
 
     it('restores last tab per user on bare dashboard', () => {

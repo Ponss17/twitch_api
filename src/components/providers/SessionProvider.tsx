@@ -4,7 +4,7 @@ import {
     initAuthSync,
     validateSession,
     resolveSessionFromUrl,
-    clearSession,
+    invalidateSession,
     mergeSessionFromValidate,
     getSession,
     resolveDegradedSession,
@@ -118,7 +118,7 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
         bindCommandStoreUser(undefined);
 
         if (requireAuth) {
-            clearSession();
+            invalidateSession({ broadcast: false });
             showToastRef.current('Sesión expirada. Redirigiendo...', 'error');
             redirectTimerRef.current = window.setTimeout(() => {
                 window.location.href = appPath('/');
