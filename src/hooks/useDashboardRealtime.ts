@@ -32,6 +32,8 @@ export function useDashboardRealtime({
     onActivityRef.current = onActivityInsert;
     onDisconnectRef.current = onDisconnect;
 
+    const sessionKey = `${session.userId ?? ''}|${session.apiKey ?? ''}|${session.token ?? ''}`;
+
     useEffect(() => {
         if (!active || !session.userId) {
             setIsLive(false);
@@ -66,7 +68,9 @@ export function useDashboardRealtime({
             unsubscribe();
             setIsLive(false);
         };
-    }, [active, id, session]);
+        // sessionKey estabiliza credenciales; el objeto session cambia de identidad sin mutar datos.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [active, id, sessionKey]);
 
     return { isLive };
 }
