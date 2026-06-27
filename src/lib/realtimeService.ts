@@ -1,6 +1,10 @@
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 import { API_ENDPOINTS, SUPABASE_ANON_KEY, SUPABASE_URL, type Session } from './config';
 import type { ActivityLogItem } from './activityLogDisplay';
+import {
+    parseDashboardStatsFromRow,
+    type DashboardLiveStats
+} from './dashboardStats';
 import { authHeaders } from './auth';
 import { logError } from './logError';
 import { debugWarn } from './debugLog';
@@ -11,6 +15,9 @@ const REALTIME_COOLDOWN_MS = 5 * 60 * 1000;
 let pageIsUnloading = false;
 let unloadGuardInstalled = false;
 let realtimeCooldownUntil = 0;
+
+/** Un solo cliente Supabase por pestaña (evita GoTrueClient duplicados). */
+let sharedSupabaseClient: SupabaseClient | null = null;
 
 if (typeof window !== 'undefined') {
     try {
@@ -86,13 +93,6 @@ function isBenignRealtimeClose(err: unknown, intentionalClose: boolean): boolean
     return false;
 }
 
-interface RawUserStats {
-    today_requests?: number;
-    today_errors?: number;
-    today_latency?: number;
-    total_requests?: number;
-}
-
 interface RawActivityLog {
     activity_type?: string;
     user_name?: string;
@@ -100,15 +100,30 @@ interface RawActivityLog {
     created_at?: string;
 }
 
-export interface HomeStats {
-    todayRequests: number;
-    rawSuccessRate: number;
-    avgLatencyMs: number;
-}
+/** @deprecated Usar DashboardLiveStats */
+export type HomeStats = Pick<
+    DashboardLiveStats,
+    'todayRequests' | 'rawSuccessRate' | 'avgLatencyMs'
+>;
 
 export interface RealtimeCallbacks {
-    onStatsUpdate: (stats: HomeStats) => void;
+    onStatsUpdate: (stats: DashboardLiveStats) => void;
     onActivityInsert: (log: ActivityLogItem) => void;
+}
+
+interface RealtimeSubscribeOptions {
+    onDisconnect?: () => void;
+    onConnectionChange?: (connected: boolean) => void;
+}
+
+interface SubscriberEntry {
+    session: Session;
+    callbacks: RealtimeCallbacks;
+    options: RealtimeSubscribeOptions;
+}
+
+function sessionKey(session: Session): string {
+    return `${session.userId ?? ''}|${session.apiKey ?? ''}|${session.token ?? ''}`;
 }
 
 export class RealtimeService {
@@ -118,19 +133,28 @@ export class RealtimeService {
     private tokenExpiry = 0;
     private refreshInterval: ReturnType<typeof setInterval> | null = null;
     private session: Session | null = null;
-    private callbacks: RealtimeCallbacks | null = null;
+    private dispatchStats: (stats: DashboardLiveStats) => void = () => {};
+    private dispatchActivity: (log: ActivityLogItem) => void = () => {};
     private isConnected = false;
     private intentionalClose = false;
     private onDisconnectCallback: (() => void) | null = null;
+    private onConnectionChange: ((connected: boolean) => void) | null = null;
 
-    constructor(session: Session, callbacks: RealtimeCallbacks) {
+    constructor(session: Session) {
         installUnloadGuard();
         this.session = session;
-        this.callbacks = callbacks;
     }
 
-    setCallbacks(callbacks: RealtimeCallbacks): void {
-        this.callbacks = callbacks;
+    setDispatchers(
+        onStats: (stats: DashboardLiveStats) => void,
+        onActivity: (log: ActivityLogItem) => void
+    ): void {
+        this.dispatchStats = onStats;
+        this.dispatchActivity = onActivity;
+    }
+
+    get connected(): boolean {
+        return this.isConnected;
     }
 
     private hasValidCredentials(): boolean {
@@ -184,10 +208,11 @@ export class RealtimeService {
         this.isTearingDown = true;
 
         this.isConnected = false;
-        
+        this.onConnectionChange?.(false);
+
         const chan = this.channel;
         const supa = this.supabase;
-        
+
         this.channel = null;
         this.supabase = null;
 
@@ -207,7 +232,8 @@ export class RealtimeService {
                 /* ignore */
             }
         }
-        
+
+        sharedSupabaseClient = null;
         this.isTearingDown = false;
     }
 
@@ -218,20 +244,23 @@ export class RealtimeService {
             return false;
         }
         try {
-            const { createClient } = await import('@supabase/supabase-js');
-            this.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                auth: { persistSession: false, autoRefreshToken: false },
-                realtime: {
-                    params: { apikey: SUPABASE_ANON_KEY }
-                }
-            });
+            if (!sharedSupabaseClient) {
+                const { createClient } = await import('@supabase/supabase-js');
+                sharedSupabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+                    realtime: {
+                        params: { apikey: SUPABASE_ANON_KEY }
+                    }
+                });
+            }
+            this.supabase = sharedSupabaseClient;
             return true;
         } catch {
             return false;
         }
     }
 
-    private formatActivityLog(raw: RawActivityLog): ActivityLogItem {
+    formatActivityLog(raw: RawActivityLog): ActivityLogItem {
         const type = raw.activity_type || 'other';
         const user = raw.user_name || 'Usuario';
         const detail = raw.detail?.trim() || undefined;
@@ -244,17 +273,12 @@ export class RealtimeService {
         };
     }
 
-    private computeStats(raw: RawUserStats): HomeStats {
-        const todayRequests = raw.today_requests || 0;
-        const todayErrors = raw.today_errors || 0;
-        const todayLatency = raw.today_latency || 0;
-        const avgLatencyMs = todayRequests > 0 ? Math.round(todayLatency / todayRequests) : 0;
-        const rawSuccessRate =
-            todayRequests > 0
-                ? parseFloat(((1 - todayErrors / todayRequests) * 100).toFixed(1))
-                : 0;
+    computeStats(raw: Record<string, unknown>): DashboardLiveStats {
+        return parseDashboardStatsFromRow(raw);
+    }
 
-        return { todayRequests, rawSuccessRate, avgLatencyMs };
+    private handleStatsRow(raw: Record<string, unknown>): void {
+        this.dispatchStats(parseDashboardStatsFromRow(raw));
     }
 
     private async setupChannel(): Promise<boolean> {
@@ -271,6 +295,11 @@ export class RealtimeService {
                 (this.supabase.realtime as { setAuth: (t: string) => void }).setAuth(token);
             }
 
+            const userFilter = `user_id=eq.${this.session.userId}`;
+            const statsHandler = (payload: { new: Record<string, unknown> }) => {
+                this.handleStatsRow(payload.new);
+            };
+
             this.channel
                 .on(
                     'postgres_changes',
@@ -278,10 +307,10 @@ export class RealtimeService {
                         event: 'INSERT',
                         schema: 'public',
                         table: 'activity_logs',
-                        filter: `user_id=eq.${this.session.userId}`
+                        filter: userFilter
                     },
                     (payload) => {
-                        this.callbacks?.onActivityInsert(
+                        this.dispatchActivity(
                             this.formatActivityLog(payload.new as RawActivityLog)
                         );
                     }
@@ -292,19 +321,27 @@ export class RealtimeService {
                         event: 'UPDATE',
                         schema: 'public',
                         table: 'user_stats',
-                        filter: `user_id=eq.${this.session.userId}`
+                        filter: userFilter
                     },
-                    (payload) => {
-                        this.callbacks?.onStatsUpdate(
-                            this.computeStats(payload.new as RawUserStats)
-                        );
-                    }
+                    statsHandler
+                )
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'user_stats',
+                        filter: userFilter
+                    },
+                    statsHandler
                 )
                 .subscribe((status, err) => {
                     if (status === 'SUBSCRIBED') {
                         this.isConnected = true;
+                        this.onConnectionChange?.(true);
                     } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
                         this.isConnected = false;
+                        this.onConnectionChange?.(false);
                         const transportFailed = isTransportFailure(err);
                         const benign = isBenignRealtimeClose(err, this.intentionalClose);
 
@@ -344,8 +381,12 @@ export class RealtimeService {
         }, 600_000);
     }
 
-    async connect(onDisconnect?: () => void): Promise<boolean> {
+    async connect(
+        onDisconnect?: () => void,
+        onConnectionChange?: (connected: boolean) => void
+    ): Promise<boolean> {
         this.onDisconnectCallback = onDisconnect ?? null;
+        this.onConnectionChange = onConnectionChange ?? null;
 
         if (isRealtimeInCooldown()) {
             return false;
@@ -377,21 +418,6 @@ export class RealtimeService {
         return true;
     }
 
-    pause(): void {
-        if (this.refreshInterval) {
-            clearInterval(this.refreshInterval);
-            this.refreshInterval = null;
-        }
-    }
-
-    async resume(): Promise<boolean> {
-        if (!this.isConnected || !this.channel) {
-            return this.connect(this.onDisconnectCallback ?? undefined);
-        }
-        this.setupTokenRefresh();
-        return true;
-    }
-
     disconnect(): void {
         this.intentionalClose = true;
         if (this.refreshInterval) {
@@ -399,31 +425,103 @@ export class RealtimeService {
             this.refreshInterval = null;
         }
         this.tearDownClient();
-        this.isConnected = false;
         this.token = null;
         this.tokenExpiry = 0;
     }
 }
 
 let realtimeServiceInstance: RealtimeService | null = null;
+let activeSessionKey: string | null = null;
+const subscribers = new Map<string, SubscriberEntry>();
+let connectInFlight: Promise<boolean> | null = null;
+
+function dispatchToSubscribers(
+    kind: 'stats' | 'activity',
+    payload: DashboardLiveStats | ActivityLogItem
+): void {
+    for (const entry of subscribers.values()) {
+        if (kind === 'stats') {
+            entry.callbacks.onStatsUpdate(payload as DashboardLiveStats);
+        } else {
+            entry.callbacks.onActivityInsert(payload as ActivityLogItem);
+        }
+    }
+}
+
+function notifyConnection(connected: boolean): void {
+    for (const entry of subscribers.values()) {
+        entry.options.onConnectionChange?.(connected);
+    }
+}
+
+function notifyDisconnect(): void {
+    for (const entry of subscribers.values()) {
+        entry.options.onDisconnect?.();
+    }
+}
+
+function ensureService(session: Session): RealtimeService {
+    const key = sessionKey(session);
+    if (!realtimeServiceInstance || activeSessionKey !== key) {
+        realtimeServiceInstance?.disconnect();
+        realtimeServiceInstance = new RealtimeService(session);
+        activeSessionKey = key;
+        connectInFlight = null;
+    }
+
+    realtimeServiceInstance.setDispatchers(
+        (stats) => dispatchToSubscribers('stats', stats),
+        (log) => dispatchToSubscribers('activity', log)
+    );
+
+    return realtimeServiceInstance;
+}
+
+async function ensureConnected(session: Session): Promise<boolean> {
+    const service = ensureService(session);
+    if (service.connected) return true;
+    if (connectInFlight) return connectInFlight;
+
+    connectInFlight = service
+        .connect(
+            () => notifyDisconnect(),
+            (connected) => notifyConnection(connected)
+        )
+        .finally(() => {
+            connectInFlight = null;
+        });
+
+    return connectInFlight;
+}
 
 export const RealtimeServiceFactory = {
-    getInstance(session: Session, callbacks: RealtimeCallbacks): RealtimeService {
-        if (
-            !realtimeServiceInstance ||
-            realtimeServiceInstance['session']?.userId !== session.userId ||
-            realtimeServiceInstance['session']?.apiKey !== session.apiKey ||
-            realtimeServiceInstance['session']?.token !== session.token
-        ) {
-            if (realtimeServiceInstance) realtimeServiceInstance.disconnect();
-            realtimeServiceInstance = new RealtimeService(session, callbacks);
-        } else {
-            realtimeServiceInstance.setCallbacks(callbacks);
+    subscribe(
+        id: string,
+        session: Session,
+        callbacks: RealtimeCallbacks,
+        options: RealtimeSubscribeOptions = {}
+    ): () => void {
+        subscribers.set(id, { session, callbacks, options });
+        void ensureConnected(session);
+        if (realtimeServiceInstance?.connected) {
+            options.onConnectionChange?.(true);
         }
-        return realtimeServiceInstance;
+        return () => {
+            subscribers.delete(id);
+            if (subscribers.size === 0) {
+                RealtimeServiceFactory.destroy();
+            }
+        };
+    },
+
+    isConnected(): boolean {
+        return realtimeServiceInstance?.connected ?? false;
     },
 
     destroy(): void {
+        subscribers.clear();
+        connectInFlight = null;
+        activeSessionKey = null;
         if (realtimeServiceInstance) {
             realtimeServiceInstance.disconnect();
             realtimeServiceInstance = null;

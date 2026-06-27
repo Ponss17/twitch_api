@@ -5,22 +5,25 @@ import { apiFetch } from '@/lib/auth';
 import { fetchDashboardSummary } from '@/lib/dashboardSummary';
 import { appPath } from '@/lib/paths';
 import { TabSyncService } from '@/lib/tabSyncService';
-
-// Lazy-loaded to avoid pulling ~178KB Supabase into the initial bundle
-const loadRealtimeModule = () => import('@/lib/realtimeService');
-import type { RealtimeCallbacks, RealtimeService } from '@/lib/realtimeService';
+import { useDashboardRealtime } from '@/hooks/useDashboardRealtime';
+import type { DashboardLiveStats } from '@/lib/dashboardStats';
 import { HomeHero } from '@/components/views/HomeHero';
 import { HomeActivityFeed } from '@/components/views/HomeActivityFeed';
 import { HomeResourcesPanel } from '@/components/views/HomeResourcesPanel';
 import { useRequiredSession } from '@/hooks/useSession';
 import { fadeIn } from '@/lib/tw';
 import { activityEntryKey, type ActivityLogItem } from '@/lib/activityLogDisplay';
-import { readScopedPref, writeScopedPref } from '@/lib/localPrefs';
 import { useToast } from '@/components/ui/ToastProvider';
 import { formatFetchErrorForUi, isFetchNetworkError } from '@/lib/apiError';
 import { logError } from '@/lib/logError';
 import { AlertTriangle } from 'lucide-react';
 import { reportSessionLoadProgress } from '@/lib/sessionLoadProgress';
+import {
+    DASHBOARD_POLL_MS,
+    readPanelSyncPref,
+    subscribeDashboardMutation,
+    writePanelSyncPref
+} from '@/lib/dashboardSync';
 
 
 interface HealthStatus {
@@ -38,10 +41,8 @@ interface HomeViewProps {
     active?: boolean;
 }
 
-const POLL_MS = 90000;
+const POLL_MS = DASHBOARD_POLL_MS;
 const HEALTH_POLL_MS = 300000;
-const DASHBOARD_SYNC_PREF = 'dashboard_last_sync';
-const LEGACY_DASHBOARD_SYNC_KEY = 'dashboard_last_sync';
 
 const EMPTY_STATS: AnalyticsData = {
     todayRequests: 0,
@@ -65,12 +66,11 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     const syncRef = useRef<TabSyncService | null>(null);
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const healthPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-    const realtimeRef = useRef<RealtimeService | null>(null);
-    const useRealtimeRef = useRef(false);
+    const [isTabLeader, setIsTabLeader] = useState(true);
+    const isRealtimeLiveRef = useRef(false);
     const performSyncRef = useRef<() => Promise<void>>(async () => {});
-    const connectRealtimeRef = useRef<() => Promise<void>>(async () => {});
     const fetchPanelDataRef = useRef<
-        (options?: { broadcast?: boolean; retryOnNetwork?: boolean }) => Promise<boolean>
+        (options?: { broadcast?: boolean; retryOnNetwork?: boolean; fresh?: boolean }) => Promise<boolean>
     >(async () => false);
     const showToastRef = useRef(showToast);
     showToastRef.current = showToast;
@@ -122,7 +122,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     }, []);
 
     const fetchPanelData = useCallback(
-        async (options?: { broadcast?: boolean; retryOnNetwork?: boolean }) => {
+        async (options?: { broadcast?: boolean; retryOnNetwork?: boolean; fresh?: boolean }) => {
             const sync = syncRef.current;
             if (!sync?.isActive()) return false;
 
@@ -137,7 +137,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
 
             const loadOnce = async () => {
                 const [summaryResult, activityResult] = await Promise.allSettled([
-                    fetchDashboardSummary(session),
+                    fetchDashboardSummary(session, undefined, { fresh: options?.fresh }),
                     apiFetch<ActivityLogItem[] | { logs?: ActivityLogItem[] }>(
                         API_ENDPOINTS.ACTIVITY,
                         session
@@ -184,18 +184,13 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
                 setStats(analyticsRes);
                 setActivity(activityLogs);
                 markDataReadyRef.current();
-                writeScopedPref(
-                    DASHBOARD_SYNC_PREF,
-                    session.userId,
-                    Date.now().toString(),
-                    LEGACY_DASHBOARD_SYNC_KEY
-                );
+                writePanelSyncPref(session.userId, Date.now().toString());
                 reportSessionLoadProgress({
                     progress: 94,
                     label: 'Preparando tu inicio…',
                     cached: false
                 });
-                if (useRealtimeRef.current) {
+                if (isRealtimeLiveRef.current) {
                     setSyncLabel('Realtime');
                 } else {
                     countdownRef.current = Math.ceil(POLL_MS / 1000);
@@ -273,7 +268,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     const startHealthPolling = useCallback(() => {
         if (healthPollRef.current) clearInterval(healthPollRef.current);
         healthPollRef.current = setInterval(() => {
-            if (document.visibilityState === 'hidden' || !useRealtimeRef.current) return;
+            if (document.visibilityState === 'hidden' || !isRealtimeLiveRef.current) return;
             void fetchHealth();
         }, HEALTH_POLL_MS);
     }, [fetchHealth]);
@@ -282,11 +277,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         const sync = syncRef.current;
         if (!sync) return;
 
-        const lastSyncRaw = readScopedPref(
-            DASHBOARD_SYNC_PREF,
-            session.userId,
-            LEGACY_DASHBOARD_SYNC_KEY
-        );
+        const lastSyncRaw = readPanelSyncPref(session.userId);
         const now = Date.now();
         let countdown = Math.ceil(POLL_MS / 1000);
 
@@ -306,7 +297,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
 
         if (pollRef.current) clearInterval(pollRef.current);
         pollRef.current = setInterval(() => {
-            if (document.visibilityState === 'hidden' || useRealtimeRef.current) return;
+            if (document.visibilityState === 'hidden' || isRealtimeLiveRef.current) return;
 
             if (!sync.getIsLeader()) {
                 setSyncLabel('Follower');
@@ -322,80 +313,73 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         }, 1000);
     }, [performSync, session.userId]);
 
-    const connectRealtime = useCallback(async () => {
-        const sync = syncRef.current;
-        if (!sync?.getIsLeader()) return;
+    const handleRealtimeStats = useCallback((next: DashboardLiveStats) => {
+        setStats(next);
+        markDataReadyRef.current();
+        syncRef.current?.broadcast('SYNC_STATS', next);
+    }, []);
 
-        const { RealtimeServiceFactory, isRealtimeInCooldown } = await loadRealtimeModule();
-
-        if (isRealtimeInCooldown()) {
-            useRealtimeRef.current = false;
-            startSmartPolling();
-            return;
-        }
-
-        const callbacks: RealtimeCallbacks = {
-            onStatsUpdate: (next: AnalyticsData) => {
-                setStats(next);
-                markDataReadyRef.current();
-            },
-            onActivityInsert: (log: ActivityLogItem) => {
-                const key = activityEntryKey(log);
-                let inserted = false;
-                setActivity((prev) => {
-                    if (prev.some((item) => activityEntryKey(item) === key)) return prev;
-                    inserted = true;
-                    return [log, ...prev].slice(0, 50);
-                });
-                if (inserted) markActivityHighlight(key);
-            }
-        };
-
-        if (realtimeRef.current) {
-            realtimeRef.current.setCallbacks(callbacks);
-            const resumed = await realtimeRef.current.resume();
-            if (resumed) {
-                useRealtimeRef.current = true;
-                setSyncLabel('Realtime');
-                startHealthPolling();
-                await performSync();
-                return;
-            }
-            useRealtimeRef.current = false;
-            startSmartPolling();
-            return;
-        }
-
-        try {
-            const service = RealtimeServiceFactory.getInstance(session, callbacks);
-            realtimeRef.current = service;
-
-            const connected = await service.connect(() => {
-                useRealtimeRef.current = false;
-                setSyncLabel(`${Math.ceil(POLL_MS / 1000)}s`);
-                startSmartPolling();
+    const handleRealtimeActivity = useCallback(
+        (log: ActivityLogItem) => {
+            const key = activityEntryKey(log);
+            let inserted = false;
+            setActivity((prev) => {
+                if (prev.some((item) => activityEntryKey(item) === key)) return prev;
+                inserted = true;
+                return [log, ...prev].slice(0, 50);
             });
+            if (inserted) markActivityHighlight(key);
+        },
+        [markActivityHighlight]
+    );
 
-            if (connected) {
-                useRealtimeRef.current = true;
-                setSyncLabel('Realtime');
-                startHealthPolling();
-                await performSync();
-            } else {
-                useRealtimeRef.current = false;
-                RealtimeServiceFactory.destroy();
-                realtimeRef.current = null;
-                startSmartPolling();
-            }
-        } catch {
-            useRealtimeRef.current = false;
-            RealtimeServiceFactory.destroy();
-            realtimeRef.current = null;
+    const handleRealtimeDisconnect = useCallback(() => {
+        setSyncLabel(`${Math.ceil(POLL_MS / 1000)}s`);
+        startSmartPolling();
+    }, [startSmartPolling]);
+
+    const { isLive: isRealtimeLive } = useDashboardRealtime({
+        id: 'home',
+        active: active && isTabLeader,
+        session,
+        onStatsUpdate: handleRealtimeStats,
+        onActivityInsert: handleRealtimeActivity,
+        onDisconnect: handleRealtimeDisconnect
+    });
+
+    isRealtimeLiveRef.current = isRealtimeLive;
+
+    useEffect(() => {
+        if (isRealtimeLive) {
+            setSyncLabel('Realtime');
+            startHealthPolling();
+        } else if (active && isTabLeader) {
             startSmartPolling();
         }
-    }, [markActivityHighlight, performSync, session, startHealthPolling, startSmartPolling]);
+    }, [active, isRealtimeLive, isTabLeader, startHealthPolling, startSmartPolling]);
 
-    connectRealtimeRef.current = connectRealtime;
+    useEffect(() => {
+        return subscribeDashboardMutation(session.userId, {
+            onStatsCleared: () => {
+                setStats(EMPTY_STATS);
+                setActivity([]);
+                setError(null);
+                dataReadyFiredRef.current = false;
+                void fetchPanelDataRef.current({
+                    broadcast: true,
+                    retryOnNetwork: false,
+                    fresh: true
+                });
+            },
+            onPanelRefresh: () => {
+                void fetchPanelDataRef.current({
+                    broadcast: true,
+                    retryOnNetwork: false,
+                    fresh: true
+                });
+            }
+        });
+    }, [session.userId]);
 
     useEffect(() => {
         if (!active) {
@@ -407,11 +391,6 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
                 syncRef.current.destroy();
                 syncRef.current = null;
             }
-            void loadRealtimeModule().then(({ RealtimeServiceFactory }) => {
-                RealtimeServiceFactory.destroy();
-                realtimeRef.current = null;
-                useRealtimeRef.current = false;
-            });
             return;
         }
 
@@ -421,17 +400,14 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
 
         sync.on('LEADER_CHANGED', (payload) => {
             const data = payload as { isLeader: boolean };
+            setIsTabLeader(data.isLeader);
             if (data.isLeader) {
                 void performSyncRef.current();
-                void connectRealtimeRef.current();
             } else {
-                void loadRealtimeModule().then(({ RealtimeServiceFactory }) => {
-                    RealtimeServiceFactory.destroy();
-                    realtimeRef.current = null;
-                    useRealtimeRef.current = false;
-                    setSyncLabel('Follower');
+                setSyncLabel('Follower');
+                if (!isRealtimeLiveRef.current) {
                     startSmartPolling();
-                });
+                }
             }
         });
 
@@ -443,7 +419,12 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         sync.on('SYNC_HEALTH', (payload) => setHealth(payload as HealthStatus));
 
         const onVisible = () => {
-            if (document.visibilityState === 'visible' && sync.isActive() && sync.getIsLeader() && !useRealtimeRef.current) {
+            if (
+                document.visibilityState === 'visible' &&
+                sync.isActive() &&
+                sync.getIsLeader() &&
+                !isRealtimeLiveRef.current
+            ) {
                 void performSyncRef.current();
             }
         };
@@ -457,9 +438,10 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         };
         window.addEventListener('realtime:auth-failed', onAuthFailed);
 
+        setIsTabLeader(sync.getIsLeader());
+
         // Carga inmediata en esta pestaña (no espera elección de líder ~1.5s)
         void fetchPanelDataRef.current({ broadcast: false });
-        void connectRealtimeRef.current();
 
         return () => {
             document.removeEventListener('visibilitychange', onVisible);
@@ -476,12 +458,6 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             highlightTimers.clear();
             sync.destroy();
             syncRef.current = null;
-            void loadRealtimeModule().then(({ RealtimeServiceFactory }) => {
-                RealtimeServiceFactory.destroy();
-                realtimeRef.current = null;
-                useRealtimeRef.current = false;
-            });
-            // Resetear el guard para que si el componente vuelve a montarse dispare el evento de nuevo
             dataReadyFiredRef.current = false;
         };
     }, [active, startSmartPolling]);

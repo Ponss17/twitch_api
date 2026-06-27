@@ -1,6 +1,7 @@
 import { supabase } from './supabaseClient';
 import { logger } from '../utils/logger';
 import { getUserTimezone } from './userTimezoneCache';
+import * as cacheService from './cacheService';
 
 const DEFAULT_STAT_FIELDS = [
     'clips_count',
@@ -37,7 +38,10 @@ const addToExistsCache = (userId: string) => {
     EXISTS_CACHE.add(userId);
 };
 
-const STATS_CACHE = new Map<string, { data: Record<string, number>; expiry: number; tz: string }>();
+const STATS_CACHE = new Map<
+    string,
+    { data: Record<string, number>; expiry: number; tz: string; rev: number }
+>();
 const STATS_TTL = 60 * 1000; // 60s — más eficiente en serverless (warm start aprovecha mejor el cache en memoria)
 const MAX_STATS_CACHE_SIZE = 500;
 
@@ -69,6 +73,33 @@ function resolveLocalDateForUser(userId: string): string {
     const cached = STATS_CACHE.get(userId);
     const tz = cached?.tz ?? getUserTimezone(userId);
     return getDateFormatter(tz).format(new Date());
+}
+
+const pendingRevisionBump = new Map<string, ReturnType<typeof setTimeout>>();
+
+/** Propaga cambios de stats a otras réplicas (debounced — bots activos). */
+function scheduleStatsRevisionBump(userId: string, delayMs = 15_000): void {
+    const pending = pendingRevisionBump.get(userId);
+    if (pending) clearTimeout(pending);
+    pendingRevisionBump.set(
+        userId,
+        setTimeout(() => {
+            pendingRevisionBump.delete(userId);
+            void cacheService.bumpStatsRevision(userId).catch((e) =>
+                logger.warn('Error bump stats revision:', e)
+            );
+        }, delayMs)
+    );
+}
+
+function notifyStatsMutated(userId: string, options?: { invalidateAnalytics?: boolean }): void {
+    STATS_CACHE.delete(userId);
+    if (options?.invalidateAnalytics) {
+        void cacheService.invalidateDashboardAnalytics(userId).catch((e) =>
+            logger.warn('Error invalidando analytics KV:', e)
+        );
+    }
+    scheduleStatsRevisionBump(userId);
 }
 
 // Asegura que exista la fila de stats para el usuario antes de incrementar
@@ -126,10 +157,11 @@ export const incrementUserStats = async (userId: string, command: string): Promi
             });
             if (retryError) {
                 logger.error('Error en retry increment_user_stat:', retryError.message);
+                return;
             }
         }
 
-        STATS_CACHE.delete(userId);
+        notifyStatsMutated(userId, { invalidateAnalytics: true });
     } catch (e) {
         logger.error('Error incrementando estadísticas:', e);
     }
@@ -138,8 +170,9 @@ export const incrementUserStats = async (userId: string, command: string): Promi
 export const getUserStats = async (userId: string): Promise<Record<string, number>> => {
     try {
         const now = Date.now();
+        const remoteRev = await cacheService.getStatsRevision(userId);
         const cached = STATS_CACHE.get(userId);
-        if (cached && cached.expiry > now) return cached.data;
+        if (cached && cached.expiry > now && cached.rev >= remoteRev) return cached.data;
 
         const cachedTz = cached?.tz || null;
 
@@ -200,7 +233,7 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
                 if (k) STATS_CACHE.delete(k);
             }
         }
-        STATS_CACHE.set(userId, { data: numericStats, expiry: now + STATS_TTL, tz });
+        STATS_CACHE.set(userId, { data: numericStats, expiry: now + STATS_TTL, tz, rev: remoteRev });
         return numericStats;
     } catch (e) {
         logger.error('Error obteniendo estadísticas:', e);
@@ -233,7 +266,7 @@ export const recordUserRequest = async (
         }
 
         addToExistsCache(userId);
-        STATS_CACHE.delete(userId);
+        notifyStatsMutated(userId);
     } catch (e) {
         logger.error('Error registrando estadísticas de petición:', e);
     }
@@ -248,6 +281,7 @@ export const clearUserStatsAndLogs = async (userId: string): Promise<void> => {
 
         STATS_CACHE.delete(userId);
         EXISTS_CACHE.delete(userId);
+        await cacheService.bumpStatsRevision(userId);
         logger.info(`🧹 Stats y actividad eliminados para: ${userId}`);
     } catch (e) {
         logger.error('Error clearing user stats and logs:', e);

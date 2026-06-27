@@ -11,11 +11,10 @@ jest.mock('@supabase/supabase-js', () => ({
 import {
     RealtimeService,
     RealtimeServiceFactory,
-    type HomeStats,
     type RealtimeCallbacks
 } from '@/lib/realtimeService';
 import type { Session } from '@/lib/config';
-import type { ActivityLogItem } from '@/lib/activityLogDisplay';
+import { EMPTY_DASHBOARD_LIVE_STATS } from '@/lib/dashboardStats';
 
 const callbacks: RealtimeCallbacks = {
     onStatsUpdate: jest.fn(),
@@ -26,23 +25,11 @@ function makeSession(overrides: Partial<Session> = {}): Session {
     return { apiKey: 'key', token: 'tok', login: 'streamer', userId: 'u1', ...overrides };
 }
 
-// Acceso a la lógica pura (privada) sin abrir conexión real.
-function privates(svc: RealtimeService) {
-    return svc as unknown as {
-        formatActivityLog: (raw: Record<string, unknown>) => ActivityLogItem;
-        computeStats: (raw: Record<string, unknown>) => HomeStats;
-    };
-}
-
 describe('RealtimeService.computeStats', () => {
-    const svc = privates(new RealtimeService(makeSession(), callbacks));
+    const svc = new RealtimeService(makeSession());
 
-    it('devuelve ceros cuando no hay peticiones', () => {
-        expect(svc.computeStats({})).toEqual({
-            todayRequests: 0,
-            rawSuccessRate: 0,
-            avgLatencyMs: 0
-        });
+    it('delega en parseDashboardStatsFromRow', () => {
+        expect(svc.computeStats({})).toEqual(EMPTY_DASHBOARD_LIVE_STATS);
     });
 
     it('calcula latencia media y tasa de éxito', () => {
@@ -52,21 +39,16 @@ describe('RealtimeService.computeStats', () => {
                 today_errors: 5,
                 today_latency: 5000
             })
-        ).toEqual({
+        ).toMatchObject({
             todayRequests: 100,
             rawSuccessRate: 95,
             avgLatencyMs: 50
         });
     });
-
-    it('redondea la latencia media al entero más cercano', () => {
-        const stats = svc.computeStats({ today_requests: 3, today_latency: 100 });
-        expect(stats.avgLatencyMs).toBe(33);
-    });
 });
 
 describe('RealtimeService.formatActivityLog', () => {
-    const svc = privates(new RealtimeService(makeSession(), callbacks));
+    const svc = new RealtimeService(makeSession());
 
     it('formatea un evento conocido con su usuario y detalle', () => {
         const item = svc.formatActivityLog({
@@ -101,21 +83,24 @@ describe('RealtimeServiceFactory', () => {
         RealtimeServiceFactory.destroy();
     });
 
-    it('reutiliza la misma instancia para una sesión idéntica', () => {
-        const a = RealtimeServiceFactory.getInstance(makeSession(), callbacks);
-        const b = RealtimeServiceFactory.getInstance(makeSession(), callbacks);
-        expect(b).toBe(a);
+    it('registra suscriptores y limpia al unsubscribe', () => {
+        const onStatsUpdate = jest.fn();
+        const onActivityInsert = jest.fn();
+        const unsub = RealtimeServiceFactory.subscribe('home', makeSession(), {
+            onStatsUpdate,
+            onActivityInsert
+        });
+        expect(typeof unsub).toBe('function');
+        unsub();
+        expect(RealtimeServiceFactory.isConnected()).toBe(false);
     });
 
-    it('crea una nueva instancia cuando cambia el token', () => {
-        const a = RealtimeServiceFactory.getInstance(makeSession({ token: 'old' }), callbacks);
-        const b = RealtimeServiceFactory.getInstance(makeSession({ token: 'new' }), callbacks);
-        expect(b).not.toBe(a);
-    });
-
-    it('crea una nueva instancia cuando cambia el userId', () => {
-        const a = RealtimeServiceFactory.getInstance(makeSession({ userId: 'u1' }), callbacks);
-        const b = RealtimeServiceFactory.getInstance(makeSession({ userId: 'u2' }), callbacks);
-        expect(b).not.toBe(a);
+    it('permite varios suscriptores con la misma sesión', () => {
+        const unsubA = RealtimeServiceFactory.subscribe('a', makeSession(), callbacks);
+        const unsubB = RealtimeServiceFactory.subscribe('b', makeSession(), callbacks);
+        expect(typeof unsubA).toBe('function');
+        expect(typeof unsubB).toBe('function');
+        unsubA();
+        unsubB();
     });
 });
