@@ -311,7 +311,8 @@ export const deleteUser = async (userId: string): Promise<void> => {
 
         await invalidateAllUserCaches(userId, {
             apiKey: user.apiKey,
-            login: user.login
+            login: user.login,
+            revokeApiKey: true
         });
 
         logger.info(`🗑️ Usuario eliminado por completo: ${user.login} (${userId})`);

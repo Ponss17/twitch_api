@@ -12,7 +12,10 @@ import { AuthenticatedRequest } from '../../types/twitch';
 import { RATE_LIMITS } from '../../core/config/limits';
 import { TwitchApiError } from '../../core/errors/AppError';
 import { AppError } from '../../core/errors/AppError';
-import { invalidateAllUserCaches } from '../../core/utils/cacheInvalidation';
+import {
+    invalidateAllUserCaches,
+    invalidateDashboardStatsCaches
+} from '../../core/utils/cacheInvalidation';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { trackRequest } from '../../core/utils/tracking';
 
@@ -228,11 +231,10 @@ export const clearUserData = async (req: AuthenticatedRequest, res: Response) =>
 
     try {
         await dbService.clearUserStatsAndLogs(userId);
-        const apiUser = res.locals?.apiUser as { apiKey?: string } | undefined;
-        await invalidateAllUserCaches(userId, { apiKey: apiUser?.apiKey, login: req.login });
+        await invalidateDashboardStatsCaches(userId, req.login);
         res.json({
             success: true,
-            message: 'Estadísticas y actividad reiniciadas correctamente.',
+            message: 'Estad?sticas y actividad reiniciadas correctamente.',
             analytics: buildEmptyUserAnalytics(),
             activity: [] as unknown[]
         });
@@ -247,12 +249,11 @@ export const deleteAccount = async (req: AuthenticatedRequest, res: Response) =>
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     try {
-        const login = req.login;
         const apiUser = res.locals?.apiUser as { apiKey?: string } | undefined;
         const apiKey = apiUser?.apiKey;
 
         await dbService.deleteUser(userId);
-        await invalidateAllUserCaches(userId, { apiKey, login });
+        await invalidateAllUserCaches(userId, { apiKey, login: req.login, revokeApiKey: true });
         res.json({ success: true, message: 'Cuenta eliminada permanentemente del sistema.' });
     } catch (e) {
         logger.error('Error deleting account:', e);
