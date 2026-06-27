@@ -171,7 +171,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             };
 
             try {
-                let result = await loadOnce();
+                const result = await loadOnce();
                 if (!result) return false;
 
                 const { analyticsRes, activityLogs, partialFailure } = result;
@@ -417,6 +417,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
 
         const sync = new TabSyncService('dashboard_home_sync');
         syncRef.current = sync;
+        const highlightTimers = highlightTimersRef.current;
 
         sync.on('LEADER_CHANGED', (payload) => {
             const data = payload as { isLeader: boolean };
@@ -469,10 +470,10 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             healthPollRef.current = null;
             if (syncingTimerRef.current) clearTimeout(syncingTimerRef.current);
             if (authRedirectTimerRef.current) clearTimeout(authRedirectTimerRef.current);
-            for (const timer of highlightTimersRef.current.values()) {
+            for (const timer of highlightTimers.values()) {
                 clearTimeout(timer);
             }
-            highlightTimersRef.current.clear();
+            highlightTimers.clear();
             sync.destroy();
             syncRef.current = null;
             void loadRealtimeModule().then(({ RealtimeServiceFactory }) => {
