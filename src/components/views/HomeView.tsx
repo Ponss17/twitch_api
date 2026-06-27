@@ -19,6 +19,7 @@ import { logError } from '@/lib/logError';
 import { AlertTriangle } from 'lucide-react';
 import { reportSessionLoadProgress } from '@/lib/sessionLoadProgress';
 import {
+    DASHBOARD_FALLBACK_POLL_MS,
     DASHBOARD_POLL_MS,
     readPanelSyncPref,
     subscribeDashboardMutation,
@@ -42,6 +43,7 @@ interface HomeViewProps {
 }
 
 const POLL_MS = DASHBOARD_POLL_MS;
+const FALLBACK_POLL_MS = DASHBOARD_FALLBACK_POLL_MS;
 const HEALTH_POLL_MS = 300000;
 
 const EMPTY_STATS: AnalyticsData = {
@@ -277,14 +279,15 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
         const sync = syncRef.current;
         if (!sync) return;
 
+        const pollMs = isRealtimeLiveRef.current ? POLL_MS : FALLBACK_POLL_MS;
         const lastSyncRaw = readPanelSyncPref(session.userId);
         const now = Date.now();
-        let countdown = Math.ceil(POLL_MS / 1000);
+        let countdown = Math.ceil(pollMs / 1000);
 
         if (lastSyncRaw) {
             const elapsed = now - parseInt(lastSyncRaw, 10);
-            if (elapsed < POLL_MS) {
-                countdown = Math.ceil((POLL_MS - elapsed) / 1000);
+            if (elapsed < pollMs) {
+                countdown = Math.ceil((pollMs - elapsed) / 1000);
             } else if (sync.getIsLeader()) {
                 void performSync();
             }
@@ -307,7 +310,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
             countdownRef.current -= 1;
             if (countdownRef.current <= 0) {
                 void performSync();
-                countdownRef.current = Math.ceil(POLL_MS / 1000);
+                countdownRef.current = Math.ceil(pollMs / 1000);
             }
             setSyncLabel(`${countdownRef.current}s`);
         }, 1000);
@@ -334,7 +337,8 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     );
 
     const handleRealtimeDisconnect = useCallback(() => {
-        setSyncLabel(`${Math.ceil(POLL_MS / 1000)}s`);
+        setSyncLabel(`${Math.ceil(FALLBACK_POLL_MS / 1000)}s`);
+        void performSyncRef.current();
         startSmartPolling();
     }, [startSmartPolling]);
 
