@@ -16,7 +16,8 @@ jest.mock('../../backend/src/core/database/cacheService', () => ({
     setCachedApiUser: jest.fn().mockResolvedValue(undefined),
     invalidateApiKeyCache: jest.fn().mockResolvedValue(undefined),
     isApiKeyRevoked: jest.fn().mockResolvedValue(false),
-    revokeApiKeyGlobally: jest.fn().mockResolvedValue(undefined)
+    revokeApiKeyGlobally: jest.fn().mockResolvedValue(undefined),
+    clearApiKeyRevocation: jest.fn().mockResolvedValue(undefined)
 }));
 jest.mock('../../backend/src/features/auth/auth.service');
 
@@ -129,5 +130,26 @@ describe('API Key Validator Middleware', () => {
 
         expect(nextFunction).toHaveBeenCalled();
         expect(mockResponse.status).not.toHaveBeenCalled();
+    });
+
+    it('clears stale revocation when API key is still active in DB', async () => {
+        const activeKey = '55555555-5555-4555-8555-555555555555';
+        mockRequest.headers = { 'x-api-key': activeKey };
+
+        (cacheService.isApiKeyRevoked as jest.Mock).mockResolvedValue(true);
+        (dbService.getUserByApiKey as jest.Mock).mockResolvedValue({
+            userId: 'user-active',
+            isActive: true,
+            accessToken: 'token'
+        });
+        (authService.getValidTokenForUser as jest.Mock).mockResolvedValue({
+            accessToken: 'token',
+            userId: 'user-active'
+        });
+
+        await apiKeyValidator(mockRequest as Request, mockResponse as Response, nextFunction);
+
+        expect(cacheService.clearApiKeyRevocation).toHaveBeenCalledWith(activeKey);
+        expect(nextFunction).toHaveBeenCalled();
     });
 });

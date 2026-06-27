@@ -60,8 +60,25 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
     }
 
     if (apiKey && (await cacheService.isApiKeyRevoked(apiKey))) {
+        const dbUser = await dbService.getUserByApiKey(apiKey);
+        if (dbUser?.isActive) {
+            await cacheService.clearApiKeyRevocation(apiKey);
+            try {
+                await getValidTokenForUser(dbUser);
+                validKeysCache.set(apiKey, { user: dbUser, expiry: Date.now() + CACHE_TTL_MS });
+                res.locals.apiUser = dbUser;
+                res.locals.isApiKeyRequest = true;
+                return next();
+            } catch (e) {
+                const errorMsg = (e as Error).message;
+                const isAuthError = errorMsg.includes('inválid') || errorMsg.includes('expirad');
+                if (req.headers.authorization?.startsWith('Bearer ')) {
+                    return next();
+                }
+                return res.status(isAuthError ? 401 : 503).json({ error: errorMsg });
+            }
+        }
         invalidKeysCache.set(apiKey);
-        // Panel OAuth: si hay Bearer, dejar que authMiddleware valide el token de Twitch.
         if (req.headers.authorization?.startsWith('Bearer ')) {
             return next();
         }
