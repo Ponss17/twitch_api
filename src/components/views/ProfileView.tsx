@@ -6,6 +6,7 @@ import {
     broadcastPanelRefresh,
     broadcastStatsCleared,
     clearDashboardSyncPrefs,
+    DASHBOARD_FALLBACK_POLL_MS,
     DASHBOARD_POLL_MS,
     readPanelSyncPref,
     subscribeDashboardMutation,
@@ -69,7 +70,9 @@ export function ProfileView({ active = true }: { active?: boolean }) {
     const [showDanger, setShowDanger] = useState(false);
     const [regenOpen, setRegenOpen] = useState(false);
     const [exportLoading, setExportLoading] = useState(false);
-    const [syncCountdown, setSyncCountdown] = useState(Math.ceil(DASHBOARD_POLL_MS / 1000));
+    const [syncCountdown, setSyncCountdown] = useState(
+        Math.ceil(DASHBOARD_FALLBACK_POLL_MS / 1000)
+    );
     const [profileSyncing, setProfileSyncing] = useState(false);
     const keyHideTimerRef = useRef<number | null>(null);
     const profileSyncTimerRef = useRef<number | null>(null);
@@ -120,17 +123,18 @@ export function ProfileView({ active = true }: { active?: boolean }) {
     };
 
     const startProfilePolling = () => {
+        const pollMs = isRealtimeLiveRef.current ? DASHBOARD_POLL_MS : DASHBOARD_FALLBACK_POLL_MS;
         const lastSyncRaw = readPanelSyncPref(session.userId);
         const now = Date.now();
-        let countdown = DASHBOARD_POLL_MS / 1000;
+        let countdown = pollMs / 1000;
 
         // Siempre cargar al abrir la pestaña; el throttle solo aplica al polling en background.
         void syncProfile();
 
         if (lastSyncRaw) {
             const elapsed = now - parseInt(lastSyncRaw, 10);
-            if (elapsed < DASHBOARD_POLL_MS) {
-                countdown = Math.ceil((DASHBOARD_POLL_MS - elapsed) / 1000);
+            if (elapsed < pollMs) {
+                countdown = Math.ceil((pollMs - elapsed) / 1000);
             }
         }
 
@@ -143,7 +147,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                 let next = prev - 1;
                 if (next <= 0) {
                     void syncProfile({ silent: true });
-                    next = DASHBOARD_POLL_MS / 1000;
+                    next = pollMs / 1000;
                 }
                 return next;
             });
@@ -158,7 +162,10 @@ export function ProfileView({ active = true }: { active?: boolean }) {
         id: 'profile',
         active,
         session,
-        onStatsUpdate: handleRealtimeStats
+        onStatsUpdate: handleRealtimeStats,
+        onDisconnect: () => {
+            void syncProfile({ silent: true });
+        }
     });
 
     isRealtimeLiveRef.current = isRealtimeLive;

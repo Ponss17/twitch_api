@@ -3,6 +3,9 @@ import { readScopedPref, removeScopedPref, writeScopedPref } from '@/lib/localPr
 /** Mismo intervalo de polling en Inicio y Perfil (Resumen de Actividad). */
 export const DASHBOARD_POLL_MS = 90_000;
 
+/** Polling acelerado cuando Realtime no está conectado (fallback). */
+export const DASHBOARD_FALLBACK_POLL_MS = 8_000;
+
 /** Pref unificado — evita desfase entre Inicio y Perfil. */
 export const PANEL_SYNC_PREF = 'panel_last_sync';
 const LEGACY_PANEL_SYNC_KEY = 'panel_last_sync';
