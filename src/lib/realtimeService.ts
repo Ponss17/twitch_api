@@ -126,6 +126,7 @@ function isBenignRealtimeClose(err: unknown, intentionalClose: boolean): boolean
 
     const message = err instanceof Error ? err.message : String(err);
     if (/1000|1001|going away|socket closed/i.test(message)) return true;
+    if (/interrupted|page load|NS_ERROR|network/i.test(message)) return true;
 
     const cause = err instanceof Error ? (err as Error & { cause?: { code?: number } }).cause : undefined;
     if (cause && typeof cause === 'object' && typeof cause.code === 'number') {
@@ -133,6 +134,20 @@ function isBenignRealtimeClose(err: unknown, intentionalClose: boolean): boolean
     }
 
     return false;
+}
+
+function waitForStablePage(): Promise<void> {
+    if (typeof document === 'undefined') return Promise.resolve();
+    if (document.readyState === 'complete') {
+        return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+    }
+    return new Promise((resolve) => {
+        window.addEventListener(
+            'load',
+            () => requestAnimationFrame(() => resolve()),
+            { once: true }
+        );
+    });
 }
 
 interface RawActivityLog {
@@ -167,6 +182,10 @@ interface SubscriberEntry {
 function sessionKey(session: Session): string {
     return `${session.userId ?? ''}|${session.apiKey ?? ''}|${session.token ?? ''}`;
 }
+
+type ReconnectReason = 'benign' | 'error' | 'failed';
+let requestRealtimeReconnect: (reason: ReconnectReason) => void = () => {};
+let hasActiveSubscribers: () => boolean = () => false;
 
 export class RealtimeService {
     private supabase: SupabaseClient | null = null;
@@ -371,7 +390,6 @@ export class RealtimeService {
                         const benign = isBenignRealtimeClose(err, this.intentionalClose);
 
                         if (transportFailed && !this.intentionalClose) {
-                            markRealtimeCooldown();
                             debugWarn(
                                 '[Realtime] WebSocket no disponible — el dashboard usará polling. ' +
                                     'Comprueba Realtime en Supabase (Database → Tables → Enable Realtime).'
@@ -382,8 +400,11 @@ export class RealtimeService {
 
                         this.tearDownClient();
 
-                        if (!benign && !this.intentionalClose) {
+                        if (benign && hasActiveSubscribers()) {
+                            requestRealtimeReconnect('benign');
+                        } else if (!benign && !this.intentionalClose) {
                             this.onDisconnectCallback?.();
+                            requestRealtimeReconnect('error');
                         }
                         this.intentionalClose = false;
                     }
@@ -412,30 +433,39 @@ export class RealtimeService {
     ): Promise<boolean> {
         this.onDisconnectCallback = onDisconnect ?? null;
         this.onConnectionChange = onConnectionChange ?? null;
+        this.intentionalClose = false;
 
         if (isRealtimeInCooldown()) {
+            onConnectionChange?.(false);
             return false;
         }
 
         if (!this.hasValidCredentials() || !this.session?.userId) {
             window.dispatchEvent(new CustomEvent('realtime:auth-failed'));
+            onConnectionChange?.(false);
             return false;
         }
 
-        if (!(await this.initializeClient())) return false;
-        if (!(await this.setupChannel())) return false;
+        if (!(await this.initializeClient())) {
+            onConnectionChange?.(false);
+            return false;
+        }
+        if (!(await this.setupChannel())) {
+            onConnectionChange?.(false);
+            return false;
+        }
 
-        for (let i = 0; i < 30 && !this.isConnected; i++) {
+        for (let i = 0; i < 50 && !this.isConnected; i++) {
             await new Promise((r) => setTimeout(r, 100));
         }
 
         if (!this.isConnected) {
-            markRealtimeCooldown();
             this.tearDownClient();
             if (this.refreshInterval) {
                 clearInterval(this.refreshInterval);
                 this.refreshInterval = null;
             }
+            onConnectionChange?.(false);
             return false;
         }
 
@@ -460,6 +490,55 @@ let activeSessionKey: string | null = null;
 const subscribers = new Map<string, SubscriberEntry>();
 let connectInFlight: Promise<boolean> | null = null;
 let destroyTimer: ReturnType<typeof setTimeout> | null = null;
+let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+let reconnectAttempts = 0;
+
+const MAX_RECONNECT_ATTEMPTS = 6;
+const RECONNECT_BASE_MS = 1200;
+
+function getActiveSubscriberSession(): Session | null {
+    return subscribers.values().next().value?.session ?? null;
+}
+
+function resetReconnectState(): void {
+    reconnectAttempts = 0;
+    if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+        reconnectTimer = null;
+    }
+}
+
+function scheduleReconnect(reason: 'benign' | 'error' | 'failed'): void {
+    if (typeof window === 'undefined' || pageIsUnloading) return;
+    if (subscribers.size === 0) return;
+    if (isRealtimeInCooldown()) return;
+    if (reconnectTimer) return;
+
+    if (reason === 'error' || reason === 'failed') {
+        notifyConnection(false);
+    }
+
+    const attempt = reconnectAttempts;
+    if (attempt >= MAX_RECONNECT_ATTEMPTS) {
+        markRealtimeCooldown();
+        notifyDisconnect();
+        resetReconnectState();
+        return;
+    }
+
+    reconnectAttempts += 1;
+    const delay = reason === 'benign' ? 400 : Math.min(RECONNECT_BASE_MS * 1.4 ** attempt, 12_000);
+
+    reconnectTimer = setTimeout(() => {
+        reconnectTimer = null;
+        const session = getActiveSubscriberSession();
+        if (!session || subscribers.size === 0) return;
+        void ensureConnected(session);
+    }, delay);
+}
+
+hasActiveSubscribers = () => subscribers.size > 0;
+requestRealtimeReconnect = scheduleReconnect;
 
 function cancelPendingDestroy(): void {
     if (destroyTimer) {
@@ -492,6 +571,7 @@ function dispatchToSubscribers(
 }
 
 function notifyConnection(connected: boolean): void {
+    if (connected) resetReconnectState();
     for (const entry of subscribers.values()) {
         entry.options.onConnectionChange?.(connected);
     }
@@ -521,6 +601,9 @@ function ensureService(session: Session): RealtimeService {
 }
 
 async function ensureConnected(session: Session): Promise<boolean> {
+    await waitForStablePage();
+    if (subscribers.size === 0) return false;
+
     const service = ensureService(session);
     if (service.connected) return true;
     if (connectInFlight) return connectInFlight;
@@ -530,6 +613,12 @@ async function ensureConnected(session: Session): Promise<boolean> {
             () => notifyDisconnect(),
             (connected) => notifyConnection(connected)
         )
+        .then((ok) => {
+            if (!ok && subscribers.size > 0) {
+                scheduleReconnect('failed');
+            }
+            return ok;
+        })
         .finally(() => {
             connectInFlight = null;
         });
@@ -564,6 +653,7 @@ export const RealtimeServiceFactory = {
 
     destroy(): void {
         cancelPendingDestroy();
+        resetReconnectState();
         subscribers.clear();
         connectInFlight = null;
         activeSessionKey = null;
