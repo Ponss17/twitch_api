@@ -42,6 +42,29 @@ export function formatApiErrorForUi(message: string): string {
     return `⚠️ ${trimmed}`;
 }
 
+/** true cuando fetch() falló antes de recibir respuesta (red, CORS, backend caído). */
+export function isFetchNetworkError(error: unknown): boolean {
+    if (!(error instanceof TypeError)) return false;
+    const msg = error.message.toLowerCase();
+    return (
+        msg.includes('networkerror') ||
+        msg.includes('failed to fetch') ||
+        msg.includes('network request failed') ||
+        msg.includes('load failed')
+    );
+}
+
+/** Mensaje amigable para fallos de red en el dashboard. */
+export function formatFetchErrorForUi(error: unknown): string {
+    if (isFetchNetworkError(error)) {
+        return 'No se pudo conectar con la API. Comprueba tu conexión o que el backend esté en marcha.';
+    }
+    if (error instanceof Error && error.message.trim()) {
+        return error.message.trim();
+    }
+    return 'Error cargando datos';
+}
+
 /** Parsea texto o JSON de una respuesta HTTP fallida. */
 export function parseHttpErrorBody(text: string, fallback?: string): string {
     const base = fallback ?? 'Error desconocido';
