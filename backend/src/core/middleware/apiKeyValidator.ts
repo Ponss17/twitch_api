@@ -34,9 +34,6 @@ export const invalidateUserCache = (userId: string): void => {
             cacheService
                 .invalidateApiKeyCache(key)
                 .catch((e) => logger.error('Error invalidate KV key cache iteration:', e));
-            cacheService
-                .revokeApiKeyGlobally(key)
-                .catch((e) => logger.error('Error revoke API key globally:', e));
         }
         logger.info(
             `[Cache] Invalidated ${keysToInvalidate.length} API Key entries for userId: ${userId}`
@@ -64,6 +61,10 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
 
     if (apiKey && (await cacheService.isApiKeyRevoked(apiKey))) {
         invalidKeysCache.set(apiKey);
+        // Panel OAuth: si hay Bearer, dejar que authMiddleware valide el token de Twitch.
+        if (req.headers.authorization?.startsWith('Bearer ')) {
+            return next();
+        }
         return res.status(401).json({ error: 'Clave API revocada. Regenera tu API Key en el panel.' });
     }
 

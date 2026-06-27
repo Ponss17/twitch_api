@@ -9,7 +9,8 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
 }));
 
 jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
-    invalidateAllUserCaches: jest.fn().mockResolvedValue(undefined)
+    invalidateAllUserCaches: jest.fn().mockResolvedValue(undefined),
+    invalidateDashboardStatsCaches: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('../../backend/src/core/database/cacheService', () => ({
@@ -32,7 +33,7 @@ jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
 }));
 
 import * as dbService from '../../backend/src/core/database/dbService';
-import { invalidateAllUserCaches } from '../../backend/src/core/utils/cacheInvalidation';
+import { invalidateAllUserCaches, invalidateDashboardStatsCaches } from '../../backend/src/core/utils/cacheInvalidation';
 import { getAnalytics, getLogs, clearUserData, deleteAccount } from '../../backend/src/features/dashboard/dashboard.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
@@ -160,10 +161,8 @@ describe('dashboardController', () => {
             await clearUserData(req, res);
 
             expect(dbService.clearUserStatsAndLogs).toHaveBeenCalledWith('123');
-            expect(invalidateAllUserCaches).toHaveBeenCalledWith('123', {
-                apiKey: undefined,
-                login: 'streamer'
-            });
+            expect(invalidateDashboardStatsCaches).toHaveBeenCalledWith('123', 'streamer');
+            expect(invalidateAllUserCaches).not.toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: true,
@@ -201,7 +200,8 @@ describe('dashboardController', () => {
             expect(dbService.deleteUser).toHaveBeenCalledWith('123');
             expect(invalidateAllUserCaches).toHaveBeenCalledWith('123', {
                 apiKey: undefined,
-                login: 'streamer'
+                login: 'streamer',
+                revokeApiKey: true
             });
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({ success: true })

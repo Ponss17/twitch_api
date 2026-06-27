@@ -104,7 +104,11 @@ export const regenerateKey = async (req: AuthenticatedRequest, res: Response) =>
         const oldApiKey = apiUser?.apiKey;
         const newKey = await authService.regenerateApiKey(userId);
 
-        await invalidateAllUserCaches(userId, { apiKey: oldApiKey, login: req.login });
+        await invalidateAllUserCaches(userId, {
+            apiKey: oldApiKey,
+            login: req.login,
+            revokeApiKey: true
+        });
 
         await dbService.addAuditLog('api_key_regenerated', userId, userId);
 
