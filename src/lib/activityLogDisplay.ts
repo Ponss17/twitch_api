@@ -54,71 +54,73 @@ export interface ActivityMeta {
     detailText: (item: ActivityLogItem) => string;
 }
 
+const ACTIVITY_ICON_CLASS = 'text-primary bg-primary/10 border-primary/20';
+
 const ACTIVITY_META: Record<ActivityLogType, ActivityMeta> = {
     clip: {
         label: 'Clip',
         icon: Clapperboard,
-        iconClass: 'text-violet-400 bg-violet-500/10 border-violet-500/20',
+        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => item.detail?.trim() || 'Nuevo clip'
     },
     followage: {
         label: 'Followage',
         icon: UserRoundCheck,
-        iconClass: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
+        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => (item.detail?.trim() ? `Canal: ${item.detail}` : 'Consulta de followage')
     },
     shoutout: {
         label: 'Shoutout',
         icon: Megaphone,
-        iconClass: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+        iconClass: ACTIVITY_ICON_CLASS,
         detailText: () => 'Shoutout enviado'
     },
     message: {
         label: 'Mensaje',
         icon: MessageSquare,
-        iconClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => (item.detail?.trim() ? `"${item.detail}"` : 'Mensaje en chat')
     },
     russian: {
         label: 'Ruleta Rusa',
         icon: Crosshair,
-        iconClass: 'text-red-400 bg-red-500/10 border-red-500/20',
+        iconClass: ACTIVITY_ICON_CLASS,
         detailText: () => 'Partida de ruleta rusa'
     },
     magic8: {
         label: 'Bola 8',
         icon: CircleDot,
-        iconClass: 'text-fuchsia-400 bg-fuchsia-500/10 border-fuchsia-500/20',
+        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => item.detail?.trim() || 'Pregunta a la bola 8'
     },
     duel: {
         label: 'Duelo',
         icon: Swords,
-        iconClass: 'text-orange-400 bg-orange-500/10 border-orange-500/20',
+        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => (item.detail?.trim() ? `vs @${item.detail}` : 'Duelo iniciado')
     },
     stalker: {
         label: 'Stalker',
         icon: Binoculars,
-        iconClass: 'text-teal-400 bg-teal-500/10 border-teal-500/20',
+        iconClass: ACTIVITY_ICON_CLASS,
         detailText: () => 'Escaneo de stalker'
     },
     trends: {
         label: 'Tendencias',
         icon: TrendingUp,
-        iconClass: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20',
+        iconClass: ACTIVITY_ICON_CLASS,
         detailText: () => 'Rastreo de tendencias'
     },
     roulette: {
         label: 'Ruleta',
         icon: Dices,
-        iconClass: 'text-primary bg-primary/10 border-primary/20',
+        iconClass: ACTIVITY_ICON_CLASS,
         detailText: () => 'Ruleta de chatters'
     },
     other: {
         label: 'Actividad',
         icon: Activity,
-        iconClass: 'text-zinc-400 bg-zinc-500/10 border-zinc-500/20',
+        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => item.detail?.trim() || item.type || 'Evento registrado'
     }
 };
