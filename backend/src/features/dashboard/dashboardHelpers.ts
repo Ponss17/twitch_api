@@ -19,3 +19,28 @@ export const computeAnalyticsFromStats = (stats: Record<string, number>) => {
         successRate: `${rawSuccessRate}%`
     };
 };
+
+/** Stats en cero tras reiniciar estadísticas (respuesta inmediata al cliente). */
+export const buildEmptyUserAnalytics = (): Record<string, number | string> => {
+    const stats: Record<string, number> = {
+        clips: 0,
+        followage: 0,
+        so: 0,
+        stalker: 0,
+        trends: 0,
+        roulette: 0,
+        message: 0,
+        russian: 0,
+        magic8: 0,
+        duel: 0,
+        today_req_raw: 0,
+        today_err_raw: 0,
+        today_lat_raw: 0,
+        total_requests: 0
+    };
+    return {
+        ...stats,
+        totalRequests: 0,
+        ...computeAnalyticsFromStats(stats)
+    };
+};

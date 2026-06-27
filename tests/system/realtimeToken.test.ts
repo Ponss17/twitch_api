@@ -16,6 +16,10 @@ jest.mock('jsonwebtoken', () => ({
     sign: jest.fn().mockReturnValue('mock.jwt.token')
 }));
 
+jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
+    invalidateAllUserCaches: jest.fn().mockResolvedValue(undefined)
+}));
+
 import { generateRealtimeToken } from '../../backend/src/features/system/system.controller';
 import { AuthenticatedRequest } from '../../backend/src/types/twitch';
 

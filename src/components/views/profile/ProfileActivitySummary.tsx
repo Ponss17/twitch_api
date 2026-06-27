@@ -2,6 +2,7 @@ import { TrendingUp, Terminal, Wrench, Gamepad2 } from 'lucide-react';
 
 import { card, fadeIn } from '@/lib/tw';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
+import type { DashboardLiveStats } from '@/lib/dashboardStats';
 
 const CATEGORIES = [
     { id: 'cat-commands', label: 'Comandos', icon: Terminal, keys: ['clips', 'followage', 'so', 'message'] },
@@ -10,7 +11,7 @@ const CATEGORIES = [
 ] as const;
 
 interface ProfileActivitySummaryProps {
-    analytics: Record<string, number> | null;
+    analytics: DashboardLiveStats | null;
     loading: boolean;
     syncing?: boolean;
     syncLabel?: string;

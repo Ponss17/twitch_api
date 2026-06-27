@@ -8,6 +8,10 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     recordUserRequest: jest.fn().mockResolvedValue(undefined)
 }));
 
+jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
+    invalidateAllUserCaches: jest.fn().mockResolvedValue(undefined)
+}));
+
 jest.mock('../../backend/src/core/database/cacheService', () => ({
     get: jest.fn().mockResolvedValue(null),
     set: jest.fn().mockResolvedValue(undefined),
@@ -28,7 +32,7 @@ jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
 }));
 
 import * as dbService from '../../backend/src/core/database/dbService';
-import * as cacheService from '../../backend/src/core/database/cacheService';
+import { invalidateAllUserCaches } from '../../backend/src/core/utils/cacheInvalidation';
 import { getAnalytics, getLogs, clearUserData, deleteAccount } from '../../backend/src/features/dashboard/dashboard.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
@@ -156,9 +160,16 @@ describe('dashboardController', () => {
             await clearUserData(req, res);
 
             expect(dbService.clearUserStatsAndLogs).toHaveBeenCalledWith('123');
-            expect(cacheService.invalidateDashboardCache).toHaveBeenCalledWith('123', 'streamer');
+            expect(invalidateAllUserCaches).toHaveBeenCalledWith('123', {
+                apiKey: undefined,
+                login: 'streamer'
+            });
             expect(res.json).toHaveBeenCalledWith(
-                expect.objectContaining({ success: true })
+                expect.objectContaining({
+                    success: true,
+                    analytics: expect.objectContaining({ todayRequests: 0, clips: 0 }),
+                    activity: []
+                })
             );
         });
 
@@ -188,7 +199,10 @@ describe('dashboardController', () => {
             await deleteAccount(req, res);
 
             expect(dbService.deleteUser).toHaveBeenCalledWith('123');
-            expect(cacheService.invalidateDashboardCache).toHaveBeenCalledWith('123', 'streamer');
+            expect(invalidateAllUserCaches).toHaveBeenCalledWith('123', {
+                apiKey: undefined,
+                login: 'streamer'
+            });
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({ success: true })
             );

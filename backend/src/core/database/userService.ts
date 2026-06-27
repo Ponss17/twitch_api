@@ -6,7 +6,6 @@ import * as cacheService from './cacheService';
 import { CACHE_TTL } from '../config/cacheTtl';
 import { logger } from '../utils/logger';
 import { BoundedMap } from '../utils/boundedCache';
-import { invalidateStatsCache } from './statsService';
 import { setUserTimezone, clearUserTimezone } from './userTimezoneCache';
 
 /** L1 en RAM de la instancia serverless — evita round-trips a KV/Supabase en bots activos. */
@@ -330,15 +329,6 @@ export const updateUserTimezone = async (userId: string, timezone: string): Prom
     }
 
     const memUser = userMemoryCache.get(userId)?.user;
-    const loginKey = memUser?.login?.toLowerCase();
-
-    await Promise.all([
-        cacheService.del(`cache:user:id:${userId}`),
-        loginKey ? cacheService.del(`cache:user:login:${loginKey}`) : Promise.resolve(),
-        cacheService.del(`cache:dashboard:analytics:${userId}`),
-        cacheService.del(`cache:analytics:${userId}`)
-    ]).catch(() => {});
-
-    invalidateUserMemoryCache(userId);
-    invalidateStatsCache(userId);
+    setUserTimezone(userId, timezone);
+    await invalidateAllUserCaches(userId, { login: memUser?.login });
 };
