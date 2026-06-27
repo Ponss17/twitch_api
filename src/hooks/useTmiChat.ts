@@ -52,5 +52,5 @@ export function useTmiChat(listenerId: string, options: UseTmiChatOptions): void
             tmiService.removeListener(listenerId);
             tmiService.disconnect();
         };
-    }, [enabled, channel, listenerId, session.login, session.token, session.apiKey]);
+    }, [enabled, channel, listenerId, session]);
 }
