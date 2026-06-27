@@ -240,6 +240,19 @@ export const isApiKeyRevoked = async (apiKey: string): Promise<boolean> => {
     return flag !== null;
 };
 
+/** Quita revocación KV (p. ej. flag obsoleto tras clear-data antes del fix). */
+export const clearApiKeyRevocation = async (apiKey: string): Promise<void> => {
+    const normalized = apiKey.trim().toLowerCase();
+    if (!normalized) return;
+    MEMORY_CACHE.delete(`cache:apikey:revoked:${normalized}`);
+    if (!isKvWriteAvailable()) return;
+    try {
+        await kv.del(`twitch_api:cache:apikey:revoked:${normalized}`);
+    } catch {
+        /* ignore */
+    }
+};
+
 export const invalidateApiKeyCache = async (apiKey: string): Promise<void> => {
     MEMORY_CACHE.delete(`cache:apiuser:${apiKey}`);
     if (!isKvWriteAvailable()) return;
