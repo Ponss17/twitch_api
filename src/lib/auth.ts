@@ -279,7 +279,20 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
     };
 
     try {
-        let result = await attempt(session);
+        let result: ApiResponse & { networkError?: boolean };
+
+        if (session.apiKey) {
+            result = await attempt({
+                apiKey: session.apiKey,
+                login: session.login,
+                userId: session.userId
+            });
+            if (result.valid !== true && !result.networkError && session.token) {
+                result = await attempt(session);
+            }
+        } else {
+            result = await attempt(session);
+        }
 
         reportSessionLoadProgress({
             progress: 52,
@@ -287,11 +300,8 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
             cached: false
         });
 
-        if (result.valid !== true && !result.networkError && session.apiKey) {
-            result = await attempt({ apiKey: session.apiKey });
-            if (result.valid === true) {
-                saveSession({ ...session, ...pickSessionFromValidate(result) });
-            }
+        if (result.valid === true) {
+            saveSession({ ...session, ...pickSessionFromValidate(result) });
         }
 
         if (result.valid !== true && result.networkError) {
