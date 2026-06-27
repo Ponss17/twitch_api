@@ -18,10 +18,14 @@ export async function invalidateAllUserCaches(
     invalidateUserMemoryCache(userId);
     invalidateStatsCache(userId);
 
-    const tasks: Promise<void>[] = [cacheService.invalidateDashboardCache(userId, options.login)];
+    const tasks: Promise<void>[] = [
+        cacheService.invalidateDashboardCache(userId, options.login),
+        cacheService.bumpStatsRevision(userId)
+    ];
 
     if (options.apiKey) {
         tasks.push(cacheService.invalidateApiKeyCache(options.apiKey));
+        tasks.push(cacheService.revokeApiKeyGlobally(options.apiKey));
     }
 
     await Promise.allSettled(tasks).catch((e) =>

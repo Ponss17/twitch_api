@@ -29,7 +29,12 @@ export function buildSummaryUrl(login?: string): string {
 
 export async function fetchDashboardSummary(
     session: Session,
-    login?: string
+    login?: string,
+    options?: { fresh?: boolean }
 ): Promise<DashboardSummaryResponse> {
-    return apiFetch<DashboardSummaryResponse>(buildSummaryUrl(login ?? session.login), session);
+    let url = buildSummaryUrl(login ?? session.login);
+    if (options?.fresh) {
+        url += `${url.includes('?') ? '&' : '?'}_=${Date.now()}`;
+    }
+    return apiFetch<DashboardSummaryResponse>(url, session);
 }

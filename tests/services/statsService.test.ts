@@ -17,11 +17,18 @@ jest.mock('../../backend/src/core/database/supabaseClient', () => ({
     supabase: mockSupabase
 }));
 
+jest.mock('../../backend/src/core/database/cacheService', () => ({
+    getStatsRevision: jest.fn().mockResolvedValue(0),
+    bumpStatsRevision: jest.fn().mockResolvedValue(undefined),
+    invalidateDashboardAnalytics: jest.fn().mockResolvedValue(undefined)
+}));
+
 jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }
 }));
 
 import * as statsService from '../../backend/src/core/database/statsService';
+import * as cacheService from '../../backend/src/core/database/cacheService';
 
 describe('statsService', () => {
     beforeEach(() => {
@@ -84,6 +91,7 @@ describe('statsService', () => {
             await statsService.clearUserStatsAndLogs('user1');
             expect(mockSupabase.from).toHaveBeenCalledWith('user_stats');
             expect(mockSupabase.from).toHaveBeenCalledWith('activity_logs');
+            expect(cacheService.bumpStatsRevision).toHaveBeenCalledWith('user1');
         });
     });
 });

@@ -188,6 +188,18 @@ export const setCachedApiUser = async (apiKey: string, user: StoredUser): Promis
 };
 
 /** Invalida caché del dashboard tras borrar datos, eliminar cuenta, etc. */
+export const statsRevisionKey = (userId: string): string => `cache:stats:rev:${userId}`;
+
+/** Marca stats invalidadas en KV — todas las réplicas serverless respetan la revisión. */
+export const bumpStatsRevision = async (userId: string): Promise<void> => {
+    await set(statsRevisionKey(userId), Date.now(), 300);
+};
+
+export const getStatsRevision = async (userId: string): Promise<number> => {
+    const value = await get<number>(statsRevisionKey(userId));
+    return typeof value === 'number' ? value : 0;
+};
+
 export const invalidateDashboardCache = async (
     userId: string,
     login?: string
@@ -204,6 +216,28 @@ export const invalidateDashboardCache = async (
     }
 
     await Promise.all(keys.map((key) => del(key))).catch(() => {});
+};
+
+/** Solo analytics (tras incremento de comando — sin tocar perfil). */
+export const invalidateDashboardAnalytics = async (userId: string): Promise<void> => {
+    await Promise.all([
+        del(`cache:dashboard:analytics:${userId}`),
+        del(`cache:analytics:${userId}`)
+    ]).catch(() => {});
+};
+
+/** Réplicas serverless rechazan la clave antigua tras regenerar (TTL = API_USER). */
+export const revokeApiKeyGlobally = async (apiKey: string): Promise<void> => {
+    const normalized = apiKey.trim().toLowerCase();
+    if (!normalized) return;
+    await set(`cache:apikey:revoked:${normalized}`, 1, CACHE_TTL.API_USER);
+};
+
+export const isApiKeyRevoked = async (apiKey: string): Promise<boolean> => {
+    const normalized = apiKey.trim().toLowerCase();
+    if (!normalized) return false;
+    const flag = await get<number>(`cache:apikey:revoked:${normalized}`);
+    return flag !== null;
 };
 
 export const invalidateApiKeyCache = async (apiKey: string): Promise<void> => {

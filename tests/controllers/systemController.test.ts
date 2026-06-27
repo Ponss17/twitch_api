@@ -34,8 +34,13 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
+jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
+    invalidateAllUserCaches: jest.fn().mockResolvedValue(undefined)
+}));
+
 import * as dbService from '../../backend/src/core/database/dbService';
 import * as authService from '../../backend/src/features/auth/auth.service';
+import { invalidateAllUserCaches } from '../../backend/src/core/utils/cacheInvalidation';
 import * as apiService from '../../backend/src/features/twitch/twitch.service';
 import {
     validateToken,
@@ -136,6 +141,10 @@ describe('systemController', () => {
             await regenerateKey(req, res);
 
             expect(authService.regenerateApiKey).toHaveBeenCalledWith('123');
+            expect(invalidateAllUserCaches).toHaveBeenCalledWith('123', {
+                apiKey: undefined,
+                login: undefined
+            });
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     apiKey: 'new-api-key-uuid'

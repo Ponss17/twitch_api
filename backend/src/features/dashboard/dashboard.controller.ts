@@ -5,7 +5,7 @@ import * as cacheService from '../../core/database/cacheService';
 import { CACHE_TTL } from '../../core/config/cacheTtl';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
-import { computeAnalyticsFromStats } from './dashboardHelpers';
+import { computeAnalyticsFromStats, buildEmptyUserAnalytics } from './dashboardHelpers';
 import { buildDashboardProfile } from '../../core/utils/dashboardProfile';
 
 import { AuthenticatedRequest } from '../../types/twitch';
@@ -228,8 +228,14 @@ export const clearUserData = async (req: AuthenticatedRequest, res: Response) =>
 
     try {
         await dbService.clearUserStatsAndLogs(userId);
-        await cacheService.invalidateDashboardCache(userId, req.login);
-        res.json({ success: true, message: 'Estadùsticas y actividad reiniciadas correctamente.' });
+        const apiUser = res.locals?.apiUser as { apiKey?: string } | undefined;
+        await invalidateAllUserCaches(userId, { apiKey: apiUser?.apiKey, login: req.login });
+        res.json({
+            success: true,
+            message: 'EstadÌsticas y actividad reiniciadas correctamente.',
+            analytics: buildEmptyUserAnalytics(),
+            activity: [] as unknown[]
+        });
     } catch (e) {
         logger.error('Error clearing user data:', e);
         return jsonError(res, 500, MESSAGES.DASHBOARD.ANALYTICS_ERROR);
@@ -326,7 +332,7 @@ export const updateTimezone = async (req: AuthenticatedRequest, res: Response) =
 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
     if (!timezone || typeof timezone !== 'string')
-        return jsonError(res, 400, 'Timezone invùlida');
+        return jsonError(res, 400, 'Timezone inv?lida');
 
     try {
         await dbService.updateUserTimezone(userId, timezone);
@@ -358,7 +364,7 @@ export const exportCheck = async (req: AuthenticatedRequest, res: Response) => {
         res.json({ success: true });
     } catch (e) {
         logger.error('Error checking export rate limit:', e);
-        return jsonError(res, 500, 'Error al verificar lùmite de exportaciùn.');
+        return jsonError(res, 500, 'Error al verificar l?mite de exportaci?n.');
     }
 };
 
@@ -374,6 +380,6 @@ export const recordExportComplete = async (req: AuthenticatedRequest, res: Respo
         res.json({ success: true });
     } catch (e) {
         logger.error('Error recording export cooldown:', e);
-        return jsonError(res, 500, 'Error al registrar exportaciùn.');
+        return jsonError(res, 500, 'Error al registrar exportaci?n.');
     }
 };

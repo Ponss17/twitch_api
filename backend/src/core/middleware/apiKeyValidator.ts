@@ -30,10 +30,13 @@ export const invalidateUserCache = (userId: string): void => {
     }
 
     if (keysToInvalidate.length > 0) {
-        for (const apiKey of keysToInvalidate) {
+        for (const key of keysToInvalidate) {
             cacheService
-                .invalidateApiKeyCache(apiKey)
+                .invalidateApiKeyCache(key)
                 .catch((e) => logger.error('Error invalidate KV key cache iteration:', e));
+            cacheService
+                .revokeApiKeyGlobally(key)
+                .catch((e) => logger.error('Error revoke API key globally:', e));
         }
         logger.info(
             `[Cache] Invalidated ${keysToInvalidate.length} API Key entries for userId: ${userId}`
@@ -57,6 +60,11 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
 
     if (apiKey && invalidKeysCache.has(apiKey)) {
         return res.status(401).json({ error: 'Clave API bloqueada temporalmente.' });
+    }
+
+    if (apiKey && (await cacheService.isApiKeyRevoked(apiKey))) {
+        invalidKeysCache.set(apiKey);
+        return res.status(401).json({ error: 'Clave API revocada. Regenera tu API Key en el panel.' });
     }
 
     if (!apiKey) {

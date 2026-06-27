@@ -14,7 +14,9 @@ jest.mock('../../backend/src/core/database/cacheService', () => ({
     getCachedApiUser: jest.fn().mockResolvedValue(null),
     getCachedApiUserMeta: jest.fn().mockResolvedValue(null),
     setCachedApiUser: jest.fn().mockResolvedValue(undefined),
-    invalidateApiKeyCache: jest.fn().mockResolvedValue(undefined)
+    invalidateApiKeyCache: jest.fn().mockResolvedValue(undefined),
+    isApiKeyRevoked: jest.fn().mockResolvedValue(false),
+    revokeApiKeyGlobally: jest.fn().mockResolvedValue(undefined)
 }));
 jest.mock('../../backend/src/features/auth/auth.service');
 
