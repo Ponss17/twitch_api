@@ -72,17 +72,25 @@ export function FeedbackView() {
                 />
             </div>
 
-            <div className="mt-3 flex items-center gap-2">
-                <input
-                    type="checkbox"
-                    id="feedback-anonymous"
-                    checked={isAnonymous}
-                    onChange={(e) => setIsAnonymous(e.target.checked)}
-                    className="rounded border-white/20 bg-white/5 text-primary focus:ring-primary focus:ring-offset-0"
-                />
-                <label htmlFor="feedback-anonymous" className="text-sm text-[#c4c4cc] cursor-pointer hover:text-white transition-colors">
-                    Enviar de forma anónima
-                </label>
+            <div className="mt-4 flex items-center">
+                <button
+                    type="button"
+                    role="switch"
+                    aria-checked={isAnonymous}
+                    onClick={() => setIsAnonymous(!isAnonymous)}
+                    className="group flex items-center gap-3 outline-none"
+                >
+                    <div className={`relative flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-300 ${
+                        isAnonymous ? 'bg-primary' : 'bg-white/10 group-hover:bg-white/20'
+                    }`}>
+                        <div className={`absolute left-0.5 h-4 w-4 rounded-full bg-white transition-transform duration-300 shadow-sm ${
+                            isAnonymous ? 'translate-x-4' : 'translate-x-0'
+                        }`} />
+                    </div>
+                    <span className="text-[0.85rem] font-medium text-[#c4c4cc] transition-colors group-hover:text-white">
+                        Enviar de forma anónima
+                    </span>
+                </button>
             </div>
 
             <div className={cardFooterFlex}>
