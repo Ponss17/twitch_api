@@ -24,25 +24,25 @@ export function Footer({ isDashboard = false }: FooterProps) {
 
     return (
         <footer className={`app-footer mt-auto w-full shrink-0 border-t border-white/[0.08] bg-[#09090b] py-8 ${isDashboard ? 'lg:pl-[280px]' : ''}`}>
-            <div className="footer-content mx-auto flex w-full max-w-[1200px] flex-col items-center px-5 text-center text-[0.9rem] text-[#71717a]">
+            <div className="footer-content mx-auto flex w-full max-w-[1200px] flex-col items-center px-5 text-center text-[0.9rem] text-[#a1a1aa]">
                 <div className="mb-3 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[0.8rem]">
                     {LEGAL_LINKS.map((link) => (
                         <a
                             key={link.href}
                             href={appPath(link.href)}
-                            className="text-[#71717a] no-underline transition hover:text-white"
+                            className="text-[#a1a1aa] underline underline-offset-2 transition hover:text-white"
                         >
                             {link.label}
                         </a>
                     ))}
                 </div>
-                <p className="w-full text-center text-[#71717a]">
+                <p className="w-full text-center text-[#a1a1aa]">
                     &copy; {year}{' '}
                     <a
                         href={site.origin}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#9146ff] no-underline transition hover:text-[#772ce8]"
+                        className="text-[#a78bfa] underline underline-offset-2 transition hover:text-[#9146ff]"
                     >
                         {site.hostname}
                     </a>
