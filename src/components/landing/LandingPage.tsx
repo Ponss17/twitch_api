@@ -261,7 +261,7 @@ export function LandingPage() {
                                     <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
                                     <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
                                     <span className="h-3 w-3 rounded-full bg-[#28c840]" />
-                                    <span className="ml-2 font-mono text-xs text-white/30">bash — 80x24</span>
+                                    <span className="ml-2 font-mono text-xs text-white/60">bash — 80x24</span>
                                 </div>
                                 <button
                                     type="button"
