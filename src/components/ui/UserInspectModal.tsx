@@ -35,7 +35,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
     const rankColor =
         user.broadcaster_type === 'partner' || user.broadcaster_type === 'affiliate'
             ? '#9146ff'
-            : '#a1a1aa';
+            : '#c4c4cc';
 
     const loadLogs = () => {
         setLogs(chatLogStore.getByUser(user.login));
@@ -88,7 +88,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                         <button
                             type="button"
                             onClick={() => void copyUserId()}
-                            className="flex items-center justify-start gap-1.5 font-[Consolas,monospace] text-[0.85rem] font-medium text-[#a1a1aa] transition hover:text-[#fafafa]"
+                            className="flex items-center justify-start gap-1.5 font-[Consolas,monospace] text-[0.85rem] font-medium text-[#c4c4cc] transition hover:text-[#fafafa]"
                             title="Copiar ID"
                         >
                             {user.id}
@@ -98,14 +98,14 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                     </div>
                     <div className="flex flex-col gap-1 text-left">
                         <span className="text-[0.65rem] tracking-wide text-[#71717a] uppercase">Antigüedad</span>
-                        <span className="font-[Consolas,monospace] text-[0.85rem] font-medium text-[#a1a1aa]">
+                        <span className="font-[Consolas,monospace] text-[0.85rem] font-medium text-[#c4c4cc]">
                             {calculateAccountAge(user.created_at)}
                         </span>
                     </div>
                 </div>
 
                 {!showHistory ? (
-                    <p className="mx-auto my-2.5 px-2.5 text-center text-[0.95rem] leading-relaxed text-[#a1a1aa]">
+                    <p className="mx-auto my-2.5 px-2.5 text-center text-[0.95rem] leading-relaxed text-[#c4c4cc]">
                         {user.description || 'Sin biografía.'}
                     </p>
                 ) : (
@@ -127,7 +127,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                                         <span className="shrink-0 font-[Consolas,monospace] text-[0.8rem] whitespace-nowrap text-[#71717a]">
                                             [{l.time.toLocaleTimeString()}]
                                         </span>
-                                        <span className="break-words text-[#a1a1aa]">{l.text}</span>
+                                        <span className="break-words text-[#c4c4cc]">{l.text}</span>
                                     </div>
                                 ))}
                             </div>

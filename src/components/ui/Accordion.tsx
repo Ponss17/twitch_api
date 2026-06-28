@@ -19,7 +19,7 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, i
             >
                 <span className="text-[0.9375rem] font-medium text-[#fafafa]">{title}</span>
                 <ChevronDown
-                    className={`w-4 h-4 text-[#a1a1aa] transition-transform duration-300 ease-[cubic-bezier(0.87,_0,_0.13,_1)] ${
+                    className={`w-4 h-4 text-[#c4c4cc] transition-transform duration-300 ease-[cubic-bezier(0.87,_0,_0.13,_1)] ${
                         isOpen ? 'rotate-180 text-primary' : ''
                     }`}
                     aria-hidden="true"
@@ -31,7 +31,7 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, i
                 }`}
             >
                 <div className="overflow-hidden">
-                    <div className="pb-4 text-[0.875rem] leading-relaxed text-[#a1a1aa]">
+                    <div className="pb-4 text-[0.875rem] leading-relaxed text-[#c4c4cc]">
                         {children}
                     </div>
                 </div>

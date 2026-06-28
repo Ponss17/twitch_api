@@ -24,10 +24,10 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
         if (isActive) {
             return `${navButtonBase} ${width} bg-[#18181b] text-[#fafafa] before:pointer-events-none before:absolute before:top-1/2 before:left-0 before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-r before:bg-primary before:shadow-[0_0_8px_#9146ff] before:content-['']`;
         }
-        return `${navButtonBase} ${width} text-[#a1a1aa] hover:bg-[#18181b] hover:text-[#fafafa]`;
+        return `${navButtonBase} ${width} text-[#c4c4cc] hover:bg-[#18181b] hover:text-[#fafafa]`;
     };
 
-    const supportLinkClass = `${navButtonBase} mx-auto w-[calc(100%-16px)] text-[#a1a1aa] underline decoration-[#52525b] underline-offset-[5px] transition hover:bg-[#18181b] hover:text-[#fafafa] hover:decoration-[#9146ff]`;
+    const supportLinkClass = `${navButtonBase} mx-auto w-[calc(100%-16px)] text-[#c4c4cc] underline decoration-[#52525b] underline-offset-[5px] transition hover:bg-[#18181b] hover:text-[#fafafa] hover:decoration-[#9146ff]`;
 
     return (
         <>

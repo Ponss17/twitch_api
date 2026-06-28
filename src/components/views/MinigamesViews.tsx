@@ -63,7 +63,7 @@ export function MinigameCard({
                     <CardHeaderIcon icon={Icon} />
                     <div>
                         <h3 className="mb-0.5 text-[0.95rem] font-bold">{title}</h3>
-                        <p className="text-[0.8rem] text-[#a1a1aa]">{description}</p>
+                        <p className="text-[0.8rem] text-[#c4c4cc]">{description}</p>
                     </div>
                 </div>
                 {info && (

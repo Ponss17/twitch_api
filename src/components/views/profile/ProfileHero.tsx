@@ -61,7 +61,7 @@ function ProfileStatItem({
             </span>
             <div className="flex flex-col">
                 <span className="text-[0.9rem] font-extrabold text-white">{value}</span>
-                <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.05em] text-[#a1a1aa]">
+                <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.05em] text-[#c4c4cc]">
                     {label}
                 </span>
             </div>
@@ -115,7 +115,7 @@ export function ProfileHero({
                             </div>
                         </div>
 
-                        <p className="m-0 mt-2 max-w-full text-left text-[0.82rem] font-normal leading-[1.45] text-[#a1a1aa] max-[900px]:text-center">
+                        <p className="m-0 mt-2 max-w-full text-left text-[0.82rem] font-normal leading-[1.45] text-[#c4c4cc] max-[900px]:text-center">
                             {description || 'Sin biografía disponible. ¡Este streamer es un misterio!'}
                         </p>
 

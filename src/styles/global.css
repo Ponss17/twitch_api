@@ -370,5 +370,9 @@
 
 
 
-
+/* Accesibilidad: los enlaces deben ser identificables sin depender solo del color */
+a:not([class]):not([role="button"]) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 

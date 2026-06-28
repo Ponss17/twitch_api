@@ -49,7 +49,7 @@ export function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
                             key={link.tab}
                             type="button"
                             onClick={() => onNavigate?.(link.tab)}
-                            className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 py-1.5 text-left text-[0.75rem] font-semibold text-[#a1a1aa] transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
+                            className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 py-1.5 text-left text-[0.75rem] font-semibold text-[#c4c4cc] transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
                         >
                             <IconMd icon={link.icon} />
                             {link.label}
@@ -70,7 +70,7 @@ export function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
                             target={link.external ? '_blank' : undefined}
                             rel={link.external ? 'noopener noreferrer' : undefined}
                             onClick={shouldSavePanelReturn(link.href) ? saveDocsReturnPath : undefined}
-                            className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2 text-[0.8rem] font-semibold text-[#a1a1aa] no-underline transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
+                            className="flex items-center gap-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2 text-[0.8rem] font-semibold text-[#c4c4cc] no-underline transition-all duration-200 hover:translate-x-1 hover:border-primary hover:bg-bg-tertiary hover:text-[#fafafa]"
                         >
                             <LinkIcon className="size-5 shrink-0" aria-hidden />
                             {link.label}

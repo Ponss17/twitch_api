@@ -453,7 +453,7 @@ const DataExport = {
             --accent-light: #a78bfa;
             --accent-glow: rgba(145,70,255,0.05);
             --text: #fafafa;
-            --text-muted: #a1a1aa;
+            --text-muted: #c4c4cc;
             --text-dim: #71717a;
             --success: #22c55e;
             --success-bg: rgba(34,197,94,0.1);

@@ -21,7 +21,7 @@ export const docsSidebarTitle = 'm-0 text-[1.1rem] font-bold tracking-tight text
 export const docsSearchWrap = 'relative mb-5 flex shrink-0 items-center px-1';
 
 export const docsSearchIcon =
-    'pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-[0.9rem] text-[#a1a1aa]';
+    'pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-[0.9rem] text-[#c4c4cc]';
 
 export const docsSearchInput =
     'w-full rounded-lg border border-white/[0.08] bg-white/5 py-3 pr-3 pl-10 text-[0.9rem] text-white outline-none transition focus:border-primary focus:bg-white/[0.08] focus:shadow-[0_0_0_3px_rgba(145,70,255,0.2)]';
@@ -35,7 +35,7 @@ export const docsNavItem = (active: boolean) => {
     if (active) {
         return `${base} ${width} bg-[#18181b] text-white before:pointer-events-none before:absolute before:top-1/2 before:left-0 before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-r before:bg-primary before:shadow-[0_0_8px_#9146ff] before:content-[""]`;
     }
-    return `${base} ${width} text-[#a1a1aa] hover:bg-[#18181b] hover:text-white`;
+    return `${base} ${width} text-[#c4c4cc] hover:bg-[#18181b] hover:text-white`;
 };
 
 export const docsNavGroup = 'mt-6 flex flex-col gap-1';
@@ -43,13 +43,13 @@ export const docsNavGroup = 'mt-6 flex flex-col gap-1';
 export const docsNavSub = 'mb-2 flex flex-col gap-1';
 
 export const docsGroupTitle =
-    'mb-2 ml-3 text-[0.7rem] font-bold tracking-[0.15em] text-[#a1a1aa] uppercase opacity-70';
+    'mb-2 ml-3 text-[0.7rem] font-bold tracking-[0.15em] text-[#c4c4cc] uppercase opacity-70';
 
 export const docsReturnHome =
     'mt-auto flex items-center justify-center gap-3 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 font-semibold text-white no-underline transition hover:bg-white/[0.08]';
 
 export const docsContent =
-    'ml-[280px] w-full max-w-[1200px] px-[100px] py-20 max-[900px]:ml-0 max-[900px]:px-5 max-[900px]:py-[60px] [&_a]:font-semibold [&_a]:text-primary [&_a]:no-underline [&_a]:transition hover:[&_a]:text-[#a78bfa] [&_code]:rounded [&_code]:border [&_code]:border-white/[0.05] [&_code]:bg-white/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-[#e2e8f0] [&_h2]:relative [&_h2]:mb-[30px] [&_h2]:flex [&_h2]:items-center [&_h2]:gap-[15px] [&_h2]:border-b [&_h2]:border-white/[0.08] [&_h2]:pb-[15px] [&_h2]:text-[1.8rem] [&_h2]:tracking-tight [&_h2]:text-white [&_h2_i]:text-[1.3rem] [&_h2_i]:text-primary [&_h3]:my-6 [&_h3]:text-[1.15rem] [&_h3]:font-bold [&_h3]:text-white [&_p]:mb-5 [&_p]:text-[1rem] [&_p]:text-[#a1a1aa]';
+    'ml-[280px] w-full max-w-[1200px] px-[100px] py-20 max-[900px]:ml-0 max-[900px]:px-5 max-[900px]:py-[60px] [&_a]:font-semibold [&_a]:text-primary [&_a]:no-underline [&_a]:transition hover:[&_a]:text-[#a78bfa] [&_code]:rounded [&_code]:border [&_code]:border-white/[0.05] [&_code]:bg-white/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-[#e2e8f0] [&_h2]:relative [&_h2]:mb-[30px] [&_h2]:flex [&_h2]:items-center [&_h2]:gap-[15px] [&_h2]:border-b [&_h2]:border-white/[0.08] [&_h2]:pb-[15px] [&_h2]:text-[1.8rem] [&_h2]:tracking-tight [&_h2]:text-white [&_h2_i]:text-[1.3rem] [&_h2_i]:text-primary [&_h3]:my-6 [&_h3]:text-[1.15rem] [&_h3]:font-bold [&_h3]:text-white [&_p]:mb-5 [&_p]:text-[1rem] [&_p]:text-[#c4c4cc]';
 
 export const docSection =
     'mb-[100px] min-h-[400px] scroll-mt-10 opacity-0 [transform:translateY(20px)] [animation:docsFadeInUp_0.6s_cubic-bezier(0.2,0.8,0.2,1)_forwards]';
@@ -60,7 +60,7 @@ export const docsMainTitle =
 export const docsAccent = 'text-primary [webkit-text-fill-color:#9146ff]';
 
 export const docsLead =
-    'mb-10 max-w-[800px] text-[1.25rem] leading-[1.7] font-light text-[#a1a1aa] max-[900px]:text-center max-[900px]:text-[1.1rem]';
+    'mb-10 max-w-[800px] text-[1.25rem] leading-[1.7] font-light text-[#c4c4cc] max-[900px]:text-center max-[900px]:text-[1.1rem]';
 
 export const docsIntroGrid =
     'mt-8 grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6';
@@ -89,7 +89,7 @@ export const docsCodeBlock =
     'relative my-[30px] rounded-xl border border-white/[0.04] bg-black/40 p-5 pr-[100px] before:absolute before:top-2.5 before:left-[15px] before:text-[1.2rem] before:leading-none before:tracking-[2px] before:text-[#3f3f46] before:content-["•••"] [&_code]:mt-3 [&_code]:block [&_code]:!border-none [&_code]:!bg-transparent [&_code]:!p-0 [&_code]:!shadow-none [&_code]:pr-10 [&_code]:font-mono [&_code]:text-[0.85rem] [&_code]:leading-relaxed [&_code]:text-[#e2e8f0]';
 
 export const docsStepsMini =
-    'mb-4 flex items-center gap-[15px] text-[0.9rem] font-medium text-[#a1a1aa]';
+    'mb-4 flex items-center gap-[15px] text-[0.9rem] font-medium text-[#c4c4cc]';
 
 export const docsStepBadge =
     'mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full border border-primary/30 bg-primary/15 text-[0.8rem] font-bold text-primary';
@@ -113,7 +113,7 @@ export const docsLimitValue =
     'mb-1 text-[2rem] font-extrabold text-primary [text-shadow:0_0_20px_rgba(145,70,255,0.3)]';
 
 export const docsLimitLabel =
-    'text-[0.85rem] font-semibold tracking-wide text-[#a1a1aa] uppercase';
+    'text-[0.85rem] font-semibold tracking-wide text-[#c4c4cc] uppercase';
 
 export const docsTabContainer =
     'my-[30px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#0e0e11]';
@@ -125,13 +125,13 @@ export const docsBotSelector =
     'flex gap-0.5 rounded-md bg-white/5 p-0.5 max-[600px]:w-full max-[600px]:justify-center';
 
 export const docsTabBtn = (active: boolean) =>
-    `cursor-pointer rounded px-3 py-1.5 text-[0.8rem] transition max-[600px]:flex-1 ${active ? 'bg-primary font-medium text-white shadow-[0_0_15px_rgba(145,70,255,0.2)]' : 'bg-transparent text-[#a1a1aa] hover:bg-white/5 hover:text-white'}`;
+    `cursor-pointer rounded px-3 py-1.5 text-[0.8rem] transition max-[600px]:flex-1 ${active ? 'bg-primary font-medium text-white shadow-[0_0_15px_rgba(145,70,255,0.2)]' : 'bg-transparent text-[#c4c4cc] hover:bg-white/5 hover:text-white'}`;
 
 export const docsFormatSelector =
     'ml-auto flex gap-0.5 rounded-md bg-white/5 p-0.5 max-[600px]:order-first max-[600px]:ml-0 max-[600px]:w-full max-[600px]:justify-center';
 
 export const docsFormatBtn = (active: boolean) =>
-    `cursor-pointer rounded px-2.5 py-1 text-[0.8rem] transition ${active ? 'bg-primary font-medium text-white' : 'bg-transparent text-[#a1a1aa] hover:bg-white/5 hover:text-white'}`;
+    `cursor-pointer rounded px-2.5 py-1 text-[0.8rem] transition ${active ? 'bg-primary font-medium text-white' : 'bg-transparent text-[#c4c4cc] hover:bg-white/5 hover:text-white'}`;
 
 export const docsTabContent = 'p-0';
 
@@ -165,4 +165,4 @@ export const docsBadgeError =
     'rounded-md border border-error/30 bg-error/10 px-2 py-1 text-[0.7rem] font-bold tracking-wide text-error';
 
 export const docsBadgeNeutral =
-    'rounded-md border border-white/20 bg-white/5 px-2 py-1 text-[0.7rem] font-bold tracking-wide text-[#a1a1aa]';
+    'rounded-md border border-white/20 bg-white/5 px-2 py-1 text-[0.7rem] font-bold tracking-wide text-[#c4c4cc]';
