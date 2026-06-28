@@ -187,7 +187,7 @@ function animDelay(delay: number): CSSProperties {
 function TechCardContent({ card }: { card: TechCardDef }) {
     return (
         <>
-            <span className="text-[0.6rem] font-bold tracking-[0.1em] text-[#a1a1aa] uppercase">{card.type}</span>
+            <span className="text-[0.6rem] font-bold tracking-[0.1em] text-[#c4c4cc] uppercase">{card.type}</span>
             <span className="text-[0.9rem] font-semibold text-white">{card.content}</span>
         </>
     );

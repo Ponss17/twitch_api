@@ -33,7 +33,7 @@ export function ProfileActivitySummary({
                 </div>
                 <div>
                     <h3 className="mb-0.5 text-[0.95rem] font-bold">Resumen de Actividad</h3>
-                    <p className="text-[0.8rem] text-[#a1a1aa]">
+                    <p className="text-[0.8rem] text-[#c4c4cc]">
                         Frecuencia de uso de tus recursos en tiempo real (
                         <span
                             className={`text-[0.85em] font-medium opacity-60 transition-all duration-300 ${syncing ? 'animate-blink-soft text-primary opacity-100' : ''}`}

@@ -20,7 +20,7 @@ export const textInput =
     'w-full rounded-lg border border-white/[0.08] bg-bg-secondary px-3 py-[7px] text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:shadow-[0_0_0_3px_rgba(145,70,255,0.2)]';
 
 export const inputLabel =
-    'block text-[0.8125rem] font-medium leading-tight text-[#a1a1aa]';
+    'block text-[0.8125rem] font-medium leading-tight text-[#c4c4cc]';
 
 export const codeBox =
     'relative rounded-xl border border-white/[0.04] border-l-4 border-l-primary bg-black/40 px-3.5 py-2.5';
@@ -40,7 +40,7 @@ export const responseCard =
 export const formGrid = 'grid grid-cols-1 gap-3 min-[768px]:grid-cols-2';
 
 export const formGroupLabel =
-    'mb-1.5 block text-[0.8125rem] font-semibold tracking-wide text-[#a1a1aa] uppercase';
+    'mb-1.5 block text-[0.8125rem] font-semibold tracking-wide text-[#c4c4cc] uppercase';
 
 export const textareaXl =
     'min-h-[180px] w-full resize-y rounded-xl border border-white/[0.08] bg-bg-secondary px-4 py-4 text-[0.8125rem] leading-relaxed text-[#fafafa] outline-none transition focus:border-primary focus:bg-primary/[0.02]';
@@ -65,7 +65,7 @@ export const modalTitle = 'm-0 flex items-center gap-2 text-[1.05rem] font-bold 
 export const modalTitleIcon = 'text-primary';
 
 export const modalBody =
-    'px-5 py-5 text-[0.875rem] leading-relaxed text-[#a1a1aa] [&_p]:mb-3.5 [&_p:last-child]:mb-0 [&_strong]:text-[#fafafa] [&_ul]:my-3 [&_ul]:list-none [&_ul]:space-y-2 [&_ul]:pl-2.5 [&_li]:flex [&_li]:items-start [&_li]:gap-2 [&_li_i]:mt-0.5 [&_li_i]:text-primary';
+    'px-5 py-5 text-[0.875rem] leading-relaxed text-[#c4c4cc] [&_p]:mb-3.5 [&_p:last-child]:mb-0 [&_strong]:text-[#fafafa] [&_ul]:my-3 [&_ul]:list-none [&_ul]:space-y-2 [&_ul]:pl-2.5 [&_li]:flex [&_li]:items-start [&_li]:gap-2 [&_li_i]:mt-0.5 [&_li_i]:text-primary';
 
 export const modalFooter =
     'flex flex-row-reverse gap-2.5 border-t border-white/[0.08] bg-bg-secondary px-5 py-4';
@@ -83,7 +83,7 @@ export const btnDanger =
     `${modalBtnBase} border border-error bg-error font-bold text-white hover:-translate-y-0.5 hover:bg-red-600`;
 
 export const btnIcon =
-    'rounded-lg border-none bg-transparent px-2 py-1.5 text-[#a1a1aa] transition hover:bg-white/5 hover:text-[#fafafa] disabled:opacity-50';
+    'rounded-lg border-none bg-transparent px-2 py-1.5 text-[#c4c4cc] transition hover:bg-white/5 hover:text-[#fafafa] disabled:opacity-50';
 
 export const dangerModalPanel =
     'overflow-hidden rounded-xl border border-red-500/30 bg-bg-card shadow-[0_0_30px_rgba(239,68,68,0.15)]';
@@ -96,7 +96,7 @@ export const dangerModalTitleIcon = 'text-error';
 export const dangerInputGroup =
     'mt-5 rounded-xl border border-dashed border-red-500/20 bg-red-500/[0.03] p-4';
 
-export const dangerInputLabel = 'mb-2.5 block text-[0.85rem] text-[#a1a1aa]';
+export const dangerInputLabel = 'mb-2.5 block text-[0.85rem] text-[#c4c4cc]';
 
 export const confirmWordBadge =
     'rounded bg-red-500/10 px-1.5 py-0.5 font-mono text-sm font-extrabold tracking-wide text-error';

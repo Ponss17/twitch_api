@@ -83,7 +83,7 @@ export function HomeActivityFeed({
                     </div>
                     <div>
                         <h3 className="mb-0.5 text-[0.95rem] font-bold">Historial de Actividad</h3>
-                        <p className="text-[0.8rem] text-[#a1a1aa]">
+                        <p className="text-[0.8rem] text-[#c4c4cc]">
                             Monitoreo en vivo del uso de comandos •{' '}
                             <span
                                 className={`ml-1 text-[0.85em] font-medium opacity-60 transition-all duration-300 group-hover/card:opacity-100 group-hover/card:text-primary ${syncing ? 'animate-blink-soft text-primary opacity-100' : ''}`}

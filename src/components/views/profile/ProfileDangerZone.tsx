@@ -23,7 +23,7 @@ export const ProfileDangerZone = forwardRef<HTMLDivElement, ProfileDangerZonePro
                 </div>
                 <div>
                     <h3 className="mb-0.5 text-[0.95rem] font-bold text-[#ef4444]">Zona de Peligro</h3>
-                    <p className="text-[0.8rem] text-[#a1a1aa]">
+                    <p className="text-[0.8rem] text-[#c4c4cc]">
                         Acciones irreversibles sobre tus datos y cuenta
                     </p>
                 </div>
@@ -33,7 +33,7 @@ export const ProfileDangerZone = forwardRef<HTMLDivElement, ProfileDangerZonePro
                 <div className="flex flex-col justify-between gap-2.5 rounded-xl border border-white/[0.05] bg-black/20 p-3 transition hover:-translate-y-1 hover:border-[#ef4444]/30 hover:bg-[#ef4444]/[0.04]">
                     <div>
                         <h4 className="mb-2 text-base font-bold text-[#ef4444]">Reiniciar Estadísticas</h4>
-                        <p className="m-0 text-[0.85rem] leading-normal text-[#a1a1aa]">
+                        <p className="m-0 text-[0.85rem] leading-normal text-[#c4c4cc]">
                             Borra todo el historial de comandos, clips y latencia. La API Key seguirá activa.
                         </p>
                     </div>
@@ -49,7 +49,7 @@ export const ProfileDangerZone = forwardRef<HTMLDivElement, ProfileDangerZonePro
                 <div className="flex flex-col justify-between gap-2.5 rounded-xl border border-white/[0.05] bg-black/20 p-3 transition hover:-translate-y-1 hover:border-[#ef4444]/30 hover:bg-[#ef4444]/[0.04]">
                     <div>
                         <h4 className="mb-2 text-base font-bold text-[#ef4444]">Eliminar Acceso API</h4>
-                        <p className="m-0 text-[0.85rem] leading-normal text-[#a1a1aa]">
+                        <p className="m-0 text-[0.85rem] leading-normal text-[#c4c4cc]">
                             Borra permanentemente tu perfil en LosPerris API y todos los datos asociados.{' '}
                             <strong className="text-[#fafafa]">Tu cuenta de Twitch seguirá intacta.</strong>
                         </p>

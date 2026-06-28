@@ -507,7 +507,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     </div>
                     <div>
                         <h3 className="mb-0.5 text-[0.95rem] font-bold">Ruleta de Viewers</h3>
-                        <p className="text-[0.8rem] text-[#a1a1aa]">Sortea premios entre los usuarios activos</p>
+                        <p className="text-[0.8rem] text-[#c4c4cc]">Sortea premios entre los usuarios activos</p>
                     </div>
                 </div>
 
@@ -582,7 +582,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         }}
                         title="Recargar usuarios"
                         aria-label="Recargar usuarios"
-                        className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#a1a1aa] transition hover:bg-white/5 hover:text-[#fafafa]"
+                        className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#c4c4cc] transition hover:bg-white/5 hover:text-[#fafafa]"
                     >
                         <RotateCw className="w-4 h-4" />
                     </button>
@@ -643,7 +643,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                             className="pointer-events-none absolute top-[65%] left-1/2 z-[5] w-[52%] -translate-x-1/2 -translate-y-1/2 text-center"
                             aria-hidden
                         >
-                            <p className="text-[0.8125rem] font-semibold leading-snug text-[#a1a1aa]">
+                            <p className="text-[0.8125rem] font-semibold leading-snug text-[#c4c4cc]">
                                 Sin participantes
                             </p>
                             <p className="mt-1 text-[0.6875rem] leading-snug text-[#52525b]">
@@ -680,13 +680,13 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                                 <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full border border-amber-400/30 bg-amber-400/10">
                                     <Crown className="size-6 text-amber-400" aria-hidden />
                                 </div>
-                                <p className="mb-1 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-[#a1a1aa]">
+                                <p className="mb-1 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-[#c4c4cc]">
                                     Ganador
                                 </p>
                                 <p className="mb-1 text-[1.6rem] font-extrabold leading-tight text-primary">
                                     {winner.user_name}
                                 </p>
-                                <p className="mb-4 flex items-center justify-center gap-1.5 text-[0.85rem] text-[#a1a1aa]">
+                                <p className="mb-4 flex items-center justify-center gap-1.5 text-[0.85rem] text-[#c4c4cc]">
                                     <Sparkles className="size-3.5 text-primary" aria-hidden />
                                     {lastSpinCount || chatters.length} participantes
                                 </p>

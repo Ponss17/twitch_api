@@ -359,7 +359,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                     <CardHeaderIcon icon={BarChart2} />
                     <div>
                         <h3 className="mb-0.5 text-[0.95rem] font-bold">Tendencias de {displayName}</h3>
-                        <p className="text-[0.8rem] text-[#a1a1aa]">Ranking de palabras en tiempo real</p>
+                        <p className="text-[0.8rem] text-[#c4c4cc]">Ranking de palabras en tiempo real</p>
                     </div>
                 </div>
 
@@ -368,13 +368,13 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                         {!tracking && (
                             <div className="flex items-center gap-2.5 max-md:w-full max-md:flex-col max-md:items-stretch">
                                 <div className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-bg-main px-2 py-1 max-md:w-full max-md:justify-between">
-                                    <span className="px-1 text-[0.8125rem] font-medium text-[#a1a1aa]">Duración:</span>
+                                    <span className="px-1 text-[0.8125rem] font-medium text-[#c4c4cc]">Duración:</span>
                                     <button
                                         type="button"
                                         onClick={() => adjustMinutes(-1)}
                                         disabled={minutes <= 1}
                                         aria-label="Reducir minutos"
-                                        className="flex h-7 w-7 items-center justify-center rounded-md text-[#a1a1aa] transition hover:bg-white/10 hover:text-[#fafafa] disabled:cursor-not-allowed disabled:opacity-30"
+                                        className="flex h-7 w-7 items-center justify-center rounded-md text-[#c4c4cc] transition hover:bg-white/10 hover:text-[#fafafa] disabled:cursor-not-allowed disabled:opacity-30"
                                     >
                                         <Minus className="text-xs" />
                                     </button>
@@ -395,7 +395,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                         onClick={() => adjustMinutes(1)}
                                         disabled={minutes >= 60}
                                         aria-label="Aumentar minutos"
-                                        className="flex h-7 w-7 items-center justify-center rounded-md text-[#a1a1aa] transition hover:bg-white/10 hover:text-[#fafafa] disabled:cursor-not-allowed disabled:opacity-30"
+                                        className="flex h-7 w-7 items-center justify-center rounded-md text-[#c4c4cc] transition hover:bg-white/10 hover:text-[#fafafa] disabled:cursor-not-allowed disabled:opacity-30"
                                     >
                                         <Plus className="text-xs" />
                                     </button>
@@ -454,13 +454,13 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b border-white/[0.08] bg-black/20">
-                                <th className="w-[50px] px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#a1a1aa] uppercase">
+                                <th className="w-[50px] px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
                                     #
                                 </th>
-                                <th className="px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#a1a1aa] uppercase">
+                                <th className="px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
                                     Palabra
                                 </th>
-                                <th className="px-5 py-3.5 text-right text-[0.6875rem] font-bold tracking-wide text-[#a1a1aa] uppercase">
+                                <th className="px-5 py-3.5 text-right text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
                                     Repeticiones
                                 </th>
                                 <th className="w-1/2 px-5 py-3.5" />

@@ -35,7 +35,7 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                 <button
                     type="button"
                     onClick={onMenuToggle}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-[#a1a1aa] transition hover:bg-white/5 hover:text-white lg:hidden"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-[#c4c4cc] transition hover:bg-white/5 hover:text-white lg:hidden"
                     aria-label="Abrir menú"
                 >
                     <Menu className="w-5 h-5" />
@@ -51,7 +51,7 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                         href="https://www.paypal.me/Ponssjean"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hidden items-center gap-2 rounded-full border border-white/[0.05] bg-white/[0.03] px-3 py-1.5 text-[0.85rem] font-semibold text-[#a1a1aa] no-underline transition hover:-translate-y-px hover:border-[#0070ba]/20 hover:bg-[#0070ba]/[0.08] hover:text-[#fafafa] sm:flex"
+                        className="hidden items-center gap-2 rounded-full border border-white/[0.05] bg-white/[0.03] px-3 py-1.5 text-[0.85rem] font-semibold text-[#c4c4cc] no-underline transition hover:-translate-y-px hover:border-[#0070ba]/20 hover:bg-[#0070ba]/[0.08] hover:text-[#fafafa] sm:flex"
                         title="Apoyar el proyecto"
                     >
                         <PaypalIcon className="size-4 shrink-0 text-[#0070ba]" />
