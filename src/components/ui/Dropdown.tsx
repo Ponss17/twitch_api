@@ -183,7 +183,7 @@ export function DropdownItem({
     const tone =
         variant === 'danger'
             ? 'text-[#ef4444] hover:bg-[#ef4444]/10'
-            : 'text-[#a1a1aa] hover:bg-primary/10 hover:text-[#fafafa]';
+            : 'text-[#c4c4cc] hover:bg-primary/10 hover:text-[#fafafa]';
 
     return (
         <button
@@ -215,7 +215,7 @@ export function DropdownLink({
 
     return (
         <a
-            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#a1a1aa] no-underline transition hover:bg-primary/10 hover:text-[#fafafa] ${className}`.trim()}
+            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#c4c4cc] no-underline transition hover:bg-primary/10 hover:text-[#fafafa] ${className}`.trim()}
             onClick={(e) => {
                 if (closeOnClick) close();
                 onClick?.(e);
@@ -249,7 +249,7 @@ export function DropdownCheckboxItem({
     return (
         <label
             className={`flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-[0.75rem] transition hover:bg-primary/10 ${
-                emphasis ? 'font-semibold text-[#fafafa]' : 'font-medium text-[#a1a1aa] hover:text-[#fafafa]'
+                emphasis ? 'font-semibold text-[#fafafa]' : 'font-medium text-[#c4c4cc] hover:text-[#fafafa]'
             } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`.trim()}
         >
             <input

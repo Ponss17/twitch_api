@@ -177,7 +177,7 @@ export function ClipsView() {
                         </div>
                         <div>
                             <h3 className="mb-0.5 text-[0.95rem] font-bold">Clips Recientes</h3>
-                            <p className="text-[0.8rem] text-[#a1a1aa]">Los últimos clips de tu canal</p>
+                            <p className="text-[0.8rem] text-[#c4c4cc]">Los últimos clips de tu canal</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -186,7 +186,7 @@ export function ClipsView() {
                             onClick={() => setShowFavsOnly((v) => !v)}
                             title="Solo favoritos"
                             className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] transition hover:bg-white/5 ${
-                                showFavsOnly ? 'text-[#ffd700]' : 'text-[#a1a1aa] hover:text-[#fafafa]'
+                                showFavsOnly ? 'text-[#ffd700]' : 'text-[#c4c4cc] hover:text-[#fafafa]'
                             }`}
                         >
                             <Star className={`${showFavsOnly ? 'fill-current' : ''}`} />
@@ -195,7 +195,7 @@ export function ClipsView() {
                             type="button"
                             onClick={() => void loadClips(true)}
                             title="Recargar lista de clips"
-                            className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#a1a1aa] transition hover:bg-white/5 hover:text-[#fafafa]"
+                            className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#c4c4cc] transition hover:bg-white/5 hover:text-[#fafafa]"
                         >
                             <RotateCw className="w-4 h-4" />
                         </button>
@@ -296,7 +296,7 @@ export function ClipsView() {
                                                     >
                                                         {clip.title ?? 'Sin título'}
                                                     </div>
-                                                    <div className="flex justify-between text-[0.6875rem] text-[#a1a1aa]">
+                                                    <div className="flex justify-between text-[0.6875rem] text-[#c4c4cc]">
                                                         <span>
                                                             <Eye className="mr-1" />
                                                             {viewsStr}

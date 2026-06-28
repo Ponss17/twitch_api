@@ -139,7 +139,7 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
                                 )}
                                 {statusTitle}
                             </p>
-                            <p className="mt-1 text-[0.8125rem] leading-snug text-[#a1a1aa]">{statusHint}</p>
+                            <p className="mt-1 text-[0.8125rem] leading-snug text-[#c4c4cc]">{statusHint}</p>
                         </div>
 
                         <span

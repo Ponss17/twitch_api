@@ -48,7 +48,7 @@ export function ProfileSecuritySection({
                     </div>
                     <div>
                         <h3 className="mb-0.5 text-[0.95rem] font-bold">Seguridad y Conexión</h3>
-                        <p className="text-[0.8rem] text-[#a1a1aa]">
+                        <p className="text-[0.8rem] text-[#c4c4cc]">
                             Gestiona tus credenciales privadas de LosPerris API
                         </p>
                     </div>
@@ -84,7 +84,7 @@ export function ProfileSecuritySection({
                             <button
                                 type="button"
                                 onClick={onToggleKey}
-                                className="flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] text-[#a1a1aa] transition first:border-l-0 hover:bg-white/[0.05] hover:text-white"
+                                className="flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] text-[#c4c4cc] transition first:border-l-0 hover:bg-white/[0.05] hover:text-white"
                                 title="Ver/Ocultar"
                             >
                                 {keyVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -92,7 +92,7 @@ export function ProfileSecuritySection({
                             <button
                                 type="button"
                                 onClick={handleCopyKey}
-                                className="flex items-center justify-center gap-1.5 border-l border-white/[0.05] px-3 text-[0.85rem] text-[#a1a1aa] transition hover:bg-primary/10 hover:text-primary"
+                                className="flex items-center justify-center gap-1.5 border-l border-white/[0.05] px-3 text-[0.85rem] text-[#c4c4cc] transition hover:bg-primary/10 hover:text-primary"
                                 title="Copiar"
                             >
                                 {isKeyCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -101,7 +101,7 @@ export function ProfileSecuritySection({
                             <button
                                 type="button"
                                 onClick={onRegenKey}
-                                className="flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] text-[#a1a1aa] transition hover:bg-[#ef4444]/[0.08] hover:text-[#ef4444]"
+                                className="flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] text-[#c4c4cc] transition hover:bg-[#ef4444]/[0.08] hover:text-[#ef4444]"
                                 title="Regenerar"
                             >
                                 <RotateCw className="w-4 h-4" />
@@ -112,7 +112,7 @@ export function ProfileSecuritySection({
                                 className={`flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] transition hover:bg-[#ef4444]/[0.08] hover:text-[#ef4444] ${
                                     showDanger
                                         ? 'bg-[#ef4444] text-white shadow-[0_0_10px_rgba(239,68,68,0.3)] hover:bg-[#ef4444] hover:text-white'
-                                        : 'text-[#a1a1aa]'
+                                        : 'text-[#c4c4cc]'
                                 }`}
                                 title={showDanger ? 'Ocultar Zona de Peligro' : 'Mostrar Zona de Peligro'}
                             >
@@ -123,13 +123,13 @@ export function ProfileSecuritySection({
 
                     <div className="flex flex-wrap gap-3 pt-2.5">
                         <div className="flex items-center gap-1.5 rounded-lg border border-[#10b981]/10 bg-[#10b981]/[0.03] px-2.5 py-1 backdrop-blur-[8px]">
-                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#a1a1aa]">
+                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#c4c4cc]">
                                 ESTADO:
                             </span>
                             <span className="flex items-center text-[0.8rem] font-semibold text-[#10b981]"><Check className="w-3.5 h-3.5 mr-1" />ACTIVA</span>
                         </div>
                         <div className="flex items-center gap-1.5 rounded-lg border border-[#3b82f6]/10 bg-[#3b82f6]/[0.03] px-2.5 py-1 backdrop-blur-[8px]">
-                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#a1a1aa]">
+                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#c4c4cc]">
                                 ACCESO:
                             </span>
                             <span className="text-[0.8rem] font-semibold text-[#3b82f6]">FULL API</span>
@@ -138,7 +138,7 @@ export function ProfileSecuritySection({
                             className="flex items-center gap-1.5 rounded-lg border border-white/[0.05] bg-black/20 px-2.5 py-1 backdrop-blur-[8px]"
                             title="Peticiones máximas por minuto con tu API Key"
                         >
-                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#a1a1aa]">
+                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#c4c4cc]">
                                 LÍMITE/MIN:
                             </span>
                             <span className="text-[0.8rem] font-semibold text-white">{rateLimit} req/min</span>
@@ -150,7 +150,7 @@ export function ProfileSecuritySection({
                             className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/[0.05] bg-black/20 px-2.5 py-1 text-left font-[inherit] text-inherit backdrop-blur-[8px] transition hover:border-primary/25 hover:bg-primary/[0.08] hover:[&_.s-value]:text-primary"
                             title="Copiar ID de cuenta"
                         >
-                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#a1a1aa]">
+                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#c4c4cc]">
                                 ID:
                             </span>
                             <span className="s-value text-[0.8rem] font-semibold text-white">{userId ?? '---'}</span>

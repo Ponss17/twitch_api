@@ -27,7 +27,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     private renderHint(): ReactNode {
         if (import.meta.env.DEV) {
             return (
-                <p className="mb-4 text-sm text-[#a1a1aa]">
+                <p className="mb-4 text-sm text-[#c4c4cc]">
                     Si estás en desarrollo local, prueba reiniciar el servidor, borrar caché del navegador o
                     usar ventana de incógnito sin extensiones.
                 </p>
@@ -35,7 +35,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         }
 
         return (
-            <p className="mb-4 text-sm text-[#a1a1aa]">
+            <p className="mb-4 text-sm text-[#c4c4cc]">
                 Inténtalo de nuevo. Si el problema continúa, recarga la página o contacta soporte en Discord.
             </p>
         );

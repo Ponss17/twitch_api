@@ -62,10 +62,19 @@ const swScope = staticPath('/');
         <meta property="twitter:image" content={shareImage} />
         <link rel="icon" type="image/svg+xml" href={staticPath('/img/logo.svg')} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
-            rel="stylesheet"
+            rel="preload"
             href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap"
+            as="style"
+            onload="this.onload=null;this.rel='stylesheet'"
         />
+        <noscript>
+            <link
+                rel="stylesheet"
+                href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap"
+            />
+        </noscript>
         <title>{documentTitle}</title>
         <SpeedInsights scriptSrc="https://va.vercel-scripts.com/v1/speed-insights/script.js" />
         {isDev && (
@@ -93,10 +102,13 @@ const swScope = staticPath('/');
         )}
     </head>
     <body class:list={[docsPage, 'flex min-h-screen flex-col']}>
-        <div class="flex min-h-0 flex-1 flex-col">
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded">
+            Saltar al contenido principal
+        </a>
+        <main id="main-content" class="flex min-h-0 flex-1 flex-col">
             <slot />
-        </div>
-        {footer && <Footer client:load />}
+        </main>
+        {footer && <Footer client:visible />}
         <script is:inline define:vars={{ isDev, swUrl, swScope }}>
             if ('serviceWorker' in navigator && !isDev) {
                 window.addEventListener('load', () => {

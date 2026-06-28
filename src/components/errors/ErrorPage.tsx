@@ -21,7 +21,7 @@ export function ErrorPage({ code, title, message, children }: ErrorPageProps) {
                     {code}
                 </div>
                 <h1 className="text-3xl font-extrabold text-[#fafafa] md:text-4xl">{title}</h1>
-                <p className="mt-4 text-lg leading-relaxed text-[#a1a1aa]">{message}</p>
+                <p className="mt-4 text-lg leading-relaxed text-[#c4c4cc]">{message}</p>
                 {children}
                 {!children && (
                     <a

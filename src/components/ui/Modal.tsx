@@ -345,7 +345,7 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
                             </>
                         ) : (
                             <>
-                                <X className="w-5 h-5 text-[#a1a1aa] group-hover:text-white transition" />
+                                <X className="w-5 h-5 text-[#c4c4cc] group-hover:text-white transition" />
                                 Sí, regenerar
                             </>
                         )}

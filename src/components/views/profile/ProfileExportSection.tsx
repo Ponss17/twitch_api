@@ -18,7 +18,7 @@ export function ProfileExportSection({ onExport, loading = false }: ProfileExpor
                 </div>
                 <div>
                     <h3 className="mb-0.5 text-[0.95rem] font-bold">Tus Datos</h3>
-                    <p className="text-[0.8rem] text-[#a1a1aa]">
+                    <p className="text-[0.8rem] text-[#c4c4cc]">
                         Descarga toda tu información en un documento legible
                     </p>
                 </div>
@@ -27,7 +27,7 @@ export function ProfileExportSection({ onExport, loading = false }: ProfileExpor
             <div className="relative flex items-center justify-between gap-4 overflow-hidden rounded-xl border border-primary/15 bg-black/25 p-4 pl-5 backdrop-blur-[10px] transition hover:bg-primary/[0.03] hover:shadow-[0_0_20px_rgba(145,70,255,0.08)] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-gradient-to-b before:from-primary before:to-transparent before:opacity-60 max-md:flex-col max-md:text-center">
                 <div className="flex-1 text-[#fafafa]">
                     <h4 className="mb-2 text-[1.15rem] font-bold text-white">Reporte de Cuenta Completo</h4>
-                    <p className="m-0 max-w-[600px] text-[0.9rem] leading-normal text-[#a1a1aa] max-md:mx-auto">
+                    <p className="m-0 max-w-[600px] text-[0.9rem] leading-normal text-[#c4c4cc] max-md:mx-auto">
                         Genera un archivo HTML estático con toda la información de tu perfil, historial de
                         comandos y credenciales, listo para visualizar offline.
                     </p>

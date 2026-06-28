@@ -178,7 +178,7 @@ export function DocsContent() {
                             <li><strong>Shoutout (!so):</strong> Descarga la información actualizada del canal objetivo y su categoría de juego en tiempo real.</li>
                             <li><strong>Tendencias:</strong> Analiza grandes volúmenes de mensajes recientes del chat para calcular estadísticas.</li>
                         </ul>
-                        <p style={{ marginTop: '0.5rem', marginBottom: 0, fontSize: '0.85rem', color: '#a1a1aa' }}>
+                        <p style={{ marginTop: '0.5rem', marginBottom: 0, fontSize: '0.85rem', color: '#c4c4cc' }}>
                             <em>Nota:</em> Los comandos normales (como Followage, Bola 8 o Ruleta) son muy rápidos y utilizan el límite general de 60 peticiones por minuto.
                         </p>
                     </div>
@@ -536,7 +536,7 @@ export function DocsContent() {
                 </div>
                 <h3>Ejemplo de Respuesta (JSON)</h3>
                 <div className={docsCodeBlock}>
-                    <code className="text-[#a1a1aa]">{CLIPS_JSON}</code>
+                    <code className="text-[#c4c4cc]">{CLIPS_JSON}</code>
                 </div>
             </section>
 

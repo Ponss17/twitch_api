@@ -187,7 +187,7 @@ export function LandingPage() {
                         <a
                             href={appPath('/docs')}
                             onClick={saveDocsReturnPath}
-                            className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#a1a1aa] no-underline transition hover:bg-white/5 hover:text-[#fafafa]"
+                            className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#c4c4cc] no-underline transition hover:bg-white/5 hover:text-[#fafafa]"
                         >
                             <Book className="w-4" /> Documentación
                         </a>
@@ -195,7 +195,7 @@ export function LandingPage() {
                             href="https://discord.gg/8uN3qY5E"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#a1a1aa] no-underline transition hover:bg-white/5 hover:text-[#fafafa]"
+                            className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#c4c4cc] no-underline transition hover:bg-white/5 hover:text-[#fafafa]"
                         >
                             <DiscordIcon className="w-4" /> Comunidad
                         </a>
@@ -214,7 +214,7 @@ export function LandingPage() {
                             <br />
                             <span className={GRADIENT_TEXT}>Stream.</span>
                         </h2>
-                        <p className="mb-8 text-lg leading-relaxed text-[#a1a1aa]">
+                        <p className="mb-8 text-lg leading-relaxed text-[#c4c4cc]">
                             Configura <code className={CMD_CODE}>!followage</code>,{' '}
                             <code className={CMD_CODE}>!clip</code>, <code className={CMD_CODE}>!shoutout</code> y más
                             en segundos. Sin complicaciones.
@@ -230,7 +230,7 @@ export function LandingPage() {
                             </button>
                             <a
                                 href="#features"
-                                className="inline-flex items-center gap-2 rounded-lg border border-white/[0.12] px-[22px] py-[11px] text-[0.9rem] font-medium text-[#a1a1aa] no-underline transition hover:border-white/25 hover:text-[#fafafa]"
+                                className="inline-flex items-center gap-2 rounded-lg border border-white/[0.12] px-[22px] py-[11px] text-[0.9rem] font-medium text-[#c4c4cc] no-underline transition hover:border-white/25 hover:text-[#fafafa]"
                             >
                                 Ver funciones <ArrowRight className="w-4" />
                             </a>
@@ -239,14 +239,14 @@ export function LandingPage() {
                             * Al conectar aceptas nuestra{' '}
                             <a
                                 href={appPath('/privacidad')}
-                                className="text-[#a1a1aa] underline underline-offset-2 transition hover:text-primary"
+                                className="text-[#c4c4cc] underline underline-offset-2 transition hover:text-primary"
                             >
                                 política de privacidad
                             </a>{' '}
                             y{' '}
                             <a
                                 href={appPath('/terminos')}
-                                className="text-[#a1a1aa] underline underline-offset-2 transition hover:text-primary"
+                                className="text-[#c4c4cc] underline underline-offset-2 transition hover:text-primary"
                             >
                                 términos de uso
                             </a>
@@ -311,7 +311,7 @@ export function LandingPage() {
                         <h2 className="text-5xl font-bold leading-tight tracking-tight text-white">
                             Funciones de la <span className={GRADIENT_TEXT}>API</span>
                         </h2>
-                        <p className="mx-auto mt-4 max-w-[650px] text-lg text-[#a1a1aa]">
+                        <p className="mx-auto mt-4 max-w-[650px] text-lg text-[#c4c4cc]">
                             Todo lo que necesitas para que tu stream.
                         </p>
                     </div>
@@ -333,7 +333,7 @@ export function LandingPage() {
                                                 <card.icon className="w-5 h-5" />
                                             </div>
                                             <h4 className="text-xl font-semibold text-white">{card.title}</h4>
-                                            <p className="mt-1.5 text-[#a1a1aa]">{card.text}</p>
+                                            <p className="mt-1.5 text-[#c4c4cc]">{card.text}</p>
                                             {'tag' in card && card.tag && (
                                                 <span className="mt-2 inline-block rounded border border-[#9146ff]/20 bg-[#9146ff]/10 px-2 py-1 font-mono text-xs text-[#a78bfa]">
                                                     {card.tag}

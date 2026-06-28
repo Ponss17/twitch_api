@@ -80,7 +80,7 @@ export function FeedbackView() {
                     onChange={(e) => setIsAnonymous(e.target.checked)}
                     className="rounded border-white/20 bg-white/5 text-primary focus:ring-primary focus:ring-offset-0"
                 />
-                <label htmlFor="feedback-anonymous" className="text-sm text-[#a1a1aa] cursor-pointer hover:text-white transition-colors">
+                <label htmlFor="feedback-anonymous" className="text-sm text-[#c4c4cc] cursor-pointer hover:text-white transition-colors">
                     Enviar de forma anónima
                 </label>
             </div>

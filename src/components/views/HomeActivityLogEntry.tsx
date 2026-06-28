@@ -41,7 +41,7 @@ export function HomeActivityLogEntry({ item, isNew = false }: HomeActivityLogEnt
                         <span className="text-[0.85rem] font-medium text-primary">@{user}</span>
                     ) : null}
                     {detail ? (
-                        <span className="min-w-0 truncate text-[0.8rem] text-[#a1a1aa]">{detail}</span>
+                        <span className="min-w-0 truncate text-[0.8rem] text-[#c4c4cc]">{detail}</span>
                     ) : null}
                 </div>
             </div>

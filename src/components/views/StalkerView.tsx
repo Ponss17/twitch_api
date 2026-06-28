@@ -180,13 +180,13 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                         <CardHeaderIcon icon={Users} />
                         <div>
                             <h3 className="mb-0.5 text-[0.95rem] font-bold">Visor de Chat (Stalker)</h3>
-                            <p className="text-[0.8rem] text-[#a1a1aa]">Quién está en tu chat ahora mismo</p>
+                            <p className="text-[0.8rem] text-[#c4c4cc]">Quién está en tu chat ahora mismo</p>
                         </div>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:justify-between">
                         <span
-                            className={`inline-flex items-center gap-1.5 text-[0.8125rem] ${scanning ? 'text-success' : 'text-[#a1a1aa]'}`}
+                            className={`inline-flex items-center gap-1.5 text-[0.8125rem] ${scanning ? 'text-success' : 'text-[#c4c4cc]'}`}
                         >
                             {scanning ? (
                                 <>
@@ -203,7 +203,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
 
                         <div className="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:flex-col max-md:items-stretch">
                             <div className="relative w-[200px] max-md:w-full">
-                                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#a1a1aa]" />
+                                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#c4c4cc]" />
                                 <input
                                     type="search"
                                     value={search}
@@ -236,7 +236,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                 }}
                                 title="Recargar lista"
                                 aria-label="Recargar lista"
-                                className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#a1a1aa] transition hover:bg-white/5 hover:text-[#fafafa]"
+                                className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#c4c4cc] transition hover:bg-white/5 hover:text-[#fafafa]"
                             >
                                 <RotateCw className="size-4 shrink-0" />
                             </button>
@@ -251,16 +251,16 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr className="border-b border-white/[0.08] bg-black/20">
-                                    <th className="w-[60px] px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#a1a1aa] uppercase">
+                                    <th className="w-[60px] px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
                                         Avatar
                                     </th>
-                                    <th className="px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#a1a1aa] uppercase">
+                                    <th className="px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
                                         Usuario
                                     </th>
-                                    <th className="px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#a1a1aa] uppercase">
+                                    <th className="px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
                                         Login
                                     </th>
-                                    <th className="px-5 py-3.5 text-right text-[0.6875rem] font-bold tracking-wide text-[#a1a1aa] uppercase">
+                                    <th className="px-5 py-3.5 text-right text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
                                         Acción
                                     </th>
                                 </tr>
@@ -275,7 +275,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                             <h3 className="mb-2 text-[0.95rem] font-bold text-[#fafafa]">
                                                 Esperando señal...
                                             </h3>
-                                            <p className="mx-auto max-w-[400px] text-[0.8125rem] text-[#a1a1aa]">
+                                            <p className="mx-auto max-w-[400px] text-[0.8125rem] text-[#c4c4cc]">
                                                 Dale al botón <strong className="text-[#fafafa]">Play</strong> para
                                                 comenzar a escanear el chat.
                                             </p>
@@ -321,7 +321,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                             <td className="border-b border-white/[0.03] px-5 py-3 align-middle text-[0.8125rem] font-semibold tracking-[0.5px]">
                                                 {user.user_name}
                                             </td>
-                                            <td className="border-b border-white/[0.03] px-5 py-3 align-middle font-[Consolas,monospace] text-[0.8125rem] text-[#a1a1aa]">
+                                            <td className="border-b border-white/[0.03] px-5 py-3 align-middle font-[Consolas,monospace] text-[0.8125rem] text-[#c4c4cc]">
                                                 @{user.user_login}
                                             </td>
                                             <td className="border-b border-white/[0.03] px-5 py-3 text-right align-middle">
@@ -331,7 +331,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                                         e.stopPropagation();
                                                         void inspect(user.user_login);
                                                     }}
-                                                    className="inline-flex items-center gap-1 rounded-md border border-white/[0.08] bg-transparent px-3 py-1.5 text-[0.8125rem] text-[#a1a1aa] transition hover:border-primary hover:bg-primary hover:text-[#fafafa]"
+                                                    className="inline-flex items-center gap-1 rounded-md border border-white/[0.08] bg-transparent px-3 py-1.5 text-[0.8125rem] text-[#c4c4cc] transition hover:border-primary hover:bg-primary hover:text-[#fafafa]"
                                                 >
                                                     <Eye className="size-4 shrink-0" />
                                                     Ver
