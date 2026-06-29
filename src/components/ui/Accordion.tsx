@@ -13,13 +13,13 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, i
         <div className="border-b border-white/[0.08] last:border-none">
             <button
                 type="button"
-                className="flex w-full items-center justify-between py-4 text-left outline-none transition-colors hover:text-primary focus-visible:text-primary"
+                className="group relative flex w-full items-center justify-center py-4 text-center outline-none transition-colors hover:text-primary focus-visible:text-primary"
                 onClick={onClick}
                 aria-expanded={isOpen}
             >
-                <span className="text-[0.9375rem] font-medium text-[#fafafa]">{title}</span>
+                <span className="text-[0.9375rem] font-medium text-[#fafafa] pr-6 pl-6">{title}</span>
                 <ChevronDown
-                    className={`w-4 h-4 text-[#c4c4cc] transition-transform duration-300 ease-[cubic-bezier(0.87,_0,_0.13,_1)] ${
+                    className={`absolute right-4 w-4 h-4 text-[#c4c4cc] transition-transform duration-300 ease-[cubic-bezier(0.87,_0,_0.13,_1)] ${
                         isOpen ? 'rotate-180 text-primary' : ''
                     }`}
                     aria-hidden="true"
@@ -31,7 +31,7 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, i
                 }`}
             >
                 <div className="overflow-hidden">
-                    <div className="pb-4 text-[0.875rem] leading-relaxed text-[#c4c4cc]">
+                    <div className="pb-4 text-center text-[0.875rem] leading-relaxed text-[#c4c4cc] px-6">
                         {children}
                     </div>
                 </div>
