@@ -45,9 +45,9 @@ const FEATURE_CATEGORIES = [
         title: 'Minijuegos',
         description: 'Mantén a tu audiencia entretenida incluso cuando no estás.',
         cards: [
-            { icon: MAGIC8_ICON, title: 'Bola 8', text: 'Respuestas aleatorias para las dudas más existenciales de tu chat.' },
-            { icon: RUSSIAN_ICON, title: 'Ruleta Rusa', text: 'Prueba tu suerte con un revólver virtual. ¿Sobrevivirás?' },
-            { icon: Swords, title: 'Duelo', text: 'Desafía a otros usuarios a un combate narrativo 1vs1 épico.' }
+            { icon: MAGIC8_ICON, title: 'Bola 8', text: 'Respuestas aleatorias para las dudas más existenciales de tu chat.', tag: '!8ball' },
+            { icon: RUSSIAN_ICON, title: 'Ruleta Rusa', text: 'Prueba tu suerte con un revólver virtual. ¿Sobrevivirás?', tag: '!ruleta' },
+            { icon: Swords, title: 'Duelo', text: 'Desafía a otros usuarios a un combate narrativo 1vs1 épico.', tag: '!duelo @user' }
         ]
     },
     {
