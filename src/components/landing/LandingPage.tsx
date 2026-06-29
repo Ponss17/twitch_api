@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { LoginDisclaimerModal } from '@/components/ui/LoginDisclaimerModal';
 import { VerifyingSessionModal } from '@/components/ui/VerifyingSessionModal';
 import { AppLogo } from '@/components/ui/AppLogo';
-import { resolveSessionFromUrl, markDashboardSplashForFreshLogin, clearDashboardSplashFlags } from '@/lib/auth';
+import { resolveSessionFromUrl, markDashboardSplashForFreshLogin, clearDashboardSplashFlags, getSession } from '@/lib/auth';
 import { appPath, saveDocsReturnPath } from '@/lib/paths';
 import { reportSessionLoadProgress } from '@/lib/sessionLoadProgress';
 import { Accordion } from '@/components/ui/Accordion';
@@ -90,6 +90,7 @@ export function LandingPage() {
     const [disclaimerOpen, setDisclaimerOpen] = useState(false);
     const [isVerifying, setIsVerifying] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
+    const [hasSession, setHasSession] = useState(false);
 
     const copyTerminal = async () => {
         const text = 'curl -G "https://api.losperris.dev/twitch/followage" -d "channel=losperris" -d "user=mynana17" -d "apiKey=sk_a1b2c3d4..."';
@@ -99,6 +100,7 @@ export function LandingPage() {
     };
 
     useEffect(() => {
+        setHasSession(!!getSession());
         clearDashboardSplashFlags();
 
         void (async () => {
@@ -220,14 +222,24 @@ export function LandingPage() {
                             en segundos. Sin complicaciones.
                         </p>
                         <div className="mb-6 flex flex-wrap justify-center gap-4 md:justify-start">
-                            <button
-                                type="button"
-                                onClick={() => setDisclaimerOpen(true)}
-                                className="inline-flex items-center gap-2.5 rounded-lg bg-[#9146ff] px-7 py-3 text-[0.95rem] font-semibold text-white transition hover:bg-[#7c3aed]"
-                            >
-                                <TwitchIcon className="w-4 fill-current" />
-                                Iniciar Sesión con Twitch
-                            </button>
+                            {hasSession ? (
+                                <a
+                                    href={appPath('/dashboard')}
+                                    className="inline-flex items-center gap-2.5 rounded-lg bg-[#9146ff] px-7 py-3 text-[0.95rem] font-semibold text-white transition hover:bg-[#7c3aed] no-underline"
+                                >
+                                    Ir al Panel
+                                    <ArrowRight className="w-4" />
+                                </a>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => setDisclaimerOpen(true)}
+                                    className="inline-flex items-center gap-2.5 rounded-lg bg-[#9146ff] px-7 py-3 text-[0.95rem] font-semibold text-white transition hover:bg-[#7c3aed]"
+                                >
+                                    <TwitchIcon className="w-4 fill-current" />
+                                    Iniciar Sesión con Twitch
+                                </button>
+                            )}
                             <a
                                 href="#features"
                                 className="inline-flex items-center gap-2 rounded-lg border border-white/[0.12] px-[22px] py-[11px] text-[0.9rem] font-medium text-[#c4c4cc] no-underline transition hover:border-white/25 hover:text-[#fafafa]"
