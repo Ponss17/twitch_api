@@ -34,7 +34,7 @@ const FEATURE_CATEGORIES = [
     },
     {
         title: 'Herramientas',
-        description: 'Análisis avanzado para entender el crecimiento de tu canal.',
+        description: 'Utilidades prácticas para explorar información y dinamizar tu stream.',
         cards: [
             { icon: TrendingUp, title: 'Tendencias', text: 'Ranking de palabras en tiempo real. Descubre de qué habla tu chat.' },
             { icon: Binoculars, title: 'Stalker', text: 'Investiga perfiles y obtén info pública detallada.' },
