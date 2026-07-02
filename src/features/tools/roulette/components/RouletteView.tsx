@@ -39,7 +39,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
             publishTimerRef.current = window.setTimeout(() => {
                 void publishOverlayState('roulette', state, session);
                 publishTimerRef.current = null;
-            }, 300);
+            }, 500);
         },
         [active, session]
     );

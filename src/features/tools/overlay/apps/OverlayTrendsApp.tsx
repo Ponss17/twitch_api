@@ -1,4 +1,5 @@
 import { useOverlayMirror } from '@/features/tools/overlay/hooks/useOverlayMirror';
+import { useOverlayTrendsRemaining } from '@/features/tools/overlay/hooks/useOverlayTrendsRemaining';
 import { TrendsLeaderboardDisplay } from '@/features/tools/trends/components/TrendsLeaderboardDisplay';
 import { OverlaySessionGate } from '@/features/tools/overlay/components/OverlaySessionGate';
 import { OverlayStatusBanner } from '@/features/tools/overlay/components/OverlayStatusBanner';
@@ -8,6 +9,7 @@ import type { Session } from '@/core/config/config';
 function OverlayTrendsContent({ session }: { session: Session }) {
     const { state, connected, stale } = useOverlayMirror('trends', session);
     const trendsState = state as TrendsOverlayState;
+    const displayRemaining = useOverlayTrendsRemaining(trendsState);
 
     const ranked = Object.entries(trendsState.wordCounts)
         .sort((a, b) => b[1] - a[1])
@@ -24,7 +26,7 @@ function OverlayTrendsContent({ session }: { session: Session }) {
                 ranked={ranked}
                 maxCount={maxCount}
                 tracking={trendsState.tracking}
-                remaining={trendsState.remaining}
+                remaining={displayRemaining}
                 timerEnded={trendsState.timerEnded}
                 sessionActive={trendsState.sessionActive}
                 displayName={trendsState.displayName}
