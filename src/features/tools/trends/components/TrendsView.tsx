@@ -20,7 +20,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
     const handleStateChange = useCallback(
         (state: TrendsOverlayState) => {
             if (!active) return;
-            const isCritical = !state.tracking || state.timerEnded;
+            const isCritical = !state.tracking || state.timerEnded || state.sessionActive;
 
             if (isCritical) {
                 if (publishTimerRef.current) {
