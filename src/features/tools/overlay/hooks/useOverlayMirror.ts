@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { API_ENDPOINTS, type Session } from '@/core/config/config';
+import { type Session } from '@/core/config/config';
 import { overlayAuthHeaders, overlayStatePollUrl } from '@/features/tools/overlay/lib/auth';
-import { getOverlayStoredSession } from '@/features/tools/overlay/lib/overlaySession';
+import { getOverlayStoredSession, getOverlayTokenFromPage } from '@/features/tools/overlay/lib/overlaySession';
 import { debugWarn } from '@/core/logging/debugLog';
 import type {
     OverlayTool,
@@ -21,11 +21,9 @@ const POLL_STANDBY_MS = 3000;
 const STALE_MS = 8000;
 
 function resolvePollSession(session: Session | null): Session | null {
-    if (typeof window !== 'undefined') {
-        const urlToken = new URLSearchParams(window.location.search).get('overlayToken')?.trim();
-        if (urlToken) {
-            return { ...(session ?? {}), overlayToken: urlToken };
-        }
+    const pageToken = getOverlayTokenFromPage();
+    if (pageToken) {
+        return { ...(session ?? {}), overlayToken: pageToken };
     }
     if (!session) return null;
     if (session.overlayToken || session.apiKey || session.token) return session;

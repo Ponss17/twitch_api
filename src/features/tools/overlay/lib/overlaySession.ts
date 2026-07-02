@@ -2,6 +2,25 @@ import type { Session } from '@/core/config/config';
 
 const OVERLAY_SESSION_KEY = 'twitch_overlay_session';
 
+export function getOverlayTokenFromPage(): string | null {
+    if (typeof window === 'undefined') return null;
+
+    const fromUrl = new URLSearchParams(window.location.search).get('overlayToken')?.trim();
+    if (fromUrl) return fromUrl;
+
+    try {
+        const raw = sessionStorage.getItem(OVERLAY_SESSION_KEY);
+        if (raw) {
+            const parsed = JSON.parse(raw) as { overlayToken?: string };
+            if (parsed.overlayToken?.trim()) return parsed.overlayToken.trim();
+        }
+    } catch {
+        /* ignore */
+    }
+
+    return null;
+}
+
 export function getOverlayStoredSession(): Session | null {
     if (typeof window === 'undefined') return null;
     try {
