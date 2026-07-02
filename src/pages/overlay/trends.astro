@@ -1,0 +1,11 @@
+---
+import OverlayLayout from '../../layouts/OverlayLayout.astro';
+import { OverlayTrendsApp } from '@/features/tools/overlay/apps/OverlayTrendsApp';
+import { SessionProvider } from '@/shared/providers/SessionProvider';
+---
+
+<OverlayLayout title="Tendencias Overlay">
+    <SessionProvider client:only="react" requireAuth>
+        <OverlayTrendsApp client:only="react" />
+    </SessionProvider>
+</OverlayLayout>

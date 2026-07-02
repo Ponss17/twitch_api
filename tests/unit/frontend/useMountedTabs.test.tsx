@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useMountedTabs } from '@/lib/useMountedTabs';
+import { useMountedTabs } from '@/features/dashboard/hooks/useMountedTabs';
 
 describe('useMountedTabs', () => {
     it('starts with the active tab mounted', () => {

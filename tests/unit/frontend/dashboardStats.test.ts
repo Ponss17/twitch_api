@@ -1,7 +1,7 @@
 import {
     EMPTY_DASHBOARD_LIVE_STATS,
     parseDashboardStatsFromRow
-} from '@/lib/dashboardStats';
+} from '@/features/dashboard/lib/dashboardStats';
 
 describe('parseDashboardStatsFromRow', () => {
     it('devuelve ceros cuando no hay peticiones', () => {

@@ -1,4 +1,4 @@
-import { extractApiErrorMessage, formatApiErrorForUi, parseHttpErrorBody } from '@/lib/apiError';
+import { extractApiErrorMessage, formatApiErrorForUi, parseHttpErrorBody } from '@/core/api/apiError';
 
 describe('apiError (frontend)', () => {
     describe('extractApiErrorMessage', () => {
