@@ -2,6 +2,7 @@ import { Response } from 'express';
 import * as cacheService from '../../../core/database/cacheService';
 import { CACHE_TTL } from '../../../core/config/cacheTtl';
 import { MESSAGES } from '../../../core/config/messages';
+import { isPanelBrowserRequest } from '../../../core/config/origins';
 import { logger } from '../../../core/utils/logger';
 import { AuthenticatedRequest } from '../../../types/twitch';
 import { jsonError } from '../../../core/utils/jsonResponse';
@@ -35,7 +36,20 @@ export const putOverlayState = async (req: AuthenticatedRequest, res: Response) 
 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
-    if (res.locals?.isApiKeyRequest || res.locals?.isOverlayReadRequest) {
+    if (res.locals?.isOverlayReadRequest) {
+        return jsonError(res, 403, 'Solo el panel puede publicar el estado del overlay.', {
+            code: 'FORBIDDEN'
+        });
+    }
+
+    // API key desde bots (sin Origin) no puede publicar; el panel sí (navegador con Origin válido).
+    if (
+        res.locals?.isApiKeyRequest &&
+        !isPanelBrowserRequest(
+            (req.headers?.origin as string) || '',
+            (req.headers?.referer as string) || ''
+        )
+    ) {
         return jsonError(res, 403, 'Solo el panel puede publicar el estado del overlay.', {
             code: 'FORBIDDEN'
         });
