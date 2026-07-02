@@ -156,7 +156,7 @@ export const configureMiddleware = (app: Application) => {
                 const origin = req.header('Origin');
                 const host = req.get('host');
 
-                if (!origin) return callback(null, { origin: true, credentials: true });
+                if (!origin) return callback(null, { origin: true, credentials: false });
 
                 let safeOrigin: URL | null = null;
                 try {

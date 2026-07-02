@@ -1,3 +1,5 @@
+import type { StoredUser } from './twitch';
+
 declare global {
     namespace Express {
         interface Request {
@@ -5,6 +7,14 @@ declare global {
             userId?: string;
             login?: string;
             displayName?: string;
+        }
+
+        interface Locals {
+            apiUser?: StoredUser;
+            isApiKeyRequest?: boolean;
+            isOverlayReadRequest?: boolean;
+            customRateLimit?: number;
+            cspNonce?: string;
         }
     }
 }

@@ -56,10 +56,23 @@ describe('csrfProtection', () => {
         expect(res.statusCode).toBe(403);
     });
 
-    it('allows POST with Bearer token for non-browser clients', () => {
+    it('blocks POST with Bearer token when origin is missing (sin bypass CSRF)', () => {
         const req = {
             method: 'POST',
+            query: {},
             headers: { authorization: 'Bearer oauth-token' }
+        } as Request;
+        const res = mockRes();
+        csrfProtection(req, res, next as NextFunction);
+        expect(next).not.toHaveBeenCalled();
+        expect(res.statusCode).toBe(403);
+    });
+
+    it('allows POST with x-overlay-token without origin (OBS)', () => {
+        const req = {
+            method: 'POST',
+            query: {},
+            headers: { 'x-overlay-token': 'overlay_read_token' }
         } as Request;
         csrfProtection(req, mockRes(), next as NextFunction);
         expect(next).toHaveBeenCalled();

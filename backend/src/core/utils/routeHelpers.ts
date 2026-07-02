@@ -23,6 +23,7 @@ export const isJsonApiRoute = (path: string): boolean => {
         clean.includes('/dashboard/') ||
         clean.includes('/system/') ||
         clean.includes('/auth/exchange') ||
+        clean.includes('/auth/overlay-exchange') ||
         clean.includes('/admin/')
     );
 };
@@ -67,6 +68,8 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
         '/clear-data',
         '/delete-account',
         '/track-usage',
+        '/overlay-state',
+        '/overlay-link',
         '/health-cron'
     ];
 

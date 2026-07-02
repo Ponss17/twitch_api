@@ -5,6 +5,10 @@ jest.mock('../../backend/src/core/database/cacheService', () => ({
     set: jest.fn().mockResolvedValue(undefined)
 }));
 
+jest.mock('../../backend/src/features/auth/auth.service', () => ({
+    signOverlayReadToken: jest.fn().mockReturnValue('signed_overlay_token')
+}));
+
 jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
@@ -30,6 +34,7 @@ const mockRes = () => {
     const res = {} as Response;
     res.status = jest.fn().mockReturnValue(res);
     res.json = jest.fn().mockReturnValue(res);
+    res.locals = {};
     return res;
 };
 
@@ -74,7 +79,7 @@ describe('overlay state controller', () => {
         expect(res.json).toHaveBeenCalledWith({ success: true });
     });
 
-    it('createOverlayLink returns overlay URL with apiKey', async () => {
+    it('createOverlayLink returns overlay URL with overlayToken', async () => {
         const req = mockReq({
             body: { tool: 'trends' }
         });
@@ -93,7 +98,20 @@ describe('overlay state controller', () => {
             url: expect.stringContaining('/overlay/trends')
         });
         expect(res.json).toHaveBeenCalledWith({
-            url: expect.stringContaining('apiKey=key-abc')
+            url: expect.stringContaining('overlayToken=signed_overlay_token')
         });
+    });
+
+    it('putOverlayState rejects overlay read token', async () => {
+        const req = mockReq({
+            body: { state: { chatters: [], spinSeq: 1 } }
+        });
+        const res = mockRes();
+        res.locals = { isOverlayReadRequest: true };
+
+        await putOverlayState(req, res);
+
+        expect(cacheService.set).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(403);
     });
 });

@@ -9,7 +9,7 @@ const envSchema = z.object({
     PORT: z.coerce.number().default(3000),
     TWITCH_CLIENT_ID: z.string().min(1, 'TWITCH_CLIENT_ID es obligatorio'),
     TWITCH_CLIENT_SECRET: z.string().min(1, 'TWITCH_CLIENT_SECRET es obligatorio'),
-    ENCRYPTION_KEY: z.string().min(1, 'ENCRYPTION_KEY es obligatorio'),
+    ENCRYPTION_KEY: z.string().min(32, 'ENCRYPTION_KEY debe tener al menos 32 caracteres'),
     TWITCH_REDIRECT_URI: z
         .string()
         .url()
@@ -104,6 +104,13 @@ if (!parsed.success) {
         console.error('🛑 El servidor se detiene en producción debido a errores de configuración.');
         process.exit(1);
     }
+    if (process.env.ALLOW_INVALID_ENV !== 'true') {
+        console.error(
+            '🛑 Configuración inválida. Corrige .env o define ALLOW_INVALID_ENV=true solo en desarrollo local.'
+        );
+        process.exit(1);
+    }
+    console.warn('⚠ ALLOW_INVALID_ENV=true — arrancando con configuración no validada.');
 }
 
 const rawConfig = parsed.success

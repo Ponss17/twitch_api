@@ -10,7 +10,8 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
 
 jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
     invalidateAllUserCaches: jest.fn().mockResolvedValue(undefined),
-    invalidateDashboardStatsCaches: jest.fn().mockResolvedValue(undefined)
+    invalidateDashboardStatsCaches: jest.fn().mockResolvedValue(undefined),
+    invalidateOverlayStateCaches: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('../../backend/src/core/database/cacheService', () => ({
