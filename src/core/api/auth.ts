@@ -127,6 +127,10 @@ export function stripSensitiveQueryParams(options?: { keepOverlayToken?: boolean
     let changed = false;
 
     for (const key of SENSITIVE_QUERY_PARAMS) {
+        // OBS recarga la fuente desde la URL — no quitar overlayToken en /overlay/*
+        if (onOverlayPage && key === 'overlayToken') {
+            continue;
+        }
         if (options?.keepOverlayToken && key === 'overlayToken' && onOverlayPage) {
             continue;
         }
