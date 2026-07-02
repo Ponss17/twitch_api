@@ -64,6 +64,17 @@ describe('overlay state controller', () => {
         expect(res.json).toHaveBeenCalledWith({ state });
     });
 
+    it('getOverlayState rejects overlay token for a different tool', async () => {
+        const req = mockReq({ params: { tool: 'trends' } });
+        const res = mockRes();
+        res.locals = { isOverlayReadRequest: true, overlayTool: 'roulette' };
+
+        await getOverlayState(req, res);
+
+        expect(cacheService.get).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(403);
+    });
+
     it('putOverlayState saves with TTL', async () => {
         const req = mockReq({
             body: { state: { chatters: [{ user_login: 'a', user_name: 'A' }], spinSeq: 1 } }
@@ -108,7 +119,7 @@ describe('overlay state controller', () => {
             body: { state: { chatters: [], spinSeq: 1 } }
         });
         const res = mockRes();
-        res.locals = { isOverlayReadRequest: true };
+        res.locals = { isOverlayReadRequest: true, overlayTool: 'roulette' };
 
         await putOverlayState(req, res);
 

@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { type Session } from '@/core/config/config';
-import { overlayAuthHeaders, overlayStatePollUrl } from '@/features/tools/overlay/lib/auth';
-import { getOverlayStoredSession, getOverlayTokenFromPage } from '@/features/tools/overlay/lib/overlaySession';
+import {
+    hasOverlayPollCredentials,
+    overlaySessionKey
+} from '@/features/tools/overlay/lib/credentials';
+import { overlayAuthHeaders, overlayStatePollUrl } from '@/features/tools/overlay/lib/overlayApi';
 import { debugWarn } from '@/core/logging/debugLog';
 import type {
     OverlayTool,
@@ -19,20 +22,6 @@ const POLL_ROULETTE_MS = 450;
 const POLL_SPINNING_MS = 200;
 const POLL_STANDBY_MS = 3000;
 const STALE_MS = 8000;
-
-function resolvePollSession(session: Session | null): Session | null {
-    const pageToken = getOverlayTokenFromPage();
-    if (pageToken) {
-        return { ...(session ?? {}), overlayToken: pageToken };
-    }
-    if (!session) return null;
-    if (session.overlayToken || session.apiKey || session.token) return session;
-    const stored = getOverlayStoredSession();
-    if (stored?.overlayToken || stored?.apiKey || stored?.token) {
-        return { ...session, ...stored };
-    }
-    return session;
-}
 
 export function useOverlayMirror<T extends OverlayTool>(
     tool: T,
@@ -55,10 +44,11 @@ export function useOverlayMirror<T extends OverlayTool>(
     emptyStateRef.current = emptyState;
     const [connected, setConnected] = useState(false);
     const [stale, setStale] = useState(true);
-    const lastUpdatedRef = useRef(0);
+    const lastPollAtRef = useRef(0);
     const lastSpinSeqRef = useRef(0);
     const lastReceivedFingerprintRef = useRef('');
     const wheelRotationRef = useRef(0);
+    const sessionKey = overlaySessionKey(session);
 
     const applyRouletteSpin = useCallback((next: RouletteOverlayState) => {
         if (next.spinSeq <= lastSpinSeqRef.current) return next;
@@ -108,12 +98,11 @@ export function useOverlayMirror<T extends OverlayTool>(
     }, []);
 
     const poll = useCallback(async () => {
-        const pollSession = resolvePollSession(session);
-        if (!pollSession?.overlayToken && !pollSession?.apiKey && !pollSession?.token) return;
+        if (!hasOverlayPollCredentials(session)) return;
 
         try {
-            const res = await fetch(overlayStatePollUrl(tool, pollSession), {
-                headers: overlayAuthHeaders(pollSession),
+            const res = await fetch(overlayStatePollUrl(tool, session), {
+                headers: overlayAuthHeaders(session),
                 cache: 'no-store'
             });
             if (!res.ok) {
@@ -125,6 +114,8 @@ export function useOverlayMirror<T extends OverlayTool>(
 
             const data = (await res.json()) as { state: State | null };
             setConnected(true);
+            lastPollAtRef.current = Date.now();
+            setStale(false);
 
             if (!data.state) {
                 setState(emptyStateRef.current);
@@ -132,9 +123,6 @@ export function useOverlayMirror<T extends OverlayTool>(
                 setStale(true);
                 return;
             }
-
-            lastUpdatedRef.current = data.state.updatedAt ?? Date.now();
-            setStale(Date.now() - lastUpdatedRef.current > STALE_MS);
 
             const fingerprint = overlayStateFingerprint(tool, data.state);
             if (fingerprint === lastReceivedFingerprintRef.current) return;
@@ -178,20 +166,20 @@ export function useOverlayMirror<T extends OverlayTool>(
                 : POLL_STANDBY_MS;
 
     useEffect(() => {
-        if (!session?.overlayToken && !session?.apiKey && !session?.token) return;
+        if (!hasOverlayPollCredentials(session)) return;
 
         void poll();
         const id = window.setInterval(() => void poll(), pollIntervalMs);
         return () => clearInterval(id);
-    }, [session, poll, pollIntervalMs]);
+    }, [sessionKey, poll, pollIntervalMs, session]);
 
     useEffect(() => {
         const id = window.setInterval(() => {
-            if (!lastUpdatedRef.current) {
+            if (!lastPollAtRef.current) {
                 setStale(true);
                 return;
             }
-            setStale(Date.now() - lastUpdatedRef.current > STALE_MS);
+            setStale(Date.now() - lastPollAtRef.current > STALE_MS);
         }, 1000);
         return () => clearInterval(id);
     }, []);

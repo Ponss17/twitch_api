@@ -2,6 +2,11 @@ import type { RouletteUser } from '@/core/types/twitch';
 
 export type OverlayTool = 'roulette' | 'trends';
 
+export const OVERLAY_PAGE_PATHS: Record<OverlayTool, string> = {
+    roulette: '/overlay/roulette',
+    trends: '/overlay/trends'
+};
+
 export interface RouletteOverlayState {
     chatters: RouletteUser[];
     isOpen: boolean;
@@ -28,8 +33,6 @@ export interface TrendsOverlayState {
     timerEndsAt?: number;
     updatedAt: number;
 }
-
-export type OverlayStatePayload = RouletteOverlayState | TrendsOverlayState;
 
 export function emptyRouletteOverlayState(): RouletteOverlayState {
     return {
