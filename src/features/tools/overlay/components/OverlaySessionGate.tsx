@@ -1,38 +1,60 @@
 import type { ReactNode } from 'react';
-import { useSession } from '@/core/session/useSession';
+import type { Session } from '@/core/config/config';
 import { OverlayStatusBanner } from '@/features/tools/overlay/components/OverlayStatusBanner';
-import { getOverlayStoredSession } from '@/features/tools/overlay/lib/overlaySession';
+import {
+    getOverlayStoredSession,
+    getOverlayTokenFromPage,
+    readOverlayOptimisticAuthState
+} from '@/features/tools/overlay/lib/overlaySession';
 
 interface OverlaySessionGateProps {
-    children: (session: NonNullable<ReturnType<typeof useSession>['session']>) => ReactNode;
+    children: (session: Session) => ReactNode;
 }
 
-function hasOverlayCredentials(session: ReturnType<typeof useSession>['session']): boolean {
-    return !!(session?.overlayToken || session?.apiKey || session?.token);
-}
+function resolveOverlayPollSession(): Session | null {
+    const fromPage = getOverlayTokenFromPage();
+    const stored = getOverlayStoredSession();
+    const optimistic = readOverlayOptimisticAuthState();
 
-/** Espera credenciales antes de montar el mirror (OBS: token en URL o sessionStorage). */
-export function OverlaySessionGate({ children }: OverlaySessionGateProps) {
-    const { session, loading, authenticated } = useSession();
+    const overlayToken =
+        fromPage?.trim() ||
+        optimistic.session?.overlayToken?.trim() ||
+        stored?.overlayToken?.trim() ||
+        '';
 
-    const urlToken =
-        typeof window !== 'undefined'
-            ? new URLSearchParams(window.location.search).get('overlayToken')?.trim()
-            : '';
-    const storedToken = getOverlayStoredSession()?.overlayToken?.trim() ?? '';
-    const effectiveToken = urlToken || session?.overlayToken?.trim() || storedToken;
-
-    if (effectiveToken) {
-        const pollSession = {
-            ...(session ?? {}),
-            overlayToken: effectiveToken,
-            login: session?.login ?? '',
-            displayName: session?.displayName ?? ''
+    if (overlayToken) {
+        return {
+            ...(stored ?? optimistic.session ?? {}),
+            overlayToken,
+            login: stored?.login ?? optimistic.session?.login ?? '',
+            displayName: stored?.displayName ?? optimistic.session?.displayName ?? ''
         };
-        return <>{children(pollSession)}</>;
     }
 
-    if (loading && !hasOverlayCredentials(session)) {
+    if (stored?.apiKey || stored?.token) {
+        return stored;
+    }
+
+    if (optimistic.session?.apiKey || optimistic.session?.token) {
+        return optimistic.session;
+    }
+
+    return null;
+}
+
+/**
+ * Credenciales OBS sin useSession — evita fallos si Astro/Vite parten el árbol
+ * o el navegador de OBS sirve chunks JS en caché sin SessionProvider.
+ */
+export function OverlaySessionGate({ children }: OverlaySessionGateProps) {
+    const session = resolveOverlayPollSession();
+
+    if (session?.overlayToken || session?.apiKey || session?.token) {
+        return <>{children(session)}</>;
+    }
+
+    const optimistic = readOverlayOptimisticAuthState();
+    if (optimistic.loading) {
         return (
             <div className="min-h-screen p-2">
                 <OverlayStatusBanner message="Conectando overlay…" />
@@ -40,21 +62,9 @@ export function OverlaySessionGate({ children }: OverlaySessionGateProps) {
         );
     }
 
-    if (!hasOverlayCredentials(session)) {
-        return (
-            <div className="min-h-screen p-2">
-                <OverlayStatusBanner message="Enlace de overlay inválido. Genera uno nuevo desde el panel." />
-            </div>
-        );
-    }
-
-    if (!authenticated && !hasOverlayCredentials(session)) {
-        return (
-            <div className="min-h-screen p-2">
-                <OverlayStatusBanner message="Sesión de overlay expirada. Actualiza la URL en OBS." />
-            </div>
-        );
-    }
-
-    return <>{children(session!)}</>;
+    return (
+        <div className="min-h-screen p-2">
+            <OverlayStatusBanner message="Enlace de overlay inválido. Genera uno nuevo desde el panel." />
+        </div>
+    );
 }
