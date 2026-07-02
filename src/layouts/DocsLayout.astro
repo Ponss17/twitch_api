@@ -71,7 +71,7 @@ const swScope = staticPath('/');
         />
         <script is:inline>
             (function () {
-                var link = document.getElementById('geist-font-preload');
+                const link = document.getElementById('geist-font-preload');
                 if (!link) return;
                 link.onload = function () {
                     this.onload = null;
