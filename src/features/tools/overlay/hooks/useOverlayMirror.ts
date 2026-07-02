@@ -90,7 +90,7 @@ export function useOverlayMirror<T extends OverlayTool>(
     }, []);
 
     const poll = useCallback(async () => {
-        if (!session?.apiKey && !session?.token) return;
+        if (!session?.overlayToken && !session?.apiKey && !session?.token) return;
 
         try {
             const res = await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-state/${tool}`, {
@@ -155,7 +155,7 @@ export function useOverlayMirror<T extends OverlayTool>(
                 : POLL_STANDBY_MS;
 
     useEffect(() => {
-        if (!session?.apiKey && !session?.token) return;
+        if (!session?.overlayToken && !session?.apiKey && !session?.token) return;
 
         void poll();
         const id = window.setInterval(() => void poll(), pollIntervalMs);

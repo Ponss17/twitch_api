@@ -14,7 +14,8 @@ import { TwitchApiError } from '../../core/errors/AppError';
 import { AppError } from '../../core/errors/AppError';
 import {
     invalidateAllUserCaches,
-    invalidateDashboardStatsCaches
+    invalidateDashboardStatsCaches,
+    invalidateOverlayStateCaches
 } from '../../core/utils/cacheInvalidation';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { trackRequest } from '../../core/utils/tracking';
@@ -229,6 +230,7 @@ export const clearUserData = async (req: AuthenticatedRequest, res: Response) =>
     try {
         await dbService.clearUserStatsAndLogs(userId);
         await invalidateDashboardStatsCaches(userId, req.login);
+        await invalidateOverlayStateCaches(userId);
         res.json({
             success: true,
             message: 'Estad?sticas y actividad reiniciadas correctamente.',

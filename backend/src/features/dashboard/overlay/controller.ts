@@ -6,6 +6,7 @@ import { logger } from '../../../core/utils/logger';
 import { AuthenticatedRequest } from '../../../types/twitch';
 import { jsonError } from '../../../core/utils/jsonResponse';
 import { frontendPagePath } from '../../../core/utils/frontendPaths';
+import { signOverlayReadToken } from '../../auth/auth.service';
 
 const overlayStateKey = (userId: string, tool: string) => `overlay:state:${userId}:${tool}`;
 
@@ -34,6 +35,12 @@ export const putOverlayState = async (req: AuthenticatedRequest, res: Response) 
 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
+    if (res.locals?.isApiKeyRequest || res.locals?.isOverlayReadRequest) {
+        return jsonError(res, 403, 'Solo el panel puede publicar el estado del overlay.', {
+            code: 'FORBIDDEN'
+        });
+    }
+
     try {
         const payload = { ...state, updatedAt: Date.now() };
         await cacheService.set(overlayStateKey(userId, tool), payload, CACHE_TTL.OVERLAY_STATE);
@@ -59,8 +66,16 @@ export const createOverlayLink = async (req: AuthenticatedRequest, res: Response
     }
 
     try {
+        const overlayToken = signOverlayReadToken({
+            userId,
+            tool,
+            login: apiUser.login || req.login || '',
+            displayName: apiUser.displayName || req.login || '',
+            profile_image_url: apiUser.profileImageUrl
+        });
+
         const path = tool === 'roulette' ? '/overlay/roulette' : '/overlay/trends';
-        const url = frontendPagePath(path, `apiKey=${encodeURIComponent(apiUser.apiKey)}`);
+        const url = frontendPagePath(path, `overlayToken=${encodeURIComponent(overlayToken)}`);
 
         return res.json({ url });
     } catch (e) {

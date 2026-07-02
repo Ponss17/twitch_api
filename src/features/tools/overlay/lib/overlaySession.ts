@@ -1,7 +1,28 @@
-import { getSession, resolveSessionFromUrl, stripSensitiveQueryParams } from '@/core/api/auth';
 import type { Session } from '@/core/config/config';
 
-/** Estado inicial en páginas /overlay/* — espera ?apiKey= o ?auth= legacy en la URL. */
+const OVERLAY_SESSION_KEY = 'twitch_overlay_session';
+
+export function getOverlayStoredSession(): Session | null {
+    if (typeof window === 'undefined') return null;
+    try {
+        const raw = sessionStorage.getItem(OVERLAY_SESSION_KEY);
+        return raw ? (JSON.parse(raw) as Session) : null;
+    } catch {
+        return null;
+    }
+}
+
+export function saveOverlayStoredSession(session: Session): void {
+    if (typeof window === 'undefined') return;
+    sessionStorage.setItem(OVERLAY_SESSION_KEY, JSON.stringify(session));
+}
+
+export function clearOverlayStoredSession(): void {
+    if (typeof window === 'undefined') return;
+    sessionStorage.removeItem(OVERLAY_SESSION_KEY);
+}
+
+/** Estado inicial en páginas /overlay/* — espera ?overlayToken= en la URL. */
 export function readOverlayOptimisticAuthState(): {
     session: Session | null;
     loading: boolean;
@@ -12,12 +33,12 @@ export function readOverlayOptimisticAuthState(): {
     }
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get('apiKey') || params.get('auth')) {
+    if (params.get('overlayToken') || params.get('apiKey') || params.get('auth')) {
         return { session: null, loading: true, authenticated: false };
     }
 
-    const stored = getSession();
-    if (stored?.apiKey || stored?.token) {
+    const stored = getOverlayStoredSession();
+    if (stored?.overlayToken || stored?.apiKey || stored?.token) {
         return { session: stored, loading: false, authenticated: true };
     }
 
@@ -25,15 +46,25 @@ export function readOverlayOptimisticAuthState(): {
 }
 
 /**
- * Sesión para OBS: ?apiKey= (permanente) o ?auth= legacy (5 min).
- * El dashboard sigue usando OAuth vía resolveSessionFromUrl().
+ * Sesión OBS: ?overlayToken= firmado (solo lectura, sin API key maestra).
+ * Legacy: ?apiKey= y ?auth= siguen soportados temporalmente.
  */
 export async function resolveOverlaySessionFromUrl(): Promise<Session> {
     if (typeof window === 'undefined') return {};
 
-    const apiKeyParam = new URLSearchParams(window.location.search).get('apiKey')?.trim();
+    const params = new URLSearchParams(window.location.search);
+    const overlayToken = params.get('overlayToken')?.trim();
+    if (overlayToken) {
+        return {
+            overlayToken,
+            login: '',
+            displayName: '',
+            isNewLogin: true
+        };
+    }
+
+    const apiKeyParam = params.get('apiKey')?.trim();
     if (apiKeyParam) {
-        stripSensitiveQueryParams();
         return {
             apiKey: apiKeyParam,
             login: '',
@@ -42,5 +73,10 @@ export async function resolveOverlaySessionFromUrl(): Promise<Session> {
         };
     }
 
-    return resolveSessionFromUrl();
+    const { resolveSessionFromUrl, stripSensitiveQueryParams } = await import('@/core/api/auth');
+    const legacy = await resolveSessionFromUrl();
+    if (legacy.isNewLogin) {
+        stripSensitiveQueryParams();
+    }
+    return legacy;
 }

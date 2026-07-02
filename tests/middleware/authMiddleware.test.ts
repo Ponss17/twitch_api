@@ -109,4 +109,17 @@ describe('authMiddleware — checkToken', () => {
         expect(mockValidateToken).toHaveBeenCalledWith('bearer_token');
         expect(next).toHaveBeenCalled();
     });
+
+    it('rechaza con 403 si el usuario Bearer está suspendido', async () => {
+        const res = mockRes();
+        const req = mockReq({ headers: { authorization: 'Bearer suspended_token' } });
+
+        mockValidateToken.mockResolvedValue({ user_id: 'u4', login: 'strm4' });
+        mockGetUser.mockResolvedValue({ userId: 'u4', login: 'strm4', isActive: false });
+
+        await checkToken(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(403);
+        expect(next).not.toHaveBeenCalled();
+    });
 });

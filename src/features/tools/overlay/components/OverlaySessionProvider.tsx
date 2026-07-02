@@ -7,7 +7,8 @@ import {
 
 const OVERLAY_SESSION_BOOTSTRAP = {
     readOptimisticAuthState: readOverlayOptimisticAuthState,
-    resolveSessionFromUrl: resolveOverlaySessionFromUrl
+    resolveSessionFromUrl: resolveOverlaySessionFromUrl,
+    storage: 'overlay' as const
 };
 
 interface OverlaySessionProviderProps {
@@ -15,7 +16,7 @@ interface OverlaySessionProviderProps {
     requireAuth?: boolean;
 }
 
-/** SessionProvider con bootstrap OBS — apiKey en URL solo en /overlay/*. */
+/** SessionProvider con bootstrap OBS — overlayToken en URL (sin API key maestra). */
 export function OverlaySessionProvider({ children, requireAuth = false }: OverlaySessionProviderProps) {
     return (
         <SessionProvider requireAuth={requireAuth} bootstrap={OVERLAY_SESSION_BOOTSTRAP}>

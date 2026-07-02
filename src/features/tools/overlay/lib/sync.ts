@@ -1,5 +1,6 @@
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
 import { authHeaders } from '@/core/api/auth';
+import { debugWarn } from '@/core/logging/debugLog';
 import type { OverlayTool, RouletteOverlayState, TrendsOverlayState } from '@/features/tools/overlay/lib/types';
 import { overlayStateFingerprint } from '@/features/tools/overlay/lib/overlayStateUtils';
 
@@ -30,8 +31,8 @@ export async function publishOverlayState(
             return;
         }
         lastPublishedFingerprint.set(tool, fingerprint);
-    } catch {
-        /* overlay sync best-effort */
+    } catch (err) {
+        debugWarn('[overlay] publishOverlayState failed:', err);
     }
 }
 
@@ -48,7 +49,8 @@ export async function fetchOverlayLink(
         if (!res.ok) return null;
         const data = (await res.json()) as { url?: string };
         return data.url ?? null;
-    } catch {
+    } catch (err) {
+        debugWarn('[overlay] fetchOverlayLink failed:', err);
         return null;
     }
 }

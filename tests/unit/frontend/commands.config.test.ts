@@ -1,8 +1,8 @@
 import { COMMAND_CONFIG } from '@/features/commands/lib/config';
 
 const DOMAIN = 'https://www.losperris.dev/api/twitch';
-const LOGIN = 'ponss17';
-const API_KEY = 'd283c8db-7198-474f-a81d-187c765847dc';
+const LOGIN = 'test_streamer';
+const API_KEY = '00000000-0000-4000-8000-000000000001';
 
 function baseQuery() {
     return `channel=${LOGIN}&apiKey=${encodeURIComponent(API_KEY)}`;
@@ -13,7 +13,7 @@ function maskCommand(cmd: string, secret: string): string {
 }
 
 describe('COMMAND_CONFIG generation', () => {
-    it('followage nightbot: comando completo con apiKey real', () => {
+    it('followage nightbot: comando completo con apiKey de prueba', () => {
         const query = baseQuery();
         const { full, url } = COMMAND_CONFIG.follow.generate(
             DOMAIN,

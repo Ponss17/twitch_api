@@ -18,6 +18,7 @@ const SENSITIVE_QUERY_PARAMS = [
     'auth',
     'token',
     'apiKey',
+    'overlayToken',
     'login',
     'displayName',
     'profile_image_url',
@@ -168,6 +169,9 @@ function pickSessionFromValidate(result: ApiResponse): Partial<Session> {
     if (typeof result.apiKey === 'string' && result.apiKey) {
         partial.apiKey = result.apiKey;
     }
+    if (typeof result.overlayToken === 'string' && result.overlayToken) {
+        partial.overlayToken = result.overlayToken;
+    }
     const user = result.user;
     if (user && typeof user === 'object') {
         const profile = user as Record<string, unknown>;
@@ -181,16 +185,22 @@ function pickSessionFromValidate(result: ApiResponse): Partial<Session> {
     return partial;
 }
 
-export function mergeSessionFromValidate(session: Session, result: ApiResponse): Session {
+export function mergeSessionFromValidate(
+    session: Session,
+    result: ApiResponse,
+    options?: { persist?: boolean }
+): Session {
     const merged: Session = { ...session, ...pickSessionFromValidate(result) };
-    saveSession(merged);
+    if (options?.persist !== false) {
+        saveSession(merged);
+    }
     return merged;
 }
 
 function canUseDegradedSession(session: Session): boolean {
-    if (session.apiKey || session.token) return true;
+    if (session.apiKey || session.token || session.overlayToken) return true;
     const stored = getSession();
-    return !!(stored?.apiKey || stored?.token);
+    return !!(stored?.apiKey || stored?.token || stored?.overlayToken);
 }
 
 function resolveDegradedSession(session: Session): Session {
@@ -218,6 +228,10 @@ export function readOptimisticAuthState(): {
 }
 
 export async function validateSession(session: Session): Promise<ApiResponse> {
+    if (session.overlayToken) {
+        return validateOverlaySession(session);
+    }
+
     if (!session.apiKey && !session.token) {
         return { valid: false, error: true, message: 'no_credentials' };
     }
@@ -348,6 +362,31 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
         return result;
     } finally {
         if (driftTimer) window.clearInterval(driftTimer);
+    }
+}
+
+export async function validateOverlaySession(session: Session): Promise<ApiResponse> {
+    if (!session.overlayToken) {
+        return { valid: false, error: true, message: 'no_credentials' };
+    }
+
+    try {
+        const response = await fetch(
+            `${API_ENDPOINTS.OVERLAY_EXCHANGE}?overlayToken=${encodeURIComponent(session.overlayToken)}`
+        );
+
+        if (!response.ok) {
+            return {
+                valid: false,
+                error: true,
+                message: response.status === 401 ? 'unauthorized' : `HTTP ${response.status}`
+            };
+        }
+
+        const data = (await response.json()) as ApiResponse;
+        return { valid: true, ...data };
+    } catch {
+        return { valid: false, error: true, message: 'network_error', networkError: true };
     }
 }
 

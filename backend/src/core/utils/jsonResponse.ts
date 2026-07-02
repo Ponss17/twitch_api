@@ -11,7 +11,10 @@ export type ApiErrorCode =
     | 'SERVICE_UNAVAILABLE'
     | 'INTERNAL_ERROR'
     | 'MISSING_AUTH'
-    | 'INVALID_AUTH';
+    | 'INVALID_AUTH'
+    | 'ACCOUNT_SUSPENDED'
+    | 'MISSING_OVERLAY_TOKEN'
+    | 'INVALID_OVERLAY_TOKEN';
 
 export interface ApiErrorBody {
     success: false;
