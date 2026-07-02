@@ -23,14 +23,13 @@ const USAGE_TO_ACTIVITY: Record<DashboardUsageKey, ActivityLogType> = {
     duel: 'duel'
 };
 
-const CATEGORY_ID_TO_FILTER: Record<
-    (typeof DASHBOARD_USAGE_CATEGORIES)[number]['id'],
-    Exclude<ActivityCategoryFilter, 'all'>
-> = {
-    'cat-commands': 'commands',
-    'cat-tools': 'tools',
-    'cat-minigames': 'minigames'
-};
+type ActivityCategoryKey = Exclude<ActivityCategoryFilter, 'all'>;
+
+function activityTypesForCategory(
+    cat: (typeof DASHBOARD_USAGE_CATEGORIES)[number]
+): readonly ActivityLogType[] {
+    return cat.keys.map((key) => USAGE_TO_ACTIVITY[key]);
+}
 
 export const ACTIVITY_CATEGORY_LABELS: Record<ActivityCategoryFilter, string> = {
     all: 'Todos',
@@ -39,17 +38,16 @@ export const ACTIVITY_CATEGORY_LABELS: Record<ActivityCategoryFilter, string> = 
     minigames: DASHBOARD_USAGE_CATEGORIES[2].label
 };
 
-export const ACTIVITY_TYPES_BY_CATEGORY = Object.fromEntries(
-    DASHBOARD_USAGE_CATEGORIES.map((cat) => [
-        CATEGORY_ID_TO_FILTER[cat.id],
-        cat.keys.map((key) => USAGE_TO_ACTIVITY[key])
-    ])
-) as Record<Exclude<ActivityCategoryFilter, 'all'>, readonly ActivityLogType[]>;
+export const ACTIVITY_TYPES_BY_CATEGORY: Record<ActivityCategoryKey, readonly ActivityLogType[]> = {
+    commands: activityTypesForCategory(DASHBOARD_USAGE_CATEGORIES[0]),
+    tools: activityTypesForCategory(DASHBOARD_USAGE_CATEGORIES[1]),
+    minigames: activityTypesForCategory(DASHBOARD_USAGE_CATEGORIES[2])
+};
 
 export function matchesActivityCategory(type: string | undefined, category: ActivityCategoryFilter): boolean {
     if (category === 'all') return true;
     const normalized = normalizeActivityType(type);
-    return (ACTIVITY_TYPES_BY_CATEGORY[category] as readonly ActivityLogType[]).includes(normalized);
+    return ACTIVITY_TYPES_BY_CATEGORY[category].includes(normalized);
 }
 
 export function filterActivityLog(
