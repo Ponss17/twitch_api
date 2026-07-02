@@ -35,7 +35,7 @@ const SKELETON_ROWS = 5;
 const CATEGORY_FILTERS: ActivityCategoryFilter[] = ['all', 'commands', 'tools', 'minigames'];
 
 const FILTER_CHIP = (active: boolean) =>
-    `rounded-full border px-2.5 py-1 text-[0.72rem] font-medium transition ${
+    `rounded-md border px-2.5 py-1 text-[0.72rem] font-medium transition ${
         active
             ? 'border-primary/40 bg-primary/15 text-white'
             : 'border-white/[0.08] bg-white/[0.03] text-[#c4c4cc] hover:border-white/15 hover:text-[#fafafa]'
@@ -150,11 +150,14 @@ export function HomeActivityFeed({
                             </span>
                         </div>
                     ) : null}
-                    <InfoTooltip text="Filtra el historial por categoría (Comandos, Herramientas, Minijuegos) o por recurso concreto. Los eventos nuevos siguen entrando en vivo." />
+                    <InfoTooltip
+                        placement="bottom"
+                        text="Filtra por categoría o recurso. Los eventos nuevos siguen entrando en vivo."
+                    />
                 </div>
             </div>
 
-            <div className="mb-3 space-y-2">
+            <div className="mb-3 space-y-2 rounded-lg border border-white/[0.06] bg-black/15 p-2">
                 <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtrar por categoría">
                     {CATEGORY_FILTERS.map((category) => {
                         const count = countActivityByCategory(activity, category);
