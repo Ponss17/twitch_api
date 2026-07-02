@@ -2,7 +2,9 @@ import { useOverlayMirror } from '@/features/tools/overlay/hooks/useOverlayMirro
 import { useOverlayTrendsRemaining } from '@/features/tools/overlay/hooks/useOverlayTrendsRemaining';
 import { TrendsLeaderboardDisplay } from '@/features/tools/trends/components/TrendsLeaderboardDisplay';
 import { OverlaySessionGate } from '@/features/tools/overlay/components/OverlaySessionGate';
+import { OverlaySessionProvider } from '@/features/tools/overlay/components/OverlaySessionProvider';
 import { OverlayStatusBanner } from '@/features/tools/overlay/components/OverlayStatusBanner';
+import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import type { TrendsOverlayState } from '@/features/tools/overlay/lib/types';
 import type { Session } from '@/core/config/config';
 
@@ -42,5 +44,16 @@ export function OverlayTrendsApp() {
         <OverlaySessionGate>
             {(session) => <OverlayTrendsContent session={session} />}
         </OverlaySessionGate>
+    );
+}
+
+/** Raíz única para Astro (un solo client:only — SessionProvider envuelve el árbol). */
+export function OverlayTrendsRoot() {
+    return (
+        <OverlaySessionProvider requireAuth>
+            <ErrorBoundary title="Overlay de tendencias">
+                <OverlayTrendsApp />
+            </ErrorBoundary>
+        </OverlaySessionProvider>
     );
 }

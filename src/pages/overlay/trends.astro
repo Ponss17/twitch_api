@@ -1,14 +1,8 @@
 ---
 import OverlayLayout from '../../layouts/OverlayLayout.astro';
-import { OverlayTrendsApp } from '@/features/tools/overlay/apps/OverlayTrendsApp';
-import { OverlaySessionProvider } from '@/features/tools/overlay/components/OverlaySessionProvider';
-import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
+import { OverlayTrendsRoot } from '@/features/tools/overlay/apps/OverlayTrendsApp';
 ---
 
 <OverlayLayout title="Tendencias Overlay">
-    <OverlaySessionProvider client:only="react" requireAuth>
-        <ErrorBoundary client:only="react" title="Overlay de tendencias">
-            <OverlayTrendsApp client:only="react" />
-        </ErrorBoundary>
-    </OverlaySessionProvider>
+    <OverlayTrendsRoot client:only="react" />
 </OverlayLayout>
