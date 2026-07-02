@@ -14,12 +14,14 @@ export function animateValue(
         animations.delete(el);
     }
 
-    const textWithoutHtml = el.innerHTML.replace(/<[^>]*>?/gm, '');
+    const textWithoutHtml = (el.textContent ?? '').replace(/<[^>]*>?/gm, '');
     const currentVal = parseInt(textWithoutHtml.replace(/[^0-9.-]+/g, ''), 10) || 0;
     const actualStart = start !== null ? start : currentVal;
 
+    const formatted = (value: number) => `${value.toLocaleString('es-ES')}${suffix}`;
+
     if (actualStart === end) {
-        el.innerHTML = `${end.toLocaleString('es-ES')}${suffix}`;
+        el.textContent = formatted(end);
         return;
     }
 
@@ -30,13 +32,13 @@ export function animateValue(
         const progress = Math.min((timestamp - startTimestamp) / duration, 1);
         const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
         const current = Math.floor(easeProgress * (end - actualStart) + actualStart);
-        el.innerHTML = `${current.toLocaleString('es-ES')}${suffix}`;
+        el.textContent = formatted(current);
 
         if (progress < 1) {
             animations.set(el, window.requestAnimationFrame(step));
         } else {
             animations.delete(el);
-            el.innerHTML = `${end.toLocaleString('es-ES')}${suffix}`;
+            el.textContent = formatted(end);
         }
     };
 

@@ -71,11 +71,13 @@ export function useRouletteController({
     const filtersRef = useRef(filters);
     const wheelRotationRef = useRef(wheelRotation);
     const wheelTransitionRef = useRef(wheelTransition);
+    const onStateChangeRef = useRef(onStateChange);
     isOpenRef.current = isOpen;
     isSpinningRef.current = isSpinning;
     filtersRef.current = filters;
     wheelRotationRef.current = wheelRotation;
     wheelTransitionRef.current = wheelTransition;
+    onStateChangeRef.current = onStateChange;
 
     const buildOverlayState = useCallback(
         (overrides: Partial<RouletteOverlayState> = {}): RouletteOverlayState => ({
@@ -95,18 +97,12 @@ export function useRouletteController({
         [chatters, isOpen, isSpinning, winner, lastSpinCount]
     );
 
-    const emitState = useCallback(
-        (overrides: Partial<RouletteOverlayState> = {}, immediate = false) => {
-            if (!onStateChange) return;
-            const state = buildOverlayState(overrides);
-            if (immediate) {
-                onStateChange(state);
-                return;
-            }
-            onStateChange(state);
-        },
-        [onStateChange, buildOverlayState]
-    );
+    const buildOverlayStateRef = useRef(buildOverlayState);
+    buildOverlayStateRef.current = buildOverlayState;
+
+    const emitState = useCallback((overrides: Partial<RouletteOverlayState> = {}) => {
+        onStateChangeRef.current?.(buildOverlayStateRef.current(overrides));
+    }, []);
 
     const pulseCounter = useCallback(() => {
         setCountPulse(true);
@@ -270,18 +266,15 @@ export function useRouletteController({
                 colors: ['#9146ff', '#a78bfa', '#7c3aed', '#c4b5fd', '#6d28d9']
             });
 
-            emitState(
-                {
-                    isSpinning: false,
-                    wheelRotation: finalRotation,
-                    wheelTransition: 'none',
-                    winner: picked,
-                    lastSpinCount: count,
-                    targetRotation: undefined,
-                    spinDuration: undefined
-                },
-                true
-            );
+            emitState({
+                isSpinning: false,
+                wheelRotation: finalRotation,
+                wheelTransition: 'none',
+                winner: picked,
+                lastSpinCount: count,
+                targetRotation: undefined,
+                spinDuration: undefined
+            });
         },
         [announceWinnerInChat, sendWinnerMessage, showToast, emitState]
     );
@@ -319,17 +312,14 @@ export function useRouletteController({
 
         setWheelTransition('none');
         wheelTransitionRef.current = 'none';
-        emitState(
-            {
-                isSpinning: true,
-                winner: null,
-                spinSeq: spinSeqRef.current,
-                targetRotation,
-                spinDuration: duration,
-                wheelTransition: 'none'
-            },
-            true
-        );
+        emitState({
+            isSpinning: true,
+            winner: null,
+            spinSeq: spinSeqRef.current,
+            targetRotation,
+            spinDuration: duration,
+            wheelTransition: 'none'
+        });
 
         requestAnimationFrame(() => {
             const transition = `transform ${Math.round(duration)}ms cubic-bezier(0.15, 0.85, 0.25, 1)`;
@@ -337,7 +327,7 @@ export function useRouletteController({
             wheelTransitionRef.current = transition;
             setWheelRotation(targetRotation);
             wheelRotationRef.current = targetRotation;
-            emitState({ wheelTransition: transition, wheelRotation: targetRotation }, true);
+            emitState({ wheelTransition: transition, wheelRotation: targetRotation });
         });
     }, [chatters, finishSpin, emitState]);
 
@@ -356,7 +346,7 @@ export function useRouletteController({
         if (isOpen) {
             setIsOpen(false);
             showToast('Inscripciones Cerradas', 'info');
-            emitState({ isOpen: false }, true);
+            emitState({ isOpen: false });
             return;
         }
         if (!hasAnyFilter(filters)) {
@@ -368,10 +358,7 @@ export function useRouletteController({
         setWinner(null);
         setLastSpinCount(0);
         showToast('Inscripciones Abiertas', 'success');
-        emitState(
-            { isOpen: true, chatters: [], winner: null, lastSpinCount: 0 },
-            true
-        );
+        emitState({ isOpen: true, chatters: [], winner: null, lastSpinCount: 0 });
         await loadChatters();
     }, [isOpen, filters, showToast, loadChatters, emitState]);
 
@@ -387,7 +374,7 @@ export function useRouletteController({
 
     const dismissWinner = useCallback(() => {
         setWinner(null);
-        emitState({ winner: null }, true);
+        emitState({ winner: null });
     }, [emitState]);
 
     useEffect(() => {

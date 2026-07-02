@@ -4,6 +4,15 @@ import { invalidateUserCache } from '../middleware/apiKeyValidator';
 import { invalidateStatsCache } from '../database/statsService';
 import { logger } from './logger';
 
+const overlayStateKey = (userId: string, tool: string) => `overlay:state:${userId}:${tool}`;
+
+export async function invalidateOverlayStateCaches(userId: string): Promise<void> {
+    await Promise.allSettled([
+        cacheService.del(overlayStateKey(userId, 'roulette')),
+        cacheService.del(overlayStateKey(userId, 'trends'))
+    ]).catch((e) => logger.warn('Error invalidando estado overlay:', e));
+}
+
 export interface UserCacheInvalidationOptions {
     apiKey?: string;
     login?: string;
@@ -37,7 +46,8 @@ export async function invalidateAllUserCaches(
 
     const tasks: Promise<void>[] = [
         cacheService.invalidateDashboardCache(userId, options.login),
-        cacheService.bumpStatsRevision(userId)
+        cacheService.bumpStatsRevision(userId),
+        invalidateOverlayStateCaches(userId)
     ];
 
     if (options.revokeApiKey && options.apiKey) {

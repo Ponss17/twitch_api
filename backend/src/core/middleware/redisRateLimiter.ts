@@ -210,10 +210,24 @@ export const authRateLimiter = async (req: Request, res: Response, next: NextFun
     const safeIp = (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
     const key = `rl:auth:${safeIp}`;
     const limit = RATE_LIMITS.LOGIN;
-    const windowSeconds = 5 * 60; // 5 minutos
+    const windowSeconds = 5 * 60;
     const redisKey = `twitch_api:${key}:${Math.floor(Date.now() / (windowSeconds * 1000))}`;
+    const currentWindow = Math.floor(Date.now() / (windowSeconds * 1000));
 
     if (!isKvWriteAvailable()) {
+        const count = incrementMemoryCounter(kvFallbackRateMemory, key, currentWindow);
+        if (count > limit) {
+            if (
+                typeof req.headers.accept === 'string' &&
+                req.headers.accept.includes('text/html')
+            ) {
+                return res.redirect(302, rateLimitPagePath(windowSeconds * 1000));
+            }
+            return res.status(429).json({
+                error: 'Too Many Requests',
+                message: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en 5 minutos.'
+            });
+        }
         return next();
     }
 

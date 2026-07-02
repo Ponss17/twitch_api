@@ -112,3 +112,29 @@ export const exchange = (req: Request, res: Response) => {
         profile_image_url: payload.profile_image_url
     });
 };
+
+/** Intercambia overlayToken firmado por sesión de solo lectura (sin API key maestra). */
+export const overlayExchange = (req: Request, res: Response) => {
+    const overlayToken = req.query.overlayToken as string;
+
+    if (!overlayToken) {
+        return jsonError(res, 400, 'Falta el token del overlay.', { code: 'MISSING_OVERLAY_TOKEN' });
+    }
+
+    const payload = authService.verifyOverlayReadToken(overlayToken);
+    if (!payload) {
+        return jsonError(res, 401, 'Enlace de overlay inválido o expirado.', {
+            code: 'INVALID_OVERLAY_TOKEN'
+        });
+    }
+
+    return res.json({
+        valid: true,
+        overlayToken,
+        userId: payload.userId,
+        login: payload.login,
+        displayName: payload.displayName,
+        profile_image_url: payload.profile_image_url,
+        tool: payload.tool
+    });
+};

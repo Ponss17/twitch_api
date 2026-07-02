@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as dbService from '../database/dbService';
 import * as cacheService from '../database/cacheService';
-import { getValidTokenForUser } from '../../features/auth/auth.service';
+import { getValidTokenForUser, verifyOverlayReadToken } from '../../features/auth/auth.service';
 import { logger } from '../utils/logger';
 import { invalidateAuthCache } from './authMiddleware';
 import { StoredUser } from '../../types/twitch';
@@ -44,6 +44,27 @@ export const invalidateUserCache = (userId: string): void => {
 };
 
 export const apiKeyValidator = async (req: Request, res: Response, next: NextFunction) => {
+    const overlayTokenHeader = ((req.headers['x-overlay-token'] as string) || '').trim();
+
+    if (overlayTokenHeader) {
+        const payload = verifyOverlayReadToken(overlayTokenHeader);
+        if (!payload) {
+            return res.status(401).json({ error: 'Token de overlay inválido o expirado.' });
+        }
+        try {
+            const user = await dbService.getUser(payload.userId);
+            if (!user || !user.isActive) {
+                return res.status(403).json({ error: 'Cuenta suspendida o no encontrada.' });
+            }
+            res.locals.apiUser = user;
+            res.locals.isOverlayReadRequest = true;
+            return next();
+        } catch (e) {
+            logger.error('Error validando overlay token:', e);
+            return res.status(503).json({ error: 'Servicio no disponible temporalmente.' });
+        }
+    }
+
     const rawApiKey = ((req.query.apiKey as string) || (req.headers['x-api-key'] as string) || '')
         .trim()
         .toLowerCase();

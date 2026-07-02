@@ -32,6 +32,8 @@ export const verifyState = (state: string): Record<string, unknown> | null => {
 };
 
 const AUTH_EXCHANGE_TTL_MS = 5 * 60 * 1000;
+/** Token de solo lectura para OBS — no expone la API key maestra. */
+const OVERLAY_READ_TTL_MS = 365 * 24 * 60 * 60 * 1000;
 
 export interface AuthExchangePayload {
     apiKey: string;
@@ -47,6 +49,53 @@ export const signAuthExchange = (payload: AuthExchangePayload): string => {
     const secret = CONFIG.TWITCH_CLIENT_SECRET as string;
     const sig = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
     return `${encoded}.${sig}`;
+};
+
+export interface OverlayReadPayload {
+    userId: string;
+    tool: 'roulette' | 'trends';
+    login: string;
+    displayName: string;
+    profile_image_url?: string;
+}
+
+export const signOverlayReadToken = (payload: OverlayReadPayload): string => {
+    const data = { ...payload, scope: 'overlay:read', exp: Date.now() + OVERLAY_READ_TTL_MS };
+    const encoded = Buffer.from(JSON.stringify(data)).toString('base64url');
+    const secret = CONFIG.TWITCH_CLIENT_SECRET as string;
+    const sig = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
+    return `${encoded}.${sig}`;
+};
+
+export const verifyOverlayReadToken = (token: string): OverlayReadPayload | null => {
+    const lastDot = token.lastIndexOf('.');
+    if (lastDot === -1) return null;
+    const encoded = token.slice(0, lastDot);
+    const sig = token.slice(lastDot + 1);
+    const secret = CONFIG.TWITCH_CLIENT_SECRET as string;
+    const expected = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
+    try {
+        if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
+    } catch {
+        return null;
+    }
+    try {
+        const data = JSON.parse(Buffer.from(encoded, 'base64url').toString()) as OverlayReadPayload & {
+            exp?: number;
+            scope?: string;
+        };
+        if (data.scope !== 'overlay:read' || !data.exp || data.exp < Date.now()) return null;
+        if (!data.userId || !data.tool || !data.login) return null;
+        return {
+            userId: data.userId,
+            tool: data.tool,
+            login: data.login,
+            displayName: data.displayName || data.login,
+            profile_image_url: data.profile_image_url
+        };
+    } catch {
+        return null;
+    }
 };
 
 export const verifyAuthExchange = (token: string): AuthExchangePayload | null => {

@@ -19,7 +19,9 @@ import {
 import {
     overlayToolParamSchema,
     putOverlayStateSchema,
-    overlayLinkSchema
+    overlayLinkSchema,
+    exportCheckSchema,
+    exportCompleteSchema
 } from './overlay/schema';
 
 const router = Router();
@@ -66,8 +68,13 @@ router.delete(
     dashboardController.deleteAccount
 );
 
-router.post('/export-check', csrfProtection, dashboardController.exportCheck);
-router.post('/export-complete', csrfProtection, dashboardController.recordExportComplete);
+router.post('/export-check', csrfProtection, validate(exportCheckSchema), dashboardController.exportCheck);
+router.post(
+    '/export-complete',
+    csrfProtection,
+    validate(exportCompleteSchema),
+    dashboardController.recordExportComplete
+);
 
 router.get(
     '/overlay-state/:tool',

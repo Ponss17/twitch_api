@@ -39,14 +39,13 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction) 
         return next();
     }
 
-    // If no origin/referer, it may be a direct API call (e.g. curl, bot)
-    // Allow if the request has a valid Bearer token (API calls from bots/scripts)
-    if (req.headers.authorization?.startsWith('Bearer ')) {
+    // Allow API key in query (bots like Nightbot send this way) ONLY if there is no browser origin/referer
+    if ((req.query?.apiKey || req.headers['x-api-key']) && !origin && !referer) {
         return next();
     }
 
-    // Allow API key in query (bots like Nightbot send this way) ONLY if there is no browser origin/referer
-    if ((req.query.apiKey || req.headers['x-api-key']) && !origin && !referer) {
+    // Overlay read token (OBS) sin Origin
+    if (req.headers['x-overlay-token'] && !origin && !referer) {
         return next();
     }
 

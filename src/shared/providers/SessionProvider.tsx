@@ -16,6 +16,7 @@ import { appPath } from '@/core/config/paths';
 import { SessionContext } from '@/core/session/context';
 import { useToastOptional } from '@/shared/ui/ToastProvider';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
+import { saveOverlayStoredSession } from '@/features/tools/overlay/lib/overlaySession';
 
 export type { SessionContextValue } from '@/core/session/context';
 
@@ -26,11 +27,14 @@ export interface SessionBootstrap {
         authenticated: boolean;
     };
     resolveSessionFromUrl(): Promise<Session>;
+    /** overlay: sessionStorage aislado del panel */
+    storage?: 'local' | 'overlay';
 }
 
 const DEFAULT_SESSION_BOOTSTRAP: SessionBootstrap = {
     readOptimisticAuthState,
-    resolveSessionFromUrl
+    resolveSessionFromUrl,
+    storage: 'local'
 };
 
 interface SessionProviderProps {
@@ -73,7 +77,7 @@ export function SessionProvider({
 
         const sessionParams = await bootstrap.resolveSessionFromUrl();
 
-        if (!sessionParams.token && !sessionParams.apiKey) {
+        if (!sessionParams.token && !sessionParams.apiKey && !sessionParams.overlayToken) {
             bindCommandStoreUser(undefined);
             setSession(null);
             setLoading(false);
@@ -89,7 +93,7 @@ export function SessionProvider({
             result = await validateSession(sessionParams);
         } catch {
             const stored = getSession();
-            if (stored?.apiKey || stored?.token) {
+            if (stored?.apiKey || stored?.token || stored?.overlayToken) {
                 result = { valid: true, error: true, networkError: true };
             } else {
                 result = { valid: false, error: true };
@@ -104,7 +108,12 @@ export function SessionProvider({
             const baseSession = result.networkError
                 ? resolveDegradedSession(sessionParams)
                 : sessionParams;
-            const enriched = mergeSessionFromValidate(baseSession, result);
+            const persistLocal = bootstrap.storage !== 'overlay';
+            const enriched = mergeSessionFromValidate(baseSession, result, { persist: persistLocal });
+
+            if (bootstrap.storage === 'overlay') {
+                saveOverlayStoredSession(enriched);
+            }
 
             bindCommandStoreUser(enriched.userId);
 

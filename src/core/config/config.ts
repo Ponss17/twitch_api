@@ -24,6 +24,7 @@ export const API_ENDPOINTS = {
     DUEL: `${API_BASE}/minigames/duel`,
     AUTH_LOGIN: `${API_BASE}/auth/twitch`,
     AUTH_EXCHANGE: `${API_BASE}/auth/exchange`,
+    OVERLAY_EXCHANGE: `${API_BASE}/auth/overlay-exchange`,
     EXPORT_CHECK: `${API_BASE}/dashboard/export-check`,
     EXPORT_COMPLETE: `${API_BASE}/dashboard/export-complete`
 } as const;
@@ -73,6 +74,7 @@ export type DashboardTab =
 export interface Session {
     token?: string;
     apiKey?: string;
+    overlayToken?: string;
     displayName?: string;
     login?: string;
     profile_image_url?: string;
