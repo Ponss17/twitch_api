@@ -22,3 +22,19 @@ export function overlayTrendsRemaining(state: TrendsOverlayState, now = Date.now
     const elapsedSec = Math.floor((now - state.updatedAt) / 1000);
     return Math.max(0, state.remaining - elapsedSec);
 }
+
+/** Tiempo visible en OBS tras terminar el timer antes de ocultarse solo. */
+export const TRENDS_OVERLAY_RESULTS_MS = 30_000;
+
+/** OBS transparente en reposo; tras el timer muestra resultados y luego se apaga. */
+export function shouldShowTrendsOverlay(state: TrendsOverlayState, now = Date.now()): boolean {
+    if (state.tracking) return true;
+    if (!state.sessionActive) return false;
+
+    if (state.timerEnded) {
+        const endedAt = state.updatedAt ?? 0;
+        return now - endedAt < TRENDS_OVERLAY_RESULTS_MS;
+    }
+
+    return Object.keys(state.wordCounts).length > 0;
+}
