@@ -25,6 +25,10 @@ export function HomeHero({
     latencyMs,
     isLoading = false
 }: HomeHeroProps) {
+    const requestsDuration = resourceUsage === 0 ? 0 : 1500;
+    const successDuration = successRate === 0 ? 0 : 1500;
+    const latencyDuration = latencyMs === 0 ? 0 : 1500;
+
     return (
         <section
             className="relative mb-8 overflow-hidden rounded-[24px] border border-primary/10 bg-[radial-gradient(circle_at_20%_0%,rgba(145,70,255,0.10)_0%,transparent_45%),radial-gradient(circle_at_80%_100%,rgba(145,70,255,0.05)_0%,transparent_45%),#09090b] px-[52px] py-10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_0_80px_rgba(145,70,255,0.05)] transition-all duration-500 hover:-translate-y-[3px] hover:border-primary/25 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_0_100px_rgba(145,70,255,0.08)] max-md:p-8"
@@ -71,6 +75,7 @@ export function HomeHero({
                                 </span>
                                 <AnimatedNumber
                                     value={resourceUsage}
+                                    duration={requestsDuration}
                                     isLoading={isLoading}
                                     className="text-2xl font-extrabold leading-none tracking-tight text-white"
                                 />
@@ -87,6 +92,7 @@ export function HomeHero({
                                 </span>
                                 <AnimatedNumber
                                     value={successRate}
+                                    duration={successDuration}
                                     suffix="%"
                                     isLoading={isLoading}
                                     className="text-2xl font-extrabold leading-none tracking-tight text-white"
@@ -104,6 +110,7 @@ export function HomeHero({
                                 </span>
                                 <AnimatedNumber
                                     value={latencyMs}
+                                    duration={latencyDuration}
                                     suffix="ms"
                                     isLoading={isLoading}
                                     className="text-2xl font-extrabold leading-none tracking-tight text-white"

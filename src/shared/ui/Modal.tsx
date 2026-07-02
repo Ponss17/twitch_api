@@ -58,6 +58,11 @@ export function BaseModal({
         if (open && !dialog.open) {
             setClosing(false);
             dialog.showModal();
+            return;
+        }
+        if (!open && dialog.open) {
+            setClosing(false);
+            dialog.close();
         }
     }, [open]);
 
