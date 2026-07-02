@@ -13,6 +13,7 @@ declare global {
             apiUser?: StoredUser;
             isApiKeyRequest?: boolean;
             isOverlayReadRequest?: boolean;
+            overlayTool?: 'roulette' | 'trends';
             customRateLimit?: number;
             cspNonce?: string;
         }

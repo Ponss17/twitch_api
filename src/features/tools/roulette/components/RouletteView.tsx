@@ -1,48 +1,31 @@
 import { Dices, Loader2, MessageSquare, Pause, Play, RotateCw } from 'lucide-react';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useRouletteController } from '@/features/tools/roulette/hooks/useRouletteController';
 import { RouletteWheelDisplay } from '@/features/tools/roulette/components/RouletteWheelDisplay';
 import { OverlayUrlButton } from '@/features/tools/overlay/components/OverlayUrlButton';
+import { useOverlayPublish } from '@/features/tools/overlay/hooks/useOverlayPublish';
 import { card, fadeIn } from '@/core/ui/tw';
 import { RouletteEligibilityDropdown } from '@/features/tools/roulette/components/RouletteEligibilityDropdown';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
-import { publishOverlayState } from '@/features/tools/overlay/lib/sync';
-import type { RouletteOverlayState } from '@/features/tools/overlay/lib/types';
 
 export function RouletteView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
     const { showToast } = useToast();
     const listRef = useRef<HTMLUListElement>(null);
-    const publishTimerRef = useRef<number | null>(null);
 
-    const handleStateChange = useCallback(
-        (state: RouletteOverlayState) => {
-            if (!active) return;
-            const isCritical =
-                state.isSpinning ||
-                state.winner !== null ||
-                state.spinSeq > 0 ||
-                !state.isOpen;
-
-            if (isCritical) {
-                if (publishTimerRef.current) {
-                    clearTimeout(publishTimerRef.current);
-                    publishTimerRef.current = null;
-                }
-                void publishOverlayState('roulette', state, session);
-                return;
-            }
-
-            if (publishTimerRef.current) clearTimeout(publishTimerRef.current);
-            publishTimerRef.current = window.setTimeout(() => {
-                void publishOverlayState('roulette', state, session);
-                publishTimerRef.current = null;
-            }, 500);
-        },
-        [active, session]
-    );
+    const handleStateChange = useOverlayPublish({
+        tool: 'roulette',
+        session,
+        active,
+        isCritical: (state) =>
+            state.isSpinning ||
+            state.winner !== null ||
+            state.spinSeq > 0 ||
+            !state.isOpen,
+        resetCacheWhen: (state) => !state.isOpen || state.winner !== null
+    });
 
     const {
         chatters,
@@ -74,12 +57,6 @@ export function RouletteView({ active = true }: { active?: boolean }) {
         if (!el) return;
         el.scrollTop = el.scrollHeight;
     }, [chatters]);
-
-    useEffect(() => {
-        return () => {
-            if (publishTimerRef.current) clearTimeout(publishTimerRef.current);
-        };
-    }, []);
 
     return (
         <div className={`${card} ${fadeIn} mb-3`}>

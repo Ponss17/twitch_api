@@ -4,6 +4,7 @@ import { authHeaders } from '@/core/api/auth';
 import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { chatLogStore } from '@/features/chat/lib/chatLogStore';
 import { TabSyncService } from '@/features/dashboard/lib/tabSyncService';
+import { rankWordCounts } from '@/features/tools/trends/lib/rankWordCounts';
 import type { TrendsOverlayState } from '@/features/tools/overlay/lib/types';
 
 const STOP_WORDS = new Set([
@@ -363,10 +364,7 @@ export function useTrendsController({
         emitState();
     }, [wordCounts, tracking, emitState]);
 
-    const ranked = Object.entries(wordCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10);
-    const maxCount = ranked[0]?.[1] ?? 1;
+    const { ranked, maxCount } = rankWordCounts(wordCounts);
 
     return {
         minutes,

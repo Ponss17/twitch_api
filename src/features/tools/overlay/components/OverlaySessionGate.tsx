@@ -1,45 +1,14 @@
-import type { ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import type { Session } from '@/core/config/config';
 import { OverlayStatusBanner } from '@/features/tools/overlay/components/OverlayStatusBanner';
 import {
-    getOverlayStoredSession,
-    getOverlayTokenFromPage,
-    readOverlayOptimisticAuthState
-} from '@/features/tools/overlay/lib/overlaySession';
+    hasOverlayPollCredentials,
+    resolveOverlayPollSession
+} from '@/features/tools/overlay/lib/credentials';
+import { readOverlayOptimisticAuthState } from '@/features/tools/overlay/lib/overlaySession';
 
 interface OverlaySessionGateProps {
     children: (session: Session) => ReactNode;
-}
-
-function resolveOverlayPollSession(): Session | null {
-    const fromPage = getOverlayTokenFromPage();
-    const stored = getOverlayStoredSession();
-    const optimistic = readOverlayOptimisticAuthState();
-
-    const overlayToken =
-        fromPage?.trim() ||
-        optimistic.session?.overlayToken?.trim() ||
-        stored?.overlayToken?.trim() ||
-        '';
-
-    if (overlayToken) {
-        return {
-            ...(stored ?? optimistic.session ?? {}),
-            overlayToken,
-            login: stored?.login ?? optimistic.session?.login ?? '',
-            displayName: stored?.displayName ?? optimistic.session?.displayName ?? ''
-        };
-    }
-
-    if (stored?.apiKey || stored?.token) {
-        return stored;
-    }
-
-    if (optimistic.session?.apiKey || optimistic.session?.token) {
-        return optimistic.session;
-    }
-
-    return null;
 }
 
 /**
@@ -47,9 +16,9 @@ function resolveOverlayPollSession(): Session | null {
  * o el navegador de OBS sirve chunks JS en caché sin SessionProvider.
  */
 export function OverlaySessionGate({ children }: OverlaySessionGateProps) {
-    const session = resolveOverlayPollSession();
+    const session = useMemo(() => resolveOverlayPollSession(), []);
 
-    if (session?.overlayToken || session?.apiKey || session?.token) {
+    if (session && hasOverlayPollCredentials(session)) {
         return <>{children(session)}</>;
     }
 
