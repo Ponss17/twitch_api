@@ -1,14 +1,14 @@
 ---
 import OverlayLayout from '../../layouts/OverlayLayout.astro';
 import { OverlayRouletteApp } from '@/features/tools/overlay/apps/OverlayRouletteApp';
-import { SessionProvider } from '@/shared/providers/SessionProvider';
+import { OverlaySessionProvider } from '@/features/tools/overlay/components/OverlaySessionProvider';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 ---
 
 <OverlayLayout title="Ruleta Overlay">
-    <SessionProvider client:only="react" requireAuth>
+    <OverlaySessionProvider client:only="react" requireAuth>
         <ErrorBoundary client:only="react" title="Overlay de ruleta">
             <OverlayRouletteApp client:only="react" />
         </ErrorBoundary>
-    </SessionProvider>
+    </OverlaySessionProvider>
 </OverlayLayout>

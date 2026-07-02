@@ -5,7 +5,6 @@ import { MESSAGES } from '../../../core/config/messages';
 import { logger } from '../../../core/utils/logger';
 import { AuthenticatedRequest } from '../../../types/twitch';
 import { jsonError } from '../../../core/utils/jsonResponse';
-import { signAuthExchange } from '../../auth/auth.service';
 import { frontendPagePath } from '../../../core/utils/frontendPaths';
 
 const overlayStateKey = (userId: string, tool: string) => `overlay:state:${userId}:${tool}`;
@@ -60,16 +59,8 @@ export const createOverlayLink = async (req: AuthenticatedRequest, res: Response
     }
 
     try {
-        const authToken = signAuthExchange({
-            apiKey: apiUser.apiKey,
-            userId,
-            login: apiUser.login || req.login || '',
-            displayName: apiUser.displayName || req.login || '',
-            profile_image_url: apiUser.profileImageUrl
-        });
-
         const path = tool === 'roulette' ? '/overlay/roulette' : '/overlay/trends';
-        const url = frontendPagePath(path, `auth=${encodeURIComponent(authToken)}`);
+        const url = frontendPagePath(path, `apiKey=${encodeURIComponent(apiUser.apiKey)}`);
 
         return res.json({ url });
     } catch (e) {

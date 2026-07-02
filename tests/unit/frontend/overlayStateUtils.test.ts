@@ -40,7 +40,23 @@ describe('overlayStateUtils', () => {
         expect(a).not.toBe(b);
     });
 
-    it('overlayTrendsRemaining deriva segundos desde updatedAt', () => {
+    it('overlayTrendsRemaining usa timerEndsAt cuando está disponible', () => {
+        const now = 10_000;
+        const state: TrendsOverlayState = {
+            tracking: true,
+            remaining: 60,
+            timerEnded: false,
+            wordCounts: {},
+            minutes: 5,
+            displayName: 'Test',
+            sessionActive: true,
+            timerEndsAt: now + 45_000,
+            updatedAt: now - 60_000
+        };
+        expect(overlayTrendsRemaining(state, now)).toBe(45);
+    });
+
+    it('overlayTrendsRemaining deriva segundos desde updatedAt sin timerEndsAt', () => {
         const now = 10_000;
         const state: TrendsOverlayState = {
             tracking: true,

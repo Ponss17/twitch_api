@@ -50,35 +50,47 @@ export function useTrendsController({
     const endTimerRef = useRef<(fromError?: boolean) => void>(() => {});
     const completeTimerRef = useRef<() => void>(() => {});
     const remainingTickRef = useRef(0);
+    const timerEndsAtRef = useRef<number | undefined>(undefined);
     const runTimerRef = useRef<(seconds: number) => void>(() => {});
     const localEndTimerRef = useRef<(fromError?: boolean) => void>(() => {});
     const localResetRef = useRef<() => void>(() => {});
     const showToastRef = useRef(showToast);
     showToastRef.current = showToast;
+    const onStateChangeRef = useRef(onStateChange);
+    onStateChangeRef.current = onStateChange;
 
     const displayName = session.displayName ?? session.login ?? 'Canal';
 
     const buildOverlayState = useCallback(
-        (overrides: Partial<TrendsOverlayState> = {}): TrendsOverlayState => ({
-            tracking,
-            remaining: remainingRef.current,
-            timerEnded,
-            wordCounts,
-            minutes: durationMinutesRef.current,
-            displayName,
-            sessionActive,
-            updatedAt: Date.now(),
-            ...overrides
-        }),
+        (overrides: Partial<TrendsOverlayState> = {}): TrendsOverlayState => {
+            if (overrides.timerEndsAt !== undefined) {
+                timerEndsAtRef.current = overrides.timerEndsAt;
+            }
+            if (overrides.tracking === false || overrides.timerEnded === true) {
+                timerEndsAtRef.current = undefined;
+            }
+
+            return {
+                tracking: overrides.tracking ?? tracking,
+                remaining: overrides.remaining ?? remainingRef.current,
+                timerEnded: overrides.timerEnded ?? timerEnded,
+                wordCounts: overrides.wordCounts ?? wordCounts,
+                minutes: overrides.minutes ?? durationMinutesRef.current,
+                displayName: overrides.displayName ?? displayName,
+                sessionActive: overrides.sessionActive ?? sessionActive,
+                timerEndsAt: timerEndsAtRef.current,
+                updatedAt: Date.now()
+            };
+        },
         [tracking, timerEnded, wordCounts, displayName, sessionActive]
     );
 
-    const emitState = useCallback(
-        (overrides: Partial<TrendsOverlayState> = {}) => {
-            onStateChange?.(buildOverlayState(overrides));
-        },
-        [onStateChange, buildOverlayState]
-    );
+    const buildOverlayStateRef = useRef(buildOverlayState);
+    buildOverlayStateRef.current = buildOverlayState;
+
+    const emitState = useCallback((overrides: Partial<TrendsOverlayState> = {}) => {
+        onStateChangeRef.current?.(buildOverlayStateRef.current(overrides));
+    }, []);
 
     const adjustMinutes = useCallback((delta: number) => {
         setMinutes((prev) => {
@@ -165,7 +177,7 @@ export function useTrendsController({
                 }
             }
             setMinutes(durationMinutesRef.current);
-            emitState({ tracking: false, timerEnded: true, remaining: 0 });
+            emitState({ tracking: false, timerEnded: true, remaining: 0, timerEndsAt: undefined });
         },
         [showToast, updateStatus, emitState]
     );
@@ -186,6 +198,7 @@ export function useTrendsController({
             setRemaining(seconds);
             remainingRef.current = seconds;
             setTimerEnded(false);
+            timerEndsAtRef.current = Date.now() + seconds * 1000;
             if (timerRef.current) clearInterval(timerRef.current);
 
             timerRef.current = setInterval(() => {
@@ -217,6 +230,7 @@ export function useTrendsController({
         timerRef.current = null;
         remainingTickRef.current = 0;
         remainingRef.current = 0;
+        timerEndsAtRef.current = undefined;
         setTracking(false);
         setTimerEnded(false);
         setSessionActive(false);
@@ -230,7 +244,8 @@ export function useTrendsController({
             timerEnded: false,
             sessionActive: false,
             remaining: 0,
-            wordCounts: {}
+            wordCounts: {},
+            timerEndsAt: undefined
         });
     }, [updateStatus, emitState]);
 
@@ -267,13 +282,13 @@ export function useTrendsController({
             wordCounts: {},
             remaining: minutes * 60,
             timerEnded: false,
-            minutes
+            minutes,
+            timerEndsAt: Date.now() + minutes * 60 * 1000
         });
     }, [minutes, session, runTimer, showToast, emitState]);
 
     useEffect(() => {
         if (!active) {
-            localResetRef.current();
             setIsLeader(false);
             if (syncRef.current) {
                 syncRef.current.destroy();
@@ -300,7 +315,8 @@ export function useTrendsController({
                 wordCounts: {},
                 remaining: mins * 60,
                 timerEnded: false,
-                minutes: mins
+                minutes: mins,
+                timerEndsAt: Date.now() + mins * 60 * 1000
             });
             if (!sync.getIsLeader()) {
                 showToastRef.current(`Tracker iniciado (${mins} min)`, 'success');
@@ -326,12 +342,17 @@ export function useTrendsController({
         });
 
         return () => {
-            if (timerRef.current) clearInterval(timerRef.current);
-            timerRef.current = null;
             sync.destroy();
             syncRef.current = null;
         };
-    }, [active, emitState]);
+    }, [active]);
+
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+            timerRef.current = null;
+        };
+    }, []);
 
     useEffect(() => {
         emitState();
