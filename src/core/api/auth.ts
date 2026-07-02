@@ -172,6 +172,18 @@ function pickSessionFromValidate(result: ApiResponse): Partial<Session> {
     if (typeof result.overlayToken === 'string' && result.overlayToken) {
         partial.overlayToken = result.overlayToken;
     }
+    if (typeof result.login === 'string' && result.login) {
+        partial.login = result.login;
+    }
+    if (typeof result.displayName === 'string' && result.displayName) {
+        partial.displayName = result.displayName;
+    }
+    if (typeof result.userId === 'string' && result.userId) {
+        partial.userId = result.userId;
+    }
+    if (typeof result.profile_image_url === 'string' && result.profile_image_url) {
+        partial.profile_image_url = result.profile_image_url;
+    }
     const user = result.user;
     if (user && typeof user === 'object') {
         const profile = user as Record<string, unknown>;

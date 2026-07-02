@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
 import { overlayAuthHeaders } from '@/features/tools/overlay/lib/auth';
+import { getOverlayStoredSession } from '@/features/tools/overlay/lib/overlaySession';
+import { debugWarn } from '@/core/logging/debugLog';
 import type {
     OverlayTool,
     RouletteOverlayState,
@@ -17,6 +19,16 @@ const POLL_ROULETTE_MS = 450;
 const POLL_SPINNING_MS = 200;
 const POLL_STANDBY_MS = 3000;
 const STALE_MS = 8000;
+
+function resolvePollSession(session: Session | null): Session | null {
+    if (!session) return null;
+    if (session.overlayToken || session.apiKey || session.token) return session;
+    const stored = getOverlayStoredSession();
+    if (stored?.overlayToken || stored?.apiKey || stored?.token) {
+        return { ...session, ...stored };
+    }
+    return session;
+}
 
 export function useOverlayMirror<T extends OverlayTool>(
     tool: T,
@@ -90,13 +102,16 @@ export function useOverlayMirror<T extends OverlayTool>(
     }, []);
 
     const poll = useCallback(async () => {
-        if (!session?.overlayToken && !session?.apiKey && !session?.token) return;
+        const pollSession = resolvePollSession(session);
+        if (!pollSession?.overlayToken && !pollSession?.apiKey && !pollSession?.token) return;
 
         try {
             const res = await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-state/${tool}`, {
-                headers: overlayAuthHeaders(session)
+                headers: overlayAuthHeaders(pollSession),
+                cache: 'no-store'
             });
             if (!res.ok) {
+                debugWarn(`[overlay] poll ${tool} HTTP ${res.status}`);
                 setConnected(false);
                 setStale(true);
                 return;
