@@ -1,4 +1,4 @@
-import { reportSessionLoadProgress, SESSION_LOAD_EVENT } from '@/lib/sessionLoadProgress';
+import { reportSessionLoadProgress, SESSION_LOAD_EVENT } from '@/core/session/loadProgress';
 
 describe('sessionLoadProgress', () => {
     it('dispatches progress events on window', () => {

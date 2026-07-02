@@ -1,4 +1,4 @@
-import { COMMAND_CONFIG } from '@/lib/commands/config';
+import { COMMAND_CONFIG } from '@/features/commands/lib/config';
 
 const DOMAIN = 'https://www.losperris.dev/api/twitch';
 const LOGIN = 'ponss17';

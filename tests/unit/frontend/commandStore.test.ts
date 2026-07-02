@@ -3,7 +3,7 @@ import {
     getCommandConfig,
     setCommandConfig,
     subscribeCommandStore
-} from '@/lib/commandStore';
+} from '@/features/commands/lib/commandStore';
 
 describe('commandStore', () => {
     beforeEach(() => {

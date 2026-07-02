@@ -22,5 +22,7 @@ export const CACHE_TTL = {
     API_USER: 10 * 60,
     USER_BY_LOGIN: 15 * 60,
     TWITCH_USER_ID: 24 * 60 * 60,
-    CHANNEL_INFO: 1800
+    CHANNEL_INFO: 1800,
+    /** Estado efímero del overlay OBS (ruleta / tendencias) */
+    OVERLAY_STATE: 2 * 60 * 60
 } as const;

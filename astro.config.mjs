@@ -68,7 +68,9 @@ const FRONTEND_EXACT = new Set([
     '/api/twitch/500',
     '/api/twitch/offline',
     '/api/twitch/sw.js',
-    '/api/twitch/manifest.json'
+    '/api/twitch/manifest.json',
+    '/api/twitch/overlay/roulette',
+    '/api/twitch/overlay/trends'
 ]);
 
 const DASHBOARD_TAB_SLUGS = new Set([
@@ -101,6 +103,7 @@ function isFrontendRoute(url) {
     const path = (url || '').split('?')[0];
     if (FRONTEND_EXACT.has(path)) return true;
     if (isDashboardTabRoute(path)) return true;
+    if (path.startsWith('/api/twitch/overlay/')) return true;
     if (path.startsWith('/img/') || path.startsWith('/api/twitch/img/')) return true;
     if (path.startsWith('/api/twitch/_astro/')) return true;
     return false;

@@ -93,6 +93,22 @@
             "destination": "/dashboard/index.html"
         },
         {
+            "source": "/api/twitch/overlay/roulette",
+            "destination": "/overlay/roulette/index.html"
+        },
+        {
+            "source": "/api/twitch/overlay/roulette/",
+            "destination": "/overlay/roulette/index.html"
+        },
+        {
+            "source": "/api/twitch/overlay/trends",
+            "destination": "/overlay/trends/index.html"
+        },
+        {
+            "source": "/api/twitch/overlay/trends/",
+            "destination": "/overlay/trends/index.html"
+        },
+        {
             "source": "/api/twitch/sobre-la-api",
             "destination": "/sobre-la-api/index.html"
         },
@@ -197,7 +213,11 @@
             "destination": "/api/index.js"
         },
         {
-            "source": "/api/twitch/dashboard/:endpoint(get-clips|analytics|chatters|user-info|summary|activity|track-usage|timezone|clear-data|delete-account|export-check|export-complete)",
+            "source": "/api/twitch/dashboard/overlay-state/:tool",
+            "destination": "/api/index.js"
+        },
+        {
+            "source": "/api/twitch/dashboard/:endpoint(get-clips|analytics|chatters|user-info|summary|activity|track-usage|timezone|clear-data|delete-account|export-check|export-complete|overlay-link)",
             "destination": "/api/index.js"
         },
         {
