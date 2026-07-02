@@ -51,6 +51,8 @@ export function useOverlayMirror<T extends OverlayTool>(
     ) as State;
 
     const [state, setState] = useState<State>(emptyState);
+    const emptyStateRef = useRef(emptyState);
+    emptyStateRef.current = emptyState;
     const [connected, setConnected] = useState(false);
     const [stale, setStale] = useState(true);
     const lastUpdatedRef = useRef(0);
@@ -125,6 +127,8 @@ export function useOverlayMirror<T extends OverlayTool>(
             setConnected(true);
 
             if (!data.state) {
+                setState(emptyStateRef.current);
+                lastReceivedFingerprintRef.current = '';
                 setStale(true);
                 return;
             }

@@ -1,6 +1,8 @@
 import {
     overlayStateFingerprint,
-    overlayTrendsRemaining
+    overlayTrendsRemaining,
+    shouldShowTrendsOverlay,
+    TRENDS_OVERLAY_RESULTS_MS
 } from '@/features/tools/overlay/lib/overlayStateUtils';
 import type { TrendsOverlayState } from '@/features/tools/overlay/lib/types';
 
@@ -83,5 +85,49 @@ describe('overlayStateUtils', () => {
             updatedAt: Date.now()
         };
         expect(overlayTrendsRemaining(state)).toBe(0);
+    });
+
+    it('shouldShowTrendsOverlay visible mientras tracking', () => {
+        const state: TrendsOverlayState = {
+            tracking: true,
+            remaining: 30,
+            timerEnded: false,
+            wordCounts: {},
+            minutes: 5,
+            displayName: 'Test',
+            sessionActive: true,
+            updatedAt: Date.now()
+        };
+        expect(shouldShowTrendsOverlay(state)).toBe(true);
+    });
+
+    it('shouldShowTrendsOverlay oculto en reposo', () => {
+        const state: TrendsOverlayState = {
+            tracking: false,
+            remaining: 0,
+            timerEnded: false,
+            wordCounts: {},
+            minutes: 5,
+            displayName: 'Test',
+            sessionActive: false,
+            updatedAt: Date.now()
+        };
+        expect(shouldShowTrendsOverlay(state)).toBe(false);
+    });
+
+    it('shouldShowTrendsOverlay muestra resultados tras timer y se oculta', () => {
+        const endedAt = 50_000;
+        const state: TrendsOverlayState = {
+            tracking: false,
+            remaining: 0,
+            timerEnded: true,
+            wordCounts: { hola: 3 },
+            minutes: 5,
+            displayName: 'Test',
+            sessionActive: true,
+            updatedAt: endedAt
+        };
+        expect(shouldShowTrendsOverlay(state, endedAt + 5_000)).toBe(true);
+        expect(shouldShowTrendsOverlay(state, endedAt + TRENDS_OVERLAY_RESULTS_MS)).toBe(false);
     });
 });
