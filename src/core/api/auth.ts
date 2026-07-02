@@ -119,13 +119,17 @@ export function shouldShowDashboardSplash(): boolean {
 }
 
 /** Elimina credenciales y datos de perfil de la URL tras OAuth. */
-export function stripSensitiveQueryParams(): void {
+export function stripSensitiveQueryParams(options?: { keepOverlayToken?: boolean }): void {
     if (typeof window === 'undefined') return;
 
     const url = new URL(window.location.href);
+    const onOverlayPage = url.pathname.includes('/overlay/');
     let changed = false;
 
     for (const key of SENSITIVE_QUERY_PARAMS) {
+        if (options?.keepOverlayToken && key === 'overlayToken' && onOverlayPage) {
+            continue;
+        }
         if (url.searchParams.has(key)) {
             url.searchParams.delete(key);
             changed = true;

@@ -33,7 +33,16 @@ export function readOverlayOptimisticAuthState(): {
     }
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get('overlayToken') || params.get('apiKey') || params.get('auth')) {
+    const overlayToken = params.get('overlayToken')?.trim();
+    if (overlayToken) {
+        return {
+            session: { overlayToken, login: '', displayName: '', isNewLogin: true },
+            loading: true,
+            authenticated: true
+        };
+    }
+
+    if (params.get('apiKey') || params.get('auth')) {
         return { session: null, loading: true, authenticated: false };
     }
 
