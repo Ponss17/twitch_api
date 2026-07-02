@@ -29,3 +29,21 @@ const buildAllowedOrigins = (): string[] => {
 };
 
 export const ALLOWED_ORIGINS = buildAllowedOrigins();
+
+/** Origin/Referer del panel web (no bots ni OBS sin navegador). */
+export function isPanelBrowserRequest(originHeader = '', refererHeader = ''): boolean {
+    const origin = originHeader.trim();
+    const referer = refererHeader.trim();
+
+    if (origin && ALLOWED_ORIGINS.includes(origin)) {
+        return true;
+    }
+
+    if (!referer) return false;
+
+    try {
+        return ALLOWED_ORIGINS.includes(new URL(referer).origin);
+    } catch {
+        return false;
+    }
+}
