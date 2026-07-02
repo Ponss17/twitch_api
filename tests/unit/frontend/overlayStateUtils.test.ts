@@ -179,4 +179,38 @@ describe('overlayStateUtils', () => {
         };
         expect(shouldShowRouletteOverlay(state)).toBe(false);
     });
+
+    it('shouldShowRouletteOverlay oculta ganador expirado aunque inscripciones sigan abiertas', () => {
+        const winnerAt = 20_000;
+        const state: RouletteOverlayState = {
+            chatters: [{ user_login: 'a', user_name: 'A' }],
+            isOpen: true,
+            isSpinning: false,
+            wheelRotation: 90,
+            wheelTransition: 'none',
+            winner: { user_login: 'a', user_name: 'A' },
+            lastSpinCount: 3,
+            spinSeq: 2,
+            updatedAt: winnerAt + 5_000
+        };
+        expect(shouldShowRouletteOverlay(state, winnerAt + 25_000, winnerAt)).toBe(false);
+    });
+
+    it('shouldShowTrendsOverlay usa endedAt local y no updatedAt del servidor', () => {
+        const endedAt = 40_000;
+        const state: TrendsOverlayState = {
+            tracking: false,
+            remaining: 0,
+            timerEnded: true,
+            wordCounts: { hola: 2 },
+            minutes: 5,
+            displayName: 'Test',
+            sessionActive: true,
+            updatedAt: endedAt + 25_000
+        };
+        expect(shouldShowTrendsOverlay(state, endedAt + 10_000, endedAt)).toBe(true);
+        expect(shouldShowTrendsOverlay(state, endedAt + TRENDS_OVERLAY_RESULTS_MS, endedAt)).toBe(
+            false
+        );
+    });
 });
