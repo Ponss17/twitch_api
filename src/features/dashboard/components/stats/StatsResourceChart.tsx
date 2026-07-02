@@ -1,4 +1,3 @@
-import { BarChart3 } from 'lucide-react';
 import { card, fadeIn } from '@/core/ui/tw';
 import type { RankedResourceUsage } from '@/features/dashboard/lib/statsUsage';
 
@@ -14,16 +13,6 @@ export function StatsResourceChart({ rows, loading = false }: StatsResourceChart
 
     return (
         <div className={`${shell} mb-3 [animation-delay:180ms]`}>
-            <div className="mb-3 flex items-center gap-3 border-b border-white/[0.08] pb-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-primary">
-                    <BarChart3 className="size-4" aria-hidden />
-                </div>
-                <div>
-                    <h3 className="text-[0.95rem] font-bold">Recursos más usados</h3>
-                    <p className="text-[0.8rem] text-[#c4c4cc]">Uso del día por comando o herramienta</p>
-                </div>
-            </div>
-
             {loading ? (
                 <div className="space-y-3 py-2" aria-hidden>
                     {Array.from({ length: 5 }).map((_, i) => (
