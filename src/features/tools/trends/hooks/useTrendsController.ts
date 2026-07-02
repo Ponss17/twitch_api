@@ -294,6 +294,14 @@ export function useTrendsController({
             setWordCounts({});
             chatLogStore.clear();
             runTimerRef.current(mins * 60);
+            emitState({
+                tracking: true,
+                sessionActive: true,
+                wordCounts: {},
+                remaining: mins * 60,
+                timerEnded: false,
+                minutes: mins
+            });
             if (!sync.getIsLeader()) {
                 showToastRef.current(`Tracker iniciado (${mins} min)`, 'success');
             }
@@ -323,11 +331,16 @@ export function useTrendsController({
             sync.destroy();
             syncRef.current = null;
         };
-    }, [active]);
+    }, [active, emitState]);
 
     useEffect(() => {
         emitState();
-    }, [wordCounts, tracking, remaining, timerEnded, sessionActive, emitState]);
+    }, [tracking, timerEnded, sessionActive, emitState]);
+
+    useEffect(() => {
+        if (!tracking) return;
+        emitState();
+    }, [wordCounts, tracking, emitState]);
 
     const ranked = Object.entries(wordCounts)
         .sort((a, b) => b[1] - a[1])
