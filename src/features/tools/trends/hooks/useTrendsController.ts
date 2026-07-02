@@ -345,7 +345,7 @@ export function useTrendsController({
             sync.destroy();
             syncRef.current = null;
         };
-    }, [active]);
+    }, [active, emitState]);
 
     useEffect(() => {
         return () => {

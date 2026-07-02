@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useSession } from '@/core/session/useSession';
 import { OverlayStatusBanner } from '@/features/tools/overlay/components/OverlayStatusBanner';
+import { getOverlayStoredSession } from '@/features/tools/overlay/lib/overlaySession';
 
 interface OverlaySessionGateProps {
     children: (session: NonNullable<ReturnType<typeof useSession>['session']>) => ReactNode;
@@ -18,9 +19,16 @@ export function OverlaySessionGate({ children }: OverlaySessionGateProps) {
         typeof window !== 'undefined'
             ? new URLSearchParams(window.location.search).get('overlayToken')?.trim()
             : '';
+    const storedToken = getOverlayStoredSession()?.overlayToken?.trim() ?? '';
+    const effectiveToken = urlToken || session?.overlayToken?.trim() || storedToken;
 
-    if (urlToken) {
-        const pollSession = session ?? { overlayToken: urlToken, login: '', displayName: '' };
+    if (effectiveToken) {
+        const pollSession = {
+            ...(session ?? {}),
+            overlayToken: effectiveToken,
+            login: session?.login ?? '',
+            displayName: session?.displayName ?? ''
+        };
         return <>{children(pollSession)}</>;
     }
 
