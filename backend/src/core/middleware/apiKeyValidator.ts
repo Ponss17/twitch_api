@@ -43,8 +43,14 @@ export const invalidateUserCache = (userId: string): void => {
     invalidateAuthCache(userId);
 };
 
+function readOverlayToken(req: Request): string {
+    const fromHeader = ((req.headers['x-overlay-token'] as string) || '').trim();
+    if (fromHeader) return fromHeader;
+    return ((req.query.overlayToken as string) || '').trim();
+}
+
 export const apiKeyValidator = async (req: Request, res: Response, next: NextFunction) => {
-    const overlayTokenHeader = ((req.headers['x-overlay-token'] as string) || '').trim();
+    const overlayTokenHeader = readOverlayToken(req);
 
     if (overlayTokenHeader) {
         const payload = verifyOverlayReadToken(overlayTokenHeader);
