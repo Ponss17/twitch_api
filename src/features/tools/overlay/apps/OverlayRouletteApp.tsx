@@ -1,26 +1,17 @@
-import { useEffect, useState } from 'react';
 import { useOverlayMirror } from '@/features/tools/overlay/hooks/useOverlayMirror';
+import { useRouletteOverlayVisible } from '@/features/tools/overlay/hooks/useOverlayVisibilityClock';
 import { RouletteWheelDisplay } from '@/features/tools/roulette/components/RouletteWheelDisplay';
 import { OverlaySessionGate } from '@/features/tools/overlay/components/OverlaySessionGate';
 import { OverlaySessionProvider } from '@/features/tools/overlay/components/OverlaySessionProvider';
 import { OverlayStatusBanner } from '@/features/tools/overlay/components/OverlayStatusBanner';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
-import { shouldShowRouletteOverlay } from '@/features/tools/overlay/lib/overlayStateUtils';
 import type { RouletteOverlayState } from '@/features/tools/overlay/lib/types';
 import type { Session } from '@/core/config/config';
 
 function OverlayRouletteContent({ session }: { session: Session }) {
     const { state, connected, stale } = useOverlayMirror('roulette', session);
     const rouletteState = state as RouletteOverlayState;
-    const [now, setNow] = useState(() => Date.now());
-
-    useEffect(() => {
-        if (!rouletteState.winner || rouletteState.isOpen || rouletteState.isSpinning) return;
-        const id = window.setInterval(() => setNow(Date.now()), 1000);
-        return () => clearInterval(id);
-    }, [rouletteState.winner, rouletteState.isOpen, rouletteState.isSpinning]);
-
-    const visible = shouldShowRouletteOverlay(rouletteState, now);
+    const visible = useRouletteOverlayVisible(rouletteState);
 
     if (!visible) {
         return <div className="min-h-screen" aria-hidden />;
