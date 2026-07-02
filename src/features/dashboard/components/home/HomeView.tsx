@@ -7,6 +7,10 @@ import { appPath } from '@/core/config/paths';
 import { TabSyncService } from '@/features/dashboard/lib/tabSyncService';
 import { useDashboardRealtime } from '@/features/dashboard/hooks/useDashboardRealtime';
 import type { DashboardLiveStats } from '@/features/dashboard/lib/dashboardStats';
+import {
+    EMPTY_DASHBOARD_LIVE_STATS,
+    sumDashboardCategoryUsage
+} from '@/features/dashboard/lib/dashboardStats';
 import { HomeHero } from '@/features/dashboard/components/home/HomeHero';
 import { HomeActivityFeed } from '@/features/dashboard/components/home/HomeActivityFeed';
 import { HomeResourcesPanel } from '@/features/dashboard/components/home/HomeResourcesPanel';
@@ -31,11 +35,7 @@ interface HealthStatus {
     status?: string;
 }
 
-interface AnalyticsData {
-    todayRequests?: number;
-    rawSuccessRate?: number;
-    avgLatencyMs?: number;
-}
+type AnalyticsData = DashboardLiveStats;
 
 interface HomeViewProps {
     onNavigate?: (tab: DashboardTab) => void;
@@ -46,11 +46,7 @@ const POLL_MS = DASHBOARD_POLL_MS;
 const FALLBACK_POLL_MS = DASHBOARD_FALLBACK_POLL_MS;
 const HEALTH_POLL_MS = 300000;
 
-const EMPTY_STATS: AnalyticsData = {
-    todayRequests: 0,
-    rawSuccessRate: 0,
-    avgLatencyMs: 0
-};
+const EMPTY_STATS: AnalyticsData = EMPTY_DASHBOARD_LIVE_STATS;
 
 export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     const session = useRequiredSession();
@@ -153,7 +149,10 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
                 const failures: unknown[] = [];
 
                 if (summaryResult.status === 'fulfilled') {
-                    analyticsRes = summaryResult.value.analytics ?? EMPTY_STATS;
+                    const summary = summaryResult.value.analytics;
+                    analyticsRes = summary
+                        ? { ...EMPTY_DASHBOARD_LIVE_STATS, ...summary }
+                        : EMPTY_STATS;
                 } else {
                     failures.push(summaryResult.reason);
                 }
@@ -317,7 +316,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     }, [performSync, session.userId]);
 
     const handleRealtimeStats = useCallback((next: DashboardLiveStats) => {
-        setStats(next);
+        setStats({ ...EMPTY_DASHBOARD_LIVE_STATS, ...next });
         markDataReadyRef.current();
         syncRef.current?.broadcast('SYNC_STATS', next);
     }, []);
@@ -417,7 +416,7 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
 
         sync.on('SYNC_ACTIVITY', (payload) => setActivity(payload as ActivityLogItem[]));
         sync.on('SYNC_STATS', (payload) => {
-            setStats(payload as AnalyticsData);
+            setStats({ ...EMPTY_DASHBOARD_LIVE_STATS, ...(payload as DashboardLiveStats) });
             markDataReadyRef.current();
         });
         sync.on('SYNC_HEALTH', (payload) => setHealth(payload as HealthStatus));
@@ -476,12 +475,13 @@ export function HomeView({ onNavigate, active = true }: HomeViewProps) {
     }
 
     const latencyMs = stats.avgLatencyMs ?? 0;
+    const resourceUsage = sumDashboardCategoryUsage(stats);
 
     return (
         <div className={fadeIn}>
             <HomeHero
                 displayName={displayName}
-                todayRequests={stats.todayRequests ?? 0}
+                resourceUsage={resourceUsage}
                 successRate={stats.rawSuccessRate ?? 0}
                 latencyMs={latencyMs}
                 isLoading={!hasLiveData}

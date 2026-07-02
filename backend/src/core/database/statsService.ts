@@ -3,7 +3,7 @@ import { logger } from '../utils/logger';
 import { getUserTimezone } from './userTimezoneCache';
 import * as cacheService from './cacheService';
 
-const DEFAULT_STAT_FIELDS = [
+const CATEGORY_STAT_FIELDS = [
     'clips_count',
     'followage_count',
     'so_count',
@@ -13,7 +13,11 @@ const DEFAULT_STAT_FIELDS = [
     'message_count',
     'russian_count',
     'magic8_count',
-    'duel_count',
+    'duel_count'
+] as const;
+
+const DEFAULT_STAT_FIELDS = [
+    ...CATEGORY_STAT_FIELDS,
     'total_requests',
     'total_latency',
     'total_errors',
@@ -143,9 +147,11 @@ export const incrementUserStats = async (userId: string, command: string): Promi
         if (!column) return;
 
         // Intentar incremento atómico via RPC
+        const localDate = resolveLocalDateForUser(userId);
         const { error } = await supabase.rpc('increment_user_stat', {
             p_user_id: userId,
-            p_column: column
+            p_column: column,
+            p_local_date: localDate
         });
 
         // Si el RPC falla (ej. usuario no existe aún), asegurar fila y reintentar manual
@@ -153,7 +159,8 @@ export const incrementUserStats = async (userId: string, command: string): Promi
             await ensureStatsRow(userId);
             const { error: retryError } = await supabase.rpc('increment_user_stat', {
                 p_user_id: userId,
-                p_column: column
+                p_column: column,
+                p_local_date: localDate
             });
             if (retryError) {
                 logger.error('Error en retry increment_user_stat:', retryError.message);
@@ -226,6 +233,13 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         numericStats['today_err_raw'] = effectiveTodayErrs;
         numericStats['today_lat_raw'] = effectiveTodayLat;
 
+        if (isOutdated) {
+            for (const field of CATEGORY_STAT_FIELDS) {
+                const legacyKey = field.replace('_count', '');
+                numericStats[legacyKey] = 0;
+            }
+        }
+
         if (STATS_CACHE.size >= MAX_STATS_CACHE_SIZE) {
             const iterator = STATS_CACHE.keys();
             for (let i = 0; i < 125; i++) {
@@ -266,7 +280,7 @@ export const recordUserRequest = async (
         }
 
         addToExistsCache(userId);
-        notifyStatsMutated(userId);
+        notifyStatsMutated(userId, { invalidateAnalytics: true });
     } catch (e) {
         logger.error('Error registrando estadísticas de petición:', e);
     }

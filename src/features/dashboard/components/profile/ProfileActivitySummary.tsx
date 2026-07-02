@@ -2,13 +2,16 @@ import { TrendingUp, Terminal, Wrench, Gamepad2 } from 'lucide-react';
 
 import { card, fadeIn } from '@/core/ui/tw';
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
-import type { DashboardLiveStats } from '@/features/dashboard/lib/dashboardStats';
+import {
+    DASHBOARD_USAGE_CATEGORIES,
+    type DashboardLiveStats
+} from '@/features/dashboard/lib/dashboardStats';
 
-const CATEGORIES = [
-    { id: 'cat-commands', label: 'Comandos', icon: Terminal, keys: ['clips', 'followage', 'so', 'message'] },
-    { id: 'cat-tools', label: 'Herramientas', icon: Wrench, keys: ['stalker', 'trends', 'roulette'] },
-    { id: 'cat-minigames', label: 'Minijuegos', icon: Gamepad2, keys: ['russian', 'magic8', 'duel'] }
-] as const;
+const CATEGORY_ICONS = {
+    'cat-commands': Terminal,
+    'cat-tools': Wrench,
+    'cat-minigames': Gamepad2
+} as const;
 
 interface ProfileActivitySummaryProps {
     analytics: DashboardLiveStats | null;
@@ -57,7 +60,8 @@ export function ProfileActivitySummary({
                         ))}
                     </div>
                 ) : (
-                    CATEGORIES.map((cat) => {
+                    DASHBOARD_USAGE_CATEGORIES.map((cat) => {
+                        const Icon = CATEGORY_ICONS[cat.id];
                         const total = cat.keys.reduce((sum, key) => sum + (analytics[key] ?? 0), 0);
                         return (
                             <div
@@ -65,7 +69,7 @@ export function ProfileActivitySummary({
                                 className="relative flex items-center gap-5 overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary p-5 transition hover:-translate-y-0.5 hover:shadow-[0_5px_15px_rgba(0,0,0,0.2)] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-primary before:opacity-50"
                             >
                                 <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-[15px] bg-primary/10 text-2xl text-primary">
-                                    <cat.icon className="w-6 h-6" aria-hidden="true" />
+                                    <Icon className="w-6 h-6" aria-hidden="true" />
                                 </div>
                                 <div>
                                     <h3 className="mb-1 text-[1.8rem] font-bold leading-tight text-[#fafafa]">
