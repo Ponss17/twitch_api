@@ -114,4 +114,31 @@ describe('overlay state controller', () => {
         expect(cacheService.set).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(403);
     });
+
+    it('putOverlayState rejects apiKey from bots without panel origin', async () => {
+        const req = mockReq({
+            body: { state: { wordCounts: {}, tracking: true } }
+        });
+        const res = mockRes();
+        res.locals = { isApiKeyRequest: true };
+
+        await putOverlayState(req, res);
+
+        expect(cacheService.set).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(403);
+    });
+
+    it('putOverlayState allows apiKey from panel browser with allowed origin', async () => {
+        const req = mockReq({
+            body: { state: { wordCounts: {}, tracking: true } },
+            headers: { origin: 'https://www.losperris.dev' }
+        });
+        const res = mockRes();
+        res.locals = { isApiKeyRequest: true };
+
+        await putOverlayState(req, res);
+
+        expect(cacheService.set).toHaveBeenCalled();
+        expect(res.json).toHaveBeenCalledWith({ success: true });
+    });
 });
