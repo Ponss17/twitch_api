@@ -1,4 +1,4 @@
-import { Copy, Layers, Link2, Loader2, Monitor, Radio } from 'lucide-react';
+import { Copy, Check, Layers, Link2, Loader2, Monitor, Radio } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useRequiredSession } from '@/core/session/useSession';
 import { codeBox, modalBtnPrimary } from '@/core/ui/tw';
@@ -32,6 +32,7 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [copying, setCopying] = useState(false);
+    const [copied, setCopied] = useState(false);
 
     const guide = getOverlayPlatformGuide(tool, platform);
     const toolLabel = overlayToolLabel(tool);
@@ -58,14 +59,22 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
     useEffect(() => {
         if (!open) return;
         setPlatform('obs');
+        setCopied(false);
         void loadUrl();
     }, [open, loadUrl]);
+
+    useEffect(() => {
+        if (!copied) return;
+        const timer = window.setTimeout(() => setCopied(false), 2000);
+        return () => window.clearTimeout(timer);
+    }, [copied]);
 
     const copyUrl = async () => {
         if (!url || copying) return;
         setCopying(true);
         try {
             await navigator.clipboard.writeText(url);
+            setCopied(true);
             showToast('URL del overlay copiada', 'success');
         } catch {
             showToast('No se pudo copiar la URL', 'error');
@@ -92,6 +101,11 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                         <>
                             <Loader2 className="size-4 animate-spin" aria-hidden />
                             Copiando…
+                        </>
+                    ) : copied ? (
+                        <>
+                            <Check className="size-4 shrink-0" aria-hidden />
+                            Copiado
                         </>
                     ) : (
                         <>
@@ -125,20 +139,6 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                             >
                                 {displayUrl || '—'}
                             </p>
-                            <button
-                                type="button"
-                                disabled={!url || copying}
-                                onClick={() => void copyUrl()}
-                                title="Copiar URL completa"
-                                aria-label="Copiar URL completa"
-                                className="inline-flex size-7 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.06] text-[#c4c4cc] transition hover:border-primary/30 hover:bg-primary/15 hover:text-primary disabled:opacity-40"
-                            >
-                                {copying ? (
-                                    <Loader2 className="size-3 animate-spin" aria-hidden />
-                                ) : (
-                                    <Copy className="size-3" aria-hidden />
-                                )}
-                            </button>
                         </>
                     )}
                 </div>
