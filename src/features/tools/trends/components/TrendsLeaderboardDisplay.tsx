@@ -30,14 +30,16 @@ export function TrendsLeaderboardDisplay({
     const showReady = !sessionActive && ranked.length === 0;
     const showWaiting = tracking && ranked.length === 0;
     const isOverlay = variant === 'overlay';
+    const headPad = isOverlay ? 'px-3 py-2' : 'px-5 py-3.5';
+    const headText = isOverlay ? 'text-[0.625rem]' : 'text-[0.6875rem]';
 
     return (
         <div className={isOverlay ? '' : 'overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02]'}>
             {(showTimer || (isOverlay && tracking)) && (
                 <div
-                    className={`flex items-center justify-center gap-2 px-4 py-3 ${
-                        isOverlay ? '' : 'border-b border-white/[0.08] bg-warning/5'
-                    }`}
+                    className={`flex items-center justify-center gap-2 ${
+                        isOverlay ? 'px-3 py-2' : 'px-4 py-3'
+                    } ${isOverlay ? '' : 'border-b border-white/[0.08] bg-warning/5'}`}
                     role="timer"
                     aria-live="polite"
                     aria-label={`Cuenta atrás: ${formatTrendsTime(remaining)}`}
@@ -66,16 +68,22 @@ export function TrendsLeaderboardDisplay({
                 <table className="w-full border-collapse">
                     <thead>
                         <tr className="border-b border-white/[0.08] bg-black/20">
-                            <th className="w-[50px] px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
+                            <th
+                                className={`w-[44px] text-left font-bold tracking-wide text-[#c4c4cc] uppercase ${headPad} ${headText}`}
+                            >
                                 #
                             </th>
-                            <th className="px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
+                            <th
+                                className={`text-left font-bold tracking-wide text-[#c4c4cc] uppercase ${headPad} ${headText}`}
+                            >
                                 Palabra
                             </th>
-                            <th className="px-5 py-3.5 text-right text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
+                            <th
+                                className={`text-right font-bold tracking-wide text-[#c4c4cc] uppercase ${headPad} ${headText}`}
+                            >
                                 Repeticiones
                             </th>
-                            <th className="w-1/2 px-5 py-3.5" />
+                            <th className={`w-1/2 ${headPad}`} />
                         </tr>
                     </thead>
                     <tbody>
@@ -112,6 +120,7 @@ export function TrendsLeaderboardDisplay({
                                     count={count}
                                     index={i}
                                     maxCount={maxCount}
+                                    compact={isOverlay}
                                 />
                             ))
                         )}

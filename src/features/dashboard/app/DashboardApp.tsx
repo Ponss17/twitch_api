@@ -20,7 +20,7 @@ import type { DashboardTab } from '@/core/config/config';
 export function DashboardApp() {
     return (
         <ToastProvider>
-            <Toaster theme="dark" richColors position="bottom-right" />
+            <Toaster theme="dark" richColors position="bottom-right" style={{ zIndex: 3000 }} />
             <SessionProvider requireAuth>
                 <DashboardAppShell />
             </SessionProvider>
