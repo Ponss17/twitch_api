@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
-import { authHeaders } from '@/core/api/auth';
+import { overlayAuthHeaders } from '@/features/tools/overlay/lib/auth';
 import type {
     OverlayTool,
     RouletteOverlayState,
@@ -90,7 +90,7 @@ export function useOverlayMirror<T extends OverlayTool>(
 
         try {
             const res = await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-state/${tool}`, {
-                headers: authHeaders(session)
+                headers: overlayAuthHeaders(session)
             });
             if (!res.ok) {
                 setConnected(false);
