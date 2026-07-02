@@ -15,8 +15,13 @@ describe('dashboardTabUrl', () => {
 
     it('validates tab names', () => {
         expect(isDashboardTab('profile')).toBe(true);
+        expect(isDashboardTab('stats')).toBe(true);
         expect(isDashboardTab('nope')).toBe(false);
         expect(isDashboardTab(null)).toBe(false);
+    });
+
+    it('parses stats tab from pathname', () => {
+        expect(parseTabFromPathname(`${BASE}/stats`)).toBe('stats');
     });
 
     it('parses tab from pathname', () => {

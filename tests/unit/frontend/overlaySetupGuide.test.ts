@@ -11,6 +11,11 @@ describe('overlaySetupGuide', () => {
         expect(overlayToolLabel('roulette')).toBe('Ruleta');
     });
 
+    it('getOverlayPlatformGuide incluye tamaño OBS para tendencias', () => {
+        const obs = getOverlayPlatformGuide('trends', 'obs');
+        expect(obs.steps.some((step) => step.detail.includes('900 × 580'))).toBe(true);
+    });
+
     it('getOverlayPlatformGuide incluye pasos distintos para OBS y Streamlabs', () => {
         const obs = getOverlayPlatformGuide('trends', 'obs');
         const streamlabs = getOverlayPlatformGuide('trends', 'streamlabs');

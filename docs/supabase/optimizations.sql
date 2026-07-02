@@ -18,6 +18,26 @@ ALTER TABLE public.users
     ADD COLUMN IF NOT EXISTS token_expires_at TIMESTAMPTZ;
 
 -- ---------------------------------------------------------------------------
+-- 2b. TTL de caché personalizado por usuario (API key / bots)
+-- ---------------------------------------------------------------------------
+
+ALTER TABLE public.users
+    ADD COLUMN IF NOT EXISTS custom_cache_ttl INTEGER;
+
+COMMENT ON COLUMN public.users.custom_cache_ttl IS
+    'Segundos de TTL para respuestas cacheadas. NULL o 0 = usa el rol.';
+
+-- ---------------------------------------------------------------------------
+-- 2c. Rol del usuario (rate limit + caché base)
+-- ---------------------------------------------------------------------------
+
+ALTER TABLE public.users
+    ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'default';
+
+COMMENT ON COLUMN public.users.role IS
+    'Rol: default, pro, vip, partner. Define rate limit y caché si no hay override personalizado.';
+
+-- ---------------------------------------------------------------------------
 -- 3. Purge de activity_logs en una sola operación
 -- ---------------------------------------------------------------------------
 

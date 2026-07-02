@@ -1,4 +1,4 @@
-import { Shield, Info, Key, EyeOff, Eye, Check, RotateCw, AlertTriangle, Gauge, Copy } from 'lucide-react';
+import { Shield, Info, Key, EyeOff, Eye, Check, RotateCw, AlertTriangle, Gauge, Copy, Clock, Crown } from 'lucide-react';
 
 import { useState } from 'react';
 import { SlotText } from 'slot-text/react';
@@ -10,6 +10,10 @@ interface ProfileSecuritySectionProps {
     showDanger: boolean;
     userId?: string;
     rateLimit: number;
+    cacheTtl: number;
+    roleLabel: string;
+    hasCustomRateLimit?: boolean;
+    hasCustomCacheTtl?: boolean;
     onToggleKey: () => void;
     onCopyKey: () => void;
     onRegenKey: () => void;
@@ -25,6 +29,10 @@ export function ProfileSecuritySection({
     showDanger,
     userId,
     rateLimit,
+    cacheTtl,
+    roleLabel,
+    hasCustomRateLimit,
+    hasCustomCacheTtl,
     onToggleKey,
     onCopyKey,
     onRegenKey,
@@ -134,6 +142,13 @@ export function ProfileSecuritySection({
                             </span>
                             <span className="text-[0.8rem] font-semibold text-[#3b82f6]">FULL API</span>
                         </div>
+                        <div className="flex items-center gap-1.5 rounded-lg border border-violet-500/10 bg-violet-500/[0.03] px-2.5 py-1 backdrop-blur-[8px]">
+                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#c4c4cc]">
+                                ROL:
+                            </span>
+                            <span className="text-[0.8rem] font-semibold text-violet-300">{roleLabel}</span>
+                            <Crown className="w-3.5 h-3.5 ml-1 text-violet-400 opacity-70" />
+                        </div>
                         <div
                             className="flex items-center gap-1.5 rounded-lg border border-white/[0.05] bg-black/20 px-2.5 py-1 backdrop-blur-[8px]"
                             title="Peticiones máximas por minuto con tu API Key"
@@ -141,8 +156,22 @@ export function ProfileSecuritySection({
                             <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#c4c4cc]">
                                 LÍMITE/MIN:
                             </span>
-                            <span className="text-[0.8rem] font-semibold text-white">{rateLimit} req/min</span>
+                            <span className="text-[0.8rem] font-semibold text-white">
+                                {rateLimit} req/min{hasCustomRateLimit ? ' *' : ''}
+                            </span>
                             <Gauge className="w-3.5 h-3.5 ml-1 text-primary opacity-70" />
+                        </div>
+                        <div
+                            className="flex items-center gap-1.5 rounded-lg border border-cyan-500/10 bg-cyan-500/[0.03] px-2.5 py-1 backdrop-blur-[8px]"
+                            title="Tiempo que se guardan en caché las respuestas de tu API Key"
+                        >
+                            <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#c4c4cc]">
+                                CACHÉ:
+                            </span>
+                            <span className="text-[0.8rem] font-semibold text-cyan-300">
+                                {cacheTtl}s{hasCustomCacheTtl ? ' *' : ''}
+                            </span>
+                            <Clock className="w-3.5 h-3.5 ml-1 text-cyan-400 opacity-70" />
                         </div>
                         <button
                             type="button"

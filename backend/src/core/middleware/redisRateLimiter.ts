@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { kv } from '@vercel/kv';
 import { isKvWriteAvailable } from '../database/cacheService';
 import { RATE_LIMITS } from '../config/limits';
+import { resolveUserRateLimit } from '../config/userRoles';
 import { MESSAGES } from '../config/messages';
 import { isPublicRoute, isApiRoute } from '../utils/routeHelpers';
 import { AuthenticatedRequest } from '../../types/twitch';
@@ -55,7 +56,7 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
 
         if (apiUser && isApiKeyRequest) {
             key = `rl:api:${apiUser.userId}`;
-            limit = apiUser.customRateLimit || RATE_LIMITS.DEFAULT;
+            limit = resolveUserRateLimit(apiUser);
         } else if (userId) {
             key = `rl:sess:${userId}`;
             limit = RATE_LIMITS.DASHBOARD;
@@ -121,7 +122,7 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
 
         if (apiUser && isApiKeyRequest) {
             key = `rl:api:${apiUser.userId}`;
-            limit = apiUser.customRateLimit || RATE_LIMITS.DEFAULT;
+            limit = resolveUserRateLimit(apiUser);
         } else if (userId) {
             key = `rl:sess:${userId}`;
             limit = RATE_LIMITS.DASHBOARD;

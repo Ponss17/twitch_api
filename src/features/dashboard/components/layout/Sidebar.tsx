@@ -51,7 +51,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                     {NAV_ITEMS.map((item) => {
                         const showCategory = item.category !== lastCategory;
                         if (item.category) lastCategory = item.category;
-                        const isActive = active === item.id && item.id !== 'profile';
+                        const isActive = active === item.id;
 
                         return (
                             <div key={item.id}>

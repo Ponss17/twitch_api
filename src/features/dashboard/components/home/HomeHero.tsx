@@ -71,7 +71,7 @@ export function HomeHero({
                             </div>
                             <div className="flex min-w-0 items-center gap-2">
                                 <span className="shrink-0 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-white/40">
-                                    PETICIONES (HOY)
+                                    Recursos usados (hoy)
                                 </span>
                                 <AnimatedNumber
                                     value={resourceUsage}
