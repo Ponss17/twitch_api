@@ -1,20 +1,22 @@
 import { readScopedPref, removeScopedPref, writeScopedPref } from '@/core/session/localPrefs';
 
-/** Mismo intervalo de polling en Inicio y Estadísticas (panel compartido). */
+/** Polling del panel de Inicio con Realtime activo. */
 export const DASHBOARD_POLL_MS = 90_000;
 
-/** Polling acelerado cuando Realtime no está conectado (fallback). */
+/** Polling de Inicio cuando Realtime no está conectado (fallback). */
 export const DASHBOARD_FALLBACK_POLL_MS = 8_000;
 
-/** Pref unificado — evita desfase entre Inicio y Perfil. */
+/** Polling del Perfil — rol/seguidores cambian poco; menos carga en Vercel. */
+export const PROFILE_POLL_MS = 60_000;
+
+/** Pref unificado entre Inicio (panel) y Perfil. */
 export const PANEL_SYNC_PREF = 'panel_last_sync';
 const LEGACY_PANEL_SYNC_KEY = 'panel_last_sync';
 const LEGACY_DASHBOARD_SYNC_KEY = 'dashboard_last_sync';
 const LEGACY_PROFILE_SYNC_KEY = 'profile_last_sync';
 
-export type DashboardMutationReason = 'stats-cleared' | 'panel-refresh';
-
-const PANEL_SYNC_CHANNEL = 'dashboard_panel_sync';
+const HOME_DATA_RESET_EVENT = 'dashboard:home-data-reset';
+const HOME_DATA_RESET_CHANNEL = 'dashboard_home_data_reset';
 
 export function readPanelSyncPref(userId: string | undefined): string | null {
     const unified = readScopedPref(PANEL_SYNC_PREF, userId, LEGACY_PANEL_SYNC_KEY);
@@ -41,70 +43,49 @@ export function clearDashboardSyncPrefs(userId: string | undefined): void {
     removeScopedPref('profile_last_sync', userId, LEGACY_PROFILE_SYNC_KEY);
 }
 
-function postPanelMutation(userId: string, reason: DashboardMutationReason): void {
+/** Perfil → Inicio: stats/actividad reiniciadas (p. ej. zona de peligro u otra pestaña en Inicio). */
+export function broadcastHomeDataReset(userId: string): void {
     if (typeof window === 'undefined') return;
 
-    window.dispatchEvent(
-        new CustomEvent('dashboard:panel-mutation', { detail: { userId, reason } })
-    );
+    window.dispatchEvent(new CustomEvent(HOME_DATA_RESET_EVENT, { detail: { userId } }));
 
     try {
-        const channel = new BroadcastChannel(PANEL_SYNC_CHANNEL);
-        channel.postMessage({ type: 'PANEL_MUTATION', userId, reason });
+        const channel = new BroadcastChannel(HOME_DATA_RESET_CHANNEL);
+        channel.postMessage({ type: 'HOME_DATA_RESET', userId });
         channel.close();
     } catch {
         /* BroadcastChannel no disponible */
     }
 }
 
-/** Avisa a Inicio, Perfil y otras pestañas de que las stats se reiniciaron. */
-export function broadcastStatsCleared(userId: string): void {
-    postPanelMutation(userId, 'stats-cleared');
-}
-
-/** Refresco general del panel (p. ej. tras regenerar API key). */
-export function broadcastPanelRefresh(userId: string): void {
-    postPanelMutation(userId, 'panel-refresh');
-}
-
-export function subscribeDashboardMutation(
+/** Solo Inicio escucha esto — el Perfil ya no muestra stats. */
+export function subscribeHomeDataReset(
     userId: string | undefined,
-    handlers: {
-        onStatsCleared?: () => void;
-        onPanelRefresh?: () => void;
-    }
+    onReset: () => void
 ): () => void {
     if (typeof window === 'undefined' || !userId) return () => {};
 
-    const dispatch = (reason: DashboardMutationReason) => {
-        if (reason === 'stats-cleared') handlers.onStatsCleared?.();
-        else handlers.onPanelRefresh?.();
-    };
-
     const handle = (event: Event) => {
-        const detail = (event as CustomEvent<{ userId?: string; reason?: DashboardMutationReason }>)
-            .detail;
+        const detail = (event as CustomEvent<{ userId?: string }>).detail;
         if (detail?.userId !== userId) return;
-        if (detail?.reason) dispatch(detail.reason);
+        onReset();
     };
 
-    window.addEventListener('dashboard:panel-mutation', handle);
+    window.addEventListener(HOME_DATA_RESET_EVENT, handle);
 
     let channel: BroadcastChannel | null = null;
     try {
-        channel = new BroadcastChannel(PANEL_SYNC_CHANNEL);
+        channel = new BroadcastChannel(HOME_DATA_RESET_CHANNEL);
         channel.onmessage = (msg) => {
             if (msg.data?.userId !== userId) return;
-            if (msg.data?.type === 'PANEL_MUTATION' && msg.data?.reason) {
-                dispatch(msg.data.reason as DashboardMutationReason);
-            }
+            if (msg.data?.type === 'HOME_DATA_RESET') onReset();
         };
     } catch {
         /* ignore */
     }
 
     return () => {
-        window.removeEventListener('dashboard:panel-mutation', handle);
+        window.removeEventListener(HOME_DATA_RESET_EVENT, handle);
         channel?.close();
     };
 }

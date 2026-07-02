@@ -8,7 +8,6 @@ import {
     useState,
     type ReactNode
 } from 'react';
-import { API_ENDPOINTS } from '@/core/config/config';
 import type { Session } from '@/core/config/config';
 import { appPath } from '@/core/config/paths';
 import { TabSyncService } from '@/features/dashboard/lib/tabSyncService';
@@ -27,18 +26,13 @@ import {
     DASHBOARD_FALLBACK_POLL_MS,
     DASHBOARD_POLL_MS,
     readPanelSyncPref,
-    subscribeDashboardMutation,
+    subscribeHomeDataReset,
     writePanelSyncPref
 } from '@/features/dashboard/lib/dashboardSync';
 
 const PANEL_SYNC_CHANNEL = 'dashboard_panel_data_sync';
 const POLL_MS = DASHBOARD_POLL_MS;
 const FALLBACK_POLL_MS = DASHBOARD_FALLBACK_POLL_MS;
-const HEALTH_POLL_MS = 300_000;
-
-interface HealthStatus {
-    status?: string;
-}
 
 export interface DashboardPanelContextValue {
     stats: DashboardLiveStats;
@@ -49,7 +43,6 @@ export interface DashboardPanelContextValue {
     syncLabel: string;
     highlightKeys: ReadonlySet<string>;
     isRealtimeLive: boolean;
-    isTabLeader: boolean;
 }
 
 const DashboardPanelContext = createContext<DashboardPanelContextValue | null>(null);
@@ -78,7 +71,6 @@ export function DashboardPanelProvider({
     const [stats, setStats] = useState<DashboardLiveStats>(EMPTY_DASHBOARD_LIVE_STATS);
     const [activity, setActivity] = useState<ActivityLogItem[]>([]);
     const [hasLiveData, setHasLiveData] = useState(false);
-    const [, setHealth] = useState<HealthStatus | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [syncing, setSyncing] = useState(false);
     const [syncLabel, setSyncLabel] = useState('90s');
@@ -89,7 +81,6 @@ export function DashboardPanelProvider({
     const highlightTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
     const syncRef = useRef<TabSyncService | null>(null);
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-    const healthPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const isRealtimeLiveRef = useRef(false);
     const performSyncRef = useRef<() => Promise<void>>(async () => {});
     const fetchPanelDataRef = useRef<
@@ -251,27 +242,6 @@ export function DashboardPanelProvider({
 
     performSyncRef.current = performSync;
 
-    const fetchHealth = useCallback(async () => {
-        const sync = syncRef.current;
-        if (!sync?.getIsLeader()) return;
-        try {
-            const healthRes = await fetch(API_ENDPOINTS.LIGHT_HEALTH).then((r) =>
-                r.ok ? r.json() : { status: 'error' }
-            );
-            sync.broadcast('SYNC_HEALTH', healthRes);
-        } catch {
-            void 0;
-        }
-    }, []);
-
-    const startHealthPolling = useCallback(() => {
-        if (healthPollRef.current) clearInterval(healthPollRef.current);
-        healthPollRef.current = setInterval(() => {
-            if (document.visibilityState === 'hidden' || !isRealtimeLiveRef.current) return;
-            void fetchHealth();
-        }, HEALTH_POLL_MS);
-    }, [fetchHealth]);
-
     const startSmartPolling = useCallback(() => {
         const sync = syncRef.current;
         if (!sync) return;
@@ -353,43 +323,32 @@ export function DashboardPanelProvider({
     useEffect(() => {
         if (isRealtimeLive) {
             setSyncLabel('Realtime');
-            startHealthPolling();
         } else if (active && isTabLeader) {
             startSmartPolling();
         }
-    }, [active, isRealtimeLive, isTabLeader, startHealthPolling, startSmartPolling]);
+    }, [active, isRealtimeLive, isTabLeader, startSmartPolling]);
 
     useEffect(() => {
-        return subscribeDashboardMutation(session.userId, {
-            onStatsCleared: () => {
-                setStats(EMPTY_DASHBOARD_LIVE_STATS);
-                setActivity([]);
-                setError(null);
-                dataReadyFiredRef.current = false;
-                void fetchPanelDataRef.current({
-                    broadcast: true,
-                    retryOnNetwork: false,
-                    fresh: true,
-                    silent: true
-                });
-            },
-            onPanelRefresh: () => {
-                void fetchPanelDataRef.current({
-                    broadcast: true,
-                    retryOnNetwork: false,
-                    fresh: true,
-                    silent: true
-                });
-            }
+        if (!active) return;
+
+        return subscribeHomeDataReset(session.userId, () => {
+            setStats(EMPTY_DASHBOARD_LIVE_STATS);
+            setActivity([]);
+            setError(null);
+            dataReadyFiredRef.current = false;
+            void fetchPanelDataRef.current({
+                broadcast: true,
+                retryOnNetwork: false,
+                fresh: true,
+                silent: true
+            });
         });
-    }, [session.userId]);
+    }, [active, session.userId]);
 
     useEffect(() => {
         if (!active) {
             if (pollRef.current) clearInterval(pollRef.current);
             pollRef.current = null;
-            if (healthPollRef.current) clearInterval(healthPollRef.current);
-            healthPollRef.current = null;
             if (syncRef.current) {
                 syncRef.current.destroy();
                 syncRef.current = null;
@@ -419,7 +378,6 @@ export function DashboardPanelProvider({
             setStats({ ...EMPTY_DASHBOARD_LIVE_STATS, ...(payload as DashboardLiveStats) });
             markDataReadyRef.current();
         });
-        sync.on('SYNC_HEALTH', (payload) => setHealth(payload as HealthStatus));
 
         const onVisible = () => {
             if (
@@ -449,8 +407,6 @@ export function DashboardPanelProvider({
             window.removeEventListener('realtime:auth-failed', onAuthFailed);
             if (pollRef.current) clearInterval(pollRef.current);
             pollRef.current = null;
-            if (healthPollRef.current) clearInterval(healthPollRef.current);
-            healthPollRef.current = null;
             if (syncingTimerRef.current) clearTimeout(syncingTimerRef.current);
             if (authRedirectTimerRef.current) clearTimeout(authRedirectTimerRef.current);
             for (const timer of highlightTimers.values()) {
@@ -472,10 +428,9 @@ export function DashboardPanelProvider({
             syncing,
             syncLabel,
             highlightKeys,
-            isRealtimeLive,
-            isTabLeader
+            isRealtimeLive
         }),
-        [stats, activity, hasLiveData, error, syncing, syncLabel, highlightKeys, isRealtimeLive, isTabLeader]
+        [stats, activity, hasLiveData, error, syncing, syncLabel, highlightKeys, isRealtimeLive]
     );
 
     return <DashboardPanelContext.Provider value={value}>{children}</DashboardPanelContext.Provider>;
