@@ -8,14 +8,24 @@ import { AuthenticatedRequest } from '../../../types/twitch';
 import { jsonError } from '../../../core/utils/jsonResponse';
 import { frontendPagePath } from '../../../core/utils/frontendPaths';
 import { signOverlayReadToken } from '../../auth/auth.service';
+import { overlayPagePath, overlayStateKey } from './keys';
 
-const overlayStateKey = (userId: string, tool: string) => `overlay:state:${userId}:${tool}`;
+function overlayToolMismatch(res: Response, requestedTool: string): boolean {
+    const tokenTool = res.locals?.overlayTool as string | undefined;
+    if (!res.locals?.isOverlayReadRequest || !tokenTool) return false;
+    if (tokenTool === requestedTool) return false;
+    jsonError(res, 403, 'El token de overlay no corresponde a esta herramienta.', {
+        code: 'FORBIDDEN'
+    });
+    return true;
+}
 
 export const getOverlayState = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
     const tool = req.params.tool as string;
 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
+    if (overlayToolMismatch(res, tool)) return;
 
     try {
         const cached = await cacheService.get<Record<string, unknown>>(overlayStateKey(userId, tool));
@@ -37,6 +47,7 @@ export const putOverlayState = async (req: AuthenticatedRequest, res: Response) 
     const { state } = req.body as { state: Record<string, unknown> };
 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
+    if (overlayToolMismatch(res, tool)) return;
 
     if (res.locals?.isOverlayReadRequest) {
         return jsonError(res, 403, 'Solo el panel puede publicar el estado del overlay.', {
@@ -91,8 +102,10 @@ export const createOverlayLink = async (req: AuthenticatedRequest, res: Response
             profile_image_url: apiUser.profileImageUrl
         });
 
-        const path = tool === 'roulette' ? '/overlay/roulette' : '/overlay/trends';
-        const url = frontendPagePath(path, `overlayToken=${encodeURIComponent(overlayToken)}`);
+        const url = frontendPagePath(
+            overlayPagePath(tool),
+            `overlayToken=${encodeURIComponent(overlayToken)}`
+        );
 
         return res.json({ url });
     } catch (e) {

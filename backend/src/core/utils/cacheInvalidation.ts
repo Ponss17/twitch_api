@@ -3,8 +3,7 @@ import { invalidateUserMemoryCache } from '../database/userService';
 import { invalidateUserCache } from '../middleware/apiKeyValidator';
 import { invalidateStatsCache } from '../database/statsService';
 import { logger } from './logger';
-
-const overlayStateKey = (userId: string, tool: string) => `overlay:state:${userId}:${tool}`;
+import { overlayStateKey } from '../../features/dashboard/overlay/keys';
 
 export async function invalidateOverlayStateCaches(userId: string): Promise<void> {
     await Promise.allSettled([

@@ -1,52 +1,30 @@
-import { useCallback, useEffect, useRef } from 'react';
 import { Circle, Power, Loader2, Network, BarChart2, Minus, Plus, Play, Clock, RotateCw } from 'lucide-react';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useTrendsController } from '@/features/tools/trends/hooks/useTrendsController';
 import { TrendsLeaderboardDisplay } from '@/features/tools/trends/components/TrendsLeaderboardDisplay';
 import { formatTrendsTime } from '@/features/tools/trends/components/TrackerRow';
 import { OverlayUrlButton } from '@/features/tools/overlay/components/OverlayUrlButton';
+import { useOverlayPublish } from '@/features/tools/overlay/hooks/useOverlayPublish';
 import { card, fadeIn } from '@/core/ui/tw';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { CardHeaderIcon, InlineIcon } from '@/shared/ui/Icon';
-import { publishOverlayState, resetOverlayPublishCache } from '@/features/tools/overlay/lib/sync';
-import type { TrendsOverlayState } from '@/features/tools/overlay/lib/types';
 
 export function TrendsView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
     const { showToast } = useToast();
-    const publishTimerRef = useRef<number | null>(null);
-    const sessionRef = useRef(session);
-    sessionRef.current = session;
 
-    const handleStateChange = useCallback(
-        (state: TrendsOverlayState) => {
-            if (!active && !state.tracking) return;
-            const isCritical =
-                !state.tracking ||
-                state.timerEnded ||
-                (state.tracking && state.remaining >= state.minutes * 60);
-
-            if (isCritical) {
-                if (publishTimerRef.current) {
-                    clearTimeout(publishTimerRef.current);
-                    publishTimerRef.current = null;
-                }
-                if (!state.tracking || state.timerEnded) {
-                    resetOverlayPublishCache('trends');
-                }
-                void publishOverlayState('trends', state, sessionRef.current);
-                return;
-            }
-
-            if (publishTimerRef.current) clearTimeout(publishTimerRef.current);
-            publishTimerRef.current = window.setTimeout(() => {
-                void publishOverlayState('trends', state, sessionRef.current);
-                publishTimerRef.current = null;
-            }, 500);
-        },
-        [active]
-    );
+    const handleStateChange = useOverlayPublish({
+        tool: 'trends',
+        session,
+        active,
+        shouldSkip: (state) => !active && !state.tracking,
+        isCritical: (state) =>
+            !state.tracking ||
+            state.timerEnded ||
+            (state.tracking && state.remaining >= state.minutes * 60),
+        resetCacheWhen: (state) => !state.tracking || state.timerEnded
+    });
 
     const {
         minutes,
@@ -69,12 +47,6 @@ export function TrendsView({ active = true }: { active?: boolean }) {
         onStateChange: handleStateChange,
         showToast
     });
-
-    useEffect(() => {
-        return () => {
-            if (publishTimerRef.current) clearTimeout(publishTimerRef.current);
-        };
-    }, []);
 
     const statusContent = connected ? (
         <span className="inline-flex items-center gap-1.5 text-success">

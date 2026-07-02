@@ -72,24 +72,13 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
                     profileImageUrl: payload.profile_image_url
                 };
                 res.locals.isOverlayReadRequest = true;
+                res.locals.overlayTool = payload.tool;
                 return next();
             }
             return res.status(403).json({ error: 'Cuenta suspendida o no encontrada.' });
         } catch (e) {
             logger.error('Error validando overlay token:', e);
-            res.locals.apiUser = {
-                userId: payload.userId,
-                login: payload.login,
-                displayName: payload.displayName,
-                accessToken: '',
-                refreshToken: '',
-                expiresIn: 0,
-                obtainedAt: 0,
-                isActive: true,
-                profileImageUrl: payload.profile_image_url
-            };
-            res.locals.isOverlayReadRequest = true;
-            return next();
+            return res.status(503).json({ error: 'Servicio no disponible temporalmente.' });
         }
     }
 
