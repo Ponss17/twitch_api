@@ -50,7 +50,7 @@ export default tseslint.config(
         }
     },
     {
-        files: ['src/lib/debugLog.ts'],
+        files: ['src/core/logging/debugLog.ts'],
         rules: { 'no-console': 'off' }
     },
     {
@@ -58,9 +58,9 @@ export default tseslint.config(
         rules: { 'no-console': 'off' }
     },
     {
-        files: ['scripts/**/*.js', '**/*.config.js', '**/*.cjs'],
+        files: ['scripts/**/*.{js,mjs}', '**/*.config.js', '**/*.cjs'],
         languageOptions: {
-            sourceType: 'commonjs',
+            sourceType: 'module',
             globals: { ...globals.node }
         },
         rules: {

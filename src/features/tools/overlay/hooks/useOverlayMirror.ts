@@ -121,18 +121,18 @@ export function useOverlayMirror<T extends OverlayTool>(
         }
     }, [session, tool, applyRouletteSpin]);
 
+    const isRouletteSpinning =
+        tool === 'roulette' ? (state as RouletteOverlayState).isSpinning : false;
+
     useEffect(() => {
         if (!session?.apiKey && !session?.token) return;
 
         void poll();
-        const intervalMs =
-            tool === 'roulette' && (state as RouletteOverlayState).isSpinning
-                ? POLL_SPINNING_MS
-                : POLL_INTERVAL_MS;
+        const intervalMs = isRouletteSpinning ? POLL_SPINNING_MS : POLL_INTERVAL_MS;
 
         const id = window.setInterval(() => void poll(), intervalMs);
         return () => clearInterval(id);
-    }, [session, poll, tool, (state as RouletteOverlayState).isSpinning]);
+    }, [session, poll, isRouletteSpinning]);
 
     useEffect(() => {
         const id = window.setInterval(() => {
