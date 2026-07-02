@@ -33,12 +33,12 @@ export const callbackSchema = z.object({
 
 export const exchangeSchema = z.object({
     query: z.object({
-        auth: z.string().min(20).max(4096)
+        auth: z.string().min(20).max(4096).optional()
     })
 });
 
 export const overlayExchangeSchema = z.object({
     query: z.object({
-        overlayToken: z.string().min(20).max(4096)
+        overlayToken: z.string().min(20).max(4096).optional()
     })
 });
