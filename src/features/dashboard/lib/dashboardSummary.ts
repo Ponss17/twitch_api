@@ -21,12 +21,11 @@ export interface DashboardProfile {
     hasCustomCacheTtl?: boolean;
 }
 
-export interface DashboardSummaryResponse {
+interface DashboardSummaryResponse {
     analytics?: DashboardAnalytics | null;
-    profile?: DashboardProfile | null;
 }
 
-export function buildSummaryUrl(login?: string): string {
+function buildSummaryUrl(login?: string): string {
     if (!login) return API_ENDPOINTS.SUMMARY;
     return `${API_ENDPOINTS.SUMMARY}?login=${encodeURIComponent(login)}`;
 }

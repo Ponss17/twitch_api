@@ -160,10 +160,14 @@ export function formatActivityDate(ts: string): string {
 }
 
 export function formatActivityTime(ts: string): string {
-    return new Date(ts).toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    const date = new Date(ts);
+    if (Number.isNaN(date.getTime())) return '';
+
+    const hours12 = date.getHours() % 12 || 12;
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const period = date.getHours() >= 12 ? 'pm' : 'am';
+
+    return `${hours12}:${minutes} ${period}`;
 }
 
 export function formatActivityRelativeTime(ts: string): string {

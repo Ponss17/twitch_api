@@ -3,12 +3,10 @@ import { API_ENDPOINTS } from '@/core/config/config';
 import { authHeaders, saveSession } from '@/core/api/auth';
 import { fetchDashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
 import {
-    broadcastPanelRefresh,
-    broadcastStatsCleared,
+    broadcastHomeDataReset,
     clearDashboardSyncPrefs,
-    DASHBOARD_FALLBACK_POLL_MS,
+    PROFILE_POLL_MS,
     readPanelSyncPref,
-    subscribeDashboardMutation,
     writePanelSyncPref
 } from '@/features/dashboard/lib/dashboardSync';
 import { extractApiErrorMessage } from '@/core/api/apiError';
@@ -98,17 +96,8 @@ export function ProfileView({ active = true }: { active?: boolean }) {
         }
     };
 
-    const refreshAfterStatsClear = () => {
-        clearDashboardSyncPrefs(session.userId);
-        void syncProfile({ silent: true, fresh: true });
-    };
-
-    const refreshPanel = () => {
-        void syncProfile({ silent: true, fresh: true });
-    };
-
     const startProfilePolling = () => {
-        const pollMs = DASHBOARD_FALLBACK_POLL_MS;
+        const pollMs = PROFILE_POLL_MS;
         void syncProfile();
 
         if (pollRef.current) window.clearInterval(pollRef.current);
@@ -126,14 +115,6 @@ export function ProfileView({ active = true }: { active?: boolean }) {
             if (keyHideTimerRef.current) window.clearTimeout(keyHideTimerRef.current);
         };
     }, []);
-
-    useEffect(() => {
-        return subscribeDashboardMutation(session.userId, {
-            onStatsCleared: refreshAfterStatsClear,
-            onPanelRefresh: refreshPanel
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [session.userId]);
 
     useEffect(() => {
         if (!active) {
@@ -217,7 +198,6 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                 setKeyVisible(false);
                 if (keyHideTimerRef.current) clearTimeout(keyHideTimerRef.current);
                 showToast('Nueva API Key generada', 'success');
-                if (session.userId) broadcastPanelRefresh(session.userId);
                 void refresh();
             }
         } catch {
@@ -251,7 +231,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
             const data = await parseJsonSafe(res);
             if (res.ok && data.success) {
                 clearDashboardSyncPrefs(session.userId);
-                if (session.userId) broadcastStatsCleared(session.userId);
+                if (session.userId) broadcastHomeDataReset(session.userId);
                 writePanelSyncPref(session.userId, Date.now().toString());
                 showToast((data.message as string) ?? 'Datos limpiados', 'success');
             } else {

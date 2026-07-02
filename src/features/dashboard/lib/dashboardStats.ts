@@ -7,12 +7,11 @@ export const DASHBOARD_USAGE_CATEGORIES = [
 
 export type DashboardUsageKey = (typeof DASHBOARD_USAGE_CATEGORIES)[number]['keys'][number];
 
-export const DASHBOARD_USAGE_KEYS: readonly DashboardUsageKey[] = DASHBOARD_USAGE_CATEGORIES.flatMap(
+const DASHBOARD_USAGE_KEYS: readonly DashboardUsageKey[] = DASHBOARD_USAGE_CATEGORIES.flatMap(
     (cat) => cat.keys
 );
 
-/** Fecha local YYYY-MM-DD (misma convención que el backend). */
-export function getStatsLocalDateString(timeZone?: string): string {
+function getStatsLocalDateString(timeZone?: string): string {
     return new Intl.DateTimeFormat('en-CA', {
         timeZone: timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
         year: 'numeric',

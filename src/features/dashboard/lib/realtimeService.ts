@@ -157,12 +157,6 @@ interface RawActivityLog {
     created_at?: string;
 }
 
-/** @deprecated Usar DashboardLiveStats */
-export type HomeStats = Pick<
-    DashboardLiveStats,
-    'todayRequests' | 'rawSuccessRate' | 'avgLatencyMs'
->;
-
 export interface RealtimeCallbacks {
     onStatsUpdate: (stats: DashboardLiveStats) => void;
     onActivityInsert: (log: ActivityLogItem) => void;
