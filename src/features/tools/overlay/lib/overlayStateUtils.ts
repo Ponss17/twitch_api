@@ -25,6 +25,7 @@ export function overlayTrendsRemaining(state: TrendsOverlayState, now = Date.now
 
 /** Tiempo visible en OBS tras terminar el timer antes de ocultarse solo. */
 export const TRENDS_OVERLAY_RESULTS_MS = 30_000;
+export const ROULETTE_OVERLAY_WINNER_MS = 20_000;
 
 /** OBS transparente en reposo; tras el timer muestra resultados y luego se apaga. */
 export function shouldShowTrendsOverlay(state: TrendsOverlayState, now = Date.now()): boolean {
@@ -37,4 +38,15 @@ export function shouldShowTrendsOverlay(state: TrendsOverlayState, now = Date.no
     }
 
     return Object.keys(state.wordCounts).length > 0;
+}
+
+/** OBS transparente en reposo; visible con inscripciones abiertas, giro o ganador reciente. */
+export function shouldShowRouletteOverlay(state: RouletteOverlayState, now = Date.now()): boolean {
+    if (state.isOpen) return true;
+    if (state.isSpinning) return true;
+    if (state.winner) {
+        const winnerAt = state.updatedAt ?? 0;
+        return now - winnerAt < ROULETTE_OVERLAY_WINNER_MS;
+    }
+    return false;
 }
