@@ -24,6 +24,8 @@ export interface TrendsOverlayState {
     minutes: number;
     displayName: string;
     sessionActive: boolean;
+    /** Timestamp absoluto de fin — el overlay calcula la cuenta atrás sin polling. */
+    timerEndsAt?: number;
     updatedAt: number;
 }
 

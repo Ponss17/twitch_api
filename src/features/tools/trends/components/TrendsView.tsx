@@ -9,35 +9,43 @@ import { card, fadeIn } from '@/core/ui/tw';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { CardHeaderIcon, InlineIcon } from '@/shared/ui/Icon';
-import { publishOverlayState } from '@/features/tools/overlay/lib/sync';
+import { publishOverlayState, resetOverlayPublishCache } from '@/features/tools/overlay/lib/sync';
 import type { TrendsOverlayState } from '@/features/tools/overlay/lib/types';
 
 export function TrendsView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
     const { showToast } = useToast();
     const publishTimerRef = useRef<number | null>(null);
+    const sessionRef = useRef(session);
+    sessionRef.current = session;
 
     const handleStateChange = useCallback(
         (state: TrendsOverlayState) => {
-            if (!active) return;
-            const isCritical = !state.tracking || state.timerEnded;
+            if (!active && !state.tracking) return;
+            const isCritical =
+                !state.tracking ||
+                state.timerEnded ||
+                (state.tracking && state.remaining >= state.minutes * 60);
 
             if (isCritical) {
                 if (publishTimerRef.current) {
                     clearTimeout(publishTimerRef.current);
                     publishTimerRef.current = null;
                 }
-                void publishOverlayState('trends', state, session);
+                if (!state.tracking || state.timerEnded) {
+                    resetOverlayPublishCache('trends');
+                }
+                void publishOverlayState('trends', state, sessionRef.current);
                 return;
             }
 
             if (publishTimerRef.current) clearTimeout(publishTimerRef.current);
             publishTimerRef.current = window.setTimeout(() => {
-                void publishOverlayState('trends', state, session);
+                void publishOverlayState('trends', state, sessionRef.current);
                 publishTimerRef.current = null;
             }, 500);
         },
-        [active, session]
+        [active]
     );
 
     const {

@@ -18,16 +18,20 @@ export async function publishOverlayState(
 ): Promise<void> {
     const fingerprint = overlayStateFingerprint(tool, state);
     if (lastPublishedFingerprint.get(tool) === fingerprint) return;
-    lastPublishedFingerprint.set(tool, fingerprint);
 
     try {
-        await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-state/${tool}`, {
+        const res = await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-state/${tool}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
             body: JSON.stringify({ state })
         });
+        if (!res.ok) {
+            lastPublishedFingerprint.delete(tool);
+            return;
+        }
+        lastPublishedFingerprint.set(tool, fingerprint);
     } catch {
-        lastPublishedFingerprint.delete(tool);
+        /* overlay sync best-effort */
     }
 }
 

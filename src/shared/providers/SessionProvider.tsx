@@ -19,17 +19,36 @@ import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 
 export type { SessionContextValue } from '@/core/session/context';
 
+export interface SessionBootstrap {
+    readOptimisticAuthState(): {
+        session: Session | null;
+        loading: boolean;
+        authenticated: boolean;
+    };
+    resolveSessionFromUrl(): Promise<Session>;
+}
+
+const DEFAULT_SESSION_BOOTSTRAP: SessionBootstrap = {
+    readOptimisticAuthState,
+    resolveSessionFromUrl
+};
+
 interface SessionProviderProps {
     children: ReactNode;
     requireAuth?: boolean;
+    bootstrap?: SessionBootstrap;
 }
 
-export function SessionProvider({ children, requireAuth = false }: SessionProviderProps) {
+export function SessionProvider({
+    children,
+    requireAuth = false,
+    bootstrap = DEFAULT_SESSION_BOOTSTRAP
+}: SessionProviderProps) {
     const showToast = useToastOptional();
     const showToastRef = useRef(showToast);
     showToastRef.current = showToast;
 
-    const optimistic = readOptimisticAuthState();
+    const optimistic = bootstrap.readOptimisticAuthState();
     const hydratedFromStorageRef = useRef(optimistic.authenticated);
     const [session, setSession] = useState<Session | null>(optimistic.session);
     const [loading, setLoading] = useState(optimistic.loading);
@@ -52,7 +71,7 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
             });
         }
 
-        const sessionParams = await resolveSessionFromUrl();
+        const sessionParams = await bootstrap.resolveSessionFromUrl();
 
         if (!sessionParams.token && !sessionParams.apiKey) {
             bindCommandStoreUser(undefined);
@@ -124,7 +143,7 @@ export function SessionProvider({ children, requireAuth = false }: SessionProvid
                 window.location.href = appPath('/');
             }, 2000);
         }
-    }, [requireAuth]);
+    }, [requireAuth, bootstrap]);
 
     useEffect(() => {
         void refresh();
