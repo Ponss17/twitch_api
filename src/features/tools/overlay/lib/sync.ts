@@ -24,7 +24,8 @@ export async function publishOverlayState(
         const res = await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-state/${tool}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
-            body: JSON.stringify({ state })
+            body: JSON.stringify({ state }),
+            cache: 'no-store'
         });
         if (!res.ok) {
             lastPublishedFingerprint.delete(tool);

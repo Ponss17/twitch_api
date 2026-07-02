@@ -20,8 +20,10 @@ export const getOverlayState = async (req: AuthenticatedRequest, res: Response) 
     try {
         const cached = await cacheService.get<Record<string, unknown>>(overlayStateKey(userId, tool));
         if (!cached) {
+            res.setHeader('Cache-Control', 'no-store');
             return res.json({ state: null });
         }
+        res.setHeader('Cache-Control', 'no-store');
         return res.json({ state: cached });
     } catch (e) {
         logger.error('Error getting overlay state:', e);

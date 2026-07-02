@@ -16,7 +16,7 @@ import { appPath } from '@/core/config/paths';
 import { SessionContext } from '@/core/session/context';
 import { useToastOptional } from '@/shared/ui/ToastProvider';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
-import { saveOverlayStoredSession } from '@/features/tools/overlay/lib/overlaySession';
+import { saveOverlayStoredSession, getOverlayStoredSession } from '@/features/tools/overlay/lib/overlaySession';
 
 export type { SessionContextValue } from '@/core/session/context';
 
@@ -92,7 +92,8 @@ export function SessionProvider({
         try {
             result = await validateSession(sessionParams);
         } catch {
-            const stored = getSession();
+            const stored =
+                bootstrap.storage === 'overlay' ? getOverlayStoredSession() : getSession();
             if (stored?.apiKey || stored?.token || stored?.overlayToken) {
                 result = { valid: true, error: true, networkError: true };
             } else {
@@ -106,7 +107,9 @@ export function SessionProvider({
             }
 
             const baseSession = result.networkError
-                ? resolveDegradedSession(sessionParams)
+                ? bootstrap.storage === 'overlay'
+                    ? { ...(getOverlayStoredSession() ?? {}), ...sessionParams }
+                    : resolveDegradedSession(sessionParams)
                 : sessionParams;
             const persistLocal = bootstrap.storage !== 'overlay';
             const enriched = mergeSessionFromValidate(baseSession, result, { persist: persistLocal });
