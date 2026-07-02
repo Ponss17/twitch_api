@@ -1,7 +1,9 @@
 import { useOverlayMirror } from '@/features/tools/overlay/hooks/useOverlayMirror';
 import { RouletteWheelDisplay } from '@/features/tools/roulette/components/RouletteWheelDisplay';
 import { OverlaySessionGate } from '@/features/tools/overlay/components/OverlaySessionGate';
+import { OverlaySessionProvider } from '@/features/tools/overlay/components/OverlaySessionProvider';
 import { OverlayStatusBanner } from '@/features/tools/overlay/components/OverlayStatusBanner';
+import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import type { RouletteOverlayState } from '@/features/tools/overlay/lib/types';
 import type { Session } from '@/core/config/config';
 
@@ -35,5 +37,16 @@ export function OverlayRouletteApp() {
         <OverlaySessionGate>
             {(session) => <OverlayRouletteContent session={session} />}
         </OverlaySessionGate>
+    );
+}
+
+/** Raíz única para Astro (un solo client:only — SessionProvider envuelve el árbol). */
+export function OverlayRouletteRoot() {
+    return (
+        <OverlaySessionProvider requireAuth>
+            <ErrorBoundary title="Overlay de ruleta">
+                <OverlayRouletteApp />
+            </ErrorBoundary>
+        </OverlaySessionProvider>
     );
 }
