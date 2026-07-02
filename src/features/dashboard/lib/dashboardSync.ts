@@ -1,6 +1,6 @@
 import { readScopedPref, removeScopedPref, writeScopedPref } from '@/core/session/localPrefs';
 
-/** Mismo intervalo de polling en Inicio y Perfil (Resumen de Actividad). */
+/** Mismo intervalo de polling en Inicio y Estadísticas (panel compartido). */
 export const DASHBOARD_POLL_MS = 90_000;
 
 /** Polling acelerado cuando Realtime no está conectado (fallback). */
@@ -11,11 +11,6 @@ export const PANEL_SYNC_PREF = 'panel_last_sync';
 const LEGACY_PANEL_SYNC_KEY = 'panel_last_sync';
 const LEGACY_DASHBOARD_SYNC_KEY = 'dashboard_last_sync';
 const LEGACY_PROFILE_SYNC_KEY = 'profile_last_sync';
-
-/** @deprecated Usar PANEL_SYNC_PREF */
-export const DASHBOARD_SYNC_PREF = PANEL_SYNC_PREF;
-/** @deprecated Usar PANEL_SYNC_PREF */
-export const PROFILE_SYNC_PREF = PANEL_SYNC_PREF;
 
 export type DashboardMutationReason = 'stats-cleared' | 'panel-refresh';
 
@@ -52,10 +47,6 @@ function postPanelMutation(userId: string, reason: DashboardMutationReason): voi
     window.dispatchEvent(
         new CustomEvent('dashboard:panel-mutation', { detail: { userId, reason } })
     );
-
-    if (reason === 'stats-cleared') {
-        window.dispatchEvent(new CustomEvent('dashboard:stats-cleared', { detail: { userId } }));
-    }
 
     try {
         const channel = new BroadcastChannel(PANEL_SYNC_CHANNEL);
@@ -94,15 +85,10 @@ export function subscribeDashboardMutation(
         const detail = (event as CustomEvent<{ userId?: string; reason?: DashboardMutationReason }>)
             .detail;
         if (detail?.userId !== userId) return;
-        if (event.type === 'dashboard:stats-cleared') {
-            handlers.onStatsCleared?.();
-            return;
-        }
         if (detail?.reason) dispatch(detail.reason);
     };
 
     window.addEventListener('dashboard:panel-mutation', handle);
-    window.addEventListener('dashboard:stats-cleared', handle);
 
     let channel: BroadcastChannel | null = null;
     try {
@@ -112,9 +98,6 @@ export function subscribeDashboardMutation(
             if (msg.data?.type === 'PANEL_MUTATION' && msg.data?.reason) {
                 dispatch(msg.data.reason as DashboardMutationReason);
             }
-            if (msg.data?.type === 'STATS_CLEARED') {
-                handlers.onStatsCleared?.();
-            }
         };
     } catch {
         /* ignore */
@@ -122,15 +105,6 @@ export function subscribeDashboardMutation(
 
     return () => {
         window.removeEventListener('dashboard:panel-mutation', handle);
-        window.removeEventListener('dashboard:stats-cleared', handle);
         channel?.close();
     };
-}
-
-/** @deprecated Usar subscribeDashboardMutation */
-export function subscribeStatsCleared(
-    userId: string | undefined,
-    onCleared: () => void
-): () => void {
-    return subscribeDashboardMutation(userId, { onStatsCleared: onCleared });
 }

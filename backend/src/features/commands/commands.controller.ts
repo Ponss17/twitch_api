@@ -2,7 +2,7 @@ import { Response } from 'express';
 
 import * as apiService from '../twitch/twitch.service';
 import * as cacheService from '../../core/database/cacheService';
-import { CACHE_TTL } from '../../core/config/cacheTtl';
+import { CACHE_TTL, ownerScopedCacheKey, resolveUserCacheTtl } from '../../core/config/cacheTtl';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { AuthenticatedRequest } from '../../types/twitch';
@@ -85,7 +85,10 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             incrementStat: 'followage'
         },
         async () => {
-            const cacheKey = `cache:cmd:followage:v2:channel:${channel}:user:${user}`;
+            const cacheKey = ownerScopedCacheKey(
+                userId,
+                `cache:cmd:followage:v3:channel:${channel}:user:${user}`
+            );
             const cached = await cacheService.get<{ text: string; timePhrase: string }>(cacheKey);
 
             if (cached && typeof cached === 'object') {
@@ -107,7 +110,8 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 res,
                 async (token: string) => {
                     const resApi = await apiService.getFollowAge(channel, user, token);
-                    await cacheService.set(cacheKey, resApi, CACHE_TTL.COMMAND);
+                    const ttl = resolveUserCacheTtl(res.locals.apiUser, CACHE_TTL.COMMAND);
+                    await cacheService.set(cacheKey, resApi, ttl);
                     return resApi;
                 },
                 'FOLLOWAGE'

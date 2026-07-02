@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { authHeaders, saveSession } from '@/core/api/auth';
-import { fetchDashboardSummary } from '@/features/dashboard/lib/dashboardSummary';
+import { fetchDashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
 import {
     broadcastPanelRefresh,
     broadcastStatsCleared,
     clearDashboardSyncPrefs,
     DASHBOARD_FALLBACK_POLL_MS,
-    DASHBOARD_POLL_MS,
     readPanelSyncPref,
     subscribeDashboardMutation,
     writePanelSyncPref
@@ -22,12 +21,9 @@ import { DangerConfirmModal, RegenKeyModal } from '@/shared/ui/Modal';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { ProfileHero } from '@/features/dashboard/components/profile/ProfileHero';
 import { ProfileSecuritySection } from '@/features/dashboard/components/profile/ProfileSecuritySection';
-import { ProfileActivitySummary } from '@/features/dashboard/components/profile/ProfileActivitySummary';
 import { ProfileExportSection } from '@/features/dashboard/components/profile/ProfileExportSection';
 import { ProfileDangerZone } from '@/features/dashboard/components/profile/ProfileDangerZone';
-import { ProfileActivitySkeleton, ProfileHeroSkeleton } from '@/shared/ui/Skeleton';
-import { useDashboardRealtime } from '@/features/dashboard/hooks/useDashboardRealtime';
-import { EMPTY_DASHBOARD_LIVE_STATS, type DashboardLiveStats } from '@/features/dashboard/lib/dashboardStats';
+import { ProfileHeroSkeleton } from '@/shared/ui/Skeleton';
 
 interface ProfileData {
     followers?: number;
@@ -35,10 +31,13 @@ interface ProfileData {
     description?: string;
     created_at?: string;
     rateLimit?: number;
+    cacheTtl?: number;
+    role?: string;
+    roleLabel?: string;
+    hasCustomRateLimit?: boolean;
+    hasCustomCacheTtl?: boolean;
 }
 
-
-const EMPTY_ANALYTICS = EMPTY_DASHBOARD_LIVE_STATS;
 
 function formatMemberSince(iso?: string): string {
     if (!iso) return '---';
@@ -64,20 +63,13 @@ export function ProfileView({ active = true }: { active?: boolean }) {
     const { refresh } = useSession();
     const { showToast } = useToast();
     const [profile, setProfile] = useState<ProfileData | null>(null);
-    const [analytics, setAnalytics] = useState<DashboardLiveStats | null>(null);
     const [loading, setLoading] = useState(true);
     const [keyVisible, setKeyVisible] = useState(false);
     const [showDanger, setShowDanger] = useState(false);
     const [regenOpen, setRegenOpen] = useState(false);
     const [exportLoading, setExportLoading] = useState(false);
-    const [syncCountdown, setSyncCountdown] = useState(
-        Math.ceil(DASHBOARD_FALLBACK_POLL_MS / 1000)
-    );
-    const [profileSyncing, setProfileSyncing] = useState(false);
     const keyHideTimerRef = useRef<number | null>(null);
-    const profileSyncTimerRef = useRef<number | null>(null);
     const pollRef = useRef<number | null>(null);
-    const isRealtimeLiveRef = useRef(false);
     const [dangerModal, setDangerModal] = useState<{
         title: string;
         desc: string;
@@ -95,25 +87,18 @@ export function ProfileView({ active = true }: { active?: boolean }) {
             return;
         }
         if (!options?.silent) setLoading(true);
-        setProfileSyncing(true);
         try {
-            const data = await fetchDashboardSummary(session, undefined, { fresh: options?.fresh });
-            if (data.profile) setProfile(data.profile);
-            if (data.analytics) {
-                setAnalytics({ ...EMPTY_DASHBOARD_LIVE_STATS, ...data.analytics });
-            }
+            const data = await fetchDashboardProfile(session, { fresh: options?.fresh });
+            setProfile(data);
             writePanelSyncPref(session.userId, Date.now().toString());
         } catch {
             showToast('Error al cargar perfil', 'error');
         } finally {
             setLoading(false);
-            if (profileSyncTimerRef.current) clearTimeout(profileSyncTimerRef.current);
-            profileSyncTimerRef.current = window.setTimeout(() => setProfileSyncing(false), 1000);
         }
     };
 
     const refreshAfterStatsClear = () => {
-        setAnalytics(EMPTY_ANALYTICS);
         clearDashboardSyncPrefs(session.userId);
         void syncProfile({ silent: true, fresh: true });
     };
@@ -123,63 +108,22 @@ export function ProfileView({ active = true }: { active?: boolean }) {
     };
 
     const startProfilePolling = () => {
-        const pollMs = isRealtimeLiveRef.current ? DASHBOARD_POLL_MS : DASHBOARD_FALLBACK_POLL_MS;
-        const lastSyncRaw = readPanelSyncPref(session.userId);
-        const now = Date.now();
-        let countdown = pollMs / 1000;
-
-        // Siempre cargar al abrir la pestaña; el throttle solo aplica al polling en background.
+        const pollMs = DASHBOARD_FALLBACK_POLL_MS;
         void syncProfile();
-
-        if (lastSyncRaw) {
-            const elapsed = now - parseInt(lastSyncRaw, 10);
-            if (elapsed < pollMs) {
-                countdown = Math.ceil((pollMs - elapsed) / 1000);
-            }
-        }
-
-        setSyncCountdown(countdown);
 
         if (pollRef.current) window.clearInterval(pollRef.current);
         pollRef.current = window.setInterval(() => {
-            if (document.visibilityState === 'hidden' || isRealtimeLiveRef.current) return;
-            setSyncCountdown((prev) => {
-                let next = prev - 1;
-                if (next <= 0) {
-                    void syncProfile({ silent: true });
-                    next = pollMs / 1000;
-                }
-                return next;
-            });
-        }, 1000);
+            if (document.visibilityState === 'hidden') return;
+            const elapsed = Date.now() - parseInt(readPanelSyncPref(session.userId) || '0', 10);
+            if (elapsed >= pollMs) {
+                void syncProfile({ silent: true });
+            }
+        }, pollMs);
     };
-
-    const handleRealtimeStats = useCallback((next: DashboardLiveStats) => {
-        setAnalytics(next);
-    }, []);
-
-    const { isLive: isRealtimeLive } = useDashboardRealtime({
-        id: 'profile',
-        active,
-        session,
-        onStatsUpdate: handleRealtimeStats,
-        onDisconnect: () => {
-            void syncProfile({ silent: true });
-        }
-    });
-
-    isRealtimeLiveRef.current = isRealtimeLive;
-
-    useEffect(() => {
-        if (isRealtimeLive) {
-            setSyncCountdown(Math.ceil(DASHBOARD_POLL_MS / 1000));
-        }
-    }, [isRealtimeLive]);
 
     useEffect(() => {
         return () => {
             if (keyHideTimerRef.current) window.clearTimeout(keyHideTimerRef.current);
-            if (profileSyncTimerRef.current) window.clearTimeout(profileSyncTimerRef.current);
         };
     }, []);
 
@@ -202,7 +146,6 @@ export function ProfileView({ active = true }: { active?: boolean }) {
         return () => {
             if (pollRef.current) window.clearInterval(pollRef.current);
             pollRef.current = null;
-            if (profileSyncTimerRef.current) window.clearTimeout(profileSyncTimerRef.current);
         };
         // startProfilePolling se recrea en cada render; incluirlo reiniciaría el
         // polling constantemente. Solo queremos (re)arrancar al cambiar de sesión o
@@ -308,11 +251,6 @@ export function ProfileView({ active = true }: { active?: boolean }) {
             const data = await parseJsonSafe(res);
             if (res.ok && data.success) {
                 clearDashboardSyncPrefs(session.userId);
-                if (data.analytics) {
-                    setAnalytics({ ...EMPTY_DASHBOARD_LIVE_STATS, ...data.analytics });
-                } else {
-                    setAnalytics(EMPTY_ANALYTICS);
-                }
                 if (session.userId) broadcastStatsCleared(session.userId);
                 writePanelSyncPref(session.userId, Date.now().toString());
                 showToast((data.message as string) ?? 'Datos limpiados', 'success');
@@ -363,7 +301,6 @@ export function ProfileView({ active = true }: { active?: boolean }) {
         return (
             <div className={fadeIn}>
                 <ProfileHeroSkeleton />
-                <ProfileActivitySkeleton />
             </div>
         );
     }
@@ -382,19 +319,16 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                 keyVisible={keyVisible}
                 showDanger={showDanger}
                 userId={session.userId}
-                rateLimit={profile?.rateLimit ?? 120}
+                rateLimit={profile?.rateLimit ?? 60}
+                cacheTtl={profile?.cacheTtl ?? 60}
+                roleLabel={profile?.roleLabel ?? 'Default'}
+                hasCustomRateLimit={profile?.hasCustomRateLimit}
+                hasCustomCacheTtl={profile?.hasCustomCacheTtl}
                 onToggleKey={() => (keyVisible ? setKeyVisible(false) : revealKeyTemporarily())}
                 onCopyKey={() => void copyKey()}
                 onRegenKey={() => setRegenOpen(true)}
                 onToggleDanger={() => setShowDanger((v) => !v)}
                 onCopyId={() => void copyId()}
-            />
-
-            <ProfileActivitySummary
-                analytics={analytics}
-                loading={loading}
-                syncing={profileSyncing}
-                syncLabel={isRealtimeLive ? 'Realtime' : `${syncCountdown}s`}
             />
 
             <ProfileExportSection

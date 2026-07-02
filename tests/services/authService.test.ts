@@ -147,6 +147,8 @@ describe('authService', () => {
             const existingUser: StoredUser = {
                 ...mockStoredUser,
                 customRateLimit: 500,
+                customCacheTtl: 120,
+                role: 'vip',
                 isActive: false,
                 blockedReason: 'Test reason',
                 stats: { clips: 10 },
@@ -165,6 +167,8 @@ describe('authService', () => {
                 expect.objectContaining({
                     userId: '123',
                     customRateLimit: 500,
+                    customCacheTtl: 120,
+                    role: 'vip',
                     isActive: false,
                     blockedReason: 'Test reason',
                     stats: { clips: 10 },

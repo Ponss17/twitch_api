@@ -52,6 +52,7 @@ const mockRes = () => {
     res.json = jest.fn().mockReturnValue(res);
     res.send = jest.fn().mockReturnValue(res);
     res.setHeader = jest.fn().mockReturnValue(res);
+    res.locals = { apiUser: {} };
     return res;
 };
 

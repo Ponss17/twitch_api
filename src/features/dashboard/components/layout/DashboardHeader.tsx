@@ -13,17 +13,18 @@ import {
     DropdownPanel,
     DropdownTrigger
 } from '@/shared/ui/Dropdown';
-import { User, LogOut, Menu } from 'lucide-react';
+import { User, LogOut, Menu, BarChart3 } from 'lucide-react';
 import { TwitchIcon, PaypalIcon } from '@/shared/ui/icons/BrandIcons';
 
 interface DashboardHeaderProps {
     tab: DashboardTab;
     onProfile: () => void;
+    onStats: () => void;
     onLogout: () => void;
     onMenuToggle: () => void;
 }
 
-export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: DashboardHeaderProps) {
+export function DashboardHeader({ tab, onProfile, onStats, onLogout, onMenuToggle }: DashboardHeaderProps) {
     const session = useRequiredSession();
     const meta = TAB_META[tab];
     const displayName = session.displayName ?? session.login ?? 'Streamer';
@@ -79,6 +80,10 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                             <DropdownItem onClick={onProfile}>
                                 <User className="w-4 text-center" />
                                 Mi Perfil
+                            </DropdownItem>
+                            <DropdownItem onClick={onStats}>
+                                <BarChart3 className="w-4 text-center" />
+                                Estadísticas
                             </DropdownItem>
                             <DropdownLink href={twitchProfileUrl} target="_blank" rel="noopener noreferrer">
                                 <TwitchIcon className="w-4 text-center" />

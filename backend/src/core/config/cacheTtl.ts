@@ -26,3 +26,11 @@ export const CACHE_TTL = {
     /** Estado efímero del overlay OBS (ruleta / tendencias) */
     OVERLAY_STATE: 2 * 60 * 60
 } as const;
+
+export { resolveUserCacheTtl, DEFAULT_USER_CACHE_TTL } from './userRoles';
+
+/** Aísla entradas KV por dueño de API key (evita mezclar TTL entre usuarios). */
+export function ownerScopedCacheKey(userId: string | undefined, key: string): string {
+    if (!userId) return key;
+    return `${key}:owner:${userId}`;
+}

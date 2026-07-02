@@ -198,6 +198,8 @@ export const handleCallback = async (
         isActive: existingUser?.isActive ?? true,
         blockedReason: existingUser?.blockedReason,
         customRateLimit: existingUser?.customRateLimit,
+        customCacheTtl: existingUser?.customCacheTtl,
+        role: existingUser?.role,
         stats: existingUser?.stats,
         totalRequests: existingUser?.totalRequests,
         lastActive: existingUser?.lastActive,

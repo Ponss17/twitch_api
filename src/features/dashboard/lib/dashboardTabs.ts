@@ -12,7 +12,8 @@ import {
     CircleDot,
     Crosshair,
     Swords,
-    MessageSquare
+    MessageSquare,
+    BarChart3
 } from 'lucide-react';
 
 /** Iconos canónicos de minijuegos (sidebar, docs, comandos, landing). */
@@ -49,4 +50,5 @@ export const TAB_META: Record<DashboardTab, { title: string; icon: LucideIcon }>
 ) as Record<DashboardTab, { title: string; icon: LucideIcon }>;
 
 TAB_META.profile = { title: 'Mi Perfil', icon: User };
+TAB_META.stats = { title: 'Estadísticas', icon: BarChart3 };
 TAB_META.magic8 = { title: 'Bola 8 Mágica', icon: MAGIC8_ICON };

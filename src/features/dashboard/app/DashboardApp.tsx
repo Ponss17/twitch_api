@@ -3,13 +3,15 @@ import { Toaster } from 'sonner';
 import { Sidebar } from '@/features/dashboard/components/layout/Sidebar';
 import { DashboardHeader } from '@/features/dashboard/components/layout/DashboardHeader';
 import { DashboardContent } from '@/features/dashboard/components/DashboardContent';
-import { ToastProvider } from '@/shared/ui/ToastProvider';
+import { ToastProvider, useToast } from '@/shared/ui/ToastProvider';
 import { OnlineStatusMonitor } from '@/shared/ui/OnlineStatusMonitor';
 import { VerifyingSessionModal } from '@/shared/ui/VerifyingSessionModal';
 import { SessionProvider } from '@/shared/providers/SessionProvider';
 import { useSession } from '@/core/session/useSession';
 import { DashboardSessionSkeleton } from '@/shared/ui/Skeleton';
 import { logout, shouldShowDashboardSplash, clearDashboardSplashFlags } from '@/core/api/auth';
+import { DashboardPanelProvider } from '@/features/dashboard/providers/DashboardPanelProvider';
+import { DASHBOARD_DATA_READY_EVENT } from '@/features/dashboard/lib/dashboardPanelEvents';
 
 import { initGlobalErrorLogging } from '@/core/logging/logError';
 import { resolveDashboardTab, setTabInUrl } from '@/features/dashboard/lib/dashboardTabUrl';
@@ -30,6 +32,7 @@ export function DashboardApp() {
 
 function DashboardAppShell() {
     const { session, loading, authenticated } = useSession();
+    const { showToast } = useToast();
     const userId = session?.userId;
     const [tab, setTabState] = useState<DashboardTab>(() => resolveDashboardTab());
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -71,7 +74,7 @@ function DashboardAppShell() {
         persistPanelReturnPath();
     }, [userId]);
 
-    // Escuchar cuando el Home ya cargó los datos
+    // Escuchar cuando el panel (Inicio o Estadísticas) cargó datos
     useEffect(() => {
         if (!splashOpen) return;
 
@@ -84,12 +87,12 @@ function DashboardAppShell() {
             if (readyTimer) clearTimeout(readyTimer);
             readyTimer = setTimeout(() => setSplashDone(true), remaining);
         };
-        window.addEventListener('home:data-ready', onReady);
+        window.addEventListener(DASHBOARD_DATA_READY_EVENT, onReady);
 
         const fallback = setTimeout(() => setSplashDone(true), 15000);
 
         return () => {
-            window.removeEventListener('home:data-ready', onReady);
+            window.removeEventListener(DASHBOARD_DATA_READY_EVENT, onReady);
             if (readyTimer) clearTimeout(readyTimer);
             clearTimeout(fallback);
         };
@@ -110,6 +113,7 @@ function DashboardAppShell() {
     }
 
     const dashboardReady = !loading && authenticated && !!session;
+    const panelActive = tab === 'home' || tab === 'stats';
 
     return (
         <>
@@ -143,13 +147,20 @@ function DashboardAppShell() {
                     <DashboardHeader
                         tab={tab}
                         onProfile={() => setTab('profile')}
+                        onStats={() => setTab('stats')}
                         onLogout={logout}
                         onMenuToggle={() => setMobileMenuOpen(true)}
                     />
 
                     <div className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-3">
                         <div className={fadeIn}>
-                            <DashboardContent tab={tab} onNavigate={setTab} />
+                            <DashboardPanelProvider
+                                active={panelActive}
+                                session={session}
+                                showToast={showToast}
+                            >
+                                <DashboardContent tab={tab} onNavigate={setTab} />
+                            </DashboardPanelProvider>
                         </div>
                     </div>
                 </main>
