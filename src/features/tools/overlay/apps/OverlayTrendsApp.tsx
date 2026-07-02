@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react';
 import { useOverlayMirror } from '@/features/tools/overlay/hooks/useOverlayMirror';
 import { useOverlayTrendsRemaining } from '@/features/tools/overlay/hooks/useOverlayTrendsRemaining';
+import { useTrendsOverlayVisible } from '@/features/tools/overlay/hooks/useOverlayVisibilityClock';
 import { TrendsLeaderboardDisplay } from '@/features/tools/trends/components/TrendsLeaderboardDisplay';
 import { OverlaySessionGate } from '@/features/tools/overlay/components/OverlaySessionGate';
 import { OverlaySessionProvider } from '@/features/tools/overlay/components/OverlaySessionProvider';
 import { OverlayStatusBanner } from '@/features/tools/overlay/components/OverlayStatusBanner';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
-import { shouldShowTrendsOverlay } from '@/features/tools/overlay/lib/overlayStateUtils';
 import type { TrendsOverlayState } from '@/features/tools/overlay/lib/types';
 import type { Session } from '@/core/config/config';
 
@@ -14,16 +13,7 @@ function OverlayTrendsContent({ session }: { session: Session }) {
     const { state, connected, stale } = useOverlayMirror('trends', session);
     const trendsState = state as TrendsOverlayState;
     const displayRemaining = useOverlayTrendsRemaining(trendsState);
-    const [now, setNow] = useState(() => Date.now());
-
-    useEffect(() => {
-        if (trendsState.tracking) return;
-        if (!trendsState.sessionActive || !trendsState.timerEnded) return;
-        const id = window.setInterval(() => setNow(Date.now()), 1000);
-        return () => clearInterval(id);
-    }, [trendsState.tracking, trendsState.sessionActive, trendsState.timerEnded]);
-
-    const visible = shouldShowTrendsOverlay(trendsState, now);
+    const visible = useTrendsOverlayVisible(trendsState);
 
     const ranked = Object.entries(trendsState.wordCounts)
         .sort((a, b) => b[1] - a[1])

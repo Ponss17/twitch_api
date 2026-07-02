@@ -28,25 +28,38 @@ export const TRENDS_OVERLAY_RESULTS_MS = 30_000;
 export const ROULETTE_OVERLAY_WINNER_MS = 20_000;
 
 /** OBS transparente en reposo; tras el timer muestra resultados y luego se apaga. */
-export function shouldShowTrendsOverlay(state: TrendsOverlayState, now = Date.now()): boolean {
+export function shouldShowTrendsOverlay(
+    state: TrendsOverlayState,
+    now = Date.now(),
+    endedAt?: number | null
+): boolean {
     if (state.tracking) return true;
     if (!state.sessionActive) return false;
 
     if (state.timerEnded) {
-        const endedAt = state.updatedAt ?? 0;
-        return now - endedAt < TRENDS_OVERLAY_RESULTS_MS;
+        const anchor = endedAt ?? state.updatedAt ?? 0;
+        return now - anchor < TRENDS_OVERLAY_RESULTS_MS;
     }
 
     return Object.keys(state.wordCounts).length > 0;
 }
 
-/** OBS transparente en reposo; visible con inscripciones abiertas, giro o ganador reciente. */
-export function shouldShowRouletteOverlay(state: RouletteOverlayState, now = Date.now()): boolean {
-    if (state.isOpen) return true;
+/**
+ * OBS transparente en reposo; visible con inscripciones abiertas, giro o ganador reciente.
+ * Tras el tiempo del ganador se oculta aunque las inscripciones sigan abiertas en el panel.
+ */
+export function shouldShowRouletteOverlay(
+    state: RouletteOverlayState,
+    now = Date.now(),
+    winnerShownAt?: number | null
+): boolean {
     if (state.isSpinning) return true;
+
     if (state.winner) {
-        const winnerAt = state.updatedAt ?? 0;
-        return now - winnerAt < ROULETTE_OVERLAY_WINNER_MS;
+        const anchor = winnerShownAt ?? state.updatedAt ?? now;
+        return now - anchor < ROULETTE_OVERLAY_WINNER_MS;
     }
+
+    if (state.isOpen) return true;
     return false;
 }
