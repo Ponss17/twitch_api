@@ -28,6 +28,7 @@ interface ModalProps {
     onClose: () => void;
     title: string;
     titleIcon?: LucideIcon;
+    titleBadge?: string;
     children: ReactNode;
     footer?: ReactNode;
     closeOnBackdrop?: boolean;
@@ -120,6 +121,7 @@ export function Modal({
     onClose,
     title,
     titleIcon: TitleIcon = AlertTriangle,
+    titleBadge,
     children,
     footer,
     closeOnBackdrop = true
@@ -130,6 +132,11 @@ export function Modal({
                 <h3 className={modalTitle}>
                     <TitleIcon className={modalTitleIcon} aria-hidden="true" />
                     {title}
+                    {titleBadge ? (
+                        <span className="rounded-md border border-primary/35 bg-primary/15 px-1.5 py-0.5 text-[0.625rem] font-bold tracking-wide text-primary">
+                            {titleBadge}
+                        </span>
+                    ) : null}
                 </h3>
                 <button type="button" className={btnIcon} aria-label="Cerrar" onClick={onClose}>
                     <X className="w-5 h-5" />

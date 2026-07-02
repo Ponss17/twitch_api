@@ -8,18 +8,42 @@ const TOOL_LABELS: Record<OverlayTool, string> = {
 };
 
 const SIZE_HINTS: Record<OverlayTool, string> = {
-    trends: '900 × 420 px (barra superior) o el ancho de tu escena',
-    roulette: '720 × 720 px centrado en la escena'
+    trends: '900 × 420 px',
+    roulette: '720 × 720 px'
 };
+
+export const OVERLAY_SETUP_VERSION = 'beta 1.2';
 
 export function overlayToolLabel(tool: OverlayTool): string {
     return TOOL_LABELS[tool];
 }
 
+/** Muestra la URL sin token ni credenciales en query. */
+export function maskOverlayUrlForDisplay(url: string): string {
+    if (!url) return '';
+    try {
+        const parsed = new URL(url);
+        parsed.searchParams.delete('overlayToken');
+        parsed.searchParams.delete('apiKey');
+        parsed.searchParams.delete('auth');
+        const query = parsed.searchParams.toString();
+        return query
+            ? `${parsed.origin}${parsed.pathname}?${query}`
+            : `${parsed.origin}${parsed.pathname}`;
+    } catch {
+        return url.replace(/([?&])(overlayToken|apiKey|auth)=[^&]*/gi, '$1$2=••••');
+    }
+}
+
+export interface OverlayGuideStep {
+    title: string;
+    detail: string;
+}
+
 export interface OverlayPlatformGuide {
     title: string;
-    steps: string[];
-    tips: string[];
+    steps: OverlayGuideStep[];
+    note: string;
 }
 
 export function getOverlayPlatformGuide(
@@ -27,39 +51,34 @@ export function getOverlayPlatformGuide(
     platform: OverlayPlatform
 ): OverlayPlatformGuide {
     const size = SIZE_HINTS[tool];
-    const toolLabel = TOOL_LABELS[tool];
 
     if (platform === 'obs') {
         return {
-            title: 'Mejor configuración en OBS',
+            title: 'Configurar en OBS',
             steps: [
-                'Fuentes → añade **Navegador** (Browser Source).',
-                `Pega la URL del overlay de ${toolLabel}.`,
-                `Tamaño recomendado: **${size}**.`,
-                'Marca **Actualizar navegador cuando la escena se active**.',
-                'No añadas color de fondo: el overlay ya es transparente.'
+                { title: 'Nueva fuente', detail: 'Fuentes → Navegador (Browser Source).' },
+                { title: 'Pegar URL', detail: 'Usa la URL que copiaste con el botón de abajo.' },
+                { title: 'Tamaño', detail: `${size}, fondo transparente.` },
+                {
+                    title: 'Al activar escena',
+                    detail: 'Marca «Actualizar navegador cuando la escena se active».'
+                }
             ],
-            tips: [
-                'Controla todo desde el panel; el overlay en OBS solo muestra el estado.',
-                'Si no se actualiza, clic derecho en la fuente → **Interactuar** o recarga la escena.',
-                'Tras un deploy nuevo, recarga la fuente o añade `&v=1` al final de la URL.'
-            ]
+            note: 'El overlay solo muestra el estado. Todo se controla desde el panel.'
         };
     }
 
     return {
-        title: 'Mejor configuración en Streamlabs',
+        title: 'Configurar en Streamlabs',
         steps: [
-            'Fuentes → **Custom Widget** o **Browser Source**.',
-            `Pega la URL del overlay de ${toolLabel}.`,
-            `Tamaño recomendado: **${size}**.`,
-            'Si tu plan lo permite, activa el refresco al mostrar la escena.',
-            'Deja el fondo transparente; no uses overlay de color detrás.'
+            { title: 'Nueva fuente', detail: 'Fuentes → Custom Widget o Browser Source.' },
+            { title: 'Pegar URL', detail: 'Usa la URL que copiaste con el botón de abajo.' },
+            { title: 'Tamaño', detail: `${size}, sin color de fondo.` },
+            {
+                title: 'Al mostrar escena',
+                detail: 'Activa el refresco automático si tu plan lo permite.'
+            }
         ],
-        tips: [
-            'El panel publica el estado; Streamlabs solo refleja lo que ves en el dashboard.',
-            'Si la fuente queda en negro, comprueba que la URL incluye `overlayToken=`.',
-            'Genera un enlace nuevo si cambiaste la API key o el token expiró.'
-        ]
+        note: 'Si la fuente queda en negro, genera un enlace nuevo desde aquí.'
     };
 }

@@ -1,6 +1,8 @@
 import {
     getOverlayPlatformGuide,
-    overlayToolLabel
+    maskOverlayUrlForDisplay,
+    overlayToolLabel,
+    OVERLAY_SETUP_VERSION
 } from '@/features/tools/overlay/lib/overlaySetupGuide';
 
 describe('overlaySetupGuide', () => {
@@ -15,7 +17,19 @@ describe('overlaySetupGuide', () => {
 
         expect(obs.title).toContain('OBS');
         expect(streamlabs.title).toContain('Streamlabs');
-        expect(obs.steps[0]).toContain('Navegador');
-        expect(streamlabs.steps[0]).toContain('Custom Widget');
+        expect(obs.steps[0].detail).toContain('Navegador');
+        expect(streamlabs.steps[0].detail).toContain('Custom Widget');
+    });
+
+    it('maskOverlayUrlForDisplay oculta el token', () => {
+        const masked = maskOverlayUrlForDisplay(
+            'https://example.com/overlay/trends?overlayToken=secret123&foo=bar'
+        );
+        expect(masked).toBe('https://example.com/overlay/trends?foo=bar');
+        expect(masked).not.toContain('secret123');
+    });
+
+    it('expone la versión del setup', () => {
+        expect(OVERLAY_SETUP_VERSION).toBe('beta 1.2');
     });
 });
