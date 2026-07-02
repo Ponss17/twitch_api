@@ -51,7 +51,8 @@ describe('statsService', () => {
             await statsService.incrementUserStats('user1', 'clips');
             expect(mockSupabase.rpc).toHaveBeenCalledWith('increment_user_stat', {
                 p_user_id: 'user1',
-                p_column: 'clips_count'
+                p_column: 'clips_count',
+                p_local_date: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
             });
         });
     });
