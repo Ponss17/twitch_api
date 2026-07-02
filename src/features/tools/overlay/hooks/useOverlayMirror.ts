@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
-import { overlayAuthHeaders } from '@/features/tools/overlay/lib/auth';
+import { overlayAuthHeaders, overlayStatePollUrl } from '@/features/tools/overlay/lib/auth';
 import { getOverlayStoredSession } from '@/features/tools/overlay/lib/overlaySession';
 import { debugWarn } from '@/core/logging/debugLog';
 import type {
@@ -112,7 +112,7 @@ export function useOverlayMirror<T extends OverlayTool>(
         if (!pollSession?.overlayToken && !pollSession?.apiKey && !pollSession?.token) return;
 
         try {
-            const res = await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-state/${tool}`, {
+            const res = await fetch(overlayStatePollUrl(tool, pollSession), {
                 headers: overlayAuthHeaders(pollSession),
                 cache: 'no-store'
             });
