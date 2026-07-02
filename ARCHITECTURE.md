@@ -29,6 +29,8 @@ Todas las páginas viven bajo **`/api/twitch/`**:
 | `/api/twitch/dashboard/{tab}` | Tab del dashboard (followage, clips, …) |
 | `/api/twitch/docs` | Documentación API |
 | `/api/twitch/sobre-la-api` | Info del proyecto |
+| `/api/twitch/overlay/roulette` | OBS — ruleta (mirror) |
+| `/api/twitch/overlay/trends` | OBS — tendencias (mirror) |
 | `/api/twitch/404`, `/429`, `/500`, `/offline` | Estados |
 
 Las rutas en la raíz (`/`, `/dashboard`, …) redirigen (308) hacia `/api/twitch/…` (`vercel.json` + Astro).
@@ -40,7 +42,7 @@ Dos utilidades mantienen el mismo mount `/api/twitch`:
 | Contexto | Módulo | Uso |
 |----------|--------|-----|
 | Backend (redirects OAuth, 429 HTML) | `backend/src/core/utils/frontendPaths.ts` | `frontendPagePath('/dashboard')` |
-| Frontend (links, router) | `src/lib/paths.ts` | `appPath('/dashboard')` |
+| Frontend (links, router) | `src/core/config/paths.ts` | `appPath('/dashboard')` |
 
 Ambos deben seguir apuntando a `/api/twitch` — no mezclar con rutas raíz.
 
@@ -58,7 +60,7 @@ Entry serverless: `api/index.ts`. Local: `pnpm dev:api` (puerto 3000).
 
 1. Callback Twitch → redirect con `?auth=<token>` (HMAC, 5 min), **sin** API key en URL permanente.
 2. Frontend llama `GET /auth/exchange?auth=…` → recibe `apiKey` + perfil.
-3. Sesión en `localStorage` (scoped por `userId` vía `src/lib/localPrefs.ts`); validación vía `/system/validate` con caché local por fingerprint de sesión.
+3. Sesión en `localStorage` (scoped por `userId` vía `src/core/session/localPrefs.ts`); validación vía `/system/validate` con caché local por fingerprint de sesión.
 4. `invalidateSession()` centraliza logout local y sync entre pestañas (`BroadcastChannel`).
 
 ## Caché (Vercel KV)
@@ -117,6 +119,59 @@ KV_REST_API_URL + KV_REST_API_TOKEN
 GROQ_API_KEY (opcional — Bola 8)
 ```
 
+## Estructura del frontend (`src/`)
+
+Organización **feature-based**, alineada con el backend (`core/` + `features/`):
+
+```
+src/
+├── core/                 # Infraestructura transversal (sin UI de dominio)
+│   ├── api/              # auth, authQuery, apiError
+│   ├── cache/            # cacheService
+│   ├── config/           # config, paths, pageTitle
+│   ├── errors/           # rateLimitCooldown
+│   ├── logging/          # debugLog, logError
+│   ├── session/          # context, useSession, localPrefs, loadProgress
+│   ├── types/            # twitch
+│   └── ui/               # tw, utils, clipboard, animateValue, docsTw
+├── shared/               # UI reutilizable entre features
+│   ├── ui/               # Modal, Dropdown, Icon, Skeleton, …
+│   ├── layout/           # Footer
+│   ├── providers/        # SessionProvider
+│   └── errors/           # ErrorPage, RateLimitPage
+├── features/             # Módulos de dominio
+│   ├── dashboard/        # app, components, hooks, lib
+│   ├── commands/         # components, hooks, lib
+│   ├── clips/
+│   ├── minigames/
+│   ├── feedback/
+│   ├── marketing/
+│   ├── docs/
+│   ├── legal/
+│   ├── about/
+│   ├── chat/             # tmiService, chatLogStore, useTmiChat
+│   └── tools/            # roulette, trends, overlay, stalker
+├── pages/                # Rutas Astro (solo wiring)
+├── layouts/
+└── styles/
+```
+
+**Convenciones de imports:** alias `@/` → `src/`. Imports entre features vía `@/features/...`; infra compartida vía `@/core/...` o `@/shared/...`. Evitar imports relativos que crucen carpetas de feature.
+
+**Migración:** `node scripts/restructure-src.mjs` (moves iniciales) · `node scripts/restructure-src.mjs --imports-only` (reescritura de imports + limpieza).
+
+## Estructura del backend (`backend/src/`)
+
+```
+backend/src/
+├── core/                 # config, database, middleware, utils, errors
+├── features/             # auth, commands, dashboard, games, system, twitch
+├── routes/               # index (montaje de routers)
+├── types/
+├── app.ts
+└── serverless.ts
+```
+
 ## Sesión y dashboard (frontend)
 
 - `SessionProvider` + `useSession()` — sin pasar sesión por props
@@ -143,7 +198,7 @@ Rutas **dashboard**, **system** y **auth/exchange** devuelven errores con forma 
 ```
 
 - Comandos de bot (`/followage`, `/create-clip`, …) siguen respondiendo **texto plano** (Nightbot).
-- El frontend usa `extractApiErrorMessage()` (`src/lib/apiError.ts`) — compatible con respuestas legacy `{ error: "..." }`.
+- El frontend usa `extractApiErrorMessage()` (`src/core/api/apiError.ts`) — compatible con respuestas legacy `{ error: "..." }`.
 - Helper backend: `backend/src/core/utils/jsonResponse.ts` · detector: `isJsonApiRoute()`.
 
 ## Validación

@@ -1,0 +1,31 @@
+---
+import '../styles/global.css';
+
+export interface Props {
+    title?: string;
+}
+
+const { title = 'Overlay' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="robots" content="noindex, nofollow" />
+        <title>{title} | LosPerris</title>
+        <style is:global>
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                background: transparent !important;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <slot />
+    </body>
+</html>

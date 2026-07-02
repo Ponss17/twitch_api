@@ -1,4 +1,4 @@
-jest.mock('@/lib/config', () => ({
+jest.mock('@/core/config/config', () => ({
     API_ENDPOINTS: {
         VALIDATE: '/api/twitch/system/validate',
         AUTH_LOGIN: '/api/twitch/auth/twitch',
@@ -7,7 +7,7 @@ jest.mock('@/lib/config', () => ({
     }
 }));
 
-import { getSession, resolveSessionFromUrl, saveSession, stripSensitiveQueryParams } from '@/lib/auth';
+import { getSession, resolveSessionFromUrl, saveSession, stripSensitiveQueryParams } from '@/core/api/auth';
 
 describe('resolveSessionFromUrl', () => {
     beforeEach(() => {

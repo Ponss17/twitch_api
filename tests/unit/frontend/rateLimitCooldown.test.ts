@@ -4,7 +4,7 @@ import {
     rateLimitWindowEnd,
     resolveRateLimitCooldownEnd,
     RATE_LIMIT_COOLDOWN_KEY
-} from '@/lib/rateLimitCooldown';
+} from '@/core/errors/rateLimitCooldown';
 
 describe('rateLimitCooldown', () => {
     beforeEach(() => {

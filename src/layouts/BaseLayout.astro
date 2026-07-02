@@ -1,9 +1,9 @@
 ---
 import '../styles/global.css';
-import { Footer } from '../components/layout/Footer';
+import { Footer } from '@/shared/layout/Footer';
 import SpeedInsights from '@vercel/speed-insights/astro';
-import { staticPath, absoluteAssetUrl } from '../lib/paths';
-import { pageTitle } from '../lib/pageTitle';
+import { staticPath, absoluteAssetUrl } from '@/core/config/paths';
+import { pageTitle } from '@/core/config/pageTitle';
 
 export interface Props {
     /** Nombre de la página; se formatea como «Página | LosPerris». */
@@ -81,8 +81,18 @@ const swScope = staticPath('/');
             rel="preload"
             href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap"
             as="style"
-            onload="this.onload=null;this.rel='stylesheet'"
+            id="geist-font-preload"
         />
+        <script is:inline>
+            (function () {
+                var link = document.getElementById('geist-font-preload');
+                if (!link) return;
+                link.onload = function () {
+                    this.onload = null;
+                    this.rel = 'stylesheet';
+                };
+            })();
+        </script>
         <noscript>
             <link
                 rel="stylesheet"

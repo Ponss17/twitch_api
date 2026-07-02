@@ -1,4 +1,4 @@
-jest.mock('@/lib/config', () => ({
+jest.mock('@/core/config/config', () => ({
     API_ENDPOINTS: { REALTIME_TOKEN: '/api/twitch/system/realtime-token' },
     SUPABASE_URL: 'https://example.supabase.co',
     SUPABASE_ANON_KEY: 'anon-key'
@@ -12,9 +12,9 @@ import {
     RealtimeService,
     RealtimeServiceFactory,
     type RealtimeCallbacks
-} from '@/lib/realtimeService';
-import type { Session } from '@/lib/config';
-import { EMPTY_DASHBOARD_LIVE_STATS } from '@/lib/dashboardStats';
+} from '@/features/dashboard/lib/realtimeService';
+import type { Session } from '@/core/config/config';
+import { EMPTY_DASHBOARD_LIVE_STATS } from '@/features/dashboard/lib/dashboardStats';
 
 const callbacks: RealtimeCallbacks = {
     onStatsUpdate: jest.fn(),

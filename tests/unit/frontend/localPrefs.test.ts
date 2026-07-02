@@ -4,8 +4,8 @@ import {
     sessionFingerprint,
     userPrefKey,
     writeScopedPref
-} from '@/lib/localPrefs';
-import type { Session } from '@/lib/config';
+} from '@/core/session/localPrefs';
+import type { Session } from '@/core/config/config';
 
 describe('localPrefs', () => {
     beforeEach(() => {

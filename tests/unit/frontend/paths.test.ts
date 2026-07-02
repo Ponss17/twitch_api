@@ -9,7 +9,7 @@ import {
     shouldSavePanelReturn,
     staticPath,
     joinAppPath
-} from '@/lib/paths';
+} from '@/core/config/paths';
 
 describe('paths (frontend)', () => {
     beforeEach(() => {

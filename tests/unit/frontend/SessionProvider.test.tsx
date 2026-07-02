@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { SessionProvider } from '@/components/providers/SessionProvider';
-import { useSession } from '@/hooks/useSession';
+import { SessionProvider } from '@/shared/providers/SessionProvider';
+import { useSession } from '@/core/session/useSession';
 
-jest.mock('@/lib/auth', () => ({
+jest.mock('@/core/api/auth', () => ({
     initAuthSync: jest.fn(),
     resolveSessionFromUrl: jest.fn(),
     mergeSessionFromValidate: jest.fn((session, result) => ({
@@ -27,11 +27,11 @@ jest.mock('@/lib/auth', () => ({
 
 const showToastMock = jest.fn();
 
-jest.mock('@/components/ui/ToastProvider', () => ({
+jest.mock('@/shared/ui/ToastProvider', () => ({
     useToastOptional: () => showToastMock
 }));
 
-import { resolveSessionFromUrl, mergeSessionFromValidate, validateSession, getSession, readOptimisticAuthState } from '@/lib/auth';
+import { resolveSessionFromUrl, mergeSessionFromValidate, validateSession, getSession, readOptimisticAuthState } from '@/core/api/auth';
 
 const mockedResolveSessionFromUrl = resolveSessionFromUrl as jest.Mock;
 const mockedValidateSession = validateSession as jest.Mock;

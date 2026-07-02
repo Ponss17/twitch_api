@@ -4,7 +4,7 @@ import {
     isDashboardTab,
     parseTabFromPathname,
     resolveDashboardTab
-} from '@/lib/dashboardTabUrl';
+} from '@/features/dashboard/lib/dashboardTabUrl';
 
 const BASE = getDashboardBasePath();
 
