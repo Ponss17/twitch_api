@@ -1,4 +1,3 @@
-import { PieChart } from 'lucide-react';
 import { card, fadeIn } from '@/core/ui/tw';
 import {
     categoryUsageBreakdown,
@@ -38,16 +37,6 @@ export function StatsCategoryChart({ stats, loading = false }: StatsCategoryChar
 
     return (
         <div className={`${shell} mb-3 [animation-delay:240ms]`}>
-            <div className="mb-3 flex items-center gap-3 border-b border-white/[0.08] pb-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-primary">
-                    <PieChart className="size-4" aria-hidden />
-                </div>
-                <div>
-                    <h3 className="text-[0.95rem] font-bold">Por categoría</h3>
-                    <p className="text-[0.8rem] text-[#c4c4cc]">Comandos, herramientas y minijuegos</p>
-                </div>
-            </div>
-
             {loading ? (
                 <div className="flex items-center gap-6 py-4" aria-hidden>
                     <div className="size-28 animate-pulse rounded-full bg-white/[0.04]" />

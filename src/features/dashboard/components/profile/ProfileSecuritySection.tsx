@@ -162,16 +162,16 @@ export function ProfileSecuritySection({
                             <Gauge className="w-3.5 h-3.5 ml-1 text-primary opacity-70" />
                         </div>
                         <div
-                            className="flex items-center gap-1.5 rounded-lg border border-cyan-500/10 bg-cyan-500/[0.03] px-2.5 py-1 backdrop-blur-[8px]"
+                            className="flex items-center gap-1.5 rounded-lg border border-white/[0.05] bg-black/20 px-2.5 py-1 backdrop-blur-[8px]"
                             title="Tiempo que se guardan en caché las respuestas de tu API Key"
                         >
                             <span className="text-[0.6rem] font-bold uppercase tracking-[0.05em] text-[#c4c4cc]">
                                 CACHÉ:
                             </span>
-                            <span className="text-[0.8rem] font-semibold text-cyan-300">
+                            <span className="text-[0.8rem] font-semibold text-white">
                                 {cacheTtl}s{hasCustomCacheTtl ? ' *' : ''}
                             </span>
-                            <Clock className="w-3.5 h-3.5 ml-1 text-cyan-400 opacity-70" />
+                            <Clock className="w-3.5 h-3.5 ml-1 text-primary opacity-70" />
                         </div>
                         <button
                             type="button"
