@@ -36,6 +36,9 @@ function resolveL1TtlMs(key: string): number {
     if (key.startsWith('cache:userId:')) {
         return CACHE_TTL.TWITCH_USER_ID * 1000;
     }
+    if (key.startsWith('overlay:state:')) {
+        return CACHE_TTL.OVERLAY_STATE * 1000;
+    }
     return DEFAULT_L1_TTL_MS;
 }
 
