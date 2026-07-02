@@ -21,6 +21,12 @@ const POLL_STANDBY_MS = 3000;
 const STALE_MS = 8000;
 
 function resolvePollSession(session: Session | null): Session | null {
+    if (typeof window !== 'undefined') {
+        const urlToken = new URLSearchParams(window.location.search).get('overlayToken')?.trim();
+        if (urlToken) {
+            return { ...(session ?? {}), overlayToken: urlToken };
+        }
+    }
     if (!session) return null;
     if (session.overlayToken || session.apiKey || session.token) return session;
     const stored = getOverlayStoredSession();

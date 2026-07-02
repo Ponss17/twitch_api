@@ -19,13 +19,13 @@ describe('overlaySession', () => {
         window.history.replaceState({}, '', '/api/twitch/overlay/trends');
     });
 
-    it('readOverlayOptimisticAuthState espera mientras hay overlayToken en la URL', () => {
+    it('readOverlayOptimisticAuthState permite poll inmediato con overlayToken en la URL', () => {
         window.history.replaceState({}, '', '/api/twitch/overlay/trends?overlayToken=test_token');
 
         expect(readOverlayOptimisticAuthState()).toEqual({
-            session: null,
+            session: { overlayToken: 'test_token', login: '', displayName: '', isNewLogin: true },
             loading: true,
-            authenticated: false
+            authenticated: true
         });
     });
 

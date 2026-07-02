@@ -121,7 +121,9 @@ export function SessionProvider({
             bindCommandStoreUser(enriched.userId);
 
             if (sessionParams.isNewLogin) {
-                stripSensitiveQueryParams();
+                stripSensitiveQueryParams({
+                    keepOverlayToken: bootstrap.storage === 'overlay'
+                });
             }
 
             if (
@@ -150,6 +152,10 @@ export function SessionProvider({
 
         if (requireAuth) {
             invalidateSession({ broadcast: false });
+            if (bootstrap.storage === 'overlay') {
+                showToastRef.current('Enlace de overlay inválido o expirado.', 'error');
+                return;
+            }
             showToastRef.current('Sesión expirada. Redirigiendo...', 'error');
             redirectTimerRef.current = window.setTimeout(() => {
                 window.location.href = appPath('/');

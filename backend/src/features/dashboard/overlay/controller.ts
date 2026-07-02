@@ -59,7 +59,8 @@ export const putOverlayState = async (req: AuthenticatedRequest, res: Response) 
 
     try {
         const payload = { ...state, updatedAt: Date.now() };
-        await cacheService.set(overlayStateKey(userId, tool), payload, CACHE_TTL.OVERLAY_STATE);
+        const key = overlayStateKey(userId, tool);
+        await cacheService.set(key, payload, CACHE_TTL.OVERLAY_STATE);
         return res.json({ success: true });
     } catch (e) {
         logger.error('Error saving overlay state:', e);
