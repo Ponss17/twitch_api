@@ -6,14 +6,18 @@ import { HomeResourcesPanel } from '@/features/dashboard/components/home/HomeRes
 import { useRequiredSession } from '@/core/session/useSession';
 import { fadeIn } from '@/core/ui/tw';
 import { AlertTriangle } from 'lucide-react';
-import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
+import { useToast } from '@/shared/ui/ToastProvider';
+import {
+    DashboardPanelProvider,
+    useDashboardPanel
+} from '@/features/dashboard/providers/DashboardPanelProvider';
 
 interface HomeViewProps {
     onNavigate?: (tab: DashboardTab) => void;
     active?: boolean;
 }
 
-export function HomeView({ onNavigate, active: _active = true }: HomeViewProps) {
+function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => void }) {
     const session = useRequiredSession();
     const {
         stats,
@@ -62,5 +66,16 @@ export function HomeView({ onNavigate, active: _active = true }: HomeViewProps) 
                 <HomeResourcesPanel onNavigate={onNavigate} />
             </div>
         </div>
+    );
+}
+
+export function HomeView({ onNavigate, active = true }: HomeViewProps) {
+    const session = useRequiredSession();
+    const { showToast } = useToast();
+
+    return (
+        <DashboardPanelProvider active={active} session={session} showToast={showToast}>
+            <HomeViewContent onNavigate={onNavigate} />
+        </DashboardPanelProvider>
     );
 }

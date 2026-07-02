@@ -5,8 +5,6 @@ import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { HomeViewSkeleton, ProfileHeroSkeleton } from '@/shared/ui/Skeleton';
 import { HomeView } from '@/features/dashboard/components/home/HomeView';
 import { ProfileView } from '@/features/dashboard/components/profile/ProfileView';
-import { StatsView } from '@/features/dashboard/components/stats/StatsView';
-
 const FollowageView = lazy(() =>
     import('@/features/commands/components/CommandsViews').then((m) => ({ default: m.FollowageView }))
 );
@@ -46,7 +44,6 @@ interface TabPanelProps {
 
 function TabFallback({ tab }: { tab: DashboardTab }) {
     if (tab === 'profile') return <ProfileHeroSkeleton />;
-    if (tab === 'stats') return <HomeViewSkeleton />;
     return <HomeViewSkeleton />;
 }
 
@@ -62,8 +59,6 @@ function renderTabPanel(tab: DashboardTab, { active, onNavigate }: TabPanelProps
             return <ShoutoutView />;
         case 'profile':
             return <ProfileView active={active} />;
-        case 'stats':
-            return <StatsView active={active} />;
         case 'magic8':
             return <Magic8View />;
         case 'duel':
