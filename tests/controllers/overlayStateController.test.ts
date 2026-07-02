@@ -5,16 +5,11 @@ jest.mock('../../backend/src/core/database/cacheService', () => ({
     set: jest.fn().mockResolvedValue(undefined)
 }));
 
-jest.mock('../../backend/src/features/auth/auth.service', () => ({
-    signAuthExchange: jest.fn().mockReturnValue('signed-token')
-}));
-
 jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
 import * as cacheService from '../../backend/src/core/database/cacheService';
-import { signAuthExchange } from '../../backend/src/features/auth/auth.service';
 import {
     getOverlayState,
     putOverlayState,
@@ -79,7 +74,7 @@ describe('overlay state controller', () => {
         expect(res.json).toHaveBeenCalledWith({ success: true });
     });
 
-    it('createOverlayLink returns signed overlay URL', async () => {
+    it('createOverlayLink returns overlay URL with apiKey', async () => {
         const req = mockReq({
             body: { tool: 'trends' }
         });
@@ -94,19 +89,11 @@ describe('overlay state controller', () => {
 
         await createOverlayLink(req, res);
 
-        expect(signAuthExchange).toHaveBeenCalledWith(
-            expect.objectContaining({
-                apiKey: 'key-abc',
-                userId: 'user-123',
-                login: 'streamer',
-                displayName: 'Streamer'
-            })
-        );
         expect(res.json).toHaveBeenCalledWith({
             url: expect.stringContaining('/overlay/trends')
         });
         expect(res.json).toHaveBeenCalledWith({
-            url: expect.stringContaining('auth=signed-token')
+            url: expect.stringContaining('apiKey=key-abc')
         });
     });
 });
