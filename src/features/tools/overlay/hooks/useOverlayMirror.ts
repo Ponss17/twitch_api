@@ -10,10 +10,13 @@ import {
     emptyRouletteOverlayState,
     emptyTrendsOverlayState
 } from '@/features/tools/overlay/lib/types';
+import { overlayStateFingerprint } from '@/features/tools/overlay/lib/overlayStateUtils';
 
-const POLL_INTERVAL_MS = 450;
+const POLL_TRENDS_MS = 1000;
+const POLL_ROULETTE_MS = 450;
 const POLL_SPINNING_MS = 200;
-const STALE_MS = 5000;
+const POLL_STANDBY_MS = 3000;
+const STALE_MS = 8000;
 
 export function useOverlayMirror<T extends OverlayTool>(
     tool: T,
@@ -36,6 +39,7 @@ export function useOverlayMirror<T extends OverlayTool>(
     const [stale, setStale] = useState(true);
     const lastUpdatedRef = useRef(0);
     const lastSpinSeqRef = useRef(0);
+    const lastReceivedFingerprintRef = useRef('');
     const wheelRotationRef = useRef(0);
 
     const applyRouletteSpin = useCallback((next: RouletteOverlayState) => {
@@ -109,6 +113,10 @@ export function useOverlayMirror<T extends OverlayTool>(
             lastUpdatedRef.current = data.state.updatedAt ?? Date.now();
             setStale(Date.now() - lastUpdatedRef.current > STALE_MS);
 
+            const fingerprint = overlayStateFingerprint(tool, data.state);
+            if (fingerprint === lastReceivedFingerprintRef.current) return;
+            lastReceivedFingerprintRef.current = fingerprint;
+
             if (tool === 'roulette') {
                 const rouletteState = applyRouletteSpin(data.state as RouletteOverlayState);
                 setState(rouletteState as State);
@@ -124,15 +132,35 @@ export function useOverlayMirror<T extends OverlayTool>(
     const isRouletteSpinning =
         tool === 'roulette' ? (state as RouletteOverlayState).isSpinning : false;
 
+    const trendsState = tool === 'trends' ? (state as TrendsOverlayState) : null;
+    const trendsStandby =
+        !!trendsState && !trendsState.tracking && !trendsState.sessionActive;
+
+    const rouletteState = tool === 'roulette' ? (state as RouletteOverlayState) : null;
+    const rouletteNeedsFastPoll =
+        !!rouletteState &&
+        (rouletteState.isSpinning ||
+            rouletteState.isOpen ||
+            rouletteState.winner !== null);
+
+    const pollIntervalMs =
+        tool === 'trends'
+            ? trendsStandby
+                ? POLL_STANDBY_MS
+                : POLL_TRENDS_MS
+            : isRouletteSpinning
+              ? POLL_SPINNING_MS
+              : rouletteNeedsFastPoll
+                ? POLL_ROULETTE_MS
+                : POLL_STANDBY_MS;
+
     useEffect(() => {
         if (!session?.apiKey && !session?.token) return;
 
         void poll();
-        const intervalMs = isRouletteSpinning ? POLL_SPINNING_MS : POLL_INTERVAL_MS;
-
-        const id = window.setInterval(() => void poll(), intervalMs);
+        const id = window.setInterval(() => void poll(), pollIntervalMs);
         return () => clearInterval(id);
-    }, [session, poll, isRouletteSpinning]);
+    }, [session, poll, pollIntervalMs]);
 
     useEffect(() => {
         const id = window.setInterval(() => {
