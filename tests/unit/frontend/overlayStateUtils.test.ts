@@ -1,10 +1,12 @@
 import {
     overlayStateFingerprint,
     overlayTrendsRemaining,
+    shouldShowRouletteOverlay,
     shouldShowTrendsOverlay,
+    ROULETTE_OVERLAY_WINNER_MS,
     TRENDS_OVERLAY_RESULTS_MS
 } from '@/features/tools/overlay/lib/overlayStateUtils';
-import type { TrendsOverlayState } from '@/features/tools/overlay/lib/types';
+import type { RouletteOverlayState, TrendsOverlayState } from '@/features/tools/overlay/lib/types';
 
 describe('overlayStateUtils', () => {
     it('overlayStateFingerprint ignora updatedAt', () => {
@@ -129,5 +131,52 @@ describe('overlayStateUtils', () => {
         };
         expect(shouldShowTrendsOverlay(state, endedAt + 5_000)).toBe(true);
         expect(shouldShowTrendsOverlay(state, endedAt + TRENDS_OVERLAY_RESULTS_MS)).toBe(false);
+    });
+
+    it('shouldShowRouletteOverlay visible con inscripciones abiertas', () => {
+        const state: RouletteOverlayState = {
+            chatters: [],
+            isOpen: true,
+            isSpinning: false,
+            wheelRotation: 0,
+            wheelTransition: 'none',
+            winner: null,
+            lastSpinCount: 0,
+            spinSeq: 0,
+            updatedAt: Date.now()
+        };
+        expect(shouldShowRouletteOverlay(state)).toBe(true);
+    });
+
+    it('shouldShowRouletteOverlay visible con ganador reciente y luego se apaga', () => {
+        const winnerAt = 12_000;
+        const state: RouletteOverlayState = {
+            chatters: [],
+            isOpen: false,
+            isSpinning: false,
+            wheelRotation: 0,
+            wheelTransition: 'none',
+            winner: { user_login: 'ponss17', user_name: 'Ponss17' },
+            lastSpinCount: 5,
+            spinSeq: 1,
+            updatedAt: winnerAt
+        };
+        expect(shouldShowRouletteOverlay(state, winnerAt + 5_000)).toBe(true);
+        expect(shouldShowRouletteOverlay(state, winnerAt + ROULETTE_OVERLAY_WINNER_MS)).toBe(false);
+    });
+
+    it('shouldShowRouletteOverlay oculto al cerrar sin giro ni ganador', () => {
+        const state: RouletteOverlayState = {
+            chatters: [{ user_login: 'ponss17', user_name: 'Ponss17' }],
+            isOpen: false,
+            isSpinning: false,
+            wheelRotation: 0,
+            wheelTransition: 'none',
+            winner: null,
+            lastSpinCount: 0,
+            spinSeq: 0,
+            updatedAt: Date.now()
+        };
+        expect(shouldShowRouletteOverlay(state)).toBe(false);
     });
 });
