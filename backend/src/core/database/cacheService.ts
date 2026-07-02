@@ -1,15 +1,17 @@
 import { kv } from '@vercel/kv';
 import { StoredUser } from '../../types/twitch';
 import { CacheEntry } from '../../types/cache';
-import { CACHE_TTL } from '../config/cacheTtl';
+import { CACHE_TTL, ownerScopedCacheKey } from '../config/cacheTtl';
 
 /** Metadatos cacheables sin tokens OAuth (resolver con getUser en apiKeyValidator). */
 export type CachedApiUserMeta = Pick<
     StoredUser,
-    'userId' | 'login' | 'displayName' | 'apiKey' | 'isActive' | 'profileImageUrl' | 'customRateLimit'
+    'userId' | 'login' | 'displayName' | 'apiKey' | 'isActive' | 'profileImageUrl' | 'customRateLimit' | 'customCacheTtl' | 'role'
 >;
 
 const MEMORY_CACHE = new Map<string, CacheEntry<unknown>>();
+/** TTL L1 usado en el último set() por clave (evita repoblar L1 más tiempo que KV). */
+const L1_TTL_BY_KEY = new Map<string, number>();
 const DEFAULT_L1_TTL_MS = 30 * 1000;
 const MAX_MEMORY_CACHE_SIZE = 500;
 
@@ -31,7 +33,10 @@ function resolveL1TtlMs(key: string): number {
         return CACHE_TTL.ACTIVITY_FEED * 1000;
     }
     if (key.startsWith('cache:cmd:getUserInfo:login:')) {
-        return CACHE_TTL.USER_INFO * 1000;
+        return CACHE_TTL.COMMAND * 1000;
+    }
+    if (key.startsWith('cache:cmd:')) {
+        return CACHE_TTL.COMMAND * 1000;
     }
     if (key.startsWith('cache:userId:')) {
         return CACHE_TTL.TWITCH_USER_ID * 1000;
@@ -111,7 +116,10 @@ export const get = async <T = unknown>(key: string): Promise<T | null> => {
     const fetchPromise = (async () => {
         try {
             const value = await kv.get<T>(`twitch_api:${key}`);
-            if (value !== null) setL1<T>(key, value, resolveL1TtlMs(key));
+            if (value !== null) {
+                const ttlMs = L1_TTL_BY_KEY.get(key) ?? Math.min(resolveL1TtlMs(key), DEFAULT_L1_TTL_MS * 2);
+                setL1<T>(key, value, ttlMs);
+            }
             return value;
         } catch (error) {
             console.error(`[Cache] Error KV get (${key}):`, error);
@@ -130,7 +138,9 @@ export const set = async <T = unknown>(
     value: T,
     ttlSeconds: number = 60
 ): Promise<void> => {
-    setL1<T>(key, value, ttlSeconds * 1000);
+    const ttlMs = ttlSeconds * 1000;
+    L1_TTL_BY_KEY.set(key, ttlMs);
+    setL1<T>(key, value, ttlMs);
     if (!isKvWriteAvailable()) return;
     try {
         await kv.set(`twitch_api:${key}`, value, { ex: ttlSeconds });
@@ -145,6 +155,7 @@ export const set = async <T = unknown>(
 
 export const del = async (key: string): Promise<void> => {
     MEMORY_CACHE.delete(key);
+    L1_TTL_BY_KEY.delete(key);
     pendingKVRequests.delete(key);
     if (!isKvWriteAvailable()) return;
     try {
@@ -185,7 +196,9 @@ export const setCachedApiUser = async (apiKey: string, user: StoredUser): Promis
         apiKey: user.apiKey,
         isActive: user.isActive,
         profileImageUrl: user.profileImageUrl,
-        customRateLimit: user.customRateLimit
+        customRateLimit: user.customRateLimit,
+        customCacheTtl: user.customCacheTtl,
+        role: user.role
     };
     await set(`cache:apiuser:${apiKey}`, meta, CACHE_TTL.API_USER);
 };
@@ -215,7 +228,9 @@ export const invalidateDashboardCache = async (
     ];
 
     if (login) {
-        keys.push(`cache:cmd:getUserInfo:login:${login.toLowerCase()}`);
+        keys.push(
+            ownerScopedCacheKey(userId, `cache:cmd:getUserInfo:login:${login.toLowerCase()}`)
+        );
     }
 
     await Promise.all(keys.map((key) => del(key))).catch(() => {});

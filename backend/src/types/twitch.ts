@@ -45,6 +45,10 @@ export interface StoredUser {
     isActive?: boolean;
     blockedReason?: string;
     customRateLimit?: number;
+    /** Segundos — override del TTL de respuestas cacheadas (comandos, dashboard). */
+    customCacheTtl?: number;
+    /** Rol: default | pro | vip | partner — define rate limit y caché base. */
+    role?: string;
     // Analíticas
     totalRequests?: number;
     stats?: Record<string, number>;

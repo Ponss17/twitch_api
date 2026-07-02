@@ -1,4 +1,4 @@
-/** Categorías del resumen de actividad (perfil) y contadores por recurso. */
+/** Categorías del resumen de actividad y contadores por recurso. */
 export const DASHBOARD_USAGE_CATEGORIES = [
     { id: 'cat-commands', label: 'Comandos', keys: ['clips', 'followage', 'so', 'message'] as const },
     { id: 'cat-tools', label: 'Herramientas', keys: ['stalker', 'trends', 'roulette'] as const },

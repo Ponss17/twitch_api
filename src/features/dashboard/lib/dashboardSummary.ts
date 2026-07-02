@@ -14,6 +14,11 @@ export interface DashboardProfile {
     description?: string;
     created_at?: string;
     rateLimit?: number;
+    cacheTtl?: number;
+    role?: string;
+    roleLabel?: string;
+    hasCustomRateLimit?: boolean;
+    hasCustomCacheTtl?: boolean;
 }
 
 export interface DashboardSummaryResponse {
@@ -36,4 +41,16 @@ export async function fetchDashboardSummary(
         url += `${url.includes('?') ? '&' : '?'}_=${Date.now()}`;
     }
     return apiFetch<DashboardSummaryResponse>(url, session);
+}
+
+export async function fetchDashboardProfile(
+    session: Session,
+    options?: { fresh?: boolean }
+): Promise<DashboardProfile> {
+    const login = session.login ?? '';
+    let url = `${API_ENDPOINTS.USER_INFO}?login=${encodeURIComponent(login)}`;
+    if (options?.fresh) {
+        url += `&_=${Date.now()}`;
+    }
+    return apiFetch<DashboardProfile>(url, session);
 }

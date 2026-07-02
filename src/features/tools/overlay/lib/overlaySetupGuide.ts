@@ -8,7 +8,7 @@ const TOOL_LABELS: Record<OverlayTool, string> = {
 };
 
 const SIZE_HINTS: Record<OverlayTool, string> = {
-    trends: '520 × 580 px (top 10)',
+    trends: '900 × 580 px (top 10; ancho de escena si prefieres)',
     roulette: '720 × 720 px'
 };
 

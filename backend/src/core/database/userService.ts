@@ -4,6 +4,7 @@ import { encrypt, decrypt, ENCRYPTION_KEY, LEGACY_ENCRYPTION_KEY } from './crypt
 import { invalidateAllUserCaches } from '../utils/cacheInvalidation';
 import * as cacheService from './cacheService';
 import { CACHE_TTL } from '../config/cacheTtl';
+import { DEFAULT_USER_ROLE, normalizeUserRole } from '../config/userRoles';
 import { logger } from '../utils/logger';
 import { BoundedMap } from '../utils/boundedCache';
 import { setUserTimezone, clearUserTimezone } from './userTimezoneCache';
@@ -88,6 +89,8 @@ function toRow(user: StoredUser): Record<string, unknown> {
         is_active: user.isActive ?? true,
         blocked_reason: user.blockedReason ?? null,
         custom_rate_limit: user.customRateLimit ?? null,
+        custom_cache_ttl: user.customCacheTtl ?? null,
+        role: user.role ?? DEFAULT_USER_ROLE,
         profile_image_url: user.profileImageUrl ?? null,
         timezone: user.timezone ?? 'UTC',
         last_active: user.lastActive
@@ -127,6 +130,8 @@ function hydrateUserFromRow(row: Record<string, unknown>): StoredUser {
         isActive: row.is_active as boolean,
         blockedReason: (row.blocked_reason as string) ?? undefined,
         customRateLimit: (row.custom_rate_limit as number) ?? undefined,
+        customCacheTtl: (row.custom_cache_ttl as number) ?? undefined,
+        role: normalizeUserRole(row.role as string | undefined),
         profileImageUrl: (row.profile_image_url as string) ?? undefined,
         timezone: (row.timezone as string) ?? 'UTC',
         lastActive: (row.last_active as string) ?? undefined,

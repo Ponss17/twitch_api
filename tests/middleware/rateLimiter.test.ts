@@ -91,4 +91,14 @@ describe('globalRateLimiter', () => {
 
         expect(res.status).toHaveBeenCalledWith(429);
     });
+
+    it('usa el límite del rol cuando no hay override personalizado', async () => {
+        (kv.incr as jest.Mock).mockResolvedValue(301);
+        res.locals.isApiKeyRequest = true;
+        res.locals.apiUser = { userId: 'vip-user', role: 'vip' } as never;
+
+        await globalRateLimiter(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(429);
+    });
 });
