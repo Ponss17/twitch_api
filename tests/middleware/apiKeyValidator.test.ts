@@ -17,7 +17,8 @@ jest.mock('../../backend/src/core/database/cacheService', () => ({
     invalidateApiKeyCache: jest.fn().mockResolvedValue(undefined),
     isApiKeyRevoked: jest.fn().mockResolvedValue(false),
     revokeApiKeyGlobally: jest.fn().mockResolvedValue(undefined),
-    clearApiKeyRevocation: jest.fn().mockResolvedValue(undefined)
+    clearApiKeyRevocation: jest.fn().mockResolvedValue(undefined),
+    isKvWriteAvailable: jest.fn().mockReturnValue(false)
 }));
 jest.mock('../../backend/src/features/auth/auth.service');
 

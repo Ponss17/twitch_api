@@ -4,7 +4,7 @@ import { isKvWriteAvailable } from '../database/cacheService';
 import { RATE_LIMITS } from '../config/limits';
 import { resolveUserRateLimit } from '../config/userRoles';
 import { MESSAGES } from '../config/messages';
-import { isPublicRoute, isApiRoute } from '../utils/routeHelpers';
+import { isPublicRoute, isPublicHtmlRoute, isApiRoute } from '../utils/routeHelpers';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { logger } from '../utils/logger';
 import { rateLimitPagePath } from '../utils/frontendPaths';
@@ -32,6 +32,56 @@ function applyRateLimitHeaders(res: Response, limit: number, count: number): voi
     res.setHeader('X-RateLimit-Remaining', Math.max(0, limit - count));
 }
 
+function getSafeIp(req: Request): string {
+    return (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
+}
+
+async function incrementPerMinuteCounter(
+    key: string,
+    memoryStore: BoundedMap<string, { window: number; count: number }> = kvFallbackRateMemory
+): Promise<number> {
+    const currentWindow = Math.floor(Date.now() / 60000);
+
+    if (!isKvWriteAvailable()) {
+        return incrementMemoryCounter(memoryStore, key, currentWindow);
+    }
+
+    try {
+        const redisKey = `twitch_api:${key}:${currentWindow}`;
+        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
+            number,
+            number
+        ];
+        return count;
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            logger.debug('KV per-minute counter fallback en memoria', { error });
+        }
+        return incrementMemoryCounter(memoryStore, key, currentWindow);
+    }
+}
+
+/**
+ * Anti-escaneo: cuenta 401/intentos sin credenciales válidas por IP.
+ * Devuelve true si ya debe bloquearse con 429.
+ */
+export async function blockIfUnauthorizedScanExceeded(
+    req: Request,
+    res: Response,
+    cleanPath: string
+): Promise<boolean> {
+    const count = await incrementPerMinuteCounter(`rl:unauth:${getSafeIp(req)}`);
+    applyRateLimitHeaders(res, RATE_LIMITS.UNAUTHORIZED, count);
+
+    if (count > RATE_LIMITS.UNAUTHORIZED) {
+        logger.warn(`🛑 Unauthorized scan limit exceeded for rl:unauth:${getSafeIp(req)} on ${cleanPath}`);
+        await handleLimitExceeded(req, res, cleanPath);
+        return true;
+    }
+
+    return false;
+}
+
 /**
  * Middleware de Rate Limiting Global usando Vercel KV (Redis).
  * Sesiones OAuth del dashboard usan solo memoria local (límite alto, sin coste KV).
@@ -40,8 +90,21 @@ function applyRateLimitHeaders(res: Response, limit: number, count: number): voi
 export const globalRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
     const cleanPath = req.originalUrl.split('?')[0];
 
-    // 1. Excepciones para rutas públicas (Alta disponibilidad)
-    if (isPublicRoute(cleanPath)) {
+    // Páginas HTML públicas: límite suave por IP (assets/health sin límite)
+    if (isPublicHtmlRoute(cleanPath, req.method)) {
+        const count = await incrementPerMinuteCounter(`rl:pubhtml:${getSafeIp(req)}`);
+        applyRateLimitHeaders(res, RATE_LIMITS.PUBLIC_HTML, count);
+
+        if (count > RATE_LIMITS.PUBLIC_HTML) {
+            logger.warn(`🛑 Public HTML rate limit exceeded for rl:pubhtml:${getSafeIp(req)} on ${cleanPath}`);
+            return handleLimitExceeded(req, res, cleanPath);
+        }
+
+        return next();
+    }
+
+    // Rutas públicas restantes (assets, health, auth callback…): sin límite global
+    if (isPublicRoute(cleanPath, req.method)) {
         return next();
     }
 
@@ -61,7 +124,7 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
             key = `rl:sess:${userId}`;
             limit = RATE_LIMITS.DASHBOARD;
         } else {
-            const safeIp = (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
+            const safeIp = getSafeIp(req);
             key = `rl:ip:${safeIp}`;
             limit = RATE_LIMITS.PUBLIC;
         }
@@ -127,7 +190,7 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
             key = `rl:sess:${userId}`;
             limit = RATE_LIMITS.DASHBOARD;
         } else {
-            const safeIp = (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
+            const safeIp = getSafeIp(req);
             key = `rl:ip:${safeIp}`;
             limit = RATE_LIMITS.PUBLIC;
         }
