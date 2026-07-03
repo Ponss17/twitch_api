@@ -9,6 +9,7 @@ import { isPublicRoute, isApiRoute, isJsonApiRoute } from '../utils/routeHelpers
 import { safeString } from '../utils/validationHelpers';
 import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 import { jsonError } from '../utils/jsonResponse';
+import { blockIfUnauthorizedScanExceeded } from './redisRateLimiter';
 
 const CACHE_TTL = 10 * 60 * 1000;
 const TOKEN_VALIDATION_TTL = 10 * 60 * 1000;
@@ -41,6 +42,19 @@ const throttledUpdateLastActive = (userId: string) => {
     });
 };
 
+const requestPath = (req: AuthenticatedRequest) => req.originalUrl?.split('?')[0] || req.path;
+
+const rejectUnauthorized = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    respond: () => Response
+): Promise<Response> => {
+    if (await blockIfUnauthorizedScanExceeded(req, res, requestPath(req))) {
+        return res;
+    }
+    return respond();
+};
+
 const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
         if (res.locals.apiUser) {
@@ -71,18 +85,26 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             }
 
             if (isJsonApiRoute(req.path)) {
-                return jsonError(res, 401, MESSAGES.AUTH.MISSING_TOKEN_URL);
+                return rejectUnauthorized(req, res, () =>
+                    jsonError(res, 401, MESSAGES.AUTH.MISSING_TOKEN_URL)
+                );
             }
 
             if (isApiRoute(req.path)) {
-                res.setHeader('Content-Type', 'text/plain');
-                return res.status(401).send(MESSAGES.AUTH.MISSING_TOKEN_URL);
+                return rejectUnauthorized(req, res, () => {
+                    res.setHeader('Content-Type', 'text/plain');
+                    return res.status(401).send(MESSAGES.AUTH.MISSING_TOKEN_URL);
+                });
             }
-            return jsonError(res, 401, MESSAGES.AUTH.MISSING_TOKEN_URL);
+            return rejectUnauthorized(req, res, () =>
+                jsonError(res, 401, MESSAGES.AUTH.MISSING_TOKEN_URL)
+            );
         }
 
         if (invalidTokensCache.has(token)) {
-            return jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN);
+            return rejectUnauthorized(req, res, () =>
+                jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN)
+            );
         }
 
         if (!req.userId || !req.login) {
@@ -117,7 +139,9 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                         );
                     } else {
                         invalidTokensCache.set(token);
-                        return jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN);
+                        return rejectUnauthorized(req, res, () =>
+                            jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN)
+                        );
                     }
                 } catch (e) {
                     logger.warn(

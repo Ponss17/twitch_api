@@ -16,6 +16,7 @@ jest.mock('@/core/utils/logger', () => ({
 
 jest.mock('@/core/utils/routeHelpers', () => ({
     isPublicRoute: jest.fn().mockReturnValue(false),
+    isPublicHtmlRoute: jest.fn().mockReturnValue(false),
     isBotCommand: jest.fn().mockReturnValue(false),
     isApiRoute: jest.fn((path: string) => path.startsWith('/api') || path.startsWith('/twitch'))
 }));
@@ -75,7 +76,7 @@ describe('globalRateLimiter', () => {
     it('bloquea sesión OAuth en memoria si supera el límite', async () => {
         (req as Request & { userId: string }).userId = 'user1';
 
-        for (let i = 0; i < 1001; i += 1) {
+        for (let i = 0; i < 501; i += 1) {
             await globalRateLimiter(req, res, next);
         }
 
