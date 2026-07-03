@@ -5,6 +5,22 @@ const isStaticAsset = (path: string): boolean => {
     );
 };
 
+/** Páginas HTML públicas sujetas a rate limit (excluye assets, health, SEO). */
+export const isPublicHtmlRoute = (path: string, method: string = 'GET'): boolean => {
+    if (!isPublicRoute(path, method)) return false;
+
+    const cleanPath = path.split('?')[0].replace(/\/+/g, '/').replace(/\/$/, '') || '/';
+
+    if (isStaticAsset(cleanPath) || cleanPath.startsWith('/img/') || cleanPath.startsWith('/_vercel')) {
+        return false;
+    }
+
+    if (cleanPath === '/health' || cleanPath === '/api/twitch/health') return false;
+    if (cleanPath.endsWith('/robots.txt') || cleanPath.endsWith('/sitemap.xml')) return false;
+
+    return true;
+};
+
 export const isBotCommand = (path: string): boolean =>
     path.includes('/followage') ||
     path.includes('/shoutout') ||

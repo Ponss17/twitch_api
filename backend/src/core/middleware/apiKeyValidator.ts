@@ -7,6 +7,7 @@ import { invalidateAuthCache } from './authMiddleware';
 import { StoredUser } from '../../types/twitch';
 import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 import { isBotCommand, isApiRoute } from '../utils/routeHelpers';
+import { blockIfUnauthorizedScanExceeded } from './redisRateLimiter';
 
 interface CachedApiKey {
     user: StoredUser;
@@ -47,6 +48,18 @@ function readOverlayToken(req: Request): string {
     const fromHeader = ((req.headers['x-overlay-token'] as string) || '').trim();
     if (fromHeader) return fromHeader;
     return ((req.query.overlayToken as string) || '').trim();
+}
+
+async function rejectApiKeyUnauthorized(
+    req: Request,
+    res: Response,
+    respond: () => Response
+): Promise<Response> {
+    const cleanPath = req.originalUrl?.split('?')[0] || req.path;
+    if (await blockIfUnauthorizedScanExceeded(req, res, cleanPath)) {
+        return res;
+    }
+    return respond();
 }
 
 export const apiKeyValidator = async (req: Request, res: Response, next: NextFunction) => {
@@ -94,7 +107,9 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
     }
 
     if (apiKey && invalidKeysCache.has(apiKey)) {
-        return res.status(401).json({ error: 'Clave API bloqueada temporalmente.' });
+        return rejectApiKeyUnauthorized(req, res, () =>
+            res.status(401).json({ error: 'Clave API bloqueada temporalmente.' })
+        );
     }
 
     if (apiKey && (await cacheService.isApiKeyRevoked(apiKey))) {
@@ -113,14 +128,21 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
                 if (req.headers.authorization?.startsWith('Bearer ')) {
                     return next();
                 }
-                return res.status(isAuthError ? 401 : 503).json({ error: errorMsg });
+                if (isAuthError) {
+                    return rejectApiKeyUnauthorized(req, res, () =>
+                        res.status(401).json({ error: errorMsg })
+                    );
+                }
+                return res.status(503).json({ error: errorMsg });
             }
         }
         invalidKeysCache.set(apiKey);
         if (req.headers.authorization?.startsWith('Bearer ')) {
             return next();
         }
-        return res.status(401).json({ error: 'Clave API revocada. Regenera tu API Key en el panel.' });
+        return rejectApiKeyUnauthorized(req, res, () =>
+            res.status(401).json({ error: 'Clave API revocada. Regenera tu API Key en el panel.' })
+        );
     }
 
     if (!apiKey) {
@@ -173,10 +195,14 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             invalidKeysCache.set(apiKey);
             const errorMsg = 'Error de autenticación. Clave API inválida o expirada. Regenerala o pide ayuda a Ponss 🦆';
             if (isApiRoute(req.path)) {
-                res.setHeader('Content-Type', 'text/plain');
-                return res.status(401).send(errorMsg);
+                return rejectApiKeyUnauthorized(req, res, () => {
+                    res.setHeader('Content-Type', 'text/plain');
+                    return res.status(401).send(errorMsg);
+                });
             }
-            return res.status(401).json({ error: errorMsg });
+            return rejectApiKeyUnauthorized(req, res, () =>
+                res.status(401).json({ error: errorMsg })
+            );
         }
     } catch (e) {
         const error = e as Error;
@@ -202,11 +228,23 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         }
 
         if (isApiRoute(req.path)) {
+            if (isAuthError) {
+                return rejectApiKeyUnauthorized(req, res, () => {
+                    res.setHeader('Content-Type', 'text/plain');
+                    return res.status(401).send(errorMsg);
+                });
+            }
             res.setHeader('Content-Type', 'text/plain');
-            return res.status(isAuthError ? 401 : 503).send(errorMsg);
+            return res.status(503).send(errorMsg);
         }
 
-        return res.status(isAuthError ? 401 : 503).json({ error: errorMsg });
+        if (isAuthError) {
+            return rejectApiKeyUnauthorized(req, res, () =>
+                res.status(401).json({ error: errorMsg })
+            );
+        }
+
+        return res.status(503).json({ error: errorMsg });
     }
 
     next();

@@ -1,4 +1,4 @@
-import { isPublicRoute } from '../../backend/src/core/utils/routeHelpers';
+import { isPublicRoute, isPublicHtmlRoute } from '../../backend/src/core/utils/routeHelpers';
 
 describe('isPublicRoute', () => {
     it('trata el landing / como público (GET)', () => {
@@ -18,5 +18,18 @@ describe('isPublicRoute', () => {
 
     it('no trata comandos bot como públicos', () => {
         expect(isPublicRoute('/api/twitch/followage', 'GET')).toBe(false);
+    });
+});
+
+describe('isPublicHtmlRoute', () => {
+    it('incluye landing y docs', () => {
+        expect(isPublicHtmlRoute('/', 'GET')).toBe(true);
+        expect(isPublicHtmlRoute('/docs', 'GET')).toBe(true);
+    });
+
+    it('excluye assets y health', () => {
+        expect(isPublicHtmlRoute('/img/logo.svg', 'GET')).toBe(false);
+        expect(isPublicHtmlRoute('/health', 'GET')).toBe(false);
+        expect(isPublicHtmlRoute('/api/twitch/health', 'GET')).toBe(false);
     });
 });
