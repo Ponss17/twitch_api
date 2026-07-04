@@ -4,7 +4,7 @@
     "description": "LosPerris Twitch API — Astro + React + Tailwind frontend, Express backend (API compatible)",
     "private": true,
     "engines": {
-        "node": ">=20"
+        "node": ">=22.12.0"
     },
     "scripts": {
         "dev": "concurrently \"pnpm dev:api\" \"pnpm dev:web\"",
