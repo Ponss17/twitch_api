@@ -1,5 +1,5 @@
-/** Mount canónico tras proxy de www.losperris.dev → /api/twitch/ */
-export const APP_MOUNT = '/api/twitch';
+/** Mount canónico en ttv.losperris.dev (raíz) */
+export const APP_MOUNT = '';
 
 export function getAppBasePath(): string {
     return APP_MOUNT;

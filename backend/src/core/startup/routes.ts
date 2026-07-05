@@ -30,10 +30,9 @@ export const configureRoutes = (app: Application) => {
     app.use(globalRateLimiter);
 
     app.use('/auth', authRateLimiter, authRoutes);
-    app.use('/api/twitch/auth', authRateLimiter, authRoutes);
-    app.use('/twitch/auth', authRateLimiter, authRoutes);
+    app.use('/api/auth', authRateLimiter, authRoutes);
 
-    app.get(['/health', '/api/twitch/health'], (_req: Request, res: Response) => {
+    app.get(['/health', '/api/health'], (_req: Request, res: Response) => {
         const isConfigured = !!(CONFIG.TWITCH_CLIENT_ID && CONFIG.TWITCH_CLIENT_SECRET);
         res.json({
             status: isConfigured ? 'ok' : 'maintenance',
@@ -41,11 +40,10 @@ export const configureRoutes = (app: Application) => {
         });
     });
 
-    app.get(['/robots.txt', '/api/twitch/robots.txt'], getRobotsTxt);
-    app.get(['/sitemap.xml', '/api/twitch/sitemap.xml'], getSitemapXml);
+    app.get(['/robots.txt', '/api/robots.txt'], getRobotsTxt);
+    app.get(['/sitemap.xml', '/api/sitemap.xml'], getSitemapXml);
 
-    app.use('/api/twitch', apiRouter);
-    app.use('/twitch', apiRouter);
+    app.use('/api', apiRouter);
     app.use('/', apiRouter);
 
     app.use((req: Request, res: Response) => {

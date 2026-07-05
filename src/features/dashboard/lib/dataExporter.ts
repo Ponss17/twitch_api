@@ -242,7 +242,7 @@ const DataExport = {
     getApiBaseUrl() {
         const { protocol, host } = window.location;
         if (host.includes('localhost') || host.includes('127.0.0.1')) {
-            return 'https://api.losperris.com/api/twitch';
+            return 'https://ttv.losperris.dev';
         }
         return `${protocol}//${host}/api/twitch`;
     },
