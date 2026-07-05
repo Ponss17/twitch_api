@@ -16,85 +16,85 @@ describe('paths (frontend)', () => {
         sessionStorage.clear();
     });
 
-    it('expone el mount canónico /api/twitch', () => {
-        expect(APP_MOUNT).toBe('/api/twitch');
+    it('expone el mount canónico ', () => {
+        expect(APP_MOUNT).toBe('');
     });
 
     it('getAppBasePath es estable en SSR y cliente', () => {
-        expect(getAppBasePath()).toBe('/api/twitch');
+        expect(getAppBasePath()).toBe('');
     });
 
     it('appPath antepone el mount', () => {
-        expect(appPath('/')).toBe('/api/twitch/');
-        expect(appPath('/docs')).toBe('/api/twitch/docs');
-        expect(appPath('/dashboard')).toBe('/api/twitch/dashboard');
+        expect(appPath('/')).toBe('/');
+        expect(appPath('/docs')).toBe('/docs');
+        expect(appPath('/dashboard')).toBe('/dashboard');
     });
 
     it('staticPath antepone el mount a assets', () => {
-        expect(staticPath('/img/logo.svg')).toBe('/api/twitch/img/logo.svg');
+        expect(staticPath('/img/logo.svg')).toBe('/img/logo.svg');
     });
 
     it('joinAppPath funciona con BASE_URL absoluta de Astro en producción', () => {
-        expect(joinAppPath('https://www.losperris.dev/api/twitch', '/img/logo.svg')).toBe(
-            '/api/twitch/img/logo.svg'
+        expect(joinAppPath('https://www.losperris.dev', '/img/logo.svg')).toBe(
+            '/img/logo.svg'
         );
-        expect(joinAppPath('https://www.losperris.dev/api/twitch/', 'manifest.json')).toBe(
-            '/api/twitch/manifest.json'
+        expect(joinAppPath('https://www.losperris.dev/', 'manifest.json')).toBe(
+            '/manifest.json'
         );
     });
 
     it('docsReturnPath vuelve al dashboard guardado con pestaña', () => {
-        sessionStorage.setItem('twitch_docs_return_path', '/api/twitch/dashboard/russian');
-        expect(docsReturnPath()).toBe('/api/twitch/dashboard/russian');
+        sessionStorage.setItem('twitch_docs_return_path', '/dashboard/russian');
+        expect(docsReturnPath()).toBe('/dashboard/russian');
     });
 
     it('docsReturnPath usa dashboard por defecto sin origen guardado', () => {
         sessionStorage.removeItem('twitch_docs_return_path');
-        expect(docsReturnPath()).toBe('/api/twitch/dashboard');
+        expect(docsReturnPath()).toBe('/dashboard');
     });
 
     it('docsReturnPath normaliza barra final del dashboard (proxy losperris)', () => {
-        sessionStorage.setItem('twitch_docs_return_path', '/api/twitch/dashboard/');
-        expect(docsReturnPath()).toBe('/api/twitch/dashboard');
+        sessionStorage.setItem('twitch_docs_return_path', '/dashboard/');
+        expect(docsReturnPath()).toBe('/dashboard');
     });
 
     it('normalizePanelReturnPath quita barra final en pestañas', () => {
-        expect(normalizePanelReturnPath('/api/twitch/dashboard/clips/')).toBe('/api/twitch/dashboard/clips');
+        expect(normalizePanelReturnPath('/dashboard/clips/')).toBe('/dashboard/clips');
     });
 
     it('saveDocsReturnPath no guarda desde páginas secundarias', () => {
-        window.history.pushState({}, '', '/api/twitch/sobre-la-api/');
+        window.history.pushState({}, '', '/sobre-la-api/');
         saveDocsReturnPath();
         expect(sessionStorage.getItem('twitch_docs_return_path')).toBeNull();
     });
 
     it('saveDocsReturnPath guarda la ruta del dashboard al salir', () => {
-        window.history.pushState({}, '', '/api/twitch/dashboard/clips');
+        window.history.pushState({}, '', '/dashboard/clips');
         saveDocsReturnPath();
-        expect(sessionStorage.getItem('twitch_docs_return_path')).toBe('/api/twitch/dashboard/clips');
+        expect(sessionStorage.getItem('twitch_docs_return_path')).toBe('/dashboard/clips');
     });
 
     it('saveDocsReturnPath normaliza home del dashboard sin barra final', () => {
-        window.history.pushState({}, '', '/api/twitch/dashboard/');
+        window.history.pushState({}, '', '/dashboard/');
         saveDocsReturnPath();
-        expect(sessionStorage.getItem('twitch_docs_return_path')).toBe('/api/twitch/dashboard');
+        expect(sessionStorage.getItem('twitch_docs_return_path')).toBe('/dashboard');
     });
 
     it('persistPanelReturnPath guarda landing y pestañas del dashboard', () => {
-        window.history.pushState({}, '', '/api/twitch/');
+        window.history.pushState({}, '', '/');
         persistPanelReturnPath();
-        expect(sessionStorage.getItem('twitch_docs_return_path')).toBe('/api/twitch/');
+        expect(sessionStorage.getItem('twitch_docs_return_path')).toBe('/');
 
-        window.history.pushState({}, '', '/api/twitch/dashboard/roulette');
+        window.history.pushState({}, '', '/dashboard/roulette');
         persistPanelReturnPath();
-        expect(sessionStorage.getItem('twitch_docs_return_path')).toBe('/api/twitch/dashboard/roulette');
+        expect(sessionStorage.getItem('twitch_docs_return_path')).toBe('/dashboard/roulette');
     });
 
     it('persistPanelReturnPath no guarda desde páginas secundarias', () => {
-        sessionStorage.setItem('twitch_docs_return_path', '/api/twitch/dashboard/clips');
-        window.history.pushState({}, '', '/api/twitch/docs');
+        sessionStorage.setItem('twitch_docs_return_path', '/dashboard/clips');
+        window.history.pushState({}, '', '/docs');
         persistPanelReturnPath();
-        expect(sessionStorage.getItem('twitch_docs_return_path')).toBe('/api/twitch/dashboard/clips');
+        expect(sessionStorage.getItem('twitch_docs_return_path')).toBe('/dashboard/clips');
     });
 
     it('shouldSavePanelReturn incluye docs y sobre-la-api', () => {
