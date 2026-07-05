@@ -1,4 +1,4 @@
-const API_BASE = '/api/twitch';
+const API_BASE = '/api';
 
 export const API_ENDPOINTS = {
     BASE: API_BASE,

@@ -40,7 +40,6 @@ function devNoServiceWorker() {
     };
 }
 
-/** Rutas Astro en la raíz — no deben ir al proxy del backend en dev */
 const FRONTEND_EXACT = new Set([
     '/',
     '/dashboard',
@@ -55,22 +54,8 @@ const FRONTEND_EXACT = new Set([
     '/offline',
     '/sw.js',
     '/manifest.json',
-    '/api/twitch',
-    '/api/twitch/',
-    '/api/twitch/dashboard',
-    '/api/twitch/docs',
-    '/api/twitch/sobre-la-api',
-    '/api/twitch/privacidad',
-    '/api/twitch/terminos',
-    '/api/twitch/cookies',
-    '/api/twitch/404',
-    '/api/twitch/429',
-    '/api/twitch/500',
-    '/api/twitch/offline',
-    '/api/twitch/sw.js',
-    '/api/twitch/manifest.json',
-    '/api/twitch/overlay/roulette',
-    '/api/twitch/overlay/trends'
+    '/overlay/roulette',
+    '/overlay/trends'
 ]);
 
 const DASHBOARD_TAB_SLUGS = new Set([
@@ -90,7 +75,7 @@ const DASHBOARD_TAB_SLUGS = new Set([
 /** Rutas SPA del dashboard (`/dashboard/profile`, etc.) — no proxy al backend en dev. */
 /** @param {string} path */
 function isDashboardTabRoute(path) {
-    const base = '/api/twitch/dashboard';
+    const base = '/dashboard';
     if (path === base || path === `${base}/`) return true;
     const prefix = `${base}/`;
     if (!path.startsWith(prefix)) return false;
@@ -103,9 +88,9 @@ function isFrontendRoute(url) {
     const path = (url || '').split('?')[0];
     if (FRONTEND_EXACT.has(path)) return true;
     if (isDashboardTabRoute(path)) return true;
-    if (path.startsWith('/api/twitch/overlay/')) return true;
-    if (path.startsWith('/img/') || path.startsWith('/api/twitch/img/')) return true;
-    if (path.startsWith('/api/twitch/_astro/')) return true;
+    if (path.startsWith('/overlay/')) return true;
+    if (path.startsWith('/img/')) return true;
+    if (path.startsWith('/_astro/')) return true;
     return false;
 }
 
@@ -113,8 +98,6 @@ export default defineConfig({
     /** Estático en build — páginas en CDN (como el viejo serveHtml), solo API en serverless. */
     output: 'static',
     trailingSlash: 'always',
-    /** Tras el proxy de losperris.dev, assets y rutas deben vivir bajo /api/twitch/ */
-    base: '/api/twitch/',
     vite: {
         plugins: [tailwindcss(), devNoServiceWorker()],
         define: {
@@ -132,7 +115,7 @@ export default defineConfig({
         },
         server: {
             proxy: {
-                '/api/twitch': {
+                '/api': {
                     target: 'http://localhost:3000',
                     changeOrigin: true,
                     bypass(req) {
