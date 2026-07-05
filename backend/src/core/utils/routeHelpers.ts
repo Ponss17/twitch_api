@@ -15,7 +15,7 @@ export const isPublicHtmlRoute = (path: string, method: string = 'GET'): boolean
         return false;
     }
 
-    if (cleanPath === '/health' || cleanPath === '/api/twitch/health') return false;
+    if (cleanPath === '/health' || cleanPath === '/api/health') return false;
     if (cleanPath.endsWith('/robots.txt') || cleanPath.endsWith('/sitemap.xml')) return false;
 
     return true;
@@ -107,11 +107,11 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
         '/500',
         '/offline',
         '/api/twitch',
-        '/api/twitch/health',
+        '/api/health',
         '/robots.txt',
-        '/api/twitch/robots.txt',
+        '/api/robots.txt',
         '/sitemap.xml',
-        '/api/twitch/sitemap.xml',
+        '/api/sitemap.xml',
         '/api/twitch/docs',
         '/api/twitch/sobre-la-api',
         '/api/twitch/dashboard',
@@ -132,7 +132,7 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
     if (
         cleanPath === '/auth' ||
         cleanPath.startsWith('/auth/') ||
-        cleanPath.startsWith('/api/twitch/auth/') ||
+        cleanPath.startsWith('/api/auth/') ||
         cleanPath.includes('/callback')
     ) {
         return true;

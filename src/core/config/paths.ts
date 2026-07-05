@@ -16,6 +16,7 @@ function normalizeAppBase(base: string = getAppBasePath()): string {
             return APP_MOUNT;
         }
     }
+    if (!trimmed) return '';
     return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
 }
 
