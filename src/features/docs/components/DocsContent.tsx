@@ -252,11 +252,11 @@ export function DocsContent() {
                     trigger="!followage"
                     snippets={{
                         nightbot:
-                            '$(urlfetch {baseURL}/api/twitch/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY)',
+                            '$(urlfetch {baseURL}/api/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY)',
                         streamelements:
-                            '${customapi.{baseURL}/api/twitch/followage?channel=${channel}&user=${touser}&apiKey=TU_API_KEY}',
+                            '${customapi.{baseURL}/api/followage?channel=${channel}&user=${touser}&apiKey=TU_API_KEY}',
                         fossabot:
-                            '$(customapi {baseURL}/api/twitch/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY)'
+                            '$(customapi {baseURL}/api/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY)'
                     }}
                 />
             </section>
@@ -284,11 +284,11 @@ export function DocsContent() {
                     trigger="!clip"
                     snippets={{
                         nightbot:
-                            '🎬 Clip creado por $(user): $(urlfetch {baseURL}/api/twitch/create-clip?channel=$(channel)&apiKey=TU_API_KEY)',
+                            '🎬 Clip creado por $(user): $(urlfetch {baseURL}/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)',
                         streamelements:
-                            '🎬 Clip creado por ${user}: ${customapi.{baseURL}/api/twitch/create-clip?channel=${channel}&apiKey=TU_API_KEY}',
+                            '🎬 Clip creado por ${user}: ${customapi.{baseURL}/api/create-clip?channel=${channel}&apiKey=TU_API_KEY}',
                         fossabot:
-                            '🎬 Clip creado por $(user): $(customapi {baseURL}/api/twitch/create-clip?channel=$(channel)&apiKey=TU_API_KEY)'
+                            '🎬 Clip creado por $(user): $(customapi {baseURL}/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)'
                     }}
                 />
             </section>
@@ -301,7 +301,7 @@ export function DocsContent() {
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
                     <span className={docsUrl}>
-                        /api/twitch/shoutout?channel={'{canal}'}&touser={'{objetivo}'}&apiKey={'{clave}'}&template=
+                        /api/shoutout?channel={'{canal}'}&touser={'{objetivo}'}&apiKey={'{clave}'}&template=
                         {'{mensaje}'}
                     </span>
                 </div>
@@ -328,11 +328,11 @@ export function DocsContent() {
                     trigger="!so"
                     snippets={{
                         nightbot:
-                            '📢 $(urlfetch {baseURL}/api/twitch/shoutout?channel=$(channel)&touser=$(touser)&apiKey=TU_API_KEY)',
+                            '📢 $(urlfetch {baseURL}/api/shoutout?channel=$(channel)&touser=$(touser)&apiKey=TU_API_KEY)',
                         streamelements:
-                            '📢 ${customapi.{baseURL}/api/twitch/shoutout?channel=${channel}&touser=${touser}&apiKey=TU_API_KEY}',
+                            '📢 ${customapi.{baseURL}/api/shoutout?channel=${channel}&touser=${touser}&apiKey=TU_API_KEY}',
                         fossabot:
-                            '📢 $(customapi {baseURL}/api/twitch/shoutout?channel=$(channel)&touser=$(touser)&apiKey=TU_API_KEY)'
+                            '📢 $(customapi {baseURL}/api/shoutout?channel=$(channel)&touser=$(touser)&apiKey=TU_API_KEY)'
                     }}
                 />
             </section>
@@ -393,7 +393,7 @@ export function DocsContent() {
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
                     <span className={docsUrl}>
-                        /api/twitch/minigames/magic8?question={'{pregunta}'}&mood={'{tono}'}&apiKey={'{clave}'}
+                        /api/minigames/magic8?question={'{pregunta}'}&mood={'{tono}'}&apiKey={'{clave}'}
                     </span>
                 </div>
                 <table className={docsParamsTable}>
@@ -435,11 +435,11 @@ export function DocsContent() {
                     trigger="!8ball"
                     snippets={{
                         nightbot:
-                            '🎱 $(user) pregunta: $(query) | La Bola 8 dice: $(urlfetch {baseURL}/api/twitch/minigames/magic8?question=$(query)&mood=sarcastic&apiKey=TU_API_KEY)',
+                            '🎱 $(user) pregunta: $(query) | La Bola 8 dice: $(urlfetch {baseURL}/api/minigames/magic8?question=$(query)&mood=sarcastic&apiKey=TU_API_KEY)',
                         streamelements:
-                            '🎱 ${user} pregunta: ${1:} | La Bola 8 dice: ${customapi.{baseURL}/api/twitch/minigames/magic8?question=${1:}&mood=sarcastic&apiKey=TU_API_KEY}',
+                            '🎱 ${user} pregunta: ${1:} | La Bola 8 dice: ${customapi.{baseURL}/api/minigames/magic8?question=${1:}&mood=sarcastic&apiKey=TU_API_KEY}',
                         fossabot:
-                            '🎱 $(user) pregunta: $(query) | La Bola 8 dice: $(customapi {baseURL}/api/twitch/minigames/magic8?question=$(query)&mood=sarcastic&apiKey=TU_API_KEY)'
+                            '🎱 $(user) pregunta: $(query) | La Bola 8 dice: $(customapi {baseURL}/api/minigames/magic8?question=$(query)&mood=sarcastic&apiKey=TU_API_KEY)'
                     }}
                 />
             </section>
@@ -454,7 +454,7 @@ export function DocsContent() {
                 </p>
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
-                    <span className={docsUrl}>/api/twitch/minigames/russian?user={'{usuario}'}&apiKey={'{clave}'}</span>
+                    <span className={docsUrl}>/api/minigames/russian?user={'{usuario}'}&apiKey={'{clave}'}</span>
                 </div>
                 <div className={`${docsInfoCardRed} mt-6`}>
                     <AlertTriangle />
@@ -467,11 +467,11 @@ export function DocsContent() {
                     trigger="!russian"
                     snippets={{
                         nightbot:
-                            '$(urlfetch {baseURL}/api/twitch/minigames/russian?user=$(user)&apiKey=TU_API_KEY)',
+                            '$(urlfetch {baseURL}/api/minigames/russian?user=$(user)&apiKey=TU_API_KEY)',
                         streamelements:
-                            '${customapi.{baseURL}/api/twitch/minigames/russian?user=${user}&apiKey=TU_API_KEY}',
+                            '${customapi.{baseURL}/api/minigames/russian?user=${user}&apiKey=TU_API_KEY}',
                         fossabot:
-                            '$(customapi {baseURL}/api/twitch/minigames/russian?user=$(user)&apiKey=TU_API_KEY)'
+                            '$(customapi {baseURL}/api/minigames/russian?user=$(user)&apiKey=TU_API_KEY)'
                     }}
                 />
             </section>
@@ -484,7 +484,7 @@ export function DocsContent() {
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
                     <span className={docsUrl}>
-                        /api/twitch/minigames/duel?challenger={'{retador}'}&target={'{oponente}'}&apiKey={'{clave}'}
+                        /api/minigames/duel?challenger={'{retador}'}&target={'{oponente}'}&apiKey={'{clave}'}
                     </span>
                 </div>
                 <h3>Parámetros</h3>
@@ -514,11 +514,11 @@ export function DocsContent() {
                     trigger="!duel"
                     snippets={{
                         nightbot:
-                            '$(urlfetch {baseURL}/api/twitch/minigames/duel?challenger=$(user)&target=$(touser)&apiKey=TU_API_KEY)',
+                            '$(urlfetch {baseURL}/api/minigames/duel?challenger=$(user)&target=$(touser)&apiKey=TU_API_KEY)',
                         streamelements:
-                            '${customapi.{baseURL}/api/twitch/minigames/duel?challenger=${user}&target=${touser}&apiKey=TU_API_KEY}',
+                            '${customapi.{baseURL}/api/minigames/duel?challenger=${user}&target=${touser}&apiKey=TU_API_KEY}',
                         fossabot:
-                            '$(customapi {baseURL}/api/twitch/minigames/duel?challenger=$(user)&target=$(touser)&apiKey=TU_API_KEY)'
+                            '$(customapi {baseURL}/api/minigames/duel?challenger=$(user)&target=$(touser)&apiKey=TU_API_KEY)'
                     }}
                 />
             </section>
@@ -531,7 +531,7 @@ export function DocsContent() {
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
                     <span className={docsUrl}>
-                        /api/twitch/dashboard/get-clips?channel={'{canal}'}&apiKey={'{tu_api_key}'}&limit=10
+                        /api/dashboard/get-clips?channel={'{canal}'}&apiKey={'{tu_api_key}'}&limit=10
                     </span>
                 </div>
                 <h3>Ejemplo de Respuesta (JSON)</h3>

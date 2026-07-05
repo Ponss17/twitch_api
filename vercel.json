@@ -8,30 +8,51 @@
             "includeFiles": "api/_bundle/**"
         }
     },
-    "redirects": [
-        { "source": "/", "destination": "/api/twitch/", "permanent": false },
-        { "source": "/api/twitch", "destination": "/api/twitch/", "permanent": true }
-    ],
     "headers": [
         {
-            "source": "/api/twitch/sw.js",
-            "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+            "source": "/sw.js",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=0, must-revalidate"
+                }
+            ]
         },
         {
-            "source": "/api/twitch/img/:path*",
-            "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+            "source": "/img/:path*",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=31536000, immutable"
+                }
+            ]
         },
         {
-            "source": "/api/twitch/_astro/:path*",
-            "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+            "source": "/_astro/:path*",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=31536000, immutable"
+                }
+            ]
         },
         {
-            "source": "/api/twitch/overlay/:path*",
-            "headers": [{ "key": "Cache-Control", "value": "no-store, must-revalidate" }]
+            "source": "/overlay/:path*",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, must-revalidate"
+                }
+            ]
         },
         {
             "source": "/(.*).html",
-            "headers": [{ "key": "Cache-Control", "value": "private, max-age=0, must-revalidate" }]
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "private, max-age=0, must-revalidate"
+                }
+            ]
         },
         {
             "source": "/(.*)",
@@ -73,171 +94,43 @@
     ],
     "rewrites": [
         {
-            "source": "/api/twitch/",
-            "destination": "/index.html"
-        },
-        {
-            "source": "/api/twitch/docs",
-            "destination": "/docs/index.html"
-        },
-        {
-            "source": "/api/twitch/docs/",
-            "destination": "/docs/index.html"
-        },
-        {
-            "source": "/api/twitch/dashboard",
+            "source": "/dashboard/:tab(followage|clips|shoutout|trends|stalker|magic8|roulette|russian|duel|profile|feedback)",
             "destination": "/dashboard/index.html"
         },
         {
-            "source": "/api/twitch/dashboard/",
-            "destination": "/dashboard/index.html"
-        },
-        {
-            "source": "/api/twitch/dashboard/:tab(followage|clips|shoutout|trends|stalker|magic8|roulette|russian|duel|profile|feedback)",
-            "destination": "/dashboard/index.html"
-        },
-        {
-            "source": "/api/twitch/overlay/roulette",
-            "destination": "/overlay/roulette/index.html"
-        },
-        {
-            "source": "/api/twitch/overlay/roulette/",
-            "destination": "/overlay/roulette/index.html"
-        },
-        {
-            "source": "/api/twitch/overlay/trends",
-            "destination": "/overlay/trends/index.html"
-        },
-        {
-            "source": "/api/twitch/overlay/trends/",
-            "destination": "/overlay/trends/index.html"
-        },
-        {
-            "source": "/api/twitch/sobre-la-api",
-            "destination": "/sobre-la-api/index.html"
-        },
-        {
-            "source": "/api/twitch/sobre-la-api/",
-            "destination": "/sobre-la-api/index.html"
-        },
-        {
-            "source": "/api/twitch/privacidad",
-            "destination": "/privacidad/index.html"
-        },
-        {
-            "source": "/api/twitch/privacidad/",
-            "destination": "/privacidad/index.html"
-        },
-        {
-            "source": "/api/twitch/terminos",
-            "destination": "/terminos/index.html"
-        },
-        {
-            "source": "/api/twitch/terminos/",
-            "destination": "/terminos/index.html"
-        },
-        {
-            "source": "/api/twitch/cookies",
-            "destination": "/cookies/index.html"
-        },
-        {
-            "source": "/api/twitch/cookies/",
-            "destination": "/cookies/index.html"
-        },
-        {
-            "source": "/api/twitch/offline",
-            "destination": "/offline/index.html"
-        },
-        {
-            "source": "/api/twitch/offline/",
-            "destination": "/offline/index.html"
-        },
-        {
-            "source": "/api/twitch/404",
+            "source": "/404",
             "destination": "/404.html"
         },
         {
-            "source": "/api/twitch/404/",
+            "source": "/404/",
             "destination": "/404.html"
         },
         {
-            "source": "/api/twitch/429",
+            "source": "/429",
             "destination": "/429/index.html"
         },
         {
-            "source": "/api/twitch/429/",
+            "source": "/429/",
             "destination": "/429/index.html"
         },
         {
-            "source": "/api/twitch/500",
+            "source": "/500",
             "destination": "/500.html"
         },
         {
-            "source": "/api/twitch/500/",
+            "source": "/500/",
             "destination": "/500.html"
         },
         {
-            "source": "/api/twitch/_astro/:path*",
-            "destination": "/_astro/:path*"
-        },
-        {
-            "source": "/api/twitch/img/:path*",
-            "destination": "/img/:path*"
-        },
-        {
-            "source": "/api/twitch/sw.js",
-            "destination": "/sw.js"
-        },
-        {
-            "source": "/api/twitch/manifest.json",
-            "destination": "/manifest.json"
-        },
-        {
-            "source": "/api/twitch/create-clip",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/api/twitch/followage",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/api/twitch/shoutout",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/api/twitch/send-message",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/api/twitch/health",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/api/twitch/minigames/:path*",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/api/twitch/dashboard/overlay-state/:tool",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/api/twitch/dashboard/:endpoint(get-clips|analytics|chatters|user-info|summary|activity|track-usage|timezone|clear-data|delete-account|export-check|export-complete|overlay-link)",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/api/twitch/system/:path*",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/api/twitch/auth/:path*",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/twitch/:path*",
+            "source": "/api/:path*",
             "destination": "/api/index.js"
         },
         {
             "source": "/auth/:path*",
+            "destination": "/api/index.js"
+        },
+        {
+            "source": "/twitch/:path*",
             "destination": "/api/index.js"
         },
         {
