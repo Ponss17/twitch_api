@@ -12,9 +12,9 @@ describe('Integration: Rutas del sistema', () => {
         });
     });
 
-    describe('GET /api/twitch/health', () => {
+    describe('GET /api/health', () => {
         it('debe responder igual que /health', async () => {
-            const res = await request(app).get('/api/twitch/health');
+            const res = await request(app).get('/api/health');
             expect(res.status).toBe(200);
             expect(res.body.status).toBeDefined();
         });
@@ -38,17 +38,17 @@ describe('Integration: Rutas del sistema', () => {
 });
 
 describe('Integration: Rutas protegidas', () => {
-    describe('GET /api/twitch/dashboard/summary', () => {
+    describe('GET /api/dashboard/summary', () => {
         it('debe rechazar sin token ni apiKey', async () => {
-            const res = await request(app).get('/api/twitch/dashboard/summary');
+            const res = await request(app).get('/api/dashboard/summary');
             expect([401, 403]).toContain(res.status);
         });
     });
 
-    describe('GET /api/twitch/dashboard/analytics', () => {
+    describe('GET /api/dashboard/analytics', () => {
         it('debe rechazar sin autenticación con error JSON unificado', async () => {
             const res = await request(app)
-                .get('/api/twitch/dashboard/analytics')
+                .get('/api/dashboard/analytics')
                 .set('Accept', 'application/json');
 
             expect([401, 403]).toContain(res.status);
@@ -58,19 +58,19 @@ describe('Integration: Rutas protegidas', () => {
         });
     });
 
-    describe('POST /api/twitch/dashboard/clear-data', () => {
+    describe('POST /api/dashboard/clear-data', () => {
         it('debe rechazar sin autenticación', async () => {
             const res = await request(app)
-                .post('/api/twitch/dashboard/clear-data')
+                .post('/api/dashboard/clear-data')
                 .send({ confirm: 'LIMPIAR' });
             expect([401, 403]).toContain(res.status);
         });
     });
 
-    describe('DELETE /api/twitch/dashboard/delete-account', () => {
+    describe('DELETE /api/dashboard/delete-account', () => {
         it('debe rechazar sin autenticación', async () => {
             const res = await request(app)
-                .delete('/api/twitch/dashboard/delete-account')
+                .delete('/api/dashboard/delete-account')
                 .send({ confirm: 'ELIMINAR' });
             expect([401, 403]).toContain(res.status);
         });
@@ -81,7 +81,7 @@ describe('Integration: Rutas inexistentes', () => {
     describe('GET /ruta-que-no-existe', () => {
         it('debe rechazar rutas desconocidas (401 o 404)', async () => {
             const res = await request(app)
-                .get('/api/twitch/ruta-inventada-12345')
+                .get('/api/ruta-inventada-12345')
                 .set('Accept', 'application/json');
             expect([401, 404]).toContain(res.status);
         });
