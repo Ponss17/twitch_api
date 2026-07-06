@@ -25,7 +25,18 @@ const SENSITIVE_QUERY_PARAMS = [
     'userId'
 ] as const;
 
+/** No duplicar credenciales en caché de validate — ya viven en twitch_api_session */
+const VALIDATE_CACHE_SENSITIVE_KEYS = ['apiKey', 'overlayToken', 'token'] as const;
+
 let authChannel: BroadcastChannel | null = null;
+
+function stripValidateCachePayload(result: ApiResponse): ApiResponse {
+    const sanitized = { ...result };
+    for (const key of VALIDATE_CACHE_SENSITIVE_KEYS) {
+        delete sanitized[key];
+    }
+    return sanitized;
+}
 
 function validateCacheKey(session: Session): string {
     return `${VALIDATE_CACHE_BASE}_${sessionFingerprint(session)}`;
@@ -268,7 +279,7 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
                         label: 'Sesión validada (caché local)',
                         cached: true
                     });
-                    return cached.result;
+                    return stripValidateCachePayload(cached.result);
                 }
             }
         } catch {
@@ -369,7 +380,7 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
             try {
                 localStorage.setItem(
                     validateCacheKey(session),
-                    JSON.stringify({ at: Date.now(), result })
+                    JSON.stringify({ at: Date.now(), result: stripValidateCachePayload(result) })
                 );
                 localStorage.removeItem(LEGACY_VALIDATE_CACHE_KEY);
             } catch {

@@ -7,7 +7,8 @@ jest.mock('@/core/config/config', () => ({
     }
 }));
 
-import { getSession, resolveSessionFromUrl, saveSession, stripSensitiveQueryParams } from '@/core/api/auth';
+import { getSession, resolveSessionFromUrl, saveSession, stripSensitiveQueryParams, validateSession } from '@/core/api/auth';
+import { sessionFingerprint } from '@/core/session/localPrefs';
 
 describe('resolveSessionFromUrl', () => {
     beforeEach(() => {
@@ -66,5 +67,62 @@ describe('stripSensitiveQueryParams', () => {
         expect(window.location.pathname).toBe('/api/twitch/dashboard');
         expect(window.location.search).toBe('');
         expect(getSession()).toBeNull();
+    });
+});
+
+describe('validateSession cache', () => {
+    beforeEach(() => {
+        localStorage.clear();
+        jest.clearAllMocks();
+        global.fetch = jest.fn();
+    });
+
+    it('persists validate cache without apiKey or token', async () => {
+        const session = { apiKey: 'secret-key', userId: '205997464', login: 'ponss' };
+
+        (global.fetch as jest.Mock).mockResolvedValue({
+            ok: true,
+            headers: { get: () => 'application/json' },
+            json: async () => ({
+                valid: true,
+                apiKey: 'secret-key',
+                user: { id: '205997464', login: 'ponss' }
+            })
+        });
+
+        await validateSession(session);
+
+        const cacheKey = `twitch_validate_cache_${sessionFingerprint(session)}`;
+        const cached = JSON.parse(localStorage.getItem(cacheKey)!) as {
+            result: { apiKey?: string; token?: string; valid?: boolean };
+        };
+
+        expect(cached.result.valid).toBe(true);
+        expect(cached.result.apiKey).toBeUndefined();
+        expect(cached.result.token).toBeUndefined();
+        expect(getSession()?.apiKey).toBe('secret-key');
+    });
+
+    it('sanitizes legacy cache entries on read', async () => {
+        const session = { apiKey: 'secret-key', userId: '205997464' };
+        const cacheKey = `twitch_validate_cache_${sessionFingerprint(session)}`;
+
+        localStorage.setItem(
+            cacheKey,
+            JSON.stringify({
+                at: Date.now(),
+                result: {
+                    valid: true,
+                    apiKey: 'leaked-from-old-cache',
+                    user: { id: '205997464' }
+                }
+            })
+        );
+
+        const result = await validateSession(session);
+
+        expect(result.valid).toBe(true);
+        expect(result.apiKey).toBeUndefined();
+        expect(global.fetch).not.toHaveBeenCalled();
     });
 });
