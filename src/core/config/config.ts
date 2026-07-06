@@ -30,7 +30,7 @@ export const API_ENDPOINTS = {
 /** Página pública de estado (Better Stack). */
 export const STATUS_PAGE_URL = 'https://status.losperris.dev';
 
-/** Debe coincidir con twitch_api/frontend/features/dashboard/dashboard-config.ts */
+/** Bots ignorados en métricas de chat (stalker, trends, etc.). */
 export const IGNORED_BOTS = new Set([
     'nightbot',
     'streamelements',

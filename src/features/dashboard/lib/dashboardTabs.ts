@@ -19,10 +19,6 @@ import {
 export const MAGIC8_ICON = CircleDot;
 export const RUSSIAN_ICON = Crosshair;
 
-export const ICON_SM = 'size-4 shrink-0';
-export const ICON_MD = 'size-5 shrink-0';
-export const ICON_LG = 'size-7 shrink-0';
-
 export interface NavItem {
     id: DashboardTab;
     label: string;

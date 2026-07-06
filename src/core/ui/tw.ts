@@ -140,5 +140,3 @@ export const sidebarSupportLink = `${sidebarNavButtonBase} mx-auto w-[calc(100%-
 
 export const sidebarBackdrop =
     'fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm lg:hidden';
-
-export const panelMainOffset = 'flex min-h-screen flex-col lg:ml-[280px]';
