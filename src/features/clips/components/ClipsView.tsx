@@ -81,6 +81,16 @@ export function ClipsView() {
     const [page, setPage] = useState(1);
     const [showFavsOnly, setShowFavsOnly] = useState(false);
     const [playingClip, setPlayingClip] = useState<Clip | null>(null);
+    const [embedSession, setEmbedSession] = useState(0);
+
+    const openClipPlayer = (clip: Clip) => {
+        setPlayingClip(clip);
+        setEmbedSession((n) => n + 1);
+    };
+
+    const closeClipPlayer = () => {
+        setPlayingClip(null);
+    };
 
     useEffect(() => {
         if (session.userId) {
@@ -284,7 +294,7 @@ export function ClipsView() {
 
                                             <button
                                                 type="button"
-                                                onClick={() => setPlayingClip(clip)}
+                                                onClick={() => openClipPlayer(clip)}
                                                 className="group/thumb relative block w-full cursor-pointer border-none bg-transparent p-0 text-left"
                                                 aria-label={`Reproducir clip ${clip.title ?? clip.id}`}
                                             >
@@ -345,7 +355,7 @@ export function ClipsView() {
 
             <BaseModal
                 open={!!playingClip}
-                onClose={() => setPlayingClip(null)}
+                onClose={closeClipPlayer}
                 dialogClassName={clipPlayerDialog}
                 className="relative aspect-video w-full overflow-hidden rounded-xl bg-black shadow-2xl"
             >
@@ -353,18 +363,18 @@ export function ClipsView() {
                     <>
                         <button
                             type="button"
-                            onClick={() => setPlayingClip(null)}
+                            onClick={closeClipPlayer}
                             className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border-none bg-black/70 text-white backdrop-blur-sm transition hover:bg-primary"
                             aria-label="Cerrar reproductor"
                         >
                             <X className="h-4 w-4" />
                         </button>
                         <iframe
+                            key={`${playingClip.id}-${embedSession}`}
                             title={playingClip.title ?? 'Clip de Twitch'}
                             src={clipEmbedSrc(playingClip.id)}
-                            allow="autoplay; fullscreen"
                             allowFullScreen
-                            className="absolute inset-0 h-full w-full border-none"
+                            className="absolute inset-0 h-full w-full border-none bg-black"
                         />
                     </>
                 ) : null}

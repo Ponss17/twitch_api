@@ -56,7 +56,7 @@ export const dialogBase =
     'fixed inset-0 z-[2000] m-auto w-[90%] max-w-[500px] border-none bg-transparent p-0 shadow-none backdrop:bg-black/60 backdrop:backdrop-blur-sm';
 
 export const clipPlayerDialog =
-    'fixed inset-0 z-[2000] m-auto w-[92%] max-w-4xl border-none bg-transparent p-0 shadow-none backdrop:bg-black/80 backdrop:backdrop-blur-sm';
+    'fixed inset-0 z-[2000] m-auto flex w-full max-w-4xl items-center justify-center border-none bg-transparent p-4 shadow-none backdrop:bg-black/90 backdrop:backdrop-blur-sm';
 
 export const modalPanel = 'overflow-hidden rounded-xl border border-white/[0.08] bg-bg-card animate-fade-soft';
 
