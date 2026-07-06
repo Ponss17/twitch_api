@@ -40,6 +40,7 @@ export interface BaseModalProps {
     children: ReactNode;
     closeOnBackdrop?: boolean;
     className?: string;
+    dialogClassName?: string;
 }
 
 export function BaseModal({
@@ -47,7 +48,8 @@ export function BaseModal({
     onClose,
     children,
     closeOnBackdrop = true,
-    className = ''
+    className = '',
+    dialogClassName = dialogBase
 }: BaseModalProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
@@ -100,7 +102,7 @@ export function BaseModal({
     return (
         <dialog
             ref={dialogRef}
-            className={dialogBase}
+            className={dialogClassName}
             onClick={(e) => {
                 if (closeOnBackdrop && e.target === dialogRef.current) handleClose();
             }}

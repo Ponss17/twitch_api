@@ -6,11 +6,11 @@ import { useToast } from '@/shared/ui/ToastProvider';
 import { ClipsGridSkeleton } from '@/shared/ui/Skeleton';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { cache, CACHE_TTL } from '@/core/cache/cacheService';
-import { card, fadeIn } from '@/core/ui/tw';
+import { card, fadeIn, clipPlayerDialog } from '@/core/ui/tw';
 import { BaseModal } from '@/shared/ui/Modal';
 import { SelectField } from '@/shared/ui/SelectField';
 import { ClipCommandView } from '@/features/commands/components/CommandsViews';
-import { Star, RotateCw, Link, Images, Search, Play, Eye } from 'lucide-react';
+import { Star, RotateCw, Link as LinkIcon, Images, Search, Play, X } from 'lucide-react';
 
 
 interface Clip {
@@ -54,6 +54,11 @@ function loadFavorites(userId: string): string[] {
 
 function saveFavorites(userId: string, favorites: string[]) {
     localStorage.setItem(`clips_favs_${userId}`, JSON.stringify(favorites));
+}
+
+function clipEmbedSrc(clipId: string) {
+    const parent = window.location.hostname;
+    return `https://clips.twitch.tv/embed?clip=${clipId}&parent=${encodeURIComponent(parent)}&autoplay=true`;
 }
 
 function formatClipDate(value?: string) {
@@ -257,7 +262,7 @@ export function ClipsView() {
                                     const isAboveFold = index < 6;
 
                                     return (
-                                        <div key={clip.id} className={CLIP_CARD}>
+                                        <article key={clip.id} className={CLIP_CARD}>
                                             <div className="absolute top-2.5 right-2.5 z-[2] flex gap-1 opacity-0 transition group-hover/card:opacity-100">
                                                 <button
                                                     type="button"
@@ -273,50 +278,54 @@ export function ClipsView() {
                                                     title="Copiar enlace"
                                                     className={CLIP_ACTION_BTN}
                                                 >
-                                                    <Link className="text-[0.75rem]" />
+                                                    <LinkIcon className="text-[0.75rem]" />
                                                 </button>
                                             </div>
+
                                             <button
                                                 type="button"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setPlayingClip(clip);
-                                                }}
-                                                className="block w-full text-left text-inherit no-underline border-none bg-transparent p-0 cursor-pointer relative group/img"
+                                                onClick={() => setPlayingClip(clip)}
+                                                className="group/thumb relative block w-full cursor-pointer border-none bg-transparent p-0 text-left"
+                                                aria-label={`Reproducir clip ${clip.title ?? clip.id}`}
                                             >
-                                                {clip.thumbnail_url && (
+                                                {clip.thumbnail_url ? (
                                                     <>
                                                         <img
                                                             src={clip.thumbnail_url}
-                                                            alt={clip.title ?? 'Clip'}
+                                                            alt=""
                                                             loading={isAboveFold ? 'eager' : 'lazy'}
                                                             fetchPriority={index === 0 ? 'high' : undefined}
-                                                            className="aspect-video w-full bg-bg-secondary object-cover transition duration-300 group-hover/img:opacity-60"
+                                                            className="aspect-video w-full bg-bg-secondary object-cover transition duration-300 group-hover/thumb:opacity-60"
                                                         />
-                                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 transition duration-300 group-hover/img:opacity-100 pointer-events-none">
+                                                        <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition duration-300 group-hover/thumb:opacity-100">
                                                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/90 text-white shadow-lg backdrop-blur-sm">
-                                                                <Play className="h-5 w-5 ml-1" fill="currentColor" />
+                                                                <Play className="ml-1 h-5 w-5" fill="currentColor" />
                                                             </div>
                                                         </div>
                                                     </>
+                                                ) : (
+                                                    <div className="flex aspect-video w-full items-center justify-center bg-black/40 text-[#71717a]">
+                                                        <Play className="h-8 w-8" />
+                                                    </div>
                                                 )}
-                                                <div className="p-3">
-                                                    <div
-                                                        className="mb-2 truncate text-[0.8125rem] font-semibold"
-                                                        title={clip.title ?? 'Sin título'}
-                                                    >
-                                                        {clip.title ?? 'Sin título'}
-                                                    </div>
-                                                    <div className="flex justify-between text-[0.6875rem] text-[#c4c4cc]">
-                                                        <span>
-                                                            <Eye className="mr-1" />
-                                                            {viewsStr}
-                                                        </span>
-                                                        <span>{dateStr}</span>
-                                                    </div>
-                                                </div>
                                             </button>
-                                        </div>
+
+                                            <div className="p-3">
+                                                <a
+                                                    href={clip.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="mb-2 block truncate text-[0.8125rem] font-semibold text-primary no-underline transition hover:underline"
+                                                    title={clip.title ?? 'Sin título'}
+                                                >
+                                                    {clip.title ?? 'Sin título'}
+                                                </a>
+                                                <div className="flex justify-between text-[0.6875rem] text-[#71717a]">
+                                                    <span>{viewsStr} visualizaciones</span>
+                                                    <span>{dateStr}</span>
+                                                </div>
+                                            </div>
+                                        </article>
                                     );
                                 })}
                             </div>
@@ -337,15 +346,28 @@ export function ClipsView() {
             <BaseModal
                 open={!!playingClip}
                 onClose={() => setPlayingClip(null)}
-                className="relative flex aspect-video w-full max-w-4xl flex-col overflow-hidden rounded-xl bg-black p-0 shadow-2xl"
+                dialogClassName={clipPlayerDialog}
+                className="relative aspect-video w-full overflow-hidden rounded-xl bg-black shadow-2xl"
             >
-                {playingClip && (
-                    <iframe
-                        src={`https://clips.twitch.tv/embed?clip=${playingClip.id}&parent=${window.location.hostname}&autoplay=true`}
-                        allowFullScreen
-                        className="absolute left-0 top-0 h-full w-full border-none"
-                    />
-                )}
+                {playingClip ? (
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => setPlayingClip(null)}
+                            className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border-none bg-black/70 text-white backdrop-blur-sm transition hover:bg-primary"
+                            aria-label="Cerrar reproductor"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                        <iframe
+                            title={playingClip.title ?? 'Clip de Twitch'}
+                            src={clipEmbedSrc(playingClip.id)}
+                            allow="autoplay; fullscreen"
+                            allowFullScreen
+                            className="absolute inset-0 h-full w-full border-none"
+                        />
+                    </>
+                ) : null}
             </BaseModal>
         </>
     );
