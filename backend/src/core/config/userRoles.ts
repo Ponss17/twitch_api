@@ -2,10 +2,10 @@ import { CACHE_TTL } from './cacheTtl';
 
 
 export const USER_ROLES = {
-    default: { label: 'Default', rateLimit: 60, cacheTtl: 60 },
-    pro: { label: 'Pro', rateLimit: 120, cacheTtl: 120 },
-    vip: { label: 'VIP', rateLimit: 300, cacheTtl: 300 },
-    partner: { label: 'Partner', rateLimit: 500, cacheTtl: 600 }
+    default: { label: 'Default', rateLimit: 30, cacheMultiplier: 1.0 },
+    pro: { label: 'Pro', rateLimit: 60, cacheMultiplier: 0.75 },
+    vip: { label: 'VIP', rateLimit: 90, cacheMultiplier: 0.5 },
+    partner: { label: 'Partner', rateLimit: 120, cacheMultiplier: 0.25 }
 } as const;
 
 export type UserRole = keyof typeof USER_ROLES;
@@ -23,7 +23,7 @@ export interface ResolvedUserLimits {
     role: UserRole;
     roleLabel: string;
     rateLimit: number;
-    cacheTtl: number;
+    cacheMultiplier: number;
     hasCustomRateLimit: boolean;
     hasCustomCacheTtl: boolean;
 }
@@ -45,15 +45,15 @@ export function resolveUserRateLimit(user?: UserLimitsSource | null): number {
     return getRoleConfig(user?.role).rateLimit;
 }
 
-/** Prioridad: personalizado → min(rol, TTL del recurso). */
+/** Prioridad: personalizado → fallbackTtl * roleMultiplier. */
 export function resolveUserCacheTtl(
     user?: UserLimitsSource | null,
     fallbackTtl: number = CACHE_TTL.COMMAND
 ): number {
     const custom = user?.customCacheTtl;
     if (typeof custom === 'number' && custom > 0) return custom;
-    const roleTtl = getRoleConfig(user?.role).cacheTtl;
-    return Math.min(roleTtl, fallbackTtl);
+    const multiplier = getRoleConfig(user?.role).cacheMultiplier;
+    return Math.max(1, Math.round(fallbackTtl * multiplier));
 }
 
 export function resolveUserLimits(user?: UserLimitsSource | null): ResolvedUserLimits {
@@ -68,11 +68,11 @@ export function resolveUserLimits(user?: UserLimitsSource | null): ResolvedUserL
         role,
         roleLabel: roleConfig.label,
         rateLimit: hasCustomRateLimit ? user!.customRateLimit! : roleConfig.rateLimit,
-        cacheTtl: hasCustomCacheTtl ? user!.customCacheTtl! : roleConfig.cacheTtl,
+        cacheMultiplier: roleConfig.cacheMultiplier,
         hasCustomRateLimit,
         hasCustomCacheTtl
     };
 }
 
 /** Default mostrado en perfil cuando no hay override ni rol especial. */
-export const DEFAULT_USER_CACHE_TTL = USER_ROLES.default.cacheTtl;
+export const DEFAULT_USER_CACHE_TTL = 60;

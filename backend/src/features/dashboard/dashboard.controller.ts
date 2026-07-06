@@ -231,8 +231,8 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
 
                 const result = buildDashboardProfile(info, followers, limits);
 
-                await cacheService.set(cacheKey, result, limits.cacheTtl);
-                res.json({ ...result, ...limits });
+                await cacheService.set(cacheKey, result, resolveUserCacheTtl(apiUser, CACHE_TTL.DASHBOARD_PROFILE));
+                res.json({ ...result, ...limits, cacheTtl: resolveUserCacheTtl(apiUser, CACHE_TTL.COMMAND) });
             } catch {
                 return jsonError(res, 500, MESSAGES.DASHBOARD.USER_INFO_ERROR);
             }
@@ -304,7 +304,7 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             role: limits.role,
             roleLabel: limits.roleLabel,
             rateLimit: limits.rateLimit,
-            cacheTtl: limits.cacheTtl,
+            cacheTtl: resolveUserCacheTtl(res.locals?.apiUser, CACHE_TTL.COMMAND),
             hasCustomRateLimit: limits.hasCustomRateLimit,
             hasCustomCacheTtl: limits.hasCustomCacheTtl
         };

@@ -62,7 +62,7 @@ export const getFollowAge = async (
     channel: string,
     user: string,
     token: string
-): Promise<{ text: string; timePhrase: string }> => {
+): Promise<{ text: string; timePhrase: string; followDateMs?: number }> => {
     try {
         const [channelId, userId] = await Promise.all([
             getUserId(channel, token),
@@ -97,7 +97,8 @@ export const getFollowAge = async (
 
         return {
             text: `${user} ha seguido a ${channel} por ${timePhrase}.`,
-            timePhrase
+            timePhrase,
+            followDateMs: followDate.getTime()
         };
     } catch (error: unknown) {
         // Special handling for 404 in followage to return a friendly message
