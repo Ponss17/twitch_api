@@ -143,7 +143,8 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                     )}
                 </div>
                 <p className="mt-1 text-[0.6875rem] text-[#71717a]">
-                    El token va incluido al copiar. No compartas el enlace en público.
+                    El token va incluido al copiar. No compartas el enlace en público; no hay forma de revocarlo desde
+                    el panel.
                 </p>
             </div>
 
