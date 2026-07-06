@@ -2,13 +2,15 @@ import { Response } from 'express';
 
 import * as apiService from '../twitch/twitch.service';
 import * as cacheService from '../../core/database/cacheService';
-import { CACHE_TTL, ownerScopedCacheKey, resolveUserCacheTtl } from '../../core/config/cacheTtl';
+import { CACHE_TTL, ownerScopedCacheKey } from '../../core/config/cacheTtl';
+import { resolveUserLimits } from '../../core/config/userRoles';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { safeString, sanitizeHtml } from '../../core/utils/validationHelpers';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
+import { getTimePhraseBetween } from '../../core/utils/time';
 
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     const channel = req.query.channel as string;
@@ -89,9 +91,14 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 userId,
                 `cache:cmd:followage:v3:channel:${channel}:user:${user}`
             );
-            const cached = await cacheService.get<{ text: string; timePhrase: string }>(cacheKey);
+            const cached = await cacheService.get<{ text: string; timePhrase: string; followDateMs?: number }>(cacheKey);
 
             if (cached && typeof cached === 'object') {
+                if (cached.followDateMs) {
+                    const newTimePhrase = getTimePhraseBetween(new Date(cached.followDateMs));
+                    cached.timePhrase = newTimePhrase;
+                    cached.text = `${user} ha seguido a ${channel} por ${newTimePhrase}.`;
+                }
                 const template = safeString(req.query.template);
                 res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
                 if (template && cached.timePhrase) {
@@ -110,7 +117,8 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 res,
                 async (token: string) => {
                     const resApi = await apiService.getFollowAge(channel, user, token);
-                    const ttl = resolveUserCacheTtl(res.locals.apiUser, CACHE_TTL.COMMAND);
+                    const limits = resolveUserLimits(res.locals.apiUser);
+                    const ttl = Math.round(CACHE_TTL.COMMAND / limits.cacheMultiplier);
                     await cacheService.set(cacheKey, resApi, ttl);
                     return resApi;
                 },
