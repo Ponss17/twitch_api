@@ -54,6 +54,7 @@ pnpm check-env     # Valida .env antes de arrancar la API
 
 ## Calidad y CI
 
+- **pnpm** 9.15.9 (`packageManager` en `package.json`); overrides y `onlyBuiltDependencies` en `package.json#pnpm`
 - **Husky**: pre-commit (`lint` + `type-check`), pre-push (`test`)
 - **GitHub Actions**: `.github/workflows/ci.yml` — lint, type-check, test, build
 
@@ -61,7 +62,20 @@ pnpm check-env     # Valida .env antes de arrancar la API
 
 - Páginas estáticas/SSR: Astro (`dist/`)
 - API: `vercel.json` reescribe `/api/*`, `/auth/*` y `/twitch/*` hacia `api/index.js`
-- Checklist de variables: [docs/SMOKE-PROD.md](docs/SMOKE-PROD.md) y `.env.example`
+- Variables: `.env.example` y sección Deploy en [ARCHITECTURE.md](ARCHITECTURE.md)
+
+### Smoke manual en producción
+
+URL canónica: `https://ttv.losperris.dev` (ventana incógnito, sin extensiones).
+
+1. Landing `/` carga sin errores en consola
+2. Login Twitch → dashboard con avatar
+3. Recarga: sesión persiste
+4. Pestañas actualizan URL (`/dashboard/clips`, etc.)
+5. Stalker/ruleta: chat TMI conecta
+6. Logout vuelve al landing
+
+Antes de desplegar: `pnpm lint && pnpm type-check && pnpm test && pnpm test:e2e`
 
 ### Logs en producción
 
@@ -79,7 +93,7 @@ Documentación interactiva: `/docs` (en producción: `https://ttv.losperris.dev/
 
 ## Arquitectura
 
-Detalle técnico: [ARCHITECTURE.md](ARCHITECTURE.md) · contexto para IA: [docs/AI-CONTEXT.md](docs/AI-CONTEXT.md).
+Detalle técnico, dependencias pnpm, deuda pendiente y SQL Supabase: [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Licencia
 
