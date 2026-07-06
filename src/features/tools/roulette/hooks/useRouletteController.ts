@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState, type TransitionEvent } from 'react';
-import confetti from 'canvas-confetti';
 import { API_ENDPOINTS, IGNORED_BOTS, type Session } from '@/core/config/config';
 import { authHeaders } from '@/core/api/auth';
 import { buildAuthQueryParam } from '@/core/api/authQuery';
@@ -259,11 +258,13 @@ export function useRouletteController({
                     `¡El ganador es @${picked.user_name}! (De ${count} participantes) ¡Felicidades!`
                 );
             }
-            confetti({
-                particleCount: 200,
-                spread: 100,
-                origin: { y: 0.5 },
-                colors: ['#9146ff', '#a78bfa', '#7c3aed', '#c4b5fd', '#6d28d9']
+            void import('canvas-confetti').then(({ default: confetti }) => {
+                confetti({
+                    particleCount: 200,
+                    spread: 100,
+                    origin: { y: 0.5 },
+                    colors: ['#9146ff', '#a78bfa', '#7c3aed', '#c4b5fd', '#6d28d9']
+                });
             });
 
             emitState({

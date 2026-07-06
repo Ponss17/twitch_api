@@ -29,7 +29,6 @@ const router = Router();
 router.get('/get-clips', heavyRateLimiter, validate(getClipsSchema), dashboardController.getClips);
 router.get(
     '/analytics',
-    heavyRateLimiter,
     validate(getAnalyticsSchema),
     dashboardController.getAnalytics
 );

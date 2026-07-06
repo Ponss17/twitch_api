@@ -7,6 +7,13 @@
 
 CREATE INDEX IF NOT EXISTS idx_users_login ON public.users (login);
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_api_key
+    ON public.users (api_key)
+    WHERE api_key IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_activity_user_created_desc
+    ON public.activity_logs (user_id, created_at DESC);
+
 CREATE INDEX IF NOT EXISTS idx_activity_user_created_asc
     ON public.activity_logs (user_id, created_at ASC);
 

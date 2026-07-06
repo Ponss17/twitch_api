@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Zap, CheckCircle2, Gauge } from 'lucide-react';
 import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
@@ -18,7 +19,7 @@ const STATS_ROW =
 const H_STAT =
     'group relative flex min-w-[170px] cursor-default items-center gap-4 rounded-[14px] border border-white/[0.03] bg-white/[0.02] px-6 py-4 transition-all duration-[400ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:-translate-y-0.5 hover:border-primary/40 hover:bg-white/[0.06] max-[1200px]:flex-1';
 
-export function HomeHero({
+export const HomeHero = memo(function HomeHero({
     displayName,
     resourceUsage,
     successRate,
@@ -127,4 +128,4 @@ export function HomeHero({
             </div>
         </section>
     );
-}
+});

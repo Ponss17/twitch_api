@@ -3,15 +3,11 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const root = path.join(__dirname, '..');
-const srcDir = path.join(root, 'dist/backend/src');
-const destDir = path.join(root, 'api/_bundle');
+const entry = path.join(__dirname, '..', 'api', '_bundle', 'serverless.js');
 
-if (!fs.existsSync(srcDir)) {
-    console.error(`[prepare-api-entry] Missing ${srcDir}. Run tsc -p tsconfig.backend.json first.`);
+if (!fs.existsSync(entry)) {
+    console.error(`[prepare-api-entry] Missing ${entry}. Run tsc -p tsconfig.backend.json first.`);
     process.exit(1);
 }
 
-fs.rmSync(destDir, { recursive: true, force: true });
-fs.cpSync(srcDir, destDir, { recursive: true });
-console.log('[prepare-api-entry] Copied backend bundle to api/_bundle');
+console.log('[prepare-api-entry] Backend bundle ready at api/_bundle');
