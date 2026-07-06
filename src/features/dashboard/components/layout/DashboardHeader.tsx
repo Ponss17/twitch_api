@@ -19,7 +19,7 @@ import { TwitchIcon, PaypalIcon } from '@/shared/ui/icons/BrandIcons';
 const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
 
 const headerGhostBtn =
-    'inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-[0.8125rem] font-medium text-[#c4c4cc] no-underline transition hover:border-white/15 hover:bg-white/[0.06] hover:text-[#fafafa]';
+    'inline-flex h-[34px] items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 text-[0.8125rem] font-medium text-[#c4c4cc] no-underline transition hover:border-white/15 hover:bg-white/[0.06] hover:text-[#fafafa]';
 
 interface DashboardHeaderProps {
     tab: DashboardTab;
@@ -59,7 +59,7 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                         className={headerGhostBtn}
                         title="Status del servicio"
                     >
-                        <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-[#22c55e] shadow-[0_0_8px_#22c55e]" />
+                        <span className="block h-[10px] w-[10px] shrink-0 animate-pulse rounded-full bg-[#22c55e] shadow-[0_0_8px_#22c55e]" />
                         <span className="hidden sm:inline">Status</span>
                     </a>
 
