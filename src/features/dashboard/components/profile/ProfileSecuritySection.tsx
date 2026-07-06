@@ -109,7 +109,7 @@ export function ProfileSecuritySection({
                             <button
                                 type="button"
                                 onClick={onRegenKey}
-                                className="flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] text-[#c4c4cc] transition hover:bg-[#ef4444]/[0.08] hover:text-[#ef4444]"
+                                className="flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] text-[#c4c4cc] transition hover:bg-error/[0.08] hover:text-error"
                                 title="Regenerar"
                             >
                                 <RotateCw className="w-4 h-4" />
@@ -117,9 +117,9 @@ export function ProfileSecuritySection({
                             <button
                                 type="button"
                                 onClick={onToggleDanger}
-                                className={`flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] transition hover:bg-[#ef4444]/[0.08] hover:text-[#ef4444] ${
+                                className={`flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] transition hover:bg-error/[0.08] hover:text-error ${
                                     showDanger
-                                        ? 'bg-[#ef4444] text-white shadow-[0_0_10px_rgba(239,68,68,0.3)] hover:bg-[#ef4444] hover:text-white'
+                                        ? 'bg-error text-white shadow-[0_0_10px_rgba(229,77,46,0.3)] hover:bg-error hover:text-white'
                                         : 'text-[#c4c4cc]'
                                 }`}
                                 title={showDanger ? 'Ocultar Zona de Peligro' : 'Mostrar Zona de Peligro'}
