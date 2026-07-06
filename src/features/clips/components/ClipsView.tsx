@@ -35,10 +35,17 @@ const CLIPS_GRID =
     'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5 max-[600px]:grid-cols-1';
 
 const CLIP_CARD =
-    'group/card relative overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary transition-all duration-200 hover:-translate-y-1 hover:border-white/20 hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.3)]';
+    'group/card relative overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary transition-all duration-200 hover:border-primary/25 hover:shadow-[0_8px_24px_-8px_rgba(145,70,255,0.2)]';
 
-const CLIP_ACTION_BTN =
-    'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-none bg-black/70 text-[#fafafa] backdrop-blur-[4px] transition hover:scale-110 hover:bg-primary';
+const CLIP_OVERLAY_BTN =
+    'flex h-7 w-7 items-center justify-center rounded-md bg-black/40 text-white/70 backdrop-blur-[2px] transition hover:bg-black/55 hover:text-white';
+
+const CLIP_TOOLBAR_BTN = (active = false) =>
+    `flex h-8 w-8 items-center justify-center rounded-md border transition ${
+        active
+            ? 'border-primary/40 bg-primary/15 text-primary'
+            : 'border-white/[0.08] bg-white/[0.02] text-[#c4c4cc] hover:border-primary/30 hover:bg-white/5 hover:text-[#fafafa]'
+    }`;
 
 const CLIPS_SEARCH =
     'w-full rounded-lg border border-white/[0.08] bg-bg-secondary py-[7px] pr-2.5 pl-9 text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:shadow-[0_0_0_3px_rgba(145,70,255,0.2)]';
@@ -197,19 +204,18 @@ export function ClipsView() {
                             type="button"
                             onClick={() => setShowFavsOnly((v) => !v)}
                             title="Solo favoritos"
-                            className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] transition hover:bg-white/5 ${
-                                showFavsOnly ? 'text-[#ffd700]' : 'text-[#c4c4cc] hover:text-[#fafafa]'
-                            }`}
+                            aria-pressed={showFavsOnly}
+                            className={CLIP_TOOLBAR_BTN(showFavsOnly)}
                         >
-                            <Star className={`${showFavsOnly ? 'fill-current' : ''}`} />
+                            <Star className={`h-3.5 w-3.5 ${showFavsOnly ? 'fill-current' : ''}`} />
                         </button>
                         <button
                             type="button"
                             onClick={() => void loadClips(true)}
                             title="Recargar lista de clips"
-                            className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#c4c4cc] transition hover:bg-white/5 hover:text-[#fafafa]"
+                            className={CLIP_TOOLBAR_BTN()}
                         >
-                            <RotateCw className="w-4 h-4" />
+                            <RotateCw className="h-3.5 w-3.5" />
                         </button>
                         <InfoTooltip text="Galería de tus clips más recientes. Se actualiza automáticamente." />
                     </div>
@@ -268,52 +274,73 @@ export function ClipsView() {
 
                                     return (
                                         <article key={clip.id} className={CLIP_CARD}>
-                                            <div className="absolute top-2.5 right-2.5 z-[2] flex gap-1 opacity-0 transition group-hover/card:opacity-100">
+                                            <div className="relative">
                                                 <button
                                                     type="button"
-                                                    onClick={() => toggleFavorite(clip.id)}
-                                                    title="Favorito"
-                                                    className={`${CLIP_ACTION_BTN} ${isFav ? 'text-[#ffd700] hover:bg-[rgba(255,215,0,0.2)]' : ''}`}
+                                                    onClick={() => openClipPlayer(clip)}
+                                                    className="group/thumb relative block w-full cursor-pointer border-none bg-transparent p-0 text-left"
+                                                    aria-label={`Reproducir clip ${clip.title ?? clip.id}`}
                                                 >
-                                                    <Star className={`${isFav ? 'fill-current' : ''} text-[0.75rem]`} />
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => void copyUrl(clip.url)}
-                                                    title="Copiar enlace"
-                                                    className={CLIP_ACTION_BTN}
-                                                >
-                                                    <LinkIcon className="text-[0.75rem]" />
-                                                </button>
-                                            </div>
-
-                                            <button
-                                                type="button"
-                                                onClick={() => openClipPlayer(clip)}
-                                                className="group/thumb relative block w-full cursor-pointer border-none bg-transparent p-0 text-left"
-                                                aria-label={`Reproducir clip ${clip.title ?? clip.id}`}
-                                            >
-                                                {clip.thumbnail_url ? (
-                                                    <>
-                                                        <img
-                                                            src={clip.thumbnail_url}
-                                                            alt=""
-                                                            loading={isAboveFold ? 'eager' : 'lazy'}
-                                                            fetchPriority={index === 0 ? 'high' : undefined}
-                                                            className="aspect-video w-full bg-bg-secondary object-cover transition duration-300 group-hover/thumb:opacity-60"
-                                                        />
-                                                        <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition duration-300 group-hover/thumb:opacity-100">
-                                                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/90 text-white shadow-lg backdrop-blur-sm">
-                                                                <Play className="ml-1 h-5 w-5" fill="currentColor" />
+                                                    {clip.thumbnail_url ? (
+                                                        <>
+                                                            <img
+                                                                src={clip.thumbnail_url}
+                                                                alt=""
+                                                                loading={isAboveFold ? 'eager' : 'lazy'}
+                                                                fetchPriority={index === 0 ? 'high' : undefined}
+                                                                className="aspect-video w-full bg-bg-secondary object-cover transition duration-200 group-hover/card:brightness-[0.88]"
+                                                            />
+                                                            <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition duration-200 group-hover/card:opacity-100">
+                                                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white/85 backdrop-blur-[2px]">
+                                                                    <Play
+                                                                        className="ml-0.5 h-3.5 w-3.5"
+                                                                        fill="currentColor"
+                                                                    />
+                                                                </div>
                                                             </div>
+                                                        </>
+                                                    ) : (
+                                                        <div className="flex aspect-video w-full items-center justify-center bg-black/30 text-[0.75rem] font-medium text-[#71717a]">
+                                                            Ver clip
                                                         </div>
-                                                    </>
-                                                ) : (
-                                                    <div className="flex aspect-video w-full items-center justify-center bg-black/40 text-[#71717a]">
-                                                        <Play className="h-8 w-8" />
-                                                    </div>
-                                                )}
-                                            </button>
+                                                    )}
+                                                </button>
+
+                                                <div className="absolute top-2 right-2 z-[2] flex gap-1 opacity-0 transition duration-200 group-hover/card:opacity-100">
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            toggleFavorite(clip.id);
+                                                        }}
+                                                        title="Favorito"
+                                                        aria-pressed={isFav}
+                                                        className={`${CLIP_OVERLAY_BTN} ${isFav ? 'text-primary' : ''}`}
+                                                    >
+                                                        <Star
+                                                            className={`h-3.5 w-3.5 ${isFav ? 'fill-current' : ''}`}
+                                                        />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            void copyUrl(clip.url);
+                                                        }}
+                                                        title="Copiar enlace"
+                                                        className={CLIP_OVERLAY_BTN}
+                                                    >
+                                                        <LinkIcon className="h-3.5 w-3.5" />
+                                                    </button>
+                                                </div>
+
+                                                {isFav ? (
+                                                    <Star
+                                                        className="pointer-events-none absolute top-2 right-2 z-[1] h-3.5 w-3.5 fill-primary/80 text-primary/80 opacity-70 group-hover/card:opacity-0"
+                                                        aria-hidden
+                                                    />
+                                                ) : null}
+                                            </div>
 
                                             <div className="p-3">
                                                 <a
@@ -325,9 +352,9 @@ export function ClipsView() {
                                                 >
                                                     {clip.title ?? 'Sin título'}
                                                 </a>
-                                                <div className="flex justify-between text-[0.6875rem] text-[#71717a]">
-                                                    <span>{viewsStr} visualizaciones</span>
-                                                    <span>{dateStr}</span>
+                                                <div className="flex justify-between gap-2 text-[0.6875rem] text-[#71717a]">
+                                                    <span className="truncate">{viewsStr} visualizaciones</span>
+                                                    <span className="shrink-0">{dateStr}</span>
                                                 </div>
                                             </div>
                                         </article>
