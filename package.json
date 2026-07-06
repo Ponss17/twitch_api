@@ -6,7 +6,6 @@
     "engines": {
         "node": ">=22.12.0"
     },
-    "packageManager": "pnpm@11.1.2",
     "scripts": {
         "dev": "concurrently \"pnpm dev:api\" \"pnpm dev:web\"",
         "dev:web": "astro dev",
@@ -94,5 +93,12 @@
         "tsx": "^4.21.0",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.61.1"
+    },
+    "pnpm": {
+        "overrides": {
+            "yaml": "2.9.0",
+            "js-yaml@3": "3.15.0",
+            "esbuild": "0.28.1"
+        }
     }
 }
