@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
 import { appPath } from '@/core/config/paths';
+
+const SITE_LABEL = 'www.losperris.dev';
+const SITE_URL = 'https://www.losperris.dev';
 
 const LEGAL_LINKS = [
     { href: '/privacidad', label: 'Privacidad' },
@@ -13,14 +15,6 @@ interface FooterProps {
 
 export function Footer({ isDashboard = false }: FooterProps) {
     const year = new Date().getFullYear();
-    const [site, setSite] = useState({ hostname: 'www.losperris.dev', origin: 'https://www.losperris.dev' });
-
-    useEffect(() => {
-        setSite({
-            hostname: window.location.hostname,
-            origin: window.location.origin
-        });
-    }, []);
 
     return (
         <footer className={`app-footer mt-auto w-full shrink-0 border-t border-white/[0.08] bg-[#09090b] py-8 ${isDashboard ? 'lg:pl-[280px]' : ''}`}>
@@ -39,12 +33,12 @@ export function Footer({ isDashboard = false }: FooterProps) {
                 <p className="w-full text-center text-[#a1a1aa]">
                     &copy; {year}{' '}
                     <a
-                        href={site.origin}
+                        href={SITE_URL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[#a78bfa] underline underline-offset-2 transition hover:text-[#9146ff]"
                     >
-                        {site.hostname}
+                        {SITE_LABEL}
                     </a>
                     . Creado para la comunidad. No afiliado con Twitch o Amazon.
                 </p>
