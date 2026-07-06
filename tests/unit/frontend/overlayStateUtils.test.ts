@@ -4,7 +4,14 @@ import {
     shouldShowRouletteOverlay,
     shouldShowTrendsOverlay,
     ROULETTE_OVERLAY_WINNER_MS,
-    TRENDS_OVERLAY_RESULTS_MS
+    TRENDS_OVERLAY_RESULTS_MS,
+    OVERLAY_POLL_IDLE_MS,
+    OVERLAY_POLL_TRENDS_MS,
+    OVERLAY_POLL_ROULETTE_MS,
+    OVERLAY_POLL_SPINNING_MS,
+    resolveOverlayPollIntervalMs,
+    updateOverlayPollAnchors,
+    type OverlayPollAnchors
 } from '@/features/tools/overlay/lib/overlayStateUtils';
 import type { RouletteOverlayState, TrendsOverlayState } from '@/features/tools/overlay/lib/types';
 
@@ -212,5 +219,120 @@ describe('overlayStateUtils', () => {
         expect(shouldShowTrendsOverlay(state, endedAt + TRENDS_OVERLAY_RESULTS_MS, endedAt)).toBe(
             false
         );
+    });
+
+    it('resolveOverlayPollIntervalMs usa poll rápido solo con sesión activa', () => {
+        const anchors: OverlayPollAnchors = {
+            winnerShownAt: null,
+            trendsEndedAt: null,
+            lastSpinSeq: -1,
+            wasTracking: false
+        };
+
+        const idleRoulette: RouletteOverlayState = {
+            chatters: [],
+            isOpen: false,
+            isSpinning: false,
+            wheelRotation: 0,
+            wheelTransition: 'none',
+            winner: null,
+            lastSpinCount: 0,
+            spinSeq: 0,
+            updatedAt: Date.now()
+        };
+        expect(resolveOverlayPollIntervalMs('roulette', idleRoulette, Date.now(), anchors)).toBe(
+            OVERLAY_POLL_IDLE_MS
+        );
+
+        const openRoulette = { ...idleRoulette, isOpen: true };
+        expect(resolveOverlayPollIntervalMs('roulette', openRoulette, Date.now(), anchors)).toBe(
+            OVERLAY_POLL_ROULETTE_MS
+        );
+
+        const spinning = { ...idleRoulette, isSpinning: true };
+        expect(resolveOverlayPollIntervalMs('roulette', spinning, Date.now(), anchors)).toBe(
+            OVERLAY_POLL_SPINNING_MS
+        );
+
+        const trendsIdle: TrendsOverlayState = {
+            tracking: false,
+            remaining: 0,
+            timerEnded: false,
+            wordCounts: {},
+            minutes: 5,
+            displayName: 'Test',
+            sessionActive: false,
+            updatedAt: Date.now()
+        };
+        expect(resolveOverlayPollIntervalMs('trends', trendsIdle, Date.now(), anchors)).toBe(
+            OVERLAY_POLL_IDLE_MS
+        );
+
+        const trendsLive = { ...trendsIdle, tracking: true, sessionActive: true, remaining: 60 };
+        expect(resolveOverlayPollIntervalMs('trends', trendsLive, Date.now(), anchors)).toBe(
+            OVERLAY_POLL_TRENDS_MS
+        );
+
+        expect(resolveOverlayPollIntervalMs('roulette', null, Date.now(), anchors)).toBe(
+            OVERLAY_POLL_IDLE_MS
+        );
+    });
+
+    it('resolveOverlayPollIntervalMs mantiene poll tras ganador hasta el margen', () => {
+        const winnerAt = 50_000;
+        const anchors: OverlayPollAnchors = {
+            winnerShownAt: winnerAt,
+            trendsEndedAt: null,
+            lastSpinSeq: 1,
+            wasTracking: false
+        };
+        const state: RouletteOverlayState = {
+            chatters: [],
+            isOpen: false,
+            isSpinning: false,
+            wheelRotation: 0,
+            wheelTransition: 'none',
+            winner: { user_login: 'a', user_name: 'A' },
+            lastSpinCount: 3,
+            spinSeq: 1,
+            updatedAt: winnerAt
+        };
+
+        expect(
+            resolveOverlayPollIntervalMs('roulette', state, winnerAt + 5_000, anchors)
+        ).toBe(OVERLAY_POLL_ROULETTE_MS);
+        expect(
+            resolveOverlayPollIntervalMs(
+                'roulette',
+                state,
+                winnerAt + ROULETTE_OVERLAY_WINNER_MS + 1,
+                anchors
+            )
+        ).toBe(OVERLAY_POLL_IDLE_MS);
+    });
+
+    it('updateOverlayPollAnchors reinicia el margen del ganador en cada giro', () => {
+        const anchors: OverlayPollAnchors = {
+            winnerShownAt: 1_000,
+            trendsEndedAt: null,
+            lastSpinSeq: 1,
+            wasTracking: false
+        };
+        const nextWinner: RouletteOverlayState = {
+            chatters: [],
+            isOpen: false,
+            isSpinning: false,
+            wheelRotation: 0,
+            wheelTransition: 'none',
+            winner: { user_login: 'b', user_name: 'B' },
+            lastSpinCount: 4,
+            spinSeq: 2,
+            updatedAt: Date.now()
+        };
+
+        const before = Date.now();
+        updateOverlayPollAnchors('roulette', nextWinner, anchors);
+        expect(anchors.lastSpinSeq).toBe(2);
+        expect(anchors.winnerShownAt).toBeGreaterThanOrEqual(before);
     });
 });

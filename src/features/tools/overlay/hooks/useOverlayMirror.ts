@@ -15,12 +15,13 @@ import {
     emptyRouletteOverlayState,
     emptyTrendsOverlayState
 } from '@/features/tools/overlay/lib/types';
-import { overlayStateFingerprint } from '@/features/tools/overlay/lib/overlayStateUtils';
+import {
+    overlayStateFingerprint,
+    resolveOverlayPollIntervalMs,
+    updateOverlayPollAnchors,
+    type OverlayPollAnchors
+} from '@/features/tools/overlay/lib/overlayStateUtils';
 
-const POLL_TRENDS_MS = 1000;
-const POLL_ROULETTE_MS = 450;
-const POLL_SPINNING_MS = 200;
-const POLL_STANDBY_MS = 3000;
 const STALE_MS = 8000;
 
 export function useOverlayMirror<T extends OverlayTool>(
@@ -44,10 +45,18 @@ export function useOverlayMirror<T extends OverlayTool>(
     emptyStateRef.current = emptyState;
     const [connected, setConnected] = useState(false);
     const [stale, setStale] = useState(true);
+    const [pollIntervalMs, setPollIntervalMs] = useState<number | null>(null);
     const lastPollAtRef = useRef(0);
     const lastSpinSeqRef = useRef(0);
     const lastReceivedFingerprintRef = useRef('');
     const wheelRotationRef = useRef(0);
+    const pollAnchorsRef = useRef<OverlayPollAnchors>({
+        winnerShownAt: null,
+        trendsEndedAt: null,
+        lastSpinSeq: -1,
+        wasTracking: false
+    });
+    const mirroredStateRef = useRef<State | null>(null);
     const sessionKey = overlaySessionKey(session);
 
     const applyRouletteSpin = useCallback((next: RouletteOverlayState) => {
@@ -97,6 +106,21 @@ export function useOverlayMirror<T extends OverlayTool>(
         return next;
     }, []);
 
+    const syncPollInterval = useCallback(
+        (nextState: State | null) => {
+            mirroredStateRef.current = nextState;
+            updateOverlayPollAnchors(tool, nextState, pollAnchorsRef.current);
+            const nextInterval = resolveOverlayPollIntervalMs(
+                tool,
+                nextState,
+                Date.now(),
+                pollAnchorsRef.current
+            );
+            setPollIntervalMs((prev) => (prev === nextInterval ? prev : nextInterval));
+        },
+        [tool]
+    );
+
     const poll = useCallback(async () => {
         if (!hasOverlayPollCredentials(session)) return;
 
@@ -109,6 +133,7 @@ export function useOverlayMirror<T extends OverlayTool>(
                 debugWarn(`[overlay] poll ${tool} HTTP ${res.status}`);
                 setConnected(false);
                 setStale(true);
+                syncPollInterval(null);
                 return;
             }
 
@@ -118,57 +143,45 @@ export function useOverlayMirror<T extends OverlayTool>(
             setStale(false);
 
             if (!data.state) {
+                pollAnchorsRef.current = {
+                    winnerShownAt: null,
+                    trendsEndedAt: null,
+                    lastSpinSeq: -1,
+                    wasTracking: false
+                };
                 setState(emptyStateRef.current);
                 lastReceivedFingerprintRef.current = '';
                 setStale(true);
+                syncPollInterval(null);
                 return;
             }
 
             const fingerprint = overlayStateFingerprint(tool, data.state);
-            if (fingerprint === lastReceivedFingerprintRef.current) return;
+            if (fingerprint === lastReceivedFingerprintRef.current) {
+                syncPollInterval(data.state);
+                return;
+            }
             lastReceivedFingerprintRef.current = fingerprint;
 
+            let nextState = data.state;
             if (tool === 'roulette') {
-                const rouletteState = applyRouletteSpin(data.state as RouletteOverlayState);
-                setState(rouletteState as State);
-            } else {
-                setState(data.state);
+                nextState = applyRouletteSpin(data.state as RouletteOverlayState) as State;
             }
+            setState(nextState);
+            syncPollInterval(nextState);
         } catch {
             setConnected(false);
             setStale(true);
+            syncPollInterval(mirroredStateRef.current);
         }
-    }, [session, tool, applyRouletteSpin]);
-
-    const isRouletteSpinning =
-        tool === 'roulette' ? (state as RouletteOverlayState).isSpinning : false;
-
-    const trendsState = tool === 'trends' ? (state as TrendsOverlayState) : null;
-    const trendsStandby =
-        !!trendsState && !trendsState.tracking && !trendsState.sessionActive;
-
-    const rouletteState = tool === 'roulette' ? (state as RouletteOverlayState) : null;
-    const rouletteNeedsFastPoll =
-        !!rouletteState &&
-        (rouletteState.isSpinning ||
-            rouletteState.isOpen ||
-            rouletteState.winner !== null);
-
-    const pollIntervalMs =
-        tool === 'trends'
-            ? trendsStandby
-                ? POLL_STANDBY_MS
-                : POLL_TRENDS_MS
-            : isRouletteSpinning
-              ? POLL_SPINNING_MS
-              : rouletteNeedsFastPoll
-                ? POLL_ROULETTE_MS
-                : POLL_STANDBY_MS;
+    }, [session, tool, applyRouletteSpin, syncPollInterval]);
 
     useEffect(() => {
         if (!hasOverlayPollCredentials(session)) return;
 
         void poll();
+        if (pollIntervalMs === null) return;
+
         const id = window.setInterval(() => void poll(), pollIntervalMs);
         return () => clearInterval(id);
     }, [sessionKey, poll, pollIntervalMs, session]);
