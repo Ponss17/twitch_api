@@ -4,7 +4,6 @@ import { copyText } from '@/core/ui/clipboard';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { Check, Copy } from 'lucide-react';
 import {
-    docsCodeBlock,
     docsCopyBtn,
     docsCopyBtnSuccess,
     docsFormatBtn,
@@ -12,6 +11,7 @@ import {
     docsTabBtn,
     docsTabContainer,
     docsTabContent,
+    docsTabCodeArea,
     docsTabHeader,
     docsBotSelector
 } from '@/core/ui/docsTw';
@@ -111,8 +111,8 @@ export function DocsCodeTabs({ snippets, trigger }: DocsCodeTabsProps) {
                 </div>
             </div>
             <div className={docsTabContent}>
-                <div className={docsCodeBlock}>
-                    <code className="text-[#c4c4cc]" suppressHydrationWarning>{code}</code>
+                <div className={docsTabCodeArea}>
+                    <code suppressHydrationWarning>{code}</code>
                     <button
                         type="button"
                         className={`${docsCopyBtn} flex items-center gap-1.5${copied ? ` ${docsCopyBtnSuccess}` : ''}`}
