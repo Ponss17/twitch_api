@@ -27,6 +27,94 @@ export function overlayTrendsRemaining(state: TrendsOverlayState, now = Date.now
 export const TRENDS_OVERLAY_RESULTS_MS = 30_000;
 export const ROULETTE_OVERLAY_WINNER_MS = 20_000;
 
+/** Escucha pasiva en OBS — solo para detectar que el panel publicó una sesión nueva. */
+export const OVERLAY_POLL_IDLE_MS = 60_000;
+export const OVERLAY_POLL_TRENDS_MS = 1_000;
+export const OVERLAY_POLL_ROULETTE_MS = 450;
+export const OVERLAY_POLL_SPINNING_MS = 200;
+
+export interface OverlayPollAnchors {
+    winnerShownAt: number | null;
+    trendsEndedAt: number | null;
+    lastSpinSeq: number;
+    wasTracking: boolean;
+}
+
+export function updateOverlayPollAnchors(
+    tool: OverlayTool,
+    state: RouletteOverlayState | TrendsOverlayState | null,
+    anchors: OverlayPollAnchors
+): void {
+    if (!state) return;
+
+    if (tool === 'roulette') {
+        const roulette = state as RouletteOverlayState;
+        if (!roulette.winner) {
+            anchors.winnerShownAt = null;
+            anchors.lastSpinSeq = -1;
+            return;
+        }
+        if (roulette.spinSeq !== anchors.lastSpinSeq) {
+            anchors.lastSpinSeq = roulette.spinSeq;
+            anchors.winnerShownAt = Date.now();
+        }
+        return;
+    }
+
+    const trends = state as TrendsOverlayState;
+    if (trends.tracking) {
+        anchors.trendsEndedAt = null;
+        anchors.wasTracking = true;
+        return;
+    }
+    if (anchors.wasTracking && trends.timerEnded && trends.sessionActive) {
+        if (anchors.trendsEndedAt === null) {
+            anchors.trendsEndedAt = Date.now();
+        }
+        anchors.wasTracking = false;
+        return;
+    }
+    if (!trends.sessionActive || !trends.timerEnded) {
+        anchors.trendsEndedAt = null;
+        anchors.wasTracking = false;
+    }
+}
+
+/**
+ * Intervalo de poll del mirror OBS.
+ * Rápido solo mientras hay sesión visible/activa; en reposo escucha cada 60s.
+ */
+export function resolveOverlayPollIntervalMs(
+    tool: OverlayTool,
+    state: RouletteOverlayState | TrendsOverlayState | null,
+    now: number,
+    anchors: OverlayPollAnchors
+): number {
+    if (!state) return OVERLAY_POLL_IDLE_MS;
+
+    if (tool === 'trends') {
+        const trends = state as TrendsOverlayState;
+        if (
+            trends.tracking ||
+            shouldShowTrendsOverlay(trends, now, anchors.trendsEndedAt)
+        ) {
+            return OVERLAY_POLL_TRENDS_MS;
+        }
+        return OVERLAY_POLL_IDLE_MS;
+    }
+
+    const roulette = state as RouletteOverlayState;
+    if (
+        roulette.isSpinning ||
+        shouldShowRouletteOverlay(roulette, now, anchors.winnerShownAt)
+    ) {
+        if (roulette.isSpinning) return OVERLAY_POLL_SPINNING_MS;
+        return OVERLAY_POLL_ROULETTE_MS;
+    }
+
+    return OVERLAY_POLL_IDLE_MS;
+}
+
 /** OBS transparente en reposo; tras el timer muestra resultados y luego se apaga. */
 export function shouldShowTrendsOverlay(
     state: TrendsOverlayState,
