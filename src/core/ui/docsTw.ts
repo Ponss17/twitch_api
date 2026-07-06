@@ -110,22 +110,30 @@ export const docsTabContainer =
     'my-6 overflow-hidden rounded-xl border border-white/[0.08] border-l-4 border-l-primary bg-bg-card shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]';
 
 export const docsTabHeader =
-    'flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-3 py-2.5 max-[600px]:flex-col max-[600px]:items-stretch';
+    'flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] bg-bg-secondary/40 px-3 py-2.5 max-[600px]:flex-col max-[600px]:items-stretch';
 
 export const docsBotSelector =
-    'flex gap-1 rounded-lg bg-black/25 p-0.5 max-[600px]:w-full max-[600px]:justify-center';
+    'flex flex-wrap gap-1.5 max-[600px]:w-full';
 
 export const docsTabBtn = (active: boolean) =>
-    `cursor-pointer rounded-md px-3 py-1.5 text-[0.8125rem] font-semibold transition max-[600px]:flex-1 ${active ? 'bg-primary text-white shadow-[0_0_12px_rgba(145,70,255,0.25)]' : 'bg-transparent text-[#c4c4cc] hover:bg-white/5 hover:text-[#fafafa]'}`;
+    `cursor-pointer rounded-lg border px-3 py-1.5 text-[0.8125rem] font-semibold transition max-[600px]:flex-1 ${
+        active
+            ? 'border-primary/40 bg-primary/15 text-[#fafafa] shadow-[0_0_12px_rgba(145,70,255,0.12)]'
+            : 'border-white/[0.08] bg-white/[0.03] text-[#c4c4cc] hover:border-white/15 hover:text-[#fafafa]'
+    }`;
 
 export const docsFormatSelector =
-    'ml-auto flex gap-1 rounded-lg bg-black/25 p-0.5 max-[600px]:order-first max-[600px]:ml-0 max-[600px]:w-full max-[600px]:justify-center';
+    'ml-auto flex flex-wrap gap-1.5 max-[600px]:order-first max-[600px]:ml-0 max-[600px]:w-full max-[600px]:justify-center';
 
 export const docsFormatBtn = (active: boolean) =>
-    `cursor-pointer rounded-md px-2.5 py-1.5 text-[0.8125rem] font-semibold transition ${active ? 'bg-primary text-white' : 'bg-transparent text-[#c4c4cc] hover:bg-white/5 hover:text-[#fafafa]'}`;
+    `cursor-pointer rounded-lg border px-2.5 py-1.5 text-[0.8125rem] font-semibold transition ${
+        active
+            ? 'border-primary/40 bg-primary/15 text-[#fafafa]'
+            : 'border-white/[0.08] bg-white/[0.03] text-[#c4c4cc] hover:border-white/15 hover:text-[#fafafa]'
+    }`;
 
 export const docsTabCodeArea =
-    'relative bg-black/20 px-4 py-3.5 pr-[108px] [&_code]:block [&_code]:font-[Consolas,monospace] [&_code]:text-[0.8125rem] [&_code]:leading-relaxed [&_code]:text-[#c4c4cc] [&_code]:whitespace-pre-wrap [&_code]:break-all';
+    'relative px-4 py-3.5 pr-[108px] [&_code]:block [&_code]:font-[Consolas,monospace] [&_code]:text-[0.8125rem] [&_code]:leading-relaxed [&_code]:text-[#fafafa] [&_code]:whitespace-pre-wrap [&_code]:break-all';
 
 export const docsTabContent = 'p-0';
 
@@ -153,3 +161,6 @@ export const docsBadgeError =
 
 export const docsBadgeNeutral =
     'rounded-md border border-white/20 bg-white/5 px-2 py-1 text-[0.7rem] font-bold tracking-wide text-[#c4c4cc]';
+
+export const docsBadgeBeta =
+    'ml-2 inline-flex align-middle rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-primary';
