@@ -70,6 +70,15 @@ export function BaseModal({
     }, [open]);
 
     useEffect(() => {
+        if (!open) return;
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = prev;
+        };
+    }, [open]);
+
+    useEffect(() => {
         const dialog = dialogRef.current;
         if (!dialog) return;
         const onCancel = (e: Event) => {
