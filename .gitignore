@@ -13,3 +13,6 @@ playwright-report/
 coverage/
 
 .agents/
+
+# Notas internas (local only — no subir a GitHub)
+docs/
