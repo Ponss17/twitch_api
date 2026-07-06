@@ -17,6 +17,7 @@ jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
 jest.mock('../../backend/src/core/database/cacheService', () => ({
     get: jest.fn().mockResolvedValue(null),
     set: jest.fn().mockResolvedValue(undefined),
+    getStatsRevision: jest.fn().mockResolvedValue(0),
     invalidateDashboardCache: jest.fn().mockResolvedValue(undefined)
 }));
 

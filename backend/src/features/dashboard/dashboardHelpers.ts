@@ -20,6 +20,31 @@ export const computeAnalyticsFromStats = (stats: Record<string, number>) => {
     };
 };
 
+/** Revisión embebida en caché KV de analytics — invalida cuando sube `cache:stats:rev`. */
+export const ANALYTICS_STATS_REV_KEY = '_statsRev';
+
+export function isAnalyticsCacheFresh(
+    cached: Record<string, unknown> | null,
+    currentRev: number
+): boolean {
+    if (!cached) return false;
+    const cachedRev =
+        typeof cached[ANALYTICS_STATS_REV_KEY] === 'number' ? cached[ANALYTICS_STATS_REV_KEY] : -1;
+    return cachedRev >= currentRev;
+}
+
+export function buildAnalyticsPayload(
+    stats: Record<string, number>,
+    statsRev: number
+): Record<string, unknown> {
+    return {
+        ...stats,
+        totalRequests: stats.total_requests || 0,
+        ...computeAnalyticsFromStats(stats),
+        [ANALYTICS_STATS_REV_KEY]: statsRev
+    };
+}
+
 /** Stats en cero tras reiniciar estadísticas (respuesta inmediata al cliente). */
 export const buildEmptyUserAnalytics = (): Record<string, number | string> => {
     const stats: Record<string, number> = {
