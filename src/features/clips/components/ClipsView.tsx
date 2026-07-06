@@ -7,9 +7,10 @@ import { ClipsGridSkeleton } from '@/shared/ui/Skeleton';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { cache, CACHE_TTL } from '@/core/cache/cacheService';
 import { card, fadeIn } from '@/core/ui/tw';
+import { BaseModal } from '@/shared/ui/Modal';
 import { SelectField } from '@/shared/ui/SelectField';
 import { ClipCommandView } from '@/features/commands/components/CommandsViews';
-import { Star, RotateCw, Link, Eye, Images, Search } from 'lucide-react';
+import { Star, RotateCw, Link, Images, Search, Play, Eye } from 'lucide-react';
 
 
 interface Clip {
@@ -74,6 +75,7 @@ export function ClipsView() {
     const [sort, setSort] = useState('date-desc');
     const [page, setPage] = useState(1);
     const [showFavsOnly, setShowFavsOnly] = useState(false);
+    const [playingClip, setPlayingClip] = useState<Clip | null>(null);
 
     useEffect(() => {
         if (session.userId) {
@@ -274,20 +276,29 @@ export function ClipsView() {
                                                     <Link className="text-[0.75rem]" />
                                                 </button>
                                             </div>
-                                            <a
-                                                href={clip.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="block text-inherit no-underline"
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setPlayingClip(clip);
+                                                }}
+                                                className="block w-full text-left text-inherit no-underline border-none bg-transparent p-0 cursor-pointer relative group/img"
                                             >
                                                 {clip.thumbnail_url && (
-                                                    <img
-                                                        src={clip.thumbnail_url}
-                                                        alt={clip.title ?? 'Clip'}
-                                                        loading={isAboveFold ? 'eager' : 'lazy'}
-                                                        fetchPriority={index === 0 ? 'high' : undefined}
-                                                        className="aspect-video w-full bg-bg-secondary object-cover"
-                                                    />
+                                                    <>
+                                                        <img
+                                                            src={clip.thumbnail_url}
+                                                            alt={clip.title ?? 'Clip'}
+                                                            loading={isAboveFold ? 'eager' : 'lazy'}
+                                                            fetchPriority={index === 0 ? 'high' : undefined}
+                                                            className="aspect-video w-full bg-bg-secondary object-cover transition duration-300 group-hover/img:opacity-60"
+                                                        />
+                                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 transition duration-300 group-hover/img:opacity-100 pointer-events-none">
+                                                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/90 text-white shadow-lg backdrop-blur-sm">
+                                                                <Play className="h-5 w-5 ml-1" fill="currentColor" />
+                                                            </div>
+                                                        </div>
+                                                    </>
                                                 )}
                                                 <div className="p-3">
                                                     <div
@@ -304,26 +315,38 @@ export function ClipsView() {
                                                         <span>{dateStr}</span>
                                                     </div>
                                                 </div>
-                                            </a>
+                                            </button>
                                         </div>
                                     );
                                 })}
                             </div>
                             {hasMore && (
-                                <div className="mt-5 flex justify-center">
-                                    <button
-                                        type="button"
-                                        onClick={() => setPage((p) => p + 1)}
-                                        className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/10 px-7 py-2 text-[0.8125rem] font-semibold text-[#fafafa] transition hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/15"
-                                    >
-                                        Ver más clips
-                                    </button>
-                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setPage((p) => p + 1)}
+                                    className="mt-6 w-full rounded-lg border border-white/[0.08] bg-bg-secondary py-2.5 text-[0.8125rem] font-semibold text-[#c4c4cc] transition hover:border-primary/30 hover:bg-white/5 hover:text-[#fafafa]"
+                                >
+                                    Cargar más
+                                </button>
                             )}
                         </>
                     )}
                 </div>
             </div>
+
+            <BaseModal
+                open={!!playingClip}
+                onClose={() => setPlayingClip(null)}
+                className="relative flex aspect-video w-full max-w-4xl flex-col overflow-hidden rounded-xl bg-black p-0 shadow-2xl"
+            >
+                {playingClip && (
+                    <iframe
+                        src={`https://clips.twitch.tv/embed?clip=${playingClip.id}&parent=${window.location.hostname}&autoplay=true`}
+                        allowFullScreen
+                        className="absolute left-0 top-0 h-full w-full border-none"
+                    />
+                )}
+            </BaseModal>
         </>
     );
 }
