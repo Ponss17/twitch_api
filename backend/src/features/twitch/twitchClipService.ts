@@ -3,12 +3,19 @@ import { TwitchApiError } from '../../core/errors/AppError';
 import { apiClient, recordSuccess, handleTwitchError, getHeaders } from './twitchClient';
 import { getUserId } from './twitchUserService';
 
-export const createClip = async (channel: string, token: string): Promise<string> => {
+export const createClip = async (
+    channel: string,
+    token: string,
+    title?: string
+): Promise<string> => {
     try {
         const broadcasterId = await getUserId(channel, token);
         const headers = getHeaders(token);
 
-        const url = `https://api.twitch.tv/helix/clips?broadcaster_id=${broadcasterId}`;
+        let url = `https://api.twitch.tv/helix/clips?broadcaster_id=${broadcasterId}`;
+        if (title) {
+            url += `&title=${encodeURIComponent(title)}`;
+        }
 
         const clipRes = await apiClient.post(url, null, { headers });
         if (!clipRes.data.data || clipRes.data.data.length === 0) {
