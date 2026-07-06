@@ -2,64 +2,67 @@
 
 Stack activo en `twitch_api/`. El monolito v4 está archivado en `legacy/` (solo referencia).
 
+**Producción:** `https://ttv.losperris.dev` — frontend en raíz, API en `/api/*`.
+
 ## Vista general
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  Vercel / Astro (frontend)                                  │
-│  src/pages/api/twitch/*.astro  →  React islands             │
+│  src/pages/*.astro  →  React islands                      │
 │  Tailwind v4 (global.css)                                   │
 └──────────────────────────┬──────────────────────────────────┘
-                           │ fetch /api/twitch/*
+                           │ fetch /api/*
 ┌──────────────────────────▼──────────────────────────────────┐
 │  Express API (backend/)                                     │
-│  api/index.ts → backend/src/app.ts                          │
+│  api/index.js → backend/src/app.ts                          │
 │  Zod, OAuth, Supabase, Vercel KV, Groq, tmi.js              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ## Rutas canónicas del frontend
 
-Todas las páginas viven bajo **`/api/twitch/`**:
+Todas las páginas viven en la **raíz** del subdominio (`APP_MOUNT = ''` en `src/core/config/paths.ts`):
 
 | Ruta | Página |
 |------|--------|
-| `/api/twitch/` | Landing |
-| `/api/twitch/dashboard` | Panel streamer |
-| `/api/twitch/dashboard/{tab}` | Tab del dashboard (followage, clips, …) |
-| `/api/twitch/docs` | Documentación API |
-| `/api/twitch/sobre-la-api` | Info del proyecto |
-| `/api/twitch/overlay/roulette` | OBS — ruleta (mirror) |
-| `/api/twitch/overlay/trends` | OBS — tendencias (mirror) |
-| `/api/twitch/404`, `/429`, `/500`, `/offline` | Estados |
+| `/` | Landing |
+| `/dashboard` | Panel streamer |
+| `/dashboard/{tab}` | Tab del dashboard (followage, clips, …) |
+| `/docs` | Documentación API |
+| `/legal`, `/legal#privacidad`… | Legal unificado (tabs por hash) |
+| `/sobre-la-api` | Info del proyecto |
+| `/overlay/roulette` | OBS — ruleta (mirror) |
+| `/overlay/trends` | OBS — tendencias (mirror) |
+| `/404`, `/429`, `/500`, `/offline` | Estados |
 
-Las rutas en la raíz (`/`, `/dashboard`, …) redirigen (308) hacia `/api/twitch/…` (`vercel.json` + Astro).
+Redirects en `vercel.json`: `/privacidad`, `/terminos`, `/cookies` → `/legal#…`.
 
 ## Paths compartidos (backend ↔ frontend)
 
-Dos utilidades mantienen el mismo mount `/api/twitch`:
+Dos utilidades mantienen el mismo mount (raíz):
 
 | Contexto | Módulo | Uso |
 |----------|--------|-----|
 | Backend (redirects OAuth, 429 HTML) | `backend/src/core/utils/frontendPaths.ts` | `frontendPagePath('/dashboard')` |
 | Frontend (links, router) | `src/core/config/paths.ts` | `appPath('/dashboard')` |
 
-Ambos deben seguir apuntando a `/api/twitch` — no mezclar con rutas raíz.
+Ambos usan `APP_MOUNT = ''` — no mezclar con el path legacy `/api/twitch/`.
 
 ## API Express
 
-Montaje triple (compatibilidad bots y proxies):
+Montaje en `backend/src/core/startup/routes.ts`:
 
-- `/api/twitch/*` — prefijo principal
-- `/twitch/*` — alias
-- `/` — health y rutas raíz en dev
+- `/api/*` — router principal (`backend/src/routes/index.ts`)
+- `/twitch/*` — alias (compat bots)
+- `/auth/*` y `/api/auth/*` — OAuth
 
-Entry serverless: `api/index.ts`. Local: `pnpm dev:api` (puerto 3000).
+Entry serverless: `api/index.js`. Local: `pnpm dev:api` (puerto 3000).
 
 ## OAuth seguro
 
-1. Callback Twitch → redirect con `?auth=<token>` (HMAC, 5 min), **sin** API key en URL permanente.
-2. Frontend llama `GET /auth/exchange?auth=…` → recibe `apiKey` + perfil.
+1. Callback Twitch → `GET /api/auth/twitch/callback` → redirect con `?auth=<token>` (HMAC, 5 min), **sin** API key en URL permanente.
+2. Frontend llama `GET /api/auth/exchange?auth=…` → recibe `apiKey` + perfil.
 3. Sesión en `localStorage` (scoped por `userId` vía `src/core/session/localPrefs.ts`); validación vía `/system/validate` con caché local por fingerprint de sesión.
 4. `invalidateSession()` centraliza logout local y sync entre pestañas (`BroadcastChannel`).
 
@@ -93,27 +96,26 @@ Variables clave en `.env`:
 
 - `TWITCH_REDIRECT_URI` — callback OAuth (obligatoria)
 - `FRONTEND_URL=http://localhost:4321`
-- `BASE_URL=http://localhost:3000/api/twitch`
+- `BASE_URL=http://localhost:3000/api`
 - `SUPABASE_URL`, `SUPABASE_ANON_KEY` — inyectadas en Astro vía `astro.config.mjs` (`define`)
 - `KV_REST_API_*` — opcional en dev; obligatorio en producción (rate limit)
 
 ## Proxy en dev (`astro.config.mjs`)
 
-Peticiones a `/api/twitch/*` que no son páginas Astro se proxean al backend `:3000`.
+Peticiones a `/api/*` se proxean al backend `:3000`.
 
 ## Deploy (`vercel.json`)
 
-- **Rewrites**: API → `/api/index.ts`; tabs del dashboard → `/dashboard`
-- **Redirects**: raíz → `/api/twitch/…`
-- **Headers**: HSTS, X-Frame-Options, cache de `sw.js`
+- **Rewrites**: `/api/*`, `/auth/*`, `/twitch/*` → `api/index.js`; páginas Astro desde `dist/`
+- **Headers**: HSTS, X-Frame-Options, cache de `/sw.js`
 
 ## Checklist producción (Vercel)
 
 ```
 TWITCH_CLIENT_ID / TWITCH_CLIENT_SECRET / ENCRYPTION_KEY
-TWITCH_REDIRECT_URI=https://www.losperris.dev/api/twitch/auth/twitch/callback
-BASE_URL=https://www.losperris.dev/api/twitch
-FRONTEND_URL=https://www.losperris.dev
+TWITCH_REDIRECT_URI=https://ttv.losperris.dev/api/auth/twitch/callback
+BASE_URL=https://ttv.losperris.dev/api
+FRONTEND_URL=https://ttv.losperris.dev
 SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / SUPABASE_ANON_KEY / SUPABASE_JWT_SECRET
 KV_REST_API_URL + KV_REST_API_TOKEN
 GROQ_API_KEY (opcional — Bola 8)
@@ -180,7 +182,7 @@ backend/src/
 
 ## PWA
 
-Service worker canónico: `public/api/twitch/sw.js`. Vercel redirige `/sw.js` al mount `/api/twitch/`.
+Service worker canónico: `public/sw.js`. Vercel sirve `/sw.js` con headers de cache en `vercel.json`.
 
 ## Contratos de error (JSON)
 
@@ -204,6 +206,6 @@ Rutas **dashboard**, **system** y **auth/exchange** devuelven errores con forma 
 ## Validación
 
 - **Backend**: Zod (`*.schema.ts`, `env.ts`)
-- **Tests**: Jest (`pnpm test`) — 204 tests · Playwright E2E en CI
+- **Tests**: Jest (`pnpm test`) — 339 tests · Playwright E2E en CI
 - **E2E**: Playwright smoke (`pnpm test:e2e`)
 - **CI**: GitHub Actions en push/PR
