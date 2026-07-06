@@ -8,6 +8,10 @@ export const addSystemLog = async (
     message: string,
     details?: Record<string, unknown>
 ): Promise<void> => {
+    if (process.env.SUPABASE_URL?.includes('example.supabase.co')) {
+        return;
+    }
+
     try {
         const { error } = await supabase.from('system_logs').insert({
             level,

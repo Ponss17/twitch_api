@@ -22,7 +22,7 @@ const apiWebServer = isCi
 const webWebServer = isCi
     ? {
           command: 'npx astro dev --host 127.0.0.1 --port 4321',
-          url: 'http://127.0.0.1:4321/api/twitch/',
+          url: 'http://127.0.0.1:4321/',
           reuseExistingServer: false,
           timeout: 180_000,
           stdout: 'pipe' as const,
@@ -30,7 +30,7 @@ const webWebServer = isCi
       }
     : {
           command: 'pnpm run dev:web:e2e',
-          url: 'http://127.0.0.1:4321/api/twitch/',
+          url: 'http://127.0.0.1:4321/',
           reuseExistingServer: true,
           timeout: 120_000
       };
