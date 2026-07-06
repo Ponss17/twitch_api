@@ -45,6 +45,7 @@ const FRONTEND_EXACT = new Set([
     '/dashboard',
     '/docs',
     '/sobre-la-api',
+    '/legal',
     '/privacidad',
     '/terminos',
     '/cookies',

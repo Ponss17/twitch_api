@@ -3,7 +3,7 @@ import { LoginDisclaimerModal } from '@/shared/ui/LoginDisclaimerModal';
 import { VerifyingSessionModal } from '@/shared/ui/VerifyingSessionModal';
 import { AppLogo } from '@/shared/ui/AppLogo';
 import { resolveSessionFromUrl, markDashboardSplashForFreshLogin, clearDashboardSplashFlags, getSession } from '@/core/api/auth';
-import { appPath, saveDocsReturnPath } from '@/core/config/paths';
+import { appPath, legalPath, saveDocsReturnPath } from '@/core/config/paths';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { Accordion } from '@/shared/ui/Accordion';
 import { TwitchIcon, DiscordIcon } from '@/shared/ui/icons/BrandIcons';
@@ -250,14 +250,14 @@ export function LandingPage() {
                         <p className="mb-6 text-[0.8rem] text-[#71717a]">
                             * Al conectar aceptas nuestra{' '}
                             <a
-                                href={appPath('/privacidad')}
+                                href={legalPath('privacidad')}
                                 className="text-[#c4c4cc] underline underline-offset-2 transition hover:text-primary"
                             >
                                 política de privacidad
                             </a>{' '}
                             y{' '}
                             <a
-                                href={appPath('/terminos')}
+                                href={legalPath('terminos')}
                                 className="text-[#c4c4cc] underline underline-offset-2 transition hover:text-primary"
                             >
                                 términos de uso

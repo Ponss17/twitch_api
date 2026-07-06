@@ -8,7 +8,8 @@ import {
     saveDocsReturnPath,
     shouldSavePanelReturn,
     staticPath,
-    joinAppPath
+    joinAppPath,
+    legalPath
 } from '@/core/config/paths';
 
 describe('paths (frontend)', () => {
@@ -97,9 +98,14 @@ describe('paths (frontend)', () => {
         expect(sessionStorage.getItem('twitch_docs_return_path')).toBe('/dashboard/clips');
     });
 
+    it('legalPath une sección con hash', () => {
+        expect(legalPath('cookies')).toBe('/legal#cookies');
+        expect(legalPath()).toBe('/legal');
+    });
+
     it('shouldSavePanelReturn incluye docs y sobre-la-api', () => {
         expect(shouldSavePanelReturn('/docs')).toBe(true);
         expect(shouldSavePanelReturn('/sobre-la-api')).toBe(true);
-        expect(shouldSavePanelReturn('/privacidad')).toBe(false);
+        expect(shouldSavePanelReturn('/legal')).toBe(false);
     });
 });

@@ -24,6 +24,14 @@ export const getSitemapXml = (req: Request, res: Response): void => {
     <loc>${baseUrl}/docs</loc>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>${baseUrl}/sobre-la-api</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/legal</loc>
+    <priority>0.5</priority>
+  </url>
 </urlset>`;
 
     res.header('Content-Type', 'application/xml');
