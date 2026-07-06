@@ -25,13 +25,6 @@ export const configureRoutes = (app: Application) => {
         next();
     });
 
-    app.use(apiKeyValidator);
-    app.use(checkToken);
-    app.use(globalRateLimiter);
-
-    app.use('/auth', authRateLimiter, authRoutes);
-    app.use('/api/auth', authRateLimiter, authRoutes);
-
     app.get(['/health', '/api/health'], (_req: Request, res: Response) => {
         const isConfigured = !!(CONFIG.TWITCH_CLIENT_ID && CONFIG.TWITCH_CLIENT_SECRET);
         res.json({
@@ -42,6 +35,13 @@ export const configureRoutes = (app: Application) => {
 
     app.get(['/robots.txt', '/api/robots.txt'], getRobotsTxt);
     app.get(['/sitemap.xml', '/api/sitemap.xml'], getSitemapXml);
+
+    app.use(apiKeyValidator);
+    app.use(checkToken);
+    app.use(globalRateLimiter);
+
+    app.use('/auth', authRateLimiter, authRoutes);
+    app.use('/api/auth', authRateLimiter, authRoutes);
 
     app.use('/api', apiRouter);
     app.use('/', apiRouter);
