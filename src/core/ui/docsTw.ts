@@ -3,7 +3,6 @@
 import {
     btnCopy,
     card,
-    codeBox,
     fadeIn,
     sidebarCategoryLabel,
     sidebarNavItem,
@@ -74,7 +73,7 @@ export const docsParamsTable =
     `${card} my-6 w-full overflow-hidden border-separate border-spacing-0 p-0 [&_td]:border-b [&_td]:border-white/[0.08] [&_td]:px-5 [&_td]:py-4 [&_th]:bg-white/[0.02] [&_th]:px-5 [&_th]:py-4 [&_th]:text-left [&_th]:text-[0.8125rem] [&_th]:font-bold [&_th]:tracking-wide [&_th]:text-[#fafafa] [&_th]:uppercase [&_tr:last-child_td]:border-b-0 [&_tr:hover_td]:bg-white/[0.02]`;
 
 export const docsCodeBlock =
-    `${codeBox} my-6 py-3 pr-[100px] [&_code]:block [&_code]:!border-none [&_code]:!bg-transparent [&_code]:!p-0 [&_code]:font-[Consolas,monospace] [&_code]:text-[0.8125rem] [&_code]:leading-relaxed [&_code]:text-[#fafafa] [&_code]:whitespace-pre-wrap`;
+    `${card} my-6 border-l-4 border-l-primary py-3 pr-[100px] [&_code]:block [&_code]:!border-none [&_code]:!bg-transparent [&_code]:!p-0 [&_code]:font-[Consolas,monospace] [&_code]:text-[0.8125rem] [&_code]:leading-relaxed [&_code]:text-[#fafafa] [&_code]:whitespace-pre-wrap`;
 
 export const docsCopyBtn = btnCopy;
 
@@ -110,7 +109,7 @@ export const docsTabContainer =
     'my-6 overflow-hidden rounded-xl border border-white/[0.08] border-l-4 border-l-primary bg-bg-card shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]';
 
 export const docsTabHeader =
-    'flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] bg-bg-secondary/40 px-3 py-2.5 max-[600px]:flex-col max-[600px]:items-stretch';
+    'flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-3 py-2.5 max-[600px]:flex-col max-[600px]:items-stretch';
 
 export const docsBotSelector =
     'flex flex-wrap gap-1.5 max-[600px]:w-full';

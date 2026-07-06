@@ -2,6 +2,7 @@ import { Info, Zap, Key, ShieldAlert, UserCog, BarChart2, IdCard, Skull, Gauge, 
 import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTabs';
 
 import { DocsCodeTabs } from '@/features/docs/components/DocsCodeTabs';
+import { DocsApiUrl } from '@/features/docs/components/DocsApiUrl';
 import { DocsOverlaySection } from '@/features/docs/components/DocsOverlaySection';
 import { appPath } from '@/core/config/paths';
 import {
@@ -34,7 +35,6 @@ import {
     docsStepSeparator,
     docsStepsGrid,
     docsStepsMini,
-    docsUrl,
     docsUrlParam
 } from '@/core/ui/docsTw';
 
@@ -296,10 +296,7 @@ export function DocsContent() {
                 <p>Genera un mensaje promocionando a otro streamer con su último juego y enlace directo.</p>
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
-                    <span className={docsUrl}>
-                        /api/shoutout?channel={'{canal}'}&touser={'{objetivo}'}&apiKey=TU_API_KEY&template=
-                        {'{mensaje}'}
-                    </span>
+                    <DocsApiUrl path="/api/shoutout?channel={canal}&touser={objetivo}&apiKey=TU_API_KEY&template={mensaje}" />
                 </div>
                 <table className={docsParamsTable}>
                     <thead>
@@ -382,9 +379,7 @@ export function DocsContent() {
                 <p>Responde preguntas del chat con distintos tonos (IA).</p>
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
-                    <span className={docsUrl}>
-                        /api/minigames/magic8?question={'{pregunta}'}&mood={'{tono}'}&apiKey=TU_API_KEY
-                    </span>
+                    <DocsApiUrl path="/api/minigames/magic8?question={pregunta}&mood={tono}&apiKey=TU_API_KEY" />
                 </div>
                 <table className={docsParamsTable}>
                     <thead>
@@ -444,7 +439,7 @@ export function DocsContent() {
                 </p>
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
-                    <span className={docsUrl}>/api/minigames/russian?user={'{usuario}'}&apiKey=TU_API_KEY</span>
+                    <DocsApiUrl path="/api/minigames/russian?user={usuario}&apiKey=TU_API_KEY" />
                 </div>
                 <div className={`${docsInfoCardRed} mt-6`}>
                     <AlertTriangle />
@@ -473,9 +468,7 @@ export function DocsContent() {
                 <p>Simula un duelo entre dos usuarios del chat.</p>
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
-                    <span className={docsUrl}>
-                        /api/minigames/duel?challenger={'{retador}'}&target={'{oponente}'}&apiKey=TU_API_KEY
-                    </span>
+                    <DocsApiUrl path="/api/minigames/duel?challenger={retador}&target={oponente}&apiKey=TU_API_KEY" />
                 </div>
                 <h3>Parámetros</h3>
                 <table className={docsParamsTable}>
@@ -520,9 +513,7 @@ export function DocsContent() {
                 <p>Endpoint para desarrolladores: obtén un JSON con los clips más recientes.</p>
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
-                    <span className={docsUrl}>
-                        /api/dashboard/get-clips?channel={'{canal}'}&apiKey=TU_API_KEY&limit=10
-                    </span>
+                    <DocsApiUrl path="/api/dashboard/get-clips?channel={canal}&apiKey=TU_API_KEY&limit=10" />
                 </div>
                 <h3>Ejemplo de Respuesta (JSON)</h3>
                 <div className={docsCodeBlock}>

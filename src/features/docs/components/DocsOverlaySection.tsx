@@ -6,6 +6,7 @@ import {
     overlayToolLabel
 } from '@/features/tools/overlay/lib/overlaySetupGuide';
 import { OVERLAY_PAGE_PATHS, type OverlayTool } from '@/features/tools/overlay/lib/types';
+import { DocsApiUrl } from '@/features/docs/components/DocsApiUrl';
 import {
     docSection,
     docsBadgeBeta,
@@ -15,8 +16,7 @@ import {
     docsInfoCardRed,
     docsMethodGet,
     docsStepCard,
-    docsStepsGrid,
-    docsUrl
+    docsStepsGrid
 } from '@/core/ui/docsTw';
 
 const OVERLAY_TOOLS: {
@@ -95,10 +95,7 @@ function OverlayToolBlock({
 
             <div className={docsEndpoint}>
                 <span className={docsMethodGet}>URL</span>
-                <span className={docsUrl}>
-                    {'{baseURL}'}
-                    {pagePath}?overlayToken={'{tu_token_overlay}'}
-                </span>
+                <DocsApiUrl path={`${pagePath}?overlayToken={tu_token_overlay}`} />
             </div>
 
             <p className="mb-4 text-[0.8125rem] text-[#c4c4cc]">
