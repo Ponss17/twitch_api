@@ -1,5 +1,5 @@
 import { CACHE_TTL } from './cacheTtl';
-import { RATE_LIMITS } from './limits';
+
 
 export const USER_ROLES = {
     default: { label: 'Default', rateLimit: 60, cacheTtl: 60 },
@@ -12,7 +12,6 @@ export type UserRole = keyof typeof USER_ROLES;
 
 export const DEFAULT_USER_ROLE: UserRole = 'default';
 
-export const USER_ROLE_IDS = Object.keys(USER_ROLES) as UserRole[];
 
 export interface UserLimitsSource {
     role?: string | null;
@@ -34,13 +33,10 @@ export function normalizeUserRole(role?: string | null): UserRole {
     return DEFAULT_USER_ROLE;
 }
 
-export function getRoleConfig(role?: string | null) {
+function getRoleConfig(role?: string | null) {
     return USER_ROLES[normalizeUserRole(role)];
 }
 
-export function isUserRole(value: string): value is UserRole {
-    return value in USER_ROLES;
-}
 
 /** Prioridad: personalizado → rol → default global. */
 export function resolveUserRateLimit(user?: UserLimitsSource | null): number {
@@ -80,4 +76,3 @@ export function resolveUserLimits(user?: UserLimitsSource | null): ResolvedUserL
 
 /** Default mostrado en perfil cuando no hay override ni rol especial. */
 export const DEFAULT_USER_CACHE_TTL = USER_ROLES.default.cacheTtl;
-export const DEFAULT_USER_RATE_LIMIT = RATE_LIMITS.DEFAULT;

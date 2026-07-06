@@ -2,7 +2,7 @@ import { STATUS_PAGE_URL, type DashboardTab } from '@/core/config/config';
 import { useRequiredSession } from '@/core/session/useSession';
 import { staticPath } from '@/core/config/paths';
 import { TAB_META } from '@/features/dashboard/lib/dashboardTabs';
-import { IconMd } from '@/shared/ui/Icon';
+import { IconLg } from '@/shared/ui/Icon';
 import {
     Dropdown,
     DropdownChevron,
@@ -47,7 +47,7 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                 </button>
 
                 <h1 className="flex flex-1 items-center gap-3 text-xl font-bold tracking-tight text-[#fafafa] md:text-[1.8rem]">
-                    <IconMd icon={meta.icon} className="text-[#9146ff]" />
+                    <IconLg icon={meta.icon} className="text-[#9146ff]" />
                     {meta.title}
                 </h1>
 
@@ -56,10 +56,11 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                         href={STATUS_PAGE_URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={headerGhostBtn}
+                        className="inline-flex items-center gap-2 rounded-full border border-[#22c55e]/20 bg-[#22c55e]/10 px-3 py-1.5 text-[0.8125rem] font-semibold text-[#22c55e] no-underline shadow-[0_0_10px_rgba(34,197,94,0.15)] transition-all hover:border-[#22c55e]/40 hover:bg-[#22c55e]/20 hover:text-[#4ade80] hover:shadow-[0_0_15px_rgba(34,197,94,0.25)]"
                         title="Status del servicio"
                     >
-                        Status
+                        <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-current shadow-[0_0_8px_currentColor]" />
+                        <span className="hidden sm:inline">Status</span>
                     </a>
 
                     <a

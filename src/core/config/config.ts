@@ -14,9 +14,7 @@ export const API_ENDPOINTS = {
     ACTIVITY: `${API_BASE}/dashboard/activity`,
     CLEAR_DATA: `${API_BASE}/dashboard/clear-data`,
     DELETE_ACCOUNT: `${API_BASE}/dashboard/delete-account`,
-    TIMEZONE: `${API_BASE}/dashboard/timezone`,
-    /** Diagnóstico completo — solo manual / admin, no polling. */
-    HEALTH: `${API_BASE}/system/health`,
+
     VALIDATE: `${API_BASE}/system/validate`,
     REALTIME_TOKEN: `${API_BASE}/system/realtime-token`,
     DUEL: `${API_BASE}/minigames/duel`,

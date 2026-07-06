@@ -82,7 +82,7 @@ test.describe('dashboard', () => {
     test.describe.configure({ mode: 'serial' });
     test('redirects unauthenticated users to landing', async ({ page }) => {
         await page.goto('/dashboard/');
-        await expect(page).toHaveURL(/\/?$/);
+        await expect(page).toHaveURL(/^(?:http:\/\/(?:localhost|127\.0\.0\.1):\d+)\/?$/);
         await expect(page.getByRole('button', { name: /Iniciar Sesión con Twitch/i })).toBeVisible();
     });
 

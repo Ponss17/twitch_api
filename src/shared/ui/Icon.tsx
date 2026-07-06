@@ -41,6 +41,10 @@ export function IconMd({ icon, className = '' }: IconProps) {
     return <IconSlot icon={icon} size="md" className={className} />;
 }
 
+export function IconLg({ icon, className = '' }: IconProps) {
+    return <IconSlot icon={icon} size="lg" className={className} />;
+}
+
 export function InlineIcon({ icon, className = '' }: IconProps) {
     return <IconSlot icon={icon} size="sm" className={className} />;
 }
