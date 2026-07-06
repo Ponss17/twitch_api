@@ -91,8 +91,9 @@ export function DocsContent() {
                     <Key /> Tu API Key
                 </h2>
                 <p>
-                    La mayoría de los endpoints requieren una <code>apiKey</code> para funcionar. Puedes obtener tu
-                    Clave Permanente conectando tu cuenta en el <a href={appPath('/')}>panel principal</a>.
+                    La mayoría de los endpoints requieren una <code>apiKey</code> para funcionar. Sustituye{' '}
+                    <code>TU_API_KEY</code> por tu clave permanente del{' '}
+                    <a href={appPath('/')}>panel principal</a>.
                 </p>
                 <div className={docsInfoCard} style={{ marginTop: '1.5rem' }}>
                     <ShieldAlert />
@@ -301,7 +302,7 @@ export function DocsContent() {
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
                     <span className={docsUrl}>
-                        /api/shoutout?channel={'{canal}'}&touser={'{objetivo}'}&apiKey={'{clave}'}&template=
+                        /api/shoutout?channel={'{canal}'}&touser={'{objetivo}'}&apiKey=TU_API_KEY&template=
                         {'{mensaje}'}
                     </span>
                 </div>
@@ -393,7 +394,7 @@ export function DocsContent() {
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
                     <span className={docsUrl}>
-                        /api/minigames/magic8?question={'{pregunta}'}&mood={'{tono}'}&apiKey={'{clave}'}
+                        /api/minigames/magic8?question={'{pregunta}'}&mood={'{tono}'}&apiKey=TU_API_KEY
                     </span>
                 </div>
                 <table className={docsParamsTable}>
@@ -454,7 +455,7 @@ export function DocsContent() {
                 </p>
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
-                    <span className={docsUrl}>/api/minigames/russian?user={'{usuario}'}&apiKey={'{clave}'}</span>
+                    <span className={docsUrl}>/api/minigames/russian?user={'{usuario}'}&apiKey=TU_API_KEY</span>
                 </div>
                 <div className={`${docsInfoCardRed} mt-6`}>
                     <AlertTriangle />
@@ -484,7 +485,7 @@ export function DocsContent() {
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
                     <span className={docsUrl}>
-                        /api/minigames/duel?challenger={'{retador}'}&target={'{oponente}'}&apiKey={'{clave}'}
+                        /api/minigames/duel?challenger={'{retador}'}&target={'{oponente}'}&apiKey=TU_API_KEY
                     </span>
                 </div>
                 <h3>Parámetros</h3>
@@ -531,7 +532,7 @@ export function DocsContent() {
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
                     <span className={docsUrl}>
-                        /api/dashboard/get-clips?channel={'{canal}'}&apiKey={'{tu_api_key}'}&limit=10
+                        /api/dashboard/get-clips?channel={'{canal}'}&apiKey=TU_API_KEY&limit=10
                     </span>
                 </div>
                 <h3>Ejemplo de Respuesta (JSON)</h3>

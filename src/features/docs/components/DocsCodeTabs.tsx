@@ -39,26 +39,10 @@ function buildCodeTemplate(bot: Bot, path: string, format: 'chat' | 'panel', tri
     return code;
 }
 
-/** Client-only: resolve origin + credenciales desde sesión. */
-function resolveCode(template: string): string {
-    let code = template.replace(/\{baseURL\}/g, window.location.origin);
-    try {
-        const sessionData = localStorage.getItem('twitch_api_session');
-        if (sessionData) {
-            const session = JSON.parse(sessionData) as { apiKey?: string; token?: string };
-            if (session.apiKey) {
-                code = code.replace(/TU_API_KEY/g, session.apiKey);
-            } else if (session.token) {
-                code = code.replace(
-                    /apiKey=TU_API_KEY/g,
-                    `token=${encodeURIComponent(session.token)}`
-                );
-            }
-        }
-    } catch {
-        /* ignore */
-    }
-    return code;
+/** Client-only: sustituye {baseURL} por el origen actual (sin leer sesión ni API keys). */
+function resolveBaseUrl(template: string): string {
+    if (typeof window === 'undefined') return template;
+    return template.replace(/\{baseURL\}/g, window.location.origin);
 }
 
 interface DocsCodeTabsProps {
@@ -80,7 +64,7 @@ export function DocsCodeTabs({ snippets, trigger }: DocsCodeTabsProps) {
     const [code, setCode] = useState(template);
 
     useLayoutEffect(() => {
-        setCode(resolveCode(template));
+        setCode(resolveBaseUrl(template));
     }, [template]);
 
     const copy = async () => {
