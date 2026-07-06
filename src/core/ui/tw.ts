@@ -83,29 +83,29 @@ export const btnSecondary =
     `${modalBtnBase} border border-white/15 bg-white/10 font-semibold text-[#fafafa] hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/15`;
 
 export const btnDanger =
-    `${modalBtnBase} border border-error bg-error font-bold text-white hover:-translate-y-0.5 hover:bg-red-600`;
+    `${modalBtnBase} border border-error bg-error font-bold text-white hover:-translate-y-0.5 hover:bg-error-hover`;
 
 export const btnIcon =
     'rounded-lg border-none bg-transparent px-2 py-1.5 text-[#c4c4cc] transition hover:bg-white/5 hover:text-[#fafafa] disabled:opacity-50';
 
 export const dangerModalPanel =
-    'overflow-hidden rounded-xl border border-red-500/30 bg-bg-card shadow-[0_0_30px_rgba(239,68,68,0.15)]';
+    'overflow-hidden rounded-xl border border-error/30 bg-bg-card shadow-[0_0_30px_rgba(229,77,46,0.15)]';
 
 export const dangerModalHeader =
-    'flex items-center justify-between border-b border-red-500/20 bg-red-500/[0.05] px-5 py-4';
+    'flex items-center justify-between border-b border-error/20 bg-error/[0.05] px-5 py-4';
 
 export const dangerModalTitleIcon = 'text-error';
 
 export const dangerInputGroup =
-    'mt-5 rounded-xl border border-dashed border-red-500/20 bg-red-500/[0.03] p-4';
+    'mt-5 rounded-xl border border-dashed border-error/20 bg-error/[0.03] p-4';
 
 export const dangerInputLabel = 'mb-2.5 block text-[0.85rem] text-[#c4c4cc]';
 
 export const confirmWordBadge =
-    'rounded bg-red-500/10 px-1.5 py-0.5 font-mono text-sm font-extrabold tracking-wide text-error';
+    'rounded bg-error/10 px-1.5 py-0.5 font-mono text-sm font-extrabold tracking-wide text-error';
 
 export const dangerInput =
-    'w-full rounded-lg border border-white/[0.08] bg-black/20 px-3 py-3 text-center text-base font-semibold uppercase tracking-[0.2em] text-white outline-none transition placeholder:font-normal placeholder:normal-case placeholder:tracking-normal placeholder:opacity-50 focus:border-error focus:bg-red-500/[0.05] focus:shadow-[0_0_0_4px_rgba(239,68,68,0.1)]';
+    'w-full rounded-lg border border-white/[0.08] bg-black/20 px-3 py-3 text-center text-base font-semibold uppercase tracking-[0.2em] text-white outline-none transition placeholder:font-normal placeholder:normal-case placeholder:tracking-normal placeholder:opacity-50 focus:border-error focus:bg-error/[0.05] focus:shadow-[0_0_0_4px_rgba(229,77,46,0.1)]';
 
 export const modalShake = 'animate-modal-shake';
 

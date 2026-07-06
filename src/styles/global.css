@@ -11,7 +11,10 @@
   --color-sidebar: #0a0a0c;
   --color-success: #10b981;
   --color-warning: #f59e0b;
-  --color-error: #ef4444;
+  /* Supabase destructive (hsl 10.2 77.9% 53.9%) */
+  --color-error: #e54d2e;
+  --color-error-hover: #f16a50;
+  --color-error-dark: #7f2315;
   --font-sans: "Geist", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
 

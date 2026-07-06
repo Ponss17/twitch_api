@@ -289,7 +289,7 @@ export function ApiTestCard({
                         result.status === 'success'
                             ? 'border-primary/30 border-l-4 border-l-primary bg-gradient-to-br from-primary/10 to-indigo-500/[0.05]'
                             : result.status === 'error'
-                              ? 'border-l-4 border-l-[#ef4444] border-[#ef4444]/30 bg-gradient-to-br from-[#ef4444]/10 to-[#991b1b]/[0.05]'
+                              ? 'border-l-4 border-l-error border-error/30 bg-gradient-to-br from-error/10 to-error-dark/[0.05]'
                               : ''
                     }`}
                 >
