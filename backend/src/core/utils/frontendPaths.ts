@@ -1,7 +1,7 @@
 import { CONFIG } from '../config/env';
 
-/** Frontend Astro bajo /api/twitch (proxy losperris.dev). */
-export const APP_MOUNT = '/api/twitch';
+/** Mount canónico del frontend en ttv.losperris.dev (raíz). Debe coincidir con src/core/config/paths.ts */
+export const APP_MOUNT = '';
 
 export function getAppBasePath(): string {
     return APP_MOUNT;
