@@ -17,7 +17,7 @@ import { DocsContent } from '@/features/docs/components/DocsContent';
 import { DocsHeader } from '@/features/docs/components/DocsHeader';
 import { AppLogo } from '@/shared/ui/AppLogo';
 import { Search, ArrowLeft } from 'lucide-react';
-import { Home, Key, UserCog, Gauge, Rocket, Clock, Film, Megaphone, TrendingUp, Binoculars, Dices, Swords, List, AlertTriangle } from 'lucide-react';
+import { Home, Key, UserCog, Gauge, Rocket, Clock, Film, Megaphone, TrendingUp, Binoculars, Dices, Swords, List, AlertTriangle, Layers } from 'lucide-react';
 import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTabs';
 import type { LucideIcon } from 'lucide-react';
 
@@ -45,6 +45,10 @@ const NAV_GROUPS: { title: string; items: { id: string; icon: LucideIcon; label:
             { id: 'stalker', icon: Binoculars, label: 'Stalker' },
             { id: 'roulette', icon: Dices, label: 'Ruleta' }
         ]
+    },
+    {
+        title: 'Overlays',
+        items: [{ id: 'overlays', icon: Layers, label: 'Overlays (Beta)' }]
     },
     {
         title: 'Minijuegos',
