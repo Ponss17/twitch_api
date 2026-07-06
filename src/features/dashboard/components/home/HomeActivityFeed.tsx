@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, memo } from 'react';
 import { Filter, Radio, Terminal } from 'lucide-react';
 
 import { card, fadeIn } from '@/core/ui/tw';
@@ -91,7 +91,7 @@ function ActivityEmptyState({ filtered }: { filtered?: boolean }) {
     );
 }
 
-export function HomeActivityFeed({
+export const HomeActivityFeed = memo(function HomeActivityFeed({
     activity,
     syncing,
     syncLabel,
@@ -238,4 +238,4 @@ export function HomeActivityFeed({
             </div>
         </div>
     );
-}
+});

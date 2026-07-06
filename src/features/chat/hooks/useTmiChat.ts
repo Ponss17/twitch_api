@@ -22,6 +22,10 @@ export function useTmiChat(listenerId: string, options: UseTmiChatOptions): void
     onConnectedRef.current = onConnected;
     const onErrorRef = useRef(onError);
     onErrorRef.current = onError;
+    const sessionRef = useRef(session);
+    sessionRef.current = session;
+
+    const sessionKey = `${session.userId ?? ''}|${session.apiKey ?? ''}|${session.token ?? ''}`;
 
     useEffect(() => {
         if (!enabled || !channel) return;
@@ -33,7 +37,7 @@ export function useTmiChat(listenerId: string, options: UseTmiChatOptions): void
         };
 
         void tmiService
-            .connect(channel, getTmiAuth(session))
+            .connect(channel, getTmiAuth(sessionRef.current))
             .then(() => {
                 if (cancelled) {
                     tmiService.removeListener(listenerId);
@@ -52,5 +56,5 @@ export function useTmiChat(listenerId: string, options: UseTmiChatOptions): void
             tmiService.removeListener(listenerId);
             tmiService.disconnect();
         };
-    }, [enabled, channel, listenerId, session]);
+    }, [enabled, channel, listenerId, sessionKey]);
 }

@@ -143,7 +143,7 @@ export function useTrendsController({
     useTmiChat(LISTENER_ID, {
         channel: session.login,
         session,
-        enabled: active && tracking && isLeader,
+        enabled: tracking && isLeader,
         onMessage: handleChatMessage,
         onConnected: () => updateStatus(true),
         onError: () => {
@@ -154,10 +154,10 @@ export function useTrendsController({
     });
 
     useEffect(() => {
-        if (!(active && tracking && isLeader)) {
+        if (!(tracking && isLeader)) {
             updateStatus(false);
         }
-    }, [active, tracking, isLeader, updateStatus]);
+    }, [tracking, isLeader, updateStatus]);
 
     const localEndTimer = useCallback(
         (fromError = false) => {
@@ -289,7 +289,7 @@ export function useTrendsController({
     }, [minutes, session, runTimer, showToast, emitState]);
 
     useEffect(() => {
-        if (!active) {
+        if (!active && !trackingRef.current) {
             setIsLeader(false);
             if (syncRef.current) {
                 syncRef.current.destroy();
@@ -297,6 +297,8 @@ export function useTrendsController({
             }
             return;
         }
+
+        if (syncRef.current) return;
 
         const sync = new TabSyncService('dashboard_trends_sync');
         syncRef.current = sync;

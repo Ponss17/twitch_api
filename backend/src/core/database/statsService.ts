@@ -168,7 +168,7 @@ export const incrementUserStats = async (userId: string, command: string): Promi
             }
         }
 
-        notifyStatsMutated(userId, { invalidateAnalytics: true });
+        notifyStatsMutated(userId);
     } catch (e) {
         logger.error('Error incrementando estadísticas:', e);
     }
@@ -177,9 +177,17 @@ export const incrementUserStats = async (userId: string, command: string): Promi
 export const getUserStats = async (userId: string): Promise<Record<string, number>> => {
     try {
         const now = Date.now();
-        const remoteRev = await cacheService.getStatsRevision(userId);
         const cached = STATS_CACHE.get(userId);
-        if (cached && cached.expiry > now && cached.rev >= remoteRev) return cached.data;
+
+        if (cached && cached.expiry > now) {
+            return cached.data;
+        }
+
+        const remoteRev = await cacheService.getStatsRevision(userId);
+        if (cached && cached.rev >= remoteRev) {
+            STATS_CACHE.set(userId, { ...cached, expiry: now + STATS_TTL });
+            return cached.data;
+        }
 
         const cachedTz = cached?.tz || null;
 
@@ -280,7 +288,7 @@ export const recordUserRequest = async (
         }
 
         addToExistsCache(userId);
-        notifyStatsMutated(userId, { invalidateAnalytics: true });
+        notifyStatsMutated(userId);
     } catch (e) {
         logger.error('Error registrando estadísticas de petición:', e);
     }

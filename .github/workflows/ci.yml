@@ -86,9 +86,6 @@ jobs:
             - name: Install
               run: pnpm install --frozen-lockfile
 
-            - name: Build
-              run: pnpm run build
-
             - name: Create CI .env for dev servers
               run: |
                   cat > .env << 'EOF'

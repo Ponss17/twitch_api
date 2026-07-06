@@ -12,7 +12,6 @@ import {
 import { extractApiErrorMessage } from '@/core/api/apiError';
 import { useRequiredSession, useSession } from '@/core/session/useSession';
 import { maskApiKey } from '@/core/ui/utils';
-import { DataExport } from '@/features/dashboard/lib/dataExporter';
 import { fadeIn } from '@/core/ui/tw';
 import { appPath } from '@/core/config/paths';
 import { DangerConfirmModal, RegenKeyModal } from '@/shared/ui/Modal';
@@ -334,6 +333,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                             return;
                         }
 
+                        const { DataExport } = await import('@/features/dashboard/lib/dataExporter');
                         await DataExport.export(session, (msg) => showToast(msg, 'success'));
 
                         await fetch(API_ENDPOINTS.EXPORT_COMPLETE, {

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import {
     activityEntryKey,
     formatActivityRelativeTime,
@@ -12,7 +13,10 @@ interface HomeActivityLogEntryProps {
     isNew?: boolean;
 }
 
-export function HomeActivityLogEntry({ item, isNew = false }: HomeActivityLogEntryProps) {
+export const HomeActivityLogEntry = memo(function HomeActivityLogEntry({
+    item,
+    isNew = false
+}: HomeActivityLogEntryProps) {
     const meta = getActivityMeta(item.type);
     const Icon = meta.icon;
     const user = sanitizeActivityUser(item.user);
@@ -54,4 +58,4 @@ export function HomeActivityLogEntry({ item, isNew = false }: HomeActivityLogEnt
             </div>
         </div>
     );
-}
+});
