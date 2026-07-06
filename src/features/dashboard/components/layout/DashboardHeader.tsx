@@ -56,10 +56,10 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                         href={STATUS_PAGE_URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 rounded-full border border-[#22c55e]/20 bg-[#22c55e]/10 px-3 py-1.5 text-[0.8125rem] font-semibold text-[#22c55e] no-underline shadow-[0_0_10px_rgba(34,197,94,0.15)] transition-all hover:border-[#22c55e]/40 hover:bg-[#22c55e]/20 hover:text-[#4ade80] hover:shadow-[0_0_15px_rgba(34,197,94,0.25)]"
+                        className={headerGhostBtn}
                         title="Status del servicio"
                     >
-                        <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-current shadow-[0_0_8px_currentColor]" />
+                        <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-[#22c55e] shadow-[0_0_8px_#22c55e]" />
                         <span className="hidden sm:inline">Status</span>
                     </a>
 
