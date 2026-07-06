@@ -32,9 +32,9 @@ const isTest = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !==
 
 /** Valores canónicos cuando el deploy en Vercel trae localhost del .env local. */
 const PRODUCTION_URLS = {
-    TWITCH_REDIRECT_URI: 'https://www.losperris.dev/api/twitch/auth/twitch/callback',
-    BASE_URL: 'https://www.losperris.dev/api/twitch',
-    FRONTEND_URL: 'https://www.losperris.dev'
+    TWITCH_REDIRECT_URI: 'https://ttv.losperris.dev/api/auth/twitch/callback',
+    BASE_URL: 'https://ttv.losperris.dev/api',
+    FRONTEND_URL: 'https://ttv.losperris.dev'
 } as const;
 
 const isLocalhostUrl = (value: string | undefined): boolean => {
