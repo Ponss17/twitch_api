@@ -29,7 +29,7 @@ export function getDashboardBasePath(): string {
     return appPath('/dashboard').replace(/\/$/, '');
 }
 
-export function isBareDashboardPath(pathname: string): boolean {
+function isBareDashboardPath(pathname: string): boolean {
     const base = getDashboardBasePath();
     return pathname === base || pathname === `${base}/`;
 }

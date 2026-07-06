@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties } from 'react';
 
 const pulse = 'animate-pulse bg-bg-tertiary';
 
@@ -9,7 +9,7 @@ interface SkeletonProps {
 }
 
 /** Bloque base con animación pulse. */
-export function Skeleton({ className = '', style, 'aria-hidden': ariaHidden = true }: SkeletonProps) {
+function Skeleton({ className = '', style, 'aria-hidden': ariaHidden = true }: SkeletonProps) {
     return (
         <div
             className={`${pulse} rounded-md ${className}`.trim()}
@@ -19,11 +19,7 @@ export function Skeleton({ className = '', style, 'aria-hidden': ariaHidden = tr
     );
 }
 
-export function SkeletonText({ className = '' }: { className?: string }) {
-    return <Skeleton className={`h-4 ${className}`} />;
-}
-
-export function SkeletonCircle({ className = 'h-10 w-10' }: { className?: string }) {
+function SkeletonCircle({ className = 'h-10 w-10' }: { className?: string }) {
     return <Skeleton className={`rounded-full ${className}`} />;
 }
 
@@ -93,19 +89,6 @@ export function ProfileHeroSkeleton() {
     );
 }
 
-export function ProfileActivitySkeleton() {
-    return (
-        <div className="mb-3 rounded-xl border border-white/[0.08] bg-bg-card p-5">
-            <Skeleton className="mb-4 h-6 w-56" />
-            <div className="grid gap-4 min-[1024px]:grid-cols-3">
-                {Array.from({ length: 3 }).map((_, i) => (
-                    <Skeleton key={i} className="h-[100px] w-full rounded-xl" />
-                ))}
-            </div>
-        </div>
-    );
-}
-
 export function StalkerRowSkeleton() {
     return (
         <tr>
@@ -144,14 +127,6 @@ export function ClipsGridSkeleton({ count = 6, className = '' }: { count?: numbe
                     </div>
                 </div>
             ))}
-        </div>
-    );
-}
-
-export function SkeletonWrap({ children, label }: { children: ReactNode; label: string }) {
-    return (
-        <div aria-busy="true" aria-label={label}>
-            {children}
         </div>
     );
 }
