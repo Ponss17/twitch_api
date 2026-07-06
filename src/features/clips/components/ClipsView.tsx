@@ -6,11 +6,11 @@ import { useToast } from '@/shared/ui/ToastProvider';
 import { ClipsGridSkeleton } from '@/shared/ui/Skeleton';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { cache, CACHE_TTL } from '@/core/cache/cacheService';
-import { card, fadeIn, clipPlayerDialog, clipPlayerPanel } from '@/core/ui/tw';
-import { BaseModal, useModalClose } from '@/shared/ui/Modal';
+import { card, fadeIn } from '@/core/ui/tw';
+import { ClipPlayerOverlay } from '@/features/clips/components/ClipPlayerOverlay';
 import { SelectField } from '@/shared/ui/SelectField';
 import { ClipCommandView } from '@/features/commands/components/CommandsViews';
-import { Star, RotateCw, Link as LinkIcon, Images, Search, Play, X } from 'lucide-react';
+import { Star, RotateCw, Link as LinkIcon, Images, Search, Play } from 'lucide-react';
 
 
 interface Clip {
@@ -56,11 +56,6 @@ function saveFavorites(userId: string, favorites: string[]) {
     localStorage.setItem(`clips_favs_${userId}`, JSON.stringify(favorites));
 }
 
-function clipEmbedSrc(clipId: string) {
-    const parent = window.location.hostname;
-    return `https://clips.twitch.tv/embed?clip=${clipId}&parent=${encodeURIComponent(parent)}&autoplay=true`;
-}
-
 function formatClipDate(value?: string) {
     if (!value) return '';
     return new Date(value).toLocaleDateString('es-ES', {
@@ -68,30 +63,6 @@ function formatClipDate(value?: string) {
         month: 'short',
         day: 'numeric'
     });
-}
-
-function ClipPlayerContent({ clip, embedSession }: { clip: Clip; embedSession: number }) {
-    const closeModal = useModalClose();
-
-    return (
-        <>
-            <button
-                type="button"
-                onClick={closeModal}
-                className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border-none bg-black/70 text-white backdrop-blur-sm transition hover:bg-primary"
-                aria-label="Cerrar reproductor"
-            >
-                <X className="h-4 w-4" />
-            </button>
-            <iframe
-                key={`${clip.id}-${embedSession}`}
-                title={clip.title ?? 'Clip de Twitch'}
-                src={clipEmbedSrc(clip.id)}
-                allowFullScreen
-                className="absolute inset-0 h-full w-full border-none bg-black"
-            />
-        </>
-    );
 }
 
 export function ClipsView() {
@@ -377,16 +348,14 @@ export function ClipsView() {
                 </div>
             </div>
 
-            <BaseModal
-                open={!!playingClip}
-                onClose={closeClipPlayer}
-                dialogClassName={clipPlayerDialog}
-                className={clipPlayerPanel}
-            >
-                {playingClip ? (
-                    <ClipPlayerContent clip={playingClip} embedSession={embedSession} />
-                ) : null}
-            </BaseModal>
+            {playingClip ? (
+                <ClipPlayerOverlay
+                    clipId={playingClip.id}
+                    title={playingClip.title}
+                    embedSession={embedSession}
+                    onClose={closeClipPlayer}
+                />
+            ) : null}
         </>
     );
 }
