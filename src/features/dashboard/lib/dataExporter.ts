@@ -1143,7 +1143,7 @@ const DataExport = {
                 <a href="${docsUrl}">Documentación</a>
                 <a href="${aboutUrl}">Sobre la API</a>
                 <a href="${discordUrl}" target="_blank" rel="noopener noreferrer">Discord</a>
-                <a href="${statusUrl}" target="_blank" rel="noopener noreferrer">Estado del servicio</a>
+                <a href="${statusUrl}" target="_blank" rel="noopener noreferrer">Status</a>
             </nav>
             <nav class="footer-legal" aria-label="Legal">
                 <a href="${legalPrivacy}">Privacidad</a>

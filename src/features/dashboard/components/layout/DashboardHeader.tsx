@@ -13,13 +13,13 @@ import {
     DropdownPanel,
     DropdownTrigger
 } from '@/shared/ui/Dropdown';
-import { User, LogOut, Menu, Activity } from 'lucide-react';
+import { User, LogOut, Menu } from 'lucide-react';
 import { TwitchIcon, PaypalIcon } from '@/shared/ui/icons/BrandIcons';
 
 const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
 
-const headerIconBtn =
-    'flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.03] text-[#c4c4cc] no-underline transition hover:border-white/15 hover:bg-white/[0.06] hover:text-[#fafafa]';
+const headerGhostBtn =
+    'inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-[0.8125rem] font-medium text-[#c4c4cc] no-underline transition hover:border-white/15 hover:bg-white/[0.06] hover:text-[#fafafa]';
 
 interface DashboardHeaderProps {
     tab: DashboardTab;
@@ -56,22 +56,21 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                         href={STATUS_PAGE_URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={headerIconBtn}
-                        title="Estado del servicio"
-                        aria-label="Estado del servicio (abre en nueva pestaña)"
+                        className={headerGhostBtn}
+                        title="Status del servicio"
                     >
-                        <Activity className="h-4 w-4" aria-hidden />
+                        Status
                     </a>
 
                     <a
                         href={PAYPAL_URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hidden items-center gap-2 rounded-full bg-[#ffc439] px-3 py-1.5 text-[0.8125rem] font-bold text-[#003087] no-underline transition hover:-translate-y-px hover:bg-[#f5ba2d] sm:flex"
+                        className={`${headerGhostBtn} hidden sm:inline-flex`}
                         title="Apoyar el proyecto con PayPal"
                     >
-                        <PaypalIcon className="h-[18px] w-[18px]" />
-                        <span>PayPal</span>
+                        <PaypalIcon className="h-4 w-4 shrink-0" />
+                        <span>Apoyar</span>
                     </a>
 
                     <Dropdown>

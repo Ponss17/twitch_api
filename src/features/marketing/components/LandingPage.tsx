@@ -324,7 +324,7 @@ export function LandingPage() {
                             Funciones de la <span className={GRADIENT_TEXT}>API</span>
                         </h2>
                         <p className="mx-auto mt-4 max-w-[650px] text-lg text-[#c4c4cc]">
-                            Todo lo que necesitas para que tu stream.
+                            Todo lo que necesitas para tu stream.
                         </p>
                     </div>
 

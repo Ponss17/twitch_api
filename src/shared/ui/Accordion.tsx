@@ -8,7 +8,7 @@ interface AccordionItemProps {
     onClick?: () => void;
 }
 
-export const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, isOpen, onClick }) => {
+const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, isOpen, onClick }) => {
     return (
         <div className="border-b border-white/[0.08] last:border-none">
             <button
