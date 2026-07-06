@@ -24,7 +24,7 @@ export function isDashboardTab(value: string | null | undefined): value is Dashb
     return value != null && value !== '' && VALID_TABS.has(value as DashboardTab);
 }
 
-/** Base path del dashboard SPA, p. ej. `/api/twitch/dashboard` */
+/** Base path del dashboard SPA, p. ej. `/dashboard` */
 export function getDashboardBasePath(): string {
     return appPath('/dashboard').replace(/\/$/, '');
 }

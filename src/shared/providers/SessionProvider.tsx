@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { unstable_batchedUpdates } from 'react-dom';
 import { bindCommandStoreUser } from '@/features/commands/lib/commandStore';
 import {
     initAuthSync,
@@ -79,9 +80,11 @@ export function SessionProvider({
 
         if (!sessionParams.token && !sessionParams.apiKey && !sessionParams.overlayToken) {
             bindCommandStoreUser(undefined);
-            setSession(null);
-            setLoading(false);
-            setAuthenticated(false);
+            unstable_batchedUpdates(() => {
+                setSession(null);
+                setLoading(false);
+                setAuthenticated(false);
+            });
             if (requireAuth) {
                 window.location.href = appPath('/');
             }
@@ -134,9 +137,11 @@ export function SessionProvider({
                 showToastRef.current('Tu API Key ha sido actualizada', 'info');
             }
 
-            setSession(enriched);
-            setAuthenticated(true);
-            setLoading(false);
+            unstable_batchedUpdates(() => {
+                setSession(enriched);
+                setAuthenticated(true);
+                setLoading(false);
+            });
             reportSessionLoadProgress({
                 progress: 58,
                 label: 'Preparando panel…',
@@ -145,10 +150,12 @@ export function SessionProvider({
             return;
         }
 
-        setSession(null);
-        setAuthenticated(false);
-        setLoading(false);
         bindCommandStoreUser(undefined);
+        unstable_batchedUpdates(() => {
+            setSession(null);
+            setAuthenticated(false);
+            setLoading(false);
+        });
 
         if (requireAuth) {
             invalidateSession({ broadcast: false });

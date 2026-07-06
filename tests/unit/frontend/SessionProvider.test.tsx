@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { SessionProvider } from '@/shared/providers/SessionProvider';
 import { useSession } from '@/core/session/useSession';
 
@@ -108,11 +108,14 @@ describe('SessionProvider', () => {
         expect(screen.getByText('user:streamer')).toBeInTheDocument();
 
         await waitFor(() => expect(mockedValidateSession).toHaveBeenCalled());
-        resolveValidate({
-            valid: true,
-            apiKey: 'k',
-            user: { login: 'streamer', display_name: 'Streamer', id: '1' }
+        await act(async () => {
+            resolveValidate({
+                valid: true,
+                apiKey: 'k',
+                user: { login: 'streamer', display_name: 'Streamer', id: '1' }
+            });
         });
+        await waitFor(() => expect(screen.getByText('user:streamer')).toBeInTheDocument());
     });
 
     it('shows anonymous state when validation fails', async () => {
