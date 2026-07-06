@@ -8,7 +8,6 @@ import {
     sidebarCategoryLabel,
     sidebarNavItem,
     sidebarNavScroll,
-    sidebarShell,
     sidebarSupportLink,
     textInput
 } from '@/core/ui/tw';
