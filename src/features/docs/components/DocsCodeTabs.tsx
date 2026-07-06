@@ -127,8 +127,8 @@ export function DocsCodeTabs({ snippets, trigger }: DocsCodeTabsProps) {
                 </div>
             </div>
             <div className={docsTabContent}>
-                <div className={`${docsCodeBlock} my-0`}>
-                    <code suppressHydrationWarning>{code}</code>
+                <div className={docsCodeBlock}>
+                    <code className="text-[#c4c4cc]" suppressHydrationWarning>{code}</code>
                     <button
                         type="button"
                         className={`${docsCopyBtn} flex items-center gap-1.5${copied ? ` ${docsCopyBtnSuccess}` : ''}`}
