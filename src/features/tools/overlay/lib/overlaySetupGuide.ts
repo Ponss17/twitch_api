@@ -57,14 +57,14 @@ export function getOverlayPlatformGuide(
             title: 'Configurar en OBS',
             steps: [
                 { title: 'Nueva fuente', detail: 'Fuentes → Navegador (Browser Source).' },
-                { title: 'Pegar URL', detail: 'Usa la URL que copiaste con el botón de abajo.' },
+                { title: 'Pegar URL', detail: 'Pega la URL que copiaste en el panel (botón Overlay).' },
                 { title: 'Tamaño', detail: `${size}, fondo transparente.` },
                 {
                     title: 'Al activar escena',
                     detail: 'Marca «Actualizar navegador cuando la escena se active».'
                 }
             ],
-            note: 'El overlay solo muestra el estado. Todo se controla desde el panel.'
+            note: 'Solo muestra en pantalla. Para iniciar, girar o reiniciar, usa el panel.'
         };
     }
 
@@ -72,13 +72,13 @@ export function getOverlayPlatformGuide(
         title: 'Configurar en Streamlabs',
         steps: [
             { title: 'Nueva fuente', detail: 'Fuentes → Custom Widget o Browser Source.' },
-            { title: 'Pegar URL', detail: 'Usa la URL que copiaste con el botón de abajo.' },
+            { title: 'Pegar URL', detail: 'Pega la URL que copiaste en el panel (botón Overlay).' },
             { title: 'Tamaño', detail: `${size}, sin color de fondo.` },
             {
                 title: 'Al mostrar escena',
                 detail: 'Activa el refresco automático si tu plan lo permite.'
             }
         ],
-        note: 'Si la fuente queda en negro, genera un enlace nuevo desde aquí.'
+        note: 'Si la fuente se ve negra, revisa el tamaño, el fondo transparente y el refresco al mostrar la escena.'
     };
 }
