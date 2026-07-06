@@ -78,7 +78,7 @@ describe('authController', () => {
             await callback(req, res);
 
             expect(res.redirect).toHaveBeenCalledWith(
-                expect.stringMatching(/\/api\/twitch\/\?error=no_code/)
+                expect.stringMatching(/\?error=no_code$/)
             );
         });
 
@@ -95,7 +95,7 @@ describe('authController', () => {
             await callback(req, res);
 
             expect(res.redirect).toHaveBeenCalledWith(
-                expect.stringMatching(/\/api\/twitch\/dashboard\?auth=/)
+                expect.stringMatching(/\/dashboard\?auth=/)
             );
         });
 
@@ -108,7 +108,7 @@ describe('authController', () => {
             await callback(req, res);
 
             expect(res.redirect).toHaveBeenCalledWith(
-                expect.stringMatching(/\/api\/twitch\/\?error=auth_failed/)
+                expect.stringMatching(/\?error=auth_failed$/)
             );
         });
 
@@ -125,7 +125,7 @@ describe('authController', () => {
             await callback(req, res);
 
             expect(res.redirect).toHaveBeenCalledWith(
-                expect.stringMatching(/\/api\/twitch\/dashboard\?auth=/)
+                expect.stringMatching(/\/dashboard\?auth=/)
             );
         });
     });
