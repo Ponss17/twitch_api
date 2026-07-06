@@ -26,10 +26,10 @@ describe('production URL resolution (Vercel)', () => {
 
         const { CONFIG } = await import('../../backend/src/core/config/env');
         expect(CONFIG.TWITCH_REDIRECT_URI).toBe(
-            'https://www.losperris.dev/api/twitch/auth/twitch/callback'
+            'https://ttv.losperris.dev/api/auth/twitch/callback'
         );
-        expect(CONFIG.BASE_URL).toBe('https://www.losperris.dev/api/twitch');
-        expect(CONFIG.FRONTEND_URL).toBe('https://www.losperris.dev');
+        expect(CONFIG.BASE_URL).toBe('https://ttv.losperris.dev/api');
+        expect(CONFIG.FRONTEND_URL).toBe('https://ttv.losperris.dev');
     });
 
     it('deriva FRONTEND_URL del BASE_URL si no existe en Vercel', async () => {
@@ -47,6 +47,6 @@ describe('production URL resolution (Vercel)', () => {
         process.env.SUPABASE_JWT_SECRET = 'jwt';
 
         const { CONFIG } = await import('../../backend/src/core/config/env');
-        expect(CONFIG.FRONTEND_URL).toBe('https://www.losperris.dev');
+        expect(CONFIG.FRONTEND_URL).toBe('https://ttv.losperris.dev');
     });
 });

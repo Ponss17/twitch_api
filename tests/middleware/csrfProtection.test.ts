@@ -3,7 +3,11 @@ import type { Request, Response, NextFunction } from 'express';
 import { csrfProtection } from '../../backend/src/core/middleware/csrfProtection';
 
 jest.mock('../../backend/src/core/config/origins', () => ({
-    ALLOWED_ORIGINS: ['https://www.losperris.dev', 'http://localhost:4321']
+    ALLOWED_ORIGINS: [
+        'https://ttv.losperris.dev',
+        'https://www.losperris.dev',
+        'http://localhost:4321'
+    ]
 }));
 
 function mockRes() {
@@ -39,6 +43,15 @@ describe('csrfProtection', () => {
         const req = {
             method: 'POST',
             headers: { origin: 'https://www.losperris.dev' }
+        } as Request;
+        csrfProtection(req, mockRes(), next as NextFunction);
+        expect(next).toHaveBeenCalled();
+    });
+
+    it('allows POST with ttv.losperris.dev Origin', () => {
+        const req = {
+            method: 'POST',
+            headers: { origin: 'https://ttv.losperris.dev' }
         } as Request;
         csrfProtection(req, mockRes(), next as NextFunction);
         expect(next).toHaveBeenCalled();
