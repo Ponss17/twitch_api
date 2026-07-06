@@ -5,7 +5,7 @@ export function getAppBasePath(): string {
     return APP_MOUNT;
 }
 
-/** Normaliza BASE_URL de Astro (path o URL absoluta) al mount /api/twitch. */
+/** Normaliza BASE_URL de Astro (path o URL absoluta) al mount canónico (raíz en ttv). */
 function normalizeAppBase(base: string = getAppBasePath()): string {
     const trimmed = base.trim().replace(/\/$/, '');
     if (/^https?:\/\//i.test(trimmed)) {
@@ -20,14 +20,14 @@ function normalizeAppBase(base: string = getAppBasePath()): string {
     return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
 }
 
-/** Une mount + segmento sin perder la barra (evita /api/twitchimg/...). */
+/** Une mount + segmento sin perder la barra (evita /img pegado al path). */
 export function joinAppPath(base: string, segment: string): string {
     const mount = normalizeAppBase(base);
     const normalized = segment.startsWith('/') ? segment : `/${segment}`;
     return `${mount}${normalized}`;
 }
 
-/** Ruta de página (ej. /docs → /api/twitch/docs). */
+/** Ruta de página en raíz (ej. /docs → /docs con APP_MOUNT vacío). */
 export function appPath(path: string): string {
     const segment = path.startsWith('/') ? path : `/${path}`;
     const base = getAppBasePath();
