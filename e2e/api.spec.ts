@@ -14,7 +14,7 @@ test.describe('API (Express real)', () => {
     });
 
     test('dashboard analytics sin auth devuelve error JSON unificado', async ({ request }) => {
-        const res = await request.get(`${API}/api/twitch/dashboard/analytics`, {
+        const res = await request.get(`${API}/api/dashboard/analytics`, {
             headers: { Accept: 'application/json' }
         });
 
@@ -31,7 +31,7 @@ test.describe('API (Express real)', () => {
     });
 
     test('auth exchange rechaza petición sin token', async ({ request }) => {
-        const res = await request.get(`${API}/api/twitch/auth/exchange`);
+        const res = await request.get(`${API}/api/auth/exchange`);
         expect(res.status()).toBe(400);
 
         const body = (await res.json()) as {
