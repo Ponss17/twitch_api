@@ -439,7 +439,7 @@ export function DashboardPanelProvider({
             syncRef.current = null;
             dataReadyFiredRef.current = false;
         };
-    }, [active, startSmartPolling]);
+    }, [active, startSmartPolling, session.userId]);
 
     const value = useMemo<DashboardPanelContextValue>(
         () => ({
