@@ -2,6 +2,7 @@ import { Info, Zap, Key, ShieldAlert, UserCog, BarChart2, IdCard, Skull, Gauge, 
 import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTabs';
 
 import { DocsCodeTabs } from '@/features/docs/components/DocsCodeTabs';
+import { DocsOverlaySection } from '@/features/docs/components/DocsOverlaySection';
 import { appPath } from '@/core/config/paths';
 import {
     docSection,
@@ -26,6 +27,7 @@ import {
     docsBadgeWarning,
     docsBadgeError,
     docsBadgeNeutral,
+    docsBadgeBeta,
     docsParamsTable,
     docsStepBadge,
     docsStepCard,
@@ -353,6 +355,11 @@ export function DocsContent() {
                         está spameando tu comunidad. Incluye un temporizador para sesiones de análisis.
                     </p>
                 </div>
+                <p className="text-[0.875rem] text-[#c4c4cc]">
+                    <strong className="text-[#fafafa]">Overlay en pantalla</strong>
+                    <span className={docsBadgeBeta}>Beta</span> — muestra el Top 10 en OBS o Streamlabs.{' '}
+                    <a href="#overlays">Ver guía de overlays</a>.
+                </p>
             </section>
 
             <section id="stalker" className={docSection} data-doc-section>
@@ -384,7 +391,14 @@ export function DocsContent() {
                         cargue automáticamente a los <strong>usuarios activos</strong> del chat en tiempo real.
                     </p>
                 </div>
+                <p className="text-[0.875rem] text-[#c4c4cc]">
+                    <strong className="text-[#fafafa]">Overlay en pantalla</strong>
+                    <span className={docsBadgeBeta}>Beta</span> — refleja la ruleta en tu escena.{' '}
+                    <a href="#overlays">Ver guía de overlays</a>.
+                </p>
             </section>
+
+            <DocsOverlaySection />
 
             <section id="magic8" className={docSection} data-doc-section>
                 <h2>
