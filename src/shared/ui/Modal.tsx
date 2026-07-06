@@ -1,6 +1,6 @@
 import { AlertTriangle, Loader2 } from 'lucide-react';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, createContext, useContext, useCallback, type ReactNode } from 'react';
 import { X, Trash2, type LucideIcon } from 'lucide-react';
 import {
     btnDanger,
@@ -22,6 +22,14 @@ import {
     modalTitle,
     modalTitleIcon
 } from '@/core/ui/tw';
+
+const ModalCloseContext = createContext<(() => void) | null>(null);
+
+/** Cierra el modal activo (animación + onClose). Usar en hijos de BaseModal. */
+export function useModalClose() {
+    const close = useContext(ModalCloseContext);
+    return close ?? (() => {});
+}
 
 interface ModalProps {
     open: boolean;
@@ -78,6 +86,35 @@ export function BaseModal({
         };
     }, [open]);
 
+    const handleClose = useCallback(() => {
+        setClosing(true);
+        const dialog = dialogRef.current;
+        const panel = panelRef.current;
+
+        const finish = () => {
+            setClosing(false);
+            dialog?.close();
+            onClose();
+        };
+
+        if (!panel) {
+            finish();
+            return;
+        }
+
+        let done = false;
+        const onEnd = () => {
+            if (done) return;
+            done = true;
+            window.clearTimeout(fallback);
+            panel.removeEventListener('animationend', onEnd);
+            finish();
+        };
+
+        panel.addEventListener('animationend', onEnd);
+        const fallback = window.setTimeout(onEnd, 400);
+    }, [onClose]);
+
     useEffect(() => {
         const dialog = dialogRef.current;
         if (!dialog) return;
@@ -87,26 +124,7 @@ export function BaseModal({
         };
         dialog.addEventListener('cancel', onCancel);
         return () => dialog.removeEventListener('cancel', onCancel);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [onClose]);
-
-    const handleClose = () => {
-        setClosing(true);
-        const panel = panelRef.current;
-        if (panel) {
-            const onEnd = () => {
-                panel.removeEventListener('animationend', onEnd);
-                setClosing(false);
-                dialogRef.current?.close();
-                onClose();
-            };
-            panel.addEventListener('animationend', onEnd);
-        } else {
-            setClosing(false);
-            dialogRef.current?.close();
-            onClose();
-        }
-    };
+    }, [handleClose]);
 
     return (
         <dialog
@@ -116,13 +134,15 @@ export function BaseModal({
                 if (closeOnBackdrop && e.target === dialogRef.current) handleClose();
             }}
         >
-            <div
-                ref={panelRef}
-                className={`${className} ${closing ? 'animate-modal-out' : 'animate-modal-in'}`}
-                onClick={(e) => e.stopPropagation()}
-            >
-                {children}
-            </div>
+            <ModalCloseContext.Provider value={handleClose}>
+                <div
+                    ref={panelRef}
+                    className={`${className} ${closing ? 'animate-modal-out' : 'animate-modal-in'}`}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {children}
+                </div>
+            </ModalCloseContext.Provider>
         </dialog>
     );
 }
