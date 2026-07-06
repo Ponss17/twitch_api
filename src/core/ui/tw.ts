@@ -111,3 +111,34 @@ export const modalShake = 'animate-modal-shake';
 
 export const aboutFadeIn = 'opacity-0 animate-about-in';
 export const aboutLegoIn = 'opacity-0 animate-about-lego';
+
+/* —— Sidebar (dashboard + docs) —— */
+export const sidebarNavButtonBase =
+    'relative mb-0.5 flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-2 text-left font-[inherit] text-[0.9rem] font-semibold transition-all outline-none focus-visible:bg-bg-tertiary focus-visible:text-[#fafafa] focus-visible:shadow-[0_0_0_2px_#9146ff]';
+
+export const sidebarNavItem = (active: boolean) => {
+    const width = active ? 'ml-3 w-[calc(100%-28px)]' : 'mx-auto w-[calc(100%-16px)]';
+    if (active) {
+        return `${sidebarNavButtonBase} ${width} bg-bg-tertiary text-[#fafafa] before:pointer-events-none before:absolute before:top-1/2 before:left-0 before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-r before:bg-primary before:shadow-[0_0_8px_#9146ff] before:content-[""]`;
+    }
+    return `${sidebarNavButtonBase} ${width} text-[#c4c4cc] hover:bg-bg-tertiary hover:text-[#fafafa]`;
+};
+
+export const sidebarShell = (mobileOpen: boolean) =>
+    `fixed left-0 top-0 z-[1000] flex h-screen w-[280px] flex-col border-r border-white/[0.08] bg-sidebar transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`;
+
+export const sidebarBrandHeader =
+    'flex h-20 shrink-0 items-center gap-3 border-b border-white/[0.08] px-5 py-4';
+
+export const sidebarNavScroll =
+    'flex flex-1 flex-col overflow-y-auto px-3 py-3 [scrollbar-color:rgba(255,255,255,0.08)_transparent] [scrollbar-width:thin]';
+
+export const sidebarCategoryLabel =
+    'mb-2 ml-3 mt-6 block text-[0.75rem] font-bold uppercase tracking-[0.05em] text-[#71717a] first:mt-2';
+
+export const sidebarSupportLink = `${sidebarNavButtonBase} mx-auto w-[calc(100%-16px)] text-[#c4c4cc] no-underline transition hover:bg-bg-tertiary hover:text-[#fafafa]`;
+
+export const sidebarBackdrop =
+    'fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm lg:hidden';
+
+export const panelMainOffset = 'flex min-h-screen flex-col lg:ml-[280px]';

@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
-import { dashboardHomePath, docsReturnPath, staticPath } from '@/core/config/paths';
+import { dashboardHomePath, docsReturnPath } from '@/core/config/paths';
 import {
-    docsContainer,
     docsGroupTitle,
-    docsMobileToggle,
     docsNav,
     docsNavGroup,
     docsNavItem,
@@ -11,22 +9,17 @@ import {
     docsReturnHome,
     docsSearchIcon,
     docsSearchInput,
-    docsSearchWrap,
-    docsSidebar,
-    docsSidebarHeader,
-    docsSidebarLogo,
-    docsSidebarTitle
+    docsSearchWrap
 } from '@/core/ui/docsTw';
+import { sidebarBackdrop, sidebarBrandHeader, sidebarShell } from '@/core/ui/tw';
 import { ToastProvider } from '@/shared/ui/ToastProvider';
 import { DocsContent } from '@/features/docs/components/DocsContent';
-import { X, Search, Menu, ArrowLeft } from 'lucide-react';
+import { DocsHeader } from '@/features/docs/components/DocsHeader';
+import { AppLogo } from '@/shared/ui/AppLogo';
+import { Search, ArrowLeft } from 'lucide-react';
 import { Home, Key, UserCog, Gauge, Rocket, Clock, Film, Megaphone, TrendingUp, Binoculars, Dices, Swords, List, AlertTriangle } from 'lucide-react';
 import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTabs';
 import type { LucideIcon } from 'lucide-react';
-
-
-
-
 
 const NAV_TOP: { id: string; icon: LucideIcon; label: string }[] = [
     { id: 'intro', icon: Home, label: 'Introducción' },
@@ -100,7 +93,7 @@ function DocsAppShell() {
                     }
                 });
             },
-            { root: null, rootMargin: '-15% 0px -65% 0px', threshold: 0 }
+            { root: null, rootMargin: '-20% 0px -60% 0px', threshold: 0 }
         );
 
         sections.forEach((section) => observer.observe(section));
@@ -143,30 +136,22 @@ function DocsAppShell() {
     const closeSidebar = () => setSidebarOpen(false);
 
     return (
-        <>
-            <button
-                type="button"
-                className={docsMobileToggle}
-                aria-label="Abrir menú de navegación"
-                onClick={() => setSidebarOpen((v) => !v)}
-            >
-                {sidebarOpen ? <X /> : <Menu />}
-            </button>
+        <div className="min-h-screen bg-bg-main">
+            <aside className={sidebarShell(sidebarOpen)}>
+                <div className={sidebarBrandHeader}>
+                    <AppLogo
+                        alt="Logo LosPerris API"
+                        className="h-12 w-12 rounded-lg object-contain"
+                        draggable={false}
+                    />
+                    <span className="text-[1.1rem] font-bold text-[#fafafa]">
+                        LosPerris<span className="text-primary">API</span>
+                    </span>
+                </div>
 
-            <div className={docsContainer}>
-                <aside className={docsSidebar(sidebarOpen)}>
-                    <div className={docsSidebarHeader}>
-                        <img
-                            src={staticPath('/img/logo.svg')}
-                            alt="Logo"
-                            className={docsSidebarLogo}
-                            draggable={false}
-                        />
-                        <h2 className={docsSidebarTitle}>Guía API</h2>
-                    </div>
-
+                <div className="border-b border-white/[0.08] px-3 pb-3">
                     <div className={docsSearchWrap}>
-                        <Search className={` ${docsSearchIcon}`} />
+                        <Search className={docsSearchIcon} />
                         <input
                             type="text"
                             id="docs-search"
@@ -177,52 +162,64 @@ function DocsAppShell() {
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
+                </div>
 
-                    <nav className={docsNav}>
-                        {NAV_TOP.map((item) => (
-                            <a
-                                key={item.id}
-                                href={`#${item.id}`}
-                                data-doc-nav={item.id}
-                                className={docsNavItem(activeId === item.id)}
-                                onClick={closeSidebar}
-                            >
-                                <item.icon className="w-4 h-4" /> {item.label}
-                            </a>
-                        ))}
-
-                        <div className={docsNavGroup}>
-                            {NAV_GROUPS.map((group) => (
-                                <div key={group.title} data-doc-nav-sub className={docsNavSub}>
-                                    <span className={docsGroupTitle}>{group.title}</span>
-                                    {group.items.map((item) => (
-                                        <a
-                                            key={item.id}
-                                            href={`#${item.id}`}
-                                            data-doc-nav={item.id}
-                                            className={docsNavItem(activeId === item.id)}
-                                            onClick={closeSidebar}
-                                        >
-                                            <item.icon className="w-4 h-4" /> {item.label}
-                                        </a>
-                                    ))}
-                                </div>
-                            ))}
-                        </div>
-
+                <nav className={docsNav}>
+                    {NAV_TOP.map((item) => (
                         <a
-                            href={returnPath}
-                            data-doc-nav="home"
-                            className={docsReturnHome}
+                            key={item.id}
+                            href={`#${item.id}`}
+                            data-doc-nav={item.id}
+                            className={docsNavItem(activeId === item.id)}
                             onClick={closeSidebar}
                         >
-                            <ArrowLeft className="w-4 h-4" /> Volver al Panel
+                            <item.icon className="h-4 w-4 shrink-0" /> {item.label}
                         </a>
-                    </nav>
-                </aside>
+                    ))}
 
+                    <div className={docsNavGroup}>
+                        {NAV_GROUPS.map((group) => (
+                            <div key={group.title} data-doc-nav-sub className={docsNavSub}>
+                                <span className={docsGroupTitle}>{group.title}</span>
+                                {group.items.map((item) => (
+                                    <a
+                                        key={item.id}
+                                        href={`#${item.id}`}
+                                        data-doc-nav={item.id}
+                                        className={docsNavItem(activeId === item.id)}
+                                        onClick={closeSidebar}
+                                    >
+                                        <item.icon className="h-4 w-4 shrink-0" /> {item.label}
+                                    </a>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+
+                    <a
+                        href={returnPath}
+                        data-doc-nav="home"
+                        className={docsReturnHome}
+                        onClick={closeSidebar}
+                    >
+                        <ArrowLeft className="h-4 w-4 shrink-0" /> Volver al Panel
+                    </a>
+                </nav>
+            </aside>
+
+            {sidebarOpen && (
+                <button
+                    type="button"
+                    aria-label="Cerrar menú"
+                    className={sidebarBackdrop}
+                    onClick={closeSidebar}
+                />
+            )}
+
+            <div className="flex min-h-screen flex-col lg:ml-[280px]">
+                <DocsHeader onMenuToggle={() => setSidebarOpen((v) => !v)} />
                 <DocsContent />
             </div>
-        </>
+        </div>
     );
 }
