@@ -70,7 +70,7 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                         className={`${headerGhostBtn} hidden sm:inline-flex`}
                         title="Apoyar el proyecto con PayPal"
                     >
-                        <PaypalIcon className="h-4 w-4 shrink-0" />
+                        <PaypalIcon className="h-[22px] w-[22px] shrink-0" />
                         <span>Apoyar</span>
                     </a>
 
