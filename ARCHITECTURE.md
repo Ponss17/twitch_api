@@ -76,7 +76,7 @@ Capas por tipo de dato:
 | **L2 KV** | Vercel Redis (`twitch_api:` prefix) | Ver `cacheTtl.ts` | Compartido entre réplicas; metadatos API key **sin tokens OAuth** |
 | **L3 DB** | Supabase | — | Solo en miss de L1+L2 |
 
-**Migración Supabase (obligatoria en prod):** ejecutar `docs/supabase/optimizations.sql` — índices, `token_expires_at`, RPC `trim_activity_logs` y `record_user_request` con fecha local.
+**Migración Supabase (obligatoria en prod):** ejecutar `scripts/supabase/optimizations.sql` — índices, `token_expires_at`, RPC `trim_activity_logs` y `record_user_request` con fecha local.
 
 - TTLs centralizados: `backend/src/core/config/cacheTtl.ts`
 - Dashboard summary: perfil Twitch (5 min) + analytics Supabase (60 s)
@@ -209,3 +209,35 @@ Rutas **dashboard**, **system** y **auth/exchange** devuelven errores con forma 
 - **Tests**: Jest (`pnpm test`) — 339 tests · Playwright E2E en CI
 - **E2E**: Playwright smoke (`pnpm test:e2e`)
 - **CI**: GitHub Actions en push/PR
+
+## Dependencias (pnpm)
+
+| Pieza | Valor actual | Notas |
+|-------|--------------|-------|
+| CI | `pnpm/action-setup@v4` → **9** | `.github/workflows/ci.yml` |
+| Local | `packageManager: "pnpm@9.15.9"` | `corepack prepare pnpm@9.15.9 --activate` |
+| Overrides seguridad | `package.json#pnpm.overrides` | `yaml`, `js-yaml@3`, `esbuild` — compatible con pnpm 9 |
+| Postinstall en CI | `onlyBuiltDependencies` | `esbuild`, `sharp`, `unrs-resolver` (pnpm 9.15+ exige allowlist) |
+| Vercel | `lockfileVersion: 9.0` | No usa `packageManager` salvo `ENABLE_EXPERIMENTAL_COREPACK=1` en el dashboard |
+
+## Deuda técnica y pendientes
+
+Puntos **fuera** del cierre de auditoría jul 2026 — no mezclar con parches de bajo riesgo:
+
+| ID | Tema | Detalle |
+|----|------|---------|
+| **🔴9** | Subir a **pnpm 11** | Migración deliberada: `pnpm-workspace.yaml`, `allowBuilds`, revisar CI y Vercel. No usar `package.json#pnpm.overrides` (ignorado en v11). Punto aparte de deploy. |
+| **🟡** | URLs legacy en CI | `.github/workflows/ci.yml` — `TWITCH_REDIRECT_URI` y `BASE_URL` aún apuntan a `www.losperris.dev/api/twitch`. Alinear con `ttv.losperris.dev` cuando se toque CI. |
+| **🟡** | Tests `frontendPaths` + `dist/` | `tests/unit/frontendPaths.test.ts` puede flakear si `pnpm test` y `pnpm build` corren en paralelo (dist/ a medias). CI serial no falla; opcional: evaluar existencia por test o mover al job build. |
+| **🟡** | Smoke prod desactualizado en notas locales | Checklist en `docs/SMOKE-PROD.md` (local) aún menciona `/api/twitch/`; producción canónica es `https://ttv.losperris.dev`. |
+
+## Documentación
+
+| Qué | Dónde |
+|-----|--------|
+| Arquitectura y contratos | `ARCHITECTURE.md` (este archivo) |
+| Inicio rápido | `README.md` |
+| SQL Supabase prod | `scripts/supabase/optimizations.sql` |
+| Notas internas / IA / planes | Carpeta `docs/` — **solo local**, en `.gitignore`, no se publica en GitHub |
+
+La carpeta `docs/` (AI-CONTEXT, plan-subdominio, auditorías, commits históricos) queda para trabajo local y agentes; el repo remoto no la incluye.
