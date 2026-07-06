@@ -82,6 +82,7 @@ export function DashboardPanelProvider({
     const syncRef = useRef<TabSyncService | null>(null);
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const isRealtimeLiveRef = useRef(false);
+    const panelBootstrappedRef = useRef(false);
     const performSyncRef = useRef<() => Promise<void>>(async () => {});
     const fetchPanelDataRef = useRef<
         (options?: { broadcast?: boolean; retryOnNetwork?: boolean; fresh?: boolean; silent?: boolean }) => Promise<boolean>
@@ -258,8 +259,8 @@ export function DashboardPanelProvider({
             } else if (sync.getIsLeader()) {
                 void performSync();
             }
-        } else if (sync.getIsLeader()) {
-            void performSync();
+        } else {
+            countdown = Math.ceil(pollMs / 1000);
         }
 
         countdownRef.current = countdown;
@@ -333,6 +334,16 @@ export function DashboardPanelProvider({
     }, [active, isRealtimeLive, isTabLeader, startSmartPolling]);
 
     useEffect(() => {
+        if (!active) {
+            panelBootstrappedRef.current = false;
+            return;
+        }
+        if (!isTabLeader || panelBootstrappedRef.current) return;
+        panelBootstrappedRef.current = true;
+        void fetchPanelDataRef.current({ broadcast: true, silent: true });
+    }, [active, isTabLeader]);
+
+    useEffect(() => {
         if (!active) return;
 
         return subscribeHomeDataReset(session.userId, () => {
@@ -371,7 +382,7 @@ export function DashboardPanelProvider({
                 const raw = readPanelSyncPref(session.userId);
                 const stale =
                     !raw || Date.now() - parseInt(raw, 10) >= FALLBACK_POLL_MS;
-                if (stale) {
+                if (stale && panelBootstrappedRef.current) {
                     void performSyncRef.current();
                 }
             } else {
