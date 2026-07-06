@@ -76,7 +76,7 @@ export function saveSession(session: Session): void {
     localStorage.setItem(SESSION_KEY, JSON.stringify(session));
 }
 
-export function clearSession(): void {
+function clearSession(): void {
     const previous = getSession();
     bindCommandStoreUser(undefined);
     localStorage.removeItem(SESSION_KEY);
@@ -396,7 +396,7 @@ export async function validateSession(session: Session): Promise<ApiResponse> {
     }
 }
 
-export async function validateOverlaySession(session: Session): Promise<ApiResponse> {
+async function validateOverlaySession(session: Session): Promise<ApiResponse> {
     if (!session.overlayToken) {
         return { valid: false, error: true, message: 'no_credentials' };
     }

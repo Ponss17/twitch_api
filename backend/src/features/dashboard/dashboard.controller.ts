@@ -369,22 +369,6 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
     }
 };
 
-export const updateTimezone = async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.userId;
-    const { timezone } = req.body;
-
-    if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
-    if (!timezone || typeof timezone !== 'string')
-        return jsonError(res, 400, 'Timezone inválida');
-
-    try {
-        await dbService.updateUserTimezone(userId, timezone);
-        res.json({ success: true, timezone });
-    } catch (e) {
-        logger.error('Error updating timezone:', e);
-        return jsonError(res, 500, 'Error actualizando zona horaria.');
-    }
-};
 
 export const exportCheck = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
