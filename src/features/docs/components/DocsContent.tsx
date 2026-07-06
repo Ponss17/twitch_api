@@ -1,4 +1,4 @@
-import { Info, Zap, Key, ShieldAlert, UserCog, BarChart2, IdCard, Skull, Gauge, Server, Weight, Rocket, Clock, Film, AlertCircle, ChevronRight, Megaphone, TrendingUp, Lightbulb, Binoculars, Shield, Dices, AlertTriangle, Swords, List } from 'lucide-react';
+import { Info, Zap, Key, ShieldAlert, UserCog, BarChart2, IdCard, Skull, Gauge, Server, Weight, Rocket, Clock, Film, AlertCircle, ChevronRight, Megaphone, TrendingUp, Binoculars, Dices, AlertTriangle, Swords, List } from 'lucide-react';
 import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTabs';
 
 import { DocsCodeTabs } from '@/features/docs/components/DocsCodeTabs';
@@ -13,7 +13,6 @@ import {
     docsInfoCard,
     docsInfoCardFlat,
     docsInfoCardPrimary,
-    docsInfoCardPurple,
     docsInfoCardRed,
     docsIntroGrid,
     docsLead,
@@ -68,8 +67,7 @@ export function DocsContent() {
                     LosPerris <span className={docsAccent}>Twitch API Docs</span>
                 </h1>
                 <p className={docsLead}>
-                    Bienvenido a la guía oficial. Aquí encontrarás todo lo necesario para configurar tus comandos y
-                    herramientas automáticas para tu chat de Twitch.
+                    Guía para configurar comandos y herramientas en tu chat de Twitch.
                 </p>
                 <div className={docsIntroGrid}>
                     <div className={docsInfoCardFlat}>
@@ -81,8 +79,7 @@ export function DocsContent() {
                     <div className={docsInfoCardFlat}>
                         <Zap />
                         <p>
-                            <strong>Actualización:</strong> Datos frescos cada <strong>30 segundos</strong> de forma
-                            automática.
+                            <strong>Actualización:</strong> el panel refresca datos cada <strong>30 segundos</strong>.
                         </p>
                     </div>
                 </div>
@@ -100,9 +97,8 @@ export function DocsContent() {
                 <div className={docsInfoCard} style={{ marginTop: '1.5rem' }}>
                     <ShieldAlert />
                     <p>
-                        <strong>¿Por qué verificar?</strong> Solo necesitamos permiso para{' '}
-                        <strong>leer datos públicos</strong> y <strong>crear clips</strong> en tu nombre. No tocamos tu
-                        clave de transmisión ni datos privados.
+                        Al iniciar sesión pedimos permiso para <strong>leer datos públicos</strong> y{' '}
+                        <strong>crear clips</strong>. No accedemos a tu clave de stream ni a datos privados.
                     </p>
                 </div>
             </section>
@@ -111,33 +107,30 @@ export function DocsContent() {
                 <h2>
                     <UserCog /> Perfil y Seguridad
                 </h2>
-                <p>Gestiona tu identidad en la plataforma y configura las opciones de seguridad de tu cuenta.</p>
+                <p>Opciones de cuenta en el panel.</p>
                 <div className={docsInfoCardPrimary}>
                     <Key />
                     <p>
-                        <strong>API Key Manager:</strong> Visualiza y regenera tu clave permanente usada para los
-                        comandos de chat.
+                        <strong>API Key:</strong> ver y regenerar la clave que usan los bots en chat.
                     </p>
                 </div>
                 <div className={docsInfoCardPrimary}>
                     <BarChart2 />
                     <p>
-                        <strong>Resumen de Actividad:</strong> Consulta tus estadísticas de uso: total de requests,
-                        latencia promedio, tasa de éxito y actividad reciente.
+                        <strong>Actividad:</strong> requests, latencia, tasa de éxito y historial reciente.
                     </p>
                 </div>
                 <div className={docsInfoCardPrimary}>
                     <IdCard />
                     <p>
-                        <strong>Tu Identidad:</strong> Visualiza tu ID de Twitch, nombre de usuario y fecha de última
-                        conexión. Puedes copiar tu ID directamente desde el panel.
+                        <strong>Identidad:</strong> ID de Twitch, usuario y última conexión.
                     </p>
                 </div>
                 <div className={docsInfoCardPrimary}>
                     <Skull />
                     <p>
-                        <strong>Zona de Peligro:</strong> Accede a opciones críticas como el borrado de cuenta mediante
-                        el toggle de advertencia y confirmación de seguridad.
+                        <strong>Zona de peligro:</strong> borrado de cuenta y otras acciones destructivas (con
+                        confirmación).
                     </p>
                 </div>
             </section>
@@ -146,7 +139,7 @@ export function DocsContent() {
                 <h2>
                     <Gauge /> Rate Limiting
                 </h2>
-                <p>Para asegurar la estabilidad del servicio para todos los streamers, aplicamos los siguientes límites:</p>
+                <p>Límites para mantener el servicio estable:</p>
                 <div className={docsLimitsGrid}>
                     <div className={docsLimitCard}>
                         <div className={docsLimitValue}>60</div>
@@ -190,7 +183,7 @@ export function DocsContent() {
 
             <section id="quick-start" className={docSection} data-doc-section>
                 <h2>
-                    <Rocket /> ¡Comienza Ya!
+                    <Rocket /> Primeros pasos
                 </h2>
                 <div className={docsStepsGrid}>
                     <div className={docsStepCard}>
@@ -212,8 +205,8 @@ export function DocsContent() {
                     </div>
                     <div className={docsStepCard}>
                         <div className={docsStepNumber}>4</div>
-                        <h3>¡Disfruta!</h3>
-                        <p>Tus viewers ya pueden interactuar con los nuevos comandos.</p>
+                        <h3>Prueba en chat</h3>
+                        <p>Escribe el comando en tu canal y comprueba la respuesta del bot.</p>
                     </div>
                 </div>
             </section>
@@ -268,7 +261,7 @@ export function DocsContent() {
                 <h2>
                     <Film /> Crear Clip
                 </h2>
-                <p>Genera un clip instantáneo del canal. Ideal para capturar momentos épicos.</p>
+                <p>Crea un clip del canal en vivo.</p>
                 <div className={docsInfoCard}>
                     <AlertCircle />
                     <p>
@@ -345,20 +338,13 @@ export function DocsContent() {
                     <TrendingUp /> Tendencias
                 </h2>
                 <p>
-                    ¿Qué está es lo más comentado en tu chat? Esta herramienta analiza los mensajes en vivo y genera un
-                    ranking (Top 10) de las palabras o emotes más repetidos.
+                    Analiza el chat en vivo y muestra un Top 10 de palabras o emotes más repetidos. El temporizador del
+                    panel acota cuánto tiempo se analiza.
                 </p>
-                <div className={docsInfoCard}>
-                    <Lightbulb />
-                    <p>
-                        <strong>Uso ideal:</strong> Mide el &quot;hype&quot; de un momento específico o descubre qué emote
-                        está spameando tu comunidad. Incluye un temporizador para sesiones de análisis.
-                    </p>
-                </div>
                 <p className="text-[0.875rem] text-[#c4c4cc]">
-                    <strong className="text-[#fafafa]">Overlay en pantalla</strong>
-                    <span className={docsBadgeBeta}>Beta</span> — muestra el Top 10 en OBS o Streamlabs.{' '}
-                    <a href="#overlays">Ver guía de overlays</a>.
+                    Puedes mostrar el Top 10 en OBS o Streamlabs con un overlay{' '}
+                    <span className={docsBadgeBeta}>Beta</span>.{' '}
+                    <a href="#overlays">Cómo configurarlo</a>.
                 </p>
             </section>
 
@@ -367,34 +353,23 @@ export function DocsContent() {
                     <Binoculars /> Stalker
                 </h2>
                 <p>
-                    Tu centro de inteligencia. Investiga a cualquier usuario de Twitch al instante para obtener contexto
-                    rápido.
+                    Consulta datos públicos de un usuario: fecha de la cuenta, followage en tu canal y mensajes recientes
+                    del chat.
                 </p>
-                <div className={docsInfoCardPrimary}>
-                    <Shield />
-                    <p>
-                        <strong>Uso ideal:</strong> Verifica cuándo se creó una cuenta, cuánto tiempo lleva siguiendo el
-                        canal y lee sus últimos mensajes en el chat (logs).
-                    </p>
-                </div>
             </section>
 
             <section id="roulette" className={docSection} data-doc-section>
                 <h2>
                     <Dices /> Ruleta
                 </h2>
-                <p>La herramienta definitiva para sorteos y giveaways en tu stream.</p>
-                <div className={docsInfoCardPurple}>
-                    <Lightbulb />
-                    <p>
-                        <strong>Lógica Híbrida:</strong> Puedes crear una lista manual de opciones o dejar que la API
-                        cargue automáticamente a los <strong>usuarios activos</strong> del chat en tiempo real.
-                    </p>
-                </div>
+                <p>
+                    Sorteos con lista manual o con usuarios activos del chat. Abrir, girar y reiniciar se hace desde el
+                    panel.
+                </p>
                 <p className="text-[0.875rem] text-[#c4c4cc]">
-                    <strong className="text-[#fafafa]">Overlay en pantalla</strong>
-                    <span className={docsBadgeBeta}>Beta</span> — refleja la ruleta en tu escena.{' '}
-                    <a href="#overlays">Ver guía de overlays</a>.
+                    Puedes mostrar la ruleta en OBS o Streamlabs con un overlay{' '}
+                    <span className={docsBadgeBeta}>Beta</span>.{' '}
+                    <a href="#overlays">Cómo configurarlo</a>.
                 </p>
             </section>
 
@@ -404,7 +379,7 @@ export function DocsContent() {
                 <h2>
                     <MAGIC8_ICON /> Bola 8 Mágica (IA)
                 </h2>
-                <p>Respuestas místicas (o sarcásticas) a tus preguntas.</p>
+                <p>Responde preguntas del chat con distintos tonos (IA).</p>
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
                     <span className={docsUrl}>
@@ -464,8 +439,8 @@ export function DocsContent() {
                     <RUSSIAN_ICON /> Ruleta Rusa
                 </h2>
                 <p>
-                    Un juego de alto riesgo para tu chat. Los usuarios prueban su suerte con un revólver virtual de 6
-                    recámaras. Si pierden, reciben un <strong>Timeout</strong> real.
+                    Juego de chat con revólver de 6 recámaras. Si sale la bala, el usuario recibe un{' '}
+                    <strong>timeout</strong> real.
                 </p>
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
@@ -495,7 +470,7 @@ export function DocsContent() {
                 <h2>
                     <Swords /> Duelo
                 </h2>
-                <p>Desafía a otros usuarios a un duelo a muerte (simulado). El ganador se lleva la gloria.</p>
+                <p>Simula un duelo entre dos usuarios del chat.</p>
                 <div className={docsEndpoint}>
                     <span className={docsMethodGet}>GET</span>
                     <span className={docsUrl}>

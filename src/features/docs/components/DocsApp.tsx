@@ -26,7 +26,7 @@ const NAV_TOP: { id: string; icon: LucideIcon; label: string }[] = [
     { id: 'auth', icon: Key, label: 'Tu API Key' },
     { id: 'profile', icon: UserCog, label: 'Perfil y Seguridad' },
     { id: 'limits', icon: Gauge, label: 'Límites' },
-    { id: 'quick-start', icon: Rocket, label: '¡Comienza Ya!' }
+    { id: 'quick-start', icon: Rocket, label: 'Primeros pasos' }
 ];
 
 const NAV_GROUPS: { title: string; items: { id: string; icon: LucideIcon; label: string }[] }[] = [

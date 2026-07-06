@@ -28,13 +28,13 @@ const OVERLAY_TOOLS: {
         tool: 'trends',
         panelPath: '/dashboard/trends',
         description:
-            'Muestra en pantalla el Top 10 de palabras o emotes mientras analizas el chat. Ideal para momentos de hype en stream.'
+            'Muestra el Top 10 de palabras o emotes en tu stream. Inicias y paras el análisis desde el panel.'
     },
     {
         tool: 'roulette',
         panelPath: '/dashboard/roulette',
         description:
-            'Refleja la ruleta del panel: participantes, giro y ganador. El control (abrir, girar, reset) sigue en el dashboard.'
+            'Muestra la ruleta en pantalla: participantes, giro y ganador. Abrir, girar y reiniciar se hace en el panel.'
     }
 ];
 
@@ -64,7 +64,7 @@ function OverlayPlatformSteps({
                             {index + 1}
                         </span>
                         <span>
-                            <strong className="text-[#fafafa]">{step.title}</strong> — {step.detail}
+                            <strong className="text-[#fafafa]">{step.title}:</strong> {step.detail}
                         </span>
                     </li>
                 ))}
@@ -101,12 +101,12 @@ function OverlayToolBlock({
                 </span>
             </div>
 
-            <p className="mb-4 text-[0.8125rem] text-[#71717a]">
-                Genera el enlace con token desde{' '}
+            <p className="mb-4 text-[0.8125rem] text-[#c4c4cc]">
+                La URL la generas en{' '}
                 <a href={appPath(panelPath)} className="font-semibold text-primary no-underline hover:text-primary-hover">
-                    {label} en el panel
+                    {label}
                 </a>{' '}
-                → botón <strong className="text-[#fafafa]">Overlay</strong>. No uses la API Key del chat en la URL del
+                con el botón <strong className="text-[#fafafa]">Overlay</strong>. No uses tu API Key en la fuente del
                 navegador.
             </p>
 
@@ -126,26 +126,25 @@ export function DocsOverlaySection() {
                 <span className={docsBadgeBeta}>{OVERLAY_SETUP_VERSION}</span>
             </h2>
             <p>
-                Fuentes de navegador para OBS o Streamlabs que muestran en pantalla el estado de{' '}
-                <strong className="text-[#fafafa]">Tendencias</strong> y{' '}
-                <strong className="text-[#fafafa]">Ruleta</strong>. El panel sigue siendo el mando a distancia; el
-                overlay solo refleja lo que ocurre ahí.
+                Un overlay es una fuente de navegador en OBS o Streamlabs. Muestra en pantalla lo que haces en{' '}
+                <strong className="text-[#fafafa]">Tendencias</strong> o <strong className="text-[#fafafa]">Ruleta</strong>
+                . No se controla desde OBS: abres, giras y reinicias desde el{' '}
+                <a href={appPath('/dashboard')}>panel</a>.
             </p>
 
             <div className={docsInfoCardPrimary}>
                 <Layers />
                 <p>
-                    <strong>Función en beta:</strong> la experiencia puede cambiar entre versiones ({OVERLAY_SETUP_VERSION}
-                    ). Si algo falla, regenera el enlace desde el botón Overlay del panel.
+                    <strong>Beta ({OVERLAY_SETUP_VERSION}):</strong> función en desarrollo; puede fallar o cambiar sin
+                    aviso.
                 </p>
             </div>
 
             <div className={docsInfoCard}>
                 <Monitor />
                 <p>
-                    <strong>Cómo empezar:</strong> entra al panel con tu cuenta → abre Tendencias o Ruleta → pulsa{' '}
-                    <strong>Overlay</strong> → copia la URL → créala como fuente <em>Navegador</em> en tu software de
-                    streaming.
+                    <strong>Pasos:</strong> entra al panel, abre Tendencias o Ruleta, pulsa Overlay y copia la URL. En OBS
+                    o Streamlabs crea una fuente Navegador y pégala ahí.
                 </p>
             </div>
 
@@ -156,9 +155,9 @@ export function DocsOverlaySection() {
             <div className={docsInfoCardRed}>
                 <Radio />
                 <p>
-                    <strong>Seguridad:</strong> la URL incluye un <code>overlayToken</code> personal. No la publiques en
-                    chat, Discord ni captures. Si se filtra, cierra sesión en el panel o regenera el enlace desde el
-                    botón Overlay.
+                    <strong>Importante:</strong> la URL incluye un <code>overlayToken</code> de solo lectura. No la
+                    compartas en chat, Discord ni capturas. No expone tu API Key ni permite controlar el panel. Cada vez
+                    que abres Overlay se genera una URL nueva, pero las anteriores siguen siendo válidas.
                 </p>
             </div>
         </section>
