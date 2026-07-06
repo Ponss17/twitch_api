@@ -30,7 +30,7 @@ Copy de producto en **español directo** (sin marketing vacío). No inventar fea
 | Status público (Better Stack) | `https://status.losperris.dev` — **externo**, no hay `/status` interno |
 | API (Express) | `https://ttv.losperris.dev/api/*` (rewrite Vercel → `api/index.js`) |
 | Health ligero | `GET /health` o `GET /api/health` |
-| OAuth callback (canónico en env) | `https://www.losperris.dev/api/twitch/auth/twitch/callback` |
+| OAuth callback (canónico en env) | `https://ttv.losperris.dev/api/auth/twitch/callback` |
 
 ### Frontend (páginas Astro)
 
@@ -275,7 +275,7 @@ pnpm dev              # Astro + API
 pnpm build            # Producción
 pnpm type-check       # astro check + tsc backend
 pnpm lint
-pnpm test             # Jest (~333 tests)
+pnpm test             # Jest (339 tests)
 pnpm test:e2e         # Playwright
 pnpm check-env        # Valida .env antes de API
 ```
@@ -301,7 +301,7 @@ pnpm check-env        # Valida .env antes de API
 
 | Trampa | Realidad |
 |--------|----------|
-| `ARCHITECTURE.md` dice mount `/api/twitch/` en todas las páginas | En `ttv.losperris.dev` el mount es **raíz** (`APP_MOUNT = ''`). La API sigue en `/api/*`. |
+| Docs desactualizados con `/api/twitch/` (SMOKE-PROD, algunos tests Jest) | En producción el mount es **raíz** (`APP_MOUNT = ''`). Ver `ARCHITECTURE.md` y `paths.ts`. |
 | `public/api/twitch/sw.js` | El SW está en `public/sw.js`; Vercel sirve `/sw.js` con cache headers. |
 | `scripts/restructure-src.mjs` | Migración histórica; no es parte del runtime. |
 | Knip marca `@/types/twitch` en tests como unresolved | Jest lo resuelve con `moduleNameMapper`. |
@@ -340,4 +340,4 @@ Para tareas acotadas, añade el feature (`dashboard`, `overlay`, `docs`, etc.) y
 
 ---
 
-*Última revisión: alineado con commit `feat: legal unificado, header y export HTML` + ajustes header Status/PayPal ghost.*
+*Última revisión: julio 2026 — alineado con `ttv.losperris.dev`, OAuth callback y 339 tests Jest.*
