@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { LegalPage } from '@/features/legal/components/LegalPage';
+---
+
+<BaseLayout
+    page="Legal"
+    description="Privacidad, términos de uso y cookies de LosPerris Twitch API."
+    canonical="https://ttv.losperris.dev/legal"
+    footer
+>
+    <LegalPage client:idle />
+</BaseLayout>

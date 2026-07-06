@@ -110,6 +110,14 @@
             ]
         }
     ],
+    "redirects": [
+        { "source": "/privacidad", "destination": "/legal#privacidad", "permanent": true },
+        { "source": "/privacidad/", "destination": "/legal#privacidad", "permanent": true },
+        { "source": "/terminos", "destination": "/legal#terminos", "permanent": true },
+        { "source": "/terminos/", "destination": "/legal#terminos", "permanent": true },
+        { "source": "/cookies", "destination": "/legal#cookies", "permanent": true },
+        { "source": "/cookies/", "destination": "/legal#cookies", "permanent": true }
+    ],
     "rewrites": [
         {
             "source": "/dashboard/:tab(followage|clips|shoutout|trends|stalker|magic8|roulette|russian|duel|profile|feedback)",

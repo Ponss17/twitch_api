@@ -1,4 +1,4 @@
-import type { DashboardTab } from '@/core/config/config';
+import { STATUS_PAGE_URL, type DashboardTab } from '@/core/config/config';
 import { useRequiredSession } from '@/core/session/useSession';
 import { staticPath } from '@/core/config/paths';
 import { TAB_META } from '@/features/dashboard/lib/dashboardTabs';
@@ -13,8 +13,13 @@ import {
     DropdownPanel,
     DropdownTrigger
 } from '@/shared/ui/Dropdown';
-import { User, LogOut, Menu } from 'lucide-react';
+import { User, LogOut, Menu, Activity } from 'lucide-react';
 import { TwitchIcon, PaypalIcon } from '@/shared/ui/icons/BrandIcons';
+
+const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
+
+const headerIconBtn =
+    'flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.03] text-[#c4c4cc] no-underline transition hover:border-white/15 hover:bg-white/[0.06] hover:text-[#fafafa]';
 
 interface DashboardHeaderProps {
     tab: DashboardTab;
@@ -46,16 +51,27 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                     {meta.title}
                 </h1>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                     <a
-                        href="https://www.paypal.me/Ponssjean"
+                        href={STATUS_PAGE_URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hidden items-center gap-2 rounded-full border border-white/[0.05] bg-white/[0.03] px-3 py-1.5 text-[0.85rem] font-semibold text-[#c4c4cc] no-underline transition hover:-translate-y-px hover:border-[#0070ba]/20 hover:bg-[#0070ba]/[0.08] hover:text-[#fafafa] sm:flex"
-                        title="Apoyar el proyecto"
+                        className={headerIconBtn}
+                        title="Estado del servicio"
+                        aria-label="Estado del servicio (abre en nueva pestaña)"
                     >
-                        <PaypalIcon className="size-4 shrink-0 text-[#0070ba]" />
-                        <span>Donación</span>
+                        <Activity className="h-4 w-4" aria-hidden />
+                    </a>
+
+                    <a
+                        href={PAYPAL_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hidden items-center gap-2 rounded-full bg-[#ffc439] px-3 py-1.5 text-[0.8125rem] font-bold text-[#003087] no-underline transition hover:-translate-y-px hover:bg-[#f5ba2d] sm:flex"
+                        title="Apoyar el proyecto con PayPal"
+                    >
+                        <PaypalIcon className="h-[18px] w-[18px]" />
+                        <span>PayPal</span>
                     </a>
 
                     <Dropdown>

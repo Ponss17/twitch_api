@@ -15,8 +15,6 @@ export const API_ENDPOINTS = {
     CLEAR_DATA: `${API_BASE}/dashboard/clear-data`,
     DELETE_ACCOUNT: `${API_BASE}/dashboard/delete-account`,
     TIMEZONE: `${API_BASE}/dashboard/timezone`,
-    /** Ping ligero (sin DB/KV/Twitch) — usar para polling del dashboard. */
-    LIGHT_HEALTH: `${API_BASE}/health`,
     /** Diagnóstico completo — solo manual / admin, no polling. */
     HEALTH: `${API_BASE}/system/health`,
     VALIDATE: `${API_BASE}/system/validate`,
@@ -28,6 +26,9 @@ export const API_ENDPOINTS = {
     EXPORT_CHECK: `${API_BASE}/dashboard/export-check`,
     EXPORT_COMPLETE: `${API_BASE}/dashboard/export-complete`
 } as const;
+
+/** Página pública de estado (Better Stack). */
+export const STATUS_PAGE_URL = 'https://status.losperris.dev';
 
 /** Debe coincidir con twitch_api/frontend/features/dashboard/dashboard-config.ts */
 export const IGNORED_BOTS = new Set([

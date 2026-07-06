@@ -1,13 +1,3 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { PrivacyPolicyPage } from '@/features/legal/components/PrivacyPolicyPage';
+return Astro.redirect('/legal#privacidad');
 ---
-
-<BaseLayout
-    page="Política de Privacidad"
-    description="Cómo LosPerris Twitch API recopila, usa y protege tus datos personales."
-    canonical="https://ttv.losperris.dev/privacidad"
-    footer
->
-    <PrivacyPolicyPage client:idle />
-</BaseLayout>

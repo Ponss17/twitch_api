@@ -1,12 +1,12 @@
-import { appPath } from '@/core/config/paths';
+import { legalPath } from '@/core/config/paths';
 
 const SITE_LABEL = 'www.losperris.dev';
 const SITE_URL = 'https://www.losperris.dev';
 
 const LEGAL_LINKS = [
-    { href: '/privacidad', label: 'Privacidad' },
-    { href: '/terminos', label: 'Términos' },
-    { href: '/cookies', label: 'Cookies' }
+    { href: legalPath('privacidad'), label: 'Privacidad' },
+    { href: legalPath('terminos'), label: 'Términos' },
+    { href: legalPath('cookies'), label: 'Cookies' }
 ] as const;
 
 interface FooterProps {
@@ -23,7 +23,7 @@ export function Footer({ isDashboard = false }: FooterProps) {
                     {LEGAL_LINKS.map((link) => (
                         <a
                             key={link.href}
-                            href={appPath(link.href)}
+                            href={link.href}
                             className="text-[#a1a1aa] underline underline-offset-2 transition hover:text-white"
                         >
                             {link.label}

@@ -209,7 +209,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                     value={format}
                     onChange={(e) => updateConfig({ format: e.target.value as 'full' | 'url' })}
                     options={[
-                        { value: 'full', label: 'Comando completo (!addcom / !command add)' },
+                        { value: 'full', label: 'Comando completo' },
                         { value: 'url', label: 'Solo URL' }
                     ]}
                 />
