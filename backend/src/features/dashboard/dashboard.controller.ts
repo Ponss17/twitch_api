@@ -6,7 +6,7 @@ import { CACHE_TTL, ownerScopedCacheKey, resolveUserCacheTtl } from '../../core/
 import { resolveUserLimits } from '../../core/config/userRoles';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
-import { computeAnalyticsFromStats, buildEmptyUserAnalytics, buildAnalyticsPayload, isAnalyticsCacheFresh } from './dashboardHelpers';
+import { buildEmptyUserAnalytics, buildAnalyticsPayload, isAnalyticsCacheFresh } from './dashboardHelpers';
 import { buildDashboardProfile } from '../../core/utils/dashboardProfile';
 
 import { AuthenticatedRequest } from '../../types/twitch';
