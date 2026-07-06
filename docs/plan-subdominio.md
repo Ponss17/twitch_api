@@ -1,86 +1,67 @@
 # Plan: Twitch API en subdominio propio
 
-Documento de intención. **No implementado aún.** Sirve para alinear el trabajo antes de tocar producción.
+**Estado: completado (julio 2026).** El subdominio `ttv.losperris.dev` es la URL canónica para UI, API y OAuth. El hub LosPerris ya apunta al subdominio.
 
 ## Situación actual
 
 | Pieza | Dónde vive hoy |
 |-------|----------------|
-| Landing, docs, dashboard, overlays | `losperris.dev/api/twitch/…` |
-| Backend (API, OAuth, webhooks) | Mismo deploy (`twitch-api-modern.vercel.app`), rutas bajo `/api/twitch/` |
-| Hub LosPerris | Proxy en `vercel.json` → reescribe `/api/twitch/*` al deploy de Twitch |
-| Panel admin (usuarios, logs) | Deploy aparte (`twitch_api_dashboard`), hoy sin URL pública unificada en el hub |
+| Landing, docs, dashboard, overlays | `https://ttv.losperris.dev/` (mount raíz) |
+| Backend (API, OAuth, webhooks) | Mismo deploy; API en `/api/*`, OAuth en `/api/auth/*` |
+| Hub LosPerris | Actualizado — enlaces y cards apuntan a `ttv.losperris.dev` |
+| Panel admin | Deploy aparte (`twitch_api_dashboard`), sin URL pública unificada en el hub |
 
-Otras APIs del ecosistema ya están en subdominio dedicado:
+Paridad con el resto del ecosistema:
 
 - Valorant → `vlr.losperris.dev`
 - QR → `qr.losperris.dev`
 - Transcripts → `dc.losperris.dev`
+- **Twitch → `ttv.losperris.dev`**
 
-Twitch es el único servicio grande que sigue colgado del path `/api/twitch` en el dominio principal.
+## Qué se migró
 
-## Objetivo
-
-Sacar **toda la superficie de Twitch** (UI + API + OAuth) a un **subdominio propio**, igual que Valorant y QR:
-
-- Un solo origen para cookies, OAuth, PWA y comandos de bot.
-- Menos carga conceptual en `losperris.dev` (el hub queda para enlazar, no para alojar la app).
-- Paridad con el resto del ecosistema.
-
-**Subdominio:** `ttv.losperris.dev`.
-
-## Qué se movería
-
-Todo lo que hoy responde bajo `/api/twitch/` en el deploy de Twitch:
+Todo lo que antes respondía bajo `/api/twitch/` en el deploy de Twitch:
 
 - `/` — landing
 - `/docs` — documentación
 - `/dashboard` — panel de streamers (followage, clips, overlays, etc.)
 - `/overlay/*` — overlays OBS
-- Rutas de API: `/followage`, `/create-clip`, `/auth/*`, `/dashboard/*`, minijuegos, etc.
+- Rutas de API: `/api/followage`, `/api/create-clip`, `/api/auth/*`, `/api/dashboard/*`, minijuegos, etc.
 - Assets: `_astro`, `img`, `sw.js`, `manifest.json`
 
-En el subdominio las rutas quedarán en la **raíz** (`ttv.losperris.dev/docs`, `ttv.losperris.dev/dashboard`) y la API operará en `/api`.
+En el subdominio las rutas quedan en la **raíz** (`ttv.losperris.dev/docs`, `ttv.losperris.dev/dashboard`) y la API opera en `/api`.
 
-## Qué haría LosPerris (hub)
+## Transición
 
-`losperris.dev` **no** duplica la lógica; solo enruta o enlaza:
+Se optó por un **corte limpio**: no hay redirects desde `/api/twitch/*` al subdominio. Los comandos antiguos deben usar `ttv.losperris.dev/api/…`.
 
-1. **Fase de transición:** Se ha optado por un **corte limpio**. No habrá redirects desde `/api/twitch/*` a `ttv.losperris.dev`. Los comandos antiguos fallarán y deberán ser reconfigurados.
-2. **Estado final:** el hub actualiza `apis.ts`, cards y `/actualizaciones` para apuntar al subdominio; `/api/twitch` deja de ser la URL canónica.
-3. Anuncio en `/actualizaciones` sobre la nueva URL definitiva y la necesidad de actualizar los comandos.
+## Cambios aplicados
 
-## Cambios externos obligatorios
-
-| Área | Acción |
+| Área | Estado |
 |------|--------|
-| **Twitch Developer Console** | Actualizar redirect URIs de OAuth al nuevo origen `https://ttv.losperris.dev/auth/twitch/callback` |
-| **Comandos Nightbot / bots** | Sustituir `losperris.dev/api/twitch/…` por `ttv.losperris.dev/api/…` en plantillas y docs |
-| **Vercel** | Añadir dominio `ttv.losperris.dev` en el proyecto Twitch; ajustar `vercel.json` |
-| **CSP / cookies** | Revisar `connect-src` y dominios de sesión (los usuarios actuales perderán su sesión) |
-| **Panel admin** | Decidir si vive en `ttv.losperris.dev/admin`, subpath del dashboard o deploy separado con proxy |
+| **Código** (`312238b` + fixes) | Mount raíz, `vercel.json`, `frontendPaths`, `PRODUCTION_URLS`, `ALLOWED_ORIGINS` |
+| **Vercel** | Dominio `ttv.losperris.dev` en el proyecto Twitch |
+| **Twitch Developer Console** | `https://ttv.losperris.dev/api/auth/twitch/callback` |
+| **Hub LosPerris** | Cards, `apis.ts` y `/actualizaciones` actualizados |
+| **Comandos Nightbot / bots** | Plantillas y docs con `ttv.losperris.dev/api/…` |
 
 ## Qué no cambia (por ahora)
 
-- Repos: `twitch_api` (este) y `twitch_api_dashboard` pueden seguir separados; solo cambia el dominio público.
+- Repos: `twitch_api` (este) y `twitch_api_dashboard` siguen separados; solo cambió el dominio público.
 - Sync de `/actualizaciones`: Twitch **aún no** está en `UPDATE_REPOS`; cuando entre, los commits seguirán las reglas de `.agents/AGENTS.md`.
-- LosPerris sigue sin panel admin de actualizaciones; solo CI + `published.json`.
+- Panel admin: sin decisión final de URL pública unificada.
 
-## Fases sugeridas
+## Criterio de “hecho” — cumplido
 
-1. **Decidir subdominio** y registrar DNS + Vercel.
-2. **Desplegar** Twitch en el subdominio (staging o preview) y probar OAuth, dashboard y un comando de bot.
-3. **Proxy dual** en LosPerris: `/api/twitch/*` y subdominio activos a la vez.
-4. **Comunicar** en `/actualizaciones` + actualizar docs y generador de comandos.
-5. **Redirects permanentes** desde `/api/twitch` → subdominio; quitar rewrites del hub cuando el tráfico sea estable.
-6. **Limpieza** de referencias viejas en código, README y entradas manuales en `published.json`.
+- [x] Usuario llega desde el hub al subdominio sin romper flujos.
+- [x] OAuth y al menos followage + create-clip + dashboard funcionan en producción.
+- [x] URL canónica pública: `ttv.losperris.dev` (no `losperris.dev/api/twitch`).
+- [x] Hub LosPerris actualizado.
 
-## Criterio de “hecho”
+## Limpieza residual en este repo (opcional, no bloquea)
 
-- Usuario nuevo llega desde el hub al subdominio sin romper flujos.
-- OAuth y al menos followage + create-clip + dashboard funcionan en producción.
-- No quedan URLs canónicas públicas en docs que digan `losperris.dev/api/twitch` (salvo nota histórica temporal).
+Algunos tests y docs internos (`SMOKE-PROD.md`, tests con `/api/twitch/` en paths) pueden seguir mencionando rutas legacy — no afectan producción. Se pueden barrer en mantenimiento posterior.
 
 ---
 
-*Última revisión: julio 2026. Actualizar este archivo cuando se fije el subdominio o se acorte el alcance.*
+*Última revisión: julio 2026 — migración cerrada.*

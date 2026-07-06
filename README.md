@@ -2,6 +2,8 @@
 
 API y panel para streamers de Twitch: comandos de bot (Nightbot, StreamElements), dashboard con analíticas, clips, minijuegos con IA y OAuth seguro. Stack **Astro + React + Tailwind** (frontend) y **Express** (backend), desplegado en Vercel.
 
+**Producción:** [ttv.losperris.dev](https://ttv.losperris.dev)
+
 ## Estructura
 
 ```text
@@ -15,12 +17,12 @@ twitch_api/
 │   └── pages/           # /, /dashboard, /docs, /404, /429, /500, /offline
 ├── public/              # PWA (manifest, sw.js), assets
 ├── tests/               # Jest (backend + frontend) + Playwright E2E
-└── vercel.json          # Rewrites API + rutas del dashboard
+└── vercel.json          # Rewrites API + rutas estáticas desde dist/
 ```
 
 ## Requisitos
 
-- Node.js ≥ 20
+- Node.js ≥ 22.12
 - pnpm (recomendado)
 
 ## Desarrollo local
@@ -34,8 +36,8 @@ pnpm dev               # Astro :4321 + API :3000
 
 | Servicio   | URL |
 | ---------- | --- |
-| Frontend   | http://localhost:4321/api/twitch/ |
-| API health | http://localhost:3000/api/twitch/health |
+| Frontend   | http://localhost:4321/ |
+| API health | http://localhost:3000/health |
 
 ## Scripts
 
@@ -44,7 +46,7 @@ pnpm dev           # Frontend + API en paralelo
 pnpm build         # Compila backend + Astro (dist/)
 pnpm lint          # ESLint
 pnpm type-check    # Astro check + tsc backend
-pnpm test          # Jest (204 tests)
+pnpm test          # Jest (339 tests)
 pnpm test:e2e      # Playwright (API real + smoke UI; primera vez: npx playwright install chromium)
 pnpm smoke         # Checklist manual de producción
 pnpm check-env     # Valida .env antes de arrancar la API
@@ -58,7 +60,7 @@ pnpm check-env     # Valida .env antes de arrancar la API
 ## Deploy (Vercel)
 
 - Páginas estáticas/SSR: Astro (`dist/`)
-- API: `vercel.json` reescribe `/api/twitch/*` hacia `api/index.ts`
+- API: `vercel.json` reescribe `/api/*`, `/auth/*` y `/twitch/*` hacia `api/index.js`
 - Checklist de variables: [docs/SMOKE-PROD.md](docs/SMOKE-PROD.md) y `.env.example`
 
 ### Logs en producción
@@ -69,15 +71,15 @@ Con `VERCEL=1`, cada petición API se loguea en JSON (`requestId`, duración, st
 
 Los endpoints públicos para bots mantienen compatibilidad con integraciones existentes:
 
-- Prefijos: `/api/twitch/*`, `/twitch/*`, `/auth/*`
+- Prefijos: `/api/*`, `/twitch/*`, `/auth/*`
 - Autenticación: API Key (`X-Api-Key`) u OAuth (dashboard)
 - Rate limiting: Vercel KV (bot/API key) o memoria (sesión dashboard)
 
-Documentación interactiva: `/api/twitch/docs`.
+Documentación interactiva: `/docs` (en producción: `https://ttv.losperris.dev/docs`).
 
 ## Arquitectura
 
-Detalle técnico: [ARCHITECTURE.md](ARCHITECTURE.md).
+Detalle técnico: [ARCHITECTURE.md](ARCHITECTURE.md) · contexto para IA: [docs/AI-CONTEXT.md](docs/AI-CONTEXT.md).
 
 ## Licencia
 
