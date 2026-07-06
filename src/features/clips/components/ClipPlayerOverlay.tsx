@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
-import { clipPlayerPanel } from '@/core/ui/tw';
 import { buildClipEmbedSrc } from '@/features/clips/lib/clipEmbed';
 
 interface ClipPlayerOverlayProps {
@@ -37,32 +36,34 @@ export function ClipPlayerOverlay({ clipId, title, embedSession, onClose }: Clip
             onClick={onClose}
         >
             <div
-                className={clipPlayerPanel}
+                className="w-full max-w-5xl overflow-hidden rounded-xl border border-white/[0.08] bg-[#09090b] animate-fade-soft shadow-2xl"
                 role="dialog"
                 aria-modal="true"
                 aria-label={title ?? 'Reproductor de clip'}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-3 bg-gradient-to-b from-black/85 to-transparent p-3">
-                    <p className="min-w-0 flex-1 truncate text-[0.8125rem] font-semibold text-white">
+                <div className="flex items-center justify-between border-b border-white/[0.08] bg-white/[0.02] px-5 py-4">
+                    <p className="min-w-0 flex-1 truncate text-[1.05rem] font-bold text-[#fafafa]">
                         {title ?? 'Clip de Twitch'}
                     </p>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white transition hover:border-primary hover:bg-primary"
+                        className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-transparent bg-transparent text-white/70 transition hover:border-white/10 hover:bg-white/5 hover:text-white"
                         aria-label="Cerrar reproductor"
                     >
-                        <X className="h-4 w-4" />
+                        <X className="h-5 w-5" />
                     </button>
                 </div>
-                <iframe
-                    key={`${clipId}-${embedSession}`}
-                    title={title ?? 'Clip de Twitch'}
-                    src={buildClipEmbedSrc(clipId)}
-                    allowFullScreen
-                    className="absolute inset-0 h-full w-full min-h-[300px] border-none bg-black"
-                />
+                <div className="relative aspect-video w-full bg-black">
+                    <iframe
+                        key={`${clipId}-${embedSession}`}
+                        title={title ?? 'Clip de Twitch'}
+                        src={buildClipEmbedSrc(clipId)}
+                        allowFullScreen
+                        className="absolute inset-0 h-full w-full border-none"
+                    />
+                </div>
             </div>
         </div>,
         document.body
