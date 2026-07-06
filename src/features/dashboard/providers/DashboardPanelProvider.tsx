@@ -27,6 +27,7 @@ import {
     DASHBOARD_POLL_MS,
     readPanelSyncPref,
     subscribeHomeDataReset,
+    consumeHomeDataResetPending,
     writePanelSyncPref
 } from '@/features/dashboard/lib/dashboardSync';
 
@@ -133,6 +134,21 @@ export function DashboardPanelProvider({
             }, 3000)
         );
     }, []);
+
+    const applyHomeDataReset = useCallback(() => {
+        consumeHomeDataResetPending(session.userId);
+        setStats(EMPTY_DASHBOARD_LIVE_STATS);
+        setActivity([]);
+        setError(null);
+        setHighlightKeys(new Set());
+        dataReadyFiredRef.current = false;
+        void fetchPanelDataRef.current({
+            broadcast: true,
+            retryOnNetwork: false,
+            fresh: true,
+            silent: true
+        });
+    }, [session.userId]);
 
     const fetchPanelData = useCallback(
         async (options?: {
@@ -346,25 +362,23 @@ export function DashboardPanelProvider({
     useEffect(() => {
         if (!isTabLeader || panelBootstrappedRef.current) return;
         panelBootstrappedRef.current = true;
+        if (consumeHomeDataResetPending(session.userId)) {
+            applyHomeDataReset();
+            return;
+        }
         void fetchPanelDataRef.current({ broadcast: true, silent: true });
-    }, [isTabLeader]);
+    }, [isTabLeader, session.userId, applyHomeDataReset]);
 
     useEffect(() => {
-        if (!active) return;
+        return subscribeHomeDataReset(session.userId, applyHomeDataReset);
+    }, [session.userId, applyHomeDataReset]);
 
-        return subscribeHomeDataReset(session.userId, () => {
-            setStats(EMPTY_DASHBOARD_LIVE_STATS);
-            setActivity([]);
-            setError(null);
-            dataReadyFiredRef.current = false;
-            void fetchPanelDataRef.current({
-                broadcast: true,
-                retryOnNetwork: false,
-                fresh: true,
-                silent: true
-            });
-        });
-    }, [active, session.userId]);
+    useEffect(() => {
+        if (!active || !session.userId) return;
+        if (consumeHomeDataResetPending(session.userId)) {
+            applyHomeDataReset();
+        }
+    }, [active, session.userId, applyHomeDataReset]);
 
     useEffect(() => {
         const sync = new TabSyncService(PANEL_SYNC_CHANNEL);
