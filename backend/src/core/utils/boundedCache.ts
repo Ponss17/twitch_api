@@ -44,45 +44,6 @@ export class BoundedMap<K, V> {
     }
 }
 
-/**
- * BoundedSet — Set with automatic eviction when exceeding max size.
- * Removes a fixed number of entries (oldest first) when capacity is reached.
- */
-export class BoundedSet<K> {
-    private set = new Set<K>();
-    constructor(
-        private maxSize: number,
-        private evictCount: number
-    ) {}
-
-    add(key: K): void {
-        this.set.add(key);
-        if (this.set.size > this.maxSize) {
-            const it = this.set.values();
-            for (let i = 0; i < this.evictCount; i++) {
-                const result = it.next();
-                if (result.done) break;
-                this.set.delete(result.value);
-            }
-        }
-    }
-
-    has(key: K): boolean {
-        return this.set.has(key);
-    }
-
-    delete(key: K): boolean {
-        return this.set.delete(key);
-    }
-
-    get size(): number {
-        return this.set.size;
-    }
-
-    clear(): void {
-        this.set.clear();
-    }
-}
 
 /**
  * NegativeCache — Tracks keys that should be temporarily rejected.

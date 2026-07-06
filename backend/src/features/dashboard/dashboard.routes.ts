@@ -13,8 +13,7 @@ import {
     getActivitySchema,
     clearUserDataSchema,
     deleteAccountSchema,
-    trackUsageSchema,
-    updateTimezoneSchema
+    trackUsageSchema
 } from './dashboard.schema';
 import {
     overlayToolParamSchema,
@@ -47,12 +46,7 @@ router.post(
     validate(trackUsageSchema),
     dashboardController.trackToolUsage
 );
-router.put(
-    '/timezone',
-    csrfProtection,
-    validate(updateTimezoneSchema),
-    dashboardController.updateTimezone
-);
+
 
 router.post(
     '/clear-data',
