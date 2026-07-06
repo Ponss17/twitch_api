@@ -1,13 +1,3 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { TermsPage } from '@/features/legal/components/TermsPage';
+return Astro.redirect('/legal#terminos');
 ---
-
-<BaseLayout
-    page="Términos de Uso"
-    description="Condiciones de uso de LosPerris Twitch API."
-    canonical="https://ttv.losperris.dev/terminos"
-    footer
->
-    <TermsPage client:idle />
-</BaseLayout>

@@ -1,13 +1,3 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { CookiesPage } from '@/features/legal/components/CookiesPage';
+return Astro.redirect('/legal#cookies');
 ---
-
-<BaseLayout
-    page="Política de Cookies"
-    description="Cookies, almacenamiento local y PWA en LosPerris Twitch API."
-    canonical="https://ttv.losperris.dev/cookies"
-    footer
->
-    <CookiesPage client:idle />
-</BaseLayout>

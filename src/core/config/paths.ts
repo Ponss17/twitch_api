@@ -50,6 +50,14 @@ export function resolveDocsTemplate(template: string): string {
     return template.replace(/\{baseURL\}/g, window.location.origin);
 }
 
+export type LegalSection = 'terminos' | 'privacidad' | 'cookies';
+
+/** Ruta única de legal; con sección opcional vía hash (#privacidad, #terminos, #cookies). */
+export function legalPath(section?: LegalSection): string {
+    const base = appPath('/legal');
+    return section ? `${base}#${section}` : base;
+}
+
 export function staticPath(path: string): string {
     return joinAppPath(getAppBasePath(), path);
 }
@@ -64,9 +72,7 @@ const PANEL_RETURN_PATH_KEY = 'twitch_docs_return_path';
 const SECONDARY_SEGMENTS = [
     '/docs',
     '/sobre-la-api',
-    '/privacidad',
-    '/terminos',
-    '/cookies',
+    '/legal',
     '/404',
     '/429',
     '/500',

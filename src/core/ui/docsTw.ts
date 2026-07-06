@@ -32,8 +32,6 @@ export const docsGroupTitle = sidebarCategoryLabel;
 
 export const docsReturnHome = `${sidebarSupportLink} mt-4 gap-3`;
 
-export const docsMainArea = 'flex min-h-screen flex-col lg:ml-[280px]';
-
 export const docsContent =
     'mx-auto w-full max-w-[1600px] flex-1 px-4 py-6 md:px-6 md:py-8 [&_a]:font-semibold [&_a]:text-primary [&_a]:no-underline [&_a]:transition hover:[&_a]:text-primary-hover [&_code]:rounded [&_code]:border [&_code]:border-white/[0.05] [&_code]:bg-white/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-[#fafafa] [&_h2]:relative [&_h2]:mb-6 [&_h2]:flex [&_h2]:items-center [&_h2]:gap-3 [&_h2]:border-b [&_h2]:border-white/[0.08] [&_h2]:pb-3 [&_h2]:text-[1.35rem] [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-[#fafafa] md:[&_h2]:text-[1.5rem] [&_h2_i]:text-primary [&_h3]:my-5 [&_h3]:text-[1rem] [&_h3]:font-bold [&_h3]:text-[#fafafa] [&_p]:mb-4 [&_p]:text-[0.9375rem] [&_p]:leading-relaxed [&_p]:text-[#c4c4cc]';
 
@@ -139,13 +137,7 @@ export const docsTabContent = 'p-0';
 const infoCardAccent = (accent: string) =>
     `${infoCardBase} border-l-4 ${accent} [&_i]:mt-0.5 [&_i]:shrink-0`;
 
-export const docsInfoCardGreen = infoCardAccent('border-l-success [&_i]:text-success');
-
-export const docsInfoCardBlue = infoCardAccent('border-l-blue-500 [&_i]:text-blue-500');
-
 export const docsInfoCardRed = infoCardAccent('border-l-error [&_i]:text-error');
-
-export const docsInfoCardPurple = infoCardAccent('border-l-purple-500 [&_i]:text-purple-500');
 
 export const docsInfoCardPrimary = infoCardAccent('border-l-primary [&_i]:text-primary');
 
