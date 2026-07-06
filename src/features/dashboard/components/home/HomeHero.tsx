@@ -51,12 +51,12 @@ export const HomeHero = memo(function HomeHero({
             <div className="relative z-[5] flex items-center justify-between gap-10">
                 <div className="max-w-[500px] shrink-0">
                     <h1 className="mb-3.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[2.6rem] font-extrabold leading-[1.1] tracking-[-0.02em] text-white max-md:text-[2rem]">
+                        <span className="inline-flex size-9 shrink-0 items-center justify-center text-[#9146ff]">
+                            <TwitchIcon className="size-full" aria-hidden />
+                        </span>
                         <span>Hola,</span>
                         <span className="bg-gradient-to-br from-white from-20% to-primary bg-clip-text text-transparent">
                             {displayName}
-                        </span>
-                        <span className="inline-flex size-8 shrink-0 items-center justify-center text-[#9146ff]">
-                            <TwitchIcon className="size-full" aria-hidden />
                         </span>
                     </h1>
                     <p className="max-w-[500px] text-[1.05rem] leading-[1.7] tracking-[0.01em] text-white/[0.55]">
