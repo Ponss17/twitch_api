@@ -1,18 +1,20 @@
-import Groq from 'groq-sdk';
 import { CONFIG } from '../../core/config/env';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { MAGIC8_REASONING_RULES, buildMagic8UserMessage } from './magic8Question';
 import { MAGIC8_MOODS, resolveMagic8Mood } from './magic8Moods';
 
-let groqClient: Groq | null = null;
+type GroqClient = import('groq-sdk').default;
 
-function getGroqClient(): Groq {
+let groqClient: GroqClient | null = null;
+
+async function getGroqClient(): Promise<GroqClient> {
     const apiKey = CONFIG.GROQ_API_KEY?.trim();
     if (!apiKey) {
         throw new Error(MESSAGES.MAGIC8.MISSING_API_KEY);
     }
     if (!groqClient) {
+        const { default: Groq } = await import('groq-sdk');
         groqClient = new Groq({ apiKey });
     }
     return groqClient;
@@ -48,7 +50,7 @@ export async function generateMagic8Response(
         const resolvedMood = resolveMagic8Mood(mood);
         const { temperature } = MAGIC8_MOODS[resolvedMood];
 
-        const completion = await getGroqClient().chat.completions.create({
+        const completion = await (await getGroqClient()).chat.completions.create({
             messages: [
                 {
                     role: 'system',

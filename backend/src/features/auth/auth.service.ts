@@ -5,6 +5,10 @@ import * as dbService from '../../core/database/dbService';
 import * as cacheService from '../../core/database/cacheService';
 import crypto from 'crypto';
 import { logger } from '../../core/utils/logger';
+import { BoundedMap } from '../../core/utils/boundedCache';
+
+const overlayTokenCache = new BoundedMap<string, { payload: OverlayReadPayload; expiry: number }>(200);
+const OVERLAY_TOKEN_CACHE_MS = 5 * 60 * 1000;
 
 const TWITCH_AUTH_URL = 'https://id.twitch.tv/oauth2';
 const TWITCH_API_URL = 'https://api.twitch.tv/helix';
@@ -68,6 +72,12 @@ export const signOverlayReadToken = (payload: OverlayReadPayload): string => {
 };
 
 export const verifyOverlayReadToken = (token: string): OverlayReadPayload | null => {
+    const cached = overlayTokenCache.get(token);
+    if (cached && cached.expiry > Date.now()) {
+        return cached.payload;
+    }
+    if (cached) overlayTokenCache.delete(token);
+
     const lastDot = token.lastIndexOf('.');
     if (lastDot === -1) return null;
     const encoded = token.slice(0, lastDot);
@@ -86,13 +96,18 @@ export const verifyOverlayReadToken = (token: string): OverlayReadPayload | null
         };
         if (data.scope !== 'overlay:read' || !data.exp || data.exp < Date.now()) return null;
         if (!data.userId || !data.tool || !data.login) return null;
-        return {
+        const payload = {
             userId: data.userId,
             tool: data.tool,
             login: data.login,
             displayName: data.displayName || data.login,
             profile_image_url: data.profile_image_url
         };
+        overlayTokenCache.set(token, {
+            payload,
+            expiry: Date.now() + OVERLAY_TOKEN_CACHE_MS
+        });
+        return payload;
     } catch {
         return null;
     }
@@ -231,6 +246,21 @@ export const handleCallback = async (
 const refreshPromises = new Map<string, Promise<string>>();
 const MAX_REFRESH_PROMISES = 100;
 const REFRESH_TIMEOUT_MS = 15_000;
+const TOKEN_EXPIRY_BUFFER_MS = 5 * 60 * 1000;
+
+export function isOAuthTokenNearExpiry(
+    user: StoredUser,
+    bufferMs: number = TOKEN_EXPIRY_BUFFER_MS
+): boolean {
+    let expiresAt = 0;
+    if (user.tokenExpiresAt && user.tokenExpiresAt > 0) {
+        expiresAt = user.tokenExpiresAt;
+    } else if (user.obtainedAt && user.expiresIn) {
+        expiresAt = user.obtainedAt + user.expiresIn * 1000;
+    }
+    if (!expiresAt) return false;
+    return Date.now() + bufferMs > expiresAt;
+}
 
 export const refreshUserToken = async (userId: string): Promise<string> => {
     if (refreshPromises.has(userId)) {
@@ -278,7 +308,7 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
             user.obtainedAt = Date.now();
             user.tokenExpiresAt = Date.now() + expires_in * 1000;
 
-            await dbService.saveUser(user);
+            await dbService.saveUser(user, { tokensOnly: true });
             return access_token;
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -344,7 +374,7 @@ const ensureValidToken = async (
             expiresAt = probed;
             if (probed > 0) {
                 user.tokenExpiresAt = probed;
-                void dbService.saveUser(user).catch((e) =>
+                void dbService.saveUser(user, { tokensOnly: true }).catch((e) =>
                     logger.warn('No se pudo persistir token_expires_at:', e)
                 );
             }

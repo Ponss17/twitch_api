@@ -13,14 +13,17 @@ if (IS_LOCAL_DEV) {
         );
     });
 } else {
-    const CACHE_NAME = 'losperris-twitch-v9';
+    const CACHE_NAME = 'losperris-twitch-v10';
     /** Solo assets estáticos — no precachear páginas SSR (evita invocaciones extra en install). */
-    const urlsToCache = [
-        '/api/twitch/offline',
-        '/api/twitch/manifest.json',
-        '/api/twitch/img/logo.svg',
-        '/api/twitch/img/favicon.svg'
-    ];
+    const urlsToCache = ['/offline', '/manifest.json', '/img/logo.svg', '/img/favicon.svg'];
+
+    const isCacheFirstAsset = (url) =>
+        url.includes('/img/') ||
+        url.includes('/favicon') ||
+        url.includes('/manifest.json') ||
+        url.endsWith('.svg') ||
+        url.endsWith('.webp') ||
+        url.endsWith('.png');
 
     self.addEventListener('install', (event) => {
         event.waitUntil(
@@ -54,14 +57,26 @@ if (IS_LOCAL_DEV) {
             url.includes('/src/') ||
             url.includes('/node_modules/') ||
             url.includes('/_astro/') ||
-            url.includes('/api/twitch/dashboard') ||
-            url.includes('/api/twitch/system') ||
-            url.includes('/api/twitch/auth') ||
-            url.includes('/api/twitch/followage') ||
-            url.includes('/api/twitch/shoutout') ||
-            url.includes('/api/twitch/minigames') ||
-            url.includes('/auth/')
+            url.includes('/api/') ||
+            url.includes('/auth/') ||
+            url.includes('/dashboard')
         ) {
+            return;
+        }
+
+        if (isCacheFirstAsset(url)) {
+            event.respondWith(
+                caches.match(event.request).then((cached) => {
+                    if (cached) return cached;
+                    return fetch(event.request).then((response) => {
+                        if (response.ok) {
+                            const clone = response.clone();
+                            void caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+                        }
+                        return response;
+                    });
+                })
+            );
             return;
         }
 
@@ -71,7 +86,7 @@ if (IS_LOCAL_DEV) {
                 caches.match(event.request).then((cachedResponse) => {
                     if (cachedResponse) return cachedResponse;
                     if (event.request.mode === 'navigate') {
-                        return caches.match('/api/twitch/offline');
+                        return caches.match('/offline');
                     }
                     return new Response('', { status: 408, statusText: 'Offline' });
                 })

@@ -3,8 +3,12 @@ import type { DashboardTab } from '@/core/config/config';
 import { useMountedTabs } from '@/features/dashboard/hooks/useMountedTabs';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { HomeViewSkeleton, ProfileHeroSkeleton } from '@/shared/ui/Skeleton';
-import { HomeView } from '@/features/dashboard/components/home/HomeView';
-import { ProfileView } from '@/features/dashboard/components/profile/ProfileView';
+const HomeView = lazy(() =>
+    import('@/features/dashboard/components/home/HomeView').then((m) => ({ default: m.HomeView }))
+);
+const ProfileView = lazy(() =>
+    import('@/features/dashboard/components/profile/ProfileView').then((m) => ({ default: m.ProfileView }))
+);
 const FollowageView = lazy(() =>
     import('@/features/commands/components/CommandsViews').then((m) => ({ default: m.FollowageView }))
 );

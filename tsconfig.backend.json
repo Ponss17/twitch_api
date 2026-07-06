@@ -3,17 +3,17 @@
         "target": "ES2022",
         "module": "CommonJS",
         "moduleResolution": "node",
-        "outDir": "dist",
-        "rootDir": ".",
+        "rootDir": "backend/src",
+        "outDir": "api/_bundle",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "resolveJsonModule": true,
         "declaration": false,
-        "sourceMap": true,
+        "sourceMap": false,
         "verbatimModuleSyntax": false,
         "isolatedModules": false
     },
-    "include": ["backend/**/*"],
+    "include": ["backend/src/**/*"],
     "exclude": ["node_modules", "dist", "tests"]
 }

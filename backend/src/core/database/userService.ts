@@ -153,7 +153,12 @@ function fromRow(row: Record<string, unknown>): StoredUser {
     return hydrateUserFromRow(row);
 }
 
-export const saveUser = async (user: StoredUser): Promise<void> => {
+export type SaveUserOptions = {
+    /** Persiste tokens sin invalidar cachés de apiKey/login (refresh OAuth). */
+    tokensOnly?: boolean;
+};
+
+export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Promise<void> => {
     // Clonamos sin modificar el objeto original
     const secureUser = { ...user };
     if (secureUser.isActive === undefined) secureUser.isActive = true;
@@ -173,6 +178,14 @@ export const saveUser = async (user: StoredUser): Promise<void> => {
     if (error) {
         logger.error('Error guardando usuario en Supabase:', error.message);
         throw error;
+    }
+
+    if (options?.tokensOnly) {
+        rememberUserCaches(secureUser);
+        await cacheService
+            .set(`cache:user:id:${user.userId}`, secureUser, CACHE_TTL.API_USER)
+            .catch((e) => logger.error('Error actualizando caché de usuario (tokens):', e));
+        return;
     }
 
     const cachePromises = [

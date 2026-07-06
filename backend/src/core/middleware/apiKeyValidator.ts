@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as dbService from '../database/dbService';
 import * as cacheService from '../database/cacheService';
-import { getValidTokenForUser, verifyOverlayReadToken } from '../../features/auth/auth.service';
+import { getValidTokenForUser, verifyOverlayReadToken, isOAuthTokenNearExpiry } from '../../features/auth/auth.service';
 import { logger } from '../utils/logger';
 import { invalidateAuthCache } from './authMiddleware';
 import { StoredUser } from '../../types/twitch';
@@ -154,6 +154,26 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         if (cached && cached.expiry > Date.now()) {
             if (!cached.user.isActive) {
                 return res.status(403).json({ error: 'Cuenta suspendida.' });
+            }
+            if (isOAuthTokenNearExpiry(cached.user)) {
+                try {
+                    await getValidTokenForUser(cached.user);
+                    validKeysCache.set(apiKey, {
+                        user: cached.user,
+                        expiry: Date.now() + CACHE_TTL_MS
+                    });
+                } catch (e) {
+                    const error = e as Error;
+                    const isAuthError =
+                        error.message.includes('inválid') || error.message.includes('expirad');
+                    if (isAuthError) {
+                        invalidKeysCache.set(apiKey);
+                        return rejectApiKeyUnauthorized(req, res, () =>
+                            res.status(401).json({ error: error.message })
+                        );
+                    }
+                    return res.status(503).json({ error: 'Servicio no disponible temporalmente.' });
+                }
             }
             res.locals.apiUser = cached.user;
             res.locals.isApiKeyRequest = true;

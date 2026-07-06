@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { DashboardTab } from '@/core/config/config';
 import { appPath, saveDocsReturnPath, shouldSavePanelReturn } from '@/core/config/paths';
 import { card, fadeIn } from '@/core/ui/tw';
@@ -38,7 +39,7 @@ const LINK_BTN =
 const SECTION_LABEL =
     'mb-1.5 shrink-0 text-[0.65rem] font-extrabold uppercase tracking-[0.1em] text-primary opacity-80';
 
-export function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
+export const HomeResourcesPanel = memo(function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
     return (
         <div className={`${card} ${fadeIn} mb-0 flex h-[460px] flex-col`} style={{ animationDelay: '60ms' }}>
             <div className="mb-2 flex shrink-0 items-center gap-3 border-b border-white/[0.08] pb-2">
@@ -90,4 +91,4 @@ export function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
             </div>
         </div>
     );
-}
+});

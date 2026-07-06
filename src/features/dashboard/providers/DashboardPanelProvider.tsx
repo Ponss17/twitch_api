@@ -81,6 +81,7 @@ export function DashboardPanelProvider({
     const highlightTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
     const syncRef = useRef<TabSyncService | null>(null);
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const reconcileRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const isRealtimeLiveRef = useRef(false);
     const performSyncRef = useRef<() => Promise<void>>(async () => {});
     const fetchPanelDataRef = useRef<
@@ -323,10 +324,37 @@ export function DashboardPanelProvider({
     useEffect(() => {
         if (isRealtimeLive) {
             setSyncLabel('Realtime');
+            if (pollRef.current) {
+                clearInterval(pollRef.current);
+                pollRef.current = null;
+            }
         } else if (active && isTabLeader) {
             startSmartPolling();
         }
     }, [active, isRealtimeLive, isTabLeader, startSmartPolling]);
+
+    useEffect(() => {
+        if (!active || !isTabLeader || !isRealtimeLive) {
+            if (reconcileRef.current) {
+                clearInterval(reconcileRef.current);
+                reconcileRef.current = null;
+            }
+            return;
+        }
+
+        reconcileRef.current = setInterval(() => {
+            if (document.visibilityState === 'hidden') return;
+            if (!syncRef.current?.getIsLeader()) return;
+            void performSyncRef.current();
+        }, POLL_MS);
+
+        return () => {
+            if (reconcileRef.current) {
+                clearInterval(reconcileRef.current);
+                reconcileRef.current = null;
+            }
+        };
+    }, [active, isTabLeader, isRealtimeLive]);
 
     useEffect(() => {
         if (!active) return;
@@ -364,7 +392,12 @@ export function DashboardPanelProvider({
             const data = payload as { isLeader: boolean };
             setIsTabLeader(data.isLeader);
             if (data.isLeader) {
-                void performSyncRef.current();
+                const raw = readPanelSyncPref(session.userId);
+                const stale =
+                    !raw || Date.now() - parseInt(raw, 10) >= FALLBACK_POLL_MS;
+                if (stale) {
+                    void performSyncRef.current();
+                }
             } else {
                 setSyncLabel('Follower');
                 if (!isRealtimeLiveRef.current) {
@@ -400,7 +433,9 @@ export function DashboardPanelProvider({
         window.addEventListener('realtime:auth-failed', onAuthFailed);
 
         setIsTabLeader(sync.getIsLeader());
-        void fetchPanelDataRef.current({ broadcast: false });
+        if (!isRealtimeLiveRef.current) {
+            startSmartPolling();
+        }
 
         return () => {
             document.removeEventListener('visibilitychange', onVisible);

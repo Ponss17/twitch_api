@@ -90,7 +90,7 @@ export async function blockIfUnauthorizedScanExceeded(
 export const globalRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
     const cleanPath = req.originalUrl.split('?')[0];
 
-    // Páginas HTML públicas: límite suave por IP (assets/health sin límite)
+    // Páginas HTML públicas: límite global por IP vía KV (consistente entre réplicas)
     if (isPublicHtmlRoute(cleanPath, req.method)) {
         const count = await incrementPerMinuteCounter(`rl:pubhtml:${getSafeIp(req)}`);
         applyRateLimitHeaders(res, RATE_LIMITS.PUBLIC_HTML, count);
