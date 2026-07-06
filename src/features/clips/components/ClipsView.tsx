@@ -6,8 +6,8 @@ import { useToast } from '@/shared/ui/ToastProvider';
 import { ClipsGridSkeleton } from '@/shared/ui/Skeleton';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { cache, CACHE_TTL } from '@/core/cache/cacheService';
-import { card, fadeIn, clipPlayerDialog } from '@/core/ui/tw';
-import { BaseModal } from '@/shared/ui/Modal';
+import { card, fadeIn, clipPlayerDialog, clipPlayerPanel } from '@/core/ui/tw';
+import { BaseModal, useModalClose } from '@/shared/ui/Modal';
 import { SelectField } from '@/shared/ui/SelectField';
 import { ClipCommandView } from '@/features/commands/components/CommandsViews';
 import { Star, RotateCw, Link as LinkIcon, Images, Search, Play, X } from 'lucide-react';
@@ -68,6 +68,30 @@ function formatClipDate(value?: string) {
         month: 'short',
         day: 'numeric'
     });
+}
+
+function ClipPlayerContent({ clip, embedSession }: { clip: Clip; embedSession: number }) {
+    const closeModal = useModalClose();
+
+    return (
+        <>
+            <button
+                type="button"
+                onClick={closeModal}
+                className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border-none bg-black/70 text-white backdrop-blur-sm transition hover:bg-primary"
+                aria-label="Cerrar reproductor"
+            >
+                <X className="h-4 w-4" />
+            </button>
+            <iframe
+                key={`${clip.id}-${embedSession}`}
+                title={clip.title ?? 'Clip de Twitch'}
+                src={clipEmbedSrc(clip.id)}
+                allowFullScreen
+                className="absolute inset-0 h-full w-full border-none bg-black"
+            />
+        </>
+    );
 }
 
 export function ClipsView() {
@@ -357,26 +381,10 @@ export function ClipsView() {
                 open={!!playingClip}
                 onClose={closeClipPlayer}
                 dialogClassName={clipPlayerDialog}
-                className="relative aspect-video w-full overflow-hidden rounded-xl bg-black shadow-2xl"
+                className={clipPlayerPanel}
             >
                 {playingClip ? (
-                    <>
-                        <button
-                            type="button"
-                            onClick={closeClipPlayer}
-                            className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border-none bg-black/70 text-white backdrop-blur-sm transition hover:bg-primary"
-                            aria-label="Cerrar reproductor"
-                        >
-                            <X className="h-4 w-4" />
-                        </button>
-                        <iframe
-                            key={`${playingClip.id}-${embedSession}`}
-                            title={playingClip.title ?? 'Clip de Twitch'}
-                            src={clipEmbedSrc(playingClip.id)}
-                            allowFullScreen
-                            className="absolute inset-0 h-full w-full border-none bg-black"
-                        />
-                    </>
+                    <ClipPlayerContent clip={playingClip} embedSession={embedSession} />
                 ) : null}
             </BaseModal>
         </>
