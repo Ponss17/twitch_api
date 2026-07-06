@@ -60,7 +60,7 @@ const CLIPS_JSON = `[
 
 export function DocsContent() {
     return (
-        <main className={docsContent}>
+        <div className={docsContent}>
             <section id="intro" className={docSection} data-doc-section>
                 <h1 className={docsMainTitle}>
                     LosPerris <span className={docsAccent}>Twitch API Docs</span>
@@ -604,6 +604,6 @@ export function DocsContent() {
                     </tbody>
                 </table>
             </section>
-        </main>
+        </div>
     );
 }
