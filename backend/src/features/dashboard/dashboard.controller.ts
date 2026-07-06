@@ -6,7 +6,7 @@ import { CACHE_TTL, ownerScopedCacheKey, resolveUserCacheTtl } from '../../core/
 import { resolveUserLimits } from '../../core/config/userRoles';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
-import { computeAnalyticsFromStats, buildEmptyUserAnalytics } from './dashboardHelpers';
+import { computeAnalyticsFromStats, buildEmptyUserAnalytics, buildAnalyticsPayload, isAnalyticsCacheFresh } from './dashboardHelpers';
 import { buildDashboardProfile } from '../../core/utils/dashboardProfile';
 
 import { AuthenticatedRequest } from '../../types/twitch';
@@ -29,18 +29,14 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
 
     try {
         const cacheKey = `cache:dashboard:analytics:${userId}`;
+        const statsRev = await cacheService.getStatsRevision(userId);
         const cached = await cacheService.get<Record<string, unknown>>(cacheKey);
-        if (cached) {
+        if (cached && isAnalyticsCacheFresh(cached, statsRev)) {
             return res.json(cached);
         }
 
         const stats = await dbService.getUserStats(userId);
-        const computed = computeAnalyticsFromStats(stats);
-        const payload = {
-            ...stats,
-            ...computed,
-            totalRequests: stats.total_requests || 0
-        };
+        const payload = buildAnalyticsPayload(stats, statsRev);
 
         await cacheService.set(
             cacheKey,
@@ -289,11 +285,15 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
 
     const profileKey = cacheId ? `cache:dashboard:profile:${cacheId}` : null;
     const analyticsKey = userId && cacheId ? `cache:dashboard:analytics:${cacheId}` : null;
+    const statsRev = userId ? await cacheService.getStatsRevision(userId) : 0;
 
     const [cachedProfile, cachedAnalytics] = await Promise.all([
         profileKey ? cacheService.get<Record<string, unknown>>(profileKey) : Promise.resolve(null),
         analyticsKey ? cacheService.get<Record<string, unknown>>(analyticsKey) : Promise.resolve(null)
     ]);
+
+    const analyticsCacheHit =
+        Boolean(cachedAnalytics) && isAnalyticsCacheFresh(cachedAnalytics, statsRev);
 
     const limits = resolveUserLimits(res.locals?.apiUser);
 
@@ -310,7 +310,7 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
         };
     };
 
-    if (cachedProfile && (!userId || cachedAnalytics)) {
+    if (cachedProfile && (!userId || analyticsCacheHit)) {
         return res.json({
             profile: mergeProfileLimits(cachedProfile),
             analytics: cachedAnalytics ?? null
@@ -319,7 +319,7 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
 
     try {
         const needProfile = !cachedProfile;
-        const needAnalytics = Boolean(userId && !cachedAnalytics);
+        const needAnalytics = Boolean(userId && !analyticsCacheHit);
 
         const [profile, analytics] = await Promise.all([
             needProfile
@@ -336,11 +336,7 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             needAnalytics && userId
                 ? (async () => {
                       const stats = await dbService.getUserStats(userId);
-                      return {
-                          ...stats,
-                          totalRequests: stats.total_requests || 0,
-                          ...computeAnalyticsFromStats(stats)
-                      };
+                      return buildAnalyticsPayload(stats, statsRev);
                   })()
                 : Promise.resolve(cachedAnalytics ?? null)
         ]);
