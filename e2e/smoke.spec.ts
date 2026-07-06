@@ -17,7 +17,7 @@ const e2eSession = {
 };
 
 async function mockAuthExchangeRoute(page: Page) {
-    await page.route('**/api/twitch/auth/exchange**', (route) =>
+    await page.route('**/api/auth/exchange**', (route) =>
         route.fulfill({
             status: 200,
             contentType: 'application/json',
@@ -32,7 +32,7 @@ async function mockAuthExchangeRoute(page: Page) {
 }
 
 async function mockValidateRoute(page: Page) {
-    await page.route('**/api/twitch/system/validate**', (route) =>
+    await page.route('**/api/system/validate**', (route) =>
         route.fulfill({
             status: 200,
             contentType: 'application/json',
@@ -53,7 +53,7 @@ async function seedSession(page: Page) {
     }, e2eSession);
 }
 
-async function gotoAuthenticatedDashboard(page: Page, path = '/api/twitch/dashboard/') {
+async function gotoAuthenticatedDashboard(page: Page, path = '/dashboard/') {
     await mockValidateRoute(page);
     const validated = waitForValidate(page);
     await page.goto(path);
@@ -63,17 +63,17 @@ async function gotoAuthenticatedDashboard(page: Page, path = '/api/twitch/dashbo
 
 test.describe('smoke', () => {
     test('landing loads', async ({ page }) => {
-        await page.goto('/api/twitch/');
+        await page.goto('/');
         await expect(page).toHaveTitle(/Comandos y Herramientas para Streamers \| LosPerris/i);
     });
 
     test('docs page renders', async ({ page }) => {
-        await page.goto('/api/twitch/docs/');
+        await page.goto('/docs/');
         await expect(page).toHaveTitle(/Documentación API \| LosPerris/i);
     });
 
     test('PWA manifest icon resolves', async ({ request }) => {
-        const res = await request.get('/api/twitch/img/logo.svg');
+        const res = await request.get('/img/logo.svg');
         expect(res.status()).toBe(200);
     });
 });
@@ -81,23 +81,23 @@ test.describe('smoke', () => {
 test.describe('dashboard', () => {
     test.describe.configure({ mode: 'serial' });
     test('redirects unauthenticated users to landing', async ({ page }) => {
-        await page.goto('/api/twitch/dashboard/');
-        await expect(page).toHaveURL(/\/api\/twitch\/?$/);
+        await page.goto('/dashboard/');
+        await expect(page).toHaveURL(/\/?$/);
         await expect(page.getByRole('button', { name: /Iniciar Sesión con Twitch/i })).toBeVisible();
     });
 
     test('legacy ?tab= migrates to path-based URL', async ({ page }) => {
         await seedSession(page);
         await mockValidateRoute(page);
-        await page.goto('/api/twitch/dashboard/?tab=clips');
+        await page.goto('/dashboard/?tab=clips');
         await expect(page).toHaveURL(/\/dashboard\/clips\/?/);
     });
 
     test('manifest.json is served under mount', async ({ request }) => {
-        const res = await request.get('/api/twitch/manifest.json');
+        const res = await request.get('/manifest.json');
         expect(res.status()).toBe(200);
         const json = (await res.json()) as { start_url?: string };
-        expect(json.start_url).toBe('/api/twitch/');
+        expect(json.start_url).toBe('/');
     });
 
     test('oauth callback applies session without page reload', async ({ page }) => {
@@ -109,12 +109,12 @@ test.describe('dashboard', () => {
         );
         const validated = waitForValidate(page);
 
-        await page.goto('/api/twitch/dashboard/?auth=e2e_oauth_token');
+        await page.goto('/dashboard/?auth=e2e_oauth_token');
 
         await exchanged;
         await validated;
 
-        await expect(page).toHaveURL(/\/api\/twitch\/dashboard\/?$/);
+        await expect(page).toHaveURL(/\/dashboard\/?$/);
         await expect(page.locator('#dashboard-page')).toBeVisible({ timeout: 15000 });
         await expect(page.getByText(/E2E Streamer/i).first()).toBeVisible();
     });
