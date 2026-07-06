@@ -46,8 +46,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             if (this.props.fallback) return this.props.fallback;
 
             return (
-                <div className="rounded-xl border border-red-500/30 bg-[#0f0f11] p-6 text-center">
-                    <AlertTriangle className="mb-3 text-2xl text-red-400" />
+                <div className="rounded-xl border border-error/30 bg-[#0f0f11] p-6 text-center">
+                    <AlertTriangle className="mb-3 text-2xl text-error" />
                     <h3 className="mb-2 text-lg font-semibold text-[#fafafa]">
                         {this.props.title ?? 'No se pudo cargar esta sección'}
                     </h3>

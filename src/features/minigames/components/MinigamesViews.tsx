@@ -101,7 +101,7 @@ function GameResponse({
                     ? 'border-white/[0.08] bg-[rgba(15,23,42,0.6)] text-[#fafafa]'
                     : success
                       ? 'border-primary/30 border-l-4 border-l-primary bg-[rgba(16,185,129,0.15)] text-success'
-                      : 'border-l-4 border-l-error border-error/30 bg-[rgba(239,68,68,0.15)] text-error'
+                      : 'border-l-4 border-l-error border-error/30 bg-error/15 text-error'
             }`}
         >
             {loading && loadingNode}
@@ -369,7 +369,7 @@ export function RussianView() {
                         type="button"
                         onClick={() => void pullTrigger()}
                         disabled={loading}
-                        className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-white/10 bg-gradient-to-br from-[#dc2626] to-[#991b1b] px-10 py-3.5 text-[1rem] font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.3),inset_0_0_0_1px_rgba(255,255,255,0.1)] transition hover:-translate-y-0.5 hover:scale-105 hover:from-[#ef4444] hover:to-[#dc2626] hover:shadow-[0_15px_35px_rgba(220,38,38,0.5)] active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
+                        className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-white/10 bg-gradient-to-br from-error-dark to-[#5c1a0f] px-10 py-3.5 text-[1rem] font-semibold text-white shadow-[0_10px_25px_rgba(229,77,46,0.3),inset_0_0_0_1px_rgba(255,255,255,0.1)] transition hover:-translate-y-0.5 hover:scale-105 hover:from-error hover:to-error-dark hover:shadow-[0_15px_35px_rgba(229,77,46,0.5)] active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
                     >
                         {loading ? <Loader2 className="size-4 animate-spin" /> : <RUSSIAN_ICON className="size-4" strokeWidth={2} />}
                         Jalar Gatillo

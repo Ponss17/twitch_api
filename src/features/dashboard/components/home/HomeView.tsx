@@ -34,7 +34,7 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
 
     if (error && !hasLiveData) {
         return (
-            <div className="rounded-xl border border-red-500/30 bg-[#0f0f11] p-6 text-red-400">
+            <div className="rounded-xl border border-error/30 bg-[#0f0f11] p-6 text-error">
                 <AlertTriangle className="mr-2" />
                 {error}
             </div>

@@ -182,7 +182,7 @@ export function DropdownItem({
     const { close } = useDropdown();
     const tone =
         variant === 'danger'
-            ? 'text-[#ef4444] hover:bg-[#ef4444]/10'
+            ? 'text-error hover:bg-error/10'
             : 'text-[#c4c4cc] hover:bg-primary/10 hover:text-[#fafafa]';
 
     return (
