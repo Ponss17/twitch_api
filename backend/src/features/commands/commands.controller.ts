@@ -44,7 +44,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
                         }
                     }
 
-                    const url = await apiService.createClip(channel, token);
+                    const url = await apiService.createClip(channel, token, finalTitle);
                     return url;
                 },
                 'CREATE_CLIP'

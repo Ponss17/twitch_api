@@ -16,9 +16,9 @@ export const addSystemLog = async (
             timestamp: new Date().toISOString()
         });
 
-        if (error) logger.error('Failed to log to Supabase:', error.message);
+        if (error) console.error('Failed to log to Supabase:', error.message);
     } catch (_e) {
-        logger.error('Failed to log to Supabase:', _e);
+        console.error('Failed to log to Supabase:', _e);
     }
 };
 
