@@ -58,7 +58,7 @@ async function paginateHelixLogins(
     return logins;
 }
 
-export const getModeratorLogins = async (broadcasterId: string, token: string): Promise<string[]> => {
+const getModeratorLogins = async (broadcasterId: string, token: string): Promise<string[]> => {
     const cacheKey = `cache:eligibility:mods:${broadcasterId}`;
     const cached = await cacheService.get<string[]>(cacheKey);
     if (cached) return cached;
@@ -73,7 +73,7 @@ export const getModeratorLogins = async (broadcasterId: string, token: string): 
     return logins;
 };
 
-export const getVipLogins = async (broadcasterId: string, token: string): Promise<string[]> => {
+const getVipLogins = async (broadcasterId: string, token: string): Promise<string[]> => {
     const cacheKey = `cache:eligibility:vips:${broadcasterId}`;
     const cached = await cacheService.get<string[]>(cacheKey);
     if (cached) return cached;
@@ -88,7 +88,7 @@ export const getVipLogins = async (broadcasterId: string, token: string): Promis
     return logins;
 };
 
-export const getSubscriberLogins = async (broadcasterId: string, token: string): Promise<string[]> => {
+const getSubscriberLogins = async (broadcasterId: string, token: string): Promise<string[]> => {
     const cacheKey = `cache:eligibility:subs:${broadcasterId}`;
     const cached = await cacheService.get<string[]>(cacheKey);
     if (cached) return cached;
