@@ -10,7 +10,7 @@ export const DASHBOARD_FALLBACK_POLL_MS = 8_000;
 export const PROFILE_POLL_MS = 60_000;
 
 /** Pref unificado entre Inicio (panel) y Perfil. */
-export const PANEL_SYNC_PREF = 'panel_last_sync';
+const PANEL_SYNC_PREF = 'panel_last_sync';
 const LEGACY_PANEL_SYNC_KEY = 'panel_last_sync';
 const LEGACY_DASHBOARD_SYNC_KEY = 'dashboard_last_sync';
 const LEGACY_PROFILE_SYNC_KEY = 'profile_last_sync';
@@ -19,7 +19,7 @@ const HOME_DATA_RESET_EVENT = 'dashboard:home-data-reset';
 const HOME_DATA_RESET_CHANNEL = 'dashboard_home_data_reset';
 const HOME_RESET_PENDING_PREF = 'home_data_reset_pending';
 
-export function markHomeDataResetPending(userId: string): void {
+function markHomeDataResetPending(userId: string): void {
     writeScopedPref(HOME_RESET_PENDING_PREF, userId, String(Date.now()));
 }
 

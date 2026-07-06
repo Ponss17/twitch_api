@@ -1,6 +1,6 @@
 import { AlertTriangle, Loader2 } from 'lucide-react';
 
-import { useEffect, useRef, useState, createContext, useContext, useCallback, type ReactNode } from 'react';
+import { useEffect, useRef, useState, createContext, useCallback, type ReactNode } from 'react';
 import { X, Trash2, type LucideIcon } from 'lucide-react';
 import {
     btnDanger,
@@ -24,12 +24,6 @@ import {
 } from '@/core/ui/tw';
 
 const ModalCloseContext = createContext<(() => void) | null>(null);
-
-/** Cierra el modal activo (animación + onClose). Usar en hijos de BaseModal. */
-export function useModalClose() {
-    const close = useContext(ModalCloseContext);
-    return close ?? (() => {});
-}
 
 interface ModalProps {
     open: boolean;
