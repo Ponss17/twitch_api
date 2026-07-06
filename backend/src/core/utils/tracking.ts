@@ -64,14 +64,14 @@ export const trackRequest = async <T>(
         const latency = Date.now() - startTime;
 
         if (userId) {
-            void persistRequestMetrics(userId, options, latency, true);
+            await persistRequestMetrics(userId, options, latency, true);
         }
 
         return result;
     } catch (error) {
         const latency = Date.now() - startTime;
         if (userId) {
-            void persistRequestMetrics(userId, options, latency, false);
+            await persistRequestMetrics(userId, options, latency, false);
         }
         throw error;
     }
