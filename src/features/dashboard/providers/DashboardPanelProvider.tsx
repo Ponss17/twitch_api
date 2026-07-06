@@ -82,6 +82,8 @@ export function DashboardPanelProvider({
     const syncRef = useRef<TabSyncService | null>(null);
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const isRealtimeLiveRef = useRef(false);
+    const activeRef = useRef(active);
+    activeRef.current = active;
     const panelBootstrappedRef = useRef(false);
     const performSyncRef = useRef<() => Promise<void>>(async () => {});
     const fetchPanelDataRef = useRef<
@@ -268,7 +270,13 @@ export function DashboardPanelProvider({
 
         if (pollRef.current) clearInterval(pollRef.current);
         pollRef.current = setInterval(() => {
-            if (document.visibilityState === 'hidden' || isRealtimeLiveRef.current) return;
+            if (
+                document.visibilityState === 'hidden' ||
+                isRealtimeLiveRef.current ||
+                !activeRef.current
+            ) {
+                return;
+            }
 
             if (!sync.getIsLeader()) {
                 setSyncLabel('Follower');
@@ -305,6 +313,7 @@ export function DashboardPanelProvider({
     );
 
     const handleRealtimeDisconnect = useCallback(() => {
+        if (!activeRef.current) return;
         setSyncLabel(`${Math.ceil(FALLBACK_POLL_MS / 1000)}s`);
         void performSyncRef.current();
         startSmartPolling();
@@ -312,7 +321,8 @@ export function DashboardPanelProvider({
 
     const { isLive: isRealtimeLive } = useDashboardRealtime({
         id: 'dashboard',
-        active: active && isTabLeader,
+        // Realtime activo mientras Inicio está montado (aunque estés en Followage, etc.)
+        active: isTabLeader,
         session,
         onStatsUpdate: handleRealtimeStats,
         onActivityInsert: handleRealtimeActivity,
@@ -334,14 +344,10 @@ export function DashboardPanelProvider({
     }, [active, isRealtimeLive, isTabLeader, startSmartPolling]);
 
     useEffect(() => {
-        if (!active) {
-            panelBootstrappedRef.current = false;
-            return;
-        }
         if (!isTabLeader || panelBootstrappedRef.current) return;
         panelBootstrappedRef.current = true;
         void fetchPanelDataRef.current({ broadcast: true, silent: true });
-    }, [active, isTabLeader]);
+    }, [isTabLeader]);
 
     useEffect(() => {
         if (!active) return;
@@ -361,16 +367,6 @@ export function DashboardPanelProvider({
     }, [active, session.userId]);
 
     useEffect(() => {
-        if (!active) {
-            if (pollRef.current) clearInterval(pollRef.current);
-            pollRef.current = null;
-            if (syncRef.current) {
-                syncRef.current.destroy();
-                syncRef.current = null;
-            }
-            return;
-        }
-
         const sync = new TabSyncService(PANEL_SYNC_CHANNEL);
         syncRef.current = sync;
         const highlightTimers = highlightTimersRef.current;
@@ -438,8 +434,9 @@ export function DashboardPanelProvider({
             sync.destroy();
             syncRef.current = null;
             dataReadyFiredRef.current = false;
+            panelBootstrappedRef.current = false;
         };
-    }, [active, startSmartPolling, session.userId]);
+    }, [startSmartPolling, session.userId]);
 
     const value = useMemo<DashboardPanelContextValue>(
         () => ({
