@@ -44,6 +44,12 @@ export function appUrl(path: string): string {
     return `${getOrigin()}${appPath(path)}`;
 }
 
+/** Sustituye `{baseURL}` por el origen actual (solo en cliente). */
+export function resolveDocsTemplate(template: string): string {
+    if (typeof window === 'undefined') return template;
+    return template.replace(/\{baseURL\}/g, window.location.origin);
+}
+
 export function staticPath(path: string): string {
     return joinAppPath(getAppBasePath(), path);
 }

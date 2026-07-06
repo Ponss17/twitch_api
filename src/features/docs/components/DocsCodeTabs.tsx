@@ -1,5 +1,6 @@
-import { useLayoutEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { SlotText } from 'slot-text/react';
+import { resolveDocsTemplate } from '@/core/config/paths';
 import { copyText } from '@/core/ui/clipboard';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { Check, Copy } from 'lucide-react';
@@ -39,12 +40,6 @@ function buildCodeTemplate(bot: Bot, path: string, format: 'chat' | 'panel', tri
     return code;
 }
 
-/** Client-only: sustituye {baseURL} por el origen actual (sin leer sesión ni API keys). */
-function resolveBaseUrl(template: string): string {
-    if (typeof window === 'undefined') return template;
-    return template.replace(/\{baseURL\}/g, window.location.origin);
-}
-
 interface DocsCodeTabsProps {
     snippets: Record<Bot, string>;
     trigger?: string;
@@ -61,11 +56,7 @@ export function DocsCodeTabs({ snippets, trigger }: DocsCodeTabsProps) {
         [bot, format, snippets, trigger]
     );
 
-    const [code, setCode] = useState(template);
-
-    useLayoutEffect(() => {
-        setCode(resolveBaseUrl(template));
-    }, [template]);
+    const code = useMemo(() => resolveDocsTemplate(template), [template]);
 
     const copy = async () => {
         const ok = await copyText(code);
