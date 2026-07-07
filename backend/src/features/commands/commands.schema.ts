@@ -10,6 +10,7 @@ const twitchUsername = z
 export const createClipSchema = z.object({
     query: z.object({
         channel: twitchUsername,
+        user: twitchUsername.optional(),
         q: z.string().optional(),
         title: z.string().max(140).optional(),
         template: z.string().max(500).optional()
