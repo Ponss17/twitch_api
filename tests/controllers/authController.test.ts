@@ -95,7 +95,7 @@ describe('authController', () => {
             await callback(req, res);
 
             expect(res.redirect).toHaveBeenCalledWith(
-                expect.stringMatching(/\/dashboard\?auth=/)
+                expect.stringMatching(/\/dashboard\/\?auth=/)
             );
         });
 
@@ -125,7 +125,7 @@ describe('authController', () => {
             await callback(req, res);
 
             expect(res.redirect).toHaveBeenCalledWith(
-                expect.stringMatching(/\/dashboard\?auth=/)
+                expect.stringMatching(/\/dashboard\/\?auth=/)
             );
         });
     });
