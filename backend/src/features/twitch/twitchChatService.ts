@@ -1,7 +1,7 @@
 import { TwitchChannelInfo } from '../../types/twitch';
 import { TwitchApiError } from '../../core/errors/AppError';
 import * as cacheService from '../../core/database/cacheService';
-import { CACHE_TTL } from '../../core/config/cacheTtl';
+import { CACHE_TTL_MATRIX } from '../../core/config/cacheTtl';
 import { apiClient, handleTwitchError, getHeaders } from './twitchClient';
 
 export type ChatterEligibility = 'subs' | 'mods' | 'vips' | 'viewers';
@@ -69,7 +69,7 @@ const getModeratorLogins = async (broadcasterId: string, token: string): Promise
         token
     );
 
-    await cacheService.set(cacheKey, logins, CACHE_TTL.ELIGIBILITY);
+    await cacheService.set(cacheKey, logins, CACHE_TTL_MATRIX.ELIGIBILITY.default);
     return logins;
 };
 
@@ -84,7 +84,7 @@ const getVipLogins = async (broadcasterId: string, token: string): Promise<strin
         token
     );
 
-    await cacheService.set(cacheKey, logins, CACHE_TTL.ELIGIBILITY);
+    await cacheService.set(cacheKey, logins, CACHE_TTL_MATRIX.ELIGIBILITY.default);
     return logins;
 };
 
@@ -99,7 +99,7 @@ const getSubscriberLogins = async (broadcasterId: string, token: string): Promis
         token
     );
 
-    await cacheService.set(cacheKey, logins, CACHE_TTL.ELIGIBILITY);
+    await cacheService.set(cacheKey, logins, CACHE_TTL_MATRIX.ELIGIBILITY.default);
     return logins;
 };
 
@@ -191,7 +191,7 @@ export const getChannelInfo = async (
         }
 
         const data = response.data.data[0];
-        await cacheService.set(cacheKey, data, CACHE_TTL.CHANNEL_INFO);
+        await cacheService.set(cacheKey, data, CACHE_TTL_MATRIX.CHANNEL_INFO.default);
 
         return data;
     } catch (error) {
@@ -249,7 +249,7 @@ export const getChatters = async (
         });
         const chatters = response.data.data;
         // Cachear por 30 segundos — suficiente para evitar ráfagas repetidas
-        await cacheService.set(cacheKey, chatters, CACHE_TTL.CHATTERS);
+        await cacheService.set(cacheKey, chatters, CACHE_TTL_MATRIX.CHATTERS.default);
         return chatters;
     } catch (error) {
         return handleTwitchError(error, `getChatters(${broadcasterId})`);

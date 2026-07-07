@@ -2,7 +2,7 @@ import { Response } from 'express';
 import * as dbService from '../../core/database/dbService';
 import * as apiService from '../twitch/twitch.service';
 import * as cacheService from '../../core/database/cacheService';
-import { CACHE_TTL, ownerScopedCacheKey, resolveUserCacheTtl } from '../../core/config/cacheTtl';
+import { ownerScopedCacheKey, resolveCache } from '../../core/config/cacheTtl';
 import { resolveUserLimits } from '../../core/config/userRoles';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
@@ -41,7 +41,7 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
         await cacheService.set(
             cacheKey,
             payload,
-            resolveUserCacheTtl(res.locals?.apiUser, CACHE_TTL.DASHBOARD_ANALYTICS)
+            resolveCache('DASHBOARD_ANALYTICS', res.locals?.apiUser?.role, res.locals?.apiUser?.customCacheTtl)
         );
         res.json(payload);
     } catch (e) {
@@ -65,7 +65,7 @@ export const getLogs = async (req: AuthenticatedRequest, res: Response) => {
         await cacheService.set(
             cacheKey,
             logs,
-            resolveUserCacheTtl(res.locals?.apiUser, CACHE_TTL.ACTIVITY_FEED)
+            resolveCache('ACTIVITY_FEED', res.locals?.apiUser?.role, res.locals?.apiUser?.customCacheTtl)
         );
         res.json(logs);
     } catch (e) {
@@ -101,7 +101,7 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
                 await cacheService.set(
                     cacheKey,
                     result,
-                    resolveUserCacheTtl(res.locals.apiUser, CACHE_TTL.CLIPS)
+                    resolveCache('CLIPS', res.locals.apiUser?.role, res.locals.apiUser?.customCacheTtl)
                 );
                 return res.json(result);
             } catch (error: unknown) {
@@ -160,7 +160,7 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
                 await cacheService.set(
                     cacheKey,
                     payload,
-                    resolveUserCacheTtl(res.locals.apiUser, CACHE_TTL.CHATTERS)
+                    resolveCache('CHATTERS', res.locals.apiUser?.role, res.locals.apiUser?.customCacheTtl)
                 );
                 return res.json(payload);
             } catch (error: unknown) {
@@ -231,8 +231,8 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
 
                 const result = buildDashboardProfile(info, followers, limits);
 
-                await cacheService.set(cacheKey, result, resolveUserCacheTtl(apiUser, CACHE_TTL.DASHBOARD_PROFILE));
-                res.json({ ...result, ...limits, cacheTtl: resolveUserCacheTtl(apiUser, CACHE_TTL.COMMAND) });
+                await cacheService.set(cacheKey, result, resolveCache('DASHBOARD_PROFILE', apiUser?.role, apiUser?.customCacheTtl));
+                res.json({ ...result, ...limits, cacheTtl: resolveCache('COMMAND', apiUser?.role, apiUser?.customCacheTtl) });
             } catch {
                 return jsonError(res, 500, MESSAGES.DASHBOARD.USER_INFO_ERROR);
             }
@@ -304,7 +304,7 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             role: limits.role,
             roleLabel: limits.roleLabel,
             rateLimit: limits.rateLimit,
-            cacheTtl: resolveUserCacheTtl(res.locals?.apiUser, CACHE_TTL.COMMAND),
+            cacheTtl: resolveCache('COMMAND', res.locals?.apiUser?.role, res.locals?.apiUser?.customCacheTtl),
             hasCustomRateLimit: limits.hasCustomRateLimit,
             hasCustomCacheTtl: limits.hasCustomCacheTtl
         };
@@ -345,14 +345,14 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             await cacheService.set(
                 profileKey,
                 profile,
-                resolveUserCacheTtl(res.locals.apiUser, CACHE_TTL.DASHBOARD_PROFILE)
+                resolveCache('DASHBOARD_PROFILE', res.locals.apiUser?.role, res.locals.apiUser?.customCacheTtl)
             );
         }
         if (needAnalytics && analyticsKey && analytics) {
             await cacheService.set(
                 analyticsKey,
                 analytics,
-                resolveUserCacheTtl(res.locals.apiUser, CACHE_TTL.DASHBOARD_ANALYTICS)
+                resolveCache('DASHBOARD_ANALYTICS', res.locals.apiUser?.role, res.locals.apiUser?.customCacheTtl)
             );
         }
 
