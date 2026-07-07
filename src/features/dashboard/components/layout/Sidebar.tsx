@@ -10,7 +10,6 @@ import {
     sidebarSupportLink
 } from '@/core/ui/tw';
 import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
-import { STATUS_PAGE_URL } from '@/core/config/config';
 import { AppLogo } from '@/shared/ui/AppLogo';
 import { IconMd } from '@/shared/ui/Icon';
 import { Book } from 'lucide-react';
@@ -96,24 +95,6 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                         <span>Discord</span>
                     </a>
                 </nav>
-
-                <div className="mt-auto px-4 pb-6 pt-4">
-                    <a
-                        href={STATUS_PAGE_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex items-center justify-between rounded-xl border border-white/5 bg-[#09090b] px-4 py-3 shadow-md transition hover:border-[#22c55e]/30 hover:bg-white/[0.02]"
-                        title="Ver todos los sistemas operativos"
-                    >
-                        <span className="text-[0.75rem] font-medium text-[#a1a1aa] transition-colors group-hover:text-white">
-                            Status del Sistema
-                        </span>
-                        <div className="relative flex h-2 w-2 items-center justify-center">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22c55e] opacity-60" />
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#22c55e] shadow-[0_0_8px_#22c55e]" />
-                        </div>
-                    </a>
-                </div>
             </aside>
 
             {mobileOpen && (
