@@ -386,35 +386,6 @@ export function DashboardPanelProvider({
         }
     }, [active, isRealtimeLive, isTabLeader, startSmartPolling]);
 
-    useEffect(() => {
-        if (!isTabLeader || panelBootstrappedRef.current) return;
-        panelBootstrappedRef.current = true;
-        if (consumeHomeDataResetPending(session.userId)) {
-            applyHomeDataReset();
-            return;
-        }
-        void fetchPanelDataRef.current({ broadcast: true, silent: true });
-    }, [isTabLeader, session.userId, applyHomeDataReset]);
-
-    useEffect(() => {
-        return subscribeHomeDataReset(session.userId, applyHomeDataReset);
-    }, [session.userId, applyHomeDataReset]);
-
-    useEffect(() => {
-        if (!active || !session.userId) return;
-        if (consumeHomeDataResetPending(session.userId)) {
-            applyHomeDataReset();
-            return;
-        }
-        // Al volver al tab Home, re-fetch si los datos tienen más de 10s de antigüedad.
-        // Esto garantiza que ver el Home después de hacer una petición en Followage
-        // siempre muestre los stats actualizados.
-        const lastSyncRaw = readPanelSyncPref(session.userId);
-        const stale = !lastSyncRaw || Date.now() - parseInt(lastSyncRaw, 10) > 10_000;
-        if (stale && panelBootstrappedRef.current) {
-            void fetchPanelDataRef.current({ broadcast: true, retryOnNetwork: false, fresh: true, silent: true });
-        }
-    }, [active, session.userId, applyHomeDataReset]);
 
     useEffect(() => {
         const sync = new TabSyncService(PANEL_SYNC_CHANNEL);
@@ -488,6 +459,36 @@ export function DashboardPanelProvider({
             panelBootstrappedRef.current = false;
         };
     }, [startSmartPolling, session.userId]);
+
+    useEffect(() => {
+        if (!isTabLeader || panelBootstrappedRef.current) return;
+        panelBootstrappedRef.current = true;
+        if (consumeHomeDataResetPending(session.userId)) {
+            applyHomeDataReset();
+            return;
+        }
+        void fetchPanelDataRef.current({ broadcast: true, silent: true });
+    }, [isTabLeader, session.userId, applyHomeDataReset]);
+
+    useEffect(() => {
+        return subscribeHomeDataReset(session.userId, applyHomeDataReset);
+    }, [session.userId, applyHomeDataReset]);
+
+    useEffect(() => {
+        if (!active || !session.userId) return;
+        if (consumeHomeDataResetPending(session.userId)) {
+            applyHomeDataReset();
+            return;
+        }
+        // Al volver al tab Home, re-fetch si los datos tienen más de 10s de antigüedad.
+        // Esto garantiza que ver el Home después de hacer una petición en Followage
+        // siempre muestre los stats actualizados.
+        const lastSyncRaw = readPanelSyncPref(session.userId);
+        const stale = !lastSyncRaw || Date.now() - parseInt(lastSyncRaw, 10) > 10_000;
+        if (stale && panelBootstrappedRef.current) {
+            void fetchPanelDataRef.current({ broadcast: true, retryOnNetwork: false, fresh: true, silent: true });
+        }
+    }, [active, session.userId, applyHomeDataReset]);
 
     const value = useMemo<DashboardPanelContextValue>(
         () => ({
