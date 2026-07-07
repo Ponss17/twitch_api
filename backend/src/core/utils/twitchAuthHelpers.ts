@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
 import { logger } from '../utils/logger';
 import * as authService from '../../features/auth/auth.service';
+import { AppError } from '../errors/AppError';
 
 export const withTwitchAuth = async <T>(
     req: Request & { twitchToken?: string },
     res: Response,
     action: (token: string) => Promise<T>,
     context: string
-): Promise<T | null> => {
+): Promise<T> => {
     let token = req.twitchToken;
     const apiKey = (req.query.apiKey as string) || (req.headers['x-api-key'] as string);
 
@@ -39,15 +40,13 @@ export const withTwitchAuth = async <T>(
 
             logger.error(`[${context} ERROR]`, { attempt: attempts, error });
 
-            if (!res.headersSent) {
-                if (is401) {
-                    res.status(401).send('Error de autenticación. Token expirado.');
-                } else {
-                    res.status(status).send(message);
-                }
+            if (is401) {
+                throw new AppError('Error de autenticación. Token expirado.', 401);
+            } else {
+                throw new AppError(message, status);
             }
-            return null;
         }
     }
-    return null;
+    
+    throw new AppError('Error de autenticación. Token expirado.', 401);
 };
