@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import * as cacheService from '../../../core/database/cacheService';
-import { CACHE_TTL } from '../../../core/config/cacheTtl';
+import { CACHE_TTL_MATRIX } from '../../../core/config/cacheTtl';
 import { MESSAGES } from '../../../core/config/messages';
 import { isPanelBrowserRequest } from '../../../core/config/origins';
 import { logger } from '../../../core/utils/logger';
@@ -71,7 +71,7 @@ export const putOverlayState = async (req: AuthenticatedRequest, res: Response) 
     try {
         const payload = { ...state, updatedAt: Date.now() };
         const key = overlayStateKey(userId, tool);
-        await cacheService.set(key, payload, CACHE_TTL.OVERLAY_STATE);
+        await cacheService.set(key, payload, CACHE_TTL_MATRIX.OVERLAY_STATE.default);
         return res.json({ success: true });
     } catch (e) {
         logger.error('Error saving overlay state:', e);

@@ -41,7 +41,7 @@ export function buildDashboardProfile(
                   role: limits.role,
                   roleLabel: limits.roleLabel,
                   rateLimit: limits.rateLimit,
-                  cacheTtl: Math.max(1, Math.round(60 * limits.cacheMultiplier)),
+
                   hasCustomRateLimit: limits.hasCustomRateLimit,
                   hasCustomCacheTtl: limits.hasCustomCacheTtl
               }

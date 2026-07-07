@@ -1,10 +1,8 @@
 import {
-    DEFAULT_USER_CACHE_TTL,
-    resolveUserCacheTtl,
     resolveUserLimits,
     resolveUserRateLimit
 } from '../../../backend/src/core/config/userRoles';
-import { ownerScopedCacheKey } from '../../../backend/src/core/config/cacheTtl';
+import { ownerScopedCacheKey, resolveCache } from '../../../backend/src/core/config/cacheTtl';
 
 describe('userRoles', () => {
     it('resolveUserRateLimit usa rol cuando no hay personalizado', () => {
@@ -16,15 +14,16 @@ describe('userRoles', () => {
         expect(resolveUserRateLimit({ role: 'vip', customRateLimit: 999 })).toBe(999);
     });
 
-    it('resolveUserCacheTtl usa el mínimo entre rol y TTL del recurso', () => {
-        expect(resolveUserCacheTtl({ role: 'pro' })).toBe(45);
-        expect(resolveUserCacheTtl({ role: 'pro' }, 20)).toBe(15);
-        expect(resolveUserCacheTtl({ role: 'partner' }, 300)).toBe(75);
-        expect(resolveUserCacheTtl({ role: 'partner' }, 20)).toBe(5);
+    it('resolveCache usa los valores estáticos de la matriz', () => {
+        expect(resolveCache('COMMAND', 'pro')).toBe(80);
+        expect(resolveCache('CLIPS', 'partner')).toBe(15);
+        expect(resolveCache('DASHBOARD_PROFILE', 'default')).toBe(300);
+        // Fallback a default si el rol es inválido o no se envía
+        expect(resolveCache('CHATTERS', null)).toBe(30);
     });
 
-    it('resolveUserCacheTtl prioriza personalizado sobre rol', () => {
-        expect(resolveUserCacheTtl({ role: 'pro', customCacheTtl: 45 })).toBe(45);
+    it('resolveCache prioriza personalizado sobre rol', () => {
+        expect(resolveCache('COMMAND', 'pro', 45)).toBe(45);
     });
 
     it('resolveUserLimits expone flags de personalización', () => {
@@ -32,13 +31,8 @@ describe('userRoles', () => {
         expect(limits.role).toBe('vip');
         expect(limits.roleLabel).toBe('VIP');
         expect(limits.rateLimit).toBe(90);
-        expect(limits.cacheMultiplier).toBe(0.5);
         expect(limits.hasCustomCacheTtl).toBe(true);
         expect(limits.hasCustomRateLimit).toBe(false);
-    });
-
-    it('expone default de perfil', () => {
-        expect(DEFAULT_USER_CACHE_TTL).toBe(60);
     });
 });
 
