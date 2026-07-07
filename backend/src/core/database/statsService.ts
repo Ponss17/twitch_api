@@ -263,6 +263,7 @@ export const clearUserStatsAndLogs = async (userId: string): Promise<void> => {
     try {
         await Promise.all([
             supabase.from('user_stats').delete().eq('user_id', userId),
+            supabase.from('user_daily_stats').delete().eq('user_id', userId),
             supabase.from('activity_logs').delete().eq('user_id', userId)
         ]);
 
