@@ -17,8 +17,11 @@ jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
 jest.mock('../../backend/src/core/database/cacheService', () => ({
     get: jest.fn().mockResolvedValue(null),
     set: jest.fn().mockResolvedValue(undefined),
+    del: jest.fn().mockResolvedValue(undefined),
     getStatsRevision: jest.fn().mockResolvedValue(0),
-    invalidateDashboardCache: jest.fn().mockResolvedValue(undefined)
+    invalidateDashboardCache: jest.fn().mockResolvedValue(undefined),
+    invalidateDashboardAnalytics: jest.fn().mockResolvedValue(undefined),
+    bumpStatsRevision: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('@vercel/kv');
