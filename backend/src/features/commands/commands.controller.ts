@@ -17,7 +17,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
     const customTitle = (req.query.q as string) || (req.query.title as string);
 
-    return await trackRequest(
+    const result = await trackRequest(
         userId,
         {
             type: 'clip',
@@ -54,23 +54,26 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
 
             if (clipUrl) {
                 const rawTemplate = safeString(req.query.template);
-                res.setHeader('Content-Type', 'text/plain; charset=utf-8');
                 if (rawTemplate) {
                     const template = rawTemplate.replace(/[\r\n]/g, '');
                     const safeUrl = sanitizeHtml(clipUrl);
                     const safeChannel = sanitizeHtml(channel);
                     const safeTitle = sanitizeHtml(finalTitle || '');
-                    return res.send(
-                        template
-                            .replace('{url}', safeUrl)
-                            .replace('{channel}', safeChannel)
-                            .replace('{title}', safeTitle)
-                    );
+                    return template
+                        .replace('{url}', safeUrl)
+                        .replace('{channel}', safeChannel)
+                        .replace('{title}', safeTitle);
                 }
-                return res.send(clipUrl);
+                return clipUrl;
             }
+            return null;
         }
     );
+
+    if (result) {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        return res.send(result);
+    }
 };
 
 export const followage = async (req: AuthenticatedRequest, res: Response) => {
@@ -78,7 +81,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
     const user = req.query.user as string;
     const userId = req.userId;
 
-    return await trackRequest(
+    const result = await trackRequest(
         userId,
         {
             type: 'followage',
@@ -100,19 +103,16 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                     cached.text = `${user} ha seguido a ${channel} por ${newTimePhrase}.`;
                 }
                 const template = safeString(req.query.template);
-                res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
                 if (template && cached.timePhrase) {
-                    return res.send(
-                        template
-                            .replace('{time}', cached.timePhrase)
-                            .replace('{user}', user)
-                            .replace('{channel}', channel)
-                    );
+                    return template
+                        .replace('{time}', cached.timePhrase)
+                        .replace('{user}', user)
+                        .replace('{channel}', channel);
                 }
-                return res.send(cached.text);
+                return cached.text;
             }
 
-            const result = await withTwitchAuth(
+            const apiResult = await withTwitchAuth(
                 req,
                 res,
                 async (token: string) => {
@@ -124,23 +124,26 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 'FOLLOWAGE'
             );
 
-            if (result) {
+            if (apiResult) {
                 const rawTemplate = safeString(req.query.template);
-                res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-                res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
                 if (rawTemplate) {
                     const template = rawTemplate.replace(/[\r\n]/g, '');
-                    return res.send(
-                        template
-                            .replace('{time}', sanitizeHtml(result.timePhrase))
-                            .replace('{user}', sanitizeHtml(user))
-                            .replace('{channel}', sanitizeHtml(channel))
-                    );
+                    return template
+                        .replace('{time}', sanitizeHtml(apiResult.timePhrase))
+                        .replace('{user}', sanitizeHtml(user))
+                        .replace('{channel}', sanitizeHtml(channel));
                 }
-                return res.send(result.text);
+                return apiResult.text;
             }
+            return null;
         }
     );
+
+    if (result) {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
+        return res.send(result);
+    }
 };
 
 export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
@@ -156,7 +159,7 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
         res.locals.apiUser?.displayName ||
         'Canal';
 
-    return await trackRequest(
+    const result = await trackRequest(
         userId,
         {
             type: 'message',
@@ -165,7 +168,7 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
             incrementStat: 'message'
         },
         async () => {
-            const result = await withTwitchAuth(
+            const apiResult = await withTwitchAuth(
                 req,
                 res,
                 async (token: string) => {
@@ -175,15 +178,17 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
                 'SEND_MESSAGE'
             );
 
-            if (result) return res.json(result);
+            return apiResult;
         }
     );
+
+    if (result) return res.json(result);
 };
 
 export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
     const touser = req.query.touser as string;
 
-    return await trackRequest(
+    const result = await trackRequest(
         req.userId,
         {
             type: 'shoutout',
@@ -191,7 +196,7 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
             incrementStat: 'so'
         },
         async () => {
-            const result = await withTwitchAuth(
+            const apiResult = await withTwitchAuth(
                 req,
                 res,
                 async (token: string) => {
@@ -213,10 +218,12 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
                 'SHOUTOUT'
             );
 
-            if (result) {
-                res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
-                return res.send(result);
-            }
+            return apiResult;
         }
     );
+
+    if (result) {
+        res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
+        return res.send(result);
+    }
 };
