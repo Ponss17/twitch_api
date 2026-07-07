@@ -58,8 +58,8 @@ export function RouletteWheelDisplay({
                 <div
                     className={`absolute inset-5 rounded-full transition-shadow duration-300 max-[480px]:inset-2.5 ${
                         isSpinning
-                            ? 'shadow-[0_0_60px_rgba(145,70,255,0.55)]'
-                            : 'shadow-[0_0_40px_rgba(145,70,255,0.25)]'
+                            ? 'shadow-none border border-primary'
+                            : 'shadow-none border border-white/10'
                     }`}
                     aria-hidden
                 />
@@ -90,7 +90,7 @@ export function RouletteWheelDisplay({
                 </div>
 
                 <div
-                    className="pointer-events-none absolute top-1/2 left-1/2 z-10 flex h-[14%] w-[14%] min-h-[44px] min-w-[44px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[3px] border-primary/70 bg-[#18181b] shadow-[0_0_20px_rgba(0,0,0,0.6),inset_0_0_12px_rgba(145,70,255,0.15)]"
+                    className="pointer-events-none absolute top-1/2 left-1/2 z-10 flex h-[14%] w-[14%] min-h-[44px] min-w-[44px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[3px] border-primary/70 bg-[#18181b] shadow-xl"
                     aria-hidden
                 >
                     {chatters.length === 0 ? (
@@ -122,7 +122,7 @@ export function RouletteWheelDisplay({
                         className="pointer-events-none absolute top-[15%] left-1/2 z-15 w-[62%] -translate-x-1/2"
                         aria-hidden
                     >
-                        <span className="block rounded-lg bg-black/55 px-3 py-1.5 text-center text-[0.875rem] font-bold leading-tight text-white shadow-[0_2px_10px_rgba(0,0,0,0.45)] backdrop-blur-sm">
+                        <span className="block rounded-lg bg-black/55 px-3 py-1.5 text-center text-[0.875rem] font-bold leading-tight text-white backdrop-blur-sm">
                             {chatters[0].user_name}
                         </span>
                     </div>
@@ -141,7 +141,7 @@ export function RouletteWheelDisplay({
 
                 {winner && (
                     <div className="absolute inset-0 z-30 flex items-center justify-center rounded-xl bg-black/60 backdrop-blur-[4px]">
-                        <div className="animate-[bounceIn_0.6s_cubic-bezier(0.68,-0.55,0.265,1.55)_forwards] rounded-2xl border border-primary/40 bg-bg-secondary px-8 py-6 text-center opacity-0 shadow-[0_10px_40px_rgba(0,0,0,0.5),0_0_32px_rgba(145,70,255,0.15)] max-[480px]:px-6">
+                        <div className="animate-[bounceIn_0.6s_cubic-bezier(0.68,-0.55,0.265,1.55)_forwards] rounded-2xl border border-primary/40 bg-bg-secondary px-8 py-6 text-center opacity-0 shadow-2xl max-[480px]:px-6">
                             <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full border border-amber-400/30 bg-amber-400/10">
                                 <Crown className="size-6 text-amber-400" aria-hidden />
                             </div>

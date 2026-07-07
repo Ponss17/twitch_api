@@ -7,7 +7,7 @@ import { aboutFadeIn } from '@/core/ui/tw';
 import { AboutTechCards } from '@/features/about/components/AboutTechCards';
 
 const NARRATIVE_CARD =
-    'rounded-2xl border border-white/5 bg-white/[0.02] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:bg-primary/[0.04] hover:shadow-[0_10px_40px_rgba(0,0,0,0.5),0_0_20px_rgba(145,70,255,0.1)]';
+    'rounded-2xl border border-white/5 bg-white/[0.02] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:bg-primary/[0.04]';
 
 function animDelay(delay: number): CSSProperties {
     return { animationDelay: `${delay * 0.12}s` };
@@ -134,7 +134,7 @@ export function AboutPage() {
                     <div className="flex flex-wrap gap-3">
                         <button
                             type="button"
-                            className="flex cursor-pointer items-center gap-2 rounded-lg border border-white/5 bg-white/[0.03] px-[18px] py-2.5 text-[0.9rem] text-[#c4c4cc] transition hover:-translate-y-0.5 hover:border-[#5865f2] hover:bg-[#5865f2]/10 hover:text-white hover:shadow-[0_0_20px_rgba(88,101,242,0.15)]"
+                            className="flex cursor-pointer items-center gap-2 rounded-lg border border-white/5 bg-white/[0.03] px-[18px] py-2.5 text-[0.9rem] text-[#c4c4cc] transition hover:-translate-y-0.5 hover:border-[#5865f2] hover:bg-[#5865f2]/10 hover:text-white"
                             onClick={() => void copyDiscord()}
                         >
                             <DiscordIcon className="w-5 h-5" aria-hidden="true" />
@@ -144,7 +144,7 @@ export function AboutPage() {
                             href="https://www.instagram.com/ponss_jean/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.03] px-[18px] py-2.5 text-[0.9rem] text-[#c4c4cc] no-underline transition hover:-translate-y-0.5 hover:border-[#e4405f] hover:bg-[#e4405f]/10 hover:text-white hover:shadow-[0_0_20px_rgba(228,64,95,0.15)]"
+                            className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.03] px-[18px] py-2.5 text-[0.9rem] text-[#c4c4cc] no-underline transition hover:-translate-y-0.5 hover:border-[#e4405f] hover:bg-[#e4405f]/10 hover:text-white"
                         >
                             <InstagramIcon className="w-5 h-5" aria-hidden="true" />
                             <span>ponss_jean</span>
@@ -201,7 +201,7 @@ export function AboutPage() {
                                     href="https://discord.gg/8uN3qY5E"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex shrink-0 items-center gap-3 rounded-xl border-2 border-[#5865f2] bg-transparent px-7 py-3.5 text-base font-extrabold whitespace-nowrap text-[#5865f2] no-underline transition hover:-translate-y-0.5 hover:scale-[1.02] hover:bg-[#5865f2] hover:text-white hover:shadow-[0_10px_30px_rgba(88,101,242,0.3)]"
+                                    className="inline-flex shrink-0 items-center gap-3 rounded-xl border-2 border-[#5865f2] bg-transparent px-7 py-3.5 text-base font-extrabold whitespace-nowrap text-[#5865f2] no-underline transition hover:-translate-y-0.5 hover:scale-[1.02] hover:bg-[#5865f2] hover:text-white"
                                 >
                                     <DiscordIcon className="w-[1em] h-[1em]" aria-hidden="true" /> Discord
                                 </a>

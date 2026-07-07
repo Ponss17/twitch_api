@@ -104,7 +104,7 @@ export const docsLimitLabel =
     'text-[0.8125rem] font-semibold uppercase tracking-wide text-[#c4c4cc]';
 
 export const docsTabContainer =
-    'my-6 overflow-hidden rounded-xl border border-white/[0.08] border-l-4 border-l-primary bg-bg-card shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]';
+    'my-6 overflow-hidden rounded-xl border border-white/[0.08] border-l-4 border-l-primary bg-bg-card';
 
 export const docsTabHeader =
     'flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-3 py-2.5 max-[600px]:flex-col max-[600px]:items-stretch';
@@ -115,7 +115,7 @@ export const docsBotSelector =
 export const docsTabBtn = (active: boolean) =>
     `cursor-pointer rounded-lg border px-3 py-1.5 text-[0.8125rem] font-semibold transition max-[600px]:flex-1 ${
         active
-            ? 'border-primary/40 bg-primary/15 text-[#fafafa] shadow-[0_0_12px_rgba(145,70,255,0.12)]'
+            ? 'border-primary/40 bg-primary/15 text-[#fafafa]'
             : 'border-white/[0.08] bg-white/[0.03] text-[#c4c4cc] hover:border-white/15 hover:text-[#fafafa]'
     }`;
 

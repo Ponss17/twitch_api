@@ -12,7 +12,7 @@ interface ErrorPageProps {
 export function ErrorPage({ code, title, message, children }: ErrorPageProps) {
     return (
         <div className="relative flex min-h-full flex-1 items-center justify-center bg-bg-main p-5 font-[Outfit,sans-serif]">
-            <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/[0.08] bg-bg-card p-10 text-center shadow-lg">
+            <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/[0.08] bg-bg-card p-10 text-center">
                 <div className="mb-5 inline-block rounded-full border border-primary/20 bg-primary/10 px-5 py-2 text-sm font-bold uppercase tracking-[2px] text-primary">
                     {code}
                 </div>

@@ -107,11 +107,11 @@ function GameResponse({
         >
             {loading && loadingNode}
             {success && (
-                <SuccessIcon className="text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" aria-hidden="true" />
+                <SuccessIcon className="text-lg" aria-hidden="true" />
             )}
             {result.status === 'error' && (
                 <ErrorIcon
-                    className="text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]"
+                    className="text-lg"
                     aria-hidden="true"
                 />
             )}
@@ -189,7 +189,7 @@ export function Magic8View() {
                     result={result}
                     loadingNode={
                         <div className="flex items-center gap-3 font-medium text-primary italic">
-                            <Gem className="animate-pulse text-[1.8rem] drop-shadow-[0_0_10px_rgba(168,85,247,0.6)]" />
+                            <Gem className="animate-pulse text-[1.8rem]" />
                             Consultando a los espíritus...
                         </div>
                     }
@@ -295,7 +295,7 @@ export function DuelView() {
                     result={result}
                     loadingNode={
                         <div className="flex items-center gap-3 font-medium text-[#f97316] italic">
-                            <Swords className="animate-[gunShake_1s_infinite_linear] text-[1.8rem] drop-shadow-[0_0_10px_rgba(249,115,22,0.6)]" />
+                            <Swords className="animate-[gunShake_1s_infinite_linear] text-[1.8rem]" />
                             Calculando ganador...
                         </div>
                     }
@@ -359,7 +359,7 @@ export function RussianView() {
                         />
                     ) : (
                         <RUSSIAN_ICON
-                            className={`size-20 shrink-0 transition-all max-[600px]:size-16 ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : 'text-[#71717a] drop-shadow-[0_0_15px_rgba(0,0,0,0.4)] hover:scale-110 hover:rotate-[-5deg] hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]'}`}
+                            className={`size-20 shrink-0 transition-all max-[600px]:size-16 ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : 'text-[#71717a] hover:scale-110 hover:rotate-[-5deg]'}`}
                             strokeWidth={1.75}
                             aria-hidden
                         />
@@ -371,7 +371,7 @@ export function RussianView() {
                         type="button"
                         onClick={() => void pullTrigger()}
                         disabled={loading}
-                        className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-white/10 bg-gradient-to-br from-error-dark to-[#5c1a0f] px-10 py-3.5 text-[1rem] font-semibold text-white shadow-[0_10px_25px_rgba(229,77,46,0.3),inset_0_0_0_1px_rgba(255,255,255,0.1)] transition hover:-translate-y-0.5 hover:scale-105 hover:from-error hover:to-error-dark hover:shadow-[0_15px_35px_rgba(229,77,46,0.5)] active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
+                        className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-white/10 bg-error-dark px-10 py-3.5 text-[1rem] font-semibold text-white transition hover:-translate-y-0.5 hover:scale-105 hover:bg-error active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
                     >
                         {loading ? <Loader2 className="size-4 animate-spin" /> : <RUSSIAN_ICON className="size-4" strokeWidth={2} />}
                         Jalar Gatillo

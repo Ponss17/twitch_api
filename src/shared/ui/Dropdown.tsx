@@ -34,7 +34,7 @@ export const dropdownTriggerCompact =
     'flex min-w-[9.5rem] max-w-[11.5rem] items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 py-1.5 text-[0.75rem] font-medium text-[#fafafa] transition hover:border-primary/30 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-50';
 
 const panelBase =
-    'absolute top-[calc(100%+8px)] animate-fade-soft overflow-hidden border border-primary/20 bg-[rgba(15,15,20,0.96)] shadow-2xl backdrop-blur-xl';
+    'absolute top-[calc(100%+8px)] animate-fade-soft overflow-hidden border border-primary/20 bg-[#121214] shadow-lg';
 
 interface DropdownProps {
     children: ReactNode;

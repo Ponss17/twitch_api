@@ -4,7 +4,7 @@ export function WheelPointer() {
             width="28"
             height="34"
             viewBox="0 0 28 34"
-            className="drop-shadow-[0_4px_10px_rgba(0,0,0,0.55)]"
+            className=""
             aria-hidden
         >
             <path
