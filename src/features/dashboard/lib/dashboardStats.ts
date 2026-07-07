@@ -112,6 +112,16 @@ export function parseDashboardStatsFromRow(
         }
     }
 
+    if ('timeSeries' in raw) {
+        result.timeSeries = raw.timeSeries as Array<{
+            date: string;
+            requests_count: number;
+            errors_count: number;
+            latency_sum: number;
+            command_name: string;
+        }>;
+    }
+
     return isPartial ? result : (result as DashboardLiveStats);
 }
 
