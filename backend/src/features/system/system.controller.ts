@@ -125,7 +125,7 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
 
     let username = login || MESSAGES.FEEDBACK.ANONYMOUS_USER;
     let avatar = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
-    const userType = MESSAGES.FEEDBACK.VIEWER_ROLE;
+    let userType = MESSAGES.FEEDBACK.VIEWER_ROLE;
 
     if (userId || login) {
         try {
@@ -137,6 +137,9 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
             if (cachedUser) {
                 username = cachedUser.displayName || cachedUser.login;
                 avatar = cachedUser.profileImageUrl || avatar;
+                if (cachedUser.role) {
+                    userType = cachedUser.role.toUpperCase();
+                }
             } else if (twitchToken && login) {
                 const liveInfo = await apiService.getUserInfo(login, twitchToken);
                 if (liveInfo) {
