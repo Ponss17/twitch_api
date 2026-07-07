@@ -32,7 +32,8 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const question = req.query.question as string;
         const mood = req.query.mood as string;
-        const user = req.query.user as string;
+        let user = req.query.user as string;
+        if (user?.includes('$(') || user?.includes('${')) user = 'Anónimo';
 
         // Fallback para tracking si no hay sesión
         let effectiveUserId = req.userId;
@@ -46,7 +47,7 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
             {
                 type: 'magic8',
                 user: user || 'Anónimo',
-                detail: question,
+                metadata: { question },
                 incrementStat: 'magic8'
             },
             () => magic8Service.generateMagic8Response(question, mood as string, user as string)
@@ -72,7 +73,9 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
 
 export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const { user, channel, hardcore, format } = req.query;
+        const { channel, hardcore, format } = req.query;
+        let user = req.query.user as string;
+        if (user?.includes('$(') || user?.includes('${')) user = 'Anónimo';
 
         // Fallback de Token: Si no hay token de sesión, buscamos el del propio canal/streamer
         let twitchToken = req.twitchToken;
@@ -92,7 +95,8 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
             effectiveUserId || ANONYMOUS_USER_ID,
             {
                 type: 'russian',
-                user: (user as string) || 'Anónimo',
+                user: user || 'Anónimo',
+                metadata: { target: channel },
                 incrementStat: 'russian'
             },
             async () => {
@@ -131,7 +135,8 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
 export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const target = req.query.target as string;
-        const challenger = (req.query.challenger as string) || 'KeanuReeves';
+        let challenger = (req.query.challenger as string) || 'KeanuReeves';
+        if (challenger?.includes('$(') || challenger?.includes('${')) challenger = 'Anónimo';
 
         // Fallback para tracking si no hay sesión
         let effectiveUserId = req.userId;
@@ -145,7 +150,7 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
             {
                 type: 'duel',
                 user: challenger,
-                detail: target,
+                metadata: { target },
                 incrementStat: 'duel'
             },
             () => Promise.resolve(duelService.playDuel(challenger, target))

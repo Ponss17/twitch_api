@@ -5,7 +5,7 @@ import { ActivityLogEntry } from '../database/activityService';
 type TrackRequestOptions = {
     type: ActivityLogEntry['type'];
     user?: string;
-    detail?: string;
+    metadata?: Record<string, unknown>;
     incrementStat?: string;
     skipActivityLog?: boolean;
     skipRequestCount?: boolean;
@@ -19,20 +19,16 @@ function persistRequestMetrics(
     success: boolean
 ): Promise<void> {
     const tasks: Promise<unknown>[] = [
-        dbService.recordUserRequest(userId, latency, success, options.skipRequestCount)
+        dbService.recordUserRequest(userId, latency, success, options.incrementStat ?? null, options.skipRequestCount)
     ];
 
     if (success) {
-        if (options.incrementStat) {
-            tasks.push(dbService.incrementUserStats(userId, options.incrementStat));
-        }
-
         if (!options.skipActivityLog) {
             tasks.push(
                 dbService.addUserActivity(userId, {
                     type: options.type,
                     user: options.user || 'Anónimo',
-                    detail: options.detail
+                    metadata: options.metadata
                 })
             );
         }
