@@ -135,7 +135,7 @@ export function Magic8View() {
         const mood = commandExtras.mood || 'classic';
 
         try {
-            const url = `${API_ENDPOINTS.MAGIC8}?question=${encodeURIComponent(question)}&mood=${mood}&user=${encodeURIComponent(session.login ?? '')}`;
+            const url = `${API_ENDPOINTS.MAGIC8}?question=${encodeURIComponent(question)}&mood=${mood}&user=${encodeURIComponent(session.login ?? '')}&_nocache=${Date.now()}`;
             const res = await fetch(url, { headers: authHeaders(session) });
             const text = await res.text();
             setResult({ status: res.ok ? 'success' : 'error', message: res.ok ? text : parseApiError(text) });
@@ -227,6 +227,7 @@ export function DuelView() {
         try {
             const params = new URLSearchParams({ target: targetLogin });
             if (challengerLogin) params.set('challenger', challengerLogin);
+            params.set('_nocache', Date.now().toString());
             const url = `${API_ENDPOINTS.DUEL}?${params}`;
             const res = await fetch(url, { headers: authHeaders(session) });
             const text = await res.text();
@@ -316,7 +317,7 @@ export function RussianView() {
         setGunSuccess(false);
 
         try {
-            const url = `${API_ENDPOINTS.BASE}/minigames/russian?user=${encodeURIComponent(session.login ?? '')}&channel=${encodeURIComponent(session.login ?? '')}&hardcore=false&format=json`;
+            const url = `${API_ENDPOINTS.BASE}/minigames/russian?user=${encodeURIComponent(session.login ?? '')}&channel=${encodeURIComponent(session.login ?? '')}&hardcore=false&format=json&_nocache=${Date.now()}`;
             const res = await fetch(url, { headers: authHeaders(session) });
             if (res.ok) {
                 const data = (await res.json()) as { status?: string; message: string };

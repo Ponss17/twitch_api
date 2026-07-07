@@ -39,7 +39,7 @@ export function FollowageView() {
         try {
             const { apiKey, token } = session;
             const tokenParam = buildAuthQueryParam({ apiKey, token });
-            const url = `${window.location.origin}${API_ENDPOINTS.BASE}/followage?user=${encodeURIComponent(user)}&channel=${encodeURIComponent(channel)}&${tokenParam}`;
+            const url = `${window.location.origin}${API_ENDPOINTS.BASE}/followage?user=${encodeURIComponent(user)}&channel=${encodeURIComponent(channel)}&_nocache=${Date.now()}&${tokenParam}`;
             const response = await fetch(url);
             const text = await response.text();
             setStoredResult({
@@ -94,7 +94,7 @@ export function ShoutoutView() {
         try {
             const { apiKey, token } = session;
             const tokenParam = buildAuthQueryParam({ apiKey, token });
-            const url = `${window.location.origin}${API_ENDPOINTS.BASE}/shoutout?channel=${encodeURIComponent(channelVal)}&touser=${encodeURIComponent(target)}&${tokenParam}`;
+            const url = `${window.location.origin}${API_ENDPOINTS.BASE}/shoutout?channel=${encodeURIComponent(channelVal)}&touser=${encodeURIComponent(target)}&_nocache=${Date.now()}&${tokenParam}`;
             const response = await fetch(url);
             const text = await response.text();
             setStoredResult({
