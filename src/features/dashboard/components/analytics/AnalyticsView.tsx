@@ -14,7 +14,7 @@ function AnalyticsViewContent() {
 
     const { timeSeries = [] } = stats;
 
-    const { areaData, pieData } = useMemo(() => {
+    const { areaData, pieData, summary } = useMemo(() => {
         const dailyMap = new Map<string, { date: string; requests: number; errors: number }>();
         const commandMap = new Map<string, { requests: number; errors: number; latency: number }>();
 
@@ -55,7 +55,13 @@ function AnalyticsViewContent() {
             }))
             .sort((a, b) => b.value - a.value);
 
-        return { areaData: sortedArea, pieData: sortedPie };
+        const totalRequests = Array.from(commandMap.values()).reduce((sum, s) => sum + s.requests, 0);
+        const totalErrors = Array.from(commandMap.values()).reduce((sum, s) => sum + s.errors, 0);
+        const totalLatency = Array.from(commandMap.values()).reduce((sum, s) => sum + s.latency, 0);
+        const avgLatency = totalRequests > 0 ? Math.round(totalLatency / totalRequests) : 0;
+        const successRate = totalRequests > 0 ? ((1 - totalErrors / totalRequests) * 100).toFixed(1) : '0.0';
+
+        return { areaData: sortedArea, pieData: sortedPie, summary: { totalRequests, successRate, avgLatency } };
     }, [timeSeries]);
 
     // Cleanup tabindex on <g> elements to silence Astro Dev Toolbar's strict accessibility linter
@@ -91,9 +97,24 @@ function AnalyticsViewContent() {
                 </div>
             </div>
 
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-5 transition-colors duration-200 hover:border-primary/60">
+                    <p className="mb-1 text-[0.8rem] text-zinc-500">Total Peticiones</p>
+                    <p className="text-2xl font-bold text-[#fafafa]">{summary.totalRequests.toLocaleString()}</p>
+                </div>
+                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-5 transition-colors duration-200 hover:border-primary/60">
+                    <p className="mb-1 text-[0.8rem] text-zinc-500">Tasa de Éxito Global</p>
+                    <p className={`text-2xl font-bold ${parseFloat(summary.successRate) > 95 ? 'text-emerald-400' : parseFloat(summary.successRate) > 80 ? 'text-yellow-400' : 'text-red-400'}`}>{summary.successRate}%</p>
+                </div>
+                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-5 transition-colors duration-200 hover:border-primary/60">
+                    <p className="mb-1 text-[0.8rem] text-zinc-500">Latencia Promedio</p>
+                    <p className="text-2xl font-bold text-zinc-300">{summary.avgLatency}ms</p>
+                </div>
+            </div>
+
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 {/* Peticiones Diarias */}
-                <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-colors duration-200 hover:border-primary/60 lg:col-span-2">
+                <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/60 lg:col-span-2">
                     <h2 className="mb-6 text-lg font-semibold text-[#fafafa]">Peticiones Diarias</h2>
                     <div className="h-[300px] w-full relative">
                         <span className="sr-only">
@@ -141,7 +162,7 @@ function AnalyticsViewContent() {
                 </div>
 
                 {/* Distribución */}
-                <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-colors duration-200 hover:border-primary/60">
+                <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/60">
                     <h2 className="mb-6 text-lg font-semibold text-[#fafafa]">Distribución</h2>
                     <div className="h-[300px] w-full relative">
                         <span className="sr-only">
@@ -191,7 +212,7 @@ function AnalyticsViewContent() {
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 {/* Desglose por Comando (Tabla) */}
-                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-colors duration-200 hover:border-primary/60">
+                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/60">
                     <h2 className="mb-6 text-lg font-semibold text-[#fafafa]">Rendimiento por Comando</h2>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
@@ -233,7 +254,7 @@ function AnalyticsViewContent() {
                 </div>
 
                 {/* Gráfico de Latencia (BarChart en vez de AreaChart) */}
-                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-colors duration-200 hover:border-primary/60">
+                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/60">
                     <h2 className="mb-6 text-lg font-semibold text-[#fafafa]">Comparativa de Latencia</h2>
                     <div className="h-[300px] w-full relative">
                         <span className="sr-only">

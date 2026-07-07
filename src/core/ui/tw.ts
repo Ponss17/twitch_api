@@ -1,6 +1,6 @@
 /** Clases Tailwind reutilizables — sin CSS custom externo */
 export const card =
-    'rounded-xl border border-white/[0.08] bg-bg-card p-3 shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-[border-color] duration-200 hover:border-primary';
+    'rounded-xl border border-white/[0.08] bg-bg-card p-3 transition-[border-color] duration-200 hover:border-primary';
 
 export const fadeIn = 'animate-fade-soft opacity-0';
 
