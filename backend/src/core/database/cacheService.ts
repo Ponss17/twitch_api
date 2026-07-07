@@ -212,8 +212,12 @@ export const bumpStatsRevision = async (userId: string): Promise<void> => {
 };
 
 export const getStatsRevision = async (userId: string): Promise<number> => {
-    const value = await get<number>(statsRevisionKey(userId));
-    return typeof value === 'number' ? value : 0;
+    try {
+        const value = await kv.get<number>(`twitch_api:${statsRevisionKey(userId)}`);
+        return typeof value === 'number' ? value : 0;
+    } catch {
+        return 0;
+    }
 };
 
 export const invalidateDashboardCache = async (
