@@ -3,19 +3,13 @@ import { STATUS_PAGE_URL, type DashboardTab } from '@/core/config/config';
 import { appPath, saveDocsReturnPath, shouldSavePanelReturn } from '@/core/config/paths';
 import { card, fadeIn } from '@/core/ui/tw';
 import { IconMd } from '@/shared/ui/Icon';
-import { UserRoundCheck, Clapperboard, Megaphone, Info, Book, LayoutGrid } from 'lucide-react';
+import { UserRoundCheck, Clapperboard, Megaphone, Info, Book, LayoutGrid, Server } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 interface HomeResourcesPanelProps {
     onNavigate?: (tab: DashboardTab) => void;
 }
 
-const StatusDotIcon = ({ className, 'aria-hidden': hidden }: { className?: string; 'aria-hidden'?: boolean | 'true' | 'false' }) => (
-    <div className={`relative flex h-[10px] w-[10px] items-center justify-center mx-[5px] ${className || ''}`} aria-hidden={hidden}>
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22c55e] opacity-60" />
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-[#22c55e] shadow-[0_0_8px_#22c55e]" />
-    </div>
-);
 
 const QUICK_COMMANDS: { tab: DashboardTab; icon: LucideIcon; label: string }[] = [
     { tab: 'followage' as DashboardTab, icon: UserRoundCheck, label: 'Followage' },
@@ -33,7 +27,7 @@ const USEFUL_LINKS: Array<{
     { href: '/docs', icon: Book, label: 'Documentación' },
     {
         href: STATUS_PAGE_URL,
-        icon: StatusDotIcon,
+        icon: Server,
         label: 'Status del Sistema',
         external: true
     }
