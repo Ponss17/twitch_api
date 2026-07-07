@@ -59,7 +59,8 @@ describe('RealtimeService.formatActivityLog', () => {
         });
         expect(item.type).toBe('clip');
         expect(item.user).toBe('pepe');
-        expect(item.detail).toBe('highlight');
+        // detail legacy se mapea a metadata.raw_detail
+        expect(item.metadata?.raw_detail).toBe('highlight');
         expect(item.timestamp).toBe('2024-01-01T00:00:00.000Z');
     });
 
@@ -72,7 +73,8 @@ describe('RealtimeService.formatActivityLog', () => {
     it('rellena el timestamp cuando falta created_at', () => {
         const item = svc.formatActivityLog({ activity_type: 'message', detail: 'hola' });
         expect(item.type).toBe('message');
-        expect(item.detail).toBe('hola');
+        // detail legacy se mapea a metadata.raw_detail
+        expect(item.metadata?.raw_detail).toBe('hola');
         expect(typeof item.timestamp).toBe('string');
         expect(item.timestamp).not.toBe('');
     });

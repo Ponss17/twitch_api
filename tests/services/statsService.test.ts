@@ -40,36 +40,29 @@ describe('statsService', () => {
         mockSupabase.rpc.mockResolvedValue({ error: null });
     });
 
-    describe('incrementUserStats', () => {
-        it('ignora comandos desconocidos sin hacer queries', async () => {
-            await statsService.incrementUserStats('user1', 'comandoInexistente');
-            expect(mockSupabase.rpc).not.toHaveBeenCalled();
-        });
-
-        it('llama rpc increment_user_stat con la columna correcta', async () => {
-            mockSupabase.rpc.mockResolvedValue({ error: null });
-            await statsService.incrementUserStats('user1', 'clips');
-            expect(mockSupabase.rpc).toHaveBeenCalledWith('increment_user_stat', {
-                p_user_id: 'user1',
-                p_column: 'clips_count',
-                p_local_date: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
-            });
-        });
-    });
-
     describe('recordUserRequest', () => {
-        it('llama rpc record_user_request con los parámetros correctos', async () => {
+        it('llama rpc log_user_request con los parámetros correctos', async () => {
             mockSupabase.upsert.mockResolvedValue({ error: null });
             mockSupabase.rpc.mockResolvedValue({ error: null });
 
             await statsService.recordUserRequest('user1', 123, true);
 
-            expect(mockSupabase.rpc).toHaveBeenCalledWith('record_user_request', {
+            expect(mockSupabase.rpc).toHaveBeenCalledWith('log_user_request', {
                 p_user_id: 'user1',
+                p_command: null,
                 p_latency: 123,
                 p_success: true,
                 p_local_date: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
             });
+        });
+
+        it('pasa el comando cuando se indica incrementStat', async () => {
+            mockSupabase.rpc.mockResolvedValue({ error: null });
+            await statsService.recordUserRequest('user1', 50, true, 'clips');
+            expect(mockSupabase.rpc).toHaveBeenCalledWith(
+                'log_user_request',
+                expect.objectContaining({ p_command: 'clips' })
+            );
         });
 
         it('no lanza excepción si el rpc devuelve error', async () => {
