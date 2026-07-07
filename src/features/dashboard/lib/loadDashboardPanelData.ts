@@ -4,6 +4,7 @@ import { fetchDashboardSummary } from '@/features/dashboard/lib/dashboardSummary
 import {
     EMPTY_DASHBOARD_LIVE_STATS,
     parseDashboardStatsFromRow,
+    isStatsDateOutdated,
     type DashboardLiveStats
 } from '@/features/dashboard/lib/dashboardStats';
 import type { ActivityLogItem } from '@/features/dashboard/lib/activityLogDisplay';
@@ -29,10 +30,25 @@ export async function loadDashboardPanelData(
     const failures: unknown[] = [];
 
     if (summaryResult.status === 'fulfilled') {
-        const summary = summaryResult.value.analytics;
-        analytics = summary
-            ? parseDashboardStatsFromRow(summary as Record<string, unknown>)
-            : EMPTY_DASHBOARD_LIVE_STATS;
+        const summary = summaryResult.value.analytics as Record<string, unknown> | null;
+        
+        // Si usamos caché (no fresh) y la fecha de los stats está desactualizada (ej. cruzó medianoche),
+        // el HTTP caché nos está dando basura del día anterior. Forzamos un fetch real (bypassing browser cache).
+        if (!options?.fresh && summary && isStatsDateOutdated(summary.last_stats_date)) {
+            try {
+                const freshSummary = await fetchDashboardSummary(session, undefined, { fresh: true });
+                const freshData = freshSummary.analytics as Record<string, unknown> | null;
+                analytics = freshData
+                    ? (parseDashboardStatsFromRow(freshData) as DashboardLiveStats)
+                    : EMPTY_DASHBOARD_LIVE_STATS;
+            } catch (e) {
+                failures.push(e);
+            }
+        } else {
+            analytics = summary
+                ? (parseDashboardStatsFromRow(summary) as DashboardLiveStats)
+                : EMPTY_DASHBOARD_LIVE_STATS;
+        }
     } else {
         failures.push(summaryResult.reason);
     }
