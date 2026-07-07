@@ -272,7 +272,7 @@ export const recordUserRequest = async (
     try {
         if (skip) return;
 
-        const { error } = await supabase.rpc('record_user_request', {
+        let { error } = await supabase.rpc('record_user_request', {
             p_user_id: userId,
             p_latency: Math.round(latency),
             p_success: success,
@@ -282,9 +282,18 @@ export const recordUserRequest = async (
         if (error) {
             if (!EXISTS_CACHE.has(userId)) {
                 await ensureStatsRow(userId);
+                const retry = await supabase.rpc('record_user_request', {
+                    p_user_id: userId,
+                    p_latency: Math.round(latency),
+                    p_success: success,
+                    p_local_date: resolveLocalDateForUser(userId)
+                });
+                error = retry.error;
             }
-            logger.error('Error en RPC record_user_request:', error.message);
-            return;
+            if (error) {
+                logger.error('Error en RPC record_user_request:', error.message);
+                return;
+            }
         }
 
         addToExistsCache(userId);
