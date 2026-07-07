@@ -4,6 +4,7 @@ import { readScopedPref, writeScopedPref } from '@/core/session/localPrefs';
 
 const VALID_TABS: ReadonlySet<DashboardTab> = new Set([
     'home',
+    'analytics',
     'followage',
     'clips',
     'shoutout',
