@@ -210,20 +210,20 @@ function AnalyticsViewContent() {
                                     </tr>
                                 ) : (
                                     pieData.map((row, idx) => (
-                                        <tr key={row.name} className="border-b border-zinc-800/10 last:border-0">
-                                            <td className="py-3 capitalize text-zinc-200">
+                                        <tr key={row.name} className="border-b border-white/[0.08] last:border-0">
+                                            <td className="py-4 capitalize text-zinc-200">
                                                 <div className="flex items-center gap-2">
                                                     <span className="size-2 rounded-full" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></span>
                                                     {row.name}
                                                 </div>
                                             </td>
-                                            <td className="py-3 text-right text-zinc-300">{row.value.toLocaleString()}</td>
-                                            <td className="py-3 text-right">
+                                            <td className="py-4 text-right text-zinc-300">{row.value.toLocaleString()}</td>
+                                            <td className="py-4 text-right">
                                                 <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${parseFloat(row.successRate) > 95 ? 'bg-emerald-500/10 text-emerald-400' : parseFloat(row.successRate) > 80 ? 'bg-yellow-500/10 text-yellow-400' : 'bg-red-500/10 text-red-400'}`}>
                                                     {row.successRate}%
                                                 </span>
                                             </td>
-                                            <td className="py-3 text-right text-zinc-300">{row.avgLatency}ms</td>
+                                            <td className="py-4 text-right text-zinc-300">{row.avgLatency}ms</td>
                                         </tr>
                                     ))
                                 )}
