@@ -79,31 +79,18 @@ function resolveLocalDateForUser(userId: string): string {
     return getDateFormatter(tz).format(new Date());
 }
 
-const pendingRevisionBump = new Map<string, ReturnType<typeof setTimeout>>();
 
-/** Propaga cambios de stats a otras réplicas (debounced — bots activos). */
-function scheduleStatsRevisionBump(userId: string, delayMs = 15_000): void {
-    const pending = pendingRevisionBump.get(userId);
-    if (pending) clearTimeout(pending);
-    pendingRevisionBump.set(
-        userId,
-        setTimeout(() => {
-            pendingRevisionBump.delete(userId);
-            void cacheService.bumpStatsRevision(userId).catch((e) =>
-                logger.warn('Error bump stats revision:', e)
-            );
-        }, delayMs)
-    );
-}
 
-function notifyStatsMutated(userId: string, options?: { invalidateAnalytics?: boolean }): void {
+async function notifyStatsMutated(userId: string, options?: { invalidateAnalytics?: boolean }): Promise<void> {
     STATS_CACHE.delete(userId);
     if (options?.invalidateAnalytics) {
-        void cacheService.invalidateDashboardAnalytics(userId).catch((e) =>
+        await cacheService.invalidateDashboardAnalytics(userId).catch((e) =>
             logger.warn('Error invalidando analytics KV:', e)
         );
     }
-    scheduleStatsRevisionBump(userId);
+    await cacheService.bumpStatsRevision(userId).catch((e) =>
+        logger.warn('Error bump stats revision:', e)
+    );
 }
 
 // Asegura que exista la fila de stats para el usuario antes de incrementar
@@ -168,7 +155,7 @@ export const incrementUserStats = async (userId: string, command: string): Promi
             }
         }
 
-        notifyStatsMutated(userId);
+        await notifyStatsMutated(userId);
     } catch (e) {
         logger.error('Error incrementando estadísticas:', e);
     }
@@ -297,7 +284,7 @@ export const recordUserRequest = async (
         }
 
         addToExistsCache(userId);
-        notifyStatsMutated(userId, { invalidateAnalytics: true });
+        await notifyStatsMutated(userId, { invalidateAnalytics: true });
     } catch (e) {
         logger.error('Error registrando estadísticas de petición:', e);
     }

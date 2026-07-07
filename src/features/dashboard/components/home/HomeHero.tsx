@@ -70,9 +70,9 @@ export const HomeHero = memo(function HomeHero({
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.05] bg-black/30 text-[1.2rem] text-primary transition-all group-hover:scale-110 group-hover:-rotate-[8deg] group-hover:border-primary/30">
                                 <Zap className="w-4 h-4" />
                             </div>
-                            <div className="flex min-w-0 items-center gap-2">
+                            <div className="flex min-w-0 flex-col gap-1 text-left">
                                 <span className="shrink-0 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-white/40">
-                                    Recursos usados (hoy)
+                                    Recursos (hoy)
                                 </span>
                                 <AnimatedNumber
                                     value={resourceUsage}
@@ -87,7 +87,7 @@ export const HomeHero = memo(function HomeHero({
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.05] bg-black/30 text-[1.2rem] text-emerald-500 transition-all group-hover:scale-110 group-hover:-rotate-[8deg] group-hover:border-primary/30">
                                 <CheckCircle2 className="w-4 h-4" />
                             </div>
-                            <div className="flex min-w-0 items-center gap-2">
+                            <div className="flex min-w-0 flex-col gap-1 text-left">
                                 <span className="shrink-0 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-white/40">
                                     ÉXITO (HOY)
                                 </span>
@@ -105,9 +105,9 @@ export const HomeHero = memo(function HomeHero({
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.05] bg-black/30 text-[1.2rem] text-amber-500 transition-all group-hover:scale-110 group-hover:-rotate-[8deg] group-hover:border-primary/30">
                                 <Gauge className="w-4 h-4" />
                             </div>
-                            <div className="flex min-w-0 items-baseline gap-2">
+                            <div className="flex min-w-0 flex-col gap-1 text-left">
                                 <span className="shrink-0 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-white/40">
-                                    LATENCIA (HOY)
+                                    LATENCIA MEDIA
                                 </span>
                                 <AnimatedNumber
                                     value={latencyMs}

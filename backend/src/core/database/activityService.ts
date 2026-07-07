@@ -50,7 +50,7 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
             return;
         }
 
-        void cacheService.del(`cache:activity:${userId}`).catch(() => {});
+        await cacheService.del(`cache:activity:${userId}`).catch(() => {});
 
         const now = Date.now();
         const lastTrim = trimThrottle.get(userId) || 0;
@@ -60,7 +60,7 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
                 if (first) trimThrottle.delete(first);
             }
             trimThrottle.set(userId, now);
-            trimUserLogs(userId).catch((e) => logger.error('Error en trimUserLogs asíncrono:', e));
+            await trimUserLogs(userId).catch((e) => logger.error('Error en trimUserLogs asíncrono:', e));
         }
     } catch (e) {
         logger.error('Error fatal al añadir actividad:', e);
