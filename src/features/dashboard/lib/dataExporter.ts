@@ -505,9 +505,7 @@ const DataExport = {
             z-index: 0;
             pointer-events: none;
             background-color: var(--bg);
-            background-image:
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-color: var(--bg);
             background-size: 60px 60px;
         }
         .page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
@@ -587,10 +585,7 @@ const DataExport = {
             margin-bottom: 0.5rem;
         }
         .gradient-text {
-            background: linear-gradient(135deg, #9146ff, #a78bfa);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            color: var(--primary);
         }
         .report-subtitle { color: var(--text-muted); font-size: 0.95rem; max-width: 36rem; margin: 0 auto; }
 
@@ -605,26 +600,17 @@ const DataExport = {
             background: var(--surface);
             flex-wrap: wrap;
         }
-        .profile-hero::before {
-            content: '';
-            position: absolute;
-            inset: 0 auto auto 0;
-            width: 100%;
-            height: 3px;
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-        }
-        .profile-hero { position: relative; overflow: hidden; padding-top: calc(1.5rem + 3px); }
+        .profile-hero { position: relative; overflow: hidden; }
         .avatar {
             width: 80px; height: 80px;
-            border-radius: 50%;
-            border: 2px solid rgba(145,70,255,0.35);
+            border-radius: 16px;
+            border: 2px solid var(--border-strong);
             object-fit: cover;
             flex-shrink: 0;
         }
         .avatar-placeholder {
             width: 80px; height: 80px;
-            border-radius: 50%;
+            border-radius: 16px;
             background: var(--surface-3);
             border: 2px solid var(--border-strong);
             display: flex; align-items: center; justify-content: center;
