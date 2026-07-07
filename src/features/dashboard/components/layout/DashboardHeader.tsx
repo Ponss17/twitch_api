@@ -56,11 +56,16 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                         href={STATUS_PAGE_URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={headerGhostBtn}
-                        title="Status del servicio"
+                        className={`${headerGhostBtn} group hover:!border-[#22c55e]/30 hover:!text-[#22c55e] transition-colors`}
+                        title="Todos los sistemas operativos"
                     >
-                        <span className="block h-[10px] w-[10px] shrink-0 animate-pulse rounded-full bg-[#22c55e] shadow-[0_0_8px_#22c55e]" />
-                        <span className="hidden sm:inline">Status</span>
+                        <div className="relative flex h-2.5 w-2.5 items-center justify-center">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22c55e] opacity-60" />
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#22c55e] shadow-[0_0_8px_#22c55e]" />
+                        </div>
+                        <span className="hidden sm:inline group-hover:drop-shadow-[0_0_8px_rgba(34,197,94,0.3)]">
+                            Sistemas Online
+                        </span>
                     </a>
 
                     <a
