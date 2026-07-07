@@ -11,6 +11,7 @@ import { safeString, sanitizeHtml } from '../../core/utils/validationHelpers';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
 import { getTimePhraseBetween } from '../../core/utils/time';
+import * as dbService from '../../core/database/dbService';
 
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     const channel = req.query.channel as string;
@@ -21,9 +22,9 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
         userId,
         {
             type: 'clip',
-            user: req.displayName || 'Streamer',
-            detail: customTitle ? `${channel} (${customTitle})` : channel,
-            incrementStat: 'clips'
+            user: (req.query.user as string) || req.displayName || 'Streamer',
+            incrementStat: 'clips',
+            skipActivityLog: true
         },
         async () => {
             let finalTitle = customTitle;
@@ -46,11 +47,18 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
                         }
                     }
 
-                    const url = await apiService.createClip(channel, token, finalTitle);
-                    return url;
+                    return await apiService.createClip(channel, token, finalTitle);
                 },
-                'CREATE_CLIP'
+                'create-clip'
             );
+
+            if (userId) {
+                await dbService.addUserActivity(userId, {
+                    type: 'clip',
+                    user: (req.query.user as string) || req.displayName || 'Streamer',
+                    detail: `${finalTitle} - ${clipUrl}`
+                });
+            }
 
             if (clipUrl) {
                 const rawTemplate = safeString(req.query.template);
