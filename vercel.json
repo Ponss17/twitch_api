@@ -148,11 +148,23 @@
             "destination": "/500.html"
         },
         {
+            "source": "/api/:path+/",
+            "destination": "/api/index.js"
+        },
+        {
             "source": "/api/:path*",
             "destination": "/api/index.js"
         },
         {
+            "source": "/auth/:path+/",
+            "destination": "/api/index.js"
+        },
+        {
             "source": "/auth/:path*",
+            "destination": "/api/index.js"
+        },
+        {
+            "source": "/twitch/:path+/",
             "destination": "/api/index.js"
         },
         {
