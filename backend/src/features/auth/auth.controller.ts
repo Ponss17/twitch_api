@@ -66,7 +66,7 @@ export const callback = async (req: Request, res: Response) => {
         if (redirectOrigin && isAllowedOrigin(redirectOrigin, req)) {
             redirectUrl = `${redirectOrigin}?${query}`;
         } else {
-            redirectUrl = frontendPagePath('/dashboard', query);
+            redirectUrl = frontendPagePath('/dashboard/', query);
         }
 
         res.redirect(redirectUrl);

@@ -2,27 +2,27 @@ const API_BASE = '/api';
 
 export const API_ENDPOINTS = {
     BASE: API_BASE,
-    MAGIC8: `${API_BASE}/minigames/magic8`,
-    ANALYTICS: `${API_BASE}/dashboard/analytics`,
-    REGENERATE_KEY: `${API_BASE}/system/regenerate-key`,
-    FEEDBACK: `${API_BASE}/system/feedback`,
-    CHATTERS: `${API_BASE}/dashboard/chatters`,
-    USER_INFO: `${API_BASE}/dashboard/user-info`,
-    SUMMARY: `${API_BASE}/dashboard/summary`,
-    SEND_MESSAGE: `${API_BASE}/send-message`,
-    CLIPS: `${API_BASE}/dashboard/get-clips`,
-    ACTIVITY: `${API_BASE}/dashboard/activity`,
-    CLEAR_DATA: `${API_BASE}/dashboard/clear-data`,
-    DELETE_ACCOUNT: `${API_BASE}/dashboard/delete-account`,
+    MAGIC8: `${API_BASE}/minigames/magic8/`,
+    ANALYTICS: `${API_BASE}/dashboard/analytics/`,
+    REGENERATE_KEY: `${API_BASE}/system/regenerate-key/`,
+    FEEDBACK: `${API_BASE}/system/feedback/`,
+    CHATTERS: `${API_BASE}/dashboard/chatters/`,
+    USER_INFO: `${API_BASE}/dashboard/user-info/`,
+    SUMMARY: `${API_BASE}/dashboard/summary/`,
+    SEND_MESSAGE: `${API_BASE}/send-message/`,
+    CLIPS: `${API_BASE}/dashboard/get-clips/`,
+    ACTIVITY: `${API_BASE}/dashboard/activity/`,
+    CLEAR_DATA: `${API_BASE}/dashboard/clear-data/`,
+    DELETE_ACCOUNT: `${API_BASE}/dashboard/delete-account/`,
 
-    VALIDATE: `${API_BASE}/system/validate`,
-    REALTIME_TOKEN: `${API_BASE}/system/realtime-token`,
-    DUEL: `${API_BASE}/minigames/duel`,
-    AUTH_LOGIN: `${API_BASE}/auth/twitch`,
-    AUTH_EXCHANGE: `${API_BASE}/auth/exchange`,
-    OVERLAY_EXCHANGE: `${API_BASE}/auth/overlay-exchange`,
-    EXPORT_CHECK: `${API_BASE}/dashboard/export-check`,
-    EXPORT_COMPLETE: `${API_BASE}/dashboard/export-complete`
+    VALIDATE: `${API_BASE}/system/validate/`,
+    REALTIME_TOKEN: `${API_BASE}/system/realtime-token/`,
+    DUEL: `${API_BASE}/minigames/duel/`,
+    AUTH_LOGIN: `${API_BASE}/auth/twitch/`,
+    AUTH_EXCHANGE: `${API_BASE}/auth/exchange/`,
+    OVERLAY_EXCHANGE: `${API_BASE}/auth/overlay-exchange/`,
+    EXPORT_CHECK: `${API_BASE}/dashboard/export-check/`,
+    EXPORT_COMPLETE: `${API_BASE}/dashboard/export-complete/`
 } as const;
 
 /** Página pública de estado (Better Stack). */

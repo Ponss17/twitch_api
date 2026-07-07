@@ -24,11 +24,10 @@ function ProfileBadge({
     const Icon = icon;
     return (
         <span
-            className={`flex items-center gap-1.5 rounded-[10px] px-3.5 py-1.5 text-[0.7rem] font-extrabold uppercase tracking-[0.03em] ${
-                secondary
+            className={`flex items-center gap-1.5 rounded-[10px] px-3.5 py-1.5 text-[0.7rem] font-extrabold uppercase tracking-[0.03em] ${secondary
                     ? 'border border-primary/20 bg-primary/10 text-primary'
                     : 'border border-[#10b981]/20 bg-[#10b981]/10 text-[#10b981]'
-            }`}
+                }`}
         >
             <Icon className="w-3.5 h-3.5" aria-hidden />
             {label}
@@ -50,11 +49,10 @@ function ProfileStatItem({
     const Icon = icon;
     return (
         <div
-            className={`relative flex items-center gap-2 transition hover:-translate-y-0.5 ${
-                showDivider
+            className={`relative flex items-center gap-2 transition hover:-translate-y-0.5 ${showDivider
                     ? "after:absolute after:-right-2 after:top-[20%] after:h-[60%] after:w-px after:bg-white/[0.05] after:content-['']"
                     : ''
-            }`}
+                }`}
         >
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-[0.9rem] text-primary">
                 <Icon className="w-4 h-4" aria-hidden />
