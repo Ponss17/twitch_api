@@ -39,8 +39,17 @@ export function FollowageView() {
         try {
             const { apiKey, token } = session;
             const tokenParam = buildAuthQueryParam({ apiKey, token });
-            const url = `${window.location.origin}${API_ENDPOINTS.BASE}/followage?user=${encodeURIComponent(user)}&channel=${encodeURIComponent(channel)}&_nocache=${Date.now()}&${tokenParam}`;
-            const response = await fetch(url);
+            const buildUrl = () =>
+                `${window.location.origin}${API_ENDPOINTS.BASE}/followage?user=${encodeURIComponent(user)}&channel=${encodeURIComponent(channel)}&_nocache=${Date.now()}&${tokenParam}`;
+
+            let response = await fetch(buildUrl());
+
+            // Reintento automático en cold start de Vercel (5xx)
+            if (response.status >= 500) {
+                await new Promise((r) => setTimeout(r, 900));
+                response = await fetch(buildUrl());
+            }
+
             const text = await response.text();
             setStoredResult({
                 status: response.ok ? 'success' : 'error',
@@ -94,8 +103,17 @@ export function ShoutoutView() {
         try {
             const { apiKey, token } = session;
             const tokenParam = buildAuthQueryParam({ apiKey, token });
-            const url = `${window.location.origin}${API_ENDPOINTS.BASE}/shoutout?channel=${encodeURIComponent(channelVal)}&touser=${encodeURIComponent(target)}&_nocache=${Date.now()}&${tokenParam}`;
-            const response = await fetch(url);
+            const buildUrl = () =>
+                `${window.location.origin}${API_ENDPOINTS.BASE}/shoutout?channel=${encodeURIComponent(channelVal)}&touser=${encodeURIComponent(target)}&_nocache=${Date.now()}&${tokenParam}`;
+
+            let response = await fetch(buildUrl());
+
+            // Reintento automático en cold start de Vercel (5xx)
+            if (response.status >= 500) {
+                await new Promise((r) => setTimeout(r, 900));
+                response = await fetch(buildUrl());
+            }
+
             const text = await response.text();
             setStoredResult({
                 status: response.ok ? 'success' : 'error',
