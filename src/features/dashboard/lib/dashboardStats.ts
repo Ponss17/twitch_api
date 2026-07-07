@@ -67,35 +67,45 @@ const COUNT_COLUMNS: Record<string, keyof DashboardLiveStats> = {
 
 export function parseDashboardStatsFromRow(
     raw: Record<string, unknown>,
-    options?: { todayLocal?: string }
-): DashboardLiveStats {
+    options?: { todayLocal?: string; isPartialUpdate?: false }
+): DashboardLiveStats;
+export function parseDashboardStatsFromRow(
+    raw: Record<string, unknown>,
+    options: { todayLocal?: string; isPartialUpdate: true }
+): Partial<DashboardLiveStats>;
+export function parseDashboardStatsFromRow(
+    raw: Record<string, unknown>,
+    options?: { todayLocal?: string; isPartialUpdate?: boolean }
+): DashboardLiveStats | Partial<DashboardLiveStats> {
     const isOutdated = isStatsDateOutdated(raw.last_stats_date, options?.todayLocal);
+    const isPartial = options?.isPartialUpdate && !isOutdated;
 
-    const todayRequests = isOutdated ? 0 : Number(raw.today_requests ?? 0);
-    const todayErrors = isOutdated ? 0 : Number(raw.today_errors ?? 0);
-    const todayLatency = isOutdated ? 0 : Number(raw.today_latency ?? 0);
-    const avgLatencyMs = todayRequests > 0 ? Math.round(todayLatency / todayRequests) : 0;
-    const rawSuccessRate =
-        todayRequests > 0
-            ? parseFloat(((1 - todayErrors / todayRequests) * 100).toFixed(1))
-            : 0;
+    const result: Partial<DashboardLiveStats> = {};
 
-    const counts = {} as Pick<
-        DashboardLiveStats,
-        'clips' | 'followage' | 'so' | 'message' | 'stalker' | 'trends' | 'roulette' | 'russian' | 'magic8' | 'duel'
-    >;
-
-    for (const [column, key] of Object.entries(COUNT_COLUMNS)) {
-        const countKey = key as keyof typeof counts;
-        counts[countKey] = isOutdated ? 0 : Number(raw[column] ?? raw[countKey] ?? 0);
+    if (!isPartial || 'today_requests' in raw || 'today_errors' in raw || 'today_latency' in raw) {
+        const todayRequests = isOutdated ? 0 : Number(raw.today_requests ?? 0);
+        const todayErrors = isOutdated ? 0 : Number(raw.today_errors ?? 0);
+        const todayLatency = isOutdated ? 0 : Number(raw.today_latency ?? 0);
+        
+        if (!isPartial || 'today_requests' in raw) result.todayRequests = todayRequests;
+        if (!isPartial || 'today_errors' in raw || 'today_requests' in raw) {
+            result.rawSuccessRate = todayRequests > 0
+                ? parseFloat(((1 - todayErrors / todayRequests) * 100).toFixed(1))
+                : 0;
+        }
+        if (!isPartial || 'today_latency' in raw || 'today_requests' in raw) {
+            result.avgLatencyMs = todayRequests > 0 ? Math.round(todayLatency / todayRequests) : 0;
+        }
     }
 
-    return {
-        todayRequests,
-        rawSuccessRate,
-        avgLatencyMs,
-        ...counts
-    };
+    for (const [column, key] of Object.entries(COUNT_COLUMNS)) {
+        const countKey = key as keyof typeof EMPTY_DASHBOARD_LIVE_STATS;
+        if (!isPartial || column in raw || countKey in raw) {
+            result[countKey] = isOutdated ? 0 : Number(raw[column] ?? raw[countKey] ?? 0);
+        }
+    }
+
+    return isPartial ? result : (result as DashboardLiveStats);
 }
 
 export const EMPTY_DASHBOARD_LIVE_STATS: DashboardLiveStats = {
