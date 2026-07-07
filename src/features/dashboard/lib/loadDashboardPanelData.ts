@@ -12,6 +12,8 @@ import type { Session } from '@/core/config/config';
 
 export interface DashboardPanelLoadResult {
     analytics: DashboardLiveStats;
+    /** false cuando el endpoint de summary falló — el caller debe conservar los stats anteriores. */
+    analyticsLoaded: boolean;
     activity: ActivityLogItem[];
     partialFailure?: unknown;
 }
@@ -66,6 +68,7 @@ export async function loadDashboardPanelData(
 
     return {
         analytics,
+        analyticsLoaded: summaryResult.status === 'fulfilled',
         activity,
         partialFailure: failures[0]
     };
