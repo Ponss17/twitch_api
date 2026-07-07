@@ -352,8 +352,13 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
                 : Promise.resolve(cachedProfile),
             needAnalytics && userId
                 ? (async () => {
-                      const stats = await dbService.getUserStats(userId);
-                      return buildAnalyticsPayload(stats, statsRev);
+                      const [stats, dailyStats] = await Promise.all([
+                          dbService.getUserStats(userId),
+                          dbService.getDailyStats(userId, 7)
+                      ]);
+                      const payload = buildAnalyticsPayload(stats, statsRev);
+                      payload.timeSeries = dailyStats;
+                      return payload;
                   })()
                 : Promise.resolve(cachedAnalytics ?? null)
         ]);
