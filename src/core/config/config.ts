@@ -58,6 +58,7 @@ export const SUPABASE_ANON_KEY = import.meta.env.SUPABASE_ANON_KEY ?? '';
 
 export type DashboardTab =
     | 'home'
+    | 'analytics'
     | 'followage'
     | 'clips'
     | 'shoutout'

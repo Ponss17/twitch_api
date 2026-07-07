@@ -6,6 +6,9 @@ import { HomeViewSkeleton, ProfileHeroSkeleton } from '@/shared/ui/Skeleton';
 const HomeView = lazy(() =>
     import('@/features/dashboard/components/home/HomeView').then((m) => ({ default: m.HomeView }))
 );
+const AnalyticsView = lazy(() =>
+    import('@/features/dashboard/components/analytics/AnalyticsView').then((m) => ({ default: m.AnalyticsView }))
+);
 const ProfileView = lazy(() =>
     import('@/features/dashboard/components/profile/ProfileView').then((m) => ({ default: m.ProfileView }))
 );
@@ -55,6 +58,8 @@ function renderTabPanel(tab: DashboardTab, { active, onNavigate }: TabPanelProps
     switch (tab) {
         case 'home':
             return <HomeView active={active} onNavigate={onNavigate} />;
+        case 'analytics':
+            return <AnalyticsView />;
         case 'followage':
             return <FollowageView />;
         case 'clips':

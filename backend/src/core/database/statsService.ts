@@ -3,21 +3,7 @@ import { logger } from '../utils/logger';
 import { getUserTimezone } from './userTimezoneCache';
 import * as cacheService from './cacheService';
 
-const CATEGORY_STAT_FIELDS = [
-    'clips_count',
-    'followage_count',
-    'so_count',
-    'stalker_count',
-    'trends_count',
-    'roulette_count',
-    'message_count',
-    'russian_count',
-    'magic8_count',
-    'duel_count'
-] as const;
-
 const DEFAULT_STAT_FIELDS = [
-    ...CATEGORY_STAT_FIELDS,
     'total_requests',
     'total_latency',
     'total_errors',
@@ -115,51 +101,7 @@ async function ensureStatsRow(userId: string): Promise<void> {
     if (!error) addToExistsCache(userId);
 }
 
-export const incrementUserStats = async (userId: string, command: string): Promise<void> => {
-    try {
-        const columnMap: Record<string, string> = {
-            clips: 'clips_count',
-            followage: 'followage_count',
-            so: 'so_count',
-            stalker: 'stalker_count',
-            trends: 'trends_count',
-            roulette: 'roulette_count',
-            message: 'message_count',
-            russian: 'russian_count',
-            magic8: 'magic8_count',
-            duel: 'duel_count'
-        };
-
-        const column = columnMap[command];
-        if (!column) return;
-
-        // Intentar incremento atómico via RPC
-        const localDate = resolveLocalDateForUser(userId);
-        const { error } = await supabase.rpc('increment_user_stat', {
-            p_user_id: userId,
-            p_column: column,
-            p_local_date: localDate
-        });
-
-        // Si el RPC falla (ej. usuario no existe aún), asegurar fila y reintentar manual
-        if (error) {
-            await ensureStatsRow(userId);
-            const { error: retryError } = await supabase.rpc('increment_user_stat', {
-                p_user_id: userId,
-                p_column: column,
-                p_local_date: localDate
-            });
-            if (retryError) {
-                logger.error('Error en retry increment_user_stat:', retryError.message);
-                return;
-            }
-        }
-
-        await notifyStatsMutated(userId);
-    } catch (e) {
-        logger.error('Error incrementando estadísticas:', e);
-    }
-};
+// incrementUserStats has been replaced by the unified log_user_request
 
 export const getUserStats = async (userId: string): Promise<Record<string, number>> => {
     try {
@@ -195,15 +137,12 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
 
         const numericStats: Record<string, number> = {};
         for (const field of DEFAULT_STAT_FIELDS) {
-            const legacyKey = field.replace('_count', '');
-            numericStats[legacyKey] = 0;
+            numericStats[field] = 0;
         }
 
         if (totals) {
             for (const field of DEFAULT_STAT_FIELDS) {
-                const legacyKey = field.replace('_count', '');
-                numericStats[legacyKey] =
-                    ((totals as Record<string, unknown>)[field] as number) ?? 0;
+                numericStats[field] = ((totals as Record<string, unknown>)[field] as number) ?? 0;
             }
         }
 
@@ -228,10 +167,16 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         numericStats['today_err_raw'] = effectiveTodayErrs;
         numericStats['today_lat_raw'] = effectiveTodayLat;
 
-        if (isOutdated) {
-            for (const field of CATEGORY_STAT_FIELDS) {
-                const legacyKey = field.replace('_count', '');
-                numericStats[legacyKey] = 0;
+        // Recuperar dinámicamente las estadísticas de comandos del día actual
+        const { data: dailyStats } = await supabase
+            .from('user_daily_stats')
+            .select('command_name, requests_count')
+            .eq('user_id', userId)
+            .eq('date', todayStr);
+
+        if (dailyStats) {
+            for (const row of dailyStats) {
+                numericStats[row.command_name] = row.requests_count;
             }
         }
 
@@ -250,17 +195,40 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
     }
 };
 
+export const getDailyStats = async (userId: string, days: number = 7) => {
+    try {
+        const dateLimit = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const { data, error } = await supabase
+            .from('user_daily_stats')
+            .select('*')
+            .eq('user_id', userId)
+            .gte('date', dateLimit)
+            .order('date', { ascending: true });
+
+        if (error) {
+            logger.error('Error obteniendo daily stats:', error.message);
+            return [];
+        }
+        return data || [];
+    } catch (e) {
+        logger.error('Error obteniendo daily stats:', e);
+        return [];
+    }
+};
+
 export const recordUserRequest = async (
     userId: string,
     latency: number,
     success: boolean,
+    command: string | null = null,
     skip: boolean = false
 ): Promise<void> => {
     try {
         if (skip) return;
 
-        let { error } = await supabase.rpc('record_user_request', {
+        let { error } = await supabase.rpc('log_user_request', {
             p_user_id: userId,
+            p_command: command,
             p_latency: Math.round(latency),
             p_success: success,
             p_local_date: resolveLocalDateForUser(userId)
@@ -269,8 +237,9 @@ export const recordUserRequest = async (
         if (error) {
             if (!EXISTS_CACHE.has(userId)) {
                 await ensureStatsRow(userId);
-                const retry = await supabase.rpc('record_user_request', {
+                const retry = await supabase.rpc('log_user_request', {
                     p_user_id: userId,
+                    p_command: command,
                     p_latency: Math.round(latency),
                     p_success: success,
                     p_local_date: resolveLocalDateForUser(userId)
@@ -278,7 +247,7 @@ export const recordUserRequest = async (
                 error = retry.error;
             }
             if (error) {
-                logger.error('Error en RPC record_user_request:', error.message);
+                logger.error('Error en RPC log_user_request:', error.message);
                 return;
             }
         }

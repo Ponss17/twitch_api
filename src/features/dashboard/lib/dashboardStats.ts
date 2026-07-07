@@ -50,6 +50,13 @@ export interface DashboardLiveStats {
     russian: number;
     magic8: number;
     duel: number;
+    timeSeries?: Array<{
+        date: string;
+        requests_count: number;
+        errors_count: number;
+        latency_sum: number;
+        command_name: string;
+    }>;
 }
 
 const COUNT_COLUMNS: Record<string, keyof DashboardLiveStats> = {
@@ -101,7 +108,7 @@ export function parseDashboardStatsFromRow(
     for (const [column, key] of Object.entries(COUNT_COLUMNS)) {
         const countKey = key as keyof typeof EMPTY_DASHBOARD_LIVE_STATS;
         if (!isPartial || column in raw || countKey in raw) {
-            result[countKey] = isOutdated ? 0 : Number(raw[column] ?? raw[countKey] ?? 0);
+            (result as Record<string, number>)[countKey] = isOutdated ? 0 : Number(raw[column] ?? raw[countKey] ?? 0);
         }
     }
 

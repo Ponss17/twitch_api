@@ -41,7 +41,7 @@ export function FollowageView() {
             const { apiKey, token } = session;
             const tokenParam = buildAuthQueryParam({ apiKey, token });
             const buildUrl = () =>
-                `${window.location.origin}${API_ENDPOINTS.BASE}/followage?user=${encodeURIComponent(user)}&channel=${encodeURIComponent(channel)}&_nocache=${Date.now()}&${tokenParam}`;
+                `${window.location.origin}${API_ENDPOINTS.BASE}/followage/?user=${encodeURIComponent(user)}&channel=${encodeURIComponent(channel)}&_nocache=${Date.now()}&${tokenParam}`;
 
             const response = await fetchWithRetry(buildUrl());
 
@@ -99,7 +99,7 @@ export function ShoutoutView() {
             const { apiKey, token } = session;
             const tokenParam = buildAuthQueryParam({ apiKey, token });
             const buildUrl = () =>
-                `${window.location.origin}${API_ENDPOINTS.BASE}/shoutout?channel=${encodeURIComponent(channelVal)}&touser=${encodeURIComponent(target)}&_nocache=${Date.now()}&${tokenParam}`;
+                `${window.location.origin}${API_ENDPOINTS.BASE}/shoutout/?channel=${encodeURIComponent(channelVal)}&touser=${encodeURIComponent(target)}&_nocache=${Date.now()}&${tokenParam}`;
 
             const response = await fetchWithRetry(buildUrl());
 
