@@ -62,6 +62,7 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
                 bot === 'nightbot' ? '$(user)' : bot === 'wizebot' ? '$(user_name)' : '${user}';
             const titleArg = botUtils.arg('query') || botUtils.arg('args') || '';
             if (titleArg) queryParams += `&title=${titleArg}`;
+            queryParams += `&user=${userArg}`;
             const apiCall = CommandGenerator.generate(bot, `${domain}/create-clip`, queryParams);
             const cmd = templateVal
                 ? templateVal.replace('{user}', userArg).replace('{url}', apiCall)
