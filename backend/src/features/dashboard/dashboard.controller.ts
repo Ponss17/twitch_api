@@ -79,7 +79,7 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
     const limitNum = parseInt(req.query.limit as string, 10) || 20;
     const userId = req.userId;
 
-    return await trackRequest(
+    const result = await trackRequest(
         userId,
         {
             type: 'other',
@@ -94,16 +94,16 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
                 `cache:cmd:getClips:channel:${channel}:limit:${limitNum}`
             );
             const cached = await cacheService.get(cacheKey);
-            if (cached) return res.json(cached);
+            if (cached) return cached;
 
             try {
-                const result = await apiService.getClips(channel, limitNum, req.twitchToken || '');
+                const apiResult = await apiService.getClips(channel, limitNum, req.twitchToken || '');
                 await cacheService.set(
                     cacheKey,
-                    result,
+                    apiResult,
                     resolveCache('CLIPS', res.locals.apiUser?.role, res.locals.apiUser?.customCacheTtl)
                 );
-                return res.json(result);
+                return apiResult;
             } catch (error: unknown) {
                 if (error instanceof TwitchApiError) throw error;
                 logger.error('Error fetching clips:', { error });
@@ -111,6 +111,8 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
             }
         }
     );
+
+    if (result) return res.json(result);
 };
 
 export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
@@ -121,7 +123,7 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
-    return await trackRequest(
+    const result = await trackRequest(
         userId,
         {
             type: 'stalker',
@@ -134,7 +136,7 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
                 `cache:cmd:getChatters:channel:${channel}:eligibility:${eligibilityRaw ?? 'all'}`
             );
             const cached = await cacheService.get(cacheKey);
-            if (cached) return res.json(cached);
+            if (cached) return cached;
 
             try {
                 const broadcasterId = await apiService.getUserId(channel, req.twitchToken || '');
@@ -162,7 +164,7 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
                     payload,
                     resolveCache('CHATTERS', res.locals.apiUser?.role, res.locals.apiUser?.customCacheTtl)
                 );
-                return res.json(payload);
+                return payload;
             } catch (error: unknown) {
                 if (error instanceof TwitchApiError) throw error;
                 const err = error as Error;
@@ -171,6 +173,8 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
             }
         }
     );
+
+    if (result) return res.json(result);
 };
 
 export const trackToolUsage = async (req: AuthenticatedRequest, res: Response) => {
@@ -200,7 +204,7 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
     const login = req.query.login as string;
     const userId = req.userId;
 
-    return await trackRequest(
+    const result = await trackRequest(
         userId,
         {
             type: 'other',
@@ -219,7 +223,7 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
             );
             const cached = await cacheService.get(cacheKey);
             if (cached && typeof cached === 'object') {
-                return res.json({ ...cached, ...limits });
+                return { ...cached, ...limits };
             }
 
             try {
@@ -229,15 +233,17 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                     req.twitchToken || ''
                 );
 
-                const result = buildDashboardProfile(info, followers, limits);
+                const profileResult = buildDashboardProfile(info, followers, limits);
 
-                await cacheService.set(cacheKey, result, resolveCache('DASHBOARD_PROFILE', apiUser?.role, apiUser?.customCacheTtl));
-                res.json({ ...result, ...limits, cacheTtl: resolveCache('COMMAND', apiUser?.role, apiUser?.customCacheTtl) });
+                await cacheService.set(cacheKey, profileResult, resolveCache('DASHBOARD_PROFILE', apiUser?.role, apiUser?.customCacheTtl));
+                return { ...profileResult, ...limits, cacheTtl: resolveCache('COMMAND', apiUser?.role, apiUser?.customCacheTtl) };
             } catch {
-                return jsonError(res, 500, MESSAGES.DASHBOARD.USER_INFO_ERROR);
+                throw new AppError(MESSAGES.DASHBOARD.USER_INFO_ERROR, 500);
             }
         }
     );
+
+    if (result) return res.json(result);
 };
 
 export const clearUserData = async (req: AuthenticatedRequest, res: Response) => {

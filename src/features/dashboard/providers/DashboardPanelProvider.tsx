@@ -404,6 +404,15 @@ export function DashboardPanelProvider({
         if (!active || !session.userId) return;
         if (consumeHomeDataResetPending(session.userId)) {
             applyHomeDataReset();
+            return;
+        }
+        // Al volver al tab Home, re-fetch si los datos tienen más de 10s de antigüedad.
+        // Esto garantiza que ver el Home después de hacer una petición en Followage
+        // siempre muestre los stats actualizados.
+        const lastSyncRaw = readPanelSyncPref(session.userId);
+        const stale = !lastSyncRaw || Date.now() - parseInt(lastSyncRaw, 10) > 10_000;
+        if (stale && panelBootstrappedRef.current) {
+            void fetchPanelDataRef.current({ broadcast: true, retryOnNetwork: false, fresh: true, silent: true });
         }
     }, [active, session.userId, applyHomeDataReset]);
 
@@ -432,7 +441,8 @@ export function DashboardPanelProvider({
 
         sync.on('SYNC_ACTIVITY', (payload) => setActivity(payload as ActivityLogItem[]));
         sync.on('SYNC_STATS', (payload) => {
-            setStats({ ...EMPTY_DASHBOARD_LIVE_STATS, ...(payload as DashboardLiveStats) });
+            // Merge con el estado previo — evita resetear a 0 campos que no vienen en el broadcast
+            setStats((prev) => ({ ...prev, ...(payload as DashboardLiveStats) }));
             markDataReadyRef.current();
         });
 
