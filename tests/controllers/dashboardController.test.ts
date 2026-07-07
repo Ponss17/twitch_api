@@ -2,6 +2,7 @@ import { Response } from 'express';
 
 jest.mock('../../backend/src/core/database/dbService', () => ({
     getUserStats: jest.fn(),
+    getDailyStats: jest.fn().mockResolvedValue([]),
     getUserActivity: jest.fn(),
     clearUserStatsAndLogs: jest.fn(),
     deleteUser: jest.fn(),
@@ -131,12 +132,7 @@ describe('dashboardController', () => {
             const res = mockRes();
             const mockLogs = [
                 { type: 'clip', user: 'TestUser', timestamp: '2026-01-01' },
-                {
-                    type: 'followage',
-                    user: 'OtherUser',
-                    detail: 'channel1',
-                    timestamp: '2026-01-02'
-                }
+                { type: 'followage', user: 'OtherUser', metadata: { target: 'channel1' }, timestamp: '2026-01-02' }
             ];
 
             (dbService.getUserActivity as jest.Mock).mockResolvedValue(mockLogs);
