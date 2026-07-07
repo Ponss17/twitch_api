@@ -126,6 +126,7 @@ function AnalyticsViewContent() {
                                         tickLine={false} 
                                         axisLine={false}
                                         domain={[0, (dataMax: number) => (dataMax === 0 ? 10 : dataMax)]}
+                                        allowDecimals={false}
                                     />
                                     <Tooltip 
                                         contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px', color: '#fafafa' }}
