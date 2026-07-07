@@ -84,10 +84,34 @@ class DatabaseTransport extends Transport {
                 return;
             }
 
+            // Sanitizar para evitar errores de estructura circular (ej. AxiosError con request/response)
+            const sanitizeObj = (obj: unknown): unknown => {
+                if (!obj || typeof obj !== 'object') return obj;
+                try {
+                    // JSON.stringify maneja objetos normales. Si lanza, es circular.
+                    JSON.stringify(obj);
+                    return obj;
+                } catch {
+                    // Si es circular o da error, extraer solo lo seguro
+                    const errObj = obj as Record<string, unknown>;
+                    if (obj instanceof Error || errObj.isAxiosError) {
+                        const response = errObj.response as Record<string, unknown> | undefined;
+                        return {
+                            message: errObj.message,
+                            name: errObj.name,
+                            stack: errObj.stack,
+                            status: response?.status,
+                            code: errObj.code
+                        };
+                    }
+                    return '[Unserializable/Circular Object]';
+                }
+            };
+
             // Estructurar el log para la base de datos
             const logEntry = {
                 message,
-                details: details as Record<string, unknown>,
+                details: sanitizeObj(details) as Record<string, unknown>,
                 requestId,
                 timestamp: new Date().toISOString()
             };
