@@ -67,6 +67,7 @@ describe('COMMAND_CONFIG generation', () => {
         expect(url).toContain('$(urlfetch');
         expect(url).toContain('/create-clip?');
         expect(url).toContain('&title=$(1+)');
+        expect(url).toContain('&user=$(user)');
     });
 
     it('shoutout streamelements usa variables del bot', () => {
