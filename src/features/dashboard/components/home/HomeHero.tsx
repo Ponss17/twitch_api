@@ -70,16 +70,18 @@ export const HomeHero = memo(function HomeHero({
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.05] bg-black/30 text-[1.2rem] text-primary transition-all group-hover:scale-110 group-hover:-rotate-[8deg] group-hover:border-primary/30">
                                 <Zap className="w-4 h-4" />
                             </div>
-                            <div className="flex min-w-0 flex-col gap-1 text-left">
+                            <div className="flex min-w-0 flex-col gap-0.5 text-left justify-center">
                                 <span className="shrink-0 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-white/40">
                                     Recursos (hoy)
                                 </span>
-                                <AnimatedNumber
-                                    value={resourceUsage}
-                                    duration={requestsDuration}
-                                    isLoading={isLoading}
-                                    className="text-2xl font-extrabold leading-none tracking-tight text-white"
-                                />
+                                <div className="flex items-baseline gap-1.5">
+                                    <AnimatedNumber
+                                        value={resourceUsage}
+                                        duration={requestsDuration}
+                                        isLoading={isLoading}
+                                        className="text-2xl font-extrabold leading-none tracking-tight text-white"
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -87,17 +89,19 @@ export const HomeHero = memo(function HomeHero({
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.05] bg-black/30 text-[1.2rem] text-emerald-500 transition-all group-hover:scale-110 group-hover:-rotate-[8deg] group-hover:border-primary/30">
                                 <CheckCircle2 className="w-4 h-4" />
                             </div>
-                            <div className="flex min-w-0 flex-col gap-1 text-left">
+                            <div className="flex min-w-0 flex-col gap-0.5 text-left justify-center">
                                 <span className="shrink-0 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-white/40">
                                     ÉXITO (HOY)
                                 </span>
-                                <AnimatedNumber
-                                    value={successRate}
-                                    duration={successDuration}
-                                    suffix="%"
-                                    isLoading={isLoading}
-                                    className="text-2xl font-extrabold leading-none tracking-tight text-white"
-                                />
+                                <div className="flex items-baseline gap-1.5">
+                                    <AnimatedNumber
+                                        value={successRate}
+                                        duration={successDuration}
+                                        suffix="%"
+                                        isLoading={isLoading}
+                                        className="text-2xl font-extrabold leading-none tracking-tight text-white"
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -105,22 +109,24 @@ export const HomeHero = memo(function HomeHero({
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.05] bg-black/30 text-[1.2rem] text-amber-500 transition-all group-hover:scale-110 group-hover:-rotate-[8deg] group-hover:border-primary/30">
                                 <Gauge className="w-4 h-4" />
                             </div>
-                            <div className="flex min-w-0 flex-col gap-1 text-left">
+                            <div className="flex min-w-0 flex-col gap-0.5 text-left justify-center">
                                 <span className="shrink-0 text-[0.65rem] font-bold uppercase tracking-[0.1em] text-white/40">
                                     LATENCIA MEDIA
                                 </span>
-                                <AnimatedNumber
-                                    value={latencyMs}
-                                    duration={latencyDuration}
-                                    suffix="ms"
-                                    isLoading={isLoading}
-                                    className="text-2xl font-extrabold leading-none tracking-tight text-white"
-                                />
-                                {!isLoading ? (
-                                    <span className="ml-[2px] text-[0.72em] font-normal leading-none tracking-tight text-white/80">
-                                        ({(latencyMs / 1000).toFixed(1)}s)
-                                    </span>
-                                ) : null}
+                                <div className="flex items-baseline gap-1.5">
+                                    <AnimatedNumber
+                                        value={latencyMs}
+                                        duration={latencyDuration}
+                                        suffix="ms"
+                                        isLoading={isLoading}
+                                        className="text-2xl font-extrabold leading-none tracking-tight text-white"
+                                    />
+                                    {!isLoading && latencyMs > 0 ? (
+                                        <span className="text-[0.72em] font-normal leading-none tracking-tight text-white/50">
+                                            ({(latencyMs / 1000).toFixed(1)}s)
+                                        </span>
+                                    ) : null}
+                                </div>
                             </div>
                         </div>
                     </div>
