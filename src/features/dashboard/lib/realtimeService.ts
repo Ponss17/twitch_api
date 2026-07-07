@@ -321,7 +321,7 @@ export class RealtimeService {
     }
 
     private handleStatsRow(raw: Record<string, unknown>): void {
-        this.dispatchStats(parseDashboardStatsFromRow(raw));
+        this.dispatchStats(parseDashboardStatsFromRow(raw, { isPartialUpdate: true }) as DashboardLiveStats);
     }
 
     private async setupChannel(): Promise<boolean> {
