@@ -297,7 +297,7 @@ export const recordUserRequest = async (
         }
 
         addToExistsCache(userId);
-        notifyStatsMutated(userId);
+        notifyStatsMutated(userId, { invalidateAnalytics: true });
     } catch (e) {
         logger.error('Error registrando estadísticas de petición:', e);
     }
