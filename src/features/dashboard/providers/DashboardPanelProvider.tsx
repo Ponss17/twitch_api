@@ -188,14 +188,16 @@ export function DashboardPanelProvider({
                 const result = await loadOnce();
                 if (!result) return false;
 
-                const { analytics, activity: activityLogs, partialFailure } = result;
+                const { analytics, analyticsLoaded, activity: activityLogs, partialFailure } = result;
 
                 if (broadcast) {
-                    sync.broadcast('SYNC_STATS', analytics);
+                    if (analyticsLoaded) sync.broadcast('SYNC_STATS', analytics);
                     sync.broadcast('SYNC_ACTIVITY', activityLogs);
                 }
 
-                setStats(analytics);
+                // Solo actualizamos stats si el summary fue exitoso.
+                // Si falló (500/red), conservamos los valores anteriores para no mostrar ceros.
+                if (analyticsLoaded) setStats(analytics);
                 setActivity(activityLogs);
                 markDataReadyRef.current();
                 writePanelSyncPref(session.userId, Date.now().toString());
@@ -225,12 +227,12 @@ export function DashboardPanelProvider({
                         try {
                             const retry = await loadOnce();
                             if (retry) {
-                                const { analytics, activity: activityLogs, partialFailure } = retry;
+                                const { analytics, analyticsLoaded, activity: activityLogs, partialFailure } = retry;
                                 if (broadcast) {
-                                    sync.broadcast('SYNC_STATS', analytics);
+                                    if (analyticsLoaded) sync.broadcast('SYNC_STATS', analytics);
                                     sync.broadcast('SYNC_ACTIVITY', activityLogs);
                                 }
-                                setStats(analytics);
+                                if (analyticsLoaded) setStats(analytics);
                                 setActivity(activityLogs);
                                 markDataReadyRef.current();
                                 setError(null);
