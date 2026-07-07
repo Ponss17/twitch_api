@@ -12,7 +12,8 @@ import {
     CircleDot,
     Crosshair,
     Swords,
-    MessageSquare
+    MessageSquare,
+    BarChart3
 } from 'lucide-react';
 
 /** Iconos canónicos de minijuegos (sidebar, docs, comandos, landing). */
@@ -28,6 +29,7 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
     { id: 'home', label: 'Inicio', icon: Home, category: 'General' },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3, category: 'General' },
     { id: 'followage', label: 'Followage', icon: UserRoundCheck, category: 'Comandos' },
     { id: 'clips', label: 'Clips', icon: Clapperboard, category: 'Comandos' },
     { id: 'shoutout', label: 'Shoutout', icon: Megaphone, category: 'Comandos' },

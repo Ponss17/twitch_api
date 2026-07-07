@@ -53,10 +53,12 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
             );
 
             if (userId) {
+                let chatter = (req.query.user as string) || req.displayName || 'Streamer';
+                if (chatter.includes('$(') || chatter.includes('${')) chatter = 'Anónimo';
                 await dbService.addUserActivity(userId, {
                     type: 'clip',
-                    user: (req.query.user as string) || req.displayName || 'Streamer',
-                    detail: `${finalTitle} - ${clipUrl}`
+                    user: chatter,
+                    metadata: { title: finalTitle, url: clipUrl }
                 });
             }
 
@@ -89,12 +91,15 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
     const user = req.query.user as string;
     const userId = req.userId;
 
+    let sanitizedUser = user;
+    if (sanitizedUser?.includes('$(') || sanitizedUser?.includes('${')) sanitizedUser = 'Anónimo';
+
     const result = await trackRequest(
         userId,
         {
             type: 'followage',
-            user: user,
-            detail: channel,
+            user: sanitizedUser,
+            metadata: { target: channel },
             incrementStat: 'followage'
         },
         async () => {
@@ -172,7 +177,7 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
         {
             type: 'message',
             user: actorLogin,
-            detail: message,
+            metadata: { message: message },
             incrementStat: 'message'
         },
         async () => {
@@ -195,12 +200,15 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
 
 export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
     const touser = req.query.touser as string;
+    let sanitizedUser = req.query.user as string;
+    if (sanitizedUser?.includes('$(') || sanitizedUser?.includes('${')) sanitizedUser = 'Anónimo';
 
     const result = await trackRequest(
         req.userId,
         {
             type: 'shoutout',
-            user: touser,
+            user: sanitizedUser || 'Anónimo',
+            metadata: { target: touser },
             incrementStat: 'so'
         },
         async () => {

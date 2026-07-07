@@ -22,26 +22,26 @@ export interface ActivityLogEntry {
         | 'roulette'
         | 'other';
     user: string;
-    detail?: string;
+    metadata?: Record<string, unknown>;
 }
 
 export interface StoredActivityLog {
     timestamp: string;
     type: string;
     user: string;
-    detail?: string;
+    metadata?: Record<string, unknown>;
 }
 
 export const addUserActivity = async (userId: string, entry: ActivityLogEntry): Promise<void> => {
     if (userId === ANONYMOUS_USER_ID) return;
 
     try {
-        const userName = entry.user || 'Usuario anónimo';
+        const userName = entry.user || 'Anónimo';
         const { error } = await supabase.from('activity_logs').insert({
             user_id: userId,
             activity_type: entry.type,
             user_name: userName,
-            detail: entry.detail ?? null,
+            metadata: entry.metadata ?? {},
             created_at: new Date().toISOString()
         });
 
@@ -101,7 +101,7 @@ export const getUserActivity = async (userId: string): Promise<StoredActivityLog
     try {
         const { data, error } = await supabase
             .from('activity_logs')
-            .select('created_at, activity_type, user_name, detail')
+            .select('created_at, activity_type, user_name, metadata')
             .eq('user_id', userId)
             .order('created_at', { ascending: false })
             .limit(MAX_USER_LOGS);
@@ -120,7 +120,7 @@ export const getUserActivity = async (userId: string): Promise<StoredActivityLog
             timestamp: row.created_at as string,
             type: row.activity_type as string,
             user: (row.user_name as string) || 'Usuario',
-            detail: (row.detail as string) ?? undefined
+            metadata: (row.metadata as Record<string, unknown>) ?? {}
         }));
     } catch (e) {
         logger.error('Error fatal obteniendo actividad:', e);

@@ -29,8 +29,14 @@ export type ActivityLogType =
 export interface ActivityLogItem {
     type?: string;
     user?: string;
-    detail?: string;
+    metadata?: Record<string, unknown>;
     timestamp?: string;
+}
+
+/** Safely reads a string field from metadata (unknown values). */
+function metaStr(meta: Record<string, unknown> | undefined, key: string): string {
+    const val = meta?.[key];
+    return typeof val === 'string' ? val.trim() : '';
 }
 
 const KNOWN_TYPES: ActivityLogType[] = [
@@ -61,43 +67,58 @@ const ACTIVITY_META: Record<ActivityLogType, ActivityMeta> = {
         label: 'Clip',
         icon: Clapperboard,
         iconClass: ACTIVITY_ICON_CLASS,
-        detailText: (item) => item.detail?.trim() || 'Nuevo clip'
+        detailText: (item) => metaStr(item.metadata, 'title') || metaStr(item.metadata, 'raw_detail') || 'Nuevo clip'
     },
     followage: {
         label: 'Followage',
         icon: UserRoundCheck,
         iconClass: ACTIVITY_ICON_CLASS,
-        detailText: (item) => (item.detail?.trim() ? `Canal: ${item.detail}` : 'Consulta de followage')
+        detailText: (item) => {
+            const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
+            return target ? `Canal: ${target}` : 'Consulta de followage';
+        }
     },
     shoutout: {
         label: 'Shoutout',
         icon: Megaphone,
         iconClass: ACTIVITY_ICON_CLASS,
-        detailText: () => 'Shoutout enviado'
+        detailText: (item) => {
+            const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
+            return target ? `A: ${target}` : 'Shoutout enviado';
+        }
     },
     message: {
         label: 'Mensaje',
         icon: MessageSquare,
         iconClass: ACTIVITY_ICON_CLASS,
-        detailText: (item) => (item.detail?.trim() ? `"${item.detail}"` : 'Mensaje en chat')
+        detailText: (item) => {
+            const msg = metaStr(item.metadata, 'message') || metaStr(item.metadata, 'raw_detail');
+            return msg ? `"${msg}"` : 'Mensaje en chat';
+        }
     },
     russian: {
         label: 'Ruleta Rusa',
         icon: Crosshair,
         iconClass: ACTIVITY_ICON_CLASS,
-        detailText: () => 'Partida de ruleta rusa'
+        detailText: (item) => {
+            const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
+            return target ? `Canal: ${target}` : 'Partida de ruleta rusa';
+        }
     },
     magic8: {
         label: 'Bola 8',
         icon: CircleDot,
         iconClass: ACTIVITY_ICON_CLASS,
-        detailText: (item) => item.detail?.trim() || 'Pregunta a la bola 8'
+        detailText: (item) => metaStr(item.metadata, 'question') || metaStr(item.metadata, 'raw_detail') || 'Pregunta a la bola 8'
     },
     duel: {
         label: 'Duelo',
         icon: Swords,
         iconClass: ACTIVITY_ICON_CLASS,
-        detailText: (item) => (item.detail?.trim() ? `vs @${item.detail}` : 'Duelo iniciado')
+        detailText: (item) => {
+            const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
+            return target ? `vs @${target}` : 'Duelo iniciado';
+        }
     },
     stalker: {
         label: 'Stalker',
@@ -121,7 +142,7 @@ const ACTIVITY_META: Record<ActivityLogType, ActivityMeta> = {
         label: 'Actividad',
         icon: Activity,
         iconClass: ACTIVITY_ICON_CLASS,
-        detailText: (item) => item.detail?.trim() || item.type || 'Evento registrado'
+        detailText: (item) => metaStr(item.metadata, 'raw_detail') || item.type || 'Evento registrado'
     }
 };
 
@@ -143,7 +164,7 @@ export function sanitizeActivityUser(user?: string): string {
 }
 
 export function activityEntryKey(item: ActivityLogItem): string {
-    return `${item.timestamp ?? ''}|${normalizeActivityType(item.type)}|${item.user ?? ''}|${item.detail ?? ''}`;
+    return `${item.timestamp ?? ''}|${normalizeActivityType(item.type)}|${item.user ?? ''}|${JSON.stringify(item.metadata)}`;
 }
 
 export function formatActivityDate(ts: string): string {

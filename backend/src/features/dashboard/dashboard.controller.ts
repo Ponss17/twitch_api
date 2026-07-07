@@ -35,8 +35,12 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
             return res.json(cached);
         }
 
-        const stats = await dbService.getUserStats(userId);
+        const [stats, dailyStats] = await Promise.all([
+            dbService.getUserStats(userId),
+            dbService.getDailyStats(userId, 7)
+        ]);
         const payload = buildAnalyticsPayload(stats, statsRev);
+        payload.timeSeries = dailyStats;
 
         await cacheService.set(
             cacheKey,
@@ -84,7 +88,7 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
         {
             type: 'other',
             user: channel,
-            detail: 'Dashboard Clips',
+            metadata: { action: 'Dashboard Clips' },
             skipActivityLog: true,
             skipRequestCount: true
         },
@@ -209,7 +213,7 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
         {
             type: 'other',
             user: login,
-            detail: 'User Info Inspect',
+            metadata: { action: 'User Info Inspect' },
             skipActivityLog: true,
             skipRequestCount: true
         },
