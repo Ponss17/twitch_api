@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { authHeaders, saveSession } from '@/core/api/auth';
+import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { fetchDashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
 import {
     broadcastHomeDataReset,
@@ -176,7 +177,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
 
     const regenerateKey = async () => {
         try {
-            const res = await fetch(API_ENDPOINTS.REGENERATE_KEY, {
+            const res = await fetchWithRetry(API_ENDPOINTS.REGENERATE_KEY, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) }
             });
@@ -222,7 +223,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
 
     const clearData = async () => {
         try {
-            const res = await fetch(API_ENDPOINTS.CLEAR_DATA, {
+            const res = await fetchWithRetry(API_ENDPOINTS.CLEAR_DATA, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
                 body: JSON.stringify({ confirm: 'LIMPIAR' })
@@ -243,7 +244,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
 
     const deleteAccount = async () => {
         try {
-            const res = await fetch(API_ENDPOINTS.DELETE_ACCOUNT, {
+            const res = await fetchWithRetry(API_ENDPOINTS.DELETE_ACCOUNT, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
                 body: JSON.stringify({ confirm: 'ELIMINAR' })
@@ -315,7 +316,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                 onExport={async () => {
                     setExportLoading(true);
                     try {
-                        const res = await fetch(API_ENDPOINTS.EXPORT_CHECK, {
+                        const res = await fetchWithRetry(API_ENDPOINTS.EXPORT_CHECK, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', ...authHeaders(session) }
                         });
@@ -336,7 +337,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                         const { DataExport } = await import('@/features/dashboard/lib/dataExporter');
                         await DataExport.export(session, (msg) => showToast(msg, 'success'));
 
-                        await fetch(API_ENDPOINTS.EXPORT_COMPLETE, {
+                        await fetchWithRetry(API_ENDPOINTS.EXPORT_COMPLETE, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', ...authHeaders(session) }
                         });
