@@ -104,11 +104,11 @@ function AnalyticsViewContent() {
                                 <AreaChart data={areaData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }} accessibilityLayer={false}>
                                     <defs>
                                         <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#9146ff" stopOpacity={0.8}/>
+                                            <stop offset="5%" stopColor="#9146ff" stopOpacity={0.15}/>
                                             <stop offset="95%" stopColor="#9146ff" stopOpacity={0}/>
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.04} vertical={false} />
                                     <XAxis 
                                         dataKey="date" 
                                         stroke="#71717a" 
@@ -133,7 +133,7 @@ function AnalyticsViewContent() {
                                         itemStyle={{ color: '#fafafa' }}
                                         labelStyle={{ color: '#a1a1aa', marginBottom: '4px' }}
                                     />
-                                    <Area type="monotone" dataKey="requests" name="Peticiones" stroke="#9146ff" strokeWidth={2} fillOpacity={1} fill="url(#colorRequests)" />
+                                    <Area type="monotone" dataKey="requests" name="Peticiones" stroke="#9146ff" strokeWidth={2} activeDot={{ r: 4, strokeWidth: 0, fill: '#9146ff' }} fillOpacity={1} fill="url(#colorRequests)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
@@ -157,9 +157,9 @@ function AnalyticsViewContent() {
                                             data={pieData}
                                             cx="50%"
                                             cy="50%"
-                                            innerRadius={70}
-                                            outerRadius={100}
-                                            paddingAngle={5}
+                                            innerRadius={72}
+                                            outerRadius={88}
+                                            paddingAngle={4}
                                             dataKey="value"
                                             stroke="none"
                                         >
@@ -245,7 +245,7 @@ function AnalyticsViewContent() {
                             <div aria-hidden="true" className="h-full w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={pieData} layout="vertical" margin={{ top: 0, right: 30, left: 20, bottom: 0 }} accessibilityLayer={false}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#27272a" horizontal={false} />
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.04} horizontal={false} />
                                         <XAxis 
                                             type="number" 
                                             stroke="#71717a" 
@@ -261,7 +261,7 @@ function AnalyticsViewContent() {
                                             contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px', color: '#fafafa' }}
                                             itemStyle={{ color: '#fafafa' }}
                                         />
-                                        <Bar dataKey="avgLatency" name="Latencia" radius={[0, 4, 4, 0]}>
+                                        <Bar dataKey="avgLatency" name="Latencia" radius={[0, 4, 4, 0]} maxBarSize={16}>
                                             {pieData.map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                             ))}
