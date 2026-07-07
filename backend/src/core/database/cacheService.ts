@@ -1,7 +1,7 @@
 import { kv } from '@vercel/kv';
 import { StoredUser } from '../../types/twitch';
 import { CacheEntry } from '../../types/cache';
-import { CACHE_TTL, ownerScopedCacheKey } from '../config/cacheTtl';
+import { CACHE_TTL_MATRIX, ownerScopedCacheKey } from '../config/cacheTtl';
 
 /** Metadatos cacheables sin tokens OAuth (resolver con getUser en apiKeyValidator). */
 export type CachedApiUserMeta = Pick<
@@ -18,31 +18,31 @@ const MAX_MEMORY_CACHE_SIZE = 500;
 /** Alinea TTL de L1 con el de KV para evitar re-lecturas prematuras a Redis. */
 function resolveL1TtlMs(key: string): number {
     if (key.startsWith('cache:user:id:') || key.startsWith('cache:apiuser:')) {
-        return CACHE_TTL.API_USER * 1000;
+        return CACHE_TTL_MATRIX.API_USER.default * 1000;
     }
     if (key.startsWith('cache:user:login:')) {
-        return CACHE_TTL.USER_BY_LOGIN * 1000;
+        return CACHE_TTL_MATRIX.USER_BY_LOGIN.default * 1000;
     }
     if (key.startsWith('cache:dashboard:profile:')) {
-        return CACHE_TTL.DASHBOARD_PROFILE * 1000;
+        return CACHE_TTL_MATRIX.DASHBOARD_PROFILE.default * 1000;
     }
     if (key.startsWith('cache:dashboard:analytics:') || key.startsWith('cache:analytics:')) {
-        return CACHE_TTL.DASHBOARD_ANALYTICS * 1000;
+        return CACHE_TTL_MATRIX.DASHBOARD_ANALYTICS.default * 1000;
     }
     if (key.startsWith('cache:activity:')) {
-        return CACHE_TTL.ACTIVITY_FEED * 1000;
+        return CACHE_TTL_MATRIX.ACTIVITY_FEED.default * 1000;
     }
     if (key.startsWith('cache:cmd:getUserInfo:login:')) {
-        return CACHE_TTL.COMMAND * 1000;
+        return CACHE_TTL_MATRIX.COMMAND.default * 1000;
     }
     if (key.startsWith('cache:cmd:')) {
-        return CACHE_TTL.COMMAND * 1000;
+        return CACHE_TTL_MATRIX.COMMAND.default * 1000;
     }
     if (key.startsWith('cache:userId:')) {
-        return CACHE_TTL.TWITCH_USER_ID * 1000;
+        return CACHE_TTL_MATRIX.TWITCH_USER_ID.default * 1000;
     }
     if (key.startsWith('overlay:state:')) {
-        return CACHE_TTL.OVERLAY_STATE * 1000;
+        return CACHE_TTL_MATRIX.OVERLAY_STATE.default * 1000;
     }
     return DEFAULT_L1_TTL_MS;
 }
@@ -175,7 +175,7 @@ export const getCachedUserId = async (username: string): Promise<string | null> 
 };
 
 export const setCachedUserId = async (username: string, id: string): Promise<void> => {
-    await set(`cache:userId:${username.toLowerCase()}`, id, CACHE_TTL.TWITCH_USER_ID);
+    await set(`cache:userId:${username.toLowerCase()}`, id, CACHE_TTL_MATRIX.TWITCH_USER_ID.default);
 };
 
 export const getCachedApiUserMeta = async (apiKey: string): Promise<CachedApiUserMeta | null> => {
@@ -200,7 +200,7 @@ export const setCachedApiUser = async (apiKey: string, user: StoredUser): Promis
         customCacheTtl: user.customCacheTtl,
         role: user.role
     };
-    await set(`cache:apiuser:${apiKey}`, meta, CACHE_TTL.API_USER);
+    await set(`cache:apiuser:${apiKey}`, meta, CACHE_TTL_MATRIX.API_USER.default);
 };
 
 /** Invalida caché del dashboard tras borrar datos, eliminar cuenta, etc. */
@@ -248,7 +248,7 @@ export const invalidateDashboardAnalytics = async (userId: string): Promise<void
 export const revokeApiKeyGlobally = async (apiKey: string): Promise<void> => {
     const normalized = apiKey.trim().toLowerCase();
     if (!normalized) return;
-    await set(`cache:apikey:revoked:${normalized}`, 1, CACHE_TTL.API_USER);
+    await set(`cache:apikey:revoked:${normalized}`, 1, CACHE_TTL_MATRIX.API_USER.default);
 };
 
 export const isApiKeyRevoked = async (apiKey: string): Promise<boolean> => {

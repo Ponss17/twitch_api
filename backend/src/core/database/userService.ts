@@ -3,7 +3,7 @@ import { StoredUser } from '../../types/twitch';
 import { encrypt, decrypt, ENCRYPTION_KEY, LEGACY_ENCRYPTION_KEY } from './cryptoService';
 import { invalidateAllUserCaches } from '../utils/cacheInvalidation';
 import * as cacheService from './cacheService';
-import { CACHE_TTL } from '../config/cacheTtl';
+import { CACHE_TTL_MATRIX } from '../config/cacheTtl';
 import { DEFAULT_USER_ROLE, normalizeUserRole } from '../config/userRoles';
 import { logger } from '../utils/logger';
 import { BoundedMap } from '../utils/boundedCache';
@@ -144,7 +144,7 @@ function rememberUserCaches(user: StoredUser): void {
     setUserTimezone(user.userId, user.timezone);
     userMemoryCache.set(user.userId, {
         user,
-        expiry: Date.now() + CACHE_TTL.API_USER * 1000
+        expiry: Date.now() + CACHE_TTL_MATRIX.API_USER.default * 1000
     });
 }
 
@@ -183,7 +183,7 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
     if (options?.tokensOnly) {
         rememberUserCaches(secureUser);
         await cacheService
-            .set(`cache:user:id:${user.userId}`, secureUser, CACHE_TTL.API_USER)
+            .set(`cache:user:id:${user.userId}`, secureUser, CACHE_TTL_MATRIX.API_USER.default)
             .catch((e) => logger.error('Error actualizando caché de usuario (tokens):', e));
         return;
     }
@@ -232,7 +232,7 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
         rememberUserCaches(result);
 
         // 10 min: suficiente para no re-consultar Supabase en cada comando del bot
-        await cacheService.set(cacheKey, result, CACHE_TTL.API_USER);
+        await cacheService.set(cacheKey, result, CACHE_TTL_MATRIX.API_USER.default);
         return result;
     })();
 
@@ -263,7 +263,7 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
 
     rememberUserCaches(result);
 
-    await cacheService.set(cacheKey, result, CACHE_TTL.USER_BY_LOGIN);
+    await cacheService.set(cacheKey, result, CACHE_TTL_MATRIX.USER_BY_LOGIN.default);
     return result;
 };
 

@@ -2,8 +2,8 @@ import { Response } from 'express';
 
 import * as apiService from '../twitch/twitch.service';
 import * as cacheService from '../../core/database/cacheService';
-import { CACHE_TTL, ownerScopedCacheKey } from '../../core/config/cacheTtl';
-import { resolveUserLimits } from '../../core/config/userRoles';
+import { ownerScopedCacheKey, resolveCache } from '../../core/config/cacheTtl';
+
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { AuthenticatedRequest } from '../../types/twitch';
@@ -117,8 +117,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 res,
                 async (token: string) => {
                     const resApi = await apiService.getFollowAge(channel, user, token);
-                    const limits = resolveUserLimits(res.locals.apiUser);
-                    const ttl = Math.round(CACHE_TTL.COMMAND / limits.cacheMultiplier);
+                    const ttl = resolveCache('COMMAND', res.locals.apiUser?.role);
                     await cacheService.set(cacheKey, resApi, ttl);
                     return resApi;
                 },
