@@ -1,4 +1,4 @@
-import { STATUS_PAGE_URL, type DashboardTab } from '@/core/config/config';
+import type { DashboardTab } from '@/core/config/config';
 import { useRequiredSession } from '@/core/session/useSession';
 import { staticPath } from '@/core/config/paths';
 import { TAB_META } from '@/features/dashboard/lib/dashboardTabs';
@@ -15,7 +15,6 @@ import {
 } from '@/shared/ui/Dropdown';
 import { User, LogOut, Menu } from 'lucide-react';
 import { TwitchIcon, PaypalIcon } from '@/shared/ui/icons/BrandIcons';
-
 const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
 
 const headerGhostBtn =
@@ -52,22 +51,6 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
                 </h1>
 
                 <div className="flex items-center gap-2">
-                    <a
-                        href={STATUS_PAGE_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`${headerGhostBtn} group hover:!border-[#22c55e]/30 hover:!text-[#22c55e] transition-colors`}
-                        title="Todos los sistemas operativos"
-                    >
-                        <div className="relative flex h-2.5 w-2.5 items-center justify-center">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22c55e] opacity-60" />
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#22c55e] shadow-[0_0_8px_#22c55e]" />
-                        </div>
-                        <span className="hidden sm:inline group-hover:drop-shadow-[0_0_8px_rgba(34,197,94,0.3)]">
-                            Sistemas Online
-                        </span>
-                    </a>
-
                     <a
                         href={PAYPAL_URL}
                         target="_blank"
