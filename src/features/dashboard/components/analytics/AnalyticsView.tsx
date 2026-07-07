@@ -61,7 +61,9 @@ function AnalyticsViewContent() {
         const avgLatency = totalRequests > 0 ? Math.round(totalLatency / totalRequests) : 0;
         const successRate = totalRequests > 0 ? ((1 - totalErrors / totalRequests) * 100).toFixed(1) : '0.0';
 
-        return { areaData: sortedArea, pieData: sortedPie, summary: { totalRequests, successRate, avgLatency } };
+        const uniqueCommands = sortedPie.length;
+
+        return { areaData: sortedArea, pieData: sortedPie, summary: { totalRequests, successRate, avgLatency, uniqueCommands } };
     }, [timeSeries]);
 
     // Cleanup tabindex on <g> elements to silence Astro Dev Toolbar's strict accessibility linter
@@ -97,7 +99,7 @@ function AnalyticsViewContent() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                 <div className="rounded-xl border border-white/[0.08] bg-bg-card p-5 transition-colors duration-200 hover:border-primary/60">
                     <p className="mb-1 text-[0.8rem] text-zinc-500">Total Peticiones</p>
                     <p className="text-2xl font-bold text-[#fafafa]">{summary.totalRequests.toLocaleString()}</p>
@@ -109,6 +111,10 @@ function AnalyticsViewContent() {
                 <div className="rounded-xl border border-white/[0.08] bg-bg-card p-5 transition-colors duration-200 hover:border-primary/60">
                     <p className="mb-1 text-[0.8rem] text-zinc-500">Latencia Promedio</p>
                     <p className="text-2xl font-bold text-zinc-300">{summary.avgLatency}ms</p>
+                </div>
+                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-5 transition-colors duration-200 hover:border-primary/60">
+                    <p className="mb-1 text-[0.8rem] text-zinc-500">Comandos Usados</p>
+                    <p className="text-2xl font-bold text-[#fafafa]">{summary.uniqueCommands}</p>
                 </div>
             </div>
 
