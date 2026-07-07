@@ -35,7 +35,7 @@ const CLIPS_GRID =
     'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5 max-[600px]:grid-cols-1';
 
 const CLIP_CARD =
-    'group/card relative overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary transition-all duration-200 hover:border-primary/25 hover:shadow-[0_8px_24px_-8px_rgba(145,70,255,0.2)]';
+    'group/card relative overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary transition-all duration-200 hover:border-primary/25';
 
 const CLIP_OVERLAY_BTN =
     'flex h-7 w-7 items-center justify-center rounded-md bg-black/40 text-white/70 backdrop-blur-[2px] transition hover:bg-black/55 hover:text-white';
@@ -48,7 +48,7 @@ const CLIP_TOOLBAR_BTN = (active = false) =>
     }`;
 
 const CLIPS_SEARCH =
-    'w-full rounded-lg border border-white/[0.08] bg-bg-secondary py-[7px] pr-2.5 pl-9 text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:shadow-[0_0_0_3px_rgba(145,70,255,0.2)]';
+    'w-full rounded-lg border border-white/[0.08] bg-bg-secondary py-[7px] pr-2.5 pl-9 text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:bg-primary/[0.02]';
 
 function loadFavorites(userId: string): string[] {
     try {

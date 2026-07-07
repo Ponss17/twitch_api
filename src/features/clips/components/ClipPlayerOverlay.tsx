@@ -36,7 +36,7 @@ export function ClipPlayerOverlay({ clipId, title, embedSession, onClose }: Clip
             onClick={onClose}
         >
             <div
-                className="w-full max-w-5xl overflow-hidden rounded-xl border border-white/[0.08] bg-[#09090b] animate-fade-soft shadow-2xl"
+                className="w-full max-w-5xl overflow-hidden rounded-xl border border-white/[0.08] bg-[#09090b] animate-fade-soft shadow-lg"
                 role="dialog"
                 aria-modal="true"
                 aria-label={title ?? 'Reproductor de clip'}

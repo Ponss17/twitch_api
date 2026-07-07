@@ -79,14 +79,14 @@ export function ProfileHero({
 
     return (
         <div className="profile-hero mb-4">
-            <div className="relative flex min-h-[120px] flex-col justify-start overflow-hidden rounded-[20px] border border-primary/25 bg-bg-card transition hover:border-primary/50 hover:shadow-[0_0_20px_rgba(145,70,255,0.08)]">
+            <div className="relative flex min-h-[120px] flex-col justify-start overflow-hidden rounded-[20px] border border-primary/25 bg-bg-card transition hover:border-primary/50">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/35 via-transparent to-transparent opacity-60" />
                 <div className="relative z-[2] flex flex-row items-center gap-4 px-6 py-4 max-[900px]:flex-col max-[900px]:pb-8 max-[900px]:text-center">
                     <div className="relative shrink-0 max-[900px]:-mt-[60px]">
                         <img
                             src={session.profile_image_url ?? staticPath('/img/logo.svg')}
                             alt=""
-                            className="h-20 w-20 rounded-xl border-[3px] border-bg-card bg-bg-tertiary object-cover shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition duration-300 hover:scale-105 hover:border-primary"
+                            className="h-20 w-20 rounded-xl border-[3px] border-bg-card bg-bg-tertiary object-cover transition duration-300 hover:scale-105 hover:border-primary"
                             draggable={false}
                             loading="eager"
                             fetchPriority="high"

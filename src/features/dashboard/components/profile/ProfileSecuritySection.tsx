@@ -79,7 +79,7 @@ export function ProfileSecuritySection({
                         <span>TU API KEY PRIVADA</span>
                     </label>
 
-                    <div className="flex overflow-hidden rounded-xl border border-white/[0.05] bg-black/30 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition focus-within:border-primary/50 focus-within:bg-primary/[0.03] focus-within:shadow-[0_0_15px_rgba(145,70,255,0.1),inset_0_2px_4px_rgba(0,0,0,0.2)]">
+                    <div className="flex overflow-hidden rounded-xl border border-white/[0.08] bg-black/20 transition focus-within:border-primary focus-within:bg-black/30">
                         <input
                             id="profile-api-key"
                             readOnly
@@ -119,7 +119,7 @@ export function ProfileSecuritySection({
                                 onClick={onToggleDanger}
                                 className={`flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] transition hover:bg-error/[0.08] hover:text-error ${
                                     showDanger
-                                        ? 'bg-error text-white shadow-[0_0_10px_rgba(229,77,46,0.3)] hover:bg-error hover:text-white'
+                                        ? 'bg-error text-white hover:bg-error-hover hover:text-white'
                                         : 'text-[#c4c4cc]'
                                 }`}
                                 title={showDanger ? 'Ocultar Zona de Peligro' : 'Mostrar Zona de Peligro'}

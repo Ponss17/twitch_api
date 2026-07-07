@@ -46,7 +46,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
         <BaseModal
             open={!!user}
             onClose={onClose}
-            className="relative my-auto max-h-[min(90vh,720px)] w-full max-w-[450px] overflow-y-auto rounded-[20px] border border-white/[0.08] bg-bg-card shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
+            className="relative my-auto max-h-[min(90vh,720px)] w-full max-w-[450px] overflow-y-auto rounded-xl border border-white/[0.08] bg-bg-card shadow-2xl"
         >
             <button
                 type="button"
@@ -57,12 +57,12 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                 <X className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-5 border-b border-white/[0.08] bg-gradient-to-r from-white/[0.03] to-transparent p-6 max-md:flex-col max-md:text-center">
+            <div className="flex items-center gap-5 border-b border-white/[0.08] bg-white/[0.02] p-6 max-md:flex-col max-md:text-center">
                 <img
                     src={user.profile_image_url ?? staticPath('/img/logo.svg')}
                     alt={user.display_name}
                     loading="lazy"
-                    className="h-20 w-20 shrink-0 rounded-full border-[3px] border-bg-card object-cover shadow-[0_0_20px_rgba(145,70,255,0.2)]"
+                    className="h-20 w-20 shrink-0 rounded-full border-[3px] border-bg-card object-cover"
                 />
                 <div className="flex flex-col gap-1">
                     <h2

@@ -27,7 +27,7 @@ const TECH_CARD =
     'relative flex cursor-grab flex-col gap-1 rounded-xl border border-white/5 bg-[#121214] p-4 active:cursor-grabbing hover:border-primary/40 hover:bg-primary/[0.06]';
 
 const TECH_CARD_DRAGGING =
-    'z-20 scale-[1.02] border-primary/50 shadow-[0_12px_32px_rgba(0,0,0,0.35),0_0_20px_rgba(145,70,255,0.12)] ring-1 ring-primary/30';
+    'z-20 scale-[1.02] border-primary/50 shadow-lg ring-1 ring-primary/30';
 
 const DEFAULT_ORDER = ['backend', 'frontend', 'database', 'ai', 'build', 'api'] as const;
 

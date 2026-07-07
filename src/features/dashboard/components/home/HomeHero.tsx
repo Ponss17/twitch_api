@@ -32,22 +32,9 @@ export const HomeHero = memo(function HomeHero({
 
     return (
         <section
-            className="relative mb-8 overflow-hidden rounded-[24px] border border-primary/10 bg-[radial-gradient(circle_at_20%_0%,rgba(145,70,255,0.10)_0%,transparent_45%),radial-gradient(circle_at_80%_100%,rgba(145,70,255,0.05)_0%,transparent_45%),#09090b] px-[52px] py-10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_0_80px_rgba(145,70,255,0.05)] transition-all duration-500 hover:-translate-y-[3px] hover:border-primary/25 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_0_100px_rgba(145,70,255,0.08)] max-md:p-8"
+            className="relative mb-8 overflow-hidden rounded-xl border border-white/[0.08] bg-bg-card px-[52px] py-10 transition-all duration-500 max-md:p-8"
             aria-busy={isLoading}
         >
-            <div
-                aria-hidden
-                className="pointer-events-none absolute -left-[10%] -top-[20%] size-[55%] rounded-full bg-primary/12 blur-3xl"
-            />
-            <div
-                aria-hidden
-                className="pointer-events-none absolute -bottom-1/4 -right-1/4 size-1/2 rounded-full bg-primary/6 blur-3xl"
-            />
-            <div
-                aria-hidden
-                className="pointer-events-none absolute top-0 -left-full z-10 h-px w-[200%] animate-border-flow bg-gradient-to-r from-transparent from-10% via-primary/15 via-40% via-primary/80 via-50% via-primary/15 via-60% to-transparent to-90% bg-size-[200%_100%]"
-            />
-
             <div className="relative z-[5] flex items-center justify-between gap-10">
                 <div className="max-w-[500px] shrink-0">
                     <h1 className="mb-3.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[2.6rem] font-extrabold leading-[1.1] tracking-[-0.02em] text-white max-md:text-[2rem]">

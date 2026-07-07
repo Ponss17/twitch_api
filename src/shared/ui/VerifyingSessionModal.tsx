@@ -117,7 +117,7 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
             aria-live="polite"
             aria-label="Verificando sesión"
         >
-            <div className="w-full max-w-[400px] overflow-hidden rounded-2xl border border-white/10 bg-[#0c0c0e]/97 shadow-[0_28px_90px_rgba(0,0,0,0.6)]">
+            <div className="w-full max-w-[400px] overflow-hidden rounded-2xl border border-white/10 bg-[#0c0c0e]/97 shadow-2xl">
                 <div className="border-b border-white/[0.06] bg-[#101012] px-6 py-5">
                     <div className="mb-4 flex items-center gap-4">
                         <div className="relative shrink-0">
@@ -152,7 +152,7 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
 
                     <div className="relative h-2 overflow-hidden rounded-full bg-[#1a1a2e]">
                         <div
-                            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#7c3aed] via-[#9146ff] to-[#a78bfa] shadow-[0_0_12px_rgba(145,70,255,0.45)] transition-[width] duration-150 ease-out"
+                            className="absolute inset-y-0 left-0 rounded-full bg-primary transition-[width] duration-150 ease-out"
                             style={{ width: `${displayedProgress}%` }}
                         />
                     </div>
