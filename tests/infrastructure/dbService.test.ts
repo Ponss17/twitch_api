@@ -3,7 +3,7 @@ import {
     getUser,
     deleteUser,
     addSystemLog,
-    incrementUserStats,
+    recordUserRequest,
     addUserActivity,
     addAuditLog,
     getAuditLogs,
@@ -147,12 +147,12 @@ describe('dbService', () => {
     });
 
     it('should handle user stats', async () => {
-        await incrementUserStats('123', 'clips');
+        await recordUserRequest('123', 50, true);
         expect(s.rpc).toHaveBeenCalled();
     });
 
     it('should handle user activity', async () => {
-        await addUserActivity('123', { type: 'clip', user: 'u', detail: 'd' });
+        await addUserActivity('123', { type: 'clip', user: 'u', metadata: { title: 'd' } });
         expect(s.insert).toHaveBeenCalled();
     });
 

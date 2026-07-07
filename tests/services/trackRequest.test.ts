@@ -1,10 +1,8 @@
 const mockRecordUserRequest = jest.fn().mockResolvedValue(undefined);
-const mockIncrementUserStats = jest.fn().mockResolvedValue(undefined);
 const mockAddUserActivity = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('../../backend/src/core/database/dbService', () => ({
     recordUserRequest: (...args: unknown[]) => mockRecordUserRequest(...args),
-    incrementUserStats: (...args: unknown[]) => mockIncrementUserStats(...args),
     addUserActivity: (...args: unknown[]) => mockAddUserActivity(...args)
 }));
 
@@ -28,6 +26,7 @@ describe('trackRequest', () => {
             'user1',
             expect.any(Number),
             true,
+            null,   // incrementStat — null cuando no se especifica
             undefined
         );
     });
@@ -53,13 +52,19 @@ describe('trackRequest', () => {
         expect(mockAddUserActivity).not.toHaveBeenCalled();
     });
 
-    it('llama a incrementUserStats cuando se pasa incrementStat', async () => {
+    it('pasa incrementStat a recordUserRequest cuando se especifica', async () => {
         await trackRequest(
             'user1',
             { type: 'clip', user: 'test', incrementStat: 'clips' },
             async () => null
         );
-        expect(mockIncrementUserStats).toHaveBeenCalledWith('user1', 'clips');
+        expect(mockRecordUserRequest).toHaveBeenCalledWith(
+            'user1',
+            expect.any(Number),
+            true,
+            'clips',  // incrementStat se pasa como 4º argumento
+            undefined
+        );
     });
 
     it('registra fallo con éxito=false cuando la acción lanza error', async () => {
@@ -73,6 +78,7 @@ describe('trackRequest', () => {
             'user1',
             expect.any(Number),
             false,
+            null,   // incrementStat — null cuando no se especifica
             undefined
         );
     });
