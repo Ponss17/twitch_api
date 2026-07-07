@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { buildAuthQueryParam } from '@/core/api/authQuery';
+import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { COMMAND_CONFIG } from '@/features/commands/lib/config';
 import { useCommandTestField, useCommandTestResult } from '@/features/commands/hooks/useCommandStore';
 import { useRequiredSession } from '@/core/session/useSession';
@@ -42,13 +43,7 @@ export function FollowageView() {
             const buildUrl = () =>
                 `${window.location.origin}${API_ENDPOINTS.BASE}/followage?user=${encodeURIComponent(user)}&channel=${encodeURIComponent(channel)}&_nocache=${Date.now()}&${tokenParam}`;
 
-            let response = await fetch(buildUrl());
-
-            // Reintento automático en cold start de Vercel (5xx)
-            if (response.status >= 500) {
-                await new Promise((r) => setTimeout(r, 900));
-                response = await fetch(buildUrl());
-            }
+            const response = await fetchWithRetry(buildUrl());
 
             const text = await response.text();
             setStoredResult({
@@ -106,13 +101,7 @@ export function ShoutoutView() {
             const buildUrl = () =>
                 `${window.location.origin}${API_ENDPOINTS.BASE}/shoutout?channel=${encodeURIComponent(channelVal)}&touser=${encodeURIComponent(target)}&_nocache=${Date.now()}&${tokenParam}`;
 
-            let response = await fetch(buildUrl());
-
-            // Reintento automático en cold start de Vercel (5xx)
-            if (response.status >= 500) {
-                await new Promise((r) => setTimeout(r, 900));
-                response = await fetch(buildUrl());
-            }
+            const response = await fetchWithRetry(buildUrl());
 
             const text = await response.text();
             setStoredResult({
