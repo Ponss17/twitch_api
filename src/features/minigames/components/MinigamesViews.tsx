@@ -5,6 +5,7 @@ import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTab
 import { useState, type ReactNode } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { authHeaders } from '@/core/api/auth';
+import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { useRequiredSession } from '@/core/session/useSession';
 import { COMMAND_CONFIG } from '@/features/commands/lib/config';
 import {
@@ -136,7 +137,7 @@ export function Magic8View() {
 
         try {
             const url = `${API_ENDPOINTS.MAGIC8}?question=${encodeURIComponent(question)}&mood=${mood}&user=${encodeURIComponent(session.login ?? '')}&_nocache=${Date.now()}`;
-            const res = await fetch(url, { headers: authHeaders(session) });
+            const res = await fetchWithRetry(url, { headers: authHeaders(session) });
             const text = await res.text();
             setResult({ status: res.ok ? 'success' : 'error', message: res.ok ? text : parseApiError(text) });
             if (res.ok) setQuestion('');
@@ -229,7 +230,7 @@ export function DuelView() {
             if (challengerLogin) params.set('challenger', challengerLogin);
             params.set('_nocache', Date.now().toString());
             const url = `${API_ENDPOINTS.DUEL}?${params}`;
-            const res = await fetch(url, { headers: authHeaders(session) });
+            const res = await fetchWithRetry(url, { headers: authHeaders(session) });
             const text = await res.text();
             setResult({
                 status: res.ok ? 'success' : 'error',
@@ -318,7 +319,7 @@ export function RussianView() {
 
         try {
             const url = `${API_ENDPOINTS.BASE}/minigames/russian?user=${encodeURIComponent(session.login ?? '')}&channel=${encodeURIComponent(session.login ?? '')}&hardcore=false&format=json&_nocache=${Date.now()}`;
-            const res = await fetch(url, { headers: authHeaders(session) });
+            const res = await fetchWithRetry(url, { headers: authHeaders(session) });
             if (res.ok) {
                 const data = (await res.json()) as { status?: string; message: string };
                 const dead = data.status === 'dead';
