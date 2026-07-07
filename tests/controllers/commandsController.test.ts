@@ -81,7 +81,7 @@ describe('commandsController', () => {
                 expect.objectContaining({
                     type: 'clip',
                     user: 'TestUser',
-                    detail: 'testchannel'
+                    detail: 'Stream Original - https://clips.twitch.tv/test'
                 })
             );
         });
@@ -106,7 +106,7 @@ describe('commandsController', () => {
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
                 expect.objectContaining({
-                    detail: 'testchannel (Mi Jugada)'
+                    detail: 'Mi Jugada - https://clips.twitch.tv/test'
                 })
             );
         });
@@ -132,7 +132,7 @@ describe('commandsController', () => {
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
                 expect.objectContaining({
-                    detail: 'testchannel'
+                    detail: 'Valorant con amigos - https://clips.twitch.tv/test'
                 })
             );
         });
