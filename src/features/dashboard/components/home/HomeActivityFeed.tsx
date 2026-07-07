@@ -208,7 +208,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
 
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden pb-5 text-[#fafafa]">
                 <div
-                    className={`block h-full overflow-y-auto rounded-xl border border-white/[0.03] bg-black/15 p-4 [scrollbar-color:#9146ff_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-[10px] [&::-webkit-scrollbar-thumb]:bg-primary [&::-webkit-scrollbar]:w-1 ${
+                    className={`block h-full overflow-y-auto [overflow-anchor:none] rounded-xl border border-white/[0.03] bg-black/15 p-4 [scrollbar-color:#9146ff_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-[10px] [&::-webkit-scrollbar-thumb]:bg-primary [&::-webkit-scrollbar]:w-1 ${
                         !isLoading && filteredActivity.length === 0
                             ? 'flex min-h-[260px] items-center justify-center !p-0'
                             : ''
