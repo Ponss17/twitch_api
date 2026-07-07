@@ -27,12 +27,12 @@ export const HomeActivityLogEntry = memo(function HomeActivityLogEntry({
     return (
         <div
             data-entry-key={activityEntryKey(item)}
-            className={`flex items-start gap-3 border-b border-white/[0.03] py-2.5 transition-colors duration-500 ${
+            className={`flex items-center gap-3 border-b border-white/[0.03] py-2.5 transition-colors duration-500 ${
                 isNew ? 'border-l-2 border-l-primary bg-primary/[0.08] pl-2' : ''
             } ${isNew ? 'animate-slide-in-soft' : ''}`}
         >
             <div
-                className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${meta.iconClass}`}
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${meta.iconClass}`}
                 aria-hidden
             >
                 <Icon className="h-3.5 w-3.5" />
