@@ -120,7 +120,7 @@ export function LandingPage() {
             markDashboardSplashForFreshLogin();
 
             const search = authParam ? `?auth=${encodeURIComponent(authParam)}` : '';
-            window.location.href = appPath('/dashboard') + search;
+            window.location.href = appPath('/dashboard/') + search;
         })();
     }, []);
 
@@ -224,7 +224,7 @@ export function LandingPage() {
                         <div className="mb-6 flex flex-wrap justify-center gap-4 md:justify-start">
                             {hasSession ? (
                                 <a
-                                    href={appPath('/dashboard')}
+                                    href={appPath('/dashboard/')}
                                     className="inline-flex items-center gap-2.5 rounded-lg bg-[#9146ff] px-7 py-3 text-[0.95rem] font-semibold text-white transition hover:bg-[#7c3aed] no-underline"
                                 >
                                     Ir al Panel

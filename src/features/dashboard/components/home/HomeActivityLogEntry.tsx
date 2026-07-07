@@ -27,9 +27,8 @@ export const HomeActivityLogEntry = memo(function HomeActivityLogEntry({
     return (
         <div
             data-entry-key={activityEntryKey(item)}
-            className={`flex items-center gap-3 border-b border-white/[0.03] py-2.5 transition-colors duration-500 ${
-                isNew ? 'border-l-2 border-l-primary bg-primary/[0.08] pl-2' : ''
-            } ${isNew ? 'animate-slide-in-soft' : ''}`}
+            className={`flex items-center gap-3 border-b border-white/[0.03] py-2.5 transition-colors duration-500 ${isNew ? 'border-l-2 border-l-primary bg-primary/[0.08] pl-2' : ''
+                } ${isNew ? 'animate-slide-in-soft' : ''}`}
         >
             <div
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${meta.iconClass}`}

@@ -1,6 +1,5 @@
 import * as cacheService from '../database/cacheService';
 import { invalidateUserMemoryCache } from '../database/userService';
-import { invalidateUserCache } from '../middleware/apiKeyValidator';
 import { invalidateStatsCache } from '../database/statsService';
 import { logger } from './logger';
 import { overlayStateKey } from '../../features/dashboard/overlay/keys';
@@ -39,6 +38,7 @@ export async function invalidateAllUserCaches(
     userId: string,
     options: UserCacheInvalidationOptions = {}
 ): Promise<void> {
+    const { invalidateUserCache } = await import('../middleware/apiKeyValidator');
     invalidateUserCache(userId);
     invalidateUserMemoryCache(userId);
     invalidateStatsCache(userId);
