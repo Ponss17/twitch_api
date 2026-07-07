@@ -184,7 +184,7 @@ function AnalyticsViewContent() {
                                             dataKey="value"
                                             stroke="none"
                                         >
-                                            {pieData.map((entry, index) => (
+                                            {pieData.map((_, index) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                             ))}
                                         </Pie>
@@ -278,12 +278,12 @@ function AnalyticsViewContent() {
                                         />
                                         <YAxis type="category" dataKey="name" stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} className="capitalize" />
                                         <Tooltip 
-                                            cursor={{ fill: '#27272a', opacity: 0.4 }}
+                                            cursor={false}
                                             contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px', color: '#fafafa' }}
                                             itemStyle={{ color: '#fafafa' }}
                                         />
                                         <Bar dataKey="avgLatency" name="Latencia" radius={[0, 4, 4, 0]} maxBarSize={16}>
-                                            {pieData.map((entry, index) => (
+                                            {pieData.map((_, index) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                             ))}
                                         </Bar>
