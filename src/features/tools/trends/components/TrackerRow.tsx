@@ -47,7 +47,7 @@ export function TrackerRow({
             <td className={`border-b border-white/[0.03] align-middle ${cellPad}`}>
                 <div className={`w-full overflow-hidden rounded bg-white/5 ${compact ? 'h-1.5' : 'h-2'}`}>
                     <div
-                        className="h-full rounded bg-gradient-to-r from-primary to-[#db2777] shadow-[0_0_10px_rgba(145,70,255,0.4)] transition-[width] duration-500"
+                        className="h-full rounded bg-primary transition-[width] duration-500"
                         style={{ width: `${(count / maxCount) * 100}%` }}
                     />
                 </div>

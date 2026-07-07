@@ -83,7 +83,7 @@ export function FeedbackView() {
                     <div className={`relative flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-300 ${
                         isAnonymous ? 'bg-primary' : 'bg-white/10 group-hover:bg-white/20'
                     }`}>
-                        <div className={`absolute left-0.5 h-4 w-4 rounded-full bg-white transition-transform duration-300 shadow-sm ${
+                        <div className={`absolute left-0.5 h-4 w-4 rounded-full bg-white transition-transform duration-300 ${
                             isAnonymous ? 'translate-x-4' : 'translate-x-0'
                         }`} />
                     </div>

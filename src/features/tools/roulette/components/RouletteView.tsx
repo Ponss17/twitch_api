@@ -160,7 +160,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     type="button"
                     onClick={spin}
                     disabled={isSpinning || chatters.length === 0}
-                    className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-br from-primary to-primary-hover px-10 py-3.5 text-[1rem] font-semibold text-white shadow-[0_10px_20px_rgba(0,0,0,0.3)] transition hover:-translate-y-0.5 hover:scale-105 hover:shadow-[0_15px_30px_rgba(168,85,247,0.4)] active:translate-y-px disabled:opacity-50 disabled:hover:scale-100 max-[480px]:w-full max-[480px]:justify-center max-[480px]:px-8 max-[480px]:py-3 max-[480px]:text-[0.9375rem]"
+                    className="inline-flex items-center gap-2.5 rounded-full bg-primary px-10 py-3.5 text-[1rem] font-semibold text-white transition hover:-translate-y-0.5 hover:scale-105 hover:bg-primary-hover active:translate-y-px disabled:opacity-50 disabled:hover:scale-100 max-[480px]:w-full max-[480px]:justify-center max-[480px]:px-8 max-[480px]:py-3 max-[480px]:text-[0.9375rem]"
                 >
                     {isSpinning ? <Loader2 className="animate-spin" /> : <Play className="h-4 w-4" />}
                     {isSpinning ? 'Girando...' : 'GIRAR RULETA'}

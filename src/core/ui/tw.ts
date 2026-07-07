@@ -14,10 +14,10 @@ export const toolLabel =
     'flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-tight text-primary';
 
 export const selectInput =
-    `min-w-[180px] w-auto max-w-[min(100%,240px)] shrink-0 cursor-pointer appearance-none rounded-lg border border-white/[0.08] bg-bg-secondary bg-size-[14px] bg-position-[right_8px_center] bg-no-repeat py-[7px] pr-9 pl-3 text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:shadow-[0_0_0_3px_rgba(145,70,255,0.2)] ${selectChevron}`;
+    `min-w-[180px] w-auto max-w-[min(100%,240px)] shrink-0 cursor-pointer appearance-none rounded-lg border border-white/[0.08] bg-bg-secondary bg-size-[14px] bg-position-[right_8px_center] bg-no-repeat py-[7px] pr-9 pl-3 text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:bg-primary/[0.02] ${selectChevron}`;
 
 export const textInput =
-    'w-full rounded-lg border border-white/[0.08] bg-bg-secondary px-3 py-[7px] text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:shadow-[0_0_0_3px_rgba(145,70,255,0.2)]';
+    'w-full rounded-lg border border-white/[0.08] bg-bg-secondary px-3 py-[7px] text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:bg-primary/[0.02]';
 
 export const inputLabel =
     'block text-[0.8125rem] font-medium leading-tight text-[#c4c4cc]';
@@ -32,10 +32,10 @@ export const btnCopy =
     'absolute top-1/2 right-2.5 flex -translate-y-1/2 items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-[0.8125rem] font-semibold text-white transition hover:bg-primary-hover';
 
 export const btnPrimary =
-    'mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-[0.8125rem] font-semibold text-white shadow-[0_4px_12px_rgba(145,70,255,0.3)] transition hover:-translate-y-0.5 hover:bg-primary-hover disabled:opacity-50';
+    'mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-[0.8125rem] font-semibold text-white transition hover:bg-primary-hover disabled:opacity-50';
 
 export const responseCard =
-    'mt-3 items-center gap-3 rounded-xl border border-white/[0.08] bg-[rgba(15,23,42,0.6)] px-4 py-3 text-[0.8125rem] leading-normal text-[#fafafa] shadow-lg backdrop-blur-[10px]';
+    'mt-3 items-center gap-3 rounded-xl border border-white/[0.08] bg-[rgba(15,23,42,0.6)] px-4 py-3 text-[0.8125rem] leading-normal text-[#fafafa] backdrop-blur-[10px]';
 
 export const formGrid = 'grid grid-cols-1 gap-3 min-[768px]:grid-cols-2';
 
@@ -49,14 +49,14 @@ export const cardFooterFlex =
     'mt-6 flex items-center justify-between gap-5 border-t border-white/[0.08] pt-5 max-[600px]:flex-col max-[600px]:text-center';
 
 export const gameResponseCard =
-    'mt-4 flex items-center gap-3 rounded-xl border px-5 py-3 text-[0.8125rem] leading-normal shadow-lg backdrop-blur-[10px]';
+    'mt-4 flex items-center gap-3 rounded-xl border px-5 py-3 text-[0.8125rem] leading-normal backdrop-blur-[10px]';
 
 /* —— Modales —— */
 export const dialogBase =
     'fixed inset-0 z-[2000] m-auto w-[90%] max-w-[500px] border-none bg-transparent p-0 shadow-none backdrop:bg-black/60 backdrop:backdrop-blur-sm';
 
 export const clipPlayerPanel =
-    'relative aspect-video w-full min-h-[300px] max-w-4xl overflow-hidden rounded-xl bg-black shadow-2xl';
+    'relative aspect-video w-full min-h-[300px] max-w-4xl overflow-hidden rounded-xl bg-black border border-white/10';
 
 export const modalPanel = 'overflow-hidden rounded-xl border border-white/[0.08] bg-bg-card animate-fade-soft';
 
@@ -77,7 +77,7 @@ const modalBtnBase =
     'inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[0.8125rem] font-semibold transition disabled:cursor-not-allowed disabled:opacity-50';
 
 export const modalBtnPrimary =
-    `${modalBtnBase} bg-primary font-semibold text-white shadow-[0_4px_12px_rgba(145,70,255,0.25)] hover:-translate-y-0.5 hover:bg-primary-hover`;
+    `${modalBtnBase} bg-primary font-semibold text-white hover:-translate-y-0.5 hover:bg-primary-hover`;
 
 export const btnSecondary =
     `${modalBtnBase} border border-white/15 bg-white/10 font-semibold text-[#fafafa] hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/15`;
@@ -89,7 +89,7 @@ export const btnIcon =
     'rounded-lg border-none bg-transparent px-2 py-1.5 text-[#c4c4cc] transition hover:bg-white/5 hover:text-[#fafafa] disabled:opacity-50';
 
 export const dangerModalPanel =
-    'overflow-hidden rounded-xl border border-error/30 bg-bg-card shadow-[0_0_30px_rgba(229,77,46,0.15)]';
+    'overflow-hidden rounded-xl border border-error/30 bg-bg-card';
 
 export const dangerModalHeader =
     'flex items-center justify-between border-b border-error/20 bg-error/[0.05] px-5 py-4';
@@ -105,7 +105,7 @@ export const confirmWordBadge =
     'rounded bg-error/10 px-1.5 py-0.5 font-mono text-sm font-extrabold tracking-wide text-error';
 
 export const dangerInput =
-    'w-full rounded-lg border border-white/[0.08] bg-black/20 px-3 py-3 text-center text-base font-semibold uppercase tracking-[0.2em] text-white outline-none transition placeholder:font-normal placeholder:normal-case placeholder:tracking-normal placeholder:opacity-50 focus:border-error focus:bg-error/[0.05] focus:shadow-[0_0_0_4px_rgba(229,77,46,0.1)]';
+    'w-full rounded-lg border border-white/[0.08] bg-black/20 px-3 py-3 text-center text-base font-semibold uppercase tracking-[0.2em] text-white outline-none transition placeholder:font-normal placeholder:normal-case placeholder:tracking-normal placeholder:opacity-50 focus:border-error focus:bg-error/[0.08]';
 
 export const modalShake = 'animate-modal-shake';
 
@@ -114,12 +114,12 @@ export const aboutLegoIn = 'opacity-0 animate-about-lego';
 
 /* —— Sidebar (dashboard + docs) —— */
 export const sidebarNavButtonBase =
-    'relative mb-0.5 flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-2 text-left font-[inherit] text-[0.9rem] font-semibold transition-all outline-none focus-visible:bg-bg-tertiary focus-visible:text-[#fafafa] focus-visible:shadow-[0_0_0_2px_#9146ff]';
+    'relative mb-0.5 flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-2 text-left font-[inherit] text-[0.9rem] font-semibold transition-all outline-none focus-visible:bg-bg-tertiary focus-visible:text-[#fafafa] focus-visible:border-primary/50';
 
 export const sidebarNavItem = (active: boolean) => {
     const width = active ? 'ml-3 w-[calc(100%-28px)]' : 'mx-auto w-[calc(100%-16px)]';
     if (active) {
-        return `${sidebarNavButtonBase} ${width} bg-bg-tertiary text-[#fafafa] before:pointer-events-none before:absolute before:top-1/2 before:left-0 before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-r before:bg-primary before:shadow-[0_0_8px_#9146ff] before:content-[""]`;
+        return `${sidebarNavButtonBase} ${width} bg-bg-tertiary text-[#fafafa] before:pointer-events-none before:absolute before:top-1/2 before:left-0 before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-r before:bg-primary before:content-[""]`;
     }
     return `${sidebarNavButtonBase} ${width} text-[#c4c4cc] hover:bg-bg-tertiary hover:text-[#fafafa]`;
 };

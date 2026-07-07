@@ -287,17 +287,17 @@ export function ApiTestCard({
                         isActive ? 'flex animate-reveal-card' : 'hidden'
                     } ${
                         result.status === 'success'
-                            ? 'border-primary/30 border-l-4 border-l-primary bg-gradient-to-br from-primary/10 to-indigo-500/[0.05]'
+                            ? 'border-primary/30 border-l-4 border-l-primary bg-primary/5'
                             : result.status === 'error'
-                              ? 'border-l-4 border-l-error border-error/30 bg-gradient-to-br from-error/10 to-error-dark/[0.05]'
+                              ? 'border-l-4 border-l-error border-error/30 bg-error/5'
                               : ''
                     }`}
                 >
                     {result.status === 'success' && (
-                        <Check className="text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
+                        <Check className="text-lg" />
                     )}
                     {result.status === 'error' && (
-                        <AlertTriangle className="text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
+                        <AlertTriangle className="text-lg" />
                     )}
                     <div className="min-w-0 flex-1">{result.message}</div>
                 </div>
