@@ -142,8 +142,8 @@ export function DashboardPanelProvider({
     const applyHomeDataReset = useCallback(() => {
         consumeHomeDataResetPending(session.userId);
         resetPendingRef.current = true;
-        setStats(EMPTY_DASHBOARD_LIVE_STATS);
-        setActivity([]);
+        // No limpiamos stats/activity antes del fetch para evitar el flash de ceros.
+        // Los datos anteriores permanecen visibles hasta que lleguen los nuevos.
         setError(null);
         setHighlightKeys(new Set());
         dataReadyFiredRef.current = false;
