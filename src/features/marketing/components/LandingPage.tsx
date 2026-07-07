@@ -14,8 +14,7 @@ import { SlotText } from 'slot-text/react';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
-const GRID_BG =
-    'bg-[#080808] bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[length:60px_60px]';
+const GRID_BG = 'bg-[#080808]';
 
 const GRADIENT_TEXT = 'bg-gradient-to-br from-[#9146ff] to-[#a78bfa] bg-clip-text text-transparent';
 
