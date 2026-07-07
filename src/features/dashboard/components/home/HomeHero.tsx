@@ -14,10 +14,10 @@ interface HomeHeroProps {
 }
 
 const STATS_ROW =
-    'flex shrink-0 gap-4 rounded-[18px] border border-white/[0.06] bg-white/[0.03] p-2 backdrop-blur-[20px] max-[1200px]:flex-wrap';
+    'flex flex-1 gap-4 rounded-[18px] border border-white/[0.06] bg-white/[0.03] p-2 backdrop-blur-[20px] max-[1200px]:flex-wrap';
 
 const H_STAT =
-    'group relative flex min-w-[170px] cursor-default items-center gap-4 rounded-[14px] border border-white/[0.03] bg-white/[0.02] px-6 py-4 transition-all duration-[400ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:-translate-y-0.5 hover:border-primary/40 hover:bg-white/[0.06] max-[1200px]:flex-1';
+    'group relative flex flex-1 min-w-[180px] cursor-default items-center gap-4 rounded-[14px] border border-white/[0.03] bg-white/[0.02] px-6 py-4 transition-all duration-[400ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:-translate-y-0.5 hover:border-primary/40 hover:bg-white/[0.06]';
 
 export const HomeHero = memo(function HomeHero({
     displayName,
@@ -64,7 +64,7 @@ export const HomeHero = memo(function HomeHero({
                     </p>
                 </div>
 
-                <div className="shrink-0">
+                <div className="flex-1 min-w-0">
                     <div className={STATS_ROW}>
                         <div className={H_STAT}>
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.05] bg-black/30 text-[1.2rem] text-primary transition-all group-hover:scale-110 group-hover:-rotate-[8deg] group-hover:border-primary/30">
