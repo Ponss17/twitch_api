@@ -246,8 +246,15 @@ export const clearUserData = async (req: AuthenticatedRequest, res: Response) =>
 
     try {
         await dbService.clearUserStatsAndLogs(userId);
-        await invalidateDashboardStatsCaches(userId, req.login);
-        await invalidateOverlayStateCaches(userId);
+        // Invalidar capas L1 + KV de actividad, analytics y stats de forma explícita
+        // para garantizar que el próximo fetch del Dashboard devuelva datos vacíos.
+        await Promise.all([
+            invalidateDashboardStatsCaches(userId, req.login),
+            invalidateOverlayStateCaches(userId),
+            cacheService.del(`cache:activity:${userId}`),
+            cacheService.del(`cache:dashboard:analytics:${userId}`),
+            cacheService.del(`cache:analytics:${userId}`)
+        ]);
         res.json({
             success: true,
             message: 'Estadísticas y actividad reiniciadas correctamente.',
