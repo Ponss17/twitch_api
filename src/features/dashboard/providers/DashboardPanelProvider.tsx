@@ -34,6 +34,8 @@ import {
 const PANEL_SYNC_CHANNEL = 'dashboard_panel_data_sync';
 const POLL_MS = DASHBOARD_POLL_MS;
 const FALLBACK_POLL_MS = DASHBOARD_FALLBACK_POLL_MS;
+/** Poll de seguridad mínimo cuando Realtime está activo — garantiza datos frescos aunque el WS falle silenciosamente. */
+const REALTIME_SAFETY_POLL_MS = 120_000;
 
 export interface DashboardPanelContextValue {
     stats: DashboardLiveStats;
@@ -95,6 +97,8 @@ export function DashboardPanelProvider({
     const dataReadyFiredRef = useRef(false);
     const syncingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const authRedirectTimerRef = useRef<number | null>(null);
+    /** true mientras se ejecuta applyHomeDataReset — bloquea eventos de Realtime rezagados. */
+    const resetPendingRef = useRef(false);
 
     const markDataReady = useCallback(() => {
         if (dataReadyFiredRef.current) return;
@@ -137,6 +141,7 @@ export function DashboardPanelProvider({
 
     const applyHomeDataReset = useCallback(() => {
         consumeHomeDataResetPending(session.userId);
+        resetPendingRef.current = true;
         setStats(EMPTY_DASHBOARD_LIVE_STATS);
         setActivity([]);
         setError(null);
@@ -147,6 +152,8 @@ export function DashboardPanelProvider({
             retryOnNetwork: false,
             fresh: true,
             silent: true
+        }).then(() => {
+            resetPendingRef.current = false;
         });
     }, [session.userId]);
 
@@ -309,13 +316,17 @@ export function DashboardPanelProvider({
     }, [performSync, session.userId]);
 
     const handleRealtimeStats = useCallback((next: DashboardLiveStats) => {
-        setStats({ ...EMPTY_DASHBOARD_LIVE_STATS, ...next });
+        if (resetPendingRef.current) return;
+        // Merge con estado previo — evita resetear a 0 campos que no vienen en el payload
+        setStats((prev) => ({ ...prev, ...next }));
         markDataReadyRef.current();
         syncRef.current?.broadcast('SYNC_STATS', next);
     }, []);
 
     const handleRealtimeActivity = useCallback(
         (log: ActivityLogItem) => {
+            // Ignorar eventos de Realtime rezagados mientras se ejecuta un reset de datos
+            if (resetPendingRef.current) return;
             const key = activityEntryKey(log);
             let inserted = false;
             setActivity((prev) => {
@@ -327,6 +338,13 @@ export function DashboardPanelProvider({
         },
         [markActivityHighlight]
     );
+
+    const handleRealtimeActivityDelete = useCallback(() => {
+        // Un DELETE en activity_logs (borrado total desde zona peligrosa) limpia el feed local
+        if (!resetPendingRef.current) {
+            setActivity([]);
+        }
+    }, []);
 
     const handleRealtimeDisconnect = useCallback(() => {
         if (!activeRef.current) return;
@@ -342,6 +360,7 @@ export function DashboardPanelProvider({
         session,
         onStatsUpdate: handleRealtimeStats,
         onActivityInsert: handleRealtimeActivity,
+        onActivityDelete: handleRealtimeActivityDelete,
         onDisconnect: handleRealtimeDisconnect
     });
 
@@ -350,10 +369,18 @@ export function DashboardPanelProvider({
     useEffect(() => {
         if (isRealtimeLive) {
             setSyncLabel('Realtime');
-            if (pollRef.current) {
-                clearInterval(pollRef.current);
-                pollRef.current = null;
-            }
+            // Mantener un poll de seguridad mínimo aunque Realtime esté activo.
+            // Garantiza sincronía si el WS falla silenciosamente (sin disparar onDisconnect).
+            if (pollRef.current) clearInterval(pollRef.current);
+            pollRef.current = setInterval(() => {
+                if (
+                    document.visibilityState === 'hidden' ||
+                    !isRealtimeLiveRef.current ||
+                    !activeRef.current ||
+                    !syncRef.current?.getIsLeader()
+                ) return;
+                void performSyncRef.current();
+            }, REALTIME_SAFETY_POLL_MS);
         } else if (active && isTabLeader) {
             startSmartPolling();
         }

@@ -160,6 +160,8 @@ interface RawActivityLog {
 export interface RealtimeCallbacks {
     onStatsUpdate: (stats: DashboardLiveStats) => void;
     onActivityInsert: (log: ActivityLogItem) => void;
+    /** Llamado cuando se detectan DELETEs en activity_logs (borrado masivo desde zona peligrosa). */
+    onActivityDelete?: () => void;
 }
 
 interface RealtimeSubscribeOptions {
@@ -190,6 +192,7 @@ export class RealtimeService {
     private session: Session | null = null;
     private dispatchStats: (stats: DashboardLiveStats) => void = () => {};
     private dispatchActivity: (log: ActivityLogItem) => void = () => {};
+    private dispatchActivityDelete: () => void = () => {};
     private isConnected = false;
     private intentionalClose = false;
     private onDisconnectCallback: (() => void) | null = null;
@@ -202,10 +205,12 @@ export class RealtimeService {
 
     setDispatchers(
         onStats: (stats: DashboardLiveStats) => void,
-        onActivity: (log: ActivityLogItem) => void
+        onActivity: (log: ActivityLogItem) => void,
+        onActivityDelete?: () => void
     ): void {
         this.dispatchStats = onStats;
         this.dispatchActivity = onActivity;
+        this.dispatchActivityDelete = onActivityDelete ?? (() => {});
     }
 
     get connected(): boolean {
@@ -351,6 +356,19 @@ export class RealtimeService {
                         this.dispatchActivity(
                             this.formatActivityLog(payload.new as RawActivityLog)
                         );
+                    }
+                )
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'DELETE',
+                        schema: 'public',
+                        table: 'activity_logs',
+                        filter: userFilter
+                    },
+                    () => {
+                        // Borrado masivo desde zona peligrosa— limpiar el feed local
+                        this.dispatchActivityDelete();
                     }
                 )
                 .on(
@@ -552,14 +570,16 @@ function scheduleDestroyIfIdle(): void {
 }
 
 function dispatchToSubscribers(
-    kind: 'stats' | 'activity',
-    payload: DashboardLiveStats | ActivityLogItem
+    kind: 'stats' | 'activity' | 'activityDelete',
+    payload: DashboardLiveStats | ActivityLogItem | null
 ): void {
     for (const entry of subscribers.values()) {
         if (kind === 'stats') {
             entry.callbacks.onStatsUpdate(payload as DashboardLiveStats);
-        } else {
+        } else if (kind === 'activity') {
             entry.callbacks.onActivityInsert(payload as ActivityLogItem);
+        } else if (kind === 'activityDelete') {
+            entry.callbacks.onActivityDelete?.();
         }
     }
 }
@@ -588,7 +608,8 @@ function ensureService(session: Session): RealtimeService {
 
     realtimeServiceInstance.setDispatchers(
         (stats) => dispatchToSubscribers('stats', stats),
-        (log) => dispatchToSubscribers('activity', log)
+        (log) => dispatchToSubscribers('activity', log),
+        () => dispatchToSubscribers('activityDelete', null)
     );
 
     return realtimeServiceInstance;
