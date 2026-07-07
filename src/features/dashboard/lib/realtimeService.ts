@@ -354,6 +354,29 @@ export class RealtimeService {
                 this.handleStatsRow(payload.new);
             };
 
+            const dailyStatsHandler = (payload: { new: Record<string, unknown> }) => {
+                const row = payload.new;
+                if (typeof row.command_name === 'string' && typeof row.requests_count === 'number') {
+                    // Mapeamos el nombre del comando a la clave del estado
+                    const keyMap: Record<string, keyof DashboardLiveStats> = {
+                        'clips': 'clips',
+                        'followage': 'followage',
+                        'so': 'so',
+                        'message': 'message',
+                        'stalker': 'stalker',
+                        'trends': 'trends',
+                        'roulette': 'roulette',
+                        'russian': 'russian',
+                        'magic8': 'magic8',
+                        'duel': 'duel'
+                    };
+                    const stateKey = keyMap[row.command_name];
+                    if (stateKey) {
+                        this.dispatchStats({ [stateKey]: row.requests_count } as Partial<DashboardLiveStats> as DashboardLiveStats);
+                    }
+                }
+            };
+
             this.channel
                 .on(
                     'postgres_changes',
@@ -401,6 +424,26 @@ export class RealtimeService {
                         filter: userFilter
                     },
                     statsHandler
+                )
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'user_daily_stats',
+                        filter: userFilter
+                    },
+                    dailyStatsHandler
+                )
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'user_daily_stats',
+                        filter: userFilter
+                    },
+                    dailyStatsHandler
                 )
                 .subscribe((status, err) => {
                     if (status === 'SUBSCRIBED') {
