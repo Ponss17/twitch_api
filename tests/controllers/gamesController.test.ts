@@ -129,7 +129,7 @@ describe('gamesController', () => {
             expect(playDuel).toHaveBeenCalledWith('Hero', 'Enemy');
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
-                expect.objectContaining({ type: 'duel', user: 'Hero', detail: 'Enemy' })
+                expect.objectContaining({ type: 'duel', user: 'Hero', metadata: { target: 'Enemy' } })
             );
             expect(res.send).toHaveBeenCalledWith('¡Hero gana!');
         });

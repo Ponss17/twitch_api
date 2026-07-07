@@ -27,7 +27,7 @@ describe('COMMAND_CONFIG generation', () => {
         expect(full).toBe(`!addcom !followage ${url}`);
         expect(full).toContain(API_KEY);
         expect(full).toContain('$(urlfetch');
-        expect(full).toContain('/followage?');
+        expect(full).toContain('/followage/?');
         expect(full).toContain('&user=$(user)');
 
         const masked = maskCommand(full, API_KEY);
@@ -65,7 +65,7 @@ describe('COMMAND_CONFIG generation', () => {
 
         expect(full).toBe(`!addcom !clip ${url}`);
         expect(url).toContain('$(urlfetch');
-        expect(url).toContain('/create-clip?');
+        expect(url).toContain('/create-clip/?');
         expect(url).toContain('&title=$(1+)');
         expect(url).toContain('&user=$(user)');
     });
@@ -99,7 +99,7 @@ describe('COMMAND_CONFIG generation', () => {
 
         expect(full).toContain('&mood=sarcastic');
         expect(full).toContain('&question=$(1+)');
-        expect(full).toContain('/minigames/magic8?');
+        expect(full).toContain('/minigames/magic8/?');
     });
 
     it('ruleta hardcore activado', () => {

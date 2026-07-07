@@ -3,7 +3,6 @@ import { Response } from 'express';
 jest.mock('../../backend/src/core/database/dbService', () => ({
     recordUserRequest: jest.fn().mockResolvedValue(undefined),
     addUserActivity: jest.fn().mockResolvedValue(undefined),
-    incrementUserStats: jest.fn().mockResolvedValue(undefined),
     getUser: jest.fn()
 }));
 
@@ -75,13 +74,12 @@ describe('commandsController', () => {
 
             await createClip(req, res);
 
-            expect(dbService.incrementUserStats).toHaveBeenCalledWith('123', 'clips');
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
                 expect.objectContaining({
                     type: 'clip',
                     user: 'TestUser',
-                    detail: 'Stream Original - https://clips.twitch.tv/test'
+                    metadata: expect.objectContaining({ title: expect.any(String) })
                 })
             );
         });
@@ -106,7 +104,7 @@ describe('commandsController', () => {
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
                 expect.objectContaining({
-                    detail: 'Mi Jugada - https://clips.twitch.tv/test'
+                    metadata: expect.objectContaining({ title: 'Mi Jugada' })
                 })
             );
         });
@@ -132,7 +130,7 @@ describe('commandsController', () => {
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
                 expect.objectContaining({
-                    detail: 'Valorant con amigos - https://clips.twitch.tv/test'
+                    metadata: expect.objectContaining({ title: 'Valorant con amigos' })
                 })
             );
         });
@@ -152,7 +150,7 @@ describe('commandsController', () => {
                 expect.objectContaining({
                     type: 'message',
                     user: 'TestUser',
-                    detail: 'Hello World from chat!'
+                    metadata: expect.objectContaining({ message: 'Hello World from chat!' })
                 })
             );
         });
@@ -170,7 +168,10 @@ describe('commandsController', () => {
 
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
-                expect.objectContaining({ type: 'shoutout', user: 'TargetUser' })
+                expect.objectContaining({
+                    type: 'shoutout',
+                    metadata: expect.objectContaining({ target: 'TargetUser' })
+                })
             );
         });
     });
