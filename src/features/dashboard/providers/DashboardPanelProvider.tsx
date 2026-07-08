@@ -92,6 +92,8 @@ export function DashboardPanelProvider({
     const syncRef = useRef<TabSyncService | null>(null);
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const isRealtimeLiveRef = useRef(false);
+    const hasLiveDataRef = useRef(false);
+    hasLiveDataRef.current = hasLiveData;
     const activeRef = useRef(active);
     activeRef.current = active;
     const panelBootstrappedRef = useRef(false);
@@ -144,6 +146,21 @@ export function DashboardPanelProvider({
                 });
             }, 3000)
         );
+    }, []);
+
+    const updateSyncLabel = useCallback(() => {
+        if (isRealtimeLiveRef.current) {
+            setSyncLabel('Realtime');
+            return;
+        }
+
+        const sync = syncRef.current;
+        if (!sync?.getIsLeader()) {
+            setSyncLabel(hasLiveDataRef.current ? 'Realtime' : 'Sincronizando…');
+            return;
+        }
+
+        setSyncLabel(`${countdownRef.current}s`);
     }, []);
 
     const applyHomeDataReset = useCallback(() => {
@@ -219,7 +236,7 @@ export function DashboardPanelProvider({
                     setSyncLabel('Realtime');
                 } else {
                     countdownRef.current = Math.ceil(POLL_MS / 1000);
-                    setSyncLabel(`${countdownRef.current}s`);
+                    updateSyncLabel();
                 }
 
                 if (partialFailure) {
@@ -268,7 +285,7 @@ export function DashboardPanelProvider({
                 syncingTimerRef.current = setTimeout(() => setSyncing(false), 800);
             }
         },
-        [session]
+        [session, updateSyncLabel]
     );
 
     fetchPanelDataRef.current = fetchPanelData;
@@ -302,7 +319,7 @@ export function DashboardPanelProvider({
         }
 
         countdownRef.current = countdown;
-        setSyncLabel(sync.getIsLeader() ? `${countdown}s` : 'Follower');
+        updateSyncLabel();
 
         if (pollRef.current) clearInterval(pollRef.current);
         pollRef.current = setInterval(() => {
@@ -315,7 +332,7 @@ export function DashboardPanelProvider({
             }
 
             if (!sync.getIsLeader()) {
-                setSyncLabel('Follower');
+                updateSyncLabel();
                 return;
             }
 
@@ -324,9 +341,9 @@ export function DashboardPanelProvider({
                 void performSync();
                 countdownRef.current = Math.ceil(pollMs / 1000);
             }
-            setSyncLabel(`${countdownRef.current}s`);
+            updateSyncLabel();
         }, 1000);
-    }, [performSync, session.userId]);
+    }, [performSync, session.userId, updateSyncLabel]);
 
     const handleRealtimeStats = useCallback((next: RealtimeStatsUpdate) => {
         if (resetPendingRef.current) return;
@@ -444,8 +461,9 @@ export function DashboardPanelProvider({
                 if (stale && panelBootstrappedRef.current) {
                     void performSyncRef.current();
                 }
+                updateSyncLabel();
             } else {
-                setSyncLabel('Follower');
+                updateSyncLabel();
                 if (!isRealtimeLiveRef.current) {
                     startSmartPolling();
                 }
@@ -457,6 +475,9 @@ export function DashboardPanelProvider({
         sync.on('SYNC_STATS', (payload) => {
             setStats((prev) => mergeDashboardStats(prev, payload as RealtimeStatsUpdate));
             markDataReadyRef.current();
+            if (!sync.getIsLeader() && !isRealtimeLiveRef.current) {
+                setSyncLabel('Realtime');
+            }
         });
 
         const onVisible = () => {
@@ -500,7 +521,7 @@ export function DashboardPanelProvider({
             dataReadyFiredRef.current = false;
             panelBootstrappedRef.current = false;
         };
-    }, [startSmartPolling, session.userId]);
+    }, [startSmartPolling, session.userId, updateSyncLabel]);
 
     useEffect(() => {
         if (!isTabLeader || panelBootstrappedRef.current) return;
