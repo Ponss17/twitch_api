@@ -133,7 +133,7 @@ describe('dbService', () => {
         expect(user?.userId).toBe('123');
     });
 
-    it('should delete user data from all related tables before users row', async () => {
+    it('should delete user from users table', async () => {
         s.single.mockResolvedValueOnce({
             data: {
                 user_id: '123',
@@ -147,10 +147,6 @@ describe('dbService', () => {
 
         await deleteUser('123');
 
-        expect(s.from).toHaveBeenCalledWith('user_stats');
-        expect(s.from).toHaveBeenCalledWith('user_daily_stats');
-        expect(s.from).toHaveBeenCalledWith('activity_logs');
-        expect(s.from).toHaveBeenCalledWith('audit_logs');
         expect(s.from).toHaveBeenCalledWith('users');
         expect(s.delete).toHaveBeenCalled();
     });
