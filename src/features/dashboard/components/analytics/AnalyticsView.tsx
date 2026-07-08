@@ -6,6 +6,7 @@ import { fadeIn } from '@/core/ui/tw';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { CardHeaderIcon } from '@/shared/ui/Icon';
+import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
 import { Zap, CheckCircle2, Gauge, Command } from 'lucide-react';
@@ -131,7 +132,10 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                     {/* Total Requests */}
                     <div className={H_STAT}>
                         <div className="flex justify-between items-center w-full mb-2">
-                            <span className="text-sm font-medium text-zinc-300">Peticiones Totales</span>
+                            <div className="flex items-center">
+                                <span className="text-sm font-medium text-zinc-300">Peticiones Totales</span>
+                                <InfoTooltip text="Número total de peticiones procesadas por tu API en el día actual." className="ml-1.5" placement="bottom" />
+                            </div>
                             <Zap className="w-4 h-4 text-primary" />
                         </div>
                         <div className="flex flex-col">
@@ -148,7 +152,10 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                     {/* Success Rate */}
                     <div className={H_STAT}>
                         <div className="flex justify-between items-center w-full mb-2">
-                            <span className="text-sm font-medium text-zinc-300">Tasa de Éxito</span>
+                            <div className="flex items-center">
+                                <span className="text-sm font-medium text-zinc-300">Tasa de Éxito</span>
+                                <InfoTooltip text="Porcentaje de peticiones de hoy que se resolvieron correctamente sin errores del servidor." className="ml-1.5" placement="bottom" />
+                            </div>
                             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                         </div>
                         <div className="flex flex-col">
@@ -166,7 +173,10 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                     {/* Avg Processing Time */}
                     <div className={H_STAT}>
                         <div className="flex justify-between items-center w-full mb-2">
-                            <span className="text-sm font-medium text-zinc-300">Tiempo de Proceso Medio</span>
+                            <div className="flex items-center">
+                                <span className="text-sm font-medium text-zinc-300">Tiempo de Proceso Medio</span>
+                                <InfoTooltip text="Tiempo promedio que toma tu servidor en procesar las peticiones del día actual." className="ml-1.5" placement="bottom" />
+                            </div>
                             <Gauge className="w-4 h-4 text-amber-500" />
                         </div>
                         <div className="flex flex-col">
@@ -186,7 +196,10 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                     {/* Commands */}
                     <div className={H_STAT}>
                         <div className="flex justify-between items-center w-full mb-2">
-                            <span className="text-sm font-medium text-zinc-300">Comandos Usados</span>
+                            <div className="flex items-center">
+                                <span className="text-sm font-medium text-zinc-300">Comandos Usados</span>
+                                <InfoTooltip text="Número de herramientas y comandos únicos invocados en los últimos 7 días." className="ml-1.5" placement="bottom" />
+                            </div>
                             <Command className="w-4 h-4 text-blue-500" />
                         </div>
                         <div className="flex flex-col">
