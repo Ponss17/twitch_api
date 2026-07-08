@@ -122,22 +122,35 @@ export function LandingPage() {
 
         void (async () => {
             const params = new URLSearchParams(window.location.search);
-            const sessionParams = await resolveSessionFromUrl();
             const authParam = params.get('auth');
-            const isFreshLogin = !!authParam || sessionParams.isNewLogin === true;
+            
+            // Si hay token en la URL, redirigir al panel INMEDIATAMENTE para que lo consuma él.
+            if (authParam) {
+                setIsVerifying(true);
+                reportSessionLoadProgress({
+                    progress: 12,
+                    label: 'Preparando tu panel...',
+                    cached: false
+                });
+                markDashboardSplashForFreshLogin();
+                window.location.href = appPath('/dashboard/') + `?auth=${encodeURIComponent(authParam)}`;
+                return;
+            }
+
+            // Si no hay token nuevo, intentar recuperar la sesión local
+            const sessionParams = await resolveSessionFromUrl();
+            const isFreshLogin = sessionParams.isNewLogin === true;
 
             if (!isFreshLogin) return;
 
             setIsVerifying(true);
             reportSessionLoadProgress({
                 progress: 12,
-                label: 'Preparando tu panel…',
+                label: 'Preparando tu panel...',
                 cached: false
             });
             markDashboardSplashForFreshLogin();
-
-            const search = authParam ? `?auth=${encodeURIComponent(authParam)}` : '';
-            window.location.href = appPath('/dashboard/') + search;
+            window.location.href = appPath('/dashboard/');
         })();
     }, []);
 
