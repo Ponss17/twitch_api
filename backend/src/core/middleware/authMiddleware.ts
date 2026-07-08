@@ -85,24 +85,24 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             }
 
             if (isJsonApiRoute(req.path)) {
-                return rejectUnauthorized(req, res, () =>
+                return await rejectUnauthorized(req, res, () =>
                     jsonError(res, 401, MESSAGES.AUTH.MISSING_TOKEN_URL)
                 );
             }
 
             if (isApiRoute(req.path)) {
-                return rejectUnauthorized(req, res, () => {
+                return await rejectUnauthorized(req, res, () => {
                     res.setHeader('Content-Type', 'text/plain');
                     return res.status(401).send(MESSAGES.AUTH.MISSING_TOKEN_URL);
                 });
             }
-            return rejectUnauthorized(req, res, () =>
+            return await rejectUnauthorized(req, res, () =>
                 jsonError(res, 401, MESSAGES.AUTH.MISSING_TOKEN_URL)
             );
         }
 
         if (invalidTokensCache.has(token)) {
-            return rejectUnauthorized(req, res, () =>
+            return await rejectUnauthorized(req, res, () =>
                 jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN)
             );
         }
@@ -140,7 +140,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                         );
                     } else {
                         invalidTokensCache.set(token);
-                        return rejectUnauthorized(req, res, () =>
+                        return await rejectUnauthorized(req, res, () =>
                             jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN)
                         );
                     }

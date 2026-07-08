@@ -27,12 +27,20 @@ async function incrementPerMinuteCounter(
         return 0; // Fail-open en dev
     }
 
-    const redisKey = `twitch_api:${key}:${currentWindow}`;
-    const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
-        number,
-        number
-    ];
-    return count;
+    try {
+        const redisKey = `twitch_api:${key}:${currentWindow}`;
+        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
+            number,
+            number
+        ];
+        return count;
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            logger.debug(`KV counter failed for ${key}, fail-open en dev/test`, { error });
+            return 0;
+        }
+        throw error;
+    }
 }
 
 /**
@@ -193,6 +201,11 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
         }
         next();
     } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            logger.debug('KV heavy rate limit omitido en desarrollo', { error });
+            return next();
+        }
+
         logger.error('Error in Heavy Rate Limiter:', error);
         return res.status(503).json({ error: 'Service Unavailable', message: 'Servicio temporalmente no disponible' });
     }
