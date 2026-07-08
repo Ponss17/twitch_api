@@ -81,13 +81,13 @@ describe('SessionProvider', () => {
         expect(mockedMergeSessionFromValidate).toHaveBeenCalled();
     });
 
-    it('shows stored session immediately while validation runs', async () => {
+    it('waits for validation before showing stored session', async () => {
         const stored = { apiKey: 'k', login: 'streamer', displayName: 'Streamer' };
         (getSession as jest.Mock).mockReturnValue(stored);
         (readOptimisticAuthState as jest.Mock).mockReturnValue({
             session: stored,
-            loading: false,
-            authenticated: true
+            loading: true,
+            authenticated: false
         });
 
         let resolveValidate: (value: unknown) => void = () => {};
@@ -105,7 +105,7 @@ describe('SessionProvider', () => {
             </SessionProvider>
         );
 
-        expect(screen.getByText('user:streamer')).toBeInTheDocument();
+        expect(screen.getByText('loading')).toBeInTheDocument();
 
         await waitFor(() => expect(mockedValidateSession).toHaveBeenCalled());
         await act(async () => {

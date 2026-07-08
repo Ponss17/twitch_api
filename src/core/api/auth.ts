@@ -249,7 +249,7 @@ function resolveDegradedSession(session: Session): Session {
     return stored ? { ...stored, ...session } : session;
 }
 
-/** Sesión en localStorage sin OAuth en curso — mostrar panel al instante. */
+/** Sesión en localStorage sin OAuth en curso — esperar validate antes de montar el panel. */
 export function readOptimisticAuthState(): {
     session: Session | null;
     loading: boolean;
@@ -263,12 +263,39 @@ export function readOptimisticAuthState(): {
     }
     const stored = getSession();
     if (stored?.apiKey || stored?.token) {
-        return { session: stored, loading: false, authenticated: true };
+        return { session: stored, loading: true, authenticated: false };
     }
     return { session: null, loading: true, authenticated: false };
 }
 
+function validateDedupeKey(session: Session): string {
+    if (session.overlayToken) return `overlay:${session.overlayToken}`;
+    return sessionFingerprint(session);
+}
+
+let validateInFlight: Promise<ApiResponse> | null = null;
+let validateInFlightKey: string | null = null;
+
 export async function validateSession(session: Session): Promise<ApiResponse> {
+    const dedupeKey = validateDedupeKey(session);
+    if (validateInFlight && validateInFlightKey === dedupeKey) {
+        return validateInFlight;
+    }
+
+    const run = runValidateSession(session);
+    validateInFlight = run;
+    validateInFlightKey = dedupeKey;
+    try {
+        return await run;
+    } finally {
+        if (validateInFlight === run) {
+            validateInFlight = null;
+            validateInFlightKey = null;
+        }
+    }
+}
+
+async function runValidateSession(session: Session): Promise<ApiResponse> {
     if (session.overlayToken) {
         return validateOverlaySession(session);
     }
