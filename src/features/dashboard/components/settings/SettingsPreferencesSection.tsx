@@ -84,8 +84,11 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
             <div className="flex flex-col gap-4 rounded-xl border border-white/[0.08] bg-black/20 p-4 pl-5 transition-colors hover:bg-black/30">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex-1">
-                        <h4 className="mb-1 text-[1.05rem] font-bold text-white flex items-center gap-2">
-                            <Globe className="w-4 h-4 text-primary" />
+                        <h4
+                            id="settings-timezone-label"
+                            className="mb-1 text-[1.05rem] font-bold text-white flex items-center gap-2"
+                        >
+                            <Globe className="w-4 h-4 text-primary" aria-hidden="true" />
                             Zona Horaria
                         </h4>
                         <p className="text-[0.85rem] text-[#c4c4cc]">
@@ -95,17 +98,21 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                     
                     <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
                         <Dropdown className="relative w-full sm:w-auto">
-                            <DropdownTrigger className="flex w-full min-w-[220px] items-center justify-between gap-2 rounded-lg border border-white/[0.08] bg-[#18181b] px-3 py-2 text-sm font-medium text-[#fafafa] transition hover:border-primary/50 hover:bg-white/[0.04] sm:w-auto">
+                            <DropdownTrigger
+                                aria-labelledby="settings-timezone-label"
+                                className="flex w-full min-w-[220px] items-center justify-between gap-2 rounded-lg border border-white/[0.08] bg-[#18181b] px-3 py-2 text-sm font-medium text-[#fafafa] transition hover:border-primary/50 hover:bg-white/[0.04] sm:w-auto"
+                            >
                                 <span className="truncate max-w-[180px] text-left">{selectedTz}</span>
-                                <ChevronDown className="h-4 w-4 shrink-0 text-zinc-400" />
+                                <ChevronDown className="h-4 w-4 shrink-0 text-zinc-400" aria-hidden="true" />
                             </DropdownTrigger>
                             <DropdownPanel align="right" widthClassName="w-full sm:w-[280px]" className="z-[1000] flex flex-col p-1">
                                 <div className="px-2 pb-2 pt-2">
                                     <div className="relative">
-                                        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" />
+                                        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
                                         <input
                                             type="text"
                                             placeholder="Buscar zona horaria..."
+                                            aria-label="Buscar zona horaria"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                             className="w-full rounded-md border border-white/10 bg-black/40 py-1.5 pl-8 pr-3 text-xs text-white placeholder:text-zinc-500 focus:border-primary/50 focus:outline-none"

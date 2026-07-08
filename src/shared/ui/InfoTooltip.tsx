@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import { HelpCircle } from 'lucide-react';
 
 interface InfoTooltipProps {
@@ -10,23 +10,29 @@ interface InfoTooltipProps {
 
 export function InfoTooltip({ text, className, placement = 'top' }: InfoTooltipProps) {
     const opensBelow = placement === 'bottom';
+    const tipId = useId();
 
     return (
-        <div
-            className={`group/info relative cursor-help text-[1.1rem] text-[#71717a] transition hover:text-primary${
+        <button
+            type="button"
+            aria-label="Más información"
+            aria-describedby={tipId}
+            className={`group/info relative cursor-help border-0 bg-transparent p-0 text-[1.1rem] text-[#71717a] transition hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]${
                 className ? ` ${className}` : ''
             }`}
         >
             <HelpCircle className="w-5 h-5" aria-hidden="true" />
             <span
-                className={`pointer-events-none absolute right-0 z-[200] w-[min(260px,calc(100vw-2rem))] rounded-md border border-white/[0.08] bg-bg-card p-3 text-left font-[Outfit,sans-serif] text-[0.82rem] leading-snug font-normal text-[#fafafa] opacity-0 shadow-lg transition ${
+                id={tipId}
+                role="tooltip"
+                className={`pointer-events-none absolute right-0 z-[200] w-[min(260px,calc(100vw-2rem))] rounded-md border border-white/[0.08] bg-bg-card p-3 text-left font-[Outfit,sans-serif] text-[0.82rem] leading-snug font-normal text-[#fafafa] opacity-0 shadow-lg transition group-hover/info:opacity-100 group-focus-visible/info:opacity-100 ${
                     opensBelow
-                        ? 'top-[calc(100%+8px)] group-hover/info:translate-y-0.5 group-hover/info:opacity-100'
-                        : 'bottom-[calc(100%+10px)] group-hover/info:-translate-y-0.5 group-hover/info:opacity-100'
+                        ? 'top-[calc(100%+8px)] group-hover/info:translate-y-0.5 group-focus-visible/info:translate-y-0.5'
+                        : 'bottom-[calc(100%+10px)] group-hover/info:-translate-y-0.5 group-focus-visible/info:-translate-y-0.5'
                 }`}
             >
                 {text}
             </span>
-        </div>
+        </button>
     );
 }

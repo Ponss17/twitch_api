@@ -25,9 +25,16 @@ interface DashboardHeaderProps {
     onSettings: () => void;
     onLogout: () => void;
     onMenuToggle: () => void;
+    mobileMenuOpen?: boolean;
 }
 
-export function DashboardHeader({ tab, onSettings, onLogout, onMenuToggle }: DashboardHeaderProps) {
+export function DashboardHeader({
+    tab,
+    onSettings,
+    onLogout,
+    onMenuToggle,
+    mobileMenuOpen = false
+}: DashboardHeaderProps) {
     const session = useRequiredSession();
     const meta = TAB_META[tab];
     const displayName = session.displayName ?? session.login ?? 'Streamer';
@@ -39,8 +46,10 @@ export function DashboardHeader({ tab, onSettings, onLogout, onMenuToggle }: Das
                 <button
                     type="button"
                     onClick={onMenuToggle}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-[#c4c4cc] transition hover:bg-white/5 hover:text-white lg:hidden"
-                    aria-label="Abrir menú"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-[#c4c4cc] transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 lg:hidden"
+                    aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+                    aria-expanded={mobileMenuOpen}
+                    aria-controls="dashboard-sidebar"
                 >
                     <Menu className="w-5 h-5" />
                 </button>

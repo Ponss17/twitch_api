@@ -1,6 +1,6 @@
 import { AlertTriangle, Loader2 } from 'lucide-react';
 
-import { useEffect, useRef, useState, createContext, useCallback, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, createContext, useCallback, type ReactNode } from 'react';
 import { X, Trash2, type LucideIcon } from 'lucide-react';
 import {
     btnDanger,
@@ -43,6 +43,9 @@ export interface BaseModalProps {
     closeOnBackdrop?: boolean;
     className?: string;
     dialogClassName?: string;
+    /** Asocia el diálogo a un título visible (`id` del heading). */
+    'aria-labelledby'?: string;
+    'aria-describedby'?: string;
 }
 
 export function BaseModal({
@@ -51,7 +54,9 @@ export function BaseModal({
     children,
     closeOnBackdrop = true,
     className = '',
-    dialogClassName = dialogBase
+    dialogClassName = dialogBase,
+    'aria-labelledby': ariaLabelledBy,
+    'aria-describedby': ariaDescribedBy
 }: BaseModalProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
@@ -124,6 +129,8 @@ export function BaseModal({
         <dialog
             ref={dialogRef}
             className={dialogClassName}
+            aria-labelledby={ariaLabelledBy}
+            aria-describedby={ariaDescribedBy}
             onClick={(e) => {
                 if (closeOnBackdrop && e.target === dialogRef.current) handleClose();
             }}
@@ -151,10 +158,17 @@ export function Modal({
     footer,
     closeOnBackdrop = true
 }: ModalProps) {
+    const titleId = useId();
     return (
-        <BaseModal open={open} onClose={onClose} closeOnBackdrop={closeOnBackdrop} className={modalPanel}>
+        <BaseModal
+            open={open}
+            onClose={onClose}
+            closeOnBackdrop={closeOnBackdrop}
+            className={modalPanel}
+            aria-labelledby={titleId}
+        >
             <div className={modalHeader}>
-                <h3 className={modalTitle}>
+                <h3 id={titleId} className={modalTitle}>
                     <TitleIcon className={modalTitleIcon} aria-hidden="true" />
                     {title}
                     {titleBadge ? (
@@ -198,6 +212,8 @@ export function DangerConfirmModal({
     const [closing, setClosing] = useState(false);
     const dialogRef = useRef<HTMLDialogElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
+    const titleId = useId();
+    const descId = useId();
 
     useEffect(() => {
         if (!open) {
@@ -267,6 +283,8 @@ export function DangerConfirmModal({
         <dialog
             ref={dialogRef}
             className={`${dialogBase} ${shake ? modalShake : ''}`}
+            aria-labelledby={titleId}
+            aria-describedby={descId}
             onClick={(e) => {
                 if (e.target === dialogRef.current && !loading) handleClose();
             }}
@@ -276,8 +294,8 @@ export function DangerConfirmModal({
                 className={`${dangerModalPanel} ${closing ? 'animate-modal-out' : 'animate-modal-in'}`}
             >
                 <div className={dangerModalHeader}>
-                    <h3 className={modalTitle}>
-                        <AlertTriangle className={` ${dangerModalTitleIcon}`} />
+                    <h3 id={titleId} className={modalTitle}>
+                        <AlertTriangle className={` ${dangerModalTitleIcon}`} aria-hidden="true" />
                         <span>{title}</span>
                     </h3>
                     <button
@@ -291,7 +309,7 @@ export function DangerConfirmModal({
                     </button>
                 </div>
                 <div className={modalBody}>
-                    <p>{description}</p>
+                    <p id={descId}>{description}</p>
                     <div className={dangerInputGroup}>
                         <label htmlFor="danger-modal-confirm" className={dangerInputLabel}>
                             Escribe <span className={confirmWordBadge}>{confirmWord}</span> para confirmar:
