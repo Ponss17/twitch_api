@@ -33,55 +33,49 @@ export const ProfileDangerZone = forwardRef<HTMLDivElement, ProfileDangerZonePro
 
                 <div className="flex flex-col gap-3">
                     {/* Reiniciar Estadísticas */}
-                    <div className="flex flex-col gap-4 rounded-xl border border-white/[0.06] bg-black/20 p-4 pl-5 transition-colors hover:bg-black/30 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-start gap-3">
-                            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-amber-500/15 bg-amber-500/[0.08]">
-                                <RotateCcw className="h-4 w-4 text-amber-400" />
-                            </div>
-                            <div>
-                                <h4 className="mb-0.5 text-[0.9rem] font-bold text-[#fafafa]">
-                                    Reiniciar Estadísticas
-                                </h4>
-                                <p className="m-0 max-w-[460px] text-[0.82rem] leading-relaxed text-zinc-400">
-                                    Borra todo el historial de comandos, clips y latencia.
-                                    <span className="ml-1 text-zinc-300">Tu API Key seguirá activa.</span>
-                                </p>
-                            </div>
+                    <div className="flex flex-col gap-4 rounded-xl border border-error/10 bg-error/[0.03] p-4 pl-5 transition-colors hover:border-error/25 hover:bg-error/[0.06] sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex-1 text-[#fafafa]">
+                            <h4 className="mb-1 text-[1.05rem] font-bold text-[#fafafa] flex items-center gap-2">
+                                <RotateCcw className="h-4 w-4 text-error" />
+                                Reiniciar Estadísticas
+                            </h4>
+                            <p className="m-0 max-w-[600px] text-[0.85rem] leading-relaxed text-zinc-400">
+                                Borra todo el historial de comandos, clips y latencia. Tu API Key seguirá activa.
+                            </p>
                         </div>
-                        <button
-                            type="button"
-                            onClick={onClearData}
-                            className="shrink-0 inline-flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/[0.06] px-4 py-2 text-[0.82rem] font-bold text-amber-400 transition hover:border-amber-500/40 hover:bg-amber-500/[0.14] hover:text-amber-300 sm:w-auto w-full justify-center"
-                        >
-                            <RotateCcw className="h-3.5 w-3.5" />
-                            Limpiar Datos
-                        </button>
+                        <div className="shrink-0 w-full sm:w-auto">
+                            <button
+                                type="button"
+                                onClick={onClearData}
+                                className="inline-flex items-center gap-2 w-full sm:w-auto justify-center rounded-lg border border-error/20 bg-error/[0.06] px-5 py-2 text-sm font-bold text-error transition hover:border-error/40 hover:bg-error/[0.14] hover:text-error"
+                            >
+                                <RotateCcw className="h-4 w-4" />
+                                Limpiar Datos
+                            </button>
+                        </div>
                     </div>
 
                     {/* Eliminar Cuenta */}
                     <div className="flex flex-col gap-4 rounded-xl border border-error/10 bg-error/[0.03] p-4 pl-5 transition-colors hover:border-error/25 hover:bg-error/[0.06] sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-start gap-3">
-                            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-error/20 bg-error/[0.08]">
+                        <div className="flex-1 text-[#fafafa]">
+                            <h4 className="mb-1 text-[1.05rem] font-bold text-[#fafafa] flex items-center gap-2">
                                 <AlertTriangle className="h-4 w-4 text-error" />
-                            </div>
-                            <div>
-                                <h4 className="mb-0.5 text-[0.9rem] font-bold text-[#fafafa]">
-                                    Eliminar Cuenta
-                                </h4>
-                                <p className="m-0 max-w-[460px] text-[0.82rem] leading-relaxed text-zinc-400">
-                                    Borra permanentemente tu perfil y todos los datos asociados.
-                                    <span className="ml-1 font-semibold text-error/80">Esta acción es irreversible.</span>
-                                </p>
-                            </div>
+                                Eliminar Cuenta
+                            </h4>
+                            <p className="m-0 max-w-[600px] text-[0.85rem] leading-relaxed text-zinc-400">
+                                Borra permanentemente tu perfil y todos los datos asociados. <strong className="text-error/80">Esta acción es irreversible.</strong>
+                            </p>
                         </div>
-                        <button
-                            type="button"
-                            onClick={onDeleteAccount}
-                            className="shrink-0 inline-flex items-center gap-2 rounded-lg bg-error/80 px-4 py-2 text-[0.82rem] font-bold text-white transition hover:bg-error sm:w-auto w-full justify-center"
-                        >
-                            <Trash2 className="h-3.5 w-3.5" />
-                            Eliminar Cuenta
-                        </button>
+                        <div className="shrink-0 w-full sm:w-auto">
+                            <button
+                                type="button"
+                                onClick={onDeleteAccount}
+                                className="inline-flex items-center gap-2 w-full sm:w-auto justify-center rounded-lg bg-error/80 px-5 py-2 text-sm font-bold text-white transition hover:bg-error"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                                Eliminar Cuenta
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

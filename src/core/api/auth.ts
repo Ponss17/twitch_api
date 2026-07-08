@@ -188,6 +188,9 @@ function pickSessionFromValidate(result: ApiResponse): Partial<Session> {
     if (typeof result.apiKey === 'string' && result.apiKey) {
         partial.apiKey = result.apiKey;
     }
+    if (typeof result.token === 'string' && result.token) {
+        partial.token = result.token;
+    }
     if (typeof result.overlayToken === 'string' && result.overlayToken) {
         partial.overlayToken = result.overlayToken;
     }
@@ -444,15 +447,43 @@ export async function apiFetch<T>(
     session: Session | null,
     init: RequestInit = {}
 ): Promise<T> {
-    const response = await fetch(url, {
+    const fetchWithHeaders = (sess: Session | null) => fetch(url, {
         ...init,
         headers: {
-            ...authHeaders(session),
+            ...authHeaders(sess),
             ...(init.headers as Record<string, string> | undefined)
         }
     });
 
+    let response = await fetchWithHeaders(session);
+
     if (!response.ok) {
+        if (response.status === 401 && typeof window !== 'undefined' && session?.apiKey) {
+            // Attempt to refresh the token using apiKey
+            const refreshResult = await validateSession({ ...session, token: undefined });
+            if (refreshResult.valid && refreshResult.token) {
+                // Retry the request with the new session
+                const newSession = getSession();
+                response = await fetchWithHeaders(newSession);
+                if (response.ok) {
+                    return (await response.json()) as T;
+                }
+            }
+            
+            if (response.status === 401) {
+                // Token expired or invalid and refresh failed, force logout
+                invalidateSession({ broadcast: true });
+                window.location.href = window.location.origin + window.location.pathname;
+                // Prevent further execution
+                await new Promise(() => {});
+            }
+        } else if (response.status === 401 && typeof window !== 'undefined') {
+            // Force logout if no apiKey available to refresh
+            invalidateSession({ broadcast: true });
+            window.location.href = window.location.origin + window.location.pathname;
+            await new Promise(() => {});
+        }
+        
         const text = await response.text();
         throw new Error(parseHttpErrorBody(text, `HTTP ${response.status}`));
     }
