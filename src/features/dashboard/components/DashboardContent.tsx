@@ -2,15 +2,15 @@ import { lazy, Suspense, type ReactNode } from 'react';
 import type { DashboardTab } from '@/core/config/config';
 import { useMountedTabs } from '@/features/dashboard/hooks/useMountedTabs';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
-import { HomeViewSkeleton, ProfileHeroSkeleton } from '@/shared/ui/Skeleton';
+import { HomeViewSkeleton, SettingsHeroSkeleton } from '@/shared/ui/Skeleton';
 const HomeView = lazy(() =>
     import('@/features/dashboard/components/home/HomeView').then((m) => ({ default: m.HomeView }))
 );
 const AnalyticsView = lazy(() =>
     import('@/features/dashboard/components/analytics/AnalyticsView').then((m) => ({ default: m.AnalyticsView }))
 );
-const ProfileView = lazy(() =>
-    import('@/features/dashboard/components/profile/ProfileView').then((m) => ({ default: m.ProfileView }))
+const SettingsView = lazy(() =>
+    import('@/features/dashboard/components/settings/SettingsView').then((m) => ({ default: m.SettingsView }))
 );
 const FollowageView = lazy(() =>
     import('@/features/commands/components/CommandsViews').then((m) => ({ default: m.FollowageView }))
@@ -50,7 +50,7 @@ interface TabPanelProps {
 }
 
 function TabFallback({ tab }: { tab: DashboardTab }) {
-    if (tab === 'profile') return <ProfileHeroSkeleton />;
+    if (tab === 'settings') return <SettingsHeroSkeleton />;
     return <HomeViewSkeleton />;
 }
 
@@ -66,8 +66,8 @@ function renderTabPanel(tab: DashboardTab, { active, onNavigate }: TabPanelProps
             return <ClipsView />;
         case 'shoutout':
             return <ShoutoutView />;
-        case 'profile':
-            return <ProfileView active={active} />;
+        case 'settings':
+            return <SettingsView active={active} />;
         case 'magic8':
             return <Magic8View />;
         case 'duel':

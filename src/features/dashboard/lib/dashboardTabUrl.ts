@@ -14,7 +14,7 @@ const VALID_TABS: ReadonlySet<DashboardTab> = new Set([
     'roulette',
     'russian',
     'duel',
-    'profile',
+    'settings',
     'feedback'
 ]);
 

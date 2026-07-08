@@ -15,6 +15,7 @@ export interface DashboardPanelLoadResult {
     /** false cuando el endpoint de summary falló — el caller debe conservar los stats anteriores. */
     analyticsLoaded: boolean;
     activity: ActivityLogItem[];
+    profile: any; // We will use any to avoid importing ProfileData type, but we should import it if possible
     partialFailure?: unknown;
 }
 
@@ -22,13 +23,15 @@ export async function loadDashboardPanelData(
     session: Session,
     options?: { fresh?: boolean }
 ): Promise<DashboardPanelLoadResult> {
-    const [summaryResult, activityResult] = await Promise.allSettled([
+    const [summaryResult, activityResult, profileResult] = await Promise.allSettled([
         fetchDashboardSummary(session, undefined, { fresh: options?.fresh }),
-        apiFetch<ActivityLogItem[] | { logs?: ActivityLogItem[] }>(API_ENDPOINTS.ACTIVITY, session)
+        apiFetch<ActivityLogItem[] | { logs?: ActivityLogItem[] }>(API_ENDPOINTS.ACTIVITY, session),
+        import('@/features/dashboard/lib/dashboardSummary').then(m => m.fetchDashboardProfile(session, { fresh: options?.fresh }))
     ]);
 
     let analytics: DashboardLiveStats = EMPTY_DASHBOARD_LIVE_STATS;
     let activity: ActivityLogItem[] = [];
+    let profile: any = null;
     const failures: unknown[] = [];
 
     if (summaryResult.status === 'fulfilled') {
@@ -61,8 +64,14 @@ export async function loadDashboardPanelData(
     } else {
         failures.push(activityResult.reason);
     }
+    
+    if (profileResult.status === 'fulfilled') {
+        profile = profileResult.value;
+    } else {
+        failures.push(profileResult.reason);
+    }
 
-    if (failures.length === 2) {
+    if (failures.length === 3) {
         throw failures[0];
     }
 
@@ -70,6 +79,7 @@ export async function loadDashboardPanelData(
         analytics,
         analyticsLoaded: summaryResult.status === 'fulfilled',
         activity,
-        partialFailure: failures[0]
+        profile,
+        partialFailure: failures.length > 0 ? failures[0] : undefined
     };
 }

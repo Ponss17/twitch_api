@@ -13,7 +13,7 @@ import {
     DropdownPanel,
     DropdownTrigger
 } from '@/shared/ui/Dropdown';
-import { User, LogOut, Menu } from 'lucide-react';
+import { User, LogOut, Menu, Settings } from 'lucide-react';
 import { TwitchIcon, PaypalIcon } from '@/shared/ui/icons/BrandIcons';
 const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
 
@@ -22,12 +22,12 @@ const headerGhostBtn =
 
 interface DashboardHeaderProps {
     tab: DashboardTab;
-    onProfile: () => void;
+    onSettings: () => void;
     onLogout: () => void;
     onMenuToggle: () => void;
 }
 
-export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: DashboardHeaderProps) {
+export function DashboardHeader({ tab, onSettings, onLogout, onMenuToggle }: DashboardHeaderProps) {
     const session = useRequiredSession();
     const meta = TAB_META[tab];
     const displayName = session.displayName ?? session.login ?? 'Streamer';
@@ -80,12 +80,12 @@ export function DashboardHeader({ tab, onProfile, onLogout, onMenuToggle }: Dash
 
                         <DropdownPanel widthClassName="w-[230px]" zIndex={1000} className="rounded-2xl">
                             <DropdownHeader>Mi Cuenta</DropdownHeader>
-                            <DropdownItem onClick={onProfile}>
-                                <User className="w-4 text-center" />
-                                Mi Perfil
+                            <DropdownItem onClick={onSettings}>
+                                <Settings className="w-4 text-center" />
+                                Configuración
                             </DropdownItem>
                             <DropdownLink href={twitchProfileUrl} target="_blank" rel="noopener noreferrer">
-                                <TwitchIcon className="w-4 text-center" />
+                                <TwitchIcon className="w-4 text-center grayscale brightness-[200] opacity-70 group-hover:opacity-100 group-hover:brightness-[250] transition-all" />
                                 Perfil de Twitch
                             </DropdownLink>
                             <DropdownDivider />

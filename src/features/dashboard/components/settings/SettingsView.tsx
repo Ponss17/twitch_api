@@ -17,12 +17,11 @@ import { fadeIn } from '@/core/ui/tw';
 import { appPath } from '@/core/config/paths';
 import { DangerConfirmModal, RegenKeyModal } from '@/shared/ui/Modal';
 import { useToast } from '@/shared/ui/ToastProvider';
-import { ProfileHero } from '@/features/dashboard/components/profile/ProfileHero';
-import { ProfileSecuritySection } from '@/features/dashboard/components/profile/ProfileSecuritySection';
-import { ProfileExportSection } from '@/features/dashboard/components/profile/ProfileExportSection';
-import { ProfileDangerZone } from '@/features/dashboard/components/profile/ProfileDangerZone';
-import { ProfileSettingsSection } from '@/features/dashboard/components/profile/ProfileSettingsSection';
-import { ProfileHeroSkeleton } from '@/shared/ui/Skeleton';
+import { SettingsSecuritySection } from '@/features/dashboard/components/settings/SettingsSecuritySection';
+import { SettingsExportSection } from '@/features/dashboard/components/settings/SettingsExportSection';
+import { SettingsDangerZone } from '@/features/dashboard/components/settings/SettingsDangerZone';
+import { SettingsPreferencesSection } from '@/features/dashboard/components/settings/SettingsPreferencesSection';
+import { SettingsHeroSkeleton } from '@/shared/ui/Skeleton';
 
 interface ProfileData {
     followers?: number;
@@ -52,13 +51,7 @@ function formatMemberSince(iso?: string): string {
     }
 }
 
-function broadcasterLabel(type?: string): string {
-    if (type === 'partner') return 'Partner';
-    if (type === 'affiliate') return 'Afiliado';
-    return 'Streamer';
-}
-
-export function ProfileView({ active = true }: { active?: boolean }) {
+export function SettingsView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
     const { refresh } = useSession();
     const { showToast } = useToast();
@@ -277,26 +270,17 @@ export function ProfileView({ active = true }: { active?: boolean }) {
         showToast('ID copiado', 'success');
     };
 
-    const label = broadcasterLabel(profile?.broadcaster_type);
-
     if (loading && !profile) {
         return (
             <div className={fadeIn}>
-                <ProfileHeroSkeleton />
+                <SettingsHeroSkeleton />
             </div>
         );
     }
 
     return (
         <div className={fadeIn}>
-            <ProfileHero
-                description={profile?.description}
-                followers={profile?.followers}
-                broadcasterLabel={label}
-                memberSince={formatMemberSince(profile?.created_at)}
-            />
-
-            <ProfileSecuritySection
+            <SettingsSecuritySection
                 apiKey={keyVisible ? apiKey : maskApiKey(apiKey)}
                 keyVisible={keyVisible}
                 showDanger={showDanger}
@@ -313,12 +297,12 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                 onCopyId={() => void copyId()}
             />
 
-            <ProfileSettingsSection 
+            <SettingsPreferencesSection 
                 currentTimezone={profile?.timezone || 'UTC'}
                 onSettingsChanged={() => void syncProfile({ silent: true, fresh: true })}
             />
 
-            <ProfileExportSection
+            <SettingsExportSection
                 loading={exportLoading}
                 onExport={async () => {
                     setExportLoading(true);
@@ -356,7 +340,7 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                 }}
             />
 
-            <ProfileDangerZone
+            <SettingsDangerZone
                 ref={dangerZoneRef}
                 visible={showDanger}
                 onClearData={() =>
