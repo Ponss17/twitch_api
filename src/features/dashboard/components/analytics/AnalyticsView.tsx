@@ -119,11 +119,14 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         <div className={`space-y-6 ${fadeIn}`}>
 
             {/* Contenedor Unificado: Overview + KPIs */}
-            <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6">
+            <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
                 <div className="flex items-center gap-3 mb-6 border-b border-white/[0.08] pb-4">
                     <CardHeaderIcon icon={BarChart3} />
                     <div>
-                        <h3 className="mb-0.5 text-[1.05rem] font-bold text-[#fafafa]">Analytics Overview</h3>
+                        <div className="flex items-center mb-0.5">
+                            <h3 className="text-[1.05rem] font-bold text-[#fafafa]">Analytics Overview</h3>
+                            <InfoTooltip text="Métricas generales en tiempo real correspondientes al día actual." className="ml-2" />
+                        </div>
                         <p className="text-[0.8rem] text-zinc-400">Métricas de rendimiento en tiempo real de tu API (Hoy).</p>
                     </div>
                 </div>
@@ -132,10 +135,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                     {/* Total Requests */}
                     <div className={H_STAT}>
                         <div className="flex justify-between items-center w-full mb-2">
-                            <div className="flex items-center">
-                                <span className="text-sm font-medium text-zinc-300">Peticiones Totales</span>
-                                <InfoTooltip text="Número total de peticiones procesadas por tu API en el día actual." className="ml-1.5" placement="bottom" />
-                            </div>
+                            <span className="text-sm font-medium text-zinc-300">Peticiones Totales</span>
                             <Zap className="w-4 h-4 text-primary" />
                         </div>
                         <div className="flex flex-col">
@@ -152,10 +152,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                     {/* Success Rate */}
                     <div className={H_STAT}>
                         <div className="flex justify-between items-center w-full mb-2">
-                            <div className="flex items-center">
-                                <span className="text-sm font-medium text-zinc-300">Tasa de Éxito</span>
-                                <InfoTooltip text="Porcentaje de peticiones de hoy que se resolvieron correctamente sin errores del servidor." className="ml-1.5" placement="bottom" />
-                            </div>
+                            <span className="text-sm font-medium text-zinc-300">Tasa de Éxito</span>
                             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                         </div>
                         <div className="flex flex-col">
@@ -173,10 +170,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                     {/* Avg Processing Time */}
                     <div className={H_STAT}>
                         <div className="flex justify-between items-center w-full mb-2">
-                            <div className="flex items-center">
-                                <span className="text-sm font-medium text-zinc-300">Tiempo de Proceso Medio</span>
-                                <InfoTooltip text="Tiempo promedio que toma tu servidor en procesar las peticiones del día actual." className="ml-1.5" placement="bottom" />
-                            </div>
+                            <span className="text-sm font-medium text-zinc-300">Tiempo de Proceso Medio</span>
                             <Gauge className="w-4 h-4 text-amber-500" />
                         </div>
                         <div className="flex flex-col">
@@ -196,10 +190,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                     {/* Commands */}
                     <div className={H_STAT}>
                         <div className="flex justify-between items-center w-full mb-2">
-                            <div className="flex items-center">
-                                <span className="text-sm font-medium text-zinc-300">Comandos Usados</span>
-                                <InfoTooltip text="Número de herramientas y comandos únicos invocados en los últimos 7 días." className="ml-1.5" placement="bottom" />
-                            </div>
+                            <span className="text-sm font-medium text-zinc-300">Comandos Usados</span>
                             <Command className="w-4 h-4 text-blue-500" />
                         </div>
                         <div className="flex flex-col">
@@ -221,7 +212,10 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50 lg:col-span-2">
                     <div className="flex justify-between items-center mb-6 border-b border-white/[0.08] pb-4">
                         <div>
-                            <h2 className="text-lg font-semibold text-[#fafafa]">Peticiones por Estado (7 días)</h2>
+                            <div className="flex items-center">
+                                <h2 className="text-lg font-semibold text-[#fafafa]">Peticiones por Estado (7 días)</h2>
+                                <InfoTooltip text="Evolución diaria del total de peticiones exitosas vs errores en la última semana." className="ml-2" />
+                            </div>
                             <p className="text-xs text-zinc-500 mt-1">Desglose de uso diario</p>
                         </div>
                         <span className="text-xs text-zinc-500">{Intl.DateTimeFormat().resolvedOptions().timeZone} - últimos 7 días</span>
@@ -278,7 +272,10 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 {/* Uso / Distribución (Donut tipo ejemplo) */}
                 <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
                     <div className="mb-6 border-b border-white/[0.08] pb-4">
-                        <h2 className="text-lg font-semibold text-[#fafafa]">Uso de Comandos</h2>
+                        <div className="flex items-center">
+                            <h2 className="text-lg font-semibold text-[#fafafa]">Uso de Comandos</h2>
+                            <InfoTooltip text="Proporción de uso de los diferentes comandos y minijuegos en la última semana." className="ml-2" />
+                        </div>
                         <p className="text-xs text-zinc-500 mt-1">Distribución general en API</p>
                     </div>
                     <div className="h-[240px] w-full relative mt-4">
@@ -346,7 +343,10 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 {/* Desglose por Comando (Tabla) */}
                 <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
                     <div className="mb-6 border-b border-white/[0.08] pb-4">
-                        <h2 className="text-lg font-semibold text-[#fafafa]">Endpoints Más Usados</h2>
+                        <div className="flex items-center">
+                            <h2 className="text-lg font-semibold text-[#fafafa]">Endpoints Más Usados</h2>
+                            <InfoTooltip text="Lista detallada de las herramientas más consultadas de tu API en los últimos 7 días." className="ml-2" />
+                        </div>
                         <p className="text-xs text-zinc-500 mt-1">Acumulado de los últimos 7 días</p>
                     </div>
                     <div className="overflow-x-auto">
@@ -394,7 +394,10 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 {/* Gráfico de Latencia (BarChart) */}
                 <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
                     <div className="mb-6 border-b border-white/[0.08] pb-4">
-                        <h2 className="text-lg font-semibold text-[#fafafa]">Comparativa de Latencia</h2>
+                        <div className="flex items-center">
+                            <h2 className="text-lg font-semibold text-[#fafafa]">Comparativa de Latencia</h2>
+                            <InfoTooltip text="Tiempo promedio que le toma a tu servidor procesar cada comando específico (últimos 7 días)." className="ml-2" />
+                        </div>
                         <p className="text-xs text-zinc-500 mt-1">Promedio de los últimos 7 días por comando</p>
                     </div>
                     <div className="h-[280px] w-full relative">
