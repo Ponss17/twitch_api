@@ -323,7 +323,8 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             rateLimit: limits.rateLimit,
             cacheTtl: resolveCache('COMMAND', res.locals?.apiUser?.role, res.locals?.apiUser?.customCacheTtl),
             hasCustomRateLimit: limits.hasCustomRateLimit,
-            hasCustomCacheTtl: limits.hasCustomCacheTtl
+            hasCustomCacheTtl: limits.hasCustomCacheTtl,
+            timezone: res.locals?.apiUser?.timezone || 'UTC'
         };
     };
 
@@ -428,7 +429,22 @@ export const recordExportComplete = async (req: AuthenticatedRequest, res: Respo
         await cacheService.set(key, Date.now() + COOLDOWN_MINUTES * 60000, COOLDOWN_MINUTES * 60);
         res.json({ success: true });
     } catch (e) {
-        logger.error('Error recording export cooldown:', e);
-        return jsonError(res, 500, 'Error al registrar exportación.');
+        logger.error('Error setting export cooldown:', e);
+        return jsonError(res, 500, 'Error interno del servidor.');
+    }
+};
+
+export const updateSettings = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId;
+    if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
+
+    const { timezone } = req.body;
+
+    try {
+        await dbService.updateUserTimezone(userId, timezone);
+        res.json({ success: true });
+    } catch (e) {
+        logger.error('Error updating settings:', e);
+        return jsonError(res, 500, 'Error al actualizar los ajustes del perfil.');
     }
 };

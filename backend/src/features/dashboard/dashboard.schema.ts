@@ -41,6 +41,12 @@ export const getActivitySchema = z.object({
     query: z.object({}).optional()
 });
 
+export const updateSettingsSchema = z.object({
+    body: z.object({
+        timezone: z.string().min(1, 'La zona horaria es requerida.')
+    })
+});
+
 export const clearUserDataSchema = z.object({
     body: z.object({
         confirm: z.string().refine((val) => val === 'LIMPIAR', {

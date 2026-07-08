@@ -21,6 +21,7 @@ import { ProfileHero } from '@/features/dashboard/components/profile/ProfileHero
 import { ProfileSecuritySection } from '@/features/dashboard/components/profile/ProfileSecuritySection';
 import { ProfileExportSection } from '@/features/dashboard/components/profile/ProfileExportSection';
 import { ProfileDangerZone } from '@/features/dashboard/components/profile/ProfileDangerZone';
+import { ProfileSettingsSection } from '@/features/dashboard/components/profile/ProfileSettingsSection';
 import { ProfileHeroSkeleton } from '@/shared/ui/Skeleton';
 
 interface ProfileData {
@@ -34,6 +35,7 @@ interface ProfileData {
     roleLabel?: string;
     hasCustomRateLimit?: boolean;
     hasCustomCacheTtl?: boolean;
+    timezone?: string;
 }
 
 
@@ -309,6 +311,11 @@ export function ProfileView({ active = true }: { active?: boolean }) {
                 onRegenKey={() => setRegenOpen(true)}
                 onToggleDanger={() => setShowDanger((v) => !v)}
                 onCopyId={() => void copyId()}
+            />
+
+            <ProfileSettingsSection 
+                currentTimezone={profile?.timezone || 'UTC'}
+                onSettingsChanged={() => void syncProfile({ silent: true, fresh: true })}
             />
 
             <ProfileExportSection
