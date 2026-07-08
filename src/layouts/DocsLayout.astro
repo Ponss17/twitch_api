@@ -69,16 +69,7 @@ const swScope = staticPath('/');
             as="style"
             id="geist-font-preload"
         />
-        <script is:inline>
-            (function () {
-                const link = document.getElementById('geist-font-preload');
-                if (!link) return;
-                link.onload = function () {
-                    this.onload = null;
-                    this.rel = 'stylesheet';
-                };
-            })();
-        </script>
+        <script src={staticPath('/js/font-preload.js')} defer></script>
         <noscript>
             <link
                 rel="stylesheet"
@@ -119,12 +110,13 @@ const swScope = staticPath('/');
             <slot />
         </main>
         {footer && <Footer client:visible isDashboard />}
-        <script is:inline define:vars={{ isDev, swUrl, swScope }}>
-            if ('serviceWorker' in navigator && !isDev) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register(swUrl, { scope: swScope }).catch(() => {});
-                });
-            }
-        </script>
+        {!isDev && (
+            <script
+                src={staticPath('/js/sw-register.js')}
+                defer
+                data-sw-url={swUrl}
+                data-sw-scope={swScope}
+            />
+        )}
     </body>
 </html>

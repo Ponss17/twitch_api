@@ -218,7 +218,7 @@ Hay **cinco** tipos de credencial:
 9. Routers de feature (+ `csrfProtection`, Zod, limiters específicos)  
 10. 404 → **`errorHandler`**
 
-> Helmet aplica nonce CSP a HTML servido por Express. Las páginas Astro estáticas usan la CSP de `vercel.json` (`script-src 'self'` + Speed Insights; sin `strict-dynamic` huérfano).
+> Helmet aplica nonce CSP a HTML servido por Express. Las páginas Astro CDN usan la CSP de `vercel.json`: `script-src 'self' 'unsafe-inline'` + Speed Insights — necesario porque Astro/`client:*` inyecta scripts de hidratación inline (sin nonce en estático).
 
 ### Contratos de respuesta
 
