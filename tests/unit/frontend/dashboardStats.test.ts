@@ -1,6 +1,8 @@
 import {
     EMPTY_DASHBOARD_LIVE_STATS,
     isStatsDateOutdated,
+    mergeDashboardStats,
+    mergeTimeSeriesPatch,
     parseDashboardStatsFromRow,
     sumDashboardCategoryUsage
 } from '@/features/dashboard/lib/dashboardStats';
@@ -89,5 +91,99 @@ describe('sumDashboardCategoryUsage', () => {
 
     it('devuelve 0 sin datos', () => {
         expect(sumDashboardCategoryUsage({})).toBe(0);
+    });
+});
+
+describe('mergeTimeSeriesPatch', () => {
+    it('agrega una fila nueva al timeSeries', () => {
+        expect(
+            mergeTimeSeriesPatch(undefined, {
+                date: '2026-07-08',
+                command_name: 'followage',
+                requests_count: 3,
+                errors_count: 0,
+                latency_sum: 120
+            })
+        ).toEqual([
+            {
+                date: '2026-07-08',
+                command_name: 'followage',
+                requests_count: 3,
+                errors_count: 0,
+                latency_sum: 120
+            }
+        ]);
+    });
+
+    it('actualiza una fila existente por fecha y comando', () => {
+        const prev = [
+            {
+                date: '2026-07-08',
+                command_name: 'followage',
+                requests_count: 1,
+                errors_count: 0,
+                latency_sum: 40
+            }
+        ];
+
+        expect(
+            mergeTimeSeriesPatch(prev, {
+                date: '2026-07-08',
+                command_name: 'followage',
+                requests_count: 4,
+                errors_count: 1,
+                latency_sum: 200
+            })
+        ).toEqual([
+            {
+                date: '2026-07-08',
+                command_name: 'followage',
+                requests_count: 4,
+                errors_count: 1,
+                latency_sum: 200
+            }
+        ]);
+    });
+});
+
+describe('mergeDashboardStats', () => {
+    it('fusiona contadores y parches de timeSeries en realtime', () => {
+        const prev = {
+            ...EMPTY_DASHBOARD_LIVE_STATS,
+            followage: 1,
+            timeSeries: [
+                {
+                    date: '2026-07-08',
+                    command_name: 'followage',
+                    requests_count: 1,
+                    errors_count: 0,
+                    latency_sum: 40
+                }
+            ]
+        };
+
+        expect(
+            mergeDashboardStats(prev, {
+                followage: 2,
+                __dailyStatsPatch: {
+                    date: '2026-07-08',
+                    command_name: 'followage',
+                    requests_count: 2,
+                    errors_count: 0,
+                    latency_sum: 80
+                }
+            })
+        ).toMatchObject({
+            followage: 2,
+            timeSeries: [
+                {
+                    date: '2026-07-08',
+                    command_name: 'followage',
+                    requests_count: 2,
+                    errors_count: 0,
+                    latency_sum: 80
+                }
+            ]
+        });
     });
 });

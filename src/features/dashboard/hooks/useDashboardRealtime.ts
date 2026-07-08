@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Session } from '@/core/config/config';
-import type { DashboardLiveStats } from '@/features/dashboard/lib/dashboardStats';
+import type { RealtimeStatsUpdate } from '@/features/dashboard/lib/dashboardStats';
 import type { ActivityLogItem } from '@/features/dashboard/lib/activityLogDisplay';
 
 const loadRealtimeModule = () => import('@/features/dashboard/lib/realtimeService');
@@ -9,7 +9,7 @@ export interface UseDashboardRealtimeOptions {
     id: string;
     active: boolean;
     session: Session;
-    onStatsUpdate?: (stats: DashboardLiveStats) => void;
+    onStatsUpdate?: (stats: RealtimeStatsUpdate) => void;
     onActivityInsert?: (log: ActivityLogItem) => void;
     /** Llamado cuando se detecta un DELETE masivo en activity_logs (ej. borrado de zona peligrosa). */
     onActivityDelete?: () => void;

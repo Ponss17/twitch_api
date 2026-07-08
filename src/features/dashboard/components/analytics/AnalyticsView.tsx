@@ -1,10 +1,9 @@
 import React, { useMemo, useEffect } from 'react';
-import { useDashboardPanel, DashboardPanelProvider } from '@/features/dashboard/providers/DashboardPanelProvider';
+import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { BarChart3, AlertTriangle } from 'lucide-react';
 import { fadeIn } from '@/core/ui/tw';
 import { useRequiredSession } from '@/core/session/useSession';
-import { useToast } from '@/shared/ui/ToastProvider';
 import { CardHeaderIcon } from '@/shared/ui/Icon';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 
@@ -125,7 +124,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                         <CardHeaderIcon icon={BarChart3} />
                         <div>
                             <h3 className="mb-0.5 text-[1.05rem] font-bold text-[#fafafa]">Analytics Overview</h3>
-                            <p className="text-[0.8rem] text-[#c4c4cc]">Métricas de rendimiento en tiempo real de tu API (Hoy).</p>
+                            <p className="text-[0.8rem] text-[#c4c4cc]">Métricas de rendimiento en tiempo real de tu API (Hoy) · prueba 1</p>
                         </div>
                     </div>
                     <InfoTooltip text="Métricas generales en tiempo real correspondientes al día actual." />
@@ -450,12 +449,6 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
 }
 
 export function AnalyticsView({ active = true }: { active?: boolean }) {
-    const session = useRequiredSession();
-    const { showToast } = useToast();
-
-    return (
-        <DashboardPanelProvider active={active} session={session} showToast={showToast}>
-            <AnalyticsViewContent active={active} />
-        </DashboardPanelProvider>
-    );
+    useRequiredSession();
+    return <AnalyticsViewContent active={active} />;
 }
