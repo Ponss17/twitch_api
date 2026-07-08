@@ -228,6 +228,11 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                                     className="text-[2.5rem] font-bold leading-none tracking-tight text-white"
                                 />
                                 <span className="text-xl font-bold text-white mb-0.5">ms</span>
+                                {!isLoading && latencyMs > 0 && (
+                                    <span className="mb-1 text-sm font-medium text-zinc-500">
+                                        ({(latencyMs / 1000).toFixed(2)}s)
+                                    </span>
+                                )}
                             </div>
                             <span className="text-xs text-zinc-500 mt-2 font-medium">latencia global de la API</span>
                         </div>
@@ -262,7 +267,10 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                             <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Desglose de uso diario</p>
                         </div>
                         <div className="flex shrink-0 items-center gap-3">
-                            <InfoTooltip text="Evolución diaria del total de peticiones exitosas vs errores en la última semana." />
+                            <InfoTooltip
+                                placement="bottom"
+                                text="Evolución diaria del total de peticiones exitosas vs errores en la última semana."
+                            />
                             <span className="text-xs text-zinc-500">{Intl.DateTimeFormat().resolvedOptions().timeZone} - últimos 7 días</span>
                         </div>
                     </div>
