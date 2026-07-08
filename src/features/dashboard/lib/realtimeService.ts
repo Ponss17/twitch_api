@@ -3,7 +3,9 @@ import { API_ENDPOINTS, SUPABASE_ANON_KEY, SUPABASE_URL, type Session } from '@/
 import type { ActivityLogItem } from './activityLogDisplay';
 import {
     parseDashboardStatsFromRow,
-    type DashboardLiveStats
+    type DashboardLiveStats,
+    type DailyStatsRealtimePatch,
+    type RealtimeStatsUpdate
 } from './dashboardStats';
 import { authHeaders } from '@/core/api/auth';
 import { logError } from '@/core/logging/logError';
@@ -159,7 +161,7 @@ interface RawActivityLog {
 }
 
 export interface RealtimeCallbacks {
-    onStatsUpdate: (stats: DashboardLiveStats) => void;
+    onStatsUpdate: (stats: RealtimeStatsUpdate) => void;
     onActivityInsert: (log: ActivityLogItem) => void;
     /** Llamado cuando se detectan DELETEs en activity_logs (borrado masivo desde zona peligrosa). */
     onActivityDelete?: () => void;
@@ -191,7 +193,7 @@ export class RealtimeService {
     private tokenExpiry = 0;
     private refreshInterval: ReturnType<typeof setInterval> | null = null;
     private session: Session | null = null;
-    private dispatchStats: (stats: DashboardLiveStats) => void = () => {};
+    private dispatchStats: (stats: RealtimeStatsUpdate) => void = () => {};
     private dispatchActivity: (log: ActivityLogItem) => void = () => {};
     private dispatchActivityDelete: () => void = () => {};
     private isConnected = false;
@@ -205,7 +207,7 @@ export class RealtimeService {
     }
 
     setDispatchers(
-        onStats: (stats: DashboardLiveStats) => void,
+        onStats: (stats: RealtimeStatsUpdate) => void,
         onActivity: (log: ActivityLogItem) => void,
         onActivityDelete?: () => void
     ): void {
@@ -356,24 +358,41 @@ export class RealtimeService {
 
             const dailyStatsHandler = (payload: { new: Record<string, unknown> }) => {
                 const row = payload.new;
-                if (typeof row.command_name === 'string' && typeof row.requests_count === 'number') {
-                    // Mapeamos el nombre del comando a la clave del estado
-                    const keyMap: Record<string, keyof DashboardLiveStats> = {
-                        'clips': 'clips',
-                        'followage': 'followage',
-                        'so': 'so',
-                        'message': 'message',
-                        'stalker': 'stalker',
-                        'trends': 'trends',
-                        'roulette': 'roulette',
-                        'russian': 'russian',
-                        'magic8': 'magic8',
-                        'duel': 'duel'
-                    };
-                    const stateKey = keyMap[row.command_name];
-                    if (stateKey) {
-                        this.dispatchStats({ [stateKey]: row.requests_count } as Partial<DashboardLiveStats> as DashboardLiveStats);
-                    }
+                if (typeof row.command_name !== 'string' || typeof row.requests_count !== 'number') {
+                    return;
+                }
+
+                const keyMap: Record<string, keyof DashboardLiveStats> = {
+                    clips: 'clips',
+                    followage: 'followage',
+                    so: 'so',
+                    message: 'message',
+                    stalker: 'stalker',
+                    trends: 'trends',
+                    roulette: 'roulette',
+                    russian: 'russian',
+                    magic8: 'magic8',
+                    duel: 'duel'
+                };
+
+                const patch: Partial<RealtimeStatsUpdate> = {};
+                const stateKey = keyMap[row.command_name];
+                if (stateKey) {
+                    Object.assign(patch, { [stateKey]: row.requests_count as number });
+                }
+
+                if (typeof row.date === 'string') {
+                    patch.__dailyStatsPatch = {
+                        date: row.date,
+                        command_name: row.command_name,
+                        requests_count: Number(row.requests_count),
+                        errors_count: Number(row.errors_count ?? 0),
+                        latency_sum: Number(row.latency_sum ?? 0)
+                    } satisfies DailyStatsRealtimePatch;
+                }
+
+                if (Object.keys(patch).length > 0) {
+                    this.dispatchStats(patch as RealtimeStatsUpdate);
                 }
             };
 
@@ -625,11 +644,11 @@ function scheduleDestroyIfIdle(): void {
 
 function dispatchToSubscribers(
     kind: 'stats' | 'activity' | 'activityDelete',
-    payload: DashboardLiveStats | ActivityLogItem | null
+    payload: RealtimeStatsUpdate | ActivityLogItem | null
 ): void {
     for (const entry of subscribers.values()) {
         if (kind === 'stats') {
-            entry.callbacks.onStatsUpdate(payload as DashboardLiveStats);
+            entry.callbacks.onStatsUpdate(payload as RealtimeStatsUpdate);
         } else if (kind === 'activity') {
             entry.callbacks.onActivityInsert(payload as ActivityLogItem);
         } else if (kind === 'activityDelete') {

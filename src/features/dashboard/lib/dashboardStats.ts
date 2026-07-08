@@ -11,7 +11,7 @@ const DASHBOARD_USAGE_KEYS: readonly DashboardUsageKey[] = DASHBOARD_USAGE_CATEG
     (cat) => cat.keys
 );
 
-function getStatsLocalDateString(timeZone?: string): string {
+export function getStatsLocalDateString(timeZone?: string): string {
     return new Intl.DateTimeFormat('en-CA', {
         timeZone: timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
         year: 'numeric',
@@ -50,13 +50,50 @@ export interface DashboardLiveStats {
     russian: number;
     magic8: number;
     duel: number;
-    timeSeries?: Array<{
-        date: string;
-        requests_count: number;
-        errors_count: number;
-        latency_sum: number;
-        command_name: string;
-    }>;
+    timeSeries?: DashboardTimeSeriesRow[];
+}
+
+export interface DashboardTimeSeriesRow {
+    date: string;
+    requests_count: number;
+    errors_count: number;
+    latency_sum: number;
+    command_name: string;
+}
+
+/** Parche enviado por Realtime al cambiar una fila de `user_daily_stats`. */
+export type DailyStatsRealtimePatch = DashboardTimeSeriesRow;
+
+export type RealtimeStatsUpdate = Partial<DashboardLiveStats> & {
+    __dailyStatsPatch?: DailyStatsRealtimePatch;
+};
+
+export function mergeTimeSeriesPatch(
+    prev: DashboardTimeSeriesRow[] | undefined,
+    patch: DailyStatsRealtimePatch
+): DashboardTimeSeriesRow[] {
+    const series = [...(prev ?? [])];
+    const idx = series.findIndex(
+        (row) => row.date === patch.date && row.command_name === patch.command_name
+    );
+    if (idx >= 0) {
+        series[idx] = patch;
+    } else {
+        series.push(patch);
+    }
+    return series;
+}
+
+export function mergeDashboardStats(
+    prev: DashboardLiveStats,
+    next: RealtimeStatsUpdate
+): DashboardLiveStats {
+    const { __dailyStatsPatch, ...rest } = next;
+    const merged: DashboardLiveStats = { ...prev, ...rest } as DashboardLiveStats;
+    if (__dailyStatsPatch) {
+        merged.timeSeries = mergeTimeSeriesPatch(prev.timeSeries, __dailyStatsPatch);
+    }
+    return merged;
 }
 
 const COUNT_COLUMNS: Record<string, keyof DashboardLiveStats> = {
@@ -113,13 +150,7 @@ export function parseDashboardStatsFromRow(
     }
 
     if ('timeSeries' in raw) {
-        result.timeSeries = raw.timeSeries as Array<{
-            date: string;
-            requests_count: number;
-            errors_count: number;
-            latency_sum: number;
-            command_name: string;
-        }>;
+        result.timeSeries = raw.timeSeries as DashboardTimeSeriesRow[];
     }
 
     return isPartial ? result : (result as DashboardLiveStats);

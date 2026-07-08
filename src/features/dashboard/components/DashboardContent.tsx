@@ -59,7 +59,7 @@ function renderTabPanel(tab: DashboardTab, { active, onNavigate }: TabPanelProps
         case 'home':
             return <HomeView active={active} onNavigate={onNavigate} />;
         case 'analytics':
-            return <AnalyticsView />;
+            return <AnalyticsView active={active} />;
         case 'followage':
             return <FollowageView />;
         case 'clips':
