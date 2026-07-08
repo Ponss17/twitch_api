@@ -162,12 +162,13 @@ function DashboardAppShell() {
                     onClose={() => setMobileMenuOpen(false)}
                 />
 
-                <main className="flex min-h-0 flex-1 flex-col lg:ml-[280px]">
+                <div className="flex min-h-0 flex-1 flex-col lg:ml-[280px]">
                     <DashboardHeader
                         tab={tab}
                         onSettings={() => setTab('settings')}
                         onLogout={logout}
-                        onMenuToggle={() => setMobileMenuOpen(true)}
+                        onMenuToggle={() => setMobileMenuOpen((open) => !open)}
+                        mobileMenuOpen={mobileMenuOpen}
                     />
 
                     <div className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-3">
@@ -175,7 +176,7 @@ function DashboardAppShell() {
                             <DashboardPanelShell tab={tab} onNavigate={setTab} />
                         </div>
                     </div>
-                </main>
+                </div>
             </div>
             )}
         </>

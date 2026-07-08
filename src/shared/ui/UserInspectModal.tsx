@@ -47,6 +47,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
             open={!!user}
             onClose={onClose}
             className="relative my-auto max-h-[min(90vh,720px)] w-full max-w-[450px] overflow-y-auto rounded-xl border border-white/[0.08] bg-bg-card shadow-2xl"
+            aria-labelledby="user-inspect-title"
         >
             <button
                 type="button"
