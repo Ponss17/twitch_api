@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { Zap, CheckCircle2, Gauge, Bot } from 'lucide-react';
+import { Zap, CheckCircle2, Gauge } from 'lucide-react';
+import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
 
 interface HomeHeroProps {
@@ -38,7 +39,7 @@ export const HomeHero = memo(function HomeHero({
                 <div className="max-w-[500px] shrink-0">
                     <h1 className="mb-3.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[2.6rem] font-extrabold leading-[1.1] tracking-[-0.02em] text-white max-md:text-[2rem]">
                         <span className="inline-flex size-9 shrink-0 items-center justify-center text-[#9146ff]">
-                            <Bot className="size-8" aria-hidden />
+                            <TwitchIcon className="size-full" aria-hidden />
                         </span>
                         <span>Hola,</span>
                         <span className="text-[#9146ff]">
