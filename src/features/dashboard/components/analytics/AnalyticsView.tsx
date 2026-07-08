@@ -120,15 +120,15 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
 
             {/* Contenedor Unificado: Overview + KPIs */}
             <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
-                <div className="flex items-center gap-3 mb-6 border-b border-white/[0.08] pb-4">
-                    <CardHeaderIcon icon={BarChart3} />
-                    <div>
-                        <div className="flex items-center mb-0.5">
-                            <h3 className="text-[1.05rem] font-bold text-[#fafafa]">Analytics Overview</h3>
-                            <InfoTooltip text="Métricas generales en tiempo real correspondientes al día actual." className="ml-2" />
+                <div className="mb-6 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
+                    <div className="flex items-center gap-3">
+                        <CardHeaderIcon icon={BarChart3} />
+                        <div>
+                            <h3 className="mb-0.5 text-[1.05rem] font-bold text-[#fafafa]">Analytics Overview</h3>
+                            <p className="text-[0.8rem] text-[#c4c4cc]">Métricas de rendimiento en tiempo real de tu API (Hoy).</p>
                         </div>
-                        <p className="text-[0.8rem] text-zinc-400">Métricas de rendimiento en tiempo real de tu API (Hoy).</p>
                     </div>
+                    <InfoTooltip text="Métricas generales en tiempo real correspondientes al día actual." />
                 </div>
 
                 <div className={STATS_ROW} aria-busy={isLoading}>
@@ -210,15 +210,15 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 {/* Peticiones Diarias (Con Grid muy visible y color morado) */}
                 <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50 lg:col-span-2">
-                    <div className="flex justify-between items-center mb-6 border-b border-white/[0.08] pb-4">
+                    <div className="mb-6 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
                         <div>
-                            <div className="flex items-center">
-                                <h2 className="text-lg font-semibold text-[#fafafa]">Peticiones por Estado (7 días)</h2>
-                                <InfoTooltip text="Evolución diaria del total de peticiones exitosas vs errores en la última semana." className="ml-2" />
-                            </div>
-                            <p className="text-xs text-zinc-500 mt-1">Desglose de uso diario</p>
+                            <h2 className="text-lg font-semibold text-[#fafafa]">Peticiones por Estado (7 días)</h2>
+                            <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Desglose de uso diario</p>
                         </div>
-                        <span className="text-xs text-zinc-500">{Intl.DateTimeFormat().resolvedOptions().timeZone} - últimos 7 días</span>
+                        <div className="flex shrink-0 items-center gap-3">
+                            <InfoTooltip text="Evolución diaria del total de peticiones exitosas vs errores en la última semana." />
+                            <span className="text-xs text-zinc-500">{Intl.DateTimeFormat().resolvedOptions().timeZone} - últimos 7 días</span>
+                        </div>
                     </div>
                     <div className="h-[320px] w-full relative">
                         <span className="sr-only">
@@ -272,11 +272,13 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 {/* Uso / Distribución (Donut tipo ejemplo) */}
                 <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
                     <div className="mb-6 border-b border-white/[0.08] pb-4">
-                        <div className="flex items-center">
-                            <h2 className="text-lg font-semibold text-[#fafafa]">Uso de Comandos</h2>
-                            <InfoTooltip text="Proporción de uso de los diferentes comandos y minijuegos en la última semana." className="ml-2" />
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <h2 className="text-lg font-semibold text-[#fafafa]">Uso de Comandos</h2>
+                                <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Distribución general en API</p>
+                            </div>
+                            <InfoTooltip text="Proporción de uso de los diferentes comandos y minijuegos en la última semana." />
                         </div>
-                        <p className="text-xs text-zinc-500 mt-1">Distribución general en API</p>
                     </div>
                     <div className="h-[240px] w-full relative mt-4">
                         <span className="sr-only">
@@ -343,11 +345,13 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 {/* Desglose por Comando (Tabla) */}
                 <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
                     <div className="mb-6 border-b border-white/[0.08] pb-4">
-                        <div className="flex items-center">
-                            <h2 className="text-lg font-semibold text-[#fafafa]">Endpoints Más Usados</h2>
-                            <InfoTooltip text="Lista detallada de las herramientas más consultadas de tu API en los últimos 7 días." className="ml-2" />
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <h2 className="text-lg font-semibold text-[#fafafa]">Endpoints Más Usados</h2>
+                                <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Acumulado de los últimos 7 días</p>
+                            </div>
+                            <InfoTooltip text="Lista detallada de las herramientas más consultadas de tu API en los últimos 7 días." />
                         </div>
-                        <p className="text-xs text-zinc-500 mt-1">Acumulado de los últimos 7 días</p>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
@@ -394,11 +398,13 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 {/* Gráfico de Latencia (BarChart) */}
                 <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
                     <div className="mb-6 border-b border-white/[0.08] pb-4">
-                        <div className="flex items-center">
-                            <h2 className="text-lg font-semibold text-[#fafafa]">Comparativa de Latencia</h2>
-                            <InfoTooltip text="Tiempo promedio que le toma a tu servidor procesar cada comando específico (últimos 7 días)." className="ml-2" />
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <h2 className="text-lg font-semibold text-[#fafafa]">Comparativa de Latencia</h2>
+                                <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Promedio de los últimos 7 días por comando</p>
+                            </div>
+                            <InfoTooltip text="Tiempo promedio que le toma a tu servidor procesar cada comando específico (últimos 7 días)." />
                         </div>
-                        <p className="text-xs text-zinc-500 mt-1">Promedio de los últimos 7 días por comando</p>
                     </div>
                     <div className="h-[280px] w-full relative">
                         <span className="sr-only">
