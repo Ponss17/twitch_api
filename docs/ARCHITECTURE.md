@@ -63,8 +63,9 @@ Entry serverless: `api/index.js`. Local: `pnpm dev:api` (puerto 3000).
 
 1. Callback Twitch → `GET /api/auth/twitch/callback` → redirect con `?auth=<token>` (HMAC, 5 min), **sin** API key en URL permanente.
 2. Frontend llama `GET /api/auth/exchange?auth=…` → recibe `apiKey` + perfil.
-3. Sesión en `localStorage` (scoped por `userId` vía `src/core/session/localPrefs.ts`); validación vía `/system/validate` con caché local por fingerprint de sesión.
-4. `invalidateSession()` centraliza logout local y sync entre pestañas (`BroadcastChannel`).
+3. Sesión en `localStorage` (scoped por `userId` vía `src/core/session/localPrefs.ts`); validación vía `/system/validate` con **caché local dinámica** (hasta 35 min antes de `tokenExpiresAt`, o 1 h sin OAuth).
+4. El panel no monta hasta que `validateSession` termina (`readOptimisticAuthState`); llamadas concurrentes a validate se deduplican.
+5. `invalidateSession()` centraliza logout local y sync entre pestañas (`BroadcastChannel` en `sessionLifecycle.ts`).
 
 ## Caché (Vercel KV)
 
@@ -131,12 +132,13 @@ Organización **feature-based**, alineada con el backend (`core/` + `features/`)
 ```
 src/
 ├── core/                 # Infraestructura transversal (sin UI de dominio)
-│   ├── api/              # auth, authQuery, apiError
+│   ├── auth/             # Sesión cliente modular (storage, validate, oauth, apiFetch)
+│   ├── api/              # Barrel auth.ts → @/core/auth; apiError, fetchWithRetry
 │   ├── cache/            # cacheService
 │   ├── config/           # config, paths, pageTitle
 │   ├── errors/           # rateLimitCooldown
 │   ├── logging/          # debugLog, logError
-│   ├── session/          # context, useSession, localPrefs, loadProgress
+│   ├── session/          # context, useSession, localPrefs, loadProgress, useProactiveTokenRefresh
 │   ├── types/            # twitch
 │   └── ui/               # tw, utils, clipboard, animateValue, docsTw
 ├── shared/               # UI reutilizable entre features
@@ -180,6 +182,8 @@ backend/src/
 ## Sesión y dashboard (frontend)
 
 - `SessionProvider` + `useSession()` — sin pasar sesión por props
+- Paquete `src/core/auth/` — lógica de sesión; imports legacy `@/core/api/auth`
+- Splash post-OAuth: `features/dashboard/lib/splashFlags.ts` (re-exportado desde `@/core/auth`)
 - Tab activo: path `/dashboard/{tab}` + fallback `localStorage` + compatibilidad `?tab=` legacy
 - Vistas con **keep-alive**: Home/Trends/Stalker pausan polling/realtime al cambiar de tab
 
@@ -209,7 +213,7 @@ Rutas **dashboard**, **system** y **auth/exchange** devuelven errores con forma 
 ## Validación
 
 - **Backend**: Zod (`*.schema.ts`, `env.ts`)
-- **Tests**: Jest (`pnpm test`) — ~364 tests · Playwright E2E en CI
+- **Tests**: Jest (`pnpm test`) — ~369 tests · Playwright E2E en CI
 - **E2E**: Playwright smoke (`pnpm test:e2e`)
 - **CI**: GitHub Actions en push/PR
 
@@ -230,14 +234,14 @@ Puntos **fuera** del cierre de auditoría jul 2026 — no mezclar con parches de
 | ID | Tema | Detalle |
 |----|------|---------|
 | **🔴9** | Subir a **pnpm 11** | Migración deliberada: `pnpm-workspace.yaml`, `allowBuilds`, revisar CI y Vercel. No usar `package.json#pnpm.overrides` (ignorado en v11). Punto aparte de deploy. |
-| **🟡** | Shared contracts FE/BE | `DashboardProfile` / activity: fuente en `backend/src/core/schemas/dashboardContracts.ts` (`@contracts/*`). Analytics payload aún tipado suelto. |
+| **🟡** | Shared contracts FE/BE | `DashboardProfile` / `ActivityLogEntry`: `backend/src/core/schemas/dashboardContracts.ts` (`@contracts/*`). Analytics payload aún tipado suelto. |
 | **🟡** | a11y residual | Charts Recharts / menú dropdown arrow-keys / splash como `<dialog>` — base dashboard (sidebar inert, modales labelled, tooltips teclado) ya aplicada. |
 | **🟡** | Tests `frontendPaths` + `dist/` | `tests/unit/frontendPaths.test.ts` puede flakear si `pnpm test` y `pnpm build` corren en paralelo (dist/ a medias). CI serial no falla; opcional: evaluar existencia por test o mover al job build. |
 | **🟡** | Smoke prod desactualizado en notas locales | Checklist en `docs/SMOKE-PROD.md` (local) aún menciona `/api/twitch/`; producción canónica es `https://ttv.losperris.dev`. |
 
 ### Cierre auditoría jul 2026 (aplicado en código)
 
-- Overlay scope global, auth exchange single-use, delete-account CASCADE, AES-GCM, `HMAC_SIGNING_SECRET` **obligatorio en prod**, OAuth state con `exp`, circuit breaker en interceptor axios (+ `recordSuccess` en respuestas Helix), CI URLs canónicas, `pnpm audit` en CI, timezone dashboard alineado con perfil, debounce stats revision bump, invalidación caches Helix, redacción unificada de query secrets en logs, heavy RL con fallback L1, dashboard RL en KV.
+- Overlay scope global, auth exchange single-use, delete-account CASCADE, AES-GCM, `HMAC_SIGNING_SECRET` **obligatorio en prod**, OAuth state con `exp`, circuit breaker en interceptor axios (+ `recordSuccess` en respuestas Helix), CI URLs canónicas, `pnpm audit` en CI, timezone dashboard alineado con perfil, debounce stats revision bump, invalidación caches Helix, redacción unificada de query secrets en logs, heavy RL con fallback L1, dashboard RL en KV, boot sin 401 (validate gate + dedupe), caché validate TTL dinámico, refactor `src/core/auth/`, contratos dashboard `@contracts/*`, a11y base panel.
 
 ## Documentación
 
