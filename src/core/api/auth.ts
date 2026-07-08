@@ -458,32 +458,38 @@ export async function apiFetch<T>(
     let response = await fetchWithHeaders(session);
 
     if (!response.ok) {
-        if (response.status === 401 && typeof window !== 'undefined' && session?.apiKey) {
-            // Attempt to refresh the token using apiKey
-            const refreshResult = await validateSession({ ...session, token: undefined });
-            if (refreshResult.valid && refreshResult.token) {
-                // Retry the request with the new session
-                const newSession = getSession();
-                response = await fetchWithHeaders(newSession);
-                if (response.ok) {
-                    return (await response.json()) as T;
+        if (response.status === 401 && typeof window !== 'undefined') {
+            if (session?.apiKey) {
+                // Intento 1: refrescar token via apiKey
+                const refreshResult = await validateSession({ ...session, token: undefined });
+                if (refreshResult.valid && refreshResult.token) {
+                    const newSession = getSession();
+                    response = await fetchWithHeaders(newSession);
+                    if (response.ok) {
+                        return (await response.json()) as T;
+                    }
                 }
             }
-            
-            if (response.status === 401) {
-                // Token expired or invalid and refresh failed, force logout
+
+            // Si sigue siendo 401, esperar 3s y reintentar una vez antes de desloguear
+            // Esto evita logouts por cold starts o spikes transitorios de Vercel
+            await new Promise<void>((resolve) => window.setTimeout(resolve, 3000));
+            const retryResponse = await fetchWithHeaders(getSession());
+            if (retryResponse.ok) {
+                return (await retryResponse.json()) as T;
+            }
+
+            if (retryResponse.status === 401) {
+                // Ahora sí es un 401 confirmado — cerrar sesión
                 invalidateSession({ broadcast: true });
                 window.location.href = window.location.origin + window.location.pathname;
-                // Prevent further execution
                 await new Promise(() => {});
             }
-        } else if (response.status === 401 && typeof window !== 'undefined') {
-            // Force logout if no apiKey available to refresh
-            invalidateSession({ broadcast: true });
-            window.location.href = window.location.origin + window.location.pathname;
-            await new Promise(() => {});
+
+            const retryText = await retryResponse.text();
+            throw new Error(parseHttpErrorBody(retryText, `HTTP ${retryResponse.status}`));
         }
-        
+
         const text = await response.text();
         throw new Error(parseHttpErrorBody(text, `HTTP ${response.status}`));
     }

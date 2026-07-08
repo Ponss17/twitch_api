@@ -246,7 +246,9 @@ export const handleCallback = async (
 const refreshPromises = new Map<string, Promise<string>>();
 const MAX_REFRESH_PROMISES = 100;
 const REFRESH_TIMEOUT_MS = 15_000;
-const TOKEN_EXPIRY_BUFFER_MS = 5 * 60 * 1000;
+/** Margen amplio para renovar el token antes de que expire.
+ * 30 minutos garantiza que incluso con CPU throttle en Vercel haya tiempo suficiente. */
+const TOKEN_EXPIRY_BUFFER_MS = 30 * 60 * 1000;
 
 export function isOAuthTokenNearExpiry(
     user: StoredUser,
@@ -357,7 +359,8 @@ const ensureValidToken = async (
     user: StoredUser,
     errorPrefix: string
 ): Promise<{ accessToken: string; userId: string }> => {
-    const fiveMinutesFromNow = Date.now() + 5 * 60 * 1000;
+    // 30 minutos de buffer: renovar mucho antes de que el token expire
+    const renewalThreshold = Date.now() + TOKEN_EXPIRY_BUFFER_MS;
     let expiresAt = 0;
 
     if (user.tokenExpiresAt && user.tokenExpiresAt > 0) {
@@ -381,7 +384,7 @@ const ensureValidToken = async (
         }
     }
 
-    if (fiveMinutesFromNow > expiresAt) {
+    if (renewalThreshold > expiresAt) {
         try {
             const newToken = await refreshUserToken(user.userId);
             return { accessToken: newToken, userId: user.userId };
