@@ -1,7 +1,44 @@
 import { Request, Response } from 'express';
+import axios from 'axios';
 import { logger } from '../utils/logger';
 import * as authService from '../../features/auth/auth.service';
 import { AppError } from '../errors/AppError';
+
+/** Serializa un error Axios de forma legible para el logger (evita el {} vacío). */
+function serializeError(error: unknown): Record<string, unknown> {
+    if (axios.isAxiosError(error)) {
+        return {
+            message: error.message,
+            status: error.response?.status,
+            data: error.response?.data,
+            url: error.config?.url
+        };
+    }
+    if (error instanceof Error) {
+        return { message: error.message, name: error.name };
+    }
+    return { raw: String(error) };
+}
+
+/** Devuelve un mensaje amigable a partir del error de la API de Twitch. */
+function friendlyTwitchMessage(error: unknown, defaultMessage: string): string {
+    if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const data = error.response?.data as { message?: string } | undefined;
+        const msg = data?.message || '';
+
+        if (status === 404) return error.message || 'Canal no encontrado.';
+        if (status === 422 || msg.toLowerCase().includes('offline') || msg.toLowerCase().includes('not live')) {
+            return 'El canal está offline. Solo se pueden crear clips en canales en directo.';
+        }
+        if (status === 403) {
+            return 'Sin permiso para crear clips en este canal.';
+        }
+        if (status === 401) return 'Token expirado o inválido.';
+        if (msg) return msg;
+    }
+    return defaultMessage;
+}
 
 export const withTwitchAuth = async <T>(
     req: Request & { twitchToken?: string },
@@ -36,9 +73,9 @@ export const withTwitchAuth = async <T>(
             }
 
             const status = err.status || err.response?.status || 500;
-            const message = status === 404 ? err.message : 'Error processing Twitch request';
+            const message = friendlyTwitchMessage(error, 'Error processing Twitch request');
 
-            logger.error(`[${context} ERROR]`, { attempt: attempts, error });
+            logger.error(`[${context} ERROR]`, { attempt: attempts, error: serializeError(error) });
 
             if (is401) {
                 throw new AppError('Error de autenticación. Token expirado.', 401);
