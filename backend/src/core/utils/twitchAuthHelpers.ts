@@ -15,7 +15,8 @@ function serializeError(error: unknown): Record<string, unknown> {
         };
     }
     if (error instanceof Error) {
-        return { message: error.message, name: error.name };
+        const appErr = error as Error & { statusCode?: number };
+        return { message: error.message, name: error.name, statusCode: appErr.statusCode };
     }
     return { raw: String(error) };
 }
@@ -57,9 +58,12 @@ export const withTwitchAuth = async <T>(
         try {
             return await action(token || '');
         } catch (error: unknown) {
-            const err = error as Error & { status?: number; response?: { status?: number } };
+            const err = error as Error & { status?: number; statusCode?: number; response?: { status?: number } };
+            // Los errores pueden llegar como AxiosError (status/response.status)
+            // o como TwitchApiError/AppError (statusCode). Hay que checar los tres.
+            const httpStatus = err.status ?? err.response?.status ?? err.statusCode;
             const is401 =
-                err.message?.includes('401') || err.status === 401 || err.response?.status === 401;
+                httpStatus === 401 || err.message?.includes('401');
 
             if (is401 && apiKey && attempts < maxAttempts) {
                 logger.warn(`[${context}] 401 detected (attempt ${attempts}), forcing refresh...`);
@@ -72,7 +76,7 @@ export const withTwitchAuth = async <T>(
                 }
             }
 
-            const status = err.status || err.response?.status || 500;
+            const status = httpStatus || 500;
             const message = friendlyTwitchMessage(error, 'Error processing Twitch request');
 
             logger.error(`[${context} ERROR]`, { attempt: attempts, error: serializeError(error) });
