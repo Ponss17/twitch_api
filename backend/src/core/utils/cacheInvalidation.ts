@@ -44,6 +44,8 @@ export async function invalidateAllUserCaches(
     invalidateStatsCache(userId);
 
     const tasks: Promise<void>[] = [
+        cacheService.del(`cache:user:id:${userId}`),
+        ...(options.login ? [cacheService.del(`cache:user:login:${options.login.toLowerCase()}`)] : []),
         cacheService.invalidateDashboardCache(userId, options.login),
         cacheService.bumpStatsRevision(userId),
         invalidateOverlayStateCaches(userId)
