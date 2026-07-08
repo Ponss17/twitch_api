@@ -1,6 +1,5 @@
 import { memo } from 'react';
-import { Zap, CheckCircle2, Gauge } from 'lucide-react';
-import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
+import { Zap, CheckCircle2, Gauge, Bot } from 'lucide-react';
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
 
 interface HomeHeroProps {
@@ -32,17 +31,17 @@ export const HomeHero = memo(function HomeHero({
 
     return (
         <section
-            className="relative mb-8 overflow-hidden rounded-xl border border-white/[0.08] bg-bg-card px-[52px] py-10 transition-all duration-500 max-md:p-8"
+            className="relative mb-8 overflow-hidden rounded-xl border border-white/[0.08] bg-bg-card px-[52px] py-10 transition-colors duration-300 hover:border-primary max-md:p-8"
             aria-busy={isLoading}
         >
             <div className="relative z-[5] flex items-center justify-between gap-10">
                 <div className="max-w-[500px] shrink-0">
                     <h1 className="mb-3.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[2.6rem] font-extrabold leading-[1.1] tracking-[-0.02em] text-white max-md:text-[2rem]">
                         <span className="inline-flex size-9 shrink-0 items-center justify-center text-[#9146ff]">
-                            <TwitchIcon className="size-full" aria-hidden />
+                            <Bot className="size-8" aria-hidden />
                         </span>
                         <span>Hola,</span>
-                        <span className="bg-gradient-to-br from-white from-20% to-primary bg-clip-text text-transparent">
+                        <span>
                             {displayName}
                         </span>
                     </h1>
