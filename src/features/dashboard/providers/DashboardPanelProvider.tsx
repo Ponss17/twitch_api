@@ -14,7 +14,10 @@ import { TabSyncService } from '@/features/dashboard/lib/tabSyncService';
 import { useDashboardRealtime } from '@/features/dashboard/hooks/useDashboardRealtime';
 import {
     EMPTY_DASHBOARD_LIVE_STATS,
-    type DashboardLiveStats
+    getStatsLocalDateString,
+    mergeDashboardStats,
+    type DashboardLiveStats,
+    type RealtimeStatsUpdate
 } from '@/features/dashboard/lib/dashboardStats';
 import { activityEntryKey, type ActivityLogItem } from '@/features/dashboard/lib/activityLogDisplay';
 import { formatFetchErrorForUi, isFetchNetworkError } from '@/core/api/apiError';
@@ -101,8 +104,8 @@ export function DashboardPanelProvider({
     const dataReadyFiredRef = useRef(false);
     const syncingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const authRedirectTimerRef = useRef<number | null>(null);
-    /** true mientras se ejecuta applyHomeDataReset — bloquea eventos de Realtime rezagados. */
     const resetPendingRef = useRef(false);
+    const todayLocalRef = useRef(getStatsLocalDateString());
 
     const markDataReady = useCallback(() => {
         if (dataReadyFiredRef.current) return;
@@ -146,9 +149,7 @@ export function DashboardPanelProvider({
     const applyHomeDataReset = useCallback(() => {
         consumeHomeDataResetPending(session.userId);
         resetPendingRef.current = true;
-        // Reseteamos contadores del día (hoy) pero preservamos timeSeries histórico,
-        // ya que el borrado de stats no elimina los datos de días anteriores en la DB.
-        setStats((prev) => ({ ...EMPTY_DASHBOARD_LIVE_STATS, timeSeries: prev.timeSeries }));
+        setStats(EMPTY_DASHBOARD_LIVE_STATS);
         setActivity([]);
         setError(null);
         setHighlightKeys(new Set());
@@ -327,10 +328,9 @@ export function DashboardPanelProvider({
         }, 1000);
     }, [performSync, session.userId]);
 
-    const handleRealtimeStats = useCallback((next: DashboardLiveStats) => {
+    const handleRealtimeStats = useCallback((next: RealtimeStatsUpdate) => {
         if (resetPendingRef.current) return;
-        // Merge con estado previo — evita resetear a 0 campos que no vienen en el payload
-        setStats((prev) => ({ ...prev, ...next }));
+        setStats((prev) => mergeDashboardStats(prev, next));
         markDataReadyRef.current();
         syncRef.current?.broadcast('SYNC_STATS', next);
     }, []);
@@ -398,6 +398,36 @@ export function DashboardPanelProvider({
         }
     }, [active, isRealtimeLive, isTabLeader, startSmartPolling]);
 
+    useEffect(() => {
+        if (!isTabLeader) return;
+
+        const checkMidnightRollover = () => {
+            const today = getStatsLocalDateString();
+            if (todayLocalRef.current === today) return;
+            todayLocalRef.current = today;
+            setStats((prev) => ({
+                ...EMPTY_DASHBOARD_LIVE_STATS,
+                timeSeries: prev.timeSeries
+            }));
+            void fetchPanelDataRef.current({
+                broadcast: true,
+                retryOnNetwork: false,
+                fresh: true,
+                silent: true
+            });
+        };
+
+        const interval = setInterval(checkMidnightRollover, 30_000);
+        const onVisible = () => {
+            if (document.visibilityState === 'visible') checkMidnightRollover();
+        };
+        document.addEventListener('visibilitychange', onVisible);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener('visibilitychange', onVisible);
+        };
+    }, [isTabLeader]);
 
     useEffect(() => {
         const sync = new TabSyncService(PANEL_SYNC_CHANNEL);
@@ -425,8 +455,7 @@ export function DashboardPanelProvider({
         sync.on('SYNC_ACTIVITY', (payload) => setActivity(payload as ActivityLogItem[]));
         sync.on('SYNC_PROFILE', (payload) => setProfile(payload));
         sync.on('SYNC_STATS', (payload) => {
-            // Merge con el estado previo — evita resetear a 0 campos que no vienen en el broadcast
-            setStats((prev) => ({ ...prev, ...(payload as DashboardLiveStats) }));
+            setStats((prev) => mergeDashboardStats(prev, payload as RealtimeStatsUpdate));
             markDataReadyRef.current();
         });
 
@@ -493,9 +522,7 @@ export function DashboardPanelProvider({
             applyHomeDataReset();
             return;
         }
-        // Al volver al tab Home, re-fetch si los datos tienen más de 10s de antigüedad.
-        // Esto garantiza que ver el Home después de hacer una petición en Followage
-        // siempre muestre los stats actualizados.
+        // Al volver a Inicio o Analytics, re-fetch si los datos tienen más de 10s de antigüedad.
         const lastSyncRaw = readPanelSyncPref(session.userId);
         const stale = !lastSyncRaw || Date.now() - parseInt(lastSyncRaw, 10) > 10_000;
         if (stale && panelBootstrappedRef.current) {

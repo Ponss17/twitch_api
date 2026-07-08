@@ -3,11 +3,11 @@ import { Toaster } from 'sonner';
 import { Sidebar } from '@/features/dashboard/components/layout/Sidebar';
 import { DashboardHeader } from '@/features/dashboard/components/layout/DashboardHeader';
 import { DashboardContent } from '@/features/dashboard/components/DashboardContent';
-import { ToastProvider } from '@/shared/ui/ToastProvider';
+import { ToastProvider, useToast } from '@/shared/ui/ToastProvider';
 import { OnlineStatusMonitor } from '@/shared/ui/OnlineStatusMonitor';
 import { VerifyingSessionModal } from '@/shared/ui/VerifyingSessionModal';
 import { SessionProvider } from '@/shared/providers/SessionProvider';
-import { useSession } from '@/core/session/useSession';
+import { useSession, useRequiredSession } from '@/core/session/useSession';
 import { DashboardSessionSkeleton } from '@/shared/ui/Skeleton';
 import { logout, shouldShowDashboardSplash, clearDashboardSplashFlags } from '@/core/api/auth';
 import { DASHBOARD_DATA_READY_EVENT } from '@/features/dashboard/lib/dashboardPanelEvents';
@@ -17,6 +17,25 @@ import { resolveDashboardTab, setTabInUrl } from '@/features/dashboard/lib/dashb
 import { persistPanelReturnPath } from '@/core/config/paths';
 import { fadeIn } from '@/core/ui/tw';
 import type { DashboardTab } from '@/core/config/config';
+import { DashboardPanelProvider } from '@/features/dashboard/providers/DashboardPanelProvider';
+
+function DashboardPanelShell({
+    tab,
+    onNavigate
+}: {
+    tab: DashboardTab;
+    onNavigate: (next: DashboardTab) => void;
+}) {
+    const session = useRequiredSession();
+    const { showToast } = useToast();
+    const panelActive = tab === 'home' || tab === 'analytics';
+
+    return (
+        <DashboardPanelProvider active={panelActive} session={session} showToast={showToast}>
+            <DashboardContent tab={tab} onNavigate={onNavigate} />
+        </DashboardPanelProvider>
+    );
+}
 
 export function DashboardApp() {
     return (
@@ -153,7 +172,7 @@ function DashboardAppShell() {
 
                     <div className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-3">
                         <div className={fadeIn}>
-                            <DashboardContent tab={tab} onNavigate={setTab} />
+                            <DashboardPanelShell tab={tab} onNavigate={setTab} />
                         </div>
                     </div>
                 </main>

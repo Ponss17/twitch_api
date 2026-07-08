@@ -40,7 +40,7 @@ export const SettingsDangerZone = forwardRef<HTMLDivElement, SettingsDangerZoneP
                                 Reiniciar Estadísticas
                             </h4>
                             <p className="m-0 max-w-[600px] text-[0.85rem] leading-relaxed text-zinc-400">
-                                Borra todo el historial de comandos, clips y latencia. Tu API Key seguirá activa.
+                                Borra todo el historial de comandos, clips, latencia y gráficas de analytics. Tu API Key seguirá activa.
                             </p>
                         </div>
                         <div className="shrink-0 w-full sm:w-auto">
