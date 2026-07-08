@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useDashboardPanel, DashboardPanelProvider } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { BarChart3, AlertTriangle } from 'lucide-react';
@@ -7,9 +7,19 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { CardHeaderIcon } from '@/shared/ui/Icon';
 
+import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
+import { Zap, CheckCircle2, Gauge, Command } from 'lucide-react';
+import { sumDashboardCategoryUsage } from '@/features/dashboard/lib/dashboardStats';
+
+const STATS_ROW =
+    'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4';
+
+const H_STAT =
+    'group relative flex flex-col gap-2 rounded-xl border border-white/[0.04] bg-white/[0.02] px-6 py-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:bg-white/[0.04] hover:shadow-2xl';
+
 const COLORS = ['#9146ff', '#00e599', '#facc15', '#ef4444', '#3b82f6', '#f97316', '#ec4899', '#8b5cf6'];
 
-function AnalyticsViewContent() {
+function AnalyticsViewContent({ active }: { active: boolean }) {
     const { stats, hasLiveData, error } = useDashboardPanel();
 
     const { timeSeries = [] } = stats;
@@ -44,7 +54,7 @@ function AnalyticsViewContent() {
         });
 
         const sortedArea = Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
-        
+
         const sortedPie = Array.from(commandMap.entries())
             .map(([name, s]) => ({
                 name,
@@ -63,20 +73,29 @@ function AnalyticsViewContent() {
 
         const uniqueCommands = sortedPie.length;
 
-        return { areaData: sortedArea, pieData: sortedPie, summary: { totalRequests, successRate, avgLatency, uniqueCommands } };
+        return { areaData: sortedPie.length === 0 ? [] : sortedArea, pieData: sortedPie, summary: { totalRequests, successRate, avgLatency, uniqueCommands } };
     }, [timeSeries]);
 
-    // Cleanup tabindex on <g> elements to silence Astro Dev Toolbar's strict accessibility linter
-    React.useEffect(() => {
+    // Fix agresivo para Astro DevToolbar: Recharts añade tabindex="0" a muchos elementos 
+    // (path, g, section, rect) durante y después de animar, disparando falsos positivos de a11y.
+    useEffect(() => {
+        if (!active) return;
         const cleanTabIndex = () => {
-            document.querySelectorAll('g[tabindex]').forEach(el => {
+            document.querySelectorAll('.recharts-wrapper [tabindex]').forEach(el => {
                 el.removeAttribute('tabindex');
             });
         };
+        
         cleanTabIndex();
-        const timer = setTimeout(cleanTabIndex, 50);
-        return () => clearTimeout(timer);
-    }, [areaData, pieData]);
+        // Las animaciones duran hasta 1500ms, así que limpiamos agresivamente en intervalos
+        const interval = setInterval(cleanTabIndex, 100);
+        const timeout = setTimeout(() => clearInterval(interval), 2000);
+        
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timeout);
+        };
+    }, [active, areaData, pieData]);
 
     if (error && !hasLiveData) {
         return (
@@ -87,130 +106,224 @@ function AnalyticsViewContent() {
         );
     }
 
+    const latencyMs = stats.avgLatencyMs ?? 0;
+    const resourceUsage = sumDashboardCategoryUsage(stats);
+    const successRateDaily = stats.rawSuccessRate ?? 0;
+    const isLoading = !hasLiveData;
+    const requestsDuration = resourceUsage === 0 ? 0 : 1500;
+    const successDuration = active ? 1000 : 0;
+    const latencyDuration = active ? 1000 : 0;
+
     return (
         <div className={`space-y-6 ${fadeIn}`}>
-            <div className={card}>
-                <div className="flex items-center gap-3">
+
+            {/* Contenedor Unificado: Overview + KPIs */}
+            <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6">
+                <div className="flex items-center gap-3 mb-6 border-b border-white/[0.08] pb-4">
                     <CardHeaderIcon icon={BarChart3} />
                     <div>
-                        <h3 className="mb-0.5 text-[0.95rem] font-bold text-[#fafafa]">Analytics</h3>
-                        <p className="text-[0.8rem] text-[#c4c4cc]">Rendimiento y uso detallado en los últimos 7 días.</p>
+                        <h3 className="mb-0.5 text-[1.05rem] font-bold text-[#fafafa]">Analytics Overview</h3>
+                        <p className="text-[0.8rem] text-zinc-400">Métricas de rendimiento de tu API en los últimos 7 días.</p>
+                    </div>
+                </div>
+
+                <div className={STATS_ROW} aria-busy={isLoading}>
+                    {/* Total Requests */}
+                    <div className={H_STAT}>
+                        <div className="flex justify-between items-center w-full mb-2">
+                            <span className="text-sm font-medium text-zinc-300">Peticiones Totales</span>
+                            <Zap className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex flex-col">
+                            <AnimatedNumber
+                                value={resourceUsage}
+                                duration={requestsDuration}
+                                isLoading={isLoading}
+                                className="text-[2.5rem] font-bold leading-none tracking-tight text-white"
+                            />
+                            <span className="text-xs text-zinc-500 mt-2 font-medium">realizadas hoy</span>
+                        </div>
+                    </div>
+
+                    {/* Success Rate */}
+                    <div className={H_STAT}>
+                        <div className="flex justify-between items-center w-full mb-2">
+                            <span className="text-sm font-medium text-zinc-300">Tasa de Éxito</span>
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        </div>
+                        <div className="flex flex-col">
+                            <AnimatedNumber
+                                value={successRateDaily}
+                                duration={successDuration}
+                                suffix="%"
+                                isLoading={isLoading}
+                                className="text-[2.5rem] font-bold leading-none tracking-tight text-white"
+                            />
+                            <span className="text-xs text-zinc-500 mt-2 font-medium">peticiones exitosas</span>
+                        </div>
+                    </div>
+
+                    {/* Avg Processing Time */}
+                    <div className={H_STAT}>
+                        <div className="flex justify-between items-center w-full mb-2">
+                            <span className="text-sm font-medium text-zinc-300">Tiempo de Proceso Medio</span>
+                            <Gauge className="w-4 h-4 text-amber-500" />
+                        </div>
+                        <div className="flex flex-col">
+                            <div className="flex items-end gap-1.5">
+                                <AnimatedNumber
+                                    value={latencyMs}
+                                    duration={latencyDuration}
+                                    isLoading={isLoading}
+                                    className="text-[2.5rem] font-bold leading-none tracking-tight text-white"
+                                />
+                                <span className="text-xl font-bold text-white mb-0.5">ms</span>
+                            </div>
+                            <span className="text-xs text-zinc-500 mt-2 font-medium">latencia global de la API</span>
+                        </div>
+                    </div>
+
+                    {/* Commands */}
+                    <div className={H_STAT}>
+                        <div className="flex justify-between items-center w-full mb-2">
+                            <span className="text-sm font-medium text-zinc-300">Comandos Usados</span>
+                            <Command className="w-4 h-4 text-blue-500" />
+                        </div>
+                        <div className="flex flex-col">
+                            <AnimatedNumber
+                                value={summary.uniqueCommands}
+                                duration={1500}
+                                isLoading={isLoading}
+                                className="text-[2.5rem] font-bold leading-none tracking-tight text-white"
+                            />
+                            <span className="text-xs text-zinc-500 mt-2 font-medium">herramientas diferentes invocadas</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-5 transition-colors duration-200 hover:border-primary/60">
-                    <p className="mb-1 text-[0.8rem] text-zinc-500">Total Peticiones</p>
-                    <p className="text-2xl font-bold text-[#fafafa]">{summary.totalRequests.toLocaleString()}</p>
-                </div>
-                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-5 transition-colors duration-200 hover:border-primary/60">
-                    <p className="mb-1 text-[0.8rem] text-zinc-500">Tasa de Éxito Global</p>
-                    <p className={`text-2xl font-bold ${parseFloat(summary.successRate) > 95 ? 'text-emerald-400' : parseFloat(summary.successRate) > 80 ? 'text-yellow-400' : 'text-red-400'}`}>{summary.successRate}%</p>
-                </div>
-                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-5 transition-colors duration-200 hover:border-primary/60">
-                    <p className="mb-1 text-[0.8rem] text-zinc-500">Latencia Promedio</p>
-                    <p className="text-2xl font-bold text-zinc-300">{summary.avgLatency}ms</p>
-                </div>
-                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-5 transition-colors duration-200 hover:border-primary/60">
-                    <p className="mb-1 text-[0.8rem] text-zinc-500">Comandos Usados</p>
-                    <p className="text-2xl font-bold text-[#fafafa]">{summary.uniqueCommands}</p>
-                </div>
-            </div>
-
+            {/* Gráficas Principales */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                {/* Peticiones Diarias */}
-                <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/60 lg:col-span-2">
-                    <h2 className="mb-6 text-lg font-semibold text-[#fafafa]">Peticiones Diarias</h2>
-                    <div className="h-[300px] w-full relative">
+                {/* Peticiones Diarias (Con Grid muy visible y color morado) */}
+                <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50 lg:col-span-2">
+                    <div className="flex justify-between items-center mb-6 border-b border-white/[0.08] pb-4">
+                        <div>
+                            <h2 className="text-lg font-semibold text-[#fafafa]">Peticiones por Estado (7 días)</h2>
+                            <p className="text-xs text-zinc-500 mt-1">Desglose de uso diario</p>
+                        </div>
+                        <span className="text-xs text-zinc-500">{Intl.DateTimeFormat().resolvedOptions().timeZone} - últimos 7 días</span>
+                    </div>
+                    <div className="h-[320px] w-full relative">
                         <span className="sr-only">
                             Gráfico de área mostrando las peticiones diarias de los últimos 7 días.
                         </span>
                         <div aria-hidden="true" className="h-full w-full">
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={areaData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }} accessibilityLayer={false}>
+                                <AreaChart data={areaData} margin={{ top: 10, right: 30, left: -20, bottom: 0 }} accessibilityLayer={false}>
                                     <defs>
                                         <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#9146ff" stopOpacity={0.15}/>
-                                            <stop offset="95%" stopColor="#9146ff" stopOpacity={0}/>
+                                            <stop offset="5%" stopColor="#9146ff" stopOpacity={0.25} />
+                                            <stop offset="95%" stopColor="#9146ff" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.04} vertical={false} />
-                                    <XAxis 
-                                        dataKey="date" 
-                                        stroke="#71717a" 
-                                        fontSize={12} 
-                                        tickLine={false} 
-                                        axisLine={false} 
+                                    {/* GRID Súper visible como en el ejemplo */}
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.06} vertical={true} horizontal={true} />
+                                    <XAxis
+                                        dataKey="date"
+                                        stroke="#71717a"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        axisLine={{ stroke: '#ffffff', strokeOpacity: 0.1 }}
+                                        tickMargin={12}
                                         tickFormatter={(val) => {
                                             const parts = val.split('-');
                                             return `${parts[2]}/${parts[1]}`;
                                         }}
                                     />
-                                    <YAxis 
-                                        stroke="#71717a" 
-                                        fontSize={12} 
-                                        tickLine={false} 
+                                    <YAxis
+                                        stroke="#71717a"
+                                        fontSize={12}
+                                        tickLine={false}
                                         axisLine={false}
                                         domain={[0, (dataMax: number) => (dataMax === 0 ? 10 : dataMax)]}
                                         allowDecimals={false}
+                                        tickMargin={12}
                                     />
-                                    <Tooltip 
-                                        contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px', color: '#fafafa' }}
-                                        itemStyle={{ color: '#fafafa' }}
-                                        labelStyle={{ color: '#a1a1aa', marginBottom: '4px' }}
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', color: '#fafafa', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)' }}
+                                        itemStyle={{ color: '#fafafa', fontWeight: 500 }}
+                                        labelStyle={{ color: '#a1a1aa', marginBottom: '8px', fontSize: '13px' }}
+                                        cursor={{ stroke: '#3f3f46', strokeWidth: 1, strokeDasharray: '4 4' }}
                                     />
-                                    <Area type="monotone" dataKey="requests" name="Peticiones" stroke="#9146ff" strokeWidth={2} activeDot={{ r: 4, strokeWidth: 0, fill: '#9146ff' }} fillOpacity={1} fill="url(#colorRequests)" />
+                                    <Area type="monotone" dataKey="requests" name="Peticiones" stroke="#9146ff" strokeWidth={3} activeDot={{ r: 6, strokeWidth: 2, stroke: '#18181b', fill: '#9146ff' }} fillOpacity={1} fill="url(#colorRequests)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
                 </div>
 
-                {/* Distribución */}
-                <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/60">
-                    <h2 className="mb-6 text-lg font-semibold text-[#fafafa]">Distribución</h2>
-                    <div className="h-[300px] w-full relative">
+                {/* Uso / Distribución (Donut tipo ejemplo) */}
+                <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
+                    <div className="mb-6 border-b border-white/[0.08] pb-4">
+                        <h2 className="text-lg font-semibold text-[#fafafa]">Uso de Comandos</h2>
+                        <p className="text-xs text-zinc-500 mt-1">Distribución general en API</p>
+                    </div>
+                    <div className="h-[240px] w-full relative mt-4">
                         <span className="sr-only">
                             Gráfico circular mostrando la distribución de comandos utilizados.
                         </span>
                         {pieData.length === 0 || pieData.every(d => d.value === 0) ? (
                             <div className="flex h-full items-center justify-center text-sm text-zinc-500">Sin datos suficientes</div>
                         ) : (
-                            <div aria-hidden="true" className="h-full w-full">
+                            <div aria-hidden="true" className="h-full w-full relative">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart accessibilityLayer={false}>
                                         <Pie
                                             data={pieData}
                                             cx="50%"
                                             cy="50%"
-                                            innerRadius={72}
-                                            outerRadius={88}
+                                            innerRadius={70}
+                                            outerRadius={95}
                                             paddingAngle={4}
                                             dataKey="value"
                                             stroke="none"
+                                            cornerRadius={6}
                                         >
                                             {pieData.map((_, index) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                             ))}
                                         </Pie>
-                                        <Tooltip 
-                                            contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px', color: '#fafafa' }}
-                                            itemStyle={{ color: '#fafafa' }}
+                                        <Tooltip
+                                            contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', color: '#fafafa' }}
+                                            itemStyle={{ color: '#fafafa', fontWeight: 500 }}
                                         />
                                     </PieChart>
                                 </ResponsiveContainer>
+                                {/* Center Text for Donut */}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                    <span className="text-3xl font-bold text-white tracking-tight">{summary.totalRequests.toLocaleString()}</span>
+                                    <span className="text-[0.65rem] uppercase tracking-wider text-zinc-500 font-semibold mt-0.5">Peticiones</span>
+                                </div>
                             </div>
                         )}
                     </div>
                     {pieData.length > 0 && pieData.some(d => d.value > 0) && (
-                        <div className="mt-4 flex flex-wrap justify-center gap-3">
-                            {pieData.slice(0, 4).map((entry, index) => (
-                                <div key={entry.name} className="flex items-center gap-2 text-sm text-zinc-300">
-                                    <span className="size-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
-                                    <span className="capitalize">{entry.name}</span>
-                                </div>
-                            ))}
+                        <div className="mt-8 flex flex-col gap-3">
+                            {pieData.slice(0, 4).map((entry, index) => {
+                                const percentage = summary.totalRequests > 0 ? ((entry.value / summary.totalRequests) * 100).toFixed(1) : '0.0';
+                                return (
+                                    <div key={entry.name} className="flex items-center justify-between rounded-lg bg-white/[0.02] p-2.5 transition hover:bg-white/[0.04]">
+                                        <div className="flex items-center gap-2.5 overflow-hidden">
+                                            <span className="size-3.5 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
+                                            <span className="capitalize truncate text-sm font-medium text-zinc-200" title={entry.name}>{entry.name}</span>
+                                        </div>
+                                        <div className="flex items-center gap-3 shrink-0">
+                                            <span className="text-xs text-zinc-400">{entry.value.toLocaleString()}</span>
+                                            <span className="text-xs font-bold text-white w-10 text-right">{percentage}%</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
@@ -218,12 +331,14 @@ function AnalyticsViewContent() {
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 {/* Desglose por Comando (Tabla) */}
-                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/60">
-                    <h2 className="mb-6 text-lg font-semibold text-[#fafafa]">Rendimiento por Comando</h2>
+                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
+                    <div className="mb-6 border-b border-white/[0.08] pb-4">
+                        <h2 className="text-lg font-semibold text-[#fafafa]">Endpoints Más Usados</h2>
+                    </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead>
-                                <tr className="border-b border-zinc-800/50 text-zinc-400">
+                                <tr className="border-b border-white/[0.05] text-zinc-500">
                                     <th className="pb-3 font-medium">Comando</th>
                                     <th className="pb-3 font-medium text-right">Peticiones</th>
                                     <th className="pb-3 font-medium text-right">Éxito</th>
@@ -237,20 +352,20 @@ function AnalyticsViewContent() {
                                     </tr>
                                 ) : (
                                     pieData.map((row, idx) => (
-                                        <tr key={row.name} className="border-b border-white/[0.08] last:border-0">
-                                            <td className="py-4 capitalize text-zinc-200">
+                                        <tr key={row.name} className="border-b border-white/[0.03] last:border-0 hover:bg-white/[0.02] transition-colors">
+                                            <td className="py-3.5 capitalize text-zinc-200">
                                                 <div className="flex items-center gap-2">
                                                     <span className="size-2 rounded-full" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></span>
                                                     {row.name}
                                                 </div>
                                             </td>
-                                            <td className="py-4 text-right text-zinc-300">{row.value.toLocaleString()}</td>
-                                            <td className="py-4 text-right">
-                                                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${parseFloat(row.successRate) > 95 ? 'bg-emerald-500/10 text-emerald-400' : parseFloat(row.successRate) > 80 ? 'bg-yellow-500/10 text-yellow-400' : 'bg-red-500/10 text-red-400'}`}>
+                                            <td className="py-3.5 text-right font-medium text-white">{row.value.toLocaleString()}</td>
+                                            <td className="py-3.5 text-right">
+                                                <span className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider ${parseFloat(row.successRate) > 95 ? 'bg-emerald-500/10 text-emerald-400' : parseFloat(row.successRate) > 80 ? 'bg-yellow-500/10 text-yellow-400' : 'bg-red-500/10 text-red-400'}`}>
                                                     {row.successRate}%
                                                 </span>
                                             </td>
-                                            <td className="py-4 text-right text-zinc-300">{row.avgLatency}ms</td>
+                                            <td className="py-3.5 text-right text-zinc-400 font-mono text-xs">{row.avgLatency}ms</td>
                                         </tr>
                                     ))
                                 )}
@@ -259,10 +374,13 @@ function AnalyticsViewContent() {
                     </div>
                 </div>
 
-                {/* Gráfico de Latencia (BarChart en vez de AreaChart) */}
-                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/60">
-                    <h2 className="mb-6 text-lg font-semibold text-[#fafafa]">Comparativa de Latencia</h2>
-                    <div className="h-[300px] w-full relative">
+                {/* Gráfico de Latencia (BarChart) */}
+                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
+                    <div className="mb-6 border-b border-white/[0.08] pb-4">
+                        <h2 className="text-lg font-semibold text-[#fafafa]">Comparativa de Latencia</h2>
+                        <p className="text-xs text-zinc-500 mt-1">Tiempo de proceso por comando</p>
+                    </div>
+                    <div className="h-[280px] w-full relative">
                         <span className="sr-only">
                             Gráfico de barras mostrando la latencia promedio por comando.
                         </span>
@@ -272,21 +390,22 @@ function AnalyticsViewContent() {
                             <div aria-hidden="true" className="h-full w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={pieData} layout="vertical" margin={{ top: 0, right: 30, left: 20, bottom: 0 }} accessibilityLayer={false}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.04} horizontal={false} />
-                                        <XAxis 
-                                            type="number" 
-                                            stroke="#71717a" 
-                                            fontSize={12} 
-                                            tickLine={false} 
-                                            axisLine={false} 
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.05} horizontal={true} vertical={true} />
+                                        <XAxis
+                                            type="number"
+                                            stroke="#71717a"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            tickMargin={8}
                                             tickFormatter={(val) => `${val}ms`}
                                             domain={[0, (dataMax: number) => (dataMax === 0 ? 10 : dataMax)]}
                                         />
-                                        <YAxis type="category" dataKey="name" stroke="#71717a" fontSize={12} tickLine={false} axisLine={false} className="capitalize" />
-                                        <Tooltip 
+                                        <YAxis type="category" dataKey="name" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} className="capitalize" />
+                                        <Tooltip
+                                            contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', color: '#fafafa' }}
+                                            itemStyle={{ color: '#fafafa', fontWeight: 500 }}
                                             cursor={false}
-                                            contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px', color: '#fafafa' }}
-                                            itemStyle={{ color: '#fafafa' }}
                                         />
                                         <Bar dataKey="avgLatency" name="Latencia" radius={[0, 4, 4, 0]} maxBarSize={16}>
                                             {pieData.map((_, index) => (
@@ -310,7 +429,7 @@ export function AnalyticsView({ active = true }: { active?: boolean }) {
 
     return (
         <DashboardPanelProvider active={active} session={session} showToast={showToast}>
-            <AnalyticsViewContent />
+            <AnalyticsViewContent active={active} />
         </DashboardPanelProvider>
     );
 }

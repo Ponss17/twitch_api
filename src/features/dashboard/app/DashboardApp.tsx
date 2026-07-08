@@ -146,7 +146,7 @@ function DashboardAppShell() {
                 <main className="flex min-h-0 flex-1 flex-col lg:ml-[280px]">
                     <DashboardHeader
                         tab={tab}
-                        onProfile={() => setTab('profile')}
+                        onSettings={() => setTab('settings')}
                         onLogout={logout}
                         onMenuToggle={() => setMobileMenuOpen(true)}
                     />

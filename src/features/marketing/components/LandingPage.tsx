@@ -14,17 +14,17 @@ import { SlotText } from 'slot-text/react';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
-const GRID_BG = 'bg-[#080808]';
+const GRID_BG = 'bg-[#09090b]';
 
 const GRID_STYLE: React.CSSProperties = {
     backgroundImage: `
-        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
     `,
-    backgroundSize: '48px 48px'
+    backgroundSize: '60px 60px'
 };
 
-const GRADIENT_TEXT = 'bg-gradient-to-br from-[#9146ff] to-[#a78bfa] bg-clip-text text-transparent';
+const GRADIENT_TEXT = 'bg-gradient-to-br from-[#fafafa] via-[#e2d5f8] to-[#9146ff] bg-clip-text text-transparent';
 
 const CMD_CODE =
     'rounded border border-[#9146ff]/15 bg-[#9146ff]/10 px-1.5 py-0.5 font-mono text-[0.95em] text-[#a78bfa]';
@@ -98,12 +98,22 @@ export function LandingPage() {
     const [isVerifying, setIsVerifying] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
     const [hasSession, setHasSession] = useState(false);
+    const [requestStatus, setRequestStatus] = useState<'idle' | 'loading' | 'success'>('idle');
 
     const copyTerminal = async () => {
         const text = 'curl -G "https://api.losperris.dev/twitch/followage" -d "channel=losperris" -d "user=mynana17" -d "apiKey=sk_a1b2c3d4..."';
         await navigator.clipboard.writeText(text);
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
+    };
+
+    const handleRunRequest = () => {
+        if (requestStatus === 'loading') return;
+        setRequestStatus('idle'); // Reset if it was success
+        setTimeout(() => {
+            setRequestStatus('loading');
+            setTimeout(() => setRequestStatus('success'), 800);
+        }, 50);
     };
 
     useEffect(() => {
@@ -174,13 +184,11 @@ export function LandingPage() {
 
     return (
         <div className={`relative flex flex-1 flex-col font-[Outfit,sans-serif] ${GRID_BG}`} style={GRID_STYLE}>
-            {/* Gradiente radial para apagar la cuadrícula en los bordes */}
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,transparent_60%,#080808)]" />
             <header
                 className={`fixed inset-x-0 top-0 z-[1000] border-b backdrop-blur-xl transition-colors duration-300 ${
                     scrolled
-                        ? 'border-white/10 bg-[#080808]/92'
-                        : 'border-white/[0.06] bg-[#080808]/70'
+                        ? 'border-white/[0.08] bg-[#09090b]/90'
+                        : 'border-white/[0.04] bg-[#09090b]/50'
                 }`}
             >
                 <div className="mx-auto flex max-w-[1550px] flex-col items-center justify-between gap-3 px-4 py-3 md:flex-row md:gap-0 md:px-16 md:py-[0.9rem]">
@@ -217,27 +225,37 @@ export function LandingPage() {
             <div className="relative z-[1] mx-auto w-full max-w-[1400px] flex-1 px-6 pt-12">
                 <section className="grid min-h-0 items-center gap-16 py-24 md:min-h-[88vh] md:grid-cols-2 md:gap-16 md:py-0">
                     <div className="max-w-[600px] text-center md:text-left">
-                        <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#9146ff]/25 bg-[#9146ff]/[0.08] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#a78bfa]">
-                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#9146ff]">
-                                <TwitchIcon className="w-3 fill-white" />
+                        <div className="mb-7 inline-flex animate-fade-soft items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-3.5 py-1.5 text-[0.8125rem] font-medium tracking-wide text-[#c4c4cc] shadow-sm backdrop-blur-md transition-colors hover:border-white/[0.15] hover:bg-white/[0.04]">
+                            <span className="relative flex h-2 w-2">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#9146ff] opacity-75"></span>
+                                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#9146ff]"></span>
                             </span>
-                            BETA — Twitch API
+                            Twitch API — Beta
                         </div>
-                        <h2 className="mb-5 text-[clamp(2.8rem,4.5vw,4.5rem)] font-extrabold leading-[1.1] tracking-[-0.03em] text-[#fafafa]">
+                        <h2 
+                            className="mb-5 animate-fade-soft text-[clamp(2.8rem,4.5vw,4.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-[#fafafa] opacity-0 [animation-fill-mode:forwards]" 
+                            style={{ animationDelay: '100ms' }}
+                        >
                             Comandos para tu
                             <br />
                             <span className={GRADIENT_TEXT}>Stream.</span>
                         </h2>
-                        <p className="mb-8 text-lg leading-relaxed text-[#c4c4cc]">
+                        <p 
+                            className="mb-8 animate-fade-soft text-lg leading-relaxed text-[#c4c4cc] opacity-0 [animation-fill-mode:forwards]"
+                            style={{ animationDelay: '200ms' }}
+                        >
                             Configura <code className={CMD_CODE}>!followage</code>,{' '}
                             <code className={CMD_CODE}>!clip</code>, <code className={CMD_CODE}>!shoutout</code> y más
                             en segundos. Sin complicaciones.
                         </p>
-                        <div className="mb-6 flex flex-wrap justify-center gap-4 md:justify-start">
+                        <div 
+                            className="mb-6 flex animate-fade-soft flex-wrap justify-center gap-4 opacity-0 [animation-fill-mode:forwards] md:justify-start"
+                            style={{ animationDelay: '300ms' }}
+                        >
                             {hasSession ? (
                                 <a
                                     href={appPath('/dashboard/')}
-                                    className="inline-flex items-center gap-2.5 rounded-lg bg-[#9146ff] px-7 py-3 text-[0.95rem] font-semibold text-white transition hover:bg-[#7c3aed] no-underline"
+                                    className="inline-flex items-center gap-2.5 rounded-lg bg-[#9146ff] px-7 py-3 text-[0.95rem] font-semibold text-white no-underline shadow-[0_0_24px_-8px_#9146ff] transition-all hover:bg-[#7c3aed] hover:shadow-[0_0_36px_-6px_#9146ff]"
                                 >
                                     Ir al Panel
                                     <ArrowRight className="w-4" />
@@ -246,7 +264,7 @@ export function LandingPage() {
                                 <button
                                     type="button"
                                     onClick={() => setDisclaimerOpen(true)}
-                                    className="inline-flex items-center gap-2.5 rounded-lg bg-[#9146ff] px-7 py-3 text-[0.95rem] font-semibold text-white transition hover:bg-[#7c3aed]"
+                                    className="inline-flex items-center gap-2.5 rounded-lg bg-[#9146ff] px-7 py-3 text-[0.95rem] font-semibold text-white shadow-[0_0_24px_-8px_#9146ff] transition-all hover:bg-[#7c3aed] hover:shadow-[0_0_36px_-6px_#9146ff]"
                                 >
                                     <TwitchIcon className="w-4 fill-current" />
                                     Iniciar Sesión con Twitch
@@ -254,7 +272,7 @@ export function LandingPage() {
                             )}
                             <a
                                 href="#features"
-                                className="inline-flex items-center gap-2 rounded-lg border border-white/[0.12] px-[22px] py-[11px] text-[0.9rem] font-medium text-[#c4c4cc] no-underline transition hover:border-white/25 hover:text-[#fafafa]"
+                                className="inline-flex items-center gap-2 rounded-lg border border-white/[0.12] px-[22px] py-[11px] text-[0.9rem] font-medium text-[#c4c4cc] no-underline transition duration-300 hover:border-[#9146ff]/50 hover:bg-[#9146ff]/[0.03] hover:text-white"
                             >
                                 Ver funciones <ArrowRight className="w-4" />
                             </a>
@@ -278,50 +296,79 @@ export function LandingPage() {
                         </p>
                     </div>
 
-                    <div className="relative hidden items-center justify-center md:flex">
-                        <div className="w-full max-w-[500px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#111]">
-                            <div className="flex items-center justify-between border-b border-white/[0.06] bg-[#1a1a1a] px-4 py-3">
-                                <div className="flex items-center gap-1.5">
+                    <div 
+                        className="relative hidden animate-fade-soft items-center justify-center opacity-0 [animation-fill-mode:forwards] md:flex"
+                        style={{ animationDelay: '400ms' }}
+                    >
+                        <div className="w-full max-w-[500px] overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02] shadow-2xl backdrop-blur-xl">
+                            <div className="flex items-center justify-between border-b border-white/[0.04] bg-white/[0.02] px-4 py-3">
+                                <div className="flex items-center gap-1.5 opacity-60 transition-opacity hover:opacity-100">
                                     <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
                                     <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
                                     <span className="h-3 w-3 rounded-full bg-[#28c840]" />
-                                    <span className="ml-2 font-mono text-xs text-white/60">bash — 80x24</span>
+                                    <span className="ml-2 font-mono text-xs text-white/40">api.losperris.dev</span>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => void copyTerminal()}
-                                    className="flex items-center gap-1.5 text-xs text-white/40 transition hover:text-white/80"
-                                >
-                                    {isCopied ? <Check className="w-3.5 text-[#10b981]" /> : <Copy className="w-3.5" />}
-                                    <SlotText text={isCopied ? "Copiado" : "Copiar"} />
-                                </button>
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={handleRunRequest}
+                                        disabled={requestStatus === 'loading'}
+                                        className="flex items-center gap-1.5 rounded bg-white/[0.08] px-2 py-1 text-xs text-white/70 transition hover:bg-white/[0.15] hover:text-white disabled:opacity-50"
+                                    >
+                                        <SlotText text={requestStatus === 'loading' ? "Petición en curso..." : requestStatus === 'success' ? "Reintentar" : "Realizar Petición"} />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => void copyTerminal()}
+                                        className="flex items-center gap-1.5 text-xs text-white/40 transition hover:text-[#9146ff]"
+                                    >
+                                        {isCopied ? <Check className="w-3.5 text-[#9146ff]" /> : <Copy className="w-3.5" />}
+                                        <SlotText text={isCopied ? "Copiado" : "Copiar"} />
+                                    </button>
+                                </div>
                             </div>
-                            <div className="space-y-0 p-5 font-mono text-[0.85rem] leading-8">
+                            <div className="space-y-0 p-6 font-mono text-[0.85rem] leading-8 text-white/80">
                                 <div>
-                                    <span className="text-[#61afef]">$</span>
-                                    <span className="text-[#e5c07b]"> curl</span>
-                                    <span className="text-[#98c379]">
-                                        {' '}
-                                        -G &quot;https://api.losperris.dev/twitch/followage&quot;
-                                    </span>
+                                    <span className="text-[#9146ff]">$</span>
+                                    <span className="font-semibold text-white"> curl</span>
+                                    <span className="text-white/40"> -G</span>
+                                    <span> &quot;https://api.losperris.dev/twitch/followage&quot;</span>
                                 </div>
                                 <div>
-                                    <span className="text-[#e5c07b]"> -d</span>
-                                    <span className="text-[#98c379]"> &quot;channel=losperris&quot;</span>
+                                    <span className="text-white/40"> -d</span>
+                                    <span> &quot;channel=losperris&quot;</span>
                                 </div>
                                 <div>
-                                    <span className="text-[#e5c07b]"> -d</span>
-                                    <span className="text-[#98c379]"> &quot;user=mynana17&quot;</span>
+                                    <span className="text-white/40"> -d</span>
+                                    <span> &quot;user=mynana17&quot;</span>
                                 </div>
                                 <div>
-                                    <span className="text-[#e5c07b]"> -d</span>
-                                    <span className="text-[#98c379]"> &quot;apiKey=</span>
-                                    <span className="text-[#e5c07b]">sk_a1b2c3d4...</span>
-                                    <span className="text-[#98c379]">&quot;</span>
+                                    <span className="text-white/40"> -d</span>
+                                    <span> &quot;apiKey=</span>
+                                    <span className="text-white/60">sk_a1b...</span>
+                                    <span>&quot;</span>
                                 </div>
-                                <div className="mt-2 border-t border-white/[0.05] pt-2 text-white/70">
-                                    @mynana17 sigue losperris desde hace 2 años y 1 mes.
-                                </div>
+                                
+                                {requestStatus === 'loading' && (
+                                    <div className="mt-4 flex items-center gap-2 text-[0.8rem] text-white/50 animate-pulse">
+                                        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#9146ff] border-t-transparent"></span>
+                                        Ejecutando petición...
+                                    </div>
+                                )}
+
+                                {requestStatus === 'success' && (
+                                    <div className="mt-3 animate-fade-soft border-t border-white/[0.04] pt-3 text-[0.8rem]">
+                                        <div className="mb-1.5 flex items-center gap-2">
+                                            <span className="text-[0.65rem] font-bold text-[#10b981]">200 OK</span>
+                                            <span className="text-[0.65rem] text-white/30">142ms</span>
+                                        </div>
+                                        <div className="text-white/60">
+                                            <span className="mr-1.5 text-[#10b981]">✔</span>@mynana17 sigue losperris desde hace 2 años y 1 mes.
+                                        </div>
+                                    </div>
+                                )}
+
+
                             </div>
                         </div>
                     </div>
@@ -329,9 +376,7 @@ export function LandingPage() {
 
                 <section id="features" className="scroll-mt-[100px] py-16 md:py-24">
                     <div className="mb-12 text-center">
-                        <span className="mb-6 inline-block rounded-md border border-[#9146ff]/20 bg-[#9146ff]/10 px-3 py-1.5 text-[0.7rem] font-semibold uppercase tracking-widest text-[#a78bfa]">
-                            Funcionalidades
-                        </span>
+
                         <h2 className="text-5xl font-bold leading-tight tracking-tight text-white">
                             Funciones de la <span className={GRADIENT_TEXT}>API</span>
                         </h2>
@@ -351,7 +396,7 @@ export function LandingPage() {
                                     {cat.cards.map((card) => (
                                         <div
                                             key={card.title}
-                                            className="flex min-h-[200px] flex-col items-center rounded-xl border border-white/[0.08] bg-[#0a0a0b] p-8 text-center transition hover:border-[#9146ff]/40"
+                                            className="flex min-h-[200px] flex-col items-center rounded-xl border border-white/[0.08] bg-bg-card p-8 text-center transition hover:border-[#9146ff]/40"
                                         >
                                             <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-[10px] border border-[#9146ff]/20 bg-[#9146ff]/10 text-xl text-[#a78bfa]">
                                                 <card.icon className="w-5 h-5" />

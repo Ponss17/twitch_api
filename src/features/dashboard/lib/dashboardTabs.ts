@@ -2,7 +2,7 @@ import type { DashboardTab } from '@/core/config/config';
 import type { LucideIcon } from 'lucide-react';
 import {
     Home,
-    User,
+    Settings,
     UserRoundCheck,
     Clapperboard,
     Megaphone,
@@ -46,5 +46,5 @@ export const TAB_META: Record<DashboardTab, { title: string; icon: LucideIcon }>
     NAV_ITEMS.map(({ id, label, icon }) => [id, { title: label, icon }])
 ) as Record<DashboardTab, { title: string; icon: LucideIcon }>;
 
-TAB_META.profile = { title: 'Mi Perfil', icon: User };
+TAB_META.settings = { title: 'Configuración', icon: Settings };
 TAB_META.magic8 = { title: 'Bola 8 Mágica', icon: MAGIC8_ICON };

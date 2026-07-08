@@ -1,6 +1,6 @@
 import type { DashboardTab } from '@/core/config/config';
 import { sumDashboardCategoryUsage } from '@/features/dashboard/lib/dashboardStats';
-import { HomeHero } from '@/features/dashboard/components/home/HomeHero';
+import { SettingsHero } from '@/features/dashboard/components/settings/SettingsHero';
 import { HomeActivityFeed } from '@/features/dashboard/components/home/HomeActivityFeed';
 import { HomeResourcesPanel } from '@/features/dashboard/components/home/HomeResourcesPanel';
 import { useRequiredSession } from '@/core/session/useSession';
@@ -20,8 +20,8 @@ interface HomeViewProps {
 function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => void }) {
     const session = useRequiredSession();
     const {
-        stats,
         activity,
+        profile,
         hasLiveData,
         error,
         syncing,
@@ -29,8 +29,6 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
         highlightKeys,
         isRealtimeLive
     } = useDashboardPanel();
-
-    const displayName = session.displayName ?? session.login ?? 'Streamer';
 
     if (error && !hasLiveData) {
         return (
@@ -41,17 +39,32 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
         );
     }
 
-    const latencyMs = stats.avgLatencyMs ?? 0;
-    const resourceUsage = sumDashboardCategoryUsage(stats);
+    const broadcasterLabel = (type?: string): string => {
+        if (type === 'partner') return 'Partner';
+        if (type === 'affiliate') return 'Afiliado';
+        return 'Streamer';
+    };
+
+    const formatMemberSince = (iso?: string): string => {
+        if (!iso) return '---';
+        try {
+            return new Date(iso).toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+        } catch {
+            return '---';
+        }
+    };
 
     return (
         <div className={fadeIn}>
-            <HomeHero
-                displayName={displayName}
-                resourceUsage={resourceUsage}
-                successRate={stats.rawSuccessRate ?? 0}
-                latencyMs={latencyMs}
-                isLoading={!hasLiveData}
+            <SettingsHero
+                description={profile?.description}
+                followers={profile?.followers}
+                broadcasterLabel={broadcasterLabel(profile?.broadcaster_type)}
+                memberSince={formatMemberSince(profile?.created_at)}
             />
 
             <div className="grid grid-cols-1 items-stretch gap-6 min-[1001px]:grid-cols-[1fr_300px]">

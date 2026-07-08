@@ -1,4 +1,3 @@
-/** Clases Tailwind reutilizables — sin CSS custom externo */
 export const card =
     'rounded-xl border border-white/[0.08] bg-bg-card p-3 transition-[border-color] duration-200 hover:border-primary';
 
