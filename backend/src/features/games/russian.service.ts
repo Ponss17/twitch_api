@@ -1,5 +1,6 @@
 import { sendChatMessage, timeoutUser, getUserId } from '../twitch/twitch.service';
 import { logger } from '../../core/utils/logger';
+import { kv } from '@vercel/kv';
 
 export const playRussianRoulette = async (
     channel: string,
@@ -9,9 +10,27 @@ export const playRussianRoulette = async (
     sendToChat: boolean = true
 ) => {
     try {
-        const bulletPosition = Math.floor(Math.random() * 6);
-        const currentChamber = Math.floor(Math.random() * 6);
-        const isDead = bulletPosition === currentChamber;
+        const bulletKey = `twitch_api:russian_bullet:${channel.toLowerCase()}`;
+        const chamberKey = `twitch_api:russian_chamber:${channel.toLowerCase()}`;
+
+        // Obtener la posición de la bala o generar una nueva (1 a 6)
+        let bulletPosition = await kv.get<number>(bulletKey);
+        if (!bulletPosition) {
+            bulletPosition = Math.floor(Math.random() * 6) + 1;
+            await kv.set(bulletKey, bulletPosition, { ex: 86400 }); // Expira en 24h
+        }
+
+        // Avanzar el tambor atómicamente
+        const currentChamber = await kv.incr(chamberKey);
+        await kv.expire(chamberKey, 86400);
+
+        const isDead = currentChamber >= bulletPosition;
+
+        // Si se dispara el arma, resetear el tambor para el siguiente juego
+        if (isDead) {
+            await kv.del(bulletKey);
+            await kv.del(chamberKey);
+        }
 
         const broadcasterId = await getUserId(channel, token);
 

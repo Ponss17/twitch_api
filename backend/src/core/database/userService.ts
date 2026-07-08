@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 import { StoredUser } from '../../types/twitch';
-import { encrypt, decrypt, ENCRYPTION_KEY, LEGACY_ENCRYPTION_KEY } from './cryptoService';
+import { encrypt, decrypt, ENCRYPTION_KEY } from './cryptoService';
 import { invalidateAllUserCaches } from '../utils/cacheInvalidation';
 import * as cacheService from './cacheService';
 import { CACHE_TTL_MATRIX } from '../config/cacheTtl';
@@ -19,16 +19,7 @@ export const invalidateUserMemoryCache = (userId: string): void => {
     clearUserTimezone(userId);
 };
 
-const migratedUsersCache = new Set<string>();
-const MAX_MIGRATED_CACHE = 500;
 
-const addToMigratedCache = (userId: string) => {
-    if (migratedUsersCache.size >= MAX_MIGRATED_CACHE) {
-        const first = migratedUsersCache.keys().next().value;
-        if (first) migratedUsersCache.delete(first);
-    }
-    migratedUsersCache.add(userId);
-};
 
 const isAlreadyEncrypted = (val: string) => {
     const parts = val.split(':');
@@ -44,34 +35,16 @@ async function decryptAndMigrateIfNeeded(
     user: StoredUser,
     context: string
 ): Promise<StoredUser | null> {
-    let usedLegacy = false;
-
     try {
         if (user.accessToken) {
-            try {
-                user.accessToken = decrypt(user.accessToken, ENCRYPTION_KEY);
-            } catch {
-                user.accessToken = decrypt(user.accessToken, LEGACY_ENCRYPTION_KEY);
-                usedLegacy = true;
-            }
+            user.accessToken = decrypt(user.accessToken, ENCRYPTION_KEY);
         }
         if (user.refreshToken) {
-            try {
-                user.refreshToken = decrypt(user.refreshToken, ENCRYPTION_KEY);
-            } catch {
-                user.refreshToken = decrypt(user.refreshToken, LEGACY_ENCRYPTION_KEY);
-                usedLegacy = true;
-            }
+            user.refreshToken = decrypt(user.refreshToken, ENCRYPTION_KEY);
         }
     } catch (e) {
-        logger.error(`❌ Descifrado fallido para ${context}:`, (e as Error).message);
+        logger.error(`O Descifrado fallido para ${context}:`, (e as Error).message);
         return null;
-    }
-
-    if (usedLegacy && !migratedUsersCache.has(user.userId)) {
-        addToMigratedCache(user.userId);
-        logger.info(`🔄 Migrando claves de cifrado para usuario: ${user.login} (${user.userId})`);
-        await saveUser(user).catch((e) => logger.error('Error migrando usuario:', e));
     }
 
     return user;
