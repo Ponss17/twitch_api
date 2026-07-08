@@ -155,4 +155,87 @@ describe('validateSession cache', () => {
         expect(result.apiKey).toBeUndefined();
         expect(global.fetch).not.toHaveBeenCalled();
     });
+
+    it('uses cache while OAuth token is far from expiry', async () => {
+        const session = { apiKey: 'secret-key', userId: '205997464', login: 'ponss' };
+        const cacheKey = `twitch_validate_cache_${sessionFingerprint(session)}`;
+        const tokenExpiresAt = Date.now() + 2 * 60 * 60 * 1000;
+
+        localStorage.setItem(
+            cacheKey,
+            JSON.stringify({
+                at: Date.now() - 30 * 60 * 1000,
+                result: {
+                    valid: true,
+                    tokenExpiresAt,
+                    user: { id: '205997464', login: 'ponss' }
+                }
+            })
+        );
+
+        const result = await validateSession(session);
+
+        expect(result.valid).toBe(true);
+        expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it('bypasses cache when OAuth token is near expiry', async () => {
+        const session = { apiKey: 'secret-key', userId: '205997464', login: 'ponss' };
+        const cacheKey = `twitch_validate_cache_${sessionFingerprint(session)}`;
+
+        localStorage.setItem(
+            cacheKey,
+            JSON.stringify({
+                at: Date.now(),
+                result: {
+                    valid: true,
+                    tokenExpiresAt: Date.now() + 20 * 60 * 1000,
+                    user: { id: '205997464', login: 'ponss' }
+                }
+            })
+        );
+
+        (global.fetch as jest.Mock).mockResolvedValue({
+            ok: true,
+            headers: { get: () => 'application/json' },
+            json: async () => ({
+                valid: true,
+                apiKey: 'secret-key',
+                tokenExpiresAt: Date.now() + 4 * 60 * 60 * 1000,
+                user: { id: '205997464', login: 'ponss' }
+            })
+        });
+
+        const result = await validateSession(session);
+
+        expect(result.valid).toBe(true);
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('expires apiKey-only cache after one hour without tokenExpiresAt', async () => {
+        const session = { apiKey: 'secret-key', userId: '205997464' };
+        const cacheKey = `twitch_validate_cache_${sessionFingerprint(session)}`;
+
+        localStorage.setItem(
+            cacheKey,
+            JSON.stringify({
+                at: Date.now() - 90 * 60 * 1000,
+                result: { valid: true, user: { id: '205997464' } }
+            })
+        );
+
+        (global.fetch as jest.Mock).mockResolvedValue({
+            ok: true,
+            headers: { get: () => 'application/json' },
+            json: async () => ({
+                valid: true,
+                apiKey: 'secret-key',
+                user: { id: '205997464' }
+            })
+        });
+
+        await validateSession(session);
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
 });
