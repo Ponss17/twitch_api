@@ -71,7 +71,7 @@ export function useProactiveTokenRefresh(
 
             timerRef.current = setTimeout(async () => {
                 // CRÍTICO: limpiar el caché de validate antes de llamar refresh().
-                // Sin esto, validateSession() devuelve el caché local (TTL 4h) sin
+                // Sin esto, validateSession() devuelve el caché local sin
                 // llegar al backend, y el token de Twitch nunca se renueva.
                 clearValidateCache(sessionRef.current);
 
