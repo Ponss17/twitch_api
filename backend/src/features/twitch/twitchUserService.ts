@@ -64,6 +64,20 @@ export const getUserInfo = async (username: string, token: string): Promise<Twit
     }
 };
 
+export function invalidateUserInfoCache(login?: string, userId?: string): void {
+    if (login) {
+        userInfoCache.delete(login.toLowerCase());
+    }
+    if (userId) {
+        for (const key of [...userInfoCache.keys()]) {
+            const entry = userInfoCache.get(key);
+            if (entry?.data.id === userId) {
+                userInfoCache.delete(key);
+            }
+        }
+    }
+}
+
 export const getFollowAge = async (
     channel: string,
     user: string,

@@ -10,15 +10,20 @@ const envSchema = z.object({
     TWITCH_CLIENT_ID: z.string().min(1, 'TWITCH_CLIENT_ID es obligatorio'),
     TWITCH_CLIENT_SECRET: z.string().min(1, 'TWITCH_CLIENT_SECRET es obligatorio'),
     ENCRYPTION_KEY: z.string().min(32, 'ENCRYPTION_KEY debe tener al menos 32 caracteres'),
+    /**
+     * Secreto HMAC para state/auth/overlay — independiente de TWITCH_CLIENT_SECRET.
+     * Obligatorio en producción; en dev/test cae al client secret si se omite.
+     */
+    HMAC_SIGNING_SECRET: z.string().min(32).optional(),
     TWITCH_REDIRECT_URI: z
         .string()
         .url()
-        .default('https://www.losperris.dev/api/twitch/auth/twitch/callback'),
+        .default('https://ttv.losperris.dev/api/auth/twitch/callback'),
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
     MAX_MESSAGE_TOKENS: z.coerce.number().default(100),
     DISCORD_FEEDBACK_WEBHOOK_URL: z.string().url().optional(),
     GROQ_API_KEY: z.string().optional(),
-    BASE_URL: z.string().url().default('https://www.losperris.dev/api/twitch'),
+    BASE_URL: z.string().url().default('https://ttv.losperris.dev/api'),
     // Admin vars removed
     SUPABASE_URL: z.string().url().min(1, 'SUPABASE_URL es obligatorio'),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'SUPABASE_SERVICE_ROLE_KEY es obligatorio'),
@@ -70,6 +75,7 @@ const envVars = {
     TWITCH_CLIENT_ID: process.env.TWITCH_CLIENT_ID || (isTest ? 'test_id' : undefined),
     TWITCH_CLIENT_SECRET: process.env.TWITCH_CLIENT_SECRET || (isTest ? 'test_secret' : undefined),
     ENCRYPTION_KEY: process.env.ENCRYPTION_KEY || (isTest ? 'a'.repeat(64) : undefined),
+    HMAC_SIGNING_SECRET: process.env.HMAC_SIGNING_SECRET,
     TWITCH_REDIRECT_URI:
         resolveProductionUrl(process.env.TWITCH_REDIRECT_URI, 'TWITCH_REDIRECT_URI') ||
         (isTest ? 'http://localhost' : undefined),
@@ -111,6 +117,17 @@ if (!parsed.success) {
         process.exit(1);
     }
     console.warn('⚠ ALLOW_INVALID_ENV=true — arrancando con configuración no validada.');
+}
+
+/** En producción el HMAC debe ser independiente del TWITCH_CLIENT_SECRET. */
+if (isProd && !isTest) {
+    const hmac = process.env.HMAC_SIGNING_SECRET?.trim();
+    if (!hmac || hmac.length < 32) {
+        console.error(
+            '🛑 HMAC_SIGNING_SECRET es obligatorio en producción (≥32 caracteres). No reutilices TWITCH_CLIENT_SECRET.'
+        );
+        process.exit(1);
+    }
 }
 
 const rawConfig = parsed.success

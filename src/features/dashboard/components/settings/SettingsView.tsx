@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { authHeaders, saveSession } from '@/core/api/auth';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
-import { fetchDashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
+import { fetchDashboardProfile, type DashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
 import {
     broadcastHomeDataReset,
     clearDashboardSyncPrefs,
@@ -17,34 +17,24 @@ import { fadeIn } from '@/core/ui/tw';
 import { appPath } from '@/core/config/paths';
 import { DangerConfirmModal, RegenKeyModal } from '@/shared/ui/Modal';
 import { useToast } from '@/shared/ui/ToastProvider';
+import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { SettingsSecuritySection } from '@/features/dashboard/components/settings/SettingsSecuritySection';
 import { SettingsExportSection } from '@/features/dashboard/components/settings/SettingsExportSection';
 import { SettingsDangerZone } from '@/features/dashboard/components/settings/SettingsDangerZone';
 import { SettingsPreferencesSection } from '@/features/dashboard/components/settings/SettingsPreferencesSection';
 import { SettingsHeroSkeleton } from '@/shared/ui/Skeleton';
 
-interface ProfileData {
-    followers?: number;
-    broadcaster_type?: string;
-    description?: string;
-    created_at?: string;
-    rateLimit?: number;
-    cacheTtl?: number;
-    role?: string;
-    roleLabel?: string;
-    hasCustomRateLimit?: boolean;
-    hasCustomCacheTtl?: boolean;
-    timezone?: string;
-}
-
-
+type ProfileData = DashboardProfile;
 
 export function SettingsView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
     const { refresh } = useSession();
     const { showToast } = useToast();
-    const [profile, setProfile] = useState<ProfileData | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { profile: panelProfile } = useDashboardPanel();
+    const [profile, setProfile] = useState<ProfileData | null>(
+        () => (panelProfile as ProfileData | null) ?? null
+    );
+    const [loading, setLoading] = useState(() => !panelProfile);
     const [keyVisible, setKeyVisible] = useState(false);
     const [showDanger, setShowDanger] = useState(false);
     const [regenOpen, setRegenOpen] = useState(false);
@@ -67,7 +57,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
             setLoading(false);
             return;
         }
-        if (!options?.silent) setLoading(true);
+        if (!options?.silent && !profile) setLoading(true);
         try {
             const data = await fetchDashboardProfile(session, { fresh: options?.fresh });
             setProfile(data);
@@ -79,19 +69,12 @@ export function SettingsView({ active = true }: { active?: boolean }) {
         }
     };
 
-    const startProfilePolling = () => {
-        const pollMs = PROFILE_POLL_MS;
-        void syncProfile();
-
-        if (pollRef.current) window.clearInterval(pollRef.current);
-        pollRef.current = window.setInterval(() => {
-            if (document.visibilityState === 'hidden') return;
-            const elapsed = Date.now() - parseInt(readPanelSyncPref(session.userId) || '0', 10);
-            if (elapsed >= pollMs) {
-                void syncProfile({ silent: true });
-            }
-        }, pollMs);
-    };
+    // Si el panel ya trajo perfil (Home/Analytics), reutilizarlo sin USER_INFO extra.
+    useEffect(() => {
+        if (!panelProfile) return;
+        setProfile((prev) => prev ?? (panelProfile as ProfileData));
+        setLoading(false);
+    }, [panelProfile]);
 
     useEffect(() => {
         return () => {
@@ -106,14 +89,30 @@ export function SettingsView({ active = true }: { active?: boolean }) {
             return;
         }
 
-        startProfilePolling();
+        const pollMs = PROFILE_POLL_MS;
+        const lastSyncRaw = readPanelSyncPref(session.userId);
+        const elapsed = lastSyncRaw ? Date.now() - parseInt(lastSyncRaw, 10) : Number.POSITIVE_INFINITY;
+        const hasFreshPanelProfile = Boolean(panelProfile) && elapsed < pollMs;
+
+        if (!hasFreshPanelProfile) {
+            void syncProfile({ silent: Boolean(panelProfile || profile) });
+        } else {
+            setLoading(false);
+        }
+
+        if (pollRef.current) window.clearInterval(pollRef.current);
+        pollRef.current = window.setInterval(() => {
+            if (document.visibilityState === 'hidden') return;
+            const since = Date.now() - parseInt(readPanelSyncPref(session.userId) || '0', 10);
+            if (since >= pollMs) {
+                void syncProfile({ silent: true });
+            }
+        }, pollMs);
+
         return () => {
             if (pollRef.current) window.clearInterval(pollRef.current);
             pollRef.current = null;
         };
-        // startProfilePolling se recrea en cada render; incluirlo reiniciaría el
-        // polling constantemente. Solo queremos (re)arrancar al cambiar de sesión o
-        // al activarse la pestaña.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [session.login, active]);
 
@@ -285,7 +284,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                 onCopyId={() => void copyId()}
             />
 
-            <SettingsPreferencesSection 
+            <SettingsPreferencesSection
                 currentTimezone={profile?.timezone || 'UTC'}
                 onSettingsChanged={() => void syncProfile({ silent: true, fresh: true })}
             />
@@ -299,9 +298,9 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', ...authHeaders(session) }
                         });
-                        
+
                         if (res.status === 429) {
-                            const data = await res.json() as { error?: string };
+                            const data = (await res.json()) as { error?: string };
                             showToast(
                                 extractApiErrorMessage(data, 'Debes esperar para generar otro reporte.'),
                                 'warning'
@@ -360,7 +359,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                 description={dangerModal?.desc ?? ''}
                 confirmWord={dangerModal?.word ?? ''}
                 confirmLabel={dangerModal?.confirmLabel}
-                onConfirm={dangerModal?.action ?? (async () => { })}
+                onConfirm={dangerModal?.action ?? (async () => {})}
             />
         </div>
     );

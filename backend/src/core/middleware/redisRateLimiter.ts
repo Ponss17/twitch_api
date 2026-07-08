@@ -236,17 +236,20 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
 
     const key = `rl:heavy:${apiUser.userId}`;
     const limit = RATE_LIMITS.HEAVY;
-    const redisKey = `twitch_api:${key}:${Math.floor(Date.now() / 60000)}`;
-
-    if (!isKvWriteAvailable()) {
-        return next();
-    }
+    const currentWindow = Math.floor(Date.now() / 60000);
 
     try {
-        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
-            number,
-            number
-        ];
+        let count: number;
+        if (!isKvWriteAvailable()) {
+            count = incrementMemoryCounter(kvFallbackRateMemory, key, currentWindow);
+        } else {
+            const redisKey = `twitch_api:${key}:${currentWindow}`;
+            const [n] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
+                number,
+                number
+            ];
+            count = n;
+        }
 
         if (count > limit) {
             res.setHeader('Content-Type', 'text/plain');
@@ -257,13 +260,27 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
         next();
     } catch (error) {
         if (process.env.NODE_ENV !== 'production') {
-            logger.debug('KV heavy rate limit omitido en desarrollo', { error });
+            logger.debug('KV heavy rate limit fallback en memoria', { error });
+            const count = incrementMemoryCounter(kvFallbackRateMemory, key, currentWindow);
+            if (count > limit) {
+                res.setHeader('Content-Type', 'text/plain');
+                return res
+                    .status(429)
+                    .send(`Límite de peticiones pesadas excedido (max ${RATE_LIMITS.HEAVY}/min).`);
+            }
             return next();
         }
 
         logger.error('Error in Heavy Rate Limiter:', error);
-        res.setHeader('Content-Type', 'text/plain');
-        return res.status(503).send('Servicio temporalmente intermitente.');
+        // Fallback L1 en prod ante error KV (no fail-open)
+        const count = incrementMemoryCounter(kvFallbackRateMemory, key, currentWindow);
+        if (count > limit) {
+            res.setHeader('Content-Type', 'text/plain');
+            return res
+                .status(429)
+                .send(`Límite de peticiones pesadas excedido (max ${RATE_LIMITS.HEAVY}/min).`);
+        }
+        next();
     }
 };
 

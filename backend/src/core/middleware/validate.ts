@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ZodSchema } from 'zod';
 import { logger } from '../utils/logger';
 import { jsonError } from '../utils/jsonResponse';
+import { redactSensitiveUrl } from '../utils/redactSensitiveUrl';
 
 export const validate =
     (schema: ZodSchema) => async (req: Request, res: Response, next: NextFunction) => {
@@ -45,10 +46,7 @@ export const validate =
             message: e.message
         }));
 
-        const safeUrl = req.originalUrl.replace(
-            /([?&])(apiKey|token|access_token|refresh_token)=([^&]*)/gi,
-            '$1$2=[REDACTED]'
-        );
+        const safeUrl = redactSensitiveUrl(req.originalUrl);
 
         logger.error('❌ [Validation Error]:', {
             path: safeUrl,

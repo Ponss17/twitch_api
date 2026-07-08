@@ -40,7 +40,7 @@ jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
 
 import * as dbService from '../../backend/src/core/database/dbService';
 import { invalidateAllUserCaches, invalidateDashboardStatsCaches } from '../../backend/src/core/utils/cacheInvalidation';
-import { getAnalytics, getLogs, clearUserData, deleteAccount } from '../../backend/src/features/dashboard/dashboard.controller';
+import { getAnalytics, getLogs, clearUserData, deleteAccount, exportCheck, recordExportComplete } from '../../backend/src/features/dashboard/dashboard.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
 const mockReq = (overrides = {}) =>
@@ -215,6 +215,70 @@ describe('dashboardController', () => {
             const res = mockRes();
 
             await deleteAccount(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+        });
+    });
+
+    describe('exportCheck', () => {
+        it('returns success when no cooldown', async () => {
+            const req = mockReq();
+            const res = mockRes();
+
+            await exportCheck(req, res);
+
+            expect(res.json).toHaveBeenCalledWith({ success: true });
+        });
+
+        it('returns 429 when export cooldown active', async () => {
+            const { get } = await import('../../backend/src/core/database/cacheService');
+            (get as jest.Mock).mockResolvedValueOnce(Date.now() + 120_000);
+
+            const req = mockReq();
+            const res = mockRes();
+
+            await exportCheck(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(429);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    error: expect.objectContaining({ code: 'RATE_LIMITED' })
+                })
+            );
+        });
+
+        it('returns 401 without userId', async () => {
+            const req = mockReq({ userId: undefined });
+            const res = mockRes();
+
+            await exportCheck(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+        });
+    });
+
+    describe('recordExportComplete', () => {
+        it('sets export cooldown and returns success', async () => {
+            const { set } = await import('../../backend/src/core/database/cacheService');
+            const req = mockReq();
+            const res = mockRes();
+
+            await recordExportComplete(req, res);
+
+            expect(set).toHaveBeenCalledWith(
+                'export_cooldown:123',
+                expect.any(Number),
+                240
+            );
+            expect(res.json).toHaveBeenCalledWith({ success: true });
+        });
+
+        it('returns 401 without userId', async () => {
+            const req = mockReq({ userId: undefined });
+            const res = mockRes();
+
+            await recordExportComplete(req, res);
 
             expect(res.status).toHaveBeenCalledWith(401);
         });

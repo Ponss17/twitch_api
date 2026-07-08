@@ -85,7 +85,8 @@ export function DashboardPanelProvider({
     const [syncing, setSyncing] = useState(false);
     const [syncLabel, setSyncLabel] = useState('90s');
     const [highlightKeys, setHighlightKeys] = useState<ReadonlySet<string>>(() => new Set());
-    const [isTabLeader, setIsTabLeader] = useState(true);
+    // false hasta LEADER_CHANGED — evita bootstrap en cada pestaña durante la elección (~1.5s).
+    const [isTabLeader, setIsTabLeader] = useState(false);
 
     const countdownRef = useRef(90);
     const highlightTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
@@ -96,7 +97,10 @@ export function DashboardPanelProvider({
     hasLiveDataRef.current = hasLiveData;
     const activeRef = useRef(active);
     activeRef.current = active;
+    const sessionRef = useRef(session);
+    sessionRef.current = session;
     const panelBootstrappedRef = useRef(false);
+    const panelFetchInFlightRef = useRef(false);
     const performSyncRef = useRef<() => Promise<void>>(async () => {});
     const fetchPanelDataRef = useRef<
         (options?: { broadcast?: boolean; retryOnNetwork?: boolean; fresh?: boolean; silent?: boolean }) => Promise<boolean>
@@ -108,6 +112,16 @@ export function DashboardPanelProvider({
     const authRedirectTimerRef = useRef<number | null>(null);
     const resetPendingRef = useRef(false);
     const todayLocalRef = useRef(getStatsLocalDateString());
+
+    const statsTimeZone =
+        typeof profile?.timezone === 'string' && profile.timezone.length > 0
+            ? profile.timezone
+            : undefined;
+
+    useEffect(() => {
+        if (!statsTimeZone) return;
+        todayLocalRef.current = getStatsLocalDateString(statsTimeZone);
+    }, [statsTimeZone]);
 
     const markDataReady = useCallback(() => {
         if (dataReadyFiredRef.current) return;
@@ -190,7 +204,10 @@ export function DashboardPanelProvider({
         }) => {
             const sync = syncRef.current;
             if (!sync?.isActive()) return false;
+            if (panelFetchInFlightRef.current) return false;
+            panelFetchInFlightRef.current = true;
 
+            const currentSession = sessionRef.current;
             const broadcast = options?.broadcast === true && sync.getIsLeader();
             if (!options?.silent) {
                 setSyncing(true);
@@ -203,7 +220,7 @@ export function DashboardPanelProvider({
             });
 
             const loadOnce = async () => {
-                const result = await loadDashboardPanelData(session, { fresh: options?.fresh });
+                const result = await loadDashboardPanelData(currentSession, { fresh: options?.fresh });
                 if (!sync.isActive() || syncRef.current !== sync) return null;
                 return result;
             };
@@ -226,7 +243,7 @@ export function DashboardPanelProvider({
                 setActivity(activityLogs);
                 if (fetchedProfile) setProfile(fetchedProfile);
                 markDataReadyRef.current();
-                writePanelSyncPref(session.userId, Date.now().toString());
+                writePanelSyncPref(currentSession.userId, Date.now().toString());
                 reportSessionLoadProgress({
                     progress: 94,
                     label: 'Preparando tu inicio…',
@@ -281,11 +298,12 @@ export function DashboardPanelProvider({
                 }
                 return false;
             } finally {
+                panelFetchInFlightRef.current = false;
                 if (syncingTimerRef.current) clearTimeout(syncingTimerRef.current);
                 syncingTimerRef.current = setTimeout(() => setSyncing(false), 800);
             }
         },
-        [session, updateSyncLabel]
+        [updateSyncLabel]
     );
 
     fetchPanelDataRef.current = fetchPanelData;
@@ -412,14 +430,24 @@ export function DashboardPanelProvider({
             }, REALTIME_SAFETY_POLL_MS);
         } else if (active && isTabLeader) {
             startSmartPolling();
+        } else if (pollRef.current) {
+            clearInterval(pollRef.current);
+            pollRef.current = null;
         }
+
+        return () => {
+            if (pollRef.current) {
+                clearInterval(pollRef.current);
+                pollRef.current = null;
+            }
+        };
     }, [active, isRealtimeLive, isTabLeader, startSmartPolling]);
 
     useEffect(() => {
         if (!isTabLeader) return;
 
         const checkMidnightRollover = () => {
-            const today = getStatsLocalDateString();
+            const today = getStatsLocalDateString(statsTimeZone);
             if (todayLocalRef.current === today) return;
             todayLocalRef.current = today;
             setStats((prev) => ({
@@ -444,7 +472,7 @@ export function DashboardPanelProvider({
             clearInterval(interval);
             document.removeEventListener('visibilitychange', onVisible);
         };
-    }, [isTabLeader]);
+    }, [isTabLeader, statsTimeZone]);
 
     useEffect(() => {
         const sync = new TabSyncService(PANEL_SYNC_CHANNEL);
@@ -543,10 +571,12 @@ export function DashboardPanelProvider({
             applyHomeDataReset();
             return;
         }
-        // Al volver a Inicio o Analytics, re-fetch si los datos tienen más de 10s de antigüedad.
+        // Al volver a Inicio o Analytics, re-fetch si los datos tienen más de 10s.
+        // No tratar "nunca sincronizado" aquí: el bootstrap del líder ya hace la primera carga.
         const lastSyncRaw = readPanelSyncPref(session.userId);
-        const stale = !lastSyncRaw || Date.now() - parseInt(lastSyncRaw, 10) > 10_000;
-        if (stale && panelBootstrappedRef.current) {
+        if (!lastSyncRaw) return;
+        const stale = Date.now() - parseInt(lastSyncRaw, 10) > 10_000;
+        if (stale && panelBootstrappedRef.current && !panelFetchInFlightRef.current) {
             void fetchPanelDataRef.current({ broadcast: true, retryOnNetwork: false, fresh: true, silent: true });
         }
     }, [active, session.userId, applyHomeDataReset]);

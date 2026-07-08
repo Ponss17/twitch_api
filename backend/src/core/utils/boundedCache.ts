@@ -51,10 +51,21 @@ export class BoundedMap<K, V> {
  */
 export class NegativeCache<K> {
     private cache = new Map<K, number>();
-    constructor(private ttlMs: number) {}
+    constructor(
+        private ttlMs: number,
+        private maxSize: number = 1000
+    ) {}
 
     set(key: K): void {
         this.cache.set(key, Date.now() + this.ttlMs);
+        if (this.cache.size > this.maxSize) {
+            const toRemove = Math.floor(this.maxSize * 0.25);
+            const it = this.cache.keys();
+            for (let i = 0; i < toRemove; i++) {
+                const k = it.next().value;
+                if (k !== undefined) this.cache.delete(k);
+            }
+        }
     }
 
     has(key: K): boolean {

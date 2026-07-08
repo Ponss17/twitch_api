@@ -19,11 +19,9 @@ export function RouletteView({ active = true }: { active?: boolean }) {
         tool: 'roulette',
         session,
         active,
+        // Crítico: spin / ganador / cerrado. Chatters con inscripción abierta → debounce 500ms.
         isCritical: (state) =>
-            state.isSpinning ||
-            state.winner !== null ||
-            state.spinSeq > 0 ||
-            !state.isOpen,
+            state.isSpinning || state.winner !== null || !state.isOpen,
         resetCacheWhen: (state) => !state.isOpen || state.winner !== null
     });
 

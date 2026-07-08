@@ -131,6 +131,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                     if (validation) {
                         if (validation.user_id) req.userId = validation.user_id;
                         if (validation.login) req.login = validation.login;
+                        invalidTokensCache.delete(token);
 
                         await cacheService.set(
                             cacheKey,
@@ -182,6 +183,10 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                     let userPromise = pendingUserDbRequests.get(req.userId);
 
                     if (!userPromise) {
+                        if (pendingUserDbRequests.size >= 500) {
+                            const first = pendingUserDbRequests.keys().next().value;
+                            if (first) pendingUserDbRequests.delete(first);
+                        }
                         userPromise = dbService.getUser(req.userId).finally(() => {
                             pendingUserDbRequests.delete(req.userId!);
                         });

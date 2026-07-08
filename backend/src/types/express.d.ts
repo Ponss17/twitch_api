@@ -16,6 +16,7 @@ declare global {
             overlayTool?: 'roulette' | 'trends';
             customRateLimit?: number;
             cspNonce?: string;
+            requestId?: string;
         }
     }
 }

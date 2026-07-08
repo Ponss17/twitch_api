@@ -9,8 +9,11 @@ import apiRouter from '../../routes/index';
 import { getRobotsTxt, getSitemapXml } from '../../features/system/seo.controller';
 import { errorHandler } from '../middleware/errorMiddleware';
 import { jsonError } from '../utils/jsonResponse';
+import { stripTwitchPrefix } from '../middleware/twitchPrefix';
+import { overlayScopeGuard } from '../middleware/overlayScope';
 
 export const configureRoutes = (app: Application) => {
+    app.use(stripTwitchPrefix);
     app.use((req, res, next) => {
         const isApi =
             req.path.startsWith('/api/') ||
@@ -38,6 +41,7 @@ export const configureRoutes = (app: Application) => {
 
     app.use(apiKeyValidator);
     app.use(checkToken);
+    app.use(overlayScopeGuard);
     app.use(globalRateLimiter);
 
     app.use('/auth', authRateLimiter, authRoutes);

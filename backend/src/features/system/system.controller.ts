@@ -42,6 +42,12 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
 
         // Si el middleware checkToken ya identificó al usuario (usando caché global), retornar rápido
         if (apiUser && typeof apiUser === 'object' && 'userId' in apiUser) {
+            if (res.locals.isOverlayReadRequest) {
+                return jsonError(res, 403, 'Los tokens de overlay no pueden validar sesión.', {
+                    code: 'OVERLAY_READ_ONLY'
+                });
+            }
+
             const user = apiUser as { userId: string; apiKey?: string; login?: string; displayName?: string; profileImageUrl?: string; timezone?: string; tokenExpiresAt?: number };
             // Incluir tokenExpiresAt para que el frontend programe la renovación proactiva
             const tokenExpiresAt = user.tokenExpiresAt && user.tokenExpiresAt > 0 ? user.tokenExpiresAt : null;
@@ -160,7 +166,9 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
     }
 
     if (!CONFIG.DISCORD_FEEDBACK_WEBHOOK_URL) {
-        return res.status(500).json({ error: MESSAGES.SYSTEM.INTERNAL_CONFIG_ERROR });
+        return jsonError(res, 500, MESSAGES.SYSTEM.INTERNAL_CONFIG_ERROR, {
+            code: 'INTERNAL_ERROR'
+        });
     }
 
     try {
@@ -189,7 +197,7 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
         res.json({ success: true, message: MESSAGES.FEEDBACK.SUCCESS });
     } catch (error) {
         logger.error('Error enviando feedback a Discord:', error);
-        res.status(500).json({ error: MESSAGES.FEEDBACK.SEND_ERROR });
+        return jsonError(res, 500, MESSAGES.FEEDBACK.SEND_ERROR, { code: 'INTERNAL_ERROR' });
     }
 };
 
@@ -308,22 +316,22 @@ export const generateRealtimeToken = async (req: AuthenticatedRequest, res: Resp
     const userId = req.userId;
     const login = req.login;
 
+    if (res.locals.isOverlayReadRequest) {
+        return jsonError(res, 403, 'Los tokens de overlay no pueden acceder a Realtime.', {
+            code: 'OVERLAY_READ_ONLY'
+        });
+    }
+
     if (!userId) {
-        return res.status(401).json({
-            error: 'Authentication required',
-            message: 'Se requiere autenticación para generar token de realtime'
+        return jsonError(res, 401, 'Se requiere autenticación para generar token de realtime', {
+            code: 'UNAUTHORIZED'
         });
     }
 
     try {
-        // checkToken ya validó al usuario y lo dejó en res.locals.apiUser.
-        // No es necesario volver a consultar Supabase — ahorramos 1 round-trip por renovación.
         const dbUser = res.locals.apiUser;
         if (!dbUser) {
-            return res.status(401).json({
-                error: 'Authentication required',
-                message: 'Usuario no autenticado'
-            });
+            return jsonError(res, 401, 'Usuario no autenticado', { code: 'UNAUTHORIZED' });
         }
 
         // Token JWT con 15 minutos de vida (antes: 5 min).
@@ -360,9 +368,8 @@ export const generateRealtimeToken = async (req: AuthenticatedRequest, res: Resp
             requestId: res.locals.requestId
         });
 
-        res.status(500).json({
-            error: 'Token generation failed',
-            message: 'Error al generar el token de acceso'
+        return jsonError(res, 500, 'Error al generar el token de acceso', {
+            code: 'INTERNAL_ERROR'
         });
     }
 };

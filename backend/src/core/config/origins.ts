@@ -13,7 +13,6 @@ const buildAllowedOrigins = (): string[] => {
         'https://ttv.losperris.dev',
         'https://www.losperris.dev',
         'https://losperris.dev',
-        'https://twitch-api-modern.vercel.app',
         ...LOCAL_ORIGINS
     ];
 
