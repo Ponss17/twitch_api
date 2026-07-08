@@ -365,7 +365,10 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                                                     {row.successRate}%
                                                 </span>
                                             </td>
-                                            <td className="py-3.5 text-right text-zinc-400 font-mono text-xs">{row.avgLatency}ms</td>
+                                            <td className="py-3.5 text-right text-zinc-400 font-mono text-xs">
+                                                {row.avgLatency}ms
+                                                <span className="ml-1 text-[0.65rem] text-zinc-600">({(row.avgLatency / 1000).toFixed(2)}s)</span>
+                                            </td>
                                         </tr>
                                     ))
                                 )}
