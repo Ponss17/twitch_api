@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { BarChart3, AlertTriangle } from 'lucide-react';
@@ -18,6 +18,53 @@ const H_STAT =
     'group relative flex flex-col gap-2 rounded-xl border border-white/[0.04] bg-white/[0.02] px-6 py-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:bg-white/[0.04] hover:shadow-2xl';
 
 const COLORS = ['#7254b8', '#4a8b75', '#b3934d', '#b35656', '#4d75b3', '#b3714d', '#a85c87', '#615e9c'];
+
+function ChartMountGate({
+    active,
+    className,
+    srLabel,
+    children
+}: {
+    active: boolean;
+    className?: string;
+    srLabel?: string;
+    children: ReactNode;
+}) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [canRender, setCanRender] = useState(false);
+
+    useEffect(() => {
+        if (!active) {
+            setCanRender(false);
+            return;
+        }
+
+        const node = containerRef.current;
+        if (!node) return;
+
+        const update = () => {
+            const { width, height } = node.getBoundingClientRect();
+            setCanRender(width > 0 && height > 0);
+        };
+
+        update();
+        const observer = new ResizeObserver(update);
+        observer.observe(node);
+
+        return () => observer.disconnect();
+    }, [active]);
+
+    return (
+        <div ref={containerRef} className={className}>
+            {srLabel ? <span className="sr-only">{srLabel}</span> : null}
+            {canRender ? (
+                <div aria-hidden="true" className="h-full w-full min-h-0 min-w-0">
+                    {children}
+                </div>
+            ) : null}
+        </div>
+    );
+}
 
 function AnalyticsViewContent({ active }: { active: boolean }) {
     const { stats, hasLiveData, error } = useDashboardPanel();
@@ -219,12 +266,12 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                             <span className="text-xs text-zinc-500">{Intl.DateTimeFormat().resolvedOptions().timeZone} - últimos 7 días</span>
                         </div>
                     </div>
-                    <div className="h-[320px] w-full relative">
-                        <span className="sr-only">
-                            Gráfico de área mostrando las peticiones diarias de los últimos 7 días.
-                        </span>
-                        <div aria-hidden="true" className="h-full w-full">
-                            <ResponsiveContainer width="100%" height="100%">
+                    <ChartMountGate
+                        active={active}
+                        className="relative h-[320px] w-full min-w-0"
+                        srLabel="Gráfico de área mostrando las peticiones diarias de los últimos 7 días."
+                    >
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                                 <AreaChart data={areaData} margin={{ top: 10, right: 30, left: -20, bottom: 0 }} accessibilityLayer={false}>
                                     <defs>
                                         <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
@@ -264,8 +311,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                                     <Area type="monotone" dataKey="requests" name="Peticiones" stroke="#9146ff" strokeWidth={3} activeDot={{ r: 6, strokeWidth: 2, stroke: '#18181b', fill: '#9146ff' }} fillOpacity={1} fill="url(#colorRequests)" />
                                 </AreaChart>
                             </ResponsiveContainer>
-                        </div>
-                    </div>
+                    </ChartMountGate>
                 </div>
 
                 {/* Uso / Distribución (Donut tipo ejemplo) */}
@@ -279,15 +325,17 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                             <InfoTooltip text="Proporción de uso de los diferentes comandos y minijuegos en la última semana." />
                         </div>
                     </div>
-                    <div className="h-[240px] w-full relative mt-4">
-                        <span className="sr-only">
-                            Gráfico circular mostrando la distribución de comandos utilizados.
-                        </span>
-                        {pieData.length === 0 || pieData.every(d => d.value === 0) ? (
-                            <div className="flex h-full items-center justify-center text-sm text-zinc-500">Sin datos suficientes</div>
-                        ) : (
-                            <div aria-hidden="true" className="h-full w-full relative">
-                                <ResponsiveContainer width="100%" height="100%">
+                    {pieData.length === 0 || pieData.every(d => d.value === 0) ? (
+                        <div className="mt-4 flex h-[240px] w-full items-center justify-center text-sm text-zinc-500">
+                            Sin datos suficientes
+                        </div>
+                    ) : (
+                        <ChartMountGate
+                            active={active}
+                            className="relative mt-4 h-[240px] w-full min-w-0"
+                            srLabel="Gráfico circular mostrando la distribución de comandos utilizados."
+                        >
+                                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                                     <PieChart accessibilityLayer={false}>
                                         <Pie
                                             data={pieData}
@@ -310,14 +358,12 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                                         />
                                     </PieChart>
                                 </ResponsiveContainer>
-                                {/* Center Text for Donut */}
-                                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <span className="text-3xl font-bold text-white tracking-tight">{summary.totalRequests.toLocaleString()}</span>
-                                    <span className="text-[0.65rem] uppercase tracking-wider text-zinc-500 font-semibold mt-0.5">Peticiones</span>
+                                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                                    <span className="text-3xl font-bold tracking-tight text-white">{summary.totalRequests.toLocaleString()}</span>
+                                    <span className="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-zinc-500">Peticiones</span>
                                 </div>
-                            </div>
-                        )}
-                    </div>
+                        </ChartMountGate>
+                    )}
                     {pieData.length > 0 && pieData.some(d => d.value > 0) && (
                         <div className="mt-8 flex flex-col gap-3">
                             {pieData.slice(0, 4).map((entry, index) => {
@@ -405,15 +451,17 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                             <InfoTooltip text="Tiempo promedio que le toma a tu servidor procesar cada comando específico (últimos 7 días)." />
                         </div>
                     </div>
-                    <div className="h-[280px] w-full relative">
-                        <span className="sr-only">
-                            Gráfico de barras mostrando la latencia promedio por comando.
-                        </span>
-                        {pieData.length === 0 || pieData.every(d => d.avgLatency === 0) ? (
-                            <div className="flex h-full items-center justify-center text-sm text-zinc-500">Sin datos de latencia</div>
-                        ) : (
-                            <div aria-hidden="true" className="h-full w-full">
-                                <ResponsiveContainer width="100%" height="100%">
+                    {pieData.length === 0 || pieData.every(d => d.avgLatency === 0) ? (
+                        <div className="flex h-[280px] w-full items-center justify-center text-sm text-zinc-500">
+                            Sin datos de latencia
+                        </div>
+                    ) : (
+                        <ChartMountGate
+                            active={active}
+                            className="relative h-[280px] w-full min-w-0"
+                            srLabel="Gráfico de barras mostrando la latencia promedio por comando."
+                        >
+                                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                                     <BarChart data={pieData} layout="vertical" margin={{ top: 0, right: 30, left: 20, bottom: 0 }} accessibilityLayer={false}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.05} horizontal={true} vertical={true} />
                                         <XAxis
@@ -439,9 +487,8 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                                         </Bar>
                                     </BarChart>
                                 </ResponsiveContainer>
-                            </div>
-                        )}
-                    </div>
+                        </ChartMountGate>
+                    )}
                 </div>
             </div>
         </div>
