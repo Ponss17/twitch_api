@@ -1,0 +1,81 @@
+import { useEffect, useRef } from 'react';
+import type { Session } from '@/core/config/config';
+
+/**
+ * Intervalo entre un refresh exitoso y el siguiente chequeo.
+ * El token de Twitch dura ~4h; renovamos 35 minutos antes para dar
+ * margen ante cold starts de Vercel (buffer real en backend: 30min).
+ */
+const REFRESH_BEFORE_EXPIRY_MS = 35 * 60 * 1000; // 35 minutos
+/**
+ * Si no conocemos el tokenExpiresAt exacto, programamos un refresh
+ * cada 3h30m para garantizar que el token siempre esté fresco.
+ */
+const FALLBACK_REFRESH_INTERVAL_MS = 3.5 * 60 * 60 * 1000; // 3.5 horas
+
+/**
+ * Hook que programa un refresh proactivo del token de Twitch.
+ *
+ * En lugar de esperar a que una petición falle con 401 para renovar,
+ * calcula cuándo vence el token y programa un setTimeout que llama a
+ * `refresh()` (del SessionContext) antes de que expire.
+ *
+ * Tras cada refresh exitoso, reprograma el siguiente timer automáticamente,
+ * logrando una sesión que se mantiene viva indefinidamente sin acción del usuario.
+ *
+ * @param session - Sesión actual (puede incluir `tokenExpiresAt` si el backend lo proveyó).
+ * @param refresh  - Función del SessionProvider que revalida la sesión.
+ * @param authenticated - Solo activa el timer si el usuario está autenticado.
+ */
+export function useProactiveTokenRefresh(
+    session: Session | null,
+    refresh: () => Promise<void>,
+    authenticated: boolean
+): void {
+    const refreshRef = useRef(refresh);
+    refreshRef.current = refresh;
+
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        if (!authenticated || !session) return;
+
+        function clearTimer() {
+            if (timerRef.current !== null) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
+        }
+
+        function scheduleNext() {
+            clearTimer();
+
+            let delayMs: number;
+
+            if (session?.tokenExpiresAt && session.tokenExpiresAt > Date.now()) {
+                // Tenemos la fecha exacta de expiración — calcular el delay preciso
+                const msUntilExpiry = session.tokenExpiresAt - Date.now();
+                delayMs = Math.max(msUntilExpiry - REFRESH_BEFORE_EXPIRY_MS, 60_000);
+            } else {
+                // Sin fecha conocida → usar intervalo fijo de 3.5h
+                delayMs = FALLBACK_REFRESH_INTERVAL_MS;
+            }
+
+            timerRef.current = setTimeout(async () => {
+                try {
+                    await refreshRef.current();
+                    // Tras un refresh exitoso, reprogramar el siguiente
+                    scheduleNext();
+                } catch {
+                    // Si el refresh falla, reintentamos en 5 minutos
+                    timerRef.current = setTimeout(() => scheduleNext(), 5 * 60 * 1000);
+                }
+            }, delayMs);
+        }
+
+        scheduleNext();
+
+        return () => clearTimer();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [authenticated, session?.tokenExpiresAt, session?.userId]);
+}
