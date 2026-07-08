@@ -1,6 +1,5 @@
 import { kv } from '@vercel/kv';
 import { StoredUser } from '../../types/twitch';
-import { CacheEntry } from '../../types/cache';
 import { CACHE_TTL_MATRIX, ownerScopedCacheKey } from '../config/cacheTtl';
 
 /** Metadatos cacheables sin tokens OAuth (resolver con getUser en apiKeyValidator). */
@@ -8,72 +7,6 @@ export type CachedApiUserMeta = Pick<
     StoredUser,
     'userId' | 'login' | 'displayName' | 'apiKey' | 'isActive' | 'profileImageUrl' | 'customRateLimit' | 'customCacheTtl' | 'role'
 >;
-
-const MEMORY_CACHE = new Map<string, CacheEntry<unknown>>();
-/** TTL L1 usado en el último set() por clave (evita repoblar L1 más tiempo que KV). */
-const L1_TTL_BY_KEY = new Map<string, number>();
-const DEFAULT_L1_TTL_MS = 30 * 1000;
-const MAX_MEMORY_CACHE_SIZE = 500;
-
-/** Alinea TTL de L1 con el de KV para evitar re-lecturas prematuras a Redis. */
-function resolveL1TtlMs(key: string): number {
-    if (key.startsWith('cache:user:id:') || key.startsWith('cache:apiuser:')) {
-        return CACHE_TTL_MATRIX.API_USER.default * 1000;
-    }
-    if (key.startsWith('cache:user:login:')) {
-        return CACHE_TTL_MATRIX.USER_BY_LOGIN.default * 1000;
-    }
-    if (key.startsWith('cache:dashboard:profile:')) {
-        return CACHE_TTL_MATRIX.DASHBOARD_PROFILE.default * 1000;
-    }
-    if (key.startsWith('cache:dashboard:analytics:') || key.startsWith('cache:analytics:')) {
-        return CACHE_TTL_MATRIX.DASHBOARD_ANALYTICS.default * 1000;
-    }
-    if (key.startsWith('cache:activity:')) {
-        return CACHE_TTL_MATRIX.ACTIVITY_FEED.default * 1000;
-    }
-    if (key.startsWith('cache:cmd:getUserInfo:login:')) {
-        return CACHE_TTL_MATRIX.COMMAND.default * 1000;
-    }
-    if (key.startsWith('cache:cmd:')) {
-        return CACHE_TTL_MATRIX.COMMAND.default * 1000;
-    }
-    if (key.startsWith('cache:userId:')) {
-        return CACHE_TTL_MATRIX.TWITCH_USER_ID.default * 1000;
-    }
-    if (key.startsWith('overlay:state:')) {
-        return CACHE_TTL_MATRIX.OVERLAY_STATE.default * 1000;
-    }
-    return DEFAULT_L1_TTL_MS;
-}
-
-const evictMemoryCache = (): void => {
-    const toRemove = Math.floor(MAX_MEMORY_CACHE_SIZE * 0.25);
-    const iterator = MEMORY_CACHE.keys();
-    for (let i = 0; i < toRemove; i++) {
-        const key = iterator.next().value;
-        if (key) MEMORY_CACHE.delete(key);
-    }
-};
-
-const getL1 = <T>(key: string): T | null => {
-    const cached = MEMORY_CACHE.get(key) as CacheEntry<T> | undefined;
-    if (cached && cached.expiry > Date.now()) {
-        return cached.value;
-    }
-    if (cached) MEMORY_CACHE.delete(key);
-    return null;
-};
-
-const setL1 = <T>(key: string, value: T, ttlMs: number = DEFAULT_L1_TTL_MS): void => {
-    if (MEMORY_CACHE.size >= MAX_MEMORY_CACHE_SIZE) {
-        evictMemoryCache();
-    }
-    MEMORY_CACHE.set(key, { value, expiry: Date.now() + ttlMs });
-};
-
-const pendingKVRequests = new Map<string, Promise<unknown>>();
-const MAX_PENDING_SIZE = 500;
 
 let kvWritesDisabled = false;
 
@@ -101,36 +34,13 @@ export function isKvWriteAvailable(): boolean {
 })();
 
 export const get = async <T = unknown>(key: string): Promise<T | null> => {
-    const l1Value = getL1<T>(key);
-    if (l1Value !== null) return l1Value;
-
-    if (pendingKVRequests.has(key)) {
-        return pendingKVRequests.get(key) as Promise<T | null>;
+    try {
+        const value = await kv.get<T>(`twitch_api:${key}`);
+        return value;
+    } catch (error) {
+        console.error(`[Cache] Error KV get (${key}):`, error);
+        return null; // Fail-soft: devolver null para que el sistema consulte la DB original
     }
-
-    if (pendingKVRequests.size >= MAX_PENDING_SIZE) {
-        const first = pendingKVRequests.keys().next().value;
-        if (first) pendingKVRequests.delete(first);
-    }
-
-    const fetchPromise = (async () => {
-        try {
-            const value = await kv.get<T>(`twitch_api:${key}`);
-            if (value !== null) {
-                const ttlMs = L1_TTL_BY_KEY.get(key) ?? Math.min(resolveL1TtlMs(key), DEFAULT_L1_TTL_MS * 2);
-                setL1<T>(key, value, ttlMs);
-            }
-            return value;
-        } catch (error) {
-            console.error(`[Cache] Error KV get (${key}):`, error);
-            return null; // Fail-soft: devolver null para que el sistema consulte la DB original
-        } finally {
-            pendingKVRequests.delete(key);
-        }
-    })();
-
-    pendingKVRequests.set(key, fetchPromise);
-    return fetchPromise;
 };
 
 export const set = async <T = unknown>(
@@ -138,9 +48,6 @@ export const set = async <T = unknown>(
     value: T,
     ttlSeconds: number = 60
 ): Promise<void> => {
-    const ttlMs = ttlSeconds * 1000;
-    L1_TTL_BY_KEY.set(key, ttlMs);
-    setL1<T>(key, value, ttlMs);
     if (!isKvWriteAvailable()) return;
     try {
         await kv.set(`twitch_api:${key}`, value, { ex: ttlSeconds });
@@ -162,14 +69,8 @@ export const setIfAbsent = async <T = unknown>(
     value: T,
     ttlSeconds: number = 60
 ): Promise<boolean> => {
-    if (getL1<T>(key) !== null) return false;
-
-    const ttlMs = ttlSeconds * 1000;
-
     if (!isKvWriteAvailable()) {
-        setL1<T>(key, value, ttlMs);
-        L1_TTL_BY_KEY.set(key, ttlMs);
-        return true;
+        return false;
     }
 
     try {
@@ -180,15 +81,11 @@ export const setIfAbsent = async <T = unknown>(
         if (result === null || result === undefined) {
             return false;
         }
-        setL1<T>(key, value, ttlMs);
-        L1_TTL_BY_KEY.set(key, ttlMs);
         return true;
     } catch (error) {
         if (process.env.NODE_ENV !== 'production') {
             disableKvWrites('KV no permite escritura');
-            setL1<T>(key, value, ttlMs);
-            L1_TTL_BY_KEY.set(key, ttlMs);
-            return true;
+            return false;
         }
         console.error(`[Cache] Error KV setIfAbsent (${key}):`, error);
         return false;
@@ -196,9 +93,6 @@ export const setIfAbsent = async <T = unknown>(
 };
 
 export const del = async (key: string): Promise<void> => {
-    MEMORY_CACHE.delete(key);
-    L1_TTL_BY_KEY.delete(key);
-    pendingKVRequests.delete(key);
     if (!isKvWriteAvailable()) return;
     try {
         await kv.del(`twitch_api:${key}`);
@@ -308,7 +202,6 @@ export const isApiKeyRevoked = async (apiKey: string): Promise<boolean> => {
 export const clearApiKeyRevocation = async (apiKey: string): Promise<void> => {
     const normalized = apiKey.trim().toLowerCase();
     if (!normalized) return;
-    MEMORY_CACHE.delete(`cache:apikey:revoked:${normalized}`);
     if (!isKvWriteAvailable()) return;
     try {
         await kv.del(`twitch_api:cache:apikey:revoked:${normalized}`);
@@ -318,7 +211,6 @@ export const clearApiKeyRevocation = async (apiKey: string): Promise<void> => {
 };
 
 export const invalidateApiKeyCache = async (apiKey: string): Promise<void> => {
-    MEMORY_CACHE.delete(`cache:apiuser:${apiKey}`);
     if (!isKvWriteAvailable()) return;
     try {
         await kv.del(`twitch_api:cache:apiuser:${apiKey}`);
