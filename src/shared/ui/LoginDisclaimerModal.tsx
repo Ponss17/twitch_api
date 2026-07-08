@@ -33,6 +33,9 @@ export function LoginDisclaimerModal({ open, onClose }: LoginDisclaimerModalProp
             closeOnBackdrop={!loading}
             footer={
                 <>
+                    <button type="button" className={btnSecondary} disabled={loading} onClick={onClose}>
+                        Cancelar
+                    </button>
                     <button type="button" className={modalBtnPrimary} disabled={loading} onClick={handleConfirm}>
                         {loading ? (
                             <>
@@ -41,13 +44,10 @@ export function LoginDisclaimerModal({ open, onClose }: LoginDisclaimerModalProp
                             </>
                         ) : (
                             <>
-                                <TwitchIcon className="w-5" aria-hidden="true" />
+                                <TwitchIcon className="w-5 fill-white" aria-hidden="true" />
                                 Aceptar y Conectar
                             </>
                         )}
-                    </button>
-                    <button type="button" className={btnSecondary} disabled={loading} onClick={onClose}>
-                        Cancelar
                     </button>
                 </>
             }
