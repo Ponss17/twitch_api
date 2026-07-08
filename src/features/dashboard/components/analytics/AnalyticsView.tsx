@@ -9,7 +9,7 @@ import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
 import { Zap, CheckCircle2, Gauge, Command } from 'lucide-react';
-import { sumDashboardCategoryUsage } from '@/features/dashboard/lib/dashboardStats';
+import { getTodayRequestsTotal } from '@/features/dashboard/lib/dashboardStats';
 
 const STATS_ROW =
     'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4';
@@ -154,10 +154,10 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
     }
 
     const latencyMs = stats.avgLatencyMs ?? 0;
-    const resourceUsage = sumDashboardCategoryUsage(stats);
+    const todayRequests = getTodayRequestsTotal(stats);
     const successRateDaily = stats.rawSuccessRate ?? 0;
     const isLoading = !hasLiveData;
-    const requestsDuration = resourceUsage === 0 ? 0 : 1500;
+    const requestsDuration = todayRequests === 0 ? 0 : active ? 400 : 0;
     const successDuration = active ? 1000 : 0;
     const latencyDuration = active ? 1000 : 0;
 
@@ -171,7 +171,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                         <CardHeaderIcon icon={BarChart3} />
                         <div>
                             <h3 className="mb-0.5 text-[1.05rem] font-bold text-[#fafafa]">Analytics Overview</h3>
-                            <p className="text-[0.8rem] text-[#c4c4cc]">Métricas de rendimiento en tiempo real de tu API (Hoy) · prueba 1</p>
+                            <p className="text-[0.8rem] text-[#c4c4cc]">KPIs de hoy y tendencias de los últimos 7 días en tiempo real.</p>
                         </div>
                     </div>
                     <InfoTooltip text="Métricas generales en tiempo real correspondientes al día actual." />
@@ -186,7 +186,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                         </div>
                         <div className="flex flex-col">
                             <AnimatedNumber
-                                value={resourceUsage}
+                                value={todayRequests}
                                 duration={requestsDuration}
                                 isLoading={isLoading}
                                 className="text-[2.5rem] font-bold leading-none tracking-tight text-white"

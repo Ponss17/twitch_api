@@ -31,6 +31,49 @@ async function mockAuthExchangeRoute(page: Page) {
     );
 }
 
+async function mockDashboardPanelRoutes(page: Page) {
+    await page.route('**/api/dashboard/summary**', (route) =>
+        route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+                analytics: {
+                    today_requests: 0,
+                    today_errors: 0,
+                    today_latency: 0,
+                    clips_count: 0,
+                    last_stats_date: '2026-07-08'
+                }
+            })
+        })
+    );
+    await page.route('**/api/dashboard/activity**', (route) =>
+        route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify([])
+        })
+    );
+    await page.route('**/api/dashboard/user-info**', (route) =>
+        route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+                followers: 42,
+                broadcaster_type: '',
+                created_at: '2018-03-16T00:00:00.000Z'
+            })
+        })
+    );
+    await page.route('**/api/system/realtime-token**', (route) =>
+        route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({ token: 'e2e_realtime_token', expiresIn: 900 })
+        })
+    );
+}
+
 async function mockValidateRoute(page: Page) {
     await page.route('**/api/system/validate**', (route) =>
         route.fulfill({
@@ -55,6 +98,7 @@ async function seedSession(page: Page) {
 
 async function gotoAuthenticatedDashboard(page: Page, path = '/dashboard/') {
     await mockValidateRoute(page);
+    await mockDashboardPanelRoutes(page);
     const validated = waitForValidate(page);
     await page.goto(path);
     await validated;
@@ -89,6 +133,7 @@ test.describe('dashboard', () => {
     test('legacy ?tab= migrates to path-based URL', async ({ page }) => {
         await seedSession(page);
         await mockValidateRoute(page);
+        await mockDashboardPanelRoutes(page);
         await page.goto('/dashboard/?tab=clips');
         await expect(page).toHaveURL(/\/dashboard\/clips\/?/);
     });
@@ -103,6 +148,7 @@ test.describe('dashboard', () => {
     test('oauth callback applies session without page reload', async ({ page }) => {
         await mockAuthExchangeRoute(page);
         await mockValidateRoute(page);
+        await mockDashboardPanelRoutes(page);
 
         const exchanged = page.waitForResponse(
             (response) => response.url().includes('/auth/exchange') && response.ok()
