@@ -266,7 +266,7 @@ export function LandingPage() {
                                     onClick={() => setDisclaimerOpen(true)}
                                     className="inline-flex items-center gap-2.5 rounded-lg bg-[#9146ff] px-7 py-3 text-[0.95rem] font-semibold text-white shadow-[0_0_24px_-8px_#9146ff] transition-all hover:bg-[#7c3aed] hover:shadow-[0_0_36px_-6px_#9146ff]"
                                 >
-                                    <TwitchIcon className="w-4 fill-current" />
+                                    <TwitchIcon className="w-4 brightness-0 invert" />
                                     Iniciar Sesión con Twitch
                                 </button>
                             )}
