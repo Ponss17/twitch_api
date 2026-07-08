@@ -25,7 +25,10 @@ export const isBotCommand = (path: string): boolean =>
     path.includes('/followage') ||
     path.includes('/shoutout') ||
     path.includes('/create-clip') ||
-    path.includes('/send-message');
+    path.includes('/send-message') ||
+    path.includes('/magic8') ||
+    path.includes('/russian') ||
+    path.includes('/duel');
 
 /** Rutas JSON del dashboard, system y auth — errores con `{ success: false, error: { message, code } }`. */
 export const isJsonApiRoute = (path: string): boolean => {

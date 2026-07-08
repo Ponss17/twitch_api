@@ -46,7 +46,7 @@ pnpm dev           # Frontend + API en paralelo
 pnpm build         # Compila backend + Astro (dist/)
 pnpm lint          # ESLint
 pnpm type-check    # Astro check + tsc backend
-pnpm test          # Jest (~364 tests)
+pnpm test          # Jest (~369 tests)
 pnpm test:e2e      # Playwright (API real + smoke UI; primera vez: npx playwright install chromium)
 pnpm smoke         # Checklist manual de producción
 pnpm check-env     # Valida .env antes de arrancar la API

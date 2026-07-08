@@ -318,20 +318,14 @@ export const deleteUser = async (userId: string): Promise<void> => {
         const user = await getUser(userId);
         if (!user) return;
 
-        logger.info(`🗑️ Eliminando datos de usuario: ${user.login} (${userId})`);
-
-        const tables = ['user_stats', 'user_daily_stats', 'activity_logs', 'audit_logs'] as const;
-        for (const table of tables) {
-            const { error } = await supabase.from(table).delete().eq('user_id', userId);
-            if (error) {
-                logger.error(`Error eliminando ${table} para ${userId}:`, error.message);
-                throw error;
-            }
-        }
+        logger.info(`🚮 Eliminando datos de usuario: ${user.login} (${userId})`);
 
         const { error } = await supabase.from('users').delete().eq('user_id', userId);
 
-        if (error) throw error;
+        if (error) {
+            logger.error(`Error eliminando users para ${userId}:`, error.message);
+            throw error;
+        }
 
         await Promise.all([
             cacheService.del(`cache:user:id:${userId}`),

@@ -101,6 +101,9 @@ twitch_api/
 ```text
 src/
 ├── core/           # Infra transversal (API client, sesión, config, UI helpers)
+│   ├── auth/       # Sesión cliente: storage, validate, oauth, apiFetch (ver §9.2)
+│   ├── api/        # auth.ts barrel → @/core/auth; apiError, fetchWithRetry
+│   └── …
 ├── shared/         # UI reutilizable + SessionProvider + errores
 ├── features/       # Dominio: dashboard, commands, clips, tools, minigames, …
 ├── pages/          # Rutas Astro (solo wiring)
@@ -160,7 +163,8 @@ sequenceDiagram
   FE->>API: GET /api/auth/exchange?auth=…
   API->>FE: apiKey + profile
   FE->>FE: localStorage sesión (scoped userId)
-  FE->>API: GET /api/system/validate
+  FE->>API: GET /api/system/validate (o caché local si token lejos de expirar)
+  Note over FE: Panel no monta hasta validate OK
 ```
 
 ### 4.3 Stats + Realtime del panel
@@ -219,6 +223,19 @@ Hay **cinco** tipos de credencial:
 10. 404 → **`errorHandler`**
 
 > Helmet aplica nonce CSP a HTML servido por Express. Las páginas Astro CDN usan la CSP de `vercel.json`: `script-src 'self' 'unsafe-inline'` + Speed Insights — necesario porque Astro/`client:*` inyecta scripts de hidratación inline (sin nonce en estático).
+
+### Caché de validate (cliente)
+
+Tras un `/system/validate` exitoso, el frontend guarda en `localStorage` un resultado **sin** `apiKey`/`token` (clave por `sessionFingerprint` en `localPrefs.ts`).
+
+| Condición | Comportamiento |
+|-----------|----------------|
+| OAuth con `tokenExpiresAt` | Caché válida hasta **35 min antes** del vencimiento del token (alineado con `useProactiveTokenRefresh`) |
+| Solo apiKey / sin fecha OAuth | Tope **1 h** desde `cached.at` |
+| Cerca de expirar o entrada obsoleta | Se borra y se fuerza validate real |
+| Llamadas concurrentes | `validateSession` deduplica en vuelo (una sola petición HTTP) |
+
+El panel **espera** `validateSession` antes de montar (`readOptimisticAuthState` → `loading: true` hasta confirmar). Evita ráfagas de 401 al boot en cold start de Vercel.
 
 ### Contratos de respuesta
 
@@ -468,8 +485,24 @@ Tabs del panel **no** son páginas Astro: SPA bajo `/dashboard` + path `/dashboa
 - **`config/paths.ts`** — `APP_MOUNT=''`, `appPath`, legal, dashboard, return paths docs↔panel.
 - **`config/pageTitle.ts`** — títulos `«Página | LosPerris»`.
 
-#### API / sesión
-- **`api/auth.ts`** — get/save/invalidate session, validate (caché fingerprint), `apiFetch` (401 refresh), login/logout, BroadcastChannel, splash flags.
+#### API / sesión (`core/auth/` + barrel `core/api/auth.ts`)
+
+Imports públicos siguen en `@/core/api/auth` (re-export). Implementación modular:
+
+| Archivo | Rol |
+|---------|-----|
+| `auth/sessionStorage.ts` | `getSession`, `saveSession`, `SESSION_KEY` |
+| `auth/validateCache.ts` | Caché local validate; TTL dinámico; `clearValidateCache` |
+| `auth/validateSession.ts` | `validateSession`, dedupe en vuelo, overlay exchange |
+| `auth/sessionLifecycle.ts` | `invalidateSession`, `initAuthSync` (BroadcastChannel logout) |
+| `auth/sessionMerge.ts` | `mergeSessionFromValidate`, `resolveDegradedSession` |
+| `auth/oauthFlow.ts` | `resolveSessionFromUrl`, `stripSensitiveQueryParams`, login/logout, `readOptimisticAuthState` |
+| `auth/authHeaders.ts` | `authHeaders` (+ `preferApiKey` para overlay OBS) |
+| `auth/apiFetch.ts` | Fetch autenticado; retry 401 → validate → retry 3s → logout |
+| `auth/index.ts` | Barrel interno |
+| `api/auth.ts` | `export * from '@/core/auth'` (compatibilidad) |
+
+Otros:
 - **`api/authQuery.ts`** — `apiKey`/`token` query para pruebas de comandos.
 - **`api/apiError.ts`** — `extractApiErrorMessage` (JSON unificado + legacy).
 - **`api/fetchWithRetry.ts`** — reintento en 5xx (cold start).
@@ -520,6 +553,7 @@ Tabs del panel **no** son páginas Astro: SPA bajo `/dashboard` + path `/dashboa
 | `lib/dashboardTabUrl.ts` | Resolve/set tab (path > hash > query > last) |
 | `lib/activityLogDisplay.ts` / `activityLogFilter.ts` | Iconos/filtros del feed |
 | `lib/dashboardPanelEvents.ts` | `DASHBOARD_DATA_READY_EVENT` |
+| `lib/splashFlags.ts` | Flags sessionStorage del splash post-OAuth (`shouldShowDashboardSplash`, …) |
 | `lib/dataExporter.ts` | Export HTML + check/complete API |
 
 #### Views
@@ -609,7 +643,7 @@ Checklist prod detallado: [ARCHITECTURE.md](ARCHITECTURE.md).
 ## 11. Tests, CI y deploy
 
 ### Tests
-- **Jest** (`jest.config.js`): proyectos backend (`tests/**`) y frontend (`tests/unit/frontend/**`) — ~364 tests.
+- **Jest** (`jest.config.js`): proyectos backend (`tests/**`) y frontend (`tests/unit/frontend/**`) — ~369 tests.
 - **Playwright** (`e2e/`): smoke UI con mocks de panel + checks API.
 - Cobertura típica: middleware, controllers, stats/tracking, realtime, dashboardStats, SessionProvider, etc.
 
@@ -638,6 +672,8 @@ Checklist prod detallado: [ARCHITECTURE.md](ARCHITECTURE.md).
 ### Deuda conocida (ver también ARCHITECTURE.md)
 - Subir a pnpm 11 (breaking).
 - (Cerrado) Rate limit dashboard OAuth ya usa KV (`rl:sess:`) como bots; L1 solo fallback.
+- (Cerrado) `auth.ts` monolítico → paquete `src/core/auth/` (jul 2026).
+- (Cerrado) Boot dashboard: sin 401 en validate; caché validate con TTL dinámico por `tokenExpiresAt`.
 - CORS/CSP allowlist canónica: `ttv.losperris.dev` + localhost (sin previews Vercel stale).
 - Algunos hints Recharts `Cell` deprecados.
 - Carpeta `docs/` local (gitignore) para notas de agentes.
@@ -661,6 +697,14 @@ Checklist prod detallado: [ARCHITECTURE.md](ARCHITECTURE.md).
 4. `AnalyticsView` anima KPIs y monta Recharts solo con tamaño real (`ChartMountGate`).  
 5. Si Realtime cae: poll REST según `dashboardSync` + label “Realtime” / “Sincronizando…”.
 
+## Apéndice B2 — Boot del dashboard (post jul 2026)
+
+1. `SessionProvider` llama `resolveSessionFromUrl` + `validateSession`.  
+2. Con sesión en `localStorage`, `readOptimisticAuthState` deja `loading: true` hasta validate.  
+3. Si hay caché local fresca → validate sin HTTP; si no → `GET /api/system/validate`.  
+4. Solo entonces monta `DashboardApp` → `DashboardPanelProvider` dispara summary/activity/user-info/realtime.  
+5. Splash OAuth: flags en `splashFlags.ts` hasta `DASHBOARD_DATA_READY_EVENT`.
+
 ## Apéndice C — Tipos clave
 
 | Tipo | Ubicación | Rol |
@@ -670,7 +714,8 @@ Checklist prod detallado: [ARCHITECTURE.md](ARCHITECTURE.md).
 | `Session` | `src/core/config/config.ts` | Sesión browser |
 | `DashboardTab` | idem | IDs de navegación |
 | `DashboardLiveStats` / `RealtimeStatsUpdate` | `dashboardStats.ts` | Stats panel + patches |
-| `ActivityLogItem` | `activityLogDisplay.ts` | Filas del feed |
+| `DashboardProfile` / `ActivityLogEntry` | `backend/.../schemas/dashboardContracts.ts` (`@contracts/*`) | Contratos panel FE/BE |
+| `ActivityLogItem` | `activityLogDisplay.ts` | Filas del feed (UI) |
 | `CacheEntry<T>` | `backend/types/cache.ts` | Entrada L1 |
 
 ---
