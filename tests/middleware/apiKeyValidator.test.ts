@@ -102,6 +102,20 @@ describe('API Key Validator Middleware', () => {
         expect(nextFunction).not.toHaveBeenCalled();
     });
 
+    it('followage con apiKey inválida responde texto plano HTTP 200 (Nightbot)', async () => {
+        (mockRequest as { path: string }).path = '/followage';
+        (mockRequest as { originalUrl: string }).originalUrl = '/followage';
+        mockRequest.query = { apiKey: '00000000-0000-0000-0000-000000000000' };
+        (dbService.getUserByApiKey as jest.Mock).mockResolvedValue(null);
+
+        await apiKeyValidator(mockRequest as Request, mockResponse as Response, nextFunction);
+
+        expect(mockResponse.setHeader).toHaveBeenCalledWith('Content-Type', 'text/plain');
+        expect(mockResponse.status).toHaveBeenCalledWith(200);
+        expect(mockResponse.send).toHaveBeenCalled();
+        expect(nextFunction).not.toHaveBeenCalled();
+    });
+
     it('returns 403 from KV meta when account is suspended without hitting getUser', async () => {
         const validKey = '22222222-2222-4222-8222-222222222222';
         mockRequest.query = { apiKey: validKey };
