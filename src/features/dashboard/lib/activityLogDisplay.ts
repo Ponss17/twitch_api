@@ -12,26 +12,15 @@ import {
     TrendingUp,
     UserRoundCheck
 } from 'lucide-react';
+import type {
+    ActivityLogType,
+    DashboardActivityLog
+} from '@contracts/dashboardContracts';
 
-export type ActivityLogType =
-    | 'clip'
-    | 'followage'
-    | 'shoutout'
-    | 'message'
-    | 'russian'
-    | 'magic8'
-    | 'duel'
-    | 'stalker'
-    | 'trends'
-    | 'roulette'
-    | 'other';
+export type { ActivityLogType } from '@contracts/dashboardContracts';
 
-export interface ActivityLogItem {
-    type?: string;
-    user?: string;
-    metadata?: Record<string, unknown>;
-    timestamp?: string;
-}
+/** Consumidor UI — campos opcionales por tolerancia a payloads parciales. */
+export type ActivityLogItem = Partial<DashboardActivityLog>;
 
 /** Safely reads a string field from metadata (unknown values). */
 function metaStr(meta: Record<string, unknown> | undefined, key: string): string {

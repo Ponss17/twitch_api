@@ -1,24 +1,8 @@
 import type { TwitchUser } from '../../types/twitch';
 import type { ResolvedUserLimits } from '../config/userRoles';
+import type { DashboardProfile } from '../schemas/dashboardContracts';
 
-export type DashboardProfile = {
-    id: string;
-    login: string;
-    display_name: string;
-    broadcaster_type?: string;
-    description?: string;
-    profile_image_url?: string;
-    created_at?: string;
-    view_count?: number;
-    followers: number;
-    views?: number;
-    role?: string;
-    roleLabel?: string;
-    rateLimit?: number;
-    cacheTtl?: number;
-    hasCustomRateLimit?: boolean;
-    hasCustomCacheTtl?: boolean;
-};
+export type { DashboardProfile } from '../schemas/dashboardContracts';
 
 export function buildDashboardProfile(
     info: TwitchUser,
@@ -41,7 +25,6 @@ export function buildDashboardProfile(
                   role: limits.role,
                   roleLabel: limits.roleLabel,
                   rateLimit: limits.rateLimit,
-
                   hasCustomRateLimit: limits.hasCustomRateLimit,
                   hasCustomCacheTtl: limits.hasCustomCacheTtl
               }
