@@ -40,6 +40,7 @@ const REALTIME_SAFETY_POLL_MS = 120_000;
 export interface DashboardPanelContextValue {
     stats: DashboardLiveStats;
     activity: ActivityLogItem[];
+    profile: any;
     hasLiveData: boolean;
     error: string | null;
     syncing: boolean;
@@ -73,6 +74,7 @@ export function DashboardPanelProvider({
 }: DashboardPanelProviderProps) {
     const [stats, setStats] = useState<DashboardLiveStats>(EMPTY_DASHBOARD_LIVE_STATS);
     const [activity, setActivity] = useState<ActivityLogItem[]>([]);
+    const [profile, setProfile] = useState<any>(null);
     const [hasLiveData, setHasLiveData] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [syncing, setSyncing] = useState(false);
@@ -190,17 +192,19 @@ export function DashboardPanelProvider({
                 const result = await loadOnce();
                 if (!result) return false;
 
-                const { analytics, analyticsLoaded, activity: activityLogs, partialFailure } = result;
+                const { analytics, analyticsLoaded, activity: activityLogs, profile: fetchedProfile, partialFailure } = result;
 
                 if (broadcast) {
                     if (analyticsLoaded) sync.broadcast('SYNC_STATS', analytics);
                     sync.broadcast('SYNC_ACTIVITY', activityLogs);
+                    if (fetchedProfile) sync.broadcast('SYNC_PROFILE', fetchedProfile);
                 }
 
                 // Solo actualizamos stats si el summary fue exitoso.
                 // Si falló (500/red), conservamos los valores anteriores para no mostrar ceros.
                 if (analyticsLoaded) setStats(analytics);
                 setActivity(activityLogs);
+                if (fetchedProfile) setProfile(fetchedProfile);
                 markDataReadyRef.current();
                 writePanelSyncPref(session.userId, Date.now().toString());
                 reportSessionLoadProgress({
@@ -229,13 +233,15 @@ export function DashboardPanelProvider({
                         try {
                             const retry = await loadOnce();
                             if (retry) {
-                                const { analytics, analyticsLoaded, activity: activityLogs, partialFailure } = retry;
+                                const { analytics, analyticsLoaded, activity: activityLogs, profile: fetchedProfile, partialFailure } = retry;
                                 if (broadcast) {
                                     if (analyticsLoaded) sync.broadcast('SYNC_STATS', analytics);
                                     sync.broadcast('SYNC_ACTIVITY', activityLogs);
+                                    if (fetchedProfile) sync.broadcast('SYNC_PROFILE', fetchedProfile);
                                 }
                                 if (analyticsLoaded) setStats(analytics);
                                 setActivity(activityLogs);
+                                if (fetchedProfile) setProfile(fetchedProfile);
                                 markDataReadyRef.current();
                                 setError(null);
                                 if (partialFailure) {
@@ -415,6 +421,7 @@ export function DashboardPanelProvider({
         });
 
         sync.on('SYNC_ACTIVITY', (payload) => setActivity(payload as ActivityLogItem[]));
+        sync.on('SYNC_PROFILE', (payload) => setProfile(payload));
         sync.on('SYNC_STATS', (payload) => {
             // Merge con el estado previo — evita resetear a 0 campos que no vienen en el broadcast
             setStats((prev) => ({ ...prev, ...(payload as DashboardLiveStats) }));
@@ -498,6 +505,7 @@ export function DashboardPanelProvider({
         () => ({
             stats,
             activity,
+            profile,
             hasLiveData,
             error,
             syncing,
@@ -505,7 +513,7 @@ export function DashboardPanelProvider({
             highlightKeys,
             isRealtimeLive
         }),
-        [stats, activity, hasLiveData, error, syncing, syncLabel, highlightKeys, isRealtimeLive]
+        [stats, activity, profile, hasLiveData, error, syncing, syncLabel, highlightKeys, isRealtimeLive]
     );
 
     return <DashboardPanelContext.Provider value={value}>{children}</DashboardPanelContext.Provider>;

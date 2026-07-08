@@ -14,7 +14,7 @@ describe('dashboardTabUrl', () => {
     });
 
     it('validates tab names', () => {
-        expect(isDashboardTab('profile')).toBe(true);
+        expect(isDashboardTab('settings')).toBe(true);
         expect(isDashboardTab('stats')).toBe(false);
         expect(isDashboardTab('nope')).toBe(false);
         expect(isDashboardTab(null)).toBe(false);

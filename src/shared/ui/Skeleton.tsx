@@ -63,7 +63,7 @@ export function HomeViewSkeleton() {
     );
 }
 
-export function ProfileHeroSkeleton() {
+export function SettingsHeroSkeleton() {
     return (
         <div
             className="relative mb-6 overflow-hidden rounded-[24px] border border-white/[0.08] bg-bg-secondary p-8"

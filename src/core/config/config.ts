@@ -69,7 +69,7 @@ export type DashboardTab =
     | 'roulette'
     | 'russian'
     | 'duel'
-    | 'profile'
+    | 'settings'
     | 'feedback';
 
 export interface Session {
