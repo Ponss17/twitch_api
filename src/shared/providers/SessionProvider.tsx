@@ -18,6 +18,7 @@ import { SessionContext } from '@/core/session/context';
 import { useToastOptional } from '@/shared/ui/ToastProvider';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { saveOverlayStoredSession, getOverlayStoredSession } from '@/features/tools/overlay/lib/overlaySession';
+import { useProactiveTokenRefresh } from '@/core/session/useProactiveTokenRefresh';
 
 export type { SessionContextValue } from '@/core/session/context';
 
@@ -179,6 +180,10 @@ export function SessionProvider({
             }
         };
     }, [refresh]);
+
+    // Refresh proactivo: renueva el token de Twitch antes de que expire,
+    // sin esperar a que una petición falle con 401.
+    useProactiveTokenRefresh(session, refresh, authenticated);
 
     const value = useMemo(
         () => ({ session, loading, authenticated, refresh }),

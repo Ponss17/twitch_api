@@ -81,6 +81,8 @@ export interface Session {
     profile_image_url?: string;
     userId?: string;
     isNewLogin?: boolean;
+    /** Timestamp (ms) en que expira el OAuth token de Twitch. Viene del backend via /validate. */
+    tokenExpiresAt?: number;
 }
 
 export interface ApiResponse<T = unknown> {

@@ -206,6 +206,10 @@ function pickSessionFromValidate(result: ApiResponse): Partial<Session> {
     if (typeof result.profile_image_url === 'string' && result.profile_image_url) {
         partial.profile_image_url = result.profile_image_url;
     }
+    // Propagar tokenExpiresAt para que el frontend programe el refresh proactivo
+    if (typeof result.tokenExpiresAt === 'number' && result.tokenExpiresAt > 0) {
+        partial.tokenExpiresAt = result.tokenExpiresAt;
+    }
     const user = result.user;
     if (user && typeof user === 'object') {
         const profile = user as Record<string, unknown>;

@@ -42,11 +42,14 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
 
         // Si el middleware checkToken ya identificó al usuario (usando caché global), retornar rápido
         if (apiUser && typeof apiUser === 'object' && 'userId' in apiUser) {
-            const user = apiUser as { userId: string; apiKey?: string; login?: string; displayName?: string; profileImageUrl?: string; timezone?: string };
+            const user = apiUser as { userId: string; apiKey?: string; login?: string; displayName?: string; profileImageUrl?: string; timezone?: string; tokenExpiresAt?: number };
+            // Incluir tokenExpiresAt para que el frontend programe la renovación proactiva
+            const tokenExpiresAt = user.tokenExpiresAt && user.tokenExpiresAt > 0 ? user.tokenExpiresAt : null;
             return res.json({
                 valid: true,
                 apiKey: user.apiKey || null,
                 token: token,
+                tokenExpiresAt,
                 user: {
                     id: user.userId,
                     login: user.login,
@@ -72,10 +75,12 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                 dbService.getUser(validation.user_id)
             ]);
 
+            const tokenExpiresAt = dbUser?.tokenExpiresAt && dbUser.tokenExpiresAt > 0 ? dbUser.tokenExpiresAt : null;
             return res.json({
                 valid: true,
                 apiKey: dbUser?.apiKey || null,
                 token: token,
+                tokenExpiresAt,
                 user: {
                     id: userProfile.id,
                     login: userProfile.login,
