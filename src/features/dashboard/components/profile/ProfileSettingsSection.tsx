@@ -141,7 +141,7 @@ export function ProfileSettingsSection({ currentTimezone, onSettingsChanged }: P
                         <button 
                             disabled={saving || selectedTz === currentTimezone}
                             onClick={() => void handleSave()}
-                            className={`${btnPrimary} py-2 px-5 text-sm font-semibold w-full sm:w-auto ${
+                            className={`${btnPrimary} !mt-0 py-2 px-5 text-sm font-semibold w-full sm:w-auto ${
                                 selectedTz === currentTimezone ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                         >
