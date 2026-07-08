@@ -42,7 +42,10 @@ function validateCacheKey(session: Session): string {
     return `${VALIDATE_CACHE_BASE}_${sessionFingerprint(session)}`;
 }
 
-function clearValidateCache(session?: Session | null): void {
+/** Elimina el caché de validate para forzar una revalidación real contra el servidor.
+ * Útil para el refresh proactivo de token: sin esto, validateSession devolvería el caché
+ * y nunca llegaría al backend a renovar el token de Twitch. */
+export function clearValidateCache(session?: Session | null): void {
     if (typeof window === 'undefined') return;
     localStorage.removeItem(LEGACY_VALIDATE_CACHE_KEY);
     if (session) {
