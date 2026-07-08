@@ -18,7 +18,7 @@ const STATS_ROW =
 const H_STAT =
     'group relative flex flex-col gap-2 rounded-xl border border-white/[0.04] bg-white/[0.02] px-6 py-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:bg-white/[0.04] hover:shadow-2xl';
 
-const COLORS = ['#9146ff', '#00e599', '#facc15', '#ef4444', '#3b82f6', '#f97316', '#ec4899', '#8b5cf6'];
+const COLORS = ['#7254b8', '#4a8b75', '#b3934d', '#b35656', '#4d75b3', '#b3714d', '#a85c87', '#615e9c'];
 
 function AnalyticsViewContent({ active }: { active: boolean }) {
     const { stats, hasLiveData, error } = useDashboardPanel();
