@@ -499,15 +499,6 @@ const DataExport = {
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
         }
-        .grid-bg {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background-color: var(--bg);
-            background-color: var(--bg);
-            background-size: 60px 60px;
-        }
         .page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
         a { color: inherit; }
 
@@ -925,7 +916,7 @@ const DataExport = {
         }
 
         @media print {
-            .grid-bg, .site-header, .security-banner, .cta-strip, .site-footer .footer-links,
+            .site-header, .security-banner, .cta-strip, .site-footer .footer-links,
             .bot-syntax-grid, .cmd-variants, .nav-link, .dashboard-only-badge { display: none !important; }
             body { background: #fff; color: #111; }
             .section, .stat-card, .profile-hero, .metric-card, .cat-card, .command-card {
@@ -938,7 +929,6 @@ const DataExport = {
 </head>
 <body>
 <div class="page">
-    <div class="grid-bg" aria-hidden="true"></div>
 
     <header class="site-header">
         <div class="site-header-inner">
