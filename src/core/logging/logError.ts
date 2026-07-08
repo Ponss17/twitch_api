@@ -1,10 +1,14 @@
 /** Siempre emite por console.error para que aparezca en la consola del navegador. */
 export function logError(scope: string, error: unknown, detail?: string): void {
+    const prefix = `[${scope}]${detail ? ` ${detail}` : ''}`;
+    
     if (error instanceof Error) {
-        console.error(`[${scope}]${detail ? ` ${detail}` : ''}`, error);
-        return;
+        // En Astro/Vite, pasar el objeto de error puro puede causar errores de "circular structure"
+        // si el error proviene del backend (ej. fallos de red en SSR con ClientRequest).
+        console.error(`${prefix}: ${error.message}\n${error.stack || ''}`);
+    } else {
+        console.error(prefix, String(error));
     }
-    console.error(`[${scope}]${detail ? ` ${detail}` : ''}`, error);
 }
 
 let globalHandlersInstalled = false;
