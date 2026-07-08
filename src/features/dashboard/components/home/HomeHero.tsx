@@ -41,7 +41,7 @@ export const HomeHero = memo(function HomeHero({
                             <Bot className="size-8" aria-hidden />
                         </span>
                         <span>Hola,</span>
-                        <span>
+                        <span className="text-[#9146ff]">
                             {displayName}
                         </span>
                     </h1>
