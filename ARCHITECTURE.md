@@ -72,7 +72,7 @@ Capas por tipo de dato:
 
 | Capa | Dónde | TTL típico | Uso |
 |------|--------|------------|-----|
-| **L1 RAM** | Instancia serverless (`userMemoryCache`, `validKeysCache`, rate limit dashboard) | 10 min / ventana 1 min | Bots activos y panel en la misma instancia — **0 ops KV** |
+| **L1 RAM** | Instancia serverless (`userMemoryCache`, `validKeysCache`; RL solo fallback) | 10 min / ventana 1 min | Bots activos / panel en la misma instancia — **0 ops KV** en hit de usuario |
 | **L2 KV** | Vercel Redis (`twitch_api:` prefix) | Ver `cacheTtl.ts` | Compartido entre réplicas; metadatos API key **sin tokens OAuth** |
 | **L3 DB** | Supabase | — | Solo en miss de L1+L2 |
 
@@ -122,7 +122,7 @@ KV_REST_API_URL + KV_REST_API_TOKEN
 GROQ_API_KEY (opcional — Bola 8)
 ```
 
-**Rate limit dashboard:** sesiones OAuth usan L1 RAM por instancia (500/min) a propósito para no gastar ops KV; bots/API key usan KV. El límite efectivo multi-réplica puede ser N×500 — riesgo aceptado.
+**Rate limit:** dashboard OAuth (`rl:sess:`), bots/API key e IP anónima usan KV (500/min dashboard). L1 solo si KV no está disponible.
 
 ## Estructura del frontend (`src/`)
 
@@ -235,7 +235,7 @@ Puntos **fuera** del cierre de auditoría jul 2026 — no mezclar con parches de
 
 ### Cierre auditoría jul 2026 (aplicado en código)
 
-- Overlay scope global, auth exchange single-use, delete-account CASCADE, AES-GCM, `HMAC_SIGNING_SECRET` **obligatorio en prod**, OAuth state con `exp`, circuit breaker en interceptor axios (+ `recordSuccess` en respuestas Helix), CI URLs canónicas, `pnpm audit` en CI, timezone dashboard alineado con perfil, debounce stats revision bump, invalidación caches Helix, redacción unificada de query secrets en logs, heavy RL con fallback L1.
+- Overlay scope global, auth exchange single-use, delete-account CASCADE, AES-GCM, `HMAC_SIGNING_SECRET` **obligatorio en prod**, OAuth state con `exp`, circuit breaker en interceptor axios (+ `recordSuccess` en respuestas Helix), CI URLs canónicas, `pnpm audit` en CI, timezone dashboard alineado con perfil, debounce stats revision bump, invalidación caches Helix, redacción unificada de query secrets en logs, heavy RL con fallback L1, dashboard RL en KV.
 
 ## Documentación
 
