@@ -103,6 +103,36 @@ describe('validateSession cache', () => {
         expect(getSession()?.apiKey).toBe('secret-key');
     });
 
+    it('dedupes concurrent validate calls for the same session', async () => {
+        const session = { apiKey: 'secret-key', userId: '205997464', login: 'ponss' };
+        let resolveFetch: (value: unknown) => void = () => {};
+        (global.fetch as jest.Mock).mockImplementation(
+            () =>
+                new Promise((resolve) => {
+                    resolveFetch = resolve;
+                })
+        );
+
+        const first = validateSession(session);
+        const second = validateSession(session);
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+
+        resolveFetch({
+            ok: true,
+            headers: { get: () => 'application/json' },
+            json: async () => ({
+                valid: true,
+                apiKey: 'secret-key',
+                user: { id: '205997464', login: 'ponss' }
+            })
+        });
+
+        const [a, b] = await Promise.all([first, second]);
+        expect(a.valid).toBe(true);
+        expect(b.valid).toBe(true);
+    });
+
     it('sanitizes legacy cache entries on read', async () => {
         const session = { apiKey: 'secret-key', userId: '205997464' };
         const cacheKey = `twitch_validate_cache_${sessionFingerprint(session)}`;
