@@ -107,7 +107,6 @@ export const configureMiddleware = (app: Application) => {
                             'wss://*.supabase.co',
                             'https://va.vercel-scripts.com',
                             'https://vitals.vercel-insights.com',
-                            'https://twitch-api-smoky.vercel.app',
                             'https://*.google-analytics.com',
                             'https://www.google-analytics.com',
                             'blob:'

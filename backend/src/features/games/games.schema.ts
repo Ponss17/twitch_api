@@ -1,16 +1,7 @@
 import { z } from 'zod';
+import { twitchUsernameWithAtStrip } from '../../core/schemas/twitchUsername';
 
-const twitchUsername = z
-    .string()
-    .trim()
-    .transform((s) => s.replace(/^@+/, ''))
-    .pipe(
-        z
-            .string()
-            .min(1)
-            .max(25)
-            .regex(/^[a-zA-Z0-9_]+$/, 'Nombre de usuario Twitch inválido')
-    );
+const twitchUsername = twitchUsernameWithAtStrip;
 
 export const askMagic8Schema = z.object({
     query: z.object({

@@ -80,6 +80,10 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
+jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
+    invalidateAllUserCaches: jest.fn().mockResolvedValue(undefined)
+}));
+
 describe('dbService', () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -129,15 +133,25 @@ describe('dbService', () => {
         expect(user?.userId).toBe('123');
     });
 
-    it('should delete user from Supabase', async () => {
-        // Mock para el getUser interno
+    it('should delete user data from all related tables before users row', async () => {
         s.single.mockResolvedValueOnce({
-            data: { user_id: '123', login: 'testuser', display_name: 'T', is_active: true },
+            data: {
+                user_id: '123',
+                login: 'testuser',
+                display_name: 'T',
+                is_active: true,
+                api_key: 'key-abc'
+            },
             error: null
         });
-        // El eq() llamado por delete() resolverá el default (promesa con {error:null})
 
         await deleteUser('123');
+
+        expect(s.from).toHaveBeenCalledWith('user_stats');
+        expect(s.from).toHaveBeenCalledWith('user_daily_stats');
+        expect(s.from).toHaveBeenCalledWith('activity_logs');
+        expect(s.from).toHaveBeenCalledWith('audit_logs');
+        expect(s.from).toHaveBeenCalledWith('users');
         expect(s.delete).toHaveBeenCalled();
     });
 

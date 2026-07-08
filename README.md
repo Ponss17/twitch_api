@@ -46,7 +46,7 @@ pnpm dev           # Frontend + API en paralelo
 pnpm build         # Compila backend + Astro (dist/)
 pnpm lint          # ESLint
 pnpm type-check    # Astro check + tsc backend
-pnpm test          # Jest (339 tests)
+pnpm test          # Jest (~364 tests)
 pnpm test:e2e      # Playwright (API real + smoke UI; primera vez: npx playwright install chromium)
 pnpm smoke         # Checklist manual de producción
 pnpm check-env     # Valida .env antes de arrancar la API
@@ -91,9 +91,12 @@ Los endpoints públicos para bots mantienen compatibilidad con integraciones exi
 
 Documentación interactiva: `/docs` (en producción: `https://ttv.losperris.dev/docs`).
 
-## Arquitectura
+## Arquitectura y documentación
 
-Detalle técnico, dependencias pnpm, deuda pendiente y SQL Supabase: [ARCHITECTURE.md](ARCHITECTURE.md).
+| Documento | Contenido |
+|-----------|-----------|
+| [DOCUMENTATION.md](DOCUMENTATION.md) | Guía completa: flujos, endpoints, DB/caché/realtime y lógica **archivo por archivo** (backend + frontend) |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Contratos, OAuth, caché L1/L2/L3, env de prod, deuda técnica y SQL Supabase |
 
 ## Licencia
 

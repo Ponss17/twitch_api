@@ -1,11 +1,5 @@
 import { z } from 'zod';
-
-const twitchUsername = z
-    .string()
-    .trim()
-    .min(1)
-    .max(25)
-    .regex(/^[a-zA-Z0-9_]+$/, 'Nombre de usuario Twitch inválido');
+import { twitchUsername } from '../../core/schemas/twitchUsername';
 
 export const getClipsSchema = z.object({
     query: z.object({

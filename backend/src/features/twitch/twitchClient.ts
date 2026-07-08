@@ -101,6 +101,9 @@ axiosRetry(apiClient, {
     retries: 3,
     retryDelay: axiosRetry.exponentialDelay,
     retryCondition: (error) => {
+        if (CIRCUIT_BREAKER.state === 'OPEN') {
+            return false;
+        }
         if (axiosRetry.isNetworkError(error)) {
             logger.warn('Network error detected, retrying...', { error: error.message });
             return true;
@@ -127,6 +130,19 @@ axiosRetry(apiClient, {
         });
     }
 });
+
+apiClient.interceptors.request.use(async (config) => {
+    await checkCircuit();
+    return config;
+});
+
+apiClient.interceptors.response.use(
+    (response) => {
+        recordSuccess();
+        return response;
+    },
+    (error) => Promise.reject(error)
+);
 
 export const getHeaders = (token: string) => ({
     'Client-ID': CONFIG.TWITCH_CLIENT_ID,

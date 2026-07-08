@@ -3,6 +3,25 @@ import { invalidateUserMemoryCache } from '../database/userService';
 import { invalidateStatsCache } from '../database/statsService';
 import { logger } from './logger';
 import { overlayStateKey } from '../../features/dashboard/overlay/keys';
+import { overlayRevokeKey } from '../../features/auth/auth.service';
+import { invalidateUserInfoCache } from '../../features/twitch/twitchUserService';
+
+export async function invalidateHelixUserCaches(userId: string, login?: string): Promise<void> {
+    invalidateUserInfoCache(login, userId);
+    const keys = [
+        `cache:eligibility:mods:${userId}`,
+        `cache:eligibility:vips:${userId}`,
+        `cache:eligibility:subs:${userId}`,
+        `twitch:channel:${userId}`,
+        `cache:chatters:${userId}`
+    ];
+    if (login) {
+        keys.push(`cache:userId:${login.toLowerCase()}`);
+    }
+    await Promise.allSettled(keys.map((key) => cacheService.del(key))).catch((e) =>
+        logger.warn('Error invalidando caches Helix:', e)
+    );
+}
 
 export async function invalidateOverlayStateCaches(userId: string): Promise<void> {
     await Promise.allSettled([
@@ -48,7 +67,9 @@ export async function invalidateAllUserCaches(
         ...(options.login ? [cacheService.del(`cache:user:login:${options.login.toLowerCase()}`)] : []),
         cacheService.invalidateDashboardCache(userId, options.login),
         cacheService.bumpStatsRevision(userId),
-        invalidateOverlayStateCaches(userId)
+        invalidateOverlayStateCaches(userId),
+        cacheService.set(overlayRevokeKey(userId), Date.now(), 30 * 24 * 3600),
+        invalidateHelixUserCaches(userId, options.login)
     ];
 
     if (options.revokeApiKey && options.apiKey) {

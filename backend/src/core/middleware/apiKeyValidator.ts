@@ -1,7 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import * as dbService from '../database/dbService';
 import * as cacheService from '../database/cacheService';
-import { getValidTokenForUser, verifyOverlayReadToken, isOAuthTokenNearExpiry } from '../../features/auth/auth.service';
+import {
+    getValidTokenForUser,
+    verifyOverlayReadToken,
+    isOAuthTokenNearExpiry,
+    isOverlayTokenRevoked
+} from '../../features/auth/auth.service';
+import { toOverlayApiUser } from './overlayScope';
 import { logger } from '../utils/logger';
 import { invalidateAuthCache } from './authMiddleware';
 import { StoredUser } from '../../types/twitch';
@@ -70,20 +76,13 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         if (!payload) {
             return res.status(401).json({ error: 'Token de overlay inválido o expirado.' });
         }
+        if (await isOverlayTokenRevoked(payload)) {
+            return res.status(401).json({ error: 'Token de overlay revocado. Genera un enlace nuevo en el panel.' });
+        }
         try {
             const user = await dbService.getUser(payload.userId);
             if (user?.isActive !== false) {
-                res.locals.apiUser = user ?? {
-                    userId: payload.userId,
-                    login: payload.login,
-                    displayName: payload.displayName,
-                    accessToken: '',
-                    refreshToken: '',
-                    expiresIn: 0,
-                    obtainedAt: 0,
-                    isActive: true,
-                    profileImageUrl: payload.profile_image_url
-                };
+                res.locals.apiUser = toOverlayApiUser(payload);
                 res.locals.isOverlayReadRequest = true;
                 res.locals.overlayTool = payload.tool;
                 return next();

@@ -92,7 +92,7 @@ export const callback = async (req: Request, res: Response) => {
     }
 };
 
-export const exchange = (req: Request, res: Response) => {
+export const exchange = async (req: Request, res: Response) => {
     const auth = req.query.auth as string;
 
     if (!auth) {
@@ -102,6 +102,11 @@ export const exchange = (req: Request, res: Response) => {
     const payload = authService.verifyAuthExchange(auth);
     if (!payload) {
         return jsonError(res, 401, 'Sesión inválida o expirada.', { code: 'INVALID_AUTH' });
+    }
+
+    const consumed = await authService.consumeAuthExchangeToken(auth);
+    if (!consumed) {
+        return jsonError(res, 401, 'Token de sesión ya utilizado.', { code: 'AUTH_ALREADY_USED' });
     }
 
     return res.json({

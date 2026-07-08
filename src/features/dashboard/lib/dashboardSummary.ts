@@ -13,6 +13,7 @@ export interface DashboardProfile {
     broadcaster_type?: string;
     description?: string;
     created_at?: string;
+    timezone?: string;
     rateLimit?: number;
     cacheTtl?: number;
     role?: string;

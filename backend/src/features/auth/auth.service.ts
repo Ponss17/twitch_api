@@ -6,16 +6,25 @@ import * as cacheService from '../../core/database/cacheService';
 import crypto from 'crypto';
 import { logger } from '../../core/utils/logger';
 import { BoundedMap } from '../../core/utils/boundedCache';
+import { AppError } from '../../core/errors/AppError';
+import { MESSAGES } from '../../core/config/messages';
 
 const overlayTokenCache = new BoundedMap<string, { payload: OverlayReadPayload; expiry: number }>(200);
 const OVERLAY_TOKEN_CACHE_MS = 5 * 60 * 1000;
 
 const TWITCH_AUTH_URL = 'https://id.twitch.tv/oauth2';
 const TWITCH_API_URL = 'https://api.twitch.tv/helix';
+const STATE_TTL_MS = 10 * 60 * 1000;
+
+function getHmacSecret(): string {
+    return CONFIG.HMAC_SIGNING_SECRET ?? (CONFIG.TWITCH_CLIENT_SECRET as string);
+}
 
 const signState = (payload: object): string => {
-    const data = Buffer.from(JSON.stringify(payload)).toString('base64');
-    const secret = CONFIG.TWITCH_CLIENT_SECRET as string;
+    const data = Buffer.from(
+        JSON.stringify({ ...payload, exp: Date.now() + STATE_TTL_MS })
+    ).toString('base64');
+    const secret = getHmacSecret();
     const sig = crypto.createHmac('sha256', secret).update(data).digest('hex');
     return `${data}.${sig}`;
 };
@@ -25,11 +34,21 @@ export const verifyState = (state: string): Record<string, unknown> | null => {
     if (lastDot === -1) return null;
     const data = state.slice(0, lastDot);
     const sig = state.slice(lastDot + 1);
-    const secret = CONFIG.TWITCH_CLIENT_SECRET as string;
+    const secret = getHmacSecret();
     const expected = crypto.createHmac('sha256', secret).update(data).digest('hex');
-    if (!crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) return null;
     try {
-        return JSON.parse(Buffer.from(data, 'base64').toString());
+        if (!crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) {
+            return null;
+        }
+    } catch {
+        return null;
+    }
+    try {
+        const parsed = JSON.parse(Buffer.from(data, 'base64').toString()) as Record<string, unknown> & {
+            exp?: number;
+        };
+        if (!parsed.exp || parsed.exp < Date.now()) return null;
+        return parsed;
     } catch {
         return null;
     }
@@ -37,7 +56,36 @@ export const verifyState = (state: string): Record<string, unknown> | null => {
 
 const AUTH_EXCHANGE_TTL_MS = 5 * 60 * 1000;
 /** Token de solo lectura para OBS — no expone la API key maestra. */
-const OVERLAY_READ_TTL_MS = 365 * 24 * 60 * 60 * 1000;
+const OVERLAY_READ_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
+const authExchangeBurnMemory = new BoundedMap<string, number>(500);
+
+function authExchangeBurnHash(token: string): string {
+    return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+/** Canje único del token HMAC post-OAuth. false = ya canjeado (replay). */
+export async function consumeAuthExchangeToken(token: string): Promise<boolean> {
+    const hash = authExchangeBurnHash(token);
+    const memExpiry = authExchangeBurnMemory.get(hash);
+    if (memExpiry && memExpiry > Date.now()) {
+        return false;
+    }
+    if (memExpiry) authExchangeBurnMemory.delete(hash);
+
+    const kvKey = `auth:exchange:burn:${hash}`;
+    const ttlSec = Math.ceil(AUTH_EXCHANGE_TTL_MS / 1000);
+    const claimed = await cacheService.setIfAbsent(kvKey, '1', ttlSec);
+    if (!claimed) {
+        authExchangeBurnMemory.set(hash, Date.now() + AUTH_EXCHANGE_TTL_MS);
+        return false;
+    }
+
+    authExchangeBurnMemory.set(hash, Date.now() + AUTH_EXCHANGE_TTL_MS);
+    return true;
+}
+
+export const overlayRevokeKey = (userId: string): string => `cache:overlay:revoke:${userId}`;
 
 export interface AuthExchangePayload {
     apiKey: string;
@@ -50,7 +98,7 @@ export interface AuthExchangePayload {
 export const signAuthExchange = (payload: AuthExchangePayload): string => {
     const data = { ...payload, exp: Date.now() + AUTH_EXCHANGE_TTL_MS };
     const encoded = Buffer.from(JSON.stringify(data)).toString('base64url');
-    const secret = CONFIG.TWITCH_CLIENT_SECRET as string;
+    const secret = getHmacSecret();
     const sig = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
     return `${encoded}.${sig}`;
 };
@@ -61,12 +109,20 @@ export interface OverlayReadPayload {
     login: string;
     displayName: string;
     profile_image_url?: string;
+    /** Epoch ms — emisión del token (revocación por invalidación de caché). */
+    iat?: number;
 }
 
 export const signOverlayReadToken = (payload: OverlayReadPayload): string => {
-    const data = { ...payload, scope: 'overlay:read', exp: Date.now() + OVERLAY_READ_TTL_MS };
+    const iat = Date.now();
+    const data = {
+        ...payload,
+        scope: 'overlay:read',
+        iat,
+        exp: iat + OVERLAY_READ_TTL_MS
+    };
     const encoded = Buffer.from(JSON.stringify(data)).toString('base64url');
-    const secret = CONFIG.TWITCH_CLIENT_SECRET as string;
+    const secret = getHmacSecret();
     const sig = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
     return `${encoded}.${sig}`;
 };
@@ -82,7 +138,7 @@ export const verifyOverlayReadToken = (token: string): OverlayReadPayload | null
     if (lastDot === -1) return null;
     const encoded = token.slice(0, lastDot);
     const sig = token.slice(lastDot + 1);
-    const secret = CONFIG.TWITCH_CLIENT_SECRET as string;
+    const secret = getHmacSecret();
     const expected = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
     try {
         if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
@@ -96,12 +152,13 @@ export const verifyOverlayReadToken = (token: string): OverlayReadPayload | null
         };
         if (data.scope !== 'overlay:read' || !data.exp || data.exp < Date.now()) return null;
         if (!data.userId || !data.tool || !data.login) return null;
-        const payload = {
+        const payload: OverlayReadPayload = {
             userId: data.userId,
             tool: data.tool,
             login: data.login,
             displayName: data.displayName || data.login,
-            profile_image_url: data.profile_image_url
+            profile_image_url: data.profile_image_url,
+            iat: data.iat
         };
         overlayTokenCache.set(token, {
             payload,
@@ -113,12 +170,19 @@ export const verifyOverlayReadToken = (token: string): OverlayReadPayload | null
     }
 };
 
+/** Tokens emitidos antes de la revocación (regenerate-key, delete-account) quedan invalidados. */
+export async function isOverlayTokenRevoked(payload: OverlayReadPayload): Promise<boolean> {
+    if (!payload.iat) return false;
+    const revokedAt = await cacheService.get<number>(overlayRevokeKey(payload.userId));
+    return typeof revokedAt === 'number' && payload.iat < revokedAt;
+}
+
 export const verifyAuthExchange = (token: string): AuthExchangePayload | null => {
     const lastDot = token.lastIndexOf('.');
     if (lastDot === -1) return null;
     const encoded = token.slice(0, lastDot);
     const sig = token.slice(lastDot + 1);
-    const secret = CONFIG.TWITCH_CLIENT_SECRET as string;
+    const secret = getHmacSecret();
     const expected = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
     try {
         if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
@@ -279,7 +343,7 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
         const user = await dbService.getUser(userId);
         if (!user || !user.refreshToken) {
             logger.error(`❌ Error renovando token: Usuario ${userId} no tiene Refresh Token.`);
-            throw new Error('Usuario no encontrado o sin refresh token');
+            throw new AppError(MESSAGES.AUTH.NO_REFRESH_TOKEN, 401);
         }
 
         let timeoutId: NodeJS.Timeout | undefined;
@@ -323,7 +387,7 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
             } else {
                 logger.error('❌ Error renovando token:', { userId, error });
             }
-            throw new Error('No se pudo renovar el token. Relogueate.');
+            throw new AppError(MESSAGES.AUTH.RENEW_ERROR, 401);
         } finally {
             if (timeoutId) clearTimeout(timeoutId);
             refreshPromises.delete(userId);
@@ -391,9 +455,7 @@ const ensureValidToken = async (
         } catch (_error) {
             if (Date.now() > expiresAt) {
                 logger.error(`Token expirado y refresh falló para ${errorPrefix} ${user.userId}`);
-                throw new Error(
-                    'Sesión expirada. Por favor, vuelve a autenticarte o pide ayuda a Ponss 🦆'
-                );
+                throw new AppError(MESSAGES.AUTH.SESSION_EXPIRED, 401);
             }
             logger.warn(
                 `Refresh falló pero token aún válido para ${errorPrefix} ${user.userId}, usando token actual`
@@ -408,7 +470,7 @@ export const getValidTokenByLogin = async (
     login: string
 ): Promise<{ accessToken: string; userId: string }> => {
     const user = await dbService.getUserByLogin(login);
-    if (!user) throw new Error('Usuario no encontrado en la base de datos');
+    if (!user) throw new AppError(MESSAGES.AUTH.USER_NOT_FOUND, 404);
     return ensureValidToken(user, `login ${login}`);
 };
 
@@ -422,7 +484,7 @@ export const getValidToken = async (
     apiKey: string
 ): Promise<{ accessToken: string; userId: string }> => {
     const user = await dbService.getUserByApiKey(apiKey);
-    if (!user) throw new Error('API Key inválida');
+    if (!user) throw new AppError(MESSAGES.AUTH.INVALID_KEY, 401);
     return getValidTokenForUser(user);
 };
 
@@ -434,7 +496,7 @@ export const registerCacheInvalidator = (fn: (userId: string) => void): void => 
 
 export const regenerateApiKey = async (userId: string): Promise<string> => {
     const user = await dbService.getUser(userId);
-    if (!user) throw new Error('Usuario no encontrado');
+    if (!user) throw new AppError(MESSAGES.SYSTEM.USER_NOT_FOUND, 404);
 
     const oldApiKey = user.apiKey;
     const newApiKey = crypto.randomUUID();

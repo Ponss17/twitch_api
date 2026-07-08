@@ -4,6 +4,7 @@ import { logger, clearRequestId, getRequestId, asyncContext } from '../utils/log
 import { isBotCommand, isApiRoute, isJsonApiRoute } from '../utils/routeHelpers';
 import { frontendPagePath, rateLimitPagePath } from '../utils/frontendPaths';
 import { jsonError } from '../utils/jsonResponse';
+import { redactSensitiveUrl } from '../utils/redactSensitiveUrl';
 
 export const errorHandler = async (
     err: {
@@ -93,10 +94,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
         res.locals.requestId = requestId;
 
         if (verboseRequests) {
-            const safeUrl = req.originalUrl.replace(
-                /([?&])(apiKey|token|access_token|refresh_token)=([^&]*)/gi,
-                '$1$2=[REDACTED]'
-            );
+            const safeUrl = redactSensitiveUrl(req.originalUrl);
             logger.info(`→ ${req.method} ${safeUrl}`, {
                 requestId,
                 method: req.method,
@@ -111,10 +109,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
 
         res.on('finish', () => {
             const duration = Date.now() - start;
-            const safeUrl = req.originalUrl.replace(
-                /([?&])(apiKey|token|access_token|refresh_token)=([^&]*)/gi,
-                '$1$2=[REDACTED]'
-            );
+            const safeUrl = redactSensitiveUrl(req.originalUrl);
             const userId = (req as unknown as { user?: { id?: string } }).user?.id;
             const meta = {
                 requestId,

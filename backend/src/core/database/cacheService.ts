@@ -153,6 +153,48 @@ export const set = async <T = unknown>(
     }
 };
 
+/**
+ * SET NX — true si esta instancia ganó el write.
+ * Usado para burns de un solo uso (auth exchange) entre réplicas.
+ */
+export const setIfAbsent = async <T = unknown>(
+    key: string,
+    value: T,
+    ttlSeconds: number = 60
+): Promise<boolean> => {
+    if (getL1<T>(key) !== null) return false;
+
+    const ttlMs = ttlSeconds * 1000;
+
+    if (!isKvWriteAvailable()) {
+        setL1<T>(key, value, ttlMs);
+        L1_TTL_BY_KEY.set(key, ttlMs);
+        return true;
+    }
+
+    try {
+        const result = await kv.set(`twitch_api:${key}`, value, {
+            nx: true,
+            ex: ttlSeconds
+        });
+        if (result === null || result === undefined) {
+            return false;
+        }
+        setL1<T>(key, value, ttlMs);
+        L1_TTL_BY_KEY.set(key, ttlMs);
+        return true;
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            disableKvWrites('KV no permite escritura');
+            setL1<T>(key, value, ttlMs);
+            L1_TTL_BY_KEY.set(key, ttlMs);
+            return true;
+        }
+        console.error(`[Cache] Error KV setIfAbsent (${key}):`, error);
+        return false;
+    }
+};
+
 export const del = async (key: string): Promise<void> => {
     MEMORY_CACHE.delete(key);
     L1_TTL_BY_KEY.delete(key);

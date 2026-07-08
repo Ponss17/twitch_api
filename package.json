@@ -26,6 +26,7 @@
         "type-check": "astro check --tsconfig tsconfig.astro.json && tsc -p tsconfig.backend.json --noEmit",
         "lint": "eslint .",
         "test": "jest --config jest.config.js",
+        "audit:prod": "pnpm audit --audit-level=high",
         "prepare": "husky",
         "smoke": "node scripts/print-smoke.js",
         "test:watch": "jest --config jest.config.js --watch",

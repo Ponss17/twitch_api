@@ -20,6 +20,10 @@ export async function publishOverlayState(
     const fingerprint = overlayStateFingerprint(tool, state);
     if (lastPublishedFingerprint.get(tool) === fingerprint) return;
 
+    // Reserva la huella antes del fetch para evitar PUT duplicados en vuelo
+    // (p. ej. emitState explícito + useEffect de sync en el mismo tick).
+    lastPublishedFingerprint.set(tool, fingerprint);
+
     try {
         const res = await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-state/${tool}`, {
             method: 'PUT',
@@ -31,8 +35,8 @@ export async function publishOverlayState(
             lastPublishedFingerprint.delete(tool);
             return;
         }
-        lastPublishedFingerprint.set(tool, fingerprint);
     } catch (err) {
+        lastPublishedFingerprint.delete(tool);
         debugWarn('[overlay] publishOverlayState failed:', err);
     }
 }

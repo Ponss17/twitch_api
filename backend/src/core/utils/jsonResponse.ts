@@ -12,6 +12,8 @@ export type ApiErrorCode =
     | 'INTERNAL_ERROR'
     | 'MISSING_AUTH'
     | 'INVALID_AUTH'
+    | 'AUTH_ALREADY_USED'
+    | 'OVERLAY_READ_ONLY'
     | 'ACCOUNT_SUSPENDED'
     | 'MISSING_OVERLAY_TOKEN'
     | 'INVALID_OVERLAY_TOKEN';
