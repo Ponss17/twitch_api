@@ -218,7 +218,7 @@ export const handleCallback = async (
         stats: existingUser?.stats,
         totalRequests: existingUser?.totalRequests,
         lastActive: existingUser?.lastActive,
-        timezone: (decodedState?.tz as string) || existingUser?.timezone || 'UTC'
+        timezone: (existingUser?.timezone && existingUser.timezone !== 'UTC') ? existingUser.timezone : ((decodedState?.tz as string) || 'UTC')
     };
 
     if (!refresh_token) {
