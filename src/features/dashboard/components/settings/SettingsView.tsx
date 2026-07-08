@@ -38,18 +38,6 @@ interface ProfileData {
 }
 
 
-function formatMemberSince(iso?: string): string {
-    if (!iso) return '---';
-    try {
-        return new Date(iso).toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        });
-    } catch {
-        return '---';
-    }
-}
 
 export function SettingsView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();

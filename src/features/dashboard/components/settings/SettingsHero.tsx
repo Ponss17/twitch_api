@@ -2,10 +2,10 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { staticPath } from '@/core/config/paths';
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
 import { Heart, Video, Calendar, User } from 'lucide-react';
-import { card, fadeIn } from '@/core/ui/tw';
+
 
 interface SettingsHeroProps {
-    description?: string;
+
     followers?: number;
     broadcasterLabel: string;
     memberSince: string;
@@ -17,7 +17,7 @@ const BROADCASTER_COLORS: Record<string, string> = {
     Streamer: 'border-primary/20 bg-primary/10 text-primary'
 };
 
-export function SettingsHero({ description, followers = 0, broadcasterLabel, memberSince }: SettingsHeroProps) {
+export function SettingsHero({ followers = 0, broadcasterLabel, memberSince }: SettingsHeroProps) {
     const session = useRequiredSession();
     const badgeColor = BROADCASTER_COLORS[broadcasterLabel] ?? BROADCASTER_COLORS.Streamer;
 

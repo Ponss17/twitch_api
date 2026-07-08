@@ -13,7 +13,7 @@ import {
     DropdownPanel,
     DropdownTrigger
 } from '@/shared/ui/Dropdown';
-import { User, LogOut, Menu, Settings } from 'lucide-react';
+import { LogOut, Menu, Settings } from 'lucide-react';
 import { TwitchIcon, PaypalIcon } from '@/shared/ui/icons/BrandIcons';
 const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
 
