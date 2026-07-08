@@ -2,7 +2,7 @@ import React, { useMemo, useEffect } from 'react';
 import { useDashboardPanel, DashboardPanelProvider } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { BarChart3, AlertTriangle } from 'lucide-react';
-import { fadeIn, card } from '@/core/ui/tw';
+import { fadeIn } from '@/core/ui/tw';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { CardHeaderIcon } from '@/shared/ui/Icon';

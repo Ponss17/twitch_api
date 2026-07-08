@@ -1,5 +1,5 @@
 import type { DashboardTab } from '@/core/config/config';
-import { sumDashboardCategoryUsage } from '@/features/dashboard/lib/dashboardStats';
+
 import { SettingsHero } from '@/features/dashboard/components/settings/SettingsHero';
 import { HomeActivityFeed } from '@/features/dashboard/components/home/HomeActivityFeed';
 import { HomeResourcesPanel } from '@/features/dashboard/components/home/HomeResourcesPanel';
@@ -18,7 +18,7 @@ interface HomeViewProps {
 }
 
 function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => void }) {
-    const session = useRequiredSession();
+    useRequiredSession();
     const {
         activity,
         profile,
@@ -61,7 +61,7 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
     return (
         <div className={fadeIn}>
             <SettingsHero
-                description={profile?.description}
+
                 followers={profile?.followers}
                 broadcasterLabel={broadcasterLabel(profile?.broadcaster_type)}
                 memberSince={formatMemberSince(profile?.created_at)}
