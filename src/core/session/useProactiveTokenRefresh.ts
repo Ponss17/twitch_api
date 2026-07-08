@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { Session } from '@/core/config/config';
+import { clearValidateCache } from '@/core/api/auth';
 
 /**
  * Intervalo entre un refresh exitoso y el siguiente chequeo.
@@ -20,6 +21,10 @@ const FALLBACK_REFRESH_INTERVAL_MS = 3.5 * 60 * 60 * 1000; // 3.5 horas
  * calcula cuándo vence el token y programa un setTimeout que llama a
  * `refresh()` (del SessionContext) antes de que expire.
  *
+ * IMPORTANTE: limpia el caché de validate antes de llamar refresh(),
+ * de lo contrario validateSession() devolvería el caché local sin llegar
+ * al backend, y el token de Twitch nunca se renovaría.
+ *
  * Tras cada refresh exitoso, reprograma el siguiente timer automáticamente,
  * logrando una sesión que se mantiene viva indefinidamente sin acción del usuario.
  *
@@ -34,6 +39,9 @@ export function useProactiveTokenRefresh(
 ): void {
     const refreshRef = useRef(refresh);
     refreshRef.current = refresh;
+
+    const sessionRef = useRef(session);
+    sessionRef.current = session;
 
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -62,6 +70,11 @@ export function useProactiveTokenRefresh(
             }
 
             timerRef.current = setTimeout(async () => {
+                // CRÍTICO: limpiar el caché de validate antes de llamar refresh().
+                // Sin esto, validateSession() devuelve el caché local (TTL 4h) sin
+                // llegar al backend, y el token de Twitch nunca se renueva.
+                clearValidateCache(sessionRef.current);
+
                 try {
                     await refreshRef.current();
                     // Tras un refresh exitoso, reprogramar el siguiente
