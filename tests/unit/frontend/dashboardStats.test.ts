@@ -1,5 +1,6 @@
 import {
     EMPTY_DASHBOARD_LIVE_STATS,
+    getTodayRequestsTotal,
     isStatsDateOutdated,
     mergeDashboardStats,
     mergeTimeSeriesPatch,
@@ -94,6 +95,28 @@ describe('sumDashboardCategoryUsage', () => {
     });
 });
 
+describe('getTodayRequestsTotal', () => {
+    it('usa today_requests cuando es mayor que la suma por comando', () => {
+        expect(
+            getTodayRequestsTotal({
+                todayRequests: 12,
+                followage: 2,
+                clips: 1
+            })
+        ).toBe(12);
+    });
+
+    it('complementa con la suma por comando si today_requests va rezagado', () => {
+        expect(
+            getTodayRequestsTotal({
+                todayRequests: 1,
+                followage: 2,
+                clips: 1
+            })
+        ).toBe(3);
+    });
+});
+
 describe('mergeTimeSeriesPatch', () => {
     it('agrega una fila nueva al timeSeries', () => {
         expect(
@@ -175,6 +198,7 @@ describe('mergeDashboardStats', () => {
             })
         ).toMatchObject({
             followage: 2,
+            todayRequests: 2,
             timeSeries: [
                 {
                     date: '2026-07-08',
@@ -184,6 +208,25 @@ describe('mergeDashboardStats', () => {
                     latency_sum: 80
                 }
             ]
+        });
+    });
+
+    it('actualiza todayRequests cuando llega today_requests por realtime', () => {
+        const prev = {
+            ...EMPTY_DASHBOARD_LIVE_STATS,
+            followage: 2,
+            todayRequests: 2
+        };
+
+        expect(
+            mergeDashboardStats(prev, {
+                todayRequests: 5,
+                rawSuccessRate: 100,
+                avgLatencyMs: 40
+            })
+        ).toMatchObject({
+            todayRequests: 5,
+            followage: 2
         });
     });
 });

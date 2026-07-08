@@ -35,6 +35,15 @@ export function sumDashboardCategoryUsage(
     return DASHBOARD_USAGE_KEYS.reduce((sum, key) => sum + (stats[key] ?? 0), 0);
 }
 
+/** Total de peticiones de hoy: prioriza `today_requests` y complementa con la suma por comando. */
+export function getTodayRequestsTotal(
+    stats: Partial<Pick<DashboardLiveStats, DashboardUsageKey | 'todayRequests'>>
+): number {
+    const fromCounter = stats.todayRequests ?? 0;
+    const fromUsage = sumDashboardCategoryUsage(stats);
+    return Math.max(fromCounter, fromUsage);
+}
+
 /** Stats en vivo desde `user_stats` (Realtime o API). */
 export interface DashboardLiveStats {
     todayRequests: number;
@@ -93,6 +102,7 @@ export function mergeDashboardStats(
     if (__dailyStatsPatch) {
         merged.timeSeries = mergeTimeSeriesPatch(prev.timeSeries, __dailyStatsPatch);
     }
+    merged.todayRequests = getTodayRequestsTotal(merged);
     return merged;
 }
 
