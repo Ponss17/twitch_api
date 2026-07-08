@@ -28,7 +28,9 @@ export interface ResolvedUserLimits {
 }
 
 export function normalizeUserRole(role?: string | null): UserRole {
-    if (role && role in USER_ROLES) return role as UserRole;
+    if (!role) return DEFAULT_USER_ROLE;
+    const lowerRole = role.toLowerCase();
+    if (lowerRole in USER_ROLES) return lowerRole as UserRole;
     return DEFAULT_USER_ROLE;
 }
 
