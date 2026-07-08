@@ -35,27 +35,33 @@ export const getUserInfo = async (username: string, token: string): Promise<Twit
 
     await checkCircuit();
     const headers = getHeaders(token);
-    const response = await apiClient.get(
-        `https://api.twitch.tv/helix/users?login=${encodeURIComponent(username)}`,
-        {
-            headers
+    
+    try {
+        const response = await apiClient.get(
+            `https://api.twitch.tv/helix/users?login=${encodeURIComponent(username)}`,
+            {
+                headers
+            }
+        );
+
+        if (response.data.data.length === 0) {
+            throw new TwitchApiError(`El usuario/canal ${username} no existe.`, 404);
         }
-    );
 
-    if (response.data.data.length === 0) {
-        throw new TwitchApiError(`El usuario/canal ${username} no existe.`, 404);
+        recordSuccess();
+        const user = response.data.data[0];
+
+        if (userInfoCache.size >= MAX_USER_INFO_CACHE) {
+            const first = userInfoCache.keys().next().value;
+            if (first) userInfoCache.delete(first);
+        }
+        userInfoCache.set(username.toLowerCase(), { data: user, expiry: Date.now() + USER_INFO_TTL });
+
+        return user;
+    } catch (error) {
+        if (error instanceof TwitchApiError) throw error;
+        return handleTwitchError(error, `getUserInfo(${username})`);
     }
-
-    recordSuccess();
-    const user = response.data.data[0];
-
-    if (userInfoCache.size >= MAX_USER_INFO_CACHE) {
-        const first = userInfoCache.keys().next().value;
-        if (first) userInfoCache.delete(first);
-    }
-    userInfoCache.set(username.toLowerCase(), { data: user, expiry: Date.now() + USER_INFO_TTL });
-
-    return user;
 };
 
 export const getFollowAge = async (
