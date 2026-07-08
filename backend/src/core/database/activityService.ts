@@ -2,35 +2,18 @@ import { supabase } from './supabaseClient';
 import { logger } from '../utils/logger';
 import * as cacheService from './cacheService';
 import { ANONYMOUS_USER_ID } from '../../types/constants';
+import type {
+    ActivityLogEntry,
+    DashboardActivityLog
+} from '../schemas/dashboardContracts';
+
+export type { ActivityLogEntry } from '../schemas/dashboardContracts';
+export type StoredActivityLog = DashboardActivityLog;
 
 const MAX_USER_LOGS = 50;
 const TRIM_THROTTLE_MS = 60_000;
 const trimThrottle = new Map<string, number>();
 const MAX_TRIM_THROTTLE_SIZE = 500;
-
-export interface ActivityLogEntry {
-    type:
-        | 'clip'
-        | 'followage'
-        | 'shoutout'
-        | 'message'
-        | 'russian'
-        | 'magic8'
-        | 'duel'
-        | 'stalker'
-        | 'trends'
-        | 'roulette'
-        | 'other';
-    user: string;
-    metadata?: Record<string, unknown>;
-}
-
-export interface StoredActivityLog {
-    timestamp: string;
-    type: string;
-    user: string;
-    metadata?: Record<string, unknown>;
-}
 
 export const addUserActivity = async (userId: string, entry: ActivityLogEntry): Promise<void> => {
     if (userId === ANONYMOUS_USER_ID) return;

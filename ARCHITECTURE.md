@@ -230,6 +230,7 @@ Puntos **fuera** del cierre de auditoría jul 2026 — no mezclar con parches de
 | ID | Tema | Detalle |
 |----|------|---------|
 | **🔴9** | Subir a **pnpm 11** | Migración deliberada: `pnpm-workspace.yaml`, `allowBuilds`, revisar CI y Vercel. No usar `package.json#pnpm.overrides` (ignorado en v11). Punto aparte de deploy. |
+| **🟡** | Shared contracts FE/BE | `DashboardProfile` / activity: fuente en `backend/src/core/schemas/dashboardContracts.ts` (`@contracts/*`). Analytics payload aún tipado suelto. |
 | **🟡** | Tests `frontendPaths` + `dist/` | `tests/unit/frontendPaths.test.ts` puede flakear si `pnpm test` y `pnpm build` corren en paralelo (dist/ a medias). CI serial no falla; opcional: evaluar existencia por test o mover al job build. |
 | **🟡** | Smoke prod desactualizado en notas locales | Checklist en `docs/SMOKE-PROD.md` (local) aún menciona `/api/twitch/`; producción canónica es `https://ttv.losperris.dev`. |
 

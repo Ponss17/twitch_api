@@ -43,7 +43,8 @@ module.exports = {
             testMatch: ['<rootDir>/tests/unit/frontend/**/*.test.ts', '<rootDir>/tests/unit/frontend/**/*.test.tsx'],
             transform: frontendTransform,
             moduleNameMapper: {
-                '^@/(.*)$': '<rootDir>/src/$1'
+                '^@/(.*)$': '<rootDir>/src/$1',
+                '^@contracts/(.*)$': '<rootDir>/backend/src/core/schemas/$1'
             },
             setupFilesAfterEnv: ['<rootDir>/tests/frontend/setup.ts'],
             modulePathIgnorePatterns: ['<rootDir>/dist/'],
