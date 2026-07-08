@@ -7,8 +7,10 @@ import { sessionFingerprint } from '@/core/session/localPrefs';
 const SESSION_KEY = 'twitch_api_session';
 const VALIDATE_CACHE_BASE = 'twitch_validate_cache';
 const LEGACY_VALIDATE_CACHE_KEY = 'twitch_validate_cache';
-/** Revalidación en servidor; caché en localStorage para sobrevivir cierres de pestaña */
-const VALIDATE_TTL_MS = 4 * 60 * 60 * 1000;
+/** Caché de validate en localStorage; TTL dinámico según tokenExpiresAt o 1h sin OAuth. */
+const VALIDATE_CACHE_MAX_TTL_MS = 60 * 60 * 1000;
+/** Con OAuth: no reutilizar caché cerca del vencimiento (alineado con useProactiveTokenRefresh). */
+const VALIDATE_CACHE_OAUTH_BUFFER_MS = 35 * 60 * 1000;
 /** Tras OAuth / login nuevo — splash con barra de progreso en el dashboard */
 const DASHBOARD_SPLASH_KEY = 'dashboard_splash';
 const DASHBOARD_SPLASH_FRESH_KEY = 'dashboard_splash_fresh';
@@ -40,6 +42,37 @@ function stripValidateCachePayload(result: ApiResponse): ApiResponse {
 
 function validateCacheKey(session: Session): string {
     return `${VALIDATE_CACHE_BASE}_${sessionFingerprint(session)}`;
+}
+
+type ValidateCacheEntry = { at: number; result: ApiResponse };
+
+function resolveTokenExpiresAt(cached: ValidateCacheEntry, session: Session): number | null {
+    const fromResult = cached.result.tokenExpiresAt;
+    if (typeof fromResult === 'number' && fromResult > 0) return fromResult;
+
+    if (typeof session.tokenExpiresAt === 'number' && session.tokenExpiresAt > 0) {
+        return session.tokenExpiresAt;
+    }
+
+    const stored = getSession();
+    if (typeof stored?.tokenExpiresAt === 'number' && stored.tokenExpiresAt > 0) {
+        return stored.tokenExpiresAt;
+    }
+
+    return null;
+}
+
+function isValidateCacheFresh(cached: ValidateCacheEntry, session: Session): boolean {
+    if (cached.result.valid !== true) return false;
+
+    const now = Date.now();
+    const tokenExpiresAt = resolveTokenExpiresAt(cached, session);
+
+    if (tokenExpiresAt) {
+        return now < tokenExpiresAt - VALIDATE_CACHE_OAUTH_BUFFER_MS;
+    }
+
+    return now - cached.at < VALIDATE_CACHE_MAX_TTL_MS;
 }
 
 /** Elimina el caché de validate para forzar una revalidación real contra el servidor.
@@ -309,8 +342,8 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
             const cacheKey = validateCacheKey(session);
             const raw = localStorage.getItem(cacheKey);
             if (raw) {
-                const cached = JSON.parse(raw) as { at: number; result: ApiResponse };
-                if (Date.now() - cached.at < VALIDATE_TTL_MS && cached.result.valid === true) {
+                const cached = JSON.parse(raw) as ValidateCacheEntry;
+                if (isValidateCacheFresh(cached, session)) {
                     reportSessionLoadProgress({
                         progress: 48,
                         label: 'Sesión validada (caché local)',
@@ -318,6 +351,7 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
                     });
                     return stripValidateCachePayload(cached.result);
                 }
+                clearValidateCache(session);
             }
         } catch {
             clearValidateCache(session);
