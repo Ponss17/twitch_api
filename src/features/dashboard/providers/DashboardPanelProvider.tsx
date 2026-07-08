@@ -40,6 +40,7 @@ const REALTIME_SAFETY_POLL_MS = 120_000;
 export interface DashboardPanelContextValue {
     stats: DashboardLiveStats;
     activity: ActivityLogItem[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     profile: any;
     hasLiveData: boolean;
     error: string | null;
@@ -74,6 +75,7 @@ export function DashboardPanelProvider({
 }: DashboardPanelProviderProps) {
     const [stats, setStats] = useState<DashboardLiveStats>(EMPTY_DASHBOARD_LIVE_STATS);
     const [activity, setActivity] = useState<ActivityLogItem[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [profile, setProfile] = useState<any>(null);
     const [hasLiveData, setHasLiveData] = useState(false);
     const [error, setError] = useState<string | null>(null);

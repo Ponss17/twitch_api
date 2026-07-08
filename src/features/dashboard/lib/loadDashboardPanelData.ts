@@ -15,6 +15,7 @@ export interface DashboardPanelLoadResult {
     /** false cuando el endpoint de summary falló — el caller debe conservar los stats anteriores. */
     analyticsLoaded: boolean;
     activity: ActivityLogItem[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     profile: any; // We will use any to avoid importing ProfileData type, but we should import it if possible
     partialFailure?: unknown;
 }
@@ -31,6 +32,7 @@ export async function loadDashboardPanelData(
 
     let analytics: DashboardLiveStats = EMPTY_DASHBOARD_LIVE_STATS;
     let activity: ActivityLogItem[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let profile: any = null;
     const failures: unknown[] = [];
 
