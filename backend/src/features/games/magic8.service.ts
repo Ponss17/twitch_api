@@ -1,6 +1,7 @@
 import { CONFIG } from '../../core/config/env';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
+import { AppError } from '../../core/errors/AppError';
 import { MAGIC8_REASONING_RULES, buildMagic8UserMessage } from './magic8Question';
 import { MAGIC8_MOODS, resolveMagic8Mood } from './magic8Moods';
 
@@ -11,7 +12,7 @@ let groqClient: GroqClient | null = null;
 async function getGroqClient(): Promise<GroqClient> {
     const apiKey = CONFIG.GROQ_API_KEY?.trim();
     if (!apiKey) {
-        throw new Error(MESSAGES.MAGIC8.MISSING_API_KEY);
+        throw new AppError(MESSAGES.MAGIC8.MISSING_API_KEY, 503);
     }
     if (!groqClient) {
         const { default: Groq } = await import('groq-sdk');
@@ -50,22 +51,25 @@ export async function generateMagic8Response(
         const resolvedMood = resolveMagic8Mood(mood);
         const { temperature } = MAGIC8_MOODS[resolvedMood];
 
-        const completion = await (await getGroqClient()).chat.completions.create({
-            messages: [
-                {
-                    role: 'system',
-                    content: buildSystemPrompt(resolvedMood, userName)
-                },
-                {
-                    role: 'user',
-                    content: buildMagic8UserMessage(question, userName, resolvedMood)
-                }
-            ],
-            model: 'llama-3.3-70b-versatile',
-            temperature,
-            max_tokens: 180,
-            top_p: 0.95
-        });
+        const completion = await (await getGroqClient()).chat.completions.create(
+            {
+                messages: [
+                    {
+                        role: 'system',
+                        content: buildSystemPrompt(resolvedMood, userName)
+                    },
+                    {
+                        role: 'user',
+                        content: buildMagic8UserMessage(question, userName, resolvedMood)
+                    }
+                ],
+                model: 'llama-3.3-70b-versatile',
+                temperature,
+                max_tokens: 180,
+                top_p: 0.95
+            },
+            { timeout: 10_000 }
+        );
 
         const rawContent =
             completion.choices[0]?.message?.content ||
@@ -80,6 +84,6 @@ export async function generateMagic8Response(
         return finalContent;
     } catch (error) {
         logger.error('Error en Groq API:', error);
-        throw new Error('Error al consultar la Bola 8 Mágica');
+        throw new AppError(MESSAGES.MAGIC8.GROQ_ERROR, 503);
     }
 }

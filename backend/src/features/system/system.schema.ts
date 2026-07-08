@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+export const regenerateKeySchema = z.object({
+    body: z.object({}).optional()
+});
+
 export const submitFeedbackSchema = z.object({
     body: z.object({
         message: z

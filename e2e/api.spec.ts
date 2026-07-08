@@ -43,4 +43,22 @@ test.describe('API (Express real)', () => {
         expect(body.error.code).toBe('MISSING_AUTH');
         expect(body.error.message.length).toBeGreaterThan(0);
     });
+
+    test('followage con apiKey inválida responde texto plano HTTP 200 (Nightbot)', async ({
+        request
+    }) => {
+        const res = await request.get(`${API}/followage`, {
+            params: {
+                apiKey: '00000000-0000-0000-0000-000000000000',
+                user: 'testuser',
+                channel: 'testchannel'
+            },
+            headers: { Accept: 'text/plain' }
+        });
+
+        expect(res.status()).toBe(200);
+        const text = await res.text();
+        expect(text.length).toBeGreaterThan(0);
+        expect(text).not.toMatch(/^\s*\{/);
+    });
 });

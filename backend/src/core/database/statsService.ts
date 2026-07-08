@@ -34,10 +34,17 @@ const STATS_CACHE = new Map<
 >();
 const STATS_TTL = 60 * 1000; // 60s — más eficiente en serverless (warm start aprovecha mejor el cache en memoria)
 const MAX_STATS_CACHE_SIZE = 500;
+const REVISION_BUMP_DEBOUNCE_MS = 5000;
+const revisionBumpTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
 export function invalidateStatsCache(userId: string): void {
     STATS_CACHE.delete(userId);
     EXISTS_CACHE.delete(userId);
+    const pending = revisionBumpTimers.get(userId);
+    if (pending) {
+        clearTimeout(pending);
+        revisionBumpTimers.delete(userId);
+    }
 }
 const dateFormatterCache = new Map<string, Intl.DateTimeFormat>();
 
@@ -74,9 +81,16 @@ async function notifyStatsMutated(userId: string, options?: { invalidateAnalytic
             logger.warn('Error invalidando analytics KV:', e)
         );
     }
-    await cacheService.bumpStatsRevision(userId).catch((e) =>
-        logger.warn('Error bump stats revision:', e)
-    );
+    if (revisionBumpTimers.has(userId)) {
+        return;
+    }
+    const timer = setTimeout(() => {
+        revisionBumpTimers.delete(userId);
+        void cacheService.bumpStatsRevision(userId).catch((e) =>
+            logger.warn('Error bump stats revision:', e)
+        );
+    }, REVISION_BUMP_DEBOUNCE_MS);
+    revisionBumpTimers.set(userId, timer);
 }
 
 // Asegura que exista la fila de stats para el usuario antes de incrementar

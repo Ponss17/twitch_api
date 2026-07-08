@@ -14,7 +14,9 @@ export const MESSAGES = {
         MISSING_TOKEN_URL: 'Error: Falta API Key. Debes incluir ?apiKey=TU_KEY en la URL.',
         API_KEY_REQUIRED:
             '🔑 API Key requerida. Obtén tu llave en el Dashboard para usar esta ruta.',
-        RATE_LIMIT_EXCEEDED: '⚠️ Has excedido el límite de peticiones. Por favor, espera un minuto.'
+        RATE_LIMIT_EXCEEDED: '⚠️ Has excedido el límite de peticiones. Por favor, espera un minuto.',
+        SESSION_EXPIRED:
+            'Sesión expirada. Por favor, vuelve a autenticarte o pide ayuda a Ponss 🦆'
     },
     SYSTEM: {
         KEY_REQUIRED: 'Key requerida',

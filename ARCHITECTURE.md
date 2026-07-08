@@ -113,6 +113,7 @@ Peticiones a `/api/*` se proxean al backend `:3000`.
 
 ```
 TWITCH_CLIENT_ID / TWITCH_CLIENT_SECRET / ENCRYPTION_KEY
+HMAC_SIGNING_SECRET (≥32, obligatorio en producción)
 TWITCH_REDIRECT_URI=https://ttv.losperris.dev/api/auth/twitch/callback
 BASE_URL=https://ttv.losperris.dev/api
 FRONTEND_URL=https://ttv.losperris.dev
@@ -120,6 +121,8 @@ SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / SUPABASE_ANON_KEY / SUPABASE_JWT_SECR
 KV_REST_API_URL + KV_REST_API_TOKEN
 GROQ_API_KEY (opcional — Bola 8)
 ```
+
+**Rate limit dashboard:** sesiones OAuth usan L1 RAM por instancia (500/min) a propósito para no gastar ops KV; bots/API key usan KV. El límite efectivo multi-réplica puede ser N×500 — riesgo aceptado.
 
 ## Estructura del frontend (`src/`)
 
@@ -206,7 +209,7 @@ Rutas **dashboard**, **system** y **auth/exchange** devuelven errores con forma 
 ## Validación
 
 - **Backend**: Zod (`*.schema.ts`, `env.ts`)
-- **Tests**: Jest (`pnpm test`) — 339 tests · Playwright E2E en CI
+- **Tests**: Jest (`pnpm test`) — ~364 tests · Playwright E2E en CI
 - **E2E**: Playwright smoke (`pnpm test:e2e`)
 - **CI**: GitHub Actions en push/PR
 
@@ -227,15 +230,19 @@ Puntos **fuera** del cierre de auditoría jul 2026 — no mezclar con parches de
 | ID | Tema | Detalle |
 |----|------|---------|
 | **🔴9** | Subir a **pnpm 11** | Migración deliberada: `pnpm-workspace.yaml`, `allowBuilds`, revisar CI y Vercel. No usar `package.json#pnpm.overrides` (ignorado en v11). Punto aparte de deploy. |
-| **🟡** | URLs legacy en CI | `.github/workflows/ci.yml` — `TWITCH_REDIRECT_URI` y `BASE_URL` aún apuntan a `www.losperris.dev/api/twitch`. Alinear con `ttv.losperris.dev` cuando se toque CI. |
 | **🟡** | Tests `frontendPaths` + `dist/` | `tests/unit/frontendPaths.test.ts` puede flakear si `pnpm test` y `pnpm build` corren en paralelo (dist/ a medias). CI serial no falla; opcional: evaluar existencia por test o mover al job build. |
 | **🟡** | Smoke prod desactualizado en notas locales | Checklist en `docs/SMOKE-PROD.md` (local) aún menciona `/api/twitch/`; producción canónica es `https://ttv.losperris.dev`. |
+
+### Cierre auditoría jul 2026 (aplicado en código)
+
+- Overlay scope global, auth exchange single-use, delete-account CASCADE, AES-GCM, `HMAC_SIGNING_SECRET` **obligatorio en prod**, OAuth state con `exp`, circuit breaker en interceptor axios (+ `recordSuccess` en respuestas Helix), CI URLs canónicas, `pnpm audit` en CI, timezone dashboard alineado con perfil, debounce stats revision bump, invalidación caches Helix, redacción unificada de query secrets en logs, heavy RL con fallback L1.
 
 ## Documentación
 
 | Qué | Dónde |
 |-----|--------|
 | Arquitectura y contratos | `ARCHITECTURE.md` (este archivo) |
+| Documentación completa (file-by-file) | `DOCUMENTATION.md` |
 | Inicio rápido | `README.md` |
 | SQL Supabase prod | `scripts/supabase/optimizations.sql` |
 | Notas internas / IA / planes | Carpeta `docs/` — **solo local**, en `.gitignore`, no se publica en GitHub |

@@ -204,7 +204,8 @@ BEGIN
           AND p.proname IN (
               'increment_user_stat',
               'record_user_request',
-              'trim_activity_logs'
+              'trim_activity_logs',
+              'log_user_request'
           )
     LOOP
         EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC', fn);

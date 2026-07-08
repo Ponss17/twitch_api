@@ -313,6 +313,8 @@ export function useRouletteController({
 
         setWheelTransition('none');
         wheelTransitionRef.current = 'none';
+        // Un solo PUT: OBS anima con targetRotation/spinDuration (applyRouletteSpin).
+        // El rAF solo mueve la ruleta del panel — no republicar (huella distinta = 2º PUT).
         emitState({
             isSpinning: true,
             winner: null,
@@ -328,7 +330,6 @@ export function useRouletteController({
             wheelTransitionRef.current = transition;
             setWheelRotation(targetRotation);
             wheelRotationRef.current = targetRotation;
-            emitState({ wheelTransition: transition, wheelRotation: targetRotation });
         });
     }, [chatters, finishSpin, emitState]);
 

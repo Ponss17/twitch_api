@@ -60,14 +60,18 @@ export const trackRequest = async <T>(
         const latency = Date.now() - startTime;
 
         if (userId) {
-            await persistRequestMetrics(userId, options, latency, true);
+            void persistRequestMetrics(userId, options, latency, true).catch((err) => {
+                logger.error('Error en métricas background (éxito):', err);
+            });
         }
 
         return result;
     } catch (error) {
         const latency = Date.now() - startTime;
         if (userId) {
-            await persistRequestMetrics(userId, options, latency, false);
+            void persistRequestMetrics(userId, options, latency, false).catch((err) => {
+                logger.error('Error en métricas background (fallo):', err);
+            });
         }
         throw error;
     }

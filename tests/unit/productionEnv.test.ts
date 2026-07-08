@@ -16,6 +16,7 @@ describe('production URL resolution (Vercel)', () => {
         process.env.TWITCH_CLIENT_ID = 'id';
         process.env.TWITCH_CLIENT_SECRET = 'secret';
         process.env.ENCRYPTION_KEY = 'a'.repeat(64);
+        process.env.HMAC_SIGNING_SECRET = 'b'.repeat(64);
         process.env.TWITCH_REDIRECT_URI = 'http://localhost:3000/api/twitch/auth/twitch/callback';
         process.env.BASE_URL = 'http://localhost:3000/api/twitch';
         process.env.FRONTEND_URL = 'http://localhost:4321';
@@ -38,6 +39,7 @@ describe('production URL resolution (Vercel)', () => {
         process.env.TWITCH_CLIENT_ID = 'id';
         process.env.TWITCH_CLIENT_SECRET = 'secret';
         process.env.ENCRYPTION_KEY = 'a'.repeat(64);
+        process.env.HMAC_SIGNING_SECRET = 'b'.repeat(64);
         process.env.TWITCH_REDIRECT_URI = 'http://localhost:3000/api/twitch/auth/twitch/callback';
         process.env.BASE_URL = 'http://localhost:3000/api/twitch';
         delete process.env.FRONTEND_URL;

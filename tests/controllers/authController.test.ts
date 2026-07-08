@@ -5,7 +5,8 @@ jest.mock('../../backend/src/features/auth/auth.service', () => ({
     handleCallback: jest.fn(),
     signAuthExchange: jest.fn().mockReturnValue('signed-auth-token'),
     verifyState: jest.fn(),
-    verifyAuthExchange: jest.fn()
+    verifyAuthExchange: jest.fn(),
+    consumeAuthExchangeToken: jest.fn().mockResolvedValue(true)
 }));
 
 jest.mock('../../backend/src/core/database/dbService', () => ({
@@ -131,11 +132,11 @@ describe('authController', () => {
     });
 
     describe('exchange', () => {
-        it('should return 400 if auth param is missing', () => {
+        it('should return 400 if auth param is missing', async () => {
             const req = mockReq({ query: {} });
             const res = mockRes();
 
-            exchange(req, res);
+            await exchange(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
@@ -147,13 +148,13 @@ describe('authController', () => {
             });
         });
 
-        it('should return 401 if auth token is invalid or expired', () => {
+        it('should return 401 if auth token is invalid or expired', async () => {
             const req = mockReq({ query: { auth: 'bad-token' } });
             const res = mockRes();
 
             (authService.verifyAuthExchange as jest.Mock).mockReturnValue(null);
 
-            exchange(req, res);
+            await exchange(req, res);
 
             expect(res.status).toHaveBeenCalledWith(401);
             expect(res.json).toHaveBeenCalledWith({
@@ -165,7 +166,28 @@ describe('authController', () => {
             });
         });
 
-        it('should return session payload for valid auth token', () => {
+        it('should return 401 if auth token was already consumed', async () => {
+            const req = mockReq({ query: { auth: 'used-token' } });
+            const res = mockRes();
+
+            (authService.verifyAuthExchange as jest.Mock).mockReturnValue({
+                apiKey: 'key_abc',
+                userId: '999',
+                login: 'testuser',
+                displayName: 'TestUser'
+            });
+            (authService.consumeAuthExchangeToken as jest.Mock).mockResolvedValue(false);
+
+            await exchange(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                error: expect.objectContaining({ code: 'AUTH_ALREADY_USED' })
+            });
+        });
+
+        it('should return session payload for valid auth token', async () => {
             const req = mockReq({ query: { auth: 'valid-token' } });
             const res = mockRes();
 
@@ -176,8 +198,9 @@ describe('authController', () => {
                 displayName: 'TestUser',
                 profile_image_url: 'https://img.test/avatar.png'
             });
+            (authService.consumeAuthExchangeToken as jest.Mock).mockResolvedValue(true);
 
-            exchange(req, res);
+            await exchange(req, res);
 
             expect(res.json).toHaveBeenCalledWith({
                 apiKey: 'key_abc',

@@ -9,8 +9,8 @@ env:
     TWITCH_CLIENT_ID: ci_test_id
     TWITCH_CLIENT_SECRET: ci_test_secret
     ENCRYPTION_KEY: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-    TWITCH_REDIRECT_URI: https://www.losperris.dev/api/twitch/auth/twitch/callback
-    BASE_URL: http://localhost:3000/api/twitch
+    TWITCH_REDIRECT_URI: https://ttv.losperris.dev/api/auth/twitch/callback
+    BASE_URL: http://localhost:3000/api
     FRONTEND_URL: http://localhost:4321
     SUPABASE_URL: https://example.supabase.co
     SUPABASE_SERVICE_ROLE_KEY: ci_service_key
@@ -45,6 +45,9 @@ jobs:
             - name: Test
               run: pnpm test
 
+            - name: Security audit (high+)
+              run: pnpm audit --audit-level=high
+
             - name: Build
               run: pnpm run build
 
@@ -56,8 +59,8 @@ jobs:
             TWITCH_CLIENT_ID: ci_test_id
             TWITCH_CLIENT_SECRET: ci_test_secret
             ENCRYPTION_KEY: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-            TWITCH_REDIRECT_URI: https://www.losperris.dev/api/twitch/auth/twitch/callback
-            BASE_URL: http://localhost:3000/api/twitch
+            TWITCH_REDIRECT_URI: https://ttv.losperris.dev/api/auth/twitch/callback
+            BASE_URL: http://localhost:3000/api
             FRONTEND_URL: http://localhost:4321
             SUPABASE_URL: https://example.supabase.co
             SUPABASE_SERVICE_ROLE_KEY: ci_service_key
@@ -88,8 +91,8 @@ jobs:
                   TWITCH_CLIENT_ID=ci_test_id
                   TWITCH_CLIENT_SECRET=ci_test_secret
                   ENCRYPTION_KEY=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                  TWITCH_REDIRECT_URI=https://www.losperris.dev/api/twitch/auth/twitch/callback
-                  BASE_URL=http://localhost:3000/api/twitch
+                  TWITCH_REDIRECT_URI=https://ttv.losperris.dev/api/auth/twitch/callback
+                  BASE_URL=http://localhost:3000/api
                   FRONTEND_URL=http://localhost:4321
                   SUPABASE_URL=https://example.supabase.co
                   SUPABASE_SERVICE_ROLE_KEY=ci_service_key
