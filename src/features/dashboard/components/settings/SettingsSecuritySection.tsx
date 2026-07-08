@@ -83,23 +83,43 @@ export function SettingsSecuritySection({
                         className="flex-1 border-none bg-transparent px-3 py-2 font-[Consolas,monospace] text-[0.9rem] text-white outline-none"
                     />
                     <div className="flex border-l border-white/[0.08] bg-white/[0.02]">
-                        <button type="button" onClick={onToggleKey} title="Ver/Ocultar"
-                            className="flex items-center justify-center border-l border-white/[0.05] px-3 text-zinc-400 transition first:border-l-0 hover:bg-white/[0.05] hover:text-white">
-                            {keyVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        <button
+                            type="button"
+                            onClick={onToggleKey}
+                            title="Ver/Ocultar"
+                            aria-label={keyVisible ? 'Ocultar API Key' : 'Mostrar API Key'}
+                            className="flex items-center justify-center border-l border-white/[0.05] px-3 text-zinc-400 transition first:border-l-0 hover:bg-white/[0.05] hover:text-white"
+                        >
+                            {keyVisible ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
                         </button>
-                        <button type="button" onClick={handleCopyKey} title="Copiar"
-                            className="flex items-center justify-center gap-1.5 border-l border-white/[0.05] px-3 text-[0.82rem] text-zinc-400 transition hover:bg-primary/10 hover:text-primary">
-                            {isKeyCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        <button
+                            type="button"
+                            onClick={handleCopyKey}
+                            title="Copiar"
+                            aria-label={isKeyCopied ? 'API Key copiada' : 'Copiar API Key'}
+                            className="flex items-center justify-center gap-1.5 border-l border-white/[0.05] px-3 text-[0.82rem] text-zinc-400 transition hover:bg-primary/10 hover:text-primary"
+                        >
+                            {isKeyCopied ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
                             <SlotText text={isKeyCopied ? 'Copiado' : 'Copiar'} />
                         </button>
-                        <button type="button" onClick={onRegenKey} title="Regenerar"
-                            className="flex items-center justify-center border-l border-white/[0.05] px-3 text-zinc-400 transition hover:bg-error/[0.08] hover:text-error">
-                            <RotateCw className="w-4 h-4" />
+                        <button
+                            type="button"
+                            onClick={onRegenKey}
+                            title="Regenerar"
+                            aria-label="Regenerar API Key"
+                            className="flex items-center justify-center border-l border-white/[0.05] px-3 text-zinc-400 transition hover:bg-error/[0.08] hover:text-error"
+                        >
+                            <RotateCw className="w-4 h-4" aria-hidden="true" />
                         </button>
-                        <button type="button" onClick={onToggleDanger}
+                        <button
+                            type="button"
+                            onClick={onToggleDanger}
                             title={showDanger ? 'Ocultar Zona de Peligro' : 'Mostrar Zona de Peligro'}
-                            className={`flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] transition hover:bg-error/[0.08] hover:text-error ${showDanger ? 'bg-error text-white hover:bg-error hover:text-white' : 'text-zinc-400'}`}>
-                            <AlertTriangle className="w-4 h-4" />
+                            aria-label={showDanger ? 'Ocultar Zona de Peligro' : 'Mostrar Zona de Peligro'}
+                            aria-expanded={showDanger}
+                            className={`flex items-center justify-center border-l border-white/[0.05] px-3 text-[0.85rem] transition hover:bg-error/[0.08] hover:text-error ${showDanger ? 'bg-error text-white hover:bg-error hover:text-white' : 'text-zinc-400'}`}
+                        >
+                            <AlertTriangle className="w-4 h-4" aria-hidden="true" />
                         </button>
                     </div>
                 </div>

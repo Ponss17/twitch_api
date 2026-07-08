@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { DashboardTab } from '@/core/config/config';
 import { appPath, saveDocsReturnPath } from '@/core/config/paths';
 import { NAV_ITEMS } from '@/features/dashboard/lib/dashboardTabs';
@@ -23,12 +24,46 @@ interface SidebarProps {
 
 export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps) {
     let lastCategory = '';
+    const asideRef = useRef<HTMLElement>(null);
 
     const supportLinkClass = `${sidebarSupportLink} underline decoration-[#52525b] underline-offset-[5px] hover:decoration-primary`;
 
+    // Cerrado en móvil: no debe recibir foco (queda fuera de pantalla).
+    useEffect(() => {
+        const el = asideRef.current;
+        if (!el) return;
+        const applyInert = () => {
+            const desktop = window.matchMedia('(min-width: 1024px)').matches;
+            if (desktop || mobileOpen) {
+                el.removeAttribute('inert');
+                el.removeAttribute('aria-hidden');
+            } else {
+                el.setAttribute('inert', '');
+                el.setAttribute('aria-hidden', 'true');
+            }
+        };
+        applyInert();
+        const mq = window.matchMedia('(min-width: 1024px)');
+        mq.addEventListener('change', applyInert);
+        return () => mq.removeEventListener('change', applyInert);
+    }, [mobileOpen]);
+
+    useEffect(() => {
+        if (!mobileOpen) return;
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [mobileOpen, onClose]);
+
     return (
         <>
-            <aside className={sidebarShell(mobileOpen)}>
+            <aside
+                ref={asideRef}
+                id="dashboard-sidebar"
+                className={sidebarShell(mobileOpen)}
+            >
                 <div className={sidebarBrandHeader}>
                     <AppLogo
                         alt="Logo"
@@ -40,7 +75,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                     </span>
                 </div>
 
-                <nav className={sidebarNavScroll}>
+                <nav className={sidebarNavScroll} aria-label="Navegación del panel">
                     {NAV_ITEMS.map((item) => {
                         const showCategory = item.category !== lastCategory;
                         if (item.category) lastCategory = item.category;
