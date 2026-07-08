@@ -16,7 +16,7 @@ describe('cacheService', () => {
         // Limpiamos caché de memoria (si fuera posible, o simplemente usamos keys únicas)
     });
 
-    it('devuelve valor de KV si no está en memoria (L1 Miss, L2 Hit)', async () => {
+    it('devuelve valor de KV si no está en memoria (L2 Hit)', async () => {
         const key = 'test-key-l2';
         mockKv.get.mockResolvedValue('l2-value');
 
@@ -26,18 +26,7 @@ describe('cacheService', () => {
         expect(mockKv.get).toHaveBeenCalledWith(`twitch_api:${key}`);
     });
 
-    it('devuelve valor de memoria si ya se cargó (L1 Hit)', async () => {
-        const key = 'test-key-l1';
-        mockKv.get.mockResolvedValueOnce('first-time');
-
-        await cacheService.get(key); // Llenamos L1
-        const res = await cacheService.get(key); // Segunda llamada
-
-        expect(res).toBe('first-time');
-        expect(mockKv.get).toHaveBeenCalledTimes(1); // Solo consultó KV una vez
-    });
-
-    it('borra ambos niveles al eliminar (del)', async () => {
+    it('borra de KV al eliminar (del)', async () => {
         const key = 'to-delete';
         await cacheService.set(key, 'val');
         await cacheService.del(key);
