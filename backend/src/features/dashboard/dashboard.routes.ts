@@ -22,8 +22,11 @@ import {
     exportCheckSchema,
     exportCompleteSchema
 } from './overlay/schema';
+import { updateSettingsSchema } from './dashboard.schema';
 
 const router = Router();
+
+router.patch('/settings', csrfProtection, validate(updateSettingsSchema), dashboardController.updateSettings);
 
 router.get('/get-clips', heavyRateLimiter, validate(getClipsSchema), dashboardController.getClips);
 router.get(

@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
     CHATTERS: `${API_BASE}/dashboard/chatters/`,
     USER_INFO: `${API_BASE}/dashboard/user-info/`,
     SUMMARY: `${API_BASE}/dashboard/summary/`,
+    SETTINGS: `${API_BASE}/dashboard/settings/`,
     SEND_MESSAGE: `${API_BASE}/send-message/`,
     CLIPS: `${API_BASE}/dashboard/get-clips/`,
     ACTIVITY: `${API_BASE}/dashboard/activity/`,
