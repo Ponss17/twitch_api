@@ -1,9 +1,8 @@
-import type { ReactNode } from 'react';
 import { useRequiredSession } from '@/core/session/useSession';
 import { staticPath } from '@/core/config/paths';
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
-import { CheckCircle2, Star, User, Key, Heart, Video, Calendar } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { Heart, Video, Calendar, User } from 'lucide-react';
+import { card, fadeIn } from '@/core/ui/tw';
 
 interface ProfileHeroProps {
     description?: string;
@@ -12,126 +11,73 @@ interface ProfileHeroProps {
     memberSince: string;
 }
 
-function ProfileBadge({
-    icon,
-    label,
-    secondary
-}: {
-    icon: LucideIcon;
-    label: string;
-    secondary?: boolean;
-}) {
-    const Icon = icon;
-    return (
-        <span
-            className={`flex items-center gap-1.5 rounded-[10px] px-3.5 py-1.5 text-[0.7rem] font-extrabold uppercase tracking-[0.03em] ${secondary
-                    ? 'border border-primary/20 bg-primary/10 text-primary'
-                    : 'border border-[#10b981]/20 bg-[#10b981]/10 text-[#10b981]'
-                }`}
-        >
-            <Icon className="w-3.5 h-3.5" aria-hidden />
-            {label}
-        </span>
-    );
-}
+const BROADCASTER_COLORS: Record<string, string> = {
+    Partner: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400',
+    Afiliado: 'border-violet-500/20 bg-violet-500/10 text-violet-400',
+    Streamer: 'border-primary/20 bg-primary/10 text-primary'
+};
 
-function ProfileStatItem({
-    icon,
-    value,
-    label,
-    showDivider
-}: {
-    icon: LucideIcon;
-    value: ReactNode;
-    label: string;
-    showDivider?: boolean;
-}) {
-    const Icon = icon;
-    return (
-        <div
-            className={`relative flex items-center gap-2 transition hover:-translate-y-0.5 ${showDivider
-                    ? "after:absolute after:-right-2 after:top-[20%] after:h-[60%] after:w-px after:bg-white/[0.05] after:content-['']"
-                    : ''
-                }`}
-        >
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-[0.9rem] text-primary">
-                <Icon className="w-4 h-4" aria-hidden />
-            </span>
-            <div className="flex flex-col">
-                <span className="text-[0.9rem] font-extrabold text-white">{value}</span>
-                <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.05em] text-[#c4c4cc]">
-                    {label}
-                </span>
-            </div>
-        </div>
-    );
-}
-
-export function ProfileHero({
-    description,
-    followers = 0,
-    broadcasterLabel,
-    memberSince
-}: ProfileHeroProps) {
+export function ProfileHero({ description, followers = 0, broadcasterLabel, memberSince }: ProfileHeroProps) {
     const session = useRequiredSession();
-    const badgePartner = broadcasterLabel === 'Partner';
-    const badgeAffiliate = broadcasterLabel === 'Afiliado';
+    const badgeColor = BROADCASTER_COLORS[broadcasterLabel] ?? BROADCASTER_COLORS.Streamer;
 
     return (
-        <div className="profile-hero mb-4">
-            <div className="relative flex min-h-[120px] flex-col justify-start overflow-hidden rounded-[20px] border border-primary/25 bg-bg-card transition hover:border-primary/50">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/35 via-transparent to-transparent opacity-60" />
-                <div className="relative z-[2] flex flex-row items-center gap-4 px-6 py-4 max-[900px]:flex-col max-[900px]:pb-8 max-[900px]:text-center">
-                    <div className="relative shrink-0 max-[900px]:-mt-[60px]">
-                        <img
-                            src={session.profile_image_url ?? staticPath('/img/logo.svg')}
-                            alt=""
-                            className="h-20 w-20 rounded-xl border-[3px] border-bg-card bg-bg-tertiary object-cover transition duration-300 hover:scale-105 hover:border-primary"
-                            draggable={false}
-                            loading="eager"
-                            fetchPriority="high"
-                        />
-                        <span className="absolute bottom-2 -right-1 h-[22px] w-[22px] animate-pulse-glow rounded-full border-[4px] border-bg-card bg-[#10b981]" />
+        <div className={`${card} ${fadeIn} mb-3 opacity-0 [animation-delay:0ms]`}>
+            {/* Avatar + nombre + badge */}
+            <div className="flex items-center gap-4 border-b border-white/[0.08] pb-3 mb-3">
+                <div className="relative shrink-0">
+                    <img
+                        src={session.profile_image_url ?? staticPath('/img/logo.svg')}
+                        alt=""
+                        className="h-14 w-14 rounded-xl border-2 border-white/10 object-cover"
+                        draggable={false}
+                        loading="eager"
+                    />
+                    <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-bg-card bg-emerald-500" />
+                </div>
+                <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                        <h2 className="text-lg font-bold text-white leading-none">
+                            {session.displayName ?? session.login ?? 'Streamer'}
+                        </h2>
+                        <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-[0.06em] ${badgeColor}`}>
+                            <User className="w-3 h-3" aria-hidden />
+                            {broadcasterLabel}
+                        </span>
                     </div>
+                    <p className="text-[0.82rem] text-zinc-400 leading-snug line-clamp-2">
+                        {description || 'Sin biografía disponible.'}
+                    </p>
+                </div>
+            </div>
 
-                    <div className="min-w-0 flex-1 text-left max-[900px]:items-center max-[900px]:text-center">
-                        <div className="flex flex-wrap items-center gap-4 max-[900px]:justify-center">
-                            <h2 className="m-0 font-[Outfit,sans-serif] text-2xl font-black leading-none tracking-[-0.04em] text-white">
-                                {session.displayName ?? session.login ?? 'Streamer'}
-                            </h2>
-                            <div className="flex flex-wrap gap-2.5">
-                                {badgePartner && (
-                                    <ProfileBadge icon={CheckCircle2} label="Partner de Twitch" />
-                                )}
-                                {badgeAffiliate && !badgePartner && (
-                                    <ProfileBadge icon={Star} label="Afiliado de Twitch" />
-                                )}
-                                {!badgePartner && !badgeAffiliate && (
-                                    <ProfileBadge icon={User} label="Streamer" secondary />
-                                )}
-                                <ProfileBadge icon={Key} label="LosPerris Access" secondary />
-                            </div>
-                        </div>
-
-                        <p className="m-0 mt-2 max-w-full text-left text-[0.82rem] font-normal leading-[1.45] text-[#c4c4cc] max-[900px]:text-center">
-                            {description || 'Sin biografía disponible. ¡Este streamer es un misterio!'}
-                        </p>
-
-                        <div className="mt-2 flex flex-wrap items-center gap-4 pt-1 max-[900px]:justify-center">
-                            <ProfileStatItem
-                                icon={Heart}
-                                value={<AnimatedNumber value={followers} className="text-[0.9rem] font-extrabold text-white" />}
-                                label="Seguidores"
-                                showDivider
-                            />
-                            <ProfileStatItem
-                                icon={Video}
-                                value={broadcasterLabel}
-                                label="Tipo Canal"
-                                showDivider
-                            />
-                            <ProfileStatItem icon={Calendar} value={memberSince} label="Miembro" />
-                        </div>
+            {/* Stats row */}
+            <div className="flex flex-wrap gap-4">
+                <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+                        <Heart className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="flex flex-col">
+                        <AnimatedNumber value={followers} className="text-[0.9rem] font-bold text-white leading-none" />
+                        <span className="text-[0.6rem] font-bold uppercase tracking-wide text-zinc-400">Seguidores</span>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+                        <Video className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-[0.9rem] font-bold text-white leading-none">{broadcasterLabel}</span>
+                        <span className="text-[0.6rem] font-bold uppercase tracking-wide text-zinc-400">Tipo Canal</span>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+                        <Calendar className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-[0.9rem] font-bold text-white leading-none">{memberSince}</span>
+                        <span className="text-[0.6rem] font-bold uppercase tracking-wide text-zinc-400">Miembro desde</span>
                     </div>
                 </div>
             </div>

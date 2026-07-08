@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LoginDisclaimerModal } from '@/shared/ui/LoginDisclaimerModal';
 import { VerifyingSessionModal } from '@/shared/ui/VerifyingSessionModal';
 import { AppLogo } from '@/shared/ui/AppLogo';
@@ -15,6 +15,14 @@ import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
 const GRID_BG = 'bg-[#080808]';
+
+const GRID_STYLE: React.CSSProperties = {
+    backgroundImage: `
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
+    `,
+    backgroundSize: '48px 48px'
+};
 
 const GRADIENT_TEXT = 'bg-gradient-to-br from-[#9146ff] to-[#a78bfa] bg-clip-text text-transparent';
 
@@ -165,7 +173,9 @@ export function LandingPage() {
     }, []);
 
     return (
-        <div className={`relative flex flex-1 flex-col font-[Outfit,sans-serif] ${GRID_BG}`}>
+        <div className={`relative flex flex-1 flex-col font-[Outfit,sans-serif] ${GRID_BG}`} style={GRID_STYLE}>
+            {/* Gradiente radial para apagar la cuadrícula en los bordes */}
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,transparent_60%,#080808)]" />
             <header
                 className={`fixed inset-x-0 top-0 z-[1000] border-b backdrop-blur-xl transition-colors duration-300 ${
                     scrolled
@@ -208,7 +218,10 @@ export function LandingPage() {
                 <section className="grid min-h-0 items-center gap-16 py-24 md:min-h-[88vh] md:grid-cols-2 md:gap-16 md:py-0">
                     <div className="max-w-[600px] text-center md:text-left">
                         <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#9146ff]/25 bg-[#9146ff]/[0.08] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#a78bfa]">
-                            <TwitchIcon className="w-3.5 fill-current" /> BETA — Twitch API
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#9146ff]">
+                                <TwitchIcon className="w-3 fill-white" />
+                            </span>
+                            BETA — Twitch API
                         </div>
                         <h2 className="mb-5 text-[clamp(2.8rem,4.5vw,4.5rem)] font-extrabold leading-[1.1] tracking-[-0.03em] text-[#fafafa]">
                             Comandos para tu

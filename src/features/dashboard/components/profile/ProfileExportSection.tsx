@@ -1,5 +1,4 @@
 import { Download, Loader2 } from 'lucide-react';
-
 import { card, fadeIn } from '@/core/ui/tw';
 
 interface ProfileExportSectionProps {
@@ -24,22 +23,22 @@ export function ProfileExportSection({ onExport, loading = false }: ProfileExpor
                 </div>
             </div>
 
-            <div className="flex items-center justify-between gap-4 rounded-xl border border-white/[0.08] bg-black/20 p-4 pl-5 transition-colors hover:bg-black/30 max-md:flex-col max-md:text-center">
+            <div className="flex flex-col gap-4 rounded-xl border border-white/[0.08] bg-black/20 p-4 pl-5 transition-colors hover:bg-black/30 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex-1 text-[#fafafa]">
-                    <h4 className="mb-2 text-[1.15rem] font-bold text-white">Reporte de Cuenta Completo</h4>
-                    <p className="m-0 max-w-[600px] text-[0.9rem] leading-normal text-[#c4c4cc] max-md:mx-auto">
+                    <h4 className="mb-1 text-[1.05rem] font-bold text-white">Reporte de Cuenta Completo</h4>
+                    <p className="m-0 max-w-[600px] text-[0.85rem] leading-relaxed text-[#c4c4cc]">
                         Genera un archivo HTML estático con toda la información de tu perfil, historial de
                         comandos y credenciales, listo para visualizar offline.
                     </p>
                 </div>
-                <div className="shrink-0 max-md:w-full">
+                <div className="shrink-0 w-full sm:w-auto">
                     <button
                         type="button"
                         onClick={() => void onExport()}
                         disabled={loading}
-                        className="inline-flex items-center gap-2.5 whitespace-nowrap rounded-lg bg-primary px-7 py-3 text-base font-semibold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 max-md:w-full max-md:justify-center"
+                        className="inline-flex items-center gap-2 w-full sm:w-auto justify-center rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                         {loading ? 'Generando...' : 'Generar Reporte'}
                     </button>
                 </div>

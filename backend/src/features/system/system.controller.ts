@@ -46,6 +46,7 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
             return res.json({
                 valid: true,
                 apiKey: user.apiKey || null,
+                token: token,
                 user: {
                     id: user.userId,
                     login: user.login,
@@ -74,6 +75,7 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
             return res.json({
                 valid: true,
                 apiKey: dbUser?.apiKey || null,
+                token: token,
                 user: {
                     id: userProfile.id,
                     login: userProfile.login,
