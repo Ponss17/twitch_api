@@ -123,7 +123,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                     <CardHeaderIcon icon={BarChart3} />
                     <div>
                         <h3 className="mb-0.5 text-[1.05rem] font-bold text-[#fafafa]">Analytics Overview</h3>
-                        <p className="text-[0.8rem] text-zinc-400">Métricas de rendimiento de tu API en los últimos 7 días.</p>
+                        <p className="text-[0.8rem] text-zinc-400">Métricas de rendimiento en tiempo real de tu API (Hoy).</p>
                     </div>
                 </div>
 
@@ -334,6 +334,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
                     <div className="mb-6 border-b border-white/[0.08] pb-4">
                         <h2 className="text-lg font-semibold text-[#fafafa]">Endpoints Más Usados</h2>
+                        <p className="text-xs text-zinc-500 mt-1">Acumulado de los últimos 7 días</p>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
@@ -381,7 +382,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
                     <div className="mb-6 border-b border-white/[0.08] pb-4">
                         <h2 className="text-lg font-semibold text-[#fafafa]">Comparativa de Latencia</h2>
-                        <p className="text-xs text-zinc-500 mt-1">Tiempo de proceso por comando</p>
+                        <p className="text-xs text-zinc-500 mt-1">Promedio de los últimos 7 días por comando</p>
                     </div>
                     <div className="h-[280px] w-full relative">
                         <span className="sr-only">
