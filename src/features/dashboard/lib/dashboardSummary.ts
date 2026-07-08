@@ -1,5 +1,8 @@
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
 import { apiFetch } from '@/core/api/auth';
+import type { DashboardProfile } from '@contracts/dashboardContracts';
+
+export type { DashboardProfile } from '@contracts/dashboardContracts';
 
 export interface DashboardAnalytics {
     todayRequests?: number;
@@ -8,21 +11,8 @@ export interface DashboardAnalytics {
     [key: string]: number | undefined;
 }
 
-export interface DashboardProfile {
-    followers?: number;
-    broadcaster_type?: string;
-    description?: string;
-    created_at?: string;
-    timezone?: string;
-    rateLimit?: number;
-    cacheTtl?: number;
-    role?: string;
-    roleLabel?: string;
-    hasCustomRateLimit?: boolean;
-    hasCustomCacheTtl?: boolean;
-}
-
 interface DashboardSummaryResponse {
+    profile?: DashboardProfile | null;
     analytics?: DashboardAnalytics | null;
 }
 

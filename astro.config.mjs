@@ -110,7 +110,8 @@ export default defineConfig({
         },
         resolve: {
             alias: {
-                '@': path.resolve(root, 'src')
+                '@': path.resolve(root, 'src'),
+                '@contracts': path.resolve(root, 'backend/src/core/schemas')
             },
             dedupe: ['react', 'react-dom']
         },

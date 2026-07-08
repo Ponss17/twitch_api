@@ -3,10 +3,16 @@
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
-            "@/*": ["src/*"]
+            "@/*": ["src/*"],
+            "@contracts/*": ["backend/src/core/schemas/*"]
         },
         "verbatimModuleSyntax": false
     },
-    "include": [".astro/types.d.ts", "src/**/*", "astro.config.mjs"],
-    "exclude": ["node_modules", "dist", "backend", "./api", "tests"]
+    "include": [
+        ".astro/types.d.ts",
+        "src/**/*",
+        "astro.config.mjs",
+        "backend/src/core/schemas/**/*.ts"
+    ],
+    "exclude": ["node_modules", "dist", "./api", "tests"]
 }

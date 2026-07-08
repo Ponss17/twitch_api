@@ -6,8 +6,9 @@
         "isolatedModules": true,
         "baseUrl": ".",
         "paths": {
-            "@/*": ["src/*"]
+            "@/*": ["src/*"],
+            "@contracts/*": ["backend/src/core/schemas/*"]
         }
     },
-    "include": ["src/**/*", "tests/unit/frontend/**/*"]
+    "include": ["src/**/*", "tests/unit/frontend/**/*", "backend/src/core/schemas/**/*.ts"]
 }
