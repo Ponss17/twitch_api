@@ -68,6 +68,26 @@ async function rejectApiKeyUnauthorized(
     return respond();
 }
 
+/** Nightbot/SE: HTTP 200 + texto plano aunque la key falle (no tumba el comando del bot). */
+async function rejectInvalidApiKey(
+    req: Request,
+    res: Response,
+    errorMsg: string
+): Promise<Response> {
+    const path = req.path || req.originalUrl?.split('?')[0] || '';
+    if (isBotCommand(path)) {
+        res.setHeader('Content-Type', 'text/plain');
+        return res.status(200).send(errorMsg);
+    }
+    if (isApiRoute(path)) {
+        return rejectApiKeyUnauthorized(req, res, () => {
+            res.setHeader('Content-Type', 'text/plain');
+            return res.status(401).send(errorMsg);
+        });
+    }
+    return rejectApiKeyUnauthorized(req, res, () => res.status(401).json({ error: errorMsg }));
+}
+
 export const apiKeyValidator = async (req: Request, res: Response, next: NextFunction) => {
     const overlayTokenHeader = readOverlayToken(req);
 
@@ -106,9 +126,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
     }
 
     if (apiKey && invalidKeysCache.has(apiKey)) {
-        return rejectApiKeyUnauthorized(req, res, () =>
-            res.status(401).json({ error: 'Clave API bloqueada temporalmente.' })
-        );
+        return rejectInvalidApiKey(req, res, 'Clave API bloqueada temporalmente.');
     }
 
     if (apiKey && (await cacheService.isApiKeyRevoked(apiKey))) {
@@ -212,15 +230,10 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             return res.status(403).json({ error: 'Cuenta suspendida.' });
         } else {
             invalidKeysCache.set(apiKey);
-            const errorMsg = 'Error de autenticación. Clave API inválida o expirada. Regenerala o pide ayuda a Ponss 🦆';
-            if (isApiRoute(req.path)) {
-                return rejectApiKeyUnauthorized(req, res, () => {
-                    res.setHeader('Content-Type', 'text/plain');
-                    return res.status(401).send(errorMsg);
-                });
-            }
-            return rejectApiKeyUnauthorized(req, res, () =>
-                res.status(401).json({ error: errorMsg })
+            return rejectInvalidApiKey(
+                req,
+                res,
+                'Error de autenticación. Clave API inválida o expirada. Regenerala o pide ayuda a Ponss 🦆'
             );
         }
     } catch (e) {
