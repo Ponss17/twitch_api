@@ -4,26 +4,10 @@ import { isKvWriteAvailable } from '../database/cacheService';
 import { RATE_LIMITS } from '../config/limits';
 import { resolveUserRateLimit } from '../config/userRoles';
 import { MESSAGES } from '../config/messages';
-import { isPublicRoute, isPublicHtmlRoute, isApiRoute } from '../utils/routeHelpers';
+import { isPublicRoute, isPublicHtmlRoute, isApiRoute, isBotCommand } from '../utils/routeHelpers';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { logger } from '../utils/logger';
 import { rateLimitPagePath } from '../utils/frontendPaths';
-
-import { BoundedMap } from '../utils/boundedCache';
-
-/** Fallback en memoria cuando KV no está disponible (API key / sesión / IP). */
-const kvFallbackRateMemory = new BoundedMap<string, { window: number; count: number }>(2000);
-
-function incrementMemoryCounter(
-    store: BoundedMap<string, { window: number; count: number }>,
-    key: string,
-    currentWindow: number
-): number {
-    const mem = store.get(key);
-    const count = mem && mem.window === currentWindow ? mem.count + 1 : 1;
-    store.set(key, { window: currentWindow, count });
-    return count;
-}
 
 function applyRateLimitHeaders(res: Response, limit: number, count: number): void {
     res.setHeader('X-RateLimit-Limit', limit);
@@ -35,28 +19,20 @@ function getSafeIp(req: Request): string {
 }
 
 async function incrementPerMinuteCounter(
-    key: string,
-    memoryStore: BoundedMap<string, { window: number; count: number }> = kvFallbackRateMemory
+    key: string
 ): Promise<number> {
     const currentWindow = Math.floor(Date.now() / 60000);
 
     if (!isKvWriteAvailable()) {
-        return incrementMemoryCounter(memoryStore, key, currentWindow);
+        return 0; // Fail-open en dev
     }
 
-    try {
-        const redisKey = `twitch_api:${key}:${currentWindow}`;
-        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
-            number,
-            number
-        ];
-        return count;
-    } catch (error) {
-        if (process.env.NODE_ENV !== 'production') {
-            logger.debug('KV per-minute counter fallback en memoria', { error });
-        }
-        return incrementMemoryCounter(memoryStore, key, currentWindow);
-    }
+    const redisKey = `twitch_api:${key}:${currentWindow}`;
+    const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
+        number,
+        number
+    ];
+    return count;
 }
 
 /**
@@ -128,13 +104,6 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
         }
 
         if (!isKvWriteAvailable()) {
-            const currentWindow = Math.floor(Date.now() / 60000);
-            const count = incrementMemoryCounter(kvFallbackRateMemory, key, currentWindow);
-            applyRateLimitHeaders(res, limit, count);
-            if (count > limit) {
-                logger.warn(`🛑 Rate limit exceeded for ${key} on ${cleanPath}`);
-                return handleLimitExceeded(req, res, cleanPath);
-            }
             return next();
         }
 
@@ -161,34 +130,8 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
             return next();
         }
 
-        logger.error('Error in KV Rate Limiter — usando fallback en memoria:', error);
-
-        const apiUser = res.locals?.apiUser;
-        const userId = (req as AuthenticatedRequest).userId;
-        const isApiKeyRequest = res.locals?.isApiKeyRequest;
-        let key = '';
-        let limit = 0;
-
-        if (apiUser && isApiKeyRequest) {
-            key = `rl:api:${apiUser.userId}`;
-            limit = resolveUserRateLimit(apiUser);
-        } else if (userId) {
-            key = `rl:sess:${userId}`;
-            limit = RATE_LIMITS.DASHBOARD;
-        } else {
-            const safeIp = getSafeIp(req);
-            key = `rl:ip:${safeIp}`;
-            limit = RATE_LIMITS.PUBLIC;
-        }
-
-        const currentWindow = Math.floor(Date.now() / 60000);
-        const count = incrementMemoryCounter(kvFallbackRateMemory, key, currentWindow);
-        applyRateLimitHeaders(res, limit, count);
-
-        if (count > limit) {
-            return handleLimitExceeded(req, res, cleanPath);
-        }
-        return next();
+        logger.error('Error in KV Rate Limiter:', error);
+        return res.status(503).json({ error: 'Service Unavailable', message: 'Servicio temporalmente no disponible' });
     }
 };
 
@@ -200,6 +143,11 @@ async function handleLimitExceeded(req: Request, res: Response, cleanPath: strin
 
     if (typeof req.headers.accept === 'string' && req.headers.accept.includes('text/html')) {
         return res.redirect(302, rateLimitPagePath(60_000));
+    }
+
+    if (isBotCommand(cleanPath)) {
+        res.setHeader('Content-Type', 'text/plain');
+        return res.status(429).send('');
     }
 
     if (isApiRoute(cleanPath)) {
@@ -227,7 +175,7 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
     try {
         let count: number;
         if (!isKvWriteAvailable()) {
-            count = incrementMemoryCounter(kvFallbackRateMemory, key, currentWindow);
+            return next();
         } else {
             const redisKey = `twitch_api:${key}:${currentWindow}`;
             const [n] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
@@ -245,28 +193,8 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
         }
         next();
     } catch (error) {
-        if (process.env.NODE_ENV !== 'production') {
-            logger.debug('KV heavy rate limit fallback en memoria', { error });
-            const count = incrementMemoryCounter(kvFallbackRateMemory, key, currentWindow);
-            if (count > limit) {
-                res.setHeader('Content-Type', 'text/plain');
-                return res
-                    .status(429)
-                    .send(`Límite de peticiones pesadas excedido (max ${RATE_LIMITS.HEAVY}/min).`);
-            }
-            return next();
-        }
-
         logger.error('Error in Heavy Rate Limiter:', error);
-        // Fallback L1 en prod ante error KV (no fail-open)
-        const count = incrementMemoryCounter(kvFallbackRateMemory, key, currentWindow);
-        if (count > limit) {
-            res.setHeader('Content-Type', 'text/plain');
-            return res
-                .status(429)
-                .send(`Límite de peticiones pesadas excedido (max ${RATE_LIMITS.HEAVY}/min).`);
-        }
-        next();
+        return res.status(503).json({ error: 'Service Unavailable', message: 'Servicio temporalmente no disponible' });
     }
 };
 
@@ -279,22 +207,8 @@ export const authRateLimiter = async (req: Request, res: Response, next: NextFun
     const limit = RATE_LIMITS.LOGIN;
     const windowSeconds = 5 * 60;
     const redisKey = `twitch_api:${key}:${Math.floor(Date.now() / (windowSeconds * 1000))}`;
-    const currentWindow = Math.floor(Date.now() / (windowSeconds * 1000));
 
     if (!isKvWriteAvailable()) {
-        const count = incrementMemoryCounter(kvFallbackRateMemory, key, currentWindow);
-        if (count > limit) {
-            if (
-                typeof req.headers.accept === 'string' &&
-                req.headers.accept.includes('text/html')
-            ) {
-                return res.redirect(302, rateLimitPagePath(windowSeconds * 1000));
-            }
-            return res.status(429).json({
-                error: 'Too Many Requests',
-                message: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en 5 minutos.'
-            });
-        }
         return next();
     }
 

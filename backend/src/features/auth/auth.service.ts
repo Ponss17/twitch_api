@@ -16,15 +16,20 @@ const TWITCH_AUTH_URL = 'https://id.twitch.tv/oauth2';
 const TWITCH_API_URL = 'https://api.twitch.tv/helix';
 const STATE_TTL_MS = 10 * 60 * 1000;
 
-function getHmacSecret(): string {
-    return CONFIG.HMAC_SIGNING_SECRET ?? (CONFIG.TWITCH_CLIENT_SECRET as string);
+function getHmacSecrets(): string[] {
+    const current = CONFIG.HMAC_SIGNING_SECRET ?? (CONFIG.TWITCH_CLIENT_SECRET as string);
+    const prev = process.env.PREVIOUS_HMAC_SIGNING_SECRET?.trim();
+    if (prev && prev !== current && prev.length >= 32) {
+        return [current, prev];
+    }
+    return [current];
 }
 
 const signState = (payload: object): string => {
     const data = Buffer.from(
         JSON.stringify({ ...payload, exp: Date.now() + STATE_TTL_MS })
     ).toString('base64');
-    const secret = getHmacSecret();
+    const secret = getHmacSecrets()[0];
     const sig = crypto.createHmac('sha256', secret).update(data).digest('hex');
     return `${data}.${sig}`;
 };
@@ -34,15 +39,18 @@ export const verifyState = (state: string): Record<string, unknown> | null => {
     if (lastDot === -1) return null;
     const data = state.slice(0, lastDot);
     const sig = state.slice(lastDot + 1);
-    const secret = getHmacSecret();
-    const expected = crypto.createHmac('sha256', secret).update(data).digest('hex');
-    try {
-        if (!crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) {
-            return null;
-        }
-    } catch {
-        return null;
+    const secrets = getHmacSecrets();
+    let valid = false;
+    for (const secret of secrets) {
+        const expected = crypto.createHmac('sha256', secret).update(data).digest('hex');
+        try {
+            if (crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) {
+                valid = true;
+                break;
+            }
+        } catch { continue; }
     }
+    if (!valid) return null;
     try {
         const parsed = JSON.parse(Buffer.from(data, 'base64').toString()) as Record<string, unknown> & {
             exp?: number;
@@ -98,7 +106,7 @@ export interface AuthExchangePayload {
 export const signAuthExchange = (payload: AuthExchangePayload): string => {
     const data = { ...payload, exp: Date.now() + AUTH_EXCHANGE_TTL_MS };
     const encoded = Buffer.from(JSON.stringify(data)).toString('base64url');
-    const secret = getHmacSecret();
+    const secret = getHmacSecrets()[0];
     const sig = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
     return `${encoded}.${sig}`;
 };
@@ -122,7 +130,7 @@ export const signOverlayReadToken = (payload: OverlayReadPayload): string => {
         exp: iat + OVERLAY_READ_TTL_MS
     };
     const encoded = Buffer.from(JSON.stringify(data)).toString('base64url');
-    const secret = getHmacSecret();
+    const secret = getHmacSecrets()[0];
     const sig = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
     return `${encoded}.${sig}`;
 };
@@ -138,13 +146,18 @@ export const verifyOverlayReadToken = (token: string): OverlayReadPayload | null
     if (lastDot === -1) return null;
     const encoded = token.slice(0, lastDot);
     const sig = token.slice(lastDot + 1);
-    const secret = getHmacSecret();
-    const expected = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
-    try {
-        if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
-    } catch {
-        return null;
+    const secrets = getHmacSecrets();
+    let valid = false;
+    for (const secret of secrets) {
+        const expected = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
+        try {
+            if (crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) {
+                valid = true;
+                break;
+            }
+        } catch { continue; }
     }
+    if (!valid) return null;
     try {
         const data = JSON.parse(Buffer.from(encoded, 'base64url').toString()) as OverlayReadPayload & {
             exp?: number;
@@ -182,13 +195,18 @@ export const verifyAuthExchange = (token: string): AuthExchangePayload | null =>
     if (lastDot === -1) return null;
     const encoded = token.slice(0, lastDot);
     const sig = token.slice(lastDot + 1);
-    const secret = getHmacSecret();
-    const expected = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
-    try {
-        if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
-    } catch {
-        return null;
+    const secrets = getHmacSecrets();
+    let valid = false;
+    for (const secret of secrets) {
+        const expected = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
+        try {
+            if (crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) {
+                valid = true;
+                break;
+            }
+        } catch { continue; }
     }
+    if (!valid) return null;
     try {
         const data = JSON.parse(Buffer.from(encoded, 'base64url').toString()) as AuthExchangePayload & {
             exp?: number;
