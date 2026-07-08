@@ -66,7 +66,7 @@ export function ProfileSettingsSection({ currentTimezone, onSettingsChanged }: P
     };
 
     return (
-        <div className={`${cardShell} [animation-delay:80ms]`}>
+        <div className={`${cardShell} relative z-10 [animation-delay:80ms]`}>
             <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
                 <div className="flex items-center gap-3">
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
