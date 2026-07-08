@@ -142,9 +142,9 @@ export function DashboardPanelProvider({
     const applyHomeDataReset = useCallback(() => {
         consumeHomeDataResetPending(session.userId);
         resetPendingRef.current = true;
-        // Limpiamos stats y actividad de inmediato para reflejar el estado vacío
-        // tras un borrado explícito por el usuario. El refetch posterior confirmará con datos reales.
-        setStats(EMPTY_DASHBOARD_LIVE_STATS);
+        // Reseteamos contadores del día (hoy) pero preservamos timeSeries histórico,
+        // ya que el borrado de stats no elimina los datos de días anteriores en la DB.
+        setStats((prev) => ({ ...EMPTY_DASHBOARD_LIVE_STATS, timeSeries: prev.timeSeries }));
         setActivity([]);
         setError(null);
         setHighlightKeys(new Set());
