@@ -216,7 +216,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                     {/* Avg Processing Time */}
                     <div className={H_STAT}>
                         <div className="flex justify-between items-center w-full mb-2">
-                            <span className="text-sm font-medium text-zinc-300">Tiempo de Proceso Medio</span>
+                            <span className="text-sm font-medium text-zinc-300">(s) Tiempo de Proceso Medio</span>
                             <Gauge className="w-4 h-4 text-amber-500" />
                         </div>
                         <div className="flex flex-col">
@@ -267,11 +267,11 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                             <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Desglose de uso diario</p>
                         </div>
                         <div className="flex shrink-0 items-center gap-3">
+                            <span className="text-xs text-zinc-500">{Intl.DateTimeFormat().resolvedOptions().timeZone} - últimos 7 días</span>
                             <InfoTooltip
                                 placement="bottom"
                                 text="Evolución diaria del total de peticiones exitosas vs errores en la última semana."
                             />
-                            <span className="text-xs text-zinc-500">{Intl.DateTimeFormat().resolvedOptions().timeZone} - últimos 7 días</span>
                         </div>
                     </div>
                     <ChartMountGate
