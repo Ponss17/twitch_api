@@ -265,7 +265,7 @@ RPCs relevantes: `log_user_request` (o equivalente `record_user_request` en SQL 
 
 | Capa | Dónde | Uso |
 |------|-------|-----|
-| **L1** | RAM del proceso (`BoundedMap`, `userMemoryCache`, rate limits dashboard) | 0 ops KV en bots calientes |
+| **L1** | RAM del proceso (`BoundedMap`, `userMemoryCache`; RL solo fallback) | 0 ops KV en bots calientes |
 | **L2** | Vercel KV (`twitch_api:` prefix) | Meta de API key **sin** tokens OAuth, overlays, rate limits, revisions |
 | **L3** | Supabase | Source of truth |
 
@@ -637,7 +637,7 @@ Checklist prod detallado: [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ### Deuda conocida (ver también ARCHITECTURE.md)
 - Subir a pnpm 11 (breaking).
-- Rate limit del dashboard OAuth sigue en L1 por instancia (trade-off serverless; bots usan KV) — riesgo multi-réplica aceptado.
+- (Cerrado) Rate limit dashboard OAuth ya usa KV (`rl:sess:`) como bots; L1 solo fallback.
 - CORS/CSP allowlist canónica: `ttv.losperris.dev` + localhost (sin previews Vercel stale).
 - Algunos hints Recharts `Cell` deprecados.
 - Carpeta `docs/` local (gitignore) para notas de agentes.

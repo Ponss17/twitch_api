@@ -11,9 +11,7 @@ import { rateLimitPagePath } from '../utils/frontendPaths';
 
 import { BoundedMap } from '../utils/boundedCache';
 
-/** Contador en memoria por instancia — evita KV en sesiones OAuth del dashboard. */
-const sessionRateMemory = new BoundedMap<string, { window: number; count: number }>(500);
-/** Fallback en memoria cuando KV no está disponible (API key / IP). */
+/** Fallback en memoria cuando KV no está disponible (API key / sesión / IP). */
 const kvFallbackRateMemory = new BoundedMap<string, { window: number; count: number }>(2000);
 
 function incrementMemoryCounter(
@@ -84,8 +82,8 @@ export async function blockIfUnauthorizedScanExceeded(
 
 /**
  * Middleware de Rate Limiting Global usando Vercel KV (Redis).
- * Sesiones OAuth del dashboard usan solo memoria local (límite alto, sin coste KV).
- * Bot/API Key e IPs anónimas siguen en KV para consistencia entre instancias.
+ * Dashboard OAuth (`rl:sess:`), bots/API key e IPs anónimas usan KV para
+ * consistencia entre réplicas; L1 solo como fallback si KV no está disponible.
  */
 export const globalRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
     const cleanPath = req.originalUrl.split('?')[0];
@@ -129,21 +127,8 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
             limit = RATE_LIMITS.PUBLIC;
         }
 
-        const currentWindow = Math.floor(Date.now() / 60000); // Ventana de 1 minuto
-
-        // Dashboard OAuth: rate limit solo en memoria (0 ops KV por poll)
-        if (userId && !isApiKeyRequest) {
-            const count = incrementMemoryCounter(sessionRateMemory, key, currentWindow);
-            applyRateLimitHeaders(res, limit, count);
-
-            if (count > limit) {
-                logger.warn(`🛑 Rate limit exceeded for ${key} on ${cleanPath}`);
-                return handleLimitExceeded(req, res, cleanPath);
-            }
-            return next();
-        }
-
         if (!isKvWriteAvailable()) {
+            const currentWindow = Math.floor(Date.now() / 60000);
             const count = incrementMemoryCounter(kvFallbackRateMemory, key, currentWindow);
             applyRateLimitHeaders(res, limit, count);
             if (count > limit) {
@@ -153,6 +138,7 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
             return next();
         }
 
+        const currentWindow = Math.floor(Date.now() / 60000);
         const redisKey = `twitch_api:${key}:${currentWindow}`;
 
         // Pipeline atómico: INCR + EXPIRE en un solo round-trip a Redis

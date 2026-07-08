@@ -73,14 +73,14 @@ describe('globalRateLimiter', () => {
         expect(next).not.toHaveBeenCalled();
     });
 
-    it('bloquea sesión OAuth en memoria si supera el límite', async () => {
+    it('bloquea sesión OAuth vía KV si supera el límite', async () => {
         (req as Request & { userId: string }).userId = 'user1';
+        (kv.incr as jest.Mock).mockResolvedValue(501);
 
-        for (let i = 0; i < 501; i += 1) {
-            await globalRateLimiter(req, res, next);
-        }
+        await globalRateLimiter(req, res, next);
 
         expect(res.status).toHaveBeenCalledWith(429);
+        expect(next).not.toHaveBeenCalled();
     });
 
     it('usa el límite de API Key si está presente', async () => {
