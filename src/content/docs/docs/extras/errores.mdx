@@ -1,0 +1,362 @@
+---
+title: "Ayuda"
+description: "Errores frecuentes de comandos, panel, overlays OBS y límites de la API."
+---
+
+import { Aside, Steps, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import HttpStatusBadge from '@/components/docs/HttpStatusBadge.astro';
+import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
+import BotCommandAuthAside from '@/components/docs/BotCommandAuthAside.astro';
+import AuthNotice from '@/components/docs/AuthNotice.astro';
+import DashboardAuthNotice from '@/components/docs/DashboardAuthNotice.astro';
+
+Guía rápida cuando algo falla en el chat, el panel o un overlay. Los mensajes citados son los que devuelve la API en la práctica.
+
+<Aside type="tip" title="Antes de reportar">
+  Comprueba [Tu API Key](/docs/auth/), que la URL del comando sea correcta y que no hayas superado los [límites](/docs/limits/). Si regeneraste la clave, actualiza todos tus bots.
+</Aside>
+
+---
+
+## Códigos HTTP habituales
+
+<table>
+  <thead>
+    <tr>
+      <th>Código</th>
+      <th>Significado</th>
+      <th>Qué hacer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><HttpStatusBadge code={200} /></td>
+      <td>Petición OK</td>
+      <td>En comandos de chat el cuerpo es <strong>texto plano</strong>. Algunos errores de auth también llegan como 200 con mensaje legible (no confundas con éxito).</td>
+    </tr>
+    <tr>
+      <td><HttpStatusBadge code={400} /></td>
+      <td>Parámetros inválidos</td>
+      <td>Revisa <code>channel</code>, <code>user</code>, <code>limit</code>, etc. En JSON verás <code>VALIDATION_ERROR</code> con el campo concreto.</td>
+    </tr>
+    <tr>
+      <td><HttpStatusBadge code={401} /></td>
+      <td>Sin auth o clave inválida</td>
+      <td>Añade <code>apiKey</code> o <code>X-Api-Key</code>. Si regeneraste la clave, actualiza el bot.</td>
+    </tr>
+    <tr>
+      <td><HttpStatusBadge code={403} /></td>
+      <td>Cuenta suspendida o sin permiso</td>
+      <td>Contacta soporte si no conoces el motivo. En panel: CSRF rechazado → recarga la página.</td>
+    </tr>
+    <tr>
+      <td><HttpStatusBadge code={429} /></td>
+      <td>Rate limit</td>
+      <td>Espera ~1 minuto (bots) o revisa si es límite <strong>pesado</strong> (10/min en get-clips/chatters).</td>
+    </tr>
+    <tr>
+      <td><HttpStatusBadge code={500} /></td>
+      <td>Error interno</td>
+      <td>Reintenta en unos minutos. Si persiste, <a href="https://discord.gg/8uN3qY5E">Discord</a> con hora y endpoint.</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+## Comandos de chat (bots)
+
+Los bots (Nightbot, StreamElements, Fossabot, Wizebot) llaman la API con una URL. La respuesta suele ser **texto plano** que el bot imprime en el chat.
+
+<AuthNotice />
+
+<BotCommandAuthAside />
+
+### Errores de autenticación y límites
+
+En comandos de chat, muchos fallos de API Key llegan como <HttpStatusBadge code={200} /> con un mensaje en el cuerpo — no como <HttpStatusBadge code={401} />. El rate limit sí devuelve <HttpStatusBadge code={429} /> (cuerpo vacío).
+
+<div class="api-flow">
+
+#### Mensajes en el chat
+
+<ApiFlowResponse
+  flowId="flow-help-bot-auth"
+  responses={[
+    {
+      tabLabel: 'Falta API Key',
+      status: 200,
+      format: 'text',
+      body: 'Error: Falta API Key. Debes incluir ?apiKey=TU_KEY en la URL.',
+    },
+    {
+      tabLabel: 'Key inválida',
+      status: 200,
+      format: 'text',
+      body: '⛔ Tu API Key no es válida. Regenerala en el dashboard o contacta con Ponss.',
+    },
+    {
+      tabLabel: 'Key expirada',
+      status: 200,
+      format: 'text',
+      body: 'Error de autenticación. Clave API inválida o expirada. Regenerala o pide ayuda a Ponss 🦆',
+    },
+    {
+      tabLabel: '429 (vacío)',
+      status: 429,
+      format: 'text',
+      body: '',
+    },
+  ]}
+/>
+
+</div>
+
+#### Qué hacer
+
+| Escenario | Causa habitual | Solución |
+| :--- | :--- | :--- |
+| **Falta API Key** | La URL del comando no incluye `apiKey`. | Copia la clave en [Configuración](/dashboard/settings) → Seguridad. Añade `&apiKey=TU_CLAVE` o usa el generador del panel (Followage, Clips…). |
+| **Key inválida o expirada** | Clave mal copiada, regenerada o cuenta eliminada. | Abre [Configuración](/dashboard/settings), copia la clave actual o **regenera** y actualiza **todos** los bots. Ver [Tu API Key](/docs/auth/). |
+| **Rate limit** | Superaste el límite de tu rol (30–120 req/min). | El bot suele **no decir nada** (429 con cuerpo vacío). Espera ~1 minuto antes de reintentar. Ver [Límites](/docs/limits/). |
+
+<Aside type="danger" title="Tras regenerar la API Key">
+  La clave anterior deja de funcionar al instante. Si el chat sigue mostrando «Key inválida», el bot aún tiene la URL antigua pegada.
+</Aside>
+
+<Steps>
+1. [Configuración](/dashboard/settings) → **Seguridad y conexión** → copia o regenera la API Key.
+2. En cada bot, edita el comando y sustituye la clave en la URL (o vuelve a copiar desde el generador del panel).
+3. Prueba con **Probar API** en el panel antes de usar el comando en vivo.
+</Steps>
+
+### Parámetros y sintaxis
+
+| Síntoma en chat | Causa | Qué hacer |
+| :--- | :--- | :--- |
+| `Falta el parámetro channel` | Sin `channel` en la URL | Añade `channel=TU_CANAL` (login sin `@`). |
+| `Faltan parámetros: channel y user` | Followage u otro comando sin `user` | Nightbot: `$(touser)` · StreamElements: `${user}` · Wizebot: `$(user_name)`. |
+| «no sigue a…» (Followage) | El usuario no sigue el canal o el login está mal | Comprueba el nombre en Twitch; la API responde 200 con ese texto. |
+| El bot no dice nada | URL mal pegada o sin `urlfetch` / `customapi` | Revisa la sintaxis en la doc del comando, p. ej. [Followage](/docs/comandos/followage/). |
+
+### Límite de Twitch (no es LosPerris)
+
+<Aside type="note" title="Clips y datos en vivo">
+  Si falla al crear o listar clips, Twitch puede haber limitado la petición. Espera **1–5 minutos** y reintenta. No spamees `!clip` ni el JSON de [Listar clips](/docs/extras/get-clips/).
+</Aside>
+
+---
+
+## Panel y sesión
+
+El dashboard usa **sesión OAuth** de Twitch (`Authorization: Bearer`), no la API Key de los bots. Límite: **500 req/min** (ver [Límites](/docs/limits/)).
+
+<DashboardAuthNotice />
+
+### Errores frecuentes
+
+Las rutas `/api/dashboard/*` y `/api/system/*` devuelven JSON estructurado con `success: false` y `error.message`.
+
+<div class="api-flow">
+
+#### Respuestas de la API
+
+<ApiFlowResponse
+  flowId="flow-help-panel"
+  contentType="application/json; charset=utf-8"
+  responses={[
+    {
+      tabLabel: 'Sesión expirada',
+      status: 401,
+      format: 'json',
+      body: `{
+  "success": false,
+  "error": {
+    "message": "Sesión expirada. Por favor, vuelve a autenticarte o pide ayuda a Ponss 🦆",
+    "code": "UNAUTHORIZED"
+  }
+}`,
+    },
+    {
+      tabLabel: 'CSRF',
+      status: 403,
+      format: 'json',
+      body: `{
+  "success": false,
+  "error": {
+    "message": "Solicitud bloqueada por protección CSRF.",
+    "code": "FORBIDDEN"
+  }
+}`,
+    },
+    {
+      tabLabel: 'Export cooldown',
+      status: 429,
+      format: 'json',
+      body: `{
+  "success": false,
+  "error": {
+    "message": "Debes esperar 3 minutos para generar otro reporte.",
+    "code": "RATE_LIMITED"
+  }
+}`,
+    },
+    {
+      tabLabel: 'Token inválido',
+      status: 401,
+      format: 'json',
+      body: `{
+  "success": false,
+  "error": {
+    "message": "Token inválido",
+    "code": "UNAUTHORIZED"
+  }
+}`,
+    },
+  ]}
+/>
+
+</div>
+
+#### Qué hacer
+
+| Escenario | Causa habitual | Solución |
+| :--- | :--- | :--- |
+| **Sesión expirada** | Token Twitch caducado o sesión muy antigua. | Cierra sesión y vuelve a **Iniciar sesión con Twitch**. Flujo en [Inicio rápido](/docs/inicio-rapido/). |
+| **CSRF al regenerar key** | Pestaña abierta demasiado tiempo sin recargar. | `F5` en [Configuración](/dashboard/settings) y reintenta. |
+| **Export cooldown** | Descargaste un reporte hace menos de **4 min**. | Espera el tiempo del mensaje. Ver [Perfil y seguridad](/docs/profile/). |
+| **Datos desactualizados** | Caché por rol o pestaña no líder en Realtime. | Recarga la pestaña; con varias abiertas solo la **líder** mantiene Realtime. |
+| **Stats en cero tras limpiar** | Usaste **Reiniciar estadísticas** (`LIMPIAR`). | Comportamiento esperado; Inicio y Analytics empiezan de nuevo. |
+
+<Steps>
+1. Cierra sesión y vuelve a **Iniciar sesión con Twitch** en la landing.
+2. Acepta el aviso de privacidad y completa OAuth.
+3. Si persiste, prueba ventana privada o borra cookies de `ttv.losperris.dev`.
+</Steps>
+
+<Aside type="note" title="Pestaña líder">
+  Con varias pestañas del panel, solo una mantiene Realtime (Supabase). Las demás sincronizan por `BroadcastChannel`. Si Realtime falla, hay polling de respaldo.
+</Aside>
+
+---
+
+## Overlays en OBS
+
+Fuentes **Navegador** para [Tendencias](/docs/herramientas/trends/), [Ruleta](/docs/herramientas/roulette/) y similares. El overlay **solo lee** estado; el control está en el panel.
+
+<DashboardAuthNotice />
+
+<Aside type="caution" title="No uses la API Key en OBS">
+  La URL del overlay lleva un <code>overlayToken</code> de solo lectura (30 días). No pegues tu API Key de bot en la fuente del navegador.
+</Aside>
+
+### Token o enlace inválido
+
+Si la URL es antigua o regeneraste la API Key, OBS puede quedar en blanco o sin datos.
+
+<div class="api-flow">
+
+#### Respuestas JSON
+
+<ApiFlowResponse
+  flowId="flow-help-overlay"
+  contentType="application/json; charset=utf-8"
+  responses={[
+    {
+      tabLabel: 'Token inválido',
+      status: 401,
+      format: 'json',
+      body: '{ "error": "Token de overlay inválido o expirado." }',
+    },
+    {
+      tabLabel: 'Token revocado',
+      status: 401,
+      format: 'json',
+      body: '{ "error": "Token de overlay revocado. Genera un enlace nuevo en el panel." }',
+    },
+    {
+      tabLabel: 'Enlace inválido',
+      status: 401,
+      format: 'json',
+      body: `{
+  "success": false,
+  "error": {
+    "message": "Enlace de overlay inválido o expirado.",
+    "code": "INVALID_OVERLAY_TOKEN"
+  }
+}`,
+    },
+    {
+      tabLabel: 'Estado vacío',
+      status: 200,
+      format: 'json',
+      body: '{ "state": null }',
+    },
+  ]}
+/>
+
+</div>
+
+| Escenario | Qué hacer |
+| :--- | :--- |
+| **Token inválido / revocado** | En el panel → botón **Overlay** → copia una **URL nueva**. No compartas el enlace en chat público. |
+| **`state: null`** | Normal si el panel no ha publicado estado aún. En Tendencias, pulsa **Play** para iniciar. |
+| **Tras regenerar API Key** | Genera enlace de overlay de nuevo; el anterior queda invalidado. |
+
+### Pantalla negra o fuente congelada
+
+<Steps>
+1. Clic derecho en la fuente **Navegador** → **Propiedades**.
+2. Pulsa **Actualizar la caché de la página actual**.
+3. Marca **Actualizar navegador cuando la escena se active**.
+4. Activa **fondo transparente** en la fuente.
+5. Comprueba que la URL incluye `overlayToken` y fue copiada **desde el panel**.
+</Steps>
+
+### Comprobaciones por herramienta
+
+| Herramienta | Comprobación | Detalle |
+| :--- | :--- | :--- |
+| **Tendencias** | Control | OBS solo refleja; pulsa **Play** en el panel para iniciar el temporizador. |
+| **Tendencias** | Tamaño OBS | **900 × 580 px** (o ancho de escena). |
+| **Tendencias** | Fin de sesión | Ranking final **30 s** y luego el overlay se oculta (fondo transparente). |
+| **Ruleta** | Estado | El panel publica el giro; OBS lee `GET /dashboard/overlay-state/roulette`. |
+| **Cualquiera** | Caché OBS | Si cambiaste la URL, refresca la caché del navegador en OBS. |
+
+<Aside type="tip" title="Más detalle">
+  Configuración OBS paso a paso en [Tendencias](/docs/herramientas/trends/) y API del overlay en la misma página.
+</Aside>
+
+---
+
+## Cuenta suspendida
+
+**Mensaje:** `Cuenta suspendida.` (**403**)
+
+**Causa:** bloqueo por abuso de límites, escaneo de claves o actividad maliciosa.
+
+**Solución:** escribe en [Discord](https://discord.gg/8uN3qY5E) con tu login de Twitch y qué endpoint usabas.
+
+---
+
+## Checklist rápido
+
+| Problema | Primer paso |
+| :--- | :--- |
+| Comando silencioso | ¿La URL tiene `apiKey`? ¿El bot usa `urlfetch`/`customapi`? |
+| «Key inválida» | ¿Regeneraste sin actualizar el bot? |
+| 429 en chat | Espera 1 min; baja frecuencia del comando. |
+| 429 en get-clips | Límite **pesado** 10/min; no abuses del JSON. |
+| Overlay negro | Actualizar caché OBS + URL nueva del panel. |
+| Panel vacío | Re-login Twitch; revisa pestaña **Inicio**. |
+
+---
+
+## Enlaces
+
+<CardGrid>
+  <LinkCard title="Tu API Key" href="/docs/auth/" description="Formato, cabeceras y regenerar clave." />
+  <LinkCard title="Límites de uso" href="/docs/limits/" description="Cuotas por rol, panel y endpoints pesados." />
+  <LinkCard title="Perfil y seguridad" href="/docs/profile/" description="Configuración, exportar datos y zona de peligro." />
+  <LinkCard title="Inicio rápido" href="/docs/inicio-rapido/" description="Primer comando en el chat." />
+</CardGrid>

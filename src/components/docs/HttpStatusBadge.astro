@@ -1,0 +1,9 @@
+---
+interface Props {
+	code: number;
+}
+
+const { code } = Astro.props;
+---
+
+<span class={`docs-http-status docs-http-status--${code}`}>{code}</span>

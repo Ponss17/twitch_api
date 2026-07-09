@@ -1,0 +1,28 @@
+---
+import { renderIndentRainbowHtml } from '@/components/docs/indentRainbow';
+
+interface Props {
+	code: string;
+	language?: 'json' | 'text';
+	class?: string;
+	tabSize?: number;
+}
+
+const { code, language = 'json', class: className = '', tabSize = 2 } = Astro.props;
+const html = renderIndentRainbowHtml(code, {
+	tabSize,
+	highlight: language === 'json',
+});
+---
+
+<pre
+	class:list={[
+		'docs-code-tabs__code',
+		'indent-rainbow-code',
+		language === 'json' && 'docs-code-tabs__code--json',
+		className,
+	]}
+	style={`--ir-tab-size: ${tabSize}`}
+>
+	<code class="indent-rainbow" set:html={html} />
+</pre>

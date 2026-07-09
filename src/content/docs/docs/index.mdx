@@ -1,0 +1,77 @@
+---
+title: Introducción
+description: Qué es LosPerris API, qué incluye y por dónde empezar.
+tableOfContents: false
+prev: false
+next:
+  link: /docs/inicio-rapido/
+  label: Inicio rápido
+editUrl: false
+---
+
+import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+**LosPerris Twitch API** es una API REST gratuita para streamers de Twitch. Expone comandos de chat, herramientas para el directo y minijuegos que tu comunidad puede usar desde Nightbot, StreamElements, Fossabot, Wizebot o tu propio bot.
+
+El panel en [ttv.losperris.dev](https://ttv.losperris.dev/dashboard) genera las URLs con tu API Key, permite probar cada endpoint y ofrece overlays para OBS en herramientas como Tendencias o Ruleta.
+
+---
+
+## Qué incluye
+
+| Categoría | Qué hace | Ejemplos |
+| :--- | :--- | :--- |
+| **Comandos** | Respuestas de texto para el chat de Twitch | Followage, Clips, Shoutout |
+| **Herramientas** | Utilidades para el stream y overlays | Tendencias, Stalker, Ruleta |
+| **Minijuegos** | Interacción con viewers desde el chat | Bola 8, Ruleta Rusa, Duelo |
+| **Extras** | Endpoints auxiliares y referencia de errores | Listar clips, códigos de error |
+
+La mayoría de endpoints devuelven **texto listo para el chat**. Algunos (clips, analytics, overlays) devuelven **JSON** o abren una URL en el navegador.
+
+---
+
+## URL base
+
+Todos los ejemplos de esta documentación usan:
+
+```text
+https://ttv.losperris.dev/api/<endpoint>?apiKey=TU_API_KEY&...
+```
+
+También puedes enviar la clave en la cabecera `X-Api-Key`. Para bots antiguos sigue funcionando el prefijo legacy `/twitch/` (ej. `https://ttv.losperris.dev/twitch/followage?...`).
+
+---
+
+## Autenticación en dos niveles
+
+| Uso | Cómo te autenticas | Para qué sirve |
+| :--- | :--- | :--- |
+| **Bots de chat** | `apiKey` en la URL o `X-Api-Key` | Nightbot, StreamElements, scripts propios |
+| **Panel web** | Sesión OAuth de Twitch (Bearer) | Dashboard, overlays, analytics |
+
+Los bots **no** necesitan iniciar sesión en el panel: solo tu API Key. La clave se crea en tu primer login con Twitch y puedes regenerarla desde Configuración.
+
+<Aside type="tip" title="Primera vez">
+  Si aún no tienes comando en el chat, sigue la guía de [Inicio rápido](/docs/inicio-rapido/): login, copiar API Key y pegar la línea en tu bot tarda menos de 5 minutos.
+</Aside>
+
+---
+
+## Límites y estabilidad
+
+La API aplica rate limits según el rol de tu cuenta (30–120 req/min con API Key) y un límite de **500 req/min** para peticiones con sesión del panel. Algunos endpoints pesados (por ejemplo listados largos de clips) tienen límites más bajos.
+
+Consulta [Límites de uso](/docs/limits/) para el detalle por rol y endpoint.
+
+---
+
+## Explora la documentación
+
+<CardGrid>
+  <LinkCard title="Inicio rápido" href="/docs/inicio-rapido/" description="Conecta tu bot en pocos pasos: login, API Key y primer comando." />
+  <LinkCard title="Panel de control" href="/docs/panel/" description="Pestañas del dashboard, generadores de URL y pruebas en vivo." />
+  <LinkCard title="Tu API Key" href="/docs/auth/" description="Formato UUID, cabeceras y regeneración de clave." />
+  <LinkCard title="Followage" href="/docs/comandos/followage/" description="Tu primer endpoint: parámetros, plantillas y respuestas." />
+  <LinkCard title="Tendencias" href="/docs/herramientas/trends/" description="Overlay de tendencias de Twitch para OBS." />
+  <LinkCard title="Ayuda" href="/docs/extras/errores/" description="Códigos de error y qué hacer cuando algo falla." />
+</CardGrid>

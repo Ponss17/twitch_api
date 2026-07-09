@@ -1,0 +1,167 @@
+---
+import { flattenSidebar } from '@starlight/utils/navigation';
+import type { SidebarEntry, SidebarLink } from '@starlight/utils/routing/types';
+import Icon from '@starlight/user-components/Icon.astro';
+import Badge from '@starlight/user-components/Badge.astro';
+import SidebarRestorePoint from '@astrojs/starlight/components/SidebarRestorePoint.astro';
+
+interface Props {
+	sublist: SidebarEntry[];
+	nested?: boolean;
+}
+
+const { sublist, nested } = Astro.props;
+---
+
+<ul class:list={{ 'top-level': !nested }}>
+	{
+		sublist.map((entry) => (
+			<li>
+				{entry.type === 'link' ? (
+					<a
+						href={entry.href}
+						aria-current={entry.isCurrent ? 'page' : undefined}
+						class:list={[{ large: !nested }, entry.attrs.class]}
+						{...entry.attrs}
+					>
+						<span>{entry.label}</span>
+						{entry.badge && (
+							<Badge
+								variant={entry.badge.variant}
+								class={entry.badge.class}
+								text={entry.badge.text}
+							/>
+						)}
+					</a>
+				) : (
+					<details
+						open={flattenSidebar(entry.entries).some((i: SidebarLink) => i.isCurrent) || !entry.collapsed}
+					>
+						<summary>
+							<span class="group-label">
+								<span class="large">{entry.label}</span>
+								{entry.badge && (
+									<Badge
+										variant={entry.badge.variant}
+										class={entry.badge.class}
+										text={entry.badge.text}
+									/>
+								)}
+							</span>
+							<Icon name="right-caret" class="caret" size="1.25rem" />
+						</summary>
+						<SidebarRestorePoint />
+						<Astro.self sublist={entry.entries} nested />
+					</details>
+				)}
+			</li>
+		))
+	}
+</ul>
+
+<style>
+	ul {
+		--sl-sidebar-item-padding-inline: 0.5rem;
+		list-style: none;
+		padding: 0;
+	}
+
+	li {
+		overflow-wrap: anywhere;
+	}
+
+	ul ul li {
+		margin-inline-start: var(--sl-sidebar-item-padding-inline);
+		border-inline-start: 1px solid var(--sl-color-hairline-light);
+		padding-inline-start: var(--sl-sidebar-item-padding-inline);
+	}
+
+	.large {
+		font-size: var(--sl-text-sm);
+		font-weight: 600;
+		color: var(--sl-color-white);
+	}
+
+	.top-level > li + li {
+		margin-top: 0.75rem;
+	}
+
+	summary {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.2em var(--sl-sidebar-item-padding-inline);
+		line-height: 1.4;
+		cursor: pointer;
+		user-select: none;
+		outline: none;
+		-webkit-tap-highlight-color: transparent;
+	}
+	summary::marker,
+	summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.caret {
+		transition: transform 0.2s ease-in-out;
+		flex-shrink: 0;
+	}
+	:global([dir='rtl']) .caret {
+		transform: rotateZ(180deg);
+	}
+	[open] > summary .caret {
+		transform: rotateZ(90deg);
+	}
+
+	a {
+		display: block;
+		border-radius: 0;
+		text-decoration: none;
+		color: var(--sl-color-gray-2);
+		padding: 0.3em var(--sl-sidebar-item-padding-inline);
+		line-height: 1.4;
+		background-color: transparent !important;
+		outline: none;
+		-webkit-tap-highlight-color: transparent;
+		transition: color 0.15s ease;
+	}
+
+	a:hover,
+	a:focus,
+	a:focus-visible,
+	a:active {
+		color: var(--lp-purple-light) !important;
+		background-color: transparent !important;
+		box-shadow: none !important;
+		outline: none !important;
+	}
+
+	[aria-current='page'],
+	[aria-current='page']:hover,
+	[aria-current='page']:focus,
+	[aria-current='page']:focus-visible,
+	[aria-current='page']:active {
+		font-weight: 500;
+		color: var(--lp-purple-light) !important;
+		background-color: transparent !important;
+		box-shadow: none !important;
+		outline: none !important;
+	}
+
+	a > *:not(:last-child),
+	.group-label > *:not(:last-child) {
+		margin-inline-end: 0.25em;
+	}
+
+	@media (min-width: 50rem) {
+		.top-level > li + li {
+			margin-top: 0.5rem;
+		}
+		.large {
+			font-size: 0.8125rem;
+		}
+		a {
+			font-size: 0.8125rem;
+		}
+	}
+</style>

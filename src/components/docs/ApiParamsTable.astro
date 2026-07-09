@@ -1,0 +1,76 @@
+---
+export interface ApiParam {
+	name: string;
+	type: string;
+	required: boolean;
+	description: string;
+}
+
+interface Props {
+	params: ApiParam[];
+}
+
+const { params } = Astro.props;
+
+function formatDescription(text: string): string {
+	return text.replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function typeSlug(type: string): string {
+	const normalized = type.toLowerCase();
+	if (normalized === 'string') return 'string';
+	if (normalized === 'boolean') return 'boolean';
+	if (normalized === 'number' || normalized === 'integer') return 'number';
+	return 'default';
+}
+
+function typeLabel(type: string): string {
+	const normalized = type.toLowerCase();
+	if (normalized === 'string') return 'String';
+	if (normalized === 'boolean') return 'Boolean';
+	if (normalized === 'number') return 'Number';
+	if (normalized === 'integer') return 'Integer';
+	return type.charAt(0).toUpperCase() + type.slice(1);
+}
+---
+
+<div class="docs-data-table-wrap not-content">
+	<table class="docs-data-table">
+		<colgroup>
+			<col class="docs-data-table__col-param" />
+			<col class="docs-data-table__col-type" />
+			<col class="docs-data-table__col-req" />
+			<col class="docs-data-table__col-desc" />
+		</colgroup>
+		<thead>
+			<tr>
+				<th>Parámetro</th>
+				<th>Tipo</th>
+				<th>Requerido</th>
+				<th>Descripción</th>
+			</tr>
+		</thead>
+		<tbody>
+			{
+				params.map((param) => (
+					<tr>
+						<td>
+							<code class="docs-data-table__param">{param.name}</code>
+						</td>
+						<td>
+							<span class:list={['docs-data-table__type-badge', `docs-data-table__type-badge--${typeSlug(param.type)}`]}>
+								{typeLabel(param.type)}
+							</span>
+						</td>
+						<td>
+							<span class:list={['docs-data-table__req', param.required && 'is-yes']}>
+								{param.required ? 'Sí' : 'No'}
+							</span>
+						</td>
+						<td class="docs-data-table__desc" set:html={formatDescription(param.description)} />
+					</tr>
+				))
+			}
+		</tbody>
+	</table>
+</div>

@@ -1,0 +1,47 @@
+---
+title: "Ruleta"
+description: "Sorteos visuales desde el panel con overlay para OBS."
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+import DashboardAuthNotice from '@/components/docs/DashboardAuthNotice.astro';
+import OverlayApiSection from '@/components/docs/OverlayApiSection.astro';
+
+Herramienta de sorteos con overlay para OBS. Los participantes se gestionan desde el panel y el resultado se muestra en stream.
+
+<DashboardAuthNotice />
+
+## Acceso
+
+Abre **[Ruleta](/dashboard/roulette)** en el panel, genera la URL del overlay y controla el sorteo desde ahí.
+
+## Límites
+
+<Aside type="note" title="Rate limit">
+  Usa la **sesión del dashboard** (500 req/min). El estado (participantes, ganador, animación) persiste en KV **2 horas**. No expongas la URL del overlay en pantalla.
+</Aside>
+
+<OverlayApiSection tool="roulette" flowId="flow-roulette" />
+
+<div class="api-flow">
+
+## Configuración en OBS
+
+<Steps>
+1. Copia la **URL del overlay** desde el panel.
+2. Añádela como fuente **Navegador** en OBS (fondo transparente).
+3. Añade participantes manualmente, por importación o con **Activos del chat**.
+4. Pulsa **Girar** en el panel para lanzar la animación en OBS.
+</Steps>
+
+## Características
+
+- Animación con aceleración y frenado progresivo.
+- Opción de eliminar al ganador tras cada giro.
+- Importación de viewers conectados al chat en tiempo real.
+
+<Aside type="note" title="Persistencia">
+  El estado se guarda automáticamente. Si cierras el panel, los participantes se mantienen al volver.
+</Aside>
+
+</div>

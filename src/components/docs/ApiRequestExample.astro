@@ -1,0 +1,69 @@
+---
+interface Props {
+	method?: 'GET' | 'POST';
+	path: string;
+	base?: string;
+	query: Record<string, string>;
+	accept?: string;
+}
+
+const {
+	method = 'GET',
+	path,
+	base = 'https://ttv.losperris.dev/api',
+	query,
+	accept = 'text/plain',
+} = Astro.props;
+
+const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+const qs = new URLSearchParams(query).toString();
+const url = `${base}${normalizedPath}?${qs}`;
+const curl = `curl --request ${method} \\
+  --url '${url}' \\
+  --header 'Accept: ${accept}'`;
+const curlI = `curl -i --request ${method} \\
+  --url '${url}' \\
+  --header 'Accept: ${accept}'`;
+
+const groupId = `req-ex${normalizedPath.replace(/\//g, '-')}`;
+const tabs = [
+	{ id: 'curl', label: 'cURL', code: curl },
+	{ id: 'curl-i', label: 'cURL -i', code: curlI },
+	{ id: 'url', label: 'URL', code: url },
+];
+---
+
+<div class="api-request-examples docs-code-tabs">
+	{
+		tabs.map((tab, index) => (
+			<input
+				type="radio"
+				name={groupId}
+				id={`${groupId}-${tab.id}`}
+				class="docs-code-tabs__input"
+				checked={index === 0}
+			/>
+		))
+	}
+	<div class="docs-code-tabs__bar" role="tablist" aria-label="Ejemplos de petición">
+		{
+			tabs.map((tab) => (
+				<label class="docs-code-tabs__tab" for={`${groupId}-${tab.id}`} role="tab">
+					{tab.label}
+				</label>
+			))
+		}
+	</div>
+	{
+		tabs.map((tab, index) => (
+			<div
+				class="docs-code-tabs__panel"
+				data-index={index}
+				role="tabpanel"
+				aria-labelledby={`${groupId}-${tab.id}`}
+			>
+				<pre class="docs-code-tabs__code"><code>{tab.code}</code></pre>
+			</div>
+		))
+	}
+</div>

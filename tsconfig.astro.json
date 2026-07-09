@@ -4,7 +4,8 @@
         "baseUrl": ".",
         "paths": {
             "@/*": ["src/*"],
-            "@contracts/*": ["backend/src/core/schemas/*"]
+            "@contracts/*": ["backend/src/core/schemas/*"],
+            "@starlight/*": ["node_modules/@astrojs/starlight/*"]
         },
         "verbatimModuleSyntax": false
     },

@@ -1,0 +1,113 @@
+---
+title: "Shoutout"
+description: "Promociona a otro streamer con su último juego y enlace al canal."
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import ApiEndpoint from '@/components/docs/ApiEndpoint.astro';
+import AuthNotice from '@/components/docs/AuthNotice.astro';
+import ApiParamsTable from '@/components/docs/ApiParamsTable.astro';
+import ApiFlowRequest from '@/components/docs/ApiFlowRequest.astro';
+import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
+import ApiRequestExample from '@/components/docs/ApiRequestExample.astro';
+import BotCommandAuthAside from '@/components/docs/BotCommandAuthAside.astro';
+
+Genera un mensaje de promoción con la categoría reciente y el enlace del canal objetivo. Consulta la API de Twitch en cada petición (sin caché KV como followage).
+
+<ApiEndpoint path="/shoutout" />
+<AuthNotice />
+
+## Límites
+
+<Aside type="note" title="Rate limit">
+  Usa el **límite general** de tu rol (30–120 req/min). En respuestas exitosas, el CDN puede cachear el texto **10 segundos** (`Cache-Control: s-maxage=10`).
+</Aside>
+
+## Parámetros
+
+<ApiParamsTable params={[
+  { name: 'channel', type: 'string', required: true, description: 'Canal donde se ejecuta el comando.' },
+  { name: 'touser', type: 'string', required: true, description: 'Streamer a promocionar.' },
+  { name: 'apiKey', type: 'string', required: true, description: 'Clave de API de tu cuenta.' },
+  { name: 'template', type: 'string', required: false, description: 'Plantilla con `{user}`, `{game}` y `{url}`.' },
+]} />
+
+<div class="api-flow">
+
+## Ejemplo de petición
+
+<ApiFlowRequest
+  flowId="flow-shoutout"
+  path="/shoutout"
+  query={{
+    channel: 'losperris',
+    touser: 'ninja',
+    apiKey: 'TU_API_KEY',
+  }}
+/>
+
+## Plantillas personalizadas
+
+Añade `template` para controlar el mensaje. Placeholders: `{user}`, `{game}` y `{url}`.
+
+<ApiRequestExample
+  path="/shoutout"
+  query={{
+    channel: 'losperris',
+    touser: 'ninja',
+    apiKey: 'TU_API_KEY',
+    template: 'Sigue a {user}, jugaba {game}: {url}',
+  }}
+/>
+
+## Respuestas
+
+<ApiFlowResponse
+  flowId="flow-shoutout"
+  responses={[
+  { tabLabel: '200', status: 200, format: 'text', body: '¡Vayan a seguir a ninja! Estaba jugando Fortnite' },
+  {
+    tabLabel: 'Canal no encontrado',
+    status: 200,
+    format: 'text',
+    body: 'Canal no encontrado.',
+  },
+  {
+    tabLabel: 'Key inválida (200)',
+    status: 200,
+    format: 'text',
+    body: 'Error de autenticación. Clave API inválida o expirada. Regenerala o pide ayuda a Ponss 🦆',
+  },
+  { tabLabel: '429', status: 429, format: 'text', body: '' },
+]} />
+
+<BotCommandAuthAside />
+
+</div>
+
+## Integración con bots
+
+Restringe el comando a moderadores o al streamer en la configuración del bot.
+
+<Tabs>
+  <TabItem label="Nightbot">
+    ```text
+    !addcom !so $(urlfetch https://ttv.losperris.dev/api/shoutout?channel=$(channel)&touser=$(touser)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="StreamElements">
+    ```text
+    !command add !so ${customapi.https://ttv.losperris.dev/api/shoutout?channel=${channel}&touser=${user}&apiKey=TU_API_KEY}
+    ```
+  </TabItem>
+  <TabItem label="Fossabot">
+    ```text
+    !addcmd !so $(customapi https://ttv.losperris.dev/api/shoutout?channel=$(channel)&touser=$(touser)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="Wizebot">
+    ```text
+    !command add !so $(urlfetch https://ttv.losperris.dev/api/shoutout?channel=$(channel)&touser=$(arg_touser)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+</Tabs>

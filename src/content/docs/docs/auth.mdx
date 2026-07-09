@@ -1,0 +1,104 @@
+﻿---
+title: "Tu API Key"
+description: "Autenticación con API Key para endpoints de bot y sesión OAuth del panel."
+---
+
+import { Aside, Steps, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import ApiParamsTable from '@/components/docs/ApiParamsTable.astro';
+import IndentRainbowCode from '@/components/docs/IndentRainbowCode.astro';
+
+La **API Key** identifica tu cuenta en peticiones de bot. Es un **UUID** generado en tu primer login con Twitch y visible en **Configuración** del panel (`/dashboard/settings`).
+
+---
+
+## Obtener tu clave
+
+<Steps>
+1. [Inicia sesión](/docs/inicio-rapido/) con Twitch en ttv.losperris.dev.
+2. Abre el **menú de tu cuenta** (arriba a la derecha) → **Configuración**.
+3. En **Seguridad y conexión**, revela la clave (se oculta sola tras 30 s), cópiala o usa **Regenerar** si crees que se filtró.
+</Steps>
+
+<Aside type="danger" title="Si regeneras la clave">
+  La clave anterior deja de funcionar al instante. Actualiza todas las URLs en Nightbot, StreamElements, Fossabot y Wizebot.
+</Aside>
+
+---
+
+## Cómo enviar la clave (bots)
+
+<ApiParamsTable params={[
+  { name: 'apiKey', type: 'string', required: true, description: 'UUID de tu cuenta. Query param en la mayoría de ejemplos de esta documentación.' },
+]} />
+
+**Alternativa por cabecera** (útil en scripts):
+
+```text
+X-Api-Key: TU_API_KEY
+```
+
+### Ejemplo de URL
+
+```text
+https://ttv.losperris.dev/api/followage?channel=TU_CANAL&user=VIEWER&apiKey=TU_API_KEY
+```
+
+<Aside type="tip" title="Seguridad">
+  No publiques tu API Key en repositorios, vídeos ni capturas. Cualquiera con la clave consume tu cuota de rate limit.
+</Aside>
+
+---
+
+## Panel vs bots
+
+| Contexto | Autenticación | Límite típico |
+| :--- | :--- | :--- |
+| Bots de chat (`/followage`, `/magic8`, …) | `apiKey` o `X-Api-Key` | 30–120 req/min según rol |
+| Panel (`/api/dashboard/*`) | `Authorization: Bearer` (token Twitch) | 500 req/min |
+| Overlays OBS | Token de solo lectura (`overlayToken`) | Lectura del estado publicado |
+
+<Aside type="note" title="OAuth del panel">
+  El dashboard guarda además un token OAuth de Twitch para rutas internas. Los bots **solo** necesitan la API Key en la URL; no hace falta OAuth en Nightbot ni similares.
+</Aside>
+
+---
+
+## Permisos de Twitch al conectar
+
+Al vincular tu cuenta solo pedimos scopes necesarios para leer información pública y ejecutar lo que configuras (clips, chat, moderación básica, etc.):
+
+- `user:read:email`, `moderator:read:followers`, `clips:edit`
+- `moderator:read:chatters`, `user:write:chat`, `chat:read`, `chat:edit`
+- `moderator:manage:banned_users`, `channel:read:vips`, `channel:read:subscriptions`
+
+No solicitamos contraseña ni Stream Key.
+
+---
+
+## Validar sesión (panel)
+
+El frontend llama a `GET /api/system/validate` al cargar. Respuesta exitosa (resumen):
+
+<IndentRainbowCode code={`{
+  "valid": true,
+  "apiKey": "…",
+  "user": {
+    "id": "…",
+    "login": "tu_canal",
+    "display_name": "Tu Canal",
+    "profile_image_url": "…",
+    "timezone": "Europe/Madrid"
+  }
+}`} />
+
+Los tokens de overlay devuelven **403** en validate — son de solo lectura y no representan sesión de panel.
+
+---
+
+## Enlaces
+
+<CardGrid>
+  <LinkCard title="Perfil y seguridad" href="/docs/profile/" description="Regenerar clave, exportar datos y eliminar cuenta." />
+  <LinkCard title="Límites de uso" href="/docs/limits/" description="Cuota por rol, panel y endpoints pesados." />
+  <LinkCard title="Inicio rápido" href="/docs/inicio-rapido/" description="Tu primer comando en el chat." />
+</CardGrid>
