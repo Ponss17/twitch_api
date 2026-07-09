@@ -1,73 +1,19 @@
-import React, { useMemo, useEffect, useRef, useState, type ReactNode } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
-import { BarChart3, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { fadeIn } from '@/core/ui/tw';
 import { useRequiredSession } from '@/core/session/useSession';
-import { CardHeaderIcon } from '@/shared/ui/Icon';
-import { InfoTooltip } from '@/shared/ui/InfoTooltip';
-
-import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
-import { Zap, CheckCircle2, Gauge, Command } from 'lucide-react';
 import { getTodayRequestsTotal } from '@/features/dashboard/lib/dashboardStats';
 
-const STATS_ROW =
-    'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4';
-
-const H_STAT =
-    'group relative flex flex-col gap-2 rounded-xl border border-white/[0.04] bg-white/[0.02] px-6 py-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:bg-white/[0.04] hover:shadow-2xl';
-
-const COLORS = ['#7254b8', '#4a8b75', '#b3934d', '#b35656', '#4d75b3', '#b3714d', '#a85c87', '#615e9c'];
-
-function ChartMountGate({
-    active,
-    className,
-    srLabel,
-    children
-}: {
-    active: boolean;
-    className?: string;
-    srLabel?: string;
-    children: ReactNode;
-}) {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [canRender, setCanRender] = useState(false);
-
-    useEffect(() => {
-        if (!active) {
-            setCanRender(false);
-            return;
-        }
-
-        const node = containerRef.current;
-        if (!node) return;
-
-        const update = () => {
-            const { width, height } = node.getBoundingClientRect();
-            setCanRender(width > 0 && height > 0);
-        };
-
-        update();
-        const observer = new ResizeObserver(update);
-        observer.observe(node);
-
-        return () => observer.disconnect();
-    }, [active]);
-
-    return (
-        <div ref={containerRef} className={className}>
-            {srLabel ? <span className="sr-only">{srLabel}</span> : null}
-            {canRender ? (
-                <div aria-hidden="true" className="h-full w-full min-h-0 min-w-0">
-                    {children}
-                </div>
-            ) : null}
-        </div>
-    );
-}
+import { AnalyticsKPIs } from './AnalyticsKPIs';
+import { AnalyticsAreaChart } from './AnalyticsAreaChart';
+import { AnalyticsCommandsDistribution } from './AnalyticsCommandsDistribution';
+import { AnalyticsEndpointsTable } from './AnalyticsEndpointsTable';
+import { AnalyticsLatencyChart } from './AnalyticsLatencyChart';
 
 function AnalyticsViewContent({ active }: { active: boolean }) {
     const { stats, hasLiveData, error } = useDashboardPanel();
+    const [timeRange, setTimeRange] = useState<'today' | '7d'>('today');
 
     const { timeSeries = [] } = stats;
 
@@ -123,8 +69,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         return { areaData: sortedPie.length === 0 ? [] : sortedArea, pieData: sortedPie, summary: { totalRequests, successRate, avgLatency, uniqueCommands } };
     }, [timeSeries]);
 
-    // Fix agresivo para Astro DevToolbar: Recharts añade tabindex="0" a muchos elementos 
-    // (path, g, section, rect) durante y después de animar, disparando falsos positivos de a11y.
+    // Fix agresivo para Astro DevToolbar
     useEffect(() => {
         if (!active) return;
         const cleanTabIndex = () => {
@@ -134,7 +79,6 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         };
         
         cleanTabIndex();
-        // Las animaciones duran hasta 1500ms, así que limpiamos agresivamente en intervalos
         const interval = setInterval(cleanTabIndex, 100);
         const timeout = setTimeout(() => clearInterval(interval), 2000);
         
@@ -153,351 +97,51 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         );
     }
 
-    const latencyMs = stats.avgLatencyMs ?? 0;
     const todayRequests = getTodayRequestsTotal(stats);
+    const latencyDaily = stats.avgLatencyMs ?? 0;
     const successRateDaily = stats.rawSuccessRate ?? 0;
+    
+    const commandKeys = ['clips', 'followage', 'so', 'message', 'stalker', 'trends', 'roulette', 'russian', 'magic8', 'duel'] as const;
+    const uniqueCommandsDaily = commandKeys.filter(key => (stats[key] ?? 0) > 0).length;
+
+    const latencyWeekly = summary.avgLatency ?? 0;
+    const successRateWeekly = parseFloat(summary.successRate) || 0;
+    const requestsWeekly = summary.totalRequests;
+    const uniqueCommandsWeekly = summary.uniqueCommands;
+
+    const displayRequests = timeRange === 'today' ? todayRequests : requestsWeekly;
+    const displaySuccessRate = timeRange === 'today' ? successRateDaily : successRateWeekly;
+    const displayLatency = timeRange === 'today' ? latencyDaily : latencyWeekly;
+    const displayCommands = timeRange === 'today' ? uniqueCommandsDaily : uniqueCommandsWeekly;
+
     const isLoading = !hasLiveData;
-    const requestsDuration = todayRequests === 0 ? 0 : active ? 400 : 0;
+    const requestsDuration = displayRequests === 0 ? 0 : active ? 400 : 0;
     const successDuration = active ? 1000 : 0;
     const latencyDuration = active ? 1000 : 0;
 
     return (
         <div className={`space-y-6 ${fadeIn}`}>
+            <AnalyticsKPIs
+                timeRange={timeRange}
+                setTimeRange={setTimeRange}
+                isLoading={isLoading}
+                displayRequests={displayRequests}
+                displaySuccessRate={displaySuccessRate}
+                displayLatency={displayLatency}
+                displayCommands={displayCommands}
+                requestsDuration={requestsDuration}
+                successDuration={successDuration}
+                latencyDuration={latencyDuration}
+            />
 
-            {/* Contenedor Unificado: Overview + KPIs */}
-            <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
-                <div className="mb-6 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
-                    <div className="flex items-center gap-3">
-                        <CardHeaderIcon icon={BarChart3} />
-                        <div>
-                            <h3 className="mb-0.5 text-[1.05rem] font-bold text-[#fafafa]">Analytics Overview</h3>
-                            <p className="text-[0.8rem] text-[#c4c4cc]">KPIs de hoy y tendencias de los últimos 7 días en tiempo real.</p>
-                        </div>
-                    </div>
-                    <InfoTooltip text="Métricas generales en tiempo real correspondientes al día actual." />
-                </div>
-
-                <div className={STATS_ROW} aria-busy={isLoading}>
-                    {/* Total Requests */}
-                    <div className={H_STAT}>
-                        <div className="flex justify-between items-center w-full mb-2">
-                            <span className="text-sm font-medium text-zinc-300">Peticiones Totales</span>
-                            <Zap className="w-4 h-4 text-primary" />
-                        </div>
-                        <div className="flex flex-col">
-                            <AnimatedNumber
-                                value={todayRequests}
-                                duration={requestsDuration}
-                                isLoading={isLoading}
-                                className="text-[2.5rem] font-bold leading-none tracking-tight text-white"
-                            />
-                            <span className="text-xs text-zinc-500 mt-2 font-medium">realizadas hoy</span>
-                        </div>
-                    </div>
-
-                    {/* Success Rate */}
-                    <div className={H_STAT}>
-                        <div className="flex justify-between items-center w-full mb-2">
-                            <span className="text-sm font-medium text-zinc-300">Tasa de Éxito</span>
-                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                        </div>
-                        <div className="flex flex-col">
-                            <AnimatedNumber
-                                value={successRateDaily}
-                                duration={successDuration}
-                                suffix="%"
-                                isLoading={isLoading}
-                                className="text-[2.5rem] font-bold leading-none tracking-tight text-white"
-                            />
-                            <span className="text-xs text-zinc-500 mt-2 font-medium">peticiones exitosas</span>
-                        </div>
-                    </div>
-
-                    {/* Avg Processing Time */}
-                    <div className={H_STAT}>
-                        <div className="flex justify-between items-center w-full mb-2">
-                            <span className="text-sm font-medium text-zinc-300">(s) Tiempo de Proceso Medio</span>
-                            <Gauge className="w-4 h-4 text-amber-500" />
-                        </div>
-                        <div className="flex flex-col">
-                            <div className="flex items-end gap-1.5">
-                                <AnimatedNumber
-                                    value={latencyMs}
-                                    duration={latencyDuration}
-                                    isLoading={isLoading}
-                                    className="text-[2.5rem] font-bold leading-none tracking-tight text-white"
-                                />
-                                <span className="text-xl font-bold text-white mb-0.5">ms</span>
-                                {!isLoading && latencyMs > 0 && (
-                                    <span className="mb-1 text-sm font-medium text-zinc-500">
-                                        ({(latencyMs / 1000).toFixed(2)}s)
-                                    </span>
-                                )}
-                            </div>
-                            <span className="text-xs text-zinc-500 mt-2 font-medium">latencia global de la API</span>
-                        </div>
-                    </div>
-
-                    {/* Commands */}
-                    <div className={H_STAT}>
-                        <div className="flex justify-between items-center w-full mb-2">
-                            <span className="text-sm font-medium text-zinc-300">Comandos Usados</span>
-                            <Command className="w-4 h-4 text-blue-500" />
-                        </div>
-                        <div className="flex flex-col">
-                            <AnimatedNumber
-                                value={summary.uniqueCommands}
-                                duration={1500}
-                                isLoading={isLoading}
-                                className="text-[2.5rem] font-bold leading-none tracking-tight text-white"
-                            />
-                            <span className="text-xs text-zinc-500 mt-2 font-medium">herramientas diferentes invocadas</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Gráficas Principales */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                {/* Peticiones Diarias (Con Grid muy visible y color morado) */}
-                <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50 lg:col-span-2">
-                    <div className="mb-6 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
-                        <div>
-                            <h2 className="text-lg font-semibold text-[#fafafa]">Peticiones por Estado (7 días)</h2>
-                            <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Desglose de uso diario</p>
-                        </div>
-                        <div className="flex shrink-0 items-center gap-3">
-                            <span className="text-xs text-zinc-500">{Intl.DateTimeFormat().resolvedOptions().timeZone} - últimos 7 días</span>
-                            <InfoTooltip
-                                placement="bottom"
-                                text="Evolución diaria del total de peticiones exitosas vs errores en la última semana."
-                            />
-                        </div>
-                    </div>
-                    <ChartMountGate
-                        active={active}
-                        className="relative h-[320px] w-full min-w-0"
-                        srLabel="Gráfico de área mostrando las peticiones diarias de los últimos 7 días."
-                    >
-                        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                                <AreaChart data={areaData} margin={{ top: 10, right: 30, left: -20, bottom: 0 }} accessibilityLayer={false}>
-                                    <defs>
-                                        <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#9146ff" stopOpacity={0.25} />
-                                            <stop offset="95%" stopColor="#9146ff" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    {/* GRID Súper visible como en el ejemplo */}
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.06} vertical={true} horizontal={true} />
-                                    <XAxis
-                                        dataKey="date"
-                                        stroke="#71717a"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={{ stroke: '#ffffff', strokeOpacity: 0.1 }}
-                                        tickMargin={12}
-                                        tickFormatter={(val) => {
-                                            const parts = val.split('-');
-                                            return `${parts[2]}/${parts[1]}`;
-                                        }}
-                                    />
-                                    <YAxis
-                                        stroke="#71717a"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        domain={[0, (dataMax: number) => (dataMax === 0 ? 10 : dataMax)]}
-                                        allowDecimals={false}
-                                        tickMargin={12}
-                                    />
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', color: '#fafafa', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)' }}
-                                        itemStyle={{ color: '#fafafa', fontWeight: 500 }}
-                                        labelStyle={{ color: '#a1a1aa', marginBottom: '8px', fontSize: '13px' }}
-                                        cursor={{ stroke: '#3f3f46', strokeWidth: 1, strokeDasharray: '4 4' }}
-                                    />
-                                    <Area type="monotone" dataKey="requests" name="Peticiones" stroke="#9146ff" strokeWidth={3} activeDot={{ r: 6, strokeWidth: 2, stroke: '#18181b', fill: '#9146ff' }} fillOpacity={1} fill="url(#colorRequests)" />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                    </ChartMountGate>
-                </div>
-
-                {/* Uso / Distribución (Donut tipo ejemplo) */}
-                <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
-                    <div className="mb-6 border-b border-white/[0.08] pb-4">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <h2 className="text-lg font-semibold text-[#fafafa]">Uso de Comandos</h2>
-                                <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Distribución general en API</p>
-                            </div>
-                            <InfoTooltip text="Proporción de uso de los diferentes comandos y minijuegos en la última semana." />
-                        </div>
-                    </div>
-                    {pieData.length === 0 || pieData.every(d => d.value === 0) ? (
-                        <div className="mt-4 flex h-[240px] w-full items-center justify-center text-sm text-zinc-500">
-                            Sin datos suficientes
-                        </div>
-                    ) : (
-                        <ChartMountGate
-                            active={active}
-                            className="relative mt-4 h-[240px] w-full min-w-0"
-                            srLabel="Gráfico circular mostrando la distribución de comandos utilizados."
-                        >
-                                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                                    <PieChart accessibilityLayer={false}>
-                                        <Pie
-                                            data={pieData}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={70}
-                                            outerRadius={95}
-                                            paddingAngle={4}
-                                            dataKey="value"
-                                            stroke="none"
-                                            cornerRadius={6}
-                                        >
-                                            {pieData.map((_, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip
-                                            contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', color: '#fafafa' }}
-                                            itemStyle={{ color: '#fafafa', fontWeight: 500 }}
-                                        />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                                    <span className="text-3xl font-bold tracking-tight text-white">{summary.totalRequests.toLocaleString()}</span>
-                                    <span className="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-zinc-500">Peticiones</span>
-                                </div>
-                        </ChartMountGate>
-                    )}
-                    {pieData.length > 0 && pieData.some(d => d.value > 0) && (
-                        <div className="mt-8 flex flex-col gap-3">
-                            {pieData.slice(0, 4).map((entry, index) => {
-                                const percentage = summary.totalRequests > 0 ? ((entry.value / summary.totalRequests) * 100).toFixed(1) : '0.0';
-                                return (
-                                    <div key={entry.name} className="flex items-center justify-between rounded-lg bg-white/[0.02] p-2.5 transition hover:bg-white/[0.04]">
-                                        <div className="flex items-center gap-2.5 overflow-hidden">
-                                            <span className="size-3.5 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
-                                            <span className="capitalize truncate text-sm font-medium text-zinc-200" title={entry.name}>{entry.name}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3 shrink-0">
-                                            <span className="text-xs text-zinc-400">{entry.value.toLocaleString()}</span>
-                                            <span className="text-xs font-bold text-white w-10 text-right">{percentage}%</span>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    )}
-                </div>
+                <AnalyticsAreaChart active={active} areaData={areaData} />
+                <AnalyticsCommandsDistribution active={active} pieData={pieData} totalRequests={summary.totalRequests} />
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                {/* Desglose por Comando (Tabla) */}
-                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
-                    <div className="mb-6 border-b border-white/[0.08] pb-4">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <h2 className="text-lg font-semibold text-[#fafafa]">Endpoints Más Usados</h2>
-                                <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Acumulado de los últimos 7 días</p>
-                            </div>
-                            <InfoTooltip text="Lista detallada de las herramientas más consultadas de tu API en los últimos 7 días." />
-                        </div>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
-                            <thead>
-                                <tr className="border-b border-white/[0.05] text-zinc-500">
-                                    <th className="pb-3 font-medium">Comando</th>
-                                    <th className="pb-3 font-medium text-right">Peticiones</th>
-                                    <th className="pb-3 font-medium text-right">Éxito</th>
-                                    <th className="pb-3 font-medium text-right">Latencia</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {pieData.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={4} className="py-8 text-center text-zinc-500">No hay datos suficientes</td>
-                                    </tr>
-                                ) : (
-                                    pieData.map((row, idx) => (
-                                        <tr key={row.name} className="border-b border-white/[0.03] last:border-0 hover:bg-white/[0.02] transition-colors">
-                                            <td className="py-3.5 capitalize text-zinc-200">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="size-2 rounded-full" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></span>
-                                                    {row.name}
-                                                </div>
-                                            </td>
-                                            <td className="py-3.5 text-right font-medium text-white">{row.value.toLocaleString()}</td>
-                                            <td className="py-3.5 text-right">
-                                                <span className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider ${parseFloat(row.successRate) > 95 ? 'bg-emerald-500/10 text-emerald-400' : parseFloat(row.successRate) > 80 ? 'bg-yellow-500/10 text-yellow-400' : 'bg-red-500/10 text-red-400'}`}>
-                                                    {row.successRate}%
-                                                </span>
-                                            </td>
-                                            <td className="py-3.5 text-right text-zinc-400 font-mono text-xs">
-                                                {row.avgLatency}ms
-                                                <span className="ml-1 text-[0.65rem] text-zinc-600">({(row.avgLatency / 1000).toFixed(2)}s)</span>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* Gráfico de Latencia (BarChart) */}
-                <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
-                    <div className="mb-6 border-b border-white/[0.08] pb-4">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <h2 className="text-lg font-semibold text-[#fafafa]">Comparativa de Latencia</h2>
-                                <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Promedio de los últimos 7 días por comando</p>
-                            </div>
-                            <InfoTooltip text="Tiempo promedio que le toma a tu servidor procesar cada comando específico (últimos 7 días)." />
-                        </div>
-                    </div>
-                    {pieData.length === 0 || pieData.every(d => d.avgLatency === 0) ? (
-                        <div className="flex h-[280px] w-full items-center justify-center text-sm text-zinc-500">
-                            Sin datos de latencia
-                        </div>
-                    ) : (
-                        <ChartMountGate
-                            active={active}
-                            className="relative h-[280px] w-full min-w-0"
-                            srLabel="Gráfico de barras mostrando la latencia promedio por comando."
-                        >
-                                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                                    <BarChart data={pieData} layout="vertical" margin={{ top: 0, right: 30, left: 20, bottom: 0 }} accessibilityLayer={false}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.05} horizontal={true} vertical={true} />
-                                        <XAxis
-                                            type="number"
-                                            stroke="#71717a"
-                                            fontSize={12}
-                                            tickLine={false}
-                                            axisLine={false}
-                                            tickMargin={8}
-                                            tickFormatter={(val) => `${val}ms`}
-                                            domain={[0, (dataMax: number) => (dataMax === 0 ? 10 : dataMax)]}
-                                        />
-                                        <YAxis type="category" dataKey="name" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} className="capitalize" />
-                                        <Tooltip
-                                            contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', color: '#fafafa' }}
-                                            itemStyle={{ color: '#fafafa', fontWeight: 500 }}
-                                            cursor={false}
-                                        />
-                                        <Bar dataKey="avgLatency" name="Latencia" radius={[0, 4, 4, 0]} maxBarSize={16}>
-                                            {pieData.map((_, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Bar>
-                                    </BarChart>
-                                </ResponsiveContainer>
-                        </ChartMountGate>
-                    )}
-                </div>
+                <AnalyticsEndpointsTable pieData={pieData} />
+                <AnalyticsLatencyChart active={active} pieData={pieData} />
             </div>
         </div>
     );
