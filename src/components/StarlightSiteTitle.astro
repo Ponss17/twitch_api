@@ -1,8 +1,9 @@
 ---
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { appPath } from '@/core/config/paths';
 
-const { siteTitleHref } = Astro.locals.starlightRoute;
+const homeHref = appPath('/');
 
 const logoSvg = readFileSync(path.join(process.cwd(), 'public/img/logo.svg'), 'utf-8')
 	.replace(/<\?xml[\s\S]*?\?>/, '')
@@ -10,7 +11,7 @@ const logoSvg = readFileSync(path.join(process.cwd(), 'public/img/logo.svg'), 'u
 	.replace('<svg ', '<svg class="site-title-logo-svg" ');
 ---
 
-<a href={siteTitleHref} class="site-title sl-flex">
+<a href={homeHref} class="site-title sl-flex">
 	<span class="site-title-logo" transition:persist="site-logo" aria-hidden="true" set:html={logoSvg} />
 	<span translate="no"><span class="site-title-brand">LosPerris</span> <span class="site-title-accent">API</span></span>
 </a>
