@@ -132,7 +132,7 @@ export function AnalyticsTodayBarChart({
                                 stroke="#71717a" 
                                 fontSize={12} 
                                 tickLine={false} 
-                                axisLine={{ stroke: '#ffffff', strokeOpacity: 0.1 }}
+                                axisLine={{ stroke: '#ffffff', strokeOpacity: 0.3, strokeWidth: 1.5 }}
                                 tickMargin={12} 
                                 className="capitalize"
                             />
