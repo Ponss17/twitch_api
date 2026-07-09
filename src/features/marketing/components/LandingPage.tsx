@@ -24,7 +24,7 @@ const GRID_STYLE: React.CSSProperties = {
     backgroundSize: '60px 60px'
 };
 
-const GRADIENT_TEXT = 'bg-gradient-to-br from-[#fafafa] via-[#e2d5f8] to-[#9146ff] bg-clip-text text-transparent';
+
 
 const CMD_CODE =
     'rounded border border-[#9146ff]/15 bg-[#9146ff]/10 px-1.5 py-0.5 font-mono text-[0.95em] text-[#a78bfa]';
@@ -99,6 +99,7 @@ export function LandingPage() {
     const [isCopied, setIsCopied] = useState(false);
     const [hasSession, setHasSession] = useState(false);
     const [requestStatus, setRequestStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+    const [latency, setLatency] = useState(142);
 
     const copyTerminal = async () => {
         const text = 'curl -G "https://api.losperris.dev/twitch/followage" -d "channel=losperris" -d "user=mynana17" -d "apiKey=sk_a1b2c3d4..."';
@@ -112,7 +113,9 @@ export function LandingPage() {
         setRequestStatus('idle'); // Reset if it was success
         setTimeout(() => {
             setRequestStatus('loading');
-            setTimeout(() => setRequestStatus('success'), 800);
+            const newLatency = Math.floor(Math.random() * (150 - 45 + 1)) + 45;
+            setLatency(newLatency);
+            setTimeout(() => setRequestStatus('success'), newLatency + 400);
         }, 50);
     };
 
@@ -243,7 +246,7 @@ export function LandingPage() {
                                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#9146ff] opacity-75"></span>
                                 <span className="relative inline-flex h-2 w-2 rounded-full bg-[#9146ff]"></span>
                             </span>
-                            Twitch API — Beta
+                            Twitch API — v5
                         </div>
                         <h2 
                             className="mb-5 animate-fade-soft text-[clamp(2.8rem,4.5vw,4.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-[#fafafa] opacity-0 [animation-fill-mode:forwards]" 
@@ -251,7 +254,7 @@ export function LandingPage() {
                         >
                             Comandos para tu
                             <br />
-                            <span className={GRADIENT_TEXT}>Stream.</span>
+                            <span className="text-[#9146ff]">Stream.</span>
                         </h2>
                         <p 
                             className="mb-8 animate-fade-soft text-lg leading-relaxed text-[#c4c4cc] opacity-0 [animation-fill-mode:forwards]"
@@ -373,7 +376,7 @@ export function LandingPage() {
                                     <div className="mt-3 animate-fade-soft border-t border-white/[0.04] pt-3 text-[0.8rem]">
                                         <div className="mb-1.5 flex items-center gap-2">
                                             <span className="text-[0.65rem] font-bold text-[#10b981]">200 OK</span>
-                                            <span className="text-[0.65rem] text-white/30">142ms</span>
+                                            <span className="text-[0.65rem] text-white/30">{latency}ms</span>
                                         </div>
                                         <div className="text-white/60">
                                             <span className="mr-1.5 text-[#10b981]">✔</span>@mynana17 sigue losperris desde hace 2 años y 1 mes.
@@ -391,7 +394,7 @@ export function LandingPage() {
                     <div className="mb-12 text-center">
 
                         <h2 className="text-5xl font-bold leading-tight tracking-tight text-white">
-                            Funciones de la <span className={GRADIENT_TEXT}>API</span>
+                            Funciones de la <span className="text-[#9146ff]">API</span>
                         </h2>
                         <p className="mx-auto mt-4 max-w-[650px] text-lg text-[#c4c4cc]">
                             Todo lo que necesitas para tu stream.
@@ -432,7 +435,7 @@ export function LandingPage() {
                 <section className="pb-20 pt-8">
                     <div className="mb-12 text-center">
                         <h2 className="text-4xl font-bold tracking-tight text-white">
-                            Preguntas <span className={GRADIENT_TEXT}>Frecuentes</span>
+                            Preguntas <span className="text-[#9146ff]">Frecuentes</span>
                         </h2>
                         <p className="mt-3 text-[#71717a]">Resuelve tus dudas sobre la API</p>
                     </div>
