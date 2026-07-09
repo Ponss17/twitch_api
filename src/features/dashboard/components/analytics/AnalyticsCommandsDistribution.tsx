@@ -42,6 +42,7 @@ export function AnalyticsCommandsDistribution({
                                 data={pieData}
                                 cx="50%"
                                 cy="50%"
+                                innerRadius={65}
                                 outerRadius={95}
                                 dataKey="value"
                             >

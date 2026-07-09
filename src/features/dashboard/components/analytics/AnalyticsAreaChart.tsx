@@ -32,12 +32,6 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
             >
                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                     <AreaChart data={areaData} margin={{ top: 10, right: 30, left: -20, bottom: 0 }} accessibilityLayer={false}>
-                        <defs>
-                            <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#9146ff" stopOpacity={0.25} />
-                                <stop offset="95%" stopColor="#9146ff" stopOpacity={0} />
-                            </linearGradient>
-                        </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.06} vertical={true} horizontal={true} />
                         <XAxis
                             dataKey="date"
@@ -66,7 +60,7 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             labelStyle={{ color: '#a1a1aa', marginBottom: '8px', fontSize: '13px' }}
                             cursor={{ stroke: '#3f3f46', strokeWidth: 1, strokeDasharray: '4 4' }}
                         />
-                        <Area type="monotone" dataKey="requests" name="Peticiones" stroke="#9146ff" strokeWidth={3} activeDot={{ r: 6, strokeWidth: 2, stroke: '#18181b', fill: '#9146ff' }} fillOpacity={1} fill="url(#colorRequests)" />
+                        <Area type="monotone" dataKey="requests" name="Peticiones" stroke="#9146ff" strokeWidth={3} activeDot={{ r: 6, strokeWidth: 2, stroke: '#18181b', fill: '#9146ff' }} fillOpacity={0.15} fill="#9146ff" />
                     </AreaChart>
                 </ResponsiveContainer>
             </ChartMountGate>
