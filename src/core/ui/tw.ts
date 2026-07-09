@@ -28,10 +28,10 @@ export const codeTextarea =
     'block h-[38px] w-full resize-none overflow-hidden border-none bg-transparent pr-[96px] font-[Consolas,monospace] text-[0.8125rem] leading-[1.45] text-[#fafafa] outline-none';
 
 export const btnCopy =
-    'absolute top-1/2 right-2.5 flex -translate-y-1/2 items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-[0.8125rem] font-semibold text-white transition hover:bg-primary-hover';
+    'absolute top-1/2 right-2.5 flex -translate-y-1/2 items-center gap-1 rounded-lg bg-[#7c3aed] px-3 py-1.5 text-[0.8125rem] font-semibold text-white transition hover:bg-[#6d28d9]';
 
 export const btnPrimary =
-    'mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-[0.8125rem] font-semibold text-white transition hover:bg-primary-hover disabled:opacity-50';
+    'mt-4 inline-flex items-center gap-2 rounded-lg bg-[#7c3aed] px-6 py-2 text-[0.8125rem] font-semibold text-white transition hover:bg-[#6d28d9] disabled:opacity-50';
 
 export const responseCard =
     'mt-3 items-center gap-3 rounded-xl border border-white/[0.08] bg-[rgba(15,23,42,0.6)] px-4 py-3 text-[0.8125rem] leading-normal text-[#fafafa] backdrop-blur-[10px]';
@@ -76,7 +76,7 @@ const modalBtnBase =
     'inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[0.8125rem] font-semibold transition disabled:cursor-not-allowed disabled:opacity-50';
 
 export const modalBtnPrimary =
-    `${modalBtnBase} bg-primary font-semibold text-white hover:-translate-y-0.5 hover:bg-primary-hover`;
+    `${modalBtnBase} bg-[#7c3aed] font-semibold text-white hover:-translate-y-0.5 hover:bg-[#6d28d9]`;
 
 export const btnSecondary =
     `${modalBtnBase} border border-white/15 bg-white/10 font-semibold text-[#fafafa] hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/15`;
