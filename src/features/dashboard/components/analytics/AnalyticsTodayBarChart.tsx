@@ -127,12 +127,12 @@ export function AnalyticsTodayBarChart({
                         <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} accessibilityLayer={false}>
                             <defs>
                                 <linearGradient id="colorSuccess" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.8} />
+                                    <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
                                 </linearGradient>
                                 <linearGradient id="colorErrors" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                                    <stop offset="0%" stopColor="#ef4444" stopOpacity={0.8} />
+                                    <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.06} horizontal={true} vertical={true} />

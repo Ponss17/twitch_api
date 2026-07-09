@@ -37,7 +37,7 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                 {COLORS.map((color, index) => (
                                     <linearGradient key={`grad-lat-${index}`} id={`colorLatGrad-${index}`} x1="0" y1="0" x2="1" y2="0">
                                         <stop offset="0%" stopColor={color} stopOpacity={0.8} />
-                                        <stop offset="100%" stopColor={color} stopOpacity={0.2} />
+                                        <stop offset="100%" stopColor={color} stopOpacity={0} />
                                     </linearGradient>
                                 ))}
                             </defs>
