@@ -29,7 +29,7 @@ const CustomBarShape = (props: any) => {
 
     return (
         <g>
-            <path d={fillPath} fill={fill} />
+            <path d={fillPath} fill={fill} fillOpacity={0.15} />
             <path 
                 d={strokePath} 
                 stroke={stroke} 
@@ -125,16 +125,6 @@ export function AnalyticsTodayBarChart({
                 >
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                         <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} accessibilityLayer={false}>
-                            <defs>
-                                <linearGradient id="colorSuccess" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.8} />
-                                    <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
-                                </linearGradient>
-                                <linearGradient id="colorErrors" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#ef4444" stopOpacity={0.8} />
-                                    <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.06} horizontal={true} vertical={true} />
                             
                             <XAxis 
@@ -142,7 +132,7 @@ export function AnalyticsTodayBarChart({
                                 stroke="#71717a" 
                                 fontSize={12} 
                                 tickLine={false} 
-                                axisLine={false} 
+                                axisLine={{ stroke: '#ffffff', strokeOpacity: 0.1 }}
                                 tickMargin={12} 
                                 className="capitalize"
                             />
@@ -161,9 +151,9 @@ export function AnalyticsTodayBarChart({
                             />
                             <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: '#c4c4cc' }} iconType="circle" />
                             
-                            {/* Barras con bordes fuertes y gradiente interior (estilo Nightbot) */}
-                            <Bar dataKey="Éxitos" fill="url(#colorSuccess)" stroke="url(#colorSuccess)" shape={<CustomBarShape />} maxBarSize={48} />
-                            <Bar dataKey="Errores" fill="url(#colorErrors)" stroke="url(#colorErrors)" shape={<CustomBarShape />} maxBarSize={48} />
+                            {/* Barras con bordes fuertes e interior sólido */}
+                            <Bar dataKey="Éxitos" fill="#10b981" stroke="#10b981" shape={<CustomBarShape />} maxBarSize={48} />
+                            <Bar dataKey="Errores" fill="#ef4444" stroke="#ef4444" shape={<CustomBarShape />} maxBarSize={48} />
                         </ComposedChart>
                     </ResponsiveContainer>
                 </ChartMountGate>
