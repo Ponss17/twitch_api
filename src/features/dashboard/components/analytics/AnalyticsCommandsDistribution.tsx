@@ -42,7 +42,7 @@ export function AnalyticsCommandsDistribution({
                                 {COLORS.map((color, index) => (
                                     <linearGradient key={`grad-pie-${index}`} id={`colorPieGrad-${index}`} x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="0%" stopColor={color} stopOpacity={0.9} />
-                                        <stop offset="100%" stopColor={color} stopOpacity={0.3} />
+                                        <stop offset="100%" stopColor={color} stopOpacity={0} />
                                     </linearGradient>
                                 ))}
                             </defs>
@@ -50,15 +50,18 @@ export function AnalyticsCommandsDistribution({
                                 data={pieData}
                                 cx="50%"
                                 cy="50%"
-                                innerRadius={70}
                                 outerRadius={95}
                                 paddingAngle={4}
                                 dataKey="value"
-                                stroke="none"
                                 cornerRadius={6}
                             >
                                 {pieData.map((_, index) => (
-                                    <Cell key={`cell-${index}`} fill={`url(#colorPieGrad-${index % COLORS.length})`} />
+                                    <Cell 
+                                        key={`cell-${index}`} 
+                                        fill={`url(#colorPieGrad-${index % COLORS.length})`} 
+                                        stroke={COLORS[index % COLORS.length]} 
+                                        strokeWidth={2} 
+                                    />
                                 ))}
                             </Pie>
                             <Tooltip
@@ -67,10 +70,6 @@ export function AnalyticsCommandsDistribution({
                             />
                         </PieChart>
                     </ResponsiveContainer>
-                    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-3xl font-bold tracking-tight text-white">{totalRequests.toLocaleString()}</span>
-                        <span className="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-zinc-500">Peticiones</span>
-                    </div>
                 </ChartMountGate>
             )}
             {pieData.length > 0 && pieData.some((d) => d.value > 0) && (
