@@ -16,7 +16,7 @@ export function AnalyticsEndpointsTable({ pieData }: AnalyticsEndpointsTableProp
                         <h2 className="text-lg font-semibold text-[#fafafa]">Endpoints Más Usados</h2>
                         <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Acumulado de los últimos 7 días</p>
                     </div>
-                    <InfoTooltip text="Lista detallada de las herramientas más consultadas de tu API en los últimos 7 días." />
+                    <InfoTooltip text="Lista detallada de los endpoints más consultados de tu API en los últimos 7 días." />
                 </div>
             </div>
             <div className="overflow-x-auto">

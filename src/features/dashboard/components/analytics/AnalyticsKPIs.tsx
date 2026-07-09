@@ -141,7 +141,7 @@ export function AnalyticsKPIs({
                             isLoading={isLoading}
                             className="text-[2.5rem] font-bold leading-none tracking-tight text-white"
                         />
-                        <span className="text-xs text-zinc-500 mt-2 font-medium">herramientas diferentes invocadas {subtextSuffix}</span>
+                        <span className="text-xs text-zinc-500 mt-2 font-medium">comandos diferentes invocados {subtextSuffix}</span>
                     </div>
                 </div>
             </div>
