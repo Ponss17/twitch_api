@@ -117,9 +117,9 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                             />
                             <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: '#c4c4cc' }} iconType="circle" />
                             
-                            {/* Barras Apiladas (Éxitos + Errores = Total visual) */}
-                            <Bar dataKey="Éxitos" stackId="a" fill="url(#colorSuccess)" radius={[4, 4, 0, 0]} maxBarSize={32} />
-                            <Bar dataKey="Errores" stackId="a" fill="url(#colorErrors)" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                            {/* Barras con bordes fuertes y gradiente interior (estilo Nightbot) */}
+                            <Bar dataKey="Éxitos" fill="url(#colorSuccess)" stroke="#10b981" strokeWidth={2} radius={[4, 4, 0, 0]} maxBarSize={32} />
+                            <Bar dataKey="Errores" fill="url(#colorErrors)" stroke="#ef4444" strokeWidth={2} radius={[4, 4, 0, 0]} maxBarSize={32} />
                         </ComposedChart>
                     </ResponsiveContainer>
                 </ChartMountGate>
