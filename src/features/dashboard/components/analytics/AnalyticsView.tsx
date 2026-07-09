@@ -3,7 +3,7 @@ import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanel
 import { AlertTriangle } from 'lucide-react';
 import { fadeIn } from '@/core/ui/tw';
 import { useRequiredSession } from '@/core/session/useSession';
-import { getTodayRequestsTotal } from '@/features/dashboard/lib/dashboardStats';
+import { getTodayRequestsTotal, getStatsLocalDateString } from '@/features/dashboard/lib/dashboardStats';
 
 import { AnalyticsKPIs } from './AnalyticsKPIs';
 import { AnalyticsAreaChart } from './AnalyticsAreaChart';
@@ -12,14 +12,19 @@ import { AnalyticsEndpointsTable } from './AnalyticsEndpointsTable';
 import { AnalyticsLatencyChart } from './AnalyticsLatencyChart';
 
 function AnalyticsViewContent({ active }: { active: boolean }) {
-    const { stats, hasLiveData, error } = useDashboardPanel();
+    const { stats, hasLiveData, error, profile } = useDashboardPanel();
     const [timeRange, setTimeRange] = useState<'today' | '7d'>('today');
 
     const { timeSeries = [] } = stats;
 
-    const { areaData, pieData, summary } = useMemo(() => {
+    const { areaData, pieData, summary, todaySummary } = useMemo(() => {
+        const todayDateStr = getStatsLocalDateString(profile?.timezone);
         const dailyMap = new Map<string, { date: string; requests: number; errors: number }>();
         const commandMap = new Map<string, { requests: number; errors: number; latency: number }>();
+
+        let tRequests = 0;
+        let tErrors = 0;
+        let tLatency = 0;
 
         // Pre-fill last 7 days
         for (let i = 6; i >= 0; i--) {
@@ -44,6 +49,12 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             cmdStats.requests += row.requests_count;
             cmdStats.errors += row.errors_count;
             cmdStats.latency += row.latency_sum || 0;
+
+            if (row.date === todayDateStr) {
+                tRequests += row.requests_count;
+                tErrors += row.errors_count;
+                tLatency += row.latency_sum || 0;
+            }
         });
 
         const sortedArea = Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
@@ -64,10 +75,18 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         const avgLatency = totalRequests > 0 ? Math.round(totalLatency / totalRequests) : 0;
         const successRate = totalRequests > 0 ? ((1 - totalErrors / totalRequests) * 100).toFixed(1) : '0.0';
 
+        const todayAvgLatency = tRequests > 0 ? Math.round(tLatency / tRequests) : 0;
+        const todaySuccessRate = tRequests > 0 ? ((1 - tErrors / tRequests) * 100).toFixed(1) : '0.0';
+
         const uniqueCommands = sortedPie.length;
 
-        return { areaData: sortedPie.length === 0 ? [] : sortedArea, pieData: sortedPie, summary: { totalRequests, successRate, avgLatency, uniqueCommands } };
-    }, [timeSeries]);
+        return { 
+            areaData: sortedPie.length === 0 ? [] : sortedArea, 
+            pieData: sortedPie, 
+            summary: { totalRequests, successRate, avgLatency, uniqueCommands },
+            todaySummary: { avgLatency: todayAvgLatency, successRate: todaySuccessRate }
+        };
+    }, [timeSeries, profile?.timezone]);
 
     // Fix agresivo para Astro DevToolbar
     useEffect(() => {
@@ -98,8 +117,8 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
     }
 
     const todayRequests = getTodayRequestsTotal(stats);
-    const latencyDaily = stats.avgLatencyMs ?? 0;
-    const successRateDaily = stats.rawSuccessRate ?? 0;
+    const latencyDaily = todaySummary.avgLatency;
+    const successRateDaily = parseFloat(todaySummary.successRate) || 0;
     
     const commandKeys = ['clips', 'followage', 'so', 'message', 'stalker', 'trends', 'roulette', 'russian', 'magic8', 'duel'] as const;
     const uniqueCommandsDaily = commandKeys.filter(key => (stats[key] ?? 0) > 0).length;
