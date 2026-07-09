@@ -17,10 +17,11 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
 
     const { timeSeries = [] } = stats;
 
-    const { areaData, pieData, summary, todaySummary } = useMemo(() => {
+    const { areaData, pieDataWeekly, pieDataToday, summaryWeekly, summaryToday } = useMemo(() => {
         const todayDateStr = getStatsLocalDateString(profile?.timezone);
         const dailyMap = new Map<string, { date: string; requests: number; errors: number }>();
-        const commandMap = new Map<string, { requests: number; errors: number; latency: number }>();
+        const commandMapWeekly = new Map<string, { requests: number; errors: number; latency: number }>();
+        const commandMapToday = new Map<string, { requests: number; errors: number; latency: number }>();
 
         let tRequests = 0;
         let tErrors = 0;
@@ -42,15 +43,24 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             }
 
             const cmd = row.command_name === 'other' ? 'Otros' : row.command_name;
-            if (!commandMap.has(cmd)) {
-                commandMap.set(cmd, { requests: 0, errors: 0, latency: 0 });
+            
+            if (!commandMapWeekly.has(cmd)) {
+                commandMapWeekly.set(cmd, { requests: 0, errors: 0, latency: 0 });
             }
-            const cmdStats = commandMap.get(cmd)!;
-            cmdStats.requests += row.requests_count;
-            cmdStats.errors += row.errors_count;
-            cmdStats.latency += row.latency_sum || 0;
+            const cmdStatsW = commandMapWeekly.get(cmd)!;
+            cmdStatsW.requests += row.requests_count;
+            cmdStatsW.errors += row.errors_count;
+            cmdStatsW.latency += row.latency_sum || 0;
 
             if (row.date === todayDateStr) {
+                if (!commandMapToday.has(cmd)) {
+                    commandMapToday.set(cmd, { requests: 0, errors: 0, latency: 0 });
+                }
+                const cmdStatsT = commandMapToday.get(cmd)!;
+                cmdStatsT.requests += row.requests_count;
+                cmdStatsT.errors += row.errors_count;
+                cmdStatsT.latency += row.latency_sum || 0;
+                
                 tRequests += row.requests_count;
                 tErrors += row.errors_count;
                 tLatency += row.latency_sum || 0;
@@ -59,7 +69,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
 
         const sortedArea = Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
 
-        const sortedPie = Array.from(commandMap.entries())
+        const pieDataWeekly = Array.from(commandMapWeekly.entries())
             .map(([name, s]) => ({
                 name,
                 value: s.requests,
@@ -69,22 +79,31 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             }))
             .sort((a, b) => b.value - a.value);
 
-        const totalRequests = Array.from(commandMap.values()).reduce((sum, s) => sum + s.requests, 0);
-        const totalErrors = Array.from(commandMap.values()).reduce((sum, s) => sum + s.errors, 0);
-        const totalLatency = Array.from(commandMap.values()).reduce((sum, s) => sum + s.latency, 0);
-        const avgLatency = totalRequests > 0 ? Math.round(totalLatency / totalRequests) : 0;
-        const successRate = totalRequests > 0 ? ((1 - totalErrors / totalRequests) * 100).toFixed(1) : '0.0';
+        const pieDataToday = Array.from(commandMapToday.entries())
+            .map(([name, s]) => ({
+                name,
+                value: s.requests,
+                errors: s.errors,
+                successRate: s.requests > 0 ? ((1 - s.errors / s.requests) * 100).toFixed(1) : '0.0',
+                avgLatency: s.requests > 0 ? Math.round(s.latency / s.requests) : 0
+            }))
+            .sort((a, b) => b.value - a.value);
+
+        const totalRequestsWeekly = Array.from(commandMapWeekly.values()).reduce((sum, s) => sum + s.requests, 0);
+        const totalErrorsWeekly = Array.from(commandMapWeekly.values()).reduce((sum, s) => sum + s.errors, 0);
+        const totalLatencyWeekly = Array.from(commandMapWeekly.values()).reduce((sum, s) => sum + s.latency, 0);
+        const avgLatencyWeekly = totalRequestsWeekly > 0 ? Math.round(totalLatencyWeekly / totalRequestsWeekly) : 0;
+        const successRateWeekly = totalRequestsWeekly > 0 ? ((1 - totalErrorsWeekly / totalRequestsWeekly) * 100).toFixed(1) : '0.0';
 
         const todayAvgLatency = tRequests > 0 ? Math.round(tLatency / tRequests) : 0;
         const todaySuccessRate = tRequests > 0 ? ((1 - tErrors / tRequests) * 100).toFixed(1) : '0.0';
 
-        const uniqueCommands = sortedPie.length;
-
         return { 
-            areaData: sortedPie.length === 0 ? [] : sortedArea, 
-            pieData: sortedPie, 
-            summary: { totalRequests, successRate, avgLatency, uniqueCommands },
-            todaySummary: { avgLatency: todayAvgLatency, successRate: todaySuccessRate }
+            areaData: sortedArea, 
+            pieDataWeekly, 
+            pieDataToday,
+            summaryWeekly: { totalRequests: totalRequestsWeekly, successRate: successRateWeekly, avgLatency: avgLatencyWeekly, uniqueCommands: pieDataWeekly.length },
+            summaryToday: { totalRequests: tRequests, avgLatency: todayAvgLatency, successRate: todaySuccessRate, uniqueCommands: pieDataToday.length }
         };
     }, [timeSeries, profile?.timezone]);
 
@@ -105,7 +124,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             clearInterval(interval);
             clearTimeout(timeout);
         };
-    }, [active, areaData, pieData]);
+    }, [active, areaData, pieDataWeekly, pieDataToday]);
 
     if (error && !hasLiveData) {
         return (
@@ -117,21 +136,23 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
     }
 
     const todayRequests = getTodayRequestsTotal(stats);
-    const latencyDaily = todaySummary.avgLatency;
-    const successRateDaily = parseFloat(todaySummary.successRate) || 0;
+    const latencyDaily = summaryToday.avgLatency;
+    const successRateDaily = parseFloat(summaryToday.successRate) || 0;
     
     const commandKeys = ['clips', 'followage', 'so', 'message', 'stalker', 'trends', 'roulette', 'russian', 'magic8', 'duel'] as const;
     const uniqueCommandsDaily = commandKeys.filter(key => (stats[key] ?? 0) > 0).length;
 
-    const latencyWeekly = summary.avgLatency ?? 0;
-    const successRateWeekly = parseFloat(summary.successRate) || 0;
-    const requestsWeekly = summary.totalRequests;
-    const uniqueCommandsWeekly = summary.uniqueCommands;
+    const latencyWeekly = summaryWeekly.avgLatency ?? 0;
+    const successRateWeekly = parseFloat(summaryWeekly.successRate) || 0;
+    const requestsWeekly = summaryWeekly.totalRequests;
+    const uniqueCommandsWeekly = summaryWeekly.uniqueCommands;
 
     const displayRequests = timeRange === 'today' ? todayRequests : requestsWeekly;
     const displaySuccessRate = timeRange === 'today' ? successRateDaily : successRateWeekly;
     const displayLatency = timeRange === 'today' ? latencyDaily : latencyWeekly;
     const displayCommands = timeRange === 'today' ? uniqueCommandsDaily : uniqueCommandsWeekly;
+    const displayPieData = timeRange === 'today' ? pieDataToday : pieDataWeekly;
+    const displayPieTotal = timeRange === 'today' ? summaryToday.totalRequests : summaryWeekly.totalRequests;
 
     const isLoading = !hasLiveData;
     const requestsDuration = displayRequests === 0 ? 0 : active ? 400 : 0;
@@ -155,12 +176,12 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <AnalyticsAreaChart active={active} areaData={areaData} />
-                <AnalyticsCommandsDistribution active={active} pieData={pieData} totalRequests={summary.totalRequests} />
+                <AnalyticsCommandsDistribution active={active} pieData={displayPieData} totalRequests={displayPieTotal} />
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <AnalyticsEndpointsTable pieData={pieData} />
-                <AnalyticsLatencyChart active={active} pieData={pieData} />
+                <AnalyticsEndpointsTable pieData={displayPieData} />
+                <AnalyticsLatencyChart active={active} pieData={displayPieData} />
             </div>
         </div>
     );
