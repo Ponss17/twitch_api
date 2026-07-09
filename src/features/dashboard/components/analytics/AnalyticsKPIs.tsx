@@ -52,13 +52,13 @@ export function AnalyticsKPIs({
                     <div className="flex items-center rounded-lg bg-black/40 p-1 border border-white/[0.05]">
                         <button
                             onClick={() => setTimeRange('today')}
-                            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${timeRange === 'today' ? 'bg-white/[0.1] text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${timeRange === 'today' ? 'bg-[#7c3aed] text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
                         >
                             Hoy
                         </button>
                         <button
                             onClick={() => setTimeRange('7d')}
-                            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${timeRange === '7d' ? 'bg-white/[0.1] text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${timeRange === '7d' ? 'bg-[#7c3aed] text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
                         >
                             7 Días
                         </button>
