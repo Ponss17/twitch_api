@@ -38,6 +38,14 @@ export function AnalyticsCommandsDistribution({
                 >
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                         <PieChart accessibilityLayer={false}>
+                            <defs>
+                                {COLORS.map((color, index) => (
+                                    <linearGradient key={`grad-pie-${index}`} id={`colorPieGrad-${index}`} x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor={color} stopOpacity={0.9} />
+                                        <stop offset="100%" stopColor={color} stopOpacity={0.3} />
+                                    </linearGradient>
+                                ))}
+                            </defs>
                             <Pie
                                 data={pieData}
                                 cx="50%"
@@ -50,7 +58,7 @@ export function AnalyticsCommandsDistribution({
                                 cornerRadius={6}
                             >
                                 {pieData.map((_, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    <Cell key={`cell-${index}`} fill={`url(#colorPieGrad-${index % COLORS.length})`} />
                                 ))}
                             </Pie>
                             <Tooltip
