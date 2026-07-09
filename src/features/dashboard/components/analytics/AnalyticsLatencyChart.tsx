@@ -33,14 +33,6 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                 >
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                         <BarChart data={pieData} layout="vertical" margin={{ top: 0, right: 30, left: 20, bottom: 0 }} accessibilityLayer={false}>
-                            <defs>
-                                {COLORS.map((color, index) => (
-                                    <linearGradient key={`grad-lat-${index}`} id={`colorLatGrad-${index}`} x1="0" y1="0" x2="1" y2="0">
-                                        <stop offset="0%" stopColor={color} stopOpacity={0.8} />
-                                        <stop offset="100%" stopColor={color} stopOpacity={0} />
-                                    </linearGradient>
-                                ))}
-                            </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.05} horizontal={true} vertical={true} />
                             <XAxis
                                 type="number"
@@ -52,7 +44,7 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                 tickFormatter={(val) => `${val}ms`}
                                 domain={[0, (dataMax: number) => (dataMax === 0 ? 10 : dataMax)]}
                             />
-                            <YAxis type="category" dataKey="name" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} className="capitalize" />
+                            <YAxis type="category" dataKey="name" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={{ stroke: '#ffffff', strokeOpacity: 0.1 }} className="capitalize" />
                             <Tooltip
                                 contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', color: '#fafafa' }}
                                 itemStyle={{ color: '#fafafa', fontWeight: 500 }}
@@ -60,7 +52,13 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                             />
                             <Bar dataKey="avgLatency" name="Latencia" radius={[0, 4, 4, 0]} maxBarSize={16}>
                                 {pieData.map((_, index) => (
-                                    <Cell key={`cell-${index}`} fill={`url(#colorLatGrad-${index % COLORS.length})`} />
+                                    <Cell 
+                                        key={`cell-${index}`} 
+                                        fill={COLORS[index % COLORS.length]} 
+                                        fillOpacity={0.15}
+                                        stroke={COLORS[index % COLORS.length]}
+                                        strokeWidth={1.5}
+                                    />
                                 ))}
                             </Bar>
                         </BarChart>
