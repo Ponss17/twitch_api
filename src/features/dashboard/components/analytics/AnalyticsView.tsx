@@ -10,6 +10,7 @@ import { AnalyticsAreaChart } from './AnalyticsAreaChart';
 import { AnalyticsCommandsDistribution } from './AnalyticsCommandsDistribution';
 import { AnalyticsEndpointsTable } from './AnalyticsEndpointsTable';
 import { AnalyticsLatencyChart } from './AnalyticsLatencyChart';
+import { AnalyticsTodayBarChart } from './AnalyticsTodayBarChart';
 
 function AnalyticsViewContent({ active }: { active: boolean }) {
     const { stats, hasLiveData, error, profile } = useDashboardPanel();
@@ -175,7 +176,11 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             />
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <AnalyticsAreaChart active={active} areaData={areaData} />
+                {timeRange === 'today' ? (
+                    <AnalyticsTodayBarChart active={active} pieData={displayPieData} />
+                ) : (
+                    <AnalyticsAreaChart active={active} areaData={areaData} />
+                )}
                 <AnalyticsCommandsDistribution active={active} pieData={displayPieData} totalRequests={displayPieTotal} />
             </div>
 
