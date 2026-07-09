@@ -1,0 +1,89 @@
+import React from 'react';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { InfoTooltip } from '@/shared/ui/InfoTooltip';
+import { ChartMountGate, COLORS } from './AnalyticsShared';
+
+interface AnalyticsCommandsDistributionProps {
+    active: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    pieData: any[];
+    totalRequests: number;
+}
+
+export function AnalyticsCommandsDistribution({
+    active,
+    pieData,
+    totalRequests
+}: AnalyticsCommandsDistributionProps) {
+    return (
+        <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
+            <div className="mb-6 border-b border-white/[0.08] pb-4">
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <h2 className="text-lg font-semibold text-[#fafafa]">Uso de Comandos</h2>
+                        <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Distribución general en API</p>
+                    </div>
+                    <InfoTooltip text="Proporción de uso de los diferentes comandos y minijuegos en la última semana." />
+                </div>
+            </div>
+            {pieData.length === 0 || pieData.every((d) => d.value === 0) ? (
+                <div className="mt-4 flex h-[240px] w-full items-center justify-center text-sm text-zinc-500">
+                    Sin datos suficientes
+                </div>
+            ) : (
+                <ChartMountGate
+                    active={active}
+                    className="relative mt-4 h-[240px] w-full min-w-0"
+                    srLabel="Gráfico circular mostrando la distribución de comandos utilizados."
+                >
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                        <PieChart accessibilityLayer={false}>
+                            <Pie
+                                data={pieData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={70}
+                                outerRadius={95}
+                                paddingAngle={4}
+                                dataKey="value"
+                                stroke="none"
+                                cornerRadius={6}
+                            >
+                                {pieData.map((_, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip
+                                contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', color: '#fafafa' }}
+                                itemStyle={{ color: '#fafafa', fontWeight: 500 }}
+                            />
+                        </PieChart>
+                    </ResponsiveContainer>
+                    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-3xl font-bold tracking-tight text-white">{totalRequests.toLocaleString()}</span>
+                        <span className="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-zinc-500">Peticiones</span>
+                    </div>
+                </ChartMountGate>
+            )}
+            {pieData.length > 0 && pieData.some((d) => d.value > 0) && (
+                <div className="mt-8 flex flex-col gap-3">
+                    {pieData.slice(0, 4).map((entry, index) => {
+                        const percentage = totalRequests > 0 ? ((entry.value / totalRequests) * 100).toFixed(1) : '0.0';
+                        return (
+                            <div key={entry.name} className="flex items-center justify-between rounded-lg bg-white/[0.02] p-2.5 transition hover:bg-white/[0.04]">
+                                <div className="flex items-center gap-2.5 overflow-hidden">
+                                    <span className="size-3.5 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
+                                    <span className="capitalize truncate text-sm font-medium text-zinc-200" title={entry.name}>{entry.name}</span>
+                                </div>
+                                <div className="flex items-center gap-3 shrink-0">
+                                    <span className="text-xs text-zinc-400">{entry.value.toLocaleString()}</span>
+                                    <span className="text-xs font-bold text-white w-10 text-right">{percentage}%</span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+}
