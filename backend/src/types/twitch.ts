@@ -1,4 +1,5 @@
 import { Request } from 'express';
+import type { UserRole } from '../core/config/userRoles';
 
 export interface TwitchUser {
     id: string;
@@ -48,7 +49,7 @@ export interface StoredUser {
     /** Segundos — override del TTL de respuestas cacheadas (comandos, dashboard). */
     customCacheTtl?: number;
     /** Rol: default | pro | vip | partner — define rate limit y caché base. */
-    role?: string;
+    role?: UserRole;
     // Analíticas
     totalRequests?: number;
     stats?: Record<string, number>;

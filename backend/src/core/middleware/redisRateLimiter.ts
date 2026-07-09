@@ -104,7 +104,7 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
             limit = resolveUserRateLimit(apiUser);
         } else if (userId) {
             key = `rl:sess:${userId}`;
-            limit = RATE_LIMITS.DASHBOARD;
+            limit = apiUser ? Math.max(RATE_LIMITS.DASHBOARD, resolveUserRateLimit(apiUser) * 10) : RATE_LIMITS.DASHBOARD;
         } else {
             const safeIp = getSafeIp(req);
             key = `rl:ip:${safeIp}`;
