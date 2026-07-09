@@ -44,6 +44,16 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                 >
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                         <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} accessibilityLayer={false}>
+                            <defs>
+                                <linearGradient id="colorSuccess" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.2} />
+                                </linearGradient>
+                                <linearGradient id="colorErrors" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0.2} />
+                                </linearGradient>
+                            </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.05} horizontal={true} vertical={false} />
                             <XAxis 
                                 dataKey="name" 
@@ -68,8 +78,8 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                                 cursor={{ fill: '#ffffff', opacity: 0.05 }}
                             />
                             <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: '#c4c4cc' }} iconType="circle" />
-                            <Bar dataKey="Éxitos" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                            <Bar dataKey="Errores" fill="#ef4444" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                            <Bar dataKey="Éxitos" fill="url(#colorSuccess)" radius={[4, 4, 0, 0]} maxBarSize={24} />
+                            <Bar dataKey="Errores" fill="url(#colorErrors)" radius={[4, 4, 0, 0]} maxBarSize={24} />
                         </BarChart>
                     </ResponsiveContainer>
                 </ChartMountGate>
