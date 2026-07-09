@@ -94,7 +94,7 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                                     <stop offset="95%" stopColor="#ef4444" stopOpacity={0.2} />
                                 </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.05} horizontal={true} vertical={false} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.06} horizontal={true} vertical={true} />
                             
                             {/* Eje primario para peticiones */}
                             <XAxis 
@@ -135,9 +135,12 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                             />
                             <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: '#c4c4cc' }} iconType="circle" />
                             
-                            <Bar yAxisId="left" dataKey="Éxitos" fill="url(#colorSuccess)" radius={[4, 4, 0, 0]} maxBarSize={32} />
-                            <Bar yAxisId="left" dataKey="Errores" fill="url(#colorErrors)" radius={[4, 4, 0, 0]} maxBarSize={32} />
-                            <Line yAxisId="right" type="monotone" dataKey="Latencia" name="Latencia Promedio" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4, fill: '#f59e0b', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+                            {/* Barras Apiladas (Mix) */}
+                            <Bar yAxisId="left" stackId="a" dataKey="Éxitos" fill="url(#colorSuccess)" radius={[4, 4, 0, 0]} maxBarSize={48} />
+                            <Bar yAxisId="left" stackId="a" dataKey="Errores" fill="url(#colorErrors)" radius={[4, 4, 0, 0]} maxBarSize={48} />
+                            
+                            {/* Solo los puntos de la Latencia, sin línea conectora */}
+                            <Line yAxisId="right" type="monotone" dataKey="Latencia" name="Latencia Promedio" stroke="transparent" strokeWidth={0} dot={{ r: 5, fill: '#f59e0b', stroke: '#18181b', strokeWidth: 2 }} activeDot={{ r: 7 }} />
                         </ComposedChart>
                     </ResponsiveContainer>
                 </ChartMountGate>
