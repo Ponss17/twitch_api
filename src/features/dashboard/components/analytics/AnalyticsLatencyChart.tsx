@@ -16,9 +16,9 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                 <div className="flex items-center justify-between gap-3">
                     <div>
                         <h2 className="text-lg font-semibold text-[#fafafa]">Comparativa de Latencia</h2>
-                        <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Promedio de los últimos 7 días por comando</p>
+                        <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Promedio por comando</p>
                     </div>
-                    <InfoTooltip text="Tiempo promedio que le toma a tu servidor procesar cada comando específico (últimos 7 días)." />
+                    <InfoTooltip text="Tiempo promedio que le toma a tu servidor procesar cada comando específico." />
                 </div>
             </div>
             {pieData.length === 0 || pieData.every((d) => d.avgLatency === 0) ? (
