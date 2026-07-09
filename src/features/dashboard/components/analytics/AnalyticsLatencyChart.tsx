@@ -33,6 +33,14 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                 >
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                         <BarChart data={pieData} layout="vertical" margin={{ top: 0, right: 30, left: 20, bottom: 0 }} accessibilityLayer={false}>
+                            <defs>
+                                {COLORS.map((color, index) => (
+                                    <linearGradient key={`grad-lat-${index}`} id={`colorLatGrad-${index}`} x1="0" y1="0" x2="1" y2="0">
+                                        <stop offset="0%" stopColor={color} stopOpacity={0.8} />
+                                        <stop offset="100%" stopColor={color} stopOpacity={0.2} />
+                                    </linearGradient>
+                                ))}
+                            </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.05} horizontal={true} vertical={true} />
                             <XAxis
                                 type="number"
@@ -52,7 +60,7 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                             />
                             <Bar dataKey="avgLatency" name="Latencia" radius={[0, 4, 4, 0]} maxBarSize={16}>
                                 {pieData.map((_, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    <Cell key={`cell-${index}`} fill={`url(#colorLatGrad-${index % COLORS.length})`} />
                                 ))}
                             </Bar>
                         </BarChart>
