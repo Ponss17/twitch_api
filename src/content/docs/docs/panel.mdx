@@ -1,0 +1,84 @@
+---
+title: "Panel de control"
+description: "Dashboard web para gestionar comandos, overlays y configuración."
+---
+
+import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+El dashboard está en [ttv.losperris.dev/dashboard](https://ttv.losperris.dev/dashboard). Desde ahí gestionas comandos de chat, herramientas con overlay OBS, analytics y tu API Key.
+
+<Aside type="note" title="Configuración">
+  **Configuración** (API Key, zona horaria, exportar datos, zona de peligro) no está en la barra lateral: ábrela desde el **menú de tu cuenta** arriba a la derecha → **Configuración** ([`/dashboard/settings`](/dashboard/settings)).
+</Aside>
+
+---
+
+## Pestañas del panel
+
+La barra lateral agrupa las pestañas por categoría. Las herramientas con documentación enlazan a su página en esta guía.
+
+### General
+
+| Pestaña | Qué hace |
+| :--- | :--- |
+| [Inicio](/dashboard/) | Resumen diario, KPIs, feed de peticiones en vivo y actividad reciente. |
+| [Analytics](/dashboard/analytics) | Gráficas de uso y serie de los últimos 7 días. |
+
+### Comandos
+
+| Pestaña | Qué hace | Docs |
+| :--- | :--- | :--- |
+| [Followage](/dashboard/followage) | Generador de comando y prueba de API para antigüedad de follow. | [Ver docs](/docs/comandos/followage/) |
+| [Clips](/dashboard/clips) | Crear clip, listar recientes y reproductor integrado. | [Ver docs](/docs/comandos/clips/) |
+| [Shoutout](/dashboard/shoutout) | Generador de shoutout con plantillas para tu bot. | [Ver docs](/docs/comandos/shoutout/) |
+
+### Herramientas
+
+| Pestaña | Qué hace | Docs |
+| :--- | :--- | :--- |
+| [Tendencias](/dashboard/trends) | Ranking de palabras del chat con overlay OBS sincronizado. | [Ver docs](/docs/herramientas/trends/) |
+| [Stalker](/dashboard/stalker) | Estadísticas de un viewer concreto en tu canal. | [Ver docs](/docs/herramientas/stalker/) |
+| [Ruleta](/dashboard/roulette) | Ruleta de premios o acciones para el chat. | [Ver docs](/docs/herramientas/roulette/) |
+
+### Minijuegos
+
+| Pestaña | Qué hace | Docs |
+| :--- | :--- | :--- |
+| [Bola 8](/dashboard/magic8) | Prueba el Magic 8 con distintas personalidades. | [Ver docs](/docs/minijuegos/magic8/) |
+| [Ruleta Rusa](/dashboard/russian) | Minijuego de ruleta rusa contra la API. | [Ver docs](/docs/minijuegos/russian/) |
+| [Duelo](/dashboard/duel) | Duelos narrativos entre dos viewers. | [Ver docs](/docs/minijuegos/duel/) |
+
+### Soporte
+
+| Pestaña | Qué hace |
+| :--- | :--- |
+| [Feedback](/dashboard/feedback) | Envía sugerencias o reporta problemas al equipo. |
+
+---
+
+## Sesión y datos en vivo
+
+Tras el login con Twitch, el panel canjea un token de un solo uso y valida la sesión antes de cargar datos:
+
+1. **OAuth** → redirect a `/dashboard/?auth=…`
+2. **`GET /api/auth/exchange`** → devuelve `apiKey`, perfil y token de Twitch
+3. **`GET /api/system/validate`** → confirma sesión y refresca token si hace falta
+
+<Aside type="note" title="Pestaña líder">
+  Con varias pestañas del panel abiertas, solo la **líder** mantiene Realtime activo (Supabase). Las demás sincronizan por `BroadcastChannel`. Si Realtime falla, hay polling de respaldo.
+</Aside>
+
+<Aside type="caution" title="Rate limit del panel">
+  Las peticiones con sesión OAuth usan un límite de **500 req/min**, distinto del límite de API Key para bots. Ver [Límites](/docs/limits/).
+</Aside>
+
+---
+
+## Enlaces
+
+<CardGrid>
+  <LinkCard title="Tu API Key" href="/docs/auth/" description="Cómo usar y regenerar la clave de tus bots." />
+  <LinkCard title="Perfil y seguridad" href="/docs/profile/" description="Zona horaria, exportar datos y borrar cuenta." />
+  <LinkCard title="Inicio rápido" href="/docs/inicio-rapido/" description="Primer comando en el chat en 5 minutos." />
+  <LinkCard title="Resolución de problemas" href="/docs/extras/errores/" description="Errores frecuentes de bots y overlays OBS." />
+</CardGrid>

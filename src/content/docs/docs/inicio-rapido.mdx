@@ -1,0 +1,62 @@
+---
+title: "Inicio rápido"
+description: "Conecta LosPerris API con tu bot en menos de 5 minutos."
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Sigue estos pasos para tener tu primer comando en el chat. La API vive en **`https://ttv.losperris.dev/api`** (mismo dominio que el panel).
+
+<Steps>
+1. Entra en [ttv.losperris.dev](https://ttv.losperris.dev) y pulsa **Iniciar sesión con Twitch**.
+2. Lee y acepta el **aviso de privacidad**; se abrirá el OAuth de Twitch.
+3. Tras el login llegarás al [dashboard](/dashboard/). Abre el **menú de tu cuenta** (arriba a la derecha) → **Configuración** y copia tu **API Key** (UUID).
+4. En la barra lateral del panel, abre **Followage** (u otro comando) — por ejemplo [documentación de Followage](/docs/comandos/followage/).
+5. En el **generador de comandos**, elige tu bot (Nightbot, StreamElements, Fossabot o Wizebot), copia la línea ya con tu API Key y pégala en el panel del bot.
+6. Opcional: usa **Probar API** en el panel para ver la respuesta antes de publicar.
+7. Prueba en tu chat: `!followage @viewer`
+</Steps>
+
+<Aside type="tip" title="Generador en el panel">
+  Cada comando del panel (Followage, Clips, Shoutout…) incluye un generador de URL con tu API Key insertada y una tarjeta para probar la respuesta sin salir del dashboard.
+</Aside>
+
+---
+
+## URL base de la API
+
+Todos los ejemplos de esta documentación usan:
+
+```text
+https://ttv.losperris.dev/api/<endpoint>?apiKey=TU_API_KEY&...
+```
+
+También puedes enviar la clave en la cabecera `X-Api-Key` en lugar del query param.
+
+**Compatibilidad legacy:** funciona el prefijo `/twitch/` (ej. `https://ttv.losperris.dev/twitch/followage?...`) para bots antiguos.
+
+---
+
+## Dos formas de autenticarte
+
+| Uso | Método | Dónde |
+| :--- | :--- | :--- |
+| **Bots de chat** | `apiKey` en la URL o `X-Api-Key` | Nightbot, StreamElements, scripts |
+| **Panel web** | Sesión OAuth de Twitch (Bearer) | Dashboard, overlays, analytics |
+
+Los bots **no** necesitan iniciar sesión en el panel: solo la API Key. El panel usa OAuth además de la clave para rutas `/api/dashboard/*`.
+
+<Aside type="note" title="Primera API Key">
+  La clave se genera automáticamente en tu primer login con Twitch (`GET /api/auth/exchange`). Si la regeneras, la anterior deja de funcionar de inmediato.
+</Aside>
+
+---
+
+## Siguiente paso
+
+<CardGrid>
+  <LinkCard title="Tu API Key" href="/docs/auth/" description="Formato UUID, cabeceras, regenerar clave y permisos OAuth." />
+  <LinkCard title="Panel de control" href="/docs/panel/" description="Pestañas del dashboard, realtime y acceso a Configuración." />
+  <LinkCard title="Límites de uso" href="/docs/limits/" description="Rate limits por rol, panel (500/min) y endpoints pesados." />
+  <LinkCard title="Followage" href="/docs/comandos/followage/" description="Tu primer endpoint: parámetros, plantillas y respuestas." />
+</CardGrid>

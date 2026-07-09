@@ -1,0 +1,86 @@
+---
+title: "Ruleta rusa"
+description: "Minijuego de riesgo con posible timeout en el chat."
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import ApiEndpoint from '@/components/docs/ApiEndpoint.astro';
+import AuthNotice from '@/components/docs/AuthNotice.astro';
+import ApiParamsTable from '@/components/docs/ApiParamsTable.astro';
+import ApiFlowRequest from '@/components/docs/ApiFlowRequest.astro';
+import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
+
+El viewer aprieta el gatillo: hay 6 recámaras y una bala. Si pierde, puede recibir timeout automático (modo hardcore).
+
+<ApiEndpoint path="/minigames/russian" />
+<AuthNotice />
+
+<Aside type="danger" title="Permisos de moderador">
+  El bot debe ser **moderador** del canal para aplicar timeouts. Sin permisos, el timeout no se ejecutará.
+</Aside>
+
+## Parámetros
+
+<ApiParamsTable params={[
+  { name: 'channel', type: 'string', required: true, description: 'Canal donde se ejecuta el juego.' },
+  { name: 'user', type: 'string', required: true, description: 'Usuario que aprieta el gatillo.' },
+  { name: 'apiKey', type: 'string', required: true, description: 'Clave de API de tu cuenta.' },
+  { name: 'hardcore', type: 'boolean', required: false, description: 'Si es `true`, aplica timeout de 60s al perder.' },
+]} />
+
+<div class="api-flow">
+
+## Ejemplo de petición
+
+<ApiFlowRequest
+  flowId="flow-russian"
+  path="/minigames/russian"
+  query={{
+    channel: 'losperris',
+    user: 'viewer123',
+    apiKey: 'TU_API_KEY',
+    hardcore: 'false',
+  }}
+/>
+
+## Respuestas
+
+<ApiFlowResponse
+  flowId="flow-russian"
+  responses={[
+  { tabLabel: '200', status: 200, format: 'text', body: '🔫 viewer123 aprieta el gatillo... ¡Click! Se salvó por los pelos.' },
+  { tabLabel: '401', status: 401, format: 'text', body: 'No se encontró token de autenticación.' },
+]} />
+
+</div>
+
+## Integración con bots
+
+<Tabs>
+  <TabItem label="Nightbot">
+    ```text
+    !addcom !ruletarusa $(urlfetch https://ttv.losperris.dev/api/minigames/russian?channel=$(channel)&user=$(user)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="StreamElements">
+    ```text
+    !command add !ruletarusa ${customapi.https://ttv.losperris.dev/api/minigames/russian?channel=${channel}&user=${user}&apiKey=TU_API_KEY}
+    ```
+  </TabItem>
+  <TabItem label="Fossabot">
+    ```text
+    !addcmd !ruletarusa $(customapi https://ttv.losperris.dev/api/minigames/russian?channel=$(channel)&user=$(user)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="Wizebot">
+    ```text
+    !command add !ruletarusa $(urlfetch https://ttv.losperris.dev/api/minigames/russian?channel=$(channel)&user=$(user_name)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+</Tabs>
+
+## Comportamiento
+
+1. El viewer ejecuta el comando en el chat.
+2. La API simula la ruleta rusa.
+3. Si pierde y `hardcore=true`, el bot aplica timeout vía permisos de moderador.

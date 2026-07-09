@@ -1,0 +1,88 @@
+---
+import IndentRainbowCode from '@/components/docs/IndentRainbowCode.astro';
+
+interface ApiResponseItem {
+	status: number;
+	tabLabel?: string;
+	label?: string;
+	body: string;
+	format?: 'text' | 'json';
+	curlIHeaders?: string[];
+}
+
+interface Props {
+	flowId: string;
+	responses: ApiResponseItem[];
+	contentType?: string;
+}
+
+const { flowId, responses, contentType = 'text/plain; charset=utf-8' } = Astro.props;
+
+const STATUS_TEXT: Record<number, string> = {
+	200: 'OK',
+	401: 'Unauthorized',
+	403: 'Forbidden',
+	429: 'Too Many Requests',
+	503: 'Service Unavailable',
+};
+
+function formatCurlI(item: ApiResponseItem): string {
+	const format = item.format ?? 'text';
+	const statusLine = `HTTP/1.1 ${item.status} ${STATUS_TEXT[item.status] ?? ''}`.trim();
+	return [
+		statusLine,
+		`Content-Type: ${format === 'json' ? 'application/json; charset=utf-8' : contentType}`,
+		...(item.status === 200 ? ['Cache-Control: public, s-maxage=10, stale-while-revalidate'] : []),
+		'X-RateLimit-Limit: 30',
+		'X-RateLimit-Remaining: 29',
+		'X-RateLimit-Reset: 1710000060',
+		...(item.curlIHeaders ?? []),
+		'',
+		item.body || '',
+	].join('\n');
+}
+---
+
+<div class="api-flow__response docs-code-tabs">
+	{
+		responses.map((_, index) => (
+			<input
+				type="radio"
+				name={`${flowId}-scenario`}
+				id={`${flowId}-scenario-${index}`}
+				class="docs-code-tabs__input api-flow__scenario-input"
+				checked={index === 0}
+			/>
+		))
+	}
+	<div class="docs-code-tabs__bar" role="tablist" aria-label="Escenarios de respuesta">
+		{
+			responses.map((item, index) => (
+				<label class="docs-code-tabs__tab api-flow__scenario-tab" for={`${flowId}-scenario-${index}`} role="tab">
+					{item.tabLabel ?? item.status}
+				</label>
+			))
+		}
+	</div>
+	{
+		responses.map((item, index) => {
+			const format = item.format ?? 'text';
+			const body = item.body || '(sin contenido)';
+			return (
+				<div
+					class="docs-code-tabs__panel api-flow__response-panel"
+					data-index={index}
+					data-scenario={index}
+					role="tabpanel"
+				>
+					{format === 'json' ? (
+						<IndentRainbowCode code={body} class="api-flow__body-view" />
+					) : (
+						<pre class="docs-code-tabs__code docs-code-tabs__code--text api-flow__body-view"><code>{body}</code></pre>
+					)}
+					<pre class="docs-code-tabs__code docs-code-tabs__code--text api-flow__verbose-view"><code>{formatCurlI(item)}</code></pre>
+				</div>
+			);
+		})
+	}
+</div>

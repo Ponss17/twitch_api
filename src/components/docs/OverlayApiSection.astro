@@ -1,0 +1,324 @@
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+import ApiEndpoint from '@/components/docs/ApiEndpoint.astro';
+
+import ApiParamsTable from '@/components/docs/ApiParamsTable.astro';
+
+import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
+
+
+
+interface Props {
+
+	tool: 'trends' | 'roulette';
+
+	flowId: string;
+
+}
+
+
+
+const { tool, flowId } = Astro.props;
+
+const toolLabel = tool === 'trends' ? 'trends' : 'roulette';
+
+
+
+const getStateExample =
+
+	tool === 'trends'
+
+		? `{
+
+  "state": {
+
+    "tracking": true,
+
+    "remaining": 142,
+
+    "timerEnded": false,
+
+    "wordCounts": { "hola": 24, "gg": 18 },
+
+    "minutes": 5,
+
+    "displayName": "TuCanal",
+
+    "sessionActive": true,
+
+    "timerEndsAt": 1752012345678,
+
+    "updatedAt": 1752012234567
+
+  }
+
+}`
+
+		: `{
+
+  "state": {
+
+    "chatters": [{ "user_login": "viewer1", "user_name": "Viewer1" }],
+
+    "isOpen": true,
+
+    "isSpinning": false,
+
+    "wheelRotation": 0,
+
+    "wheelTransition": "none",
+
+    "winner": null,
+
+    "lastSpinCount": 0,
+
+    "spinSeq": 0,
+
+    "updatedAt": 1752012234567
+
+  }
+
+}`;
+
+---
+
+
+
+<h2>API del overlay</h2>
+
+
+
+<p>
+
+	El panel genera un enlace firmado (<code>overlayToken</code>, scope <code>overlay:read</code>, válido 30 días) y sincroniza el estado entre el dashboard y OBS.
+
+</p>
+
+
+
+<h3>Generar enlace</h3>
+
+
+
+<ApiEndpoint method="POST" path="/dashboard/overlay-link" />
+
+
+
+<ApiParamsTable params={[
+
+  { name: 'tool', type: 'string', required: true, description: `\`${toolLabel}\`` },
+
+]} />
+
+
+
+<pre class="docs-code-tabs__code"><code>{`curl --request POST \\
+
+  --url 'https://ttv.losperris.dev/api/dashboard/overlay-link' \\
+
+  --header 'Content-Type: application/json' \\
+
+  --cookie 'tu_sesion_dashboard' \\
+
+  --data '{"tool":"${toolLabel}"}'`}</code></pre>
+
+
+
+<ApiFlowResponse
+
+  flowId={`${flowId}-link`}
+
+  contentType="application/json; charset=utf-8"
+
+  responses={[
+
+    {
+
+      tabLabel: '200',
+
+      status: 200,
+
+      format: 'json',
+
+      body: `{
+
+  "url": "https://ttv.losperris.dev/overlay/${toolLabel}?overlayToken=eyJ..."
+
+}`,
+
+    },
+
+    {
+
+      tabLabel: '401',
+
+      status: 401,
+
+      format: 'json',
+
+      body: `{
+
+  "success": false,
+
+  "error": {
+
+    "message": "Usuario no encontrado",
+
+    "code": "UNAUTHORIZED"
+
+  }
+
+}`,
+
+    },
+
+  ]}
+
+/>
+
+
+
+<h3>Estado compartido</h3>
+
+
+
+<ApiEndpoint method="GET" path={`/dashboard/overlay-state/${toolLabel}`} />
+
+
+
+<p>Lee el estado publicado por el panel. El overlay en OBS usa el token de la URL; el panel usa la sesión del dashboard.</p>
+
+
+
+<ApiFlowResponse
+
+  flowId={`${flowId}-get`}
+
+  contentType="application/json; charset=utf-8"
+
+  responses={[
+
+    {
+
+      tabLabel: '200',
+
+      status: 200,
+
+      format: 'json',
+
+      body: getStateExample,
+
+    },
+
+    {
+
+      tabLabel: '200 (vacío)',
+
+      status: 200,
+
+      format: 'json',
+
+      body: '{ "state": null }',
+
+    },
+
+    {
+
+      tabLabel: '401',
+
+      status: 401,
+
+      format: 'json',
+
+      body: `{
+
+  "success": false,
+
+  "error": {
+
+    "message": "Usuario no encontrado",
+
+    "code": "UNAUTHORIZED"
+
+  }
+
+}`,
+
+    },
+
+  ]}
+
+/>
+
+
+
+<ApiEndpoint method="PUT" path={`/dashboard/overlay-state/${toolLabel}`} />
+
+
+
+<ApiParamsTable params={[
+
+  { name: 'state', type: 'object', required: true, description: 'JSON con el estado de la herramienta (máx. 64 KB, máx. 200 claves).' },
+
+]} />
+
+
+
+<ApiFlowResponse
+
+  flowId={`${flowId}-put`}
+
+  contentType="application/json; charset=utf-8"
+
+  responses={[
+
+    {
+
+      tabLabel: '200',
+
+      status: 200,
+
+      format: 'json',
+
+      body: '{ "success": true }',
+
+    },
+
+    {
+
+      tabLabel: '403',
+
+      status: 403,
+
+      format: 'json',
+
+      body: `{
+
+  "success": false,
+
+  "error": {
+
+    "message": "Solo el panel puede publicar el estado del overlay.",
+
+    "code": "FORBIDDEN"
+
+  }
+
+}`,
+
+    },
+
+  ]}
+
+/>
+
+
+
+<Aside type="note" title="Permisos">
+
+  Solo el <strong>panel autenticado</strong> puede hacer <code>PUT</code>. El overlay en OBS solo <strong>lee</strong> con <code>GET</code> y el token firmado. El estado en KV expira a las <strong>2 horas</strong> sin actividad del panel.
+
+</Aside>
+

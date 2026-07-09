@@ -1,0 +1,188 @@
+---
+title: "Perfil y seguridad"
+description: "Configuración de cuenta, API Key, zona horaria, exportación y zona de peligro."
+---
+
+import { Aside, Steps, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import ApiEndpoint from '@/components/docs/ApiEndpoint.astro';
+import ApiParamsTable from '@/components/docs/ApiParamsTable.astro';
+
+La página **Configuración** concentra todo lo relacionado con tu cuenta: API Key, preferencias, exportación de datos y acciones irreversibles.
+
+URL directa: [ttv.losperris.dev/dashboard/settings](https://ttv.losperris.dev/dashboard/settings)
+
+<Aside type="note" title="Cómo abrirla">
+  No está en la barra lateral del panel. Usa el **menú de tu cuenta** (arriba a la derecha, avatar o nombre) → **Configuración**.
+</Aside>
+
+---
+
+## Acceso rápido
+
+<Steps>
+1. [Inicia sesión](/docs/inicio-rapido/) con Twitch.
+2. Abre el menú de cuenta → **Configuración**.
+3. Recorre los bloques de arriba abajo en un solo scroll (ver tabla siguiente).
+</Steps>
+
+La vista carga tu perfil desde `/api/dashboard/summary` y lo actualiza en segundo plano mientras la pestaña está visible.
+
+---
+
+## Secciones de Configuración
+
+Cuatro bloques apilados en el mismo orden que en el panel. La **zona de peligro** no se muestra hasta que la actives.
+
+| Sección | Qué puedes hacer | Por defecto |
+| :--- | :--- | :--- |
+| **Seguridad y conexión** | Ver, copiar y regenerar la API Key; consultar rol, rate limit y TTL; copiar tu ID de Twitch; activar la zona de peligro (⚠). | Visible |
+| **Ajustes del perfil** | Elegir zona horaria IANA para fechas y estadísticas del panel. | Visible |
+| **Tus datos** | Descargar un reporte HTML con perfil, métricas y ejemplos de comandos para tu bot. | Visible |
+| **Zona de peligro** | Reiniciar estadísticas (`LIMPIAR`) o eliminar cuenta en LosPerris (`ELIMINAR`). | Oculta |
+
+<Aside type="tip" title="Orden en pantalla">
+  Si no ves la zona de peligro, pulsa el botón **⚠** en la barra de acciones de la API Key (bloque Seguridad). El panel hace scroll automático hasta el bloque rojo.
+</Aside>
+
+### Seguridad y conexión
+
+Primer bloque de la página. Gestiona credenciales y muestra el estado de tu cuenta.
+
+#### API Key en pantalla
+
+| Acción | Comportamiento |
+| :--- | :--- |
+| **Ver / ocultar** | Muestra el UUID completo; se **oculta sola a los 30 s**. |
+| **Copiar** | Copia la clave al portapapeles. |
+| **Regenerar** | Abre un modal de confirmación; la clave anterior deja de funcionar al instante. |
+| **⚠ (triángulo)** | Muestra u oculta la **zona de peligro** al final de la página. |
+
+Por defecto la clave aparece **enmascarada** (como contraseña). No la compartas en directo ni en capturas.
+
+<Aside type="danger" title="Regenerar clave">
+  Tras regenerar, actualiza **todas** las URLs en Nightbot, StreamElements, Fossabot y Wizebot. Ver [Tu API Key](/docs/auth/).
+</Aside>
+
+#### Chips de estado
+
+Debajo del campo de la clave:
+
+| Chip | Significado |
+| :--- | :--- |
+| **Activa** | La API Key de la cuenta está operativa. |
+| **Rol** (Default, Pro, VIP, Partner) | Define tu [límite de peticiones](/docs/limits/) y TTL de caché. |
+| **X req/min** | Rate limit efectivo para bots. Un `*` indica límite personalizado. |
+| **X s** | TTL de caché de **comandos de chat** para tu rol. Un `*` indica override manual. |
+| **ID de usuario** | Tu ID numérico de Twitch; pulsa para copiarlo. |
+
+<ApiEndpoint method="POST" path="/system/regenerate-key" />
+
+Requiere sesión OAuth del panel y protección CSRF.
+
+### Ajustes del perfil
+
+Segundo bloque. Solo incluye la **zona horaria** por ahora.
+
+El selector lista zonas **IANA** soportadas por el navegador (con búsqueda). Afecta cómo se agrupan **días y horas** en estadísticas y en el reporte HTML.
+
+Al primer login, el OAuth también envía la zona del navegador (`tz` en `/api/auth/twitch`).
+
+<Steps>
+1. Elige la zona en el desplegable (p. ej. `Europe/Madrid`).
+2. Pulsa **Guardar** (solo activo si cambiaste el valor).
+</Steps>
+
+<ApiEndpoint method="PATCH" path="/dashboard/settings" />
+
+<ApiParamsTable params={[
+  { name: 'timezone', type: 'string', required: true, description: 'Identificador IANA (p. ej. America/Mexico_City, UTC).' },
+]} />
+
+Cuerpo JSON: `{ "timezone": "Europe/Madrid" }`
+
+### Tus datos
+
+Tercer bloque. Genera un **reporte de cuenta completo** en HTML.
+
+#### Contenido del archivo
+
+Nombre al descargar:
+
+```text
+MisDatos_LosPerrisAPI_tu_login.html
+```
+
+| Bloque del reporte | Detalle |
+| :--- | :--- |
+| Perfil | Avatar, login y tipo de canal de Twitch. |
+| Métricas | Peticiones hoy y totales, latencia media, tasa de éxito. |
+| Por categoría | Totales de comandos, herramientas y minijuegos. |
+| Integraciones | Ejemplos de sintaxis para tu bot con la API Key ya insertada (Followage, Clips, Shoutout…). |
+
+<Aside type="caution" title="Contenido sensible">
+  El reporte puede incluir tu **API Key** y datos de uso. Guárdalo en un lugar seguro; no lo subas a repos públicos ni lo compartas en stream.
+</Aside>
+
+#### Cooldown
+
+Entre descargas hay **4 minutos** de espera por usuario. Si intentas antes, verás cuánto falta (`429` en `export-check`).
+
+<Steps>
+1. Pulsa **Generar reporte**.
+2. El panel verifica el cooldown (`POST /api/dashboard/export-check`).
+3. Se arma el HTML en el navegador y se descarga solo.
+4. Se registra la exportación (`POST /api/dashboard/export-complete`).
+</Steps>
+
+| Paso API | Método | Ruta |
+| :--- | :--- | :--- |
+| Verificar cooldown | `POST` | `/api/dashboard/export-check` |
+| Registrar exportación | `POST` | `/api/dashboard/export-complete` |
+
+### Zona de peligro
+
+Cuarto bloque, **oculto** hasta activar el ⚠ en Seguridad. Cada acción abre un modal: debes escribir la palabra exacta.
+
+| Acción | Palabra | Qué borra | Qué se mantiene |
+| :--- | :--- | :--- | :--- |
+| **Reiniciar estadísticas** | `LIMPIAR` | Historial de comandos, clips, latencia, gráficas y feed de actividad. | Cuenta, OAuth y **API Key activa**. |
+| **Eliminar cuenta** | `ELIMINAR` | Perfil en LosPerris, datos asociados y API Key. | Tu **cuenta de Twitch** no se toca. |
+
+<Aside type="danger" title="Eliminar cuenta">
+  Irreversible en LosPerris API. Tras confirmar, redirige a la landing en unos segundos. Exporta el reporte antes si necesitas un histórico.
+</Aside>
+
+<ApiEndpoint method="POST" path="/dashboard/clear-data" />
+
+Cuerpo: `{ "confirm": "LIMPIAR" }`
+
+<ApiEndpoint method="DELETE" path="/dashboard/delete-account" />
+
+Cuerpo: `{ "confirm": "ELIMINAR" }`
+
+Ambos requieren sesión del panel y CSRF.
+
+---
+
+## ¿Dónde está cada cosa?
+
+Configuración no es el único sitio con datos de cuenta:
+
+| Dato | Ubicación |
+| :--- | :--- |
+| API Key, rol, límites, ID Twitch | Configuración → **Seguridad y conexión** |
+| Zona horaria | Configuración → **Ajustes del perfil** |
+| Exportar HTML | Configuración → **Tus datos** |
+| Actividad en vivo (peticiones, latencia) | Pestaña **Inicio** ([`/dashboard/`](/dashboard/)) |
+| Gráficas de 7 días | Pestaña **Analytics** ([`/dashboard/analytics`](/dashboard/analytics)) |
+
+---
+
+## Enlaces
+
+<CardGrid>
+  <LinkCard title="Tu API Key" href="/docs/auth/" description="Formato UUID, cabeceras X-Api-Key y permisos OAuth." />
+  <LinkCard title="Panel de control" href="/docs/panel/" description="Pestañas del dashboard y navegación." />
+  <LinkCard title="Límites de uso" href="/docs/limits/" description="Cuota por rol, panel 500/min y caché." />
+  <LinkCard title="Inicio rápido" href="/docs/inicio-rapido/" description="Primer comando en el chat." />
+</CardGrid>

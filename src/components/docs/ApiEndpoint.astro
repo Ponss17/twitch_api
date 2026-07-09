@@ -1,0 +1,15 @@
+---
+interface Props {
+	method?: 'GET' | 'POST' | 'PUT';
+	path: string;
+	base?: string;
+}
+
+const { method = 'GET', path, base = 'https://ttv.losperris.dev/api' } = Astro.props;
+const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+---
+
+<div class="api-endpoint">
+	<span class={`api-method api-method--${method.toLowerCase()}`}>{method}</span>
+	<code class="api-path">{base}{normalizedPath}</code>
+</div>

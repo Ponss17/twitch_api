@@ -1,5 +1,6 @@
 /// <reference path="../.astro/types.d.ts" />
 /// <reference types="astro/client" />
+/// <reference path="../node_modules/@astrojs/starlight/virtual-internal.d.ts" />
 
 /** Permite que el IDE tipifique HTML en archivos .astro */
 declare namespace JSX {

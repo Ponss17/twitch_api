@@ -1,0 +1,125 @@
+---
+title: "Followage"
+description: "Consulta cuánto tiempo lleva un usuario siguiendo tu canal de Twitch."
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import ApiEndpoint from '@/components/docs/ApiEndpoint.astro';
+import AuthNotice from '@/components/docs/AuthNotice.astro';
+import ApiParamsTable from '@/components/docs/ApiParamsTable.astro';
+import ApiFlowRequest from '@/components/docs/ApiFlowRequest.astro';
+import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
+import ApiRequestExample from '@/components/docs/ApiRequestExample.astro';
+import BotCommandAuthAside from '@/components/docs/BotCommandAuthAside.astro';
+
+Consulta la antigüedad del follow de un viewer. La respuesta es texto plano listo para mostrar en el chat.
+
+<ApiEndpoint path="/followage" />
+<AuthNotice />
+
+## Límites
+
+<Aside type="note" title="Rate limit">
+  Usa el **límite general** de tu rol (30–120 req/min). En cuentas Default, las respuestas se cachean **60 segundos** para reducir peticiones repetidas en el chat.
+</Aside>
+
+## Parámetros
+
+<ApiParamsTable params={[
+  { name: 'channel', type: 'string', required: true, description: 'Canal de Twitch donde se ejecuta el comando.' },
+  { name: 'user', type: 'string', required: true, description: 'Usuario cuya antigüedad de follow se consulta.' },
+  { name: 'apiKey', type: 'string', required: true, description: 'Clave de API de tu cuenta.' },
+  { name: 'template', type: 'string', required: false, description: 'Plantilla personalizada con `{user}`, `{time}` y `{channel}`.' },
+]} />
+
+<div class="api-flow">
+
+## Ejemplo de petición
+
+Con **cURL** o **URL** la respuesta muestra solo el mensaje. Con **cURL -i** ves cabeceras HTTP + cuerpo.
+
+<ApiFlowRequest
+  flowId="flow-followage"
+  path="/followage"
+  query={{
+    channel: 'losperris',
+    user: 'viewer123',
+    apiKey: 'TU_API_KEY',
+  }}
+/>
+
+## Plantillas personalizadas
+
+Añade `template` para controlar el mensaje del bot. Placeholders: `{user}`, `{time}` y `{channel}`.
+
+<ApiRequestExample
+  path="/followage"
+  query={{
+    channel: 'losperris',
+    user: 'viewer123',
+    apiKey: 'TU_API_KEY',
+    template: '{user} lleva {time} siguiendo a {channel}',
+  }}
+/>
+
+## Respuestas
+
+<ApiFlowResponse
+  flowId="flow-followage"
+  responses={[
+  {
+    tabLabel: '200',
+    status: 200,
+    format: 'text',
+    body: 'viewer123 ha seguido a losperris por 2 años y 3 meses.',
+  },
+  {
+    tabLabel: 'Sin follow',
+    status: 200,
+    format: 'text',
+    body: 'viewer123 no sigue a losperris.',
+  },
+  {
+    tabLabel: 'Key inválida (200)',
+    status: 200,
+    format: 'text',
+    body: 'Error de autenticación. Clave API inválida o expirada. Regenerala o pide ayuda a Ponss 🦆',
+  },
+  {
+    tabLabel: '429',
+    status: 429,
+    format: 'text',
+    body: '',
+  },
+]} />
+
+<BotCommandAuthAside />
+
+</div>
+
+## Integración con bots
+
+Copia el comando según tu bot y reemplaza `TU_API_KEY`. Requiere permisos de moderador en el chat de Twitch.
+
+<Tabs>
+  <TabItem label="Nightbot">
+    ```text
+    !addcom !followage $(urlfetch https://ttv.losperris.dev/api/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="StreamElements">
+    ```text
+    !command add !followage ${customapi.https://ttv.losperris.dev/api/followage?channel=${channel}&user=${user}&apiKey=TU_API_KEY}
+    ```
+  </TabItem>
+  <TabItem label="Fossabot">
+    ```text
+    !addcmd !followage $(customapi https://ttv.losperris.dev/api/followage?channel=$(channel)&user=$(user)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="Wizebot">
+    ```text
+    !command add !followage $(urlfetch https://ttv.losperris.dev/api/followage?channel=$(channel)&user=$(user_name)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+</Tabs>

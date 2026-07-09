@@ -1,0 +1,132 @@
+---
+title: "Crear clip"
+description: "Captura los últimos 30 segundos del directo y devuelve el enlace del clip."
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import ApiEndpoint from '@/components/docs/ApiEndpoint.astro';
+import AuthNotice from '@/components/docs/AuthNotice.astro';
+import ApiParamsTable from '@/components/docs/ApiParamsTable.astro';
+import ApiFlowRequest from '@/components/docs/ApiFlowRequest.astro';
+import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
+import ApiRequestExample from '@/components/docs/ApiRequestExample.astro';
+import BotCommandAuthAside from '@/components/docs/BotCommandAuthAside.astro';
+
+Crea un clip del stream en vivo desde el chat.
+
+<ApiEndpoint path="/create-clip" />
+<AuthNotice />
+
+## Requisitos
+
+1. El canal debe estar **en vivo**.
+2. La creación de clips debe estar **habilitada** en el panel de Twitch.
+
+## Límites
+
+<Aside type="note" title="Rate limit">
+  Usa el **límite general** de tu rol (30–120 req/min). Configura un cooldown de 30–60 s en el bot para no spamear la API de Twitch.
+</Aside>
+
+## Parámetros
+
+<ApiParamsTable params={[
+  { name: 'channel', type: 'string', required: true, description: 'Canal en el que se crea el clip.' },
+  { name: 'apiKey', type: 'string', required: true, description: 'Clave de API de tu cuenta.' },
+  { name: 'user', type: 'string', required: false, description: 'Usuario que solicita el clip (para plantillas).' },
+  { name: 'title', type: 'string', required: false, description: 'Título opcional del clip.' },
+  { name: 'template', type: 'string', required: false, description: 'Plantilla con `{user}`, `{url}`, `{title}` y `{channel}`.' },
+]} />
+
+<div class="api-flow">
+
+## Ejemplo de petición
+
+<ApiFlowRequest
+  flowId="flow-create-clip"
+  path="/create-clip"
+  query={{
+    channel: 'losperris',
+    apiKey: 'TU_API_KEY',
+    user: 'viewer123',
+  }}
+/>
+
+## Plantillas personalizadas
+
+Añade `template` para personalizar el mensaje del bot. Placeholders: `{user}`, `{url}`, `{title}` y `{channel}`.
+
+<ApiRequestExample
+  path="/create-clip"
+  query={{
+    channel: 'losperris',
+    apiKey: 'TU_API_KEY',
+    user: 'viewer123',
+    template: 'Clip de {user}: {url}',
+  }}
+/>
+
+## Respuestas
+
+<ApiFlowResponse
+  flowId="flow-create-clip"
+  responses={[
+  {
+    tabLabel: '200',
+    status: 200,
+    format: 'text',
+    body: 'https://clips.twitch.tv/AwkwardHelplessSalamander-HfG3kL9mN2pQrS',
+  },
+  {
+    tabLabel: 'Canal offline',
+    status: 200,
+    format: 'text',
+    body: 'El canal está offline. Solo se pueden crear clips en canales en directo.',
+  },
+  {
+    tabLabel: 'Sin permiso',
+    status: 200,
+    format: 'text',
+    body: 'Sin permiso para crear clips en este canal.',
+  },
+  {
+    tabLabel: 'Key inválida (200)',
+    status: 200,
+    format: 'text',
+    body: 'Error de autenticación. Clave API inválida o expirada. Regenerala o pide ayuda a Ponss 🦆',
+  },
+  { tabLabel: '429', status: 429, format: 'text', body: '' },
+]} />
+
+<Aside type="note" title="Listar clips en JSON">
+  Para widgets u OBS, consulta **[Listar clips](/docs/extras/get-clips/)** (`/dashboard/get-clips`) en Extras.
+</Aside>
+
+<BotCommandAuthAside />
+
+</div>
+
+## Integración con bots
+
+<Tabs>
+  <TabItem label="Nightbot">
+    ```text
+    !addcom !clip $(urlfetch https://ttv.losperris.dev/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="StreamElements">
+    ```text
+    !command add !clip ${customapi.https://ttv.losperris.dev/api/create-clip?channel=${channel}&apiKey=TU_API_KEY}
+    ```
+  </TabItem>
+  <TabItem label="Fossabot">
+    ```text
+    !addcmd !clip $(customapi https://ttv.losperris.dev/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="Wizebot">
+    ```text
+    !command add !clip $(urlfetch https://ttv.losperris.dev/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+</Tabs>

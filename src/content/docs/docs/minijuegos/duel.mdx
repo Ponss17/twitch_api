@@ -1,0 +1,162 @@
+---
+title: "Duelo"
+description: "Duelo narrativo aleatorio 1vs1 entre dos usuarios del chat."
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import ApiEndpoint from '@/components/docs/ApiEndpoint.astro';
+import AuthNotice from '@/components/docs/AuthNotice.astro';
+import ApiParamsTable from '@/components/docs/ApiParamsTable.astro';
+import ApiFlowRequest from '@/components/docs/ApiFlowRequest.astro';
+import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
+
+Simula un **duelo 1vs1** entre dos viewers. El ganador se elige al **50 %** y la API devuelve un relato corto en texto plano (prefijo `⚔️`) con menciones `@ganador` y `@perdedor`.
+
+<ApiEndpoint path="/minigames/duel" />
+<AuthNotice />
+
+## Parámetros
+
+<ApiParamsTable params={[
+  { name: 'target', type: 'string', required: true, description: 'Usuario retado (login de Twitch, sin `@`).' },
+  { name: 'challenger', type: 'string', required: false, description: 'Usuario que reta. Si falta, el backend usa `KeanuReeves`. Si el bot no sustituye la variable (`$(user)` sin reemplazar), se usa `Anónimo`.' },
+  { name: 'apiKey', type: 'string', required: true, description: 'Clave de API de tu cuenta.' },
+]} />
+
+## Escenarios narrativos
+
+Cada duelo elige **un tema al azar** y **un mensaje** de ese tema. Los placeholders `{w}` y `{l}` del backend se sustituyen por `@ganador` y `@perdedor` en la respuesta.
+
+<div class="docs-data-table-wrap not-content">
+	<table class="docs-data-table">
+		<colgroup>
+			<col class="docs-data-table__col-param" />
+			<col class="docs-data-table__col-desc" />
+		</colgroup>
+		<thead>
+			<tr>
+				<th>Tema</th>
+				<th>Estilo del relato</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td><code class="docs-data-table__param">Western</code></td>
+				<td class="docs-data-table__desc">Duelos de revólver, saloon y amanecer en el Lejano Oeste.</td>
+			</tr>
+			<tr>
+				<td><code class="docs-data-table__param">Magic</code></td>
+				<td class="docs-data-table__desc">Hechizos, varitas y explosiones arcanas.</td>
+			</tr>
+			<tr>
+				<td><code class="docs-data-table__param">Sci-Fi</code></td>
+				<td class="docs-data-table__desc">Sables de luz, plasma, hackeos y simulaciones.</td>
+			</tr>
+			<tr>
+				<td><code class="docs-data-table__param">Anime</code></td>
+				<td class="docs-data-table__desc">Referencias shonen, rayos de energía y Death Note.</td>
+			</tr>
+			<tr>
+				<td><code class="docs-data-table__param">Street</code></td>
+				<td class="docs-data-table__desc">Chancla legendaria, pez espada y pelea callejera.</td>
+			</tr>
+			<tr>
+				<td><code class="docs-data-table__param">Gaming</code></td>
+				<td class="docs-data-table__desc">FPS no-scope, Mario Kart y trampas de Minecraft.</td>
+			</tr>
+			<tr>
+				<td><code class="docs-data-table__param">Epicas</code></td>
+				<td class="docs-data-table__desc">Peleas a velocidad luz, dragones y espadas bajo la lluvia.</td>
+			</tr>
+			<tr>
+				<td><code class="docs-data-table__param">Mitologia</code></td>
+				<td class="docs-data-table__desc">Thor, Medusa, Moisés y referencias mitológicas.</td>
+			</tr>
+			<tr>
+				<td><code class="docs-data-table__param">Cine</code></td>
+				<td class="docs-data-table__desc">Terminator, Star Wars y John Wick.</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<Aside type="note" title="Comportamiento">
+  Probabilidad **50/50** entre `challenger` y `target`. La respuesta es **texto plano** (no JSON) y siempre empieza con `⚔️`. Si retas a ti mismo (`challenger` = `target`), el duelo igual se resuelve y el relato menciona al mismo login como ganador y perdedor.
+</Aside>
+
+<div class="api-flow">
+
+## Ejemplo de petición
+
+<ApiFlowRequest
+  flowId="flow-duel"
+  path="/minigames/duel"
+  query={{
+    challenger: 'viewer123',
+    target: 'rival456',
+    apiKey: 'TU_API_KEY',
+  }}
+/>
+
+## Respuestas
+
+<ApiFlowResponse
+  flowId="flow-duel"
+  responses={[
+  {
+    tabLabel: '200',
+    status: 200,
+    format: 'text',
+    body: '⚔️ El sol está en lo más alto. @viewer123 y @rival456 se miran fijamente, las manos sobre sus revólveres. Una planta rodadora cruza el camino... ¡BANG! El humo se disipa y @viewer123 guarda su arma mientras @rival456 cae derrotado en el polvo.',
+  },
+  {
+    tabLabel: '400',
+    status: 400,
+    format: 'json',
+    body: `{
+  "success": false,
+  "error": {
+    "message": "Error de validación",
+    "code": "VALIDATION_ERROR",
+    "details": [{ "path": "query.target", "message": "Required" }]
+  }
+}`,
+  },
+  {
+    tabLabel: '500',
+    status: 500,
+    format: 'text',
+    body: 'Error al iniciar el duelo.',
+  },
+]} />
+
+</div>
+
+## Integración con bots
+
+Usa `$(user)` / `$(touser)` (o equivalente) para rellenar retador y oponente:
+
+<Tabs>
+  <TabItem label="Nightbot">
+    ```text
+    !addcom !duelo $(urlfetch https://ttv.losperris.dev/api/minigames/duel?challenger=$(user)&target=$(touser)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="StreamElements">
+    ```text
+    !command add !duelo ${customapi.https://ttv.losperris.dev/api/minigames/duel?challenger=${user}&target=${1:}&apiKey=TU_API_KEY}
+    ```
+  </TabItem>
+  <TabItem label="Fossabot">
+    ```text
+    !addcmd !duelo $(customapi https://ttv.losperris.dev/api/minigames/duel?challenger=$(user)&target=$(1)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="Wizebot">
+    ```text
+    !command add !duelo $(urlfetch https://ttv.losperris.dev/api/minigames/duel?challenger=$(user_name)&target=$(arg_1)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+</Tabs>
+
+El viewer ejecuta `!duelo @usuario` en el chat; el bot llama a la API y devuelve el relato del duelo.

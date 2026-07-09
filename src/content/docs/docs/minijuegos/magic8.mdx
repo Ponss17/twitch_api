@@ -1,0 +1,131 @@
+---
+title: "Bola 8 (IA)"
+description: "Respuestas generadas por IA a preguntas del chat."
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import ApiEndpoint from '@/components/docs/ApiEndpoint.astro';
+import AuthNotice from '@/components/docs/AuthNotice.astro';
+import ApiParamsTable from '@/components/docs/ApiParamsTable.astro';
+import ApiFlowRequest from '@/components/docs/ApiFlowRequest.astro';
+import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
+
+Responde preguntas del chat con inteligencia artificial. A diferencia de respuestas fijas, el modelo interpreta el contexto de cada pregunta y adapta el tono según la personalidad elegida.
+
+<ApiEndpoint path="/minigames/magic8" />
+<AuthNotice />
+
+## Parámetros
+
+<ApiParamsTable params={[
+  { name: 'question', type: 'string', required: true, description: 'Pregunta del viewer (3–500 caracteres).' },
+  { name: 'apiKey', type: 'string', required: true, description: 'Clave de API de tu cuenta.' },
+  { name: 'user', type: 'string', required: false, description: 'Usuario que pregunta; la IA se dirige a `@user` en la respuesta.' },
+  { name: 'mood', type: 'string', required: false, description: 'Personalidad de la respuesta. Por defecto `classic`. Ver opciones abajo.' },
+]} />
+
+## Personalidades (`mood`)
+
+El parámetro opcional `mood` define cómo habla la bola. **Por defecto:** `classic`. Si envías un valor no reconocido, se usa `classic` (mismas opciones que el selector **Personalidad** del panel).
+
+<div class="docs-data-table-wrap not-content">
+	<table class="docs-data-table">
+		<colgroup>
+			<col class="docs-data-table__col-param" />
+			<col style="width: 7rem" />
+			<col class="docs-data-table__col-desc" />
+		</colgroup>
+		<thead>
+			<tr>
+				<th>Valor</th>
+				<th>Nombre</th>
+				<th>Comportamiento</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td><code class="docs-data-table__param">classic</code></td>
+				<td>Clásica</td>
+				<td class="docs-data-table__desc">Oráculo ancestral: tono solemne y teatral. Veredictos claros (sí, no o señales concretas) sin evasivas.</td>
+			</tr>
+			<tr>
+				<td><code class="docs-data-table__param">sarcastic</code></td>
+				<td>Sarcástica</td>
+				<td class="docs-data-table__desc">Cinismo y humor mordaz. Responde al tema pero ridiculiza la pregunta o las expectativas del viewer.</td>
+			</tr>
+			<tr>
+				<td><code class="docs-data-table__param">toxic</code></td>
+				<td>Tóxica</td>
+				<td class="docs-data-table__desc">Manipulación emocional y tono posesivo. Gira la respuesta hacia celos o control. Usar con moderación en stream.</td>
+			</tr>
+			<tr>
+				<td><code class="docs-data-table__param">helpful</code></td>
+				<td>Servicial</td>
+				<td class="docs-data-table__desc">Coach hiperpositivo: hype, ánimo extremo y emojis moderados (✨🚀💖). Reframe optimista incluso en respuestas negativas.</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<Aside type="caution" title="Modo tóxico">
+  `toxic` puede sonar agresivo o incómodo en chat público. Prueba la personalidad en el panel antes de activarla en el bot.
+</Aside>
+
+Añade `&mood=` a la URL del comando:
+
+```text
+https://ttv.losperris.dev/api/minigames/magic8?question=$(querystring)&mood=sarcastic&user=$(user)&apiKey=TU_API_KEY
+```
+
+<div class="api-flow">
+
+## Ejemplo de petición
+
+<ApiFlowRequest
+  flowId="flow-magic8"
+  path="/minigames/magic8"
+  query={{
+    question: '¿Llegaré a partner este año?',
+    apiKey: 'TU_API_KEY',
+    user: 'viewer123',
+    mood: 'classic',
+  }}
+/>
+
+## Respuestas
+
+<ApiFlowResponse
+  flowId="flow-magic8"
+  responses={[
+  { tabLabel: '200', status: 200, format: 'text', body: 'Las señales apuntan a que sí.' },
+  { tabLabel: '503', status: 503, format: 'text', body: 'El servicio de IA no está configurado en el servidor.' },
+]} />
+
+</div>
+
+## Integración con bots
+
+<Tabs>
+  <TabItem label="Nightbot">
+    ```text
+    !addcom !bola8 $(urlfetch https://ttv.losperris.dev/api/minigames/magic8?question=$(querystring)&user=$(user)&mood=classic&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="StreamElements">
+    ```text
+    !command add !bola8 ${customapi.https://ttv.losperris.dev/api/minigames/magic8?question=${queryescape ${1:}}&user=${user}&mood=classic&apiKey=TU_API_KEY}
+    ```
+  </TabItem>
+  <TabItem label="Fossabot">
+    ```text
+    !addcmd !bola8 $(customapi https://ttv.losperris.dev/api/minigames/magic8?question=$(1+)&user=$(user)&mood=classic&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="Wizebot">
+    ```text
+    !command add !bola8 $(urlfetch https://ttv.losperris.dev/api/minigames/magic8?question=$(arg_1+)&user=$(user_name)&mood=classic&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+</Tabs>
+
+Cambia `mood=classic` por `sarcastic`, `toxic` o `helpful` según la personalidad que quieras en el chat.
