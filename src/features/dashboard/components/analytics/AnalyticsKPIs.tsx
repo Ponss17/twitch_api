@@ -106,7 +106,7 @@ export function AnalyticsKPIs({
                 {/* Avg Processing Time */}
                 <div className={H_STAT}>
                     <div className="flex justify-between items-center w-full mb-2">
-                        <span className="text-sm font-medium text-zinc-300">(s) Tiempo de Proceso Medio</span>
+                        <span className="text-sm font-medium text-zinc-300">Tiempo de Proceso Medio</span>
                         <Gauge className="w-4 h-4 text-amber-500" />
                     </div>
                     <div className="flex flex-col">
@@ -124,7 +124,7 @@ export function AnalyticsKPIs({
                                 </span>
                             )}
                         </div>
-                        <span className="text-xs text-zinc-500 mt-2 font-medium">latencia global de la API {subtextSuffix}</span>
+                        <span className="text-xs text-zinc-500 mt-2 font-medium">latencia promedio de tus comandos {subtextSuffix}</span>
                     </div>
                 </div>
 
