@@ -1,5 +1,4 @@
 export const RATE_LIMITS = {
-    DEFAULT: 60, // Límite por defecto para usuarios (req/min)
     DASHBOARD: 500, // Sesión OAuth del dashboard — contador global en KV (`rl:sess:`)
     PUBLIC: 100, // Límite para IPs anónimas en rutas protegidas
     PUBLIC_HTML: 300, // Páginas públicas HTML (/, /docs) por IP
