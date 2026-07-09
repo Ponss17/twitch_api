@@ -91,12 +91,20 @@ Los endpoints públicos para bots mantienen compatibilidad con integraciones exi
 
 Documentación interactiva: `/docs` (en producción: `https://ttv.losperris.dev/docs`).
 
-## Arquitectura y documentación
+## Documentación (Starlight)
 
-| Documento | Contenido |
-|-----------|-----------|
-| [DOCUMENTATION.md](DOCUMENTATION.md) | Guía completa: flujos, endpoints, DB/caché/realtime y lógica **archivo por archivo** (backend + frontend) |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Contratos, OAuth, caché L1/L2/L3, env de prod, deuda técnica y SQL Supabase |
+La documentación pública usa [Starlight](https://starlight.astro.build/es/) (`@astrojs/starlight`).
+
+| Ruta | Contenido |
+|------|-----------|
+| `src/content/docs/docs/` | Páginas MDX (comandos, minijuegos, guías) |
+| `src/core/ui/starlight-theme.css` | Tema visual LosPerris |
+| `src/components/docs/` | Componentes MDX (endpoints, ejemplos API, overlays) |
+| `astro.config.mjs` | Sidebar, locale `es` y logo |
+
+Para editar la docs en local: `pnpm dev` y abre `http://localhost:4321/docs/`.
+
+## Arquitectura
 
 ## Licencia
 

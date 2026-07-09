@@ -1,0 +1,23 @@
+---
+import Default from '@astrojs/starlight/components/Head.astro';
+import { staticPath } from '@/core/config/paths';
+---
+<Default {...Astro.props} />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+	rel="preload"
+	href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap"
+	as="style"
+	id="geist-font-preload"
+/>
+<script src={staticPath('/js/font-preload.js')} defer></script>
+<noscript>
+	<link
+		rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap"
+	/>
+</noscript>
+<script is:inline>
+	document.documentElement.dataset.theme = 'dark';
+</script>

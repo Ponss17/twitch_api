@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
+import starlight from '@astrojs/starlight';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,11 +14,9 @@ const fileEnv = fs.existsSync(envPath) ? dotenv.parse(fs.readFileSync(envPath)) 
 /** @param {string} key */
 const env = (key) => process.env[key] || fileEnv[key] || '';
 
-/** Mismas variables que el backend (.env) — inyectadas al cliente vía astro.config.mjs */
 const supabaseUrl = env('SUPABASE_URL');
 const supabaseAnonKey = env('SUPABASE_ANON_KEY');
 
-/** En dev: no servir sw.js (evita SW interceptando deps de Vite). */
 function devNoServiceWorker() {
     return {
         name: 'dev-no-service-worker',
@@ -73,7 +72,6 @@ const DASHBOARD_TAB_SLUGS = new Set([
     'feedback'
 ]);
 
-/** Rutas SPA del dashboard (`/dashboard/profile`, etc.) — no proxy al backend en dev. */
 /** @param {string} path */
 function isDashboardTabRoute(path) {
     const base = '/dashboard';
@@ -89,6 +87,7 @@ function isFrontendRoute(url) {
     const path = (url || '').split('?')[0];
     if (FRONTEND_EXACT.has(path)) return true;
     if (isDashboardTabRoute(path)) return true;
+    if (path.startsWith('/docs/')) return true;
     if (path.startsWith('/overlay/')) return true;
     if (path.startsWith('/img/')) return true;
     if (path.startsWith('/_astro/')) return true;
@@ -96,7 +95,6 @@ function isFrontendRoute(url) {
 }
 
 export default defineConfig({
-    /** Estático en build — páginas en CDN (como el viejo serveHtml), solo API en serverless. */
     output: 'static',
     trailingSlash: 'always',
     vite: {
@@ -132,5 +130,80 @@ export default defineConfig({
             }
         }
     },
-    integrations: [react()]
+    integrations: [
+        starlight({
+            title: 'LosPerris API',
+            tagline: 'Documentación de la API para streamers de Twitch',
+            favicon: '/favicon.svg',
+            disable404Route: true,
+            defaultLocale: 'root',
+            locales: {
+                root: {
+                    label: 'Español',
+                    lang: 'es'
+                }
+            },
+            components: {
+                Head: './src/components/StarlightHead.astro',
+                Header: './src/components/StarlightHeader.astro',
+                SiteTitle: './src/components/StarlightSiteTitle.astro',
+                ThemeSelect: './src/components/StarlightThemeSelect.astro',
+                Sidebar: './src/components/StarlightSidebar.astro',
+            },
+            customCss: [
+                './src/core/ui/starlight-theme.css',
+            ],
+            sidebar: [
+                {
+                    label: 'Guía',
+                    items: [
+                        { label: 'Introducción', link: '/docs/' },
+                        { label: 'Inicio rápido', link: '/docs/inicio-rapido/' },
+                    ]
+                },
+                {
+                    label: 'Cuenta y panel',
+                    items: [
+                        { label: 'Panel de Control', link: '/docs/panel/' },
+                        { label: 'Tu API Key', link: '/docs/auth/' },
+                        { label: 'Perfil y Seguridad', link: '/docs/profile/' },
+                        { label: 'Límites', link: '/docs/limits/' },
+                    ]
+                },
+                {
+                    label: 'Comandos',
+                    items: [
+                        { label: 'Followage', link: '/docs/comandos/followage/' },
+                        { label: 'Clips', link: '/docs/comandos/clips/' },
+                        { label: 'Shoutout', link: '/docs/comandos/shoutout/' },
+                    ]
+                },
+                {
+                    label: 'Herramientas',
+                    items: [
+                        { label: 'Tendencias', link: '/docs/herramientas/trends/' },
+                        { label: 'Stalker', link: '/docs/herramientas/stalker/' },
+                        { label: 'Ruleta', link: '/docs/herramientas/roulette/' },
+                    ]
+                },
+
+                {
+                    label: 'Minijuegos',
+                    items: [
+                        { label: 'Bola 8', link: '/docs/minijuegos/magic8/' },
+                        { label: 'Ruleta Rusa', link: '/docs/minijuegos/russian/' },
+                        { label: 'Duelo', link: '/docs/minijuegos/duel/' },
+                    ]
+                },
+                {
+                    label: 'Extras',
+                    items: [
+                        { label: 'Listar clips', link: '/docs/extras/get-clips/' },
+                        { label: 'Ayuda', link: '/docs/extras/errores/' },
+                    ]
+                },
+            ]
+        }),
+        react()
+    ]
 });

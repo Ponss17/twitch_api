@@ -1,0 +1,7 @@
+---
+import { Aside } from '@astrojs/starlight/components';
+---
+
+<Aside type="note" title="Comportamiento en bots">
+  Errores de API Key y de negocio devuelven **HTTP 200** con el mensaje en el cuerpo (así Nightbot y StreamElements lo muestran en el chat). El rate limit (**429**) devuelve **cuerpo vacío**.
+</Aside>

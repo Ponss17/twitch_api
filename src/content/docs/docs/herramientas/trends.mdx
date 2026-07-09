@@ -1,0 +1,101 @@
+---
+title: "Tendencias"
+description: "Ranking top 10 de palabras del chat en tiempo real con overlay para OBS."
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+import DashboardAuthNotice from '@/components/docs/DashboardAuthNotice.astro';
+import OverlayApiSection from '@/components/docs/OverlayApiSection.astro';
+import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
+
+Herramienta del panel que cuenta la **primera palabra** de cada mensaje del chat durante un temporizador. Muestra un **ranking top 10** en tabla (medallas, repeticiones y barras de progreso) en el dashboard y en OBS, sincronizados por la API del overlay.
+
+<DashboardAuthNotice />
+
+## Acceso
+
+Abre **[Tendencias](/dashboard/trends)** en el panel. Usa el botón **Overlay** para copiar la URL firmada y controla la sesión desde el panel (OBS solo muestra el resultado).
+
+## Límites
+
+<Aside type="note" title="Rate limit y persistencia">
+  Usa la **sesión del dashboard** (500 req/min). El **estado del overlay** (conteos, temporizador, etc.) se guarda en KV con TTL de **2 horas**. La **URL del overlay** incluye un token de solo lectura válido **30 días** — no la compartas en stream ni en chat público.
+</Aside>
+
+<OverlayApiSection tool="trends" flowId="flow-trends" />
+
+<div class="api-flow">
+
+## Configuración en OBS
+
+<Steps>
+1. En el panel, pulsa **Overlay** y copia la URL (incluye `overlayToken` de solo lectura).
+2. En OBS, añade una fuente **Navegador** (Browser Source).
+3. Pega la URL, usa **900 × 580 px** (o el ancho de tu escena) y **fondo transparente**.
+4. Marca **Actualizar navegador cuando la escena se active**.
+5. En el panel, configura la **duración** (1–60 min, por defecto 5) y pulsa **Play** para iniciar el temporizador.
+</Steps>
+
+<Aside type="note" title="Control desde el panel">
+  OBS solo refleja el estado. Para iniciar el temporizador, reiniciar o cambiar la duración, usa el panel. El botón **Reiniciar** borra conteos y vuelve al estado inicial.
+</Aside>
+
+## Cómo funciona
+
+- **Temporizador:** entre 1 y 60 minutos (valor por defecto: 5). Al pulsar **Play** empieza la cuenta atrás y se conecta al chat de tu canal.
+- **Ranking:** tabla con las **10 palabras más repetidas**, ordenadas por frecuencia. Las posiciones 1–3 muestran medallas (🥇 🥈 🥉).
+- **Sincronización:** si tienes varias pestañas del panel abiertas, solo la pestaña **líder** escucha el chat; el resto se sincroniza. El overlay en OBS lee el estado publicado por el panel.
+- **Fin de sesión:** al terminar el temporizador, el panel muestra un toast con la palabra ganadora. El overlay sigue visible **30 segundos** con el ranking final y luego se oculta (fondo transparente).
+- **Visibilidad en OBS:** el overlay está oculto en reposo; aparece mientras el temporizador corre o justo después de terminar.
+
+## Conteo de palabras
+
+Solo se analiza la **primera palabra** de cada mensaje (no todas las palabras ni emotes como entidades separadas):
+
+- Se normaliza a minúsculas y se eliminan signos de puntuación al inicio (p. ej. `!hola` cuenta como `hola`).
+- Mínimo **3 caracteres** tras la normalización.
+- Se descartan **stopwords** en español (`el`, `la`, `que`, `como`, `http`, etc.).
+- Se ignoran mensajes de **bots** conocidos (`nightbot`, `streamelements`, `fossabot`, `moobot`, `streamlabs`, etc.).
+
+<Aside type="caution" title="Qué no hace">
+  No hay modos visuales alternativos (nube de palabras, burbujas, etc.). No filtra explícitamente mensajes que empiecen por `!` — si el comando queda como palabra válida tras quitar la puntuación, puede contarse.
+</Aside>
+
+## Formato del estado (`TrendsOverlayState`)
+
+El panel publica este objeto en `PUT /dashboard/overlay-state/trends` y el overlay lo lee con `GET`:
+
+<ApiFlowResponse
+  flowId="flow-trends-state"
+  responses={[
+    {
+      tabLabel: '200 (activo)',
+      status: 200,
+      format: 'json',
+      body: `{
+  "state": {
+    "tracking": true,
+    "remaining": 142,
+    "timerEnded": false,
+    "wordCounts": {
+      "hola": 24,
+      "gg": 18
+    },
+    "minutes": 5,
+    "displayName": "TuCanal",
+    "sessionActive": true,
+    "timerEndsAt": 1752012345678,
+    "updatedAt": 1752012234567
+  }
+}`,
+    },
+    {
+      tabLabel: '200 (vacío)',
+      status: 200,
+      format: 'json',
+      body: '{ "state": null }',
+    },
+  ]}
+/>
+
+</div>

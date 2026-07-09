@@ -1,0 +1,137 @@
+---
+title: "Listar clips"
+description: "Endpoint JSON para obtener clips recientes de un canal."
+---
+
+import { Aside, Badge } from '@astrojs/starlight/components';
+import ApiEndpoint from '@/components/docs/ApiEndpoint.astro';
+import AuthNotice from '@/components/docs/AuthNotice.astro';
+import ApiParamsTable from '@/components/docs/ApiParamsTable.astro';
+import ApiFlowRequest from '@/components/docs/ApiFlowRequest.astro';
+import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
+
+<Badge text="JSON" variant="note" />
+
+Devuelve clips recientes de un canal en **JSON**. Sirve para widgets, carruseles en OBS o integraciones web — no es un comando de chat. Para crear clips desde el bot, usa **[Crear clip](/docs/comandos/clips/)**.
+
+<ApiEndpoint path="/dashboard/get-clips" />
+<AuthNotice />
+
+## Límites
+
+<Aside type="note" title="Endpoint pesado">
+  Usa el **límite pesado** de tu rol: **10 req/min** (`heavyRateLimiter`), independiente del límite general. Las respuestas se cachean según tu rol (ver [Límites](/docs/limits/)).
+</Aside>
+
+## Parámetros
+
+<ApiParamsTable params={[
+  { name: 'channel', type: 'string', required: true, description: 'Login del canal de Twitch (sin `@`).' },
+  { name: 'apiKey', type: 'string', required: true, description: 'Clave de API de tu cuenta.' },
+  { name: 'limit', type: 'number', required: false, description: 'Cantidad de clips (1–100). Por defecto **20**.' },
+]} />
+
+<div class="api-flow">
+
+## Ejemplo de petición
+
+<ApiFlowRequest
+  flowId="flow-get-clips"
+  path="/dashboard/get-clips"
+  accept="application/json"
+  query={{
+    channel: 'ElGamerX',
+    limit: '5',
+    apiKey: 'TU_API_KEY',
+  }}
+/>
+
+## Respuestas
+
+<ApiFlowResponse
+  flowId="flow-get-clips"
+  contentType="application/json; charset=utf-8"
+  responses={[
+  {
+    tabLabel: '200',
+    status: 200,
+    format: 'json',
+    body: `[
+  {
+    "id": "CuriousGlamorousDogeCoolCat-XYZ",
+    "url": "https://clips.twitch.tv/CuriousGlamorousDogeCoolCat-XYZ",
+    "embed_url": "https://clips.twitch.tv/embed?clip=CuriousGlamorousDogeCoolCat-XYZ",
+    "broadcaster_id": "123456",
+    "broadcaster_name": "ElGamerX",
+    "creator_id": "789012",
+    "creator_name": "FanSuperFiel",
+    "video_id": "987654321",
+    "game_id": "509658",
+    "language": "es",
+    "title": "Tremendo headshot en vivo",
+    "view_count": 452,
+    "created_at": "2023-10-15T22:15:30Z",
+    "thumbnail_url": "https://clips-media-assets2.twitch.tv/XYZ-preview-480x272.jpg",
+    "duration": 30.5,
+    "vod_offset": 120
+  }
+]`,
+  },
+  {
+    tabLabel: '200 (vacío)',
+    status: 200,
+    format: 'json',
+    body: '[]',
+  },
+  {
+    tabLabel: '400',
+    status: 400,
+    format: 'json',
+    body: `{
+  "success": false,
+  "error": {
+    "message": "Error de validación",
+    "code": "VALIDATION_ERROR",
+    "details": [{ "path": "query.limit", "message": "Number must be less than or equal to 100" }]
+  }
+}`,
+  },
+  {
+    tabLabel: '401',
+    status: 401,
+    format: 'text',
+    body: 'Error de autenticación. Clave API inválida o expirada. Regenerala o pide ayuda a Ponss 🦆',
+  },
+  {
+    tabLabel: '403',
+    status: 403,
+    format: 'json',
+    body: '{ "error": "Cuenta suspendida." }',
+  },
+  {
+    tabLabel: '429',
+    status: 429,
+    format: 'text',
+    body: 'Límite de peticiones pesadas excedido (max 10/min).',
+  },
+  {
+    tabLabel: '500',
+    status: 500,
+    format: 'json',
+    body: `{
+  "success": false,
+  "error": {
+    "message": "Error recuperando clips.",
+    "code": "INTERNAL_ERROR"
+  }
+}`,
+  },
+]} />
+
+</div>
+
+Campos principales de cada clip: `id`, `url`, `embed_url`, `broadcaster_name`, `creator_name`, `title`, `view_count`, `created_at`, `thumbnail_url`, `duration`.
+
+<Aside type="tip" title="CORS">
+  Las peticiones GET incluyen cabeceras CORS abiertas. Puedes consumir el endpoint con `fetch()` desde el frontend.
+</Aside>

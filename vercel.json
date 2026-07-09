@@ -120,7 +120,7 @@
     ],
     "rewrites": [
         {
-            "source": "/dashboard/:tab(home|analytics|followage|clips|shoutout|trends|stalker|magic8|roulette|russian|duel|profile|feedback)",
+            "source": "/dashboard/:tab(home|analytics|followage|clips|shoutout|trends|stalker|magic8|roulette|russian|duel|settings|feedback)",
             "destination": "/dashboard/index.html"
         },
         {

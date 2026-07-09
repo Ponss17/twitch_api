@@ -1,0 +1,50 @@
+---
+interface Props {
+	flowId: string;
+	method?: 'GET' | 'POST';
+	path: string;
+	base?: string;
+	query: Record<string, string>;
+	accept?: string;
+}
+
+const {
+	flowId,
+	method = 'GET',
+	path,
+	base = 'https://ttv.losperris.dev/api',
+	query,
+	accept = 'text/plain',
+} = Astro.props;
+
+const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+const qs = new URLSearchParams(query).toString();
+const url = `${base}${normalizedPath}?${qs}`;
+const curl = `curl --request ${method} \\
+  --url '${url}' \\
+  --header 'Accept: ${accept}'`;
+const curlI = `curl -i --request ${method} \\
+  --url '${url}' \\
+  --header 'Accept: ${accept}'`;
+---
+
+<input type="radio" name={`${flowId}-view`} id={`${flowId}-curl`} class="api-flow__view-input" checked />
+<input type="radio" name={`${flowId}-view`} id={`${flowId}-curl-i`} class="api-flow__view-input" />
+<input type="radio" name={`${flowId}-view`} id={`${flowId}-url`} class="api-flow__view-input" />
+
+<div class="api-flow__request docs-code-tabs">
+	<div class="docs-code-tabs__bar" role="tablist" aria-label="Ejemplos de petición">
+		<label class="docs-code-tabs__tab api-flow__view-tab" for={`${flowId}-curl`} role="tab">cURL</label>
+		<label class="docs-code-tabs__tab api-flow__view-tab" for={`${flowId}-curl-i`} role="tab">cURL -i</label>
+		<label class="docs-code-tabs__tab api-flow__view-tab" for={`${flowId}-url`} role="tab">URL</label>
+	</div>
+	<div class="docs-code-tabs__panel api-flow__request-panel" data-view="curl" role="tabpanel">
+		<pre class="docs-code-tabs__code"><code>{curl}</code></pre>
+	</div>
+	<div class="docs-code-tabs__panel api-flow__request-panel" data-view="curl-i" role="tabpanel">
+		<pre class="docs-code-tabs__code"><code>{curlI}</code></pre>
+	</div>
+	<div class="docs-code-tabs__panel api-flow__request-panel" data-view="url" role="tabpanel">
+		<pre class="docs-code-tabs__code"><code>{url}</code></pre>
+	</div>
+</div>

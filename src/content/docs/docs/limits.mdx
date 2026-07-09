@@ -1,0 +1,106 @@
+---
+title: "Límites de uso"
+description: "Rate limiting por rol, sesión del panel y endpoints pesados."
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+La API aplica límites de peticiones para mantener el servicio estable. El límite depende de **cómo** te autenticas y del **rol** de tu cuenta.
+
+---
+
+## Límites por rol (API Key / bots)
+
+Cuando llamas a endpoints de bot con `apiKey` o `X-Api-Key`:
+
+| Rol | Límite |
+| :--- | :--- |
+| Default | 30 req/min |
+| Pro | 60 req/min |
+| VIP | 90 req/min |
+| Partner | 120 req/min |
+
+<Aside type="note" title="Límites personalizados">
+  Algunas cuentas tienen `customRateLimit` asignado manualmente. En Configuración verás el valor efectivo con un asterisco si aplica.
+</Aside>
+
+---
+
+## Sesión del panel
+
+Las peticiones con **OAuth del dashboard** (`Authorization: Bearer`) usan un límite fijo de **500 req/min** por usuario, independiente del rol.
+
+Incluye analytics, overlays, pruebas desde el panel y rutas `/api/dashboard/*` con sesión.
+
+---
+
+## Endpoints pesados
+
+Límite fijo de **10 req/min** solo cuando la petición va con **API Key** (no con sesión del panel):
+
+| Endpoint | Descripción |
+| :--- | :--- |
+| `GET /api/dashboard/get-clips` | Lista clips vía API de Twitch |
+| `GET /api/dashboard/chatters` | Lista viewers del chat en vivo |
+
+Desde el panel con sesión OAuth cuentan contra los **500 req/min**, no contra el límite pesado.
+
+Los comandos de bot (`/followage`, `/shoutout`, `/create-clip`, minijuegos, etc.) usan el **límite general** de tu rol.
+
+---
+
+## Cabeceras de respuesta
+
+Las respuestas con rate limiting incluyen:
+
+| Cabecera | Significado |
+| :--- | :--- |
+| `X-RateLimit-Limit` | Máximo de peticiones en la ventana actual |
+| `X-RateLimit-Remaining` | Peticiones restantes en la ventana |
+
+La ventana es un bucket rodante de **1 minuto** (login OAuth usa ventana de 5 minutos en rutas `/auth/*`).
+
+---
+
+## Caché por rol
+
+Mayor rol implica **más retención en comandos de chat** (menos llamadas repetidas) y **datos más frescos en el panel**:
+
+### Comandos de chat (`COMMAND`)
+
+| Rol | TTL |
+| :--- | :--- |
+| Default | 60 s |
+| Pro | 80 s |
+| VIP | 120 s |
+| Partner | 240 s |
+
+### Panel — analytics y clips
+
+| Recurso | Default | Pro | VIP | Partner |
+| :--- | :--- | :--- | :--- | :--- |
+| Analytics dashboard | 60 s | 45 s | 30 s | 15 s |
+| Clips (listado) | 60 s | 45 s | 30 s | 15 s |
+| Perfil dashboard | 300 s | 225 s | 150 s | 75 s |
+| Feed de actividad | 20 s | 15 s | 10 s | 5 s |
+
+En **Configuración** el chip de caché muestra el TTL de comandos (`COMMAND`) para tu rol.
+
+<Aside type="note" title="Overrides">
+  Si tienes `customCacheTtl` en la cuenta, ese valor tiene prioridad sobre la tabla por rol.
+</Aside>
+
+---
+
+## Otros límites públicos
+
+| Contexto | Límite |
+| :--- | :--- |
+| IP anónima en rutas protegidas | 100 req/min |
+| Páginas HTML públicas (`/`, `/docs`) | 300 req/min por IP |
+| Intentos fallidos de auth / escaneo | 60 req/min por IP |
+| Login OAuth (`/auth/*`) | 15 intentos / 5 min por IP |
+
+<Aside type="tip" title="Eventos especiales">
+  Para subathons o torneos con picos de tráfico, contacta al soporte para ajustes temporales de cuota.
+</Aside>
