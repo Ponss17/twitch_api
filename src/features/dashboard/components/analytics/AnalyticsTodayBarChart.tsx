@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComposedChart, Area, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { ComposedChart, Area, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { ChartMountGate } from './AnalyticsShared';
 import { BarChart2 } from 'lucide-react';
@@ -29,9 +29,6 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                     <p className="flex items-center justify-between gap-6 text-zinc-400">
                         <span>Total Peticiones:</span> <span className="font-semibold">{data['Total']}</span>
                     </p>
-                    <p className="flex items-center justify-between gap-6 text-amber-500">
-                        <span>Latencia Promedio:</span> <span className="font-semibold">{data['Latencia']}ms</span>
-                    </p>
                     <p className="flex items-center justify-between gap-6 text-blue-400">
                         <span>Tasa de Éxito:</span> <span className="font-semibold">{data['Tasa de Éxito']}%</span>
                     </p>
@@ -47,7 +44,6 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
         name: d.name,
         'Éxitos': d.value - d.errors,
         'Errores': d.errors,
-        'Latencia': d.avgLatency || 0,
         'Tasa de Éxito': d.successRate || '0.0',
         'Total': d.value
     }));
@@ -57,13 +53,13 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
             <div className="mb-6 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
                 <div>
                     <h2 className="text-lg font-semibold text-[#fafafa]">Rendimiento Detallado por Comando (Hoy)</h2>
-                    <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Análisis profundo de peticiones, errores y latencia de cada endpoint</p>
+                    <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Análisis profundo de peticiones y errores de cada endpoint</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                     <span className="text-xs text-zinc-500">Hoy</span>
                     <InfoTooltip
                         placement="bottom"
-                        text="Muestra la cantidad de peticiones exitosas vs errores, además de la latencia promedio trazada en la línea naranja para cada comando ejecutado hoy."
+                        text="Muestra la cantidad de peticiones totales, destacando los éxitos vs errores para cada comando ejecutado hoy."
                     />
                 </div>
             </div>
@@ -111,26 +107,12 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                                 className="capitalize"
                             />
                             <YAxis 
-                                yAxisId="left"
                                 stroke="#71717a" 
                                 fontSize={12} 
                                 tickLine={false} 
                                 axisLine={false} 
                                 tickMargin={10}
                                 tickFormatter={(val) => val >= 1000 ? `${(val / 1000).toFixed(1)}k` : val} 
-                            />
-                            
-                            {/* Eje secundario para latencia (invisible para no ensuciar el diseño) */}
-                            <YAxis 
-                                yAxisId="right"
-                                orientation="right"
-                                stroke="#f59e0b" 
-                                fontSize={12} 
-                                tickLine={false} 
-                                axisLine={false}
-                                tickMargin={10}
-                                hide={true}
-                                domain={[0, 'dataMax + 50']}
                             />
 
                             <Tooltip 
@@ -140,14 +122,11 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                             <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: '#c4c4cc' }} iconType="circle" />
                             
                             {/* Area de fondo para Total */}
-                            <Area yAxisId="left" type="monotone" dataKey="Total" fill="url(#colorTotal)" stroke="#8b5cf6" strokeWidth={2} />
+                            <Area type="monotone" dataKey="Total" fill="url(#colorTotal)" stroke="#8b5cf6" strokeWidth={2} />
                             
                             {/* Barras separadas (no apiladas para que resalten sobre el area) */}
-                            <Bar yAxisId="left" dataKey="Éxitos" fill="url(#colorSuccess)" radius={[4, 4, 0, 0]} maxBarSize={28} />
-                            <Bar yAxisId="left" dataKey="Errores" fill="url(#colorErrors)" radius={[4, 4, 0, 0]} maxBarSize={28} />
-                            
-                            {/* Línea conectora para Latencia */}
-                            <Line yAxisId="right" type="monotone" dataKey="Latencia" name="Latencia Promedio" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4, fill: '#f59e0b', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+                            <Bar dataKey="Éxitos" fill="url(#colorSuccess)" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                            <Bar dataKey="Errores" fill="url(#colorErrors)" radius={[4, 4, 0, 0]} maxBarSize={28} />
                         </ComposedChart>
                     </ResponsiveContainer>
                 </ChartMountGate>
