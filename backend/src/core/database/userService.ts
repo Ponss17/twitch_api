@@ -1,6 +1,12 @@
 import { supabase } from './supabaseClient';
 import { StoredUser } from '../../types/twitch';
-import { encrypt, decrypt, ENCRYPTION_KEY } from './cryptoService';
+import {
+    encrypt,
+    decrypt,
+    ENCRYPTION_KEY,
+    LEGACY_ENCRYPTION_KEY,
+    isCbcFormat
+} from './cryptoService';
 import { invalidateAllUserCaches } from '../utils/cacheInvalidation';
 import * as cacheService from './cacheService';
 import { CACHE_TTL_MATRIX } from '../config/cacheTtl';
@@ -12,6 +18,16 @@ import { setUserTimezone, clearUserTimezone } from './userTimezoneCache';
 /** L1 en RAM de la instancia serverless — evita round-trips a KV/Supabase en bots activos. */
 const userMemoryCache = new BoundedMap<string, { user: StoredUser; expiry: number }>(1000);
 const pendingGetUser = new Map<string, Promise<StoredUser | null>>();
+const migratedUsersCache = new Set<string>();
+const MAX_MIGRATED_CACHE = 500;
+
+const addToMigratedCache = (userId: string) => {
+    if (migratedUsersCache.size >= MAX_MIGRATED_CACHE) {
+        const first = migratedUsersCache.values().next().value;
+        if (first) migratedUsersCache.delete(first);
+    }
+    migratedUsersCache.add(userId);
+};
 
 export const invalidateUserMemoryCache = (userId: string): void => {
     userMemoryCache.delete(userId);
@@ -21,30 +37,45 @@ export const invalidateUserMemoryCache = (userId: string): void => {
 
 
 
-const isAlreadyEncrypted = (val: string) => {
-    const parts = val.split(':');
-    return (
-        parts.length === 2 &&
-        parts[0].length === 32 &&
-        /^[0-9a-f]+$/i.test(parts[0]) &&
-        /^[0-9a-f]+$/i.test(parts[1])
-    );
-};
+const isAlreadyEncrypted = (val: string) => val.startsWith('gcm:') || isCbcFormat(val);
+
+function decryptTokenWithFallback(token: string): { plaintext: string; needsMigration: boolean } {
+    const wasCbc = isCbcFormat(token);
+
+    try {
+        return { plaintext: decrypt(token, ENCRYPTION_KEY), needsMigration: wasCbc };
+    } catch {
+        const plaintext = decrypt(token, LEGACY_ENCRYPTION_KEY);
+        return { plaintext, needsMigration: true };
+    }
+}
 
 async function decryptAndMigrateIfNeeded(
     user: StoredUser,
     context: string
 ): Promise<StoredUser | null> {
+    let needsMigration = false;
+
     try {
         if (user.accessToken) {
-            user.accessToken = decrypt(user.accessToken, ENCRYPTION_KEY);
+            const result = decryptTokenWithFallback(user.accessToken);
+            user.accessToken = result.plaintext;
+            needsMigration ||= result.needsMigration;
         }
         if (user.refreshToken) {
-            user.refreshToken = decrypt(user.refreshToken, ENCRYPTION_KEY);
+            const result = decryptTokenWithFallback(user.refreshToken);
+            user.refreshToken = result.plaintext;
+            needsMigration ||= result.needsMigration;
         }
     } catch (e) {
         logger.error(`O Descifrado fallido para ${context}:`, (e as Error).message);
         return null;
+    }
+
+    if (needsMigration && !migratedUsersCache.has(user.userId)) {
+        addToMigratedCache(user.userId);
+        logger.info(`Migrando tokens legacy a GCM para usuario: ${user.login} (${user.userId})`);
+        await saveUser(user).catch((err) => logger.error('Error migrando usuario:', err));
     }
 
     return user;
