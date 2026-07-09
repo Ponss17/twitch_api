@@ -113,7 +113,7 @@ test.describe('smoke', () => {
 
     test('docs page renders', async ({ page }) => {
         await page.goto('/docs/');
-        await expect(page).toHaveTitle(/Documentación API \| LosPerris/i);
+        await expect(page).toHaveTitle(/Introducción \| LosPerris API/i);
     });
 
     test('PWA manifest icon resolves', async ({ request }) => {

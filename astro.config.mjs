@@ -96,8 +96,12 @@ function isFrontendRoute(url) {
 
 export default defineConfig({
     output: 'static',
+    // Evita que BASE_URL del backend (.env) se use como base de Vite/Astro en el build.
+    base: '/',
+    site: 'https://ttv.losperris.dev',
     trailingSlash: 'always',
     vite: {
+        base: '/',
         plugins: [tailwindcss(), devNoServiceWorker()],
         define: {
             'import.meta.env.SUPABASE_URL': JSON.stringify(supabaseUrl),
@@ -134,7 +138,7 @@ export default defineConfig({
         starlight({
             title: 'LosPerris API',
             tagline: 'Documentación de la API para streamers de Twitch',
-            favicon: '/favicon.svg',
+            favicon: '/api/twitch/img/favicon.svg',
             disable404Route: true,
             defaultLocale: 'root',
             locales: {
