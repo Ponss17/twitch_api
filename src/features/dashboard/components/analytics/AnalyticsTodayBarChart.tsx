@@ -6,7 +6,7 @@ import { BarChart2 } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomBarShape = (props: any) => {
-    const { fill, x, y, width, height, stroke, strokeWidth } = props;
+    const { fill, x, y, width, height, stroke } = props;
     if (!height || height === 0) return null;
 
     const radius = 4;
@@ -30,7 +30,15 @@ const CustomBarShape = (props: any) => {
     return (
         <g>
             <path d={fillPath} fill={fill} />
-            <path d={strokePath} stroke={stroke} strokeWidth={strokeWidth} fill="none" />
+            <path 
+                d={strokePath} 
+                stroke={stroke} 
+                strokeWidth={1.5} 
+                strokeOpacity={0.5} 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                fill="none" 
+            />
         </g>
     );
 };
@@ -155,8 +163,8 @@ export function AnalyticsTodayBarChart({
                             <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: '#c4c4cc' }} iconType="circle" />
                             
                             {/* Barras con bordes fuertes y gradiente interior (estilo Nightbot) */}
-                            <Bar dataKey="Éxitos" fill="url(#colorSuccess)" stroke="#10b981" strokeWidth={2} shape={<CustomBarShape />} maxBarSize={32} />
-                            <Bar dataKey="Errores" fill="url(#colorErrors)" stroke="#ef4444" strokeWidth={2} shape={<CustomBarShape />} maxBarSize={32} />
+                            <Bar dataKey="Éxitos" fill="url(#colorSuccess)" stroke="#10b981" shape={<CustomBarShape />} maxBarSize={48} />
+                            <Bar dataKey="Errores" fill="url(#colorErrors)" stroke="#ef4444" shape={<CustomBarShape />} maxBarSize={48} />
                         </ComposedChart>
                     </ResponsiveContainer>
                 </ChartMountGate>

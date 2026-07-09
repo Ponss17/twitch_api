@@ -51,16 +51,15 @@ export function AnalyticsCommandsDistribution({
                                 cx="50%"
                                 cy="50%"
                                 outerRadius={95}
-                                paddingAngle={4}
                                 dataKey="value"
-                                cornerRadius={6}
                             >
                                 {pieData.map((_, index) => (
                                     <Cell 
                                         key={`cell-${index}`} 
                                         fill={`url(#colorPieGrad-${index % COLORS.length})`} 
                                         stroke={COLORS[index % COLORS.length]} 
-                                        strokeWidth={2} 
+                                        strokeWidth={1.5}
+                                        strokeOpacity={0.5} 
                                     />
                                 ))}
                             </Pie>
