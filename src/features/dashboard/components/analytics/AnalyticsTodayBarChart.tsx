@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComposedChart, Area, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { ChartMountGate } from './AnalyticsShared';
 import { BarChart2 } from 'lucide-react';
@@ -89,10 +89,6 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                                     <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8} />
                                     <stop offset="95%" stopColor="#ef4444" stopOpacity={0.2} />
                                 </linearGradient>
-                                <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
-                                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                                </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.06} horizontal={true} vertical={true} />
                             
@@ -121,12 +117,9 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                             />
                             <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: '#c4c4cc' }} iconType="circle" />
                             
-                            {/* Area de fondo para Total */}
-                            <Area type="monotone" dataKey="Total" fill="url(#colorTotal)" stroke="#8b5cf6" strokeWidth={2} />
-                            
-                            {/* Barras separadas (no apiladas para que resalten sobre el area) */}
-                            <Bar dataKey="Éxitos" fill="url(#colorSuccess)" radius={[4, 4, 0, 0]} maxBarSize={28} />
-                            <Bar dataKey="Errores" fill="url(#colorErrors)" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                            {/* Barras Apiladas (Éxitos + Errores = Total visual) */}
+                            <Bar dataKey="Éxitos" stackId="a" fill="url(#colorSuccess)" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                            <Bar dataKey="Errores" stackId="a" fill="url(#colorErrors)" radius={[4, 4, 0, 0]} maxBarSize={32} />
                         </ComposedChart>
                     </ResponsiveContainer>
                 </ChartMountGate>
