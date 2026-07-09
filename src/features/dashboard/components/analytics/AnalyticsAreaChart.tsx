@@ -38,7 +38,7 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             stroke="#71717a"
                             fontSize={12}
                             tickLine={false}
-                            axisLine={{ stroke: '#ffffff', strokeOpacity: 0.1 }}
+                            axisLine={{ stroke: '#ffffff', strokeOpacity: 0.3, strokeWidth: 1.5 }}
                             tickMargin={12}
                             tickFormatter={(val) => {
                                 const parts = val.split('-');

@@ -44,7 +44,7 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                 tickFormatter={(val) => `${val}ms`}
                                 domain={[0, (dataMax: number) => (dataMax === 0 ? 10 : dataMax)]}
                             />
-                            <YAxis type="category" dataKey="name" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={{ stroke: '#ffffff', strokeOpacity: 0.1 }} className="capitalize" />
+                            <YAxis type="category" dataKey="name" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={{ stroke: '#ffffff', strokeOpacity: 0.3, strokeWidth: 1.5 }} className="capitalize" />
                             <Tooltip
                                 contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', color: '#fafafa' }}
                                 itemStyle={{ color: '#fafafa', fontWeight: 500 }}
