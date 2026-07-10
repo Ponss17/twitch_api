@@ -1,4 +1,4 @@
-import { Book, ArrowLeft } from 'lucide-react';
+import { Book, ArrowLeft, Heart } from 'lucide-react';
 import { DiscordIcon, InstagramIcon } from '@/shared/ui/icons/BrandIcons';
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
@@ -7,7 +7,7 @@ import { aboutFadeIn } from '@/core/utils/tw';
 import { AboutTechCards } from '@/features/about/AboutTechCards';
 
 const NARRATIVE_CARD =
-    'rounded-2xl border border-white/5 bg-white/[0.02] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:bg-primary/[0.04]';
+    'relative overflow-hidden rounded-[2rem] border border-white/5 bg-white/[0.01] p-8 transition-all duration-300 hover:border-primary/30 hover:bg-white/[0.03] backdrop-blur-sm group';
 
 function animDelay(delay: number): CSSProperties {
     return { animationDelay: `${delay * 0.12}s` };
@@ -15,16 +15,16 @@ function animDelay(delay: number): CSSProperties {
 
 function AboutHeader() {
     return (
-        <header className="fixed top-0 left-0 z-[1000] w-full border-b border-white/5 bg-bg-main">
+        <header className="fixed top-0 left-0 z-[1000] w-full border-b border-white/5 bg-bg-main/80 backdrop-blur-md">
             <div className="mx-auto flex max-w-[1550px] items-center justify-between px-4 py-3.5 max-md:flex-col max-md:gap-3 md:px-16">
                 <div className="flex items-center gap-3">
                     <img
                         src={staticPath('/img/logo.svg')}
                         alt="Logo"
-                        className="h-9 w-9 object-contain md:h-16 md:w-16"
+                        className="h-9 w-9 object-contain md:h-12 md:w-12"
                         draggable={false}
                     />
-                    <h1 className="m-0 text-xl font-extrabold tracking-tight text-white md:text-[1.6rem]">
+                    <h1 className="m-0 text-xl font-extrabold tracking-tight text-white md:text-[1.4rem]">
                         LosPerris <span className="text-primary">Twitch Api</span>
                     </h1>
                 </div>
@@ -32,7 +32,7 @@ function AboutHeader() {
                     <a
                         href={appPath('/docs')}
                         onClick={saveDocsReturnPath}
-                        className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#c4c4cc] no-underline transition hover:bg-white/5 hover:text-white"
+                        className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-[#c4c4cc] no-underline transition hover:bg-white/5 hover:text-white"
                     >
                         <Book className="size-5 shrink-0" aria-hidden />
                         Documentación
@@ -41,7 +41,7 @@ function AboutHeader() {
                         href="https://discord.gg/8uN3qY5E"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#c4c4cc] no-underline transition hover:bg-white/5 hover:text-white"
+                        className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-[#c4c4cc] no-underline transition hover:bg-white/5 hover:text-white"
                     >
                         <DiscordIcon className="size-5 shrink-0" aria-hidden="true" />
                         Comunidad
@@ -54,22 +54,25 @@ function AboutHeader() {
 
 const NARRATIVE_BLOCKS = [
     {
-        label: '01 / UN POQUITO DE MÍ',
+        label: '01 / MÍ',
         title: 'Hola, soy Ponss.',
-        text: 'Soy un estudiante de ingeniería informática apasionado por la tecnología, pero no me percibo como un "programador". Solo soy alguien que intenta ayudar con lo que hago.',
-        delay: 2
+        text: 'Estudiante de ingeniería informática apasionado por la tecnología, pero no me percibo como un "programador". Solo soy alguien que intenta ayudar con lo que hago.',
+        delay: 2,
+        colSpan: 'col-span-1 md:col-span-2'
     },
     {
-        label: '02 / EL PORQUÉ DE ESTO',
-        title: 'Para ayudar a la comunidad.',
-        text: 'Esto es un proyecto hobby hecho para la comunidad de Twitch, ya que vi que cuesta conseguir herramientas así. Está pensado para que siempre sea gratis y seguiré añadiendo más cosas poco a poco.',
-        delay: 3
+        label: '02 / EL PORQUÉ',
+        title: 'Para la comunidad.',
+        text: 'Esto es un proyecto hobby hecho para la comunidad, porque cuesta conseguir estas herramientas. Siempre será gratis.',
+        delay: 3,
+        colSpan: 'col-span-1'
     },
     {
-        label: '03 / QUIÉNES SOMOS',
-        title: 'Trabajo con mis amigos.',
-        text: 'Hago todo con mis 2 amigos, aunque yo soy el principal porque tengo más entendimiento del código. También uso IA para que todo salga mas eficiente.',
-        delay: 4
+        label: '03 / EQUIPO',
+        title: 'Con mis amigos.',
+        text: 'Hago todo con 2 amigos (aunque yo escribo el código). También uso IA para que todo salga mucho más eficiente.',
+        delay: 4,
+        colSpan: 'col-span-1 md:col-span-3'
     }
 ] as const;
 
@@ -103,116 +106,133 @@ export function AboutPage() {
 
     return (
         <div className="relative flex flex-1 flex-col overflow-x-hidden bg-bg-main font-[Outfit,Inter,system-ui,sans-serif] text-sm text-white">
+            {/* Background Glow */}
+            <div className="pointer-events-none absolute top-[-10%] left-1/2 -z-10 h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]" />
+            
             <AboutHeader />
 
-            <main className="relative z-[2] mx-auto max-w-[900px] px-5 pt-20 pb-[60px] md:pt-[140px]">
+            <main className="relative z-[2] mx-auto w-full max-w-[1000px] px-5 pt-28 pb-[80px] md:pt-[160px]">
                 <a
                     href={returnPath}
-                    className={`mb-[30px] inline-flex items-center gap-2.5 py-2 text-[0.85rem] font-bold tracking-[0.1em] text-[#c4c4cc] uppercase no-underline transition hover:text-primary ${aboutFadeIn}`}
+                    className={`mb-[40px] inline-flex items-center gap-2.5 py-2 text-[0.85rem] font-bold tracking-[0.1em] text-[#71717a] uppercase no-underline transition hover:text-white ${aboutFadeIn}`}
                     style={animDelay(0.5)}
                 >
                     <ArrowLeft className="w-4 h-4 transition group-hover:-translate-x-1" aria-hidden="true" />
-                    Volver al Panel
+                    Volver
                 </a>
 
+                {/* Hero Profile Card */}
                 <header
-                    className={`mb-[60px] flex items-end justify-between border-b border-white/5 pb-10 max-md:flex-col max-md:items-start max-md:gap-5 max-md:mb-10 ${aboutFadeIn}`}
+                    className={`mb-[20px] relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.05] to-transparent p-10 max-md:p-6 shadow-2xl ${aboutFadeIn}`}
                     style={animDelay(1)}
                 >
-                    <div>
-                        <div className="mb-2 flex items-center gap-4">
-                            <h1 className="m-0 text-[2rem] font-extrabold tracking-[-0.05em] md:text-5xl">Ponss</h1>
-                            <span className="inline-flex items-center gap-2 rounded-md bg-white/[0.04] px-3 py-1 text-[0.8rem] font-semibold text-[#c4c4cc]">
-                                22 años{' '}
-                                <img src="https://flagcdn.com/cr.svg" alt="CR" className="h-auto w-[18px] rounded-sm" />
+                    <div className="pointer-events-none absolute top-0 right-0 -z-10 h-[300px] w-[300px] rounded-full bg-primary/20 blur-[80px]" />
+                    <div className="flex items-center justify-between max-md:flex-col max-md:items-start max-md:gap-8">
+                        <div>
+                            <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-1.5 text-[0.75rem] font-bold tracking-[0.1em] text-primary uppercase backdrop-blur-md">
+                                <span className="relative flex h-2 w-2">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                </span>
+                                Desarrollador Principal
                             </span>
+                            <div className="mb-3 flex items-center gap-4">
+                                <h1 className="m-0 text-[3rem] font-extrabold leading-none tracking-[-0.04em] md:text-[4rem]">Ponss</h1>
+                            </div>
+                            <div className="flex items-center gap-3 text-[0.9rem] text-[#c4c4cc] font-medium">
+                                <span>22 años</span>
+                                <span className="h-1 w-1 rounded-full bg-white/20" />
+                                <img src="https://flagcdn.com/cr.svg" alt="CR" className="h-3.5 w-auto rounded-[2px]" />
+                                <span className="h-1 w-1 rounded-full bg-white/20" />
+                                <span>Estudiante de Informática</span>
+                            </div>
                         </div>
-                        <span className="block text-[0.75rem] font-bold tracking-[0.2em] text-primary uppercase">
-                            Estudiante de informática :)
-                        </span>
-                    </div>
-                    <div className="flex flex-wrap gap-3">
-                        <button
-                            type="button"
-                            className="flex cursor-pointer items-center gap-2 rounded-lg border border-white/5 bg-white/[0.03] px-[18px] py-2.5 text-[0.9rem] text-[#c4c4cc] transition hover:-translate-y-0.5 hover:border-[#5865f2] hover:bg-[#5865f2]/10 hover:text-white"
-                            onClick={() => void copyDiscord()}
-                        >
-                            <DiscordIcon className="w-5 h-5" aria-hidden="true" />
-                            <span>Ponss</span>
-                        </button>
-                        <a
-                            href="https://www.instagram.com/ponss_jean/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.03] px-[18px] py-2.5 text-[0.9rem] text-[#c4c4cc] no-underline transition hover:-translate-y-0.5 hover:border-[#e4405f] hover:bg-[#e4405f]/10 hover:text-white"
-                        >
-                            <InstagramIcon className="w-5 h-5" aria-hidden="true" />
-                            <span>ponss_jean</span>
-                        </a>
+                        <div className="flex flex-col gap-3 md:items-end w-full md:w-auto">
+                            <button
+                                type="button"
+                                className="group flex cursor-pointer items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-6 py-3.5 text-[0.95rem] font-medium text-white transition hover:-translate-y-1 hover:border-[#5865f2]/50 hover:bg-[#5865f2]/10 hover:shadow-[0_0_20px_rgba(88,101,242,0.2)]"
+                                onClick={() => void copyDiscord()}
+                            >
+                                <DiscordIcon className="w-5 h-5 text-[#5865f2] transition group-hover:scale-110" aria-hidden="true" />
+                                <span>ponsschiquito</span>
+                            </button>
+                            <a
+                                href="https://www.instagram.com/ponss_jean/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group flex items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-6 py-3.5 text-[0.95rem] font-medium text-white no-underline transition hover:-translate-y-1 hover:border-[#e4405f]/50 hover:bg-[#e4405f]/10 hover:shadow-[0_0_20px_rgba(228,64,95,0.2)]"
+                            >
+                                <InstagramIcon className="w-5 h-5 text-[#e4405f] transition group-hover:scale-110" aria-hidden="true" />
+                                <span>ponss_jean</span>
+                            </a>
+                        </div>
                     </div>
                 </header>
 
-                <section>
-                    <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-10">
-                        {NARRATIVE_BLOCKS.map((block) => (
-                            <div
-                                key={block.label}
-                                className={`${NARRATIVE_CARD} ${aboutFadeIn}`}
-                                style={animDelay(block.delay)}
-                            >
-                                <span className="mb-3 block text-[0.65rem] font-extrabold tracking-[0.15em] text-[#c4c4cc] uppercase">
-                                    {block.label}
-                                </span>
-                                <h2 className="mb-4 text-[1.5rem] font-bold tracking-[-0.02em] text-white md:text-[1.8rem]">
-                                    {block.title}
-                                </h2>
-                                <p className="m-0 text-base leading-[1.7] text-[#c4c4cc]">{block.text}</p>
-                            </div>
-                        ))}
-
-                        <div className={`col-span-1 md:col-span-2 ${NARRATIVE_CARD} ${aboutFadeIn}`} style={animDelay(5)}>
-                            <span className="mb-3 block text-[0.65rem] font-extrabold tracking-[0.15em] text-[#c4c4cc] uppercase">
-                                04 / Técnologías
+                {/* Bento Grid */}
+                <section className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+                    {NARRATIVE_BLOCKS.map((block) => (
+                        <div
+                            key={block.label}
+                            className={`${NARRATIVE_CARD} ${block.colSpan} ${aboutFadeIn}`}
+                            style={animDelay(block.delay)}
+                        >
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                            <span className="mb-4 block text-[0.7rem] font-bold tracking-[0.2em] text-primary uppercase">
+                                {block.label}
                             </span>
-                            <h2 className="mb-4 text-[1.5rem] font-bold tracking-[-0.02em] text-white md:text-[1.8rem]">
-                                Lo que uso para el proyecto.
+                            <h2 className="mb-3 text-[1.6rem] font-bold tracking-tight text-white leading-tight">
+                                {block.title}
                             </h2>
-                            <p className="mb-6 text-base leading-[1.7] text-[#c4c4cc]">
-                                Un enfoque técnico para los que se pregunten como funciona:
+                            <p className="m-0 text-[0.95rem] leading-relaxed text-[#a1a1aa] font-medium">{block.text}</p>
+                        </div>
+                    ))}
+                </section>
+
+                <section className="grid grid-cols-1 gap-5 mb-5">
+                    <div className={`${NARRATIVE_CARD} ${aboutFadeIn}`} style={animDelay(5)}>
+                        <div className="flex flex-col items-center text-center mb-10">
+                            <span className="mb-3 block text-[0.7rem] font-bold tracking-[0.2em] text-primary uppercase">
+                                04 / Tecnologías
+                            </span>
+                            <h2 className="text-[2rem] font-bold tracking-tight text-white leading-tight mb-3">
+                                Nuestro Stack
+                            </h2>
+                            <p className="text-[0.95rem] leading-relaxed text-[#a1a1aa] font-medium max-w-[500px]">
+                                Todo lo que hace funcionar esta API por detrás. Un stack moderno y eficiente.
                             </p>
+                        </div>
+                        <div className="rounded-2xl border border-white/5 bg-black/40 p-6 md:p-10 shadow-inner">
                             <AboutTechCards />
                         </div>
+                    </div>
+                </section>
 
-                        <div className={`col-span-1 md:col-span-2 ${NARRATIVE_CARD} ${aboutFadeIn}`} style={animDelay(6)}>
-                            <div className="flex items-center justify-between gap-10 max-md:flex-col max-md:items-start max-md:gap-6">
-                                <div>
-                                    <span className="mb-3 block text-[0.65rem] font-extrabold tracking-[0.15em] text-[#c4c4cc] uppercase">
-                                        05 / FEEDBACK
-                                    </span>
-                                    <h2 className="mb-4 text-[1.5rem] font-bold tracking-[-0.02em] text-white md:text-[1.8rem]">
-                                        ¿Tienes dudas o alguna idea?
-                                    </h2>
-                                    <p className="m-0 text-base leading-[1.7] text-[#c4c4cc]">
-                                        Espero que la disfruten y les ayude en sus streams. Búscame en Discord para
-                                        colaborar o reportar errores.
-                                    </p>
-                                </div>
-                                <a
-                                    href="https://discord.gg/8uN3qY5E"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex shrink-0 items-center gap-3 rounded-xl border-2 border-[#5865f2] bg-transparent px-7 py-3.5 text-base font-extrabold whitespace-nowrap text-[#5865f2] no-underline transition hover:-translate-y-0.5 hover:scale-[1.02] hover:bg-[#5865f2] hover:text-white"
-                                >
-                                    <DiscordIcon className="w-[1em] h-[1em]" aria-hidden="true" /> Discord
-                                </a>
-                            </div>
-                        </div>
+                <section className={`grid grid-cols-1 ${aboutFadeIn}`} style={animDelay(6)}>
+                    <div className="relative overflow-hidden rounded-[2rem] border border-primary/20 bg-gradient-to-br from-primary/10 to-transparent p-10 md:p-16 text-center backdrop-blur-sm">
+                        <div className="pointer-events-none absolute top-1/2 left-1/2 -z-10 h-full w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-[100px]" />
+                        <Heart className="mx-auto mb-6 h-12 w-12 text-primary animate-pulse" />
+                        <h2 className="mb-4 text-[2.2rem] font-extrabold tracking-tight text-white md:text-[3rem] leading-none">
+                            ¿Tienes ideas?
+                        </h2>
+                        <p className="mx-auto mb-8 max-w-[600px] text-lg leading-relaxed text-[#c4c4cc] font-medium">
+                            Espero que disfrutes la API y te ayude en tus streams. Búscame en Discord para colaborar, proponer ideas o reportar errores.
+                        </p>
+                        <a
+                            href="https://discord.gg/8uN3qY5E"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-[1.05rem] font-bold text-black transition hover:scale-105 hover:bg-gray-200 shadow-[0_0_30px_rgba(255,255,255,0.3)]"
+                        >
+                            <DiscordIcon className="w-6 h-6 text-[#5865f2]" aria-hidden="true" /> 
+                            Únete al Discord
+                        </a>
                     </div>
                 </section>
             </main>
 
             <div
-                className={`pointer-events-none fixed right-[30px] bottom-[30px] z-[2000] rounded-full bg-white px-6 py-3 text-[0.9rem] font-extrabold text-black transition-all duration-300 ${
+                className={`pointer-events-none fixed right-[30px] bottom-[30px] z-[2000] rounded-full bg-white px-6 py-3 text-[0.9rem] font-extrabold text-black transition-all duration-300 shadow-xl ${
                     toastVisible ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
                 }`}
                 role="status"

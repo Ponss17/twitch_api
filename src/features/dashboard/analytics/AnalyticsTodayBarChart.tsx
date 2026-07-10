@@ -1,7 +1,7 @@
 import React from 'react';
 import { ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
-import { ChartMountGate, COLORS } from './AnalyticsShared';
+import { ChartMountGate } from './AnalyticsShared';
 import { BarChart2 } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -153,7 +153,7 @@ export function AnalyticsTodayBarChart({
                             <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: '#c4c4cc' }} iconType="circle" />
                             
                             {/* Barras con bordes fuertes e interior sólido */}
-                            <Bar dataKey="Éxitos" fill={COLORS[0]} stroke={COLORS[0]} shape={<CustomBarShape />} maxBarSize={48} />
+                            <Bar dataKey="Éxitos" fill="#10b981" stroke="#10b981" shape={<CustomBarShape />} maxBarSize={48} />
                             <Bar dataKey="Errores" fill="#ef4444" stroke="#ef4444" shape={<CustomBarShape />} maxBarSize={48} />
                         </ComposedChart>
                     </ResponsiveContainer>
