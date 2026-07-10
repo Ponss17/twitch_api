@@ -167,3 +167,17 @@ export const getFollowersCount = async (broadcasterId: string, token: string): P
         return 0;
     }
 };
+
+export const isStreamLive = async (userId: string, token: string): Promise<boolean> => {
+    try {
+        const headers = getHeaders(token);
+        const response = await apiClient.get('https://api.twitch.tv/helix/streams', {
+            headers,
+            params: { user_id: userId }
+        });
+        return response.data.data.length > 0;
+    } catch (error) {
+        logger.error('Error in isStreamLive:', error);
+        return false;
+    }
+};

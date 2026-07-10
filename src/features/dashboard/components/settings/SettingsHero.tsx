@@ -5,10 +5,10 @@ import { Heart, Video, Calendar, User } from 'lucide-react';
 
 
 interface SettingsHeroProps {
-
     followers?: number;
     broadcasterLabel: string;
     memberSince: string;
+    isLive?: boolean;
 }
 
 const BROADCASTER_COLORS: Record<string, string> = {
@@ -17,7 +17,7 @@ const BROADCASTER_COLORS: Record<string, string> = {
     Streamer: 'border-primary/20 bg-primary/10 text-primary'
 };
 
-export function SettingsHero({ followers = 0, broadcasterLabel, memberSince }: SettingsHeroProps) {
+export function SettingsHero({ followers = 0, broadcasterLabel, memberSince, isLive }: SettingsHeroProps) {
     const session = useRequiredSession();
     const badgeColor = BROADCASTER_COLORS[broadcasterLabel] ?? BROADCASTER_COLORS.Streamer;
 
@@ -38,7 +38,12 @@ export function SettingsHero({ followers = 0, broadcasterLabel, memberSince }: S
                             draggable={false}
                             loading="eager"
                         />
-                        <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full border-[3px] border-bg-card bg-emerald-500" />
+                        {isLive !== undefined && (
+                            <span 
+                                className={`absolute -bottom-1 -right-1 h-5 w-5 rounded-full border-[3px] border-bg-card ${isLive ? 'bg-emerald-500' : 'bg-red-500'}`}
+                                title={isLive ? 'En vivo' : 'Desconectado'}
+                            />
+                        )}
                     </div>
 
                     {/* Texto */}
