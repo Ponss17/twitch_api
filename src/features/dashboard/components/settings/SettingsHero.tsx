@@ -34,7 +34,7 @@ export function SettingsHero({ followers = 0, broadcasterLabel, memberSince }: S
                         <img
                             src={session.profile_image_url ?? staticPath('/img/logo.svg')}
                             alt=""
-                            className="h-20 w-20 rounded-[16px] border-2 border-white/10 object-cover shadow-lg"
+                            className="h-20 w-20 rounded-[16px] border-2 border-primary/60 object-cover shadow-lg shadow-primary/20"
                             draggable={false}
                             loading="eager"
                         />
