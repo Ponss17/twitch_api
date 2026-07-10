@@ -17,7 +17,7 @@ import { appPath } from '@/core/config/paths';
 import { SessionContext } from '@/core/session/context';
 import { useToastOptional } from '@/shared/ui/ToastProvider';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
-import { saveOverlayStoredSession, getOverlayStoredSession } from '@/features/tools/overlay/lib/overlaySession';
+import { saveOverlayStoredSession, getOverlayStoredSession } from '@/features/overlay/lib/overlaySession';
 import { useProactiveTokenRefresh } from '@/core/session/useProactiveTokenRefresh';
 
 export type { SessionContextValue } from '@/core/session/context';

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Toaster } from 'sonner';
-import { Sidebar } from '@/features/dashboard/components/layout/Sidebar';
-import { DashboardHeader } from '@/features/dashboard/components/layout/DashboardHeader';
-import { DashboardContent } from '@/features/dashboard/components/DashboardContent';
+import { Sidebar } from '@/features/dashboard/layout/Sidebar';
+import { DashboardHeader } from '@/features/dashboard/layout/DashboardHeader';
+import { DashboardContent } from '@/features/dashboard/DashboardContent';
 import { ToastProvider, useToast } from '@/shared/ui/ToastProvider';
 import { OnlineStatusMonitor } from '@/shared/ui/OnlineStatusMonitor';
 import { VerifyingSessionModal } from '@/shared/ui/VerifyingSessionModal';
@@ -15,7 +15,7 @@ import { DASHBOARD_DATA_READY_EVENT } from '@/features/dashboard/lib/dashboardPa
 import { initGlobalErrorLogging } from '@/core/logging/logError';
 import { resolveDashboardTab, setTabInUrl } from '@/features/dashboard/lib/dashboardTabUrl';
 import { persistPanelReturnPath } from '@/core/config/paths';
-import { fadeIn } from '@/core/ui/tw';
+import { fadeIn } from '@/core/utils/tw';
 import type { DashboardTab } from '@/core/config/config';
 import { DashboardPanelProvider } from '@/features/dashboard/providers/DashboardPanelProvider';
 

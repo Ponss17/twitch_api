@@ -10,7 +10,7 @@ import {
     readOverlayOptimisticAuthState,
     resolveOverlaySessionFromUrl,
     saveOverlayStoredSession
-} from '@/features/tools/overlay/lib/overlaySession';
+} from '@/features/overlay/lib/overlaySession';
 
 describe('overlaySession', () => {
     beforeEach(() => {

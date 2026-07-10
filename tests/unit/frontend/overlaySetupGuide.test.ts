@@ -3,7 +3,7 @@ import {
     maskOverlayUrlForDisplay,
     overlayToolLabel,
     OVERLAY_SETUP_VERSION
-} from '@/features/tools/overlay/lib/overlaySetupGuide';
+} from '@/features/overlay/lib/overlaySetupGuide';
 
 describe('overlaySetupGuide', () => {
     it('overlayToolLabel devuelve etiquetas legibles', () => {

@@ -4,7 +4,7 @@ import { BaseModal } from '@/shared/ui/Modal';
 import type { ChatLogItem } from '@/features/chat/lib/chatLogStore';
 import { chatLogStore } from '@/features/chat/lib/chatLogStore';
 import { calculateAccountAge, broadcasterLabel, type TwitchUser } from '@/core/types/twitch';
-import { formatDate } from '@/core/ui/utils';
+import { formatDate } from '@/core/utils/utils';
 import { staticPath } from '@/core/config/paths';
 import { X, Check, Copy } from 'lucide-react';
 

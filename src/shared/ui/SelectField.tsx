@@ -1,5 +1,5 @@
 import type { ElementType, SelectHTMLAttributes } from 'react';
-import { selectInput, toolLabel, toolSelector } from '@/core/ui/tw';
+import { selectInput, toolLabel, toolSelector } from '@/core/utils/tw';
 import { IconSm } from '@/shared/ui/Icon';
 
 export interface SelectFieldOption {
