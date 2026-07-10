@@ -50,9 +50,9 @@ export function AnalyticsCommandsDistribution({
                                     <Cell 
                                         key={`cell-${index}`} 
                                         fill={COLORS[index % COLORS.length]}
-                                        fillOpacity={0.7}
-                                        stroke="#09090b"
-                                        strokeWidth={4}
+                                        fillOpacity={0.85}
+                                        stroke="transparent"
+                                        strokeWidth={0}
                                     />
                                 ))}
                             </Pie>
@@ -68,15 +68,25 @@ export function AnalyticsCommandsDistribution({
                 <div className="mt-8 flex flex-col gap-3">
                     {pieData.slice(0, 4).map((entry, index) => {
                         const percentage = totalRequests > 0 ? ((entry.value / totalRequests) * 100).toFixed(1) : '0.0';
+                        const pct = totalRequests > 0 ? (entry.value / totalRequests) * 100 : 0;
+                        const color = COLORS[index % COLORS.length];
                         return (
-                            <div key={entry.name} className="flex items-center justify-between rounded-lg bg-white/[0.02] p-2.5 transition hover:bg-white/[0.04]">
-                                <div className="flex items-center gap-2.5 overflow-hidden">
-                                    <span className="size-3.5 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
-                                    <span className="capitalize truncate text-sm font-medium text-zinc-200" title={entry.name}>{entry.name}</span>
+                            <div key={entry.name} className="flex flex-col gap-1.5 rounded-lg bg-white/[0.02] p-2.5 transition hover:bg-white/[0.04]">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2.5 overflow-hidden">
+                                        <span className="size-3 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                                        <span className="capitalize truncate text-sm font-medium text-zinc-200" title={entry.name}>{entry.name}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 shrink-0">
+                                        <span className="text-xs text-zinc-400">{entry.value.toLocaleString()}</span>
+                                        <span className="text-xs font-bold w-10 text-right" style={{ color }}>{percentage}%</span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-3 shrink-0">
-                                    <span className="text-xs text-zinc-400">{entry.value.toLocaleString()}</span>
-                                    <span className="text-xs font-bold text-white w-10 text-right">{percentage}%</span>
+                                <div className="h-1 w-full rounded-full bg-white/[0.05] overflow-hidden">
+                                    <div
+                                        className="h-full rounded-full transition-all duration-500"
+                                        style={{ width: `${pct}%`, backgroundColor: color, opacity: 0.7 }}
+                                    />
                                 </div>
                             </div>
                         );
