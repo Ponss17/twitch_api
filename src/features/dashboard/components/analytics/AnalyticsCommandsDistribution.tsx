@@ -50,9 +50,10 @@ export function AnalyticsCommandsDistribution({
                                     <Cell 
                                         key={`cell-${index}`} 
                                         fill={COLORS[index % COLORS.length]}
-                                        fillOpacity={0.85}
-                                        stroke="transparent"
-                                        strokeWidth={0}
+                                        fillOpacity={0.22}
+                                        stroke={COLORS[index % COLORS.length]}
+                                        strokeWidth={2}
+                                        strokeOpacity={0.8}
                                     />
                                 ))}
                             </Pie>
