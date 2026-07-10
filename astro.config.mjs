@@ -97,7 +97,7 @@ function isFrontendRoute(url) {
 export default defineConfig({
     output: 'static',
     // Evita que BASE_URL del backend (.env) se use como base de Vite/Astro en el build.
-    base: '/',
+    // base no se debe definir como '/' porque rompe las rutas de Astro (crea //_astro/).
     site: 'https://ttv.losperris.dev',
     trailingSlash: 'always',
     vite: {
