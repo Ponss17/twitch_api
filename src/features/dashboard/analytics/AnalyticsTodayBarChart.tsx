@@ -1,7 +1,7 @@
 import React from 'react';
 import { ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
-import { ChartMountGate } from './AnalyticsShared';
+import { ChartMountGate, COLORS } from './AnalyticsShared';
 import { BarChart2 } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,13 +53,13 @@ export function AnalyticsTodayBarChart({
     active,
     pieData
 }: AnalyticsTodayBarChartProps) {
-    const chartData = pieData.map(d => ({
+    const chartData = pieData.map((d, index) => ({
         name: d.name,
         'Éxitos': d.value - d.errors,
         'Errores': d.errors,
         'Tasa de Éxito': d.successRate || '0.0',
         'Total': d.value,
-        fill: d.fill
+        fill: COLORS[index % COLORS.length]
     }));
     // Componente custom para el tooltip
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
