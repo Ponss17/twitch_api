@@ -287,9 +287,9 @@ export function ApiTestCard({
                         isActive ? 'flex animate-reveal-card' : 'hidden'
                     } ${
                         result.status === 'success'
-                            ? 'border-primary/30 border-l-4 border-l-primary bg-primary/5'
+                            ? 'border-success/30 border-l-4 border-l-success bg-[rgba(16,185,129,0.15)] text-success'
                             : result.status === 'error'
-                              ? 'border-l-4 border-l-error border-error/30 bg-error/5'
+                              ? 'border-l-4 border-l-error border-error/30 bg-error/15 text-error'
                               : ''
                     }`}
                 >

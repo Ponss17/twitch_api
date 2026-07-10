@@ -30,7 +30,7 @@ export function FollowageView() {
         if (!channel.trim() || !user.trim()) {
             setStoredResult({
                 status: 'error',
-                message: '⚠️ Por favor, ingresa el Canal y el Usuario para probar.'
+                message: 'Por favor, ingresa el Canal y el Usuario para probar.'
             });
             return;
         }
@@ -88,7 +88,7 @@ export function ShoutoutView() {
         if (!target) {
             setStoredResult({
                 status: 'error',
-                message: '⚠️ Por favor, ingresa el Canal y el Usuario para probar.'
+                message: 'Por favor, ingresa el Canal y el Usuario para probar.'
             });
             return;
         }

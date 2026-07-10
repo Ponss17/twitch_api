@@ -1,7 +1,7 @@
-import { Copy, Check, Layers, Link2, Loader2, Monitor, Radio } from 'lucide-react';
+import { Copy, Check, Layers, Link2, Loader2, Monitor, Radio, Info, AlertTriangle } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useRequiredSession } from '@/core/session/useSession';
-import { codeBox, modalBtnPrimary } from '@/core/ui/tw';
+import { modalBtnPrimary } from '@/core/ui/tw';
 import { fetchOverlayLink } from '@/features/tools/overlay/lib/sync';
 import {
     getOverlayPlatformGuide,
@@ -105,98 +105,105 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                     ) : copied ? (
                         <>
                             <Check className="size-4 shrink-0" aria-hidden />
-                            Copiado
+                            ¡Copiado!
                         </>
                     ) : (
                         <>
                             <Copy className="size-4 shrink-0" aria-hidden />
-                            Copiar URL
+                            Copiar URL de la Fuente
                         </>
                     )}
                 </button>
             }
         >
-            <p className="mb-3 text-[0.8125rem] leading-snug text-[#a1a1aa]">
-                Añade la URL como fuente de navegador en tu software de streaming.
-            </p>
-
-            <div className="mb-3">
-                <p className="mb-1.5 text-[0.6875rem] font-semibold tracking-wide text-[#71717a] uppercase">
-                    Enlace
-                </p>
-                <div className={`${codeBox} flex items-center gap-2 py-2`}>
-                    {loading ? (
-                        <div className="flex min-h-[28px] flex-1 items-center gap-2 text-[0.8125rem] text-[#71717a]">
-                            <Loader2 className="size-3.5 animate-spin" aria-hidden />
-                            Generando…
-                        </div>
-                    ) : (
-                        <>
-                            <Link2 className="size-3.5 shrink-0 text-primary/70" aria-hidden />
+            <div className="flex flex-col gap-6 pt-1 pb-1">
+                {/* 1. SECCIÓN: URL */}
+                <div className="group relative overflow-hidden rounded-xl border border-dashed border-primary/20 bg-primary/[0.02] p-4">
+                    <div className="absolute -top-px left-0 h-[1px] w-full bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
+                    
+                    <p className="mb-2.5 flex items-center gap-1.5 text-[0.6875rem] font-bold tracking-wider text-primary/90 uppercase">
+                        <Link2 className="size-3.5" />
+                        URL Privada
+                    </p>
+                    
+                    <div className="flex items-center gap-3 rounded-lg border border-black/40 bg-black/40 px-3.5 py-3 backdrop-blur-md transition-colors group-hover:border-primary/20 group-hover:bg-black/60">
+                        {loading ? (
+                            <div className="flex min-h-[20px] flex-1 items-center gap-2 text-[0.8125rem] text-[#71717a]">
+                                <Loader2 className="size-3.5 animate-spin" aria-hidden />
+                                Generando enlace seguro…
+                            </div>
+                        ) : (
                             <p
-                                className="min-w-0 flex-1 truncate font-[Consolas,monospace] text-[0.75rem] text-[#fafafa]"
+                                className="min-w-0 flex-1 truncate font-[Consolas,monospace] text-[0.8125rem] text-[#e4e4e7]"
                                 title={displayUrl}
                             >
                                 {displayUrl || '—'}
                             </p>
-                        </>
-                    )}
+                        )}
+                    </div>
+                    
+                    <p className="mt-3 flex items-start gap-1.5 text-[0.7rem] text-[#71717a]">
+                        <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-500/80" />
+                        <span>Contiene tu token secreto. <strong className="font-medium text-[#a1a1aa]">No la compartas públicamente.</strong></span>
+                    </p>
                 </div>
-                <p className="mt-1 text-[0.6875rem] text-[#71717a]">
-                    El token va incluido al copiar. No compartas el enlace en público; no hay forma de revocarlo desde
-                    el panel.
-                </p>
-            </div>
 
-            <div
-                className="mb-3 grid grid-cols-2 gap-1 rounded-lg border border-white/[0.08] bg-black/25 p-1"
-                role="tablist"
-                aria-label="Plataforma de streaming"
-            >
-                {PLATFORMS.map(({ id, label, icon: Icon }) => {
-                    const selected = platform === id;
-                    return (
-                        <button
-                            key={id}
-                            type="button"
-                            role="tab"
-                            aria-selected={selected}
-                            onClick={() => setPlatform(id)}
-                            className={`inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-[0.75rem] font-semibold transition ${
-                                selected
-                                    ? 'bg-primary text-white'
-                                    : 'text-[#c4c4cc] hover:bg-white/5 hover:text-[#fafafa]'
-                            }`}
-                        >
-                            <Icon className="size-3 shrink-0" aria-hidden />
-                            {label}
-                        </button>
-                    );
-                })}
-            </div>
+                {/* 2. SECCIÓN: INSTRUCCIONES */}
+                <div>
+                    <div
+                        className="mb-3 grid grid-cols-2 gap-1 rounded-lg border border-white/[0.08] bg-black/25 p-1"
+                        role="tablist"
+                        aria-label="Plataforma de streaming"
+                    >
+                        {PLATFORMS.map(({ id, label, icon: Icon }) => {
+                            const selected = platform === id;
+                            return (
+                                <button
+                                    key={id}
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={selected}
+                                    onClick={() => setPlatform(id)}
+                                    className={`inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-[0.75rem] font-semibold transition ${
+                                        selected
+                                            ? 'bg-primary text-white shadow-sm'
+                                            : 'text-[#c4c4cc] hover:bg-white/5 hover:text-[#fafafa]'
+                                    }`}
+                                >
+                                    <Icon className="size-3.5 shrink-0" aria-hidden />
+                                    {label}
+                                </button>
+                            );
+                        })}
+                    </div>
 
-            <div role="tabpanel" className="rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-3">
-                <h4 className="mb-2 text-[0.8125rem] font-semibold text-[#fafafa]">{guide.title}</h4>
-                <ol className="space-y-2">
-                    {guide.steps.map((step, index) => (
-                        <li key={step.title} className="flex gap-2 text-[0.75rem] leading-snug">
-                            <span
-                                className="flex size-4 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[0.625rem] font-bold text-primary"
-                                aria-hidden
-                            >
-                                {index + 1}
-                            </span>
-                            <span className="text-[#c4c4cc]">
-                                <span className="font-semibold text-[#fafafa]">{step.title}</span>
-                                {' — '}
-                                {step.detail}
-                            </span>
-                        </li>
-                    ))}
-                </ol>
-                <p className="mt-2.5 border-t border-white/[0.06] pt-2 text-[0.6875rem] leading-snug text-[#71717a]">
-                    {guide.note}
-                </p>
+                    <div role="tabpanel" className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                        <h4 className="mb-3 text-[0.8125rem] font-bold tracking-wide text-[#fafafa] uppercase opacity-90">{guide.title}</h4>
+                        <ol className="space-y-3.5">
+                            {guide.steps.map((step, index) => (
+                                <li key={step.title} className="flex gap-3 text-[0.75rem] leading-relaxed">
+                                    <span
+                                        className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[0.625rem] font-bold text-primary ring-1 ring-primary/20"
+                                        aria-hidden
+                                    >
+                                        {index + 1}
+                                    </span>
+                                    <span className="text-[#a1a1aa]">
+                                        <strong className="font-semibold text-[#e4e4e7] block pb-0.5">{step.title}</strong>
+                                        {step.detail}
+                                    </span>
+                                </li>
+                            ))}
+                        </ol>
+                        
+                        <div className="mt-4 flex gap-2 rounded-lg bg-black/20 p-3 ring-1 ring-white/5">
+                            <Info className="size-4 shrink-0 text-primary/70 mt-0.5" />
+                            <p className="text-[0.7rem] leading-snug text-[#71717a]">
+                                {guide.note}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </Modal>
     );

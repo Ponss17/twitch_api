@@ -134,7 +134,7 @@ const COMMAND_INTEGRATIONS = [
     },
     {
         id: 'duel',
-        label: '⚔️ Duelo 1v1',
+        label: 'Duelo 1v1',
         description: 'Peleas a muerte entre dos espectadores',
         variants: [
             {
@@ -978,7 +978,7 @@ const DataExport = {
         </section>
 
         <div class="security-banner" role="alert">
-            <span class="sb-icon" aria-hidden="true">⚠️</span>
+            <span class="sb-icon" aria-hidden="true">⚠</span>
             <p class="sb-text">
                 <strong>Este archivo incluye tu API Key en los bloques de comandos.</strong>
                 No lo compartas en público ni lo subas a redes, streams o repos. Quien lo tenga puede hacer peticiones en tu nombre.
@@ -1067,7 +1067,7 @@ const DataExport = {
                 </div>
                 <div class="cat-grid">
                     <div class="cat-card">
-                        <div class="cat-icon" aria-hidden="true">🖥️</div>
+                        <div class="cat-icon" aria-hidden="true">API</div>
                         <div class="cat-val">${cmdTotal.toLocaleString()}</div>
                         <div class="cat-lbl">Comandos</div>
                     </div>
@@ -1087,7 +1087,7 @@ const DataExport = {
 
         <section class="section">
             <div class="section-head">
-                <div class="section-icon" aria-hidden="true">⚙️</div>
+                <div class="section-icon" aria-hidden="true">#</div>
                 <div>
                     <div class="section-kicker">Integraciones</div>
                     <h2 class="section-title">Comandos y sintaxis para tu bot</h2>

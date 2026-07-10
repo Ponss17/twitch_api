@@ -101,7 +101,7 @@ function GameResponse({
                 loading
                     ? 'border-white/[0.08] bg-[rgba(15,23,42,0.6)] text-[#fafafa]'
                     : success
-                      ? 'border-primary/30 border-l-4 border-l-primary bg-[rgba(16,185,129,0.15)] text-success'
+                      ? 'border-success/30 border-l-4 border-l-success bg-[rgba(16,185,129,0.15)] text-success'
                       : 'border-l-4 border-l-error border-error/30 bg-error/15 text-error'
             }`}
         >
@@ -128,7 +128,7 @@ export function Magic8View() {
 
     const ask = async () => {
         if (!question.trim()) {
-            setResult({ status: 'error', message: '⚠️ Debes hacer una pregunta primero.' });
+            setResult({ status: 'error', message: 'Debes hacer una pregunta primero.' });
             return;
         }
 
@@ -142,7 +142,7 @@ export function Magic8View() {
             setResult({ status: res.ok ? 'success' : 'error', message: res.ok ? text : parseApiError(text) });
             if (res.ok) setQuestion('');
         } catch (e) {
-            setResult({ status: 'error', message: `❌ ${(e as Error).message}` });
+            setResult({ status: 'error', message: (e as Error).message });
         }
     };
 
@@ -210,7 +210,7 @@ export function DuelView() {
         const challengerLogin = normalizeTwitchLogin(challenger);
 
         if (!targetLogin) {
-            setResult({ status: 'error', message: '⚠️ Debes especificar un oponente.' });
+            setResult({ status: 'error', message: 'Debes especificar un oponente.' });
             return;
         }
 
@@ -218,7 +218,7 @@ export function DuelView() {
             setResult({
                 status: 'error',
                 message:
-                    '⚠️ Usa el login de Twitch (sin espacios). Ej: pepe_grillo — no el nombre visible con espacios.'
+                    'Usa el login de Twitch (sin espacios). Ej: pepe_grillo — no el nombre visible con espacios.'
             });
             return;
         }
@@ -237,7 +237,7 @@ export function DuelView() {
                 message: res.ok ? text : parseApiError(text)
             });
         } catch (e) {
-            setResult({ status: 'error', message: `❌ ${(e as Error).message}` });
+            setResult({ status: 'error', message: (e as Error).message });
         }
     };
 
@@ -333,7 +333,7 @@ export function RussianView() {
                 }
             } else {
                 const err = await res.text();
-                setResult({ status: 'error', message: err ? parseApiError(err) : '⚠️ Error desconocido' });
+                setResult({ status: 'error', message: err ? parseApiError(err) : 'Error desconocido' });
             }
         } catch {
             setResult({ status: 'error', message: 'La pistola se encasquilló (Error de API)' });
