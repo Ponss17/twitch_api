@@ -101,7 +101,6 @@ export default defineConfig({
     site: 'https://ttv.losperris.dev',
     trailingSlash: 'always',
     vite: {
-        base: '/',
         plugins: [tailwindcss(), devNoServiceWorker()],
         define: {
             'import.meta.env.SUPABASE_URL': JSON.stringify(supabaseUrl),
