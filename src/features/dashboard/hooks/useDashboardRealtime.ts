@@ -3,7 +3,7 @@ import type { Session } from '@/core/config/config';
 import type { RealtimeStatsUpdate } from '@/features/dashboard/lib/dashboardStats';
 import type { ActivityLogItem } from '@/features/dashboard/lib/activityLogDisplay';
 
-const loadRealtimeModule = () => import('@/features/dashboard/lib/realtimeService');
+const loadRealtimeModule = () => import('@/features/dashboard/lib/realtime');
 
 export interface UseDashboardRealtimeOptions {
     id: string;
