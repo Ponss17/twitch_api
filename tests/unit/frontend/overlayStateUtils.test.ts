@@ -12,8 +12,8 @@ import {
     resolveOverlayPollIntervalMs,
     updateOverlayPollAnchors,
     type OverlayPollAnchors
-} from '@/features/tools/overlay/lib/overlayStateUtils';
-import type { RouletteOverlayState, TrendsOverlayState } from '@/features/tools/overlay/lib/types';
+} from '@/features/overlay/lib/overlayStateUtils';
+import type { RouletteOverlayState, TrendsOverlayState } from '@/features/overlay/lib/types';
 
 describe('overlayStateUtils', () => {
     it('overlayStateFingerprint ignora updatedAt', () => {

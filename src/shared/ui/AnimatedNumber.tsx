@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
-import { animateValue } from '@/core/ui/animateValue';
+import { animateValue } from '@/core/utils/animateValue';
 
 interface AnimatedNumberProps {
     value: number;

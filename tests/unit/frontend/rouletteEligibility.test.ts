@@ -7,7 +7,7 @@ import {
     setAllFilters,
     tagsMatchFilters,
     userMatchesFilters
-} from '@/features/tools/roulette/lib/eligibility';
+} from '@/features/roulette/lib/eligibility';
 
 describe('rouletteEligibility', () => {
     it('userMatchesFilters allows all when every role is enabled', () => {

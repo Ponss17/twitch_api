@@ -21,7 +21,7 @@ import {
     modalShake,
     modalTitle,
     modalTitleIcon
-} from '@/core/ui/tw';
+} from '@/core/utils/tw';
 
 const ModalCloseContext = createContext<(() => void) | null>(null);
 

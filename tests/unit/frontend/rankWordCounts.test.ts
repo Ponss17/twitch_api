@@ -1,4 +1,4 @@
-import { rankWordCounts } from '@/features/tools/trends/lib/rankWordCounts';
+import { rankWordCounts } from '@/features/trends/lib/rankWordCounts';
 
 describe('rankWordCounts', () => {
     it('ordena y limita el ranking', () => {

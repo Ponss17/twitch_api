@@ -2,11 +2,11 @@ import {
     hasOverlayPollCredentials,
     overlaySessionKey,
     resolveOverlayPollSession
-} from '@/features/tools/overlay/lib/credentials';
+} from '@/features/overlay/lib/credentials';
 import {
     clearOverlayStoredSession,
     saveOverlayStoredSession
-} from '@/features/tools/overlay/lib/overlaySession';
+} from '@/features/overlay/lib/overlaySession';
 
 describe('overlay credentials', () => {
     beforeEach(() => {

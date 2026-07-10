@@ -1,4 +1,4 @@
-import { winnerIndex, normalizeDegrees, truncateLabel } from '@/features/tools/roulette/lib/wheelUtils';
+import { winnerIndex, normalizeDegrees, truncateLabel } from '@/features/roulette/lib/wheelUtils';
 
 describe('rouletteWheelUtils', () => {
     it('normalizeDegrees wraps correctly', () => {
