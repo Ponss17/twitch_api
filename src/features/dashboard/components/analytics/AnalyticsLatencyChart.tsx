@@ -1,4 +1,5 @@
 import React from 'react';
+import { Timer } from 'lucide-react';
 import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { ChartMountGate, COLORS } from './AnalyticsShared';
@@ -11,7 +12,7 @@ interface AnalyticsLatencyChartProps {
 
 export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChartProps) {
     return (
-        <div className="rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50">
+        <div className="flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50 h-full">
             <div className="mb-6 border-b border-white/[0.08] pb-4">
                 <div className="flex items-center justify-between gap-3">
                     <div>
@@ -22,13 +23,17 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                 </div>
             </div>
             {pieData.length === 0 || pieData.every((d) => d.avgLatency === 0) ? (
-                <div className="flex h-[280px] w-full items-center justify-center text-sm text-zinc-500">
-                    Sin datos de latencia
+                <div className="mt-4 flex flex-1 min-h-[280px] w-full flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/5 mb-3">
+                        <Timer className="h-6 w-6 text-zinc-500" />
+                    </div>
+                    <span className="text-sm font-medium text-zinc-400">Sin datos de latencia</span>
+                    <span className="mt-1 text-xs text-zinc-500">Espera a que lleguen nuevas peticiones</span>
                 </div>
             ) : (
                 <ChartMountGate
                     active={active}
-                    className="relative h-[280px] w-full min-w-0"
+                    className="relative flex-1 min-h-[280px] w-full min-w-0"
                     srLabel="Gráfico de barras mostrando la latencia promedio por comando."
                 >
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
