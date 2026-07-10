@@ -11,6 +11,8 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     updateLastActive: mockUpdateLastActive
 }));
 
+jest.mock('@/core/database/redisClient');
+
 jest.mock('@/core/utils/routeHelpers', () => ({
     isPublicRoute: jest.fn().mockReturnValue(false),
     isBotCommand: jest.fn().mockReturnValue(false),

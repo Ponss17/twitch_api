@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { ChartMountGate, COLORS } from './AnalyticsShared';
 
@@ -55,17 +55,21 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                 }}
                                 cursor={false}
                             />
-                            <Bar dataKey="avgLatency" name="Latencia" radius={[0, 4, 4, 0]} maxBarSize={16}>
-                                {pieData.map((_, index) => (
-                                    <Cell 
-                                        key={`cell-${index}`} 
-                                        fill={COLORS[index % COLORS.length]} 
-                                        fillOpacity={0.38}
-                                        stroke={COLORS[index % COLORS.length]}
-                                        strokeWidth={1.5}
+                            <Bar dataKey="avgLatency" name="Latencia" maxBarSize={16} 
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                shape={(props: any) => {
+                                const color = COLORS[props.index % COLORS.length];
+                                return (
+                                    <Rectangle 
+                                        {...props} 
+                                        fill={color} 
+                                        fillOpacity={0.38} 
+                                        stroke={color} 
+                                        strokeWidth={1.5} 
+                                        radius={[0, 4, 4, 0]} 
                                     />
-                                ))}
-                            </Bar>
+                                );
+                            }} />
                         </BarChart>
                     </ResponsiveContainer>
                 </ChartMountGate>

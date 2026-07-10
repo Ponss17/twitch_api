@@ -4,7 +4,7 @@ const mockKv = {
     del: jest.fn()
 };
 
-jest.mock('@vercel/kv', () => ({
+jest.mock('@/core/database/redisClient', () => ({
     kv: mockKv
 }));
 

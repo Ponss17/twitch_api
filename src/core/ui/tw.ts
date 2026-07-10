@@ -113,7 +113,7 @@ export const aboutLegoIn = 'opacity-0 animate-about-lego';
 
 /* —— Sidebar (dashboard + docs) —— */
 export const sidebarNavButtonBase =
-    'relative mb-0.5 flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-1.5 text-left font-[inherit] text-[0.85rem] font-semibold transition-all outline-none focus-visible:bg-bg-tertiary focus-visible:text-[#fafafa] focus-visible:border-primary/50';
+    'relative mb-0.5 flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-1 text-left font-[inherit] text-[0.85rem] font-semibold transition-all outline-none focus-visible:bg-bg-tertiary focus-visible:text-[#fafafa] focus-visible:border-primary/50';
 
 export const sidebarNavItem = (active: boolean) => {
     const width = active ? 'ml-3 w-[calc(100%-28px)]' : 'mx-auto w-[calc(100%-16px)]';

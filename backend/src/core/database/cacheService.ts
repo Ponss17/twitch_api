@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import { kv } from './redisClient';
 import { StoredUser } from '../../types/twitch';
 import { CACHE_TTL_MATRIX, ownerScopedCacheKey } from '../config/cacheTtl';
 
