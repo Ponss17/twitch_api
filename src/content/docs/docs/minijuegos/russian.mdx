@@ -77,6 +77,16 @@ El viewer aprieta el gatillo: hay 6 recámaras y una bala. Si pierde, puede reci
     !command add !ruletarusa $(urlfetch https://ttv.losperris.dev/api/minigames/russian?channel=$(channel)&user=$(user_name)&apiKey=TU_API_KEY)
     ```
   </TabItem>
+  <TabItem label="Streamlabs">
+    ```text
+    !addcmd !ruleta {readapi.https://ttv.losperris.dev/api/minigames/russian?channel={channel.name}&user={user.name}&hardcore=false&apiKey=TU_API_KEY}
+    ```
+  </TabItem>
+  <TabItem label="Botrix">
+    ```text
+    !addcom !ruleta $(urlfetch https://ttv.losperris.dev/api/minigames/russian?channel=$(channel)&user=$(sender)&hardcore=false&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
 </Tabs>
 
 ## Comportamiento

@@ -415,8 +415,8 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
                 Al regenerar tu API Key, <strong>la clave anterior dejará de funcionar inmediatamente</strong>.
             </p>
             <p>
-                Tendrás que actualizar el token en todos tus bots (Nightbot, StreamElements, Fossabot, etc.) para
-                que los comandos sigan funcionando.
+                Tendrás que actualizar el token en todos tus bots (Nightbot, StreamElements, Fossabot, Streamlabs, Botrix, etc.) para
+                que tus comandos sigan funcionando.
             </p>
             <p className="text-sm opacity-80">Esta acción no se puede deshacer.</p>
         </Modal>
