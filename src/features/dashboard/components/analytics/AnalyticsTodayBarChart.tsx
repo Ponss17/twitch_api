@@ -29,11 +29,12 @@ const CustomBarShape = (props: any) => {
 
     return (
         <g>
-            <path d={fillPath} fill={fill} fillOpacity={0.15} />
+            <path d={fillPath} fill={fill} fillOpacity={0.22} />
             <path 
                 d={strokePath} 
                 stroke={stroke} 
-                strokeWidth={1.5} 
+                strokeWidth={1.2} 
+                strokeOpacity={0.75}
                 strokeLinecap="round" 
                 strokeLinejoin="round" 
                 fill="none" 
