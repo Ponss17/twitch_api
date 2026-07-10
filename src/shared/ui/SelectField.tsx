@@ -17,7 +17,7 @@ const optionClassName = 'bg-bg-card text-[#fafafa]';
 /** `<select>` nativo con estilo unificado del dashboard. */
 export function SelectField({ options, className = '', ...props }: SelectFieldProps) {
     return (
-        <select className={`${selectInput} ${className}`.trim()} {...props}>
+        <select className={`${selectInput} ${className}`.trim()} style={{ colorScheme: 'dark' }} {...props}>
             {options.map((opt) => (
                 <option key={opt.value} value={opt.value} className={optionClassName}>
                     {opt.label}
