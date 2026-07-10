@@ -17,7 +17,7 @@ export function AnalyticsCommandsDistribution({
     totalRequests
 }: AnalyticsCommandsDistributionProps) {
     return (
-        <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50 h-[420px]">
+        <div className="col-span-1 flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50 h-[460px]">
             <div className="mb-6 border-b border-white/[0.08] pb-4">
                 <div className="flex items-center justify-between gap-3">
                     <div>

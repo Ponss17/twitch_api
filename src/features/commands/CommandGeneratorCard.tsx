@@ -149,7 +149,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
     };
 
     return (
-        <div className={`${card} ${fadeIn} mb-3`}>
+        <div className={`${card} ${fadeIn} relative z-10 mb-3 focus-within:z-20 hover:z-20`}>
             <CommandCardHeader
                 icon={config.icon}
                 title={config.title}
