@@ -386,13 +386,6 @@ export function DashboardPanelProvider({
         [markActivityHighlight]
     );
 
-    const handleRealtimeActivityDelete = useCallback(() => {
-        // Un DELETE en activity_logs (borrado total desde zona peligrosa) limpia el feed local
-        if (!resetPendingRef.current) {
-            setActivity([]);
-        }
-    }, []);
-
     const handleRealtimeDisconnect = useCallback(() => {
         if (!activeRef.current) return;
         setSyncLabel(`${Math.ceil(FALLBACK_POLL_MS / 1000)}s`);
@@ -407,7 +400,6 @@ export function DashboardPanelProvider({
         session,
         onStatsUpdate: handleRealtimeStats,
         onActivityInsert: handleRealtimeActivity,
-        onActivityDelete: handleRealtimeActivityDelete,
         onDisconnect: handleRealtimeDisconnect
     });
 
