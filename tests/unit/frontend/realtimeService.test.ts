@@ -12,7 +12,7 @@ import {
     RealtimeService,
     RealtimeServiceFactory,
     type RealtimeCallbacks
-} from '@/features/dashboard/lib/realtimeService';
+} from '@/features/dashboard/lib/realtime';
 import type { Session } from '@/core/config/config';
 import { EMPTY_DASHBOARD_LIVE_STATS } from '@/features/dashboard/lib/dashboardStats';
 
