@@ -46,6 +46,7 @@ export interface DashboardProfile {
     view_count?: number;
     followers: number;
     views?: number;
+    isLive?: boolean;
     role?: string;
     roleLabel?: string;
     rateLimit?: number;

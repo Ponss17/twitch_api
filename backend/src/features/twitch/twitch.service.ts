@@ -8,7 +8,8 @@ export {
     getUserInfo,
     getFollowAge,
     validateToken,
-    getFollowersCount
+    getFollowersCount,
+    isStreamLive
 } from './twitchUserService';
 export { createClip, getClips } from './twitchClipService';
 export { getChannelInfo, sendChatMessage, getChatters, timeoutUser, filterChattersByEligibility, annotateChatterRoles, parseEligibilityQuery } from './twitchChatService';

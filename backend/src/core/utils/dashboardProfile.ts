@@ -7,6 +7,7 @@ export type { DashboardProfile } from '../schemas/dashboardContracts';
 export function buildDashboardProfile(
     info: TwitchUser,
     followers: number,
+    isLive: boolean,
     limits?: ResolvedUserLimits
 ): DashboardProfile {
     return {
@@ -20,6 +21,7 @@ export function buildDashboardProfile(
         view_count: info.view_count,
         followers,
         views: info.view_count,
+        isLive,
         ...(limits
             ? {
                   role: limits.role,
