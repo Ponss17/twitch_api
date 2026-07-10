@@ -1,7 +1,7 @@
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
 import https from 'https';
-import { kv } from '@vercel/kv';
+import { kv } from '../../core/database/redisClient';
 import { CONFIG } from '../../core/config/env';
 import { logger } from '../../core/utils/logger';
 import { TwitchApiError } from '../../core/errors/AppError';

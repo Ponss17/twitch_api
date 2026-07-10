@@ -30,7 +30,7 @@ module.exports = {
             transform: backendTransform,
             moduleNameMapper: {
                 '^@/(.*)$': '<rootDir>/backend/src/$1',
-                '^@vercel/kv$': '<rootDir>/tests/__mocks__/@vercel/kv.ts'
+                '^@/core/database/redisClient$': '<rootDir>/backend/src/core/database/__mocks__/redisClient.ts'
             },
             setupFiles: ['<rootDir>/tests/setup.ts'],
             modulePathIgnorePatterns: ['<rootDir>/dist/'],

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { kv } from '@vercel/kv';
+import { kv } from '../database/redisClient';
 import { isKvWriteAvailable } from '../database/cacheService';
 import { RATE_LIMITS } from '../config/limits';
 import { resolveUserRateLimit } from '../config/userRoles';

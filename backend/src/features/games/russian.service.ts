@@ -1,6 +1,6 @@
 import { sendChatMessage, timeoutUser, getUserId } from '../twitch/twitch.service';
 import { logger } from '../../core/utils/logger';
-import { kv } from '@vercel/kv';
+import { kv } from '../../core/database/redisClient';
 
 export const playRussianRoulette = async (
     channel: string,

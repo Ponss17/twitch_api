@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 // Mock global de consola para limpiar ruido en tests
 global.console = {
     ...console,
@@ -59,3 +61,6 @@ jest.mock('@supabase/supabase-js', () => ({
         }
     }))
 }));
+
+// Mock global de la conexión a Redis para no intentar contectarse en las pruebas
+jest.mock('@/core/database/redisClient');

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { kv } from '@vercel/kv';
+import { kv } from '@/core/database/redisClient';
 import { globalRateLimiter } from '../../backend/src/core/middleware/redisRateLimiter';
 
 jest.mock('@/core/database/cacheService', () => ({
@@ -21,7 +21,7 @@ jest.mock('@/core/utils/routeHelpers', () => ({
     isApiRoute: jest.fn((path: string) => path.startsWith('/api') || path.startsWith('/twitch'))
 }));
 
-jest.mock('@vercel/kv', () => {
+jest.mock('@/core/database/redisClient', () => {
     const incrMock = jest.fn((_key: string) => Promise.resolve(0));
     return {
         kv: {

@@ -22,7 +22,7 @@ jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
     validateToken: jest.fn()
 }));
 
-jest.mock('@vercel/kv', () => ({
+jest.mock('@/core/database/redisClient', () => ({
     kv: {
         ping: jest.fn().mockResolvedValue('PONG'),
         get: jest.fn().mockResolvedValue(null),
