@@ -55,7 +55,7 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                     <Cell 
                                         key={`cell-${index}`} 
                                         fill={COLORS[index % COLORS.length]} 
-                                        fillOpacity={0.15}
+                                        fillOpacity={0.38}
                                         stroke={COLORS[index % COLORS.length]}
                                         strokeWidth={1.5}
                                     />

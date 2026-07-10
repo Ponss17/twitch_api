@@ -60,7 +60,7 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             labelStyle={{ color: '#a1a1aa', marginBottom: '8px', fontSize: '13px' }}
                             cursor={{ stroke: '#3f3f46', strokeWidth: 1, strokeDasharray: '4 4' }}
                         />
-                        <Area type="monotone" dataKey="requests" name="Peticiones" stroke="#9146ff" strokeWidth={3} activeDot={{ r: 6, strokeWidth: 2, stroke: '#18181b', fill: '#9146ff' }} fillOpacity={0.15} fill="#9146ff" />
+                        <Area type="monotone" dataKey="requests" name="Peticiones" stroke="#9146ff" strokeWidth={3} activeDot={{ r: 6, strokeWidth: 2, stroke: '#18181b', fill: '#9146ff' }} fillOpacity={0.38} fill="#9146ff" />
                     </AreaChart>
                 </ResponsiveContainer>
             </ChartMountGate>
