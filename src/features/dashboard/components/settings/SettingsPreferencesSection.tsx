@@ -1,5 +1,5 @@
 import { Settings, Globe, Search, ChevronDown, Check } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { card, fadeIn, btnPrimary } from '@/core/ui/tw';
 import { Dropdown, DropdownTrigger, DropdownPanel, DropdownItem } from '@/shared/ui/Dropdown';
 import { API_ENDPOINTS } from '@/core/config/config';
@@ -31,6 +31,12 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
 
     const [selectedTz, setSelectedTz] = useState(currentTimezone || 'UTC');
     const [searchQuery, setSearchQuery] = useState('');
+
+    useEffect(() => {
+        if (currentTimezone) {
+            setSelectedTz(currentTimezone);
+        }
+    }, [currentTimezone]);
 
     const filteredTimezones = useMemo(() => {
         const query = searchQuery.toLowerCase().trim();

@@ -111,7 +111,7 @@ export function AnalyticsTodayBarChart({
             </div>
             
             {chartData.length === 0 ? (
-                <div className="mt-4 flex h-[350px] w-full flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
+                <div className="mt-4 flex h-[280px] w-full flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/5 mb-3">
                         <BarChart2 className="h-6 w-6 text-zinc-500" />
                     </div>
@@ -121,7 +121,7 @@ export function AnalyticsTodayBarChart({
             ) : (
                 <ChartMountGate
                     active={active}
-                    className="mt-4 h-[350px] w-full min-w-0"
+                    className="mt-4 h-[280px] w-full min-w-0"
                     srLabel="Gráfico mixto mostrando éxitos y errores por comando."
                 >
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
