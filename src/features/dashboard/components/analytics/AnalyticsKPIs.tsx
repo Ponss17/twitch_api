@@ -70,7 +70,6 @@ export function AnalyticsKPIs({
             <div className={STATS_ROW} aria-busy={isLoading}>
                 {/* Total Requests */}
                 <div className={`${H_STAT} hover:border-primary/30`}>
-                    <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-primary/20 blur-[40px] opacity-0 transition-opacity duration-500 group-hover:opacity-100" pointer-events="none" />
                     <div className="relative z-10 flex justify-between items-center w-full mb-2">
                         <span className="text-sm font-medium text-zinc-300">Peticiones Totales</span>
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 transition-transform group-hover:scale-110">
@@ -90,7 +89,6 @@ export function AnalyticsKPIs({
 
                 {/* Success Rate */}
                 <div className={`${H_STAT} hover:border-emerald-500/30`}>
-                    <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-emerald-500/20 blur-[40px] opacity-0 transition-opacity duration-500 group-hover:opacity-100" pointer-events="none" />
                     <div className="relative z-10 flex justify-between items-center w-full mb-2">
                         <span className="text-sm font-medium text-zinc-300">Tasa de Éxito</span>
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 transition-transform group-hover:scale-110">
@@ -111,7 +109,6 @@ export function AnalyticsKPIs({
 
                 {/* Avg Processing Time */}
                 <div className={`${H_STAT} hover:border-amber-500/30`}>
-                    <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-amber-500/20 blur-[40px] opacity-0 transition-opacity duration-500 group-hover:opacity-100" pointer-events="none" />
                     <div className="relative z-10 flex justify-between items-center w-full mb-2">
                         <span className="text-sm font-medium text-zinc-300">Tiempo de Proceso Medio</span>
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 transition-transform group-hover:scale-110">
@@ -139,7 +136,6 @@ export function AnalyticsKPIs({
 
                 {/* Commands */}
                 <div className={`${H_STAT} hover:border-blue-500/30`}>
-                    <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-blue-500/20 blur-[40px] opacity-0 transition-opacity duration-500 group-hover:opacity-100" pointer-events="none" />
                     <div className="relative z-10 flex justify-between items-center w-full mb-2">
                         <span className="text-sm font-medium text-zinc-300">Comandos Usados</span>
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10 transition-transform group-hover:scale-110">
