@@ -54,6 +54,23 @@ export function AnalyticsCommandsDistribution({
                                 shape={(props: any) => {
                                     const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, index } = props;
                                     const color = COLORS[index % COLORS.length];
+                                    
+                                    // Si es un círculo completo (ej. solo 1 elemento), dibujamos un path de dona sin cortes radiales
+                                    if (Math.abs(endAngle - startAngle) >= 359.9) {
+                                        const path = `M ${cx},${cy - outerRadius} A ${outerRadius},${outerRadius} 0 1,0 ${cx},${cy + outerRadius} A ${outerRadius},${outerRadius} 0 1,0 ${cx},${cy - outerRadius} Z M ${cx},${cy - innerRadius} A ${innerRadius},${innerRadius} 0 1,1 ${cx},${cy + innerRadius} A ${innerRadius},${innerRadius} 0 1,1 ${cx},${cy - innerRadius} Z`;
+                                        return (
+                                            <path 
+                                                d={path} 
+                                                fill={color} 
+                                                fillOpacity={0.38} 
+                                                stroke={color} 
+                                                strokeWidth={2} 
+                                                strokeOpacity={0.8} 
+                                                fillRule="evenodd"
+                                            />
+                                        );
+                                    }
+
                                     return (
                                         <Sector
                                             cx={cx}
