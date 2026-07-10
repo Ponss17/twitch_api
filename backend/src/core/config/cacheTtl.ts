@@ -26,7 +26,9 @@ export const CACHE_TTL_MATRIX = {
     TWITCH_USER_ID: { default: 86400, pro: 86400, vip: 86400, partner: 86400 },
     CHANNEL_INFO: { default: 1800, pro: 1800, vip: 1800, partner: 1800 },
     /** Estado efímero del overlay OBS (ruleta / tendencias) */
-    OVERLAY_STATE: { default: 7200, pro: 7200, vip: 7200, partner: 7200 }
+    OVERLAY_STATE: { default: 7200, pro: 7200, vip: 7200, partner: 7200 },
+    /** Estado en vivo del canal — se refresca rápido para no mostrar info desfasada */
+    STREAM_LIVE: { default: 30, pro: 30, vip: 30, partner: 30 }
 } satisfies Record<string, CacheMatrixValue>;
 
 export type CacheResourceKey = keyof typeof CACHE_TTL_MATRIX;
