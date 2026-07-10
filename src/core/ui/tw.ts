@@ -13,7 +13,7 @@ export const toolLabel =
     'flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-tight text-primary';
 
 export const selectInput =
-    `min-w-[180px] w-auto max-w-[min(100%,240px)] shrink-0 cursor-pointer appearance-none rounded-lg border border-white/[0.08] bg-bg-secondary bg-size-[14px] bg-position-[right_8px_center] bg-no-repeat py-[7px] pr-9 pl-3 text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:bg-primary/[0.02] ${selectChevron}`;
+    `[color-scheme:dark] min-w-[180px] w-auto max-w-[min(100%,240px)] shrink-0 cursor-pointer appearance-none rounded-lg border border-white/[0.08] bg-bg-secondary bg-size-[14px] bg-position-[right_8px_center] bg-no-repeat py-[7px] pr-9 pl-3 text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:bg-primary/[0.02] ${selectChevron}`;
 
 export const textInput =
     'w-full rounded-lg border border-white/[0.08] bg-bg-secondary px-3 py-[7px] text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:bg-primary/[0.02]';
@@ -22,7 +22,7 @@ export const inputLabel =
     'block text-[0.8125rem] font-medium leading-tight text-[#c4c4cc]';
 
 export const codeBox =
-    'relative rounded-xl border border-white/[0.04] border-l-4 border-l-primary bg-black/40 px-3.5 py-2.5';
+    'relative rounded-xl border border-white/[0.08] bg-black/40 px-3.5 py-2.5';
 
 export const codeTextarea =
     'block h-[38px] w-full resize-none overflow-hidden border-none bg-transparent pr-[96px] font-[Consolas,monospace] text-[0.8125rem] leading-[1.45] text-[#fafafa] outline-none';
@@ -42,7 +42,7 @@ export const formGroupLabel =
     'mb-1.5 block text-[0.8125rem] font-semibold tracking-wide text-[#c4c4cc] uppercase';
 
 export const textareaXl =
-    'min-h-[180px] w-full resize-y rounded-xl border border-white/[0.08] bg-bg-secondary px-4 py-4 text-[0.8125rem] leading-relaxed text-[#fafafa] outline-none transition focus:border-primary focus:bg-primary/[0.02]';
+    'min-h-[180px] max-h-[400px] w-full resize-y rounded-xl border border-white/[0.08] bg-bg-secondary px-4 py-4 text-[0.8125rem] leading-relaxed text-[#fafafa] outline-none transition focus:border-primary focus:bg-primary/[0.02]';
 
 export const cardFooterFlex =
     'mt-6 flex items-center justify-between gap-5 border-t border-white/[0.08] pt-5 max-[600px]:flex-col max-[600px]:text-center';
@@ -113,7 +113,7 @@ export const aboutLegoIn = 'opacity-0 animate-about-lego';
 
 /* —— Sidebar (dashboard + docs) —— */
 export const sidebarNavButtonBase =
-    'relative mb-0.5 flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-2 text-left font-[inherit] text-[0.9rem] font-semibold transition-all outline-none focus-visible:bg-bg-tertiary focus-visible:text-[#fafafa] focus-visible:border-primary/50';
+    'relative mb-0.5 flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-1.5 text-left font-[inherit] text-[0.85rem] font-semibold transition-all outline-none focus-visible:bg-bg-tertiary focus-visible:text-[#fafafa] focus-visible:border-primary/50';
 
 export const sidebarNavItem = (active: boolean) => {
     const width = active ? 'ml-3 w-[calc(100%-28px)]' : 'mx-auto w-[calc(100%-16px)]';

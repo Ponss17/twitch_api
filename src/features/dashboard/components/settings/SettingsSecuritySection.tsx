@@ -68,7 +68,7 @@ export function SettingsSecuritySection({
             </div>
 
             {/* API Key input */}
-            <div className="relative mb-3 overflow-hidden rounded-xl border border-primary/15 bg-black/25 p-3 pl-4 backdrop-blur-[10px] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-gradient-to-b before:from-primary before:to-transparent before:opacity-60">
+            <div className="relative mb-3 overflow-hidden rounded-xl border border-white/[0.08] bg-black/40 p-3 px-4">
                 <label htmlFor="profile-api-key" className="mb-2 flex items-center text-[0.62rem] font-extrabold uppercase tracking-[0.12em] text-primary opacity-90">
                     <Key className="mr-1 w-3 h-3" />
                     Tu API Key privada

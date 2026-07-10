@@ -48,6 +48,11 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                             <Tooltip
                                 contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', color: '#fafafa' }}
                                 itemStyle={{ color: '#fafafa', fontWeight: 500 }}
+                                // @ts-expect-error - Recharts Tooltip types are complex and generic
+                                formatter={(value: number | string | undefined) => {
+                                    const valNum = Number(value) || 0;
+                                    return [`${valNum}ms (${(valNum / 1000).toFixed(3)}s)`, 'Latencia'];
+                                }}
                                 cursor={false}
                             />
                             <Bar dataKey="avgLatency" name="Latencia" radius={[0, 4, 4, 0]} maxBarSize={16}>
