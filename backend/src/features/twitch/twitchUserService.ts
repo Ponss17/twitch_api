@@ -169,13 +169,19 @@ export const getFollowersCount = async (broadcasterId: string, token: string): P
 };
 
 export const isStreamLive = async (userId: string, token: string): Promise<boolean> => {
+    const cacheKey = `cache:stream:live:${userId}`;
     try {
+        const cached = await cacheService.get<boolean>(cacheKey);
+        if (cached !== null && cached !== undefined) return cached;
+
         const headers = getHeaders(token);
         const response = await apiClient.get('https://api.twitch.tv/helix/streams', {
             headers,
             params: { user_id: userId }
         });
-        return response.data.data.length > 0;
+        const live = response.data.data.length > 0;
+        await cacheService.set(cacheKey, live, 30); // 30s TTL — fresco pero sin martillar Twitch
+        return live;
     } catch (error) {
         logger.error('Error in isStreamLive:', error);
         return false;

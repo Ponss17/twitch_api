@@ -329,8 +329,12 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
     };
 
     if (cachedProfile && (!userId || analyticsCacheHit)) {
+        // isLive se busca siempre por su propio caché de 30s — nunca servimos un estado de stream viejo
+        const isLive = userId && token
+            ? await apiService.isStreamLive(userId, token)
+            : (cachedProfile.isLive as boolean | undefined);
         return res.json({
-            profile: mergeProfileLimits(cachedProfile),
+            profile: mergeProfileLimits({ ...cachedProfile, isLive }),
             analytics: cachedAnalytics ?? null
         });
     }
@@ -343,17 +347,17 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             needProfile
                 ? (async () => {
                       const info = await apiService.getUserInfo(login, token || '');
+                      // followers y isLive en paralelo. isLive usa su propio caché de 30s
                       const [followers, isLive] = await Promise.all([
                           apiService.getFollowersCount(info.id, token || ''),
                           apiService.isStreamLive(info.id, token || '')
                       ]);
                       const limits = resolveUserLimits(res.locals.apiUser);
-                      return {
-                          ...buildDashboardProfile(info, followers, isLive, limits),
-                          ...limits
-                      };
+                      // Guardamos el perfil SIN isLive en caché (tiene su propio ciclo de vida de 30s)
+                      const profileData = buildDashboardProfile(info, followers, false, limits);
+                      return { profileData, isLive, limits };
                   })()
-                : Promise.resolve(cachedProfile),
+                : Promise.resolve(null),
             needAnalytics && userId
                 ? (async () => {
                       const [stats, dailyStats] = await Promise.all([
@@ -368,9 +372,11 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
         ]);
 
         if (needProfile && profileKey && profile) {
+            // Guardamos sin isLive para que el caché del perfil no congele el estado del stream
+            const { isLive: _isLive, ...profileWithoutLive } = profile as { isLive?: boolean } & Record<string, unknown>;
             await cacheService.set(
                 profileKey,
-                profile,
+                { ...profileWithoutLive, ...profile.limits },
                 resolveCache('DASHBOARD_PROFILE', res.locals.apiUser?.role, res.locals.apiUser?.customCacheTtl)
             );
         }
@@ -382,9 +388,18 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             );
         }
 
+        const finalProfile = needProfile && profile
+            ? (() => {
+                  const p = profile as unknown as { profileData: Record<string, unknown>; isLive: boolean; limits: Record<string, unknown> };
+                  return { ...p.profileData, ...p.limits, isLive: p.isLive };
+              })()
+            : (cachedProfile ? { ...cachedProfile, isLive: userId && token
+                  ? await apiService.isStreamLive(userId, token)
+                  : cachedProfile.isLive } : null);
+
         res.json({
             profile: mergeProfileLimits(
-                profile && typeof profile === 'object' ? (profile as Record<string, unknown>) : null
+                finalProfile && typeof finalProfile === 'object' ? (finalProfile as Record<string, unknown>) : null
             ),
             analytics: analytics ?? null
         });
