@@ -118,7 +118,7 @@ export const sidebarNavButtonBase =
 export const sidebarNavItem = (active: boolean) => {
     const width = 'mx-auto w-[calc(100%-16px)]';
     if (active) {
-        return `${sidebarNavButtonBase} ${width} bg-bg-tertiary text-[#fafafa] before:pointer-events-none before:absolute before:top-1/2 before:-left-2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-r-md before:bg-primary before:content-[""]`;
+        return `${sidebarNavButtonBase} ${width} bg-bg-tertiary text-[#fafafa] overflow-hidden before:pointer-events-none before:absolute before:top-1/2 before:left-0 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-r-md before:bg-primary before:content-[""]`;
     }
     return `${sidebarNavButtonBase} ${width} text-[#c4c4cc] hover:bg-bg-tertiary hover:text-[#fafafa]`;
 };
