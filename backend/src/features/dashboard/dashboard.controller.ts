@@ -232,12 +232,12 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
 
             try {
                 const info = await apiService.getUserInfo(login, req.twitchToken || '');
-                const followers = await apiService.getFollowersCount(
-                    info.id,
-                    req.twitchToken || ''
-                );
+                const [followers, isLive] = await Promise.all([
+                    apiService.getFollowersCount(info.id, req.twitchToken || ''),
+                    apiService.isStreamLive(info.id, req.twitchToken || '')
+                ]);
 
-                const profileResult = buildDashboardProfile(info, followers, limits);
+                const profileResult = buildDashboardProfile(info, followers, isLive, limits);
 
                 await cacheService.set(cacheKey, profileResult, resolveCache('DASHBOARD_PROFILE', apiUser?.role, apiUser?.customCacheTtl));
                 return { ...profileResult, ...limits, cacheTtl: resolveCache('COMMAND', apiUser?.role, apiUser?.customCacheTtl) };
@@ -343,10 +343,13 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             needProfile
                 ? (async () => {
                       const info = await apiService.getUserInfo(login, token || '');
-                      const followers = await apiService.getFollowersCount(info.id, token || '');
+                      const [followers, isLive] = await Promise.all([
+                          apiService.getFollowersCount(info.id, token || ''),
+                          apiService.isStreamLive(info.id, token || '')
+                      ]);
                       const limits = resolveUserLimits(res.locals.apiUser);
                       return {
-                          ...buildDashboardProfile(info, followers, limits),
+                          ...buildDashboardProfile(info, followers, isLive, limits),
                           ...limits
                       };
                   })()
