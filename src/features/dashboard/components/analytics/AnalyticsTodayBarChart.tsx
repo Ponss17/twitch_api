@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
+import { ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { ChartMountGate, COLORS } from './AnalyticsShared';
 import { BarChart2 } from 'lucide-react';
@@ -153,15 +153,11 @@ export function AnalyticsTodayBarChart({
                             <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: '#c4c4cc' }} iconType="circle" />
                             
                             {/* Barras con bordes fuertes e interior sólido */}
-                            <Bar dataKey="Éxitos" fill="#10b981" shape={<CustomBarShape />} maxBarSize={48}>
-                                {chartData.map((_, index) => (
-                                    <Cell 
-                                        key={`cell-success-${index}`} 
-                                        fill={COLORS[index % COLORS.length]} 
-                                        stroke={COLORS[index % COLORS.length]} 
-                                    />
-                                ))}
-                            </Bar>
+                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                            <Bar dataKey="Éxitos" shape={(props: any) => {
+                                const color = COLORS[props.index % COLORS.length];
+                                return <CustomBarShape {...props} fill={color} stroke={color} />;
+                            }} maxBarSize={48} />
                             <Bar dataKey="Errores" fill="#ef4444" stroke="#ef4444" shape={<CustomBarShape />} maxBarSize={48} />
                         </ComposedChart>
                     </ResponsiveContainer>

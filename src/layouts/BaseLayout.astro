@@ -83,7 +83,7 @@ const swScope = staticPath('/');
             as="style"
             id="geist-font-preload"
         />
-        <script src={staticPath('/js/font-preload.js')} defer></script>
+        <script is:inline src={staticPath('/js/font-preload.js')} defer></script>
         <noscript>
             <link
                 rel="stylesheet"
@@ -135,6 +135,7 @@ const swScope = staticPath('/');
         {footer && <Footer client:visible isDashboard={Astro.url.pathname.includes('/dashboard')} />}
         {!isDev && (
             <script
+                is:inline
                 src={staticPath('/js/sw-register.js')}
                 defer
                 data-sw-url={swUrl}

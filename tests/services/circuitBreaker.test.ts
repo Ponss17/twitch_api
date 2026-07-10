@@ -2,7 +2,7 @@ const mockKvGet = jest.fn().mockResolvedValue(null);
 const mockKvSet = jest.fn().mockResolvedValue('OK');
 const mockKvDel = jest.fn().mockResolvedValue(1);
 
-jest.mock('@vercel/kv', () => ({
+jest.mock('@/core/database/redisClient', () => ({
     kv: { get: mockKvGet, set: mockKvSet, del: mockKvDel }
 }));
 jest.mock('@/core/database/cacheService', () => ({

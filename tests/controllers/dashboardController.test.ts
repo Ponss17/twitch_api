@@ -25,7 +25,7 @@ jest.mock('../../backend/src/core/database/cacheService', () => ({
     bumpStatsRevision: jest.fn().mockResolvedValue(undefined)
 }));
 
-jest.mock('@vercel/kv');
+jest.mock('@/core/database/redisClient');
 
 jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }

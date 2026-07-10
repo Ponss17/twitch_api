@@ -1,5 +1,5 @@
 import React from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Sector, Tooltip, ResponsiveContainer } from 'recharts';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { ChartMountGate, COLORS } from './AnalyticsShared';
 
@@ -45,18 +45,27 @@ export function AnalyticsCommandsDistribution({
                                 innerRadius={65}
                                 outerRadius={95}
                                 dataKey="value"
-                            >
-                                {pieData.map((_, index) => (
-                                    <Cell 
-                                        key={`cell-${index}`} 
-                                        fill={COLORS[index % COLORS.length]}
-                                        fillOpacity={0.38}
-                                        stroke={COLORS[index % COLORS.length]}
-                                        strokeWidth={2}
-                                        strokeOpacity={0.8}
-                                    />
-                                ))}
-                            </Pie>
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                shape={(props: any) => {
+                                    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, index } = props;
+                                    const color = COLORS[index % COLORS.length];
+                                    return (
+                                        <Sector
+                                            cx={cx}
+                                            cy={cy}
+                                            innerRadius={innerRadius}
+                                            outerRadius={outerRadius}
+                                            startAngle={startAngle}
+                                            endAngle={endAngle}
+                                            fill={color}
+                                            fillOpacity={0.38}
+                                            stroke={color}
+                                            strokeWidth={2}
+                                            strokeOpacity={0.8}
+                                        />
+                                    );
+                                }}
+                            />
                             <Tooltip
                                 contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', color: '#fafafa' }}
                                 itemStyle={{ color: '#fafafa', fontWeight: 500 }}
