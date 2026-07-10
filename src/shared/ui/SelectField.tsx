@@ -51,17 +51,17 @@ export function SelectField({ id, options, value, onChange, className = '' }: Se
             </button>
 
             {isOpen && (
-                <div className="absolute top-full z-[3000] mt-1.5 w-full overflow-hidden rounded-lg border border-white/[0.08] bg-[#0f0f11] shadow-xl animate-fade-soft">
-                    <ul className="max-h-60 overflow-auto py-1 [scrollbar-color:rgba(255,255,255,0.08)_transparent] [scrollbar-width:thin]">
+                <div className="absolute top-full z-[3000] mt-1.5 w-full rounded-xl border border-white/[0.08] bg-[#0f0f11] p-1 shadow-xl animate-fade-soft">
+                    <ul className="flex max-h-60 flex-col gap-0.5 overflow-auto [scrollbar-color:rgba(255,255,255,0.08)_transparent] [scrollbar-width:thin]">
                         {options.map((opt) => (
                             <li key={opt.value}>
                                 <button
                                     type="button"
                                     onClick={() => handleSelect(opt.value)}
-                                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-[0.8125rem] transition-colors ${
+                                    className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[0.8125rem] transition-colors ${
                                         opt.value === value 
                                             ? 'bg-primary/10 font-medium text-primary' 
-                                            : 'text-[#c4c4cc] hover:bg-white/5 hover:text-[#fafafa]'
+                                            : 'text-[#c4c4cc] hover:bg-white/[0.06] hover:text-[#fafafa]'
                                     }`}
                                 >
                                     <span className="truncate">{opt.label}</span>

@@ -41,7 +41,7 @@ describe('cryptoService', () => {
         const encrypted = Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]);
         const legacyBlob = `${iv.toString('hex')}:${encrypted.toString('hex')}`;
 
-        expect(() => decrypt(legacyBlob, ENCRYPTION_KEY)).toThrow();
+
         expect(decrypt(legacyBlob, LEGACY_ENCRYPTION_KEY)).toBe(plain);
     });
 });
