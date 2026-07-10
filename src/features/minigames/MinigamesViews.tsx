@@ -101,8 +101,8 @@ function GameResponse({
                 loading
                     ? 'border-white/[0.08] bg-[rgba(15,23,42,0.6)] text-[#fafafa]'
                     : success
-                      ? 'border-success/30 border-l-4 border-l-success bg-[rgba(16,185,129,0.15)] text-success'
-                      : 'border-l-4 border-l-error border-error/30 bg-error/15 text-error'
+                      ? 'border-success/30 bg-[rgba(16,185,129,0.15)] text-success'
+                      : 'border-error/30 bg-error/15 text-error'
             }`}
         >
             {loading && loadingNode}
