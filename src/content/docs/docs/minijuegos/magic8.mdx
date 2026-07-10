@@ -126,6 +126,16 @@ https://ttv.losperris.dev/api/minigames/magic8?question=$(querystring)&mood=sarc
     !command add !bola8 $(urlfetch https://ttv.losperris.dev/api/minigames/magic8?question=$(arg_1+)&user=$(user_name)&mood=classic&apiKey=TU_API_KEY)
     ```
   </TabItem>
+  <TabItem label="Streamlabs">
+    ```text
+    !addcmd !8ball {readapi.https://ttv.losperris.dev/api/minigames/magic8?channel={channel.name}&user={user.name}&q=$1&apiKey=TU_API_KEY}
+    ```
+  </TabItem>
+  <TabItem label="Botrix">
+    ```text
+    !addcom !8ball $(urlfetch https://ttv.losperris.dev/api/minigames/magic8?channel=$(channel)&user=$(sender)&q=$(query)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
 </Tabs>
 
 Cambia `mood=classic` por `sarcastic`, `toxic` o `helpful` según la personalidad que quieras en el chat.

@@ -12,7 +12,7 @@ Sigue estos pasos para tener tu primer comando en el chat. La API vive en **`htt
 2. Lee y acepta el **aviso de privacidad**; se abrirá el OAuth de Twitch.
 3. Tras el login llegarás al [dashboard](/dashboard/). Abre el **menú de tu cuenta** (arriba a la derecha) → **Configuración** y copia tu **API Key** (UUID).
 4. En la barra lateral del panel, abre **Followage** (u otro comando) — por ejemplo [documentación de Followage](/docs/comandos/followage/).
-5. En el **generador de comandos**, elige tu bot (Nightbot, StreamElements, Fossabot o Wizebot), copia la línea ya con tu API Key y pégala en el panel del bot.
+5. En el **generador de comandos**, elige tu bot (Nightbot, StreamElements, Fossabot, Wizebot, Streamlabs o Botrix), copia la línea ya con tu API Key y pégala en el panel del bot.
 6. Opcional: usa **Probar API** en el panel para ver la respuesta antes de publicar.
 7. Prueba en tu chat: `!followage @viewer`
 </Steps>
@@ -41,7 +41,7 @@ También puedes enviar la clave en la cabecera `X-Api-Key` en lugar del query pa
 
 | Uso | Método | Dónde |
 | :--- | :--- | :--- |
-| **Bots de chat** | `apiKey` en la URL o `X-Api-Key` | Nightbot, StreamElements, scripts |
+| **Bots de chat** | `apiKey` en la URL o `X-Api-Key` | Nightbot, StreamElements, Streamlabs, Botrix, scripts |
 | **Panel web** | Sesión OAuth de Twitch (Bearer) | Dashboard, overlays, analytics |
 
 Los bots **no** necesitan iniciar sesión en el panel: solo la API Key. El panel usa OAuth además de la clave para rutas `/api/dashboard/*`.

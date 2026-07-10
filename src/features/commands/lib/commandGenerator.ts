@@ -27,6 +27,26 @@ export const CommandGenerator = {
             urlfetch: (url: string) => `$(urlfetch ${url})`,
             arg: (name: string) => `$(arg_${name === 'user' ? '1' : name})`,
             addcmd: (trigger: string, cmd: string) => `!command add ${trigger} ${cmd}`
+        },
+        streamlabs: {
+            urlfetch: (url: string) => `{readapi.${url}}`,
+            arg: (name: string) => {
+                if (name === 'user' || name === 'sender') return '{user.name}';
+                if (name === 'touser') return '{touser.name}';
+                if (name === 'query') return '$1';
+                return `{${name}}`;
+            },
+            addcmd: (trigger: string, cmd: string) => `!addcmd ${trigger} ${cmd}`
+        },
+        botrix: {
+            urlfetch: (url: string) => `$(urlfetch ${url})`,
+            arg: (name: string) => {
+                if (name === 'user' || name === 'sender') return '$(sender)';
+                if (name === 'touser') return '$(tuser)';
+                if (name === 'query') return '$(query)';
+                return `$(${name})`;
+            },
+            addcmd: (trigger: string, cmd: string) => `!addcom ${trigger} ${cmd}`
         }
     } as Record<string, { urlfetch: (url: string) => string; arg: (name: string) => string; addcmd: (trigger: string, cmd: string) => string }>,
 
@@ -40,5 +60,7 @@ export const BOT_OPTIONS = [
     { value: 'nightbot', label: 'Nightbot' },
     { value: 'streamelements', label: 'StreamElements' },
     { value: 'fossabot', label: 'Fossabot' },
-    { value: 'wizebot', label: 'Wizebot' }
+    { value: 'wizebot', label: 'Wizebot' },
+    { value: 'streamlabs', label: 'Streamlabs' },
+    { value: 'botrix', label: 'Botrix' }
 ];

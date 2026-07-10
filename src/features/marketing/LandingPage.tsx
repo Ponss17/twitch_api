@@ -79,7 +79,7 @@ const FAQ_ITEMS = [
     },
     {
         q: '¿Necesito un bot para usar los comandos?',
-        a: 'Sí, necesitas integrar la API con tu bot de Twitch (como Nightbot, StreamElements, o tu propio bot). La documentación incluye guías para las plataformas más populares.'
+        a: 'Sí, necesitas integrar la API con tu bot de Twitch (como Nightbot, StreamElements, Streamlabs, Botrix o tu propio bot). La documentación incluye guías para las plataformas más populares.'
     },
     {
         q: '¿Qué comandos están disponibles?',
