@@ -129,4 +129,14 @@ Añade `template` para personalizar el mensaje del bot. Placeholders: `{user}`, 
     !command add !clip $(urlfetch https://ttv.losperris.dev/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)
     ```
   </TabItem>
+  <TabItem label="Streamlabs">
+    ```text
+    !addcmd !clip {readapi.https://ttv.losperris.dev/api/clips?channel={channel.name}&q=$1&apiKey=TU_API_KEY}
+    ```
+  </TabItem>
+  <TabItem label="Botrix">
+    ```text
+    !addcom !clip $(urlfetch https://ttv.losperris.dev/api/clips?channel=$(channel)&q=$(query)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
 </Tabs>
