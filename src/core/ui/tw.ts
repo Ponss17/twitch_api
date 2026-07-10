@@ -113,12 +113,12 @@ export const aboutLegoIn = 'opacity-0 animate-about-lego';
 
 /* —— Sidebar (dashboard + docs) —— */
 export const sidebarNavButtonBase =
-    'relative mb-0.5 flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-1 text-left font-[inherit] text-[0.85rem] font-semibold transition-all outline-none focus-visible:bg-bg-tertiary focus-visible:text-[#fafafa] focus-visible:border-primary/50';
+    'relative mb-0.5 flex items-center gap-3 rounded-lg border border-transparent px-3.5 py-1.5 text-left font-[inherit] text-[0.85rem] font-semibold transition-all outline-none focus-visible:bg-bg-tertiary focus-visible:text-[#fafafa] focus-visible:border-primary/50';
 
 export const sidebarNavItem = (active: boolean) => {
-    const width = active ? 'ml-3 w-[calc(100%-28px)]' : 'mx-auto w-[calc(100%-16px)]';
+    const width = 'mx-auto w-[calc(100%-16px)]';
     if (active) {
-        return `${sidebarNavButtonBase} ${width} bg-bg-tertiary text-[#fafafa] before:pointer-events-none before:absolute before:top-1/2 before:left-0 before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-r before:bg-primary before:content-[""]`;
+        return `${sidebarNavButtonBase} ${width} bg-bg-tertiary text-[#fafafa] before:pointer-events-none before:absolute before:top-1/2 before:-left-2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-r-md before:bg-primary before:content-[""]`;
     }
     return `${sidebarNavButtonBase} ${width} text-[#c4c4cc] hover:bg-bg-tertiary hover:text-[#fafafa]`;
 };
