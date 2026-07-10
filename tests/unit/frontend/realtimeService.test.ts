@@ -9,10 +9,11 @@ jest.mock('@supabase/supabase-js', () => ({
 }));
 
 import {
-    RealtimeService,
     RealtimeServiceFactory,
     type RealtimeCallbacks
 } from '@/features/dashboard/lib/realtime';
+import { formatActivityLog } from '@/features/dashboard/lib/realtime/formatters';
+import { parseDashboardStatsFromRow } from '@/features/dashboard/lib/dashboardStats';
 import type { Session } from '@/core/config/config';
 import { EMPTY_DASHBOARD_LIVE_STATS } from '@/features/dashboard/lib/dashboardStats';
 
@@ -25,58 +26,56 @@ function makeSession(overrides: Partial<Session> = {}): Session {
     return { apiKey: 'key', token: 'tok', login: 'streamer', userId: 'u1', ...overrides };
 }
 
-describe('RealtimeService.computeStats', () => {
-    const svc = new RealtimeService(makeSession());
+describe('Formatters & Stats Parsers', () => {
+    describe('parseDashboardStatsFromRow', () => {
+        it('delega en parseDashboardStatsFromRow', () => {
+            expect(parseDashboardStatsFromRow({})).toEqual(EMPTY_DASHBOARD_LIVE_STATS);
+        });
 
-    it('delega en parseDashboardStatsFromRow', () => {
-        expect(svc.computeStats({})).toEqual(EMPTY_DASHBOARD_LIVE_STATS);
-    });
-
-    it('calcula latencia media y tasa de éxito', () => {
-        expect(
-            svc.computeStats({
-                today_requests: 100,
-                today_errors: 5,
-                today_latency: 5000
-            })
-        ).toMatchObject({
-            todayRequests: 100,
-            rawSuccessRate: 95,
-            avgLatencyMs: 50
+        it('calcula latencia media y tasa de éxito', () => {
+            expect(
+                parseDashboardStatsFromRow({
+                    today_requests: 100,
+                    today_errors: 5,
+                    today_latency: 5000
+                })
+            ).toMatchObject({
+                todayRequests: 100,
+                rawSuccessRate: 95,
+                avgLatencyMs: 50
+            });
         });
     });
-});
 
-describe('RealtimeService.formatActivityLog', () => {
-    const svc = new RealtimeService(makeSession());
-
-    it('formatea un evento conocido con su usuario y detalle', () => {
-        const item = svc.formatActivityLog({
-            activity_type: 'clip',
-            user_name: 'pepe',
-            detail: 'highlight',
-            created_at: '2024-01-01T00:00:00.000Z'
+    describe('formatActivityLog', () => {
+        it('formatea un evento conocido con su usuario y detalle', () => {
+            const item = formatActivityLog({
+                activity_type: 'clip',
+                user_name: 'pepe',
+                detail: 'highlight',
+                created_at: '2024-01-01T00:00:00.000Z'
+            });
+            expect(item.type).toBe('clip');
+            expect(item.user).toBe('pepe');
+            // detail legacy se mapea a metadata.raw_detail
+            expect(item.metadata?.raw_detail).toBe('highlight');
+            expect(item.timestamp).toBe('2024-01-01T00:00:00.000Z');
         });
-        expect(item.type).toBe('clip');
-        expect(item.user).toBe('pepe');
-        // detail legacy se mapea a metadata.raw_detail
-        expect(item.metadata?.raw_detail).toBe('highlight');
-        expect(item.timestamp).toBe('2024-01-01T00:00:00.000Z');
-    });
 
-    it('normaliza tipos desconocidos como other', () => {
-        const item = svc.formatActivityLog({ activity_type: 'weird_thing' });
-        expect(item.type).toBe('weird_thing');
-        expect(item.user).toBe('Usuario');
-    });
+        it('normaliza tipos desconocidos como other', () => {
+            const item = formatActivityLog({ activity_type: 'weird_thing' });
+            expect(item.type).toBe('weird_thing');
+            expect(item.user).toBe('Usuario');
+        });
 
-    it('rellena el timestamp cuando falta created_at', () => {
-        const item = svc.formatActivityLog({ activity_type: 'message', detail: 'hola' });
-        expect(item.type).toBe('message');
-        // detail legacy se mapea a metadata.raw_detail
-        expect(item.metadata?.raw_detail).toBe('hola');
-        expect(typeof item.timestamp).toBe('string');
-        expect(item.timestamp).not.toBe('');
+        it('rellena el timestamp cuando falta created_at', () => {
+            const item = formatActivityLog({ activity_type: 'message', detail: 'hola' });
+            expect(item.type).toBe('message');
+            // detail legacy se mapea a metadata.raw_detail
+            expect(item.metadata?.raw_detail).toBe('hola');
+            expect(typeof item.timestamp).toBe('string');
+            expect(item.timestamp).not.toBe('');
+        });
     });
 });
 

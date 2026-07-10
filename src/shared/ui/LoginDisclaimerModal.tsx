@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { startTwitchLogin } from '@/core/api/auth';
 import { legalPath } from '@/core/config/paths';
-import { btnSecondary, modalBtnPrimary } from '@/core/ui/tw';
+import { btnSecondary, modalBtnPrimary } from '@/core/utils/tw';
 import { Modal } from '@/shared/ui/Modal';
 import { Loader2, Check, Shield } from 'lucide-react';
 import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
