@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader2, Zap } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { AppLogo } from '@/shared/ui/AppLogo';
 import {
     resetSessionLoadProgress,
@@ -137,9 +137,9 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
                                         aria-hidden
                                     />
                                 )}
-                                {statusTitle}
+                                <span className="truncate">{statusTitle}</span>
                             </p>
-                            <p className="mt-1 text-[0.8125rem] leading-snug text-[#c4c4cc]">{statusHint}</p>
+                            <p className="mt-1 text-[0.8125rem] leading-snug text-[#c4c4cc] truncate">{statusHint}</p>
                         </div>
 
                         <span
@@ -156,13 +156,6 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
                             style={{ width: `${displayedProgress}%` }}
                         />
                     </div>
-
-                    {!barDone && detail.label.includes('Despertando') && (
-                        <p className="mt-2.5 flex items-center gap-1.5 text-[0.6875rem] font-medium text-[#71717a]">
-                            <Zap className="size-3 shrink-0 text-amber-500/80" aria-hidden />
-                            Sin caché — el servidor puede tardar unos segundos
-                        </p>
-                    )}
                 </div>
             </div>
         </div>
