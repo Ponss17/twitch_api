@@ -29,7 +29,7 @@ const CustomBarShape = (props: any) => {
 
     return (
         <g>
-            <path d={fillPath} fill={fill} fillOpacity={0.22} />
+            <path d={fillPath} fill={fill} fillOpacity={0.38} />
             <path 
                 d={strokePath} 
                 stroke={stroke} 
