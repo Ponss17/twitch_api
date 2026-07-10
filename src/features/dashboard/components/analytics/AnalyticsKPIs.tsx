@@ -7,7 +7,7 @@ import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
 const STATS_ROW = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4';
 
 const H_STAT =
-    'group relative flex flex-col gap-2 rounded-xl border border-white/[0.04] bg-white/[0.02] px-6 py-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-primary/40 hover:bg-white/[0.04] hover:shadow-2xl';
+    'group relative flex flex-col gap-2 rounded-xl border border-white/[0.04] bg-white/[0.01] px-6 py-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-white/[0.03] hover:shadow-2xl overflow-hidden';
 
 interface AnalyticsKPIsProps {
     timeRange: 'today' | '7d';
@@ -69,12 +69,15 @@ export function AnalyticsKPIs({
 
             <div className={STATS_ROW} aria-busy={isLoading}>
                 {/* Total Requests */}
-                <div className={H_STAT}>
-                    <div className="flex justify-between items-center w-full mb-2">
+                <div className={`${H_STAT} hover:border-primary/30`}>
+                    <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-primary/20 blur-[40px] opacity-0 transition-opacity duration-500 group-hover:opacity-100" pointer-events="none" />
+                    <div className="relative z-10 flex justify-between items-center w-full mb-2">
                         <span className="text-sm font-medium text-zinc-300">Peticiones Totales</span>
-                        <Zap className="w-4 h-4 text-primary" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 transition-transform group-hover:scale-110">
+                            <Zap className="w-4 h-4 text-primary" />
+                        </div>
                     </div>
-                    <div className="flex flex-col">
+                    <div className="relative z-10 flex flex-col">
                         <AnimatedNumber
                             value={displayRequests}
                             duration={requestsDuration}
@@ -86,12 +89,15 @@ export function AnalyticsKPIs({
                 </div>
 
                 {/* Success Rate */}
-                <div className={H_STAT}>
-                    <div className="flex justify-between items-center w-full mb-2">
+                <div className={`${H_STAT} hover:border-emerald-500/30`}>
+                    <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-emerald-500/20 blur-[40px] opacity-0 transition-opacity duration-500 group-hover:opacity-100" pointer-events="none" />
+                    <div className="relative z-10 flex justify-between items-center w-full mb-2">
                         <span className="text-sm font-medium text-zinc-300">Tasa de Éxito</span>
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 transition-transform group-hover:scale-110">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        </div>
                     </div>
-                    <div className="flex flex-col">
+                    <div className="relative z-10 flex flex-col">
                         <AnimatedNumber
                             value={displaySuccessRate}
                             duration={successDuration}
@@ -104,12 +110,15 @@ export function AnalyticsKPIs({
                 </div>
 
                 {/* Avg Processing Time */}
-                <div className={H_STAT}>
-                    <div className="flex justify-between items-center w-full mb-2">
+                <div className={`${H_STAT} hover:border-amber-500/30`}>
+                    <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-amber-500/20 blur-[40px] opacity-0 transition-opacity duration-500 group-hover:opacity-100" pointer-events="none" />
+                    <div className="relative z-10 flex justify-between items-center w-full mb-2">
                         <span className="text-sm font-medium text-zinc-300">Tiempo de Proceso Medio</span>
-                        <Gauge className="w-4 h-4 text-amber-500" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 transition-transform group-hover:scale-110">
+                            <Gauge className="w-4 h-4 text-amber-500" />
+                        </div>
                     </div>
-                    <div className="flex flex-col">
+                    <div className="relative z-10 flex flex-col">
                         <div className="flex items-end gap-1.5">
                             <AnimatedNumber
                                 value={displayLatency}
@@ -129,19 +138,22 @@ export function AnalyticsKPIs({
                 </div>
 
                 {/* Commands */}
-                <div className={H_STAT}>
-                    <div className="flex justify-between items-center w-full mb-2">
+                <div className={`${H_STAT} hover:border-blue-500/30`}>
+                    <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-blue-500/20 blur-[40px] opacity-0 transition-opacity duration-500 group-hover:opacity-100" pointer-events="none" />
+                    <div className="relative z-10 flex justify-between items-center w-full mb-2">
                         <span className="text-sm font-medium text-zinc-300">Comandos Usados</span>
-                        <Command className="w-4 h-4 text-blue-500" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10 transition-transform group-hover:scale-110">
+                            <Command className="w-4 h-4 text-blue-500" />
+                        </div>
                     </div>
-                    <div className="flex flex-col">
+                    <div className="relative z-10 flex flex-col">
                         <AnimatedNumber
                             value={displayCommands}
                             duration={1500}
                             isLoading={isLoading}
                             className="text-[2.5rem] font-bold leading-none tracking-tight text-white"
                         />
-                        <span className="text-xs text-zinc-500 mt-2 font-medium">comandos diferentes invocados {subtextSuffix}</span>
+                        <span className="text-xs text-zinc-500 mt-2 font-medium">comandos invocados {subtextSuffix}</span>
                     </div>
                 </div>
             </div>

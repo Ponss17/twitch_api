@@ -152,7 +152,7 @@ export function AnalyticsTodayBarChart({
                             <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: '#c4c4cc' }} iconType="circle" />
                             
                             {/* Barras con bordes fuertes e interior sólido */}
-                            <Bar dataKey="Éxitos" shape={<CustomBarShape />} maxBarSize={48}>
+                            <Bar dataKey="Éxitos" fill="#10b981" shape={<CustomBarShape />} maxBarSize={48}>
                                 {chartData.map((_, index) => (
                                     <Cell 
                                         key={`cell-success-${index}`} 
