@@ -24,9 +24,9 @@ export function SettingsHero({ followers = 0, broadcasterLabel, memberSince }: S
     return (
         <section className="relative mb-8 overflow-hidden rounded-xl border border-white/[0.08] bg-bg-card p-8 md:p-10 transition-colors duration-300 hover:border-primary/50">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-transparent opacity-30 pointer-events-none" />
-            
+
             <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-8">
-                
+
                 {/* Lado Izquierdo: Avatar e Info */}
                 <div className="flex items-center gap-6">
                     {/* Avatar */}
@@ -40,7 +40,7 @@ export function SettingsHero({ followers = 0, broadcasterLabel, memberSince }: S
                         />
                         <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full border-[3px] border-bg-card bg-emerald-500" />
                     </div>
-                    
+
                     {/* Texto */}
                     <div className="flex flex-col justify-center">
                         <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 mb-2">
@@ -62,7 +62,7 @@ export function SettingsHero({ followers = 0, broadcasterLabel, memberSince }: S
                 <div className="flex flex-wrap gap-4 shrink-0">
                     {/* Seguidores */}
                     <div className="group relative flex flex-1 xl:flex-initial min-w-[160px] cursor-default items-center gap-4 rounded-2xl border border-white/[0.04] bg-white/[0.02] p-4 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.04]">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-110">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/40 text-primary transition-transform group-hover:scale-110">
                             <Heart className="w-5 h-5" />
                         </div>
                         <div className="flex flex-col">
@@ -73,7 +73,7 @@ export function SettingsHero({ followers = 0, broadcasterLabel, memberSince }: S
 
                     {/* Tipo de Canal */}
                     <div className="group relative flex flex-1 xl:flex-initial min-w-[160px] cursor-default items-center gap-4 rounded-2xl border border-white/[0.04] bg-white/[0.02] p-4 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/30 hover:bg-white/[0.04]">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 transition-transform group-hover:scale-110">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-500/40 text-emerald-500 transition-transform group-hover:scale-110">
                             <Video className="w-5 h-5" />
                         </div>
                         <div className="flex flex-col">
@@ -84,7 +84,7 @@ export function SettingsHero({ followers = 0, broadcasterLabel, memberSince }: S
 
                     {/* Miembro Desde */}
                     <div className="group relative flex flex-1 xl:flex-initial min-w-[160px] cursor-default items-center gap-4 rounded-2xl border border-white/[0.04] bg-white/[0.02] p-4 transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/30 hover:bg-white/[0.04]">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500 transition-transform group-hover:scale-110">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-500/40 text-amber-500 transition-transform group-hover:scale-110">
                             <Calendar className="w-5 h-5" />
                         </div>
                         <div className="flex flex-col">
