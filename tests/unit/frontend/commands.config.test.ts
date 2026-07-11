@@ -66,7 +66,7 @@ describe('COMMAND_CONFIG generation', () => {
         expect(full).toBe(`!addcom !clip ${url}`);
         expect(url).toContain('$(urlfetch');
         expect(url).toContain('/create-clip/?');
-        expect(url).toContain('&title=$(1+)');
+        expect(url).toContain('&title=$(querystring)');
         expect(url).toContain('&user=$(user)');
     });
 
@@ -82,7 +82,7 @@ describe('COMMAND_CONFIG generation', () => {
         );
 
         expect(url).toContain('$(customapi');
-        expect(url).toContain('&touser=${touser}');
+        expect(url).toContain('&touser=${1}');
     });
 
     it('8ball incluye mood y question en query', () => {
@@ -98,7 +98,7 @@ describe('COMMAND_CONFIG generation', () => {
         );
 
         expect(full).toContain('&mood=sarcastic');
-        expect(full).toContain('&question=$(1+)');
+        expect(full).toContain('&question=$(querystring)');
         expect(full).toContain('/minigames/magic8/?');
     });
 
@@ -129,6 +129,6 @@ describe('COMMAND_CONFIG generation', () => {
         );
 
         expect(full).toContain('&challenger=$(user)');
-        expect(full).toContain('&target=$(1)');
+        expect(full).toContain('&target=$(touser)');
     });
 });
