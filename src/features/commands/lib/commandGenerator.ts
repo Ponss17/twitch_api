@@ -51,11 +51,13 @@ export const CommandGenerator = {
             addcmd: (trigger: string, cmd: string) => `!addcmd ${trigger} ${cmd}`
         },
         botrix: {
+            // Docs BotRix §3.5: fetch[url] y $(urlfetch url) son equivalentes.
             urlfetch: (url: string) => `$(urlfetch ${url})`,
             arg: (name: string) => {
                 if (name === 'user' || name === 'sender') return '$(sender)';
-                if (name === 'touser') return '$(tuser)';
-                if (name === 'query') return '$(query)';
+                if (name === 'touser') return '$(toname)';
+                // $(query) no existe en BotRix; $(variable) exige texto tras el comando.
+                if (name === 'query') return '$(urlencode $(optionalvariable))';
                 return `$(${name})`;
             },
             addcmd: (trigger: string, cmd: string) => `!addcom ${trigger} ${cmd}`
