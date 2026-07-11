@@ -157,8 +157,8 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                 </div>
             </div>
 
-            <div className="mb-4">
-                <div className="flex flex-wrap gap-2 pb-2">
+            <div className="mb-4 space-y-2">
+                <div className="flex flex-wrap gap-1.5">
                     {CATEGORY_FILTERS.map((category) => {
                         const count = countActivityByCategory(activity, category);
                         const active = categoryFilter === category;
@@ -170,20 +170,20 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                 key={category}
                                 type="button"
                                 onClick={() => handleCategoryChange(category)}
-                                className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 transition-all ${
+                                className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 transition-all ${
                                     active
-                                        ? 'border-primary/40 bg-primary/10 text-primary shadow-sm'
+                                        ? 'border-primary/40 bg-primary/10 text-primary'
                                         : 'border-white/5 bg-white/[0.02] text-[#a1a1aa] hover:border-white/15 hover:bg-white/[0.04] hover:text-[#d4d4d8]'
                                 }`}
                                 aria-pressed={active}
                             >
-                                <Icon className={`h-4 w-4 ${active ? '' : 'opacity-70'}`} />
-                                <span className="text-[0.8rem] font-semibold tracking-wide">
+                                <Icon className={`h-3.5 w-3.5 ${active ? '' : 'opacity-70'}`} />
+                                <span className="text-[0.75rem] font-semibold tracking-wide">
                                     {ACTIVITY_CATEGORY_LABELS[category]}
                                 </span>
                                 {!isLoading && count > 0 && (
-                                    <span className={`ml-0.5 rounded-full px-1.5 py-0.5 text-[0.65rem] font-bold ${
-                                        active ? 'bg-black/20 text-current' : 'bg-white/10 text-[#71717a]'
+                                    <span className={`ml-0.5 rounded-sm px-1 py-0.5 text-[0.65rem] font-bold ${
+                                        active ? 'bg-primary/20 text-current' : 'bg-white/10 text-[#71717a]'
                                     }`}>
                                         {count}
                                     </span>
@@ -194,14 +194,14 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                 </div>
 
                 {typeOptions.length > 0 && (
-                    <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl border border-white/[0.04] bg-black/20 p-2" role="group" aria-label="Filtrar por recurso">
-                        <span className="pl-2 pr-1 text-[0.7rem] font-medium uppercase tracking-wider text-[#71717a]">
-                            Filtros:
+                    <div className="flex flex-wrap items-center gap-1.5 rounded-md border border-white/[0.06] bg-black/15 p-2" role="group" aria-label="Filtrar por recurso">
+                        <span className="pl-1 pr-1 text-[0.65rem] font-medium uppercase tracking-widest text-[#71717a]">
+                            Sub-filtros
                         </span>
                         <button
                             type="button"
                             onClick={() => setTypeFilter('all')}
-                            className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[0.75rem] font-medium transition ${
+                            className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[0.72rem] font-medium transition ${
                                 typeFilter === 'all'
                                     ? 'border-white/20 bg-white/10 text-white'
                                     : 'border-white/5 bg-white/[0.02] text-[#81818b] hover:border-white/15 hover:text-[#d4d4d8]'
@@ -210,8 +210,10 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                         >
                             Todos
                         </button>
-                        {typeOptions.map((type) => {
-                            const meta = getActivityMeta(type);
+                        {typeOptions
+                            .map((type) => ({ type, meta: getActivityMeta(type) }))
+                            .sort((a, b) => a.meta.label.localeCompare(b.meta.label))
+                            .map(({ type, meta }) => {
                             const active = typeFilter === type;
                             const TypeIcon = meta.icon;
                             return (
@@ -219,7 +221,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                     key={type}
                                     type="button"
                                     onClick={() => setTypeFilter(type)}
-                                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[0.75rem] font-medium transition ${
+                                    className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[0.72rem] font-medium transition ${
                                         active
                                             ? 'border-white/20 bg-white/10 text-white'
                                             : 'border-white/5 bg-white/[0.02] text-[#81818b] hover:border-white/15 hover:text-[#d4d4d8]'
