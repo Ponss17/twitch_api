@@ -1,5 +1,5 @@
 import { useMemo, useState, memo } from 'react';
-import { Filter, Radio, Terminal } from 'lucide-react';
+import { Filter, Radio, Terminal, LayoutGrid, Bot, Wrench, Swords } from 'lucide-react';
 
 import { card, fadeIn } from '@/core/utils/tw';
 import {
@@ -34,12 +34,12 @@ const SKELETON_ROWS = 5;
 
 const CATEGORY_FILTERS: ActivityCategoryFilter[] = ['all', 'commands', 'tools', 'minigames'];
 
-const FILTER_CHIP = (active: boolean) =>
-    `rounded-md border px-2.5 py-1 text-[0.72rem] font-medium transition ${
-        active
-            ? 'border-primary/40 bg-primary/15 text-white'
-            : 'border-white/[0.08] bg-white/[0.03] text-[#c4c4cc] hover:border-white/15 hover:text-[#fafafa]'
-    }`;
+const CATEGORY_META: Record<ActivityCategoryFilter, { icon: React.ElementType; accent: string; bar: string }> = {
+    all:       { icon: LayoutGrid, accent: 'border-primary/40 bg-primary/10 text-primary',         bar: 'bg-primary' },
+    commands:  { icon: Bot,        accent: 'border-sky-500/40 bg-sky-500/10 text-sky-400',         bar: 'bg-sky-500' },
+    tools:     { icon: Wrench,     accent: 'border-violet-500/40 bg-violet-500/10 text-violet-400', bar: 'bg-violet-500' },
+    minigames: { icon: Swords,     accent: 'border-amber-500/40 bg-amber-500/10 text-amber-400',   bar: 'bg-amber-500' },
+};
 
 function ActivityFeedSkeleton() {
     return (
@@ -157,53 +157,87 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                 </div>
             </div>
 
-            <div className="mb-3 space-y-2 rounded-lg border border-white/[0.06] bg-black/15 p-2">
-                <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtrar por categoría">
+            <div className="mb-4">
+                <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     {CATEGORY_FILTERS.map((category) => {
                         const count = countActivityByCategory(activity, category);
                         const active = categoryFilter === category;
+                        const meta = CATEGORY_META[category];
+                        const Icon = meta.icon;
+                        
                         return (
                             <button
                                 key={category}
                                 type="button"
                                 onClick={() => handleCategoryChange(category)}
-                                className={FILTER_CHIP(active)}
+                                className={`relative flex min-w-[120px] flex-1 flex-col gap-2 overflow-hidden rounded-xl border p-3 text-left transition-all ${
+                                    active
+                                        ? 'border-white/10 bg-white/[0.04] shadow-sm'
+                                        : 'border-transparent bg-transparent hover:bg-white/[0.02]'
+                                }`}
                                 aria-pressed={active}
                             >
-                                {ACTIVITY_CATEGORY_LABELS[category]}
-                                {!isLoading && count > 0 ? (
-                                    <span className={`ml-1.5 font-mono text-[0.68rem] ${active ? 'text-white/80' : 'text-[#71717a]'}`}>
-                                        {count}
-                                    </span>
-                                ) : null}
+                                {active && (
+                                    <div className={`absolute inset-x-0 top-0 h-[2px] ${meta.bar}`} />
+                                )}
+                                <div className="flex items-center justify-between gap-2">
+                                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg border ${active ? meta.accent : 'border-white/5 bg-white/[0.02] text-[#a1a1aa]'}`}>
+                                        <Icon className="h-4 w-4" />
+                                    </div>
+                                    {!isLoading && count > 0 && (
+                                        <span className={`rounded-full px-2 py-0.5 text-[0.65rem] font-medium ${active ? 'bg-white/10 text-white' : 'bg-white/5 text-[#71717a]'}`}>
+                                            {count}
+                                        </span>
+                                    )}
+                                </div>
+                                <span className={`text-[0.8rem] font-semibold tracking-wide ${active ? 'text-white' : 'text-[#a1a1aa]'}`}>
+                                    {ACTIVITY_CATEGORY_LABELS[category]}
+                                </span>
                             </button>
                         );
                     })}
                 </div>
 
-                {typeOptions.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtrar por recurso">
+                {typeOptions.length > 0 && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl border border-white/[0.04] bg-black/20 p-2" role="group" aria-label="Filtrar por recurso">
+                        <span className="pl-2 pr-1 text-[0.7rem] font-medium uppercase tracking-wider text-[#71717a]">
+                            Filtros:
+                        </span>
                         <button
                             type="button"
                             onClick={() => setTypeFilter('all')}
-                            className={FILTER_CHIP(typeFilter === 'all')}
+                            className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[0.75rem] font-medium transition ${
+                                typeFilter === 'all'
+                                    ? 'border-white/20 bg-white/10 text-white'
+                                    : 'border-white/5 bg-white/[0.02] text-[#81818b] hover:border-white/15 hover:text-[#d4d4d8]'
+                            }`}
                             aria-pressed={typeFilter === 'all'}
                         >
                             Todos
                         </button>
-                        {typeOptions.map((type) => (
-                            <button
-                                key={type}
-                                type="button"
-                                onClick={() => setTypeFilter(type)}
-                                className={FILTER_CHIP(typeFilter === type)}
-                                aria-pressed={typeFilter === type}
-                            >
-                                {getActivityMeta(type).label}
-                            </button>
-                        ))}
+                        {typeOptions.map((type) => {
+                            const meta = getActivityMeta(type);
+                            const active = typeFilter === type;
+                            const TypeIcon = meta.icon;
+                            return (
+                                <button
+                                    key={type}
+                                    type="button"
+                                    onClick={() => setTypeFilter(type)}
+                                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[0.75rem] font-medium transition ${
+                                        active
+                                            ? 'border-white/20 bg-white/10 text-white'
+                                            : 'border-white/5 bg-white/[0.02] text-[#81818b] hover:border-white/15 hover:text-[#d4d4d8]'
+                                    }`}
+                                    aria-pressed={active}
+                                >
+                                    <TypeIcon className={`h-3.5 w-3.5 ${active ? '' : 'opacity-70'}`} />
+                                    {meta.label}
+                                </button>
+                            );
+                        })}
                     </div>
-                ) : null}
+                )}
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden pb-5 text-[#fafafa]">
