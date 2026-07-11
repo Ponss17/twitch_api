@@ -97,7 +97,7 @@ Restringe el comando a moderadores o al streamer en la configuración del bot.
   </TabItem>
   <TabItem label="StreamElements">
     ```text
-    !command add !so ${customapi.https://ttv.losperris.dev/api/shoutout?channel=${channel}&touser=${user}&apiKey=TU_API_KEY}
+    !command add !so ${customapi.https://ttv.losperris.dev/api/shoutout?channel=${channel}&touser=${touser}&apiKey=TU_API_KEY}
     ```
   </TabItem>
   <TabItem label="Fossabot">
@@ -108,6 +108,11 @@ Restringe el comando a moderadores o al streamer en la configuración del bot.
   <TabItem label="Wizebot">
     ```text
     !command add !so $(urlfetch https://ttv.losperris.dev/api/shoutout?channel=$(channel)&touser=$(arg_touser)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="Streamlabs">
+    ```text
+    {readapi.https://ttv.losperris.dev/api/shoutout?channel=TU_CANAL&touser={touser.name}&apiKey=TU_API_KEY}
     ```
   </TabItem>
 </Tabs>

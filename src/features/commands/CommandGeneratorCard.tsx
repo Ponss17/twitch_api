@@ -103,6 +103,18 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
 
     const { bot, template, format, extraValues } = stored;
 
+    const botOptions = useMemo(
+        () => BOT_OPTIONS.filter((opt) => !config.excludedBots?.includes(opt.value)),
+        [config.excludedBots]
+    );
+
+    useEffect(() => {
+        if (!botOptions.length) return;
+        if (!botOptions.some((opt) => opt.value === bot)) {
+            updateConfig({ bot: botOptions[0].value });
+        }
+    }, [bot, botOptions, updateConfig]);
+
     useEffect(() => {
         onExtraValuesChange?.(extraValues);
     }, [extraValues, onExtraValuesChange]);
@@ -164,7 +176,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                     controlId={`${config.id}-bot`}
                     value={bot}
                     onChange={(e) => updateConfig({ bot: e.target.value })}
-                    options={BOT_OPTIONS}
+                    options={botOptions}
                 />
 
                 {config.extraSelectors?.map((sel) => (

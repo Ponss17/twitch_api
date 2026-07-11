@@ -144,17 +144,22 @@ Usa `$(user)` / `$(touser)` (o equivalente) para rellenar retador y oponente:
   </TabItem>
   <TabItem label="StreamElements">
     ```text
-    !command add !duelo ${customapi.https://ttv.losperris.dev/api/minigames/duel?challenger=${user}&target=${1:}&apiKey=TU_API_KEY}
+    !command add !duelo ${customapi.https://ttv.losperris.dev/api/minigames/duel?challenger=${user}&target=${touser}&apiKey=TU_API_KEY}
     ```
   </TabItem>
   <TabItem label="Fossabot">
     ```text
-    !addcmd !duelo $(customapi https://ttv.losperris.dev/api/minigames/duel?challenger=$(user)&target=$(1)&apiKey=TU_API_KEY)
+    !addcmd !duelo $(customapi https://ttv.losperris.dev/api/minigames/duel?challenger=$(user)&target=$(touser)&apiKey=TU_API_KEY)
     ```
   </TabItem>
   <TabItem label="Wizebot">
     ```text
     !command add !duelo $(urlfetch https://ttv.losperris.dev/api/minigames/duel?challenger=$(user_name)&target=$(arg_1)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="Streamlabs">
+    ```text
+    {readapi.https://ttv.losperris.dev/api/minigames/duel?challenger={user.name}&target={touser.name}&apiKey=TU_API_KEY}
     ```
   </TabItem>
 </Tabs>
