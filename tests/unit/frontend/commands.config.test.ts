@@ -70,6 +70,41 @@ describe('COMMAND_CONFIG generation', () => {
         expect(url).toContain('&user=$(user)');
     });
 
+    it('clip botrix: plantilla en URL, comando solo urlfetch (sin texto mezclado)', () => {
+        const query = baseQuery();
+        const template = 'Clip creado por {user}: {url}';
+        const { full, url } = COMMAND_CONFIG.clip.generate(
+            DOMAIN,
+            LOGIN,
+            `apiKey=${encodeURIComponent(API_KEY)}`,
+            'botrix',
+            template,
+            query
+        );
+
+        expect(url).toMatch(/^\$\(urlfetch .+\)$/);
+        expect(url).not.toContain('Clip creado');
+        expect(url).toContain(`template=${encodeURIComponent(template)}`);
+        expect(url).toContain('&user=$(sender)');
+        expect(url).toContain('&title=$(query)');
+        expect(full).toBe(`!addcom !clip ${url}`);
+    });
+
+    it('clip botrix sin plantilla: solo urlfetch a la API', () => {
+        const query = baseQuery();
+        const { url } = COMMAND_CONFIG.clip.generate(
+            DOMAIN,
+            LOGIN,
+            `apiKey=${encodeURIComponent(API_KEY)}`,
+            'botrix',
+            '',
+            query
+        );
+
+        expect(url).toMatch(/^\$\(urlfetch .+\)$/);
+        expect(url).not.toContain('&template=');
+    });
+
     it('shoutout streamelements usa variables del bot', () => {
         const query = baseQuery();
         const { url } = COMMAND_CONFIG.shoutout.generate(
