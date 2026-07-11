@@ -16,7 +16,16 @@ import * as dbService from '../../core/database/dbService';
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     const channel = req.query.channel as string;
     const userId = req.userId;
-    const customTitle = (req.query.q as string) || (req.query.title as string);
+    let customTitle = (req.query.q as string) || (req.query.title as string);
+    if (
+        customTitle === '[invalid variable]' ||
+        customTitle === 'null' ||
+        customTitle === 'undefined' ||
+        customTitle?.includes('$(') ||
+        customTitle?.includes('${')
+    ) {
+        customTitle = '';
+    }
 
     const result = await trackRequest(
         userId,
