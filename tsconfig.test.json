@@ -1,9 +1,8 @@
 {
     "extends": "./tsconfig.backend.json",
     "compilerOptions": {
-        "baseUrl": ".",
         "paths": {
-            "@/*": ["backend/src/*"]
+            "@/*": ["./backend/src/*"]
         },
         "types": ["jest", "node"],
         "isolatedModules": true,

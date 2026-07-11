@@ -4,10 +4,9 @@
         "jsx": "react-jsx",
         "types": ["jest", "node", "@testing-library/jest-dom"],
         "isolatedModules": true,
-        "baseUrl": ".",
         "paths": {
-            "@/*": ["src/*"],
-            "@contracts/*": ["backend/src/core/schemas/*"]
+            "@/*": ["./src/*"],
+            "@contracts/*": ["./backend/src/core/schemas/*"]
         }
     },
     "include": ["src/**/*", "tests/unit/frontend/**/*", "backend/src/core/schemas/**/*.ts"]
