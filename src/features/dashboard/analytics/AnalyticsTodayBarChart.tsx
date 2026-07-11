@@ -1,12 +1,15 @@
 import React from 'react';
-import { ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
+import { ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { ChartMountGate, COLORS } from './AnalyticsShared';
 import { BarChart2 } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomBarShape = (props: any) => {
-    const { fill, x, y, width, height, stroke } = props;
+    const { fill, x, y, width, height, stroke, payload } = props;
+    // Usa el color del entry (datum) si existe, si no el color fijo de la barra
+    const barFill = payload?.fill ?? fill;
+    const barStroke = payload?.fill ?? stroke;
     if (!height || height === 0) return null;
 
     const radius = 4;
@@ -29,10 +32,10 @@ const CustomBarShape = (props: any) => {
 
     return (
         <g>
-            <path d={fillPath} fill={fill} fillOpacity={0.38} />
+            <path d={fillPath} fill={barFill} fillOpacity={0.38} />
             <path 
                 d={strokePath} 
-                stroke={stroke} 
+                stroke={barStroke} 
                 strokeWidth={1.2} 
                 strokeOpacity={0.75}
                 strokeLinecap="round" 
@@ -154,11 +157,7 @@ export function AnalyticsTodayBarChart({
                             <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: '#c4c4cc' }} iconType="circle" />
                             
                             {/* Barras con bordes fuertes e interior sólido */}
-                            <Bar dataKey="Éxitos" fill="#10b981" stroke="#10b981" shape={<CustomBarShape />} maxBarSize={48}>
-                                {chartData.map((entry, index) => (
-                                    <Cell key={`cell-success-${index}`} fill={entry.fill} stroke={entry.fill} />
-                                ))}
-                            </Bar>
+                            <Bar dataKey="Éxitos" fill="#10b981" stroke="#10b981" shape={<CustomBarShape />} maxBarSize={48} />
                             <Bar dataKey="Errores" fill="#ef4444" stroke="#ef4444" shape={<CustomBarShape />} maxBarSize={48} />
                         </ComposedChart>
                     </ResponsiveContainer>
