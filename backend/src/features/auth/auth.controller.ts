@@ -5,6 +5,9 @@ import { logger } from '../../core/utils/logger';
 import { ALLOWED_ORIGINS } from '../../core/config/origins';
 import { frontendPagePath } from '../../core/utils/frontendPaths';
 import { jsonError } from '../../core/utils/jsonResponse';
+import { setSessionCookie, clearSessionCookie, readSessionUserId } from '../../core/utils/sessionCookie';
+import { invalidateAuthCache } from '../../core/middleware/authMiddleware';
+import { AuthenticatedRequest } from '../../types/twitch';
 
 const isAllowedOrigin = (origin: string, req: Request): boolean => {
     try {
@@ -109,13 +112,23 @@ export const exchange = async (req: Request, res: Response) => {
         return jsonError(res, 401, 'Token de sesión ya utilizado.', { code: 'AUTH_ALREADY_USED' });
     }
 
+    setSessionCookie(res, payload.userId);
+
     return res.json({
-        apiKey: payload.apiKey,
         userId: payload.userId,
         login: payload.login,
         displayName: payload.displayName,
         profile_image_url: payload.profile_image_url
     });
+};
+
+export const logout = (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId ?? readSessionUserId(req);
+    if (userId) {
+        invalidateAuthCache(userId);
+    }
+    clearSessionCookie(res);
+    return res.json({ success: true });
 };
 
 /** Intercambia overlayToken firmado por sesión de solo lectura (sin API key maestra). */

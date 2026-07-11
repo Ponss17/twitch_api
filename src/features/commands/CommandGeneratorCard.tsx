@@ -17,7 +17,8 @@ import {
 } from '@/core/utils/tw';
 import { SelectFieldRow } from '@/shared/ui/SelectField';
 import { API_ENDPOINTS } from '@/core/config/config';
-import { buildAuthQueryParam } from '@/core/api/authQuery';
+import { buildAuthQueryParamForDisplay, API_KEY_PLACEHOLDER } from '@/core/api/authQuery';
+import { fetchRevealApiKey } from '@/core/auth/revealApiKey';
 import { BOT_OPTIONS } from '@/features/commands/lib/commandGenerator';
 import type { CommandConfigItem } from '@/features/commands/lib/config';
 import { useRequiredSession } from '@/core/session/useSession';
@@ -119,12 +120,14 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
         onExtraValuesChange?.(extraValues);
     }, [extraValues, onExtraValuesChange]);
 
-    const generated = useMemo(() => {
-        const { login, apiKey, token } = session;
+    const buildGenerated = (apiKeyOverride?: string) => {
+        const { login } = session;
         if (!login) return { masked: '', full: '' };
 
         const domain = `${window.location.origin}${API_ENDPOINTS.BASE}`;
-        const tokenParam = buildAuthQueryParam({ apiKey, token });
+        const tokenParam = apiKeyOverride
+            ? `apiKey=${encodeURIComponent(apiKeyOverride)}`
+            : buildAuthQueryParamForDisplay(session);
         const queryParams = `channel=${login}&${tokenParam}`;
 
         const result = config.generate(
@@ -138,18 +141,34 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
         );
 
         const realCmd = format === 'full' ? result.full : result.url;
-        const secret = apiKey || token || '';
-        const masked = secret ? realCmd.split(secret).join('**************') : realCmd;
+        const secret = apiKeyOverride || session.apiKey || session.token || API_KEY_PLACEHOLDER;
+        const masked = realCmd.split(secret).join('**************');
 
-        return { masked, full: realCmd };
-    }, [session, bot, template, format, extraValues, config]);
+        return { masked, full: realCmd, tokenParam };
+    };
+
+    const generated = useMemo(
+        () => buildGenerated(),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [session, bot, template, format, extraValues, config]
+    );
 
     const copyCommand = async () => {
-        if (!generated.full) {
+        let full = generated.full;
+        if (!session.apiKey && !session.token) {
+            try {
+                const { apiKey } = await fetchRevealApiKey();
+                full = buildGenerated(apiKey).full;
+            } catch {
+                showToast('No se pudo obtener la API Key para copiar el comando', 'error');
+                return;
+            }
+        }
+        if (!full) {
             showToast('No hay comando para copiar', 'error');
             return;
         }
-        const ok = await copyText(generated.full);
+        const ok = await copyText(full);
         if (ok) {
             setIsCopied(true);
             setTimeout(() => setIsCopied(false), 2000);

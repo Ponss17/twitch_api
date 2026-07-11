@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
-import { buildAuthQueryParam } from '@/core/api/authQuery';
+import { withApiCredentials } from '@/core/auth/apiCredentials';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { COMMAND_CONFIG } from '@/features/commands/lib/config';
 import { useCommandTestField, useCommandTestResult } from '@/features/commands/hooks/useCommandStore';
@@ -38,12 +38,10 @@ export function FollowageView() {
         setLoading(true);
 
         try {
-            const { apiKey, token } = session;
-            const tokenParam = buildAuthQueryParam({ apiKey, token });
             const buildUrl = () =>
-                `${window.location.origin}${API_ENDPOINTS.BASE}/followage/?user=${encodeURIComponent(user)}&channel=${encodeURIComponent(channel)}&_nocache=${Date.now()}&${tokenParam}`;
+                `${window.location.origin}${API_ENDPOINTS.BASE}/followage/?user=${encodeURIComponent(user)}&channel=${encodeURIComponent(channel)}&_nocache=${Date.now()}`;
 
-            const response = await fetchWithRetry(buildUrl());
+            const response = await fetchWithRetry(buildUrl(), withApiCredentials());
 
             const text = await response.text();
             setStoredResult({
@@ -96,12 +94,10 @@ export function ShoutoutView() {
         setLoading(true);
 
         try {
-            const { apiKey, token } = session;
-            const tokenParam = buildAuthQueryParam({ apiKey, token });
             const buildUrl = () =>
-                `${window.location.origin}${API_ENDPOINTS.BASE}/shoutout/?channel=${encodeURIComponent(channelVal)}&touser=${encodeURIComponent(target)}&_nocache=${Date.now()}&${tokenParam}`;
+                `${window.location.origin}${API_ENDPOINTS.BASE}/shoutout/?channel=${encodeURIComponent(channelVal)}&touser=${encodeURIComponent(target)}&_nocache=${Date.now()}`;
 
-            const response = await fetchWithRetry(buildUrl());
+            const response = await fetchWithRetry(buildUrl(), withApiCredentials());
 
             const text = await response.text();
             setStoredResult({

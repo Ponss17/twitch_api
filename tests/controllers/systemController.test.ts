@@ -67,6 +67,7 @@ const mockRes = () => {
     res.json = jest.fn().mockReturnValue(res);
     res.send = jest.fn().mockReturnValue(res);
     res.setHeader = jest.fn().mockReturnValue(res);
+    res.append = jest.fn().mockReturnValue(res);
     return res;
 };
 
@@ -99,13 +100,13 @@ describe('systemController', () => {
 
             await validateToken(req, res);
 
-            expect(res.json).toHaveBeenCalledWith(
+            const payload = (res.json as jest.Mock).mock.calls[0][0];
+            expect(payload.valid).toBe(true);
+            expect(payload.apiKey).toBeUndefined();
+            expect(payload.user).toEqual(
                 expect.objectContaining({
-                    valid: true,
-                    user: expect.objectContaining({
-                        id: '123',
-                        login: 'testuser'
-                    })
+                    id: '123',
+                    login: 'testuser'
                 })
             );
         });

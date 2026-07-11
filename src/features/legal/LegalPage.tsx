@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type MouseEvent, type ReactNode } from 'react';
-import { ArrowLeft, Cookie, FileText, Scale, Shield } from 'lucide-react';
+import { ArrowLeft, FileText, HardDrive, Scale, Shield } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { appPath, type LegalSection } from '@/core/config/paths';
 import {
@@ -39,11 +39,11 @@ const SECTIONS: {
         Content: TermsSectionContent
     },
     {
-        id: 'cookies',
-        label: 'Cookies',
-        title: 'Política de cookies',
-        description: 'Uso de almacenamiento local y tecnologías similares.',
-        icon: Cookie,
+        id: 'almacenamiento',
+        label: 'Almacenamiento',
+        title: 'Política de almacenamiento',
+        description: 'Uso de cookies, almacenamiento local y tecnologías similares.',
+        icon: HardDrive,
         Content: CookiesSectionContent
     }
 ];
@@ -55,7 +55,8 @@ const prose =
 
 function parseHash(): LegalSection {
     if (typeof window === 'undefined') return DEFAULT_SECTION;
-    const hash = window.location.hash.replace(/^#/, '');
+    const raw = window.location.hash.replace(/^#/, '');
+    const hash = raw === 'cookies' ? 'almacenamiento' : raw;
     return SECTIONS.some((s) => s.id === hash) ? (hash as LegalSection) : DEFAULT_SECTION;
 }
 
@@ -71,7 +72,12 @@ export function LegalPage() {
     }, []);
 
     useEffect(() => {
-        const sync = () => setActive(parseHash());
+        const sync = () => {
+            if (window.location.hash === '#cookies') {
+                window.history.replaceState(null, '', '#almacenamiento');
+            }
+            setActive(parseHash());
+        };
         sync();
         window.addEventListener('hashchange', sync);
         return () => window.removeEventListener('hashchange', sync);
@@ -130,12 +136,12 @@ export function LegalPage() {
             </header>
 
             <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-10">
-                <div className="mb-8 rounded-2xl border border-white/[0.08] bg-bg-card/60 p-6">
-                    <div className="mb-4 flex items-start gap-4">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
-                            <SectionIcon className="h-5 w-5" aria-hidden="true" />
-                        </div>
-                        <div className="min-w-0">
+                <div
+                    key={active}
+                    className="animate-fade-soft rounded-2xl border border-white/[0.08] bg-bg-card/60 p-6 sm:p-8"
+                >
+                    <div className="mb-6 flex items-start justify-between gap-4">
+                        <div className="min-w-0 flex-1">
                             <p className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#71717a]">
                                 <FileText className="h-3.5 w-3.5" aria-hidden="true" />
                                 Documentación legal
@@ -145,34 +151,41 @@ export function LegalPage() {
                             </h1>
                             <p className="text-sm leading-relaxed text-[#c4c4cc]">{current.description}</p>
                         </div>
+                        <div
+                            className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/30 text-primary"
+                            aria-hidden="true"
+                        >
+                            <SectionIcon className="h-5 w-5" />
+                        </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-white/[0.06] pt-4 text-xs text-[#71717a]">
+
+                    <div className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-white/[0.06] pb-6 text-xs text-[#71717a]">
                         <span>
                             Servicio: <strong className="font-medium text-[#a1a1aa]">{LEGAL_OPERATOR}</strong>
                         </span>
                         <span>Última actualización: {LEGAL_UPDATED}</span>
                     </div>
+
+                    <article className={prose}>
+                        <Content />
+                    </article>
+
+                    <footer id="contacto" className="mt-8 border-t border-white/[0.06] pt-6">
+                        <h2 className="mb-2 text-sm font-bold text-white">Contacto</h2>
+                        <p className="mb-0 text-sm leading-relaxed text-[#c4c4cc]">
+                            Si tienes dudas sobre privacidad, términos o seguridad, escríbenos en Discord:{' '}
+                            <a
+                                href={LEGAL_DISCORD_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-medium text-primary underline underline-offset-2"
+                            >
+                                @{LEGAL_CONTACT_DISCORD}
+                            </a>
+                            .
+                        </p>
+                    </footer>
                 </div>
-
-                <article key={active} className={`${prose} animate-fade-soft`}>
-                    <Content />
-                </article>
-
-                <aside className="mt-10 rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
-                    <h2 className="mb-2 text-sm font-bold text-white">Contacto</h2>
-                    <p className="mb-0 text-sm leading-relaxed text-[#c4c4cc]">
-                        Para consultas legales, privacidad o incidencias de seguridad, escribe en Discord a{' '}
-                        <a
-                            href={LEGAL_DISCORD_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-medium text-primary underline underline-offset-2"
-                        >
-                            @{LEGAL_CONTACT_DISCORD}
-                        </a>{' '}
-                        en el servidor LosPerris.
-                    </p>
-                </aside>
             </main>
         </div>
     );

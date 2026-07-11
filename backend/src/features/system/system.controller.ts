@@ -10,6 +10,7 @@ import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { invalidateAllUserCaches } from '../../core/utils/cacheInvalidation';
+import { setSessionCookie } from '../../core/utils/sessionCookie';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 
@@ -49,12 +50,11 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
             }
 
             const user = apiUser as { userId: string; apiKey?: string; login?: string; displayName?: string; profileImageUrl?: string; timezone?: string; tokenExpiresAt?: number };
+            setSessionCookie(res, user.userId);
             // Incluir tokenExpiresAt para que el frontend programe la renovación proactiva
             const tokenExpiresAt = user.tokenExpiresAt && user.tokenExpiresAt > 0 ? user.tokenExpiresAt : null;
             return res.json({
                 valid: true,
-                apiKey: user.apiKey || null,
-                token: token,
                 tokenExpiresAt,
                 user: {
                     id: user.userId,
@@ -82,10 +82,11 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
             ]);
 
             const tokenExpiresAt = dbUser?.tokenExpiresAt && dbUser.tokenExpiresAt > 0 ? dbUser.tokenExpiresAt : null;
+            if (validation.user_id) {
+                setSessionCookie(res, validation.user_id);
+            }
             return res.json({
                 valid: true,
-                apiKey: dbUser?.apiKey || null,
-                token: token,
                 tokenExpiresAt,
                 user: {
                     id: userProfile.id,

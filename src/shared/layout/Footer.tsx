@@ -6,7 +6,7 @@ const SITE_URL = 'https://www.losperris.dev';
 const LEGAL_LINKS = [
     { href: legalPath('privacidad'), label: 'Privacidad' },
     { href: legalPath('terminos'), label: 'Términos' },
-    { href: legalPath('cookies'), label: 'Cookies' }
+    { href: legalPath('almacenamiento'), label: 'Almacenamiento' }
 ] as const;
 
 interface FooterProps {
