@@ -203,7 +203,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             onClick={() => setTypeFilter('all')}
                             className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[0.72rem] font-medium transition ${
                                 typeFilter === 'all'
-                                    ? 'border-white/20 bg-white/10 text-white'
+                                    ? 'border-primary/40 bg-primary/10 text-primary'
                                     : 'border-white/5 bg-white/[0.02] text-[#81818b] hover:border-white/15 hover:text-[#d4d4d8]'
                             }`}
                             aria-pressed={typeFilter === 'all'}
@@ -216,6 +216,8 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             .map(({ type, meta }) => {
                             const active = typeFilter === type;
                             const TypeIcon = meta.icon;
+                            const count = activity.filter((a) => a.type === type).length;
+                            
                             return (
                                 <button
                                     key={type}
@@ -223,13 +225,20 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                     onClick={() => setTypeFilter(type)}
                                     className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[0.72rem] font-medium transition ${
                                         active
-                                            ? 'border-white/20 bg-white/10 text-white'
+                                            ? 'border-primary/40 bg-primary/10 text-primary'
                                             : 'border-white/5 bg-white/[0.02] text-[#81818b] hover:border-white/15 hover:text-[#d4d4d8]'
                                     }`}
                                     aria-pressed={active}
                                 >
                                     <TypeIcon className={`h-3.5 w-3.5 ${active ? '' : 'opacity-70'}`} />
-                                    {meta.label}
+                                    <span>{meta.label}</span>
+                                    {!isLoading && count > 0 && (
+                                        <span className={`ml-0.5 rounded-sm px-1 py-0.5 text-[0.65rem] font-bold ${
+                                            active ? 'bg-primary/20 text-current' : 'bg-white/10 text-[#71717a]'
+                                        }`}>
+                                            {count}
+                                        </span>
+                                    )}
                                 </button>
                             );
                         })}

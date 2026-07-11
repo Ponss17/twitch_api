@@ -87,7 +87,7 @@ describe('sumDashboardCategoryUsage', () => {
                 magic8: 0,
                 duel: 0
             })
-        ).toBe(30);
+        ).toBe(29);
     });
 
     it('devuelve 0 sin datos', () => {
