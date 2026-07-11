@@ -67,7 +67,7 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
             const apiCall = CommandGenerator.generate(bot, `${domain}/create-clip`, params);
             const cmd = templateVal
                 ? templateVal.replace('{user}', userArg).replace('{url}', apiCall)
-                : `🎬 Clip creado por ${userArg}: ${apiCall}`;
+                : `VoHiYo Clip creado por ${userArg}: ${apiCall}`;
             return { full: botUtils.addcmd('!clip', cmd), url: cmd };
         }
     },
