@@ -129,15 +129,4 @@ Añade `template` para personalizar el mensaje del bot. Placeholders: `{user}`, 
     !command add !clip $(urlfetch https://ttv.losperris.dev/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)
     ```
   </TabItem>
-  <TabItem label="Streamlabs">
-    ```text
-    !addcmd !clip {readapi.https://ttv.losperris.dev/api/clips?channel={channel.name}&q=$1&apiKey=TU_API_KEY}
-    ```
-  </TabItem>
-  <TabItem label="Botrix">
-    ```text
-    !addcom !clip $(urlfetch https://ttv.losperris.dev/api/create-clip/?channel=TU_CANAL&apiKey=TU_API_KEY&user=$(sender)&title=$(urlencode $(optionalvariable)))
-    ```
-    Con plantilla: añade `&template=Clip%20de%20%7Buser%7D%3A%20%7Burl%7D`. Ver [variables web/API de BotRix](https://botrix.live/docs/#/?id=_35-web-and-api-variables).
-  </TabItem>
 </Tabs>

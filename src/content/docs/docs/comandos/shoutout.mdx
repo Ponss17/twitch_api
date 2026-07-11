@@ -110,14 +110,4 @@ Restringe el comando a moderadores o al streamer en la configuración del bot.
     !command add !so $(urlfetch https://ttv.losperris.dev/api/shoutout?channel=$(channel)&touser=$(arg_touser)&apiKey=TU_API_KEY)
     ```
   </TabItem>
-  <TabItem label="Streamlabs">
-    ```text
-    !addcmd !so {readapi.https://ttv.losperris.dev/api/shoutout?channel={channel.name}&user={touser.name}&apiKey=TU_API_KEY}
-    ```
-  </TabItem>
-  <TabItem label="Botrix">
-    ```text
-    !addcom !so $(urlfetch https://ttv.losperris.dev/api/shoutout?channel=$(channel)&user=$(tuser)&apiKey=TU_API_KEY)
-    ```
-  </TabItem>
 </Tabs>

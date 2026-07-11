@@ -157,16 +157,6 @@ Usa `$(user)` / `$(touser)` (o equivalente) para rellenar retador y oponente:
     !command add !duelo $(urlfetch https://ttv.losperris.dev/api/minigames/duel?challenger=$(user_name)&target=$(arg_1)&apiKey=TU_API_KEY)
     ```
   </TabItem>
-  <TabItem label="Streamlabs">
-    ```text
-    !addcmd !duel {readapi.https://ttv.losperris.dev/api/minigames/duel?channel={channel.name}&user={user.name}&touser={touser.name}&apiKey=TU_API_KEY}
-    ```
-  </TabItem>
-  <TabItem label="Botrix">
-    ```text
-    !addcom !duel $(urlfetch https://ttv.losperris.dev/api/minigames/duel?channel=$(channel)&user=$(sender)&touser=$(tuser)&apiKey=TU_API_KEY)
-    ```
-  </TabItem>
 </Tabs>
 
 El viewer ejecuta `!duelo @usuario` en el chat; el bot llama a la API y devuelve el relato del duelo.

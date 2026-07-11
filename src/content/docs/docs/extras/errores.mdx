@@ -66,7 +66,7 @@ Guía rápida cuando algo falla en el chat, el panel o un overlay. Los mensajes 
 
 ## Comandos de chat (bots)
 
-Los bots (Nightbot, StreamElements, Fossabot, Wizebot, Streamlabs, Botrix) llaman la API con una URL. La respuesta suele ser **texto plano** que el bot imprime en el chat.
+Los bots (Nightbot, StreamElements, Fossabot, Wizebot) llaman la API con una URL. La respuesta suele ser **texto plano** que el bot imprime en el chat.
 
 <AuthNotice />
 
@@ -135,7 +135,7 @@ En comandos de chat, muchos fallos de API Key llegan como <HttpStatusBadge code=
 | Síntoma en chat | Causa | Qué hacer |
 | :--- | :--- | :--- |
 | `Falta el parámetro channel` | Sin `channel` en la URL | Añade `channel=TU_CANAL` (login sin `@`). |
-| `Faltan parámetros: channel y user` | Followage u otro comando sin `user` | Usar las variables correctas según el bot (`$(touser)`, `${user}`, `{user.name}`, etc.). |
+| `Faltan parámetros: channel y user` | Followage u otro comando sin `user` | Nightbot: `$(touser)` · StreamElements: `${user}` · Wizebot: `$(user_name)`. |
 | «no sigue a…» (Followage) | El usuario no sigue el canal o el login está mal | Comprueba el nombre en Twitch; la API responde 200 con ese texto. |
 | El bot no dice nada | URL mal pegada o sin `urlfetch` / `customapi` | Revisa la sintaxis en la doc del comando, p. ej. [Followage](/docs/comandos/followage/). |
 
