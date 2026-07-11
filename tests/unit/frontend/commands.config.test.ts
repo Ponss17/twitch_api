@@ -28,7 +28,7 @@ describe('COMMAND_CONFIG generation', () => {
         expect(full).toContain(API_KEY);
         expect(full).toContain('$(urlfetch');
         expect(full).toContain('/followage?');
-        expect(full).toContain(`channel=${LOGIN}&user=$(user)&apiKey=`);
+        expect(full).toContain(`channel=${LOGIN}&user=$(touser)&apiKey=`);
 
         const masked = maskCommand(full, API_KEY);
         expect(masked).not.toContain(API_KEY);
@@ -85,6 +85,40 @@ describe('COMMAND_CONFIG generation', () => {
         expect(url).toContain('$(customapi');
         expect(url).toContain('/shoutout?');
         expect(url).toContain(`channel=${LOGIN}&touser=\${touser}&apiKey=`);
+    });
+
+    it('shoutout fossabot usa $(touser)', () => {
+        const query = baseQuery();
+        const { url } = COMMAND_CONFIG.shoutout.generate(
+            DOMAIN,
+            LOGIN,
+            `apiKey=${encodeURIComponent(API_KEY)}`,
+            'fossabot',
+            '',
+            query
+        );
+
+        expect(url).toContain('$(customapi');
+        expect(url).toContain(`channel=${LOGIN}&touser=$(touser)&apiKey=`);
+    });
+
+    it('8ball streamelements codifica la pregunta con queryescape', () => {
+        const query = baseQuery();
+        const { full } = COMMAND_CONFIG.magic8.generate(
+            DOMAIN,
+            LOGIN,
+            `apiKey=${encodeURIComponent(API_KEY)}`,
+            'streamelements',
+            '',
+            query,
+            { mood: 'classic' }
+        );
+
+        expect(full).toContain('&question=$(queryescape ${1:})');
+    });
+
+    it('clip no incluye wizebot ni fossabot como bots soportados', () => {
+        expect(COMMAND_CONFIG.clip.excludedBots).toEqual(expect.arrayContaining(['wizebot', 'fossabot']));
     });
 
     it('shoutout nightbot orden channel, touser, apiKey', () => {
@@ -149,8 +183,40 @@ describe('COMMAND_CONFIG generation', () => {
         );
 
         expect(full).toContain('&challenger=$(user)');
-        expect(full).toContain('&target=$(1)');
+        expect(full).toContain('&target=$(touser)');
         expect(full).toContain('/minigames/duel?');
-        expect(full).toContain(`channel=${LOGIN}&challenger=$(user)&target=$(1)&apiKey=`);
+        expect(full).toContain(`channel=${LOGIN}&challenger=$(user)&target=$(touser)&apiKey=`);
+    });
+
+    it('followage streamlabs usa {touser.name}', () => {
+        const query = baseQuery();
+        const { url } = COMMAND_CONFIG.follow.generate(
+            DOMAIN,
+            LOGIN,
+            `apiKey=${encodeURIComponent(API_KEY)}`,
+            'streamlabs',
+            '',
+            query
+        );
+
+        expect(url).toContain('{readapi.');
+        expect(url).toContain(`channel=${LOGIN}&user={touser.name}&apiKey=`);
+    });
+
+    it('8ball streamlabs usa {1:} para la pregunta', () => {
+        const query = baseQuery();
+        const { url } = COMMAND_CONFIG.magic8.generate(
+            DOMAIN,
+            LOGIN,
+            `apiKey=${encodeURIComponent(API_KEY)}`,
+            'streamlabs',
+            '',
+            query,
+            { mood: 'classic' }
+        );
+
+        expect(url).toContain('{readapi.');
+        expect(url).toContain('&question={1:}');
+        expect(url).toContain('&user={user.name}');
     });
 });

@@ -118,12 +118,17 @@ https://ttv.losperris.dev/api/minigames/magic8?question=$(querystring)&mood=sarc
   </TabItem>
   <TabItem label="Fossabot">
     ```text
-    !addcmd !bola8 $(customapi https://ttv.losperris.dev/api/minigames/magic8?question=$(1+)&user=$(user)&mood=classic&apiKey=TU_API_KEY)
+    !addcmd !bola8 $(customapi https://ttv.losperris.dev/api/minigames/magic8?question=$(querystring)&user=$(user)&mood=classic&apiKey=TU_API_KEY)
     ```
   </TabItem>
   <TabItem label="Wizebot">
     ```text
     !command add !bola8 $(urlfetch https://ttv.losperris.dev/api/minigames/magic8?question=$(arg_1+)&user=$(user_name)&mood=classic&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="Streamlabs">
+    ```text
+    {readapi.https://ttv.losperris.dev/api/minigames/magic8?question={1:}&user={user.name}&mood=classic&apiKey=TU_API_KEY}
     ```
   </TabItem>
 </Tabs>

@@ -108,6 +108,10 @@ Añade `template` para personalizar el mensaje del bot. Placeholders: `{user}`, 
 
 ## Integración con bots
 
+<Aside type="note" title="Wizebot y Fossabot">
+  Wizebot y Fossabot ya incluyen el comando nativo `!clip` para crear clips del directo. No necesitas integrar este endpoint si usas alguno de esos bots.
+</Aside>
+
 <Tabs>
   <TabItem label="Nightbot">
     ```text
@@ -119,14 +123,9 @@ Añade `template` para personalizar el mensaje del bot. Placeholders: `{user}`, 
     !command add !clip ${customapi.https://ttv.losperris.dev/api/create-clip?channel=${channel}&apiKey=TU_API_KEY}
     ```
   </TabItem>
-  <TabItem label="Fossabot">
+  <TabItem label="Streamlabs">
     ```text
-    !addcmd !clip $(customapi https://ttv.losperris.dev/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)
-    ```
-  </TabItem>
-  <TabItem label="Wizebot">
-    ```text
-    !command add !clip $(urlfetch https://ttv.losperris.dev/api/create-clip?channel=$(channel)&apiKey=TU_API_KEY)
+    {readapi.https://ttv.losperris.dev/api/create-clip?channel=TU_CANAL&apiKey=TU_API_KEY}
     ```
   </TabItem>
 </Tabs>

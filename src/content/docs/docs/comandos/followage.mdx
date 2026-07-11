@@ -109,17 +109,22 @@ Copia el comando según tu bot y reemplaza `TU_API_KEY`. Requiere permisos de mo
   </TabItem>
   <TabItem label="StreamElements">
     ```text
-    !command add !followage ${customapi.https://ttv.losperris.dev/api/followage?channel=${channel}&user=${user}&apiKey=TU_API_KEY}
+    !command add !followage ${customapi.https://ttv.losperris.dev/api/followage?channel=${channel}&user=${touser}&apiKey=TU_API_KEY}
     ```
   </TabItem>
   <TabItem label="Fossabot">
     ```text
-    !addcmd !followage $(customapi https://ttv.losperris.dev/api/followage?channel=$(channel)&user=$(user)&apiKey=TU_API_KEY)
+    !addcmd !followage $(customapi https://ttv.losperris.dev/api/followage?channel=$(channel)&user=$(touser)&apiKey=TU_API_KEY)
     ```
   </TabItem>
   <TabItem label="Wizebot">
     ```text
-    !command add !followage $(urlfetch https://ttv.losperris.dev/api/followage?channel=$(channel)&user=$(user_name)&apiKey=TU_API_KEY)
+    !command add !followage $(urlfetch https://ttv.losperris.dev/api/followage?channel=$(channel)&user=$(arg_touser)&apiKey=TU_API_KEY)
+    ```
+  </TabItem>
+  <TabItem label="Streamlabs">
+    ```text
+    {readapi.https://ttv.losperris.dev/api/followage?channel=TU_CANAL&user={touser.name}&apiKey=TU_API_KEY}
     ```
   </TabItem>
 </Tabs>
