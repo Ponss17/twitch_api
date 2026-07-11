@@ -1,69 +1,103 @@
 import {
-    LEGAL_CONTACT_EMAIL,
-    LEGAL_DISCORD_URL
+    LEGAL_CONTACT_DISCORD,
+    LEGAL_DISCORD_URL,
+    LEGAL_OPERATOR
 } from '@/features/legal/legalConstants';
 
 const proseLink = 'text-primary underline underline-offset-2';
+
+function LegalContact() {
+    return (
+        <p>
+            Puedes contactar al responsable del servicio en Discord:{' '}
+            <a href={LEGAL_DISCORD_URL} target="_blank" rel="noopener noreferrer">
+                @{LEGAL_CONTACT_DISCORD}
+            </a>{' '}
+            (servidor{' '}
+            <a href={LEGAL_DISCORD_URL} target="_blank" rel="noopener noreferrer">
+                LosPerris
+            </a>
+            ).
+        </p>
+    );
+}
 
 export function TermsSectionContent() {
     return (
         <>
             <p>
-                LosPerris Twitch API es un proyecto gratuito para streamers. Al usar el sitio, conectar Twitch (verás{' '}
-                <strong>LosPerris - API</strong> en las conexiones) o usar tu API Key, aceptas estos términos y la{' '}
+                Los presentes términos regulan el acceso y uso de <strong>{LEGAL_OPERATOR}</strong>, disponible en{' '}
+                <a href="https://ttv.losperris.dev">ttv.losperris.dev</a>. Al utilizar el sitio, conectar tu cuenta de
+                Twitch (la aplicación aparece como <strong>LosPerris - API</strong>) o emplear tu API Key, confirmas
+                que has leído y aceptas estos términos y la{' '}
                 <a href="#privacidad" className={proseLink}>
                     política de privacidad
                 </a>
                 .
             </p>
 
-            <h2>Qué ofrecemos</h2>
+            <h2>Descripción del servicio</h2>
             <p>
-                Comandos de chat (!followage, !clip, !so…), panel, minijuegos y estadísticas. El servicio va{' '}
-                <strong>tal cual</strong>: puede fallar, cambiar o cortarse sin aviso previo.
+                {LEGAL_OPERATOR} es un proyecto gratuito orientado a streamers de Twitch. Ofrece comandos de chat
+                (followage, clips, shoutouts, minijuegos y herramientas relacionadas), un panel de control y
+                estadísticas de uso. El servicio se proporciona en su estado actual, sin garantías de disponibilidad
+                continua, y puede modificarse, interrumpirse o discontinuarse sin previo aviso.
             </p>
 
-            <h2>Tu cuenta</h2>
+            <h2>Requisitos y responsabilidades del usuario</h2>
             <ul>
-                <li>Necesitas una cuenta de Twitch y cumplir sus reglas.</li>
-                <li>Eres responsable de tu API Key. No la compartas en público ni en repos abiertos.</li>
-                <li>Puedes regenerar la clave o borrar tu perfil desde el panel.</li>
+                <li>Debes contar con una cuenta de Twitch válida y cumplir en todo momento sus normas de uso.</li>
+                <li>
+                    Eres responsable de la custodia de tu API Key. No la publiques en chats, repositorios públicos ni
+                    entornos accesibles a terceros.
+                </li>
+                <li>
+                    Puedes regenerar tu clave, exportar datos o eliminar tu perfil desde el panel en cualquier momento.
+                </li>
+                <li>
+                    La configuración de comandos en tu bot de chat y su uso ante tu audiencia es responsabilidad
+                    exclusiva del titular del canal.
+                </li>
             </ul>
 
-            <h2>Qué no está permitido</h2>
+            <h2>Usos prohibidos</h2>
             <ul>
-                <li>Spam, abuso, acoso o saltarte los límites de la API.</li>
-                <li>Acceder a datos de otros usuarios sin permiso.</li>
-                <li>Atacar el servicio o intentar saltarte la seguridad.</li>
-                <li>Hacernos pasar por Twitch/Amazon o revender el servicio como propio.</li>
+                <li>Realizar spam, abuso, acoso o intentar eludir los límites de uso de la API.</li>
+                <li>Acceder, consultar o manipular datos de otros usuarios sin autorización.</li>
+                <li>Atacar la infraestructura del servicio o intentar vulnerar sus medidas de seguridad.</li>
+                <li>Suplantar a Twitch, Amazon o a terceros, o comercializar el servicio como producto propio.</li>
             </ul>
 
-            <h2>Twitch y tu canal</h2>
+            <h2>Relación con Twitch</h2>
             <p>
-                No somos Twitch ni estamos afiliados con ellos. Los datos que sacamos de Twitch siguen sus términos. Lo
-                que pase en tu chat con los comandos es responsabilidad tuya.
+                {LEGAL_OPERATOR} no está afiliado, patrocinado ni respaldado por Twitch Interactive, Inc. Los datos
+                obtenidos a través de la API de Twitch se utilizan conforme a sus condiciones de uso. Cualquier
+                incidencia derivada del uso de comandos en tu canal de chat es responsabilidad del titular del canal.
             </p>
 
-            <h2>Responsabilidad</h2>
+            <h2>Limitación de responsabilidad</h2>
             <p>
-                El servicio es gratis y comunitario. No prometemos que esté siempre disponible ni nos hacemos cargo de
-                pérdidas por caídas, errores o uso de los comandos en tu canal.
+                Al tratarse de un servicio gratuito y de carácter comunitario, no garantizamos la ausencia de errores,
+                interrupciones o pérdida de datos. En la medida permitida por la ley aplicable, no asumimos
+                responsabilidad por daños indirectos, pérdida de ingresos o perjuicios derivados del uso o la
+                imposibilidad de uso del servicio.
             </p>
 
-            <h2>Si incumples las reglas</h2>
+            <h2>Suspensión del acceso</h2>
             <p>
-                Podemos limitar o cortar tu acceso si abusas del servicio o pones en riesgo a otros usuarios. Tú puedes
-                dejar de usarlo cuando quieras.
+                Nos reservamos el derecho de limitar o revocar el acceso a usuarios que incumplan estos términos o
+                comprometan la seguridad o estabilidad del servicio. Puedes dejar de utilizar la plataforma en
+                cualquier momento desconectando la aplicación en Twitch o eliminando tu perfil.
             </p>
 
-            <h2>Cambios</h2>
-            <p>Podemos actualizar estos términos. La fecha arriba indica la última revisión.</p>
+            <h2>Modificaciones</h2>
+            <p>
+                Estos términos pueden actualizarse para reflejar cambios legales, técnicos o funcionales del servicio.
+                La fecha indicada al inicio de cada sección corresponde a la última revisión publicada.
+            </p>
 
             <h2>Contacto</h2>
-            <p>
-                <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a> ·{' '}
-                <a href={LEGAL_DISCORD_URL}>Discord LosPerris</a>
-            </p>
+            <LegalContact />
         </>
     );
 }
@@ -72,71 +106,90 @@ export function PrivacySectionContent() {
     return (
         <>
             <p>
-                Esta sección explica qué hace <strong>LosPerris Twitch API</strong> con tu información en{' '}
-                <a href="https://ttv.losperris.dev">ttv.losperris.dev</a>. Si conectas Twitch, la app aparece como{' '}
-                <strong>LosPerris - API</strong>.
+                La presente política describe cómo <strong>{LEGAL_OPERATOR}</strong> trata la información personal
+                de quienes utilizan <a href="https://ttv.losperris.dev">ttv.losperris.dev</a>. Al conectar Twitch, la
+                aplicación autorizada se identifica como <strong>LosPerris - API</strong>.
             </p>
 
-            <h2>Qué guardamos</h2>
+            <h2>Responsable del tratamiento</h2>
+            <p>
+                El responsable del tratamiento de los datos es el administrador de {LEGAL_OPERATOR}. Para consultas
+                relacionadas con privacidad, utiliza el contacto indicado al final de este documento.
+            </p>
+
+            <h2>Datos que recopilamos</h2>
             <ul>
                 <li>
-                    <strong>De Twitch (al conectar):</strong> ID, usuario, nombre, avatar y datos públicos de tu canal.
+                    <strong>Datos de Twitch (al autorizar la conexión):</strong> identificador de usuario, nombre de
+                    inicio de sesión, nombre para mostrar, imagen de perfil e información pública del canal.
                 </li>
                 <li>
-                    <strong>Para que funcione el panel:</strong> tokens de sesión, API Key, historial de comandos, clips,
-                    estadísticas de uso y preferencias del dashboard.
+                    <strong>Datos operativos del panel:</strong> tokens de sesión, API Key, historial de comandos,
+                    clips generados, métricas de uso y preferencias del dashboard.
                 </li>
                 <li>
-                    <strong>Técnico:</strong> logs de errores, IP aproximada y datos del navegador para seguridad y
-                    diagnóstico.
+                    <strong>Datos técnicos:</strong> registros de errores, dirección IP aproximada e información del
+                    navegador, empleados para seguridad, diagnóstico y prevención de abuso.
                 </li>
             </ul>
 
-            <h2>Qué no guardamos</h2>
+            <h2>Datos que no recopilamos</h2>
             <ul>
-                <li>Tu contraseña de Twitch (el login lo hace Twitch).</li>
-                <li>Datos de pago (el servicio es gratuito).</li>
-                <li>Acceso a acciones críticas de Twitch sin que tú las pidas (banear, borrar VODs, etc.).</li>
-            </ul>
-
-            <h2>Para qué lo usamos</h2>
-            <ul>
-                <li>Identificarte y ejecutar los comandos que configuras.</li>
-                <li>Mostrar estadísticas y el historial en tu panel.</li>
-                <li>Proteger el servicio (límites de uso, detección de abuso).</li>
-                <li>Corregir errores y mejorar la herramienta.</li>
-            </ul>
-
-            <h2>Con quién se comparte</h2>
-            <p>Solo con los proveedores que necesitamos para operar:</p>
-            <ul>
+                <li>Contraseñas de Twitch (la autenticación la gestiona Twitch de forma directa).</li>
+                <li>Información de pago (el servicio no requiere suscripción ni cobro).</li>
                 <li>
-                    <strong>Twitch</strong> — login y API pública.
-                </li>
-                <li>
-                    <strong>Supabase</strong> — base de datos (perfil, estadísticas).
-                </li>
-                <li>
-                    <strong>Vercel</strong> — hosting y caché.
-                </li>
-                <li>
-                    <strong>Groq</strong> — IA en minijuegos como la Bola 8 (solo el texto de la pregunta que envías).
+                    Permisos para acciones críticas de Twitch que no hayas autorizado expresamente (por ejemplo,
+                    moderación avanzada o eliminación de contenido).
                 </li>
             </ul>
-            <p>No vendemos tus datos ni usamos publicidad.</p>
 
-            <h2>Cuánto tiempo</h2>
+            <h2>Finalidad del tratamiento</h2>
             <ul>
-                <li>Mientras tengas cuenta activa, salvo que borres datos o el perfil.</li>
-                <li>Los tokens de Twitch caducan o se renuevan según Twitch y tu sesión.</li>
-                <li>Logs de seguridad: un tiempo limitado, luego se borran.</li>
+                <li>Identificar tu cuenta y ejecutar los comandos y funciones que configures.</li>
+                <li>Mostrar estadísticas, historial y herramientas del panel.</li>
+                <li>Aplicar límites de uso y detectar conductas abusivas.</li>
+                <li>Corregir incidencias técnicas y mejorar el servicio.</li>
             </ul>
 
-            <h2>Tus opciones</h2>
+            <h2>Encargados y comunicación de datos</h2>
+            <p>
+                Compartimos datos únicamente con los proveedores necesarios para operar el servicio, en calidad de
+                encargados del tratamiento o bajo obligaciones contractuales de confidencialidad:
+            </p>
             <ul>
-                <li>Exportar o borrar tu cuenta desde <strong>Perfil</strong> en el panel.</li>
                 <li>
-                    Desconectar la app en{' '}
+                    <strong>Twitch</strong> — autenticación OAuth y consulta de la API pública.
+                </li>
+                <li>
+                    <strong>Supabase</strong> — almacenamiento de perfiles, estadísticas y datos de aplicación.
+                </li>
+                <li>
+                    <strong>Vercel</strong> — alojamiento, distribución de contenido y caché.
+                </li>
+                <li>
+                    <strong>Groq</strong> — procesamiento de texto en minijuegos con IA (por ejemplo, la Bola 8),
+                    limitado al contenido de la pregunta enviada por el usuario.
+                </li>
+            </ul>
+            <p>No vendemos datos personales ni utilizamos publicidad basada en perfiles de usuario.</p>
+
+            <h2>Plazo de conservación</h2>
+            <ul>
+                <li>
+                    Los datos se conservan mientras mantengas una cuenta activa, salvo que solicites su eliminación o
+                    uses las opciones de borrado del panel.
+                </li>
+                <li>
+                    Los tokens de Twitch expiran o se renuevan según las políticas de Twitch y el estado de tu sesión.
+                </li>
+                <li>Los registros de seguridad se conservan durante un periodo limitado y posteriormente se eliminan.</li>
+            </ul>
+
+            <h2>Derechos del usuario</h2>
+            <ul>
+                <li>Exportar o eliminar tu cuenta desde la sección <strong>Perfil</strong> del panel.</li>
+                <li>
+                    Revocar el acceso de la aplicación en{' '}
                     <a
                         href="https://www.twitch.tv/settings/connections"
                         target="_blank"
@@ -147,37 +200,47 @@ export function PrivacySectionContent() {
                     .
                 </li>
                 <li>
-                    Escribir a <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a> o{' '}
-                    <a href={LEGAL_DISCORD_URL}>Discord</a> si necesitas algo que el panel no cubre.
+                    Solicitar aclaraciones o ejercer consultas adicionales a través del contacto indicado al final de
+                    este documento.
                 </li>
             </ul>
 
-            <h2>Cookies y navegador</h2>
+            <h2>Cookies y almacenamiento local</h2>
             <p>
-                Usamos almacenamiento local para la sesión y preferencias. Detalle en la sección{' '}
+                Utilizamos almacenamiento local del navegador para mantener la sesión y las preferencias del panel. El
+                detalle se encuentra en la sección de{' '}
                 <a href="#cookies" className={proseLink}>
-                    Cookies
+                    cookies
                 </a>
                 .
             </p>
 
-            <h2>Menores</h2>
-            <p>El servicio no está pensado para menores de 13 años.</p>
+            <h2>Menores de edad</h2>
+            <p>
+                El servicio no está dirigido a menores de 13 años. Si detectamos que se han recopilado datos de un
+                menor sin el consentimiento correspondiente, procederemos a su eliminación.
+            </p>
 
             <h2>Seguridad</h2>
             <p>
-                HTTPS, límites de uso y validación de sesión. Ningún sistema es perfecto; si ves algo raro, avísanos en{' '}
-                <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>.
+                Aplicamos medidas razonables de protección, incluyendo comunicación cifrada (HTTPS), validación de
+                sesión y límites de uso. Ningún sistema es completamente infalible; si identificas una vulnerabilidad
+                o un uso indebido, repórtalo de inmediato a través del contacto indicado.
             </p>
 
-            <h2>Cambios</h2>
+            <h2>Actualizaciones</h2>
             <p>
-                Podemos actualizar esta información. La fecha arriba indica la última revisión. También aplican los{' '}
+                Esta política puede modificarse para adaptarse a cambios legales o del servicio. La fecha de la última
+                revisión figura al inicio de la página. El uso continuado del servicio tras una actualización implica
+                la aceptación de la versión vigente, junto con los{' '}
                 <a href="#terminos" className={proseLink}>
                     términos de uso
                 </a>
                 .
             </p>
+
+            <h2>Contacto</h2>
+            <LegalContact />
         </>
     );
 }
@@ -186,46 +249,49 @@ export function CookiesSectionContent() {
     return (
         <>
             <p>
-                Complementa la sección de{' '}
+                Este documento complementa la{' '}
                 <a href="#privacidad" className={proseLink}>
-                    privacidad
-                </a>
-                . Resumen: <strong>no usamos cookies de publicidad</strong> ni vendemos datos.
+                    política de privacidad
+                </a>{' '}
+                y describe el uso de almacenamiento local y tecnologías similares en{' '}
+                <strong>{LEGAL_OPERATOR}</strong>. No empleamos cookies de publicidad ni vendemos datos derivados de
+                tu navegación.
             </p>
 
-            <h2>localStorage y sessionStorage</h2>
+            <h2>Almacenamiento local (localStorage y sessionStorage)</h2>
             <ul>
-                <li>Sesión y API Key para que no tengas que entrar cada vez.</li>
-                <li>Preferencias del panel (pestaña activa, favoritos, caché local).</li>
+                <li>Mantener la sesión activa y recordar tu API Key durante el uso del panel.</li>
+                <li>Guardar preferencias de interfaz (pestaña activa, favoritos y caché local de datos).</li>
             </ul>
             <p>
-                Puedes borrarlo desde el navegador o eliminando tu cuenta en el panel. Sin esto, el login y el dashboard
-                no funcionan bien.
+                Puedes eliminar estos datos desde la configuración de tu navegador o borrando tu cuenta en el panel.
+                Sin este almacenamiento, el inicio de sesión y el funcionamiento del dashboard se verán limitados.
             </p>
 
             <h2>Service worker</h2>
             <p>
-                En producción cachea archivos estáticos para cargar más rápido. En desarrollo local está desactivado.
-                Puedes quitarlo desde la configuración del navegador.
+                En el entorno de producción se utiliza un service worker para cachear recursos estáticos y mejorar los
+                tiempos de carga. En desarrollo local permanece desactivado. Puedes desregistrarlo desde las
+                herramientas de tu navegador si lo deseas.
             </p>
 
-            <h2>Cookies de sesión</h2>
+            <h2>Cookies técnicas de sesión</h2>
             <p>
-                El backend puede usar cookies técnicas para login y protección CSRF. No las usamos para rastrearte entre
-                sitios.
+                El backend puede establecer cookies estrictamente necesarias para la autenticación y la protección
+                contra ataques CSRF. No se utilizan con fines de seguimiento entre sitios web.
             </p>
 
-            <h2>Métricas</h2>
+            <h2>Métricas de rendimiento</h2>
             <p>
-                Podemos usar métricas agregadas de rendimiento (por ejemplo tiempos de carga en Vercel). No identifican
-                quién eres.
+                Podemos recopilar métricas agregadas de rendimiento (por ejemplo, tiempos de respuesta en la
+                infraestructura de Vercel). Estos datos no permiten identificar de forma individual a los usuarios.
             </p>
 
-            <h2>Cómo borrarlo</h2>
+            <h2>Cómo revocar o eliminar el almacenamiento</h2>
             <ul>
-                <li>Herramientas de privacidad de tu navegador.</li>
+                <li>Utilizar las herramientas de privacidad o de borrado de datos de tu navegador.</li>
                 <li>
-                    Desconectar LosPerris en{' '}
+                    Desconectar <strong>LosPerris - API</strong> en{' '}
                     <a
                         href="https://www.twitch.tv/settings/connections"
                         target="_blank"
@@ -235,13 +301,11 @@ export function CookiesSectionContent() {
                     </a>
                     .
                 </li>
-                <li>Eliminar perfil o limpiar datos en el panel.</li>
+                <li>Eliminar tu perfil o limpiar el historial desde el panel de usuario.</li>
             </ul>
 
             <h2>Contacto</h2>
-            <p>
-                <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>
-            </p>
+            <LegalContact />
         </>
     );
 }
