@@ -127,7 +127,8 @@ export function useRouletteController({
         try {
             const params = new URLSearchParams({
                 channel: session.login,
-                eligibility: filtersToApiParam(filtersRef.current)
+                eligibility: filtersToApiParam(filtersRef.current),
+                source: 'roulette'
             });
             const res = await fetch(`${API_ENDPOINTS.CHATTERS}?${params}`, {
                 headers: authHeaders(session)
