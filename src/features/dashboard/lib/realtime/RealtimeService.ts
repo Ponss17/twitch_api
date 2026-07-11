@@ -29,7 +29,6 @@ export class RealtimeService {
     private session: Session | null = null;
     private dispatchStats: (stats: RealtimeStatsUpdate) => void = () => {};
     private dispatchActivity: (log: ActivityLogItem) => void = () => {};
-    private dispatchActivityDelete: () => void = () => {};
     private isConnected = false;
     private intentionalClose = false;
     private onDisconnectCallback: (() => void) | null = null;
@@ -52,11 +51,11 @@ export class RealtimeService {
     setDispatchers(
         onStats: (stats: RealtimeStatsUpdate) => void,
         onActivity: (log: ActivityLogItem) => void,
-        onActivityDelete?: () => void
+        _onActivityDelete?: () => void
     ): void {
         this.dispatchStats = onStats;
         this.dispatchActivity = onActivity;
-        this.dispatchActivityDelete = onActivityDelete ?? (() => {});
+        // onActivityDelete reservado para uso futuro
     }
 
     get connected(): boolean {
