@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
-import { authHeaders, saveSession } from '@/core/api/auth';
+import { authHeaders } from '@/core/api/auth';
+import { fetchRevealApiKey } from '@/core/auth/revealApiKey';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { fetchDashboardProfile, type DashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
 import {
@@ -15,7 +16,7 @@ import { useRequiredSession, useSession } from '@/core/session/useSession';
 import { maskApiKey } from '@/core/utils/utils';
 import { fadeIn } from '@/core/utils/tw';
 import { appPath } from '@/core/config/paths';
-import { DangerConfirmModal, RegenKeyModal } from '@/shared/ui/Modal';
+import { DangerConfirmModal, PostRegenKeyModal, RegenKeyModal } from '@/shared/ui/Modal';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { SettingsSecuritySection } from '@/features/dashboard/settings/SettingsSecuritySection';
@@ -36,6 +37,10 @@ export function SettingsView({ active = true }: { active?: boolean }) {
     );
     const [loading, setLoading] = useState(() => !panelProfile);
     const [keyVisible, setKeyVisible] = useState(false);
+    const [revealedKey, setRevealedKey] = useState<string | null>(null);
+    const [keyMaskedHint, setKeyMaskedHint] = useState<string | null>(null);
+    const [postRegenKey, setPostRegenKey] = useState<string | null>(null);
+    const [revealLoading, setRevealLoading] = useState(false);
     const [showDanger, setShowDanger] = useState(false);
     const [regenOpen, setRegenOpen] = useState(false);
     const [exportLoading, setExportLoading] = useState(false);
@@ -50,7 +55,33 @@ export function SettingsView({ active = true }: { active?: boolean }) {
     } | null>(null);
     const dangerZoneRef = useRef<HTMLDivElement>(null);
 
-    const apiKey = session.apiKey || session.token || '';
+    const KEY_PLACEHOLDER = 'sk_a••••••••••••';
+    const displayedKey = keyVisible && revealedKey ? revealedKey : keyMaskedHint || KEY_PLACEHOLDER;
+
+    const clearRevealedKey = useCallback(() => {
+        setRevealedKey(null);
+        setKeyVisible(false);
+        if (keyHideTimerRef.current) {
+            window.clearTimeout(keyHideTimerRef.current);
+            keyHideTimerRef.current = null;
+        }
+    }, []);
+
+    const revealFromServer = useCallback(async (): Promise<string | null> => {
+        if (revealedKey) return revealedKey;
+        setRevealLoading(true);
+        try {
+            const data = await fetchRevealApiKey();
+            setRevealedKey(data.apiKey);
+            setKeyMaskedHint(data.masked);
+            return data.apiKey;
+        } catch (e) {
+            showToast((e as Error).message || 'No se pudo revelar la API Key', 'error');
+            return null;
+        } finally {
+            setRevealLoading(false);
+        }
+    }, [revealedKey, showToast]);
 
     const syncProfile = async (options?: { silent?: boolean; fresh?: boolean }) => {
         if (!session.login) {
@@ -81,6 +112,18 @@ export function SettingsView({ active = true }: { active?: boolean }) {
             if (keyHideTimerRef.current) window.clearTimeout(keyHideTimerRef.current);
         };
     }, []);
+
+    useEffect(() => {
+        if (!active) clearRevealedKey();
+    }, [active, clearRevealedKey]);
+
+    useEffect(() => {
+        const onVisibility = () => {
+            if (document.visibilityState === 'hidden') clearRevealedKey();
+        };
+        document.addEventListener('visibilitychange', onVisibility);
+        return () => document.removeEventListener('visibilitychange', onVisibility);
+    }, [clearRevealedKey]);
 
     useEffect(() => {
         if (!active) {
@@ -175,10 +218,9 @@ export function SettingsView({ active = true }: { active?: boolean }) {
 
             const data = (await res.json()) as { apiKey?: string };
             if (data.apiKey) {
-                const updated = { ...session, apiKey: data.apiKey };
-                saveSession(updated);
-                setKeyVisible(false);
-                if (keyHideTimerRef.current) clearTimeout(keyHideTimerRef.current);
+                setKeyMaskedHint(maskApiKey(data.apiKey));
+                setPostRegenKey(data.apiKey);
+                clearRevealedKey();
                 showToast('Nueva API Key generada', 'success');
                 void refresh();
             }
@@ -187,10 +229,16 @@ export function SettingsView({ active = true }: { active?: boolean }) {
         }
     };
 
-    const revealKeyTemporarily = () => {
+    const revealKeyTemporarily = async () => {
+        if (keyVisible) {
+            clearRevealedKey();
+            return;
+        }
+        const key = await revealFromServer();
+        if (!key) return;
         setKeyVisible(true);
         if (keyHideTimerRef.current) clearTimeout(keyHideTimerRef.current);
-        keyHideTimerRef.current = window.setTimeout(() => setKeyVisible(false), 30000);
+        keyHideTimerRef.current = window.setTimeout(() => clearRevealedKey(), 30000);
     };
 
     const parseJsonSafe = async (res: Response): Promise<Record<string, unknown>> => {
@@ -246,8 +294,9 @@ export function SettingsView({ active = true }: { active?: boolean }) {
     };
 
     const copyKey = async () => {
-        if (!apiKey) return;
-        await navigator.clipboard.writeText(apiKey);
+        const key = revealedKey || (await revealFromServer());
+        if (!key) return;
+        await navigator.clipboard.writeText(key);
         showToast('API Key copiada', 'success');
     };
 
@@ -268,8 +317,9 @@ export function SettingsView({ active = true }: { active?: boolean }) {
     return (
         <div className={fadeIn}>
             <SettingsSecuritySection
-                apiKey={keyVisible ? apiKey : maskApiKey(apiKey)}
+                apiKey={displayedKey}
                 keyVisible={keyVisible}
+                keyLoading={revealLoading}
                 showDanger={showDanger}
                 userId={session.userId}
                 rateLimit={profile?.rateLimit ?? 60}
@@ -277,7 +327,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                 roleLabel={profile?.roleLabel ?? 'Default'}
                 hasCustomRateLimit={profile?.hasCustomRateLimit}
                 hasCustomCacheTtl={profile?.hasCustomCacheTtl}
-                onToggleKey={() => (keyVisible ? setKeyVisible(false) : revealKeyTemporarily())}
+                onToggleKey={() => void revealKeyTemporarily()}
                 onCopyKey={() => void copyKey()}
                 onRegenKey={() => setRegenOpen(true)}
                 onToggleDanger={() => setShowDanger((v) => !v)}
@@ -351,6 +401,12 @@ export function SettingsView({ active = true }: { active?: boolean }) {
             />
 
             <RegenKeyModal open={regenOpen} onClose={() => setRegenOpen(false)} onConfirm={regenerateKey} />
+
+            <PostRegenKeyModal
+                open={!!postRegenKey}
+                apiKey={postRegenKey || ''}
+                onClose={() => setPostRegenKey(null)}
+            />
 
             <DangerConfirmModal
                 open={!!dangerModal}

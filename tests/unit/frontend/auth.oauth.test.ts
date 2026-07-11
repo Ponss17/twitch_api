@@ -18,7 +18,7 @@ describe('resolveSessionFromUrl', () => {
     });
 
     it('returns stored session when no auth token is in the URL', async () => {
-        saveSession({ apiKey: 'stored_key', login: 'streamer' });
+        saveSession({ apiKey: 'stored_key', login: 'streamer', userId: '1' });
 
         const session = await resolveSessionFromUrl();
 
@@ -26,11 +26,10 @@ describe('resolveSessionFromUrl', () => {
             login: 'streamer',
             displayName: '',
             profile_image_url: '',
-            token: undefined,
-            apiKey: 'stored_key',
-            userId: undefined,
+            userId: '1',
             isNewLogin: false
         });
+        expect(getSession()?.apiKey).toBeUndefined();
     });
 
     it('exchanges auth token and strips sensitive query params', async () => {
@@ -49,7 +48,8 @@ describe('resolveSessionFromUrl', () => {
         const session = await resolveSessionFromUrl();
 
         expect(session.isNewLogin).toBe(true);
-        expect(session.apiKey).toBe('new_key');
+        expect(session.userId).toBe('42');
+        expect(session.apiKey).toBeUndefined();
         expect(window.location.search).toBe('');
     });
 });
@@ -78,14 +78,13 @@ describe('validateSession cache', () => {
     });
 
     it('persists validate cache without apiKey or token', async () => {
-        const session = { apiKey: 'secret-key', userId: '205997464', login: 'ponss' };
+        const session = { userId: '205997464', login: 'ponss' };
 
         (global.fetch as jest.Mock).mockResolvedValue({
             ok: true,
             headers: { get: () => 'application/json' },
             json: async () => ({
                 valid: true,
-                apiKey: 'secret-key',
                 user: { id: '205997464', login: 'ponss' }
             })
         });
@@ -100,7 +99,8 @@ describe('validateSession cache', () => {
         expect(cached.result.valid).toBe(true);
         expect(cached.result.apiKey).toBeUndefined();
         expect(cached.result.token).toBeUndefined();
-        expect(getSession()?.apiKey).toBe('secret-key');
+        expect(getSession()?.apiKey).toBeUndefined();
+        expect(getSession()?.userId).toBe('205997464');
     });
 
     it('dedupes concurrent validate calls for the same session', async () => {

@@ -34,6 +34,7 @@ export const addSystemLog = async (
 
 export type AuditAction =
     | 'api_key_regenerated'
+    | 'api_key_revealed'
     | 'user_deleted'
     | 'user_blocked'
     | 'user_unblocked'

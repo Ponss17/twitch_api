@@ -79,7 +79,7 @@ export function SessionProvider({
 
         const sessionParams = await bootstrap.resolveSessionFromUrl();
 
-        if (!sessionParams.token && !sessionParams.apiKey && !sessionParams.overlayToken) {
+        if (!sessionParams.token && !sessionParams.overlayToken && !sessionParams.userId) {
             bindCommandStoreUser(undefined);
             unstable_batchedUpdates(() => {
                 setSession(null);
@@ -98,7 +98,7 @@ export function SessionProvider({
         } catch {
             const stored =
                 bootstrap.storage === 'overlay' ? getOverlayStoredSession() : getSession();
-            if (stored?.apiKey || stored?.token || stored?.overlayToken) {
+            if (stored?.token || stored?.overlayToken || stored?.userId) {
                 result = { valid: true, error: true, networkError: true };
             } else {
                 result = { valid: false, error: true };
@@ -128,14 +128,6 @@ export function SessionProvider({
                 stripSensitiveQueryParams({
                     keepOverlayToken: bootstrap.storage === 'overlay'
                 });
-            }
-
-            if (
-                sessionParams.apiKey &&
-                enriched.apiKey &&
-                enriched.apiKey !== sessionParams.apiKey
-            ) {
-                showToastRef.current('Tu API Key ha sido actualizada', 'info');
             }
 
             unstable_batchedUpdates(() => {

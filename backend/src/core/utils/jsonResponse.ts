@@ -16,7 +16,9 @@ export type ApiErrorCode =
     | 'OVERLAY_READ_ONLY'
     | 'ACCOUNT_SUSPENDED'
     | 'MISSING_OVERLAY_TOKEN'
-    | 'INVALID_OVERLAY_TOKEN';
+    | 'INVALID_OVERLAY_TOKEN'
+    | 'AJAX_REQUIRED'
+    | 'API_KEY_NOT_FOUND';
 
 export interface ApiErrorBody {
     success: false;

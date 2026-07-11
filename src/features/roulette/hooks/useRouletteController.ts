@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type TransitionEvent } from 'react';
 import { API_ENDPOINTS, IGNORED_BOTS, type Session } from '@/core/config/config';
 import { authHeaders } from '@/core/api/auth';
-import { buildAuthQueryParam } from '@/core/api/authQuery';
 import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { tmiService } from '@/features/chat/lib/tmiService';
 import type { RouletteUser } from '@/core/types/twitch';
@@ -215,13 +214,10 @@ export function useRouletteController({
 
     const sendViaApi = useCallback(
         (message: string) => {
-            const { apiKey, token } = session;
-            const authParam = buildAuthQueryParam({ apiKey, token });
-            if (!authParam) return;
-
-            void fetch(`${API_ENDPOINTS.SEND_MESSAGE}?${authParam}`, {
+            void fetch(API_ENDPOINTS.SEND_MESSAGE, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
+                credentials: 'include',
                 body: JSON.stringify({ message })
             }).catch(() => showToast('No se pudo enviar el resultado al chat', 'error'));
         },

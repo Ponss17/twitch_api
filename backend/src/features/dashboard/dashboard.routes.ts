@@ -2,7 +2,8 @@ import { Router } from 'express';
 import * as dashboardController from './dashboard.controller';
 import * as overlayController from './overlay/controller';
 import { csrfProtection } from '../../core/middleware/csrfProtection';
-import { heavyRateLimiter } from '../../core/middleware/redisRateLimiter';
+import { heavyRateLimiter, revealKeyRateLimiter } from '../../core/middleware/redisRateLimiter';
+import { requireDashboardAjax } from '../../core/middleware/dashboardAjaxGuard';
 import { validate } from '../../core/middleware/validate';
 import {
     getClipsSchema,
@@ -25,6 +26,13 @@ import {
 import { updateSettingsSchema } from './dashboard.schema';
 
 const router = Router();
+
+router.get(
+    '/reveal-api-key',
+    requireDashboardAjax,
+    revealKeyRateLimiter,
+    dashboardController.revealApiKey
+);
 
 router.patch('/settings', csrfProtection, validate(updateSettingsSchema), dashboardController.updateSettings);
 

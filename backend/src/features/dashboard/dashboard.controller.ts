@@ -12,13 +12,48 @@ import { buildDashboardProfile } from '../../core/utils/dashboardProfile';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { TwitchApiError } from '../../core/errors/AppError';
 import { AppError } from '../../core/errors/AppError';
-import {
-    invalidateAllUserCaches,
-    invalidateDashboardStatsCaches,
-    invalidateOverlayStateCaches
-} from '../../core/utils/cacheInvalidation';
+import { invalidateAllUserCaches, invalidateDashboardStatsCaches, invalidateOverlayStateCaches } from '../../core/utils/cacheInvalidation';
+import { clearSessionCookie } from '../../core/utils/sessionCookie';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { trackRequest } from '../../core/utils/tracking';
+import { maskApiKey } from '../../core/utils/maskApiKey';
+
+export const revealApiKey = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId;
+    if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
+
+    try {
+        const apiUser = res.locals?.apiUser as { apiKey?: string } | undefined;
+        let apiKey = apiUser?.apiKey;
+
+        if (!apiKey) {
+            const user = await dbService.getUser(userId);
+            apiKey = user?.apiKey;
+        }
+
+        if (!apiKey) {
+            return jsonError(res, 404, 'No se encontró API Key para esta cuenta.', {
+                code: 'API_KEY_NOT_FOUND'
+            });
+        }
+
+        res.setHeader('Cache-Control', 'no-store');
+
+        const safeIp = (req.ip || 'unknown').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
+        await dbService.addAuditLog('api_key_revealed', userId, userId);
+        logger.info('api_key_revealed', {
+            event: 'api_key_revealed',
+            userId,
+            ip: safeIp,
+            at: new Date().toISOString()
+        });
+
+        return res.json({ apiKey, masked: maskApiKey(apiKey) });
+    } catch (e) {
+        logger.error('Error revealing API key:', e);
+        return jsonError(res, 500, MESSAGES.SYSTEM.REGENERATE_KEY_ERROR);
+    }
+};
 
 export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
@@ -292,6 +327,7 @@ export const deleteAccount = async (req: AuthenticatedRequest, res: Response) =>
 
         await dbService.deleteUser(userId);
         await invalidateAllUserCaches(userId, { apiKey, login: req.login, revokeApiKey: true });
+        clearSessionCookie(res);
         res.json({ success: true, message: 'Cuenta eliminada permanentemente del sistema.' });
     } catch (e) {
         logger.error('Error deleting account:', e);
