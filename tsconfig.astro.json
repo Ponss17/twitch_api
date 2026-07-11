@@ -1,11 +1,10 @@
 {
     "extends": "./node_modules/astro/tsconfigs/strict.json",
     "compilerOptions": {
-        "baseUrl": ".",
         "paths": {
-            "@/*": ["src/*"],
-            "@contracts/*": ["backend/src/core/schemas/*"],
-            "@starlight/*": ["node_modules/@astrojs/starlight/*"]
+            "@/*": ["./src/*"],
+            "@contracts/*": ["./backend/src/core/schemas/*"],
+            "@starlight/*": ["./node_modules/@astrojs/starlight/*"]
         },
         "verbatimModuleSyntax": false
     },

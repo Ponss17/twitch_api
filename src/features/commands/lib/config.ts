@@ -3,6 +3,8 @@ import { UserRoundCheck, Video, Megaphone, Theater, Flame, Swords } from 'lucide
 import type { LucideIcon } from 'lucide-react';
 import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTabs';
 
+/** Plantilla por defecto del !clip cuando el streamer no escribe una personalizada. */
+export const DEFAULT_CLIP_TEMPLATE = 'Clip creado por {user}: {url}';
 export interface ExtraSelector {
     id: string;
     label: string;
@@ -54,8 +56,8 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
         icon: Video,
         desc: 'Permite crear clips desde el chat',
         info: 'Tus moderadores podrán crear clips instantáneos escribiendo !clip. Requiere estar en vivo.',
-        templatePlaceholder: 'Ej: ¡Miren este clip de {user}! 👉 {url}',
-        templateVars: 'Variables: {user}, {url}',
+        templatePlaceholder: 'Ej: Clip creado por {user}: {url}',
+        templateVars: 'Variables: {user}, {url}, {channel}, {title}',
         generate: (domain, _login, _tokenParam, bot, templateVal, queryParams) => {
             const botUtils = CommandGenerator.bots[bot] || CommandGenerator.bots.nightbot;
             const userArg = botUtils.arg('user');
@@ -63,19 +65,12 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
             if (titleArg) queryParams += `&title=${titleArg}`;
             queryParams += `&user=${userArg}`;
 
-            // BotRix no evalúa $(urlfetch) mezclado con texto plano — plantilla va en la API.
-            if (bot === 'botrix') {
-                if (templateVal) {
-                    queryParams += `&template=${encodeURIComponent(templateVal)}`;
-                }
-                const cmd = CommandGenerator.generate(bot, `${domain}/create-clip/`, queryParams);
-                return { full: botUtils.addcmd('!clip', cmd), url: cmd };
-            }
+            // Todos los bots: solo fetch/API en el comando; el mensaje lo arma la API vía &template=
+            // (evita mezclar texto+urlfetch, que falla en BotRix y es frágil en el resto).
+            const template = templateVal.trim() || DEFAULT_CLIP_TEMPLATE;
+            queryParams += `&template=${encodeURIComponent(template)}`;
 
-            const apiCall = CommandGenerator.generate(bot, `${domain}/create-clip/`, queryParams);
-            const cmd = templateVal
-                ? templateVal.replace('{user}', userArg).replace('{url}', apiCall)
-                : apiCall;
+            const cmd = CommandGenerator.generate(bot, `${domain}/create-clip/`, queryParams);
             return { full: botUtils.addcmd('!clip', cmd), url: cmd };
         }
     },
