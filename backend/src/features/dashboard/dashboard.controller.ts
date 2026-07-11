@@ -225,9 +225,10 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                 userId,
                 `cache:cmd:getUserInfo:login:${login}`
             );
+            const timezone = apiUser?.timezone || 'UTC';
             const cached = await cacheService.get(cacheKey);
             if (cached && typeof cached === 'object') {
-                return { ...cached, ...limits };
+                return { ...cached, ...limits, timezone };
             }
 
             try {
@@ -240,7 +241,7 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                 const profileResult = buildDashboardProfile(info, followers, isLive, limits);
 
                 await cacheService.set(cacheKey, profileResult, resolveCache('DASHBOARD_PROFILE', apiUser?.role, apiUser?.customCacheTtl));
-                return { ...profileResult, ...limits, cacheTtl: resolveCache('COMMAND', apiUser?.role, apiUser?.customCacheTtl) };
+                return { ...profileResult, ...limits, timezone, cacheTtl: resolveCache('COMMAND', apiUser?.role, apiUser?.customCacheTtl) };
             } catch {
                 throw new AppError(MESSAGES.DASHBOARD.USER_INFO_ERROR, 500);
             }
