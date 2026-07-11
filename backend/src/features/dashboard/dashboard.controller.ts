@@ -127,12 +127,16 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
+    const source = req.query.source as string | undefined;
+    const isRoulette = source === 'roulette';
+
     const result = await trackRequest(
         userId,
         {
             type: 'stalker',
             user: channel,
-            incrementStat: 'stalker'
+            incrementStat: isRoulette ? undefined : 'stalker',
+            skipActivityLog: isRoulette
         },
         async () => {
             const cacheKey = ownerScopedCacheKey(
