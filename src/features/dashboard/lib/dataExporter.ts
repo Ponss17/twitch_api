@@ -1,6 +1,8 @@
 import { API_ENDPOINTS, STATUS_PAGE_URL } from '@/core/config/config';
 import type { Session } from '@/core/config/config';
-import { buildAuthQueryParam } from '@/core/api/authQuery';
+import { API_KEY_PLACEHOLDER } from '@/core/api/authQuery';
+import { authHeaders } from '@/core/api/auth';
+import { withApiCredentials } from '@/core/auth/apiCredentials';
 import { absoluteAssetUrl, appPath, legalPath } from '@/core/config/paths';
 
 interface AnalyticsData {
@@ -184,21 +186,15 @@ const COMMAND_INTEGRATIONS = [
     }
 ];
 
-const getAuthParts = (session: Session) => ({
-    query: buildAuthQueryParam(session),
-    headers: session.token
-        ? { Authorization: `Bearer ${session.token}` }
-        : ({} as Record<string, string>)
-});
+const sessionFetchInit = (session: Session): RequestInit =>
+    withApiCredentials({
+        headers: authHeaders(session)
+    });
 
 const DataExport = {
     async fetchAnalytics(session: Session): Promise<AnalyticsData> {
         try {
-            const { query, headers } = getAuthParts(session);
-            const queryParam = query ? `?${query}` : '';
-            const res = await fetch(`${API_ENDPOINTS.ANALYTICS}${queryParam}`, {
-                headers
-            });
+            const res = await fetch(API_ENDPOINTS.ANALYTICS, sessionFetchInit(session));
             if (res.ok) return await res.json();
         } catch (error) {
             console.error('[DataExport] Error fetching analytics:', error);
@@ -208,9 +204,8 @@ const DataExport = {
 
     async fetchUserInfo(session: Session) {
         try {
-            const { query, headers } = getAuthParts(session);
-            const url = `${API_ENDPOINTS.USER_INFO}?login=${encodeURIComponent(session.login ?? '')}&${query}`;
-            const res = await fetch(url, { headers });
+            const url = `${API_ENDPOINTS.USER_INFO}?login=${encodeURIComponent(session.login ?? '')}`;
+            const res = await fetch(url, sessionFetchInit(session));
             if (res.ok) return await res.json();
         } catch (error) {
             console.error('[DataExport] Error fetching user info:', error);
@@ -390,7 +385,7 @@ const DataExport = {
         const userInfo = await this.fetchUserInfo(session);
         const analytics = await this.fetchAnalytics(session);
 
-        const apiKey = user.apiKey || user.token || '';
+        const apiKey = API_KEY_PLACEHOLDER;
         const maskedKey = this.maskKey(apiKey);
 
         const todayRequests = analytics.todayRequests ?? 0;
@@ -451,7 +446,7 @@ const DataExport = {
         const discordUrl = 'https://discord.gg/8uN3qY5E';
         const legalPrivacy = `${siteOrigin}${legalPath('privacidad')}`;
         const legalTerms = `${siteOrigin}${legalPath('terminos')}`;
-        const legalCookies = `${siteOrigin}${legalPath('cookies')}`;
+        const legalStorage = `${siteOrigin}${legalPath('almacenamiento')}`;
         const year = now.getFullYear();
 
         const html = `<!DOCTYPE html>
@@ -1124,7 +1119,7 @@ const DataExport = {
             <nav class="footer-legal" aria-label="Legal">
                 <a href="${legalPrivacy}">Privacidad</a>
                 <a href="${legalTerms}">Términos</a>
-                <a href="${legalCookies}">Cookies</a>
+                <a href="${legalStorage}">Almacenamiento</a>
             </nav>
             <p class="footer-copy">
                 Reporte generado el <strong>${dateStr}</strong> a las <strong>${timeStr}</strong>

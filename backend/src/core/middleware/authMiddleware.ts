@@ -10,6 +10,8 @@ import { safeString } from '../utils/validationHelpers';
 import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 import { jsonError } from '../utils/jsonResponse';
 import { blockIfUnauthorizedScanExceeded } from './redisRateLimiter';
+import { readSessionUserId, clearSessionCookie } from '../utils/sessionCookie';
+import { getValidTokenForUser } from '../../features/auth/auth.service';
 
 const CACHE_TTL = 10 * 60 * 1000;
 const TOKEN_VALIDATION_TTL = 10 * 60 * 1000;
@@ -55,6 +57,41 @@ const rejectUnauthorized = async (
     return respond();
 };
 
+async function tryResolveCookieSession(
+    req: AuthenticatedRequest,
+    res: Response
+): Promise<StoredUser | null> {
+    const cookieUserId = readSessionUserId(req);
+    if (!cookieUserId) return null;
+
+    const revoked = await cacheService.get<boolean>(`auth:revoke:user:${cookieUserId}`);
+    if (revoked) {
+        clearSessionCookie(res);
+        return null;
+    }
+
+    try {
+        const user = await dbService.getUser(cookieUserId);
+        if (!user || user.isActive === false) {
+            clearSessionCookie(res);
+            return null;
+        }
+
+        const { accessToken } = await getValidTokenForUser(user);
+        res.locals.apiUser = user;
+        res.locals.isCookieSession = true;
+        req.userId = user.userId;
+        req.login = user.login;
+        req.displayName = user.displayName;
+        req.twitchToken = accessToken;
+        return user;
+    } catch (error) {
+        logger.warn('[Auth] Cookie session inválida:', (error as Error).message);
+        clearSessionCookie(res);
+        return null;
+    }
+}
+
 const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
         if (res.locals.apiUser) {
@@ -68,6 +105,15 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             req.twitchToken = user.accessToken;
 
             throttledUpdateLastActive(user.userId);
+            return next();
+        }
+
+        const cookieUser = await tryResolveCookieSession(req, res);
+        if (cookieUser) {
+            if (cookieUser.isActive === false) {
+                return rejectInactiveUser(res, req.path);
+            }
+            throttledUpdateLastActive(cookieUser.userId);
             return next();
         }
 

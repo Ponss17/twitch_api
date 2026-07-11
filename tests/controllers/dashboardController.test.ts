@@ -6,7 +6,9 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     getUserActivity: jest.fn(),
     clearUserStatsAndLogs: jest.fn(),
     deleteUser: jest.fn(),
-    recordUserRequest: jest.fn().mockResolvedValue(undefined)
+    recordUserRequest: jest.fn().mockResolvedValue(undefined),
+    getUser: jest.fn(),
+    addAuditLog: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
@@ -40,7 +42,7 @@ jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
 
 import * as dbService from '../../backend/src/core/database/dbService';
 import { invalidateAllUserCaches, invalidateDashboardStatsCaches } from '../../backend/src/core/utils/cacheInvalidation';
-import { getAnalytics, getLogs, clearUserData, deleteAccount, exportCheck, recordExportComplete } from '../../backend/src/features/dashboard/dashboard.controller';
+import { getAnalytics, getLogs, clearUserData, deleteAccount, exportCheck, recordExportComplete, revealApiKey } from '../../backend/src/features/dashboard/dashboard.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
 const mockReq = (overrides = {}) =>
@@ -57,6 +59,7 @@ const mockRes = () => {
     res.json = jest.fn().mockReturnValue(res);
     res.send = jest.fn().mockReturnValue(res);
     res.setHeader = jest.fn().mockReturnValue(res);
+    res.append = jest.fn().mockReturnValue(res);
     res.locals = { apiUser: {} };
     return res;
 };
@@ -279,6 +282,32 @@ describe('dashboardController', () => {
             const res = mockRes();
 
             await recordExportComplete(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+        });
+    });
+
+    describe('revealApiKey', () => {
+        it('returns masked api key for authenticated user', async () => {
+            const req = mockReq({ userId: '123', ip: '127.0.0.1' });
+            const res = mockRes();
+            res.locals = { apiUser: { apiKey: 'sk_test_key_12345678' } };
+
+            await revealApiKey(req, res);
+
+            expect(dbService.addAuditLog).toHaveBeenCalledWith('api_key_revealed', '123', '123');
+            expect(res.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-store');
+            expect(res.json).toHaveBeenCalledWith({
+                apiKey: 'sk_test_key_12345678',
+                masked: 'sk_t••••••••••••5678'
+            });
+        });
+
+        it('returns 401 without userId', async () => {
+            const req = mockReq({ userId: undefined });
+            const res = mockRes();
+
+            await revealApiKey(req, res);
 
             expect(res.status).toHaveBeenCalledWith(401);
         });

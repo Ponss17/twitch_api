@@ -2,6 +2,7 @@ import { API_ENDPOINTS, type ApiResponse, type Session } from '@/core/config/con
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { sessionFingerprint } from '@/core/session/localPrefs';
 import { authHeaders } from './authHeaders';
+import { withApiCredentials } from './apiCredentials';
 import { getSession, saveSession } from './sessionStorage';
 import { mergeSessionFieldsFromValidate } from './sessionMerge';
 import {
@@ -11,9 +12,9 @@ import {
 } from './validateCache';
 
 function canUseDegradedSession(session: Session): boolean {
-    if (session.apiKey || session.token || session.overlayToken) return true;
+    if (session.token || session.overlayToken || session.userId) return true;
     const stored = getSession();
-    return !!(stored?.apiKey || stored?.token || stored?.overlayToken);
+    return !!(stored?.token || stored?.overlayToken || stored?.userId);
 }
 
 function validateDedupeKey(session: Session): string {
@@ -48,7 +49,7 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
         return validateOverlaySession(session);
     }
 
-    if (!session.apiKey && !session.token) {
+    if (!session.token && !session.userId) {
         return { valid: false, error: true, message: 'no_credentials' };
     }
 
@@ -81,11 +82,14 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
               }, 450)
             : null;
 
-    const attempt = async (credentials: Session) => {
+    const attempt = async (credentials: Session, cookieOnly = false) => {
         try {
-            const response = await fetch(API_ENDPOINTS.VALIDATE, {
-                headers: authHeaders(credentials)
-            });
+            const response = await fetch(
+                API_ENDPOINTS.VALIDATE,
+                withApiCredentials({
+                    headers: cookieOnly ? undefined : authHeaders(credentials)
+                })
+            );
 
             if (!response.ok) {
                 if (response.status === 401) {
@@ -116,12 +120,8 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
     try {
         let result: ApiResponse & { networkError?: boolean };
 
-        if (session.apiKey) {
-            result = await attempt({
-                apiKey: session.apiKey,
-                login: session.login,
-                userId: session.userId
-            });
+        if (session.userId) {
+            result = await attempt(session, true);
             if (result.valid !== true && !result.networkError && session.token) {
                 result = await attempt(session);
             }

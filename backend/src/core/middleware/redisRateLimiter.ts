@@ -214,6 +214,50 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
 /**
  * Limitador para intentos de login (Fuerza Bruta).
  */
+/**
+ * Limitador para revelar API Key en el panel (auditoría / abuso).
+ */
+export const revealKeyRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
+    const apiUser = res.locals?.apiUser as { userId?: string } | undefined;
+    const userId = apiUser?.userId;
+    if (!userId) return next();
+
+    const key = `rl:reveal-key:${userId}`;
+    const limit = RATE_LIMITS.REVEAL_API_KEY;
+    const currentWindow = Math.floor(Date.now() / 60000);
+
+    if (!isKvWriteAvailable()) {
+        return next();
+    }
+
+    try {
+        const redisKey = `twitch_api:${key}:${currentWindow}`;
+        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
+            number,
+            number
+        ];
+
+        if (count > limit) {
+            return res.status(429).json({
+                error: 'Too Many Requests',
+                message: 'Demasiados intentos de revelar la API Key. Espera un momento.'
+            });
+        }
+        return next();
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            logger.debug('KV reveal-key rate limit omitido en desarrollo', { error });
+            return next();
+        }
+
+        logger.error('Error in Reveal Key Rate Limiter:', error);
+        return res.status(503).json({
+            error: 'Service Unavailable',
+            message: 'Servicio temporalmente no disponible'
+        });
+    }
+};
+
 export const authRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
     const safeIp = (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
     const key = `rl:auth:${safeIp}`;
