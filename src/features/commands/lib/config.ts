@@ -41,7 +41,7 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
         templateVars: 'Variables: {user}, {time}, {channel}',
         generate: (domain, _login, _tokenParam, bot, templateVal, queryParams) => {
             const botUtils = CommandGenerator.bots[bot] || CommandGenerator.bots.nightbot;
-            const userArg = bot === 'wizebot' ? '$(user_name)' : botUtils.arg('user');
+            const userArg = botUtils.arg('user');
             if (templateVal) queryParams += `&template=${encodeURIComponent(templateVal)}`;
             queryParams += `&user=${userArg}`;
             const cmd = CommandGenerator.generate(bot, `${domain}/followage/`, queryParams);
@@ -58,9 +58,8 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
         templateVars: 'Variables: {user}, {url}',
         generate: (domain, _login, _tokenParam, bot, templateVal, queryParams) => {
             const botUtils = CommandGenerator.bots[bot] || CommandGenerator.bots.nightbot;
-            const userArg =
-                bot === 'nightbot' ? '$(user)' : bot === 'wizebot' ? '$(user_name)' : '${user}';
-            const titleArg = botUtils.arg('query') || botUtils.arg('args') || '';
+            const userArg = botUtils.arg('user');
+            const titleArg = botUtils.arg('query') || '';
             if (titleArg) queryParams += `&title=${titleArg}`;
             queryParams += `&user=${userArg}`;
             const apiCall = CommandGenerator.generate(bot, `${domain}/create-clip/`, queryParams);
@@ -111,9 +110,9 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
             const mood = extraValues.mood || 'classic';
             if (templateVal) queryParams += `&template=${encodeURIComponent(templateVal)}`;
             queryParams += `&mood=${mood}`;
-            const userArg = bot === 'wizebot' ? '$(user_name)' : botUtils.arg('user');
+            const userArg = botUtils.arg('user');
             queryParams += `&user=${userArg}`;
-            const queryArg = botUtils.arg('query') || botUtils.arg('args') || '(?)';
+            const queryArg = botUtils.arg('query') || '(?)';
             queryParams += `&question=${queryArg}`;
             const magicUrl = `${domain}/minigames/magic8/`;
             const cmd = CommandGenerator.generate(bot, magicUrl, queryParams);
@@ -139,7 +138,7 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
         ],
         generate: (domain, _login, _tokenParam, bot, _templateVal, queryParams, extraValues = {}) => {
             const botUtils = CommandGenerator.bots[bot];
-            const userArg = bot === 'wizebot' ? '$(user_name)' : botUtils.arg('user');
+            const userArg = botUtils.arg('user');
             queryParams += `&user=${userArg}&hardcore=${extraValues.hardcore === 'true'}`;
             const cmd = CommandGenerator.generate(bot, `${domain}/minigames/russian/`, queryParams);
             return { full: botUtils.addcmd('!ruleta', cmd), url: cmd };
@@ -153,8 +152,8 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
         info: 'Tus viewers podrán retarse a duelos narrativos escribiendo !duelo @usuario.',
         generate: (domain, _login, _tokenParam, bot, _templateVal, queryParams) => {
             const botUtils = CommandGenerator.bots[bot];
-            const challengerArg = bot === 'wizebot' ? '$(user_name)' : botUtils.arg('user');
-            const targetArg = botUtils.arg('1') || botUtils.arg('touser');
+            const challengerArg = botUtils.arg('user');
+            const targetArg = botUtils.arg('touser');
             queryParams += `&challenger=${challengerArg}&target=${targetArg}`;
             const cmd = CommandGenerator.generate(bot, `${domain}/minigames/duel/`, queryParams);
             return { full: botUtils.addcmd('!duelo', cmd), url: cmd };
