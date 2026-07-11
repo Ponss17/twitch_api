@@ -99,7 +99,7 @@ describe('paths (frontend)', () => {
     });
 
     it('legalPath une sección con hash', () => {
-        expect(legalPath('cookies')).toBe('/legal#cookies');
+        expect(legalPath('almacenamiento')).toBe('/legal#almacenamiento');
         expect(legalPath()).toBe('/legal');
     });
 

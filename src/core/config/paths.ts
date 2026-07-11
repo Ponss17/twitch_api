@@ -50,9 +50,9 @@ export function resolveDocsTemplate(template: string): string {
     return template.replace(/\{baseURL\}/g, window.location.origin);
 }
 
-export type LegalSection = 'terminos' | 'privacidad' | 'cookies';
+export type LegalSection = 'terminos' | 'privacidad' | 'almacenamiento';
 
-/** Ruta única de legal; con sección opcional vía hash (#privacidad, #terminos, #cookies). */
+/** Ruta única de legal; con sección opcional vía hash (#privacidad, #terminos, #almacenamiento). */
 export function legalPath(section?: LegalSection): string {
     const base = appPath('/legal');
     return section ? `${base}#${section}` : base;

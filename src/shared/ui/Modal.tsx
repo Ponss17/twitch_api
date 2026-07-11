@@ -1,10 +1,11 @@
-import { AlertTriangle, Loader2 } from 'lucide-react';
+import { AlertTriangle, Loader2, Copy, Check } from 'lucide-react';
 
 import { useEffect, useId, useRef, useState, createContext, useCallback, type ReactNode } from 'react';
 import { X, Trash2, type LucideIcon } from 'lucide-react';
 import {
     btnDanger,
     btnIcon,
+    btnPrimary,
     btnSecondary,
     confirmWordBadge,
     dangerInput,
@@ -419,6 +420,54 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
                 que los comandos sigan funcionando.
             </p>
             <p className="text-sm opacity-80">Esta acción no se puede deshacer.</p>
+        </Modal>
+    );
+}
+
+interface PostRegenKeyModalProps {
+    open: boolean;
+    apiKey: string;
+    onClose: () => void;
+}
+
+export function PostRegenKeyModal({ open, apiKey, onClose }: PostRegenKeyModalProps) {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async () => {
+        await navigator.clipboard.writeText(apiKey);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <Modal
+            open={open}
+            onClose={onClose}
+            title="Copia tu nueva API Key"
+            titleIcon={AlertTriangle}
+            footer={
+                <button type="button" className={btnPrimary} onClick={() => void handleCopy()}>
+                    {copied ? (
+                        <>
+                            <Check className="w-4 h-4" />
+                            Copiada
+                        </>
+                    ) : (
+                        <>
+                            <Copy className="w-4 h-4" />
+                            Copiar key
+                        </>
+                    )}
+                </button>
+            }
+        >
+            <p>
+                <strong>No volveremos a mostrar la key completa.</strong> Cópiala ahora y actualiza tus bots
+                (Nightbot, StreamElements, etc.).
+            </p>
+            <code className="mt-3 block break-all rounded-lg border border-white/10 bg-black/40 px-3 py-2 font-mono text-sm text-[#c4b5fd]">
+                {apiKey}
+            </code>
         </Modal>
     );
 }

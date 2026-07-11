@@ -12,6 +12,7 @@ export {
 } from './oauthFlow';
 export { validateSession } from './validateSession';
 export { apiFetch } from './apiFetch';
+export { fetchRevealApiKey, type RevealApiKeyResult } from './revealApiKey';
 export {
     markDashboardSplashForFreshLogin,
     clearDashboardSplashFlags,

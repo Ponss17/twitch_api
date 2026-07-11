@@ -33,6 +33,7 @@ const mockRes = () => {
     res.status = jest.fn().mockReturnValue(res);
     res.json = jest.fn().mockReturnValue(res);
     res.setHeader = jest.fn().mockReturnValue(res);
+    res.append = jest.fn().mockReturnValue(res);
     return res;
 };
 
@@ -203,7 +204,6 @@ describe('authController', () => {
             await exchange(req, res);
 
             expect(res.json).toHaveBeenCalledWith({
-                apiKey: 'key_abc',
                 userId: '999',
                 login: 'testuser',
                 displayName: 'TestUser',

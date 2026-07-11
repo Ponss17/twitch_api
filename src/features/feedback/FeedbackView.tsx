@@ -28,13 +28,13 @@ export function FeedbackView() {
 
         setSending(true);
         try {
-            const body: { message: string; apiKey?: string; anonymous?: boolean } = { message: message.trim() };
-            if (!session.token && session.apiKey) body.apiKey = session.apiKey;
+            const body: { message: string; anonymous?: boolean } = { message: message.trim() };
             if (isAnonymous) body.anonymous = true;
 
             const res = await fetch(API_ENDPOINTS.FEEDBACK, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
+                credentials: 'include',
                 body: JSON.stringify(body)
             });
             const data = (await res.json()) as { error?: string; message?: string };

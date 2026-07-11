@@ -6,6 +6,7 @@ import { card, fadeIn } from '@/core/utils/tw';
 interface SettingsSecuritySectionProps {
     apiKey: string;
     keyVisible: boolean;
+    keyLoading?: boolean;
     showDanger: boolean;
     userId?: string;
     rateLimit: number;
@@ -25,6 +26,7 @@ const cardShell = `${card} ${fadeIn} mb-3 opacity-0`;
 export function SettingsSecuritySection({
     apiKey,
     keyVisible,
+    keyLoading = false,
     showDanger,
     userId,
     rateLimit,
@@ -86,6 +88,7 @@ export function SettingsSecuritySection({
                         <button
                             type="button"
                             onClick={onToggleKey}
+                            disabled={keyLoading}
                             title="Ver/Ocultar"
                             aria-label={keyVisible ? 'Ocultar API Key' : 'Mostrar API Key'}
                             className="flex items-center justify-center border-l border-white/[0.05] px-3 text-zinc-400 transition first:border-l-0 hover:bg-white/[0.05] hover:text-white"
@@ -95,6 +98,7 @@ export function SettingsSecuritySection({
                         <button
                             type="button"
                             onClick={handleCopyKey}
+                            disabled={keyLoading}
                             title="Copiar"
                             aria-label={isKeyCopied ? 'API Key copiada' : 'Copiar API Key'}
                             className="flex items-center justify-center gap-1.5 border-l border-white/[0.05] px-3 text-[0.82rem] text-zinc-400 transition hover:bg-primary/10 hover:text-primary"

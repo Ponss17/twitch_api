@@ -7,11 +7,14 @@ jest.mock('@/core/api/auth', () => ({
     resolveSessionFromUrl: jest.fn(),
     mergeSessionFromValidate: jest.fn((session, result) => ({
         ...session,
-        apiKey: typeof result.apiKey === 'string' ? result.apiKey : session.apiKey,
         login:
             result.user && typeof result.user === 'object' && 'login' in result.user
                 ? String((result.user as { login: string }).login)
-                : session.login
+                : session.login,
+        userId:
+            result.user && typeof result.user === 'object' && 'id' in result.user
+                ? String((result.user as { id: string }).id)
+                : session.userId
     })),
     getSession: jest.fn(),
     readOptimisticAuthState: jest.fn(() => ({
@@ -59,13 +62,12 @@ describe('SessionProvider', () => {
         const order: string[] = [];
         mockedResolveSessionFromUrl.mockImplementation(async () => {
             order.push('resolveSessionFromUrl');
-            return { apiKey: 'k', login: 'streamer' };
+            return { userId: '1', login: 'streamer' };
         });
         mockedValidateSession.mockImplementation(async () => {
             order.push('validate');
             return {
                 valid: true,
-                apiKey: 'k',
                 user: { login: 'streamer', display_name: 'Streamer', id: '1' }
             };
         });
@@ -82,7 +84,7 @@ describe('SessionProvider', () => {
     });
 
     it('waits for validation before showing stored session', async () => {
-        const stored = { apiKey: 'k', login: 'streamer', displayName: 'Streamer' };
+        const stored = { userId: '1', login: 'streamer', displayName: 'Streamer' };
         (getSession as jest.Mock).mockReturnValue(stored);
         (readOptimisticAuthState as jest.Mock).mockReturnValue({
             session: stored,
@@ -91,7 +93,7 @@ describe('SessionProvider', () => {
         });
 
         let resolveValidate: (value: unknown) => void = () => {};
-        mockedResolveSessionFromUrl.mockResolvedValue({ apiKey: 'k', login: 'streamer' });
+        mockedResolveSessionFromUrl.mockResolvedValue({ userId: '1', login: 'streamer' });
         mockedValidateSession.mockImplementation(
             () =>
                 new Promise((resolve) => {
@@ -111,7 +113,6 @@ describe('SessionProvider', () => {
         await act(async () => {
             resolveValidate({
                 valid: true,
-                apiKey: 'k',
                 user: { login: 'streamer', display_name: 'Streamer', id: '1' }
             });
         });
@@ -124,7 +125,7 @@ describe('SessionProvider', () => {
             loading: true,
             authenticated: false
         });
-        mockedResolveSessionFromUrl.mockResolvedValue({ apiKey: 'bad' });
+        mockedResolveSessionFromUrl.mockResolvedValue({ userId: '1' });
         mockedValidateSession.mockResolvedValue({ valid: false, error: true });
 
         render(
@@ -137,7 +138,7 @@ describe('SessionProvider', () => {
     });
 
     it('keeps session when validation succeeds with a network warning', async () => {
-        mockedResolveSessionFromUrl.mockResolvedValue({ apiKey: 'k', login: 'streamer' });
+        mockedResolveSessionFromUrl.mockResolvedValue({ userId: '1', login: 'streamer' });
         mockedValidateSession.mockResolvedValue({ valid: true, error: true, message: 'network_error' });
 
         render(
@@ -150,17 +151,15 @@ describe('SessionProvider', () => {
         expect(showToastMock).toHaveBeenCalledWith('Conexión inestable con el servidor', 'warning');
     });
 
-    it('refresh updates session after validate returns a new api key', async () => {
-        mockedResolveSessionFromUrl.mockResolvedValue({ apiKey: 'k', login: 'streamer' });
+    it('refresh keeps session identity after validate', async () => {
+        mockedResolveSessionFromUrl.mockResolvedValue({ userId: '1', login: 'streamer' });
         mockedValidateSession
             .mockResolvedValueOnce({
                 valid: true,
-                apiKey: 'k',
                 user: { login: 'streamer', display_name: 'Streamer', id: '1' }
             })
             .mockResolvedValue({
                 valid: true,
-                apiKey: 'rotated',
                 user: { login: 'streamer', display_name: 'Streamer', id: '1' }
             });
 
@@ -169,7 +168,7 @@ describe('SessionProvider', () => {
             if (loading) return <div>loading</div>;
             return (
                 <div>
-                    <span data-testid="api-key">{session?.apiKey ?? 'none'}</span>
+                    <span data-testid="user-id">{session?.userId ?? 'none'}</span>
                     <button type="button" onClick={() => void refresh()}>
                         refresh
                     </button>
@@ -183,8 +182,8 @@ describe('SessionProvider', () => {
             </SessionProvider>
         );
 
-        await waitFor(() => expect(screen.getByTestId('api-key')).toHaveTextContent('k'));
+        await waitFor(() => expect(screen.getByTestId('user-id')).toHaveTextContent('1'));
         screen.getByRole('button', { name: 'refresh' }).click();
-        await waitFor(() => expect(screen.getByTestId('api-key')).toHaveTextContent('rotated'));
+        await waitFor(() => expect(screen.getByTestId('user-id')).toHaveTextContent('1'));
     });
 });
