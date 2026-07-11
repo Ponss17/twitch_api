@@ -3,8 +3,9 @@ import { invalidateUserMemoryCache } from '../database/userService';
 import { invalidateStatsCache } from '../database/statsService';
 import { logger } from './logger';
 import { overlayStateKey } from '../../features/dashboard/overlay/keys';
-import { overlayRevokeKey } from '../../features/auth/auth.service';
 import { invalidateUserInfoCache } from '../../features/twitch/twitchUserService';
+
+const overlayRevokeKey = (userId: string): string => `cache:overlay:revoke:${userId}`;
 
 export async function invalidateHelixUserCaches(userId: string, login?: string): Promise<void> {
     invalidateUserInfoCache(login, userId);

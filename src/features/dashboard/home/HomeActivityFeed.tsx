@@ -34,11 +34,11 @@ const SKELETON_ROWS = 5;
 
 const CATEGORY_FILTERS: ActivityCategoryFilter[] = ['all', 'commands', 'tools', 'minigames'];
 
-const CATEGORY_META: Record<ActivityCategoryFilter, { icon: React.ElementType; accent: string; bar: string }> = {
-    all:       { icon: LayoutGrid, accent: 'border-primary/40 bg-primary/10 text-primary',         bar: 'bg-primary' },
-    commands:  { icon: Bot,        accent: 'border-sky-500/40 bg-sky-500/10 text-sky-400',         bar: 'bg-sky-500' },
-    tools:     { icon: Wrench,     accent: 'border-violet-500/40 bg-violet-500/10 text-violet-400', bar: 'bg-violet-500' },
-    minigames: { icon: Swords,     accent: 'border-amber-500/40 bg-amber-500/10 text-amber-400',   bar: 'bg-amber-500' },
+const CATEGORY_META: Record<ActivityCategoryFilter, { icon: React.ElementType }> = {
+    all:       { icon: LayoutGrid },
+    commands:  { icon: Bot },
+    tools:     { icon: Wrench },
+    minigames: { icon: Swords },
 };
 
 function ActivityFeedSkeleton() {
@@ -158,7 +158,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
             </div>
 
             <div className="mb-4">
-                <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex flex-wrap gap-2 pb-2">
                     {CATEGORY_FILTERS.map((category) => {
                         const count = countActivityByCategory(activity, category);
                         const active = categoryFilter === category;
@@ -170,29 +170,24 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                 key={category}
                                 type="button"
                                 onClick={() => handleCategoryChange(category)}
-                                className={`relative flex min-w-[120px] flex-1 flex-col gap-2 overflow-hidden rounded-xl border p-3 text-left transition-all ${
+                                className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 transition-all ${
                                     active
-                                        ? 'border-white/10 bg-white/[0.04] shadow-sm'
-                                        : 'border-transparent bg-transparent hover:bg-white/[0.02]'
+                                        ? 'border-primary/40 bg-primary/10 text-primary shadow-sm'
+                                        : 'border-white/5 bg-white/[0.02] text-[#a1a1aa] hover:border-white/15 hover:bg-white/[0.04] hover:text-[#d4d4d8]'
                                 }`}
                                 aria-pressed={active}
                             >
-                                {active && (
-                                    <div className={`absolute inset-x-0 top-0 h-[2px] ${meta.bar}`} />
-                                )}
-                                <div className="flex items-center justify-between gap-2">
-                                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg border ${active ? meta.accent : 'border-white/5 bg-white/[0.02] text-[#a1a1aa]'}`}>
-                                        <Icon className="h-4 w-4" />
-                                    </div>
-                                    {!isLoading && count > 0 && (
-                                        <span className={`rounded-full px-2 py-0.5 text-[0.65rem] font-medium ${active ? 'bg-white/10 text-white' : 'bg-white/5 text-[#71717a]'}`}>
-                                            {count}
-                                        </span>
-                                    )}
-                                </div>
-                                <span className={`text-[0.8rem] font-semibold tracking-wide ${active ? 'text-white' : 'text-[#a1a1aa]'}`}>
+                                <Icon className={`h-4 w-4 ${active ? '' : 'opacity-70'}`} />
+                                <span className="text-[0.8rem] font-semibold tracking-wide">
                                     {ACTIVITY_CATEGORY_LABELS[category]}
                                 </span>
+                                {!isLoading && count > 0 && (
+                                    <span className={`ml-0.5 rounded-full px-1.5 py-0.5 text-[0.65rem] font-bold ${
+                                        active ? 'bg-black/20 text-current' : 'bg-white/10 text-[#71717a]'
+                                    }`}>
+                                        {count}
+                                    </span>
+                                )}
                             </button>
                         );
                     })}
