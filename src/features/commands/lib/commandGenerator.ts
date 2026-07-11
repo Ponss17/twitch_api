@@ -5,35 +5,47 @@ export const CommandGenerator = {
             arg: (name: string) => {
                 if (name === 'user' || name === 'sender') return '$(user)';
                 if (name === 'touser') return '$(touser)';
-                if (name === 'query') return '$(1+)';
+                if (name === 'query') return '$(querystring)';
                 return `$(${name})`;
             },
             addcmd: (trigger: string, cmd: string) => `!addcom ${trigger} ${cmd}`
         },
         streamelements: {
             urlfetch: (url: string) => `$(customapi ${url})`,
-            arg: (name: string) => `\${${name}}`,
+            arg: (name: string) => {
+                if (name === 'user' || name === 'sender') return '${user}';
+                if (name === 'touser') return '${1}';
+                if (name === 'query') return '${args}';
+                return `\${${name}}`;
+            },
             addcmd: (trigger: string, cmd: string) => `!command add ${trigger} ${cmd}`
         },
         fossabot: {
             urlfetch: (url: string) => `$(customapi ${url})`,
             arg: (name: string) => {
-                if (name === 'user') return '{{user.name}}';
+                if (name === 'user' || name === 'sender') return '{{user.name}}';
+                if (name === 'touser') return '{{target.name}}';
+                if (name === 'query') return '{{1+}}';
                 return `{{${name}}}`;
             },
             addcmd: (trigger: string, cmd: string) => `!addcmd ${trigger} ${cmd}`
         },
         wizebot: {
             urlfetch: (url: string) => `$(urlfetch ${url})`,
-            arg: (name: string) => `$(arg_${name === 'user' ? '1' : name})`,
+            arg: (name: string) => {
+                if (name === 'user' || name === 'sender') return '$(user)';
+                if (name === 'touser') return '$(touser)';
+                if (name === 'query') return '$(1+)';
+                return `$(${name})`;
+            },
             addcmd: (trigger: string, cmd: string) => `!command add ${trigger} ${cmd}`
         },
         streamlabs: {
             urlfetch: (url: string) => `{readapi.${url}}`,
             arg: (name: string) => {
                 if (name === 'user' || name === 'sender') return '{user.name}';
-                if (name === 'touser') return '{touser.name}';
-                if (name === 'query') return '$1';
+                if (name === 'touser') return '{touser}';
+                if (name === 'query') return '{1+}';
                 return `{${name}}`;
             },
             addcmd: (trigger: string, cmd: string) => `!addcmd ${trigger} ${cmd}`
