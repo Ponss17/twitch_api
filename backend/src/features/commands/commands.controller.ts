@@ -78,7 +78,11 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
                     const safeUrl = sanitizeHtml(clipUrl);
                     const safeChannel = sanitizeHtml(channel);
                     const safeTitle = sanitizeHtml(finalTitle || '');
+                    let safeUser = (req.query.user as string) || req.displayName || 'Streamer';
+                    if (safeUser.includes('$(') || safeUser.includes('${')) safeUser = 'Anónimo';
+                    safeUser = sanitizeHtml(safeUser);
                     return template
+                        .replace('{user}', safeUser)
                         .replace('{url}', safeUrl)
                         .replace('{channel}', safeChannel)
                         .replace('{title}', safeTitle);

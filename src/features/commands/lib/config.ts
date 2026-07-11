@@ -62,10 +62,20 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
             const titleArg = botUtils.arg('query') || '';
             if (titleArg) queryParams += `&title=${titleArg}`;
             queryParams += `&user=${userArg}`;
+
+            // BotRix no evalúa $(urlfetch) mezclado con texto plano — plantilla va en la API.
+            if (bot === 'botrix') {
+                if (templateVal) {
+                    queryParams += `&template=${encodeURIComponent(templateVal)}`;
+                }
+                const cmd = CommandGenerator.generate(bot, `${domain}/create-clip/`, queryParams);
+                return { full: botUtils.addcmd('!clip', cmd), url: cmd };
+            }
+
             const apiCall = CommandGenerator.generate(bot, `${domain}/create-clip/`, queryParams);
             const cmd = templateVal
                 ? templateVal.replace('{user}', userArg).replace('{url}', apiCall)
-                : `🎬 Clip creado por ${userArg}: ${apiCall}`;
+                : apiCall;
             return { full: botUtils.addcmd('!clip', cmd), url: cmd };
         }
     },

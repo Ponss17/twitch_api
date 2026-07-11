@@ -109,6 +109,25 @@ describe('commandsController', () => {
             );
         });
 
+        it('should replace {user} in clip template from query', async () => {
+            const req = mockReq({
+                query: {
+                    channel: 'testchannel',
+                    user: 'snake_1719',
+                    template: 'Clip creado por {user}: {url}'
+                }
+            });
+            const res = mockRes();
+
+            (apiService.createClip as jest.Mock).mockResolvedValue('https://clips.twitch.tv/test');
+
+            await createClip(req, res);
+
+            expect(res.send).toHaveBeenCalledWith(
+                'Clip creado por snake_1719: https://clips.twitch.tv/test'
+            );
+        });
+
         it('should fallback to stream title if no q/title provided', async () => {
             const req = mockReq({
                 query: {
