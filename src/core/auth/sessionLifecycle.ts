@@ -2,6 +2,7 @@ import { bindCommandStoreUser } from '@/features/commands/lib/commandStore';
 import { clearDashboardSplashFlags } from '@/features/dashboard/lib/splashFlags';
 import { getSession, removeSessionStorage } from './sessionStorage';
 import { clearValidateCache } from './validateCache';
+import { clearRevealedApiKeyCache } from './revealApiKey';
 
 const AUTH_SYNC_CHANNEL = 'auth_sync_channel';
 
@@ -25,6 +26,7 @@ function clearSession(): void {
     const previous = getSession();
     bindCommandStoreUser(undefined);
     removeSessionStorage();
+    clearRevealedApiKeyCache();
     if (typeof window !== 'undefined') {
         clearValidateCache(previous);
         clearDashboardSplashFlags();

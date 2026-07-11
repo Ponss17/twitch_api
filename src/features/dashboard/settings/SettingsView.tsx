@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { authHeaders } from '@/core/api/auth';
-import { fetchRevealApiKey } from '@/core/auth/revealApiKey';
+import { fetchRevealApiKey, clearRevealedApiKeyCache } from '@/core/auth/revealApiKey';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { fetchDashboardProfile, type DashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
 import {
@@ -61,6 +61,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
     const clearRevealedKey = useCallback(() => {
         setRevealedKey(null);
         setKeyVisible(false);
+        clearRevealedApiKeyCache();
         if (keyHideTimerRef.current) {
             window.clearTimeout(keyHideTimerRef.current);
             keyHideTimerRef.current = null;
