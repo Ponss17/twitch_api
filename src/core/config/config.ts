@@ -21,9 +21,11 @@ export const API_ENDPOINTS = {
     DUEL: `${API_BASE}/minigames/duel/`,
     AUTH_LOGIN: `${API_BASE}/auth/twitch/`,
     AUTH_EXCHANGE: `${API_BASE}/auth/exchange/`,
+    AUTH_LOGOUT: `${API_BASE}/auth/logout/`,
     OVERLAY_EXCHANGE: `${API_BASE}/auth/overlay-exchange/`,
     EXPORT_CHECK: `${API_BASE}/dashboard/export-check/`,
-    EXPORT_COMPLETE: `${API_BASE}/dashboard/export-complete/`
+    EXPORT_COMPLETE: `${API_BASE}/dashboard/export-complete/`,
+    REVEAL_API_KEY: `${API_BASE}/dashboard/reveal-api-key/`
 } as const;
 
 /** Página pública de estado (Better Stack). */

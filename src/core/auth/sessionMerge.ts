@@ -3,12 +3,6 @@ import { getSession, saveSession } from './sessionStorage';
 
 function pickSessionFromValidate(result: ApiResponse): Partial<Session> {
     const partial: Partial<Session> = {};
-    if (typeof result.apiKey === 'string' && result.apiKey) {
-        partial.apiKey = result.apiKey;
-    }
-    if (typeof result.token === 'string' && result.token) {
-        partial.token = result.token;
-    }
     if (typeof result.overlayToken === 'string' && result.overlayToken) {
         partial.overlayToken = result.overlayToken;
     }
