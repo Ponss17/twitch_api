@@ -14,7 +14,6 @@ const USAGE_TO_ACTIVITY: Record<DashboardUsageKey, ActivityLogType> = {
     clips: 'clip',
     followage: 'followage',
     so: 'shoutout',
-    message: 'message',
     stalker: 'stalker',
     trends: 'trends',
     roulette: 'roulette',
