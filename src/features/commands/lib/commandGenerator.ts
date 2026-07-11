@@ -5,7 +5,7 @@ export const CommandGenerator = {
             arg: (name: string) => {
                 if (name === 'user' || name === 'sender') return '$(user)';
                 if (name === 'touser') return '$(touser)';
-                if (name === 'query') return '$(1+)';
+                if (name === 'query') return '$(querystring)';
                 return `$(${name})`;
             },
             addcmd: (trigger: string, cmd: string) => `!addcom ${trigger} ${cmd}`
