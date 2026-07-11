@@ -64,6 +64,7 @@ describe('COMMAND_CONFIG generation', () => {
         );
 
         expect(full).toBe(`!addcom !clip ${url}`);
+        expect(url).toContain('VoHiYo Clip creado por $(user):');
         expect(url).toContain('$(urlfetch');
         expect(url).toContain('/create-clip?');
         expect(url).toContain('&title=$(querystring)');
