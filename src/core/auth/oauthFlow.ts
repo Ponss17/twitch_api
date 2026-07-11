@@ -1,4 +1,5 @@
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
+import { withApiCredentials } from './apiCredentials';
 import { getSession } from './sessionStorage';
 import { invalidateSession } from './sessionLifecycle';
 
@@ -47,8 +48,6 @@ function parseStoredSession(): Session {
         login: savedSession?.login || '',
         displayName: savedSession?.displayName || '',
         profile_image_url: savedSession?.profile_image_url || '',
-        token: savedSession?.token,
-        apiKey: savedSession?.apiKey,
         userId: savedSession?.userId,
         isNewLogin: false
     };
@@ -63,7 +62,8 @@ export async function resolveSessionFromUrl(): Promise<Session> {
     if (authToken) {
         try {
             const response = await fetch(
-                `${API_ENDPOINTS.AUTH_EXCHANGE}?auth=${encodeURIComponent(authToken)}`
+                `${API_ENDPOINTS.AUTH_EXCHANGE}?auth=${encodeURIComponent(authToken)}`,
+                withApiCredentials()
             );
             if (response.ok) {
                 const data = (await response.json()) as Session;
@@ -72,8 +72,6 @@ export async function resolveSessionFromUrl(): Promise<Session> {
                     login: data.login || '',
                     displayName: data.displayName || '',
                     profile_image_url: data.profile_image_url || '',
-                    token: data.token,
-                    apiKey: data.apiKey,
                     userId: data.userId,
                     isNewLogin: true
                 };
@@ -99,7 +97,7 @@ export function readOptimisticAuthState(): {
         return { session: null, loading: true, authenticated: false };
     }
     const stored = getSession();
-    if (stored?.apiKey || stored?.token) {
+    if (stored?.token || stored?.userId) {
         return { session: stored, loading: true, authenticated: false };
     }
     return { session: null, loading: true, authenticated: false };
@@ -118,7 +116,12 @@ export function startTwitchLogin(): void {
     window.location.href = `${API_ENDPOINTS.AUTH_LOGIN}?${params.toString()}`;
 }
 
-export function logout(): void {
+export async function logout(): Promise<void> {
+    try {
+        await fetch(API_ENDPOINTS.AUTH_LOGOUT, withApiCredentials({ method: 'POST' }));
+    } catch {
+        /* sin red */
+    }
     invalidateSession({ broadcast: true });
     window.location.href = window.location.origin + window.location.pathname;
 }

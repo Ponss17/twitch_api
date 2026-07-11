@@ -1,9 +1,9 @@
 import type { Session } from '@/core/config/config';
 import { parseHttpErrorBody } from '@/core/api/apiError';
 import { authHeaders } from './authHeaders';
+import { withApiCredentials } from './apiCredentials';
 import { invalidateSession } from './sessionLifecycle';
 import { getSession } from './sessionStorage';
-import { validateSession } from './validateSession';
 
 export async function apiFetch<T>(
     url: string,
@@ -11,32 +11,22 @@ export async function apiFetch<T>(
     init: RequestInit = {}
 ): Promise<T> {
     const fetchWithHeaders = (sess: Session | null) =>
-        fetch(url, {
-            ...init,
-            headers: {
-                ...authHeaders(sess),
-                ...(init.headers as Record<string, string> | undefined)
-            }
-        });
+        fetch(
+            url,
+            withApiCredentials({
+                ...init,
+                headers: {
+                    ...authHeaders(sess),
+                    ...(init.headers as Record<string, string> | undefined)
+                }
+            })
+        );
 
-    let response = await fetchWithHeaders(session);
+    const response = await fetchWithHeaders(session);
 
     if (!response.ok) {
         if (response.status === 401 && typeof window !== 'undefined') {
-            if (session?.apiKey) {
-                // Intento 1: refrescar token via apiKey
-                const refreshResult = await validateSession({ ...session, token: undefined });
-                if (refreshResult.valid && refreshResult.token) {
-                    const newSession = getSession();
-                    response = await fetchWithHeaders(newSession);
-                    if (response.ok) {
-                        return (await response.json()) as T;
-                    }
-                }
-            }
-
-            // Si sigue siendo 401, esperar 3s y reintentar una vez antes de desloguear
-            // Esto evita logouts por cold starts o spikes transitorios de Vercel
+            // Esperar 3s y reintentar una vez antes de desloguear (cold starts / spikes de Vercel)
             await new Promise<void>((resolve) => window.setTimeout(resolve, 3000));
             const retryResponse = await fetchWithHeaders(getSession());
             if (retryResponse.ok) {
