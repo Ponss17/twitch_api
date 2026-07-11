@@ -6,7 +6,31 @@ export type RevealApiKeyResult = {
     masked: string;
 };
 
+let memoryCache: RevealApiKeyResult | null = null;
+let visibilityListenerAttached = false;
+
+/** Borra la key revelada en RAM (logout, pestaña oculta, salir de Configuración). */
+export function clearRevealedApiKeyCache(): void {
+    memoryCache = null;
+}
+
+function attachVisibilityClearOnce(): void {
+    if (visibilityListenerAttached || typeof document === 'undefined') return;
+    visibilityListenerAttached = true;
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+            clearRevealedApiKeyCache();
+        }
+    });
+}
+
 export async function fetchRevealApiKey(): Promise<RevealApiKeyResult> {
+    attachVisibilityClearOnce();
+
+    if (memoryCache) {
+        return memoryCache;
+    }
+
     const response = await fetch(
         API_ENDPOINTS.REVEAL_API_KEY,
         withApiCredentials({
@@ -25,5 +49,7 @@ export async function fetchRevealApiKey(): Promise<RevealApiKeyResult> {
         throw new Error(message);
     }
 
-    return (await response.json()) as RevealApiKeyResult;
+    const result = (await response.json()) as RevealApiKeyResult;
+    memoryCache = result;
+    return result;
 }
