@@ -27,8 +27,8 @@ describe('COMMAND_CONFIG generation', () => {
         expect(full).toBe(`!addcom !followage ${url}`);
         expect(full).toContain(API_KEY);
         expect(full).toContain('$(urlfetch');
-        expect(full).toContain('/followage/?');
-        expect(full).toContain('&user=$(user)');
+        expect(full).toContain('/followage?');
+        expect(full).toContain(`channel=${LOGIN}&user=$(user)&apiKey=`);
 
         const masked = maskCommand(full, API_KEY);
         expect(masked).not.toContain(API_KEY);
@@ -65,8 +65,8 @@ describe('COMMAND_CONFIG generation', () => {
 
         expect(full).toBe(`!addcom !clip ${url}`);
         expect(url).toContain('$(urlfetch');
-        expect(url).toContain('/create-clip/?');
-        expect(url).toContain('&title=$(1+)');
+        expect(url).toContain('/create-clip?');
+        expect(url).toContain('&title=$(querystring)');
         expect(url).toContain('&user=$(user)');
     });
 
@@ -82,7 +82,23 @@ describe('COMMAND_CONFIG generation', () => {
         );
 
         expect(url).toContain('$(customapi');
-        expect(url).toContain('&touser=${touser}');
+        expect(url).toContain('/shoutout?');
+        expect(url).toContain(`channel=${LOGIN}&touser=\${touser}&apiKey=`);
+    });
+
+    it('shoutout nightbot orden channel, touser, apiKey', () => {
+        const query = baseQuery();
+        const { url } = COMMAND_CONFIG.shoutout.generate(
+            DOMAIN,
+            LOGIN,
+            `apiKey=${encodeURIComponent(API_KEY)}`,
+            'nightbot',
+            '',
+            query
+        );
+
+        expect(url).toContain('/shoutout?');
+        expect(url).toContain(`channel=${LOGIN}&touser=$(touser)&apiKey=`);
     });
 
     it('8ball incluye mood y question en query', () => {
@@ -98,8 +114,9 @@ describe('COMMAND_CONFIG generation', () => {
         );
 
         expect(full).toContain('&mood=sarcastic');
-        expect(full).toContain('&question=$(1+)');
-        expect(full).toContain('/minigames/magic8/?');
+        expect(full).toContain('&question=$(querystring)');
+        expect(full).toContain('/minigames/magic8?');
+        expect(full).toContain(`channel=${LOGIN}&question=$(querystring)&user=$(user)&mood=sarcastic&apiKey=`);
     });
 
     it('ruleta hardcore activado', () => {
@@ -115,6 +132,8 @@ describe('COMMAND_CONFIG generation', () => {
         );
 
         expect(full).toContain('&hardcore=true');
+        expect(full).toContain('/minigames/russian?');
+        expect(full).toContain(`channel=${LOGIN}&user=$(user)&hardcore=true&apiKey=`);
     });
 
     it('duelo incluye challenger y target', () => {
@@ -130,5 +149,7 @@ describe('COMMAND_CONFIG generation', () => {
 
         expect(full).toContain('&challenger=$(user)');
         expect(full).toContain('&target=$(1)');
+        expect(full).toContain('/minigames/duel?');
+        expect(full).toContain(`channel=${LOGIN}&challenger=$(user)&target=$(1)&apiKey=`);
     });
 });
