@@ -10,6 +10,7 @@ import {
     readFreshValidateCache,
     writeValidateCache
 } from './validateCache';
+import { markSessionValidated } from './sessionAuthGrace';
 
 function canUseDegradedSession(session: Session): boolean {
     if (session.token || session.overlayToken || session.userId) return true;
@@ -60,6 +61,9 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
             label: 'Sesión validada (caché local)',
             cached: true
         });
+        if (cached.valid === true) {
+            markSessionValidated();
+        }
         return cached;
     }
 
@@ -137,6 +141,7 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
 
         if (result.valid === true) {
             saveSession(mergeSessionFieldsFromValidate(session, result));
+            markSessionValidated();
         }
 
         if (result.valid !== true && result.networkError) {

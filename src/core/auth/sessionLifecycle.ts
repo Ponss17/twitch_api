@@ -3,6 +3,7 @@ import { clearDashboardSplashFlags } from '@/features/dashboard/lib/splashFlags'
 import { getSession, removeSessionStorage } from './sessionStorage';
 import { clearValidateCache } from './validateCache';
 import { clearRevealedApiKeyCache } from './revealApiKey';
+import { clearSessionAuthGrace } from './sessionAuthGrace';
 
 const AUTH_SYNC_CHANNEL = 'auth_sync_channel';
 
@@ -27,6 +28,7 @@ function clearSession(): void {
     bindCommandStoreUser(undefined);
     removeSessionStorage();
     clearRevealedApiKeyCache();
+    clearSessionAuthGrace();
     if (typeof window !== 'undefined') {
         clearValidateCache(previous);
         clearDashboardSplashFlags();

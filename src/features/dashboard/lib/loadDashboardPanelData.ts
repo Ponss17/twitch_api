@@ -27,7 +27,12 @@ export async function loadDashboardPanelData(
 ): Promise<DashboardPanelLoadResult> {
     const [summaryResult, activityResult, profileResult] = await Promise.allSettled([
         fetchDashboardSummary(session, undefined, { fresh: options?.fresh }),
-        apiFetch<ActivityLogItem[] | { logs?: ActivityLogItem[] }>(API_ENDPOINTS.ACTIVITY, session),
+        apiFetch<ActivityLogItem[] | { logs?: ActivityLogItem[] }>(
+            API_ENDPOINTS.ACTIVITY,
+            session,
+            {},
+            { logoutOn401: false }
+        ),
         import('@/features/dashboard/lib/dashboardSummary').then((m) =>
             m.fetchDashboardProfile(session, { fresh: options?.fresh })
         )

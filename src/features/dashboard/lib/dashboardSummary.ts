@@ -30,7 +30,7 @@ export async function fetchDashboardSummary(
     if (options?.fresh) {
         url += `${url.includes('?') ? '&' : '?'}_=${Date.now()}`;
     }
-    return apiFetch<DashboardSummaryResponse>(url, session);
+    return apiFetch<DashboardSummaryResponse>(url, session, {}, { logoutOn401: false });
 }
 
 export async function fetchDashboardProfile(
@@ -42,5 +42,5 @@ export async function fetchDashboardProfile(
     if (options?.fresh) {
         url += `&_=${Date.now()}`;
     }
-    return apiFetch<DashboardProfile>(url, session);
+    return apiFetch<DashboardProfile>(url, session, {}, { logoutOn401: false });
 }
