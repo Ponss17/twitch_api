@@ -1,6 +1,6 @@
 import { Edit, Check, Loader2, AlertTriangle, Copy, Play, Bot, FileCode, FlaskConical } from 'lucide-react';
 
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { SlotText } from 'slot-text/react';
 import 'slot-text/style.css';
 import {
@@ -17,7 +17,7 @@ import {
 } from '@/core/utils/tw';
 import { SelectFieldRow } from '@/shared/ui/SelectField';
 import { API_ENDPOINTS } from '@/core/config/config';
-import { buildAuthQueryParamForDisplay, API_KEY_PLACEHOLDER } from '@/core/api/authQuery';
+import { buildAuthQueryParamForDisplay } from '@/core/api/authQuery';
 import { fetchRevealApiKey } from '@/core/auth/revealApiKey';
 import { BOT_OPTIONS } from '@/features/commands/lib/commandGenerator';
 import type { CommandConfigItem } from '@/features/commands/lib/config';
@@ -86,6 +86,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
     const { showToast } = useToast();
     const [stored, updateConfig] = useCommandConfig(config.id);
     const [isCopied, setIsCopied] = useState(false);
+    const codeRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
         if (!config.extraSelectors?.length) return;
@@ -140,11 +141,9 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
             extraValues
         );
 
-        const realCmd = format === 'full' ? result.full : result.url;
-        const secret = apiKeyOverride || session.apiKey || session.token || API_KEY_PLACEHOLDER;
-        const masked = realCmd.split(secret).join('**************');
+        const cmd = format === 'full' ? result.full : result.url;
 
-        return { masked, full: realCmd, tokenParam };
+        return { masked: cmd, full: cmd, tokenParam };
     };
 
     const generated = useMemo(
@@ -152,6 +151,13 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [session, bot, template, format, extraValues, config]
     );
+
+    useEffect(() => {
+        const el = codeRef.current;
+        if (!el) return;
+        el.style.height = 'auto';
+        el.style.height = `${Math.max(38, el.scrollHeight)}px`;
+    }, [generated.masked]);
 
     const copyCommand = async () => {
         let full = generated.full;
@@ -246,7 +252,12 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                 />
 
                 <div className={codeBox}>
-                    <textarea readOnly value={generated.masked} className={codeTextarea} />
+                    <textarea
+                        ref={codeRef}
+                        readOnly
+                        value={generated.masked}
+                        className={codeTextarea}
+                    />
                     <button
                         type="button"
                         onClick={() => void copyCommand()}
