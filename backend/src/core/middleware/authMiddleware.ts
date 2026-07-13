@@ -23,6 +23,54 @@ const invalidTokensCache = new NegativeCache<string>(30 * 1000);
 const lastActiveThrottle = new BoundedMap<string, number>(1000);
 const pendingUserDbRequests = new Map<string, Promise<StoredUser | null>>();
 
+type CookieResolveResult =
+    | { status: 'ok'; user: StoredUser }
+    | { status: 'missing' }
+    | { status: 'transient' };
+
+function isAuthCookieError(error: unknown): boolean {
+    const err = error as AppError | Error;
+    const statusCode = err instanceof AppError ? err.statusCode : undefined;
+    const message = err.message ?? '';
+    return (
+        statusCode === 401 ||
+        message.includes('inválid') ||
+        message.includes('expirad') ||
+        message.includes('Sesión expirada')
+    );
+}
+
+function isTransientCookieError(error: unknown): boolean {
+    if (isAuthCookieError(error)) return false;
+    const message = (error as Error).message ?? '';
+    return (
+        message.includes('fetch failed') ||
+        message.includes('ECONN') ||
+        message.includes('ETIMEDOUT') ||
+        message.includes('timeout') ||
+        message.includes('network')
+    );
+}
+
+function respondSessionUnavailable(res: Response, req: AuthenticatedRequest): Response {
+    if (isJsonApiRoute(req.path)) {
+        return jsonError(res, 503, 'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.', {
+            code: 'SERVICE_UNAVAILABLE',
+            details: { offline: true }
+        });
+    }
+    if (isApiRoute(req.path)) {
+        res.setHeader('Content-Type', 'text/plain');
+        return res
+            .status(503)
+            .send('Servicio de autenticación no disponible. Intenta de nuevo.');
+    }
+    return jsonError(res, 503, 'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.', {
+        code: 'SERVICE_UNAVAILABLE',
+        details: { offline: true }
+    });
+}
+
 function rejectInactiveUser(res: Response, path: string): Response {
     if (isJsonApiRoute(path)) {
         return jsonError(res, 403, 'Cuenta suspendida.', { code: 'ACCOUNT_SUSPENDED' });
@@ -61,48 +109,43 @@ const rejectUnauthorized = async (
 async function tryResolveCookieSession(
     req: AuthenticatedRequest,
     res: Response
-): Promise<StoredUser | null> {
+): Promise<CookieResolveResult> {
     const cookieUserId = readSessionUserId(req);
-    if (!cookieUserId) return null;
+    if (!cookieUserId) return { status: 'missing' };
 
     const revoked = await cacheService.get<boolean>(`auth:revoke:user:${cookieUserId}`);
     if (revoked) {
         clearSessionCookie(res);
-        return null;
+        return { status: 'missing' };
     }
 
     try {
         const user = await dbService.getUser(cookieUserId);
         if (!user || user.isActive === false) {
             clearSessionCookie(res);
-            return null;
+            return { status: 'missing' };
         }
 
         const { accessToken } = await getValidTokenForUser(user);
+        user.accessToken = accessToken;
         res.locals.apiUser = user;
         res.locals.isCookieSession = true;
         req.userId = user.userId;
         req.login = user.login;
         req.displayName = user.displayName;
         req.twitchToken = accessToken;
-        return user;
+        return { status: 'ok', user };
     } catch (error) {
-        const err = error as AppError | Error;
-        const statusCode = err instanceof AppError ? err.statusCode : undefined;
-        const message = err.message ?? '';
-        const isAuthError =
-            statusCode === 401 ||
-            message.includes('inválid') ||
-            message.includes('expirad') ||
-            message.includes('Sesión expirada');
+        logger.warn('[Auth] Cookie session error:', (error as Error).message);
 
-        logger.warn('[Auth] Cookie session error:', message);
-
-        // Solo borrar cookie en fallos de autenticación reales — no en timeouts/DB caída.
-        if (isAuthError) {
+        if (isAuthCookieError(error)) {
             clearSessionCookie(res);
+            return { status: 'missing' };
         }
-        return null;
+        if (isTransientCookieError(error)) {
+            return { status: 'transient' };
+        }
+        return { status: 'missing' };
     }
 }
 
@@ -116,19 +159,37 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             req.userId = user.userId;
             req.login = user.login;
             req.displayName = user.displayName;
-            req.twitchToken = user.accessToken;
+            try {
+                const { accessToken } = await getValidTokenForUser(user);
+                user.accessToken = accessToken;
+                req.twitchToken = accessToken;
+            } catch (error) {
+                if (isTransientCookieError(error)) {
+                    return respondSessionUnavailable(res, req);
+                }
+                if (isAuthCookieError(error)) {
+                    return await rejectUnauthorized(req, res, () =>
+                        jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN)
+                    );
+                }
+                req.twitchToken = user.accessToken;
+            }
 
             throttledUpdateLastActive(user.userId);
             return next();
         }
 
-        const cookieUser = await tryResolveCookieSession(req, res);
-        if (cookieUser) {
+        const cookieResult = await tryResolveCookieSession(req, res);
+        if (cookieResult.status === 'ok') {
+            const cookieUser = cookieResult.user;
             if (cookieUser.isActive === false) {
                 return rejectInactiveUser(res, req.path);
             }
             throttledUpdateLastActive(cookieUser.userId);
             return next();
+        }
+        if (cookieResult.status === 'transient') {
+            return respondSessionUnavailable(res, req);
         }
 
         let token = safeString(req.query.token) || safeString(req.body?.token);

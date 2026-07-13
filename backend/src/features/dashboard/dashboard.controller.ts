@@ -17,6 +17,7 @@ import { clearSessionCookie } from '../../core/utils/sessionCookie';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { trackRequest } from '../../core/utils/tracking';
 import { maskApiKey } from '../../core/utils/maskApiKey';
+import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 
 export const revealApiKey = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
@@ -260,30 +261,42 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
             const apiUser = res.locals.apiUser;
             const limits = resolveUserLimits(apiUser);
 
-            const cacheKey = ownerScopedCacheKey(
-                userId,
-                `cache:cmd:getUserInfo:login:${login}`
+            return withTwitchAuth(
+                req,
+                res,
+                async (token) => {
+                    const cacheKey = ownerScopedCacheKey(
+                        userId,
+                        `cache:cmd:getUserInfo:login:${login}`
+                    );
+                    const timezone = apiUser?.timezone || 'UTC';
+                    const cached = await cacheService.get(cacheKey);
+                    if (cached && typeof cached === 'object') {
+                        return { ...cached, ...limits, timezone };
+                    }
+
+                    const info = await apiService.getUserInfo(login, token);
+                    const [followers, isLive] = await Promise.all([
+                        apiService.getFollowersCount(info.id, token),
+                        apiService.isStreamLive(info.id, token)
+                    ]);
+
+                    const profileResult = buildDashboardProfile(info, followers, isLive, limits);
+
+                    await cacheService.set(
+                        cacheKey,
+                        profileResult,
+                        resolveCache('DASHBOARD_PROFILE', apiUser?.role, apiUser?.customCacheTtl)
+                    );
+                    return {
+                        ...profileResult,
+                        ...limits,
+                        timezone,
+                        cacheTtl: resolveCache('COMMAND', apiUser?.role, apiUser?.customCacheTtl)
+                    };
+                },
+                'getUserInfo'
             );
-            const timezone = apiUser?.timezone || 'UTC';
-            const cached = await cacheService.get(cacheKey);
-            if (cached && typeof cached === 'object') {
-                return { ...cached, ...limits, timezone };
-            }
-
-            try {
-                const info = await apiService.getUserInfo(login, req.twitchToken || '');
-                const [followers, isLive] = await Promise.all([
-                    apiService.getFollowersCount(info.id, req.twitchToken || ''),
-                    apiService.isStreamLive(info.id, req.twitchToken || '')
-                ]);
-
-                const profileResult = buildDashboardProfile(info, followers, isLive, limits);
-
-                await cacheService.set(cacheKey, profileResult, resolveCache('DASHBOARD_PROFILE', apiUser?.role, apiUser?.customCacheTtl));
-                return { ...profileResult, ...limits, timezone, cacheTtl: resolveCache('COMMAND', apiUser?.role, apiUser?.customCacheTtl) };
-            } catch {
-                throw new AppError(MESSAGES.DASHBOARD.USER_INFO_ERROR, 500);
-            }
         }
     );
 
@@ -386,18 +399,21 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
 
         const [profile, analytics] = await Promise.all([
             needProfile
-                ? (async () => {
-                      const info = await apiService.getUserInfo(login, token || '');
-                      // followers y isLive en paralelo. isLive usa su propio caché de 30s
-                      const [followers, isLive] = await Promise.all([
-                          apiService.getFollowersCount(info.id, token || ''),
-                          apiService.isStreamLive(info.id, token || '')
-                      ]);
-                      const limits = resolveUserLimits(res.locals.apiUser);
-                      // Guardamos el perfil SIN isLive en caché (tiene su propio ciclo de vida de 30s)
-                      const profileData = buildDashboardProfile(info, followers, false, limits);
-                      return { profileData, isLive, limits };
-                  })()
+                ? withTwitchAuth(
+                      req,
+                      res,
+                      async (token) => {
+                          const info = await apiService.getUserInfo(login, token);
+                          const [followers, isLive] = await Promise.all([
+                              apiService.getFollowersCount(info.id, token),
+                              apiService.isStreamLive(info.id, token)
+                          ]);
+                          const limits = resolveUserLimits(res.locals.apiUser);
+                          const profileData = buildDashboardProfile(info, followers, false, limits);
+                          return { profileData, isLive, limits };
+                      },
+                      'getSummary'
+                  )
                 : Promise.resolve(null),
             needAnalytics && userId
                 ? (async () => {
@@ -445,7 +461,20 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             analytics: analytics ?? null
         });
     } catch (error) {
+        if (error instanceof TwitchApiError && error.statusCode === 401 && (cachedProfile || cachedAnalytics)) {
+            return res.json({
+                profile: mergeProfileLimits(cachedProfile ? { ...cachedProfile } : null),
+                analytics: cachedAnalytics ?? null
+            });
+        }
+        if (error instanceof AppError && error.statusCode === 401 && (cachedProfile || cachedAnalytics)) {
+            return res.json({
+                profile: mergeProfileLimits(cachedProfile ? { ...cachedProfile } : null),
+                analytics: cachedAnalytics ?? null
+            });
+        }
         if (error instanceof TwitchApiError) throw error;
+        if (error instanceof AppError) throw error;
         logger.error('Error in getSummary:', error);
         throw new AppError(MESSAGES.DASHBOARD.USER_INFO_ERROR, 500);
     }
