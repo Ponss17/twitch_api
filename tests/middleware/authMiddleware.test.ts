@@ -11,6 +11,13 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     updateLastActive: mockUpdateLastActive
 }));
 
+jest.mock('../../backend/src/features/auth/auth.service', () => ({
+    getValidTokenForUser: jest.fn(async (user: { accessToken?: string; userId: string }) => ({
+        accessToken: user.accessToken || 'tok',
+        userId: user.userId
+    }))
+}));
+
 jest.mock('@/core/database/redisClient');
 
 jest.mock('@/core/utils/routeHelpers', () => ({

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { logger } from '../utils/logger';
 import * as authService from '../../features/auth/auth.service';
 import { AppError } from '../errors/AppError';
+import type { AuthenticatedRequest } from '../../types/twitch';
 
 /** Serializa un error Axios de forma legible para el logger (evita el {} vacío). */
 function serializeError(error: unknown): Record<string, unknown> {
@@ -65,14 +66,33 @@ export const withTwitchAuth = async <T>(
             const is401 =
                 httpStatus === 401 || err.message?.includes('401');
 
-            if (is401 && apiKey && attempts < maxAttempts) {
-                logger.warn(`[${context}] 401 detected (attempt ${attempts}), forcing refresh...`);
-                try {
-                    const authData = await authService.getValidToken(apiKey);
-                    token = authData.accessToken;
-                    continue;
-                } catch (refreshErr) {
-                    logger.error(`[${context}] Forced refresh failed:`, refreshErr);
+            if (is401 && attempts < maxAttempts) {
+                if (apiKey) {
+                    logger.warn(`[${context}] 401 detected (attempt ${attempts}), forcing refresh...`);
+                    try {
+                        const authData = await authService.getValidToken(apiKey);
+                        token = authData.accessToken;
+                        req.twitchToken = token;
+                        continue;
+                    } catch (refreshErr) {
+                        logger.error(`[${context}] Forced refresh failed:`, refreshErr);
+                    }
+                } else {
+                    const userId = (req as AuthenticatedRequest).userId;
+                    if (userId) {
+                        logger.warn(
+                            `[${context}] 401 detected (attempt ${attempts}), refreshing OAuth for cookie session...`
+                        );
+                        try {
+                            token = await authService.refreshUserToken(userId);
+                            req.twitchToken = token;
+                            const apiUser = res.locals.apiUser as { accessToken?: string } | undefined;
+                            if (apiUser) apiUser.accessToken = token;
+                            continue;
+                        } catch (refreshErr) {
+                            logger.error(`[${context}] OAuth refresh failed:`, refreshErr);
+                        }
+                    }
                 }
             }
 
