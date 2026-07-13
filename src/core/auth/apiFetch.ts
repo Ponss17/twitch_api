@@ -41,8 +41,10 @@ export async function apiFetch<T>(
 
     const response = await fetchWithHeaders(session);
 
+    const isRetriableStatus = (status: number) => status === 401 || status === 503;
+
     if (!response.ok) {
-        if (response.status === 401 && typeof window !== 'undefined') {
+        if (isRetriableStatus(response.status) && typeof window !== 'undefined') {
             const inGrace = isWithinSessionAuthGrace();
             const retryDelays = inGrace ? GRACE_401_RETRY_MS : DEFAULT_401_RETRY_MS;
             let lastResponse = response;
@@ -53,13 +55,14 @@ export async function apiFetch<T>(
                 if (lastResponse.ok) {
                     return (await lastResponse.json()) as T;
                 }
-                if (lastResponse.status !== 401) {
+                if (!isRetriableStatus(lastResponse.status)) {
                     break;
                 }
             }
 
-            const shouldLogout = options.logoutOn401 !== false && !inGrace;
-            if (shouldLogout && lastResponse.status === 401) {
+            const shouldLogout =
+                lastResponse.status === 401 && options.logoutOn401 !== false && !inGrace;
+            if (shouldLogout) {
                 invalidateSession({ broadcast: true });
                 window.location.href = window.location.origin + window.location.pathname;
                 await new Promise(() => {});
