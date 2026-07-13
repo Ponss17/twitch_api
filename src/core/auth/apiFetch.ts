@@ -4,11 +4,28 @@ import { authHeaders } from './authHeaders';
 import { withApiCredentials } from './apiCredentials';
 import { invalidateSession } from './sessionLifecycle';
 import { getSession } from './sessionStorage';
+import { isWithinSessionAuthGrace } from './sessionAuthGrace';
+
+export type ApiFetchOptions = {
+    /**
+     * Si false, un 401 tras reintentos lanza error sin cerrar sesión.
+     * Útil en cargas parciales del panel.
+     */
+    logoutOn401?: boolean;
+};
+
+const GRACE_401_RETRY_MS = [600, 1200, 2000];
+const DEFAULT_401_RETRY_MS = [3000];
+
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
 
 export async function apiFetch<T>(
     url: string,
     session: Session | null,
-    init: RequestInit = {}
+    init: RequestInit = {},
+    options: ApiFetchOptions = {}
 ): Promise<T> {
     const fetchWithHeaders = (sess: Session | null) =>
         fetch(
@@ -26,22 +43,30 @@ export async function apiFetch<T>(
 
     if (!response.ok) {
         if (response.status === 401 && typeof window !== 'undefined') {
-            // Esperar 3s y reintentar una vez antes de desloguear (cold starts / spikes de Vercel)
-            await new Promise<void>((resolve) => window.setTimeout(resolve, 3000));
-            const retryResponse = await fetchWithHeaders(getSession());
-            if (retryResponse.ok) {
-                return (await retryResponse.json()) as T;
+            const inGrace = isWithinSessionAuthGrace();
+            const retryDelays = inGrace ? GRACE_401_RETRY_MS : DEFAULT_401_RETRY_MS;
+            let lastResponse = response;
+
+            for (const delayMs of retryDelays) {
+                await sleep(delayMs);
+                lastResponse = await fetchWithHeaders(getSession());
+                if (lastResponse.ok) {
+                    return (await lastResponse.json()) as T;
+                }
+                if (lastResponse.status !== 401) {
+                    break;
+                }
             }
 
-            if (retryResponse.status === 401) {
-                // Ahora sí es un 401 confirmado — cerrar sesión
+            const shouldLogout = options.logoutOn401 !== false && !inGrace;
+            if (shouldLogout && lastResponse.status === 401) {
                 invalidateSession({ broadcast: true });
                 window.location.href = window.location.origin + window.location.pathname;
                 await new Promise(() => {});
             }
 
-            const retryText = await retryResponse.text();
-            throw new Error(parseHttpErrorBody(retryText, `HTTP ${retryResponse.status}`));
+            const retryText = await lastResponse.text();
+            throw new Error(parseHttpErrorBody(retryText, `HTTP ${lastResponse.status}`));
         }
 
         const text = await response.text();
