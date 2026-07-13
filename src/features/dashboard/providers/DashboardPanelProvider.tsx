@@ -24,6 +24,7 @@ import { formatFetchErrorForUi, isFetchNetworkError } from '@/core/api/apiError'
 import { logError } from '@/core/logging/logError';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { dispatchDashboardDataReady } from '@/features/dashboard/lib/dashboardPanelEvents';
+import { isWithinSessionAuthGrace } from '@/core/auth/sessionAuthGrace';
 import { loadDashboardPanelData } from '@/features/dashboard/lib/loadDashboardPanelData';
 import {
     DASHBOARD_FALLBACK_POLL_MS,
@@ -513,6 +514,7 @@ export function DashboardPanelProvider({
         document.addEventListener('visibilitychange', onVisible);
 
         const onAuthFailed = () => {
+            if (isWithinSessionAuthGrace()) return;
             showToastRef.current('Sesión expirada. Redirigiendo al login...', 'error');
             authRedirectTimerRef.current = window.setTimeout(() => {
                 window.location.href = appPath('/');

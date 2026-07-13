@@ -62,10 +62,11 @@ Entry serverless: `api/index.js`. Local: `pnpm dev:api` (puerto 3000).
 ## OAuth seguro
 
 1. Callback Twitch → `GET /api/auth/twitch/callback` → redirect con `?auth=<token>` (HMAC, 5 min), **sin** API key en URL permanente.
-2. Frontend llama `GET /api/auth/exchange?auth=…` → recibe `apiKey` + perfil.
-3. Sesión en `localStorage` (scoped por `userId` vía `src/core/session/localPrefs.ts`); validación vía `/system/validate` con **caché local dinámica** (hasta 35 min antes de `tokenExpiresAt`, o 1 h sin OAuth).
+2. Frontend llama `GET /api/auth/exchange?auth=…` → recibe perfil; cookie `lp_sess` (API Key bajo demanda vía `reveal-api-key`).
+3. Sesión: cookie HttpOnly `lp_sess` + metadatos en `localStorage` (sin API Key persistida); validación vía `/system/validate` con **caché local dinámica** (hasta 35 min antes de `tokenExpiresAt`, o 1 h sin OAuth).
 4. El panel no monta hasta que `validateSession` termina (`readOptimisticAuthState`); llamadas concurrentes a validate se deduplican.
 5. `invalidateSession()` centraliza logout local y sync entre pestañas (`BroadcastChannel` en `sessionLifecycle.ts`).
+6. Tras validate OK, `sessionAuthGrace` (2 min) + `apiFetch` reintenta 401 transitorios sin logout; el panel usa `logoutOn401: false` en summary/activity/profile.
 
 ## Caché (Vercel KV)
 
@@ -241,7 +242,7 @@ Puntos **fuera** del cierre de auditoría jul 2026 — no mezclar con parches de
 
 ### Cierre auditoría jul 2026 (aplicado en código)
 
-- Overlay scope global, auth exchange single-use, delete-account CASCADE, AES-GCM, `HMAC_SIGNING_SECRET` **obligatorio en prod**, OAuth state con `exp`, circuit breaker en interceptor axios (+ `recordSuccess` en respuestas Helix), CI URLs canónicas, `pnpm audit` en CI, timezone dashboard alineado con perfil, debounce stats revision bump, invalidación caches Helix, redacción unificada de query secrets en logs, heavy RL con fallback L1, dashboard RL en KV, boot sin 401 (validate gate + dedupe), caché validate TTL dinámico, refactor `src/core/auth/`, contratos dashboard `@contracts/*`, a11y base panel.
+- Overlay scope global, auth exchange single-use, delete-account CASCADE, AES-GCM, `HMAC_SIGNING_SECRET` **obligatorio en prod**, OAuth state con `exp`, circuit breaker en interceptor axios (+ `recordSuccess` en respuestas Helix), CI URLs canónicas, `pnpm audit` en CI, timezone dashboard alineado con perfil, debounce stats revision bump, invalidación caches Helix, redacción unificada de query secrets en logs, heavy RL con fallback L1, dashboard RL en KV, boot sin 401 (validate gate + dedupe), caché validate TTL dinámico, refactor `src/core/auth/`, contratos dashboard `@contracts/*`, a11y base panel, gracia post-validate en `apiFetch` (jul 2026).
 
 ## Documentación
 
@@ -253,4 +254,4 @@ Puntos **fuera** del cierre de auditoría jul 2026 — no mezclar con parches de
 | SQL Supabase prod | `scripts/supabase/optimizations.sql` |
 | Notas internas / IA / planes | Carpeta `docs/` — **solo local**, en `.gitignore`, no se publica en GitHub |
 
-La carpeta `docs/` (AI-CONTEXT, plan-subdominio, auditorías, commits históricos) queda para trabajo local y agentes; el repo remoto no la incluye.
+La carpeta `docs/` (`LOG.md`, `AI-CONTEXT.md`, `DOCUMENTATION.md`, `SMOKE-PROD.md`) queda para trabajo local y agentes; el repo remoto no la incluye (`.gitignore`).

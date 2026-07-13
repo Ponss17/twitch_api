@@ -493,12 +493,13 @@ Imports públicos siguen en `@/core/api/auth` (re-export). Implementación modul
 |---------|-----|
 | `auth/sessionStorage.ts` | `getSession`, `saveSession`, `SESSION_KEY` |
 | `auth/validateCache.ts` | Caché local validate; TTL dinámico; `clearValidateCache` |
-| `auth/validateSession.ts` | `validateSession`, dedupe en vuelo, overlay exchange |
-| `auth/sessionLifecycle.ts` | `invalidateSession`, `initAuthSync` (BroadcastChannel logout) |
+| `auth/validateSession.ts` | `validateSession`, dedupe en vuelo, overlay exchange; marca gracia post-validate |
+| `auth/sessionAuthGrace.ts` | Ventana 2 min tras validate OK; evita logout por 401 transitorios en `apiFetch` |
+| `auth/sessionLifecycle.ts` | `invalidateSession`, `initAuthSync` (BroadcastChannel logout); limpia gracia |
 | `auth/sessionMerge.ts` | `mergeSessionFromValidate`, `resolveDegradedSession` |
 | `auth/oauthFlow.ts` | `resolveSessionFromUrl`, `stripSensitiveQueryParams`, login/logout, `readOptimisticAuthState` |
 | `auth/authHeaders.ts` | `authHeaders` (+ `preferApiKey` para overlay OBS) |
-| `auth/apiFetch.ts` | Fetch autenticado; retry 401 → validate → retry 3s → logout |
+| `auth/apiFetch.ts` | Fetch autenticado; 401 → reintentos (gracia 600/1200/2000 ms o 3 s fuera de gracia) → logout opcional (`logoutOn401`) |
 | `auth/index.ts` | Barrel interno |
 | `api/auth.ts` | `export * from '@/core/auth'` (compatibilidad) |
 
@@ -545,8 +546,8 @@ Otros:
 |---------|-----|
 | `lib/realtimeService.ts` | Cliente Supabase compartido, JWT, canales, reconnect, cooldown 5m |
 | `lib/dashboardStats.ts` | `DashboardLiveStats`, parse/merge, `getTodayRequestsTotal`, patches diarios |
-| `lib/loadDashboardPanelData.ts` | Parallel summary/activity/profile; freshness date |
-| `lib/dashboardSummary.ts` | Fetch SUMMARY / USER_INFO |
+| `lib/loadDashboardPanelData.ts` | Parallel summary/activity/profile; `logoutOn401: false`; carga parcial sin logout |
+| `lib/dashboardSummary.ts` | Fetch SUMMARY / USER_INFO (`logoutOn401: false`) |
 | `lib/dashboardSync.ts` | Intervalos poll + broadcast reset home |
 | `lib/tabSyncService.ts` | Líder por heartbeat BroadcastChannel |
 | `lib/dashboardTabs.ts` | `NAV_ITEMS` / `TAB_META` |
@@ -674,9 +675,10 @@ Checklist prod detallado: [ARCHITECTURE.md](ARCHITECTURE.md).
 - (Cerrado) Rate limit dashboard OAuth ya usa KV (`rl:sess:`) como bots; L1 solo fallback.
 - (Cerrado) `auth.ts` monolítico → paquete `src/core/auth/` (jul 2026).
 - (Cerrado) Boot dashboard: sin 401 en validate; caché validate con TTL dinámico por `tokenExpiresAt`.
+- (Cerrado) Logout forzado en panel por 401 transitorios post-validate: gracia 2 min en `sessionAuthGrace` + `logoutOn401: false` en carga del panel (`49cc8f5`, jul 2026).
 - CORS/CSP allowlist canónica: `ttv.losperris.dev` + localhost (sin previews Vercel stale).
 - Algunos hints Recharts `Cell` deprecados.
-- Carpeta `docs/` local (gitignore) para notas de agentes.
+- Carpeta `docs/` local (gitignore) para notas de agentes — ver `LOG.md`.
 
 ---
 
