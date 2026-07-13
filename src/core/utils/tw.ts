@@ -25,10 +25,10 @@ export const codeBox =
     'relative rounded-xl border border-white/[0.08] bg-black/40 px-3.5 py-2.5';
 
 export const codeTextarea =
-    'block h-[38px] w-full resize-none overflow-hidden border-none bg-transparent pr-[96px] font-[Consolas,monospace] text-[0.8125rem] leading-[1.45] text-[#fafafa] outline-none';
+    'block min-h-[38px] w-full resize-none overflow-hidden border-none bg-transparent pr-[96px] font-[Consolas,monospace] text-[0.8125rem] leading-[1.45] text-[#fafafa] outline-none whitespace-pre-wrap break-all';
 
 export const btnCopy =
-    'absolute top-1/2 right-2.5 flex -translate-y-1/2 items-center gap-1 rounded-lg bg-[#7c3aed] px-3 py-1.5 text-[0.8125rem] font-semibold text-white transition hover:bg-[#6d28d9]';
+    'absolute top-1/2 right-2.5 z-[1] flex -translate-y-1/2 cursor-pointer items-center gap-1 rounded-lg bg-[#7c3aed] px-3 py-1.5 text-[0.8125rem] font-semibold text-white shadow-sm transition-all duration-200 hover:scale-105 hover:bg-[#8b5cf6] hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100';
 
 export const btnPrimary =
     'mt-4 inline-flex items-center gap-2 rounded-lg bg-[#7c3aed] px-6 py-2 text-[0.8125rem] font-semibold text-white transition hover:bg-[#6d28d9] disabled:opacity-50';
