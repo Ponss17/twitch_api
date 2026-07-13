@@ -12,6 +12,7 @@ import { jsonError } from '../utils/jsonResponse';
 import { blockIfUnauthorizedScanExceeded } from './redisRateLimiter';
 import { readSessionUserId, clearSessionCookie } from '../utils/sessionCookie';
 import { getValidTokenForUser } from '../../features/auth/auth.service';
+import { AppError } from '../errors/AppError';
 
 const CACHE_TTL = 10 * 60 * 1000;
 const TOKEN_VALIDATION_TTL = 10 * 60 * 1000;
@@ -86,8 +87,21 @@ async function tryResolveCookieSession(
         req.twitchToken = accessToken;
         return user;
     } catch (error) {
-        logger.warn('[Auth] Cookie session inválida:', (error as Error).message);
-        clearSessionCookie(res);
+        const err = error as AppError | Error;
+        const statusCode = err instanceof AppError ? err.statusCode : undefined;
+        const message = err.message ?? '';
+        const isAuthError =
+            statusCode === 401 ||
+            message.includes('inválid') ||
+            message.includes('expirad') ||
+            message.includes('Sesión expirada');
+
+        logger.warn('[Auth] Cookie session error:', message);
+
+        // Solo borrar cookie en fallos de autenticación reales — no en timeouts/DB caída.
+        if (isAuthError) {
+            clearSessionCookie(res);
+        }
         return null;
     }
 }
