@@ -13,9 +13,9 @@ import {
 import { markSessionValidated } from './sessionAuthGrace';
 
 function canUseDegradedSession(session: Session): boolean {
-    if (session.token || session.overlayToken || session.userId) return true;
+    if (session.apiKey || session.token || session.overlayToken) return true;
     const stored = getSession();
-    return !!(stored?.token || stored?.overlayToken || stored?.userId);
+    return !!(stored?.apiKey || stored?.token || stored?.overlayToken);
 }
 
 function validateDedupeKey(session: Session): string {
@@ -50,7 +50,7 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
         return validateOverlaySession(session);
     }
 
-    if (!session.token && !session.userId) {
+    if (!session.apiKey && !session.token) {
         return { valid: false, error: true, message: 'no_credentials' };
     }
 
@@ -86,12 +86,12 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
               }, 450)
             : null;
 
-    const attempt = async (credentials: Session, cookieOnly = false) => {
+    const attempt = async (credentials: Session) => {
         try {
             const response = await fetch(
                 API_ENDPOINTS.VALIDATE,
                 withApiCredentials({
-                    headers: cookieOnly ? undefined : authHeaders(credentials)
+                    headers: authHeaders(credentials)
                 })
             );
 
@@ -124,8 +124,12 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
     try {
         let result: ApiResponse & { networkError?: boolean };
 
-        if (session.userId) {
-            result = await attempt(session, true);
+        if (session.apiKey) {
+            result = await attempt({
+                apiKey: session.apiKey,
+                login: session.login,
+                userId: session.userId
+            });
             if (result.valid !== true && !result.networkError && session.token) {
                 result = await attempt(session);
             }
