@@ -63,7 +63,7 @@ export class RealtimeService {
     }
 
     private hasValidCredentials(): boolean {
-        return !!(this.session?.userId || this.session?.token);
+        return !!(this.session?.token || this.session?.apiKey);
     }
 
     private async fetchToken(): Promise<string | null> {

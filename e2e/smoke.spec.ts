@@ -2,6 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 
 const validateOk = {
     valid: true,
+    apiKey: 'e2e_test_key',
     user: {
         login: 'e2e_streamer',
         display_name: 'E2E Streamer',
@@ -10,6 +11,7 @@ const validateOk = {
 };
 
 const e2eSession = {
+    apiKey: 'e2e_test_key',
     userId: '999',
     login: 'e2e_streamer',
     displayName: 'E2E Streamer'
@@ -21,6 +23,7 @@ async function mockAuthExchangeRoute(page: Page) {
             status: 200,
             contentType: 'application/json',
             body: JSON.stringify({
+                apiKey: 'e2e_test_key',
                 login: 'e2e_streamer',
                 displayName: 'E2E Streamer',
                 userId: '999'

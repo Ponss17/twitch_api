@@ -62,12 +62,13 @@ describe('SessionProvider', () => {
         const order: string[] = [];
         mockedResolveSessionFromUrl.mockImplementation(async () => {
             order.push('resolveSessionFromUrl');
-            return { userId: '1', login: 'streamer' };
+            return { apiKey: 'key', userId: '1', login: 'streamer' };
         });
         mockedValidateSession.mockImplementation(async () => {
             order.push('validate');
             return {
                 valid: true,
+                apiKey: 'key',
                 user: { login: 'streamer', display_name: 'Streamer', id: '1' }
             };
         });
@@ -84,7 +85,7 @@ describe('SessionProvider', () => {
     });
 
     it('waits for validation before showing stored session', async () => {
-        const stored = { userId: '1', login: 'streamer', displayName: 'Streamer' };
+        const stored = { apiKey: 'key', userId: '1', login: 'streamer', displayName: 'Streamer' };
         (getSession as jest.Mock).mockReturnValue(stored);
         (readOptimisticAuthState as jest.Mock).mockReturnValue({
             session: stored,
@@ -93,7 +94,7 @@ describe('SessionProvider', () => {
         });
 
         let resolveValidate: (value: unknown) => void = () => {};
-        mockedResolveSessionFromUrl.mockResolvedValue({ userId: '1', login: 'streamer' });
+        mockedResolveSessionFromUrl.mockResolvedValue({ apiKey: 'key', userId: '1', login: 'streamer' });
         mockedValidateSession.mockImplementation(
             () =>
                 new Promise((resolve) => {
@@ -125,7 +126,7 @@ describe('SessionProvider', () => {
             loading: true,
             authenticated: false
         });
-        mockedResolveSessionFromUrl.mockResolvedValue({ userId: '1' });
+        mockedResolveSessionFromUrl.mockResolvedValue({ apiKey: 'key', userId: '1' });
         mockedValidateSession.mockResolvedValue({ valid: false, error: true });
 
         render(
@@ -138,7 +139,7 @@ describe('SessionProvider', () => {
     });
 
     it('keeps session when validation succeeds with a network warning', async () => {
-        mockedResolveSessionFromUrl.mockResolvedValue({ userId: '1', login: 'streamer' });
+        mockedResolveSessionFromUrl.mockResolvedValue({ apiKey: 'key', userId: '1', login: 'streamer' });
         mockedValidateSession.mockResolvedValue({ valid: true, error: true, message: 'network_error' });
 
         render(
@@ -152,14 +153,16 @@ describe('SessionProvider', () => {
     });
 
     it('refresh keeps session identity after validate', async () => {
-        mockedResolveSessionFromUrl.mockResolvedValue({ userId: '1', login: 'streamer' });
+        mockedResolveSessionFromUrl.mockResolvedValue({ apiKey: 'key', userId: '1', login: 'streamer' });
         mockedValidateSession
             .mockResolvedValueOnce({
                 valid: true,
+                apiKey: 'key',
                 user: { login: 'streamer', display_name: 'Streamer', id: '1' }
             })
             .mockResolvedValue({
                 valid: true,
+                apiKey: 'key',
                 user: { login: 'streamer', display_name: 'Streamer', id: '1' }
             });
 
