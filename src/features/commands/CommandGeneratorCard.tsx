@@ -1,6 +1,6 @@
 import { Edit, Check, Loader2, AlertTriangle, Copy, Play, Bot, FileCode, FlaskConical } from 'lucide-react';
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { SlotText } from 'slot-text/react';
 import 'slot-text/style.css';
 import {
@@ -17,8 +17,7 @@ import {
 } from '@/core/utils/tw';
 import { SelectFieldRow } from '@/shared/ui/SelectField';
 import { API_ENDPOINTS } from '@/core/config/config';
-import { buildAuthQueryParamForDisplay } from '@/core/api/authQuery';
-import { fetchRevealApiKey } from '@/core/auth/revealApiKey';
+import { buildAuthQueryParam, buildAuthQueryParamForDisplay } from '@/core/api/authQuery';
 import { BOT_OPTIONS } from '@/features/commands/lib/commandGenerator';
 import type { CommandConfigItem } from '@/features/commands/lib/config';
 import { useRequiredSession } from '@/core/session/useSession';
@@ -86,7 +85,6 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
     const { showToast } = useToast();
     const [stored, updateConfig] = useCommandConfig(config.id);
     const [isCopied, setIsCopied] = useState(false);
-    const codeRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
         if (!config.extraSelectors?.length) return;
@@ -121,15 +119,15 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
         onExtraValuesChange?.(extraValues);
     }, [extraValues, onExtraValuesChange]);
 
-    const buildGenerated = (apiKeyOverride?: string) => {
-        const { login } = session;
+    const generated = useMemo(() => {
+        const { login, apiKey, token } = session;
         if (!login) return { masked: '', full: '' };
 
         const domain = `${window.location.origin}${API_ENDPOINTS.BASE}`;
-        const tokenParam = apiKeyOverride
-            ? `apiKey=${encodeURIComponent(apiKeyOverride)}`
-            : buildAuthQueryParamForDisplay(session);
+        const tokenParam = buildAuthQueryParam({ apiKey, token });
+        const displayParam = buildAuthQueryParamForDisplay({ apiKey, token });
         const queryParams = `channel=${login}&${tokenParam}`;
+        const displayQuery = `channel=${login}&${displayParam}`;
 
         const result = config.generate(
             domain,
@@ -140,41 +138,28 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
             queryParams,
             extraValues
         );
+        const displayResult = config.generate(
+            domain,
+            login,
+            displayParam,
+            bot,
+            template.trim(),
+            displayQuery,
+            extraValues
+        );
 
-        const cmd = format === 'full' ? result.full : result.url;
+        const full = format === 'full' ? result.full : result.url;
+        const masked = format === 'full' ? displayResult.full : displayResult.url;
 
-        return { masked: cmd, full: cmd, tokenParam };
-    };
-
-    const generated = useMemo(
-        () => buildGenerated(),
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [session, bot, template, format, extraValues, config]
-    );
-
-    useEffect(() => {
-        const el = codeRef.current;
-        if (!el) return;
-        el.style.height = 'auto';
-        el.style.height = `${Math.max(38, el.scrollHeight)}px`;
-    }, [generated.masked]);
+        return { masked, full };
+    }, [session, bot, template, format, extraValues, config]);
 
     const copyCommand = async () => {
-        let full = generated.full;
-        if (!session.apiKey && !session.token) {
-            try {
-                const { apiKey } = await fetchRevealApiKey();
-                full = buildGenerated(apiKey).full;
-            } catch {
-                showToast('No se pudo obtener la API Key para copiar el comando', 'error');
-                return;
-            }
-        }
-        if (!full) {
+        if (!generated.full) {
             showToast('No hay comando para copiar', 'error');
             return;
         }
-        const ok = await copyText(full);
+        const ok = await copyText(generated.full);
         if (ok) {
             setIsCopied(true);
             setTimeout(() => setIsCopied(false), 2000);
@@ -252,12 +237,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                 />
 
                 <div className={codeBox}>
-                    <textarea
-                        ref={codeRef}
-                        readOnly
-                        value={generated.masked}
-                        className={codeTextarea}
-                    />
+                    <textarea readOnly value={generated.masked} className={codeTextarea} />
                     <button
                         type="button"
                         onClick={() => void copyCommand()}

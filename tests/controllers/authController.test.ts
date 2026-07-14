@@ -204,6 +204,7 @@ describe('authController', () => {
             await exchange(req, res);
 
             expect(res.json).toHaveBeenCalledWith({
+                apiKey: 'key_abc',
                 userId: '999',
                 login: 'testuser',
                 displayName: 'TestUser',

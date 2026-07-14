@@ -55,6 +55,8 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
             const tokenExpiresAt = user.tokenExpiresAt && user.tokenExpiresAt > 0 ? user.tokenExpiresAt : null;
             return res.json({
                 valid: true,
+                apiKey: user.apiKey || null,
+                token: token,
                 tokenExpiresAt,
                 user: {
                     id: user.userId,
@@ -87,6 +89,8 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
             }
             return res.json({
                 valid: true,
+                apiKey: dbUser?.apiKey || null,
+                token: token,
                 tokenExpiresAt,
                 user: {
                     id: userProfile.id,

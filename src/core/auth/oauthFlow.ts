@@ -48,6 +48,8 @@ function parseStoredSession(): Session {
         login: savedSession?.login || '',
         displayName: savedSession?.displayName || '',
         profile_image_url: savedSession?.profile_image_url || '',
+        token: savedSession?.token,
+        apiKey: savedSession?.apiKey,
         userId: savedSession?.userId,
         isNewLogin: false
     };
@@ -72,6 +74,8 @@ export async function resolveSessionFromUrl(): Promise<Session> {
                     login: data.login || '',
                     displayName: data.displayName || '',
                     profile_image_url: data.profile_image_url || '',
+                    token: data.token,
+                    apiKey: data.apiKey,
                     userId: data.userId,
                     isNewLogin: true
                 };
@@ -97,7 +101,7 @@ export function readOptimisticAuthState(): {
         return { session: null, loading: true, authenticated: false };
     }
     const stored = getSession();
-    if (stored?.token || stored?.userId) {
+    if (stored?.apiKey || stored?.token) {
         return { session: stored, loading: true, authenticated: false };
     }
     return { session: null, loading: true, authenticated: false };

@@ -1,8 +1,6 @@
 import { API_ENDPOINTS, STATUS_PAGE_URL } from '@/core/config/config';
 import type { Session } from '@/core/config/config';
-import { API_KEY_PLACEHOLDER } from '@/core/api/authQuery';
-import { authHeaders } from '@/core/api/auth';
-import { withApiCredentials } from '@/core/auth/apiCredentials';
+import { buildAuthQueryParam } from '@/core/api/authQuery';
 import { absoluteAssetUrl, appPath, legalPath } from '@/core/config/paths';
 
 interface AnalyticsData {
@@ -186,15 +184,21 @@ const COMMAND_INTEGRATIONS = [
     }
 ];
 
-const sessionFetchInit = (session: Session): RequestInit =>
-    withApiCredentials({
-        headers: authHeaders(session)
-    });
+const getAuthParts = (session: Session) => ({
+    query: buildAuthQueryParam(session),
+    headers: session.token
+        ? { Authorization: `Bearer ${session.token}` }
+        : ({} as Record<string, string>)
+});
 
 const DataExport = {
     async fetchAnalytics(session: Session): Promise<AnalyticsData> {
         try {
-            const res = await fetch(API_ENDPOINTS.ANALYTICS, sessionFetchInit(session));
+            const { query, headers } = getAuthParts(session);
+            const queryParam = query ? `?${query}` : '';
+            const res = await fetch(`${API_ENDPOINTS.ANALYTICS}${queryParam}`, {
+                headers
+            });
             if (res.ok) return await res.json();
         } catch (error) {
             console.error('[DataExport] Error fetching analytics:', error);
@@ -204,8 +208,9 @@ const DataExport = {
 
     async fetchUserInfo(session: Session) {
         try {
-            const url = `${API_ENDPOINTS.USER_INFO}?login=${encodeURIComponent(session.login ?? '')}`;
-            const res = await fetch(url, sessionFetchInit(session));
+            const { query, headers } = getAuthParts(session);
+            const url = `${API_ENDPOINTS.USER_INFO}?login=${encodeURIComponent(session.login ?? '')}&${query}`;
+            const res = await fetch(url, { headers });
             if (res.ok) return await res.json();
         } catch (error) {
             console.error('[DataExport] Error fetching user info:', error);
@@ -385,7 +390,7 @@ const DataExport = {
         const userInfo = await this.fetchUserInfo(session);
         const analytics = await this.fetchAnalytics(session);
 
-        const apiKey = API_KEY_PLACEHOLDER;
+        const apiKey = user.apiKey || user.token || '';
         const maskedKey = this.maskKey(apiKey);
 
         const todayRequests = analytics.todayRequests ?? 0;

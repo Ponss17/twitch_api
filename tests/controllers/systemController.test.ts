@@ -102,7 +102,7 @@ describe('systemController', () => {
 
             const payload = (res.json as jest.Mock).mock.calls[0][0];
             expect(payload.valid).toBe(true);
-            expect(payload.apiKey).toBeUndefined();
+            expect(payload.apiKey).toBe('key-123');
             expect(payload.user).toEqual(
                 expect.objectContaining({
                     id: '123',

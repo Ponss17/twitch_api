@@ -115,6 +115,7 @@ export const exchange = async (req: Request, res: Response) => {
     setSessionCookie(res, payload.userId);
 
     return res.json({
+        apiKey: payload.apiKey,
         userId: payload.userId,
         login: payload.login,
         displayName: payload.displayName,
