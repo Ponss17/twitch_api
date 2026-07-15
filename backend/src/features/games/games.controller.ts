@@ -50,7 +50,8 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
                 metadata: { question },
                 incrementStat: 'magic8'
             },
-            () => magic8Service.generateMagic8Response(question, mood as string, user as string)
+            () => magic8Service.generateMagic8Response(question, mood as string, user as string),
+            req
         );
 
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -115,7 +116,8 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
                     },
                     'RUSSIAN'
                 );
-            }
+            },
+            req
         );
 
         if (result) {
@@ -153,7 +155,8 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
                 metadata: { target },
                 incrementStat: 'duel'
             },
-            () => Promise.resolve(duelService.playDuel(challenger, target))
+            () => Promise.resolve(duelService.playDuel(challenger, target)),
+            req
         );
 
         res.send(result.message);

@@ -133,6 +133,7 @@ async function tryResolveCookieSession(
         req.userId = user.userId;
         req.login = user.login;
         req.displayName = user.displayName;
+        req.userTimezone = user.timezone ?? 'UTC';
         req.twitchToken = accessToken;
         return { status: 'ok', user };
     } catch (error) {
@@ -330,6 +331,12 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         const apiUser = res.locals.apiUser as StoredUser | undefined;
         if (apiUser?.isActive === false) {
             return rejectInactiveUser(res, req.path);
+        }
+
+        // Siempre propagar la timezone del usuario autenticado al request,
+        // para que trackRequest la pase a recordUserRequest y evite el fallback a UTC en cold starts.
+        if (apiUser?.timezone && !req.userTimezone) {
+            req.userTimezone = apiUser.timezone;
         }
 
         if (req.userId) {

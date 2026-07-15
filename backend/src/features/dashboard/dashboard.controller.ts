@@ -149,7 +149,8 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
                 logger.error('Error fetching clips:', { error });
                 throw new AppError(MESSAGES.DASHBOARD.CLIPS_ERROR, 500);
             }
-        }
+        },
+        req
     );
 
     if (result) return res.json(result);
@@ -191,8 +192,6 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
                     userId,
                     req.twitchToken || ''
                 );
-                // filterAndAnnotateChatters realiza filtrado + anotación en una sola
-                // carga de roles (3 consultas KV en lugar de las 6 anteriores).
                 const payload = await apiService.filterAndAnnotateChatters(
                     chatters,
                     broadcasterId,
@@ -211,7 +210,8 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
                 logger.error('Error getting chatters:', { error: err.message });
                 throw new AppError(MESSAGES.DASHBOARD.CHATTERS_ERROR, 500);
             }
-        }
+        },
+        req
     );
 
     if (result) return res.json(result);
@@ -232,7 +232,8 @@ export const trackToolUsage = async (req: AuthenticatedRequest, res: Response) =
                 user: req.login || 'User',
                 incrementStat: tool
             },
-            async () => ({ success: true })
+            async () => ({ success: true }),
+            req
         );
         res.json({ success: true });
     } catch (e) {
@@ -294,7 +295,8 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                 },
                 'getUserInfo'
             );
-        }
+        },
+        req
     );
 
     if (result) return res.json(result);
