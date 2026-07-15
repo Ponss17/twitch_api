@@ -153,6 +153,8 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
     );
 
     if (result) return res.json(result);
+    // trackRequest devolvió null — el error ya fue manejado o no hay datos
+    if (!res.headersSent) return jsonError(res, 404, MESSAGES.DASHBOARD.CLIPS_ERROR, { code: 'NOT_FOUND' });
 };
 
 export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
@@ -189,20 +191,14 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
                     userId,
                     req.twitchToken || ''
                 );
-                const filtered = await apiService.filterChattersByEligibility(
+                // filterAndAnnotateChatters realiza filtrado + anotación en una sola
+                // carga de roles (3 consultas KV en lugar de las 6 anteriores).
+                const payload = await apiService.filterAndAnnotateChatters(
                     chatters,
                     broadcasterId,
                     req.twitchToken || '',
                     eligibility
                 );
-                const payload =
-                    eligibility === 'all'
-                        ? filtered
-                        : await apiService.annotateChatterRoles(
-                              filtered,
-                              broadcasterId,
-                              req.twitchToken || ''
-                          );
                 await cacheService.set(
                     cacheKey,
                     payload,
@@ -219,6 +215,7 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
     );
 
     if (result) return res.json(result);
+    if (!res.headersSent) return jsonError(res, 404, MESSAGES.DASHBOARD.CHATTERS_ERROR, { code: 'NOT_FOUND' });
 };
 
 export const trackToolUsage = async (req: AuthenticatedRequest, res: Response) => {
@@ -301,6 +298,7 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
     );
 
     if (result) return res.json(result);
+    if (!res.headersSent) return jsonError(res, 404, MESSAGES.DASHBOARD.USER_INFO_ERROR, { code: 'NOT_FOUND' });
 };
 
 export const clearUserData = async (req: AuthenticatedRequest, res: Response) => {

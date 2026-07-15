@@ -23,3 +23,21 @@ export class TwitchApiError extends AppError {
         super(message, statusCode);
     }
 }
+
+/**
+ * Determina si un error desconocido es de autenticación (401).
+ * Usa statusCode cuando el error es AppError/TwitchApiError;
+ * como fallback detecta mensajes en español del dominio para errores externos.
+ *
+ * Usar esta función en lugar de `error.message.includes('inválid')` inline.
+ */
+export function isAuthenticationError(error: unknown): boolean {
+    if (error instanceof AppError) return error.statusCode === 401;
+    const msg = ((error as Error)?.message) ?? '';
+    return (
+        msg.includes('inválid') ||
+        msg.includes('expirad') ||
+        msg.includes('Sesión expirada') ||
+        msg.includes('Token expirado')
+    );
+}

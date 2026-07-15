@@ -75,7 +75,7 @@ export const configureMiddleware = (app: Application) => {
                             'https://www.google-analytics.com',
                             'blob:'
                         ],
-                        scriptSrcAttr: ["'self'", "'unsafe-inline'"],
+                        scriptSrcAttr: ["'none'"],
                         styleSrc: [
                             "'self'",
                             "'unsafe-inline'",
@@ -155,6 +155,9 @@ export const configureMiddleware = (app: Application) => {
                 const origin = req.header('Origin');
                 const host = req.get('host');
 
+                // Sin Origin: bots (Nightbot, StreamElements, curl) o peticiones server-to-server.
+                // Permitir SIN credentials (no hay cookies ni session en esas peticiones).
+                // Esto es comportamiento intencional y correcto — no es un bypass de seguridad.
                 if (!origin) return callback(null, { origin: true, credentials: false });
 
                 let safeOrigin: URL | null = null;

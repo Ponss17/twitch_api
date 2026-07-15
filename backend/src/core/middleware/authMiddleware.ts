@@ -21,7 +21,7 @@ const LAST_ACTIVE_THROTTLE_MS = 30 * 60 * 1000;
 const userCache = new BoundedMap<string, { user: StoredUser; expiry: number }>(1000);
 const invalidTokensCache = new NegativeCache<string>(30 * 1000);
 const lastActiveThrottle = new BoundedMap<string, number>(1000);
-const pendingUserDbRequests = new Map<string, Promise<StoredUser | null>>();
+const pendingUserDbRequests = new BoundedMap<string, Promise<StoredUser | null>>(500);
 
 type CookieResolveResult =
     | { status: 'ok'; user: StoredUser }
@@ -304,10 +304,6 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                     let userPromise = pendingUserDbRequests.get(req.userId);
 
                     if (!userPromise) {
-                        if (pendingUserDbRequests.size >= 500) {
-                            const first = pendingUserDbRequests.keys().next().value;
-                            if (first) pendingUserDbRequests.delete(first);
-                        }
                         userPromise = dbService.getUser(req.userId).finally(() => {
                             pendingUserDbRequests.delete(req.userId!);
                         });
