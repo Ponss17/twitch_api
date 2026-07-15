@@ -1,3 +1,5 @@
+const ANALYTICS_COLORS = ['#7254b8', '#4a8b75', '#b3934d', '#b35656', '#4d75b3', '#b3714d', '#a85c87', '#615e9c'];
+
 export function TrackerRow({
     word,
     count,
@@ -12,11 +14,12 @@ export function TrackerRow({
     compact?: boolean;
 }) {
     const cellPad = compact ? 'px-3 py-1.5' : 'px-5 py-3';
+    const rowColor = ANALYTICS_COLORS[index % ANALYTICS_COLORS.length];
 
     return (
         <tr className="animate-fade-soft transition-colors duration-200 hover:bg-white/[0.02]">
             <td className={`border-b border-white/[0.03] align-middle ${cellPad}`}>
-                <span className={`inline-block font-medium text-zinc-500 ${compact ? 'text-[0.875rem]' : 'text-[1rem]'}`}>
+                <span className={`inline-block font-medium ${compact ? 'text-[0.875rem]' : 'text-[1rem]'}`} style={{ color: rowColor }}>
                     #{index + 1}
                 </span>
             </td>
@@ -37,8 +40,12 @@ export function TrackerRow({
             <td className={`border-b border-white/[0.03] align-middle ${cellPad}`}>
                 <div className={`w-full overflow-hidden rounded-full bg-white/5 ${compact ? 'h-1.5' : 'h-2'}`}>
                     <div
-                        className="h-full rounded-full bg-primary shadow-[0_0_10px_rgba(168,85,247,0.4)] transition-[width] duration-500"
-                        style={{ width: `${(count / maxCount) * 100}%` }}
+                        className="h-full rounded-full transition-[width] duration-500"
+                        style={{
+                            width: `${(count / maxCount) * 100}%`,
+                            backgroundColor: rowColor,
+                            boxShadow: `0 0 10px ${rowColor}66`
+                        }}
                     />
                 </div>
             </td>
