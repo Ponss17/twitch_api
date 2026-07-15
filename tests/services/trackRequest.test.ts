@@ -27,7 +27,8 @@ describe('trackRequest', () => {
             expect.any(Number),
             true,
             null,   // incrementStat — null cuando no se especifica
-            undefined
+            undefined, // skipRequestCount
+            undefined  // userTimezone
         );
     });
 
@@ -63,7 +64,8 @@ describe('trackRequest', () => {
             expect.any(Number),
             true,
             'clips',  // incrementStat se pasa como 4º argumento
-            undefined
+            undefined, // skipRequestCount
+            undefined  // userTimezone
         );
     });
 
@@ -79,7 +81,8 @@ describe('trackRequest', () => {
             expect.any(Number),
             false,
             null,   // incrementStat — null cuando no se especifica
-            undefined
+            undefined, // skipRequestCount
+            undefined  // userTimezone
         );
     });
 
