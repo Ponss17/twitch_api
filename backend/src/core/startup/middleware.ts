@@ -60,11 +60,8 @@ export const configureMiddleware = (app: Application) => {
                         defaultSrc: ["'self'"],
                         scriptSrc: [
                             "'self'",
-                            // Nonce dinámico por request: elimina la necesidad de 'unsafe-inline'
-                            (_req, res) =>
-                                `'nonce-${(res as unknown as { locals: { cspNonce: string } }).locals.cspNonce}'`,
-                            // Permite scripts inyectados dinámicamente por código con nonce válido (Speed Insights SDK)
-                            "'strict-dynamic'",
+                            // Requerido por Astro para inyectar scripts inline (islands, preloads, etc.) sin soporte nativo de nonce en modo híbrido
+                            "'unsafe-inline'",
                             'https://cdnjs.cloudflare.com',
                             'https://unpkg.com',
                             'https://cdn.jsdelivr.net',
