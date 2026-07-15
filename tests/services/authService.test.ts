@@ -4,7 +4,24 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     saveUser: jest.fn()
 }));
 
-jest.mock('axios');
+jest.mock('axios', () => {
+    const mockAxios = {
+        post: jest.fn(),
+        get: jest.fn(),
+        put: jest.fn(),
+        delete: jest.fn(),
+        patch: jest.fn(),
+        create: jest.fn(() => mockAxios),
+        interceptors: {
+            request: { use: jest.fn(), eject: jest.fn() },
+            response: { use: jest.fn(), eject: jest.fn() }
+        }
+    };
+    return {
+        __esModule: true,
+        default: mockAxios
+    };
+});
 
 jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
