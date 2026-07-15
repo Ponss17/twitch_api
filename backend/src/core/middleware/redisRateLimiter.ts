@@ -21,15 +21,21 @@ function getSafeIp(req: Request): string {
 async function incrementPerMinuteCounter(
     key: string
 ): Promise<number> {
-    const currentWindow = Math.floor(Date.now() / 60000);
+    return kvIncrWithWindow(key, 60);
+}
 
+/**
+ * Helper centralizado: pipeline INCR + EXPIRE en una sola ventana configurable.
+ * Fail-open en dev/test si KV no está disponible.
+ */
+async function kvIncrWithWindow(key: string, windowSeconds: number): Promise<number> {
     if (!isKvWriteAvailable()) {
         return 0; // Fail-open en dev
     }
-
+    const windowSlot = Math.floor(Date.now() / (windowSeconds * 1000));
+    const redisKey = `twitch_api:${key}:${windowSlot}`;
     try {
-        const redisKey = `twitch_api:${key}:${currentWindow}`;
-        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
+        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, windowSeconds).exec()) as [
             number,
             number
         ];
@@ -115,14 +121,8 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
             return next();
         }
 
-        const currentWindow = Math.floor(Date.now() / 60000);
-        const redisKey = `twitch_api:${key}:${currentWindow}`;
-
-        // Pipeline atómico: INCR + EXPIRE en un solo round-trip a Redis
-        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
-            number,
-            number
-        ];
+        // Usa kvIncrWithWindow: INCR + EXPIRE atómico en un solo round-trip a Redis
+        const count = await kvIncrWithWindow(key, 60);
 
         applyRateLimitHeaders(res, limit, count);
 
@@ -178,20 +178,9 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
 
     const key = `rl:heavy:${apiUser.userId}`;
     const limit = RATE_LIMITS.HEAVY;
-    const currentWindow = Math.floor(Date.now() / 60000);
 
     try {
-        let count: number;
-        if (!isKvWriteAvailable()) {
-            return next();
-        } else {
-            const redisKey = `twitch_api:${key}:${currentWindow}`;
-            const [n] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
-                number,
-                number
-            ];
-            count = n;
-        }
+        const count = await kvIncrWithWindow(key, 60);
 
         if (count > limit) {
             res.setHeader('Content-Type', 'text/plain');
@@ -224,18 +213,9 @@ export const revealKeyRateLimiter = async (req: Request, res: Response, next: Ne
 
     const key = `rl:reveal-key:${userId}`;
     const limit = RATE_LIMITS.REVEAL_API_KEY;
-    const currentWindow = Math.floor(Date.now() / 60000);
-
-    if (!isKvWriteAvailable()) {
-        return next();
-    }
 
     try {
-        const redisKey = `twitch_api:${key}:${currentWindow}`;
-        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, 60).exec()) as [
-            number,
-            number
-        ];
+        const count = await kvIncrWithWindow(key, 60);
 
         if (count > limit) {
             return res.status(429).json({
@@ -262,19 +242,10 @@ export const authRateLimiter = async (req: Request, res: Response, next: NextFun
     const safeIp = (req.ip || 'anon').replace(/[^a-zA-Z0-9.:]/g, '').slice(0, 45);
     const key = `rl:auth:${safeIp}`;
     const limit = RATE_LIMITS.LOGIN;
-    const windowSeconds = 5 * 60;
-    const redisKey = `twitch_api:${key}:${Math.floor(Date.now() / (windowSeconds * 1000))}`;
-
-    if (!isKvWriteAvailable()) {
-        return next();
-    }
+    const windowSeconds = 5 * 60; // ventana de 5 minutos
 
     try {
-        const [count] = (await kv
-            .pipeline()
-            .incr(redisKey)
-            .expire(redisKey, windowSeconds)
-            .exec()) as [number, number];
+        const count = await kvIncrWithWindow(key, windowSeconds);
 
         if (count > limit) {
             if (

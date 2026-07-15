@@ -1,4 +1,5 @@
 import app from './app';
+import { logger } from './core/utils/logger';
 
 const isMain =
     (typeof require !== 'undefined' && require.main === module) ||
@@ -8,7 +9,7 @@ if (isMain) {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
         if (process.env.NODE_ENV === 'development') {
-            console.log(`LosPerris Twitch API listening on http://localhost:${PORT}`);
+            logger.info(`🚀 LosPerris Twitch API listening on http://localhost:${PORT}`);
         }
     });
 }

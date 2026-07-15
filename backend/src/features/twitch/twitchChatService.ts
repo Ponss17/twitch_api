@@ -171,6 +171,65 @@ export const filterChattersByEligibility = async (
     });
 };
 
+/**
+ * Combina filtrado + anotación de roles en UNA sola carga de mods/vips/subs.
+ * Evita el doble fetch que ocurría cuando filterChattersByEligibility y
+ * annotateChatterRoles se encadenaban (6 consultas de caché → 3).
+ *
+ * Usar esta función en lugar de encadenar las dos anteriores.
+ */
+export const filterAndAnnotateChatters = async (
+    chatters: ChatterRow[],
+    broadcasterId: string,
+    token: string,
+    eligibility: 'all' | ChatterEligibility[]
+): Promise<ChatterRow[]> => {
+    // Cargamos los tres sets de roles SIEMPRE, tanto para filtrar como para anotar.
+    // Como cada get* tiene caché de Redis, el coste real es 0-3 llamadas a KV.
+    const [modsResult, vipsResult, subsResult] = await Promise.allSettled([
+        getModeratorLogins(broadcasterId, token),
+        getVipLogins(broadcasterId, token),
+        getSubscriberLogins(broadcasterId, token)
+    ]);
+
+    const modSet = new Set(modsResult.status === 'fulfilled' ? modsResult.value : []);
+    const vipSet = new Set(vipsResult.status === 'fulfilled' ? vipsResult.value : []);
+    const subSet = new Set(subsResult.status === 'fulfilled' ? subsResult.value : []);
+
+    const annotate = (c: ChatterRow): ChatterRow => {
+        const login = c.user_login.toLowerCase();
+        return { ...c, mod: modSet.has(login), vip: vipSet.has(login), sub: subSet.has(login) };
+    };
+
+    if (eligibility === 'all') {
+        return chatters.map(annotate);
+    }
+
+    const needMods = eligibility.includes('mods');
+    const needVips = eligibility.includes('vips');
+    const needSubs = eligibility.includes('subs');
+    const needViewers = eligibility.includes('viewers');
+
+    return chatters.reduce<ChatterRow[]>((acc, c) => {
+        const login = c.user_login.toLowerCase();
+        const isMod = modSet.has(login);
+        const isVip = vipSet.has(login);
+        const isSub = subSet.has(login);
+        const isViewer = !isMod && !isVip && !isSub;
+
+        if (
+            (needMods && isMod) ||
+            (needVips && isVip) ||
+            (needSubs && isSub) ||
+            (needViewers && isViewer)
+        ) {
+            acc.push(annotate(c));
+        }
+        return acc;
+    }, []);
+};
+
+
 export const getChannelInfo = async (
     broadcasterId: string,
     token: string

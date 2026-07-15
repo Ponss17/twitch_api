@@ -14,6 +14,7 @@ import { StoredUser } from '../../types/twitch';
 import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 import { isBotCommand, isApiRoute } from '../utils/routeHelpers';
 import { blockIfUnauthorizedScanExceeded } from './redisRateLimiter';
+import { isAuthenticationError } from '../errors/AppError';
 
 interface CachedApiKey {
     user: StoredUser;
@@ -141,7 +142,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
                 return next();
             } catch (e) {
                 const errorMsg = (e as Error).message;
-                const isAuthError = errorMsg.includes('inválid') || errorMsg.includes('expirad');
+                const isAuthError = isAuthenticationError(e);
                 if (req.headers.authorization?.startsWith('Bearer ')) {
                     return next();
                 }
@@ -181,8 +182,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
                     });
                 } catch (e) {
                     const error = e as Error;
-                    const isAuthError =
-                        error.message.includes('inválid') || error.message.includes('expirad');
+                    const isAuthError = isAuthenticationError(e);
                     if (isAuthError) {
                         invalidKeysCache.set(apiKey);
                         return rejectApiKeyUnauthorized(req, res, () =>
@@ -238,7 +238,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         }
     } catch (e) {
         const error = e as Error;
-        const isAuthError = error.message.includes('inválid') || error.message.includes('expirad');
+        const isAuthError = isAuthenticationError(error);
 
         if (apiKey && isAuthError) {
             invalidKeysCache.set(apiKey);
