@@ -30,7 +30,10 @@ const envSchema = z.object({
     SUPABASE_ANON_KEY: z.string().min(1, 'SUPABASE_ANON_KEY es obligatorio'),
     SUPABASE_JWT_SECRET: z.string().min(1, 'SUPABASE_JWT_SECRET es obligatorio'),
     DISCORD_HEALTH_WEBHOOK_URL: z.string().url().optional(),
-    FRONTEND_URL: z.string().url().optional()
+    FRONTEND_URL: z.string().url().optional(),
+    /** Upstash Redis — obligatorias en producción, opcionales en dev/test (fail-open). */
+    KV_REST_API_URL: z.string().url().optional(),
+    KV_REST_API_TOKEN: z.string().optional()
 });
 
 const isTest = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined;
@@ -94,7 +97,9 @@ const envVars = {
         process.env.SUPABASE_JWT_SECRET ||
         (isTest ? 'test_jwt_secret_for_testing_purposes_only' : undefined),
     DISCORD_HEALTH_WEBHOOK_URL: process.env.DISCORD_HEALTH_WEBHOOK_URL,
-    FRONTEND_URL: resolveProductionUrl(process.env.FRONTEND_URL, 'FRONTEND_URL')
+    FRONTEND_URL: resolveProductionUrl(process.env.FRONTEND_URL, 'FRONTEND_URL'),
+    KV_REST_API_URL: process.env.KV_REST_API_URL,
+    KV_REST_API_TOKEN: process.env.KV_REST_API_TOKEN
 };
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -125,6 +130,14 @@ if (isProd && !isTest) {
     if (!hmac || hmac.length < 32) {
         console.error(
             '🛑 HMAC_SIGNING_SECRET es obligatorio en producción (≥32 caracteres). No reutilices TWITCH_CLIENT_SECRET.'
+        );
+        process.exit(1);
+    }
+
+    /** KV (Upstash Redis) — obligatorio en producción para rate limiting y caché. */
+    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+        console.error(
+            '🛑 KV_REST_API_URL y KV_REST_API_TOKEN son obligatorios en producción. El rate limiting no funcionará sin ellos.'
         );
         process.exit(1);
     }

@@ -97,6 +97,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
         return res.send(result);
     }
+    if (!res.headersSent) return res.status(204).send();
 };
 
 export const followage = async (req: AuthenticatedRequest, res: Response) => {
@@ -170,6 +171,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
         return res.send(result);
     }
+    if (!res.headersSent) return res.status(204).send();
 };
 
 export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
@@ -209,6 +211,7 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
     );
 
     if (result) return res.json(result);
+    if (!res.headersSent) return res.status(204).send();
 };
 
 export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
@@ -255,4 +258,5 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
         res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
         return res.send(result);
     }
+    if (!res.headersSent) return res.status(204).send();
 };

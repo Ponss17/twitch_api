@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { apiClient } from '../twitch/twitchClient';
 import { CONFIG } from '../../core/config/env';
 import { TwitchUser, StoredUser } from '../../types/twitch';
 import * as dbService from '../../core/database/dbService';
@@ -253,7 +254,7 @@ export const handleCallback = async (
     redirectOrigin: string;
     apiKey: string;
 }> => {
-    const tokenResponse = await axios.post(`${TWITCH_AUTH_URL}/token`, null, {
+    const tokenResponse = await apiClient.post(`${TWITCH_AUTH_URL}/token`, null, {
         params: {
             client_id: CONFIG.TWITCH_CLIENT_ID,
             client_secret: CONFIG.TWITCH_CLIENT_SECRET,
@@ -265,7 +266,7 @@ export const handleCallback = async (
 
     const { access_token, refresh_token, expires_in } = tokenResponse.data;
 
-    const userResponse = await axios.get(`${TWITCH_API_URL}/users`, {
+    const userResponse = await apiClient.get(`${TWITCH_API_URL}/users`, {
         headers: {
             'Client-ID': CONFIG.TWITCH_CLIENT_ID,
             Authorization: `Bearer ${access_token}`
@@ -373,7 +374,7 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
                 );
             });
 
-            const refreshRequest = axios.post(`${TWITCH_AUTH_URL}/token`, null, {
+            const refreshRequest = apiClient.post(`${TWITCH_AUTH_URL}/token`, null, {
                 params: {
                     client_id: CONFIG.TWITCH_CLIENT_ID,
                     client_secret: CONFIG.TWITCH_CLIENT_SECRET,
@@ -424,7 +425,7 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
  */
 const probeTokenExpiresAt = async (accessToken: string): Promise<number | null> => {
     try {
-        const res = await axios.get(`${TWITCH_AUTH_URL}/validate`, {
+        const res = await apiClient.get(`${TWITCH_AUTH_URL}/validate`, {
             headers: { Authorization: `OAuth ${accessToken}` },
             timeout: 8000
         });

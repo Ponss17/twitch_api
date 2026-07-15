@@ -162,7 +162,7 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
 
         const tz =
             cachedTz ||
-            (userResult as { data: { timezone: string } | null } | null)?.data?.timezone ||
+            (userResult as { users?: { timezone?: string } } | null)?.users?.timezone ||
             'UTC';
         const todayStr = getDateFormatter(tz).format(new Date());
 

@@ -11,6 +11,7 @@ import { logger } from '../../core/utils/logger';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { invalidateAllUserCaches } from '../../core/utils/cacheInvalidation';
 import { setSessionCookie } from '../../core/utils/sessionCookie';
+import { isAuthenticationError } from '../../core/errors/AppError';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 
@@ -27,10 +28,9 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                 req.userId = auth.userId;
                 req.twitchToken = token;
             } catch (err) {
-                const errorMsg = (err as Error).message;
-                const isAuthError = errorMsg.includes('inválid') || errorMsg.includes('expirad');
+                const isAuthError = isAuthenticationError(err);
                 
-                logger.warn('validateToken: no se pudo obtener token con API Key', errorMsg);
+                logger.warn('validateToken: no se pudo obtener token con API Key', (err as Error).message);
                 if (isAuthError) {
                     return jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN);
                 }

@@ -37,7 +37,14 @@ export const getActivitySchema = z.object({
 
 export const updateSettingsSchema = z.object({
     body: z.object({
-        timezone: z.string().min(1, 'La zona horaria es requerida.')
+        timezone: z
+            .string()
+            .min(1, 'La zona horaria es requerida.')
+            .max(50, 'Identificador de zona horaria demasiado largo.')
+            .regex(
+                /^[A-Za-z0-9_/+-]+$/,
+                'Formato de zona horaria inválido. Usa un identificador IANA (ej: America/Mexico_City).'
+            )
     })
 });
 

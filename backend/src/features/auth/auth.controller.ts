@@ -114,6 +114,7 @@ export const exchange = async (req: Request, res: Response) => {
 
     setSessionCookie(res, payload.userId);
 
+    res.setHeader('Cache-Control', 'no-store');
     return res.json({
         apiKey: payload.apiKey,
         userId: payload.userId,
