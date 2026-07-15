@@ -1,7 +1,24 @@
 import { Response } from 'express';
 import axios from 'axios';
 
-jest.mock('axios');
+jest.mock('axios', () => {
+    const mockAxios = {
+        post: jest.fn(),
+        get: jest.fn(),
+        put: jest.fn(),
+        delete: jest.fn(),
+        patch: jest.fn(),
+        create: jest.fn(() => mockAxios),
+        interceptors: {
+            request: { use: jest.fn(), eject: jest.fn() },
+            response: { use: jest.fn(), eject: jest.fn() }
+        }
+    };
+    return {
+        __esModule: true,
+        default: mockAxios
+    };
+});
 
 jest.mock('../../backend/src/core/database/dbService', () => ({
     getUser: jest.fn(),
