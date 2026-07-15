@@ -18,7 +18,7 @@ function OverlayRouletteContent({ session }: { session: Session }) {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center p-4">
+        <div className="flex min-h-screen items-center justify-center overflow-hidden p-4">
             <div className="flex flex-col items-center gap-2">
                 <OverlayConnectionBanners connected={connected} stale={stale} />
                 <RouletteWheelDisplay

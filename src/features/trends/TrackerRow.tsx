@@ -11,23 +11,24 @@ export function TrackerRow({
     maxCount: number;
     compact?: boolean;
 }) {
-    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
-    const rankClass =
-        index === 0
-            ? 'bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent border-l-[3px] border-amber-400'
-            : index === 1
-              ? 'bg-gradient-to-r from-slate-300/15 via-slate-300/5 to-transparent border-l-[3px] border-slate-300'
-              : index === 2
-                ? 'bg-gradient-to-r from-orange-600/15 via-orange-600/5 to-transparent border-l-[3px] border-orange-500'
-                : 'border-l-[3px] border-transparent';
+    const hue = (330 - index * 25 + 360) % 360;
+    const baseColor = `hsl(${hue}, 90%, 65%)`;
+    const bgGradient = `linear-gradient(to right, hsla(${hue}, 90%, 65%, 0.15), hsla(${hue}, 90%, 65%, 0.02), transparent)`;
+    const glowShadow = `0 0 12px hsla(${hue}, 90%, 65%, 0.5)`;
 
     const cellPad = compact ? 'px-3 py-1.5' : 'px-5 py-3';
 
     return (
-        <tr className={`animate-fade-soft transition hover:bg-white/[0.02] ${rankClass}`}>
+        <tr
+            className="animate-fade-soft transition hover:bg-white/[0.02]"
+            style={{
+                background: bgGradient,
+                borderLeft: `3px solid ${baseColor}`
+            }}
+        >
             <td className={`border-b border-white/[0.03] align-middle ${cellPad}`}>
-                <span className={`inline-block ${compact ? 'text-[1rem]' : 'text-[1.2rem]'}`}>
-                    {medal}
+                <span className={`inline-block font-semibold ${compact ? 'text-[1rem]' : 'text-[1.1rem]'}`} style={{ color: baseColor }}>
+                    #{index + 1}
                 </span>
             </td>
             <td
@@ -47,8 +48,12 @@ export function TrackerRow({
             <td className={`border-b border-white/[0.03] align-middle ${cellPad}`}>
                 <div className={`w-full overflow-hidden rounded bg-white/5 ${compact ? 'h-1.5' : 'h-2'}`}>
                     <div
-                        className="h-full rounded bg-primary shadow-[0_0_10px_rgba(168,85,247,0.4)] transition-[width] duration-500"
-                        style={{ width: `${(count / maxCount) * 100}%` }}
+                        className="h-full rounded transition-[width] duration-500"
+                        style={{
+                            width: `${(count / maxCount) * 100}%`,
+                            backgroundColor: baseColor,
+                            boxShadow: glowShadow
+                        }}
                     />
                 </div>
             </td>
