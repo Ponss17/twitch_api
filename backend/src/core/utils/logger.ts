@@ -267,12 +267,22 @@ export const logger = {
         const requestId = generateRequestId();
         setRequestId(requestId);
 
-        winstonLogger.info(`→ Request started: [${method}] ${url}`, {
-            requestId,
-            method,
-            endpoint: url,
-            userId
-        });
+        const isPollingRoute =
+            url.includes('/overlay-state/') ||
+            url.includes('/health') ||
+            url.includes('/activity/') ||
+            url.includes('/summary/') ||
+            url.includes('/user-info/') ||
+            url.includes('/realtime-token/');
+
+        if (!isPollingRoute) {
+            winstonLogger.info(`→ Request started: [${method}] ${url}`, {
+                requestId,
+                method,
+                endpoint: url,
+                userId
+            });
+        }
 
         return requestId;
     }
