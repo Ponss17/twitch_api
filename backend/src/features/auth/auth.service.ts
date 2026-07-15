@@ -254,13 +254,17 @@ export const handleCallback = async (
     redirectOrigin: string;
     apiKey: string;
 }> => {
-    const tokenResponse = await apiClient.post(`${TWITCH_AUTH_URL}/token`, null, {
-        params: {
-            client_id: CONFIG.TWITCH_CLIENT_ID,
-            client_secret: CONFIG.TWITCH_CLIENT_SECRET,
-            code,
-            grant_type: 'authorization_code',
-            redirect_uri: CONFIG.TWITCH_REDIRECT_URI
+    const params = new URLSearchParams({
+        client_id: CONFIG.TWITCH_CLIENT_ID as string,
+        client_secret: CONFIG.TWITCH_CLIENT_SECRET as string,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: CONFIG.TWITCH_REDIRECT_URI as string
+    });
+    
+    const tokenResponse = await apiClient.post(`${TWITCH_AUTH_URL}/token`, params.toString(), {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
         }
     });
 
@@ -374,12 +378,16 @@ export const refreshUserToken = async (userId: string): Promise<string> => {
                 );
             });
 
-            const refreshRequest = apiClient.post(`${TWITCH_AUTH_URL}/token`, null, {
-                params: {
-                    client_id: CONFIG.TWITCH_CLIENT_ID,
-                    client_secret: CONFIG.TWITCH_CLIENT_SECRET,
-                    grant_type: 'refresh_token',
-                    refresh_token: user.refreshToken
+            const params = new URLSearchParams({
+                client_id: CONFIG.TWITCH_CLIENT_ID as string,
+                client_secret: CONFIG.TWITCH_CLIENT_SECRET as string,
+                grant_type: 'refresh_token',
+                refresh_token: user.refreshToken
+            });
+
+            const refreshRequest = apiClient.post(`${TWITCH_AUTH_URL}/token`, params.toString(), {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 }
             });
 
