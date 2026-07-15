@@ -112,8 +112,11 @@
     ],
     "redirects": [
         { "source": "/privacidad", "destination": "/legal#privacidad", "permanent": true },
+        { "source": "/privacidad/", "destination": "/legal#privacidad", "permanent": true },
         { "source": "/terminos", "destination": "/legal#terminos", "permanent": true },
-        { "source": "/cookies", "destination": "/legal#cookies", "permanent": true }
+        { "source": "/terminos/", "destination": "/legal#terminos", "permanent": true },
+        { "source": "/cookies", "destination": "/legal#cookies", "permanent": true },
+        { "source": "/cookies/", "destination": "/legal#cookies", "permanent": true }
     ],
     "rewrites": [
         {
@@ -125,7 +128,15 @@
             "destination": "/404.html"
         },
         {
+            "source": "/404/",
+            "destination": "/404.html"
+        },
+        {
             "source": "/429",
+            "destination": "/429/index.html"
+        },
+        {
+            "source": "/429/",
             "destination": "/429/index.html"
         },
         {
@@ -133,11 +144,27 @@
             "destination": "/500.html"
         },
         {
+            "source": "/500/",
+            "destination": "/500.html"
+        },
+        {
+            "source": "/api/:path+/",
+            "destination": "/api/index.js"
+        },
+        {
             "source": "/api/:path*",
             "destination": "/api/index.js"
         },
         {
+            "source": "/auth/:path+/",
+            "destination": "/api/index.js"
+        },
+        {
             "source": "/auth/:path*",
+            "destination": "/api/index.js"
+        },
+        {
+            "source": "/twitch/:path+/",
             "destination": "/api/index.js"
         },
         {
