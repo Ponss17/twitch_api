@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 import { logger } from '../utils/logger';
-import { getUserTimezone } from './userTimezoneCache';
+import { getUserTimezone, setUserTimezone } from './userTimezoneCache';
 import * as cacheService from './cacheService';
 
 const DEFAULT_STAT_FIELDS = [
@@ -235,10 +235,16 @@ export const recordUserRequest = async (
     latency: number,
     success: boolean,
     command: string | null = null,
-    skip: boolean = false
+    skip: boolean = false,
+    userTimezone?: string
 ): Promise<void> => {
     try {
         if (skip) return;
+
+        // Prioridad: timezone pasada explícitamente (evita el fallback a UTC en cold starts de Vercel)
+        if (userTimezone) {
+            setUserTimezone(userId, userTimezone);
+        }
 
         let { error } = await supabase.rpc('log_user_request', {
             p_user_id: userId,

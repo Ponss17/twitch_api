@@ -90,7 +90,8 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
                 return clipUrl;
             }
             return null;
-        }
+        },
+        req
     );
 
     if (result) {
@@ -163,7 +164,8 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 return apiResult.text;
             }
             return null;
-        }
+        },
+        req
     );
 
     if (result) {
@@ -207,7 +209,8 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
             );
 
             return apiResult;
-        }
+        },
+        req
     );
 
     if (result) return res.json(result);
@@ -251,7 +254,8 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
             );
 
             return apiResult;
-        }
+        },
+        req
     );
 
     if (result) {
