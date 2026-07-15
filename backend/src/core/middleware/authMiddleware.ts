@@ -159,6 +159,11 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             req.userId = user.userId;
             req.login = user.login;
             req.displayName = user.displayName;
+
+            if (res.locals.isOverlayReadRequest) {
+                return next();
+            }
+
             try {
                 const { accessToken } = await getValidTokenForUser(user);
                 user.accessToken = accessToken;
