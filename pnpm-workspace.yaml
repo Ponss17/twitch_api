@@ -1,0 +1,9 @@
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+
+overrides:
+  yaml: "2.9.0"
+  js-yaml@3: "3.15.0"
+  esbuild: "0.28.1"
