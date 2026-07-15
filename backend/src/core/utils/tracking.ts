@@ -1,6 +1,7 @@
 import * as dbService from '../database/dbService';
 import { logger } from './logger';
 import { ActivityLogEntry } from '../database/activityService';
+import type { Request } from 'express';
 
 type TrackRequestOptions = {
     type: ActivityLogEntry['type'];
@@ -9,6 +10,9 @@ type TrackRequestOptions = {
     incrementStat?: string;
     skipActivityLog?: boolean;
     skipRequestCount?: boolean;
+    /** Timezone IANA del usuario (ej. 'America/Costa_Rica'). Se pasa explícitamente para evitar
+     *  que en cold starts de Vercel se use UTC como fallback al calcular la fecha local. */
+    userTimezone?: string;
 };
 
 /** Métricas en background — no bloquea la respuesta al bot/cliente. */
@@ -19,7 +23,7 @@ function persistRequestMetrics(
     success: boolean
 ): Promise<void> {
     const tasks: Promise<unknown>[] = [
-        dbService.recordUserRequest(userId, latency, success, options.incrementStat ?? null, options.skipRequestCount)
+        dbService.recordUserRequest(userId, latency, success, options.incrementStat ?? null, options.skipRequestCount, options.userTimezone)
     ];
 
     if (success) {
@@ -46,12 +50,21 @@ function persistRequestMetrics(
 /**
  * Wrapper universal para rastrear peticiones, métricas y actividad.
  * Unifica la lógica que antes estaba dispersa entre juegos y comandos.
+ *
+ * @param req - Express request opcional. Si se pasa, extrae `req.userTimezone` automáticamente
+ *              para garantizar la fecha local correcta en cold starts de Vercel.
  */
 export const trackRequest = async <T>(
     userId: string | undefined,
     options: TrackRequestOptions,
-    action: () => Promise<T>
+    action: () => Promise<T>,
+    req?: Request
 ): Promise<T> => {
+    // Si el req está disponible y la timezone no fue seteada manualmente, extraerla del request
+    const resolvedOptions: TrackRequestOptions = req && !options.userTimezone
+        ? { ...options, userTimezone: (req as Request & { userTimezone?: string }).userTimezone }
+        : options;
+
     const startTime = Date.now();
     try {
         // Ejecutar la acción principal (ej. llamar a Twitch o generar respuesta)
@@ -60,7 +73,7 @@ export const trackRequest = async <T>(
         const latency = Date.now() - startTime;
 
         if (userId) {
-            await persistRequestMetrics(userId, options, latency, true).catch((err) => {
+            await persistRequestMetrics(userId, resolvedOptions, latency, true).catch((err) => {
                 logger.error('Error en métricas background (éxito):', err);
             });
         }
@@ -69,7 +82,7 @@ export const trackRequest = async <T>(
     } catch (error) {
         const latency = Date.now() - startTime;
         if (userId) {
-            await persistRequestMetrics(userId, options, latency, false).catch((err) => {
+            await persistRequestMetrics(userId, resolvedOptions, latency, false).catch((err) => {
                 logger.error('Error en métricas background (fallo):', err);
             });
         }

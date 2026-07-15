@@ -7,6 +7,9 @@ declare global {
             userId?: string;
             login?: string;
             displayName?: string;
+            /** Timezone IANA del usuario autenticado (ej. 'America/Costa_Rica').
+             *  Siempre disponible tras pasar por authMiddleware. Evita fallback a UTC en cold starts. */
+            userTimezone?: string;
         }
 
         interface Locals {
