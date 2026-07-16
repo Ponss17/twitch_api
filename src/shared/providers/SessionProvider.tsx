@@ -10,7 +10,9 @@ import {
     getSession,
     resolveDegradedSession,
     stripSensitiveQueryParams,
-    readOptimisticAuthState
+    readOptimisticAuthState,
+    runLegacyPanelSessionMigration,
+    takeLegacyReloginRedirect
 } from '@/core/api/auth';
 import type { Session } from '@/core/config/config';
 import { appPath } from '@/core/config/paths';
@@ -62,10 +64,25 @@ export function SessionProvider({
     const redirectTimerRef = useRef<number | null>(null);
 
     useEffect(() => {
+        if (bootstrap.storage !== 'overlay') {
+            runLegacyPanelSessionMigration();
+            if (takeLegacyReloginRedirect()) {
+                window.location.replace(appPath('/'));
+                return;
+            }
+        }
         initAuthSync();
-    }, []);
+    }, [bootstrap.storage]);
 
     const refresh = useCallback(async () => {
+        if (bootstrap.storage !== 'overlay') {
+            runLegacyPanelSessionMigration();
+            if (takeLegacyReloginRedirect()) {
+                window.location.replace(appPath('/'));
+                return;
+            }
+        }
+
         const skipInitialProgress = hydratedFromStorageRef.current;
         hydratedFromStorageRef.current = false;
 
