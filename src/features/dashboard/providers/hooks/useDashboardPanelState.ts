@@ -1,4 +1,4 @@
-﻿import { useCallback, useRef, useState, useEffect } from 'react';
+﻿import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import type { Session } from '@/core/config/config';
 import {
     EMPTY_DASHBOARD_LIVE_STATS,
@@ -122,6 +122,38 @@ export function useDashboardPanelState(session: Session) {
         [markActivityHighlight]
     );
 
+    const actions = useMemo(
+        () => ({
+            setStats,
+            setActivity,
+            setProfile,
+            setError,
+            setSyncing,
+            setSyncLabel,
+            setIsTabLeader,
+            setIsRealtimeLive,
+            markDataReady,
+            markActivityHighlight,
+            applyHomeDataReset,
+            handleRealtimeStats,
+            handleRealtimeActivity
+        }),
+        [markDataReady, markActivityHighlight, applyHomeDataReset, handleRealtimeStats, handleRealtimeActivity]
+    );
+
+    const refs = useMemo(
+        () => ({
+            highlightTimersRef,
+            dataReadyFiredRef,
+            hasLiveDataRef,
+            isRealtimeLiveRef,
+            isTabLeaderRef,
+            resetPendingRef,
+            todayLocalRef
+        }),
+        []
+    );
+
     return {
         state: {
             stats,
@@ -136,29 +168,7 @@ export function useDashboardPanelState(session: Session) {
             isRealtimeLive,
             statsTimeZone
         },
-        actions: {
-            setStats,
-            setActivity,
-            setProfile,
-            setError,
-            setSyncing,
-            setSyncLabel,
-            setIsTabLeader,
-            setIsRealtimeLive,
-            markDataReady,
-            markActivityHighlight,
-            applyHomeDataReset,
-            handleRealtimeStats,
-            handleRealtimeActivity
-        },
-        refs: {
-            highlightTimersRef,
-            dataReadyFiredRef,
-            hasLiveDataRef,
-            isRealtimeLiveRef,
-            isTabLeaderRef,
-            resetPendingRef,
-            todayLocalRef
-        }
+        actions,
+        refs
     };
 }
