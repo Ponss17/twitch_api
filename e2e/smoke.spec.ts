@@ -188,7 +188,8 @@ test.describe('dashboard', () => {
                 body: JSON.stringify({ success: true })
             })
         );
-        await gotoAuthenticatedDashboard(page, '/dashboard/settings/');
+        // Settings es una vista interna de React; Astro solo sirve /dashboard/ directamente.
+        await gotoAuthenticatedDashboard(page);
 
         const revealed = await page.evaluate(async () => {
             const res = await fetch('/api/dashboard/reveal-api-key/', {
