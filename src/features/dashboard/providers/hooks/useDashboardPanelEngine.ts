@@ -55,25 +55,31 @@ export function useDashboardPanelEngine({
     sessionRef.current = session;
     const showToastRef = useRef(showToast);
     showToastRef.current = showToast;
+    const actionsRef = useRef(actions);
+    actionsRef.current = actions;
+    const refsBag = useRef(refs);
+    refsBag.current = refs;
 
-    // We store the performSync and fetchPanelData functions in refs to avoid useEffect dependency cycles
     const performSyncRef = useRef<() => Promise<void>>(async () => {});
     const fetchPanelDataRef = useRef<
         (options?: { broadcast?: boolean; retryOnNetwork?: boolean; fresh?: boolean; silent?: boolean }) => Promise<boolean>
     >(async () => false);
+    const startSmartPollingRef = useRef<() => void>(() => {});
 
     const updateSyncLabel = useCallback(() => {
-        if (refs.isRealtimeLiveRef.current) {
-            actions.setSyncLabel('Realtime');
+        const currentActions = actionsRef.current;
+        const currentRefs = refsBag.current;
+        if (currentRefs.isRealtimeLiveRef.current) {
+            currentActions.setSyncLabel('Realtime');
             return;
         }
         const sync = syncRef.current;
         if (!sync?.getIsLeader()) {
-            actions.setSyncLabel(refs.hasLiveDataRef.current ? 'Realtime' : 'Sincronizando…');
+            currentActions.setSyncLabel(currentRefs.hasLiveDataRef.current ? 'Realtime' : 'Sincronizando…');
             return;
         }
-        actions.setSyncLabel(`${countdownRef.current}s`);
-    }, [actions, refs.isRealtimeLiveRef, refs.hasLiveDataRef]);
+        currentActions.setSyncLabel(`${countdownRef.current}s`);
+    }, []);
 
     const fetchPanelData = useCallback(
         async (options?: {
@@ -83,6 +89,8 @@ export function useDashboardPanelEngine({
             silent?: boolean;
         }) => {
             const sync = syncRef.current;
+            const currentActions = actionsRef.current;
+            const currentRefs = refsBag.current;
             if (!sync?.isActive()) return false;
             if (panelFetchInFlightRef.current) return false;
             panelFetchInFlightRef.current = true;
@@ -90,8 +98,8 @@ export function useDashboardPanelEngine({
             const currentSession = sessionRef.current;
             const broadcast = options?.broadcast === true && sync.getIsLeader();
             if (!options?.silent) {
-                actions.setSyncing(true);
-                actions.setError(null);
+                currentActions.setSyncing(true);
+                currentActions.setError(null);
             }
             reportSessionLoadProgress({
                 progress: 70,
@@ -99,39 +107,29 @@ export function useDashboardPanelEngine({
                 cached: false
             });
 
-            const loadOnce = async () => {
-                const result = await loadDashboardPanelData(currentSession, { fresh: options?.fresh });
-                if (!sync.isActive() || syncRef.current !== sync) return null;
-                return result;
-            };
+            const applyResult = (
+                result: Awaited<ReturnType<typeof loadDashboardPanelData>>,
+                opts: { broadcast: boolean; clearError?: boolean }
+            ) => {
+                const { analytics, analyticsLoaded, activity: activityLogs, profile: fetchedProfile, partialFailure } =
+                    result;
+                const liveSync = syncRef.current;
 
-            try {
-                const result = await loadOnce();
-                if (!result) return false;
-
-                const { analytics, analyticsLoaded, activity: activityLogs, profile: fetchedProfile, partialFailure } = result;
-
-                if (broadcast) {
-                    if (analyticsLoaded) sync.broadcast('SYNC_STATS', analytics);
-                    sync.broadcast('SYNC_ACTIVITY', activityLogs);
-                    if (fetchedProfile) sync.broadcast('SYNC_PROFILE', fetchedProfile);
+                if (opts.broadcast && liveSync?.isActive() && liveSync.getIsLeader()) {
+                    if (analyticsLoaded) liveSync.broadcast('SYNC_STATS', analytics);
+                    liveSync.broadcast('SYNC_ACTIVITY', activityLogs);
+                    if (fetchedProfile) liveSync.broadcast('SYNC_PROFILE', fetchedProfile);
                 }
 
-                if (analyticsLoaded) actions.setStats(analytics);
-                actions.setActivity(activityLogs);
-                if (fetchedProfile) actions.setProfile(fetchedProfile);
-                
-                actions.markDataReady();
+                if (analyticsLoaded) currentActions.setStats(analytics);
+                currentActions.setActivity(activityLogs);
+                if (fetchedProfile) currentActions.setProfile(fetchedProfile);
+                currentActions.markDataReady();
+                if (opts.clearError) currentActions.setError(null);
                 writePanelSyncPref(currentSession.userId, Date.now().toString());
-                
-                reportSessionLoadProgress({
-                    progress: 94,
-                    label: 'Preparando tu inicio...',
-                    cached: false
-                });
 
-                if (refs.isRealtimeLiveRef.current) {
-                    actions.setSyncLabel('Realtime');
+                if (currentRefs.isRealtimeLiveRef.current) {
+                    currentActions.setSyncLabel('Realtime');
                 } else {
                     countdownRef.current = Math.ceil(POLL_MS / 1000);
                     updateSyncLabel();
@@ -140,31 +138,34 @@ export function useDashboardPanelEngine({
                 if (partialFailure) {
                     logError('DashboardPanel', partialFailure, 'Carga parcial del panel');
                 }
+            };
 
+            try {
+                const result = await loadDashboardPanelData(currentSession, { fresh: options?.fresh });
+                // Aplicar aunque TabSync se haya recreado: los datos REST son válidos para esta sesión.
+                if (!activeRef.current || sessionRef.current.userId !== currentSession.userId) {
+                    return false;
+                }
+
+                applyResult(result, { broadcast });
+                reportSessionLoadProgress({
+                    progress: 94,
+                    label: 'Preparando tu inicio...',
+                    cached: false
+                });
                 return true;
             } catch (e) {
-                if (!sync.isActive() || syncRef.current !== sync) return false;
+                if (!activeRef.current || sessionRef.current.userId !== currentSession.userId) {
+                    return false;
+                }
 
                 if (isFetchNetworkError(e) && options?.retryOnNetwork !== false) {
                     await new Promise((r) => setTimeout(r, 800));
-                    if (sync.isActive() && syncRef.current === sync) {
+                    if (activeRef.current && sessionRef.current.userId === currentSession.userId) {
                         try {
-                            const retry = await loadOnce();
-                            if (retry) {
-                                const { analytics, analyticsLoaded, activity: activityLogs, profile: fetchedProfile, partialFailure } = retry;
-                                if (broadcast) {
-                                    if (analyticsLoaded) sync.broadcast('SYNC_STATS', analytics);
-                                    sync.broadcast('SYNC_ACTIVITY', activityLogs);
-                                    if (fetchedProfile) sync.broadcast('SYNC_PROFILE', fetchedProfile);
-                                }
-                                if (analyticsLoaded) actions.setStats(analytics);
-                                actions.setActivity(activityLogs);
-                                if (fetchedProfile) actions.setProfile(fetchedProfile);
-                                actions.markDataReady();
-                                actions.setError(null);
-                                if (partialFailure) logError('DashboardPanel', partialFailure, 'Carga parcial del panel');
-                                return true;
-                            }
+                            const retry = await loadDashboardPanelData(currentSession, { fresh: options?.fresh });
+                            applyResult(retry, { broadcast, clearError: true });
+                            return true;
                         } catch {
                             // sigue al error de usuario
                         }
@@ -173,16 +174,16 @@ export function useDashboardPanelEngine({
 
                 logError('DashboardPanel', e, 'Error cargando datos del panel');
                 if (!options?.silent) {
-                    actions.setError(formatFetchErrorForUi(e));
+                    currentActions.setError(formatFetchErrorForUi(e));
                 }
                 return false;
             } finally {
                 panelFetchInFlightRef.current = false;
                 if (syncingTimerRef.current) clearTimeout(syncingTimerRef.current);
-                syncingTimerRef.current = setTimeout(() => actions.setSyncing(false), 800);
+                syncingTimerRef.current = setTimeout(() => actionsRef.current.setSyncing(false), 800);
             }
         },
-        [actions, updateSyncLabel, refs.isRealtimeLiveRef]
+        [updateSyncLabel]
     );
 
     fetchPanelDataRef.current = fetchPanelData;
@@ -199,8 +200,10 @@ export function useDashboardPanelEngine({
         const sync = syncRef.current;
         if (!sync) return;
 
-        const pollMs = refs.isRealtimeLiveRef.current ? POLL_MS : FALLBACK_POLL_MS;
-        const lastSyncRaw = readPanelSyncPref(session.userId);
+        const currentRefs = refsBag.current;
+        const userId = sessionRef.current.userId;
+        const pollMs = currentRefs.isRealtimeLiveRef.current ? POLL_MS : FALLBACK_POLL_MS;
+        const lastSyncRaw = readPanelSyncPref(userId);
         const now = Date.now();
         let countdown = Math.ceil(pollMs / 1000);
 
@@ -222,7 +225,7 @@ export function useDashboardPanelEngine({
         pollRef.current = setInterval(() => {
             if (
                 document.visibilityState === 'hidden' ||
-                refs.isRealtimeLiveRef.current ||
+                refsBag.current.isRealtimeLiveRef.current ||
                 !activeRef.current
             ) {
                 return;
@@ -240,46 +243,50 @@ export function useDashboardPanelEngine({
             }
             updateSyncLabel();
         }, 1000);
-    }, [performSync, session.userId, updateSyncLabel, refs.isRealtimeLiveRef]);
+    }, [performSync, updateSyncLabel]);
+
+    startSmartPollingRef.current = startSmartPolling;
 
     const handleRealtimeDisconnect = useCallback(() => {
         if (!activeRef.current) return;
-        actions.setSyncLabel(`${Math.ceil(FALLBACK_POLL_MS / 1000)}s`);
+        actionsRef.current.setSyncLabel(`${Math.ceil(FALLBACK_POLL_MS / 1000)}s`);
         void performSyncRef.current();
-        startSmartPolling();
-    }, [startSmartPolling, actions]);
+        startSmartPollingRef.current();
+    }, []);
 
     const { isLive: isRealtimeLive } = useDashboardRealtime({
         id: 'dashboard',
         active: state.isTabLeader,
         session,
         onStatsUpdate: (next) => {
-            actions.handleRealtimeStats(next);
+            actionsRef.current.handleRealtimeStats(next);
             syncRef.current?.broadcast('SYNC_STATS', next);
         },
-        onActivityInsert: actions.handleRealtimeActivity,
+        onActivityInsert: (log) => actionsRef.current.handleRealtimeActivity(log),
         onDisconnect: handleRealtimeDisconnect
     });
 
     useEffect(() => {
-        actions.setIsRealtimeLive(isRealtimeLive);
-    }, [isRealtimeLive, actions]);
+        actionsRef.current.setIsRealtimeLive(isRealtimeLive);
+    }, [isRealtimeLive]);
 
     useEffect(() => {
         if (isRealtimeLive) {
-            actions.setSyncLabel('Realtime');
+            actionsRef.current.setSyncLabel('Realtime');
             if (pollRef.current) clearInterval(pollRef.current);
             pollRef.current = setInterval(() => {
                 if (
                     document.visibilityState === 'hidden' ||
-                    !refs.isRealtimeLiveRef.current ||
+                    !refsBag.current.isRealtimeLiveRef.current ||
                     !activeRef.current ||
                     !syncRef.current?.getIsLeader()
-                ) return;
+                ) {
+                    return;
+                }
                 void performSyncRef.current();
             }, REALTIME_SAFETY_POLL_MS);
         } else if (active && state.isTabLeader) {
-            startSmartPolling();
+            startSmartPollingRef.current();
         } else if (pollRef.current) {
             clearInterval(pollRef.current);
             pollRef.current = null;
@@ -291,16 +298,16 @@ export function useDashboardPanelEngine({
                 pollRef.current = null;
             }
         };
-    }, [active, isRealtimeLive, state.isTabLeader, startSmartPolling, actions, refs.isRealtimeLiveRef]);
+    }, [active, isRealtimeLive, state.isTabLeader]);
 
     useEffect(() => {
         if (!state.isTabLeader) return;
 
         const checkMidnightRollover = () => {
             const today = getStatsLocalDateString(state.statsTimeZone);
-            if (refs.todayLocalRef.current === today) return;
-            refs.todayLocalRef.current = today;
-            actions.setStats((prev) => ({
+            if (refsBag.current.todayLocalRef.current === today) return;
+            refsBag.current.todayLocalRef.current = today;
+            actionsRef.current.setStats((prev) => ({
                 ...EMPTY_DASHBOARD_LIVE_STATS,
                 timeSeries: prev.timeSeries
             }));
@@ -322,18 +329,23 @@ export function useDashboardPanelEngine({
             clearInterval(interval);
             document.removeEventListener('visibilitychange', onVisible);
         };
-    }, [state.isTabLeader, state.statsTimeZone, refs.todayLocalRef, actions]);
+    }, [state.isTabLeader, state.statsTimeZone]);
 
+    // Solo recrear TabSync al cambiar de usuario — antes se recreaba cada render y descartaba los 200.
     useEffect(() => {
+        panelBootstrappedRef.current = false;
+        refsBag.current.dataReadyFiredRef.current = false;
+
         const sync = new TabSyncService(PANEL_SYNC_CHANNEL);
         syncRef.current = sync;
-        const highlightTimers = refs.highlightTimersRef.current;
+        const highlightTimers = refsBag.current.highlightTimersRef.current;
+        const userId = session.userId;
 
         sync.on('LEADER_CHANGED', (payload) => {
             const data = payload as { isLeader: boolean };
-            actions.setIsTabLeader(data.isLeader);
+            actionsRef.current.setIsTabLeader(data.isLeader);
             if (data.isLeader) {
-                const raw = readPanelSyncPref(session.userId);
+                const raw = readPanelSyncPref(userId);
                 const stale = !raw || Date.now() - parseInt(raw, 10) >= FALLBACK_POLL_MS;
                 if (stale && panelBootstrappedRef.current) {
                     void performSyncRef.current();
@@ -341,18 +353,21 @@ export function useDashboardPanelEngine({
                 updateSyncLabel();
             } else {
                 updateSyncLabel();
-                if (!refs.isRealtimeLiveRef.current) {
-                    startSmartPolling();
+                if (!refsBag.current.isRealtimeLiveRef.current) {
+                    startSmartPollingRef.current();
                 }
             }
         });
 
-        sync.on('SYNC_ACTIVITY', (payload) => actions.setActivity(payload as unknown as never[]));
-        sync.on('SYNC_PROFILE', (payload) => actions.setProfile(payload));
+        sync.on('SYNC_ACTIVITY', (payload) => {
+            actionsRef.current.setActivity(payload as unknown as never[]);
+            actionsRef.current.markDataReady();
+        });
+        sync.on('SYNC_PROFILE', (payload) => actionsRef.current.setProfile(payload));
         sync.on('SYNC_STATS', (payload) => {
-            actions.handleRealtimeStats(payload as unknown as never);
-            if (!sync.getIsLeader() && !refs.isRealtimeLiveRef.current) {
-                actions.setSyncLabel('Realtime');
+            actionsRef.current.handleRealtimeStats(payload as unknown as never);
+            if (!sync.getIsLeader() && !refsBag.current.isRealtimeLiveRef.current) {
+                actionsRef.current.setSyncLabel('Realtime');
             }
         });
 
@@ -361,7 +376,7 @@ export function useDashboardPanelEngine({
                 document.visibilityState === 'visible' &&
                 sync.isActive() &&
                 sync.getIsLeader() &&
-                !refs.isRealtimeLiveRef.current
+                !refsBag.current.isRealtimeLiveRef.current
             ) {
                 void performSyncRef.current();
             }
@@ -377,9 +392,9 @@ export function useDashboardPanelEngine({
         };
         window.addEventListener('realtime:auth-failed', onAuthFailed);
 
-        actions.setIsTabLeader(sync.getIsLeader());
-        if (!refs.isRealtimeLiveRef.current) {
-            startSmartPolling();
+        actionsRef.current.setIsTabLeader(sync.getIsLeader());
+        if (!refsBag.current.isRealtimeLiveRef.current) {
+            startSmartPollingRef.current();
         }
 
         return () => {
@@ -395,35 +410,33 @@ export function useDashboardPanelEngine({
             highlightTimers.clear();
             sync.destroy();
             syncRef.current = null;
-            refs.dataReadyFiredRef.current = false;
-            panelBootstrappedRef.current = false;
         };
-    }, [startSmartPolling, session.userId, updateSyncLabel, actions, refs]);
+    }, [session.userId, updateSyncLabel]);
 
     useEffect(() => {
         if (!state.isTabLeader || panelBootstrappedRef.current) return;
         panelBootstrappedRef.current = true;
         if (consumeHomeDataResetPending(session.userId)) {
-            actions.applyHomeDataReset(async () => {
+            actionsRef.current.applyHomeDataReset(async () => {
                 await fetchPanelDataRef.current({ broadcast: true, silent: true });
             });
             return;
         }
         void fetchPanelDataRef.current({ broadcast: true, silent: true });
-    }, [state.isTabLeader, session.userId, actions]);
+    }, [state.isTabLeader, session.userId]);
 
     useEffect(() => {
         return subscribeHomeDataReset(session.userId, () => {
-            actions.applyHomeDataReset(async () => {
+            actionsRef.current.applyHomeDataReset(async () => {
                 await fetchPanelDataRef.current({ broadcast: true, silent: true });
             });
         });
-    }, [session.userId, actions]);
+    }, [session.userId]);
 
     useEffect(() => {
         if (!active || !session.userId) return;
         if (consumeHomeDataResetPending(session.userId)) {
-            actions.applyHomeDataReset(async () => {
+            actionsRef.current.applyHomeDataReset(async () => {
                 await fetchPanelDataRef.current({ broadcast: true, silent: true });
             });
             return;
@@ -434,6 +447,5 @@ export function useDashboardPanelEngine({
         if (stale && panelBootstrappedRef.current && !panelFetchInFlightRef.current) {
             void fetchPanelDataRef.current({ broadcast: true, retryOnNetwork: false, fresh: true, silent: true });
         }
-    }, [active, session.userId, actions]);
-
+    }, [active, session.userId]);
 }
