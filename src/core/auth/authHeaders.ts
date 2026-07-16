@@ -5,6 +5,11 @@ export interface AuthHeaderOptions {
     preferApiKey?: boolean;
 }
 
+/**
+ * Headers de autenticación del panel.
+ * Tras Opción 2 el panel autentica con cookie `lp_sess` (credentials:include);
+ * no envía Bearer/apiKey. Overlay/bots pueden seguir usando preferApiKey si tienen key en memoria.
+ */
 export function authHeaders(
     session: Session | null,
     options: AuthHeaderOptions = {}
@@ -17,11 +22,6 @@ export function authHeaders(
         return headers;
     }
 
-    // Panel OAuth: priorizar token de Twitch; la API key es para bots/scripts.
-    if (session?.token) {
-        headers.Authorization = `Bearer ${session.token}`;
-    } else if (session?.apiKey) {
-        headers['x-api-key'] = session.apiKey;
-    }
+    // Panel: cookie-only. No reintroducir token/apiKey en headers.
     return headers;
 }

@@ -130,6 +130,7 @@ async function tryResolveCookieSession(
         user.accessToken = accessToken;
         res.locals.apiUser = user;
         res.locals.isCookieSession = true;
+        res.locals.authSource = 'cookie';
         req.userId = user.userId;
         req.login = user.login;
         req.displayName = user.displayName;
@@ -143,10 +144,8 @@ async function tryResolveCookieSession(
             clearSessionCookie(res);
             return { status: 'missing' };
         }
-        if (isTransientCookieError(error)) {
-            return { status: 'transient' };
-        }
-        return { status: 'missing' };
+        // DB/red/desconocido: no borrar cookie (evita falsos logouts).
+        return { status: 'transient' };
     }
 }
 
@@ -154,6 +153,13 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     try {
         if (res.locals.apiUser) {
             const user = res.locals.apiUser as StoredUser;
+            if (!res.locals.authSource) {
+                res.locals.authSource = res.locals.isApiKeyRequest
+                    ? 'apiKey'
+                    : res.locals.isCookieSession
+                      ? 'cookie'
+                      : 'bearer';
+            }
             if (user.isActive === false) {
                 return rejectInactiveUser(res, req.path);
             }
@@ -344,6 +350,9 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         }
 
         req.twitchToken = token;
+        if (!res.locals.authSource) {
+            res.locals.authSource = 'bearer';
+        }
         next();
     } catch (e) {
         logger.error('Error Middleware Auth:', e);
@@ -370,9 +379,20 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     }
 };
 
-export const invalidateAuthCache = (userId: string) => {
+export const invalidateAuthCache = (
+    userId: string,
+    options?: { revokeSession?: boolean }
+) => {
     userCache.delete(userId);
-    void cacheService.set(`auth:revoke:user:${userId}`, true, TOKEN_VALIDATION_TTL / 1000);
+    // Logout / delete-account: revoke cookie sessions briefly. Regenerate-key: no.
+    if (options?.revokeSession !== false) {
+        void cacheService.set(`auth:revoke:user:${userId}`, true, TOKEN_VALIDATION_TTL / 1000);
+    }
+};
+
+/** Quita el flag temporal de revocación (p. ej. tras login fresco). */
+export const unrevokeAuthSession = async (userId: string): Promise<void> => {
+    await cacheService.del(`auth:revoke:user:${userId}`);
 };
 
 export default checkToken;

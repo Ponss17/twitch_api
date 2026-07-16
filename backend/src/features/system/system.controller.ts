@@ -12,8 +12,31 @@ import { jsonError } from '../../core/utils/jsonResponse';
 import { invalidateAllUserCaches } from '../../core/utils/cacheInvalidation';
 import { setSessionCookie } from '../../core/utils/sessionCookie';
 import { isAuthenticationError } from '../../core/errors/AppError';
+import { invalidateAuthCache } from '../../core/middleware/authMiddleware';
 
 import { AuthenticatedRequest } from '../../types/twitch';
+
+/** Respuesta de validate al panel: sin secretos; renovación usa tokenExpiresAt + cookie. */
+function panelValidatePayload(params: {
+    userId: string;
+    login?: string;
+    displayName?: string;
+    profileImageUrl?: string;
+    timezone?: string;
+    tokenExpiresAt?: number | null;
+}) {
+    return {
+        valid: true as const,
+        tokenExpiresAt: params.tokenExpiresAt && params.tokenExpiresAt > 0 ? params.tokenExpiresAt : null,
+        user: {
+            id: params.userId,
+            login: params.login,
+            display_name: params.displayName || params.login,
+            profile_image_url: params.profileImageUrl,
+            timezone: params.timezone || 'UTC'
+        }
+    };
+}
 
 export const validateToken = async (req: AuthenticatedRequest, res: Response) => {
     try {
@@ -49,23 +72,34 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                 });
             }
 
-            const user = apiUser as { userId: string; apiKey?: string; login?: string; displayName?: string; profileImageUrl?: string; timezone?: string; tokenExpiresAt?: number };
+            const user = apiUser as {
+                userId: string;
+                apiKey?: string;
+                login?: string;
+                displayName?: string;
+                profileImageUrl?: string;
+                timezone?: string;
+                tokenExpiresAt?: number;
+            };
             setSessionCookie(res, user.userId);
-            // Incluir tokenExpiresAt para que el frontend programe la renovación proactiva
-            const tokenExpiresAt = user.tokenExpiresAt && user.tokenExpiresAt > 0 ? user.tokenExpiresAt : null;
-            return res.json({
-                valid: true,
-                apiKey: user.apiKey || null,
-                token: token,
-                tokenExpiresAt,
-                user: {
-                    id: user.userId,
+            // tokenExpiresAt para useProactiveTokenRefresh (no devolver apiKey/token al panel)
+            let tokenExpiresAt =
+                user.tokenExpiresAt && user.tokenExpiresAt > 0 ? user.tokenExpiresAt : null;
+            if (!tokenExpiresAt) {
+                const fresh = await dbService.getUser(user.userId);
+                tokenExpiresAt =
+                    fresh?.tokenExpiresAt && fresh.tokenExpiresAt > 0 ? fresh.tokenExpiresAt : null;
+            }
+            return res.json(
+                panelValidatePayload({
+                    userId: user.userId,
                     login: user.login,
-                    display_name: user.displayName || user.login,
-                    profile_image_url: user.profileImageUrl,
-                    timezone: user.timezone || 'UTC'
-                }
-            });
+                    displayName: user.displayName,
+                    profileImageUrl: user.profileImageUrl,
+                    timezone: user.timezone,
+                    tokenExpiresAt
+                })
+            );
         }
 
         if (!token) {
@@ -83,23 +117,21 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                 dbService.getUser(validation.user_id)
             ]);
 
-            const tokenExpiresAt = dbUser?.tokenExpiresAt && dbUser.tokenExpiresAt > 0 ? dbUser.tokenExpiresAt : null;
+            const tokenExpiresAt =
+                dbUser?.tokenExpiresAt && dbUser.tokenExpiresAt > 0 ? dbUser.tokenExpiresAt : null;
             if (validation.user_id) {
                 setSessionCookie(res, validation.user_id);
             }
-            return res.json({
-                valid: true,
-                apiKey: dbUser?.apiKey || null,
-                token: token,
-                tokenExpiresAt,
-                user: {
-                    id: userProfile.id,
+            return res.json(
+                panelValidatePayload({
+                    userId: userProfile.id,
                     login: userProfile.login,
-                    display_name: userProfile.display_name,
-                    profile_image_url: userProfile.profile_image_url,
-                    timezone: dbUser?.timezone || 'UTC'
-                }
-            });
+                    displayName: userProfile.display_name,
+                    profileImageUrl: userProfile.profile_image_url,
+                    timezone: dbUser?.timezone,
+                    tokenExpiresAt
+                })
+            );
         } catch (err) {
             logger.error('Error fetching supplementary user info:', err);
             return res.json({ valid: true, user: { login: validation.login } });
@@ -127,6 +159,8 @@ export const regenerateKey = async (req: AuthenticatedRequest, res: Response) =>
             login: req.login,
             revokeApiKey: true
         });
+        // Solo limpia caché en memoria; no revocar lp_sess (evita lockout 10 min en el panel).
+        invalidateAuthCache(userId, { revokeSession: false });
 
         await dbService.addAuditLog('api_key_regenerated', userId, userId);
 

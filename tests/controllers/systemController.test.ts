@@ -85,6 +85,8 @@ const mockRes = () => {
     res.send = jest.fn().mockReturnValue(res);
     res.setHeader = jest.fn().mockReturnValue(res);
     res.append = jest.fn().mockReturnValue(res);
+    res.cookie = jest.fn().mockReturnValue(res);
+    res.clearCookie = jest.fn().mockReturnValue(res);
     return res;
 };
 
@@ -119,7 +121,8 @@ describe('systemController', () => {
 
             const payload = (res.json as jest.Mock).mock.calls[0][0];
             expect(payload.valid).toBe(true);
-            expect(payload.apiKey).toBe('key-123');
+            expect(payload.apiKey).toBeUndefined();
+            expect(payload.token).toBeUndefined();
             expect(payload.user).toEqual(
                 expect.objectContaining({
                     id: '123',

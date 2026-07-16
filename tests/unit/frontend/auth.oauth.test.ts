@@ -26,12 +26,12 @@ describe('resolveSessionFromUrl', () => {
             login: 'streamer',
             displayName: '',
             profile_image_url: '',
-            token: undefined,
-            apiKey: 'stored_key',
             userId: '1',
+            tokenExpiresAt: undefined,
             isNewLogin: false
         });
-        expect(getSession()?.apiKey).toBe('stored_key');
+        expect(getSession()?.apiKey).toBeUndefined();
+        expect(getSession()?.userId).toBe('1');
     });
 
     it('exchanges auth token and strips sensitive query params', async () => {
@@ -40,7 +40,6 @@ describe('resolveSessionFromUrl', () => {
         (global.fetch as jest.Mock).mockResolvedValue({
             ok: true,
             json: async () => ({
-                apiKey: 'new_key',
                 login: 'streamer',
                 displayName: 'Streamer',
                 userId: '42'
@@ -51,7 +50,7 @@ describe('resolveSessionFromUrl', () => {
 
         expect(session.isNewLogin).toBe(true);
         expect(session.userId).toBe('42');
-        expect(session.apiKey).toBe('new_key');
+        expect(session.apiKey).toBeUndefined();
         expect(window.location.search).toBe('');
     });
 });
@@ -102,7 +101,7 @@ describe('validateSession cache', () => {
         expect(cached.result.valid).toBe(true);
         expect(cached.result.apiKey).toBeUndefined();
         expect(cached.result.token).toBeUndefined();
-        expect(getSession()?.apiKey).toBe('secret-key');
+        expect(getSession()?.apiKey).toBeUndefined();
         expect(getSession()?.userId).toBe('205997464');
     });
 

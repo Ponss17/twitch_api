@@ -11,6 +11,7 @@ import { buildDashboardProfile } from '../../core/utils/dashboardProfile';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { invalidateAllUserCaches, invalidateDashboardStatsCaches, invalidateOverlayStateCaches } from '../../core/utils/cacheInvalidation';
 import { clearSessionCookie } from '../../core/utils/sessionCookie';
+import { invalidateAuthCache } from '../../core/middleware/authMiddleware';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { maskApiKey } from '../../core/utils/maskApiKey';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
@@ -112,6 +113,7 @@ export const deleteAccount = async (req: AuthenticatedRequest, res: Response) =>
         const apiKey = apiUser?.apiKey;
         await dbService.deleteUser(userId);
         await invalidateAllUserCaches(userId, { apiKey, login: req.login, revokeApiKey: true });
+        invalidateAuthCache(userId);
         clearSessionCookie(res);
         res.json({ success: true, message: 'Cuenta eliminada permanentemente del sistema.' });
     } catch (e) {

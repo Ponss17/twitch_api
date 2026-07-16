@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { card, fadeIn, btnPrimary } from '@/core/utils/tw';
 import { Dropdown, DropdownTrigger, DropdownPanel, DropdownItem } from '@/shared/ui/Dropdown';
 import { API_ENDPOINTS } from '@/core/config/config';
-import { authHeaders } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useToast } from '@/shared/ui/ToastProvider';
@@ -48,14 +48,14 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
         if (selectedTz === currentTimezone) return;
         setSaving(true);
         try {
-            const res = await fetchWithRetry(API_ENDPOINTS.SETTINGS, {
+            const res = await fetchWithRetry(API_ENDPOINTS.SETTINGS, withApiCredentials({
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     ...authHeaders(session)
                 },
                 body: JSON.stringify({ timezone: selectedTz })
-            });
+            }));
 
             if (!res.ok) {
                 showToast('Error al guardar los ajustes.', 'error');

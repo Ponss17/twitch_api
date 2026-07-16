@@ -13,9 +13,9 @@ import {
 import { markSessionValidated } from './sessionAuthGrace';
 
 function canUseDegradedSession(session: Session): boolean {
-    if (session.apiKey || session.token || session.overlayToken) return true;
+    if (session.userId || session.apiKey || session.token || session.overlayToken) return true;
     const stored = getSession();
-    return !!(stored?.apiKey || stored?.token || stored?.overlayToken);
+    return !!(stored?.userId || stored?.apiKey || stored?.token || stored?.overlayToken);
 }
 
 function validateDedupeKey(session: Session): string {
@@ -50,7 +50,7 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
         return validateOverlaySession(session);
     }
 
-    if (!session.apiKey && !session.token) {
+    if (!session.apiKey && !session.token && !session.userId) {
         return { valid: false, error: true, message: 'no_credentials' };
     }
 
@@ -122,20 +122,7 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
     };
 
     try {
-        let result: ApiResponse & { networkError?: boolean };
-
-        if (session.apiKey) {
-            result = await attempt({
-                apiKey: session.apiKey,
-                login: session.login,
-                userId: session.userId
-            });
-            if (result.valid !== true && !result.networkError && session.token) {
-                result = await attempt(session);
-            }
-        } else {
-            result = await attempt(session);
-        }
+        const result: ApiResponse & { networkError?: boolean } = await attempt(session);
 
         reportSessionLoadProgress({
             progress: 52,

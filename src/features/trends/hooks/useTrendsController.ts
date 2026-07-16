@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS, IGNORED_BOTS, type Session } from '@/core/config/config';
-import { authHeaders } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { chatLogStore } from '@/features/chat/lib/chatLogStore';
 import { TabSyncService } from '@/features/dashboard/lib/tabSyncService';
@@ -268,11 +268,11 @@ export function useTrendsController({
         chatLogStore.clear();
 
         if (syncRef.current?.getIsLeader()) {
-            void fetch(`${API_ENDPOINTS.BASE}/dashboard/track-usage`, {
+            void fetch(`${API_ENDPOINTS.BASE}/dashboard/track-usage`, withApiCredentials({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
                 body: JSON.stringify({ tool: 'trends' })
-            }).catch(() => {});
+            })).catch(() => {});
         }
 
         runTimer(minutes * 60);
