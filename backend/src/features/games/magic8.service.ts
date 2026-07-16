@@ -9,6 +9,9 @@ type GroqClient = import('groq-sdk').default;
 
 let groqClient: GroqClient | null = null;
 
+// Caché para evitar doble cargo si un usuario pregunta lo mismo consecutivamente o si hay lag
+const responseCache = new Map<string, { content: string; expiry: number }>();
+const CACHE_TTL_MS = 60_000;
 async function getGroqClient(): Promise<GroqClient> {
     const apiKey = CONFIG.GROQ_API_KEY?.trim();
     if (!apiKey) {
@@ -49,6 +52,13 @@ export async function generateMagic8Response(
     try {
         const userName = user ? `@${user}` : 'vástago';
         const resolvedMood = resolveMagic8Mood(mood);
+        
+        const cacheKey = `${userName.toLowerCase()}|${resolvedMood}|${question.toLowerCase().trim()}`;
+        const cached = responseCache.get(cacheKey);
+        if (cached && cached.expiry > Date.now()) {
+            return cached.content;
+        }
+
         const { temperature } = MAGIC8_MOODS[resolvedMood];
 
         const completion = await (await getGroqClient()).chat.completions.create(
@@ -77,11 +87,20 @@ export async function generateMagic8Response(
 
         const finalContent = sanitizeMentions(rawContent, userName);
 
-        if (finalContent.length > 390) {
-            return finalContent.substring(0, 387) + '...';
-        }
+        const result = finalContent.length > 390 ? finalContent.substring(0, 387) + '...' : finalContent;
 
-        return finalContent;
+        // Limpiar caché si crece mucho
+        if (responseCache.size > 100) {
+            const now = Date.now();
+            for (const [key, val] of responseCache.entries()) {
+                if (val.expiry <= now) responseCache.delete(key);
+            }
+        }
+        
+        // Guardar en caché
+        responseCache.set(cacheKey, { content: result, expiry: Date.now() + CACHE_TTL_MS });
+
+        return result;
     } catch (error) {
         logger.error('Error en Groq API:', error);
         throw new AppError(MESSAGES.MAGIC8.GROQ_ERROR, 503);
