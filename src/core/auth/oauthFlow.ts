@@ -1,5 +1,6 @@
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
 import { withApiCredentials } from './apiCredentials';
+import { runLegacyPanelSessionMigration } from './legacySessionMigration';
 import { getSession } from './sessionStorage';
 import { invalidateSession } from './sessionLifecycle';
 import { clearRevealedApiKeyCache } from './revealApiKey';
@@ -95,6 +96,8 @@ export function readOptimisticAuthState(): {
     if (typeof window === 'undefined') {
         return { session: null, loading: true, authenticated: false };
     }
+    // Panel: forzar re-login si aún hay secretos pre-cookie en localStorage.
+    runLegacyPanelSessionMigration();
     if (new URLSearchParams(window.location.search).get('auth')) {
         return { session: null, loading: true, authenticated: false };
     }

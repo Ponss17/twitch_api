@@ -1,4 +1,9 @@
 export { getSession, saveSession, SESSION_KEY } from './sessionStorage';
+export {
+    runLegacyPanelSessionMigration,
+    takeLegacyReloginRedirect,
+    consumeLegacyReloginNotice
+} from './legacySessionMigration';
 export { clearValidateCache } from './validateCache';
 export { invalidateSession, initAuthSync } from './sessionLifecycle';
 export { mergeSessionFromValidate, resolveDegradedSession } from './sessionMerge';

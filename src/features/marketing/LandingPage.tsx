@@ -2,7 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { LoginDisclaimerModal } from '@/shared/ui/LoginDisclaimerModal';
 import { VerifyingSessionModal } from '@/shared/ui/VerifyingSessionModal';
 import { AppLogo } from '@/shared/ui/AppLogo';
-import { resolveSessionFromUrl, markDashboardSplashForFreshLogin, clearDashboardSplashFlags, getSession } from '@/core/api/auth';
+import {
+    resolveSessionFromUrl,
+    markDashboardSplashForFreshLogin,
+    clearDashboardSplashFlags,
+    getSession,
+    runLegacyPanelSessionMigration,
+    takeLegacyReloginRedirect,
+    consumeLegacyReloginNotice
+} from '@/core/api/auth';
 import { appPath, legalPath, saveDocsReturnPath } from '@/core/config/paths';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { Accordion } from '@/shared/ui/Accordion';
@@ -98,6 +106,7 @@ export function LandingPage() {
     const [isVerifying, setIsVerifying] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
     const [hasSession, setHasSession] = useState(false);
+    const [legacyReloginNotice, setLegacyReloginNotice] = useState(false);
     const [requestStatus, setRequestStatus] = useState<'idle' | 'loading' | 'success'>('idle');
     const [latency, setLatency] = useState(142);
 
@@ -120,8 +129,16 @@ export function LandingPage() {
     };
 
     useEffect(() => {
-        setHasSession(!!getSession());
         clearDashboardSplashFlags();
+
+        // Usuarios con apiKey/token viejos en LS: limpiar y pedir re-login (cookie).
+        runLegacyPanelSessionMigration();
+        takeLegacyReloginRedirect(); // ya estamos en landing
+        if (consumeLegacyReloginNotice()) {
+            setLegacyReloginNotice(true);
+        }
+
+        setHasSession(!!getSession());
 
         void (async () => {
             const params = new URLSearchParams(window.location.search);
@@ -260,9 +277,19 @@ export function LandingPage() {
                             className="mb-8 animate-fade-soft text-lg leading-relaxed text-[#c4c4cc] opacity-0 [animation-fill-mode:forwards]"
                             style={{ animationDelay: '200ms' }}
                         >
-                            Configura <code className={CMD_CODE}>!followage</code>,{' '}
-                            <code className={CMD_CODE}>!clip</code>, <code className={CMD_CODE}>!shoutout</code> y más
-                            en segundos. Sin complicaciones.
+                            {legacyReloginNotice ? (
+                                <>
+                                    Mejoramos la seguridad del panel: tu sesión anterior ya no es válida.
+                                    Vuelve a iniciar sesión con Twitch y entras al panel como siempre.
+                                </>
+                            ) : (
+                                <>
+                                    Configura <code className={CMD_CODE}>!followage</code>,{' '}
+                                    <code className={CMD_CODE}>!clip</code>,{' '}
+                                    <code className={CMD_CODE}>!shoutout</code> y más en segundos. Sin
+                                    complicaciones.
+                                </>
+                            )}
                         </p>
                         <div 
                             className="mb-6 flex animate-fade-soft flex-wrap justify-center gap-4 opacity-0 [animation-fill-mode:forwards] md:justify-start"
@@ -283,7 +310,9 @@ export function LandingPage() {
                                     className="inline-flex items-center gap-2.5 rounded-lg bg-[#9146ff] px-7 py-3 text-[0.95rem] font-semibold text-white shadow-[0_0_24px_-8px_#9146ff] transition-all hover:bg-[#7c3aed] hover:shadow-[0_0_36px_-6px_#9146ff]"
                                 >
                                     <TwitchIcon className="w-4 brightness-0 invert" />
-                                    Iniciar Sesión con Twitch
+                                    {legacyReloginNotice
+                                        ? 'Volver a conectar con Twitch'
+                                        : 'Iniciar Sesión con Twitch'}
                                 </button>
                             )}
                             <a
