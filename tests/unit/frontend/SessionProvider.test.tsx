@@ -25,7 +25,9 @@ jest.mock('@/core/api/auth', () => ({
     resolveDegradedSession: jest.fn((session) => session),
     stripSensitiveQueryParams: jest.fn(),
     validateSession: jest.fn(),
-    clearSession: jest.fn()
+    clearSession: jest.fn(),
+    runLegacyPanelSessionMigration: jest.fn(),
+    takeLegacyReloginRedirect: jest.fn(() => false)
 }));
 
 const showToastMock = jest.fn();
