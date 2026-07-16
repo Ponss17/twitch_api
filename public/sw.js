@@ -13,9 +13,17 @@ if (IS_LOCAL_DEV) {
         );
     });
 } else {
-    const CACHE_NAME = 'losperris-twitch-v10';
+    const CACHE_NAME = 'losperris-twitch-v12';
     /** Solo assets estáticos — no precachear páginas SSR (evita invocaciones extra en install). */
-    const urlsToCache = ['/offline', '/manifest.json', '/img/logo.svg', '/img/favicon.svg'];
+    const urlsToCache = ['/offline', '/manifest.json', '/img/logo.svg', '/favicon.svg'];
+
+    const isSameOrigin = (url) => {
+        try {
+            return new URL(url).origin === self.location.origin;
+        } catch {
+            return false;
+        }
+    };
 
     const isCacheFirstAsset = (url) =>
         url.includes('/img/') ||
@@ -25,11 +33,25 @@ if (IS_LOCAL_DEV) {
         url.endsWith('.webp') ||
         url.endsWith('.png');
 
+    /** addAll falla entero si una URL 404; cachear una a una evita tumbar el install. */
+    async function precacheAssets(cache) {
+        await Promise.all(
+            urlsToCache.map(async (url) => {
+                try {
+                    const response = await fetch(url, { cache: 'reload' });
+                    if (response.ok) await cache.put(url, response);
+                } catch {
+                    /* asset opcional: no bloquear install del SW */
+                }
+            })
+        );
+    }
+
     self.addEventListener('install', (event) => {
         event.waitUntil(
             caches
                 .open(CACHE_NAME)
-                .then((cache) => cache.addAll(urlsToCache))
+                .then((cache) => precacheAssets(cache))
                 .then(() => self.skipWaiting())
         );
     });
@@ -49,6 +71,10 @@ if (IS_LOCAL_DEV) {
         if (event.request.method !== 'GET') return;
 
         const url = event.request.url;
+
+        // Fuentes/CDN/WebSockets externos: no interceptar.
+        // Si el SW hace fetch cross-origin, choca con connect-src del CSP y marca 408 Offline.
+        if (!isSameOrigin(url)) return;
 
         if (
             url.includes('/@vite/') ||

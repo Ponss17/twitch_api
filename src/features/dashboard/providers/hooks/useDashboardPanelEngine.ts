@@ -347,10 +347,10 @@ export function useDashboardPanelEngine({
             }
         });
 
-        sync.on('SYNC_ACTIVITY', (payload) => actions.setActivity(payload as any));
+        sync.on('SYNC_ACTIVITY', (payload) => actions.setActivity(payload as unknown as never[]));
         sync.on('SYNC_PROFILE', (payload) => actions.setProfile(payload));
         sync.on('SYNC_STATS', (payload) => {
-            actions.handleRealtimeStats(payload as any);
+            actions.handleRealtimeStats(payload as unknown as never);
             if (!sync.getIsLeader() && !refs.isRealtimeLiveRef.current) {
                 actions.setSyncLabel('Realtime');
             }
@@ -404,7 +404,9 @@ export function useDashboardPanelEngine({
         if (!state.isTabLeader || panelBootstrappedRef.current) return;
         panelBootstrappedRef.current = true;
         if (consumeHomeDataResetPending(session.userId)) {
-            actions.applyHomeDataReset(() => fetchPanelDataRef.current({ broadcast: true, silent: true }) as Promise<any>);
+            actions.applyHomeDataReset(async () => {
+                await fetchPanelDataRef.current({ broadcast: true, silent: true });
+            });
             return;
         }
         void fetchPanelDataRef.current({ broadcast: true, silent: true });
@@ -412,14 +414,18 @@ export function useDashboardPanelEngine({
 
     useEffect(() => {
         return subscribeHomeDataReset(session.userId, () => {
-            actions.applyHomeDataReset(() => fetchPanelDataRef.current({ broadcast: true, silent: true }) as Promise<any>);
+            actions.applyHomeDataReset(async () => {
+                await fetchPanelDataRef.current({ broadcast: true, silent: true });
+            });
         });
     }, [session.userId, actions]);
 
     useEffect(() => {
         if (!active || !session.userId) return;
         if (consumeHomeDataResetPending(session.userId)) {
-            actions.applyHomeDataReset(() => fetchPanelDataRef.current({ broadcast: true, silent: true }) as Promise<any>);
+            actions.applyHomeDataReset(async () => {
+                await fetchPanelDataRef.current({ broadcast: true, silent: true });
+            });
             return;
         }
         const lastSyncRaw = readPanelSyncPref(session.userId);

@@ -1,6 +1,4 @@
-﻿import type { AnalyticsData } from './exporterData';
-
-export interface ReportTemplateData {
+﻿export interface ReportTemplateData {
     name: string;
     safeLogin: string;
     safeUserId: string;
