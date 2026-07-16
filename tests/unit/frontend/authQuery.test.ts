@@ -11,7 +11,7 @@ describe('authQuery', () => {
         );
     });
 
-    it('buildAuthQueryParamForDisplay nunca expone ni codifica la key', () => {
+    it('buildAuthQueryParamForDisplay siempre enmascara (sin secretos en UI)', () => {
         expect(
             buildAuthQueryParamForDisplay({ apiKey: 'sk_real_secret_key', token: null })
         ).toBe(`apiKey=${AUTH_QUERY_DISPLAY_MASK}`);
@@ -20,6 +20,7 @@ describe('authQuery', () => {
         );
         expect(
             buildAuthQueryParamForDisplay({ apiKey: null, token: 'oauth_token_xyz' })
-        ).toBe(`token=${AUTH_QUERY_DISPLAY_MASK}`);
+        ).toBe(`apiKey=${AUTH_QUERY_DISPLAY_MASK}`);
+        expect(buildAuthQueryParamForDisplay()).toBe(`apiKey=${AUTH_QUERY_DISPLAY_MASK}`);
     });
 });

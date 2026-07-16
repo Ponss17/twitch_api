@@ -1,6 +1,6 @@
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
-import { authHeaders } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { logError } from '@/core/logging/logError';
 import { debugWarn } from '@/core/logging/debugLog';
 
@@ -63,7 +63,7 @@ export class RealtimeService {
     }
 
     private hasValidCredentials(): boolean {
-        return !!(this.session?.token || this.session?.apiKey);
+        return !!(this.session?.userId || this.session?.token || this.session?.apiKey);
     }
 
     private async fetchToken(): Promise<string | null> {
@@ -74,14 +74,13 @@ export class RealtimeService {
         if (!this.hasValidCredentials() || !this.session) return null;
 
         try {
-            const response = await fetch(API_ENDPOINTS.REALTIME_TOKEN, {
+            const response = await fetch(API_ENDPOINTS.REALTIME_TOKEN, withApiCredentials({
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     ...authHeaders(this.session)
-                },
-                credentials: 'include'
-            });
+                }
+            }));
 
             if (!response.ok) {
                 if (response.status === 401) {

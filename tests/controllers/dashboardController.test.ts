@@ -60,6 +60,8 @@ const mockRes = () => {
     res.send = jest.fn().mockReturnValue(res);
     res.setHeader = jest.fn().mockReturnValue(res);
     res.append = jest.fn().mockReturnValue(res);
+    res.cookie = jest.fn().mockReturnValue(res);
+    res.clearCookie = jest.fn().mockReturnValue(res);
     res.locals = { apiUser: {} };
     return res;
 };

@@ -25,7 +25,7 @@ export function useTmiChat(listenerId: string, options: UseTmiChatOptions): void
     const sessionRef = useRef(session);
     sessionRef.current = session;
 
-    const sessionKey = `${session.userId ?? ''}|${session.apiKey ?? ''}|${session.token ?? ''}`;
+    const sessionKey = session.userId ?? '';
 
     useEffect(() => {
         if (!enabled || !channel) return;

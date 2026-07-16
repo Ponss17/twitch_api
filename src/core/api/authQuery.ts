@@ -13,8 +13,6 @@ export function buildAuthQueryParam(session: Pick<Session, 'apiKey' | 'token'>):
 }
 
 /** Para vistas previas de comandos sin revelar la key real. */
-export function buildAuthQueryParamForDisplay(session: Pick<Session, 'apiKey' | 'token'>): string {
-    if (session.apiKey) return `apiKey=${AUTH_QUERY_DISPLAY_MASK}`;
-    if (session.token) return `token=${AUTH_QUERY_DISPLAY_MASK}`;
+export function buildAuthQueryParamForDisplay(_session?: Pick<Session, 'apiKey' | 'token'>): string {
     return `apiKey=${AUTH_QUERY_DISPLAY_MASK}`;
 }

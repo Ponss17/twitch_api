@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
-import { authHeaders, saveSession } from '@/core/api/auth';
+import { authHeaders, withApiCredentials, fetchRevealApiKey, clearRevealedApiKeyCache, cacheRevealedApiKey } from '@/core/api/auth';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { fetchDashboardProfile, type DashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
 import {
@@ -35,6 +35,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
         () => (panelProfile as ProfileData | null) ?? null
     );
     const [loading, setLoading] = useState(() => !panelProfile);
+    const [revealedKey, setRevealedKey] = useState<string | null>(null);
     const [keyVisible, setKeyVisible] = useState(false);
     const [showDanger, setShowDanger] = useState(false);
     const [regenOpen, setRegenOpen] = useState(false);
@@ -49,8 +50,6 @@ export function SettingsView({ active = true }: { active?: boolean }) {
         action: () => Promise<void>;
     } | null>(null);
     const dangerZoneRef = useRef<HTMLDivElement>(null);
-
-    const apiKey = session.apiKey || session.token || '';
 
     const syncProfile = async (options?: { silent?: boolean; fresh?: boolean }) => {
         if (!session.login) {
@@ -159,10 +158,10 @@ export function SettingsView({ active = true }: { active?: boolean }) {
 
     const regenerateKey = async () => {
         try {
-            const res = await fetchWithRetry(API_ENDPOINTS.REGENERATE_KEY, {
+            const res = await fetchWithRetry(API_ENDPOINTS.REGENERATE_KEY, withApiCredentials({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) }
-            });
+            }));
 
             if (res.status === 403) {
                 showToast('Sesión inválida o CSRF rechazado. Recarga la página.', 'error');
@@ -175,10 +174,19 @@ export function SettingsView({ active = true }: { active?: boolean }) {
 
             const data = (await res.json()) as { apiKey?: string };
             if (data.apiKey) {
-                const updated = { ...session, apiKey: data.apiKey };
-                saveSession(updated);
-                setKeyVisible(false);
+                clearRevealedApiKeyCache();
+                cacheRevealedApiKey({
+                    apiKey: data.apiKey,
+                    masked: maskApiKey(data.apiKey)
+                });
+                setRevealedKey(data.apiKey);
+                setKeyVisible(true);
                 if (keyHideTimerRef.current) clearTimeout(keyHideTimerRef.current);
+                keyHideTimerRef.current = window.setTimeout(() => {
+                    setKeyVisible(false);
+                    setRevealedKey(null);
+                    clearRevealedApiKeyCache();
+                }, 30000);
                 showToast('Nueva API Key generada', 'success');
                 void refresh();
             }
@@ -187,10 +195,20 @@ export function SettingsView({ active = true }: { active?: boolean }) {
         }
     };
 
-    const revealKeyTemporarily = () => {
-        setKeyVisible(true);
-        if (keyHideTimerRef.current) clearTimeout(keyHideTimerRef.current);
-        keyHideTimerRef.current = window.setTimeout(() => setKeyVisible(false), 30000);
+    const revealKeyTemporarily = async () => {
+        try {
+            const result = await fetchRevealApiKey();
+            setRevealedKey(result.apiKey);
+            setKeyVisible(true);
+            if (keyHideTimerRef.current) clearTimeout(keyHideTimerRef.current);
+            keyHideTimerRef.current = window.setTimeout(() => {
+                setKeyVisible(false);
+                setRevealedKey(null);
+                clearRevealedApiKeyCache();
+            }, 30000);
+        } catch (e) {
+            showToast((e as Error).message || 'No se pudo revelar la API Key', 'error');
+        }
     };
 
     const parseJsonSafe = async (res: Response): Promise<Record<string, unknown>> => {
@@ -205,11 +223,11 @@ export function SettingsView({ active = true }: { active?: boolean }) {
 
     const clearData = async () => {
         try {
-            const res = await fetchWithRetry(API_ENDPOINTS.CLEAR_DATA, {
+            const res = await fetchWithRetry(API_ENDPOINTS.CLEAR_DATA, withApiCredentials({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
                 body: JSON.stringify({ confirm: 'LIMPIAR' })
-            });
+            }));
             const data = await parseJsonSafe(res);
             if (res.ok && data.success) {
                 clearDashboardSyncPrefs(session.userId);
@@ -226,11 +244,11 @@ export function SettingsView({ active = true }: { active?: boolean }) {
 
     const deleteAccount = async () => {
         try {
-            const res = await fetchWithRetry(API_ENDPOINTS.DELETE_ACCOUNT, {
+            const res = await fetchWithRetry(API_ENDPOINTS.DELETE_ACCOUNT, withApiCredentials({
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
                 body: JSON.stringify({ confirm: 'ELIMINAR' })
-            });
+            }));
             const data = await parseJsonSafe(res);
             if (res.ok && data.success) {
                 showToast('Cuenta eliminada. Redirigiendo...', 'success');
@@ -246,9 +264,14 @@ export function SettingsView({ active = true }: { active?: boolean }) {
     };
 
     const copyKey = async () => {
-        if (!apiKey) return;
-        await navigator.clipboard.writeText(apiKey);
-        showToast('API Key copiada', 'success');
+        try {
+            const key = revealedKey || (await fetchRevealApiKey()).apiKey;
+            setRevealedKey(key);
+            await navigator.clipboard.writeText(key);
+            showToast('API Key copiada', 'success');
+        } catch {
+            showToast('No se pudo copiar la API Key', 'error');
+        }
     };
 
     const copyId = async () => {
@@ -268,7 +291,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
     return (
         <div className={fadeIn}>
             <SettingsSecuritySection
-                apiKey={keyVisible ? apiKey : maskApiKey(apiKey)}
+                apiKey={keyVisible && revealedKey ? revealedKey : maskApiKey(revealedKey || '••••••••••••••••')}
                 keyVisible={keyVisible}
                 showDanger={showDanger}
                 userId={session.userId}
@@ -277,7 +300,15 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                 roleLabel={profile?.roleLabel ?? 'Default'}
                 hasCustomRateLimit={profile?.hasCustomRateLimit}
                 hasCustomCacheTtl={profile?.hasCustomCacheTtl}
-                onToggleKey={() => (keyVisible ? setKeyVisible(false) : revealKeyTemporarily())}
+                onToggleKey={() => {
+                    if (keyVisible) {
+                        setKeyVisible(false);
+                        setRevealedKey(null);
+                        clearRevealedApiKeyCache();
+                    } else {
+                        void revealKeyTemporarily();
+                    }
+                }}
                 onCopyKey={() => void copyKey()}
                 onRegenKey={() => setRegenOpen(true)}
                 onToggleDanger={() => setShowDanger((v) => !v)}
@@ -294,10 +325,10 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                 onExport={async () => {
                     setExportLoading(true);
                     try {
-                        const res = await fetchWithRetry(API_ENDPOINTS.EXPORT_CHECK, {
+                        const res = await fetchWithRetry(API_ENDPOINTS.EXPORT_CHECK, withApiCredentials({
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', ...authHeaders(session) }
-                        });
+                        }));
 
                         if (res.status === 429) {
                             const data = (await res.json()) as { error?: string };
@@ -315,10 +346,10 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                         const { DataExport } = await import('@/features/dashboard/lib/dataExporter');
                         await DataExport.export(session, (msg) => showToast(msg, 'success'));
 
-                        await fetchWithRetry(API_ENDPOINTS.EXPORT_COMPLETE, {
+                        await fetchWithRetry(API_ENDPOINTS.EXPORT_COMPLETE, withApiCredentials({
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', ...authHeaders(session) }
-                        });
+                        }));
                     } catch {
                         showToast('Error de conexión.', 'error');
                     } finally {

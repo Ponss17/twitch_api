@@ -37,7 +37,7 @@ export function useDashboardRealtime({
     onActivityDeleteRef.current = onActivityDelete;
     onDisconnectRef.current = onDisconnect;
 
-    const sessionKey = `${session.userId ?? ''}|${session.apiKey ?? ''}|${session.token ?? ''}`;
+    const sessionKey = session.userId ?? '';
 
     useEffect(() => {
         if (!active || !session.userId) {
