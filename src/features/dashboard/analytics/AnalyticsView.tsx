@@ -28,20 +28,29 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         let tErrors = 0;
         let tLatency = 0;
 
-        // Pre-fill last 7 days
+        const tz = profile?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const dateFormatter = new Intl.DateTimeFormat('en-CA', {
+            timeZone: tz,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+
+        // Pre-fill last 7 días de forma robusta con la zona horaria del usuario
         for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            const targetDate = new Date(Date.now() - i * 86400000);
+            const dateStr = dateFormatter.format(targetDate);
             dailyMap.set(dateStr, { date: dateStr, requests: 0, errors: 0 });
         }
 
         timeSeries.forEach((row) => {
-            if (dailyMap.has(row.date)) {
-                const day = dailyMap.get(row.date)!;
-                day.requests += row.requests_count;
-                day.errors += row.errors_count;
+            // Integramos cualquier fila desfasada por zona horaria para garantizar que la matemática cuadre
+            if (!dailyMap.has(row.date)) {
+                dailyMap.set(row.date, { date: row.date, requests: 0, errors: 0 });
             }
+            const day = dailyMap.get(row.date)!;
+            day.requests += row.requests_count;
+            day.errors += row.errors_count;
 
             const cmd = row.command_name === 'other' ? 'Otros' : row.command_name;
             
