@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 
 const validateOk = {
     valid: true,
-    apiKey: 'e2e_test_key',
+    tokenExpiresAt: Date.now() + 4 * 60 * 60 * 1000,
     user: {
         login: 'e2e_streamer',
         display_name: 'E2E Streamer',
@@ -11,7 +11,6 @@ const validateOk = {
 };
 
 const e2eSession = {
-    apiKey: 'e2e_test_key',
     userId: '999',
     login: 'e2e_streamer',
     displayName: 'E2E Streamer'
@@ -23,7 +22,6 @@ async function mockAuthExchangeRoute(page: Page) {
             status: 200,
             contentType: 'application/json',
             body: JSON.stringify({
-                apiKey: 'e2e_test_key',
                 login: 'e2e_streamer',
                 displayName: 'E2E Streamer',
                 userId: '999'
@@ -172,6 +170,46 @@ test.describe('dashboard', () => {
         await seedSession(page);
         await gotoAuthenticatedDashboard(page);
         await expect(page.getByText(/E2E Streamer/i).first()).toBeVisible();
+    });
+
+    test('reveal api key then logout clears local session secrets', async ({ page }) => {
+        await seedSession(page);
+        await page.route('**/api/dashboard/reveal-api-key**', (route) =>
+            route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ apiKey: 'e2e_revealed_key', masked: 'e2e_••••' })
+            })
+        );
+        await page.route('**/api/auth/logout**', (route) =>
+            route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ success: true })
+            })
+        );
+        await gotoAuthenticatedDashboard(page, '/dashboard/settings/');
+
+        const revealed = await page.evaluate(async () => {
+            const res = await fetch('/api/dashboard/reveal-api-key/', {
+                credentials: 'include',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            return res.json();
+        });
+        expect(revealed.apiKey).toBe('e2e_revealed_key');
+
+        const storedBefore = await page.evaluate(() => localStorage.getItem('twitch_api_session'));
+        expect(storedBefore).toBeTruthy();
+        expect(storedBefore).not.toContain('e2e_revealed_key');
+        expect(storedBefore).not.toContain('apiKey');
+
+        await page.evaluate(async () => {
+            await fetch('/api/auth/logout/', { method: 'POST', credentials: 'include' });
+            localStorage.removeItem('twitch_api_session');
+        });
+        const storedAfter = await page.evaluate(() => localStorage.getItem('twitch_api_session'));
+        expect(storedAfter).toBeNull();
     });
 
     test('sidebar navigation updates tab in URL', async ({ page }) => {

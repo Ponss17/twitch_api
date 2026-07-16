@@ -22,7 +22,7 @@ const MAX_RECONNECT_ATTEMPTS = 6;
 const RECONNECT_BASE_MS = 1200;
 
 function sessionKey(session: Session): string {
-    return `${session.userId ?? ''}|${session.apiKey ?? ''}|${session.token ?? ''}`;
+    return session.userId ?? '';
 }
 
 function getActiveSubscriberSession(): Session | null {

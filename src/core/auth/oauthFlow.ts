@@ -2,6 +2,7 @@ import { API_ENDPOINTS, type Session } from '@/core/config/config';
 import { withApiCredentials } from './apiCredentials';
 import { getSession } from './sessionStorage';
 import { invalidateSession } from './sessionLifecycle';
+import { clearRevealedApiKeyCache } from './revealApiKey';
 
 const SENSITIVE_QUERY_PARAMS = [
     'auth',
@@ -48,9 +49,8 @@ function parseStoredSession(): Session {
         login: savedSession?.login || '',
         displayName: savedSession?.displayName || '',
         profile_image_url: savedSession?.profile_image_url || '',
-        token: savedSession?.token,
-        apiKey: savedSession?.apiKey,
         userId: savedSession?.userId,
+        tokenExpiresAt: savedSession?.tokenExpiresAt,
         isNewLogin: false
     };
 }
@@ -74,8 +74,6 @@ export async function resolveSessionFromUrl(): Promise<Session> {
                     login: data.login || '',
                     displayName: data.displayName || '',
                     profile_image_url: data.profile_image_url || '',
-                    token: data.token,
-                    apiKey: data.apiKey,
                     userId: data.userId,
                     isNewLogin: true
                 };
@@ -101,7 +99,7 @@ export function readOptimisticAuthState(): {
         return { session: null, loading: true, authenticated: false };
     }
     const stored = getSession();
-    if (stored?.apiKey || stored?.token) {
+    if (stored?.userId) {
         return { session: stored, loading: true, authenticated: false };
     }
     return { session: null, loading: true, authenticated: false };
@@ -126,6 +124,7 @@ export async function logout(): Promise<void> {
     } catch {
         /* sin red */
     }
+    clearRevealedApiKeyCache();
     invalidateSession({ broadcast: true });
     window.location.href = window.location.origin + window.location.pathname;
 }

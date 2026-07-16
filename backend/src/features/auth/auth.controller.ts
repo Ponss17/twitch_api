@@ -6,7 +6,7 @@ import { ALLOWED_ORIGINS } from '../../core/config/origins';
 import { frontendPagePath } from '../../core/utils/frontendPaths';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { setSessionCookie, clearSessionCookie, readSessionUserId } from '../../core/utils/sessionCookie';
-import { invalidateAuthCache } from '../../core/middleware/authMiddleware';
+import { invalidateAuthCache, unrevokeAuthSession } from '../../core/middleware/authMiddleware';
 import { AuthenticatedRequest } from '../../types/twitch';
 
 const isAllowedOrigin = (origin: string, req: Request): boolean => {
@@ -113,10 +113,11 @@ export const exchange = async (req: Request, res: Response) => {
     }
 
     setSessionCookie(res, payload.userId);
+    await unrevokeAuthSession(payload.userId);
 
     res.setHeader('Cache-Control', 'no-store');
+    // Opción 2: no devolver apiKey al cliente; revelar vía /dashboard/reveal-api-key
     return res.json({
-        apiKey: payload.apiKey,
         userId: payload.userId,
         login: payload.login,
         displayName: payload.displayName,

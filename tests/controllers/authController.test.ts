@@ -14,6 +14,12 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     recordUserRequest: jest.fn().mockResolvedValue(undefined)
 }));
 
+jest.mock('../../backend/src/core/database/cacheService', () => ({
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn().mockResolvedValue(undefined)
+}));
+
 jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }
 }));
@@ -34,6 +40,8 @@ const mockRes = () => {
     res.json = jest.fn().mockReturnValue(res);
     res.setHeader = jest.fn().mockReturnValue(res);
     res.append = jest.fn().mockReturnValue(res);
+    res.cookie = jest.fn().mockReturnValue(res);
+    res.clearCookie = jest.fn().mockReturnValue(res);
     return res;
 };
 
@@ -204,12 +212,14 @@ describe('authController', () => {
             await exchange(req, res);
 
             expect(res.json).toHaveBeenCalledWith({
-                apiKey: 'key_abc',
                 userId: '999',
                 login: 'testuser',
                 displayName: 'TestUser',
                 profile_image_url: 'https://img.test/avatar.png'
             });
+            expect(res.json).not.toHaveBeenCalledWith(
+                expect.objectContaining({ apiKey: expect.anything() })
+            );
         });
     });
 });

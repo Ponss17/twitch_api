@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
-import { authHeaders } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { useRequiredSession } from '@/core/session/useSession';
 import { MessageCircle, Shield, Send, Loader2 } from 'lucide-react';
 import {
@@ -28,15 +28,14 @@ export function FeedbackView() {
 
         setSending(true);
         try {
-            const body: { message: string; apiKey?: string; anonymous?: boolean } = { message: message.trim() };
-            if (!session.token && session.apiKey) body.apiKey = session.apiKey;
+            const body: { message: string; anonymous?: boolean } = { message: message.trim() };
             if (isAnonymous) body.anonymous = true;
 
-            const res = await fetch(API_ENDPOINTS.FEEDBACK, {
+            const res = await fetch(API_ENDPOINTS.FEEDBACK, withApiCredentials({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
                 body: JSON.stringify(body)
-            });
+            }));
             const data = (await res.json()) as { error?: string; message?: string };
 
             if (res.ok) {

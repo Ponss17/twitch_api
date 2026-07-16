@@ -18,6 +18,7 @@ import {
 import { SelectFieldRow } from '@/shared/ui/SelectField';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { buildAuthQueryParam, buildAuthQueryParamForDisplay } from '@/core/api/authQuery';
+import { fetchRevealApiKey } from '@/core/api/auth';
 import { BOT_OPTIONS } from '@/features/commands/lib/commandGenerator';
 import type { CommandConfigItem } from '@/features/commands/lib/config';
 import { useRequiredSession } from '@/core/session/useSession';
@@ -120,24 +121,13 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
     }, [extraValues, onExtraValuesChange]);
 
     const generated = useMemo(() => {
-        const { login, apiKey, token } = session;
+        const { login } = session;
         if (!login) return { masked: '', full: '' };
 
         const domain = `${window.location.origin}${API_ENDPOINTS.BASE}`;
-        const tokenParam = buildAuthQueryParam({ apiKey, token });
-        const displayParam = buildAuthQueryParamForDisplay({ apiKey, token });
-        const queryParams = `channel=${login}&${tokenParam}`;
+        const displayParam = buildAuthQueryParamForDisplay({});
         const displayQuery = `channel=${login}&${displayParam}`;
 
-        const result = config.generate(
-            domain,
-            login,
-            tokenParam,
-            bot,
-            template.trim(),
-            queryParams,
-            extraValues
-        );
         const displayResult = config.generate(
             domain,
             login,
@@ -148,26 +138,44 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
             extraValues
         );
 
-        const full = format === 'full' ? result.full : result.url;
         const masked = format === 'full' ? displayResult.full : displayResult.url;
 
-        return { masked, full };
+        return { masked, full: masked };
     }, [session, bot, template, format, extraValues, config]);
 
     const copyCommand = async () => {
-        if (!generated.full) {
-            showToast('No hay comando para copiar', 'error');
-            return;
+        try {
+            const { login } = session;
+            if (!login) {
+                showToast('No hay comando para copiar', 'error');
+                return;
+            }
+            const { apiKey } = await fetchRevealApiKey();
+            const tokenParam = buildAuthQueryParam({ apiKey });
+            const domain = `${window.location.origin}${API_ENDPOINTS.BASE}`;
+            const queryParams = `channel=${login}&${tokenParam}`;
+            const result = config.generate(
+                domain,
+                login,
+                tokenParam,
+                bot,
+                template.trim(),
+                queryParams,
+                extraValues
+            );
+            const full = format === 'full' ? result.full : result.url;
+            const ok = await copyText(full);
+            if (ok) {
+                setIsCopied(true);
+                setTimeout(() => setIsCopied(false), 2000);
+            }
+            showToast(
+                ok ? 'Comando copiado al portapapeles' : 'No se pudo copiar',
+                ok ? 'success' : 'error'
+            );
+        } catch {
+            showToast('No se pudo revelar la API Key para el comando', 'error');
         }
-        const ok = await copyText(generated.full);
-        if (ok) {
-            setIsCopied(true);
-            setTimeout(() => setIsCopied(false), 2000);
-        }
-        showToast(
-            ok ? 'Comando copiado al portapapeles' : 'No se pudo copiar',
-            ok ? 'success' : 'error'
-        );
     };
 
     return (

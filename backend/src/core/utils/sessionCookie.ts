@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { Request, Response } from 'express';
+import { Request, Response, CookieOptions } from 'express';
 import { CONFIG } from '../config/env';
 
 export const SESSION_COOKIE_NAME = 'lp_sess';
@@ -11,6 +11,16 @@ function getSigningSecret(): string {
 
 function signPayload(encoded: string): string {
     return crypto.createHmac('sha256', getSigningSecret()).update(encoded).digest('base64url');
+}
+
+function cookieOptions(maxAge: number): CookieOptions {
+    return {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge
+    };
 }
 
 export function createSessionCookieValue(userId: string): string {
@@ -72,29 +82,12 @@ export function readSessionUserId(req: Request): string | null {
     return verifySessionCookieValue(raw);
 }
 
+/** Usa res.cookie (no res.append): en Vercel append de Set-Cookie se pierde con frecuencia. */
 export function setSessionCookie(res: Response, userId: string): void {
     const value = createSessionCookieValue(userId);
-    const secure = process.env.NODE_ENV === 'production';
-    const parts = [
-        `${SESSION_COOKIE_NAME}=${encodeURIComponent(value)}`,
-        'Path=/',
-        'HttpOnly',
-        'SameSite=Lax',
-        `Max-Age=${Math.floor(SESSION_TTL_MS / 1000)}`
-    ];
-    if (secure) parts.push('Secure');
-    res.append('Set-Cookie', parts.join('; '));
+    res.cookie(SESSION_COOKIE_NAME, value, cookieOptions(SESSION_TTL_MS));
 }
 
 export function clearSessionCookie(res: Response): void {
-    const secure = process.env.NODE_ENV === 'production';
-    const parts = [
-        `${SESSION_COOKIE_NAME}=`,
-        'Path=/',
-        'HttpOnly',
-        'SameSite=Lax',
-        'Max-Age=0'
-    ];
-    if (secure) parts.push('Secure');
-    res.append('Set-Cookie', parts.join('; '));
+    res.clearCookie(SESSION_COOKIE_NAME, cookieOptions(0));
 }

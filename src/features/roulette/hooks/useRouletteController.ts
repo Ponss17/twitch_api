@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type TransitionEvent } from 'react';
 import { API_ENDPOINTS, IGNORED_BOTS, type Session } from '@/core/config/config';
-import { authHeaders } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { tmiService } from '@/features/chat/lib/tmiService';
 import type { RouletteUser } from '@/core/types/twitch';
@@ -129,9 +129,9 @@ export function useRouletteController({
                 eligibility: filtersToApiParam(filtersRef.current),
                 source: 'roulette'
             });
-            const res = await fetch(`${API_ENDPOINTS.CHATTERS}?${params}`, {
+            const res = await fetch(`${API_ENDPOINTS.CHATTERS}?${params}`, withApiCredentials({
                 headers: authHeaders(session)
-            });
+            }));
             if (!res.ok) {
                 if (!isAllFilters(filtersRef.current)) {
                     showToast(
@@ -214,12 +214,11 @@ export function useRouletteController({
 
     const sendViaApi = useCallback(
         (message: string) => {
-            void fetch(API_ENDPOINTS.SEND_MESSAGE, {
+            void fetch(API_ENDPOINTS.SEND_MESSAGE, withApiCredentials({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
-                credentials: 'include',
                 body: JSON.stringify({ message })
-            }).catch(() => showToast('No se pudo enviar el resultado al chat', 'error'));
+            })).catch(() => showToast('No se pudo enviar el resultado al chat', 'error'));
         },
         [session, showToast]
     );

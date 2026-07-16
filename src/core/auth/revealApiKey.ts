@@ -14,6 +14,12 @@ export function clearRevealedApiKeyCache(): void {
     memoryCache = null;
 }
 
+/** Guarda en RAM tras regenerate (sin volver a pedir reveal). */
+export function cacheRevealedApiKey(result: RevealApiKeyResult): void {
+    attachVisibilityClearOnce();
+    memoryCache = result;
+}
+
 function attachVisibilityClearOnce(): void {
     if (visibilityListenerAttached || typeof document === 'undefined') return;
     visibilityListenerAttached = true;

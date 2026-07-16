@@ -3,6 +3,7 @@ export { clearValidateCache } from './validateCache';
 export { invalidateSession, initAuthSync } from './sessionLifecycle';
 export { mergeSessionFromValidate, resolveDegradedSession } from './sessionMerge';
 export { authHeaders, type AuthHeaderOptions } from './authHeaders';
+export { withApiCredentials } from './apiCredentials';
 export {
     stripSensitiveQueryParams,
     resolveSessionFromUrl,
@@ -12,7 +13,7 @@ export {
 } from './oauthFlow';
 export { validateSession } from './validateSession';
 export { apiFetch } from './apiFetch';
-export { fetchRevealApiKey, clearRevealedApiKeyCache, type RevealApiKeyResult } from './revealApiKey';
+export { fetchRevealApiKey, clearRevealedApiKeyCache, cacheRevealedApiKey, type RevealApiKeyResult } from './revealApiKey';
 export {
     markDashboardSplashForFreshLogin,
     clearDashboardSplashFlags,

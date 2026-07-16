@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Play, Pause, Users, Radio, Snowflake, Search, RotateCw, User, Eye } from 'lucide-react';
 import { API_ENDPOINTS, IGNORED_BOTS } from '@/core/config/config';
-import { authHeaders, apiFetch } from '@/core/api/auth';
+import { authHeaders, apiFetch, withApiCredentials } from '@/core/api/auth';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { cache, CACHE_TTL } from '@/core/cache/cacheService';
@@ -127,11 +127,11 @@ export function StalkerView({ active = true }: { active?: boolean }) {
 
         setScanning(true);
         showToast('Escaneo iniciado', 'success');
-        void fetch(`${API_ENDPOINTS.BASE}/dashboard/track-usage`, {
+        void fetch(`${API_ENDPOINTS.BASE}/dashboard/track-usage`, withApiCredentials({
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
             body: JSON.stringify({ tool: 'stalker' })
-        }).catch(() => {});
+        })).catch(() => {});
         await loadChatters();
     };
 

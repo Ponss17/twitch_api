@@ -1,5 +1,5 @@
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
-import { authHeaders } from '@/core/api/auth';
+import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { debugWarn } from '@/core/logging/debugLog';
 import type { OverlayTool, RouletteOverlayState, TrendsOverlayState } from '@/features/overlay/lib/types';
 import { overlayStateFingerprint } from '@/features/overlay/lib/overlayStateUtils';
@@ -25,12 +25,12 @@ export async function publishOverlayState(
     lastPublishedFingerprint.set(tool, fingerprint);
 
     try {
-        const res = await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-state/${tool}`, {
+        const res = await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-state/${tool}`, withApiCredentials({
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
             body: JSON.stringify({ state }),
             cache: 'no-store'
-        });
+        }));
         if (!res.ok) {
             lastPublishedFingerprint.delete(tool);
             return;
@@ -46,11 +46,11 @@ export async function fetchOverlayLink(
     session: Session
 ): Promise<string | null> {
     try {
-        const res = await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-link`, {
+        const res = await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-link`, withApiCredentials({
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
             body: JSON.stringify({ tool })
-        });
+        }));
         if (!res.ok) return null;
         const data = (await res.json()) as { url?: string };
         return data.url ?? null;
