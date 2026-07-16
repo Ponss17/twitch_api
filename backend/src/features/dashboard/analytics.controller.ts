@@ -6,7 +6,7 @@ import { resolveCache } from '../../core/config/cacheTtl';
 import { resolveUserLimits } from '../../core/config/userRoles';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
-import { buildAnalyticsPayload, buildEmptyUserAnalytics, isAnalyticsCacheFresh } from './dashboardHelpers';
+import { buildAnalyticsPayload, isAnalyticsCacheFresh } from './dashboardHelpers';
 import { buildDashboardProfile } from '../../core/utils/dashboardProfile';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { TwitchApiError, AppError } from '../../core/errors/AppError';
