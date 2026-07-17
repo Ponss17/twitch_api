@@ -18,6 +18,8 @@ import { appPath } from '@/core/config/paths';
 import { DangerConfirmModal, RegenKeyModal } from '@/shared/ui/Modal';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
+import { Shield, Settings as SettingsIcon, Database, Info } from 'lucide-react';
+import { SettingsGroup } from '@/features/dashboard/settings/SettingsGroup';
 import { SettingsSecuritySection } from '@/features/dashboard/settings/SettingsSecuritySection';
 import { SettingsDiscordSection } from '@/features/dashboard/settings/SettingsDiscordSection';
 import {
@@ -370,48 +372,76 @@ export function SettingsView({ active = true }: { active?: boolean }) {
 
     return (
         <div className={fadeIn}>
-            <SettingsSecuritySection
-                apiKey={keyVisible && revealedKey ? revealedKey : maskApiKey(revealedKey || '••••••••••••••••')}
-                keyVisible={keyVisible}
-                showDanger={showDanger}
-                userId={session.userId}
-                rateLimit={profile?.rateLimit ?? 60}
-                cacheTtl={profile?.cacheTtl ?? 60}
-                roleLabel={profile?.roleLabel ?? 'Default'}
-                hasCustomRateLimit={profile?.hasCustomRateLimit}
-                hasCustomCacheTtl={profile?.hasCustomCacheTtl}
-                onToggleKey={() => {
-                    if (keyVisible) {
-                        setKeyVisible(false);
-                        setRevealedKey(null);
-                        clearRevealedApiKeyCache();
-                    } else {
-                        void revealKeyTemporarily();
-                    }
-                }}
-                onCopyKey={() => void copyKey()}
-                onRegenKey={() => setRegenOpen(true)}
-                onToggleDanger={() => setShowDanger((v) => !v)}
-                onCopyId={() => void copyId()}
-            />
+            <SettingsGroup
+                icon={Shield}
+                title="Seguridad y Conexión"
+                description="Gestiona tus credenciales y cuentas vinculadas de LosPerris API"
+                delay={60}
+                action={
+                    <div className="group/tooltip relative flex cursor-help items-center text-zinc-500 transition hover:text-primary">
+                        <Info className="w-4 h-4" />
+                        <span className="pointer-events-none absolute bottom-[calc(100%+10px)] right-0 z-[100] w-max max-w-[210px] translate-y-2 rounded-lg border border-white/[0.08] bg-bg-tertiary px-3 py-2 text-left text-[0.78rem] font-semibold leading-snug text-[#fafafa] opacity-0 shadow-lg transition group-hover/tooltip:translate-y-0 group-hover/tooltip:opacity-100">
+                            Mantén esta información privada. No la compartas en directo.
+                        </span>
+                    </div>
+                }
+            >
+                <SettingsSecuritySection
+                    apiKey={keyVisible && revealedKey ? revealedKey : maskApiKey(revealedKey || '••••••••••••••••')}
+                    keyVisible={keyVisible}
+                    showDanger={showDanger}
+                    userId={session.userId}
+                    rateLimit={profile?.rateLimit ?? 60}
+                    cacheTtl={profile?.cacheTtl ?? 60}
+                    roleLabel={profile?.roleLabel ?? 'Default'}
+                    hasCustomRateLimit={profile?.hasCustomRateLimit}
+                    hasCustomCacheTtl={profile?.hasCustomCacheTtl}
+                    onToggleKey={() => {
+                        if (keyVisible) {
+                            setKeyVisible(false);
+                            setRevealedKey(null);
+                            clearRevealedApiKeyCache();
+                        } else {
+                            void revealKeyTemporarily();
+                        }
+                    }}
+                    onCopyKey={() => void copyKey()}
+                    onRegenKey={() => setRegenOpen(true)}
+                    onToggleDanger={() => setShowDanger((v) => !v)}
+                    onCopyId={() => void copyId()}
+                />
 
-            <SettingsDiscordSection
-                discordId={profile?.discordId}
-                discordUsername={profile?.discordUsername}
-                discordAvatar={profile?.discordAvatar}
-                busy={discordBusy}
-                onLinkClick={() => setDiscordLinkOpen(true)}
-                onUnlinkClick={() => setDiscordUnlinkOpen(true)}
-            />
+                <SettingsDiscordSection
+                    discordId={profile?.discordId}
+                    discordUsername={profile?.discordUsername}
+                    discordAvatar={profile?.discordAvatar}
+                    busy={discordBusy}
+                    onLinkClick={() => setDiscordLinkOpen(true)}
+                    onUnlinkClick={() => setDiscordUnlinkOpen(true)}
+                />
+            </SettingsGroup>
 
-            <SettingsPreferencesSection
-                currentTimezone={profile?.timezone || 'UTC'}
-                onSettingsChanged={() => void syncProfile({ silent: true, fresh: true })}
-            />
+            <SettingsGroup
+                icon={SettingsIcon}
+                title="Preferencias"
+                description="Personaliza las preferencias de tu cuenta"
+                delay={90}
+            >
+                <SettingsPreferencesSection
+                    currentTimezone={profile?.timezone || 'UTC'}
+                    onSettingsChanged={() => void syncProfile({ silent: true, fresh: true })}
+                />
+            </SettingsGroup>
 
-            <SettingsExportSection
-                loading={exportLoading}
-                onExport={async () => {
+            <SettingsGroup
+                icon={Database}
+                title="Datos y Cuenta"
+                description="Exporta la información asociada a tu cuenta"
+                delay={120}
+            >
+                <SettingsExportSection
+                    loading={exportLoading}
+                    onExport={async () => {
                     setExportLoading(true);
                     try {
                         const res = await fetchWithRetry(API_ENDPOINTS.EXPORT_CHECK, withApiCredentials({
@@ -445,7 +475,8 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                         setExportLoading(false);
                     }
                 }}
-            />
+                />
+            </SettingsGroup>
 
             <SettingsDangerZone
                 ref={dangerZoneRef}
