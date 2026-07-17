@@ -13,6 +13,10 @@ export function getUserTimezone(userId: string): string {
     return tzByUserId.get(userId) ?? 'UTC';
 }
 
+export function hasUserTimezone(userId: string): boolean {
+    return tzByUserId.has(userId);
+}
+
 export function clearUserTimezone(userId: string): void {
     tzByUserId.delete(userId);
 }

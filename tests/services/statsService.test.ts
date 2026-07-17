@@ -29,15 +29,18 @@ jest.mock('@/core/utils/logger', () => ({
 
 import * as statsService from '../../backend/src/core/database/statsService';
 import * as cacheService from '../../backend/src/core/database/cacheService';
+import { clearUserTimezone } from '../../backend/src/core/database/userTimezoneCache';
 
 describe('statsService', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        clearUserTimezone('user1');
         mockSupabase.from.mockReturnThis();
         mockSupabase.select.mockReturnThis();
         mockSupabase.eq.mockReturnThis();
         mockSupabase.upsert.mockResolvedValue({ error: null });
         mockSupabase.rpc.mockResolvedValue({ error: null });
+        mockSupabase.single.mockResolvedValue({ data: { timezone: 'UTC' }, error: null });
     });
 
     describe('recordUserRequest', () => {

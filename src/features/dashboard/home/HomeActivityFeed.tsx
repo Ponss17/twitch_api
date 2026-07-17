@@ -28,6 +28,7 @@ interface HomeActivityFeedProps {
     highlightKeys?: ReadonlySet<string>;
     title?: string;
     subtitle?: string;
+    timeZone?: string;
 }
 
 const SKELETON_ROWS = 5;
@@ -99,7 +100,8 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
     isLive = false,
     highlightKeys,
     title = 'Historial de Actividad',
-    subtitle = 'Filtra por categoría o recurso en tiempo real'
+    subtitle = 'Filtra por categoría o recurso en tiempo real',
+    timeZone
 }: HomeActivityFeedProps) {
     const [categoryFilter, setCategoryFilter] = useState<ActivityCategoryFilter>('all');
     const [typeFilter, setTypeFilter] = useState<ActivityLogType | 'all'>('all');
@@ -260,7 +262,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                         <ActivityEmptyState filtered={categoryFilter !== 'all' || typeFilter !== 'all'} />
                     ) : (
                         filteredActivity.slice(0, 50).map((item, i) => {
-                            const dateLabel = item.timestamp ? formatActivityDate(item.timestamp) : '';
+                            const dateLabel = item.timestamp ? formatActivityDate(item.timestamp, timeZone) : '';
                             const showDivider = dateLabel && dateLabel !== lastDateLabel;
                             if (showDivider) lastDateLabel = dateLabel;
                             const key = activityEntryKey(item);
@@ -269,7 +271,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             return (
                                 <div key={`${key}-${i}`}>
                                     {showDivider && <div className={LOG_DATE_DIVIDER}>{dateLabel}</div>}
-                                    <HomeActivityLogEntry item={item} isNew={isNew} />
+                                    <HomeActivityLogEntry item={item} isNew={isNew} timeZone={timeZone} />
                                 </div>
                             );
                         })
