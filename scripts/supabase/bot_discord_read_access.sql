@@ -19,7 +19,8 @@ RETURNS TABLE (
   profile_image_url text,
   last_active timestamptz,
   discord_id text,
-  custom_rate_limit integer
+  custom_rate_limit integer,
+  custom_cache_ttl integer
 )
 LANGUAGE sql
 STABLE
@@ -36,7 +37,8 @@ AS $$
     u.profile_image_url::text,
     u.last_active,
     u.discord_id::text,
-    u.custom_rate_limit::integer
+    u.custom_rate_limit::integer,
+    u.custom_cache_ttl::integer
   FROM public.users u
   WHERE u.discord_id = p_discord_id
   LIMIT 1;
