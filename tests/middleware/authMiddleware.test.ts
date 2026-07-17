@@ -24,7 +24,8 @@ jest.mock('@/core/utils/routeHelpers', () => ({
     isPublicRoute: jest.fn().mockReturnValue(false),
     isBotCommand: jest.fn().mockReturnValue(false),
     isApiRoute: jest.fn((path: string) => path.startsWith('/api') || path.startsWith('/twitch')),
-    isJsonApiRoute: jest.fn((path: string) => path.includes('/dashboard/'))
+    isJsonApiRoute: jest.fn((path: string) => path.includes('/dashboard/')),
+    isOAuthCallbackRoute: jest.fn().mockReturnValue(false)
 }));
 
 import checkToken from '../../backend/src/core/middleware/authMiddleware';
