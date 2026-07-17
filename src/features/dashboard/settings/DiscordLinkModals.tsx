@@ -180,7 +180,8 @@ const RESULT_COPY: Record<DiscordResultKind, ResultCopy> = {
         title: 'Discord vinculado',
         lead: 'Tu cuenta de Discord ya está asociada a LosPerris.',
         points: [
-            'Puedes usar los comandos del bot en el servidor de Discord.',
+            'Puedes usar `/cuenta`, `/limite`, `/status` y `/ayuda` en el servidor.',
+            'Para una ayuda más personalizada, abre un ticket en Discord.',
             'El vínculo aparece en Ajustes → Conexiones.',
             'El panel sigue autenticándose solo con Twitch.'
         ],
@@ -251,7 +252,12 @@ export function DiscordResultModal({ open, kind, onClose }: DiscordResultModalPr
                 useDiscordBrand ? <DiscordIcon className="h-5 w-5 text-[#5865F2]" /> : undefined
             }
             footer={
-                <button type="button" className={modalBtnPrimary} onClick={onClose}>
+                <button
+                    type="button"
+                    className={modalBtnPrimary}
+                    data-modal-primary
+                    onClick={onClose}
+                >
                     {copy.ok ? (
                         <>
                             <Check className="h-4 w-4" aria-hidden="true" />

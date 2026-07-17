@@ -71,6 +71,20 @@ export function BaseModal({
         if (open && !dialog.open) {
             setClosing(false);
             dialog.showModal();
+            // Evita que el foco caiga en la X: CTA primario del footer, o el panel.
+            requestAnimationFrame(() => {
+                const panel = panelRef.current;
+                if (!panel) return;
+                const primary =
+                    panel.querySelector<HTMLElement>('[data-modal-primary]') ??
+                    panel.querySelector<HTMLElement>('[data-modal-footer] button');
+                if (primary) {
+                    primary.focus();
+                    return;
+                }
+                if (!panel.hasAttribute('tabindex')) panel.tabIndex = -1;
+                panel.focus({ preventScroll: true });
+            });
             return;
         }
         if (!open && dialog.open) {
@@ -186,7 +200,11 @@ export function Modal({
                 </button>
             </div>
             <div className={modalBody}>{children}</div>
-            {footer ? <div className={modalFooter}>{footer}</div> : null}
+            {footer ? (
+                <div className={modalFooter} data-modal-footer>
+                    {footer}
+                </div>
+            ) : null}
         </BaseModal>
     );
 }
