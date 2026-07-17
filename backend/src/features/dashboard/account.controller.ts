@@ -59,19 +59,33 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
             return withTwitchAuth(req, res, async (token) => {
                 const cacheKey = ownerScopedCacheKey(userId, `cache:cmd:getUserInfo:login:${login}`);
                 const timezone = apiUser?.timezone || 'UTC';
+                const discordFields = userId ? await dbService.getDiscordLinkFields(userId) : null;
                 const cached = await cacheService.get(cacheKey);
-                if (cached && typeof cached === 'object') return { ...cached, ...limits, timezone };
+                if (cached && typeof cached === 'object') {
+                    return {
+                        ...cached,
+                        ...limits,
+                        timezone,
+                        ...(discordFields ?? {})
+                    };
+                }
 
                 const info = await apiService.getUserInfo(login, token);
                 const [followers, isLive] = await Promise.all([
                     apiService.getFollowersCount(info.id, token),
                     apiService.isStreamLive(info.id, token)
                 ]);
-                const profileResult = buildDashboardProfile(info, followers, isLive, limits, {
-                    discordId: apiUser?.discordId,
-                    discordUsername: apiUser?.discordUsername,
-                    discordAvatar: apiUser?.discordAvatar
-                });
+                const profileResult = buildDashboardProfile(
+                    info,
+                    followers,
+                    isLive,
+                    limits,
+                    discordFields ?? {
+                        discordId: apiUser?.discordId,
+                        discordUsername: apiUser?.discordUsername,
+                        discordAvatar: apiUser?.discordAvatar
+                    }
+                );
                 await cacheService.set(cacheKey, profileResult, resolveCache('DASHBOARD_PROFILE', apiUser?.role, apiUser?.customCacheTtl));
                 return { ...profileResult, ...limits, timezone, cacheTtl: resolveCache('COMMAND', apiUser?.role, apiUser?.customCacheTtl) };
             }, 'getUserInfo');
