@@ -5,7 +5,7 @@ import * as dbService from '../database/dbService';
 import * as cacheService from '../database/cacheService';
 import { MESSAGES } from '../config/messages';
 import { logger } from '../utils/logger';
-import { isPublicRoute, isApiRoute, isJsonApiRoute } from '../utils/routeHelpers';
+import { isPublicRoute, isApiRoute, isJsonApiRoute, isOAuthCallbackRoute } from '../utils/routeHelpers';
 import { safeString } from '../utils/validationHelpers';
 import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 import { jsonError } from '../utils/jsonResponse';
@@ -34,9 +34,9 @@ function isAuthCookieError(error: unknown): boolean {
     const message = err.message ?? '';
     return (
         statusCode === 401 ||
-        message.includes('inválid') ||
+        message.includes('inv?lid') ||
         message.includes('expirad') ||
-        message.includes('Sesión expirada')
+        message.includes('Sesi?n expirada')
     );
 }
 
@@ -54,7 +54,7 @@ function isTransientCookieError(error: unknown): boolean {
 
 function respondSessionUnavailable(res: Response, req: AuthenticatedRequest): Response {
     if (isJsonApiRoute(req.path)) {
-        return jsonError(res, 503, 'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.', {
+        return jsonError(res, 503, 'No se pudo verificar la sesi?n. Intenta de nuevo en unos segundos.', {
             code: 'SERVICE_UNAVAILABLE',
             details: { offline: true }
         });
@@ -63,9 +63,9 @@ function respondSessionUnavailable(res: Response, req: AuthenticatedRequest): Re
         res.setHeader('Content-Type', 'text/plain');
         return res
             .status(503)
-            .send('Servicio de autenticación no disponible. Intenta de nuevo.');
+            .send('Servicio de autenticaci?n no disponible. Intenta de nuevo.');
     }
-    return jsonError(res, 503, 'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.', {
+    return jsonError(res, 503, 'No se pudo verificar la sesi?n. Intenta de nuevo en unos segundos.', {
         code: 'SERVICE_UNAVAILABLE',
         details: { offline: true }
     });
@@ -191,6 +191,11 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             return next();
         }
 
+        const requestPath = req.originalUrl?.split('?')[0] || req.path;
+        if (isOAuthCallbackRoute(requestPath)) {
+            return next();
+        }
+
         const cookieResult = await tryResolveCookieSession(req, res);
         if (cookieResult.status === 'ok') {
             const cookieUser = cookieResult.user;
@@ -209,7 +214,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         if (!token && req.headers.authorization?.startsWith('Bearer ')) {
             token = req.headers.authorization.split(' ')[1];
         } else if (safeString(req.query.token) || safeString(req.body?.token)) {
-            logger.warn('[Security] Token OAuth recibido en query/body — usar Authorization: Bearer');
+            logger.warn('[Security] Token OAuth recibido en query/body ? usar Authorization: Bearer');
         }
 
         if (!token) {
@@ -286,7 +291,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                         return jsonError(
                             res,
                             503,
-                            'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.',
+                            'No se pudo verificar la sesi?n. Intenta de nuevo en unos segundos.',
                             { code: 'SERVICE_UNAVAILABLE' }
                         );
                     }
@@ -294,12 +299,12 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                         res.setHeader('Content-Type', 'text/plain');
                         return res
                             .status(503)
-                            .send('Servicio de autenticación no disponible. Intenta de nuevo.');
+                            .send('Servicio de autenticaci?n no disponible. Intenta de nuevo.');
                     }
                     return jsonError(
                         res,
                         503,
-                        'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.',
+                        'No se pudo verificar la sesi?n. Intenta de nuevo en unos segundos.',
                         { code: 'SERVICE_UNAVAILABLE' }
                     );
                 }
@@ -360,7 +365,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             return jsonError(
                 res,
                 503,
-                'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.',
+                'No se pudo verificar la sesi?n. Intenta de nuevo en unos segundos.',
                 { code: 'SERVICE_UNAVAILABLE' }
             );
         }
@@ -368,12 +373,12 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             res.setHeader('Content-Type', 'text/plain');
             return res
                 .status(503)
-                .send('Servicio de autenticación no disponible. Intenta de nuevo.');
+                .send('Servicio de autenticaci?n no disponible. Intenta de nuevo.');
         }
         return jsonError(
             res,
             503,
-            'No se pudo verificar la sesión. Intenta de nuevo en unos segundos.',
+            'No se pudo verificar la sesi?n. Intenta de nuevo en unos segundos.',
             { code: 'SERVICE_UNAVAILABLE' }
         );
     }
@@ -390,7 +395,7 @@ export const invalidateAuthCache = (
     }
 };
 
-/** Quita el flag temporal de revocación (p. ej. tras login fresco). */
+/** Quita el flag temporal de revocaci?n (p. ej. tras login fresco). */
 export const unrevokeAuthSession = async (userId: string): Promise<void> => {
     await cacheService.del(`auth:revoke:user:${userId}`);
 };

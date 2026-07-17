@@ -198,6 +198,7 @@ export const discordLinkCallback = async (req: Request, res: Response) => {
     try {
         const { userId } = await discordAuthService.handleDiscordLinkCallback(code, state);
         setSessionCookie(res, userId);
+        await unrevokeAuthSession(userId);
         return res.redirect(frontendPagePath('/dashboard/settings', 'discord=linked'));
     } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : '';
