@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 import { logger } from '../utils/logger';
-import { getUserTimezone, setUserTimezone } from './userTimezoneCache';
+import { getUserTimezone, setUserTimezone, hasUserTimezone } from './userTimezoneCache';
 import * as cacheService from './cacheService';
 
 const DEFAULT_STAT_FIELDS = [
@@ -66,10 +66,27 @@ const getDateFormatter = (tz: string): Intl.DateTimeFormat => {
     return formatter;
 };
 
-function resolveLocalDateForUser(userId: string): string {
-    const cached = STATS_CACHE.get(userId);
-    const tz = cached?.tz ?? getUserTimezone(userId);
+function resolveLocalDateForUser(userId: string, timeZone?: string): string {
+    const tz = timeZone || getUserTimezone(userId);
     return getDateFormatter(tz).format(new Date());
+}
+
+async function ensureUserTimezone(userId: string, explicitTz?: string): Promise<string> {
+    if (explicitTz) {
+        setUserTimezone(userId, explicitTz);
+        return explicitTz;
+    }
+    if (hasUserTimezone(userId)) {
+        return getUserTimezone(userId);
+    }
+    const { data } = await supabase.from('users').select('timezone').eq('user_id', userId).single();
+    const tz = (data?.timezone as string | undefined) || 'UTC';
+    setUserTimezone(userId, tz);
+    return tz;
+}
+
+function localDateDaysAgo(timeZone: string, days: number): string {
+    return getDateFormatter(timeZone).format(new Date(Date.now() - days * 86_400_000));
 }
 
 
@@ -211,7 +228,8 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
 
 export const getDailyStats = async (userId: string, days: number = 7) => {
     try {
-        const dateLimit = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const tz = await ensureUserTimezone(userId);
+        const dateLimit = localDateDaysAgo(tz, days);
         const { data, error } = await supabase
             .from('user_daily_stats')
             .select('*')
@@ -246,12 +264,15 @@ export const recordUserRequest = async (
             setUserTimezone(userId, userTimezone);
         }
 
+        const tz = await ensureUserTimezone(userId, userTimezone);
+        const localDate = resolveLocalDateForUser(userId, tz);
+
         let { error } = await supabase.rpc('log_user_request', {
             p_user_id: userId,
             p_command: command,
             p_latency: Math.round(latency),
             p_success: success,
-            p_local_date: resolveLocalDateForUser(userId)
+            p_local_date: localDate
         });
 
         if (error) {
@@ -262,7 +283,7 @@ export const recordUserRequest = async (
                     p_command: command,
                     p_latency: Math.round(latency),
                     p_success: success,
-                    p_local_date: resolveLocalDateForUser(userId)
+                    p_local_date: localDate
                 });
                 error = retry.error;
             }
