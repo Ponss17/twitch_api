@@ -156,28 +156,44 @@ export function activityEntryKey(item: ActivityLogItem): string {
     return `${item.timestamp ?? ''}|${normalizeActivityType(item.type)}|${item.user ?? ''}|${JSON.stringify(item.metadata)}`;
 }
 
-export function formatActivityDate(ts: string): string {
-    const d = new Date(ts);
-    const today = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
-    const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('es-ES', {
+function activityDateLabel(date: Date, timeZone?: string): string {
+    const tz = timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return new Intl.DateTimeFormat('es-ES', {
+        timeZone: tz,
         day: 'numeric',
         month: 'long'
-    });
-    const label = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+    }).format(date);
+}
+
+export function formatActivityDate(ts: string, timeZone?: string): string {
+    const d = new Date(ts);
+    if (Number.isNaN(d.getTime())) return '';
+
+    const tz = timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const today = activityDateLabel(new Date(), tz);
+    const yesterday = activityDateLabel(new Date(Date.now() - 86_400_000), tz);
+    const label = activityDateLabel(d, tz);
     if (label === today) return 'Hoy';
     if (label === yesterday) return 'Ayer';
     return label;
 }
 
-export function formatActivityTime(ts: string): string {
+export function formatActivityTime(ts: string, timeZone?: string): string {
     const date = new Date(ts);
     if (Number.isNaN(date.getTime())) return '';
 
-    const hours12 = date.getHours() % 12 || 12;
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const period = date.getHours() >= 12 ? 'pm' : 'am';
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    }).formatToParts(date);
 
-    return `${hours12}:${minutes} ${period}`;
+    const hour = parts.find((p) => p.type === 'hour')?.value ?? '12';
+    const minute = parts.find((p) => p.type === 'minute')?.value ?? '00';
+    const period = (parts.find((p) => p.type === 'dayPeriod')?.value ?? 'am').toLowerCase();
+
+    return `${hour}:${minute} ${period}`;
 }
 
 export function formatActivityRelativeTime(ts: string): string {

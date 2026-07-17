@@ -72,6 +72,7 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
                     isLoading={!hasLiveData}
                     isLive={isRealtimeLive}
                     highlightKeys={highlightKeys}
+                    timeZone={profile?.timezone}
                 />
                 <HomeResourcesPanel onNavigate={onNavigate} />
             </div>

@@ -3,7 +3,7 @@ import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanel
 import { AlertTriangle } from 'lucide-react';
 import { fadeIn } from '@/core/utils/tw';
 import { useRequiredSession } from '@/core/session/useSession';
-import { getTodayRequestsTotal, getStatsLocalDateString } from '@/features/dashboard/lib/dashboardStats';
+import { getStatsLocalDateString, buildTodayActivityStats } from '@/features/dashboard/lib/dashboardStats';
 
 import { AnalyticsKPIs } from './AnalyticsKPIs';
 import { AnalyticsAreaChart } from './AnalyticsAreaChart';
@@ -13,10 +13,15 @@ import { AnalyticsLatencyChart } from './AnalyticsLatencyChart';
 import { AnalyticsTodayBarChart } from './AnalyticsTodayBarChart';
 
 function AnalyticsViewContent({ active }: { active: boolean }) {
-    const { stats, hasLiveData, error, profile } = useDashboardPanel();
+    const { stats, hasLiveData, error, profile, activity } = useDashboardPanel();
     const [timeRange, setTimeRange] = useState<'today' | '7d'>('today');
 
     const { timeSeries = [] } = stats;
+
+    const activityToday = useMemo(
+        () => buildTodayActivityStats(activity, profile?.timezone),
+        [activity, profile?.timezone]
+    );
 
     const { areaData, pieDataWeekly, pieDataToday, summaryWeekly, summaryToday } = useMemo(() => {
         const todayDateStr = getStatsLocalDateString(profile?.timezone);
@@ -117,6 +122,27 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         };
     }, [timeSeries, profile?.timezone]);
 
+    const reconciledPieToday = useMemo(() => {
+        if (activityToday.total === 0 || activityToday.total >= summaryToday.totalRequests) {
+            return pieDataToday;
+        }
+        return Array.from(activityToday.byCommand.entries())
+            .map(([name, value]) => ({
+                name,
+                value,
+                errors: 0,
+                successRate: '100.0',
+                avgLatency: 0
+            }))
+            .sort((a, b) => b.value - a.value);
+    }, [activityToday, pieDataToday, summaryToday.totalRequests]);
+
+    const todayRequestsCount = useMemo(() => {
+        if (activityToday.total === 0) return summaryToday.totalRequests;
+        if (activityToday.total < summaryToday.totalRequests) return activityToday.total;
+        return summaryToday.totalRequests;
+    }, [activityToday.total, summaryToday.totalRequests]);
+
     // Fix agresivo para Astro DevToolbar
     useEffect(() => {
         if (!active) return;
@@ -145,24 +171,26 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         );
     }
 
-    const todayRequests = getTodayRequestsTotal(stats);
     const latencyDaily = summaryToday.avgLatency;
     const successRateDaily = parseFloat(summaryToday.successRate) || 0;
     
     const commandKeys = ['clips', 'followage', 'so', 'message', 'stalker', 'trends', 'roulette', 'russian', 'magic8', 'duel'] as const;
-    const uniqueCommandsDaily = commandKeys.filter(key => (stats[key] ?? 0) > 0).length;
+    const uniqueCommandsDaily =
+        reconciledPieToday.length > 0
+            ? reconciledPieToday.length
+            : commandKeys.filter((key) => (stats[key] ?? 0) > 0).length;
 
     const latencyWeekly = summaryWeekly.avgLatency ?? 0;
     const successRateWeekly = parseFloat(summaryWeekly.successRate) || 0;
     const requestsWeekly = summaryWeekly.totalRequests;
     const uniqueCommandsWeekly = summaryWeekly.uniqueCommands;
 
-    const displayRequests = timeRange === 'today' ? todayRequests : requestsWeekly;
+    const displayRequests = timeRange === 'today' ? todayRequestsCount : requestsWeekly;
     const displaySuccessRate = timeRange === 'today' ? successRateDaily : successRateWeekly;
     const displayLatency = timeRange === 'today' ? latencyDaily : latencyWeekly;
     const displayCommands = timeRange === 'today' ? uniqueCommandsDaily : uniqueCommandsWeekly;
-    const displayPieData = timeRange === 'today' ? pieDataToday : pieDataWeekly;
-    const displayPieTotal = timeRange === 'today' ? summaryToday.totalRequests : summaryWeekly.totalRequests;
+    const displayPieData = timeRange === 'today' ? reconciledPieToday : pieDataWeekly;
+    const displayPieTotal = timeRange === 'today' ? todayRequestsCount : summaryWeekly.totalRequests;
 
     const isLoading = !hasLiveData;
     const requestsDuration = displayRequests === 0 ? 0 : active ? 400 : 0;

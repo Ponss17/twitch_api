@@ -11,13 +11,13 @@ const DASHBOARD_USAGE_KEYS: readonly DashboardUsageKey[] = DASHBOARD_USAGE_CATEG
     (cat) => cat.keys
 );
 
-export function getStatsLocalDateString(timeZone?: string): string {
+export function getStatsLocalDateString(timeZone?: string, date: Date = new Date()): string {
     return new Intl.DateTimeFormat('en-CA', {
         timeZone: timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
-    }).format(new Date());
+    }).format(date);
 }
 
 /** `last_stats_date` anterior al día local efectivo → contadores del día en cero. */
@@ -26,6 +26,27 @@ export function isStatsDateOutdated(
     todayLocal = getStatsLocalDateString()
 ): boolean {
     return typeof lastStatsDate === 'string' && lastStatsDate.length > 0 && lastStatsDate < todayLocal;
+}
+
+/** Peticiones de hoy según timestamps del historial (corrige desfases de zona horaria en daily_stats). */
+export function buildTodayActivityStats(
+    activity: ReadonlyArray<{ timestamp?: string; type?: string }> | undefined,
+    timeZone?: string
+): { total: number; byCommand: Map<string, number> } {
+    const todayStr = getStatsLocalDateString(timeZone);
+    const byCommand = new Map<string, number>();
+    let total = 0;
+
+    for (const item of activity ?? []) {
+        if (!item.timestamp) continue;
+        const itemDate = getStatsLocalDateString(timeZone, new Date(item.timestamp));
+        if (itemDate !== todayStr) continue;
+        total += 1;
+        const cmd = !item.type || item.type === 'other' ? 'Otros' : item.type;
+        byCommand.set(cmd, (byCommand.get(cmd) ?? 0) + 1);
+    }
+
+    return { total, byCommand };
 }
 
 /** Suma de usos del día por recurso — misma métrica que el resumen del perfil. */

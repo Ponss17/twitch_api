@@ -11,17 +11,19 @@ import {
 interface HomeActivityLogEntryProps {
     item: ActivityLogItem;
     isNew?: boolean;
+    timeZone?: string;
 }
 
 export const HomeActivityLogEntry = memo(function HomeActivityLogEntry({
     item,
-    isNew = false
+    isNew = false,
+    timeZone
 }: HomeActivityLogEntryProps) {
     const meta = getActivityMeta(item.type);
     const Icon = meta.icon;
     const user = sanitizeActivityUser(item.user);
     const detail = meta.detailText(item);
-    const time = item.timestamp ? formatActivityTime(item.timestamp) : '';
+    const time = item.timestamp ? formatActivityTime(item.timestamp, timeZone) : '';
     const relative = item.timestamp ? formatActivityRelativeTime(item.timestamp) : '';
 
     return (
