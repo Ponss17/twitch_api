@@ -48,7 +48,9 @@ export const invalidateUserCache = (userId: string): void => {
         );
     }
 
-    invalidateAuthCache(userId);
+    // Solo limpia L1 de auth. NUNCA revocar cookie aquí: este helper se usa
+    // en Discord link/unlink, stats, etc. La revocación es explícita (logout/borrar cuenta).
+    invalidateAuthCache(userId, { revokeSession: false });
 };
 
 function readOverlayToken(req: Request): string {
