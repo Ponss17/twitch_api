@@ -1,8 +1,8 @@
 import { supabase } from './supabaseClient';
 import { StoredUser } from '../../types/twitch';
-import { invalidateAllUserCaches } from '../utils/cacheInvalidation';
+import { invalidateDiscordLinkCaches } from '../utils/cacheInvalidation';
 import { logger } from '../utils/logger';
-import { getUser, invalidateUserMemoryCache } from './userService';
+import { getUser } from './userService';
 
 export type DiscordLinkPayload = {
     discordId: string;
@@ -84,8 +84,7 @@ export const linkDiscordAccount = async (
         throw new Error('DISCORD_LINK_FAILED');
     }
 
-    await invalidateAllUserCaches(userId, { login: current.login, apiKey: current.apiKey });
-    invalidateUserMemoryCache(userId);
+    await invalidateDiscordLinkCaches(userId, current.login);
 
     const updated = await getUser(userId);
     if (!updated) throw new Error('USER_NOT_FOUND');
@@ -112,6 +111,5 @@ export const unlinkDiscordAccount = async (userId: string): Promise<void> => {
         throw new Error('DISCORD_UNLINK_FAILED');
     }
 
-    await invalidateAllUserCaches(userId, { login: current.login, apiKey: current.apiKey });
-    invalidateUserMemoryCache(userId);
+    await invalidateDiscordLinkCaches(userId, current.login);
 };
