@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "slot-text/style.css";
 
 @theme {
   --color-primary: #9146ff;

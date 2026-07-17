@@ -1,3 +1,5 @@
+import { hoverSubtleRowBg } from '@/core/utils/tw';
+
 const ANALYTICS_COLORS = ['#7254b8', '#4a8b75', '#b3934d', '#b35656', '#4d75b3', '#b3714d', '#a85c87', '#615e9c'];
 
 export function TrackerRow({
@@ -17,7 +19,7 @@ export function TrackerRow({
     const rowColor = ANALYTICS_COLORS[index % ANALYTICS_COLORS.length];
 
     return (
-        <tr className="animate-fade-soft transition-colors duration-200 hover:bg-white/[0.02]">
+        <tr className={`animate-fade-soft duration-200 ${hoverSubtleRowBg}`}>
             <td className={`border-b border-white/[0.03] align-middle ${cellPad}`}>
                 <span className={`inline-block font-medium ${compact ? 'text-[0.875rem]' : 'text-[1rem]'}`} style={{ color: rowColor }}>
                     #{index + 1}

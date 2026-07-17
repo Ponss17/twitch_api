@@ -5,10 +5,11 @@ import { TrendsLeaderboardDisplay } from '@/features/trends/TrendsLeaderboardDis
 import { formatTrendsTime } from '@/features/trends/TrackerRow';
 import { OverlayUrlButton } from '@/features/overlay/components/OverlayUrlButton';
 import { useOverlayPublish } from '@/features/overlay/hooks/useOverlayPublish';
-import { card, fadeIn } from '@/core/utils/tw';
+import { fadeIn, hoverSubtleIconBtn, panelCard } from '@/core/utils/tw';
+import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
-import { CardHeaderIcon, InlineIcon } from '@/shared/ui/Icon';
+import { InlineIcon } from '@/shared/ui/Icon';
 
 export function TrendsView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
@@ -71,13 +72,19 @@ export function TrendsView({ active = true }: { active?: boolean }) {
     );
 
     return (
-        <div className={`${card} ${fadeIn} mb-3`}>
-            <div className="mb-2 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-2 max-md:flex-col max-md:items-start">
-                <div className="flex items-center gap-3">
-                    <CardHeaderIcon icon={BarChart2} />
-                    <div>
-                        <h3 className="mb-0.5 text-[0.95rem] font-bold">Tendencias de {displayName}</h3>
-                        <p className="text-[0.8rem] text-[#c4c4cc]">Ranking de palabras en tiempo real</p>
+        <div className={`${panelCard} ${fadeIn} mb-3 flex flex-col`}>
+            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5 max-md:flex-col max-md:items-start">
+                <div className="flex min-w-0 items-center gap-3">
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}>
+                        <BarChart2 className="h-4 w-4" aria-hidden />
+                    </div>
+                    <div className="min-w-0">
+                        <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
+                            Tendencias de {displayName}
+                        </h3>
+                        <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
+                            Ranking de palabras en tiempo real
+                        </p>
                     </div>
                 </div>
 
@@ -92,7 +99,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                         onClick={() => adjustMinutes(-1)}
                                         disabled={minutes <= 1}
                                         aria-label="Reducir minutos"
-                                        className="flex h-7 w-7 items-center justify-center rounded-md text-[#c4c4cc] transition hover:bg-white/10 hover:text-[#fafafa] disabled:cursor-not-allowed disabled:opacity-30"
+                                        className={`flex h-7 w-7 items-center justify-center rounded-md text-[#c4c4cc] disabled:cursor-not-allowed disabled:opacity-30 ${hoverSubtleIconBtn}`}
                                     >
                                         <Minus className="text-xs" />
                                     </button>
@@ -113,7 +120,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                         onClick={() => adjustMinutes(1)}
                                         disabled={minutes >= 60}
                                         aria-label="Aumentar minutos"
-                                        className="flex h-7 w-7 items-center justify-center rounded-md text-[#c4c4cc] transition hover:bg-white/10 hover:text-[#fafafa] disabled:cursor-not-allowed disabled:opacity-30"
+                                        className={`flex h-7 w-7 items-center justify-center rounded-md text-[#c4c4cc] disabled:cursor-not-allowed disabled:opacity-30 ${hoverSubtleIconBtn}`}
                                     >
                                         <Plus className="text-xs" />
                                     </button>
@@ -167,9 +174,10 @@ export function TrendsView({ active = true }: { active?: boolean }) {
 
                     <InfoTooltip text="Analiza las palabras más repetidas en el chat. Puedes acotar el tiempo con el temporizador." />
                 </div>
-            </div>
+            </header>
 
-            <TrendsLeaderboardDisplay
+            <div className="p-5">
+                <TrendsLeaderboardDisplay
                 ranked={ranked}
                 maxCount={maxCount}
                 tracking={tracking}
@@ -179,6 +187,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                 displayName={displayName}
                 variant="full"
             />
+            </div>
         </div>
     );
 }

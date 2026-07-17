@@ -1,6 +1,5 @@
 import { Key, EyeOff, Eye, Check, RotateCw, AlertTriangle, Gauge, Copy, Clock, Crown } from 'lucide-react';
 import { useState } from 'react';
-import { SlotText } from 'slot-text/react';
 import { SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
 
 interface SettingsSecuritySectionProps {
@@ -50,9 +49,10 @@ export function SettingsSecuritySection({
         <SettingsRow
             title="API Key privada"
             icon={Key}
+            info="Mantén esta información privada. No la compartas en directo."
             description="Tu credencial para autenticar peticiones a la API. Mantenla en secreto."
         >
-            <div className="flex overflow-hidden rounded-lg border border-white/[0.08] bg-black/20 transition focus-within:border-primary">
+            <div className="flex overflow-hidden rounded-lg border border-white/[0.06] bg-bg-secondary transition focus-within:border-primary">
                 <input
                     id="profile-api-key"
                     readOnly
@@ -82,7 +82,7 @@ export function SettingsSecuritySection({
                         className="flex items-center justify-center gap-1.5 border-l border-white/[0.05] px-3 text-[0.82rem] text-zinc-400 transition hover:bg-primary/10 hover:text-primary"
                     >
                         {isKeyCopied ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
-                        <SlotText text={isKeyCopied ? 'Copiado' : 'Copiar'} />
+                        {isKeyCopied ? 'Copiado' : 'Copiar'}
                     </button>
                     <button
                         type="button"
@@ -106,22 +106,22 @@ export function SettingsSecuritySection({
                 </div>
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/20 bg-emerald-500/[0.06] px-2 py-1 text-[0.72rem] font-bold text-emerald-400">
+            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/[0.08] px-2 py-0.5 text-[0.7rem] font-semibold text-emerald-400">
                     <Check className="w-3 h-3" /> Activa
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-md border border-violet-500/20 bg-violet-500/[0.06] px-2 py-1 text-[0.72rem] font-bold text-violet-300">
-                    <Crown className="w-3 h-3 opacity-70" /> {roleLabel}
+                <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold text-primary">
+                    <Crown className="w-3 h-3 opacity-80" /> {roleLabel}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-[0.72rem] font-bold text-zinc-300">
-                    <Gauge className="w-3 h-3 text-primary opacity-70" /> {rateLimit} req/min{hasCustomRateLimit ? ' *' : ''}
+                <span className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-0.5 text-[0.7rem] font-semibold text-zinc-400">
+                    <Gauge className="w-3 h-3 text-primary/70" /> {rateLimit} req/min{hasCustomRateLimit ? ' *' : ''}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-[0.72rem] font-bold text-zinc-300">
-                    <Clock className="w-3 h-3 text-primary opacity-70" /> {cacheTtl}s{hasCustomCacheTtl ? ' *' : ''}
+                <span className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-0.5 text-[0.7rem] font-semibold text-zinc-400">
+                    <Clock className="w-3 h-3 text-primary/70" /> {cacheTtl}s{hasCustomCacheTtl ? ' *' : ''}
                 </span>
                 <button type="button" onClick={onCopyId}
-                    className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-[0.72rem] font-bold text-zinc-300 transition hover:border-primary/30 hover:text-primary font-[inherit]">
-                    <Copy className="w-3 h-3 opacity-50" /> {userId ?? '---'}
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-md bg-white/[0.04] px-2 py-0.5 text-[0.7rem] font-semibold text-zinc-400 transition hover:text-primary font-[inherit]">
+                    <Copy className="w-3 h-3 text-primary/60" /> {userId ?? '---'}
                 </button>
             </div>
         </SettingsRow>

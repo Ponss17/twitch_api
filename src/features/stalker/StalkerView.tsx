@@ -7,12 +7,13 @@ import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { cache, CACHE_TTL } from '@/core/cache/cacheService';
 import { chatLogStore } from '@/features/chat/lib/chatLogStore';
 import type { StalkerUser, TwitchUser } from '@/core/types/twitch';
-import { card, fadeIn } from '@/core/utils/tw';
+import { fadeIn, hoverNeutralBorderedRow, hoverNeutralControl, hoverNeutralIconBtn, hoverSubtleRowBg, panelCard, textInput } from '@/core/utils/tw';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { UserInspectModal } from '@/shared/ui/UserInspectModal';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { StalkerRowSkeleton } from '@/shared/ui/Skeleton';
-import { CardHeaderIcon, EmptyStateIcon, IconSm, InlineIcon } from '@/shared/ui/Icon';
+import { EmptyStateIcon, IconSm, InlineIcon } from '@/shared/ui/Icon';
+import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 
 const LISTENER_ID = 'stalker';
 
@@ -174,13 +175,21 @@ export function StalkerView({ active = true }: { active?: boolean }) {
 
     return (
         <>
-            <div className={`${card} ${fadeIn} mb-3`}>
-                <div className="mb-2 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-2 max-md:flex-col max-md:items-start">
-                    <div className="flex items-center gap-3">
-                        <CardHeaderIcon icon={Users} />
-                        <div>
-                            <h3 className="mb-0.5 text-[0.95rem] font-bold">Visor de Chat (Stalker)</h3>
-                            <p className="text-[0.8rem] text-[#c4c4cc]">Quién está en tu chat ahora mismo</p>
+            <div className={`${panelCard} ${fadeIn} mb-3 flex flex-col`}>
+                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5 max-md:flex-col max-md:items-start">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <div
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}
+                        >
+                            <Users className="h-4 w-4" aria-hidden />
+                        </div>
+                        <div className="min-w-0">
+                            <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
+                                Visor de Chat (Stalker)
+                            </h3>
+                            <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
+                                Quién está en tu chat ahora mismo
+                            </p>
                         </div>
                     </div>
 
@@ -210,7 +219,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder="Buscar usuario..."
                                     aria-label="Buscar usuario..."
-                                    className="w-full rounded-md border border-white/[0.08] bg-bg-secondary py-2 pr-3 pl-9 text-[0.8125rem] text-[#fafafa] outline-none transition focus:border-primary"
+                                    className={`${textInput} ${hoverNeutralControl} pl-9 focus:border-primary focus:bg-primary/[0.02]`}
                                 />
                             </div>
 
@@ -219,7 +228,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                 onClick={() => void toggleScan()}
                                 title={scanning ? 'Pausar Escaneo' : 'Iniciar Escaneo'}
                                 aria-label={scanning ? 'Pausar Escaneo' : 'Iniciar Escaneo'}
-                                className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] transition hover:bg-white/5 ${
+                                className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] transition ${
                                     scanning ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'
                                 }`}
                             >
@@ -236,7 +245,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                 }}
                                 title="Recargar lista"
                                 aria-label="Recargar lista"
-                                className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#c4c4cc] transition hover:bg-white/5 hover:text-[#fafafa]"
+                                className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#c4c4cc] ${hoverNeutralIconBtn}`}
                             >
                                 <RotateCw className="size-4 shrink-0" />
                             </button>
@@ -244,9 +253,10 @@ export function StalkerView({ active = true }: { active?: boolean }) {
 
                         <InfoTooltip text="Lista de usuarios conectados, clasificados por rol (Mods, VIPs, etc). Clic para detalles." />
                     </div>
-                </div>
+                </header>
 
-                <div className="overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02]">
+                <div className="p-5">
+                <div className="overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary">
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse">
                             <thead>
@@ -297,7 +307,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                     filtered.map((user) => (
                                         <tr
                                             key={user.user_login}
-                                            className={`stalker-row cursor-pointer transition hover:bg-white/[0.05] ${
+                                            className={`stalker-row cursor-pointer ${hoverSubtleRowBg} ${
                                                 highlightLogin === user.user_login.toLowerCase()
                                                     ? 'animate-[highlightFade_1s_forwards]'
                                                     : ''
@@ -331,7 +341,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                                         e.stopPropagation();
                                                         void inspect(user.user_login);
                                                     }}
-                                                    className="inline-flex items-center gap-1 rounded-md border border-white/[0.08] bg-transparent px-3 py-1.5 text-[0.8125rem] text-[#c4c4cc] transition hover:border-primary hover:bg-primary hover:text-[#fafafa]"
+                                                    className={`inline-flex items-center gap-1 rounded-md border border-white/[0.08] bg-transparent px-3 py-1.5 text-[0.8125rem] text-[#c4c4cc] ${hoverNeutralBorderedRow}`}
                                                 >
                                                     <Eye className="size-4 shrink-0" />
                                                     Ver
@@ -348,6 +358,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                 <p className="mt-2.5 text-center text-[0.6875rem] text-[#71717a]">
                     * La detección de usuarios se basa en la actividad reciente del chat.
                 </p>
+                </div>
             </div>
 
             <UserInspectModal user={inspectUser} onClose={() => setInspectUser(null)} />

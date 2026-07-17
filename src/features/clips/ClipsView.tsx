@@ -6,7 +6,8 @@ import { useToast } from '@/shared/ui/ToastProvider';
 import { ClipsGridSkeleton } from '@/shared/ui/Skeleton';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { cache, CACHE_TTL } from '@/core/cache/cacheService';
-import { card, fadeIn } from '@/core/utils/tw';
+import { panelCard, fadeIn, textInput, hoverSubtleControl, hoverSubtleBorderedRow } from '@/core/utils/tw';
+import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { ClipPlayerOverlay } from '@/features/clips/ClipPlayerOverlay';
 import { SelectField } from '@/shared/ui/SelectField';
 import { ClipCommandView } from '@/features/commands/CommandsViews';
@@ -35,20 +36,19 @@ const CLIPS_GRID =
     'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5 max-[600px]:grid-cols-1';
 
 const CLIP_CARD =
-    'group/card relative overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary transition-all duration-200 hover:border-primary/25';
+    'group/card relative overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary transition-all duration-200 hover:border-primary/10 hover:bg-primary/[0.015]';
 
 const CLIP_OVERLAY_BTN =
-    'flex h-7 w-7 items-center justify-center rounded-md bg-black/40 text-white/70 backdrop-blur-[2px] transition hover:bg-black/55 hover:text-white';
+    'flex h-7 w-7 items-center justify-center rounded-md bg-black/40 text-white/70 backdrop-blur-[2px] transition hover:bg-primary/20 hover:text-white';
 
 const CLIP_TOOLBAR_BTN = (active = false) =>
     `flex h-8 w-8 items-center justify-center rounded-md border transition ${
         active
             ? 'border-primary/40 bg-primary/15 text-primary'
-            : 'border-white/[0.08] bg-white/[0.02] text-[#c4c4cc] hover:border-primary/30 hover:bg-white/5 hover:text-[#fafafa]'
+            : `border-white/[0.08] bg-white/[0.02] text-[#c4c4cc] ${hoverSubtleControl} hover:text-[#d4d4d8]`
     }`;
 
-const CLIPS_SEARCH =
-    'w-full rounded-lg border border-white/[0.08] bg-bg-secondary py-[7px] pr-2.5 pl-9 text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition focus:border-primary focus:bg-primary/[0.02]';
+const CLIPS_SEARCH = `${textInput} pl-9`;
 
 function loadFavorites(userId: string): string[] {
     try {
@@ -188,18 +188,22 @@ export function ClipsView() {
         <>
             <ClipCommandView />
 
-            <div className={`${card} ${fadeIn} mb-3 [animation-delay:60ms]`}>
-                <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                            <Images className="w-5 h-5 text-center" aria-hidden="true" />
+            <div className={`${panelCard} ${fadeIn} mb-3 flex flex-col [animation-delay:60ms]`}>
+                <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}>
+                            <Images className="h-4 w-4" aria-hidden />
                         </div>
-                        <div>
-                            <h3 className="mb-0.5 text-[0.95rem] font-bold">Clips Recientes</h3>
-                            <p className="text-[0.8rem] text-[#c4c4cc]">Los últimos clips de tu canal</p>
+                        <div className="min-w-0">
+                            <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
+                                Clips Recientes
+                            </h3>
+                            <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
+                                Los últimos clips de tu canal
+                            </p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex shrink-0 items-center gap-2">
                         <button
                             type="button"
                             onClick={() => setShowFavsOnly((v) => !v)}
@@ -219,9 +223,9 @@ export function ClipsView() {
                         </button>
                         <InfoTooltip text="Galería de tus clips más recientes. Se actualiza automáticamente." />
                     </div>
-                </div>
+                </header>
 
-                <div className="text-[#fafafa]">
+                <div className="p-5 text-[#fafafa]">
                     <div className="mb-5 flex flex-wrap gap-[15px] max-[600px]:flex-col">
                         <div className="relative min-w-[200px] flex-1">
                             <Search
@@ -365,7 +369,7 @@ export function ClipsView() {
                                 <button
                                     type="button"
                                     onClick={() => setPage((p) => p + 1)}
-                                    className="mt-6 w-full rounded-lg border border-white/[0.08] bg-bg-secondary py-2.5 text-[0.8125rem] font-semibold text-[#c4c4cc] transition hover:border-primary/30 hover:bg-white/5 hover:text-[#fafafa]"
+                                    className={`mt-6 w-full rounded-lg border border-white/[0.06] bg-bg-secondary py-2.5 text-[0.8125rem] font-semibold text-[#c4c4cc] ${hoverSubtleBorderedRow}`}
                                 >
                                     Cargar más
                                 </button>
