@@ -1,11 +1,10 @@
-import { AlertTriangle, Loader2, Copy, Check } from 'lucide-react';
+import { AlertTriangle, Loader2, Copy, Check, KeyRound, ShieldAlert } from 'lucide-react';
 
 import { useEffect, useId, useRef, useState, createContext, useCallback, type ReactNode } from 'react';
 import { X, Trash2, type LucideIcon } from 'lucide-react';
 import {
     btnDanger,
     btnIcon,
-    btnPrimary,
     btnSecondary,
     confirmWordBadge,
     dangerInput,
@@ -16,6 +15,7 @@ import {
     dangerModalTitleIcon,
     dialogBase,
     modalBody,
+    modalBtnPrimary,
     modalFooter,
     modalHeader,
     modalPanel,
@@ -387,8 +387,8 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
         <Modal
             open={open}
             onClose={onClose}
-            title="¿Estás seguro de regenerar tu API Key?"
-            titleIcon={AlertTriangle}
+            title="Regenerar API Key"
+            titleIcon={KeyRound}
             footer={
                 <>
                     <button
@@ -399,12 +399,12 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
                     >
                         {loading ? (
                             <>
-                                <Loader2 className="animate-spin" />
+                                <Loader2 className="animate-spin" aria-hidden="true" />
                                 Regenerando...
                             </>
                         ) : (
                             <>
-                                <X className="w-5 h-5 text-[#c4c4cc] group-hover:text-white transition" />
+                                <KeyRound className="h-4 w-4" aria-hidden="true" />
                                 Sí, regenerar
                             </>
                         )}
@@ -416,13 +416,20 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
             }
         >
             <p>
-                Al regenerar tu API Key, <strong>la clave anterior dejará de funcionar inmediatamente</strong>.
+                Al regenerar, <strong>la clave anterior deja de funcionar al instante</strong>.
             </p>
-            <p>
-                Tendrás que actualizar el token en todos tus bots (Nightbot, StreamElements, Fossabot, etc.) para
-                que los comandos sigan funcionando.
-            </p>
-            <p className="text-sm opacity-80">Esta acción no se puede deshacer.</p>
+            <p>Tendrás que actualizar el token en:</p>
+            <ul>
+                <li>
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                    Nightbot, StreamElements, Fossabot u otros bots.
+                </li>
+                <li>
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                    Cualquier script o integración que use tu API Key.
+                </li>
+            </ul>
+            <p className="text-sm opacity-80">Esta acción no se puede deshacer. Te mostraremos la key nueva una sola vez.</p>
         </Modal>
     );
 }
@@ -447,17 +454,17 @@ export function PostRegenKeyModal({ open, apiKey, onClose }: PostRegenKeyModalPr
             open={open}
             onClose={onClose}
             title="Copia tu nueva API Key"
-            titleIcon={AlertTriangle}
+            titleIcon={ShieldAlert}
             footer={
-                <button type="button" className={btnPrimary} onClick={() => void handleCopy()}>
+                <button type="button" className={modalBtnPrimary} onClick={() => void handleCopy()}>
                     {copied ? (
                         <>
-                            <Check className="w-4 h-4" />
+                            <Check className="h-4 w-4" aria-hidden="true" />
                             Copiada
                         </>
                     ) : (
                         <>
-                            <Copy className="w-4 h-4" />
+                            <Copy className="h-4 w-4" aria-hidden="true" />
                             Copiar key
                         </>
                     )}
@@ -465,12 +472,23 @@ export function PostRegenKeyModal({ open, apiKey, onClose }: PostRegenKeyModalPr
             }
         >
             <p>
-                <strong>No volveremos a mostrar la key completa.</strong> Cópiala ahora y actualiza tus bots
-                (Nightbot, StreamElements, etc.).
+                <strong>No volveremos a mostrar la key completa.</strong> Cópiala ahora y actualiza tus
+                bots.
             </p>
-            <code className="mt-3 block break-all rounded-lg border border-white/10 bg-black/40 px-3 py-2 font-mono text-sm text-[#c4b5fd]">
+            <ul>
+                <li>
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                    Guárdala en un sitio seguro (gestor de contraseñas o notas privadas).
+                </li>
+                <li>
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                    Sustituye la key antigua en Nightbot / StreamElements / etc.
+                </li>
+            </ul>
+            <code className="mt-1 block break-all rounded-lg border border-white/10 bg-black/40 px-3 py-2.5 font-mono text-sm text-[#c4b5fd]">
                 {apiKey}
             </code>
+            <p className="text-sm opacity-80">Si cierras sin copiarla, tendrás que regenerar otra vez.</p>
         </Modal>
     );
 }
