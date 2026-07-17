@@ -54,7 +54,9 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
         return { valid: false, error: true, message: 'no_credentials' };
     }
 
-    const cached = readFreshValidateCache(session);
+    // Panel cookie-only: no confiar en caché local — solo el servidor verifica lp_sess.
+    const isCookieOnlyPanel = !session.apiKey && !session.token && !session.overlayToken;
+    const cached = isCookieOnlyPanel ? null : readFreshValidateCache(session);
     if (cached) {
         reportSessionLoadProgress({
             progress: 48,
