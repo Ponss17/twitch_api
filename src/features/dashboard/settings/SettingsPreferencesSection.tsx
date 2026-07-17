@@ -89,7 +89,13 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                 <span className="truncate max-w-[180px] text-left">{selectedTz}</span>
                                 <ChevronDown className="h-4 w-4 shrink-0 text-zinc-400" aria-hidden="true" />
                             </DropdownTrigger>
-                            <DropdownPanel align="right" widthClassName="w-full sm:w-[280px]" className="z-[1000] flex flex-col p-1">
+                            <DropdownPanel
+                                align="right"
+                                placement="top"
+                                zIndex={1000}
+                                widthClassName="w-full sm:w-[280px]"
+                                className="flex flex-col p-1"
+                            >
                                 <div className="px-2 pb-2 pt-2">
                                     <div className="relative">
                                         <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
