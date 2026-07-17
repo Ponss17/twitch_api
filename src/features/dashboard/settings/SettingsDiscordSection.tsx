@@ -1,5 +1,8 @@
 import { Unlink, Check } from 'lucide-react';
 import { SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
+import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
+
+const discordTitleIcon = <DiscordIcon className="h-4 w-4 text-[#5865F2]" aria-hidden="true" />;
 
 interface SettingsDiscordSectionProps {
     discordId?: string | null;
@@ -24,6 +27,7 @@ export function SettingsDiscordSection({
         return (
             <SettingsRow
                 title="Discord"
+                iconNode={discordTitleIcon}
                 description="Conecta Discord para usar comandos del bot con tu cuenta (por ejemplo /cuenta)."
                 control={
                     <div className="flex items-center gap-3">
@@ -58,6 +62,7 @@ export function SettingsDiscordSection({
     return (
         <SettingsRow
             title="Discord"
+            iconNode={discordTitleIcon}
             description="Vincula tu Discord para usar comandos del bot con tu cuenta de LosPerris (por ejemplo /cuenta)."
             control={
                 <button

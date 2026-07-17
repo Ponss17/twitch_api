@@ -4,16 +4,18 @@ import { card, fadeIn } from '@/core/utils/tw';
 
 type Accent = 'primary' | 'error';
 
-const ACCENTS: Record<Accent, { iconWrap: string; divider: string; title: string; shell: string }> = {
+const ACCENTS: Record<Accent, { iconWrap: string; divider: string; rowDivider: string; title: string; shell: string }> = {
     primary: {
         iconWrap: 'border-primary/20 bg-primary/10 text-primary',
         divider: 'border-white/[0.08]',
+        rowDivider: 'divide-white/[0.04]',
         title: 'text-[#fafafa]',
         shell: ''
     },
     error: {
         iconWrap: 'border-error/25 bg-error/10 text-error',
         divider: 'border-error/15',
+        rowDivider: 'divide-error/10',
         title: 'text-error',
         shell: '!border-error/30 hover:!border-error/60'
     }
@@ -53,7 +55,7 @@ export const SettingsGroup = forwardRef<HTMLDivElement, SettingsGroupProps>(func
                 </div>
                 {action}
             </div>
-            <div className={`divide-y ${a.divider}`}>{children}</div>
+            <div className={`divide-y ${a.rowDivider}`}>{children}</div>
         </section>
     );
 });
@@ -62,6 +64,7 @@ interface SettingsRowProps {
     title?: string;
     description?: ReactNode;
     icon?: LucideIcon;
+    iconNode?: ReactNode;
     /** Control alineado a la derecha (botón, dropdown, badge...). */
     control?: ReactNode;
     /** Contenido a ancho completo (inputs, bloques). Se apila bajo el título si lo hay. */
@@ -70,8 +73,9 @@ interface SettingsRowProps {
 }
 
 /** Fila dentro de un SettingsGroup: texto a la izquierda, control a la derecha. */
-export function SettingsRow({ title, description, icon: Icon, control, children, accent = 'primary' }: SettingsRowProps) {
+export function SettingsRow({ title, description, icon: Icon, iconNode, control, children, accent = 'primary' }: SettingsRowProps) {
     const iconColor = accent === 'error' ? 'text-error' : 'text-primary';
+    const titleIcon = iconNode ?? (Icon ? <Icon className={`h-4 w-4 ${iconColor}`} aria-hidden="true" /> : null);
     return (
         <div className="py-4 first:pt-4 last:pb-1">
             {title || description || control ? (
@@ -80,7 +84,7 @@ export function SettingsRow({ title, description, icon: Icon, control, children,
                         <div className="min-w-0 flex-1">
                             {title ? (
                                 <h4 className={`mb-0.5 flex items-center gap-2 text-[0.95rem] font-bold text-white`}>
-                                    {Icon ? <Icon className={`h-4 w-4 ${iconColor}`} aria-hidden="true" /> : null}
+                                    {titleIcon}
                                     {title}
                                 </h4>
                             ) : null}
