@@ -174,31 +174,68 @@ export const regenerateKey = async (req: AuthenticatedRequest, res: Response) =>
 };
 
 export const submitFeedback = async (req: AuthenticatedRequest, res: Response) => {
-    const { message } = req.body;
+    const { message, anonymous = false, identity } = req.body as {
+        message: string;
+        anonymous?: boolean;
+        identity?: 'twitch' | 'discord';
+    };
     const { userId, login, twitchToken } = req;
 
-    let username = login || MESSAGES.FEEDBACK.ANONYMOUS_USER;
-    let avatar = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
-    let userType = MESSAGES.FEEDBACK.VIEWER_ROLE;
+    const anonymousAvatar = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
 
-    if (userId || login) {
+    let username = MESSAGES.FEEDBACK.ANONYMOUS_USER;
+    let avatar = anonymousAvatar;
+    let userType = MESSAGES.FEEDBACK.VIEWER_ROLE;
+    let identityLabel = MESSAGES.FEEDBACK.IDENTITY_ANONYMOUS;
+    let idField = 'Anónimo';
+    let accountField: string | null = null;
+
+    if (!anonymous && (userId || login)) {
         try {
             let cachedUser = null;
             if (userId) {
                 cachedUser = await dbService.getUser(userId);
             }
 
-            if (cachedUser) {
-                username = cachedUser.displayName || cachedUser.login;
-                avatar = cachedUser.profileImageUrl || avatar;
+            const discordLinked = Boolean(cachedUser?.discordId);
+            const wantDiscord = identity === 'discord';
+
+            if (wantDiscord && !discordLinked) {
+                return jsonError(res, 400, MESSAGES.FEEDBACK.DISCORD_NOT_LINKED, {
+                    code: 'BAD_REQUEST'
+                });
+            }
+
+            const useDiscord = wantDiscord && discordLinked;
+
+            if (useDiscord && cachedUser?.discordId) {
+                identityLabel = MESSAGES.FEEDBACK.IDENTITY_DISCORD;
+                username = cachedUser.discordUsername || `Discord ${cachedUser.discordId}`;
+                avatar = cachedUser.discordAvatar || anonymousAvatar;
+                idField = cachedUser.discordId;
+                accountField = login
+                    ? `Twitch \`${login}\` (cuenta del panel)`
+                    : null;
                 if (cachedUser.role) {
                     userType = cachedUser.role.toUpperCase();
                 }
-            } else if (twitchToken && login) {
-                const liveInfo = await apiService.getUserInfo(login, twitchToken);
-                if (liveInfo) {
-                    username = liveInfo.display_name;
-                    avatar = liveInfo.profile_image_url;
+            } else {
+                identityLabel = MESSAGES.FEEDBACK.IDENTITY_TWITCH;
+                username = login || MESSAGES.FEEDBACK.ANONYMOUS_USER;
+                idField = userId || login || '—';
+
+                if (cachedUser) {
+                    username = cachedUser.displayName || cachedUser.login || username;
+                    avatar = cachedUser.profileImageUrl || avatar;
+                    if (cachedUser.role) {
+                        userType = cachedUser.role.toUpperCase();
+                    }
+                } else if (twitchToken && login) {
+                    const liveInfo = await apiService.getUserInfo(login, twitchToken);
+                    if (liveInfo) {
+                        username = liveInfo.display_name;
+                        avatar = liveInfo.profile_image_url;
+                    }
                 }
             }
         } catch (e) {
@@ -213,22 +250,35 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
     }
 
     try {
+        const fields: { name: string; value: string; inline?: boolean }[] = [
+            {
+                name: '🪪 Identidad',
+                value: identityLabel,
+                inline: true
+            },
+            {
+                name: anonymous ? '🆔 Usuario' : '🆔 ID',
+                value: idField,
+                inline: true
+            }
+        ];
+
+        if (!anonymous) {
+            fields.push({ name: '🏷️ Rango', value: userType, inline: true });
+        }
+        if (accountField) {
+            fields.push({ name: '🔗 Cuenta', value: accountField, inline: false });
+        }
+        fields.push({ name: '📝 Mensaje', value: message, inline: false });
+
         await axios.post(CONFIG.DISCORD_FEEDBACK_WEBHOOK_URL, {
-            username: username,
+            username: username.slice(0, 80),
             avatar_url: avatar,
             embeds: [
                 {
                     title: MESSAGES.FEEDBACK.EMBED_TITLE,
-                    color: 0x9146ff,
-                    fields: [
-                        {
-                            name: '🆔 Usuario ID',
-                            value: userId || login || 'Anónimo',
-                            inline: true
-                        },
-                        { name: '🏷️ Rango', value: userType, inline: true },
-                        { name: '📝 Mensaje', value: message, inline: false }
-                    ],
+                    color: anonymous ? 0x71717a : identityLabel === MESSAGES.FEEDBACK.IDENTITY_DISCORD ? 0x5865f2 : 0x9146ff,
+                    fields,
                     footer: { text: MESSAGES.FEEDBACK.EMBED_FOOTER },
                     timestamp: new Date().toISOString()
                 }

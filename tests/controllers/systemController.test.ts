@@ -206,6 +206,70 @@ describe('systemController', () => {
 
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
+
+        it('should omit identity when anonymous', async () => {
+            const req = mockReq({
+                body: { message: 'Anon tip', anonymous: true },
+                userId: '123',
+                login: 'testuser'
+            });
+            const res = mockRes();
+            (axios.post as jest.Mock).mockResolvedValue({ data: { success: true } });
+
+            await submitFeedback(req, res);
+
+            expect(axios.post).toHaveBeenCalledWith(
+                expect.any(String),
+                expect.objectContaining({
+                    username: 'Anónimo',
+                    embeds: [
+                        expect.objectContaining({
+                            fields: expect.arrayContaining([
+                                expect.objectContaining({ name: '🪪 Identidad', value: 'Anónimo' }),
+                                expect.objectContaining({ name: '🆔 Usuario', value: 'Anónimo' })
+                            ])
+                        })
+                    ]
+                })
+            );
+        });
+
+        it('should send as Discord when linked and identity=discord', async () => {
+            (dbService.getUser as jest.Mock).mockResolvedValue({
+                userId: '123',
+                login: 'testuser',
+                displayName: 'TestUser',
+                role: 'default',
+                discordId: '999888',
+                discordUsername: 'discorduser',
+                discordAvatar: 'https://cdn.discordapp.com/avatars/999888/abc.png'
+            });
+
+            const req = mockReq({
+                body: { message: 'Discord tip', identity: 'discord' },
+                userId: '123',
+                login: 'testuser'
+            });
+            const res = mockRes();
+            (axios.post as jest.Mock).mockResolvedValue({ data: { success: true } });
+
+            await submitFeedback(req, res);
+
+            expect(axios.post).toHaveBeenCalledWith(
+                expect.any(String),
+                expect.objectContaining({
+                    username: 'discorduser',
+                    embeds: [
+                        expect.objectContaining({
+                            fields: expect.arrayContaining([
+                                expect.objectContaining({ name: '🪪 Identidad', value: 'Discord' }),
+                                expect.objectContaining({ name: '🆔 ID', value: '999888' })
+                            ])
+                        })
+                    ]
+                })
+            );
+        });
     });
 
     describe('getHealth', () => {

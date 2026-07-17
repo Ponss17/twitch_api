@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { useRequiredSession } from '@/core/session/useSession';
+import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { MessageSquare, Shield, Send, Loader2 } from 'lucide-react';
 import {
     btnPrimary,
@@ -15,13 +16,30 @@ import { useToast } from '@/shared/ui/ToastProvider';
 import { InlineIcon } from '@/shared/ui/Icon';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
+import { DiscordIcon, TwitchIcon } from '@/shared/ui/icons/BrandIcons';
+
+type FeedbackIdentity = 'twitch' | 'discord';
 
 export function FeedbackView() {
     const session = useRequiredSession();
+    const { profile } = useDashboardPanel();
     const { showToast } = useToast();
     const [message, setMessage] = useState('');
     const [sending, setSending] = useState(false);
     const [isAnonymous, setIsAnonymous] = useState(false);
+    const [identity, setIdentity] = useState<FeedbackIdentity>('twitch');
+
+    const discordLinked = Boolean(profile?.discordId);
+    const twitchLabel = profile?.display_name || session.displayName || session.login || 'Twitch';
+    const discordLabel = profile?.discordUsername || 'Discord';
+
+    const sendAsHint = useMemo(() => {
+        if (isAnonymous) return 'Se enviará de forma totalmente anónima (sin Twitch ni Discord).';
+        if (discordLinked && identity === 'discord') {
+            return `Se enviará como Discord (@${discordLabel}).`;
+        }
+        return `Se enviará como Twitch (${twitchLabel}).`;
+    }, [isAnonymous, discordLinked, identity, discordLabel, twitchLabel]);
 
     const send = async () => {
         if (!message.trim()) {
@@ -31,14 +49,28 @@ export function FeedbackView() {
 
         setSending(true);
         try {
-            const body: { message: string; anonymous?: boolean } = { message: message.trim() };
-            if (isAnonymous) body.anonymous = true;
+            const body: {
+                message: string;
+                anonymous?: boolean;
+                identity?: FeedbackIdentity;
+            } = { message: message.trim() };
 
-            const res = await fetch(API_ENDPOINTS.FEEDBACK, withApiCredentials({
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
-                body: JSON.stringify(body)
-            }));
+            if (isAnonymous) {
+                body.anonymous = true;
+            } else if (discordLinked) {
+                body.identity = identity;
+            } else {
+                body.identity = 'twitch';
+            }
+
+            const res = await fetch(
+                API_ENDPOINTS.FEEDBACK,
+                withApiCredentials({
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
+                    body: JSON.stringify(body)
+                })
+            );
             const data = (await res.json()) as { error?: string; message?: string };
 
             if (res.ok) {
@@ -75,7 +107,7 @@ export function FeedbackView() {
                     </div>
                     <div className="shrink-0">
                         <InfoTooltip
-                            text="Tu mensaje llegará directo a nuestro Discord. ¡Gracias por ayudarnos a mejorar!"
+                            text="Tu mensaje llega a nuestro Discord. Puedes enviarlo anónimo, como Twitch, o como Discord si lo tienes vinculado."
                             placement="bottom"
                         />
                     </div>
@@ -97,11 +129,13 @@ export function FeedbackView() {
 
                     <div className="flex items-center justify-between gap-4 rounded-lg border border-white/[0.06] bg-bg-main/40 px-3.5 py-3">
                         <div className="min-w-0">
-                            <p className="text-[0.8125rem] font-medium text-[#fafafa]">Enviar de forma anónima</p>
+                            <p className="text-[0.8125rem] font-medium text-[#fafafa]">
+                                Enviar de forma anónima
+                            </p>
                             <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
                                 {isAnonymous
-                                    ? 'Tu mensaje se enviará de forma totalmente anónima.'
-                                    : 'Incluiremos tu usuario por si necesitamos contactarte.'}
+                                    ? 'No incluiremos Twitch ni Discord.'
+                                    : 'Incluiremos tu identidad por si necesitamos contactarte.'}
                             </p>
                         </div>
                         <button
@@ -125,6 +159,57 @@ export function FeedbackView() {
                             </div>
                         </button>
                     </div>
+
+                    {!isAnonymous ? (
+                        <div className="rounded-lg border border-white/[0.06] bg-bg-main/40 px-3.5 py-3">
+                            <p className="text-[0.8125rem] font-medium text-[#fafafa]">
+                                Enviar como
+                            </p>
+                            {discordLinked ? (
+                                <div
+                                    className="mt-2.5 grid grid-cols-2 gap-2"
+                                    role="radiogroup"
+                                    aria-label="Identidad del feedback"
+                                >
+                                    <button
+                                        type="button"
+                                        role="radio"
+                                        aria-checked={identity === 'twitch'}
+                                        onClick={() => setIdentity('twitch')}
+                                        className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-[0.8125rem] font-semibold transition ${
+                                            identity === 'twitch'
+                                                ? 'border-[#9146ff]/50 bg-[#9146ff]/15 text-[#fafafa]'
+                                                : 'border-white/[0.08] bg-transparent text-[#c4c4cc] hover:border-white/20 hover:bg-white/[0.04]'
+                                        }`}
+                                    >
+                                        <TwitchIcon className="h-4 w-4" />
+                                        <span className="min-w-0 truncate">Twitch · {twitchLabel}</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        role="radio"
+                                        aria-checked={identity === 'discord'}
+                                        onClick={() => setIdentity('discord')}
+                                        className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-[0.8125rem] font-semibold transition ${
+                                            identity === 'discord'
+                                                ? 'border-[#5865F2]/50 bg-[#5865F2]/15 text-[#fafafa]'
+                                                : 'border-white/[0.08] bg-transparent text-[#c4c4cc] hover:border-white/20 hover:bg-white/[0.04]'
+                                        }`}
+                                    >
+                                        <DiscordIcon className="h-4 w-4 text-[#5865F2]" />
+                                        <span className="min-w-0 truncate">Discord · @{discordLabel}</span>
+                                    </button>
+                                </div>
+                            ) : (
+                                <p className="mt-1.5 text-[0.75rem] leading-snug text-[#8b8b93]">
+                                    Se enviará con tu cuenta de Twitch. Vincula Discord en{' '}
+                                    <strong className="text-[#c4c4cc]">Ajustes → Conexiones</strong> si
+                                    quieres elegir Discord.
+                                </p>
+                            )}
+                            <p className="mt-2 text-[0.75rem] leading-snug text-[#8b8b93]">{sendAsHint}</p>
+                        </div>
+                    ) : null}
 
                     <div className="flex items-center justify-between gap-4 border-t border-white/[0.06] pt-4 max-[600px]:flex-col max-[600px]:items-stretch">
                         <p className="inline-flex items-start gap-1.5 text-[0.75rem] text-[#71717a]">
