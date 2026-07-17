@@ -1,10 +1,7 @@
-import { useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
-import { buildAuthQueryParam } from '@/core/api/authQuery';
-import { fetchRevealApiKey } from '@/core/api/auth';
-import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { COMMAND_CONFIG } from '@/features/commands/lib/config';
 import { useCommandTestField, useCommandTestResult } from '@/features/commands/hooks/useCommandStore';
+import { buildCommandTestUrl, useCommandApiTest } from '@/features/commands/hooks/useCommandApiTest';
 import { useRequiredSession } from '@/core/session/useSession';
 import { ApiTestCard, CommandGeneratorCard, FormField } from './CommandGeneratorCard';
 import { fadeIn } from '@/core/utils/tw';
@@ -20,14 +17,17 @@ function toApiTestResult(
     return { status: 'idle' as const, message: '' };
 }
 
+const followageErrorPattern =
+    /no existe en Twitch|no sigue a|No se puede consultar|No se pudo consultar|Twitch no está disponible/i;
+
 export function FollowageView() {
     const session = useRequiredSession();
     const [channel, setChannel] = useCommandTestField('followage', 'channel', session.login ?? '');
     const [user, setUser] = useCommandTestField('followage', 'user', '');
     const [storedResult, setStoredResult] = useCommandTestResult('followage-test');
-    const [loading, setLoading] = useState(false);
+    const { loading, runTest } = useCommandApiTest(setStoredResult);
 
-    const runTest = async () => {
+    const handleTest = async () => {
         if (!channel.trim() || !user.trim()) {
             setStoredResult({
                 status: 'error',
@@ -36,30 +36,15 @@ export function FollowageView() {
             return;
         }
 
-        setLoading(true);
-
-        try {
-            const { apiKey } = await fetchRevealApiKey();
-            const tokenParam = buildAuthQueryParam({ apiKey });
-            const buildUrl = () =>
-                `${window.location.origin}${API_ENDPOINTS.BASE}/followage/?user=${encodeURIComponent(user)}&channel=${encodeURIComponent(channel)}&_nocache=${Date.now()}&${tokenParam}`;
-
-            const response = await fetchWithRetry(buildUrl());
-
-            const text = await response.text();
-            const isFollowageError =
-                /no existe en Twitch|no sigue a|No se puede consultar|No se pudo consultar|Twitch no está disponible/i.test(
-                    text
-                );
-            setStoredResult({
-                status: response.ok && !isFollowageError ? 'success' : 'error',
-                message: text
-            });
-        } catch {
-            setStoredResult({ status: 'error', message: 'Error de conexión' });
-        } finally {
-            setLoading(false);
-        }
+        await runTest({
+            buildUrl: (apiKey) =>
+                buildCommandTestUrl(
+                    `${API_ENDPOINTS.BASE}/followage/`,
+                    { user, channel },
+                    apiKey
+                ),
+            validateResponse: (text, responseOk) => responseOk && !followageErrorPattern.test(text)
+        });
     };
 
     return (
@@ -69,7 +54,7 @@ export function FollowageView() {
                 title="Prueba la API"
                 description="Verifica que todo funcione correctamente"
                 infoTooltip="Simula una petición manual a la API. Útil para verificar si un usuario existe."
-                onTest={runTest}
+                onTest={handleTest}
                 result={toApiTestResult(loading, storedResult)}
             >
                 <FormField value={channel} onChange={setChannel} placeholder="Canal" />
@@ -84,9 +69,9 @@ export function ShoutoutView() {
     const [channel, setChannel] = useCommandTestField('shoutout', 'channel', session.login ?? '');
     const [touser, setTouser] = useCommandTestField('shoutout', 'touser', '');
     const [storedResult, setStoredResult] = useCommandTestResult('shoutout-test');
-    const [loading, setLoading] = useState(false);
+    const { loading, runTest } = useCommandApiTest(setStoredResult);
 
-    const runTest = async () => {
+    const handleTest = async () => {
         const channelVal = channel.trim() || session.login || '';
         const target = touser.trim();
 
@@ -98,26 +83,14 @@ export function ShoutoutView() {
             return;
         }
 
-        setLoading(true);
-
-        try {
-            const { apiKey } = await fetchRevealApiKey();
-            const tokenParam = buildAuthQueryParam({ apiKey });
-            const buildUrl = () =>
-                `${window.location.origin}${API_ENDPOINTS.BASE}/shoutout/?channel=${encodeURIComponent(channelVal)}&touser=${encodeURIComponent(target)}&_nocache=${Date.now()}&${tokenParam}`;
-
-            const response = await fetchWithRetry(buildUrl());
-
-            const text = await response.text();
-            setStoredResult({
-                status: response.ok ? 'success' : 'error',
-                message: text
-            });
-        } catch {
-            setStoredResult({ status: 'error', message: 'Error de conexión' });
-        } finally {
-            setLoading(false);
-        }
+        await runTest({
+            buildUrl: (apiKey) =>
+                buildCommandTestUrl(
+                    `${API_ENDPOINTS.BASE}/shoutout/`,
+                    { channel: channelVal, touser: target },
+                    apiKey
+                )
+        });
     };
 
     return (
@@ -125,14 +98,13 @@ export function ShoutoutView() {
             <CommandGeneratorCard config={COMMAND_CONFIG.shoutout} />
             <ApiTestCard
                 title="Prueba el Shoutout"
-                description="Previsualiza el mensaje antes de usarlo en directo"
-                infoTooltip="Llama directamente a la API con el canal destino y muestra el mensaje de shoutout real, incluido el juego actual."
-                onTest={runTest}
+                description="Verifica que el shoutout funcione correctamente"
+                infoTooltip="Simula una petición manual a la API de shoutout."
+                onTest={handleTest}
                 result={toApiTestResult(loading, storedResult)}
-                buttonLabel="Probar Shoutout"
             >
-                <FormField value={channel} onChange={setChannel} placeholder="Tu canal" />
-                <FormField value={touser} onChange={setTouser} placeholder="Canal a shoutoutear" />
+                <FormField value={channel} onChange={setChannel} placeholder="Canal" />
+                <FormField value={touser} onChange={setTouser} placeholder="Usuario destino" />
             </ApiTestCard>
         </div>
     );

@@ -9,10 +9,17 @@ import { isPublicRoute, isApiRoute, isJsonApiRoute, isOAuthCallbackRoute } from 
 import { safeString } from '../utils/validationHelpers';
 import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 import { jsonError } from '../utils/jsonResponse';
-import { blockIfUnauthorizedScanExceeded } from './redisRateLimiter';
 import { readSessionUserId, clearSessionCookie } from '../utils/sessionCookie';
 import { getValidTokenForUser } from '../../features/auth/auth.service';
-import { AppError } from '../errors/AppError';
+import {
+    type CookieResolveResult,
+    isAuthCookieError,
+    isTransientCookieError,
+    rejectInactiveUser,
+    rejectUnauthorized,
+    respondAuthServiceUnavailable,
+    respondSessionUnavailable
+} from './authMiddleware.helpers';
 
 const CACHE_TTL = 10 * 60 * 1000;
 const TOKEN_VALIDATION_TTL = 10 * 60 * 1000;
@@ -23,65 +30,6 @@ const invalidTokensCache = new NegativeCache<string>(30 * 1000);
 const lastActiveThrottle = new BoundedMap<string, number>(1000);
 const pendingUserDbRequests = new BoundedMap<string, Promise<StoredUser | null>>(500);
 
-type CookieResolveResult =
-    | { status: 'ok'; user: StoredUser }
-    | { status: 'missing' }
-    | { status: 'transient' };
-
-function isAuthCookieError(error: unknown): boolean {
-    const err = error as AppError | Error;
-    const statusCode = err instanceof AppError ? err.statusCode : undefined;
-    const message = err.message ?? '';
-    return (
-        statusCode === 401 ||
-        message.includes('inv?lid') ||
-        message.includes('expirad') ||
-        message.includes('Sesi?n expirada')
-    );
-}
-
-function isTransientCookieError(error: unknown): boolean {
-    if (isAuthCookieError(error)) return false;
-    const message = (error as Error).message ?? '';
-    return (
-        message.includes('fetch failed') ||
-        message.includes('ECONN') ||
-        message.includes('ETIMEDOUT') ||
-        message.includes('timeout') ||
-        message.includes('network')
-    );
-}
-
-function respondSessionUnavailable(res: Response, req: AuthenticatedRequest): Response {
-    if (isJsonApiRoute(req.path)) {
-        return jsonError(res, 503, 'No se pudo verificar la sesi?n. Intenta de nuevo en unos segundos.', {
-            code: 'SERVICE_UNAVAILABLE',
-            details: { offline: true }
-        });
-    }
-    if (isApiRoute(req.path)) {
-        res.setHeader('Content-Type', 'text/plain');
-        return res
-            .status(503)
-            .send('Servicio de autenticaci?n no disponible. Intenta de nuevo.');
-    }
-    return jsonError(res, 503, 'No se pudo verificar la sesi?n. Intenta de nuevo en unos segundos.', {
-        code: 'SERVICE_UNAVAILABLE',
-        details: { offline: true }
-    });
-}
-
-function rejectInactiveUser(res: Response, path: string): Response {
-    if (isJsonApiRoute(path)) {
-        return jsonError(res, 403, 'Cuenta suspendida.', { code: 'ACCOUNT_SUSPENDED' });
-    }
-    if (isApiRoute(path)) {
-        res.setHeader('Content-Type', 'text/plain');
-        return res.status(403).send('Cuenta suspendida.');
-    }
-    return jsonError(res, 403, 'Cuenta suspendida.', { code: 'ACCOUNT_SUSPENDED' });
-}
-
 const throttledUpdateLastActive = (userId: string) => {
     const now = Date.now();
     const lastUpdate = lastActiveThrottle.get(userId);
@@ -91,19 +39,6 @@ const throttledUpdateLastActive = (userId: string) => {
     dbService.updateLastActive(userId).catch((err) => {
         logger.error('Error updating last active:', err);
     });
-};
-
-const requestPath = (req: AuthenticatedRequest) => req.originalUrl?.split('?')[0] || req.path;
-
-const rejectUnauthorized = async (
-    req: AuthenticatedRequest,
-    res: Response,
-    respond: () => Response
-): Promise<Response> => {
-    if (await blockIfUnauthorizedScanExceeded(req, res, requestPath(req))) {
-        return res;
-    }
-    return respond();
 };
 
 async function tryResolveCookieSession(
@@ -214,7 +149,7 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         if (!token && req.headers.authorization?.startsWith('Bearer ')) {
             token = req.headers.authorization.split(' ')[1];
         } else if (safeString(req.query.token) || safeString(req.body?.token)) {
-            logger.warn('[Security] Token OAuth recibido en query/body ? usar Authorization: Bearer');
+            logger.warn('[Security] Token OAuth recibido en query/body (deprecado) — usar Authorization: Bearer');
         }
 
         if (!token) {
@@ -288,25 +223,15 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
                         (e as Error).message
                     );
                     if (isJsonApiRoute(req.path)) {
-                        return jsonError(
-                            res,
-                            503,
-                            'No se pudo verificar la sesi?n. Intenta de nuevo en unos segundos.',
-                            { code: 'SERVICE_UNAVAILABLE' }
-                        );
+                        return respondAuthServiceUnavailable(res, req.path);
                     }
                     if (isApiRoute(req.path)) {
                         res.setHeader('Content-Type', 'text/plain');
                         return res
                             .status(503)
-                            .send('Servicio de autenticaci?n no disponible. Intenta de nuevo.');
+                            .send('Servicio de autenticación no disponible. Intenta de nuevo.');
                     }
-                    return jsonError(
-                        res,
-                        503,
-                        'No se pudo verificar la sesi?n. Intenta de nuevo en unos segundos.',
-                        { code: 'SERVICE_UNAVAILABLE' }
-                    );
+                    return respondAuthServiceUnavailable(res, req.path);
                 }
             }
         }
@@ -362,25 +287,15 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
     } catch (e) {
         logger.error('Error Middleware Auth:', e);
         if (isJsonApiRoute(req.path)) {
-            return jsonError(
-                res,
-                503,
-                'No se pudo verificar la sesi?n. Intenta de nuevo en unos segundos.',
-                { code: 'SERVICE_UNAVAILABLE' }
-            );
+            return respondAuthServiceUnavailable(res, req.path);
         }
         if (isApiRoute(req.path)) {
             res.setHeader('Content-Type', 'text/plain');
             return res
                 .status(503)
-                .send('Servicio de autenticaci?n no disponible. Intenta de nuevo.');
+                .send('Servicio de autenticación no disponible. Intenta de nuevo.');
         }
-        return jsonError(
-            res,
-            503,
-            'No se pudo verificar la sesi?n. Intenta de nuevo en unos segundos.',
-            { code: 'SERVICE_UNAVAILABLE' }
-        );
+        return respondAuthServiceUnavailable(res, req.path);
     }
 };
 
@@ -395,7 +310,7 @@ export const invalidateAuthCache = (
     }
 };
 
-/** Quita el flag temporal de revocaci?n (p. ej. tras login fresco). */
+/** Quita el flag temporal de revocación (p. ej. tras login fresco). */
 export const unrevokeAuthSession = async (userId: string): Promise<void> => {
     await cacheService.del(`auth:revoke:user:${userId}`);
 };

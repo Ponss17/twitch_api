@@ -108,9 +108,14 @@ export const exchange = async (req: Request, res: Response) => {
         return jsonError(res, 401, 'Sesión inválida o expirada.', { code: 'INVALID_AUTH' });
     }
 
-    const consumed = await authService.consumeAuthExchangeToken(auth);
-    if (!consumed) {
+    const consumeResult = await authService.consumeAuthExchangeToken(auth);
+    if (consumeResult === 'replay') {
         return jsonError(res, 401, 'Token de sesión ya utilizado.', { code: 'AUTH_ALREADY_USED' });
+    }
+    if (consumeResult === 'unavailable') {
+        return jsonError(res, 503, 'Servicio temporalmente no disponible. Intenta de nuevo.', {
+            code: 'SERVICE_UNAVAILABLE'
+        });
     }
 
     setSessionCookie(res, payload.userId);

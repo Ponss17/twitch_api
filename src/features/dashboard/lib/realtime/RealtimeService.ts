@@ -84,7 +84,7 @@ export class RealtimeService {
 
             if (!response.ok) {
                 if (response.status === 401) {
-                    window.dispatchEvent(new CustomEvent('realtime:auth-failed'));
+                    window.dispatchEvent(new CustomEvent('session:auth-failed'));
                 }
                 return null;
             }

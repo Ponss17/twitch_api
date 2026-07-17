@@ -11,12 +11,12 @@ import { activityEntryKey, type ActivityLogItem } from '@/features/dashboard/lib
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { dispatchDashboardDataReady } from '@/features/dashboard/lib/dashboardPanelEvents';
 import { consumeHomeDataResetPending } from '@/features/dashboard/lib/dashboardSync';
+import type { DashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
 
 export function useDashboardPanelState(session: Session) {
     const [stats, setStats] = useState<DashboardLiveStats>(EMPTY_DASHBOARD_LIVE_STATS);
     const [activity, setActivity] = useState<ActivityLogItem[]>([]);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [profile, setProfile] = useState<any>(null);
+    const [profile, setProfile] = useState<DashboardProfile | null>(null);
     const [hasLiveData, setHasLiveData] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [syncing, setSyncing] = useState(false);

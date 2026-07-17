@@ -63,7 +63,7 @@ export async function apiFetch<T>(
 
             const shouldLogout =
                 lastResponse.status === 401 && options.logoutOn401 !== false && !inGrace;
-            if (lastResponse.status === 401 && !inGrace) {
+            if (lastResponse.status === 401 && !inGrace && options.logoutOn401 !== false) {
                 clearValidateCache(getSession());
                 clearSessionAuthGrace();
                 window.dispatchEvent(new CustomEvent('session:auth-failed'));

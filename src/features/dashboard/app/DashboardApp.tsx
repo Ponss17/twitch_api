@@ -28,7 +28,7 @@ function DashboardPanelShell({
 }) {
     const session = useRequiredSession();
     const { showToast } = useToast();
-    const panelActive = tab === 'home' || tab === 'analytics';
+    const panelActive = true;
 
     return (
         <DashboardPanelProvider active={panelActive} session={session} showToast={showToast}>

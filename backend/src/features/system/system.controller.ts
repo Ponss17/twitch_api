@@ -134,7 +134,9 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
             );
         } catch (err) {
             logger.error('Error fetching supplementary user info:', err);
-            return res.json({ valid: true, user: { login: validation.login } });
+            return jsonError(res, 503, 'No se pudo cargar el perfil completo. Intenta de nuevo.', {
+                code: 'SERVICE_UNAVAILABLE'
+            });
         }
     } catch (error) {
         logger.error('validateToken unexpected error:', error);

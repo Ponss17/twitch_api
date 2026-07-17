@@ -18,6 +18,8 @@ const REQUIRED_VARS = [
 
 const KV_VARS = ['KV_REST_API_URL', 'KV_REST_API_TOKEN'];
 
+const PROD_RECOMMENDED_VARS = ['HMAC_SIGNING_SECRET'];
+
 if (!fs.existsSync(envPath)) {
     console.error('❌ No se encontró .env en twitch_api/');
     console.log('');
@@ -54,6 +56,18 @@ for (const key of KV_VARS) {
         }
     }
 }
+
+for (const key of PROD_RECOMMENDED_VARS) {
+    if (!envConfig[key]?.trim()) {
+        if (isProd) {
+            console.error(`❌ Faltante en producción: ${key} (firma HMAC de tokens de sesión)`);
+            hasError = true;
+        } else {
+            console.warn(`⚠️  ${key} no configurado — se usará TWITCH_CLIENT_SECRET como fallback en dev`);
+        }
+    }
+}
+
 if (hasError) {
     console.log('\n❌ Completa las variables en .env antes de arrancar la API.');
     process.exit(1);

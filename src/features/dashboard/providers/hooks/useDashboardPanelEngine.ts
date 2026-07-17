@@ -1,13 +1,12 @@
 ﻿import { useEffect, useRef, useCallback } from 'react';
 import type { Session } from '@/core/config/config';
-import { appPath } from '@/core/config/paths';
 import { TabSyncService } from '@/features/dashboard/lib/tabSyncService';
 import { useDashboardRealtime } from '@/features/dashboard/hooks/useDashboardRealtime';
 import { formatFetchErrorForUi, isFetchNetworkError } from '@/core/api/apiError';
 import { logError } from '@/core/logging/logError';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
-import { isWithinSessionAuthGrace } from '@/core/auth/sessionAuthGrace';
 import { loadDashboardPanelData } from '@/features/dashboard/lib/loadDashboardPanelData';
+import type { DashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
 import {
     DASHBOARD_FALLBACK_POLL_MS,
     DASHBOARD_POLL_MS,
@@ -47,8 +46,6 @@ export function useDashboardPanelEngine({
     const panelBootstrappedRef = useRef(false);
     const panelFetchInFlightRef = useRef(false);
     const syncingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const authRedirectTimerRef = useRef<number | null>(null);
-
     const activeRef = useRef(active);
     activeRef.current = active;
     const sessionRef = useRef(session);
@@ -363,7 +360,9 @@ export function useDashboardPanelEngine({
             actionsRef.current.setActivity(payload as unknown as never[]);
             actionsRef.current.markDataReady();
         });
-        sync.on('SYNC_PROFILE', (payload) => actionsRef.current.setProfile(payload));
+        sync.on('SYNC_PROFILE', (payload) =>
+            actionsRef.current.setProfile(payload as DashboardProfile)
+        );
         sync.on('SYNC_STATS', (payload) => {
             actionsRef.current.handleRealtimeStats(payload as unknown as never);
             if (!sync.getIsLeader() && !refsBag.current.isRealtimeLiveRef.current) {
@@ -383,15 +382,6 @@ export function useDashboardPanelEngine({
         };
         document.addEventListener('visibilitychange', onVisible);
 
-        const onAuthFailed = () => {
-            if (isWithinSessionAuthGrace()) return;
-            showToastRef.current('Sesion expirada. Redirigiendo al login...', 'error');
-            authRedirectTimerRef.current = window.setTimeout(() => {
-                window.location.href = appPath('/');
-            }, 2000);
-        };
-        window.addEventListener('realtime:auth-failed', onAuthFailed);
-
         actionsRef.current.setIsTabLeader(sync.getIsLeader());
         if (!refsBag.current.isRealtimeLiveRef.current) {
             startSmartPollingRef.current();
@@ -399,11 +389,9 @@ export function useDashboardPanelEngine({
 
         return () => {
             document.removeEventListener('visibilitychange', onVisible);
-            window.removeEventListener('realtime:auth-failed', onAuthFailed);
             if (pollRef.current) clearInterval(pollRef.current);
             pollRef.current = null;
             if (syncingTimerRef.current) clearTimeout(syncingTimerRef.current);
-            if (authRedirectTimerRef.current) clearTimeout(authRedirectTimerRef.current);
             for (const timer of highlightTimers.values()) {
                 clearTimeout(timer);
             }

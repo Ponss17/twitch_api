@@ -9,6 +9,8 @@ import { logger } from '../../core/utils/logger';
 import { BoundedMap } from '../../core/utils/boundedCache';
 import { AppError } from '../../core/errors/AppError';
 import { MESSAGES } from '../../core/config/messages';
+import { overlayRevokeKey } from '../dashboard/overlay/keys';
+import { getHmacSecrets, getPrimaryHmacSecret } from '../../core/utils/hmacSecrets';
 
 const overlayTokenCache = new BoundedMap<string, { payload: OverlayReadPayload; expiry: number }>(200);
 const OVERLAY_TOKEN_CACHE_MS = 5 * 60 * 1000;
@@ -17,20 +19,11 @@ const TWITCH_AUTH_URL = 'https://id.twitch.tv/oauth2';
 const TWITCH_API_URL = 'https://api.twitch.tv/helix';
 const STATE_TTL_MS = 10 * 60 * 1000;
 
-function getHmacSecrets(): string[] {
-    const current = CONFIG.HMAC_SIGNING_SECRET ?? (CONFIG.TWITCH_CLIENT_SECRET as string);
-    const prev = process.env.PREVIOUS_HMAC_SIGNING_SECRET?.trim();
-    if (prev && prev !== current && prev.length >= 32) {
-        return [current, prev];
-    }
-    return [current];
-}
-
 const signState = (payload: object): string => {
     const data = Buffer.from(
         JSON.stringify({ ...payload, exp: Date.now() + STATE_TTL_MS })
     ).toString('base64');
-    const secret = getHmacSecrets()[0];
+    const secret = getPrimaryHmacSecret();
     const sig = crypto.createHmac('sha256', secret).update(data).digest('hex');
     return `${data}.${sig}`;
 };
@@ -73,28 +66,38 @@ function authExchangeBurnHash(token: string): string {
     return crypto.createHash('sha256').update(token).digest('hex');
 }
 
-/** Canje único del token HMAC post-OAuth. false = ya canjeado (replay). */
-export async function consumeAuthExchangeToken(token: string): Promise<boolean> {
+/** Canje único del token HMAC post-OAuth. */
+export type AuthExchangeConsumeResult = 'ok' | 'replay' | 'unavailable';
+
+/** Canje único del token HMAC post-OAuth. */
+export async function consumeAuthExchangeToken(token: string): Promise<AuthExchangeConsumeResult> {
     const hash = authExchangeBurnHash(token);
     const memExpiry = authExchangeBurnMemory.get(hash);
     if (memExpiry && memExpiry > Date.now()) {
-        return false;
+        return 'replay';
     }
     if (memExpiry) authExchangeBurnMemory.delete(hash);
 
     const kvKey = `auth:exchange:burn:${hash}`;
     const ttlSec = Math.ceil(AUTH_EXCHANGE_TTL_MS / 1000);
     const claimed = await cacheService.setIfAbsent(kvKey, '1', ttlSec);
-    if (!claimed) {
+
+    if (claimed === 'unavailable') {
+        if (process.env.NODE_ENV === 'production') {
+            return 'unavailable';
+        }
         authExchangeBurnMemory.set(hash, Date.now() + AUTH_EXCHANGE_TTL_MS);
-        return false;
+        return 'ok';
+    }
+
+    if (claimed === 'exists') {
+        authExchangeBurnMemory.set(hash, Date.now() + AUTH_EXCHANGE_TTL_MS);
+        return 'replay';
     }
 
     authExchangeBurnMemory.set(hash, Date.now() + AUTH_EXCHANGE_TTL_MS);
-    return true;
+    return 'ok';
 }
-
-export const overlayRevokeKey = (userId: string): string => `cache:overlay:revoke:${userId}`;
 
 export interface AuthExchangePayload {
     apiKey: string;
@@ -107,7 +110,7 @@ export interface AuthExchangePayload {
 export const signAuthExchange = (payload: AuthExchangePayload): string => {
     const data = { ...payload, exp: Date.now() + AUTH_EXCHANGE_TTL_MS };
     const encoded = Buffer.from(JSON.stringify(data)).toString('base64url');
-    const secret = getHmacSecrets()[0];
+    const secret = getPrimaryHmacSecret();
     const sig = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
     return `${encoded}.${sig}`;
 };
@@ -131,7 +134,7 @@ export const signOverlayReadToken = (payload: OverlayReadPayload): string => {
         exp: iat + OVERLAY_READ_TTL_MS
     };
     const encoded = Buffer.from(JSON.stringify(data)).toString('base64url');
-    const secret = getHmacSecrets()[0];
+    const secret = getPrimaryHmacSecret();
     const sig = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
     return `${encoded}.${sig}`;
 };
