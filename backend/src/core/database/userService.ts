@@ -37,7 +37,8 @@ export const invalidateUserMemoryCache = (userId: string): void => {
 
 
 
-const isAlreadyEncrypted = (val: string) => val.startsWith('gcm:') || isCbcFormat(val);
+const isAlreadyEncrypted = (val?: string | null) =>
+    !!val && (val.startsWith('gcm:') || isCbcFormat(val));
 
 function decryptTokenWithFallback(token: string): { plaintext: string; needsMigration: boolean } {
     const wasCbc = isCbcFormat(token);
@@ -164,7 +165,7 @@ function rememberUserCaches(user: StoredUser): void {
 
 /** Garantiza tokens en claro al servir desde caché (evita Bearer gcm:... a Twitch). */
 async function ensurePlaintextUser(user: StoredUser, context: string): Promise<StoredUser | null> {
-    if (!isAlreadyEncrypted(user.accessToken) && !isAlreadyEncrypted(user.refreshToken || '')) {
+    if (!isAlreadyEncrypted(user.accessToken) && !isAlreadyEncrypted(user.refreshToken)) {
         return user;
     }
     return decryptAndMigrateIfNeeded(user, context);
