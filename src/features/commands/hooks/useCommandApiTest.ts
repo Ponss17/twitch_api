@@ -19,7 +19,7 @@ export function useCommandApiTest(
     const [loading, setLoading] = useState(false);
     const requestIdRef = useRef(0);
 
-    const runTest = async (options: UseCommandApiTestOptions) => {
+    const runTest = async (options: UseCommandApiTestOptions): Promise<void> => {
         const requestId = ++requestIdRef.current;
         setLoading(true);
 
