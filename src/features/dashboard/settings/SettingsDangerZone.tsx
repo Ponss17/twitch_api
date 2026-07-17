@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { AlertTriangle, Trash2, RotateCcw, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, Trash2, RotateCcw } from 'lucide-react';
 import { SettingsGroup, SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
 
 interface SettingsDangerZoneProps {
@@ -15,7 +15,6 @@ export const SettingsDangerZone = forwardRef<HTMLDivElement, SettingsDangerZoneP
         return (
             <SettingsGroup
                 ref={ref}
-                icon={ShieldAlert}
                 title="Zona de Peligro"
                 description="Acciones irreversibles — procede con precaución"
                 accent="error"
@@ -24,6 +23,7 @@ export const SettingsDangerZone = forwardRef<HTMLDivElement, SettingsDangerZoneP
                 <SettingsRow
                     icon={RotateCcw}
                     accent="error"
+                    iconAccent="error"
                     title="Reiniciar Estadísticas"
                     description="Borra todo el historial de comandos, clips, latencia y gráficas de analytics. Tu API Key seguirá activa."
                     control={
@@ -40,6 +40,7 @@ export const SettingsDangerZone = forwardRef<HTMLDivElement, SettingsDangerZoneP
                 <SettingsRow
                     icon={AlertTriangle}
                     accent="error"
+                    iconAccent="error"
                     title="Eliminar Cuenta"
                     description={
                         <>

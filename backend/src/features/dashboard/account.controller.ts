@@ -1,4 +1,4 @@
-﻿import { Response } from 'express';
+import { Response } from 'express';
 import * as dbService from '../../core/database/dbService';
 import * as cacheService from '../../core/database/cacheService';
 import * as apiService from '../twitch/twitch.service';

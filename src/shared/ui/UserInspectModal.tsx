@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { SlotText } from 'slot-text/react';
 import { BaseModal } from '@/shared/ui/Modal';
 import type { ChatLogItem } from '@/features/chat/lib/chatLogStore';
 import { chatLogStore } from '@/features/chat/lib/chatLogStore';
@@ -7,7 +6,6 @@ import { calculateAccountAge, broadcasterLabel, type TwitchUser } from '@/core/t
 import { formatDate } from '@/core/utils/utils';
 import { staticPath } from '@/core/config/paths';
 import { X, Check, Copy } from 'lucide-react';
-
 
 interface UserInspectModalProps {
     user: TwitchUser | null;
@@ -94,7 +92,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                         >
                             {user.id}
                             {isIdCopied ? <Check className="text-primary" /> : <Copy className="w-4 h-4" />}
-                            <SlotText text={isIdCopied ? 'Copiado' : ''} />
+                            {isIdCopied ? <span className="text-[0.75rem] text-primary">Copiado</span> : null}
                         </button>
                     </div>
                     <div className="flex flex-col gap-1 text-left">

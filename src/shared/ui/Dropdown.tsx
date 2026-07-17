@@ -13,6 +13,7 @@ import {
     type Ref
 } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { hoverSubtleChip, hoverSubtleControl } from '@/core/utils/tw';
 
 interface DropdownContextValue {
     open: boolean;
@@ -31,7 +32,7 @@ function useDropdown(): DropdownContextValue {
 }
 
 export const dropdownTriggerCompact =
-    'flex min-w-[9.5rem] max-w-[11.5rem] items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 py-1.5 text-[0.75rem] font-medium text-[#fafafa] transition hover:border-primary/30 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-50';
+    `flex min-w-[9.5rem] max-w-[11.5rem] items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 py-1.5 text-[0.75rem] font-medium text-[#fafafa] disabled:cursor-not-allowed disabled:opacity-50 ${hoverSubtleControl}`;
 
 const panelBase =
     'absolute top-[calc(100%+8px)] animate-fade-soft overflow-hidden border border-primary/20 bg-[#121214] shadow-lg';
@@ -183,7 +184,7 @@ export function DropdownItem({
     const tone =
         variant === 'danger'
             ? 'text-error hover:bg-error/10'
-            : 'text-[#c4c4cc] hover:bg-primary/10 hover:text-[#fafafa]';
+            : `text-[#c4c4cc] ${hoverSubtleChip} hover:text-[#d4d4d8]`;
 
     return (
         <button
@@ -215,7 +216,7 @@ export function DropdownLink({
 
     return (
         <a
-            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#c4c4cc] no-underline transition hover:bg-primary/10 hover:text-[#fafafa] ${className}`.trim()}
+            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#c4c4cc] no-underline ${hoverSubtleChip} hover:text-[#d4d4d8] ${className}`.trim()}
             onClick={(e) => {
                 if (closeOnClick) close();
                 onClick?.(e);
@@ -248,8 +249,8 @@ export function DropdownCheckboxItem({
 }: DropdownCheckboxItemProps) {
     return (
         <label
-            className={`flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-[0.75rem] transition hover:bg-primary/10 ${
-                emphasis ? 'font-semibold text-[#fafafa]' : 'font-medium text-[#c4c4cc] hover:text-[#fafafa]'
+            className={`flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-[0.75rem] ${hoverSubtleChip} ${
+                emphasis ? 'font-semibold text-[#fafafa]' : 'font-medium text-[#c4c4cc] hover:text-[#d4d4d8]'
             } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`.trim()}
         >
             <input

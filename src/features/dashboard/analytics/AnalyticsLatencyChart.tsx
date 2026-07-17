@@ -1,8 +1,7 @@
 import React from 'react';
 import { Timer } from 'lucide-react';
 import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { InfoTooltip } from '@/shared/ui/InfoTooltip';
-import { ChartMountGate, COLORS } from './AnalyticsShared';
+import { ChartMountGate, COLORS, AnalyticsSection } from './AnalyticsShared';
 
 interface AnalyticsLatencyChartProps {
     active: boolean;
@@ -12,33 +11,41 @@ interface AnalyticsLatencyChartProps {
 
 export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChartProps) {
     return (
-        <div className="flex flex-col rounded-xl border border-white/[0.08] bg-bg-card p-6 transition-colors duration-200 hover:border-primary/50 h-full">
-            <div className="mb-6 border-b border-white/[0.08] pb-4">
-                <div className="flex items-center justify-between gap-3">
-                    <div>
-                        <h2 className="text-lg font-semibold text-[#fafafa]">Comparativa de Latencia</h2>
-                        <p className="mt-1 text-[0.8rem] text-[#c4c4cc]">Promedio por comando</p>
-                    </div>
-                    <InfoTooltip text="Tiempo promedio que le toma a tu servidor procesar cada comando específico." />
-                </div>
-            </div>
+        <AnalyticsSection
+            panelClassName="min-h-[360px]"
+            title="Latencia por comando"
+            info="Promedio en milisegundos que tarda cada comando en responder."
+        >
             {pieData.length === 0 || pieData.every((d) => d.avgLatency === 0) ? (
-                <div className="mt-4 flex flex-1 min-h-[280px] w-full flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/5 mb-3">
+                <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
                         <Timer className="h-6 w-6 text-zinc-500" />
                     </div>
                     <span className="text-sm font-medium text-zinc-400">Sin datos de latencia</span>
-                    <span className="mt-1 text-xs text-zinc-500">Espera a que lleguen nuevas peticiones</span>
+                    <span className="mt-1 text-xs text-zinc-500">
+                        Espera a que lleguen nuevas peticiones
+                    </span>
                 </div>
             ) : (
                 <ChartMountGate
                     active={active}
-                    className="relative flex-1 min-h-[280px] w-full min-w-0"
+                    className="relative min-h-0 w-full min-w-0 flex-1"
                     srLabel="Gráfico de barras mostrando la latencia promedio por comando."
                 >
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                        <BarChart data={pieData} layout="vertical" margin={{ top: 0, right: 30, left: 20, bottom: 0 }} accessibilityLayer={false}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.05} horizontal={true} vertical={true} />
+                        <BarChart
+                            data={pieData}
+                            layout="vertical"
+                            margin={{ top: 0, right: 30, left: 20, bottom: 0 }}
+                            accessibilityLayer={false}
+                        >
+                            <CartesianGrid
+                                strokeDasharray="3 3"
+                                stroke="#ffffff"
+                                strokeOpacity={0.05}
+                                horizontal={true}
+                                vertical={true}
+                            />
                             <XAxis
                                 type="number"
                                 stroke="#71717a"
@@ -49,9 +56,22 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                 tickFormatter={(val) => `${val}ms`}
                                 domain={[0, (dataMax: number) => (dataMax === 0 ? 10 : dataMax)]}
                             />
-                            <YAxis type="category" dataKey="name" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={{ stroke: '#ffffff', strokeOpacity: 0.3, strokeWidth: 1.5 }} className="capitalize" />
+                            <YAxis
+                                type="category"
+                                dataKey="name"
+                                stroke="#a1a1aa"
+                                fontSize={12}
+                                tickLine={false}
+                                axisLine={{ stroke: '#ffffff', strokeOpacity: 0.3, strokeWidth: 1.5 }}
+                                className="capitalize"
+                            />
                             <Tooltip
-                                contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px', color: '#fafafa' }}
+                                contentStyle={{
+                                    backgroundColor: '#18181b',
+                                    border: '1px solid #27272a',
+                                    borderRadius: '12px',
+                                    color: '#fafafa'
+                                }}
                                 itemStyle={{ color: '#fafafa', fontWeight: 500 }}
                                 // @ts-expect-error - Recharts Tooltip types are complex and generic
                                 formatter={(value: number | string | undefined) => {
@@ -60,25 +80,29 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                 }}
                                 cursor={false}
                             />
-                            <Bar dataKey="avgLatency" name="Latencia" maxBarSize={16} 
+                            <Bar
+                                dataKey="avgLatency"
+                                name="Latencia"
+                                maxBarSize={16}
                                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 shape={(props: any) => {
-                                const color = COLORS[props.index % COLORS.length];
-                                return (
-                                    <Rectangle 
-                                        {...props} 
-                                        fill={color} 
-                                        fillOpacity={0.38} 
-                                        stroke={color} 
-                                        strokeWidth={1.5} 
-                                        radius={[0, 4, 4, 0]} 
-                                    />
-                                );
-                            }} />
+                                    const color = COLORS[props.index % COLORS.length];
+                                    return (
+                                        <Rectangle
+                                            {...props}
+                                            fill={color}
+                                            fillOpacity={0.38}
+                                            stroke={color}
+                                            strokeWidth={1.5}
+                                            radius={[0, 4, 4, 0]}
+                                        />
+                                    );
+                                }}
+                            />
                         </BarChart>
                     </ResponsiveContainer>
                 </ChartMountGate>
             )}
-        </div>
+        </AnalyticsSection>
     );
 }

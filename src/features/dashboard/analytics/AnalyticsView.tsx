@@ -218,7 +218,11 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 ) : (
                     <AnalyticsAreaChart active={active} areaData={areaData} />
                 )}
-                <AnalyticsCommandsDistribution active={active} pieData={displayPieData} totalRequests={displayPieTotal} />
+                <AnalyticsCommandsDistribution
+                    active={active}
+                    pieData={displayPieData}
+                    totalRequests={displayPieTotal}
+                />
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

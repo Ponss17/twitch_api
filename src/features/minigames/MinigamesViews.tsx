@@ -1,4 +1,3 @@
-import { CardHeaderIcon } from '@/shared/ui/Icon';
 import { Loader2, Gem, Swords, Check, AlertTriangle, Play, Gavel, Skull, type LucideIcon } from 'lucide-react';
 import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTabs';
 
@@ -10,15 +9,16 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { COMMAND_CONFIG } from '@/features/commands/lib/config';
 import {
     btnPrimary,
-    card,
     fadeIn,
     formGrid,
     formGroupLabel,
     gameResponseCard,
+    panelCard,
     textInput
 } from '@/core/utils/tw';
 import { CommandGeneratorCard } from '@/features/commands/CommandGeneratorCard';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
+import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { extractApiErrorMessage, formatApiErrorForUi } from '@/core/api/apiError';
 
 
@@ -47,7 +47,7 @@ export function MinigameCard({
     staggered = false,
     centerBody = false
 }: {
-    icon: LucideIcon;
+    icon?: LucideIcon;
     title: string;
     description: string;
     info?: string;
@@ -57,23 +57,27 @@ export function MinigameCard({
 }) {
     return (
         <div
-            className={`${card} ${fadeIn} mb-3 opacity-0 ${staggered ? '[animation-delay:120ms]' : ''}`}
+            className={`${panelCard} ${fadeIn} mb-5 flex flex-col opacity-0 ${staggered ? '[animation-delay:120ms]' : ''}`}
         >
-            <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
-                <div className="flex items-center gap-3">
-                    <CardHeaderIcon icon={Icon} />
-                    <div>
-                        <h3 className="mb-0.5 text-[0.95rem] font-bold">{title}</h3>
-                        <p className="text-[0.8rem] text-[#c4c4cc]">{description}</p>
+            <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5">
+                <div className="flex min-w-0 items-center gap-3">
+                    {Icon ? (
+                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}>
+                            <Icon className="h-4 w-4" aria-hidden />
+                        </div>
+                    ) : null}
+                    <div className="min-w-0">
+                        <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">{title}</h3>
+                        <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">{description}</p>
                     </div>
                 </div>
-                {info && (
+                {info ? (
                     <div className="shrink-0">
-                        <InfoTooltip text={info} />
+                        <InfoTooltip text={info} placement="bottom" />
                     </div>
-                )}
-            </div>
-            <div className={`text-[#fafafa] ${centerBody ? 'text-center' : ''}`}>{children}</div>
+                ) : null}
+            </header>
+            <div className={`p-5 text-[#fafafa] ${centerBody ? 'text-center' : ''}`}>{children}</div>
         </div>
     );
 }

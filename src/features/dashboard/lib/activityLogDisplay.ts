@@ -12,6 +12,7 @@ import {
     TrendingUp,
     UserRoundCheck
 } from 'lucide-react';
+import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import type {
     ActivityLogType,
     DashboardActivityLog
@@ -49,19 +50,17 @@ export interface ActivityMeta {
     detailText: (item: ActivityLogItem) => string;
 }
 
-const ACTIVITY_ICON_CLASS = 'text-primary bg-primary/10 border-primary/20';
+const ACTIVITY_ICON_CLASS = subtleIcon('primary');
 
-const ACTIVITY_META: Record<ActivityLogType, ActivityMeta> = {
+const ACTIVITY_META: Record<ActivityLogType, Omit<ActivityMeta, 'iconClass'>> = {
     clip: {
         label: 'Clip',
         icon: Clapperboard,
-        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => metaStr(item.metadata, 'title') || metaStr(item.metadata, 'raw_detail') || 'Nuevo clip'
     },
     followage: {
         label: 'Followage',
         icon: UserRoundCheck,
-        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => {
             const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
             return target ? `Canal: ${target}` : 'Consulta de followage';
@@ -70,7 +69,6 @@ const ACTIVITY_META: Record<ActivityLogType, ActivityMeta> = {
     shoutout: {
         label: 'Shoutout',
         icon: Megaphone,
-        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => {
             const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
             return target ? `A: ${target}` : 'Shoutout enviado';
@@ -79,7 +77,6 @@ const ACTIVITY_META: Record<ActivityLogType, ActivityMeta> = {
     message: {
         label: 'Mensaje',
         icon: MessageSquare,
-        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => {
             const msg = metaStr(item.metadata, 'message') || metaStr(item.metadata, 'raw_detail');
             return msg ? `"${msg}"` : 'Mensaje en chat';
@@ -88,7 +85,6 @@ const ACTIVITY_META: Record<ActivityLogType, ActivityMeta> = {
     russian: {
         label: 'Ruleta Rusa',
         icon: Crosshair,
-        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => {
             const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
             return target ? `Canal: ${target}` : 'Partida de ruleta rusa';
@@ -97,13 +93,11 @@ const ACTIVITY_META: Record<ActivityLogType, ActivityMeta> = {
     magic8: {
         label: 'Bola 8',
         icon: CircleDot,
-        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => metaStr(item.metadata, 'question') || metaStr(item.metadata, 'raw_detail') || 'Pregunta a la bola 8'
     },
     duel: {
         label: 'Duelo',
         icon: Swords,
-        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => {
             const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
             return target ? `vs @${target}` : 'Duelo iniciado';
@@ -112,25 +106,21 @@ const ACTIVITY_META: Record<ActivityLogType, ActivityMeta> = {
     stalker: {
         label: 'Stalker',
         icon: Binoculars,
-        iconClass: ACTIVITY_ICON_CLASS,
         detailText: () => 'Escaneo de stalker'
     },
     trends: {
         label: 'Tendencias',
         icon: TrendingUp,
-        iconClass: ACTIVITY_ICON_CLASS,
         detailText: () => 'Rastreo de tendencias'
     },
     roulette: {
         label: 'Ruleta',
         icon: Dices,
-        iconClass: ACTIVITY_ICON_CLASS,
         detailText: () => 'Ruleta de chatters'
     },
     other: {
         label: 'Actividad',
         icon: Activity,
-        iconClass: ACTIVITY_ICON_CLASS,
         detailText: (item) => metaStr(item.metadata, 'raw_detail') || item.type || 'Evento registrado'
     }
 };
@@ -143,7 +133,11 @@ export function normalizeActivityType(type?: string): ActivityLogType {
 }
 
 export function getActivityMeta(type?: string): ActivityMeta {
-    return ACTIVITY_META[normalizeActivityType(type)];
+    const meta = ACTIVITY_META[normalizeActivityType(type)];
+    return {
+        ...meta,
+        iconClass: ACTIVITY_ICON_CLASS
+    };
 }
 
 export function sanitizeActivityUser(user?: string): string {

@@ -84,7 +84,7 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                         <Dropdown className="relative w-full sm:w-auto">
                             <DropdownTrigger
                                 aria-labelledby="settings-timezone-label"
-                                className="flex w-full min-w-[220px] items-center justify-between gap-2 rounded-lg border border-white/[0.08] bg-[#18181b] px-3 py-2 text-sm font-medium text-[#fafafa] transition hover:border-primary/50 hover:bg-white/[0.04] sm:w-auto"
+                                className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-white/[0.06] bg-bg-main px-3 py-2 text-sm font-medium text-[#fafafa] transition hover:border-primary/50 sm:w-auto"
                             >
                                 <span className="truncate max-w-[180px] text-left">{selectedTz}</span>
                                 <ChevronDown className="h-4 w-4 shrink-0 text-zinc-400" aria-hidden="true" />
