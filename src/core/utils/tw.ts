@@ -127,7 +127,7 @@ export const btnDanger =
     `${modalBtnBase} border border-error bg-error font-bold text-white hover:-translate-y-0.5 hover:bg-error-hover`;
 
 export const btnIcon =
-    'rounded-lg border-none bg-transparent px-2 py-1.5 text-[#c4c4cc] transition hover:bg-white/5 hover:text-[#fafafa] disabled:opacity-50';
+    'rounded-lg border border-transparent bg-transparent px-2 py-1.5 text-[#c4c4cc] outline-none transition hover:bg-white/5 hover:text-[#fafafa] focus-visible:border-white/15 focus-visible:bg-white/5 focus-visible:text-[#fafafa] disabled:opacity-50';
 
 export const dangerModalPanel =
     'overflow-hidden rounded-xl border border-error/30 bg-bg-card';
