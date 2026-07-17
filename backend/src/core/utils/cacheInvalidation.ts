@@ -4,6 +4,7 @@ import { invalidateStatsCache } from '../database/statsService';
 import { logger } from './logger';
 import { overlayStateKey, overlayRevokeKey } from '../../features/dashboard/overlay/keys';
 import { invalidateUserInfoCache } from '../../features/twitch/twitchUserService';
+import { ownerScopedCacheKey } from '../config/cacheTtl';
 
 export async function invalidateHelixUserCaches(userId: string, login?: string): Promise<void> {
     invalidateUserInfoCache(login, userId);
@@ -49,6 +50,37 @@ export async function invalidateDashboardStatsCaches(
         cacheService.invalidateDashboardAnalytics(userId),
         cacheService.bumpStatsRevision(userId)
     ]).catch((e) => logger.error('Error invalidando caches de stats:', e));
+}
+
+/**
+ * Tras vincular/desvincular Discord: solo perfil y usuario en memoria.
+ * NO toca Helix, overlay, stats ni API key — Discord es independiente de Twitch.
+ */
+export async function invalidateDiscordLinkCaches(
+    userId: string,
+    login?: string
+): Promise<void> {
+    const { invalidateUserCache } = await import('../middleware/apiKeyValidator');
+    const { invalidateAuthCache } = await import('../middleware/authMiddleware');
+    invalidateUserCache(userId);
+    invalidateUserMemoryCache(userId);
+    invalidateAuthCache(userId, { revokeSession: false });
+
+    const tasks: Promise<void>[] = [
+        cacheService.del(`cache:user:id:${userId}`),
+        cacheService.del(`cache:dashboard:profile:${userId}`)
+    ];
+    if (login) {
+        const normalized = login.toLowerCase();
+        tasks.push(cacheService.del(`cache:user:login:${normalized}`));
+        tasks.push(
+            cacheService.del(ownerScopedCacheKey(userId, `cache:cmd:getUserInfo:login:${normalized}`))
+        );
+    }
+
+    await Promise.allSettled(tasks).catch((e) =>
+        logger.warn('Error invalidando caches de Discord:', e)
+    );
 }
 
 /** Invalida todas las capas de caché conocidas para un usuario (auth, dashboard, stats). */
