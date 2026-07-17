@@ -230,6 +230,8 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
                 CACHE_TTL_MATRIX.USER_BY_LOGIN.default
             )
         ]).catch((e) => logger.error('Error actualizando caché de usuario (tokens):', e));
+        const { invalidateAuthCache } = await import('../middleware/authMiddleware');
+        invalidateAuthCache(user.userId, { revokeSession: false });
         return;
     }
 
@@ -325,7 +327,7 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
         return plain;
     }
 
-    const { data } = await supabase.from('users').select('*').eq('login', login).single();
+    const { data } = await supabase.from('users').select('*').eq('login', normalizedLogin).single();
     if (!data) return null;
 
     const user = fromRow(data as Record<string, unknown>);

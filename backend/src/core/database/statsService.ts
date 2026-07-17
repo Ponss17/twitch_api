@@ -222,7 +222,7 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         return numericStats;
     } catch (e) {
         logger.error('Error obteniendo estadísticas:', e);
-        return {};
+        throw e;
     }
 };
 

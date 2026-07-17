@@ -59,6 +59,8 @@ const FRONTEND_EXACT = new Set([
 ]);
 
 const DASHBOARD_TAB_SLUGS = new Set([
+    'home',
+    'analytics',
     'followage',
     'clips',
     'shoutout',
@@ -68,7 +70,7 @@ const DASHBOARD_TAB_SLUGS = new Set([
     'roulette',
     'russian',
     'duel',
-    'profile',
+    'settings',
     'feedback'
 ]);
 

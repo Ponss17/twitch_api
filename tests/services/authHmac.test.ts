@@ -13,9 +13,9 @@ jest.mock('../../backend/src/core/database/cacheService', () => {
         get: jest.fn().mockResolvedValue(null),
         set: jest.fn().mockResolvedValue(undefined),
         setIfAbsent: jest.fn(async (key: string) => {
-            if (burns.has(key)) return false;
+            if (burns.has(key)) return 'exists';
             burns.add(key);
-            return true;
+            return 'acquired';
         })
     };
 });
@@ -100,12 +100,12 @@ describe('auth.service HMAC helpers', () => {
         };
         const token = signAuthExchange(payload);
 
-        expect(await consumeAuthExchangeToken(token)).toBe(true);
-        expect(await consumeAuthExchangeToken(token)).toBe(false);
+        expect(await consumeAuthExchangeToken(token)).toBe('ok');
+        expect(await consumeAuthExchangeToken(token)).toBe('replay');
     });
 
     it('consumeAuthExchangeToken rejects when KV already marked token', async () => {
-        (cacheService.setIfAbsent as jest.Mock).mockResolvedValueOnce(false);
+        (cacheService.setIfAbsent as jest.Mock).mockResolvedValueOnce('exists');
 
         const token = signAuthExchange({
             apiKey: 'sk_test',
@@ -114,6 +114,22 @@ describe('auth.service HMAC helpers', () => {
             displayName: 'Streamer'
         });
 
-        expect(await consumeAuthExchangeToken(token)).toBe(false);
+        expect(await consumeAuthExchangeToken(token)).toBe('replay');
+    });
+
+    it('consumeAuthExchangeToken returns unavailable when KV is down in production', async () => {
+        const prevEnv = process.env.NODE_ENV;
+        process.env.NODE_ENV = 'production';
+        (cacheService.setIfAbsent as jest.Mock).mockResolvedValueOnce('unavailable');
+
+        const token = signAuthExchange({
+            apiKey: 'sk_test',
+            userId: 'user-1',
+            login: 'streamer',
+            displayName: 'Streamer'
+        });
+
+        expect(await consumeAuthExchangeToken(token)).toBe('unavailable');
+        process.env.NODE_ENV = prevEnv;
     });
 });

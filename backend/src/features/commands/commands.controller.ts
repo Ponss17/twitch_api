@@ -125,19 +125,20 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             const cached = await cacheService.get<{ text: string; timePhrase: string; followDateMs?: number }>(cacheKey);
 
             if (cached && typeof cached === 'object') {
-                if (cached.followDateMs) {
-                    const newTimePhrase = getTimePhraseBetween(new Date(cached.followDateMs));
-                    cached.timePhrase = newTimePhrase;
-                    cached.text = `${user} ha seguido a ${channel} por ${newTimePhrase}.`;
+                const entry = { ...cached };
+                if (entry.followDateMs) {
+                    const newTimePhrase = getTimePhraseBetween(new Date(entry.followDateMs));
+                    entry.timePhrase = newTimePhrase;
+                    entry.text = `${user} ha seguido a ${channel} por ${newTimePhrase}.`;
                 }
                 const template = safeString(req.query.template);
-                if (template && cached.timePhrase) {
+                if (template && entry.timePhrase) {
                     return template
-                        .replace('{time}', cached.timePhrase)
+                        .replace('{time}', entry.timePhrase)
                         .replace('{user}', user)
                         .replace('{channel}', channel);
                 }
-                return cached.text;
+                return entry.text;
             }
 
             const apiResult = await withTwitchAuth(

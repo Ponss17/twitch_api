@@ -27,12 +27,12 @@ const STORAGE_BASE = 'twitch_command_store_v1';
 const LEGACY_STORAGE_KEY = 'twitch_command_store_v1';
 const PERSIST_DEBOUNCE_MS = 400;
 
-const DEFAULT_CONFIG: CommandConfigState = {
+const DEFAULT_CONFIG: CommandConfigState = Object.freeze({
     bot: 'nightbot',
     template: '',
     format: 'full',
     extraValues: {}
-};
+});
 
 /** Referencia estable para useSyncExternalStore cuando no hay resultado guardado */
 export const EMPTY_TEST_RESULT: CommandTestResult = { status: null, message: '' };
