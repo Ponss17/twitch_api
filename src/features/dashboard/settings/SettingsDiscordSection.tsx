@@ -28,7 +28,7 @@ export function SettingsDiscordSection({
             <SettingsRow
                 title="Discord"
                 iconNode={discordTitleIcon}
-                description="Conecta Discord para usar comandos del bot con tu cuenta (por ejemplo /cuenta)."
+                description="Tu Discord está vinculado para usar los comandos en el servidor."
                 control={
                     <div className="flex items-center gap-3">
                         {discordAvatar ? (
@@ -63,7 +63,7 @@ export function SettingsDiscordSection({
         <SettingsRow
             title="Discord"
             iconNode={discordTitleIcon}
-            description="Vincula tu Discord para usar comandos del bot con tu cuenta de LosPerris (por ejemplo /cuenta)."
+            description="Vincula tu cuenta para usar los comandos en el servidor de Discord."
             control={
                 <button
                     type="button"
