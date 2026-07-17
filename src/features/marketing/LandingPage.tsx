@@ -18,7 +18,6 @@ import { TwitchIcon, DiscordIcon } from '@/shared/ui/icons/BrandIcons';
 import { UserRoundCheck, Clapperboard, Megaphone, TrendingUp, Binoculars, Dices, Swords, MessageSquare, Book, ArrowRight, Copy, Check } from 'lucide-react';
 import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTabs';
 
-import { SlotText } from 'slot-text/react';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
@@ -360,7 +359,11 @@ export function LandingPage() {
                                         disabled={requestStatus === 'loading'}
                                         className="flex items-center gap-1.5 rounded bg-white/[0.08] px-2 py-1 text-xs text-white/70 transition hover:bg-white/[0.15] hover:text-white disabled:opacity-50"
                                     >
-                                        <SlotText text={requestStatus === 'loading' ? "Petición en curso..." : requestStatus === 'success' ? "Reintentar" : "Realizar Petición"} />
+                                        {requestStatus === 'loading'
+                                            ? 'Petición en curso...'
+                                            : requestStatus === 'success'
+                                              ? 'Reintentar'
+                                              : 'Realizar Petición'}
                                     </button>
                                     <button
                                         type="button"
@@ -368,7 +371,7 @@ export function LandingPage() {
                                         className="flex items-center gap-1.5 text-xs text-white/40 transition hover:text-[#9146ff]"
                                     >
                                         {isCopied ? <Check className="w-3.5 text-[#9146ff]" /> : <Copy className="w-3.5" />}
-                                        <SlotText text={isCopied ? "Copiado" : "Copiar"} />
+                                        {isCopied ? 'Copiado' : 'Copiar'}
                                     </button>
                                 </div>
                             </div>

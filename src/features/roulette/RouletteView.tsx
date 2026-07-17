@@ -5,7 +5,8 @@ import { useRouletteController } from '@/features/roulette/hooks/useRouletteCont
 import { RouletteWheelDisplay } from '@/features/roulette/RouletteWheelDisplay';
 import { OverlayUrlButton } from '@/features/overlay/components/OverlayUrlButton';
 import { useOverlayPublish } from '@/features/overlay/hooks/useOverlayPublish';
-import { card, fadeIn } from '@/core/utils/tw';
+import { fadeIn, hoverSubtleChip, hoverSubtleIconBtn, panelCard } from '@/core/utils/tw';
+import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { RouletteEligibilityDropdown } from '@/features/roulette/RouletteEligibilityDropdown';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
@@ -57,15 +58,19 @@ export function RouletteView({ active = true }: { active?: boolean }) {
     }, [chatters]);
 
     return (
-        <div className={`${card} ${fadeIn} mb-3`}>
-            <div className="mb-2 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-2 max-md:flex-col max-md:items-start">
-                <div className="flex items-center gap-3">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                        <Dices className="h-4 w-4" />
+        <div className={`${panelCard} ${fadeIn} mb-3 flex flex-col`}>
+            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5 max-md:flex-col max-md:items-start">
+                <div className="flex min-w-0 items-center gap-3">
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}>
+                        <Dices className="h-4 w-4" aria-hidden />
                     </div>
-                    <div>
-                        <h3 className="mb-0.5 text-[0.95rem] font-bold">Ruleta de Viewers</h3>
-                        <p className="text-[0.8rem] text-[#c4c4cc]">Sortea premios entre los usuarios activos</p>
+                    <div className="min-w-0">
+                        <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
+                            Ruleta de Viewers
+                        </h3>
+                        <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
+                            Sortea premios entre los usuarios activos
+                        </p>
                     </div>
                 </div>
 
@@ -91,10 +96,10 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                                 ? 'Anunciar ganador en chat, activado'
                                 : 'Anunciar ganador en chat, desactivado'
                         }
-                        className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[0.75rem] font-semibold transition hover:bg-white/5 disabled:opacity-50 ${
+                        className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[0.75rem] font-semibold disabled:opacity-50 ${
                             announceWinnerInChat
                                 ? 'border-primary/35 bg-primary/10 text-primary'
-                                : 'border-white/10 bg-white/[0.03] text-[#71717a]'
+                                : `border-white/10 bg-white/[0.03] text-[#71717a] ${hoverSubtleChip}`
                         }`}
                     >
                         <MessageSquare className="size-3.5 shrink-0" aria-hidden />
@@ -114,7 +119,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         onClick={() => void toggleOpen()}
                         title={isOpen ? 'Pausar inscripciones' : 'Abrir inscripciones'}
                         aria-label={isOpen ? 'Pausar inscripciones' : 'Abrir inscripciones'}
-                        className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] transition hover:bg-white/5 ${
+                        className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] transition ${
                             isOpen ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'
                         }`}
                     >
@@ -129,7 +134,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         }}
                         title="Recargar usuarios"
                         aria-label="Recargar usuarios"
-                        className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#c4c4cc] transition hover:bg-white/5 hover:text-[#fafafa]"
+                        className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#c4c4cc] ${hoverSubtleIconBtn}`}
                     >
                         <RotateCw className="h-4 w-4" />
                     </button>
@@ -138,8 +143,9 @@ export function RouletteView({ active = true }: { active?: boolean }) {
 
                     <InfoTooltip text="Sorteo en vivo. Elige quién puede participar y si el ganador se anuncia en el chat de Twitch (botón Chat)." />
                 </div>
-            </div>
+            </header>
 
+            <div className="p-5">
             <RouletteWheelDisplay
                 chatters={chatters}
                 wheelRotation={wheelRotation}
@@ -214,6 +220,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     </ul>
                 </div>
             )}
+            </div>
         </div>
     );
 }

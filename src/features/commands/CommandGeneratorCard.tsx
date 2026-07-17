@@ -1,12 +1,11 @@
 import { Edit, Check, Loader2, AlertTriangle, Copy, Play, Bot, FileCode, FlaskConical } from 'lucide-react';
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { SlotText } from 'slot-text/react';
-import 'slot-text/style.css';
 import {
     btnCopy,
     btnPrimary,
-    card,
+    hoverNeutralControl,
+    panelCard,
     codeBox,
     codeTextarea,
     fadeIn,
@@ -24,10 +23,11 @@ import type { CommandConfigItem } from '@/features/commands/lib/config';
 import { useRequiredSession } from '@/core/session/useSession';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { useToast } from '@/shared/ui/ToastProvider';
-import { CardHeaderIcon, IconSm } from '@/shared/ui/Icon';
+import { IconSm } from '@/shared/ui/Icon';
 import { copyText } from '@/core/utils/clipboard';
 import { useCommandConfig } from '@/features/commands/hooks/useCommandStore';
 import { getCommandConfig } from '@/features/commands/lib/commandStore';
+import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 
 function CommandCardHeader({
     icon: Icon,
@@ -41,16 +41,22 @@ function CommandCardHeader({
     info: string;
 }) {
     return (
-        <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
-            <div className="flex items-center gap-3">
-                <CardHeaderIcon icon={Icon} />
-                <div>
-                    <h3 className="mb-0.5 text-[0.95rem] font-bold">{title}</h3>
-                    <p className="text-[0.8rem] text-[#c4c4cc]">{description}</p>
+        <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5">
+            <div className="flex min-w-0 items-center gap-3">
+                <div
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}
+                >
+                    <Icon className="h-4 w-4" aria-hidden />
+                </div>
+                <div className="min-w-0">
+                    <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">{title}</h3>
+                    <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">{description}</p>
                 </div>
             </div>
-            <InfoTooltip text={info} />
-        </div>
+            <div className="shrink-0">
+                <InfoTooltip text={info} placement="bottom" />
+            </div>
+        </header>
     );
 }
 
@@ -179,7 +185,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
     };
 
     return (
-        <div className={`${card} ${fadeIn} relative z-10 mb-3 focus-within:z-20 hover:z-20`}>
+        <div className={`${panelCard} ${fadeIn} relative z-10 mb-5 flex flex-col focus-within:z-20`}>
             <CommandCardHeader
                 icon={config.icon}
                 title={config.title}
@@ -187,7 +193,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                 info={config.info}
             />
 
-            <div className="text-[#fafafa]">
+            <div className="p-5 text-[#fafafa]">
                 <SelectFieldRow
                     label="Selecciona tu bot:"
                     icon={Bot}
@@ -226,7 +232,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                             value={template}
                             onChange={(e) => updateConfig({ template: e.target.value })}
                             placeholder={config.templatePlaceholder}
-                            className={textInput}
+                            className={`${textInput} ${hoverNeutralControl} focus:border-primary focus:bg-primary/[0.02]`}
                         />
                         {config.templateVars && <TemplateVarsHelp vars={config.templateVars} />}
                     </div>
@@ -253,7 +259,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                         disabled={!generated.full}
                     >
                         {isCopied ? <Check className="size-4 shrink-0" /> : <Copy className="size-4 shrink-0" />}
-                        <SlotText text={isCopied ? "Copiado" : "Copiar"} />
+                        {isCopied ? 'Copiado' : 'Copiar'}
                     </button>
                 </div>
             </div>
@@ -283,19 +289,27 @@ export function ApiTestCard({
     const isActive = result.status === 'success' || result.status === 'error';
 
     return (
-        <div className={`${card} ${fadeIn} mb-3 [animation-delay:60ms]`}>
-            <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
-                <div className="flex items-center gap-3">
-                    <CardHeaderIcon icon={FlaskConical} />
-                    <div>
-                        <h3 className="mb-0.5 text-[0.95rem] font-bold">{title}</h3>
-                        <p className="text-[0.8rem] text-[#c4c4cc]">{description}</p>
+        <div className={`${panelCard} ${fadeIn} mb-5 flex flex-col [animation-delay:60ms]`}>
+            <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5">
+                <div className="flex min-w-0 items-center gap-3">
+                    <div
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}
+                    >
+                        <FlaskConical className="h-4 w-4" aria-hidden />
+                    </div>
+                    <div className="min-w-0">
+                        <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">{title}</h3>
+                        <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">{description}</p>
                     </div>
                 </div>
-                {infoTooltip && <InfoTooltip text={infoTooltip} />}
-            </div>
+                {infoTooltip ? (
+                    <div className="shrink-0">
+                        <InfoTooltip text={infoTooltip} placement="bottom" />
+                    </div>
+                ) : null}
+            </header>
 
-            <div className="text-[#fafafa]">
+            <div className="p-5 text-[#fafafa]">
                 <div className={formGrid}>{children}</div>
 
                 <button
@@ -353,7 +367,7 @@ export function FormField({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className={textInput}
+                className={`${textInput} ${hoverNeutralControl} focus:border-primary focus:bg-primary/[0.02]`}
             />
         </div>
     );

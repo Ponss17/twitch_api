@@ -1,61 +1,40 @@
 import type { LucideIcon } from 'lucide-react';
 import { forwardRef, type ReactNode } from 'react';
-import { card, fadeIn } from '@/core/utils/tw';
+import { fadeIn } from '@/core/utils/tw';
+import { InfoTooltip } from '@/shared/ui/InfoTooltip';
+import { subtleIcon, type SubtleAccent } from '@/features/dashboard/lib/subtleAccents';
 
 type Accent = 'primary' | 'error';
 
-const ACCENTS: Record<Accent, { iconWrap: string; divider: string; rowDivider: string; title: string; shell: string }> = {
-    primary: {
-        iconWrap: 'border-primary/20 bg-primary/10 text-primary',
-        divider: 'border-white/[0.08]',
-        rowDivider: 'divide-white/[0.04]',
-        title: 'text-[#fafafa]',
-        shell: ''
-    },
-    error: {
-        iconWrap: 'border-error/25 bg-error/10 text-error',
-        divider: 'border-error/15',
-        rowDivider: 'divide-error/10',
-        title: 'text-error',
-        shell: '!border-error/30 hover:!border-error/60'
+/** Título de sección estilo Nightbot: texto suelto, sin card envolvente. */
+export const SettingsGroup = forwardRef<
+    HTMLDivElement,
+    {
+        title: string;
+        description?: string;
+        accent?: Accent;
+        delay?: number;
+        action?: ReactNode;
+        children: ReactNode;
+        /** @deprecated ya no se muestra; se mantiene por compatibilidad */
+        icon?: LucideIcon;
+        /** @deprecated ya no se muestra; se mantiene por compatibilidad */
+        iconAccent?: SubtleAccent;
     }
-};
-
-interface SettingsGroupProps {
-    icon: LucideIcon;
-    title: string;
-    description?: string;
-    accent?: Accent;
-    delay?: number;
-    action?: ReactNode;
-    children: ReactNode;
-}
-
-/** Bloque de configuración: una card con cabecera y filas separadas por divisores. */
-export const SettingsGroup = forwardRef<HTMLDivElement, SettingsGroupProps>(function SettingsGroup(
-    { icon: Icon, title, description, accent = 'primary', delay = 0, action, children },
-    ref
-) {
-    const a = ACCENTS[accent];
+>(function SettingsGroup({ title, description, accent = 'primary', delay = 0, action, children }, ref) {
+    const titleColor = accent === 'error' ? 'text-error' : 'text-[#fafafa]';
     return (
-        <section
-            ref={ref}
-            className={`${card} ${fadeIn} mb-4 opacity-0 ${a.shell}`}
-            style={{ animationDelay: `${delay}ms` }}
-        >
-            <div className={`mb-1 flex items-center justify-between gap-3 border-b ${a.divider} pb-3`}>
-                <div className="flex items-center gap-3">
-                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${a.iconWrap}`}>
-                        <Icon className="h-4 w-4" />
-                    </div>
-                    <div>
-                        <h3 className={`text-[0.95rem] font-bold ${a.title}`}>{title}</h3>
-                        {description ? <p className="text-[0.8rem] text-[#c4c4cc]">{description}</p> : null}
-                    </div>
+        <section ref={ref} className={`${fadeIn} mb-8 opacity-0`} style={{ animationDelay: `${delay}ms` }}>
+            <header className="mb-3 flex items-end justify-between gap-3">
+                <div>
+                    <h3 className={`text-[1.15rem] font-bold tracking-tight ${titleColor}`}>{title}</h3>
+                    {description ? (
+                        <p className="mt-0.5 text-[0.8rem] leading-relaxed text-[#8b8b93]">{description}</p>
+                    ) : null}
                 </div>
                 {action}
-            </div>
-            <div className={`divide-y ${a.rowDivider}`}>{children}</div>
+            </header>
+            <div className="flex flex-col gap-2.5">{children}</div>
         </section>
     );
 });
@@ -65,6 +44,11 @@ interface SettingsRowProps {
     description?: ReactNode;
     icon?: LucideIcon;
     iconNode?: ReactNode;
+    /** Clases del contenedor del icono (borde/fondo/color). Sobrescribe el accent. */
+    iconClass?: string;
+    iconAccent?: SubtleAccent;
+    /** Tooltip de ayuda alineado a la derecha de la fila. */
+    info?: ReactNode;
     /** Control alineado a la derecha (botón, dropdown, badge...). */
     control?: ReactNode;
     /** Contenido a ancho completo (inputs, bloques). Se apila bajo el título si lo hay. */
@@ -72,31 +56,71 @@ interface SettingsRowProps {
     accent?: Accent;
 }
 
-/** Fila dentro de un SettingsGroup: texto a la izquierda, control a la derecha. */
-export function SettingsRow({ title, description, icon: Icon, iconNode, control, children, accent = 'primary' }: SettingsRowProps) {
-    const iconColor = accent === 'error' ? 'text-error' : 'text-primary';
-    const titleIcon = iconNode ?? (Icon ? <Icon className={`h-4 w-4 ${iconColor}`} aria-hidden="true" /> : null);
+/**
+ * Fila-panel estilo Nightbot Settings:
+ * [icono] título + descripción ............. control
+ * contenido opcional debajo (inputs, etc.)
+ */
+export function SettingsRow({
+    title,
+    description,
+    icon: Icon,
+    iconNode,
+    iconClass,
+    iconAccent,
+    info,
+    control,
+    children,
+    accent = 'primary'
+}: SettingsRowProps) {
+    const isError = accent === 'error';
+    const iconWrap =
+        iconClass ??
+        (iconAccent
+            ? subtleIcon(iconAccent)
+            : isError
+              ? subtleIcon('error')
+              : subtleIcon('primary'));
+    const shell = isError
+        ? 'border-error/20 bg-error/[0.04]'
+        : 'border-white/[0.06] bg-bg-card';
+
+    const resolvedIcon =
+        iconNode ??
+        (Icon ? <Icon className="h-4 w-4" aria-hidden="true" /> : null);
+
     return (
-        <div className="py-4 first:pt-4 last:pb-1">
-            {title || description || control ? (
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    {title || description ? (
-                        <div className="min-w-0 flex-1">
+        <div className={`rounded-xl border px-4 py-3.5 ${shell}`}>
+            {title || description || control || resolvedIcon ? (
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+                    <div className="flex min-w-0 flex-1 items-start gap-3">
+                        {resolvedIcon ? (
+                            <div
+                                className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${iconWrap}`}
+                            >
+                                {resolvedIcon}
+                            </div>
+                        ) : null}
+                        <div className="min-w-0 pt-0.5">
                             {title ? (
-                                <h4 className={`mb-0.5 flex items-center gap-2 text-[0.95rem] font-bold text-white`}>
-                                    {titleIcon}
-                                    {title}
-                                </h4>
+                                <h4 className="text-[0.9rem] font-semibold text-[#fafafa]">{title}</h4>
                             ) : null}
                             {description ? (
-                                <p className="max-w-[600px] text-[0.82rem] leading-relaxed text-[#c4c4cc]">{description}</p>
+                                <p className="mt-0.5 max-w-xl text-[0.8rem] leading-relaxed text-[#8b8b93]">
+                                    {description}
+                                </p>
                             ) : null}
                         </div>
+                    </div>
+                    {control || info ? (
+                        <div className="flex w-full shrink-0 items-center justify-end gap-2 sm:w-auto sm:pl-2">
+                            {control}
+                            {info ? <InfoTooltip text={info} placement="bottom" /> : null}
+                        </div>
                     ) : null}
-                    {control ? <div className="w-full shrink-0 sm:w-auto">{control}</div> : null}
                 </div>
             ) : null}
-            {children ? <div className={title || description ? 'mt-3' : ''}>{children}</div> : null}
+            {children ? <div className={title || description || resolvedIcon ? 'mt-3' : ''}>{children}</div> : null}
         </div>
     );
 }

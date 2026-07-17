@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, type ElementType } from 'react';
-import { toolLabel, toolSelector } from '@/core/utils/tw';
+import { toolLabel, toolSelector, hoverNeutralChip, hoverNeutralControl } from '@/core/utils/tw';
 import { IconSm } from '@/shared/ui/Icon';
 import { ChevronDown, Check } from 'lucide-react';
 
@@ -44,7 +44,7 @@ export function SelectField({ id, options, value, onChange, className = '' }: Se
                 type="button"
                 id={id}
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex w-full cursor-pointer appearance-none items-center justify-between rounded-lg border border-white/[0.08] bg-bg-secondary py-[7px] pl-3 pr-2.5 text-[0.8125rem] leading-tight text-[#fafafa] outline-none transition hover:border-white/20 focus:border-primary focus:bg-primary/[0.02]"
+                className={`flex w-full cursor-pointer appearance-none items-center justify-between rounded-lg border border-white/[0.08] bg-bg-secondary py-[7px] pl-3 pr-2.5 text-[0.8125rem] leading-tight text-[#fafafa] outline-none ${hoverNeutralControl} ${isOpen ? 'border-primary/20 bg-primary/[0.02]' : ''} focus:border-primary focus:bg-primary/[0.02]`}
             >
                 <span className="truncate">{selectedOption?.label}</span>
                 <ChevronDown className={`ml-2 h-4 w-4 shrink-0 text-white/50 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -58,10 +58,10 @@ export function SelectField({ id, options, value, onChange, className = '' }: Se
                                 <button
                                     type="button"
                                     onClick={() => handleSelect(opt.value)}
-                                    className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[0.8125rem] transition-colors ${
+                                    className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[0.8125rem] ${
                                         opt.value === value 
                                             ? 'bg-primary/10 font-medium text-primary' 
-                                            : 'text-[#c4c4cc] hover:bg-white/[0.06] hover:text-[#fafafa]'
+                                            : `text-[#c4c4cc] ${hoverNeutralChip} hover:text-[#d4d4d8]`
                                     }`}
                                 >
                                     <span className="truncate">{opt.label}</span>

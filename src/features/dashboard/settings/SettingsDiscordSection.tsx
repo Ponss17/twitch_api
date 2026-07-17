@@ -2,7 +2,7 @@ import { Unlink, Check } from 'lucide-react';
 import { SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
 import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
 
-const discordTitleIcon = <DiscordIcon className="h-5 w-5 text-[#5865F2]" aria-hidden="true" />;
+const discordTitleIcon = <DiscordIcon className="h-4 w-4" aria-hidden="true" />;
 
 interface SettingsDiscordSectionProps {
     discordId?: string | null;
@@ -28,6 +28,7 @@ export function SettingsDiscordSection({
             <SettingsRow
                 title="Discord"
                 iconNode={discordTitleIcon}
+                iconAccent="discord"
                 description="Tu Discord está vinculado para usar los comandos en el servidor."
                 control={
                     <div className="flex items-center gap-3">
@@ -63,6 +64,7 @@ export function SettingsDiscordSection({
         <SettingsRow
             title="Discord"
             iconNode={discordTitleIcon}
+            iconAccent="discord"
             description="Vincula tu cuenta para usar los comandos en el servidor de Discord."
             control={
                 <button

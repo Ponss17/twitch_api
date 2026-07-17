@@ -57,14 +57,14 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
     return (
         <div className={fadeIn}>
             <SettingsHero
-
                 followers={profile?.followers}
                 broadcasterLabel={broadcasterLabel(profile?.broadcaster_type)}
                 memberSince={formatMemberSince(profile?.created_at)}
                 isLive={profile?.isLive}
+                isLoading={!hasLiveData}
             />
 
-            <div className="grid grid-cols-1 items-stretch gap-6 min-[1001px]:grid-cols-[1fr_300px]">
+            <div className="grid grid-cols-1 items-stretch gap-5 min-[1001px]:grid-cols-[1fr_310px]">
                 <HomeActivityFeed
                     activity={activity}
                     syncing={syncing}
@@ -73,6 +73,7 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
                     isLive={isRealtimeLive}
                     highlightKeys={highlightKeys}
                     timeZone={profile?.timezone}
+                    title="Historial de Actividad"
                 />
                 <HomeResourcesPanel onNavigate={onNavigate} />
             </div>

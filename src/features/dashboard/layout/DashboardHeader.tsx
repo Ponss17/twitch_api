@@ -13,12 +13,11 @@ import {
     DropdownPanel,
     DropdownTrigger
 } from '@/shared/ui/Dropdown';
-import { LogOut, Menu, Settings } from 'lucide-react';
-import { TwitchIcon, PaypalIcon } from '@/shared/ui/icons/BrandIcons';
-const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
+import { Heart, LogOut, Menu, Settings } from 'lucide-react';
+import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
+import { hoverSubtleControl } from '@/core/utils/tw';
 
-const headerGhostBtn =
-    'inline-flex h-[34px] items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 text-[0.8125rem] font-medium text-[#c4c4cc] no-underline transition hover:border-white/15 hover:bg-white/[0.06] hover:text-[#fafafa]';
+const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
 
 interface DashboardHeaderProps {
     tab: DashboardTab;
@@ -46,7 +45,7 @@ export function DashboardHeader({
                 <button
                     type="button"
                     onClick={onMenuToggle}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-[#c4c4cc] transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 lg:hidden"
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-[#c4c4cc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 lg:hidden ${hoverSubtleControl} hover:text-[#fafafa]`}
                     aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
                     aria-expanded={mobileMenuOpen}
                     aria-controls="dashboard-sidebar"
@@ -60,31 +59,20 @@ export function DashboardHeader({
                 </h1>
 
                 <div className="flex items-center gap-2">
-                    <a
-                        href={PAYPAL_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`${headerGhostBtn} hidden sm:inline-flex`}
-                        title="Apoyar el proyecto con PayPal"
-                    >
-                        <PaypalIcon className="h-[22px] w-[22px] shrink-0" />
-                        <span>Apoyar</span>
-                    </a>
-
                     <Dropdown>
                         <DropdownTrigger
                             aria-label="Menú de cuenta"
-                            className="flex items-center gap-2 rounded-full border border-[#9146ff]/50 bg-white/[0.03] px-2 py-1.5 backdrop-blur-md transition hover:border-[#9146ff]"
+                            className={`flex items-center gap-2 rounded-xl border border-white/[0.06] bg-bg-secondary py-1 pl-1 pr-2.5 ${hoverSubtleControl}`}
                         >
                             <img
                                 src={session.profile_image_url ?? staticPath('/img/logo.svg')}
                                 alt=""
-                                className="h-[34px] w-[34px] rounded-full border-2 border-[#9146ff]/50 object-cover"
+                                className="h-8 w-8 shrink-0 rounded-full border border-white/[0.08] object-cover"
                             />
-                            <span className="hidden max-w-[120px] truncate text-sm font-semibold text-[#fafafa] md:inline">
+                            <span className="hidden max-w-[120px] truncate text-[0.8125rem] font-semibold text-[#fafafa] md:inline">
                                 {displayName}
                             </span>
-                            <DropdownChevron className="w-4 h-4 text-[#71717a] transition-transform" />
+                            <DropdownChevron className="hidden size-4 shrink-0 text-[#71717a] transition-transform md:block" />
                         </DropdownTrigger>
 
                         <DropdownPanel widthClassName="w-[230px]" zIndex={1000} className="rounded-2xl">
@@ -96,6 +84,10 @@ export function DashboardHeader({
                             <DropdownLink href={twitchProfileUrl} target="_blank" rel="noopener noreferrer">
                                 <TwitchIcon className="w-4 text-center grayscale brightness-[200] opacity-70 group-hover:opacity-100 group-hover:brightness-[250] transition-all" />
                                 Perfil de Twitch
+                            </DropdownLink>
+                            <DropdownLink href={PAYPAL_URL} target="_blank" rel="noopener noreferrer">
+                                <Heart className="w-4 text-center" aria-hidden />
+                                Apoyar el proyecto
                             </DropdownLink>
                             <DropdownDivider />
                             <DropdownItem variant="danger" onClick={onLogout}>
