@@ -31,6 +31,8 @@ interface ModalProps {
     onClose: () => void;
     title: string;
     titleIcon?: LucideIcon;
+    /** Icono custom (p. ej. Discord) — tiene prioridad sobre titleIcon. */
+    titleIconNode?: ReactNode;
     titleBadge?: string;
     children: ReactNode;
     footer?: ReactNode;
@@ -154,6 +156,7 @@ export function Modal({
     onClose,
     title,
     titleIcon: TitleIcon = AlertTriangle,
+    titleIconNode,
     titleBadge,
     children,
     footer,
@@ -170,7 +173,7 @@ export function Modal({
         >
             <div className={modalHeader}>
                 <h3 id={titleId} className={modalTitle}>
-                    <TitleIcon className={modalTitleIcon} aria-hidden="true" />
+                    {titleIconNode ?? <TitleIcon className={modalTitleIcon} aria-hidden="true" />}
                     {title}
                     {titleBadge ? (
                         <span className="rounded-md border border-primary/35 bg-primary/15 px-1.5 py-0.5 text-[0.625rem] font-bold tracking-wide text-primary">
