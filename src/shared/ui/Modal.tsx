@@ -71,19 +71,24 @@ export function BaseModal({
         if (open && !dialog.open) {
             setClosing(false);
             dialog.showModal();
-            // Evita que el foco caiga en la X: CTA primario del footer, o el panel.
-            requestAnimationFrame(() => {
+            // El <dialog> enfoca el primer botón (la X). Movemos el foco al CTA.
+            const focusPrimary = () => {
                 const panel = panelRef.current;
                 if (!panel) return;
                 const primary =
                     panel.querySelector<HTMLElement>('[data-modal-primary]') ??
-                    panel.querySelector<HTMLElement>('[data-modal-footer] button');
+                    panel.querySelector<HTMLElement>('[data-modal-footer] button:not([disabled])');
                 if (primary) {
-                    primary.focus();
+                    primary.focus({ preventScroll: true });
                     return;
                 }
                 if (!panel.hasAttribute('tabindex')) panel.tabIndex = -1;
                 panel.focus({ preventScroll: true });
+            };
+            requestAnimationFrame(() => {
+                focusPrimary();
+                window.setTimeout(focusPrimary, 0);
+                window.setTimeout(focusPrimary, 50);
             });
             return;
         }
@@ -195,7 +200,13 @@ export function Modal({
                         </span>
                     ) : null}
                 </h3>
-                <button type="button" className={btnIcon} aria-label="Cerrar" onClick={onClose}>
+                <button
+                    type="button"
+                    className={btnIcon}
+                    aria-label="Cerrar"
+                    tabIndex={-1}
+                    onClick={onClose}
+                >
                     <X className="w-5 h-5" />
                 </button>
             </div>
@@ -324,6 +335,7 @@ export function DangerConfirmModal({
                         type="button"
                         className={btnIcon}
                         aria-label="Cerrar"
+                        tabIndex={-1}
                         disabled={loading}
                         onClick={handleClose}
                     >

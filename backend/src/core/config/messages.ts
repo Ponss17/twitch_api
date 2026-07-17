@@ -33,7 +33,11 @@ export const MESSAGES = {
         ANONYMOUS_USER: 'Anónimo',
         VIEWER_ROLE: '📺 Viewer',
         EMBED_TITLE: '📢 Nuevo Feedback',
-        EMBED_FOOTER: 'LosPerris Twitch Api - FeedBack'
+        EMBED_FOOTER: 'LosPerris Twitch Api - FeedBack',
+        IDENTITY_ANONYMOUS: 'Anónimo',
+        IDENTITY_TWITCH: 'Twitch',
+        IDENTITY_DISCORD: 'Discord',
+        DISCORD_NOT_LINKED: 'No tienes Discord vinculado. Vincula en Ajustes o envía como Twitch.'
     },
     MAGIC8: {
         QUESTION_REQUIRED: 'Debes hacer una pregunta a la Bola 8 Mágica.',

@@ -23,6 +23,7 @@ export function DiscordLinkConfirmModal({ open, onClose, onConfirm }: DiscordLin
                     <button
                         type="button"
                         onClick={onConfirm}
+                        data-modal-primary
                         className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#5865F2] px-3 py-2 text-[0.8125rem] font-semibold text-white transition hover:-translate-y-0.5 hover:brightness-110"
                     >
                         <DiscordIcon className="h-4 w-4" aria-hidden="true" />
@@ -103,6 +104,7 @@ export function DiscordUnlinkConfirmModal({
                     <button
                         type="button"
                         className={btnDanger}
+                        data-modal-primary
                         disabled={disabled}
                         onClick={() => void handleConfirm()}
                     >
