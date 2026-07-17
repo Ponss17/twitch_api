@@ -30,6 +30,17 @@ export const isBotCommand = (path: string): boolean =>
     path.includes('/russian') ||
     path.includes('/duel');
 
+/** Retorno OAuth (Twitch/Discord): no validar ni borrar lp_sess en middleware — el controller reemite la cookie. */
+export const isOAuthCallbackRoute = (path: string): boolean => {
+    const clean = path.split('?')[0].replace(/\/+/g, '/').replace(/\/$/, '') || '/';
+    return (
+        clean === '/auth/twitch/callback' ||
+        clean === '/api/auth/twitch/callback' ||
+        clean === '/auth/discord/callback' ||
+        clean === '/api/auth/discord/callback'
+    );
+};
+
 /** Rutas JSON del dashboard, system y auth — errores con `{ success: false, error: { message, code } }`. */
 export const isJsonApiRoute = (path: string): boolean => {
     if (isBotCommand(path)) return false;
