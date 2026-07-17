@@ -27,7 +27,7 @@ export function FollowageView() {
     const [storedResult, setStoredResult] = useCommandTestResult('followage-test');
     const { loading, runTest } = useCommandApiTest(setStoredResult);
 
-    const handleTest = async () => {
+    const handleTest = async (): Promise<void> => {
         if (!channel.trim() || !user.trim()) {
             setStoredResult({
                 status: 'error',
@@ -71,7 +71,7 @@ export function ShoutoutView() {
     const [storedResult, setStoredResult] = useCommandTestResult('shoutout-test');
     const { loading, runTest } = useCommandApiTest(setStoredResult);
 
-    const handleTest = async () => {
+    const handleTest = async (): Promise<void> => {
         const channelVal = channel.trim() || session.login || '';
         const target = touser.trim();
 
