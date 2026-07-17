@@ -38,8 +38,9 @@ export type AuditAction =
     | 'user_deleted'
     | 'user_blocked'
     | 'user_unblocked'
-    | 'user_unblocked'
-    | 'stats_cleared';
+    | 'stats_cleared'
+    | 'discord_linked'
+    | 'discord_unlinked';
 
 export interface AuditLogEntry {
     timestamp: string;

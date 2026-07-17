@@ -8,7 +8,12 @@ export function buildDashboardProfile(
     info: TwitchUser,
     followers: number,
     isLive: boolean,
-    limits?: ResolvedUserLimits
+    limits?: ResolvedUserLimits,
+    discord?: {
+        discordId?: string | null;
+        discordUsername?: string | null;
+        discordAvatar?: string | null;
+    } | null
 ): DashboardProfile {
     return {
         id: info.id,
@@ -29,6 +34,13 @@ export function buildDashboardProfile(
                   rateLimit: limits.rateLimit,
                   hasCustomRateLimit: limits.hasCustomRateLimit,
                   hasCustomCacheTtl: limits.hasCustomCacheTtl
+              }
+            : {}),
+        ...(discord
+            ? {
+                  discordId: discord.discordId ?? null,
+                  discordUsername: discord.discordUsername ?? null,
+                  discordAvatar: discord.discordAvatar ?? null
               }
             : {})
     };

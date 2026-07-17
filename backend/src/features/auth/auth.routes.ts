@@ -12,4 +12,8 @@ router.get('/exchange', validate(exchangeSchema), authController.exchange);
 router.post('/logout', csrfProtection, authController.logout);
 router.get('/overlay-exchange', validate(overlayExchangeSchema), authController.overlayExchange);
 
+router.get('/discord', authController.discordLinkStart);
+router.get('/discord/callback', authController.discordLinkCallback);
+router.post('/discord/unlink', csrfProtection, authController.discordUnlink);
+
 export default router;

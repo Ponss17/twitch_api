@@ -54,4 +54,7 @@ export interface DashboardProfile {
     hasCustomRateLimit?: boolean;
     hasCustomCacheTtl?: boolean;
     timezone?: string;
+    discordId?: string | null;
+    discordUsername?: string | null;
+    discordAvatar?: string | null;
 }

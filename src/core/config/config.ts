@@ -22,6 +22,8 @@ export const API_ENDPOINTS = {
     AUTH_LOGIN: `${API_BASE}/auth/twitch/`,
     AUTH_EXCHANGE: `${API_BASE}/auth/exchange/`,
     AUTH_LOGOUT: `${API_BASE}/auth/logout/`,
+    AUTH_DISCORD_LINK: `${API_BASE}/auth/discord/`,
+    AUTH_DISCORD_UNLINK: `${API_BASE}/auth/discord/unlink/`,
     OVERLAY_EXCHANGE: `${API_BASE}/auth/overlay-exchange/`,
     EXPORT_CHECK: `${API_BASE}/dashboard/export-check/`,
     EXPORT_COMPLETE: `${API_BASE}/dashboard/export-complete/`,

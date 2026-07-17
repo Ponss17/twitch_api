@@ -22,6 +22,11 @@ const envSchema = z.object({
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
     MAX_MESSAGE_TOKENS: z.coerce.number().default(100),
     DISCORD_FEEDBACK_WEBHOOK_URL: z.string().url().optional(),
+    DISCORD_HEALTH_WEBHOOK_URL: z.string().url().optional(),
+    /** OAuth Discord (vincular cuenta) — opcionales hasta configurar el portal. */
+    DISCORD_CLIENT_ID: z.string().optional(),
+    DISCORD_CLIENT_SECRET: z.string().optional(),
+    DISCORD_REDIRECT_URI: z.string().url().optional(),
     GROQ_API_KEY: z.string().optional(),
     BASE_URL: z.string().url().default('https://ttv.losperris.dev/api'),
     // Admin vars removed
@@ -29,7 +34,6 @@ const envSchema = z.object({
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'SUPABASE_SERVICE_ROLE_KEY es obligatorio'),
     SUPABASE_ANON_KEY: z.string().min(1, 'SUPABASE_ANON_KEY es obligatorio'),
     SUPABASE_JWT_SECRET: z.string().min(1, 'SUPABASE_JWT_SECRET es obligatorio'),
-    DISCORD_HEALTH_WEBHOOK_URL: z.string().url().optional(),
     FRONTEND_URL: z.string().url().optional(),
     /** Upstash Redis — obligatorias en producción, opcionales en dev/test (fail-open). */
     KV_REST_API_URL: z.string().url().optional(),
@@ -41,6 +45,7 @@ const isTest = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !==
 /** Valores canónicos cuando el deploy en Vercel trae localhost del .env local. */
 const PRODUCTION_URLS = {
     TWITCH_REDIRECT_URI: 'https://ttv.losperris.dev/api/auth/twitch/callback',
+    DISCORD_REDIRECT_URI: 'https://ttv.losperris.dev/api/auth/discord/callback',
     BASE_URL: 'https://ttv.losperris.dev/api',
     FRONTEND_URL: 'https://ttv.losperris.dev'
 } as const;
@@ -85,18 +90,23 @@ const envVars = {
     NODE_ENV: process.env.NODE_ENV || (isTest ? 'test' : 'development'),
     MAX_MESSAGE_TOKENS: process.env.MAX_MESSAGE_TOKENS,
     DISCORD_FEEDBACK_WEBHOOK_URL: process.env.DISCORD_FEEDBACK_WEBHOOK_URL,
+    DISCORD_HEALTH_WEBHOOK_URL: process.env.DISCORD_HEALTH_WEBHOOK_URL,
+    DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
+    DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
+    DISCORD_REDIRECT_URI:
+        resolveProductionUrl(process.env.DISCORD_REDIRECT_URI, 'DISCORD_REDIRECT_URI') ||
+        process.env.DISCORD_REDIRECT_URI ||
+        (isTest ? 'http://localhost/api/auth/discord/callback' : undefined),
     GROQ_API_KEY: process.env.GROQ_API_KEY,
     BASE_URL:
         resolveProductionUrl(process.env.BASE_URL, 'BASE_URL') ||
         (isTest ? 'http://localhost' : undefined),
-    // Admin vars removed
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || (isTest ? 'test_anon' : undefined),
     SUPABASE_JWT_SECRET:
         process.env.SUPABASE_JWT_SECRET ||
         (isTest ? 'test_jwt_secret_for_testing_purposes_only' : undefined),
-    DISCORD_HEALTH_WEBHOOK_URL: process.env.DISCORD_HEALTH_WEBHOOK_URL,
     FRONTEND_URL: resolveProductionUrl(process.env.FRONTEND_URL, 'FRONTEND_URL'),
     KV_REST_API_URL: process.env.KV_REST_API_URL,
     KV_REST_API_TOKEN: process.env.KV_REST_API_TOKEN
