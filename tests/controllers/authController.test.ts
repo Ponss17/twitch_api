@@ -6,7 +6,7 @@ jest.mock('../../backend/src/features/auth/auth.service', () => ({
     signAuthExchange: jest.fn().mockReturnValue('signed-auth-token'),
     verifyState: jest.fn(),
     verifyAuthExchange: jest.fn(),
-    consumeAuthExchangeToken: jest.fn().mockResolvedValue(true)
+    consumeAuthExchangeToken: jest.fn().mockResolvedValue('ok')
 }));
 
 jest.mock('../../backend/src/core/database/dbService', () => ({
@@ -185,7 +185,7 @@ describe('authController', () => {
                 login: 'testuser',
                 displayName: 'TestUser'
             });
-            (authService.consumeAuthExchangeToken as jest.Mock).mockResolvedValue(false);
+            (authService.consumeAuthExchangeToken as jest.Mock).mockResolvedValue('replay');
 
             await exchange(req, res);
 
@@ -207,7 +207,7 @@ describe('authController', () => {
                 displayName: 'TestUser',
                 profile_image_url: 'https://img.test/avatar.png'
             });
-            (authService.consumeAuthExchangeToken as jest.Mock).mockResolvedValue(true);
+            (authService.consumeAuthExchangeToken as jest.Mock).mockResolvedValue('ok');
 
             await exchange(req, res);
 
@@ -220,6 +220,27 @@ describe('authController', () => {
             expect(res.json).not.toHaveBeenCalledWith(
                 expect.objectContaining({ apiKey: expect.anything() })
             );
+        });
+
+        it('should return 503 if auth exchange store is unavailable', async () => {
+            const req = mockReq({ query: { auth: 'valid-token' } });
+            const res = mockRes();
+
+            (authService.verifyAuthExchange as jest.Mock).mockReturnValue({
+                apiKey: 'key_abc',
+                userId: '999',
+                login: 'testuser',
+                displayName: 'TestUser'
+            });
+            (authService.consumeAuthExchangeToken as jest.Mock).mockResolvedValue('unavailable');
+
+            await exchange(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(503);
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                error: expect.objectContaining({ code: 'SERVICE_UNAVAILABLE' })
+            });
         });
     });
 });

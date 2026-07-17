@@ -38,7 +38,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
     const { refresh } = useSession();
     const { showToast } = useToast();
-    const { profile: panelProfile } = useDashboardPanel();
+    const { profile: panelProfile, updateProfile } = useDashboardPanel();
     const [profile, setProfile] = useState<ProfileData | null>(
         () => (panelProfile as ProfileData | null) ?? null
     );
@@ -72,6 +72,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
         try {
             const data = await fetchDashboardProfile(session, { fresh: options?.fresh });
             setProfile(data);
+            updateProfile(data);
             writePanelSyncPref(session.userId, Date.now().toString());
         } catch {
             showToast('Error al cargar perfil', 'error');
@@ -431,7 +432,10 @@ export function SettingsView({ active = true }: { active?: boolean }) {
             <SettingsGroup title="Preferencias" description="Ajustes de tu cuenta" delay={90}>
                 <SettingsPreferencesSection
                     currentTimezone={profile?.timezone || 'UTC'}
-                    onSettingsChanged={() => void syncProfile({ silent: true, fresh: true })}
+                    onSettingsChanged={() => {
+                        writePanelSyncPref(session.userId, '0');
+                        void syncProfile({ silent: true, fresh: true });
+                    }}
                 />
             </SettingsGroup>
 

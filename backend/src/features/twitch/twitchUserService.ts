@@ -224,7 +224,8 @@ export const getFollowersCount = async (broadcasterId: string, token: string): P
         return response.data.total || 0;
     } catch (error) {
         logger.error('Error in getFollowersCount:', error);
-        return 0;
+        if (error instanceof TwitchApiError) throw error;
+        return handleTwitchError(error, `getFollowersCount(${broadcasterId})`);
     }
 };
 
@@ -240,10 +241,11 @@ export const isStreamLive = async (userId: string, token: string): Promise<boole
             params: { user_id: userId }
         });
         const live = response.data.data.length > 0;
-        await cacheService.set(cacheKey, live, 30); // 30s TTL — fresco pero sin martillar Twitch
+        await cacheService.set(cacheKey, live, 30);
         return live;
     } catch (error) {
         logger.error('Error in isStreamLive:', error);
-        return false;
+        if (error instanceof TwitchApiError) throw error;
+        return handleTwitchError(error, `isStreamLive(${userId})`);
     }
 };

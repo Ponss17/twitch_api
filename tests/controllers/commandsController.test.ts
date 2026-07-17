@@ -8,7 +8,7 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
 
 jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
     createClip: jest.fn(),
-    getFollowage: jest.fn(),
+    getFollowAge: jest.fn(),
     sendChatMessage: jest.fn(),
     getUserId: jest.fn(),
     getChannelInfo: jest.fn()
@@ -31,10 +31,12 @@ jest.mock('@/core/utils/logger', () => ({
 
 import * as dbService from '../../backend/src/core/database/dbService';
 import * as apiService from '../../backend/src/features/twitch/twitch.service';
+import * as cacheService from '../../backend/src/core/database/cacheService';
 import {
     createClip,
     sendMessage,
-    getShoutout
+    getShoutout,
+    followage
 } from '../../backend/src/features/commands/commands.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
@@ -172,6 +174,48 @@ describe('commandsController', () => {
                     metadata: expect.objectContaining({ message: 'Hello World from chat!' })
                 })
             );
+        });
+    });
+
+    describe('followage', () => {
+        it('clona entradas de caché sin mutar el objeto almacenado', async () => {
+            const cachedEntry = {
+                text: 'viewer ha seguido a channel por 1 día.',
+                timePhrase: '1 día',
+                followDateMs: Date.now() - 86_400_000
+            };
+            (cacheService.get as jest.Mock).mockResolvedValue(cachedEntry);
+
+            const req = mockReq({ query: { channel: 'channel', user: 'viewer' } });
+            const res = mockRes();
+
+            await followage(req, res);
+
+            expect(res.send).toHaveBeenCalled();
+            expect(cachedEntry.text).toBe('viewer ha seguido a channel por 1 día.');
+            expect(dbService.addUserActivity).toHaveBeenCalledWith(
+                '123',
+                expect.objectContaining({
+                    type: 'followage',
+                    metadata: { target: 'channel' }
+                })
+            );
+        });
+
+        it('no cachea respuestas con timePhrase error', async () => {
+            (cacheService.get as jest.Mock).mockResolvedValue(null);
+            (apiService.getFollowAge as jest.Mock).mockResolvedValue({
+                text: 'No se puede consultar followage.',
+                timePhrase: 'error'
+            });
+
+            const req = mockReq({ query: { channel: 'bad', user: 'viewer' } });
+            const res = mockRes();
+
+            await followage(req, res);
+
+            expect(cacheService.set).not.toHaveBeenCalled();
+            expect(res.send).toHaveBeenCalledWith('No se puede consultar followage.');
         });
     });
 

@@ -33,7 +33,7 @@ module.exports = {
                 '^@/core/database/redisClient$': '<rootDir>/backend/src/core/database/__mocks__/redisClient.ts'
             },
             setupFiles: ['<rootDir>/tests/setup.ts'],
-            modulePathIgnorePatterns: ['<rootDir>/dist/'],
+            modulePathIgnorePatterns: ['<rootDir>/dist/', '<rootDir>/api/_bundle/'],
             verbose: true
         },
         {
@@ -47,7 +47,7 @@ module.exports = {
                 '^@contracts/(.*)$': '<rootDir>/backend/src/core/schemas/$1'
             },
             setupFilesAfterEnv: ['<rootDir>/tests/frontend/setup.ts'],
-            modulePathIgnorePatterns: ['<rootDir>/dist/'],
+            modulePathIgnorePatterns: ['<rootDir>/dist/', '<rootDir>/api/_bundle/'],
             verbose: true
         }
     ]

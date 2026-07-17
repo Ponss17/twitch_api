@@ -3,6 +3,7 @@ import { CONFIG } from '../../core/config/env';
 import * as dbService from '../../core/database/dbService';
 import { logger } from '../../core/utils/logger';
 import { verifyState } from './auth.service';
+import { getPrimaryHmacSecret } from '../../core/utils/hmacSecrets';
 import crypto from 'crypto';
 
 const DISCORD_AUTHORIZE = 'https://discord.com/api/oauth2/authorize';
@@ -10,15 +11,11 @@ const DISCORD_TOKEN = 'https://discord.com/api/oauth2/token';
 const DISCORD_ME = 'https://discord.com/api/users/@me';
 const STATE_TTL_MS = 10 * 60 * 1000;
 
-function getHmacSecret(): string {
-    return CONFIG.HMAC_SIGNING_SECRET ?? (CONFIG.TWITCH_CLIENT_SECRET as string);
-}
-
 function signDiscordState(payload: object): string {
     const data = Buffer.from(
         JSON.stringify({ ...payload, exp: Date.now() + STATE_TTL_MS })
     ).toString('base64');
-    const sig = crypto.createHmac('sha256', getHmacSecret()).update(data).digest('hex');
+    const sig = crypto.createHmac('sha256', getPrimaryHmacSecret()).update(data).digest('hex');
     return `${data}.${sig}`;
 }
 

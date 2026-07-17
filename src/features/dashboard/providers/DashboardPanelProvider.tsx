@@ -1,5 +1,6 @@
 ﻿import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import type { Session } from '@/core/config/config';
+import type { DashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
 import { useDashboardPanelState } from './hooks/useDashboardPanelState';
 import { useDashboardPanelEngine } from './hooks/useDashboardPanelEngine';
 import type { DashboardLiveStats } from '@/features/dashboard/lib/dashboardStats';
@@ -8,8 +9,8 @@ import type { ActivityLogItem } from '@/features/dashboard/lib/activityLogDispla
 export interface DashboardPanelContextValue {
     stats: DashboardLiveStats;
     activity: ActivityLogItem[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    profile: any;
+    profile: DashboardProfile | null;
+    updateProfile: (profile: DashboardProfile | null) => void;
     hasLiveData: boolean;
     error: string | null;
     syncing: boolean;
@@ -56,7 +57,8 @@ export function DashboardPanelProvider({
         () => ({
             stats: state.stats,
             activity: state.activity,
-            profile: state.profile,
+            profile: state.profile as DashboardProfile | null,
+            updateProfile: actions.setProfile,
             hasLiveData: state.hasLiveData,
             error: state.error,
             syncing: state.syncing,
@@ -68,6 +70,7 @@ export function DashboardPanelProvider({
             state.stats,
             state.activity,
             state.profile,
+            actions.setProfile,
             state.hasLiveData,
             state.error,
             state.syncing,

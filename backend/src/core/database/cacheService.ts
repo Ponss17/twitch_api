@@ -61,16 +61,20 @@ export const set = async <T = unknown>(
 };
 
 /**
- * SET NX — true si esta instancia ganó el write.
- * Usado para burns de un solo uso (auth exchange) entre réplicas.
+ * SET NX — resultado del intento de escritura atómica.
+ * - acquired: esta instancia ganó el write
+ * - exists: la clave ya existía (replay / otro worker)
+ * - unavailable: KV no escribible o error transitorio
  */
+export type SetIfAbsentResult = 'acquired' | 'exists' | 'unavailable';
+
 export const setIfAbsent = async <T = unknown>(
     key: string,
     value: T,
     ttlSeconds: number = 60
-): Promise<boolean> => {
+): Promise<SetIfAbsentResult> => {
     if (!isKvWriteAvailable()) {
-        return false;
+        return 'unavailable';
     }
 
     try {
@@ -79,16 +83,16 @@ export const setIfAbsent = async <T = unknown>(
             ex: ttlSeconds
         });
         if (result === null || result === undefined) {
-            return false;
+            return 'exists';
         }
-        return true;
+        return 'acquired';
     } catch (error) {
         if (process.env.NODE_ENV !== 'production') {
             disableKvWrites('KV no permite escritura');
-            return false;
+            return 'unavailable';
         }
         console.error(`[Cache] Error KV setIfAbsent (${key}):`, error);
-        return false;
+        return 'unavailable';
     }
 };
 

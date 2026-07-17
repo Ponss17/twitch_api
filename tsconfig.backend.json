@@ -15,5 +15,5 @@
         "isolatedModules": false
     },
     "include": ["backend/src/**/*"],
-    "exclude": ["node_modules", "dist", "tests"]
+    "exclude": ["node_modules", "dist", "tests", "backend/src/**/__mocks__/**"]
 }

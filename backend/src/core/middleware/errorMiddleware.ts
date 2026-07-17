@@ -110,7 +110,8 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
         res.on('finish', () => {
             const duration = Date.now() - start;
             const safeUrl = redactSensitiveUrl(req.originalUrl);
-            const userId = (req as unknown as { user?: { id?: string } }).user?.id;
+            const userId = (req as unknown as { user?: { twitchId?: string; id?: string } }).user
+                ?.twitchId;
             const meta = {
                 requestId,
                 method: req.method,

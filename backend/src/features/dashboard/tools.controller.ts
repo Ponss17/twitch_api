@@ -5,9 +5,9 @@ import { ownerScopedCacheKey, resolveCache } from '../../core/config/cacheTtl';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { AuthenticatedRequest } from '../../types/twitch';
-import { TwitchApiError, AppError } from '../../core/errors/AppError';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { trackRequest } from '../../core/utils/tracking';
+import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 
 export const getClips = async (req: AuthenticatedRequest, res: Response) => {
     const channel = req.query.channel as string;
@@ -22,15 +22,20 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
             const cached = await cacheService.get(cacheKey);
             if (cached) return cached;
 
-            try {
-                const apiResult = await apiService.getClips(channel, limitNum, req.twitchToken || '');
-                await cacheService.set(cacheKey, apiResult, resolveCache('CLIPS', res.locals.apiUser?.role, res.locals.apiUser?.customCacheTtl));
-                return apiResult;
-            } catch (error: unknown) {
-                if (error instanceof TwitchApiError) throw error;
-                logger.error('Error fetching clips:', { error });
-                throw new AppError(MESSAGES.DASHBOARD.CLIPS_ERROR, 500);
-            }
+            return withTwitchAuth(
+                req,
+                res,
+                async (token) => {
+                    const apiResult = await apiService.getClips(channel, limitNum, token);
+                    await cacheService.set(
+                        cacheKey,
+                        apiResult,
+                        resolveCache('CLIPS', res.locals.apiUser?.role, res.locals.apiUser?.customCacheTtl)
+                    );
+                    return apiResult;
+                },
+                'getClips'
+            );
         },
         req
     );
@@ -54,22 +59,34 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
         userId,
         { type: 'stalker', user: channel, incrementStat: isRoulette ? undefined : 'stalker', skipActivityLog: isRoulette },
         async () => {
-            const cacheKey = ownerScopedCacheKey(userId, `cache:cmd:getChatters:channel:${channel}:eligibility:${eligibilityRaw ?? 'all'}`);
+            const cacheKey = ownerScopedCacheKey(
+                userId,
+                `cache:cmd:getChatters:channel:${channel}:eligibility:${eligibilityRaw ?? 'all'}`
+            );
             const cached = await cacheService.get(cacheKey);
             if (cached) return cached;
 
-            try {
-                const broadcasterId = await apiService.getUserId(channel, req.twitchToken || '');
-                const chatters = await apiService.getChatters(broadcasterId, userId, req.twitchToken || '');
-                const payload = await apiService.filterAndAnnotateChatters(chatters, broadcasterId, req.twitchToken || '', eligibility);
-                await cacheService.set(cacheKey, payload, resolveCache('CHATTERS', res.locals.apiUser?.role, res.locals.apiUser?.customCacheTtl));
-                return payload;
-            } catch (error: unknown) {
-                if (error instanceof TwitchApiError) throw error;
-                const err = error as Error;
-                logger.error('Error getting chatters:', { error: err.message });
-                throw new AppError(MESSAGES.DASHBOARD.CHATTERS_ERROR, 500);
-            }
+            return withTwitchAuth(
+                req,
+                res,
+                async (token) => {
+                    const broadcasterId = await apiService.getUserId(channel, token);
+                    const chatters = await apiService.getChatters(broadcasterId, userId, token);
+                    const payload = await apiService.filterAndAnnotateChatters(
+                        chatters,
+                        broadcasterId,
+                        token,
+                        eligibility
+                    );
+                    await cacheService.set(
+                        cacheKey,
+                        payload,
+                        resolveCache('CHATTERS', res.locals.apiUser?.role, res.locals.apiUser?.customCacheTtl)
+                    );
+                    return payload;
+                },
+                'getChatters'
+            );
         },
         req
     );
