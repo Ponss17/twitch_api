@@ -81,6 +81,7 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
 
     const analyticsCacheHit = Boolean(cachedAnalytics) && isAnalyticsCacheFresh(cachedAnalytics, statsRev);
     const limits = resolveUserLimits(res.locals?.apiUser);
+    const discordFields = userId ? await dbService.getDiscordLinkFields(userId) : null;
 
     const mergeProfileLimits = (profile: Record<string, unknown> | null) => {
         if (!profile) return profile;
@@ -92,7 +93,8 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             cacheTtl: resolveCache('COMMAND', res.locals?.apiUser?.role, res.locals?.apiUser?.customCacheTtl),
             hasCustomRateLimit: limits.hasCustomRateLimit,
             hasCustomCacheTtl: limits.hasCustomCacheTtl,
-            timezone: res.locals?.apiUser?.timezone || 'UTC'
+            timezone: res.locals?.apiUser?.timezone || 'UTC',
+            ...(discordFields ?? {})
         };
     };
 
@@ -116,11 +118,10 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
                           apiService.isStreamLive(info.id, token)
                       ]);
                       const limits = resolveUserLimits(res.locals.apiUser);
-                      const apiUser = res.locals.apiUser;
-                      const profileData = buildDashboardProfile(info, followers, false, limits, {
-                          discordId: apiUser?.discordId,
-                          discordUsername: apiUser?.discordUsername,
-                          discordAvatar: apiUser?.discordAvatar
+                      const profileData = buildDashboardProfile(info, followers, isLive, limits, discordFields ?? {
+                          discordId: res.locals.apiUser?.discordId,
+                          discordUsername: res.locals.apiUser?.discordUsername,
+                          discordAvatar: res.locals.apiUser?.discordAvatar
                       });
                       return { profileData, isLive, limits };
                   }, 'getSummary')
