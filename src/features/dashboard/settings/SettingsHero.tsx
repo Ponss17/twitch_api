@@ -39,7 +39,7 @@ function ProfileStat({
 }
 
 export function SettingsHero({
-    followers = 0,
+    followers,
     broadcasterLabel,
     memberSince,
     isLive,
@@ -91,11 +91,20 @@ export function SettingsHero({
                             iconClass="border-primary/25 bg-transparent text-primary"
                             label="Seguidores"
                         >
-                            <AnimatedNumber
-                                value={followers}
-                                isLoading={isLoading}
-                                className="text-[1.4rem] font-bold leading-none tracking-tight text-white"
-                            />
+                            {followers === undefined && !isLoading ? (
+                                <span
+                                    className="text-[1.4rem] font-bold leading-none tracking-tight text-white"
+                                    title="No disponible ahora mismo"
+                                >
+                                    —
+                                </span>
+                            ) : (
+                                <AnimatedNumber
+                                    value={followers ?? 0}
+                                    isLoading={isLoading}
+                                    className="text-[1.4rem] font-bold leading-none tracking-tight text-white"
+                                />
+                            )}
                         </ProfileStat>
                     </div>
                     <div className="border-l border-white/[0.08] px-6">
