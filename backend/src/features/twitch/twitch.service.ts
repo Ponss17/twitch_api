@@ -9,7 +9,9 @@ export {
     getFollowAge,
     validateToken,
     getFollowersCount,
-    isStreamLive
+    isStreamLive,
+    getFollowersCountSafe,
+    isStreamLiveSafe
 } from './twitchUserService';
 export { createClip, getClips } from './twitchClipService';
 export { getChannelInfo, sendChatMessage, getChatters, timeoutUser, filterChattersByEligibility, annotateChatterRoles, filterAndAnnotateChatters, parseEligibilityQuery } from './twitchChatService';

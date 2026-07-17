@@ -249,3 +249,39 @@ export const isStreamLive = async (userId: string, token: string): Promise<boole
         return handleTwitchError(error, `isStreamLive(${userId})`);
     }
 };
+
+/**
+ * Variantes "best-effort" para el perfil del panel: seguidores y estado en vivo
+ * son datos SECUNDARIOS. Si Twitch falla (p. ej. el token carece del scope
+ * `moderator:read:followers`), devolvemos `undefined` (dato no disponible) en
+ * lugar de romper todo el endpoint con 401 o mentir con 0/offline.
+ */
+export const getFollowersCountSafe = async (
+    broadcasterId: string,
+    token: string
+): Promise<number | undefined> => {
+    try {
+        return await getFollowersCount(broadcasterId, token);
+    } catch (error) {
+        logger.warn('getFollowersCountSafe degradado (dato no disponible):', {
+            broadcasterId,
+            error: error instanceof Error ? error.message : String(error)
+        });
+        return undefined;
+    }
+};
+
+export const isStreamLiveSafe = async (
+    userId: string,
+    token: string
+): Promise<boolean | undefined> => {
+    try {
+        return await isStreamLive(userId, token);
+    } catch (error) {
+        logger.warn('isStreamLiveSafe degradado (dato no disponible):', {
+            userId,
+            error: error instanceof Error ? error.message : String(error)
+        });
+        return undefined;
+    }
+};

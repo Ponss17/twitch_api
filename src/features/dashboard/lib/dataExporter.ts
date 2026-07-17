@@ -403,7 +403,7 @@ const DataExport = {
         const followerCount =
             typeof userInfo.followers === 'number'
                 ? userInfo.followers.toLocaleString()
-                : userInfo.followers;
+                : (userInfo.followers ?? '—');
 
         const createdAtDate = new Date(userInfo.created_at || now);
         const createdAtStr = isNaN(createdAtDate.getTime())

@@ -17,7 +17,13 @@ jest.mock('../../backend/src/features/twitch/twitchClient', () => ({
 
 import * as cacheService from '../../backend/src/core/database/cacheService';
 import { apiClient } from '../../backend/src/features/twitch/twitchClient';
-import { getFollowAge, invalidateUserInfoCache } from '../../backend/src/features/twitch/twitchUserService';
+import {
+    getFollowAge,
+    getFollowersCountSafe,
+    isStreamLiveSafe,
+    invalidateUserInfoCache
+} from '../../backend/src/features/twitch/twitchUserService';
+import { TwitchApiError } from '../../backend/src/core/errors/AppError';
 
 const mockedApiClient = apiClient as jest.Mocked<typeof apiClient>;
 
@@ -93,5 +99,30 @@ describe('getFollowAge', () => {
 
         expect(result.timePhrase).not.toBe('error');
         expect(result.text).toContain('viewer1 ha seguido a ponss17');
+    });
+});
+
+describe('getFollowersCountSafe / isStreamLiveSafe (perfil degradado)', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        (cacheService.get as jest.Mock).mockResolvedValue(null);
+    });
+
+    it('getFollowersCountSafe devuelve el total cuando Twitch responde', async () => {
+        mockedApiClient.get.mockResolvedValueOnce({ data: { total: 1234 } });
+
+        await expect(getFollowersCountSafe('111', 'token')).resolves.toBe(1234);
+    });
+
+    it('getFollowersCountSafe devuelve undefined (no 0) cuando falta el scope', async () => {
+        mockedApiClient.get.mockRejectedValueOnce(new TwitchApiError('Missing scope', 401));
+
+        await expect(getFollowersCountSafe('111', 'token')).resolves.toBeUndefined();
+    });
+
+    it('isStreamLiveSafe devuelve undefined cuando Twitch falla', async () => {
+        mockedApiClient.get.mockRejectedValueOnce(new TwitchApiError('Boom', 503));
+
+        await expect(isStreamLiveSafe('111', 'token')).resolves.toBeUndefined();
     });
 });

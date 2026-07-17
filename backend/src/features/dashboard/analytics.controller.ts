@@ -99,9 +99,10 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
     };
 
     if (cachedProfile && (!userId || analyticsCacheHit)) {
-        const isLive = userId && token
-            ? await apiService.isStreamLive(userId, token)
-            : (cachedProfile.isLive as boolean | undefined);
+        const freshIsLive = userId && token
+            ? await apiService.isStreamLiveSafe(userId, token)
+            : undefined;
+        const isLive = freshIsLive ?? (cachedProfile.isLive as boolean | undefined);
         return res.json({ profile: mergeProfileLimits({ ...cachedProfile, isLive }), analytics: cachedAnalytics ?? null });
     }
 
@@ -113,17 +114,19 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             needProfile
                 ? withTwitchAuth(req, res, async (token) => {
                       const info = await apiService.getUserInfo(login, token);
+                      // followers/isLive son secundarios: degradar sin romper el perfil.
                       const [followers, isLive] = await Promise.all([
-                          apiService.getFollowersCount(info.id, token),
-                          apiService.isStreamLive(info.id, token)
+                          apiService.getFollowersCountSafe(info.id, token),
+                          apiService.isStreamLiveSafe(info.id, token)
                       ]);
                       const limits = resolveUserLimits(res.locals.apiUser);
+                      const degraded = followers === undefined || isLive === undefined;
                       const profileData = buildDashboardProfile(info, followers, isLive, limits, discordFields ?? {
                           discordId: res.locals.apiUser?.discordId,
                           discordUsername: res.locals.apiUser?.discordUsername,
                           discordAvatar: res.locals.apiUser?.discordAvatar
                       });
-                      return { profileData, isLive, limits };
+                      return { profileData, isLive, limits, degraded };
                   }, 'getSummary')
                 : Promise.resolve(null),
             needAnalytics && userId
@@ -139,8 +142,10 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
                 : Promise.resolve(cachedAnalytics ?? null)
         ]);
 
-        if (needProfile && profileKey && profile) {
-            const { isLive: _isLive, ...profileWithoutLive } = profile as { isLive?: boolean } & Record<string, unknown>;
+        const profileDegraded = Boolean((profile as { degraded?: boolean } | null)?.degraded);
+        if (needProfile && profileKey && profile && !profileDegraded) {
+            const { isLive: _isLive, degraded: _degraded, ...profileWithoutLive } =
+                profile as { isLive?: boolean; degraded?: boolean } & Record<string, unknown>;
             await cacheService.set(
                 profileKey,
                 { ...profileWithoutLive, ...profile.limits },
@@ -160,9 +165,9 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
                   const p = profile as unknown as { profileData: Record<string, unknown>; isLive: boolean; limits: Record<string, unknown> };
                   return { ...p.profileData, ...p.limits, isLive: p.isLive };
               })()
-            : (cachedProfile ? { ...cachedProfile, isLive: userId && token
-                  ? await apiService.isStreamLive(userId, token)
-                  : cachedProfile.isLive } : null);
+            : (cachedProfile ? { ...cachedProfile, isLive: (userId && token
+                  ? await apiService.isStreamLiveSafe(userId, token)
+                  : undefined) ?? cachedProfile.isLive } : null);
 
         res.json({
             profile: mergeProfileLimits(finalProfile && typeof finalProfile === 'object' ? (finalProfile as Record<string, unknown>) : null),
