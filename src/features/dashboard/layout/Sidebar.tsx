@@ -121,7 +121,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                         <span>Documentación</span>
                     </a>
                     <a
-                        href="https://discord.gg/8uN3qY5E"
+                        href="https://discord.gg/PJbExZe7Tp"
                         target="_blank"
                         rel="noopener noreferrer"
                         className={supportLinkClass}

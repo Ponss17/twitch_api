@@ -243,7 +243,7 @@ export function LandingPage() {
                             <Book className="w-4" /> Documentación
                         </a>
                         <a
-                            href="https://discord.gg/8uN3qY5E"
+                            href="https://discord.gg/PJbExZe7Tp"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#c4c4cc] no-underline transition hover:bg-white/5 hover:text-[#fafafa]"
