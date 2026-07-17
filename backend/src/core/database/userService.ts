@@ -194,6 +194,45 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
         secureUser.refreshToken = encrypt(secureUser.refreshToken);
     }
 
+    if (options?.tokensOnly) {
+        const { error } = await supabase
+            .from('users')
+            .update({
+                access_token: secureUser.accessToken ?? null,
+                refresh_token: secureUser.refreshToken ?? null,
+                token_expires_at: resolveTokenExpiresAtIso(secureUser)
+            })
+            .eq('user_id', user.userId);
+
+        if (error) {
+            logger.error('Error actualizando tokens en Supabase:', error.message);
+            throw error;
+        }
+
+        // DB guarda cifrado; caché L1/KV debe quedar en claro para Helix/auth.
+        // Fusionar con caché existente para no perder campos (p. ej. Discord) no cargados en `user`.
+        const cacheKey = `cache:user:id:${user.userId}`;
+        const cached = await cacheService.get<StoredUser>(cacheKey);
+        const merged: StoredUser = {
+            ...(cached ?? user),
+            accessToken: user.accessToken,
+            refreshToken: user.refreshToken,
+            expiresIn: user.expiresIn,
+            obtainedAt: user.obtainedAt,
+            tokenExpiresAt: user.tokenExpiresAt
+        };
+        rememberUserCaches(merged);
+        await Promise.all([
+            cacheService.set(cacheKey, merged, CACHE_TTL_MATRIX.API_USER.default),
+            cacheService.set(
+                `cache:user:login:${user.login.toLowerCase()}`,
+                merged,
+                CACHE_TTL_MATRIX.USER_BY_LOGIN.default
+            )
+        ]).catch((e) => logger.error('Error actualizando caché de usuario (tokens):', e));
+        return;
+    }
+
     const { error } = await supabase
         .from('users')
         .upsert(toRow(secureUser), { onConflict: 'user_id' });
@@ -201,20 +240,6 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
     if (error) {
         logger.error('Error guardando usuario en Supabase:', error.message);
         throw error;
-    }
-
-    if (options?.tokensOnly) {
-        // DB guarda cifrado; caché L1/KV debe quedar en claro para Helix/auth.
-        rememberUserCaches(user);
-        await Promise.all([
-            cacheService.set(`cache:user:id:${user.userId}`, user, CACHE_TTL_MATRIX.API_USER.default),
-            cacheService.set(
-                `cache:user:login:${user.login.toLowerCase()}`,
-                user,
-                CACHE_TTL_MATRIX.USER_BY_LOGIN.default
-            )
-        ]).catch((e) => logger.error('Error actualizando caché de usuario (tokens):', e));
-        return;
     }
 
     const cachePromises = [
@@ -435,7 +460,7 @@ export const linkDiscordAccount = async (
     const current = await getUser(userId);
     if (!current) throw new Error('USER_NOT_FOUND');
 
-    const { error } = await supabase
+    const { data, error } = await supabase
         .from('users')
         .update({
             discord_id: payload.discordId,
@@ -444,11 +469,18 @@ export const linkDiscordAccount = async (
             discord_linked_at: current.discordId ? current.discordLinkedAt ?? now : now,
             discord_updated_at: now
         })
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .select('discord_id')
+        .maybeSingle();
 
     if (error) {
         if (error.code === '23505') throw new Error('DISCORD_ALREADY_LINKED');
         logger.error('Error linking Discord:', error.message);
+        throw new Error('DISCORD_LINK_FAILED');
+    }
+
+    if (!data || data.discord_id !== payload.discordId) {
+        logger.error('Discord link update did not persist', { userId, discordId: payload.discordId });
         throw new Error('DISCORD_LINK_FAILED');
     }
 

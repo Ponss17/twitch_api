@@ -14,6 +14,7 @@ import {
     runLegacyPanelSessionMigration,
     takeLegacyReloginRedirect
 } from '@/core/api/auth';
+import { isWithinSessionAuthGrace } from '@/core/auth/sessionAuthGrace';
 import type { Session } from '@/core/config/config';
 import { appPath } from '@/core/config/paths';
 import { SessionContext } from '@/core/session/context';
@@ -194,6 +195,23 @@ export function SessionProvider({
             }
         };
     }, [refresh]);
+
+    useEffect(() => {
+        if (!requireAuth) return;
+
+        const onAuthFailed = () => {
+            if (isWithinSessionAuthGrace()) return;
+            invalidateSession({ broadcast: false });
+            showToastRef.current('Sesión expirada. Redirigiendo al login...', 'error');
+            if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
+            redirectTimerRef.current = window.setTimeout(() => {
+                window.location.href = appPath('/');
+            }, 1500);
+        };
+
+        window.addEventListener('session:auth-failed', onAuthFailed);
+        return () => window.removeEventListener('session:auth-failed', onAuthFailed);
+    }, [requireAuth]);
 
     // Refresh proactivo: renueva el token de Twitch antes de que expire,
     // sin esperar a que una petición falle con 401.

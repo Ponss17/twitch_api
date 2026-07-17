@@ -4,7 +4,8 @@ import { authHeaders } from './authHeaders';
 import { withApiCredentials } from './apiCredentials';
 import { invalidateSession } from './sessionLifecycle';
 import { getSession } from './sessionStorage';
-import { isWithinSessionAuthGrace } from './sessionAuthGrace';
+import { isWithinSessionAuthGrace, clearSessionAuthGrace } from './sessionAuthGrace';
+import { clearValidateCache } from './validateCache';
 
 export type ApiFetchOptions = {
     /**
@@ -62,6 +63,11 @@ export async function apiFetch<T>(
 
             const shouldLogout =
                 lastResponse.status === 401 && options.logoutOn401 !== false && !inGrace;
+            if (lastResponse.status === 401 && !inGrace) {
+                clearValidateCache(getSession());
+                clearSessionAuthGrace();
+                window.dispatchEvent(new CustomEvent('session:auth-failed'));
+            }
             if (shouldLogout) {
                 invalidateSession({ broadcast: true });
                 window.location.href = window.location.origin + window.location.pathname;
