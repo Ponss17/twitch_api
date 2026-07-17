@@ -80,10 +80,20 @@ export function SettingsView({ active = true }: { active?: boolean }) {
         }
     };
 
-    // Si el panel ya trajo perfil (Home/Analytics), reutilizarlo sin USER_INFO extra.
+    // Si el panel ya trajo perfil (Home/Analytics), reutilizarlo; conservar Discord si el panel va desfasado.
     useEffect(() => {
         if (!panelProfile) return;
-        setProfile((prev) => prev ?? (panelProfile as ProfileData));
+        setProfile((prev) => {
+            const incoming = panelProfile as ProfileData;
+            if (!prev) return incoming;
+            return {
+                ...prev,
+                ...incoming,
+                discordId: incoming.discordId ?? prev.discordId,
+                discordUsername: incoming.discordUsername ?? prev.discordUsername,
+                discordAvatar: incoming.discordAvatar ?? prev.discordAvatar
+            };
+        });
         setLoading(false);
     }, [panelProfile]);
 
@@ -328,6 +338,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
         window.history.replaceState({}, '', next);
 
         if (kind === 'linked') {
+            writePanelSyncPref(session.userId, '0');
             void syncProfile({ silent: true, fresh: true });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al montar con query
