@@ -1,19 +1,18 @@
-import { Settings, Globe, Search, ChevronDown, Check } from 'lucide-react';
+import { Globe, Search, ChevronDown, Check } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
-import { card, fadeIn, btnPrimary } from '@/core/utils/tw';
+import { btnPrimary } from '@/core/utils/tw';
 import { Dropdown, DropdownTrigger, DropdownPanel, DropdownItem } from '@/shared/ui/Dropdown';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useToast } from '@/shared/ui/ToastProvider';
+import { SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
 
 interface SettingsPreferencesSectionProps {
     currentTimezone: string;
     onSettingsChanged: () => void;
 }
-
-const cardShell = `${card} ${fadeIn} mb-3 opacity-0`;
 
 export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged }: SettingsPreferencesSectionProps) {
     const session = useRequiredSession();
@@ -72,37 +71,16 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
     };
 
     return (
-        <div className={`${cardShell} relative z-10 [animation-delay:80ms]`}>
-            <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
-                <div className="flex items-center gap-3">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-[0.9rem] text-primary">
-                        <Settings className="w-4 h-4" />
-                    </div>
-                    <div>
-                        <h3 className="mb-0.5 text-[0.95rem] font-bold">Ajustes del Perfil</h3>
-                        <p className="text-[0.8rem] text-[#c4c4cc]">
-                            Personaliza las preferencias de tu cuenta
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div className="flex flex-col gap-4 rounded-xl border border-white/[0.08] bg-black/20 p-4 pl-5 transition-colors hover:bg-black/30">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex-1">
-                        <h4
-                            id="settings-timezone-label"
-                            className="mb-1 text-[1.05rem] font-bold text-white flex items-center gap-2"
-                        >
-                            <Globe className="w-4 h-4 text-primary" aria-hidden="true" />
-                            Zona Horaria
-                        </h4>
-                        <p className="text-[0.85rem] text-[#c4c4cc]">
-                            Tu zona horaria se utiliza para agrupar y mostrar correctamente los días en tus estadísticas y reportes.
-                        </p>
-                    </div>
-                    
-                    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+        <SettingsRow
+            title="Zona Horaria"
+            icon={Globe}
+            description={
+                <span id="settings-timezone-label">
+                    Tu zona horaria se utiliza para agrupar y mostrar correctamente los días en tus estadísticas y reportes.
+                </span>
+            }
+            control={
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
                         <Dropdown className="relative w-full sm:w-auto">
                             <DropdownTrigger
                                 aria-labelledby="settings-timezone-label"
@@ -160,9 +138,8 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                         >
                             {saving ? 'Guardando...' : 'Guardar'}
                         </button>
-                    </div>
                 </div>
-            </div>
-        </div>
+            }
+        />
     );
 }
