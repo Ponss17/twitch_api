@@ -109,7 +109,7 @@ export const modalTitle = 'm-0 flex items-center gap-2 text-[1.05rem] font-bold 
 export const modalTitleIcon = 'text-primary';
 
 export const modalBody =
-    'px-5 py-5 text-[0.875rem] leading-relaxed text-[#c4c4cc] [&_p]:mb-3.5 [&_p:last-child]:mb-0 [&_strong]:text-[#fafafa] [&_ul]:my-3 [&_ul]:list-none [&_ul]:space-y-2 [&_ul]:pl-2.5 [&_li]:flex [&_li]:items-start [&_li]:gap-2 [&_li_i]:mt-0.5 [&_li_i]:text-primary';
+    'px-5 py-5 text-[0.875rem] leading-relaxed text-[#c4c4cc] [&_p]:mb-3.5 [&_p:last-child]:mb-0 [&_strong]:text-[#fafafa] [&_ul]:my-3 [&_ul]:list-none [&_ul]:space-y-2.5 [&_ul]:pl-0 [&_li]:flex [&_li]:items-start [&_li]:gap-2.5 [&_li_svg]:mt-0.5 [&_li_svg]:shrink-0';
 
 export const modalFooter =
     'flex flex-row-reverse gap-2.5 border-t border-white/[0.08] bg-bg-secondary px-5 py-4';
