@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Toaster } from 'sonner';
 import { Sidebar } from '@/features/dashboard/layout/Sidebar';
 import { DashboardHeader } from '@/features/dashboard/layout/DashboardHeader';
 import { DashboardContent } from '@/features/dashboard/DashboardContent';
-import { ToastProvider, useToast } from '@/shared/ui/ToastProvider';
+import { ToastProvider, AppToaster, useToast } from '@/shared/ui/ToastProvider';
 import { OnlineStatusMonitor } from '@/shared/ui/OnlineStatusMonitor';
 import { VerifyingSessionModal } from '@/shared/ui/VerifyingSessionModal';
 import { SessionProvider } from '@/shared/providers/SessionProvider';
@@ -40,7 +39,7 @@ function DashboardPanelShell({
 export function DashboardApp() {
     return (
         <ToastProvider>
-            <Toaster theme="dark" richColors position="bottom-right" style={{ zIndex: 3000 }} />
+            <AppToaster />
             <SessionProvider requireAuth>
                 <DashboardAppShell />
             </SessionProvider>

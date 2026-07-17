@@ -23,6 +23,7 @@ import {
     modalTitle,
     modalTitleIcon
 } from '@/core/utils/tw';
+import { promoteToasterAboveModals } from '@/shared/ui/ToastProvider';
 
 const ModalCloseContext = createContext<(() => void) | null>(null);
 
@@ -71,6 +72,7 @@ export function BaseModal({
         if (open && !dialog.open) {
             setClosing(false);
             dialog.showModal();
+            promoteToasterAboveModals();
             // El <dialog> enfoca el primer botón (la X). Movemos el foco al CTA.
             const focusPrimary = () => {
                 const panel = panelRef.current;
@@ -262,6 +264,7 @@ export function DangerConfirmModal({
         if (open && !dialog.open) {
             setClosing(false);
             dialog.showModal();
+            promoteToasterAboveModals();
         }
     }, [open]);
 
