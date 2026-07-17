@@ -59,6 +59,12 @@ export interface StoredUser {
     timezone?: string;
     /** Epoch ms — persistido en Supabase como token_expires_at */
     tokenExpiresAt?: number;
+    /** Discord link (OAuth identify) — id es la identidad; username/avatar = caché panel */
+    discordId?: string | null;
+    discordUsername?: string | null;
+    discordAvatar?: string | null;
+    discordLinkedAt?: string | null;
+    discordUpdatedAt?: string | null;
 }
 
 export interface AuthenticatedRequest extends Request {
