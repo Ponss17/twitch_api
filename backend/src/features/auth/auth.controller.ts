@@ -8,6 +8,7 @@ import { jsonError } from '../../core/utils/jsonResponse';
 import { setSessionCookie, clearSessionCookie, readSessionUserId } from '../../core/utils/sessionCookie';
 import { invalidateAuthCache, unrevokeAuthSession } from '../../core/middleware/authMiddleware';
 import { AuthenticatedRequest } from '../../types/twitch';
+import * as discordAuthService from './discordAuth.service';
 
 const isAllowedOrigin = (origin: string, req: Request): boolean => {
     try {
@@ -158,4 +159,77 @@ export const overlayExchange = (req: Request, res: Response) => {
         profile_image_url: payload.profile_image_url,
         tool: payload.tool
     });
+};
+
+export const discordLinkStart = (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId ?? readSessionUserId(req);
+    if (!userId) {
+        return res.redirect(frontendPagePath('/dashboard/settings', 'discord=error_auth'));
+    }
+
+    try {
+        const redirectOrigin = (req.query.redirect_origin as string) || '';
+        const url = discordAuthService.getDiscordAuthorizeUrl(
+            userId,
+            redirectOrigin && isAllowedOrigin(redirectOrigin, req) ? redirectOrigin : undefined
+        );
+        return res.redirect(url);
+    } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : '';
+        if (msg === 'DISCORD_OAUTH_NOT_CONFIGURED') {
+            return res.redirect(frontendPagePath('/dashboard/settings', 'discord=error_config'));
+        }
+        logger.error('Discord link start failed', { error: msg });
+        return res.redirect(frontendPagePath('/dashboard/settings', 'discord=error'));
+    }
+};
+
+export const discordLinkCallback = async (req: Request, res: Response) => {
+    const { code, state, error } = req.query as {
+        code?: string;
+        state?: string;
+        error?: string;
+    };
+
+    if (error || !code || !state) {
+        return res.redirect(frontendPagePath('/dashboard/settings', 'discord=error'));
+    }
+
+    try {
+        await discordAuthService.handleDiscordLinkCallback(code, state);
+        return res.redirect(frontendPagePath('/dashboard/settings', 'discord=linked'));
+    } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : '';
+        logger.error('Discord link callback failed', { error: msg });
+
+        if (msg === 'DISCORD_ALREADY_LINKED') {
+            return res.redirect(frontendPagePath('/dashboard/settings', 'discord=error_taken'));
+        }
+        if (msg === 'INVALID_STATE' || msg === 'DISCORD_OAUTH_NOT_CONFIGURED') {
+            return res.redirect(
+                frontendPagePath(
+                    '/dashboard/settings',
+                    msg === 'DISCORD_OAUTH_NOT_CONFIGURED' ? 'discord=error_config' : 'discord=error'
+                )
+            );
+        }
+        return res.redirect(frontendPagePath('/dashboard/settings', 'discord=error'));
+    }
+};
+
+export const discordUnlink = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId ?? readSessionUserId(req);
+    if (!userId) {
+        return jsonError(res, 401, 'Debes iniciar sesión.', { code: 'UNAUTHORIZED' });
+    }
+
+    try {
+        await discordAuthService.unlinkDiscord(userId);
+        return res.json({ success: true });
+    } catch (error: unknown) {
+        logger.error('Discord unlink failed', {
+            error: error instanceof Error ? error.message : String(error)
+        });
+        return jsonError(res, 500, 'No se pudo desvincular Discord.', { code: 'INTERNAL_ERROR' });
+    }
 };

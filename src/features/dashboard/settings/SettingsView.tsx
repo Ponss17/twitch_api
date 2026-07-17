@@ -19,6 +19,13 @@ import { DangerConfirmModal, RegenKeyModal } from '@/shared/ui/Modal';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { SettingsSecuritySection } from '@/features/dashboard/settings/SettingsSecuritySection';
+import { SettingsDiscordSection } from '@/features/dashboard/settings/SettingsDiscordSection';
+import {
+    DiscordLinkConfirmModal,
+    DiscordUnlinkConfirmModal,
+    DiscordResultModal,
+    type DiscordResultKind
+} from '@/features/dashboard/settings/DiscordLinkModals';
 import { SettingsExportSection } from '@/features/dashboard/settings/SettingsExportSection';
 import { SettingsDangerZone } from '@/features/dashboard/settings/SettingsDangerZone';
 import { SettingsPreferencesSection } from '@/features/dashboard/settings/SettingsPreferencesSection';
@@ -40,6 +47,10 @@ export function SettingsView({ active = true }: { active?: boolean }) {
     const [showDanger, setShowDanger] = useState(false);
     const [regenOpen, setRegenOpen] = useState(false);
     const [exportLoading, setExportLoading] = useState(false);
+    const [discordBusy, setDiscordBusy] = useState(false);
+    const [discordLinkOpen, setDiscordLinkOpen] = useState(false);
+    const [discordUnlinkOpen, setDiscordUnlinkOpen] = useState(false);
+    const [discordResult, setDiscordResult] = useState<DiscordResultKind | null>(null);
     const keyHideTimerRef = useRef<number | null>(null);
     const pollRef = useRef<number | null>(null);
     const [dangerModal, setDangerModal] = useState<{
@@ -280,6 +291,75 @@ export function SettingsView({ active = true }: { active?: boolean }) {
         showToast('ID copiado', 'success');
     };
 
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const params = new URLSearchParams(window.location.search);
+        const discord = params.get('discord');
+        if (!discord) return;
+
+        const known: DiscordResultKind[] = [
+            'linked',
+            'error_taken',
+            'error_auth',
+            'error_config',
+            'error'
+        ];
+        const kind = (known.includes(discord as DiscordResultKind)
+            ? discord
+            : 'error') as DiscordResultKind;
+
+        setDiscordResult(kind);
+        showToast(
+            kind === 'linked'
+                ? 'Discord vinculado correctamente'
+                : kind === 'error_taken'
+                  ? 'Ese Discord ya está vinculado a otra cuenta'
+                  : kind === 'error_auth'
+                    ? 'Debes iniciar sesión para vincular Discord'
+                    : kind === 'error_config'
+                      ? 'Discord OAuth aún no está configurado'
+                      : 'No se pudo vincular Discord',
+            kind === 'linked' ? 'success' : 'error'
+        );
+
+        params.delete('discord');
+        const next = `${window.location.pathname}${params.toString() ? `?${params}` : ''}`;
+        window.history.replaceState({}, '', next);
+
+        if (kind === 'linked') {
+            void syncProfile({ silent: true, fresh: true });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al montar con query
+    }, []);
+
+    const startDiscordLink = () => {
+        setDiscordLinkOpen(false);
+        window.location.href = API_ENDPOINTS.AUTH_DISCORD_LINK;
+    };
+
+    const unlinkDiscord = async () => {
+        setDiscordBusy(true);
+        try {
+            const res = await fetchWithRetry(
+                API_ENDPOINTS.AUTH_DISCORD_UNLINK,
+                withApiCredentials({ method: 'POST' })
+            );
+            if (!res.ok) {
+                setDiscordResult('error');
+                showToast('No se pudo desvincular Discord', 'error');
+                return;
+            }
+            setDiscordResult('unlinked');
+            showToast('Discord desvinculado', 'success');
+            await syncProfile({ silent: true, fresh: true });
+        } catch {
+            setDiscordResult('error');
+            showToast('Error de conexión al desvincular', 'error');
+        } finally {
+            setDiscordBusy(false);
+        }
+    };
+
     if (loading && !profile) {
         return (
             <div className={fadeIn}>
@@ -313,6 +393,15 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                 onRegenKey={() => setRegenOpen(true)}
                 onToggleDanger={() => setShowDanger((v) => !v)}
                 onCopyId={() => void copyId()}
+            />
+
+            <SettingsDiscordSection
+                discordId={profile?.discordId}
+                discordUsername={profile?.discordUsername}
+                discordAvatar={profile?.discordAvatar}
+                busy={discordBusy}
+                onLinkClick={() => setDiscordLinkOpen(true)}
+                onUnlinkClick={() => setDiscordUnlinkOpen(true)}
             />
 
             <SettingsPreferencesSection
@@ -382,6 +471,26 @@ export function SettingsView({ active = true }: { active?: boolean }) {
             />
 
             <RegenKeyModal open={regenOpen} onClose={() => setRegenOpen(false)} onConfirm={regenerateKey} />
+
+            <DiscordLinkConfirmModal
+                open={discordLinkOpen}
+                onClose={() => setDiscordLinkOpen(false)}
+                onConfirm={startDiscordLink}
+            />
+
+            <DiscordUnlinkConfirmModal
+                open={discordUnlinkOpen}
+                busy={discordBusy}
+                username={profile?.discordUsername}
+                onClose={() => setDiscordUnlinkOpen(false)}
+                onConfirm={unlinkDiscord}
+            />
+
+            <DiscordResultModal
+                open={discordResult != null}
+                kind={discordResult}
+                onClose={() => setDiscordResult(null)}
+            />
 
             <DangerConfirmModal
                 open={!!dangerModal}

@@ -116,7 +116,12 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
                           apiService.isStreamLive(info.id, token)
                       ]);
                       const limits = resolveUserLimits(res.locals.apiUser);
-                      const profileData = buildDashboardProfile(info, followers, false, limits);
+                      const apiUser = res.locals.apiUser;
+                      const profileData = buildDashboardProfile(info, followers, false, limits, {
+                          discordId: apiUser?.discordId,
+                          discordUsername: apiUser?.discordUsername,
+                          discordAvatar: apiUser?.discordAvatar
+                      });
                       return { profileData, isLive, limits };
                   }, 'getSummary')
                 : Promise.resolve(null),

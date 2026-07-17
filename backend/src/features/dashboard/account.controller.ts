@@ -67,7 +67,11 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                     apiService.getFollowersCount(info.id, token),
                     apiService.isStreamLive(info.id, token)
                 ]);
-                const profileResult = buildDashboardProfile(info, followers, isLive, limits);
+                const profileResult = buildDashboardProfile(info, followers, isLive, limits, {
+                    discordId: apiUser?.discordId,
+                    discordUsername: apiUser?.discordUsername,
+                    discordAvatar: apiUser?.discordAvatar
+                });
                 await cacheService.set(cacheKey, profileResult, resolveCache('DASHBOARD_PROFILE', apiUser?.role, apiUser?.customCacheTtl));
                 return { ...profileResult, ...limits, timezone, cacheTtl: resolveCache('COMMAND', apiUser?.role, apiUser?.customCacheTtl) };
             }, 'getUserInfo');

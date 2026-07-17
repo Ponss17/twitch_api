@@ -103,7 +103,12 @@ function toRow(user: StoredUser): Record<string, unknown> {
         created_at: user.createdAt
             ? new Date(user.createdAt).toISOString()
             : new Date().toISOString(),
-        token_expires_at: resolveTokenExpiresAtIso(user)
+        token_expires_at: resolveTokenExpiresAtIso(user),
+        discord_id: user.discordId ?? null,
+        discord_username: user.discordUsername ?? null,
+        discord_avatar: user.discordAvatar ?? null,
+        discord_linked_at: user.discordLinkedAt ?? null,
+        discord_updated_at: user.discordUpdatedAt ?? null
     };
 }
 
@@ -140,7 +145,12 @@ function hydrateUserFromRow(row: Record<string, unknown>): StoredUser {
         timezone: (row.timezone as string) ?? 'UTC',
         lastActive: (row.last_active as string) ?? undefined,
         createdAt: (row.created_at as string) ?? undefined,
-        tokenExpiresAt
+        tokenExpiresAt,
+        discordId: (row.discord_id as string) ?? null,
+        discordUsername: (row.discord_username as string) ?? null,
+        discordAvatar: (row.discord_avatar as string) ?? null,
+        discordLinkedAt: (row.discord_linked_at as string) ?? null,
+        discordUpdatedAt: (row.discord_updated_at as string) ?? null
     };
 }
 
@@ -359,4 +369,85 @@ export const updateUserTimezone = async (userId: string, timezone: string): Prom
     const memUser = userMemoryCache.get(userId)?.user;
     setUserTimezone(userId, timezone);
     await invalidateAllUserCaches(userId, { login: memUser?.login });
+};
+
+export type DiscordLinkPayload = {
+    discordId: string;
+    discordUsername: string;
+    discordAvatar: string | null;
+};
+
+export const findUserByDiscordId = async (discordId: string): Promise<StoredUser | null> => {
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('discord_id', discordId)
+        .maybeSingle();
+
+    if (error || !data) return null;
+
+    const user = fromRow(data as Record<string, unknown>);
+    return decryptAndMigrateIfNeeded(user, `discord_id ${discordId}`);
+};
+
+export const linkDiscordAccount = async (
+    userId: string,
+    payload: DiscordLinkPayload
+): Promise<StoredUser> => {
+    const existing = await findUserByDiscordId(payload.discordId);
+    if (existing && existing.userId !== userId) {
+        throw new Error('DISCORD_ALREADY_LINKED');
+    }
+
+    const now = new Date().toISOString();
+    const current = await getUser(userId);
+    if (!current) throw new Error('USER_NOT_FOUND');
+
+    const { error } = await supabase
+        .from('users')
+        .update({
+            discord_id: payload.discordId,
+            discord_username: payload.discordUsername,
+            discord_avatar: payload.discordAvatar,
+            discord_linked_at: current.discordId ? current.discordLinkedAt ?? now : now,
+            discord_updated_at: now
+        })
+        .eq('user_id', userId);
+
+    if (error) {
+        if (error.code === '23505') throw new Error('DISCORD_ALREADY_LINKED');
+        logger.error('Error linking Discord:', error.message);
+        throw new Error('DISCORD_LINK_FAILED');
+    }
+
+    await invalidateAllUserCaches(userId, { login: current.login, apiKey: current.apiKey });
+    userMemoryCache.delete(userId);
+
+    const updated = await getUser(userId);
+    if (!updated) throw new Error('USER_NOT_FOUND');
+    return updated;
+};
+
+export const unlinkDiscordAccount = async (userId: string): Promise<void> => {
+    const current = await getUser(userId);
+    if (!current) throw new Error('USER_NOT_FOUND');
+
+    const { error } = await supabase
+        .from('users')
+        .update({
+            discord_id: null,
+            discord_username: null,
+            discord_avatar: null,
+            discord_linked_at: null,
+            discord_updated_at: null
+        })
+        .eq('user_id', userId);
+
+    if (error) {
+        logger.error('Error unlinking Discord:', error.message);
+        throw new Error('DISCORD_UNLINK_FAILED');
+    }
+
+    await invalidateAllUserCaches(userId, { login: current.login, apiKey: current.apiKey });
+    userMemoryCache.delete(userId);
 };

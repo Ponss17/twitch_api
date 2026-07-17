@@ -50,7 +50,6 @@ export function SettingsSecuritySection({
 
     return (
         <div className={`${cardShell} [animation-delay:60ms]`}>
-            {/* Header */}
             <div className="mb-3 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
                 <div className="flex items-center gap-3">
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/10 text-primary">
@@ -69,7 +68,6 @@ export function SettingsSecuritySection({
                 </div>
             </div>
 
-            {/* API Key input */}
             <div className="relative mb-3 overflow-hidden rounded-xl border border-white/[0.08] bg-black/40 p-3 px-4">
                 <label htmlFor="profile-api-key" className="mb-2 flex items-center text-[0.62rem] font-extrabold uppercase tracking-[0.12em] text-primary opacity-90">
                     <Key className="mr-1 w-3 h-3" />
@@ -129,7 +127,6 @@ export function SettingsSecuritySection({
                 </div>
             </div>
 
-            {/* Meta info — chips horizontales compactos */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
                 <span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/20 bg-emerald-500/[0.06] px-2 py-1 text-[0.72rem] font-bold text-emerald-400">
                     <Check className="w-3 h-3" /> Activa
