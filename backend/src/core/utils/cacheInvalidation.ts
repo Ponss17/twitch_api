@@ -61,10 +61,12 @@ export async function invalidateDiscordLinkCaches(
     login?: string
 ): Promise<void> {
     const { invalidateUserCache } = await import('../middleware/apiKeyValidator');
-    const { invalidateAuthCache } = await import('../middleware/authMiddleware');
+    const { invalidateAuthCache, unrevokeAuthSession } = await import('../middleware/authMiddleware');
     invalidateUserCache(userId);
     invalidateUserMemoryCache(userId);
     invalidateAuthCache(userId, { revokeSession: false });
+    // Discord no debe dejar la sesión revocada (ni heredar un flag de un bug previo).
+    await unrevokeAuthSession(userId).catch(() => {});
 
     const tasks: Promise<void>[] = [
         cacheService.del(`cache:user:id:${userId}`),
