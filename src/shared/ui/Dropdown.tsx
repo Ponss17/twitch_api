@@ -35,7 +35,7 @@ export const dropdownTriggerCompact =
     `flex min-w-[9.5rem] max-w-[11.5rem] items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 py-1.5 text-[0.75rem] font-medium text-[#fafafa] disabled:cursor-not-allowed disabled:opacity-50 ${hoverSubtleControl}`;
 
 const panelBase =
-    'absolute top-[calc(100%+8px)] animate-fade-soft overflow-hidden border border-primary/20 bg-[#121214] shadow-lg';
+    'absolute animate-fade-soft overflow-hidden border border-primary/20 bg-[#121214] shadow-lg';
 
 interface DropdownProps {
     children: ReactNode;
@@ -116,6 +116,7 @@ export function DropdownChevron({ className = 'size-3.5 shrink-0 text-[#71717a] 
 
 interface DropdownPanelProps extends HTMLAttributes<HTMLDivElement> {
     align?: 'left' | 'right';
+    placement?: 'top' | 'bottom';
     padding?: 'none' | 'compact';
     zIndex?: 50 | 1000;
     widthClassName?: string;
@@ -124,6 +125,7 @@ interface DropdownPanelProps extends HTMLAttributes<HTMLDivElement> {
 export function DropdownPanel({
     children,
     align = 'right',
+    placement = 'bottom',
     padding = 'none',
     zIndex = 50,
     widthClassName = 'min-w-[11.5rem]',
@@ -136,12 +138,14 @@ export function DropdownPanel({
 
     const zClass = zIndex === 1000 ? 'z-[1000]' : 'z-50';
     const alignClass = align === 'right' ? 'right-0' : 'left-0';
+    const placementClass =
+        placement === 'top' ? 'bottom-[calc(100%+8px)]' : 'top-[calc(100%+8px)]';
     const padClass = padding === 'compact' ? 'p-1.5' : '';
 
     return (
         <div
             role={role}
-            className={`${panelBase} ${zClass} ${alignClass} ${widthClassName} rounded-xl ${padClass} ${className}`.trim()}
+            className={`${panelBase} ${zClass} ${alignClass} ${placementClass} ${widthClassName} rounded-xl ${padClass} ${className}`.trim()}
             {...props}
         >
             {children}
