@@ -1,4 +1,4 @@
-import { EyeOff, Eye, Check, RotateCw, AlertTriangle, Gauge, Copy, Clock, Crown } from 'lucide-react';
+import { Key, EyeOff, Eye, Check, RotateCw, AlertTriangle, Gauge, Copy, Clock, Crown } from 'lucide-react';
 import { useState } from 'react';
 import { SlotText } from 'slot-text/react';
 import { SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
@@ -49,6 +49,7 @@ export function SettingsSecuritySection({
     return (
         <SettingsRow
             title="API Key privada"
+            icon={Key}
             description="Tu credencial para autenticar peticiones a la API. Mantenla en secreto."
         >
             <div className="flex overflow-hidden rounded-lg border border-white/[0.08] bg-black/20 transition focus-within:border-primary">
