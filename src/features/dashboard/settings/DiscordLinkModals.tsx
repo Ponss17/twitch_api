@@ -35,22 +35,15 @@ export function DiscordLinkConfirmModal({ open, onClose, onConfirm }: DiscordLin
             }
         >
             <p>
-                Te llevaremos a Discord para autorizar la conexión. Solo pedimos el permiso{' '}
-                <strong>identify</strong>.
+                Vincula tu Discord para usar los comandos del bot en nuestro servidor con tu cuenta de
+                LosPerris.
             </p>
-            <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[0.9rem] text-[#c4c4cc]">
-                <li>
-                    Guardamos tu <strong>ID de Discord</strong> (imprescindible).
-                </li>
-                <li>
-                    Username y avatar se guardan solo como <strong>caché para el panel</strong>.
-                </li>
-                <li>
-                    <strong>No</strong> guardamos email, servidores, mensajes ni el token de Discord.
-                </li>
-            </ul>
+            <p className="mt-3">
+                Te llevaremos a Discord para que confirmes la conexión. Solo asociamos tu cuenta: no
+                leemos mensajes ni accedemos a tus servidores.
+            </p>
             <p className="mt-3 text-sm opacity-80">
-                El login del panel sigue siendo Twitch. Discord solo se adjunta a tu cuenta.
+                El acceso al panel sigue siendo con Twitch. Discord solo queda vinculado a tu perfil.
             </p>
         </Modal>
     );
@@ -129,8 +122,8 @@ export function DiscordUnlinkConfirmModal({
                 )}
             </p>
             <p className="mt-2">
-                El bot dejará de reconocerte hasta que vuelvas a vincular. Tu cuenta Twitch y API Key no
-                se afectan.
+                Dejarás de poder usar los comandos del bot en Discord hasta que vuelvas a vincular. Tu
+                cuenta de Twitch y tu API Key no se ven afectadas.
             </p>
         </Modal>
     );
@@ -150,12 +143,12 @@ const RESULT_COPY: Record<
 > = {
     linked: {
         title: 'Discord vinculado',
-        body: 'Tu cuenta de Discord quedó conectada. Ya puedes usar el bot con tu perfil de LosPerris.',
+        body: 'Listo. Ya puedes usar los comandos del bot en el servidor de Discord con tu cuenta de LosPerris.',
         ok: true
     },
     unlinked: {
         title: 'Discord desvinculado',
-        body: 'Se eliminó el vínculo. Puedes volver a conectar Discord cuando quieras.',
+        body: 'Se quitó el vínculo. Puedes volver a conectar Discord cuando quieras.',
         ok: true
     },
     error_taken: {
@@ -169,8 +162,8 @@ const RESULT_COPY: Record<
         ok: false
     },
     error_config: {
-        title: 'Discord no configurado',
-        body: 'OAuth de Discord aún no está listo en el servidor. Intenta más tarde.',
+        title: 'Discord no disponible',
+        body: 'La vinculación con Discord no está disponible ahora. Intenta más tarde.',
         ok: false
     },
     error: {

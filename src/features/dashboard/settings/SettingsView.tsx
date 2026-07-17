@@ -319,7 +319,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                   : kind === 'error_auth'
                     ? 'Debes iniciar sesión para vincular Discord'
                     : kind === 'error_config'
-                      ? 'Discord OAuth aún no está configurado'
+                      ? 'La vinculación con Discord no está disponible ahora'
                       : 'No se pudo vincular Discord',
             kind === 'linked' ? 'success' : 'error'
         );
