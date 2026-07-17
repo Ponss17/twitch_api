@@ -152,7 +152,11 @@ export const getHeaders = (token: string) => ({
 export const handleTwitchError = (error: unknown, context: string): never => {
     logger.error(`Error in ${context}:`, error);
 
-    recordFailure();
+    // 401/403 son auth del caller, no outage de Twitch — no abrir el breaker.
+    const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+    if (status !== 401 && status !== 403) {
+        recordFailure();
+    }
 
     if (axios.isAxiosError(error)) {
         throw new TwitchApiError(

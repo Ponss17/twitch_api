@@ -162,6 +162,14 @@ function rememberUserCaches(user: StoredUser): void {
     });
 }
 
+/** Garantiza tokens en claro al servir desde caché (evita Bearer gcm:... a Twitch). */
+async function ensurePlaintextUser(user: StoredUser, context: string): Promise<StoredUser | null> {
+    if (!isAlreadyEncrypted(user.accessToken) && !isAlreadyEncrypted(user.refreshToken || '')) {
+        return user;
+    }
+    return decryptAndMigrateIfNeeded(user, context);
+}
+
 // Convierte una fila de Supabase al tipo StoredUser de la aplicación
 function fromRow(row: Record<string, unknown>): StoredUser {
     return hydrateUserFromRow(row);
@@ -195,10 +203,16 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
     }
 
     if (options?.tokensOnly) {
-        rememberUserCaches(secureUser);
-        await cacheService
-            .set(`cache:user:id:${user.userId}`, secureUser, CACHE_TTL_MATRIX.API_USER.default)
-            .catch((e) => logger.error('Error actualizando caché de usuario (tokens):', e));
+        // DB guarda cifrado; caché L1/KV debe quedar en claro para Helix/auth.
+        rememberUserCaches(user);
+        await Promise.all([
+            cacheService.set(`cache:user:id:${user.userId}`, user, CACHE_TTL_MATRIX.API_USER.default),
+            cacheService.set(
+                `cache:user:login:${user.login.toLowerCase()}`,
+                user,
+                CACHE_TTL_MATRIX.USER_BY_LOGIN.default
+            )
+        ]).catch((e) => logger.error('Error actualizando caché de usuario (tokens):', e));
         return;
     }
 
@@ -220,7 +234,10 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
 export const getUser = async (userId: string): Promise<StoredUser | null> => {
     const memoryHit = userMemoryCache.get(userId);
     if (memoryHit && memoryHit.expiry > Date.now()) {
-        return memoryHit.user;
+        const plain = await ensurePlaintextUser(memoryHit.user, `memoria ${userId}`);
+        if (!plain) return null;
+        if (plain !== memoryHit.user) rememberUserCaches(plain);
+        return plain;
     }
     if (memoryHit) userMemoryCache.delete(userId);
 
@@ -231,8 +248,15 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
         const cacheKey = `cache:user:id:${userId}`;
         const cached = await cacheService.get<StoredUser>(cacheKey);
         if (cached) {
-            rememberUserCaches(cached);
-            return cached;
+            const plain = await ensurePlaintextUser(cached, `caché ${userId}`);
+            if (!plain) return null;
+            rememberUserCaches(plain);
+            if (plain !== cached) {
+                await cacheService
+                    .set(cacheKey, plain, CACHE_TTL_MATRIX.API_USER.default)
+                    .catch((e) => logger.error('Error reescribiendo caché de usuario:', e));
+            }
+            return plain;
         }
 
         const { data, error } = await supabase.from('users').select('*').eq('user_id', userId).single();
@@ -264,8 +288,15 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
 
     const cached = await cacheService.get<StoredUser>(cacheKey);
     if (cached) {
-        rememberUserCaches(cached);
-        return cached;
+        const plain = await ensurePlaintextUser(cached, `caché login ${login}`);
+        if (!plain) return null;
+        rememberUserCaches(plain);
+        if (plain !== cached) {
+            await cacheService
+                .set(cacheKey, plain, CACHE_TTL_MATRIX.USER_BY_LOGIN.default)
+                .catch((e) => logger.error('Error reescribiendo caché login:', e));
+        }
+        return plain;
     }
 
     const { data } = await supabase.from('users').select('*').eq('login', login).single();
