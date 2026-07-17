@@ -1,5 +1,5 @@
--- Amplía bot_get_user_by_discord_id con custom_rate_limit (para /limite).
--- Ejecutar en Supabase SQL Editor UNA vez (después de bot_discord_read_access.sql).
+-- Amplía bot_get_user_by_discord_id con rate limit + cache TTL (para /cuenta y /limite).
+-- Ejecutar en Supabase SQL Editor UNA vez.
 
 DROP FUNCTION IF EXISTS public.bot_get_user_by_discord_id(text);
 
@@ -14,7 +14,8 @@ RETURNS TABLE (
   profile_image_url text,
   last_active timestamptz,
   discord_id text,
-  custom_rate_limit integer
+  custom_rate_limit integer,
+  custom_cache_ttl integer
 )
 LANGUAGE sql
 STABLE
@@ -31,7 +32,8 @@ AS $$
     u.profile_image_url::text,
     u.last_active,
     u.discord_id::text,
-    u.custom_rate_limit::integer
+    u.custom_rate_limit::integer,
+    u.custom_cache_ttl::integer
   FROM public.users u
   WHERE u.discord_id = p_discord_id
   LIMIT 1;
