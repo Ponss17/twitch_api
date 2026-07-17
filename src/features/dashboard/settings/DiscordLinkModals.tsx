@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2, Link2, Loader2, Unlink, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Loader2, Unlink, XCircle } from 'lucide-react';
 import { Modal } from '@/shared/ui/Modal';
 import { btnDanger, btnPrimary, btnSecondary } from '@/core/utils/tw';
+import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
 
 interface DiscordLinkConfirmModalProps {
     open: boolean;
@@ -16,10 +17,15 @@ export function DiscordLinkConfirmModal({ open, onClose, onConfirm }: DiscordLin
             open={open}
             onClose={onClose}
             title="Vincular Discord"
-            titleIcon={Link2}
+            titleIconNode={<DiscordIcon className="h-5 w-5 text-[#5865F2]" />}
             footer={
                 <>
-                    <button type="button" className={btnPrimary} onClick={onConfirm}>
+                    <button
+                        type="button"
+                        onClick={onConfirm}
+                        className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#5865F2] px-3 py-2 text-[0.8125rem] font-semibold text-white transition hover:-translate-y-0.5 hover:brightness-110"
+                    >
+                        <DiscordIcon className="h-4 w-4" />
                         Continuar con Discord
                     </button>
                     <button type="button" className={btnSecondary} onClick={onClose}>
@@ -177,6 +183,7 @@ const RESULT_COPY: Record<
 /** Resultado tras OAuth o desvincular (más claro que solo un toast). */
 export function DiscordResultModal({ open, kind, onClose }: DiscordResultModalProps) {
     const copy = kind ? RESULT_COPY[kind] : RESULT_COPY.error;
+    const useDiscordBrand = kind === 'linked' || kind === 'unlinked';
 
     return (
         <Modal
@@ -184,6 +191,9 @@ export function DiscordResultModal({ open, kind, onClose }: DiscordResultModalPr
             onClose={onClose}
             title={copy.title}
             titleIcon={copy.ok ? CheckCircle2 : XCircle}
+            titleIconNode={
+                useDiscordBrand ? <DiscordIcon className="h-5 w-5 text-[#5865F2]" /> : undefined
+            }
             footer={
                 <button type="button" className={btnPrimary} onClick={onClose}>
                     Entendido

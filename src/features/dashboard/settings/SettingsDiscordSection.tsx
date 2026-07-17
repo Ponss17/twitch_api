@@ -2,7 +2,7 @@ import { Unlink, Check } from 'lucide-react';
 import { SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
 import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
 
-const discordTitleIcon = <DiscordIcon className="h-4 w-4 text-[#5865F2]" aria-hidden="true" />;
+const discordTitleIcon = <DiscordIcon className="h-5 w-5 text-[#5865F2]" aria-hidden="true" />;
 
 interface SettingsDiscordSectionProps {
     discordId?: string | null;
@@ -71,6 +71,7 @@ export function SettingsDiscordSection({
                     onClick={onLinkClick}
                     className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#5865F2] px-4 py-2 text-[0.8rem] font-semibold text-white transition hover:brightness-110 disabled:opacity-50 sm:w-auto"
                 >
+                    <DiscordIcon className="h-4 w-4" />
                     Vincular Discord
                 </button>
             }
