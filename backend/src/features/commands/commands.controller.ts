@@ -145,8 +145,10 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 res,
                 async (token: string) => {
                     const resApi = await apiService.getFollowAge(channel, user, token);
-                    const ttl = resolveCache('COMMAND', res.locals.apiUser?.role);
-                    await cacheService.set(cacheKey, resApi, ttl);
+                    if (resApi.timePhrase !== 'error') {
+                        const ttl = resolveCache('COMMAND', res.locals.apiUser?.role);
+                        await cacheService.set(cacheKey, resApi, ttl);
+                    }
                     return resApi;
                 },
                 'FOLLOWAGE'

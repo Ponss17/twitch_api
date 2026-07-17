@@ -47,8 +47,12 @@ export function FollowageView() {
             const response = await fetchWithRetry(buildUrl());
 
             const text = await response.text();
+            const isFollowageError =
+                /no existe en Twitch|no sigue a|No se puede consultar|No se pudo consultar|Twitch no está disponible/i.test(
+                    text
+                );
             setStoredResult({
-                status: response.ok ? 'success' : 'error',
+                status: response.ok && !isFollowageError ? 'success' : 'error',
                 message: text
             });
         } catch {

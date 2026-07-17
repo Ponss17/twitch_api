@@ -25,6 +25,7 @@ export const getUserId = async (username: string, token: string): Promise<string
         await cacheService.setCachedUserId(username, user.id);
         return user.id;
     } catch (error) {
+        if (error instanceof TwitchApiError) throw error;
         return handleTwitchError(error, `getUserId(${username})`);
     }
 };
@@ -78,16 +79,80 @@ export function invalidateUserInfoCache(login?: string, userId?: string): void {
     }
 }
 
+export type FollowAgeResult = {
+    text: string;
+    timePhrase: string;
+    followDateMs?: number;
+};
+
+const followageError = (text: string): FollowAgeResult => ({
+    text,
+    timePhrase: 'error'
+});
+
+async function resolveFollowageLoginId(
+    login: string,
+    token: string,
+    label: 'canal' | 'usuario'
+): Promise<string | FollowAgeResult> {
+    try {
+        return await getUserId(login, token);
+    } catch (error) {
+        if (error instanceof TwitchApiError && error.statusCode === 404) {
+            return followageError(
+                label === 'canal'
+                    ? `El canal "${login}" no existe en Twitch. Revisa que el nombre esté bien escrito.`
+                    : `El usuario "${login}" no existe en Twitch. Revisa que el nombre esté bien escrito.`
+            );
+        }
+        throw error;
+    }
+}
+
+function mapFollowageHelixError(
+    error: unknown,
+    channel: string,
+    user: string
+): FollowAgeResult | null {
+    const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : error instanceof TwitchApiError
+          ? error.statusCode
+          : undefined;
+
+    if (status === 404) {
+        const twitchMsg = axios.isAxiosError(error)
+            ? (error.response?.data as { message?: string } | undefined)?.message
+            : error instanceof TwitchApiError
+              ? error.message
+              : undefined;
+        return followageError(twitchMsg || `No se encontró información de follow para ${user} en ${channel}.`);
+    }
+
+    if (status === 401 || status === 403) {
+        return followageError(
+            `No se puede consultar el follow en "${channel}". El parámetro channel debe ser el login de TU canal (dueño de la API key).`
+        );
+    }
+
+    if (status === 503 || (error instanceof TwitchApiError && error.statusCode === 503)) {
+        return followageError('Twitch no está disponible ahora mismo. Intenta en unos segundos.');
+    }
+
+    return null;
+}
+
 export const getFollowAge = async (
     channel: string,
     user: string,
     token: string
-): Promise<{ text: string; timePhrase: string; followDateMs?: number }> => {
+): Promise<FollowAgeResult> => {
     try {
-        const [channelId, userId] = await Promise.all([
-            getUserId(channel, token),
-            getUserId(user, token)
-        ]);
+        const channelId = await resolveFollowageLoginId(channel, token, 'canal');
+        if (typeof channelId !== 'string') return channelId;
+
+        const userId = await resolveFollowageLoginId(user, token, 'usuario');
+        if (typeof userId !== 'string') return userId;
 
         if (channelId === userId) {
             return {
@@ -121,16 +186,11 @@ export const getFollowAge = async (
             followDateMs: followDate.getTime()
         };
     } catch (error: unknown) {
-        // Special handling for 404 in followage to return a friendly message
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-            const msg = error.response.data?.message || 'Usuario no encontrado';
-            return { text: msg, timePhrase: 'error' };
-        }
-        if (error instanceof TwitchApiError && error.statusCode === 404) {
-            return { text: error.message, timePhrase: 'error' };
-        }
+        const mapped = mapFollowageHelixError(error, channel, user);
+        if (mapped) return mapped;
 
-        return handleTwitchError(error, `getFollowAge(${channel}, ${user})`);
+        logger.error(`getFollowAge(${channel}, ${user})`, error);
+        return followageError('No se pudo consultar el followage. Intenta de nuevo en unos segundos.');
     }
 };
 

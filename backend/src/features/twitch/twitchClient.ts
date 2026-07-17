@@ -164,5 +164,8 @@ export const handleTwitchError = (error: unknown, context: string): never => {
             error.response?.status || 500
         );
     }
+    if (error instanceof TwitchApiError) {
+        throw error;
+    }
     throw new TwitchApiError('Error interno desconocido', 500);
 };
