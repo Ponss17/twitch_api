@@ -14,6 +14,10 @@ jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
     getChannelInfo: jest.fn()
 }));
 
+jest.mock('../../backend/src/features/twitch/twitchUserService', () => ({
+    getFollowAge: jest.fn()
+}));
+
 jest.mock('@/core/database/cacheService', () => ({
     get: jest.fn(),
     set: jest.fn(),
@@ -31,6 +35,7 @@ jest.mock('@/core/utils/logger', () => ({
 
 import * as dbService from '../../backend/src/core/database/dbService';
 import * as apiService from '../../backend/src/features/twitch/twitch.service';
+import * as twitchUserService from '../../backend/src/features/twitch/twitchUserService';
 import * as cacheService from '../../backend/src/core/database/cacheService';
 import {
     createClip,
@@ -204,7 +209,7 @@ describe('commandsController', () => {
 
         it('no cachea respuestas con timePhrase error', async () => {
             (cacheService.get as jest.Mock).mockResolvedValue(null);
-            (apiService.getFollowAge as jest.Mock).mockResolvedValue({
+            (twitchUserService.getFollowAge as jest.Mock).mockResolvedValue({
                 text: 'No se puede consultar followage.',
                 timePhrase: 'error'
             });
