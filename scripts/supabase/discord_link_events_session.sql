@@ -9,6 +9,9 @@ ALTER TABLE public.discord_link_events
   ADD CONSTRAINT discord_link_events_event_check
   CHECK (event IN ('linked', 'unlinked', 'session_login', 'session_logout'));
 
+-- El bot (anon) necesita SELECT para Realtime + poll de sesión.
+GRANT SELECT ON public.discord_link_events TO anon, authenticated;
+
 COMMENT ON TABLE public.discord_link_events IS
   'Eventos para el bot (Realtime): vínculo Discord y sesión panel (login/logout).';
 
