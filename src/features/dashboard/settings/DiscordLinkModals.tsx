@@ -260,14 +260,7 @@ export function DiscordResultModal({ open, kind, onClose }: DiscordResultModalPr
                     data-modal-primary
                     onClick={onClose}
                 >
-                    {copy.ok ? (
-                        <>
-                            <Check className="h-4 w-4" aria-hidden="true" />
-                            Entendido
-                        </>
-                    ) : (
-                        'Cerrar'
-                    )}
+                    {copy.ok ? 'Entendido' : 'Cerrar'}
                 </button>
             }
         >
