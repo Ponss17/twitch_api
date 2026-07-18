@@ -115,7 +115,7 @@ export const modalFooter =
     'flex flex-row-reverse gap-2.5 border-t border-white/[0.08] bg-bg-secondary px-5 py-4';
 
 const modalBtnBase =
-    'inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[0.8125rem] font-semibold transition disabled:cursor-not-allowed disabled:opacity-50';
+    'inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[0.8125rem] font-semibold outline-none transition disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-card';
 
 export const modalBtnPrimary =
     `${modalBtnBase} bg-[#7c3aed] font-semibold text-white hover:-translate-y-0.5 hover:bg-[#6d28d9]`;
