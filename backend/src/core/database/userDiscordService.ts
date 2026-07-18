@@ -159,9 +159,18 @@ export const notifyPanelSession = async (
             logger.warn('notifyPanelSession: insert falló', {
                 userId,
                 event,
-                error: insertError.message
+                error: insertError.message,
+                code: insertError.code,
+                details: insertError.details
             });
+            return;
         }
+
+        logger.info('notifyPanelSession: evento publicado', {
+            userId,
+            event,
+            discordId
+        });
     } catch (err: unknown) {
         logger.warn('notifyPanelSession: error inesperado', {
             userId,
