@@ -9,6 +9,7 @@ import { setSessionCookie, clearSessionCookie, readSessionUserId } from '../../c
 import { invalidateAuthCache, unrevokeAuthSession } from '../../core/middleware/authMiddleware';
 import { AuthenticatedRequest } from '../../types/twitch';
 import * as discordAuthService from './discordAuth.service';
+import { notifyPanelSession } from '../../core/database/userDiscordService';
 
 const isAllowedOrigin = (origin: string, req: Request): boolean => {
     try {
@@ -120,6 +121,7 @@ export const exchange = async (req: Request, res: Response) => {
 
     setSessionCookie(res, payload.userId);
     await unrevokeAuthSession(payload.userId);
+    void notifyPanelSession(payload.userId, 'session_login');
 
     res.setHeader('Cache-Control', 'no-store');
     // Opción 2: no devolver apiKey al cliente; revelar vía /dashboard/reveal-api-key
@@ -135,6 +137,7 @@ export const logout = (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId ?? readSessionUserId(req);
     if (userId) {
         invalidateAuthCache(userId);
+        void notifyPanelSession(userId, 'session_logout');
     }
     clearSessionCookie(res);
     return res.json({ success: true });

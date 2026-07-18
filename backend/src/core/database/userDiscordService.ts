@@ -113,3 +113,60 @@ export const unlinkDiscordAccount = async (userId: string): Promise<void> => {
 
     await invalidateDiscordLinkCaches(userId, current.login);
 };
+
+export type PanelSessionEvent = 'session_login' | 'session_logout';
+
+/**
+ * Avisa al bot (Realtime → DM) cuando hay Discord vinculado.
+ * Nunca lanza: login/logout del panel no deben fallar por esto.
+ */
+export const notifyPanelSession = async (
+    userId: string,
+    event: PanelSessionEvent
+): Promise<void> => {
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('discord_id, login, display_name')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        if (error) {
+            logger.warn('notifyPanelSession: no se pudo leer usuario', {
+                userId,
+                event,
+                error: error.message
+            });
+            return;
+        }
+
+        const discordId = data?.discord_id ? String(data.discord_id) : '';
+        if (!discordId) return;
+
+        const login = data?.login ? String(data.login) : null;
+        const displayName = data?.display_name
+            ? String(data.display_name)
+            : login;
+
+        const { error: insertError } = await supabase.from('discord_link_events').insert({
+            event,
+            discord_id: discordId,
+            login,
+            display_name: displayName
+        });
+
+        if (insertError) {
+            logger.warn('notifyPanelSession: insert falló', {
+                userId,
+                event,
+                error: insertError.message
+            });
+        }
+    } catch (err: unknown) {
+        logger.warn('notifyPanelSession: error inesperado', {
+            userId,
+            event,
+            error: err instanceof Error ? err.message : String(err)
+        });
+    }
+};
