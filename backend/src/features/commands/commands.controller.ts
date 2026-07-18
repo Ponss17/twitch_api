@@ -1,7 +1,6 @@
 import { Response } from 'express';
 
 import * as apiService from '../twitch/twitch.service';
-import { getFollowAge } from '../twitch/twitchUserService';
 import * as cacheService from '../../core/database/cacheService';
 import { ownerScopedCacheKey, resolveCache } from '../../core/config/cacheTtl';
 
@@ -167,7 +166,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             const apiResult = await withTwitchAuth(
                 req,
                 res,
-                async (token: string) => getFollowAge(channel, user, token),
+                async (token: string) => apiService.getFollowAge(channel, user, token),
                 'FOLLOWAGE'
             );
 

@@ -327,6 +327,10 @@ export const handleCallback = async (
 
     await dbService.saveUser(storedUser);
 
+    // Invalidar L1 de API keys: si no, instancias warm siguen con el accessToken
+    // anterior (sin scopes nuevos) y followage falla aunque el re-login haya ido bien.
+    _invalidateCacheFn?.(user.id);
+
     let redirectOrigin = '';
     if (state) {
         const decoded = decodedState ?? verifyState(state);

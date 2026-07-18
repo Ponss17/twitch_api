@@ -131,19 +131,50 @@ describe('getFollowAge', () => {
         expect(result.text).toContain('moderator:read:followers');
     });
 
-    it('devuelve "no sigue" solo cuando total es 0', async () => {
+    it('devuelve "no sigue" solo cuando total es 0 y hay scope', async () => {
         (cacheService.getCachedUserId as jest.Mock)
             .mockResolvedValueOnce('111')
             .mockResolvedValueOnce('222');
 
-        mockedApiClient.get.mockResolvedValueOnce({
-            data: { data: [], total: 0 }
-        });
+        mockedApiClient.get
+            .mockResolvedValueOnce({
+                data: { data: [], total: 0 }
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    client_id: 'x',
+                    login: 'ponss17',
+                    scopes: ['moderator:read:followers'],
+                    user_id: '111',
+                    expires_in: 3600
+                }
+            });
 
         const result = await getFollowAge('ponss17', 'viewer1', 'token');
 
         expect(result.timePhrase).toBe('no sigue');
         expect(result.text).toContain('viewer1 no sigue a ponss17');
+    });
+
+    it('relanza 401 si validateToken indica token inválido', async () => {
+        (cacheService.getCachedUserId as jest.Mock)
+            .mockResolvedValueOnce('111')
+            .mockResolvedValueOnce('222');
+
+        mockedApiClient.get
+            .mockResolvedValueOnce({
+                data: { data: [], total: 15420 }
+            })
+            .mockRejectedValueOnce(
+                Object.assign(new Error('Unauthorized'), {
+                    isAxiosError: true,
+                    response: { status: 401 }
+                })
+            );
+
+        await expect(getFollowAge('ponss17', 'viewer1', 'token')).rejects.toMatchObject({
+            statusCode: 401
+        });
     });
 
     it('relanza 401 para permitir refresh del token', async () => {
