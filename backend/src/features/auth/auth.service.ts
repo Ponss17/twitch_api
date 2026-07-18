@@ -273,7 +273,12 @@ export const handleCallback = async (
         }
     });
 
-    const { access_token, refresh_token, expires_in } = tokenResponse.data;
+    const { access_token, refresh_token, expires_in, scope: grantedScope } = tokenResponse.data;
+
+    const grantedScopes = (Array.isArray(grantedScope) ? grantedScope.join(' ') : String(grantedScope || ''))
+        .split(/[\s,]+/)
+        .map((s: string) => s.trim())
+        .filter(Boolean);
 
     const userResponse = await apiClient.get(`${TWITCH_API_URL}/users`, {
         headers: {
@@ -283,6 +288,19 @@ export const handleCallback = async (
     });
 
     const user = userResponse.data.data[0] as TwitchUser;
+
+    if (!grantedScopes.includes('moderator:read:followers')) {
+        logger.error('OAuth sin scope moderator:read:followers', {
+            login: user.login,
+            userId: user.id,
+            grantedScopes
+        });
+    } else {
+        logger.info('OAuth scopes OK para followage', {
+            login: user.login,
+            hasFollowersScope: true
+        });
+    }
 
     let apiKey: string = crypto.randomUUID();
     const existingUser = await dbService.getUser(user.id);
