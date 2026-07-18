@@ -73,24 +73,18 @@ export function BaseModal({
             setClosing(false);
             dialog.showModal();
             promoteToasterAboveModals();
-            // El <dialog> enfoca el primer botón (la X). Movemos el foco al CTA.
-            const focusPrimary = () => {
+            // El <dialog> enfoca el primer control y lo deja “marcado”.
+            // Enfocamos el panel (sin anillo) para no pintar la X ni el CTA.
+            const focusPanel = () => {
                 const panel = panelRef.current;
                 if (!panel) return;
-                const primary =
-                    panel.querySelector<HTMLElement>('[data-modal-primary]') ??
-                    panel.querySelector<HTMLElement>('[data-modal-footer] button:not([disabled])');
-                if (primary) {
-                    primary.focus({ preventScroll: true });
-                    return;
-                }
                 if (!panel.hasAttribute('tabindex')) panel.tabIndex = -1;
                 panel.focus({ preventScroll: true });
             };
             requestAnimationFrame(() => {
-                focusPrimary();
-                window.setTimeout(focusPrimary, 0);
-                window.setTimeout(focusPrimary, 50);
+                focusPanel();
+                window.setTimeout(focusPanel, 0);
+                window.setTimeout(focusPanel, 50);
             });
             return;
         }
