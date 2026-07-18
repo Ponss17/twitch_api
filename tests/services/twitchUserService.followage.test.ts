@@ -79,12 +79,14 @@ describe('getFollowAge', () => {
         expect(result.text).toMatch(/dueño o moderador|actualizar permisos/i);
     });
 
-    it('trata data vacía con total>0 como falta de permiso (no como "no sigue")', async () => {
-        (cacheService.getCachedUserId as jest.Mock)
-            .mockResolvedValueOnce('111')
-            .mockResolvedValueOnce('222');
-
+    it('trata data vacía con total>0 y probe vacío como falta de permiso', async () => {
         mockedApiClient.get
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '111', login: 'ponss17' }] }
+            })
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '222', login: 'viewer1' }] }
+            })
             .mockResolvedValueOnce({
                 data: { data: [], total: 15420 }
             })
@@ -97,6 +99,10 @@ describe('getFollowAge', () => {
                     user_id: '111',
                     expires_in: 3600
                 }
+            })
+            // probe sin user_id: también vacío → sin permiso real
+            .mockResolvedValueOnce({
+                data: { data: [], total: 15420 }
             });
 
         const result = await getFollowAge('ponss17', 'viewer1', 'token');
@@ -106,12 +112,53 @@ describe('getFollowAge', () => {
         expect(result.text).not.toContain('no sigue');
     });
 
-    it('pide re-login si falta el scope moderator:read:followers', async () => {
-        (cacheService.getCachedUserId as jest.Mock)
-            .mockResolvedValueOnce('111')
-            .mockResolvedValueOnce('222');
-
+    it('con total>0 vacío pero probe con filas → "no sigue" (permiso OK)', async () => {
         mockedApiClient.get
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '111', login: 'ponss17' }] }
+            })
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '222', login: 'viewer1' }] }
+            })
+            .mockResolvedValueOnce({
+                data: { data: [], total: 15420 }
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    client_id: 'x',
+                    login: 'ponss17',
+                    scopes: ['moderator:read:followers'],
+                    user_id: '111',
+                    expires_in: 3600
+                }
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    data: [
+                        {
+                            user_id: '999',
+                            user_login: 'alguien',
+                            followed_at: '2020-01-01T00:00:00Z'
+                        }
+                    ],
+                    total: 15420
+                }
+            });
+
+        const result = await getFollowAge('ponss17', 'viewer1', 'token');
+
+        expect(result.timePhrase).toBe('no sigue');
+        expect(result.text).toContain('viewer1 no sigue a ponss17');
+    });
+
+    it('pide re-login si falta el scope moderator:read:followers', async () => {
+        mockedApiClient.get
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '111', login: 'ponss17' }] }
+            })
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '222', login: 'viewer1' }] }
+            })
             .mockResolvedValueOnce({
                 data: { data: [], total: 15420 }
             })
@@ -132,11 +179,13 @@ describe('getFollowAge', () => {
     });
 
     it('devuelve "no sigue" solo cuando total es 0 y hay scope', async () => {
-        (cacheService.getCachedUserId as jest.Mock)
-            .mockResolvedValueOnce('111')
-            .mockResolvedValueOnce('222');
-
         mockedApiClient.get
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '111', login: 'ponss17' }] }
+            })
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '222', login: 'viewer1' }] }
+            })
             .mockResolvedValueOnce({
                 data: { data: [], total: 0 }
             })
@@ -157,11 +206,13 @@ describe('getFollowAge', () => {
     });
 
     it('relanza 401 si validateToken indica token inválido', async () => {
-        (cacheService.getCachedUserId as jest.Mock)
-            .mockResolvedValueOnce('111')
-            .mockResolvedValueOnce('222');
-
         mockedApiClient.get
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '111', login: 'ponss17' }] }
+            })
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '222', login: 'viewer1' }] }
+            })
             .mockResolvedValueOnce({
                 data: { data: [], total: 15420 }
             })
@@ -178,11 +229,14 @@ describe('getFollowAge', () => {
     });
 
     it('relanza 401 para permitir refresh del token', async () => {
-        (cacheService.getCachedUserId as jest.Mock)
-            .mockResolvedValueOnce('111')
-            .mockResolvedValueOnce('222');
-
-        mockedApiClient.get.mockRejectedValueOnce(new TwitchApiError('Unauthorized', 401));
+        mockedApiClient.get
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '111', login: 'ponss17' }] }
+            })
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '222', login: 'viewer1' }] }
+            })
+            .mockRejectedValueOnce(new TwitchApiError('Unauthorized', 401));
 
         await expect(getFollowAge('ponss17', 'viewer1', 'token')).rejects.toMatchObject({
             statusCode: 401
@@ -190,16 +244,19 @@ describe('getFollowAge', () => {
     });
 
     it('devuelve followage cuando el usuario sí sigue al canal', async () => {
-        (cacheService.getCachedUserId as jest.Mock)
-            .mockResolvedValueOnce('111')
-            .mockResolvedValueOnce('222');
-
-        mockedApiClient.get.mockResolvedValueOnce({
-            data: {
-                data: [{ followed_at: '2020-01-15T12:00:00Z' }],
-                total: 1
-            }
-        });
+        mockedApiClient.get
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '111', login: 'ponss17' }] }
+            })
+            .mockResolvedValueOnce({
+                data: { data: [{ id: '222', login: 'viewer1' }] }
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    data: [{ followed_at: '2020-01-15T12:00:00Z' }],
+                    total: 1
+                }
+            });
 
         const result = await getFollowAge('ponss17', 'viewer1', 'token');
 
