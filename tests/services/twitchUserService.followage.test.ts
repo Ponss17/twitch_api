@@ -84,15 +84,51 @@ describe('getFollowAge', () => {
             .mockResolvedValueOnce('111')
             .mockResolvedValueOnce('222');
 
-        mockedApiClient.get.mockResolvedValueOnce({
-            data: { data: [], total: 15420 }
-        });
+        mockedApiClient.get
+            .mockResolvedValueOnce({
+                data: { data: [], total: 15420 }
+            })
+            // validateToken (OAuth scopes)
+            .mockResolvedValueOnce({
+                data: {
+                    client_id: 'x',
+                    login: 'ponss17',
+                    scopes: ['moderator:read:followers'],
+                    user_id: '111',
+                    expires_in: 3600
+                }
+            });
 
         const result = await getFollowAge('ponss17', 'viewer1', 'token');
 
         expect(result.timePhrase).toBe('error');
         expect(result.text).toMatch(/dueño o moderador|actualizar permisos/i);
         expect(result.text).not.toContain('no sigue');
+    });
+
+    it('pide re-login si falta el scope moderator:read:followers', async () => {
+        (cacheService.getCachedUserId as jest.Mock)
+            .mockResolvedValueOnce('111')
+            .mockResolvedValueOnce('222');
+
+        mockedApiClient.get
+            .mockResolvedValueOnce({
+                data: { data: [], total: 15420 }
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    client_id: 'x',
+                    login: 'ponss17',
+                    scopes: ['user:read:email'],
+                    user_id: '111',
+                    expires_in: 3600
+                }
+            });
+
+        const result = await getFollowAge('ponss17', 'viewer1', 'token');
+
+        expect(result.timePhrase).toBe('error');
+        expect(result.text).toContain('moderator:read:followers');
     });
 
     it('devuelve "no sigue" solo cuando total es 0', async () => {

@@ -194,13 +194,35 @@ export const getFollowAge = async (
             // Sin scope / sin ser mod: Twitch responde 200 con data=[] y total = seguidores del canal.
             // Con permiso y sin follow: total = 0.
             const total = Number(followRes.data?.total);
-            if (Number.isFinite(total) && total > 0) {
-                return followageError(FOLLOWAGE_PERMISSION_MSG(channel));
+            logger.info('Followage Helix data vacía', {
+                channel,
+                user,
+                channelId,
+                userId,
+                total: Number.isFinite(total) ? total : null,
+                hasTotalKey: followRes.data != null && 'total' in followRes.data
+            });
+
+            if (Number.isFinite(total) && total === 0) {
+                return {
+                    text: `${user} no sigue a ${channel}.`,
+                    timePhrase: 'no sigue'
+                };
             }
-            return {
-                text: `${user} no sigue a ${channel}.`,
-                timePhrase: 'no sigue'
-            };
+
+            // Confirmar si falta el scope (refresh OAuth no añade scopes nuevos).
+            try {
+                const validation = await validateToken(token);
+                if (validation && !validation.scopes?.includes('moderator:read:followers')) {
+                    return followageError(
+                        'Tu cuenta no tiene el permiso de follows (moderator:read:followers). Cierra sesión en el panel y vuelve a entrar aceptando todos los permisos.'
+                    );
+                }
+            } catch (scopeErr) {
+                logger.warn('Followage: no se pudo validar scopes OAuth', scopeErr);
+            }
+
+            return followageError(FOLLOWAGE_PERMISSION_MSG(channel));
         }
 
         const followedAt = follows[0]?.followed_at;
