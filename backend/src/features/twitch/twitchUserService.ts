@@ -1,5 +1,6 @@
 import { TwitchUser, TwitchValidationResponse } from '../../types/twitch';
 import * as cacheService from '../../core/database/cacheService';
+import { resolveCache } from '../../core/config/cacheTtl';
 import { getTimePhraseBetween } from '../../core/utils/time';
 import { TwitchApiError } from '../../core/errors/AppError';
 import { logger } from '../../core/utils/logger';
@@ -350,7 +351,11 @@ export const getFollowersCount = async (broadcasterId: string, token: string): P
     }
 };
 
-export const isStreamLive = async (userId: string, token: string): Promise<boolean> => {
+export const isStreamLive = async (
+    userId: string,
+    token: string,
+    role?: string | null
+): Promise<boolean> => {
     const cacheKey = `cache:stream:live:${userId}`;
     try {
         const cached = await cacheService.get<boolean>(cacheKey);
@@ -362,7 +367,7 @@ export const isStreamLive = async (userId: string, token: string): Promise<boole
             params: { user_id: userId }
         });
         const live = response.data.data.length > 0;
-        await cacheService.set(cacheKey, live, 30);
+        await cacheService.set(cacheKey, live, resolveCache('STREAM_LIVE', role));
         return live;
     } catch (error) {
         logger.error('Error in isStreamLive:', error);
@@ -394,10 +399,11 @@ export const getFollowersCountSafe = async (
 
 export const isStreamLiveSafe = async (
     userId: string,
-    token: string
+    token: string,
+    role?: string | null
 ): Promise<boolean | undefined> => {
     try {
-        return await isStreamLive(userId, token);
+        return await isStreamLive(userId, token, role);
     } catch (error) {
         logger.warn('isStreamLiveSafe degradado (dato no disponible):', {
             userId,

@@ -32,6 +32,8 @@ export function buildDashboardProfile(
                   role: limits.role,
                   roleLabel: limits.roleLabel,
                   rateLimit: limits.rateLimit,
+                  heavyLimit: limits.heavyLimit,
+                  cacheTtl: limits.cacheTtl,
                   hasCustomRateLimit: limits.hasCustomRateLimit,
                   hasCustomCacheTtl: limits.hasCustomCacheTtl
               }

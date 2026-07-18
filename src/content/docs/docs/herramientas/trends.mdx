@@ -19,7 +19,7 @@ Abre **[Tendencias](/dashboard/trends)** en el panel. Usa el botón **Overlay** 
 ## Límites
 
 <Aside type="note" title="Rate limit y persistencia">
-  Usa la **sesión del dashboard** (500 req/min). El **estado del overlay** (conteos, temporizador, etc.) se guarda en KV con TTL de **2 horas**. La **URL del overlay** incluye un token de solo lectura válido **30 días** — no la compartas en stream ni en chat público.
+  Usa la **sesión del dashboard** (límite de sesión según rol, ver [Límites](/docs/limits/)). El **estado del overlay** (conteos, temporizador, etc.) se guarda en KV con TTL de **2 horas**. La **URL del overlay** incluye un token de solo lectura válido **30 días** — no la compartas en stream ni en chat público.
 </Aside>
 
 <OverlayApiSection tool="trends" flowId="flow-trends" />

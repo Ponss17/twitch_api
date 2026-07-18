@@ -1,7 +1,7 @@
 import { TwitchChannelInfo } from '../../types/twitch';
 import { TwitchApiError } from '../../core/errors/AppError';
 import * as cacheService from '../../core/database/cacheService';
-import { CACHE_TTL_MATRIX } from '../../core/config/cacheTtl';
+import { CACHE_TTL_MATRIX, ownerScopedCacheKey, resolveCache } from '../../core/config/cacheTtl';
 import { apiClient, handleTwitchError, getHeaders } from './twitchClient';
 
 export type ChatterEligibility = 'subs' | 'mods' | 'vips' | 'viewers';
@@ -58,8 +58,18 @@ async function paginateHelixLogins(
     return logins;
 }
 
-const getModeratorLogins = async (broadcasterId: string, token: string): Promise<string[]> => {
-    const cacheKey = `cache:eligibility:mods:${broadcasterId}`;
+type EligibilityCacheOpts = {
+    ownerId?: string;
+    role?: string | null;
+    customTtl?: number;
+};
+
+const getModeratorLogins = async (
+    broadcasterId: string,
+    token: string,
+    cacheOpts?: EligibilityCacheOpts
+): Promise<string[]> => {
+    const cacheKey = ownerScopedCacheKey(cacheOpts?.ownerId, `cache:eligibility:mods:${broadcasterId}`);
     const cached = await cacheService.get<string[]>(cacheKey);
     if (cached) return cached;
 
@@ -69,12 +79,20 @@ const getModeratorLogins = async (broadcasterId: string, token: string): Promise
         token
     );
 
-    await cacheService.set(cacheKey, logins, CACHE_TTL_MATRIX.ELIGIBILITY.default);
+    await cacheService.set(
+        cacheKey,
+        logins,
+        resolveCache('ELIGIBILITY', cacheOpts?.role, cacheOpts?.customTtl)
+    );
     return logins;
 };
 
-const getVipLogins = async (broadcasterId: string, token: string): Promise<string[]> => {
-    const cacheKey = `cache:eligibility:vips:${broadcasterId}`;
+const getVipLogins = async (
+    broadcasterId: string,
+    token: string,
+    cacheOpts?: EligibilityCacheOpts
+): Promise<string[]> => {
+    const cacheKey = ownerScopedCacheKey(cacheOpts?.ownerId, `cache:eligibility:vips:${broadcasterId}`);
     const cached = await cacheService.get<string[]>(cacheKey);
     if (cached) return cached;
 
@@ -84,12 +102,20 @@ const getVipLogins = async (broadcasterId: string, token: string): Promise<strin
         token
     );
 
-    await cacheService.set(cacheKey, logins, CACHE_TTL_MATRIX.ELIGIBILITY.default);
+    await cacheService.set(
+        cacheKey,
+        logins,
+        resolveCache('ELIGIBILITY', cacheOpts?.role, cacheOpts?.customTtl)
+    );
     return logins;
 };
 
-const getSubscriberLogins = async (broadcasterId: string, token: string): Promise<string[]> => {
-    const cacheKey = `cache:eligibility:subs:${broadcasterId}`;
+const getSubscriberLogins = async (
+    broadcasterId: string,
+    token: string,
+    cacheOpts?: EligibilityCacheOpts
+): Promise<string[]> => {
+    const cacheKey = ownerScopedCacheKey(cacheOpts?.ownerId, `cache:eligibility:subs:${broadcasterId}`);
     const cached = await cacheService.get<string[]>(cacheKey);
     if (cached) return cached;
 
@@ -99,7 +125,11 @@ const getSubscriberLogins = async (broadcasterId: string, token: string): Promis
         token
     );
 
-    await cacheService.set(cacheKey, logins, CACHE_TTL_MATRIX.ELIGIBILITY.default);
+    await cacheService.set(
+        cacheKey,
+        logins,
+        resolveCache('ELIGIBILITY', cacheOpts?.role, cacheOpts?.customTtl)
+    );
     return logins;
 };
 
@@ -182,14 +212,15 @@ export const filterAndAnnotateChatters = async (
     chatters: ChatterRow[],
     broadcasterId: string,
     token: string,
-    eligibility: 'all' | ChatterEligibility[]
+    eligibility: 'all' | ChatterEligibility[],
+    cacheOpts?: EligibilityCacheOpts
 ): Promise<ChatterRow[]> => {
     // Cargamos los tres sets de roles SIEMPRE, tanto para filtrar como para anotar.
     // Como cada get* tiene caché de Redis, el coste real es 0-3 llamadas a KV.
     const [modsResult, vipsResult, subsResult] = await Promise.allSettled([
-        getModeratorLogins(broadcasterId, token),
-        getVipLogins(broadcasterId, token),
-        getSubscriberLogins(broadcasterId, token)
+        getModeratorLogins(broadcasterId, token, cacheOpts),
+        getVipLogins(broadcasterId, token, cacheOpts),
+        getSubscriberLogins(broadcasterId, token, cacheOpts)
     ]);
 
     const modSet = new Set(modsResult.status === 'fulfilled' ? modsResult.value : []);
