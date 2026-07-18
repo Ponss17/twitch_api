@@ -18,7 +18,7 @@ function toApiTestResult(
 }
 
 const followageErrorPattern =
-    /no existe en Twitch|no sigue a|No se puede consultar|No se pudo consultar|No se pudo obtener|Debes ser el dueño|moderador|Twitch no está disponible/i;
+    /no existe en Twitch|no sigue a|No se puede consultar|No se pudo consultar|No se pudo obtener|Debes ser el dueño|moderador|actualizar permisos|Twitch no está disponible/i;
 
 export function FollowageView() {
     const session = useRequiredSession();

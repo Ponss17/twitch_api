@@ -70,18 +70,56 @@ describe('getFollowAge', () => {
             .mockResolvedValueOnce({
                 data: { data: [{ id: '222', login: 'ponss17' }] }
             })
-            .mockRejectedValueOnce(
-                Object.assign(new Error('Forbidden'), {
-                    isAxiosError: true,
-                    response: { status: 403, data: { message: 'Forbidden' } }
-                })
-            );
+            .mockRejectedValueOnce(new TwitchApiError('Forbidden', 403));
 
         const result = await getFollowAge('otrocanal', 'ponss17', 'token');
 
         expect(result.timePhrase).toBe('error');
         expect(result.text).toContain('otrocanal');
-        expect(result.text).toContain('dueño del canal o un moderador');
+        expect(result.text).toMatch(/dueño o moderador|actualizar permisos/i);
+    });
+
+    it('trata data vacía con total>0 como falta de permiso (no como "no sigue")', async () => {
+        (cacheService.getCachedUserId as jest.Mock)
+            .mockResolvedValueOnce('111')
+            .mockResolvedValueOnce('222');
+
+        mockedApiClient.get.mockResolvedValueOnce({
+            data: { data: [], total: 15420 }
+        });
+
+        const result = await getFollowAge('ponss17', 'viewer1', 'token');
+
+        expect(result.timePhrase).toBe('error');
+        expect(result.text).toMatch(/dueño o moderador|actualizar permisos/i);
+        expect(result.text).not.toContain('no sigue');
+    });
+
+    it('devuelve "no sigue" solo cuando total es 0', async () => {
+        (cacheService.getCachedUserId as jest.Mock)
+            .mockResolvedValueOnce('111')
+            .mockResolvedValueOnce('222');
+
+        mockedApiClient.get.mockResolvedValueOnce({
+            data: { data: [], total: 0 }
+        });
+
+        const result = await getFollowAge('ponss17', 'viewer1', 'token');
+
+        expect(result.timePhrase).toBe('no sigue');
+        expect(result.text).toContain('viewer1 no sigue a ponss17');
+    });
+
+    it('relanza 401 para permitir refresh del token', async () => {
+        (cacheService.getCachedUserId as jest.Mock)
+            .mockResolvedValueOnce('111')
+            .mockResolvedValueOnce('222');
+
+        mockedApiClient.get.mockRejectedValueOnce(new TwitchApiError('Unauthorized', 401));
+
+        await expect(getFollowAge('ponss17', 'viewer1', 'token')).rejects.toMatchObject({
+            statusCode: 401
+        });
     });
 
     it('devuelve followage cuando el usuario sí sigue al canal', async () => {
@@ -91,7 +129,8 @@ describe('getFollowAge', () => {
 
         mockedApiClient.get.mockResolvedValueOnce({
             data: {
-                data: [{ followed_at: '2020-01-15T12:00:00Z' }]
+                data: [{ followed_at: '2020-01-15T12:00:00Z' }],
+                total: 1
             }
         });
 

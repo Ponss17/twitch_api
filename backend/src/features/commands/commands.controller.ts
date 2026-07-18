@@ -107,7 +107,7 @@ function followagePlainText(result: unknown): string {
         const text = (result as { text?: unknown }).text;
         if (typeof text === 'string' && text.trim()) return text.trim();
     }
-    return 'No se pudo obtener el followage. Intenta de nuevo.';
+    return 'No se pudo obtener el followage. Intenta de nuevo en unos segundos.';
 }
 
 function applyFollowageTemplate(
@@ -141,9 +141,10 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         },
         async () => {
             // Helix: broadcaster o moderador del canal (scope moderator:read:followers).
+            // v4: invalida cachés que confundían "sin permiso" (data=[] + total>0) con "no sigue".
             const cacheKey = ownerScopedCacheKey(
                 userId,
-                `cache:cmd:followage:v3:channel:${channel}:user:${user}`
+                `cache:cmd:followage:v4:channel:${channel}:user:${user}`
             );
             const cached = await cacheService.get<{ text: string; timePhrase: string; followDateMs?: number }>(cacheKey);
 
@@ -155,10 +156,10 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                     entry.text = `${user} ha seguido a ${channel} por ${newTimePhrase}.`;
                 }
                 const template = safeString(req.query.template);
-                if (template && entry.timePhrase) {
+                if (template && entry.timePhrase && entry.timePhrase !== 'error') {
                     return applyFollowageTemplate(template, entry.timePhrase, user, channel);
                 }
-                if (typeof entry.text === 'string' && entry.text.trim()) {
+                if (typeof entry.text === 'string' && entry.text.trim() && entry.timePhrase !== 'error') {
                     return entry.text;
                 }
             }
@@ -170,7 +171,8 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 'FOLLOWAGE'
             );
 
-            if (apiResult && apiResult.timePhrase !== 'error') {
+            // Solo cachear follows reales (con fecha). "no sigue" / errores no se cachean.
+            if (apiResult && apiResult.timePhrase !== 'error' && apiResult.timePhrase !== 'no sigue') {
                 const ttl = resolveCache('COMMAND', res.locals?.apiUser?.role);
                 await cacheService.set(cacheKey, apiResult, ttl);
             }
@@ -180,7 +182,8 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 logger.warn('Followage sin texto usable', {
                     channel,
                     user,
-                    resultType: apiResult === null ? 'null' : typeof apiResult,
+                    hasToken: Boolean(req.twitchToken),
+                    resultType: apiResult == null ? String(apiResult) : typeof apiResult,
                     timePhrase:
                         apiResult && typeof apiResult === 'object'
                             ? (apiResult as { timePhrase?: string }).timePhrase
@@ -204,7 +207,8 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
 
     const body = followagePlainText(result);
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
+    // Respuesta personalizada (apiKey): nunca cachear en CDN.
+    res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
     return res.send(body);
 };
 
@@ -291,11 +295,13 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
     );
 
     if (result) {
-        res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
         return res.send(result);
     }
     if (!res.headersSent) {
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
         return res.send('No se pudo generar el shoutout. Intenta de nuevo.');
     }
 };
