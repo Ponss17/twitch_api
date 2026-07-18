@@ -75,7 +75,7 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                 // scope moderator:read:followers) degradamos sin romper el perfil.
                 const [followers, isLive] = await Promise.all([
                     apiService.getFollowersCountSafe(info.id, token),
-                    apiService.isStreamLiveSafe(info.id, token)
+                    apiService.isStreamLiveSafe(info.id, token, apiUser?.role)
                 ]);
                 const degraded = followers === undefined || isLive === undefined;
                 const profileResult = buildDashboardProfile(
@@ -92,7 +92,7 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                 if (!degraded) {
                     await cacheService.set(cacheKey, profileResult, resolveCache('DASHBOARD_PROFILE', apiUser?.role, apiUser?.customCacheTtl));
                 }
-                return { ...profileResult, ...limits, timezone, cacheTtl: resolveCache('COMMAND', apiUser?.role, apiUser?.customCacheTtl) };
+                return { ...profileResult, ...limits, timezone, cacheTtl: limits.cacheTtl };
             }, 'getUserInfo');
         },
         req

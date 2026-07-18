@@ -76,7 +76,12 @@ export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
                         chatters,
                         broadcasterId,
                         token,
-                        eligibility
+                        eligibility,
+                        {
+                            ownerId: userId,
+                            role: res.locals.apiUser?.role,
+                            customTtl: res.locals.apiUser?.customCacheTtl
+                        }
                     );
                     await cacheService.set(
                         cacheKey,

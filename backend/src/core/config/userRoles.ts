@@ -1,17 +1,41 @@
-
-
+/**
+ * Roles de usuario de la API y sus ventajas reales.
+ *
+ * - rateLimit: peticiones/min con API key (bots / integraciones)
+ * - heavyLimit: peticiones/min a endpoints caros (clips, chatters) con API key
+ * - commandCacheTtl: retención de respuestas de comandos de bot (más alto = menos hits a Twitch)
+ */
 
 export const USER_ROLES = {
-    default: { label: 'Default', rateLimit: 30 },
-    pro: { label: 'Pro', rateLimit: 60 },
-    vip: { label: 'VIP', rateLimit: 90 },
-    partner: { label: 'Partner', rateLimit: 120 }
+    default: {
+        label: 'Default',
+        rateLimit: 30,
+        heavyLimit: 5,
+        commandCacheTtl: 60
+    },
+    pro: {
+        label: 'Pro',
+        rateLimit: 60,
+        heavyLimit: 12,
+        commandCacheTtl: 80
+    },
+    vip: {
+        label: 'VIP',
+        rateLimit: 90,
+        heavyLimit: 20,
+        commandCacheTtl: 120
+    },
+    partner: {
+        label: 'Partner',
+        rateLimit: 120,
+        heavyLimit: 40,
+        commandCacheTtl: 240
+    }
 } as const;
 
 export type UserRole = keyof typeof USER_ROLES;
 
 export const DEFAULT_USER_ROLE: UserRole = 'default';
-
 
 export interface UserLimitsSource {
     role?: string | null;
@@ -23,6 +47,8 @@ export interface ResolvedUserLimits {
     role: UserRole;
     roleLabel: string;
     rateLimit: number;
+    heavyLimit: number;
+    cacheTtl: number;
     hasCustomRateLimit: boolean;
     hasCustomCacheTtl: boolean;
 }
@@ -38,12 +64,16 @@ function getRoleConfig(role?: string | null) {
     return USER_ROLES[normalizeUserRole(role)];
 }
 
-
 /** Prioridad: personalizado → rol → default global. */
 export function resolveUserRateLimit(user?: UserLimitsSource | null): number {
     const custom = user?.customRateLimit;
     if (typeof custom === 'number' && custom > 0) return custom;
     return getRoleConfig(user?.role).rateLimit;
+}
+
+/** Cuota de endpoints pesados (clips/chatters) por rol. */
+export function resolveUserHeavyLimit(user?: UserLimitsSource | null): number {
+    return getRoleConfig(user?.role).heavyLimit;
 }
 
 export function resolveUserLimits(user?: UserLimitsSource | null): ResolvedUserLimits {
@@ -58,8 +88,9 @@ export function resolveUserLimits(user?: UserLimitsSource | null): ResolvedUserL
         role,
         roleLabel: roleConfig.label,
         rateLimit: hasCustomRateLimit ? user!.customRateLimit! : roleConfig.rateLimit,
+        heavyLimit: roleConfig.heavyLimit,
+        cacheTtl: hasCustomCacheTtl ? user!.customCacheTtl! : roleConfig.commandCacheTtl,
         hasCustomRateLimit,
         hasCustomCacheTtl
     };
 }
-

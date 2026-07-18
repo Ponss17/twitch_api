@@ -9,6 +9,7 @@ interface SettingsSecuritySectionProps {
     showDanger: boolean;
     userId?: string;
     rateLimit: number;
+    heavyLimit?: number;
     cacheTtl: number;
     roleLabel: string;
     hasCustomRateLimit?: boolean;
@@ -27,6 +28,7 @@ export function SettingsSecuritySection({
     showDanger,
     userId,
     rateLimit,
+    heavyLimit,
     cacheTtl,
     roleLabel,
     hasCustomRateLimit,
@@ -110,14 +112,31 @@ export function SettingsSecuritySection({
                 <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/[0.08] px-2 py-0.5 text-[0.7rem] font-semibold text-emerald-400">
                     <Check className="w-3 h-3" /> Activa
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold text-primary">
+                <span
+                    className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold text-primary"
+                    title="Tu plan de API: más alto = más cuota y datos más frescos"
+                >
                     <Crown className="w-3 h-3 opacity-80" /> {roleLabel}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-0.5 text-[0.7rem] font-semibold text-zinc-400">
+                <span
+                    className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-0.5 text-[0.7rem] font-semibold text-zinc-400"
+                    title="Peticiones por minuto con tu API Key (comandos e integraciones)"
+                >
                     <Gauge className="w-3 h-3 text-primary/70" /> {rateLimit} req/min{hasCustomRateLimit ? ' *' : ''}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-0.5 text-[0.7rem] font-semibold text-zinc-400">
-                    <Clock className="w-3 h-3 text-primary/70" /> {cacheTtl}s{hasCustomCacheTtl ? ' *' : ''}
+                {typeof heavyLimit === 'number' && (
+                    <span
+                        className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-0.5 text-[0.7rem] font-semibold text-zinc-400"
+                        title="Cuota de endpoints pesados (clips / chatters) con API Key"
+                    >
+                        <Gauge className="w-3 h-3 text-amber-400/80" /> {heavyLimit} heavy/min
+                    </span>
+                )}
+                <span
+                    className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-0.5 text-[0.7rem] font-semibold text-zinc-400"
+                    title="Retención de caché de comandos de bot (followage, etc.)"
+                >
+                    <Clock className="w-3 h-3 text-primary/70" /> {cacheTtl}s caché{hasCustomCacheTtl ? ' *' : ''}
                 </span>
                 <button type="button" onClick={onCopyId}
                     className="inline-flex cursor-pointer items-center gap-1 rounded-md bg-white/[0.04] px-2 py-0.5 text-[0.7rem] font-semibold text-zinc-400 transition hover:text-primary font-[inherit]">

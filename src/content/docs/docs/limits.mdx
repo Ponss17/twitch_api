@@ -1,11 +1,28 @@
 ---
 title: "Límites de uso"
-description: "Rate limiting por rol, sesión del panel y endpoints pesados."
+description: "Rate limiting por rol, sesión del panel, endpoints pesados y caché."
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-La API aplica límites de peticiones para mantener el servicio estable. El límite depende de **cómo** te autenticas y del **rol** de tu cuenta.
+La API aplica límites de peticiones para mantener el servicio estable. El límite depende de **cómo** te autenticas y del **rol** de tu cuenta (Default, Pro, VIP o Partner).
+
+---
+
+## Ventajas por rol (resumen)
+
+| Rol | API Key | Endpoints pesados | Caché de comandos |
+| :--- | :--- | :--- | :--- |
+| Default | 30 req/min | 5 req/min | 60 s |
+| Pro | 60 req/min | 12 req/min | 80 s |
+| VIP | 90 req/min | 20 req/min | 120 s |
+| Partner | 120 req/min | 40 req/min | 240 s |
+
+- **API Key:** cuota general de bots (`/followage`, `/shoutout`, minijuegos, etc.).
+- **Pesados:** solo `get-clips` y `chatters` cuando van con API Key.
+- **Caché de comandos:** cuánto tiempo se reutiliza la respuesta en el chat. En followage se guarda la **fecha del follow** y el tiempo se **recalcula** en cada acierto de caché (el dato no se congela).
+
+Además, un rol más alto obtiene **datos más frescos** en el panel (clips, chatters, analytics, “en vivo”, etc.).
 
 ---
 
@@ -28,7 +45,16 @@ Cuando llamas a endpoints de bot con `apiKey` o `X-Api-Key`:
 
 ## Sesión del panel
 
-Las peticiones con **OAuth del dashboard** (`Authorization: Bearer`) usan un límite fijo de **500 req/min** por usuario, independiente del rol.
+Las peticiones con **OAuth del dashboard** (`Authorization: Bearer`) usan:
+
+`max(500, rateLimit_del_rol × 10)` req/min
+
+| Rol | Efectivo (sin override) |
+| :--- | :--- |
+| Default | 500 req/min |
+| Pro | 600 req/min |
+| VIP | 900 req/min |
+| Partner | 1200 req/min |
 
 Incluye analytics, overlays, pruebas desde el panel y rutas `/api/dashboard/*` con sesión.
 
@@ -36,14 +62,21 @@ Incluye analytics, overlays, pruebas desde el panel y rutas `/api/dashboard/*` c
 
 ## Endpoints pesados
 
-Límite fijo de **10 req/min** solo cuando la petición va con **API Key** (no con sesión del panel):
+Solo cuando la petición va con **API Key** (no con sesión del panel). La cuota **escala con tu rol**:
+
+| Rol | Pesados |
+| :--- | :--- |
+| Default | 5 req/min |
+| Pro | 12 req/min |
+| VIP | 20 req/min |
+| Partner | 40 req/min |
 
 | Endpoint | Descripción |
 | :--- | :--- |
 | `GET /api/dashboard/get-clips` | Lista clips vía API de Twitch |
 | `GET /api/dashboard/chatters` | Lista viewers del chat en vivo |
 
-Desde el panel con sesión OAuth cuentan contra los **500 req/min**, no contra el límite pesado.
+Desde el panel con sesión OAuth cuentan contra el límite de **sesión**, no contra el límite pesado.
 
 Los comandos de bot (`/followage`, `/shoutout`, `/create-clip`, minijuegos, etc.) usan el **límite general** de tu rol.
 
@@ -64,7 +97,7 @@ La ventana es un bucket rodante de **1 minuto** (login OAuth usa ventana de 5 mi
 
 ## Caché por rol
 
-Mayor rol implica **más retención en comandos de chat** (menos llamadas repetidas) y **datos más frescos en el panel**:
+Mayor rol implica **más retención en comandos de chat** (menos llamadas repetidas a Twitch) y **datos más frescos en el panel / tools**.
 
 ### Comandos de chat (`COMMAND`)
 
@@ -75,19 +108,26 @@ Mayor rol implica **más retención en comandos de chat** (menos llamadas repeti
 | VIP | 120 s |
 | Partner | 240 s |
 
-### Panel — analytics y clips
+<Aside type="tip" title="Followage">
+  La caché guarda la fecha real del follow. En cada petición dentro del TTL se recalcula “lleva X tiempo” hasta <strong>ahora</strong>, sin volver a llamar a Twitch.
+</Aside>
+
+### Panel y tools (más rol = más fresco)
 
 | Recurso | Default | Pro | VIP | Partner |
 | :--- | :--- | :--- | :--- | :--- |
-| Analytics dashboard | 60 s | 45 s | 30 s | 15 s |
+| Chatters / stalker / ruleta | 45 s | 30 s | 20 s | 10 s |
 | Clips (listado) | 60 s | 45 s | 30 s | 15 s |
+| Mods / VIPs / subs (eligibility) | 90 s | 60 s | 40 s | 20 s |
+| Analytics dashboard | 60 s | 45 s | 30 s | 15 s |
 | Perfil dashboard | 300 s | 225 s | 150 s | 75 s |
 | Feed de actividad | 20 s | 15 s | 10 s | 5 s |
+| Estado en vivo | 45 s | 30 s | 15 s | 8 s |
 
-En **Configuración** el chip de caché muestra el TTL de comandos (`COMMAND`) para tu rol.
+En **Configuración** verás chips de **req/min**, **heavy/min** y **caché de comandos** para tu rol.
 
 <Aside type="note" title="Overrides">
-  Si tienes `customCacheTtl` en la cuenta, ese valor tiene prioridad sobre la tabla por rol.
+  Si tienes `customCacheTtl` en la cuenta, ese valor tiene prioridad sobre la tabla por rol (incluido followage).
 </Aside>
 
 ---

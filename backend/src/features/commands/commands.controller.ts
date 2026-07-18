@@ -182,7 +182,11 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
 
             // Solo cachear follows reales (con fecha). "no sigue" / errores no se cachean.
             if (apiResult.timePhrase !== 'error' && apiResult.timePhrase !== 'no sigue') {
-                const ttl = resolveCache('COMMAND', res.locals?.apiUser?.role);
+                const ttl = resolveCache(
+                    'COMMAND',
+                    res.locals?.apiUser?.role,
+                    res.locals?.apiUser?.customCacheTtl
+                );
                 await cacheService.set(cacheKey, apiResult, ttl);
             }
 

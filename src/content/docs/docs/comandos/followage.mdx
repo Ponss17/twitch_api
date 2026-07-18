@@ -19,8 +19,9 @@ Consulta la antigüedad del follow de un viewer. La respuesta es texto plano lis
 
 ## Límites
 
-<Aside type="note" title="Rate limit">
-  Usa el **límite general** de tu rol (30–120 req/min). En cuentas Default, las respuestas se cachean **60 segundos** para reducir peticiones repetidas en el chat.
+<Aside type="note" title="Rate limit y caché">
+  Usa el **límite general** de tu rol (30–120 req/min). Las respuestas se cachean según el rol (Default **60 s** → Partner **240 s**).
+  Se guarda la **fecha del follow**; en cada acierto de caché el tiempo (“lleva X…”) se **recalcula hasta ahora**, sin llamar otra vez a Twitch.
 </Aside>
 
 ## Parámetros

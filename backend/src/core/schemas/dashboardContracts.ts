@@ -51,6 +51,7 @@ export interface DashboardProfile {
     role?: string;
     roleLabel?: string;
     rateLimit?: number;
+    heavyLimit?: number;
     cacheTtl?: number;
     hasCustomRateLimit?: boolean;
     hasCustomCacheTtl?: boolean;

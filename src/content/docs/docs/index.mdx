@@ -59,7 +59,7 @@ Los bots **no** necesitan iniciar sesión en el panel: solo tu API Key. La clave
 
 ## Límites y estabilidad
 
-La API aplica rate limits según el rol de tu cuenta (30–120 req/min con API Key) y un límite de **500 req/min** para peticiones con sesión del panel. Algunos endpoints pesados (por ejemplo listados largos de clips) tienen límites más bajos.
+La API aplica rate limits según el rol de tu cuenta (30–120 req/min con API Key), un límite de sesión del panel que escala con el rol (desde **500** req/min) y cuotas **pesadas** para clips/chatters (5–40 req/min según rol).
 
 Consulta [Límites de uso](/docs/limits/) para el detalle por rol y endpoint.
 

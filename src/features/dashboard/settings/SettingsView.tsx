@@ -394,6 +394,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                     showDanger={showDanger}
                     userId={session.userId}
                     rateLimit={profile?.rateLimit ?? 60}
+                    heavyLimit={profile?.heavyLimit}
                     cacheTtl={profile?.cacheTtl ?? 60}
                     roleLabel={profile?.roleLabel ?? 'Default'}
                     hasCustomRateLimit={profile?.hasCustomRateLimit}
