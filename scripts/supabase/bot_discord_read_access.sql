@@ -100,6 +100,8 @@ CREATE POLICY discord_link_events_select_anon
   TO anon, authenticated
   USING (true);
 
+GRANT SELECT ON public.discord_link_events TO anon, authenticated;
+
 CREATE OR REPLACE FUNCTION public.notify_discord_link_change()
 RETURNS trigger
 LANGUAGE plpgsql
