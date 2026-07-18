@@ -90,6 +90,18 @@ const followageError = (text: string): FollowAgeResult => ({
     timePhrase: 'error'
 });
 
+const FOLLOWAGE_PERMISSION_MSG = (channel: string) =>
+    `No se puede consultar el follow en "${channel}". Debes ser el dueño o moderador del canal (API key de esa cuenta). Si eres el dueño, cierra sesión y vuelve a entrar en el panel para actualizar permisos.`;
+
+function helixHttpStatus(error: unknown): number | undefined {
+    if (axios.isAxiosError(error)) return error.response?.status;
+    if (error && typeof error === 'object' && 'statusCode' in error) {
+        const code = Number((error as { statusCode: unknown }).statusCode);
+        return Number.isFinite(code) ? code : undefined;
+    }
+    return undefined;
+}
+
 async function resolveFollowageLoginId(
     login: string,
     token: string,
@@ -98,7 +110,11 @@ async function resolveFollowageLoginId(
     try {
         return await getUserId(login, token);
     } catch (error) {
-        if (error instanceof TwitchApiError && error.statusCode === 404) {
+        const status = helixHttpStatus(error);
+        // 401 → dejar subir para que withTwitchAuth renueve el token OAuth.
+        if (status === 401) throw error;
+
+        if (status === 404 || (error instanceof TwitchApiError && error.statusCode === 404)) {
             return followageError(
                 label === 'canal'
                     ? `El canal "${login}" no existe en Twitch. Revisa que el nombre esté bien escrito.`
@@ -114,13 +130,9 @@ async function resolveFollowageLoginId(
 function mapFollowageHelixError(
     error: unknown,
     channel: string,
-    user: string
+    _user: string
 ): FollowAgeResult | null {
-    const status = axios.isAxiosError(error)
-        ? error.response?.status
-        : error instanceof TwitchApiError
-          ? error.statusCode
-          : undefined;
+    const status = helixHttpStatus(error);
 
     if (status === 404) {
         const twitchMsg = axios.isAxiosError(error)
@@ -128,16 +140,17 @@ function mapFollowageHelixError(
             : error instanceof TwitchApiError
               ? error.message
               : undefined;
-        return followageError(twitchMsg || `No se encontró información de follow para ${user} en ${channel}.`);
-    }
-
-    if (status === 401 || status === 403) {
         return followageError(
-            `No se puede consultar el follow en "${channel}". Debes ser el dueño del canal o un moderador (con la API key de tu cuenta).`
+            twitchMsg || `No se encontró información de follow en ${channel}.`
         );
     }
 
-    if (status === 503 || (error instanceof TwitchApiError && error.statusCode === 503)) {
+    // 403 = sin permiso real. 401 no se mapea aquí: debe forzar refresh.
+    if (status === 403) {
+        return followageError(FOLLOWAGE_PERMISSION_MSG(channel));
+    }
+
+    if (status === 503) {
         return followageError('Twitch no está disponible ahora mismo. Intenta en unos segundos.');
     }
 
@@ -149,6 +162,10 @@ export const getFollowAge = async (
     user: string,
     token: string
 ): Promise<FollowAgeResult> => {
+    if (!token?.trim()) {
+        throw new TwitchApiError('Token expirado o inválido.', 401);
+    }
+
     try {
         const channelId = await resolveFollowageLoginId(channel, token, 'canal');
         if (typeof channelId !== 'string') return channelId;
@@ -174,13 +191,32 @@ export const getFollowAge = async (
 
         const follows = Array.isArray(followRes.data?.data) ? followRes.data.data : [];
         if (follows.length === 0) {
+            // Sin scope / sin ser mod: Twitch responde 200 con data=[] y total = seguidores del canal.
+            // Con permiso y sin follow: total = 0.
+            const total = Number(followRes.data?.total);
+            if (Number.isFinite(total) && total > 0) {
+                return followageError(FOLLOWAGE_PERMISSION_MSG(channel));
+            }
             return {
                 text: `${user} no sigue a ${channel}.`,
                 timePhrase: 'no sigue'
             };
         }
 
-        const followDate = new Date(follows[0].followed_at);
+        const followedAt = follows[0]?.followed_at;
+        if (!followedAt) {
+            return followageError(
+                `Twitch no devolvió la fecha de follow de ${user} en ${channel}. Intenta de nuevo.`
+            );
+        }
+
+        const followDate = new Date(followedAt);
+        if (Number.isNaN(followDate.getTime())) {
+            return followageError(
+                `Twitch devolvió una fecha de follow inválida para ${user} en ${channel}.`
+            );
+        }
+
         const timePhrase = getTimePhraseBetween(followDate);
 
         return {
@@ -189,6 +225,8 @@ export const getFollowAge = async (
             followDateMs: followDate.getTime()
         };
     } catch (error: unknown) {
+        if (helixHttpStatus(error) === 401) throw error;
+
         const mapped = mapFollowageHelixError(error, channel, user);
         if (mapped) return mapped;
 
