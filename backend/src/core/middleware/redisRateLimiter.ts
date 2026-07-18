@@ -155,7 +155,7 @@ async function handleLimitExceeded(req: Request, res: Response, cleanPath: strin
 
     if (isBotCommand(cleanPath)) {
         res.setHeader('Content-Type', 'text/plain');
-        return res.status(429).send('');
+        return res.status(429).send(message || 'Límite de peticiones excedido. Espera un momento.');
     }
 
     if (isApiRoute(cleanPath)) {
