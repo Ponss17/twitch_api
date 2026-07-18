@@ -192,34 +192,40 @@ export const getFollowAge = async (
         const follows = Array.isArray(followRes.data?.data) ? followRes.data.data : [];
         if (follows.length === 0) {
             // Sin scope / sin ser mod: Twitch responde 200 con data=[] y total = seguidores del canal.
-            // Con permiso y sin follow: total = 0.
-            const total = Number(followRes.data?.total);
+            // Con permiso y sin follow: total = 0 (número). No usar Number(null)===0.
+            const totalRaw = followRes.data?.total;
+            const total =
+                typeof totalRaw === 'number' && Number.isFinite(totalRaw) ? totalRaw : null;
             logger.info('Followage Helix data vacía', {
                 channel,
                 user,
                 channelId,
                 userId,
-                total: Number.isFinite(total) ? total : null,
+                total,
                 hasTotalKey: followRes.data != null && 'total' in followRes.data
             });
 
-            if (Number.isFinite(total) && total === 0) {
-                return {
-                    text: `${user} no sigue a ${channel}.`,
-                    timePhrase: 'no sigue'
-                };
-            }
-
-            // Confirmar si falta el scope (refresh OAuth no añade scopes nuevos).
+            // Scope / token primero: evita “no sigue” falso y permite refresh en 401.
             try {
                 const validation = await validateToken(token);
-                if (validation && !validation.scopes?.includes('moderator:read:followers')) {
+                if (validation === null) {
+                    throw new TwitchApiError('Token expirado o inválido.', 401);
+                }
+                if (!validation.scopes?.includes('moderator:read:followers')) {
                     return followageError(
                         'Tu cuenta no tiene el permiso de follows (moderator:read:followers). Cierra sesión en el panel y vuelve a entrar aceptando todos los permisos.'
                     );
                 }
             } catch (scopeErr) {
+                if (helixHttpStatus(scopeErr) === 401) throw scopeErr;
                 logger.warn('Followage: no se pudo validar scopes OAuth', scopeErr);
+            }
+
+            if (total === 0) {
+                return {
+                    text: `${user} no sigue a ${channel}.`,
+                    timePhrase: 'no sigue'
+                };
             }
 
             return followageError(FOLLOWAGE_PERMISSION_MSG(channel));
