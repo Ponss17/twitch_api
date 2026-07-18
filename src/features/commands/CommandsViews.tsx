@@ -18,20 +18,32 @@ function toApiTestResult(
 }
 
 const followageErrorPattern =
-    /no existe en Twitch|no sigue a|No se puede consultar|No se pudo consultar|Twitch no está disponible/i;
+    /no existe en Twitch|no sigue a|No se puede consultar|No se pudo consultar|No se pudo obtener|channel debe ser|Twitch no está disponible/i;
 
 export function FollowageView() {
     const session = useRequiredSession();
-    const [channel, setChannel] = useCommandTestField('followage', 'channel', session.login ?? '');
+    const ownerChannel = session.login ?? '';
+    const [channel, setChannel] = useCommandTestField('followage', 'channel', ownerChannel);
     const [user, setUser] = useCommandTestField('followage', 'user', '');
     const [storedResult, setStoredResult] = useCommandTestResult('followage-test');
     const { loading, runTest } = useCommandApiTest(setStoredResult);
 
     const handleTest = async (): Promise<void> => {
-        if (!channel.trim() || !user.trim()) {
+        const channelVal = (channel.trim() || ownerChannel).toLowerCase();
+        const userVal = user.trim();
+
+        if (!channelVal || !userVal) {
             setStoredResult({
                 status: 'error',
                 message: 'Por favor, ingresa el Canal y el Usuario para probar.'
+            });
+            return;
+        }
+
+        if (ownerChannel && channelVal !== ownerChannel.toLowerCase()) {
+            setStoredResult({
+                status: 'error',
+                message: `Canal debe ser tu canal (${ownerChannel}). Usuario es a quién consultas (ej. mynana17).`
             });
             return;
         }
@@ -40,7 +52,7 @@ export function FollowageView() {
             buildUrl: (apiKey) =>
                 buildCommandTestUrl(
                     `${API_ENDPOINTS.BASE}/followage/`,
-                    { user, channel },
+                    { user: userVal, channel: channelVal },
                     apiKey
                 ),
             validateResponse: (text, responseOk) =>
@@ -59,16 +71,16 @@ export function FollowageView() {
                 result={toApiTestResult(loading, storedResult)}
             >
                 <FormField
-                    label="Canal"
-                    value={channel}
+                    label="Canal (tu canal)"
+                    value={channel || ownerChannel}
                     onChange={setChannel}
-                    placeholder="Tu canal (ej. ponss17)"
+                    placeholder={ownerChannel || 'Tu canal'}
                 />
                 <FormField
-                    label="Usuario"
+                    label="Usuario (follower)"
                     value={user}
                     onChange={setUser}
-                    placeholder="Follower (ej. mynana17)"
+                    placeholder="Ej. mynana17"
                 />
             </ApiTestCard>
         </div>

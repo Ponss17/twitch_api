@@ -101,10 +101,37 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
     if (!res.headersSent) return res.status(204).send();
 };
 
+function followagePlainText(result: unknown): string {
+    if (typeof result === 'string' && result.trim()) return result.trim();
+    if (result && typeof result === 'object' && !Array.isArray(result)) {
+        const text = (result as { text?: unknown }).text;
+        if (typeof text === 'string' && text.trim()) return text.trim();
+    }
+    return 'No se pudo obtener el followage. Intenta de nuevo.';
+}
+
+function applyFollowageTemplate(
+    templateRaw: string,
+    timePhrase: string,
+    user: string,
+    channel: string
+): string {
+    const template = templateRaw.replace(/[\r\n]/g, '');
+    return template
+        .replace('{time}', timePhrase)
+        .replace('{user}', user)
+        .replace('{channel}', channel);
+}
+
 export const followage = async (req: AuthenticatedRequest, res: Response) => {
     const channel = req.query.channel as string;
     const user = req.query.user as string;
     const userId = req.userId;
+    const ownerLogin = (
+        res.locals?.apiUser?.login ||
+        req.login ||
+        ''
+    ).toLowerCase();
 
     let sanitizedUser = user;
     if (sanitizedUser?.includes('$(') || sanitizedUser?.includes('${')) sanitizedUser = 'Anónimo';
@@ -118,6 +145,11 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             incrementStat: 'followage'
         },
         async () => {
+            // Helix solo deja leer followers del canal dueño del token / API key.
+            if (ownerLogin && channel.toLowerCase() !== ownerLogin) {
+                return `No se puede consultar el follow en "${channel}". El parámetro channel debe ser el login de TU canal (${ownerLogin}).`;
+            }
+
             const cacheKey = ownerScopedCacheKey(
                 userId,
                 `cache:cmd:followage:v3:channel:${channel}:user:${user}`
@@ -133,51 +165,41 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                 }
                 const template = safeString(req.query.template);
                 if (template && entry.timePhrase) {
-                    return template
-                        .replace('{time}', entry.timePhrase)
-                        .replace('{user}', user)
-                        .replace('{channel}', channel);
+                    return applyFollowageTemplate(template, entry.timePhrase, user, channel);
                 }
                 if (typeof entry.text === 'string' && entry.text.trim()) {
                     return entry.text;
                 }
-                // Caché incompleta: no devolver vacío; consultar Twitch de nuevo.
             }
 
             const apiResult = await withTwitchAuth(
                 req,
                 res,
-                async (token: string) => {
-                    const resApi = await apiService.getFollowAge(channel, user, token);
-                    if (resApi.timePhrase !== 'error') {
-                        const ttl = resolveCache('COMMAND', res.locals.apiUser?.role);
-                        await cacheService.set(cacheKey, resApi, ttl);
-                    }
-                    return resApi;
-                },
+                async (token: string) => apiService.getFollowAge(channel, user, token),
                 'FOLLOWAGE'
             );
 
-            if (apiResult) {
-                const rawTemplate = safeString(req.query.template);
-                if (rawTemplate) {
-                    const template = rawTemplate.replace(/[\r\n]/g, '');
-                    return template
-                        .replace('{time}', sanitizeHtml(apiResult.timePhrase))
-                        .replace('{user}', sanitizeHtml(user))
-                        .replace('{channel}', sanitizeHtml(channel));
-                }
-                return apiResult.text;
+            if (apiResult && apiResult.timePhrase !== 'error') {
+                const ttl = resolveCache('COMMAND', res.locals.apiUser?.role);
+                await cacheService.set(cacheKey, apiResult, ttl);
             }
-            return null;
+
+            const text = followagePlainText(apiResult);
+            const rawTemplate = safeString(req.query.template);
+            if (rawTemplate && apiResult?.timePhrase) {
+                return applyFollowageTemplate(
+                    rawTemplate,
+                    sanitizeHtml(apiResult.timePhrase),
+                    sanitizeHtml(user),
+                    sanitizeHtml(channel)
+                );
+            }
+            return text;
         },
         req
     );
 
-    const body =
-        typeof result === 'string' && result.trim()
-            ? result
-            : 'No se pudo obtener el followage. Intenta de nuevo.';
+    const body = followagePlainText(result);
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
     return res.send(body);
