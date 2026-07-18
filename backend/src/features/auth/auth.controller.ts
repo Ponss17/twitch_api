@@ -121,7 +121,8 @@ export const exchange = async (req: Request, res: Response) => {
 
     setSessionCookie(res, payload.userId);
     await unrevokeAuthSession(payload.userId);
-    void notifyPanelSession(payload.userId, 'session_login');
+    // Await: en Vercel un void tras res.json se congela y el bot nunca ve el evento.
+    await notifyPanelSession(payload.userId, 'session_login');
 
     res.setHeader('Cache-Control', 'no-store');
     // Opción 2: no devolver apiKey al cliente; revelar vía /dashboard/reveal-api-key
@@ -133,11 +134,12 @@ export const exchange = async (req: Request, res: Response) => {
     });
 };
 
-export const logout = (req: AuthenticatedRequest, res: Response) => {
+export const logout = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId ?? readSessionUserId(req);
     if (userId) {
         invalidateAuthCache(userId);
-        void notifyPanelSession(userId, 'session_logout');
+        // Await antes de clear cookie / respuesta (mismo motivo que login).
+        await notifyPanelSession(userId, 'session_logout');
     }
     clearSessionCookie(res);
     return res.json({ success: true });
