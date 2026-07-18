@@ -18,7 +18,7 @@ function toApiTestResult(
 }
 
 const followageErrorPattern =
-    /no existe en Twitch|no sigue a|No se puede consultar|No se pudo consultar|No se pudo obtener|channel debe ser|Twitch no está disponible/i;
+    /no existe en Twitch|no sigue a|No se puede consultar|No se pudo consultar|No se pudo obtener|Debes ser el dueño|moderador|Twitch no está disponible/i;
 
 export function FollowageView() {
     const session = useRequiredSession();
@@ -36,14 +36,6 @@ export function FollowageView() {
             setStoredResult({
                 status: 'error',
                 message: 'Por favor, ingresa el Canal y el Usuario para probar.'
-            });
-            return;
-        }
-
-        if (ownerChannel && channelVal !== ownerChannel.toLowerCase()) {
-            setStoredResult({
-                status: 'error',
-                message: `Canal debe ser tu canal (${ownerChannel}). Usuario es a quién consultas (ej. mynana17).`
             });
             return;
         }
@@ -66,21 +58,21 @@ export function FollowageView() {
             <ApiTestCard
                 title="Prueba la API"
                 description="Verifica que todo funcione correctamente"
-                infoTooltip="Canal = tu canal (dueño de la API key). Usuario = quién quieres consultar."
+                infoTooltip="Canal = el canal a consultar (el tuyo o uno donde seas mod). Usuario = el follower."
                 onTest={handleTest}
                 result={toApiTestResult(loading, storedResult)}
             >
                 <FormField
-                    label="Canal (tu canal)"
+                    label="Canal"
                     value={channel || ownerChannel}
                     onChange={setChannel}
-                    placeholder={ownerChannel || 'Tu canal'}
+                    placeholder={ownerChannel || 'Canal (tuyo o donde seas mod)'}
                 />
                 <FormField
                     label="Usuario (follower)"
                     value={user}
                     onChange={setUser}
-                    placeholder="Ej. mynana17"
+                    placeholder="Ej. snake_1719"
                 />
             </ApiTestCard>
         </div>

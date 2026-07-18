@@ -170,7 +170,12 @@ describe('authService', () => {
                 blockedReason: 'Test reason',
                 stats: { clips: 10 },
                 totalRequests: 10,
-                lastActive: '2026-02-23T00:00:00.000Z'
+                lastActive: '2026-02-23T00:00:00.000Z',
+                discordId: 'discord-99',
+                discordUsername: 'MyDiscord',
+                discordAvatar: 'https://cdn.discord/avatar.png',
+                discordLinkedAt: '2026-03-01T00:00:00.000Z',
+                discordUpdatedAt: '2026-03-02T00:00:00.000Z'
             };
 
             (dbService.getUser as jest.Mock).mockResolvedValue(existingUser);
@@ -191,7 +196,12 @@ describe('authService', () => {
                     stats: { clips: 10 },
                     totalRequests: 10,
                     lastActive: '2026-02-23T00:00:00.000Z',
-                    createdAt: '2026-01-01T00:00:00.000Z' // preserved
+                    createdAt: '2026-01-01T00:00:00.000Z', // preserved
+                    discordId: 'discord-99',
+                    discordUsername: 'MyDiscord',
+                    discordAvatar: 'https://cdn.discord/avatar.png',
+                    discordLinkedAt: '2026-03-01T00:00:00.000Z',
+                    discordUpdatedAt: '2026-03-02T00:00:00.000Z'
                 })
             );
         });

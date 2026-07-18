@@ -81,7 +81,7 @@ describe('getFollowAge', () => {
 
         expect(result.timePhrase).toBe('error');
         expect(result.text).toContain('otrocanal');
-        expect(result.text).toContain('channel debe ser el login de TU canal');
+        expect(result.text).toContain('dueño del canal o un moderador');
     });
 
     it('devuelve followage cuando el usuario sí sigue al canal', async () => {
