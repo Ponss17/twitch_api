@@ -105,6 +105,8 @@ async function resolveFollowageLoginId(
                     : `El usuario "${login}" no existe en Twitch. Revisa que el nombre esté bien escrito.`
             );
         }
+        const mapped = mapFollowageHelixError(error, login, login);
+        if (mapped) return mapped;
         throw error;
     }
 }
@@ -131,7 +133,7 @@ function mapFollowageHelixError(
 
     if (status === 401 || status === 403) {
         return followageError(
-            `No se puede consultar el follow en "${channel}". El parámetro channel debe ser el login de TU canal (dueño de la API key).`
+            `No se puede consultar el follow en "${channel}". Debes ser el dueño del canal o un moderador (con la API key de tu cuenta).`
         );
     }
 
@@ -170,14 +172,15 @@ export const getFollowAge = async (
             }
         });
 
-        if (followRes.data.data.length === 0) {
+        const follows = Array.isArray(followRes.data?.data) ? followRes.data.data : [];
+        if (follows.length === 0) {
             return {
                 text: `${user} no sigue a ${channel}.`,
                 timePhrase: 'no sigue'
             };
         }
 
-        const followDate = new Date(followRes.data.data[0].followed_at);
+        const followDate = new Date(follows[0].followed_at);
         const timePhrase = getTimePhraseBetween(followDate);
 
         return {
