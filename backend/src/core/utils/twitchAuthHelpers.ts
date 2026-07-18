@@ -49,7 +49,8 @@ export const withTwitchAuth = async <T>(
     context: string
 ): Promise<T> => {
     let token = req.twitchToken;
-    const apiKey = (req.query.apiKey as string) || (req.headers['x-api-key'] as string);
+    const rawApiKey = (req.query.apiKey as string) || (req.headers['x-api-key'] as string) || '';
+    const apiKey = typeof rawApiKey === 'string' ? rawApiKey.trim().toLowerCase() : '';
 
     let attempts = 0;
     const maxAttempts = 2;
@@ -57,7 +58,11 @@ export const withTwitchAuth = async <T>(
     while (attempts < maxAttempts) {
         attempts++;
         try {
-            return await action(token || '');
+            const result = await action(token || '');
+            if (result == null) {
+                throw new AppError(`[${context}] La acción de Twitch no devolvió resultado.`, 500);
+            }
+            return result;
         } catch (error: unknown) {
             const err = error as Error & { status?: number; statusCode?: number; response?: { status?: number } };
             // Los errores pueden llegar como AxiosError (status/response.status)

@@ -241,7 +241,9 @@ export const getAuthorizeUrl = (
         redirect_uri: CONFIG.TWITCH_REDIRECT_URI as string,
         response_type: 'code',
         scope: scope,
-        state: state
+        state: state,
+        // Obliga a re-aceptar scopes (p. ej. moderator:read:followers) tras añadir permisos nuevos.
+        force_verify: 'true'
     });
 
     return `${TWITCH_AUTH_URL}/authorize?${params.toString()}`;

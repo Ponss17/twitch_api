@@ -1,6 +1,7 @@
 import { Response } from 'express';
 
 import * as apiService from '../twitch/twitch.service';
+import { getFollowAge } from '../twitch/twitchUserService';
 import * as cacheService from '../../core/database/cacheService';
 import { ownerScopedCacheKey, resolveCache } from '../../core/config/cacheTtl';
 
@@ -141,10 +142,9 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         },
         async () => {
             // Helix: broadcaster o moderador del canal (scope moderator:read:followers).
-            // v4: invalida cachés que confundían "sin permiso" (data=[] + total>0) con "no sigue".
             const cacheKey = ownerScopedCacheKey(
                 userId,
-                `cache:cmd:followage:v4:channel:${channel}:user:${user}`
+                `cache:cmd:followage:v5:channel:${channel}:user:${user}`
             );
             const cached = await cacheService.get<{ text: string; timePhrase: string; followDateMs?: number }>(cacheKey);
 
@@ -167,32 +167,28 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             const apiResult = await withTwitchAuth(
                 req,
                 res,
-                async (token: string) => apiService.getFollowAge(channel, user, token),
+                async (token: string) => getFollowAge(channel, user, token),
                 'FOLLOWAGE'
             );
 
+            if (!apiResult || typeof apiResult.text !== 'string' || !apiResult.text.trim()) {
+                logger.error('Followage sin texto usable', {
+                    channel,
+                    user,
+                    hasToken: Boolean(req.twitchToken),
+                    apiResult
+                });
+                return 'No se pudo obtener el followage. Vuelve a iniciar sesión en el panel e intenta de nuevo.';
+            }
+
             // Solo cachear follows reales (con fecha). "no sigue" / errores no se cachean.
-            if (apiResult && apiResult.timePhrase !== 'error' && apiResult.timePhrase !== 'no sigue') {
+            if (apiResult.timePhrase !== 'error' && apiResult.timePhrase !== 'no sigue') {
                 const ttl = resolveCache('COMMAND', res.locals?.apiUser?.role);
                 await cacheService.set(cacheKey, apiResult, ttl);
             }
 
-            const text = followagePlainText(apiResult);
-            if (text.startsWith('No se pudo obtener el followage')) {
-                logger.warn('Followage sin texto usable', {
-                    channel,
-                    user,
-                    hasToken: Boolean(req.twitchToken),
-                    resultType: apiResult == null ? String(apiResult) : typeof apiResult,
-                    timePhrase:
-                        apiResult && typeof apiResult === 'object'
-                            ? (apiResult as { timePhrase?: string }).timePhrase
-                            : undefined
-                });
-            }
-
             const rawTemplate = safeString(req.query.template);
-            if (rawTemplate && apiResult?.timePhrase && apiResult.timePhrase !== 'error') {
+            if (rawTemplate && apiResult.timePhrase && apiResult.timePhrase !== 'error') {
                 return applyFollowageTemplate(
                     rawTemplate,
                     sanitizeHtml(apiResult.timePhrase),
@@ -200,12 +196,15 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                     sanitizeHtml(channel)
                 );
             }
-            return text;
+            return apiResult.text.trim();
         },
         req
     );
 
-    const body = followagePlainText(result);
+    const body =
+        typeof result === 'string' && result.trim()
+            ? result.trim()
+            : followagePlainText(result);
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     // Respuesta personalizada (apiKey): nunca cachear en CDN.
     res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
