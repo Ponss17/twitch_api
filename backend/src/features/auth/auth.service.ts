@@ -308,7 +308,13 @@ export const handleCallback = async (
         stats: existingUser?.stats,
         totalRequests: existingUser?.totalRequests,
         lastActive: existingUser?.lastActive,
-        timezone: (existingUser?.timezone && existingUser.timezone !== 'UTC') ? existingUser.timezone : ((decodedState?.tz as string) || 'UTC')
+        timezone: (existingUser?.timezone && existingUser.timezone !== 'UTC') ? existingUser.timezone : ((decodedState?.tz as string) || 'UTC'),
+        // Preservar vínculo Discord: un re-login Twitch no debe desvincular.
+        discordId: existingUser?.discordId ?? null,
+        discordUsername: existingUser?.discordUsername ?? null,
+        discordAvatar: existingUser?.discordAvatar ?? null,
+        discordLinkedAt: existingUser?.discordLinkedAt ?? null,
+        discordUpdatedAt: existingUser?.discordUpdatedAt ?? null
     };
 
     if (!refresh_token) {

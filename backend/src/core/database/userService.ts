@@ -84,7 +84,7 @@ async function decryptAndMigrateIfNeeded(
 
 // Convierte un StoredUser del sistema al formato de columnas de Supabase
 function toRow(user: StoredUser): Record<string, unknown> {
-    return {
+    const row: Record<string, unknown> = {
         user_id: user.userId,
         login: user.login,
         display_name: user.displayName,
@@ -104,13 +104,20 @@ function toRow(user: StoredUser): Record<string, unknown> {
         created_at: user.createdAt
             ? new Date(user.createdAt).toISOString()
             : new Date().toISOString(),
-        token_expires_at: resolveTokenExpiresAtIso(user),
-        discord_id: user.discordId ?? null,
-        discord_username: user.discordUsername ?? null,
-        discord_avatar: user.discordAvatar ?? null,
-        discord_linked_at: user.discordLinkedAt ?? null,
-        discord_updated_at: user.discordUpdatedAt ?? null
+        token_expires_at: resolveTokenExpiresAtIso(user)
     };
+
+    // No pisar Discord en upsert si el caller no trajo esos campos
+    // (p. ej. login Twitch construye StoredUser sin discord* → antes borraba el vínculo).
+    if ('discordId' in user) {
+        row.discord_id = user.discordId ?? null;
+        row.discord_username = user.discordUsername ?? null;
+        row.discord_avatar = user.discordAvatar ?? null;
+        row.discord_linked_at = user.discordLinkedAt ?? null;
+        row.discord_updated_at = user.discordUpdatedAt ?? null;
+    }
+
+    return row;
 }
 
 function resolveTokenExpiresAtIso(user: StoredUser): string | null {

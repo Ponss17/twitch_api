@@ -127,11 +127,6 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
     const channel = req.query.channel as string;
     const user = req.query.user as string;
     const userId = req.userId;
-    const ownerLogin = (
-        res.locals?.apiUser?.login ||
-        req.login ||
-        ''
-    ).toLowerCase();
 
     let sanitizedUser = user;
     if (sanitizedUser?.includes('$(') || sanitizedUser?.includes('${')) sanitizedUser = 'Anónimo';
@@ -145,11 +140,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             incrementStat: 'followage'
         },
         async () => {
-            // Helix solo deja leer followers del canal dueño del token / API key.
-            if (ownerLogin && channel.toLowerCase() !== ownerLogin) {
-                return `No se puede consultar el follow en "${channel}". El parámetro channel debe ser el login de TU canal (${ownerLogin}).`;
-            }
-
+            // Helix: broadcaster o moderador del canal (scope moderator:read:followers).
             const cacheKey = ownerScopedCacheKey(
                 userId,
                 `cache:cmd:followage:v3:channel:${channel}:user:${user}`
@@ -180,13 +171,25 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             );
 
             if (apiResult && apiResult.timePhrase !== 'error') {
-                const ttl = resolveCache('COMMAND', res.locals.apiUser?.role);
+                const ttl = resolveCache('COMMAND', res.locals?.apiUser?.role);
                 await cacheService.set(cacheKey, apiResult, ttl);
             }
 
             const text = followagePlainText(apiResult);
+            if (text.startsWith('No se pudo obtener el followage')) {
+                logger.warn('Followage sin texto usable', {
+                    channel,
+                    user,
+                    resultType: apiResult === null ? 'null' : typeof apiResult,
+                    timePhrase:
+                        apiResult && typeof apiResult === 'object'
+                            ? (apiResult as { timePhrase?: string }).timePhrase
+                            : undefined
+                });
+            }
+
             const rawTemplate = safeString(req.query.template);
-            if (rawTemplate && apiResult?.timePhrase) {
+            if (rawTemplate && apiResult?.timePhrase && apiResult.timePhrase !== 'error') {
                 return applyFollowageTemplate(
                     rawTemplate,
                     sanitizeHtml(apiResult.timePhrase),
