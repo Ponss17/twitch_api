@@ -124,7 +124,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             );
             const cached = await cacheService.get<{ text: string; timePhrase: string; followDateMs?: number }>(cacheKey);
 
-            if (cached && typeof cached === 'object') {
+            if (cached && typeof cached === 'object' && !Array.isArray(cached)) {
                 const entry = { ...cached };
                 if (entry.followDateMs) {
                     const newTimePhrase = getTimePhraseBetween(new Date(entry.followDateMs));
@@ -138,7 +138,10 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
                         .replace('{user}', user)
                         .replace('{channel}', channel);
                 }
-                return entry.text;
+                if (typeof entry.text === 'string' && entry.text.trim()) {
+                    return entry.text;
+                }
+                // Caché incompleta: no devolver vacío; consultar Twitch de nuevo.
             }
 
             const apiResult = await withTwitchAuth(
@@ -171,12 +174,13 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         req
     );
 
-    if (result) {
-        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-        res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
-        return res.send(result);
-    }
-    if (!res.headersSent) return res.status(204).send();
+    const body =
+        typeof result === 'string' && result.trim()
+            ? result
+            : 'No se pudo obtener el followage. Intenta de nuevo.';
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
+    return res.send(body);
 };
 
 export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
@@ -265,5 +269,8 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
         res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate');
         return res.send(result);
     }
-    if (!res.headersSent) return res.status(204).send();
+    if (!res.headersSent) {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        return res.send('No se pudo generar el shoutout. Intenta de nuevo.');
+    }
 };

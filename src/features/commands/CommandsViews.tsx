@@ -43,7 +43,8 @@ export function FollowageView() {
                     { user, channel },
                     apiKey
                 ),
-            validateResponse: (text, responseOk) => responseOk && !followageErrorPattern.test(text)
+            validateResponse: (text, responseOk) =>
+                responseOk && text.trim().length > 0 && !followageErrorPattern.test(text)
         });
     };
 
@@ -53,12 +54,22 @@ export function FollowageView() {
             <ApiTestCard
                 title="Prueba la API"
                 description="Verifica que todo funcione correctamente"
-                infoTooltip="Simula una petición manual a la API. Útil para verificar si un usuario existe."
+                infoTooltip="Canal = tu canal (dueño de la API key). Usuario = quién quieres consultar."
                 onTest={handleTest}
                 result={toApiTestResult(loading, storedResult)}
             >
-                <FormField value={channel} onChange={setChannel} placeholder="Canal" />
-                <FormField value={user} onChange={setUser} placeholder="Usuario" />
+                <FormField
+                    label="Canal"
+                    value={channel}
+                    onChange={setChannel}
+                    placeholder="Tu canal (ej. ponss17)"
+                />
+                <FormField
+                    label="Usuario"
+                    value={user}
+                    onChange={setUser}
+                    placeholder="Follower (ej. mynana17)"
+                />
             </ApiTestCard>
         </div>
     );
@@ -103,8 +114,18 @@ export function ShoutoutView() {
                 onTest={handleTest}
                 result={toApiTestResult(loading, storedResult)}
             >
-                <FormField value={channel} onChange={setChannel} placeholder="Canal" />
-                <FormField value={touser} onChange={setTouser} placeholder="Usuario destino" />
+                <FormField
+                    label="Canal"
+                    value={channel}
+                    onChange={setChannel}
+                    placeholder="Tu canal"
+                />
+                <FormField
+                    label="Usuario destino"
+                    value={touser}
+                    onChange={setTouser}
+                    placeholder="A quién dar shoutout"
+                />
             </ApiTestCard>
         </div>
     );
