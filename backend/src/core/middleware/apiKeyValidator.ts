@@ -177,7 +177,8 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             }
             if (isOAuthTokenNearExpiry(cached.user)) {
                 try {
-                    await getValidTokenForUser(cached.user);
+                    const { accessToken } = await getValidTokenForUser(cached.user);
+                    cached.user.accessToken = accessToken;
                     validKeysCache.set(apiKey, {
                         user: cached.user,
                         expiry: Date.now() + CACHE_TTL_MS
