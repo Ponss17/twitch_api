@@ -143,7 +143,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             // Helix: broadcaster o moderador del canal (scope moderator:read:followers).
             const cacheKey = ownerScopedCacheKey(
                 userId,
-                `cache:cmd:followage:v5:channel:${channel}:user:${user}`
+                `cache:cmd:followage:v6:channel:${channel}:user:${user}`
             );
             const cached = await cacheService.get<{ text: string; timePhrase: string; followDateMs?: number }>(cacheKey);
 
@@ -204,6 +204,11 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         typeof result === 'string' && result.trim()
             ? result.trim()
             : followagePlainText(result);
+    logger.warn('Followage respuesta', {
+        channel,
+        user,
+        bodyPreview: body.slice(0, 180)
+    });
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     // Respuesta personalizada (apiKey): nunca cachear en CDN.
     res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
