@@ -90,7 +90,8 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             role: limits.role,
             roleLabel: limits.roleLabel,
             rateLimit: limits.rateLimit,
-            cacheTtl: resolveCache('COMMAND', res.locals?.apiUser?.role, res.locals?.apiUser?.customCacheTtl),
+            heavyLimit: limits.heavyLimit,
+            cacheTtl: limits.cacheTtl,
             hasCustomRateLimit: limits.hasCustomRateLimit,
             hasCustomCacheTtl: limits.hasCustomCacheTtl,
             timezone: res.locals?.apiUser?.timezone || 'UTC',
@@ -100,7 +101,7 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
 
     if (cachedProfile && (!userId || analyticsCacheHit)) {
         const freshIsLive = userId && token
-            ? await apiService.isStreamLiveSafe(userId, token)
+            ? await apiService.isStreamLiveSafe(userId, token, res.locals?.apiUser?.role)
             : undefined;
         const isLive = freshIsLive ?? (cachedProfile.isLive as boolean | undefined);
         return res.json({ profile: mergeProfileLimits({ ...cachedProfile, isLive }), analytics: cachedAnalytics ?? null });
@@ -117,7 +118,7 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
                       // followers/isLive son secundarios: degradar sin romper el perfil.
                       const [followers, isLive] = await Promise.all([
                           apiService.getFollowersCountSafe(info.id, token),
-                          apiService.isStreamLiveSafe(info.id, token)
+                          apiService.isStreamLiveSafe(info.id, token, res.locals.apiUser?.role)
                       ]);
                       const limits = resolveUserLimits(res.locals.apiUser);
                       const degraded = followers === undefined || isLive === undefined;
@@ -166,7 +167,7 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
                   return { ...p.profileData, ...p.limits, isLive: p.isLive };
               })()
             : (cachedProfile ? { ...cachedProfile, isLive: (userId && token
-                  ? await apiService.isStreamLiveSafe(userId, token)
+                  ? await apiService.isStreamLiveSafe(userId, token, res.locals?.apiUser?.role)
                   : undefined) ?? cachedProfile.isLive } : null);
 
         res.json({

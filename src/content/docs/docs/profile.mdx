@@ -70,9 +70,10 @@ Debajo del campo de la clave:
 | Chip | Significado |
 | :--- | :--- |
 | **Activa** | La API Key de la cuenta está operativa. |
-| **Rol** (Default, Pro, VIP, Partner) | Define tu [límite de peticiones](/docs/limits/) y TTL de caché. |
+| **Rol** (Default, Pro, VIP, Partner) | Define tu [límite de peticiones](/docs/limits/), cuota heavy y TTL de caché. |
 | **X req/min** | Rate limit efectivo para bots. Un `*` indica límite personalizado. |
-| **X s** | TTL de caché de **comandos de chat** para tu rol. Un `*` indica override manual. |
+| **X heavy/min** | Cuota de endpoints pesados (clips / chatters) con API Key. |
+| **X s caché** | TTL de caché de **comandos de chat** para tu rol. Un `*` indica override manual. |
 | **ID de usuario** | Tu ID numérico de Twitch; pulsa para copiarlo. |
 
 <ApiEndpoint method="POST" path="/system/regenerate-key" />

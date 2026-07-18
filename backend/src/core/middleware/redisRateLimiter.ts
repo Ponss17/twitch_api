@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { kv } from '../database/redisClient';
 import { isKvWriteAvailable } from '../database/cacheService';
 import { RATE_LIMITS } from '../config/limits';
-import { resolveUserRateLimit } from '../config/userRoles';
+import { resolveUserRateLimit, resolveUserHeavyLimit } from '../config/userRoles';
 import { MESSAGES } from '../config/messages';
 import { isPublicRoute, isPublicHtmlRoute, isApiRoute, isBotCommand } from '../utils/routeHelpers';
 import { AuthenticatedRequest } from '../../types/twitch';
@@ -167,7 +167,8 @@ async function handleLimitExceeded(req: Request, res: Response, cleanPath: strin
 }
 
 /**
- * Limitador específico para endpoints pesados (clips, etc).
+ * Limitador específico para endpoints pesados (clips, chatters).
+ * La cuota depende del rol: Default 5 → Partner 40 req/min.
  */
 export const heavyRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
     // Solo aplica para peticiones con API Key externa
@@ -177,16 +178,17 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
     if (!apiUser) return next();
 
     const key = `rl:heavy:${apiUser.userId}`;
-    const limit = RATE_LIMITS.HEAVY;
+    const limit = resolveUserHeavyLimit(apiUser);
 
     try {
         const count = await kvIncrWithWindow(key, 60);
+        applyRateLimitHeaders(res, limit, count);
 
         if (count > limit) {
             res.setHeader('Content-Type', 'text/plain');
             return res
                 .status(429)
-                .send(`Límite de peticiones pesadas excedido (max ${RATE_LIMITS.HEAVY}/min).`);
+                .send(`Límite de peticiones pesadas excedido (max ${limit}/min para tu rol).`);
         }
         next();
     } catch (error) {
