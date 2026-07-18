@@ -331,19 +331,29 @@ export function ApiTestCard({
                         isActive ? 'flex animate-reveal-card' : 'hidden'
                     } ${
                         result.status === 'success'
-                            ? 'border-success/30 bg-[rgba(16,185,129,0.15)] text-success'
+                            ? 'border-success/30 bg-[rgba(16,185,129,0.15)]'
                             : result.status === 'error'
-                              ? 'border-error/30 bg-error/15 text-error'
+                              ? 'border-error/30 bg-error/15'
                               : ''
                     }`}
                 >
                     {result.status === 'success' && (
-                        <Check className="text-lg" />
+                        <Check className="size-5 shrink-0 text-success" />
                     )}
                     {result.status === 'error' && (
-                        <AlertTriangle className="text-lg" />
+                        <AlertTriangle className="size-5 shrink-0 text-error" />
                     )}
-                    <div className="min-w-0 flex-1">{result.message}</div>
+                    <div
+                        className={`min-w-0 flex-1 whitespace-pre-wrap break-words ${
+                            result.status === 'success'
+                                ? 'text-[#ecfdf5]'
+                                : result.status === 'error'
+                                  ? 'text-[#fecaca]'
+                                  : 'text-[#fafafa]'
+                        }`}
+                    >
+                        {result.message}
+                    </div>
                 </div>
             </div>
         </div>
@@ -351,6 +361,7 @@ export function ApiTestCard({
 }
 
 export function FormField({
+    label,
     value,
     onChange,
     placeholder
@@ -362,6 +373,7 @@ export function FormField({
 }) {
     return (
         <div className="flex flex-col gap-1">
+            {label ? <span className={inputLabel}>{label}</span> : null}
             <input
                 type="text"
                 value={value}

@@ -28,7 +28,17 @@ export function useCommandApiTest(
             const response = await fetchWithRetry(options.buildUrl(apiKey));
             if (requestId !== requestIdRef.current) return;
 
-            const text = await response.text();
+            const text = (await response.text()).trim();
+            if (!text) {
+                setStoredResult({
+                    status: 'error',
+                    message: response.ok
+                        ? 'La API no devolvió texto. Prueba de nuevo en unos segundos.'
+                        : `Error HTTP ${response.status}. La API no devolvió mensaje.`
+                });
+                return;
+            }
+
             const isValid = options.validateResponse
                 ? options.validateResponse(text, response.ok)
                 : response.ok;
