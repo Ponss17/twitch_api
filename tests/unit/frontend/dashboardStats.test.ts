@@ -63,6 +63,19 @@ describe('parseDashboardStatsFromRow', () => {
             stalker: 0
         });
     });
+
+    it('en patch parcial obsoleto no toca el estado (no wipe a 0)', () => {
+        expect(
+            parseDashboardStatsFromRow(
+                {
+                    last_stats_date: '2020-01-01',
+                    today_requests: 9,
+                    clips_count: 5
+                },
+                { todayLocal: '2026-07-02', isPartialUpdate: true }
+            )
+        ).toEqual({});
+    });
 });
 
 describe('isStatsDateOutdated', () => {

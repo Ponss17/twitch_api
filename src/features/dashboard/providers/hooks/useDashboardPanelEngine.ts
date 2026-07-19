@@ -21,7 +21,7 @@ import type { useDashboardPanelState } from './useDashboardPanelState';
 const PANEL_SYNC_CHANNEL = 'dashboard_panel_data_sync';
 const POLL_MS = DASHBOARD_POLL_MS;
 const FALLBACK_POLL_MS = DASHBOARD_FALLBACK_POLL_MS;
-const REALTIME_SAFETY_POLL_MS = 120_000;
+const REALTIME_SAFETY_POLL_MS = 20_000;
 
 interface UseDashboardPanelEngineOptions {
     active: boolean;
@@ -259,7 +259,14 @@ export function useDashboardPanelEngine({
             actionsRef.current.handleRealtimeStats(next);
             syncRef.current?.broadcast('SYNC_STATS', next);
         },
-        onActivityInsert: (log) => actionsRef.current.handleRealtimeActivity(log),
+        onActivityInsert: (log) => {
+            actionsRef.current.handleRealtimeActivity(log);
+            syncRef.current?.broadcast('SYNC_ACTIVITY_INSERT', log);
+        },
+        onActivityDelete: () => {
+            actionsRef.current.setActivity([]);
+            syncRef.current?.broadcast('SYNC_ACTIVITY', []);
+        },
         onDisconnect: handleRealtimeDisconnect
     });
 
@@ -359,6 +366,9 @@ export function useDashboardPanelEngine({
         sync.on('SYNC_ACTIVITY', (payload) => {
             actionsRef.current.setActivity(payload as unknown as never[]);
             actionsRef.current.markDataReady();
+        });
+        sync.on('SYNC_ACTIVITY_INSERT', (payload) => {
+            actionsRef.current.handleRealtimeActivity(payload as never);
         });
         sync.on('SYNC_PROFILE', (payload) =>
             actionsRef.current.setProfile(payload as DashboardProfile)

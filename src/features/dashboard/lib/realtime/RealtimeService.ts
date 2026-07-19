@@ -7,6 +7,7 @@ import { debugWarn } from '@/core/logging/debugLog';
 import type { ActivityLogItem } from '../activityLogDisplay';
 import {
     parseDashboardStatsFromRow,
+    getStatsLocalDateString,
     type DashboardLiveStats,
     type DailyStatsRealtimePatch,
     type RealtimeStatsUpdate
@@ -29,6 +30,7 @@ export class RealtimeService {
     private session: Session | null = null;
     private dispatchStats: (stats: RealtimeStatsUpdate) => void = () => {};
     private dispatchActivity: (log: ActivityLogItem) => void = () => {};
+    private dispatchActivityDelete: () => void = () => {};
     private isConnected = false;
     private intentionalClose = false;
     private onDisconnectCallback: (() => void) | null = null;
@@ -51,11 +53,11 @@ export class RealtimeService {
     setDispatchers(
         onStats: (stats: RealtimeStatsUpdate) => void,
         onActivity: (log: ActivityLogItem) => void,
-        _onActivityDelete?: () => void
+        onActivityDelete?: () => void
     ): void {
         this.dispatchStats = onStats;
         this.dispatchActivity = onActivity;
-        // onActivityDelete reservado para uso futuro
+        this.dispatchActivityDelete = onActivityDelete ?? (() => {});
     }
 
     get connected(): boolean {
@@ -148,7 +150,14 @@ export class RealtimeService {
     }
 
     private handleStatsRow(raw: Record<string, unknown>): void {
-        this.dispatchStats(parseDashboardStatsFromRow(raw, { isPartialUpdate: true }) as DashboardLiveStats);
+        // Si last_stats_date es de "ayer" según TZ del browser, no aplicar el patch
+        // (evita poner analytics a 0 cerca de medianoche por mismatch de zona).
+        const patch = parseDashboardStatsFromRow(raw, {
+            isPartialUpdate: true,
+            todayLocal: getStatsLocalDateString()
+        });
+        if (Object.keys(patch).length === 0) return;
+        this.dispatchStats(patch as DashboardLiveStats);
     }
 
     private async setupChannel(): Promise<boolean> {
@@ -223,6 +232,18 @@ export class RealtimeService {
                         this.dispatchActivity(
                             formatActivityLog(payload.new as RawActivityLog)
                         );
+                    }
+                )
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'DELETE',
+                        schema: 'public',
+                        table: 'activity_logs',
+                        filter: userFilter
+                    },
+                    () => {
+                        this.dispatchActivityDelete();
                     }
                 )
                 .on(

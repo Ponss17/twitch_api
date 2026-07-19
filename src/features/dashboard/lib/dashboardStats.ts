@@ -153,7 +153,13 @@ export function parseDashboardStatsFromRow(
     options?: { todayLocal?: string; isPartialUpdate?: boolean }
 ): DashboardLiveStats | Partial<DashboardLiveStats> {
     const isOutdated = isStatsDateOutdated(raw.last_stats_date, options?.todayLocal);
-    const isPartial = options?.isPartialUpdate && !isOutdated;
+
+    // Patch parcial obsoleto: no tocar estado (evita wipe a 0 por TZ / medianoche).
+    if (options?.isPartialUpdate && isOutdated) {
+        return {};
+    }
+
+    const isPartial = Boolean(options?.isPartialUpdate) && !isOutdated;
 
     const result: Partial<DashboardLiveStats> = {};
 
