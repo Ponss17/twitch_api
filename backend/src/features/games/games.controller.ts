@@ -167,9 +167,13 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
         );
         if (nightbotUrl && result.messages?.length > 1) {
             const [first, ...rest] = result.messages;
-            duelService.keepAliveAfterResponse(
-                duelService.scheduleNightbotFollowUps(nightbotUrl, rest, intervalSec)
+            // Registrar waitUntil ANTES de responder (si no, Vercel corta el 3.er mensaje).
+            const followUps = duelService.scheduleNightbotFollowUps(
+                nightbotUrl,
+                rest,
+                intervalSec
             );
+            duelService.keepAliveAfterResponse(followUps);
             return res.send(first);
         }
 

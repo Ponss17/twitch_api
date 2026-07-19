@@ -5,7 +5,8 @@
     "outputDirectory": "dist",
     "functions": {
         "api/index.js": {
-            "includeFiles": "api/_bundle/**"
+            "includeFiles": "api/_bundle/**",
+            "maxDuration": 30
         }
     },
     "headers": [
