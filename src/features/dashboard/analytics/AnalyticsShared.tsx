@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState, type ReactNode } from 'react';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
+import { panelCard } from '@/core/utils/tw';
 
 export const COLORS = ['#7254b8', '#4a8b75', '#b3934d', '#b35656', '#4d75b3', '#b3714d', '#a85c87', '#615e9c'];
 
-/** Panel de analytics: borde suave, sin hover primary. */
-export const analyticsPanel = 'rounded-xl border border-white/[0.06] bg-bg-card';
+/** Panel de analytics: estilo consistente con el dashboard (elevado) */
+export const analyticsPanel = panelCard;
 
 /** Estilo Nightbot: header dentro del panel (título + línea fina), contenido debajo. */
 export function AnalyticsSection({

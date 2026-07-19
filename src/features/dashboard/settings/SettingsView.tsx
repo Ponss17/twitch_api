@@ -19,7 +19,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
     }
 
     return (
-        <div className={fadeIn}>
+        <div className={`${fadeIn} w-full`}>
             <SettingsTabs active={s.settingsTab} onChange={s.changeSettingsTab} />
 
             <SettingsTabPanel id="general" active={s.settingsTab}>
@@ -40,8 +40,6 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                     onToggleKey={s.toggleKeyVisibility}
                     onCopyKey={() => void s.copyKey()}
                     onRegenKey={() => s.setRegenOpen(true)}
-                    onFocusDanger={s.focusDangerZone}
-                    dangerZoneRef={s.dangerZoneRef}
                     onClearData={s.openClearDataModal}
                     onDeleteAccount={s.openDeleteAccountModal}
                 />

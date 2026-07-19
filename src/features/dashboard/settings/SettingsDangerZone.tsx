@@ -1,4 +1,4 @@
-import { forwardRef, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { AlertTriangle, Trash2, RotateCcw, type LucideIcon } from 'lucide-react';
 import { SettingsGroup } from '@/features/dashboard/settings/SettingsGroup';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
@@ -42,17 +42,15 @@ function DangerAction({
 }
 
 /** Un solo bloque: reiniciar datos + eliminar cuenta. */
-export const SettingsDangerZone = forwardRef<HTMLDivElement, SettingsDangerZoneProps>(
-    function SettingsDangerZone({ onClearData, onDeleteAccount }, ref) {
-        return (
-            <SettingsGroup
-                ref={ref}
-                title="Zona de Peligro"
-                description="Acciones irreversibles — procede con precaución"
-                accent="error"
-                delay={120}
-            >
-                <div className="overflow-hidden rounded-xl border border-error/20 bg-error/[0.04]">
+export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDangerZoneProps) {
+    return (
+        <SettingsGroup
+            title="Zona de Peligro"
+            description="Acciones irreversibles — procede con precaución"
+            accent="error"
+            delay={120}
+        >
+                <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-bg-card">
                     <DangerAction
                         icon={RotateCcw}
                         title="Reiniciar Estadísticas"
@@ -69,7 +67,7 @@ export const SettingsDangerZone = forwardRef<HTMLDivElement, SettingsDangerZoneP
                         }
                     />
 
-                    <div className="mx-4 border-t border-error/15" role="separator" />
+                    <div className="mx-4 border-t border-white/[0.06]" role="separator" />
 
                     <DangerAction
                         icon={AlertTriangle}
@@ -85,7 +83,7 @@ export const SettingsDangerZone = forwardRef<HTMLDivElement, SettingsDangerZoneP
                             <button
                                 type="button"
                                 onClick={onDeleteAccount}
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-error/80 px-5 py-2 text-sm font-bold text-white transition hover:bg-error sm:w-auto"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-error px-5 py-2 text-sm font-bold text-white shadow-[0_0_15px_rgba(239,68,68,0.15)] transition hover:bg-error-hover hover:shadow-[0_0_25px_rgba(239,68,68,0.3)] hover:-translate-y-0.5 sm:w-auto"
                             >
                                 <Trash2 className="h-4 w-4" aria-hidden="true" />
                                 Eliminar Cuenta
@@ -94,6 +92,5 @@ export const SettingsDangerZone = forwardRef<HTMLDivElement, SettingsDangerZoneP
                     />
                 </div>
             </SettingsGroup>
-        );
-    }
-);
+    );
+}

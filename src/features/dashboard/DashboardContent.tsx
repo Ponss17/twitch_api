@@ -2,7 +2,15 @@ import { lazy, Suspense, type ReactNode } from 'react';
 import type { DashboardTab } from '@/core/config/config';
 import { useMountedTabs } from '@/features/dashboard/hooks/useMountedTabs';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
-import { HomeViewSkeleton, SettingsHeroSkeleton } from '@/shared/ui/Skeleton';
+import { 
+    HomeViewSkeleton, 
+    SettingsViewSkeleton,
+    AnalyticsSkeleton,
+    TrendsSkeleton,
+    StalkerViewSkeleton,
+    ClipsGridSkeleton,
+    CommandViewSkeleton 
+} from '@/shared/ui/Skeleton';
 const HomeView = lazy(() =>
     import('@/features/dashboard/home/HomeView').then((m) => ({ default: m.HomeView }))
 );
@@ -50,8 +58,15 @@ interface TabPanelProps {
 }
 
 function TabFallback({ tab }: { tab: DashboardTab }) {
-    if (tab === 'settings') return <SettingsHeroSkeleton />;
-    return <HomeViewSkeleton />;
+    if (tab === 'settings') return <SettingsViewSkeleton />;
+    if (tab === 'analytics') return <AnalyticsSkeleton />;
+    if (tab === 'trends') return <TrendsSkeleton />;
+    if (tab === 'stalker') return <StalkerViewSkeleton />;
+    if (tab === 'clips') return <div className="animate-fade-soft" aria-busy="true"><ClipsGridSkeleton /></div>;
+    if (tab === 'home') return <HomeViewSkeleton />;
+    
+    // Fallback genérico para vistas de comandos y minijuegos (Overlay, Magic8, Followage, etc.)
+    return <CommandViewSkeleton />;
 }
 
 function renderTabPanel(tab: DashboardTab, { active, onNavigate }: TabPanelProps): ReactNode {
