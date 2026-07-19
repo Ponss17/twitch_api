@@ -7,10 +7,20 @@ import {
 } from 'react';
 import { Toaster, toast as sonnerToast } from 'sonner';
 
-type ToastType = 'success' | 'error' | 'info' | 'warning';
+type ToastType = 'success' | 'error' | 'info' | 'warning' | 'loading';
+
+type ToastId = string | number;
+
+interface ToastPromiseMessages<T> {
+    loading: string;
+    success: string | ((data: T) => string);
+    error: string | ((err: unknown) => string);
+}
 
 interface ToastContextValue {
-    showToast: (message: string, type?: ToastType) => void;
+    showToast: (message: string, type?: ToastType, id?: ToastId) => ToastId;
+    dismissToast: (id?: ToastId) => void;
+    showToastPromise: <T>(promise: Promise<T>, messages: ToastPromiseMessages<T>) => Promise<T>;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -61,11 +71,31 @@ export function AppToaster() {
         >
             <Toaster
                 theme="dark"
-                richColors
+                closeButton
                 position="bottom-right"
+                gap={12}
+                visibleToasts={4}
+                duration={4000}
                 style={{ zIndex: 1, pointerEvents: 'auto' }}
                 toastOptions={{
-                    style: { pointerEvents: 'auto' }
+                    style: { pointerEvents: 'auto' },
+                    classNames: {
+                        toast:
+                            '!rounded-xl !border !border-white/10 !bg-[#141416] !px-4 !py-3.5 !text-sm !leading-snug !text-zinc-100 !shadow-[0_0_0_1px_rgba(0,0,0,0.35),0_12px_32px_rgba(0,0,0,0.55)] !font-sans gap-2.5',
+                        title: 'font-semibold tracking-tight',
+                        description: '!text-[0.8125rem] !font-normal !text-white/55',
+                        icon: 'mr-0.5',
+                        closeButton:
+                            '!left-auto !right-0 !top-0 !translate-x-[35%] !-translate-y-[35%] !border !border-white/12 !bg-[#1c1c1f] !text-zinc-400 hover:!border-white/20 hover:!bg-zinc-800 hover:!text-zinc-50',
+                        success:
+                            '!border-success/45 !bg-[#0f1a16] !text-emerald-50 [&_[data-icon]]:!text-success',
+                        error: '!border-error/50 !bg-[#1a1110] !text-red-50 [&_[data-icon]]:!text-error',
+                        warning:
+                            '!border-warning/45 !bg-[#1a160e] !text-amber-50 [&_[data-icon]]:!text-warning',
+                        info: '!border-primary/45 !bg-[#141218] !text-violet-50 [&_[data-icon]]:!text-primary',
+                        loading:
+                            '!border-zinc-400/35 !bg-[#121214] !text-zinc-100 [&_[data-icon]]:!text-zinc-400'
+                    }
                 }}
             />
         </div>
@@ -73,26 +103,43 @@ export function AppToaster() {
 }
 
 export function ToastProvider({ children }: { children: ReactNode }) {
-    const showToast = (message: string, type: ToastType = 'info') => {
+    const showToast = (message: string, type: ToastType = 'info', id?: ToastId): ToastId => {
         promoteToasterAboveModals();
+        const opts = id !== undefined ? { id } : undefined;
         switch (type) {
             case 'success':
-                sonnerToast.success(message);
-                break;
+                return sonnerToast.success(message, opts);
             case 'error':
-                sonnerToast.error(message);
-                break;
+                return sonnerToast.error(message, opts);
             case 'warning':
-                sonnerToast.warning(message);
-                break;
+                return sonnerToast.warning(message, opts);
+            case 'loading':
+                return sonnerToast.loading(message, { ...opts, duration: Infinity });
             case 'info':
             default:
-                sonnerToast.info(message);
-                break;
+                return sonnerToast.info(message, opts);
         }
     };
 
-    return <ToastContext.Provider value={{ showToast }}>{children}</ToastContext.Provider>;
+    const dismissToast = (id?: ToastId) => {
+        if (id === undefined) sonnerToast.dismiss();
+        else sonnerToast.dismiss(id);
+    };
+
+    const showToastPromise = <T,>(
+        promise: Promise<T>,
+        messages: ToastPromiseMessages<T>
+    ): Promise<T> => {
+        promoteToasterAboveModals();
+        sonnerToast.promise(promise, messages);
+        return promise;
+    };
+
+    return (
+        <ToastContext.Provider value={{ showToast, dismissToast, showToastPromise }}>
+            {children}
+        </ToastContext.Provider>
+    );
 }
 
 export function useToast() {
@@ -101,7 +148,7 @@ export function useToast() {
     return ctx;
 }
 
-const noopToast = () => {};
+const noopToast = () => '' as ToastId;
 
 export function useToastOptional() {
     const ctx = useContext(ToastContext);
