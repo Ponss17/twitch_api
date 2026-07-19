@@ -69,7 +69,7 @@ function DashboardAppShell() {
         initGlobalErrorLogging();
         // Warm-up ping: despierta la función serverless de Vercel en segundo plano
         // para que los primeros comandos del usuario no sufran cold start.
-        void fetch('/api/health', { method: 'GET' }).catch(() => {/* silencioso */});
+        void fetch('/api/health', { method: 'GET' }).catch(() => {/* silencioso */ });
     }, []);
 
     useEffect(() => {
@@ -148,35 +148,36 @@ function DashboardAppShell() {
             )}
 
             {dashboardReady && (
-            <div
-                id="dashboard-page"
-                className={`flex min-h-full flex-1 flex-col bg-[#09090b] transition-[filter,opacity] duration-300 ${
-                    splashOpen && !splashDone ? 'pointer-events-none opacity-50 blur-[2px]' : ''
-                }`}
-            >
-                <Sidebar
-                    active={tab}
-                    onChange={setTab}
-                    mobileOpen={mobileMenuOpen}
-                    onClose={() => setMobileMenuOpen(false)}
-                />
-
-                <div className="flex min-h-0 flex-1 flex-col lg:ml-[280px]">
-                    <DashboardHeader
-                        tab={tab}
-                        onSettings={() => setTab('settings')}
-                        onLogout={logout}
-                        onMenuToggle={() => setMobileMenuOpen((open) => !open)}
-                        mobileMenuOpen={mobileMenuOpen}
+                <div
+                    id="dashboard-page"
+                    className={`flex min-h-full flex-1 flex-col bg-[#09090b] transition-[filter,opacity] duration-300 ${splashOpen && !splashDone ? 'pointer-events-none opacity-50 blur-[2px]' : ''
+                        }`}
+                >
+                    <Sidebar
+                        active={tab}
+                        onChange={setTab}
+                        mobileOpen={mobileMenuOpen}
+                        onClose={() => setMobileMenuOpen(false)}
                     />
 
-                    <div className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-3">
-                        <div className={fadeIn}>
-                            <DashboardPanelShell tab={tab} onNavigate={setTab} />
-                        </div>
+                    <div className="flex min-h-0 flex-1 flex-col lg:ml-[240px]">
+                        <DashboardHeader
+                            tab={tab}
+                            onSettings={() => setTab('settings')}
+                            onLogout={logout}
+                            onMenuToggle={() => setMobileMenuOpen((open) => !open)}
+                            mobileMenuOpen={mobileMenuOpen}
+                        />
+
+                        <main className="flex flex-1 flex-col overflow-y-auto py-8">
+                            <div className="mx-auto w-full max-w-7xl flex-1 px-4 md:px-8 lg:px-12 xl:px-16">
+                                <div className={fadeIn}>
+                                    <DashboardPanelShell tab={tab} onNavigate={setTab} />
+                                </div>
+                            </div>
+                        </main>
                     </div>
                 </div>
-            </div>
             )}
         </>
     );

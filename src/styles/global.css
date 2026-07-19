@@ -35,6 +35,7 @@
       opacity: 0;
       transform: translateY(5px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -42,10 +43,12 @@
   }
 
   @keyframes blink {
+
     0%,
     100% {
       opacity: 1;
     }
+
     50% {
       opacity: 0.5;
     }
@@ -55,9 +58,11 @@
     0% {
       opacity: 0.4;
     }
+
     50% {
       opacity: 1;
     }
+
     100% {
       opacity: 0.4;
     }
@@ -68,6 +73,7 @@
       opacity: 0;
       transform: translateY(4px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -79,6 +85,7 @@
       opacity: 0;
       transform: translateY(10px) scale(0.98);
     }
+
     100% {
       opacity: 1;
       transform: translateY(0) scale(1);
@@ -86,10 +93,12 @@
   }
 
   @keyframes navIconBounce {
+
     0%,
     100% {
       transform: scale(1);
     }
+
     50% {
       transform: scale(1.2);
     }
@@ -100,6 +109,7 @@
     0% {
       background: rgba(59, 130, 246, 0.2);
     }
+
     100% {
       background: transparent;
     }
@@ -110,13 +120,16 @@
       transform: scale(0.3);
       opacity: 0;
     }
+
     50% {
       transform: scale(1.1);
       opacity: 1;
     }
+
     70% {
       transform: scale(0.9);
     }
+
     100% {
       transform: scale(1);
       opacity: 1;
@@ -124,19 +137,23 @@
   }
 
   @keyframes gunShake {
+
     10%,
     90% {
       transform: translate3d(-2px, 0, 0) rotate(-2deg);
     }
+
     20%,
     80% {
       transform: translate3d(4px, 0, 0) rotate(2deg);
     }
+
     30%,
     50%,
     70% {
       transform: translate3d(-6px, 0, 0) rotate(-3deg);
     }
+
     40%,
     60% {
       transform: translate3d(6px, 0, 0) rotate(3deg);
@@ -144,19 +161,23 @@
   }
 
   @keyframes modalShake {
+
     10%,
     90% {
       transform: translate3d(-1px, 0, 0);
     }
+
     20%,
     80% {
       transform: translate3d(2px, 0, 0);
     }
+
     30%,
     50%,
     70% {
       transform: translate3d(-4px, 0, 0);
     }
+
     40%,
     60% {
       transform: translate3d(4px, 0, 0);
@@ -168,6 +189,7 @@
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -180,10 +202,12 @@
       transform: translateY(-40px) rotateX(-15deg) scale(1.05);
       filter: blur(4px);
     }
+
     60% {
       transform: translateY(4px) rotateX(5deg) scale(0.98);
       filter: blur(0);
     }
+
     100% {
       opacity: 1;
       transform: translateY(0) rotateX(0) scale(1);
@@ -195,6 +219,7 @@
       opacity: 0;
       transform: translateY(8px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -206,6 +231,7 @@
       opacity: 0;
       transform: scale(0.95) translateY(8px);
     }
+
     to {
       opacity: 1;
       transform: scale(1) translateY(0);
@@ -217,6 +243,7 @@
       opacity: 1;
       transform: scale(1) translateY(0);
     }
+
     to {
       opacity: 0;
       transform: scale(0.95) translateY(8px);

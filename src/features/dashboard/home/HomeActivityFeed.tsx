@@ -1,7 +1,7 @@
 import { useMemo, useState, memo } from 'react';
 import { Filter, Radio, Terminal, LayoutGrid, Bot, Wrench, Swords, Activity } from 'lucide-react';
 
-import { panelCard, fadeIn, hoverSubtleChip } from '@/core/utils/tw';
+import { panelCard, fadeIn } from '@/core/utils/tw';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import {
     activityEntryKey,
@@ -18,6 +18,7 @@ import {
     type ActivityCategoryFilter
 } from '@/features/dashboard/lib/activityLogFilter';
 import { HomeActivityLogEntry } from '@/features/dashboard/home/HomeActivityLogEntry';
+import { ActivityDetailSheet } from '@/features/dashboard/home/ActivityDetailSheet';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 
 interface HomeActivityFeedProps {
@@ -49,18 +50,18 @@ function ActivityFeedSkeleton() {
                     className="flex items-center gap-3 border-b border-white/[0.04] py-2.5"
                     style={{ animationDelay: `${i * 80}ms` }}
                 >
-                    <div className="h-7 w-7 shrink-0 animate-pulse rounded-md bg-white/[0.06]" />
+                    <div className="h-7 w-7 shrink-0 animate-pulse rounded-md bg-white/[0.03]" />
                     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                         <div
-                            className="h-3.5 animate-pulse rounded bg-white/[0.06]"
+                            className="h-3.5 animate-pulse rounded bg-white/[0.03]"
                             style={{ width: `${42 + (i % 3) * 10}%` }}
                         />
                         <div
-                            className="h-3 animate-pulse rounded bg-white/[0.04]"
+                            className="h-3 animate-pulse rounded bg-white/[0.02]"
                             style={{ width: `${55 + (i % 2) * 15}%` }}
                         />
                     </div>
-                    <div className="h-3 w-10 shrink-0 animate-pulse rounded bg-white/[0.06]" />
+                    <div className="h-3 w-10 shrink-0 animate-pulse rounded bg-white/[0.03]" />
                 </div>
             ))}
         </div>
@@ -100,6 +101,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
 }: HomeActivityFeedProps) {
     const [categoryFilter, setCategoryFilter] = useState<ActivityCategoryFilter>('all');
     const [typeFilter, setTypeFilter] = useState<ActivityLogType | 'all'>('all');
+    const [selectedActivity, setSelectedActivity] = useState<ActivityLogItem | null>(null);
 
     const filteredActivity = useMemo(
         () => filterActivityLog(activity, categoryFilter, typeFilter),
@@ -153,7 +155,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                 </div>
             </div>
 
-            <div className="flex flex-wrap gap-1.5 border-b border-white/[0.06] px-5 py-3">
+            <div className="flex flex-wrap gap-2 border-b border-white/[0.04] px-5 py-3">
                 {CATEGORY_FILTERS.map((category) => {
                     const count = countActivityByCategory(activity, category);
                     const active = categoryFilter === category;
@@ -163,19 +165,17 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             key={category}
                             type="button"
                             onClick={() => handleCategoryChange(category)}
-                            className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[0.75rem] font-semibold ${
-                                active
-                                    ? 'bg-primary/15 text-primary'
-                                    : `text-[#8b8b93] ${hoverSubtleChip}`
-                            }`}
+                            className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.7rem] font-semibold transition-all duration-200 ${active
+                                    ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_rgba(145,70,255,0.15)]'
+                                    : 'text-zinc-400 hover:bg-white/[0.03] hover:text-zinc-200'
+                                }`}
                             aria-pressed={active}
                         >
                             <span
-                                className={`flex h-5 w-5 items-center justify-center rounded border ${
-                                    active ? 'border-primary/30 bg-transparent text-primary' : subtleIcon('primary')
-                                }`}
+                                className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${active ? 'border-primary/30 bg-primary/10 text-primary' : 'border-white/[0.04] bg-transparent text-zinc-400'
+                                    }`}
                             >
-                                <Icon className="h-3 w-3" />
+                                <Icon className="h-2.5 w-2.5" />
                             </span>
                             {ACTIVITY_CATEGORY_LABELS[category]}
                             {!isLoading && count > 0 ? (
@@ -188,18 +188,17 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
 
             {typeOptions.length > 0 ? (
                 <div
-                    className="flex flex-wrap items-center gap-1.5 border-b border-white/[0.06] px-5 py-2.5"
+                    className="flex flex-wrap items-center gap-2 border-b border-white/[0.04] px-5 py-2.5"
                     role="group"
                     aria-label="Filtrar por recurso"
                 >
                     <button
                         type="button"
                         onClick={() => setTypeFilter('all')}
-                        className={`rounded-md px-2.5 py-1 text-[0.72rem] font-medium ${
-                            typeFilter === 'all'
-                                ? 'bg-primary/15 text-primary'
-                                : `text-[#71717a] ${hoverSubtleChip} hover:text-[#8b8b93]`
-                        }`}
+                        className={`rounded-md px-2 py-1 text-[0.68rem] font-medium transition-all duration-200 ${typeFilter === 'all'
+                                ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_rgba(145,70,255,0.15)]'
+                                : 'text-zinc-400 hover:bg-white/[0.03] hover:text-zinc-200'
+                            }`}
                         aria-pressed={typeFilter === 'all'}
                     >
                         Todos
@@ -216,19 +215,17 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                     key={type}
                                     type="button"
                                     onClick={() => setTypeFilter(type)}
-                                    className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[0.72rem] font-medium ${
-                                        active
-                                            ? 'bg-primary/15 text-primary'
-                                            : `text-[#71717a] ${hoverSubtleChip} hover:text-[#8b8b93]`
-                                    }`}
+                                    className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.68rem] font-medium transition-all duration-200 ${active
+                                            ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_rgba(145,70,255,0.15)]'
+                                            : 'text-zinc-400 hover:bg-white/[0.03] hover:text-zinc-200'
+                                        }`}
                                     aria-pressed={active}
                                 >
                                     <span
-                                        className={`flex h-5 w-5 items-center justify-center rounded border ${
-                                            active ? 'border-primary/30 bg-transparent text-primary' : meta.iconClass
-                                        }`}
+                                        className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${active ? 'border-primary/30 bg-primary/10 text-primary' : 'border-white/[0.04] bg-transparent text-zinc-400'
+                                            }`}
                                     >
-                                        <TypeIcon className="h-3 w-3" />
+                                        <TypeIcon className="h-2.5 w-2.5" />
                                     </span>
                                     {meta.label}
                                     {!isLoading && count > 0 ? (
@@ -242,9 +239,8 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
 
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-4 pt-2">
                 <div
-                    className={`min-h-0 flex-1 overflow-y-auto rounded-xl border border-white/[0.08] bg-bg-secondary px-3 py-2 [overflow-anchor:none] [scrollbar-color:rgba(145,70,255,0.45)_transparent] [scrollbar-width:thin] ${
-                        !isLoading && filteredActivity.length === 0 ? 'flex items-center justify-center' : ''
-                    }`}
+                    className={`min-h-0 flex-1 overflow-y-auto rounded-xl border border-white/[0.08] bg-bg-secondary px-3 py-2 [overflow-anchor:none] [scrollbar-color:rgba(145,70,255,0.45)_transparent] [scrollbar-width:thin] ${!isLoading && filteredActivity.length === 0 ? 'flex items-center justify-center' : ''
+                        }`}
                 >
                     {isLoading ? (
                         <ActivityFeedSkeleton />
@@ -262,13 +258,24 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             return (
                                 <div key={`${key}-${i}`}>
                                     {showDivider ? <div className={LOG_DATE_DIVIDER}>{dateLabel}</div> : null}
-                                    <HomeActivityLogEntry item={item} isNew={isNew} timeZone={timeZone} />
+                                    <HomeActivityLogEntry 
+                                        item={item} 
+                                        isNew={isNew} 
+                                        timeZone={timeZone} 
+                                        onClick={setSelectedActivity}
+                                    />
                                 </div>
                             );
                         })
                     )}
                 </div>
             </div>
+            
+            <ActivityDetailSheet 
+                item={selectedActivity} 
+                onClose={() => setSelectedActivity(null)} 
+                timeZone={timeZone} 
+            />
         </div>
     );
 });

@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 
-const pulse = 'animate-pulse bg-bg-tertiary';
+const pulse = 'animate-pulse bg-white/[0.04]';
 
 interface SkeletonProps {
     className?: string;
@@ -27,8 +27,8 @@ function SkeletonCircle({ className = 'h-10 w-10' }: { className?: string }) {
 export function DashboardSessionSkeleton() {
     return (
         <div className="flex min-h-screen bg-[#09090b]" aria-busy="true" aria-label="Cargando dashboard">
-            <aside className="hidden w-[280px] shrink-0 border-r border-white/[0.08] p-4 lg:block">
-                <Skeleton className="mb-6 h-10 w-40" />
+            <aside className="hidden w-[240px] shrink-0 p-4 lg:block">
+                <Skeleton className="mb-6 h-10 w-40 bg-transparent" />
                 <div className="space-y-2">
                     {Array.from({ length: 8 }).map((_, i) => (
                         <Skeleton key={i} className="h-10 w-full" />
@@ -53,11 +53,11 @@ export function DashboardSessionSkeleton() {
 
 export function HomeViewSkeleton() {
     return (
-        <div className="space-y-6" aria-busy="true" aria-label="Cargando panel">
-            <Skeleton className="h-[220px] w-full rounded-[24px]" />
-            <div className="grid gap-4 lg:grid-cols-2">
-                <Skeleton className="h-[280px] w-full rounded-xl" />
-                <Skeleton className="h-[280px] w-full rounded-xl" />
+        <div className="animate-fade-soft" aria-busy="true" aria-label="Cargando panel">
+            <SettingsHeroSkeleton />
+            <div className="grid grid-cols-1 items-stretch gap-5 min-[1001px]:grid-cols-[1fr_310px]">
+                <Skeleton className="h-[500px] w-full rounded-xl bg-bg-card border border-white/[0.04]" />
+                <Skeleton className="h-[500px] w-full rounded-xl bg-bg-card border border-white/[0.04]" />
             </div>
         </div>
     );
@@ -66,23 +66,44 @@ export function HomeViewSkeleton() {
 export function SettingsHeroSkeleton() {
     return (
         <div
-            className="relative mb-6 overflow-hidden rounded-[24px] border border-white/[0.08] bg-bg-secondary p-8"
+            className="relative mb-8 overflow-hidden rounded-xl border border-white/[0.03] bg-zinc-900/20 px-8 py-8 shadow-2xl shadow-black/20 backdrop-blur-xl"
             aria-busy="true"
             aria-label="Cargando perfil"
         >
-            <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
-                <SkeletonCircle className="h-24 w-24 shrink-0" />
-                <div className="flex flex-1 flex-col items-center gap-3 md:items-start">
-                    <Skeleton className="h-8 w-48" />
-                    <Skeleton className="h-4 w-full max-w-md" />
-                    <div className="flex gap-2">
-                        <Skeleton className="h-7 w-24 rounded-[10px]" />
-                        <Skeleton className="h-7 w-28 rounded-[10px]" />
+            <div className="relative z-10 flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+                <div className="flex items-center gap-4">
+                    <Skeleton className="h-[3.75rem] w-[3.75rem] shrink-0 rounded-xl" />
+                    <div className="min-w-0">
+                        <div className="mb-1.5 flex flex-wrap items-center gap-2.5">
+                            <Skeleton className="h-8 w-48" />
+                            <Skeleton className="h-5 w-20 rounded-md" />
+                        </div>
+                        <Skeleton className="mt-1 h-4 w-64" />
                     </div>
                 </div>
-                <div className="flex gap-6">
-                    <Skeleton className="h-14 w-20" />
-                    <Skeleton className="h-14 w-20" />
+
+                <div className="flex w-full flex-wrap gap-y-4 border-t border-white/[0.06] pt-4 xl:w-auto xl:min-w-[29rem] xl:justify-end xl:border-0 xl:pt-0">
+                    <div className="flex min-w-[144px] flex-1 items-center gap-3 pr-6 xl:min-w-[160px] xl:flex-none">
+                        <Skeleton className="h-10 w-10 shrink-0 rounded-lg" />
+                        <div className="flex flex-col gap-1.5">
+                            <Skeleton className="h-2.5 w-16" />
+                            <Skeleton className="h-5 w-24" />
+                        </div>
+                    </div>
+                    <div className="flex min-w-[144px] flex-1 items-center gap-3 border-l border-white/[0.08] px-6 xl:min-w-[160px] xl:flex-none">
+                        <Skeleton className="h-10 w-10 shrink-0 rounded-lg" />
+                        <div className="flex flex-col gap-1.5">
+                            <Skeleton className="h-2.5 w-16" />
+                            <Skeleton className="h-5 w-24" />
+                        </div>
+                    </div>
+                    <div className="flex min-w-[144px] flex-1 items-center gap-3 border-l border-white/[0.08] pl-6 xl:min-w-[160px] xl:flex-none">
+                        <Skeleton className="h-10 w-10 shrink-0 rounded-lg" />
+                        <div className="flex flex-col gap-1.5">
+                            <Skeleton className="h-2.5 w-20" />
+                            <Skeleton className="h-5 w-28" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -116,7 +137,7 @@ export function ClipsGridSkeleton({ count = 6, className = '' }: { count?: numbe
             aria-label="Cargando clips"
         >
             {Array.from({ length: count }).map((_, i) => (
-                <div key={i} className="overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary">
+                <div key={i} className="overflow-hidden rounded-xl border border-white/[0.04] bg-[#09090b]">
                     <Skeleton className="aspect-video w-full rounded-none" />
                     <div className="space-y-2 p-3">
                         <Skeleton className="h-4 w-4/5" />
@@ -127,6 +148,128 @@ export function ClipsGridSkeleton({ count = 6, className = '' }: { count?: numbe
                     </div>
                 </div>
             ))}
+        </div>
+    );
+}
+
+export function AnalyticsSkeleton() {
+    return (
+        <div className="animate-fade-soft space-y-6" aria-busy="true" aria-label="Cargando analíticas">
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                 <Skeleton className="h-[100px] w-full rounded-xl bg-bg-card border border-white/[0.04]" />
+                 <Skeleton className="h-[100px] w-full rounded-xl bg-bg-card border border-white/[0.04]" />
+                 <Skeleton className="h-[100px] w-full rounded-xl bg-bg-card border border-white/[0.04]" />
+                 <Skeleton className="h-[100px] w-full rounded-xl bg-bg-card border border-white/[0.04]" />
+            </div>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                 <Skeleton className="h-[350px] w-full rounded-xl lg:col-span-2 bg-bg-card border border-white/[0.04]" />
+                 <Skeleton className="h-[350px] w-full rounded-xl bg-bg-card border border-white/[0.04]" />
+            </div>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                 <Skeleton className="h-[300px] w-full rounded-xl bg-bg-card border border-white/[0.04]" />
+                 <Skeleton className="h-[300px] w-full rounded-xl bg-bg-card border border-white/[0.04]" />
+            </div>
+        </div>
+    );
+}
+
+export function CommandViewSkeleton() {
+    return (
+        <div className="animate-fade-soft w-full" aria-busy="true" aria-label="Cargando comandos">
+            <div className="mb-3 flex flex-col rounded-xl border border-white/[0.04] bg-bg-card">
+                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.04] px-5 py-3.5">
+                    <div className="flex items-center gap-3">
+                        <Skeleton className="h-8 w-8 rounded-lg bg-transparent border border-white/[0.04]" />
+                        <div className="space-y-1.5">
+                            <Skeleton className="h-4 w-32 bg-transparent" />
+                            <Skeleton className="h-3 w-48 bg-transparent" />
+                        </div>
+                    </div>
+                    <Skeleton className="h-8 w-24 rounded-lg bg-transparent border border-white/[0.04]" />
+                </header>
+                <div className="p-5 space-y-4">
+                    <Skeleton className="h-10 w-full rounded-lg bg-bg-card border border-white/[0.04]" />
+                    <Skeleton className="h-32 w-full rounded-lg bg-bg-card border border-white/[0.04]" />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export function TrendsSkeleton() {
+    return (
+        <div className="animate-fade-soft w-full" aria-busy="true" aria-label="Cargando tendencias">
+            <div className="mb-3 flex flex-col rounded-xl border border-white/[0.04] bg-bg-card">
+                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.04] px-5 py-3.5">
+                    <div className="flex items-center gap-3">
+                        <Skeleton className="h-8 w-8 rounded-lg bg-transparent border border-white/[0.04]" />
+                        <div className="space-y-1.5">
+                            <Skeleton className="h-4 w-40 bg-transparent" />
+                            <Skeleton className="h-3 w-56 bg-transparent" />
+                        </div>
+                    </div>
+                    <div className="flex gap-3">
+                        <Skeleton className="h-8 w-32 rounded-lg bg-transparent border border-white/[0.04]" />
+                        <Skeleton className="h-8 w-32 rounded-lg bg-transparent border border-white/[0.04]" />
+                    </div>
+                </header>
+                <div className="p-5">
+                    <Skeleton className="h-[400px] w-full rounded-lg bg-bg-card border border-white/[0.04]" />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export function StalkerViewSkeleton() {
+    return (
+        <div className="animate-fade-soft w-full" aria-busy="true" aria-label="Cargando stalker">
+            <div className="mb-3 flex flex-col rounded-xl border border-white/[0.04] bg-bg-card">
+                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.04] px-5 py-3.5">
+                    <div className="flex items-center gap-3">
+                        <Skeleton className="h-8 w-8 rounded-lg bg-transparent border border-white/[0.04]" />
+                        <div className="space-y-1.5">
+                            <Skeleton className="h-4 w-40 bg-transparent" />
+                            <Skeleton className="h-3 w-56 bg-transparent" />
+                        </div>
+                    </div>
+                    <Skeleton className="h-8 w-48 rounded-lg bg-transparent border border-white/[0.04]" />
+                </header>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="border-b border-white/[0.04] bg-black/20 text-[#a1a1aa]">
+                                <th className="px-5 py-3"><Skeleton className="h-3 w-12 bg-transparent" /></th>
+                                <th className="px-5 py-3"><Skeleton className="h-3 w-16 bg-transparent" /></th>
+                                <th className="px-5 py-3"><Skeleton className="h-3 w-20 bg-transparent" /></th>
+                                <th className="px-5 py-3"><Skeleton className="ml-auto h-3 w-12 bg-transparent" /></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {Array.from({ length: 8 }).map((_, i) => <StalkerRowSkeleton key={i} />)}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export function SettingsViewSkeleton() {
+    return (
+        <div className="animate-fade-soft space-y-6" aria-busy="true" aria-label="Cargando ajustes">
+            <SettingsHeroSkeleton />
+            <div className="mb-6 border-b border-white/[0.04]">
+                <div className="flex gap-6 pb-2">
+                    <Skeleton className="h-8 w-24 bg-transparent" />
+                    <Skeleton className="h-8 w-32 bg-transparent" />
+                    <Skeleton className="h-8 w-32 bg-transparent" />
+                </div>
+            </div>
+            <div className="space-y-4">
+                <Skeleton className="h-[200px] w-full rounded-xl bg-bg-card border border-white/[0.04]" />
+                <Skeleton className="h-[200px] w-full rounded-xl bg-bg-card border border-white/[0.04]" />
+            </div>
         </div>
     );
 }

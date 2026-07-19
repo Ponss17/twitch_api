@@ -1,4 +1,4 @@
-import { Key, EyeOff, Eye, Check, RotateCw, AlertTriangle, Copy } from 'lucide-react';
+import { Key, EyeOff, Eye, Check, RotateCw, Copy } from 'lucide-react';
 import { useState } from 'react';
 import { SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
 
@@ -9,8 +9,6 @@ interface SettingsSecuritySectionProps {
     onToggleKey: () => void;
     onCopyKey: () => void;
     onRegenKey: () => void;
-    /** Lleva el foco a la zona de peligro (siempre visible en esta pestaña). */
-    onFocusDanger: () => void;
 }
 
 export function SettingsSecuritySection({
@@ -19,8 +17,7 @@ export function SettingsSecuritySection({
     keyLoading = false,
     onToggleKey,
     onCopyKey,
-    onRegenKey,
-    onFocusDanger
+    onRegenKey
 }: SettingsSecuritySectionProps) {
     const [isKeyCopied, setIsKeyCopied] = useState(false);
 
@@ -86,21 +83,19 @@ export function SettingsSecuritySection({
                     >
                         <RotateCw className="w-4 h-4" aria-hidden="true" />
                     </button>
-                    <button
-                        type="button"
-                        onClick={onFocusDanger}
-                        title="Ir a Zona de Peligro"
-                        aria-label="Ir a Zona de Peligro"
-                        className="flex items-center justify-center border-l border-white/[0.05] px-3 text-zinc-400 transition hover:bg-error/[0.08] hover:text-error"
-                    >
-                        <AlertTriangle className="w-4 h-4" aria-hidden="true" />
-                    </button>
                 </div>
             </div>
 
-            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/[0.08] px-2 py-0.5 text-[0.7rem] font-semibold text-emerald-400">
-                    <Check className="w-3 h-3" /> Activa
+            <div className="mt-3 flex flex-wrap items-center gap-2.5">
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/15 bg-emerald-500/[0.06] px-2.5 py-1 text-[0.75rem] font-medium text-emerald-400">
+                    <span className="relative flex h-1.5 w-1.5">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    </span>
+                    API Key Activa
+                </span>
+                <span className="text-[0.75rem] text-zinc-500">
+                    Lista para autenticar peticiones (Bearer).
                 </span>
             </div>
         </SettingsRow>

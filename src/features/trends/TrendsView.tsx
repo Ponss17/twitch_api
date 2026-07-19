@@ -172,7 +172,10 @@ export function TrendsView({ active = true }: { active?: boolean }) {
 
                     <OverlayUrlButton tool="trends" />
 
-                    <InfoTooltip text="Analiza las palabras más repetidas en el chat. Puedes acotar el tiempo con el temporizador." />
+                    <InfoTooltip 
+                        text="Analiza las palabras más repetidas en el chat. Puedes acotar el tiempo con el temporizador." 
+                        placement="bottom"
+                    />
                 </div>
             </header>
 

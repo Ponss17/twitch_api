@@ -1,4 +1,3 @@
-import type { Ref } from 'react';
 import { SettingsGroup } from '@/features/dashboard/settings/SettingsGroup';
 import { SettingsSecuritySection } from '@/features/dashboard/settings/SettingsSecuritySection';
 import { SettingsDangerZone } from '@/features/dashboard/settings/SettingsDangerZone';
@@ -9,8 +8,6 @@ interface SettingsSecurityPanelProps {
     onToggleKey: () => void;
     onCopyKey: () => void;
     onRegenKey: () => void;
-    onFocusDanger: () => void;
-    dangerZoneRef: Ref<HTMLDivElement>;
     onClearData: () => void;
     onDeleteAccount: () => void;
 }
@@ -21,8 +18,6 @@ export function SettingsSecurityPanel({
     onToggleKey,
     onCopyKey,
     onRegenKey,
-    onFocusDanger,
-    dangerZoneRef,
     onClearData,
     onDeleteAccount
 }: SettingsSecurityPanelProps) {
@@ -39,12 +34,10 @@ export function SettingsSecurityPanel({
                     onToggleKey={onToggleKey}
                     onCopyKey={onCopyKey}
                     onRegenKey={onRegenKey}
-                    onFocusDanger={onFocusDanger}
                 />
             </SettingsGroup>
 
             <SettingsDangerZone
-                ref={dangerZoneRef}
                 onClearData={onClearData}
                 onDeleteAccount={onDeleteAccount}
             />

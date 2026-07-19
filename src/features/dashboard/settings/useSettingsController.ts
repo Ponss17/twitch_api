@@ -70,7 +70,6 @@ export function useSettingsController(active: boolean) {
 
     const keyHideTimerRef = useRef<number | null>(null);
     const pollRef = useRef<number | null>(null);
-    const dangerZoneRef = useRef<HTMLDivElement>(null);
     const profileRef = useRef(profile);
     profileRef.current = profile;
     const sessionRef = useRef(session);
@@ -246,13 +245,6 @@ export function useSettingsController(active: boolean) {
             setRevealedKey(null);
             clearRevealedApiKeyCache();
         }, 30000);
-    };
-
-    const focusDangerZone = () => {
-        changeSettingsTab('seguridad');
-        window.setTimeout(() => {
-            dangerZoneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 60);
     };
 
     const regenerateKey = async () => {
@@ -490,8 +482,6 @@ export function useSettingsController(active: boolean) {
         setRegenOpen,
         regenOpen,
         regenerateKey,
-        focusDangerZone,
-        dangerZoneRef,
         openClearDataModal,
         openDeleteAccountModal,
         dangerModal,

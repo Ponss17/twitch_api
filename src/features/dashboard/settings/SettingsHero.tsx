@@ -1,6 +1,5 @@
 import { useRequiredSession } from '@/core/session/useSession';
 import { staticPath } from '@/core/config/paths';
-import { panelCard } from '@/core/utils/tw';
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
 import { Heart, Video, Calendar } from 'lucide-react';
 
@@ -49,8 +48,8 @@ export function SettingsHero({
     const name = session.displayName ?? session.login ?? 'Streamer';
 
     return (
-        <section className={`${panelCard} relative mb-5 overflow-hidden px-6 py-5`}>
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-primary/[0.07] via-transparent to-transparent" />
+        <section className="relative mb-8 overflow-hidden rounded-xl border border-white/[0.03] bg-zinc-900/20 px-8 py-8 shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-primary/[0.04] via-transparent to-transparent" />
 
             <div className="relative z-10 flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
                 <div className="flex items-center gap-4">
@@ -74,7 +73,7 @@ export function SettingsHero({
                             <h1 className="text-[1.7rem] font-bold leading-tight tracking-tight text-white md:text-[1.85rem]">
                                 Hola, <span className="text-primary">{name}</span>
                             </h1>
-                            <span className="rounded-md border border-primary/25 bg-primary/10 px-2 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider text-primary">
+                            <span className="rounded-md border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[0.7rem] font-bold uppercase tracking-wider text-primary">
                                 {broadcasterLabel}
                             </span>
                         </div>

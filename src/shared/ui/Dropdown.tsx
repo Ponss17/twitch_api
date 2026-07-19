@@ -35,7 +35,7 @@ export const dropdownTriggerCompact =
     `flex min-w-[9.5rem] max-w-[11.5rem] items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 py-1.5 text-[0.75rem] font-medium text-[#fafafa] disabled:cursor-not-allowed disabled:opacity-50 ${hoverSubtleControl}`;
 
 const panelBase =
-    'absolute animate-fade-soft overflow-hidden border border-primary/20 bg-[#121214] shadow-lg';
+    'absolute animate-fade-soft overflow-hidden border border-white/[0.08] bg-bg-secondary shadow-2xl';
 
 interface DropdownProps {
     children: ReactNode;
@@ -161,7 +161,7 @@ export function DropdownHeader({ children }: DropdownHeaderProps) {
     return (
         <div className="border-b border-white/5 px-4 py-3">
             {typeof children === 'string' ? (
-                <span className="text-xs font-bold uppercase tracking-wide text-[#71717a]">{children}</span>
+                <span className="text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-zinc-500">{children}</span>
             ) : (
                 children
             )}
@@ -188,7 +188,7 @@ export function DropdownItem({
     const tone =
         variant === 'danger'
             ? 'text-error hover:bg-error/10'
-            : `text-[#c4c4cc] ${hoverSubtleChip} hover:text-[#d4d4d8]`;
+            : `text-zinc-400 ${hoverSubtleChip} hover:text-zinc-100`;
 
     return (
         <button
@@ -220,7 +220,7 @@ export function DropdownLink({
 
     return (
         <a
-            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#c4c4cc] no-underline ${hoverSubtleChip} hover:text-[#d4d4d8] ${className}`.trim()}
+            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-zinc-400 no-underline ${hoverSubtleChip} hover:text-zinc-100 ${className}`.trim()}
             onClick={(e) => {
                 if (closeOnClick) close();
                 onClick?.(e);
