@@ -4,7 +4,6 @@ import { SettingsGroup } from '@/features/dashboard/settings/SettingsGroup';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 
 interface SettingsDangerZoneProps {
-    visible: boolean;
     onClearData: () => void;
     onDeleteAccount: () => void;
 }
@@ -44,16 +43,14 @@ function DangerAction({
 
 /** Un solo bloque: reiniciar datos + eliminar cuenta. */
 export const SettingsDangerZone = forwardRef<HTMLDivElement, SettingsDangerZoneProps>(
-    function SettingsDangerZone({ visible, onClearData, onDeleteAccount }, ref) {
-        if (!visible) return null;
-
+    function SettingsDangerZone({ onClearData, onDeleteAccount }, ref) {
         return (
             <SettingsGroup
                 ref={ref}
                 title="Zona de Peligro"
                 description="Acciones irreversibles — procede con precaución"
                 accent="error"
-                delay={240}
+                delay={120}
             >
                 <div className="overflow-hidden rounded-xl border border-error/20 bg-error/[0.04]">
                     <DangerAction

@@ -116,8 +116,8 @@ En comandos de chat, muchos fallos de API Key llegan como <HttpStatusBadge code=
 
 | Escenario | Causa habitual | Solución |
 | :--- | :--- | :--- |
-| **Falta API Key** | La URL del comando no incluye `apiKey`. | Copia la clave en [Configuración](/dashboard/settings) → Seguridad. Añade `&apiKey=TU_CLAVE` o usa el generador del panel (Followage, Clips…). |
-| **Key inválida o expirada** | Clave mal copiada, regenerada o cuenta eliminada. | Abre [Configuración](/dashboard/settings), copia la clave actual o **regenera** y actualiza **todos** los bots. Ver [Tu API Key](/docs/auth/). |
+| **Falta API Key** | La URL del comando no incluye `apiKey`. | Copia la clave en [Configuración → Seguridad](/dashboard/settings/seguridad). Añade `&apiKey=TU_CLAVE` o usa el generador del panel (Followage, Clips…). |
+| **Key inválida o expirada** | Clave mal copiada, regenerada o cuenta eliminada. | Abre [Configuración → Seguridad](/dashboard/settings/seguridad), copia la clave actual o **regenera** y actualiza **todos** los bots. Ver [Tu API Key](/docs/auth/). |
 | **Rate limit** | Superaste el límite de tu rol (30–120 req/min). | El bot suele **no decir nada** (429 con cuerpo vacío). Espera ~1 minuto antes de reintentar. Ver [Límites](/docs/limits/). |
 
 <Aside type="danger" title="Tras regenerar la API Key">
@@ -125,7 +125,7 @@ En comandos de chat, muchos fallos de API Key llegan como <HttpStatusBadge code=
 </Aside>
 
 <Steps>
-1. [Configuración](/dashboard/settings) → **Seguridad y conexión** → copia o regenera la API Key.
+1. [Configuración → Seguridad](/dashboard/settings/seguridad) → copia o regenera la API Key.
 2. En cada bot, edita el comando y sustituye la clave en la URL (o vuelve a copiar desde el generador del panel).
 3. Prueba con **Probar API** en el panel antes de usar el comando en vivo.
 </Steps>
@@ -223,7 +223,7 @@ Las rutas `/api/dashboard/*` y `/api/system/*` devuelven JSON estructurado con `
 | Escenario | Causa habitual | Solución |
 | :--- | :--- | :--- |
 | **Sesión expirada** | Token Twitch caducado o sesión muy antigua. | Cierra sesión y vuelve a **Iniciar sesión con Twitch**. Flujo en [Inicio rápido](/docs/inicio-rapido/). |
-| **CSRF al regenerar key** | Pestaña abierta demasiado tiempo sin recargar. | `F5` en [Configuración](/dashboard/settings) y reintenta. |
+| **CSRF al regenerar key** | Pestaña abierta demasiado tiempo sin recargar. | `F5` en [Configuración → Seguridad](/dashboard/settings/seguridad) y reintenta. |
 | **Export cooldown** | Descargaste un reporte hace menos de **4 min**. | Espera el tiempo del mensaje. Ver [Perfil y seguridad](/docs/profile/). |
 | **Datos desactualizados** | Caché por rol o pestaña no líder en Realtime. | Recarga la pestaña; con varias abiertas solo la **líder** mantiene Realtime. |
 | **Stats en cero tras limpiar** | Usaste **Reiniciar estadísticas** (`LIMPIAR`). | Comportamiento esperado; Inicio y Analytics empiezan de nuevo. |
@@ -357,6 +357,6 @@ Si la URL es antigua o regeneraste la API Key, OBS puede quedar en blanco o sin 
 <CardGrid>
   <LinkCard title="Tu API Key" href="/docs/auth/" description="Formato, cabeceras y regenerar clave." />
   <LinkCard title="Límites de uso" href="/docs/limits/" description="Cuotas por rol, panel y endpoints pesados." />
-  <LinkCard title="Perfil y seguridad" href="/docs/profile/" description="Configuración, exportar datos y zona de peligro." />
+  <LinkCard title="Perfil y seguridad" href="/docs/profile/" description="General, Seguridad, Conexiones y zona de peligro." />
   <LinkCard title="Inicio rápido" href="/docs/inicio-rapido/" description="Primer comando en el chat." />
 </CardGrid>

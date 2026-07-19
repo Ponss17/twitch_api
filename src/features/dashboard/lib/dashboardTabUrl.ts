@@ -1,6 +1,13 @@
 import type { DashboardTab } from '@/core/config/config';
 import { appPath } from '@/core/config/paths';
 import { readScopedPref, writeScopedPref } from '@/core/session/localPrefs';
+import {
+    isSettingsTabId,
+    parseSettingsTabFromLocation,
+    settingsTabPath,
+    SETTINGS_TAB_STORAGE_KEY,
+    type SettingsTabId
+} from '@/features/dashboard/settings/settingsPaths';
 
 const VALID_TABS: ReadonlySet<DashboardTab> = new Set([
     'home',
@@ -64,8 +71,19 @@ function saveLastTab(tab: DashboardTab, userId?: string): void {
     writeScopedPref(LAST_TAB_BASE, userId, tab, LEGACY_LAST_TAB_KEY);
 }
 
+function readSavedSettingsSubTab(): SettingsTabId | null {
+    if (typeof window === 'undefined') return null;
+    try {
+        const stored = sessionStorage.getItem(SETTINGS_TAB_STORAGE_KEY);
+        return isSettingsTabId(stored) ? stored : null;
+    } catch {
+        return null;
+    }
+}
+
 /**
  * Resuelve la pestaña activa: path > hash legacy > ?tab= > última visitada (solo en /dashboard).
+ * `/dashboard/settings/conexiones` sigue resolviendo a `settings`.
  */
 export function resolveDashboardTab(
     search = typeof window !== 'undefined' ? window.location.search : '',
@@ -95,7 +113,7 @@ export function resolveDashboardTab(
 /** Sincroniza la pestaña en la URL (`/dashboard/followage`) y guarda la última visitada. */
 export function setTabInUrl(
     tab: DashboardTab,
-    options?: { replace?: boolean; userId?: string }
+    options?: { replace?: boolean; userId?: string; settingsSubTab?: SettingsTabId }
 ): void {
     if (typeof window === 'undefined') return;
 
@@ -103,9 +121,23 @@ export function setTabInUrl(
 
     const url = new URL(window.location.href);
     const base = getDashboardBasePath();
-    url.pathname = tab === 'home' ? base : `${base}/${tab}`;
     url.hash = '';
     url.searchParams.delete('tab');
+    url.searchParams.delete('s'); // legacy sub-tab query
+
+    if (tab === 'home') {
+        url.pathname = base;
+    } else if (tab === 'settings') {
+        const fromPath = parseSettingsTabFromLocation(url.pathname, url.search);
+        const sub =
+            options?.settingsSubTab ??
+            fromPath ??
+            readSavedSettingsSubTab() ??
+            'general';
+        url.pathname = settingsTabPath(sub);
+    } else {
+        url.pathname = `${base}/${tab}`;
+    }
 
     const next = `${url.pathname}${url.search}`;
     const current = `${window.location.pathname}${window.location.search}`;
