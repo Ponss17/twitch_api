@@ -125,6 +125,14 @@
             "destination": "/dashboard/index.html"
         },
         {
+            "source": "/dashboard/settings/:section(general|seguridad|conexiones)",
+            "destination": "/dashboard/index.html"
+        },
+        {
+            "source": "/dashboard/settings/:section(general|seguridad|conexiones)/",
+            "destination": "/dashboard/index.html"
+        },
+        {
             "source": "/404",
             "destination": "/404.html"
         },
