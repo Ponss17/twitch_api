@@ -228,11 +228,8 @@ export const getFollowAge = async (
                         'Tu cuenta no tiene el permiso de follows (moderator:read:followers). Cierra sesión en el panel y vuelve a entrar aceptando todos los permisos.'
                     );
                 }
-                if (validation.user_id && validation.user_id !== channelId) {
-                    return followageError(
-                        `La API key es de "${validation.login || 'otra cuenta'}", no del canal "${channel}". Usa la API key del dueño o de un moderador de ese canal.`
-                    );
-                }
+                // Dueño o mod del canal: Twitch lo valida en Helix (403 si no).
+                // No exigir tokenUserId === channelId (bloqueaba mods y pruebas en otros canales).
             } catch (scopeErr) {
                 if (helixHttpStatus(scopeErr) === 401) throw scopeErr;
                 logger.warn('Followage: no se pudo validar scopes OAuth', scopeErr);

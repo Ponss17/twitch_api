@@ -29,7 +29,7 @@ export function FollowageView() {
     const { loading, runTest } = useCommandApiTest(setStoredResult);
 
     const handleTest = async (): Promise<void> => {
-        const channelVal = (channel.trim() || ownerChannel).toLowerCase();
+        const channelVal = channel.trim().toLowerCase();
         const userVal = user.trim();
 
         if (!channelVal || !userVal) {
@@ -58,21 +58,21 @@ export function FollowageView() {
             <ApiTestCard
                 title="Prueba la API"
                 description="Verifica que todo funcione correctamente"
-                infoTooltip="Canal = el canal a consultar (el tuyo o uno donde seas mod). Usuario = el follower."
+                infoTooltip="Canal = el canal a consultar (el tuyo o uno donde seas mod). Usuario = el follower (cualquier login de Twitch)."
                 onTest={handleTest}
                 result={toApiTestResult(loading, storedResult)}
             >
                 <FormField
                     label="Canal"
-                    value={channel || ownerChannel}
+                    value={channel}
                     onChange={setChannel}
-                    placeholder={ownerChannel || 'Canal (tuyo o donde seas mod)'}
+                    placeholder={ownerChannel || 'ej. ponss17'}
                 />
                 <FormField
                     label="Usuario (follower)"
                     value={user}
                     onChange={setUser}
-                    placeholder="Ej. snake_1719"
+                    placeholder="Ej. mynana17"
                 />
             </ApiTestCard>
         </div>
