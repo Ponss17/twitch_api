@@ -12,12 +12,14 @@ interface HomeActivityLogEntryProps {
     item: ActivityLogItem;
     isNew?: boolean;
     timeZone?: string;
+    onClick?: (item: ActivityLogItem) => void;
 }
 
 export const HomeActivityLogEntry = memo(function HomeActivityLogEntry({
     item,
     isNew = false,
-    timeZone
+    timeZone,
+    onClick
 }: HomeActivityLogEntryProps) {
     const meta = getActivityMeta(item.type);
     const Icon = meta.icon;
@@ -26,11 +28,13 @@ export const HomeActivityLogEntry = memo(function HomeActivityLogEntry({
     const time = item.timestamp ? formatActivityTime(item.timestamp, timeZone) : '';
     const relative = item.timestamp ? formatActivityRelativeTime(item.timestamp) : '';
 
+    const Component = onClick ? 'button' : 'div';
+
     return (
-        <div
+        <Component
             data-entry-key={activityEntryKey(item)}
-            className={`flex items-center gap-3 border-b border-white/[0.03] py-2.5 transition-colors duration-500 ${isNew ? 'border-l-2 border-l-primary bg-primary/[0.08] pl-2' : ''
-                } ${isNew ? 'animate-slide-in-soft' : ''}`}
+            onClick={() => onClick?.(item)}
+            className={`group flex w-full text-left items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 ${isNew ? 'bg-primary/[0.08] shadow-[inset_2px_0_0_0_rgba(145,70,255,1)]' : ''} ${isNew ? 'animate-slide-in-soft' : ''} ${onClick ? 'cursor-pointer hover:bg-white/[0.02] hover:shadow-sm' : ''}`}
         >
             <div
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${meta.iconClass}`}
@@ -57,6 +61,6 @@ export const HomeActivityLogEntry = memo(function HomeActivityLogEntry({
                     <div className="text-[0.7rem] text-[#52525b]">{relative}</div>
                 ) : null}
             </div>
-        </div>
+        </Component>
     );
 });

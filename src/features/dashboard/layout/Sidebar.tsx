@@ -85,7 +85,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                             <div key={item.id}>
                                 {showCategory && (
                                     <p
-                                        className={`mb-3 px-4 text-[0.75rem] font-bold uppercase tracking-[0.05em] text-[#71717a] ${
+                                        className={`mb-2 px-4 text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-zinc-500 ${
                                             item.id === NAV_ITEMS[0].id ? 'mt-2' : 'mt-8'
                                         }`}
                                     >

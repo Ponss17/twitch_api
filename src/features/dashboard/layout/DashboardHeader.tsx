@@ -2,7 +2,6 @@ import type { DashboardTab } from '@/core/config/config';
 import { useRequiredSession } from '@/core/session/useSession';
 import { staticPath } from '@/core/config/paths';
 import { TAB_META } from '@/features/dashboard/lib/dashboardTabs';
-import { IconLg } from '@/shared/ui/Icon';
 import {
     Dropdown,
     DropdownChevron,
@@ -15,7 +14,6 @@ import {
 } from '@/shared/ui/Dropdown';
 import { Heart, LogOut, Menu, Settings } from 'lucide-react';
 import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
-import { hoverSubtleControl } from '@/core/utils/tw';
 
 const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
 
@@ -40,21 +38,20 @@ export function DashboardHeader({
     const twitchProfileUrl = session.login ? `https://www.twitch.tv/${session.login}` : '#';
 
     return (
-        <header className="w-full border-b border-white/[0.08] bg-[#09090b]">
-            <div className="mx-auto flex h-20 max-w-[1600px] items-center justify-between gap-4 px-4 md:px-6">
+        <header className="w-full pt-4">
+            <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 md:px-8 lg:px-12 xl:px-16">
                 <button
                     type="button"
                     onClick={onMenuToggle}
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-[#c4c4cc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 lg:hidden ${hoverSubtleControl} hover:text-[#fafafa]`}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 hover:bg-white/[0.05] hover:text-zinc-100 lg:hidden"
                     aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
                     aria-expanded={mobileMenuOpen}
                     aria-controls="dashboard-sidebar"
                 >
-                    <Menu className="w-5 h-5" />
+                    <Menu className="h-5 w-5" />
                 </button>
 
-                <h1 className="flex flex-1 items-center gap-3 text-xl font-bold tracking-tight text-[#fafafa] md:text-[1.8rem]">
-                    <IconLg icon={meta.icon} className="text-[#9146ff]" />
+                <h1 className="flex flex-1 items-center gap-3 text-[1.4rem] font-semibold tracking-tight text-zinc-100 md:text-[1.6rem]">
                     {meta.title}
                 </h1>
 
@@ -62,17 +59,17 @@ export function DashboardHeader({
                     <Dropdown>
                         <DropdownTrigger
                             aria-label="Menú de cuenta"
-                            className={`flex items-center gap-2 rounded-xl border border-white/[0.06] bg-bg-secondary py-1 pl-1 pr-2.5 ${hoverSubtleControl}`}
+                            className="group flex items-center gap-2.5 rounded-xl border border-white/[0.04] bg-bg-secondary py-1 pl-1 pr-3 transition-all hover:border-white/[0.08]"
                         >
                             <img
                                 src={session.profile_image_url ?? staticPath('/img/logo.svg')}
                                 alt=""
-                                className="h-8 w-8 shrink-0 rounded-full border border-white/[0.08] object-cover"
+                                className="h-8 w-8 shrink-0 rounded-full border border-white/[0.04] object-cover ring-2 ring-transparent transition-all group-hover:ring-white/10"
                             />
-                            <span className="hidden max-w-[120px] truncate text-[0.8125rem] font-semibold text-[#fafafa] md:inline">
+                            <span className="hidden max-w-[120px] truncate text-[0.85rem] font-medium text-zinc-300 transition-colors group-hover:text-zinc-100 md:inline">
                                 {displayName}
                             </span>
-                            <DropdownChevron className="hidden size-4 shrink-0 text-[#71717a] transition-transform md:block" />
+                            <DropdownChevron className="hidden size-4 shrink-0 text-zinc-500 transition-colors group-hover:text-zinc-300 md:block" />
                         </DropdownTrigger>
 
                         <DropdownPanel widthClassName="w-[230px]" zIndex={1000} className="rounded-2xl">

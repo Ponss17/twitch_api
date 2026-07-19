@@ -1,4 +1,5 @@
-import { Copy, Gauge, Clock, Crown, Hash } from 'lucide-react';
+import { Copy, Gauge, Clock, Crown, Hash, Check } from 'lucide-react';
+import { useState } from 'react';
 import { SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
 
 interface SettingsAccountSectionProps {
@@ -22,23 +23,44 @@ export function SettingsAccountSection({
     hasCustomCacheTtl,
     onCopyId
 }: SettingsAccountSectionProps) {
+    const [isIdCopied, setIsIdCopied] = useState(false);
+
+    const handleCopyId = () => {
+        onCopyId();
+        setIsIdCopied(true);
+        setTimeout(() => setIsIdCopied(false), 2000);
+    };
+
     return (
         <>
             <SettingsRow
                 title="User ID"
                 icon={Hash}
                 description="Identificador de tu cuenta de Twitch vinculado a LosPerris."
-                control={
+            >
+                <div className="flex w-full overflow-hidden rounded-lg border border-white/[0.06] bg-bg-secondary transition focus-within:border-primary">
+                    <input
+                        readOnly
+                        type="text"
+                        value={userId ?? '---'}
+                        className="flex-1 border-none bg-transparent px-3 py-2 font-[Consolas,monospace] text-[0.85rem] text-zinc-300 outline-none"
+                        aria-label="User ID"
+                    />
                     <button
                         type="button"
-                        onClick={onCopyId}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 font-[Consolas,monospace] text-[0.8rem] font-semibold text-zinc-300 transition hover:border-primary/40 hover:text-primary"
+                        onClick={handleCopyId}
+                        title="Copiar User ID"
+                        className="flex items-center justify-center gap-1.5 border-l border-white/[0.05] bg-white/[0.02] px-3 text-[0.82rem] text-zinc-400 transition hover:bg-primary/10 hover:text-primary"
                     >
-                        <Copy className="h-3.5 w-3.5" aria-hidden="true" />
-                        {userId ?? '---'}
+                        {isIdCopied ? (
+                            <Check className="h-4 w-4" aria-hidden="true" />
+                        ) : (
+                            <Copy className="h-4 w-4" aria-hidden="true" />
+                        )}
+                        {isIdCopied ? 'Copiado' : 'Copiar'}
                     </button>
-                }
-            />
+                </div>
+            </SettingsRow>
 
             <SettingsRow
                 title="Plan y cuota"
