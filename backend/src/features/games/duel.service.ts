@@ -1,3 +1,4 @@
+import { waitUntil } from '@vercel/functions';
 import { logger } from '../../core/utils/logger';
 
 interface Scenario {
@@ -229,6 +230,7 @@ export const scheduleNightbotFollowUps = (
             await sleep(intervalMs);
             try {
                 await postNightbotMessage(responseUrl, followUps[i]);
+                logger.info(`Duelo Nightbot: mensaje #${i + 2} enviado`);
             } catch (err) {
                 logger.error(`Error enviando mensaje Nightbot de duelo #${i + 2}:`, err);
             }
@@ -238,15 +240,16 @@ export const scheduleNightbotFollowUps = (
     return run();
 };
 
-/** Mantiene viva la función en Vercel tras responder; en local el proceso sigue vivo. */
+/**
+ * Mantiene viva la función en Vercel tras responder.
+ * waitUntil debe registrarse de forma síncrona ANTES de res.send.
+ */
 export const keepAliveAfterResponse = (work: Promise<unknown>): void => {
-    void import('@vercel/functions')
-        .then(({ waitUntil }) => {
-            waitUntil(work);
-        })
-        .catch(() => {
-            void work;
-        });
+    try {
+        waitUntil(work);
+    } catch {
+        void work;
+    }
 };
 
 export const getNightbotResponseUrl = (headers: Record<string, unknown>): string | null => {
