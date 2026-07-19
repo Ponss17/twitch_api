@@ -43,6 +43,7 @@
         "@supabase/supabase-js": "^2.107.0",
         "@tailwindcss/vite": "^4.3.0",
         "@upstash/redis": "^1.38.0",
+        "@vercel/functions": "^3.7.5",
         "@vercel/speed-insights": "^2.0.0",
         "astro": "^7.0.7",
         "axios": "^1.15.2",

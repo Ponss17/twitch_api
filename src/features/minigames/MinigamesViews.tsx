@@ -251,8 +251,8 @@ export function DuelView() {
             <MinigameCard
                 icon={Swords}
                 title="Duelo 1vs1"
-                description="Simula un duelo 1vs1 rápido"
-                info="Prueba el comando !duelo directamente desde aquí."
+                description="Nightbot: 3 mensajes. Otros bots: 1 línea"
+                info="Prueba aquí el relato. En Nightbot el chat verá reto → pelea → ganador (~5 s)."
                 staggered
             >
                 <div className={formGrid}>

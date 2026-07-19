@@ -140,12 +140,14 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
         let challenger = (req.query.challenger as string) || 'KeanuReeves';
         if (challenger?.includes('$(') || challenger?.includes('${')) challenger = 'Anónimo';
 
-        // Fallback para tracking si no hay sesión
         let effectiveUserId = req.userId;
         if (!effectiveUserId) {
             const fallback = await getFallbackAuth(req);
             effectiveUserId = fallback?.userId || ANONYMOUS_USER_ID;
         }
+
+        const rawInterval = parseInt(String(req.query.interval ?? '5'), 10);
+        const intervalSec = Number.isFinite(rawInterval) ? rawInterval : 5;
 
         const result = await trackRequest(
             effectiveUserId,
@@ -159,6 +161,19 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
             req
         );
 
+        // Nightbot: 1er mensaje en el body del urlfetch; 2 y 3 vía Nightbot-Response-Url (como rokbot).
+        const nightbotUrl = duelService.getNightbotResponseUrl(
+            req.headers as Record<string, unknown>
+        );
+        if (nightbotUrl && result.messages?.length > 1) {
+            const [first, ...rest] = result.messages;
+            duelService.keepAliveAfterResponse(
+                duelService.scheduleNightbotFollowUps(nightbotUrl, rest, intervalSec)
+            );
+            return res.send(first);
+        }
+
+        // StreamElements / Fossabot / preview: un solo mensaje (esos bots no tienen Response-Url).
         res.send(result.message);
     } catch (error) {
         logger.error('Error en startDuel:', error);

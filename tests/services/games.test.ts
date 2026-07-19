@@ -15,12 +15,16 @@ import { playRussianRoulette } from '../../backend/src/features/games/russian.se
 
 describe('juegos (duel, russian roulette)', () => {
     describe('playDuel', () => {
-        it('retorna ganador y perdedor diferentes y un mensaje válido', async () => {
-            const { winner, loser, message } = await playDuel('u1', 'u2');
+        it('retorna ganador, perdedor, 3 mensajes y relato unido', () => {
+            const { winner, loser, message, messages } = playDuel('u1', 'u2');
 
             expect(winner).not.toBe(loser);
             expect(['u1', 'u2']).toContain(winner);
             expect(['u1', 'u2']).toContain(loser);
+            expect(messages).toHaveLength(3);
+            expect(messages[0]).toContain('@u1');
+            expect(messages[0]).toContain('@u2');
+            expect(message).toMatch(/^⚔️ /);
             expect(message).toContain(winner);
             expect(message).toContain(loser);
         });

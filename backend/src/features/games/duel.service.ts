@@ -1,101 +1,259 @@
+import { logger } from '../../core/utils/logger';
+
 interface Scenario {
     name: string;
-    messages: string[];
+    /** Secuencias de 3 beats: reto → pelea → resultado */
+    sequences: [string, string, string][];
 }
 
 const SCENARIOS: Scenario[] = [
     {
         name: 'Western',
-        messages: [
-            'El sol está en lo más alto. {w} y {l} se miran fijamente, las manos sobre sus revólveres. Una planta rodadora cruza el camino... ¡BANG! El humo se disipa y {w} guarda su arma mientras {l} cae derrotado en el polvo.',
-            'Entran al Saloon. La música se detiene. {w} rompe una botella contra la barra. {l} intenta desenfundar pero es muy lento. Un solo disparo de {w} resuena en todo el pueblo. Adiós vaquero.',
-            'Duelo al amanecer. {w} escupe tabaco al suelo con desprecio. {l} tiembla visiblemente. "Cuenta hasta tres", dice el sheriff. Al dos, {w} ya había disparado. Nadie hace trampas mejor que {w}.'
+        sequences: [
+            [
+                '{c} ha retado a {t} a un duelo a muerte en el Viejo Oeste...',
+                'El sol está en lo más alto. Ambos se miran fijamente, las manos sobre sus revólveres. Una planta rodadora cruza el camino...',
+                '¡BANG! El humo se disipa y {w} guarda su arma mientras {l} cae derrotado en el polvo.'
+            ],
+            [
+                '{c} reta a {t} frente al Saloon. La música se detiene...',
+                '{c} y {t} esperan. El sheriff cuenta: uno... dos...',
+                'Al tres, {w} ya había disparado. {l} no tuvo oportunidad. Adiós vaquero.'
+            ]
         ]
     },
     {
         name: 'Magic',
-        messages: [
-            'Los grimorios se abren. {l} intenta conjurar un escudo, pero {w} pronuncia las palabras prohibidas del Vacío. Una explosión de energía arcana consume a {l}, dejándolo convertido en un sapo inofensivo.',
-            '{w} alza su bastón invocando el poder de los ancestros. El cielo se oscurece. Un rayo fulminante cae directamente sobre {l}, quien ni siquiera tuvo tiempo de terminar su hechizo de protección.',
-            'Duelo de varitas. Luces rojas y verdes chocan en el aire. {l} pierde la concentración por un segundo y el "Expelliarmus" de {w} lo manda volando contra la pared. La victoria es para la casa de {w}.'
+        sequences: [
+            [
+                '{c} desafía a {t} a un duelo de hechiceros...',
+                'Los grimorios se abren. Chispas arcanas llenan el aire. Ambos levantan sus bastones...',
+                '{w} pronuncia las palabras prohibidas del Vacío. {l} queda convertido en un sapo inofensivo.'
+            ],
+            [
+                '{c} alza su varita contra {t}. ¡Duelo mágico!',
+                'Luces rojas y verdes chocan en el aire. La pelea es pareja... por un segundo.',
+                'El hechizo de {w} manda a {l} volando contra la pared. Victoria para {w}.'
+            ]
         ]
     },
     {
         name: 'Sci-Fi',
-        messages: [
-            'En la plataforma orbital, {w} activa su sable de luz carmesí. {l} intenta usar la Fuerza, pero {w} es demasiado rápido. Un zumbido, un destello, y {l} cae derrotado. El Lado Oscuro siempre gana.',
-            '{w} carga su cañón de plasma. {l} activa sus propulsores para huir, pero el sistema de fijación de blanco de {w} es infalible. Un disparo certero desintegra la armadura de {l}. Game Over.',
-            'La simulación comienza. {w} hackea el sistema de soporte vital de {l}. "Tu firewall es patético", se ríe {w} mientras {l} se desconecta forzosamente de la Matrix. Victoria digital.'
+        sequences: [
+            [
+                '{c} ha retado a {t} a un duelo en la plataforma orbital...',
+                'Sables de luz se encienden. Ambos dan vueltas midiendo al oponente...',
+                'Un zumbido, un destello, y {w} derrota a {l}. El Lado Oscuro siempre gana.'
+            ],
+            [
+                '{c} fija el blanco en {t}. Cañones de plasma listos...',
+                'Los propulsores rugen. El sistema de fijación de blanco parpadea en rojo...',
+                'Disparo certero de {w}. La armadura de {l} se desintegra. Game Over.'
+            ]
         ]
     },
     {
         name: 'Anime',
-        messages: [
-            '{w} aparece detrás de {l} en un parpadeo. "Omae wa mou shindeiru", susurra. {l} grita "NANI?!?" antes de explotar en mil pedazos. Una victoria técnica impecable.',
-            'Durante tres episodios, {w} ha estado cargando su ataque. {l} se quedó mirando. Finalmente, {w} lanza un rayo de energía que se ve desde el espacio, desintegrando a {l} por completo.',
-            '{w} saca una libreta negra y una pluma. Escribe el nombre de {l} mientras come una manzana. Cuarenta segundos después, {l} se lleva la mano al pecho y cae al suelo. Justicia divina.'
+        sequences: [
+            [
+                '{c} ha retado a {t} a un duelo a muerte...',
+                'La tensión sube. El aura de ambos se intensifica. El suelo tiembla...',
+                '{w} aparece detrás de {l}. "Omae wa mou shindeiru". {l} grita "NANI?!?" y cae derrotado.'
+            ],
+            [
+                '{c} desafía a {t}. El poder se está cargando...',
+                'Durante lo que parecen tres episodios, la energía acumula. El chat contiene la respiración...',
+                '{w} lanza un rayo que se ve desde el espacio. {l} queda desintegrado. Victoria épica.'
+            ]
         ]
     },
     {
         name: 'Street',
-        messages: [
-            '{l} intenta intimidar, pero {w} saca una chancla legendaria de nivel 100. El sonido del impacto resuena por todo el barrio. {l} ha sido enviado a dormir con una marca roja en la cara.',
-            '{w} saca un pez espada congelado de la nada y golpea a {l} con una precisión quirúrgica. Es la humillación definitiva. {l} huye llorando mientras {w} posa triunfalmente.',
-            'Pelea a puño limpio. {l} lanza un golpe, {w} lo esquiva como en Matrix y contraataca con un derechazo que reinicia el sistema operativo de {l}. Windows XP apagándose.'
+        sequences: [
+            [
+                '{c} ha retado a {t} a un duelo callejero...',
+                'Se miran de frente. Nadie parpadea. El barrio entero se reúne a ver...',
+                '{w} saca la chancla legendaria de nivel 100. {l} queda KO con una marca roja en la cara.'
+            ],
+            [
+                '{c} vs {t}. Pelea a puño limpio en la esquina...',
+                '{t} lanza un golpe. El aire silba. ¿Conectará?',
+                '{w} esquiva como en Matrix y contraataca. {l} queda reiniciado. Victoria.'
+            ]
         ]
     },
     {
         name: 'Gaming',
-        messages: [
-            '{w} hace un 360 no-scope desde la otra punta del mapa. La killcam muestra la humillación total de {l}. "Desinstala el juego", escribe {w} en el chat global.',
-            'Final de la carrera. {w} lanza un caparazón azul justo cuando {l} iba a cruzar la meta. La explosión lanza a {l} fuera de la pista. La amistad se ha roto para siempre.',
-            '{w} encierra a {l} en una caja de obsidiana y vierte un cubo de lava. No hay escapatoria. El inventario de {l} queda flotando en el fuego mientras {w} hace teabagging.'
+        sequences: [
+            [
+                '{c} ha retado a {t} a un 1v1 en el lobby...',
+                'La partida carga. Ambos buscan ángulo. El sniper brilla a lo lejos...',
+                '{w} hace un 360 no-scope. Killcam humillante para {l}. "Desinstala", escribe {w}.'
+            ],
+            [
+                '{c} lanza el guante a {t} en la carrera final...',
+                'Casi en la meta. Caparazones vuelan. La amistad está en peligro...',
+                '{w} conecta el azul justo a tiempo. {l} sale volando de la pista. Victoria.'
+            ]
         ]
     },
     {
         name: 'Epicas',
-        messages: [
-            '{w} y {l} chocan en el aire, creando una onda expansiva que rompe las ventanas del chat. Tras un intercambio de golpes a la velocidad de la luz, {w} conecta un puñetazo que manda a {l} a la estratosfera.',
-            'El suelo tiembla. {w} invoca un dragón ancestral que incinera el campo de batalla. {l} intenta protegerse, pero las llamas son demasiado intensas. Solo quedan cenizas donde estaba {l}.',
-            'Bajo la lluvia torrencial, las espadas de {w} y {l} chocan. El acero ruge. En un movimiento final, {w} rompe la guardia de {l} y termina el duelo con un corte limpio. Honor y gloria para {w}.'
+        sequences: [
+            [
+                '{c} ha retado a {t} a un duelo legendario...',
+                'Chocan en el aire. Una onda expansiva rompe las ventanas del chat...',
+                'Tras golpes a la velocidad de la luz, {w} manda a {l} a la estratosfera.'
+            ],
+            [
+                '{c} desafía a {t}. El suelo tiembla...',
+                'Un dragón ancestral aparece sobre el campo de batalla. Las llamas crecen...',
+                '{w} controla al dragón. Solo quedan cenizas donde estaba {l}.'
+            ]
         ]
     },
     {
         name: 'Mitologia',
-        messages: [
-            '{w}, empuñando el Mjolnir, invoca una tormenta eléctrica. {l} es golpeado por un rayo divino, y su cuerpo sale volando hacia el Valhalla (o quizás solo al hospital).',
-            '{l} mira a los ojos de {w} y se convierte en piedra. Resulta que {w} tenía la cabeza de Medusa en la mochila. Una victoria táctica y petrificante.',
-            '{w} abre las aguas del mar como Moisés y las deja caer sobre {l}. La presión del océano aplasta a {l} bajo toneladas de agua salada. {w} camina sobre el agua celebrando.'
+        sequences: [
+            [
+                '{c} ha retado a {t} ante los dioses...',
+                'Truenos en el cielo. El Mjolnir brilla. Ambos se preparan para el juicio divino...',
+                '{w} invoca el rayo. {l} sale volando hacia el Valhalla (o al hospital).'
+            ],
+            [
+                '{c} mira fijamente a {t}. Algo no cuadra...',
+                'La tensión mitológica crece. ¿Quién tiene el artefacto prohibido?',
+                '{w} saca la cabeza de Medusa. {l} se convierte en piedra. Victoria petrificante.'
+            ]
         ]
     },
     {
         name: 'Cine',
-        messages: [
-            '{w} dice "Hasta la vista, baby" y dispara un lanzagranadas. {l} explota en cámara lenta mientras {w} se pone unas gafas de sol y camina sin mirar atrás.',
-            'Es la batalla final. {l} tiene el terreno alto ("It\'s over {w}! I have the high ground!"), pero {w} subestima el poder de su salto y lo corta por la mitad en el aire.',
-            '{w} está acorralado, pero saca un lápiz... ¡UN LÁPIZ! Con pura precisión de John Wick, {w} derrota a {l} usando solo material de oficina. Nadie toca al perro de {w}.'
+        sequences: [
+            [
+                '{c} ha retado a {t} a un duelo de película...',
+                'Cámara lenta. Música épica. Ambos caminan uno hacia el otro...',
+                '{w} dice "Hasta la vista, baby" y gana. {l} explota en cámara lenta.'
+            ],
+            [
+                '{c} vs {t}. Es la batalla final...',
+                '"It\'s over!" grita uno desde el terreno alto. El salto decide el destino...',
+                '{w} conecta el golpe decisivo. {l} queda fuera. Créditos finales.'
+            ]
         ]
     }
 ];
 
-export const playDuel = (challenger: string, target: string) => {
+const at = (name: string) => `@${name.replace(/^@/, '')}`;
+
+const fillPlaceholders = (
+    text: string,
+    vars: { c: string; t: string; w: string; l: string }
+): string =>
+    text
+        .replace(/\{c\}/g, at(vars.c))
+        .replace(/\{t\}/g, at(vars.t))
+        .replace(/\{w\}/g, at(vars.w))
+        .replace(/\{l\}/g, at(vars.l));
+
+/** Nightbot chat message hard limit */
+const NIGHTBOT_MSG_MAX = 400;
+
+export const truncateForNightbot = (text: string): string =>
+    text.length <= NIGHTBOT_MSG_MAX ? text : `${text.slice(0, NIGHTBOT_MSG_MAX - 1)}…`;
+
+export type DuelResult = {
+    winner: string;
+    loser: string;
+    messages: string[];
+    /** Relato unido (fallback SE/Fossabot / preview) */
+    message: string;
+};
+
+export const playDuel = (challenger: string, target: string): DuelResult => {
     const isChallengerWinner = Math.random() < 0.5;
 
-    const winner = isChallengerWinner ? challenger : target;
-    const loser = isChallengerWinner ? target : challenger;
-    const randomScenario = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)];
-    const rawMessage =
-        randomScenario.messages[Math.floor(Math.random() * randomScenario.messages.length)];
-    const cleanWinner = winner.replace(/^@/, '');
-    const cleanLoser = loser.replace(/^@/, '');
+    const cleanChallenger = challenger.replace(/^@/, '');
+    const cleanTarget = target.replace(/^@/, '');
+    const winner = isChallengerWinner ? cleanChallenger : cleanTarget;
+    const loser = isChallengerWinner ? cleanTarget : cleanChallenger;
 
-    const finalMessage = rawMessage
-        .replace(/{w}/g, `@${cleanWinner}`)
-        .replace(/{l}/g, `@${cleanLoser}`);
+    const scenario = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)];
+    const sequence = scenario.sequences[Math.floor(Math.random() * scenario.sequences.length)];
+
+    const vars = { c: cleanChallenger, t: cleanTarget, w: winner, l: loser };
+    const messages = sequence.map((line) => truncateForNightbot(fillPlaceholders(line, vars)));
 
     return {
-        winner: cleanWinner,
-        loser: cleanLoser,
-        message: `⚔️ ${finalMessage}`
+        winner,
+        loser,
+        messages,
+        message: truncateForNightbot(`⚔️ ${messages.join(' ')}`)
     };
+};
+
+const MIN_INTERVAL_SEC = 5;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * POST a Nightbot-Response-Url (mismo mecanismo que rokbot/smm.php).
+ * Nightbot publica el mensaje como el bot.
+ */
+export const postNightbotMessage = async (responseUrl: string, message: string): Promise<void> => {
+    const body = new URLSearchParams({ message: truncateForNightbot(message) });
+    const res = await fetch(responseUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body
+    });
+    if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(`Nightbot send ${res.status}: ${text.slice(0, 200)}`);
+    }
+};
+
+/**
+ * Tras devolver el 1er mensaje en el body del urlfetch, agenda el resto vía Response-Url.
+ * No bloquea la respuesta HTTP (usa delays en background).
+ */
+export const scheduleNightbotFollowUps = (
+    responseUrl: string,
+    followUps: string[],
+    intervalSec: number = MIN_INTERVAL_SEC
+): Promise<void> => {
+    const intervalMs = Math.max(MIN_INTERVAL_SEC, intervalSec) * 1000;
+
+    const run = async () => {
+        for (let i = 0; i < followUps.length; i++) {
+            await sleep(intervalMs);
+            try {
+                await postNightbotMessage(responseUrl, followUps[i]);
+            } catch (err) {
+                logger.error(`Error enviando mensaje Nightbot de duelo #${i + 2}:`, err);
+            }
+        }
+    };
+
+    return run();
+};
+
+/** Mantiene viva la función en Vercel tras responder; en local el proceso sigue vivo. */
+export const keepAliveAfterResponse = (work: Promise<unknown>): void => {
+    void import('@vercel/functions')
+        .then(({ waitUntil }) => {
+            waitUntil(work);
+        })
+        .catch(() => {
+            void work;
+        });
+};
+
+export const getNightbotResponseUrl = (headers: Record<string, unknown>): string | null => {
+    const raw = headers['nightbot-response-url'] ?? headers['Nightbot-Response-Url'];
+    if (typeof raw === 'string' && raw.startsWith('http')) return raw;
+    if (Array.isArray(raw) && typeof raw[0] === 'string' && raw[0].startsWith('http')) {
+        return raw[0];
+    }
+    return null;
 };
