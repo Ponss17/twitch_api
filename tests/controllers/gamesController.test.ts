@@ -16,7 +16,10 @@ jest.mock('../../backend/src/features/games/russian.service', () => ({
 }));
 
 jest.mock('../../backend/src/features/games/duel.service', () => ({
-    playDuel: jest.fn()
+    playDuel: jest.fn(),
+    getNightbotResponseUrl: jest.fn().mockReturnValue(null),
+    scheduleNightbotFollowUps: jest.fn().mockResolvedValue(undefined),
+    keepAliveAfterResponse: jest.fn()
 }));
 
 jest.mock('@/core/utils/twitchAuthHelpers', () => ({
@@ -30,7 +33,12 @@ jest.mock('@/core/utils/logger', () => ({
 import * as dbService from '../../backend/src/core/database/dbService';
 import { generateMagic8Response } from '../../backend/src/features/games/magic8.service';
 import { playRussianRoulette } from '../../backend/src/features/games/russian.service';
-import { playDuel } from '../../backend/src/features/games/duel.service';
+import {
+    playDuel,
+    getNightbotResponseUrl,
+    scheduleNightbotFollowUps,
+    keepAliveAfterResponse
+} from '../../backend/src/features/games/duel.service';
 import { askMagic8, playRussian, startDuel } from '../../backend/src/features/games/games.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
@@ -122,7 +130,12 @@ describe('gamesController', () => {
             const req = mockReq({ query: { target: 'Enemy', challenger: 'Hero' } });
             const res = mockRes();
 
-            (playDuel as jest.Mock).mockResolvedValue({ message: '¡Hero gana!' });
+            (playDuel as jest.Mock).mockReturnValue({
+                message: '¡Hero gana!',
+                messages: ['a', 'b', 'c'],
+                winner: 'Hero',
+                loser: 'Enemy'
+            });
 
             await startDuel(req, res);
 
@@ -131,18 +144,55 @@ describe('gamesController', () => {
                 '123',
                 expect.objectContaining({ type: 'duel', user: 'Hero', metadata: { target: 'Enemy' } })
             );
+            // Sin Nightbot-Response-Url → un solo mensaje
             expect(res.send).toHaveBeenCalledWith('¡Hero gana!');
+            expect(scheduleNightbotFollowUps).not.toHaveBeenCalled();
         });
 
         it('should use default challenger name if not provided', async () => {
             const req = mockReq({ query: { target: 'Enemy' } });
             const res = mockRes();
 
-            (playDuel as jest.Mock).mockResolvedValue({ message: 'Keanu Reeves gana!' });
+            (playDuel as jest.Mock).mockReturnValue({
+                message: 'Keanu Reeves gana!',
+                messages: ['a', 'b', 'c'],
+                winner: 'KeanuReeves',
+                loser: 'Enemy'
+            });
 
             await startDuel(req, res);
 
             expect(playDuel).toHaveBeenCalledWith('KeanuReeves', 'Enemy');
+        });
+
+        it('should chain Nightbot messages via Response-Url', async () => {
+            const responseUrl = 'https://api.nightbot.tv/1/channel/send/token';
+            (getNightbotResponseUrl as jest.Mock).mockReturnValue(responseUrl);
+
+            const req = mockReq({
+                query: { target: 'Enemy', challenger: 'Hero', interval: '5' }
+            });
+            const res = mockRes();
+            const messages = ['reto', 'pelea', 'ganador'];
+
+            (playDuel as jest.Mock).mockReturnValue({
+                message: '⚔️ reto pelea ganador',
+                messages,
+                winner: 'Hero',
+                loser: 'Enemy'
+            });
+
+            await startDuel(req, res);
+
+            expect(res.send).toHaveBeenCalledWith('reto');
+            expect(scheduleNightbotFollowUps).toHaveBeenCalledWith(
+                responseUrl,
+                ['pelea', 'ganador'],
+                5
+            );
+            expect(keepAliveAfterResponse).toHaveBeenCalled();
+
+            (getNightbotResponseUrl as jest.Mock).mockReturnValue(null);
         });
     });
 });

@@ -149,8 +149,8 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
         id: 'duel',
         title: 'Comando !duelo',
         icon: Swords,
-        desc: 'Juego de Duelo 1vs1 para el chat',
-        info: 'Tus viewers podrán retarse a duelos narrativos escribiendo !duelo @usuario.',
+        desc: 'Duelo 1vs1 narrado (Nightbot: 3 mensajes)',
+        info: 'Con Nightbot el bot cuenta el duelo en 3 mensajes. En otros bots sale en una sola línea.',
         generate: (domain, login, tokenParam, bot, _templateVal, _queryParams) => {
             const botUtils = CommandGenerator.bots[bot];
             const challengerArg = botUtils.arg('user');
