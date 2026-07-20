@@ -123,10 +123,10 @@ describe('auth.service HMAC helpers', () => {
         (cacheService.setIfAbsent as jest.Mock).mockResolvedValueOnce('unavailable');
 
         const token = signAuthExchange({
-            apiKey: 'sk_test',
-            userId: 'user-1',
-            login: 'streamer',
-            displayName: 'Streamer'
+            apiKey: 'sk_test_prod',
+            userId: 'user-prod-down',
+            login: 'streamer-prod',
+            displayName: 'Streamer Prod'
         });
 
         expect(await consumeAuthExchangeToken(token)).toBe('unavailable');
