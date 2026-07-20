@@ -75,15 +75,3 @@ export function InstagramIcon({ className, ...props }: SVGProps<SVGSVGElement>) 
     );
 }
 
-
-export function PaypalIcon({ className, ...props }: ImgHTMLAttributes<HTMLImageElement>) {
-    return (
-        <img
-            src={staticPath('/img/paypal.svg')}
-            alt="PayPal"
-            className={className ? `block shrink-0 ${className}` : 'block shrink-0'}
-            aria-hidden="true"
-            {...props}
-        />
-    );
-}
