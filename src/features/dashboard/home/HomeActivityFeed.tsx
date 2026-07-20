@@ -1,5 +1,5 @@
 import { useMemo, useState, memo } from 'react';
-import { Filter, Radio, Terminal, LayoutGrid, Bot, Wrench, Swords, Activity } from 'lucide-react';
+import { Filter, Terminal, LayoutGrid, Bot, Wrench, Swords, Activity } from 'lucide-react';
 
 import { panelCard, fadeIn } from '@/core/utils/tw';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
@@ -141,12 +141,9 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                     {isLive ? (
-                        <div className="flex items-center gap-1.5">
-                            <Radio className="h-3 w-3 text-error" aria-hidden />
-                            <span className="animate-blink rounded bg-error px-1.5 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.1em] text-white">
-                                LIVE
-                            </span>
-                        </div>
+                        <span className="animate-blink rounded bg-error px-1.5 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.1em] text-white">
+                            LIVE
+                        </span>
                     ) : null}
                     <InfoTooltip
                         placement="bottom"
