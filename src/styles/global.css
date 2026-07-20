@@ -316,13 +316,33 @@ a:not([class]):not([role="button"]) {
   pointer-events: auto;
 }
 
-/* Toast Progress Bar Keyframes (usado vía Tailwind) */
+/* Toast Progress Bar (CSS Puro para evitar bugs de Tailwind) */
 @keyframes toast-progress {
   0% { width: 100%; }
   100% { width: 0%; }
+}
+
+.toast-with-progress {
+  position: relative;
+}
+
+.toast-with-progress::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  border-bottom-left-radius: 12px;
+  animation: toast-progress 4s linear forwards;
 }
 
 /* Pausar la barra de progreso cuando el mouse está encima del Toaster */
 .app-toaster-popover [data-sonner-toaster]:hover .toast-with-progress::after {
   animation-play-state: paused;
 }
+
+.toast-with-progress.progress-success::after { background-color: #10b981; } /* emerald-500 */
+.toast-with-progress.progress-error::after { background-color: #ef4444; } /* red-500 */
+.toast-with-progress.progress-warning::after { background-color: #f59e0b; } /* amber-500 */
+.toast-with-progress.progress-info::after { background-color: #8b5cf6; } /* violet-500 */
+.toast-with-progress.progress-loading::after { background-color: #a1a1aa; animation: none; width: 100%; }

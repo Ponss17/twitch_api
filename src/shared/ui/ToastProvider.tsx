@@ -81,20 +81,20 @@ export function AppToaster() {
                     style: { pointerEvents: 'auto' },
                     classNames: {
                         toast:
-                            'toast-with-progress relative after:absolute after:bottom-0 after:left-0 after:h-[3px] after:content-[\'\'] after:animate-[toast-progress_4s_linear_forwards] after:rounded-bl-xl !rounded-xl !border !border-white/10 !bg-[#141416] !px-4 !py-3.5 !text-sm !leading-snug !text-zinc-100 !shadow-[0_8px_30px_rgba(0,0,0,0.5)] !font-sans gap-2.5',
+                            'toast-with-progress !rounded-xl !border !border-white/10 !bg-[#141416] !px-4 !py-3.5 !text-sm !leading-snug !text-zinc-100 !shadow-[0_8px_30px_rgba(0,0,0,0.5)] !font-sans gap-2.5',
                         title: 'font-semibold tracking-tight',
                         description: '!text-[0.8125rem] !font-normal !text-white/55',
                         icon: 'mr-0.5',
                         closeButton:
                             '!left-auto !right-0 !top-0 !translate-x-[35%] !-translate-y-[35%] !border !border-white/12 !bg-[#1c1c1f] !text-zinc-400 hover:!border-white/20 hover:!bg-zinc-800 hover:!text-zinc-50',
                         success:
-                            'after:bg-emerald-500 !border-success/30 !bg-[#0f1a16] !text-emerald-50 [&_[data-icon]]:!text-success',
-                        error: 'after:bg-red-500 !border-error/40 !bg-[#1a1110] !text-red-50 [&_[data-icon]]:!text-error',
+                            'progress-success !border-success/30 !bg-[#0f1a16] !text-emerald-50 [&_[data-icon]]:!text-success',
+                        error: 'progress-error !border-error/40 !bg-[#1a1110] !text-red-50 [&_[data-icon]]:!text-error',
                         warning:
-                            'after:bg-amber-500 !border-warning/30 !bg-[#1a160e] !text-amber-50 [&_[data-icon]]:!text-warning',
-                        info: 'after:bg-violet-500 !border-primary/30 !bg-[#141218] !text-violet-50 [&_[data-icon]]:!text-primary',
+                            'progress-warning !border-warning/30 !bg-[#1a160e] !text-amber-50 [&_[data-icon]]:!text-warning',
+                        info: 'progress-info !border-primary/30 !bg-[#141218] !text-violet-50 [&_[data-icon]]:!text-primary',
                         loading:
-                            'after:bg-zinc-400 after:w-full after:animate-none !border-zinc-400/35 !bg-[#121214] !text-zinc-100 [&_[data-icon]]:!text-zinc-400'
+                            'progress-loading !border-zinc-400/35 !bg-[#121214] !text-zinc-100 [&_[data-icon]]:!text-zinc-400'
                     }
                 }}
             />
