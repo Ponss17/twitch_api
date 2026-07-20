@@ -315,3 +315,14 @@ a:not([class]):not([role="button"]) {
 .app-toaster-popover [data-sonner-toaster] {
   pointer-events: auto;
 }
+
+/* Toast Progress Bar Keyframes (usado vía Tailwind) */
+@keyframes toast-progress {
+  0% { width: 100%; }
+  100% { width: 0%; }
+}
+
+/* Pausar la barra de progreso cuando el mouse está encima del Toaster */
+.app-toaster-popover [data-sonner-toaster]:hover .toast-with-progress::after {
+  animation-play-state: paused;
+}
