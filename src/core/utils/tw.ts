@@ -99,7 +99,7 @@ export const dialogBase =
 export const clipPlayerPanel =
     'relative aspect-video w-full min-h-[300px] max-w-4xl overflow-hidden rounded-xl bg-black border border-white/10';
 
-export const modalPanel = 'relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c0c0e] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] animate-fade-soft before:absolute before:inset-0 before:pointer-events-none before:rounded-2xl before:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]';
+export const modalPanel = 'relative outline-none overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c0c0e] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] animate-fade-soft before:absolute before:inset-0 before:pointer-events-none before:rounded-2xl before:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]';
 
 export const modalHeader =
     'flex items-center justify-between px-6 pt-6 pb-4';
@@ -130,7 +130,7 @@ export const btnIcon =
     'rounded-lg border border-transparent bg-transparent px-2 py-1.5 text-[#c4c4cc] outline-none transition hover:bg-white/5 hover:text-[#fafafa] focus-visible:border-white/15 focus-visible:bg-white/5 focus-visible:text-[#fafafa] disabled:opacity-50';
 
 export const dangerModalPanel =
-    'relative overflow-hidden rounded-2xl border border-error/20 bg-[#0c0c0e] shadow-[0_20px_60px_-15px_rgba(239,68,68,0.2)] before:absolute before:inset-0 before:pointer-events-none before:rounded-2xl before:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]';
+    'relative outline-none overflow-hidden rounded-2xl border border-error/20 bg-[#0c0c0e] shadow-[0_20px_60px_-15px_rgba(239,68,68,0.2)] before:absolute before:inset-0 before:pointer-events-none before:rounded-2xl before:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]';
 
 export const dangerModalHeader =
     'flex items-center justify-between px-6 pt-6 pb-4';

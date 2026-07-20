@@ -3,6 +3,7 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
 import { panelCard } from '@/core/utils/tw';
 import { Heart, Video, Calendar } from 'lucide-react';
+import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
 
 interface SettingsHeroProps {
     followers?: number;
@@ -57,8 +58,9 @@ export function SettingsHero({
 
                     <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2.5">
-                            <h1 className="text-[1.7rem] font-bold leading-tight tracking-tight text-white md:text-[1.85rem]">
-                                Hola, <span className="text-[#9146ff]">{name}</span>
+                            <h1 className="flex items-center gap-2.5 text-[1.7rem] font-bold leading-tight tracking-tight text-white md:text-[1.85rem]">
+                                <TwitchIcon className="h-[1.65rem] w-[1.65rem] shrink-0 text-[#9146ff]" />
+                                <span>Hola, <span className="text-[#9146ff]">{name}</span></span>
                             </h1>
                         </div>
                         <p className="mt-1 text-[0.875rem] text-[#8b8b93]">
