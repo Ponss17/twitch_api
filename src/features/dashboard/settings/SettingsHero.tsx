@@ -1,6 +1,7 @@
 import { useRequiredSession } from '@/core/session/useSession';
-import { staticPath } from '@/core/config/paths';
+
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
+import { panelCard } from '@/core/utils/tw';
 import { Heart, Video, Calendar } from 'lucide-react';
 
 interface SettingsHeroProps {
@@ -41,41 +42,24 @@ export function SettingsHero({
     followers,
     broadcasterLabel,
     memberSince,
-    isLive,
+
     isLoading = false
 }: SettingsHeroProps) {
     const session = useRequiredSession();
     const name = session.displayName ?? session.login ?? 'Streamer';
 
     return (
-        <section className="relative mb-8 overflow-hidden rounded-xl border border-white/[0.03] bg-zinc-900/20 px-8 py-8 shadow-2xl shadow-black/20 backdrop-blur-xl">
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-primary/[0.04] via-transparent to-transparent" />
+        <section className={`relative mb-5 flex flex-col justify-center overflow-hidden ${panelCard} p-6`}>
+
 
             <div className="relative z-10 flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
                 <div className="flex items-center gap-4">
-                    <div className="relative shrink-0">
-                        <img
-                            src={session.profile_image_url ?? staticPath('/img/logo.svg')}
-                            alt=""
-                            className="h-[3.75rem] w-[3.75rem] rounded-xl border border-primary/40 object-cover"
-                            draggable={false}
-                            loading="eager"
-                        />
-                        {isLive !== undefined && (
-                            <span
-                                className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-bg-card ${isLive ? 'bg-emerald-500' : 'bg-zinc-500'}`}
-                                title={isLive ? 'En vivo' : 'Desconectado'}
-                            />
-                        )}
-                    </div>
+
                     <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2.5">
                             <h1 className="text-[1.7rem] font-bold leading-tight tracking-tight text-white md:text-[1.85rem]">
-                                Hola, <span className="text-primary">{name}</span>
+                                Hola, <span className="text-[#9146ff]">{name}</span>
                             </h1>
-                            <span className="rounded-md border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[0.7rem] font-bold uppercase tracking-wider text-primary">
-                                {broadcasterLabel}
-                            </span>
                         </div>
                         <p className="mt-1 text-[0.875rem] text-[#8b8b93]">
                             Bienvenido a tu panel · actividad y accesos rápidos
@@ -83,11 +67,11 @@ export function SettingsHero({
                     </div>
                 </div>
 
-                <div className="flex w-full flex-wrap gap-y-4 border-t border-white/[0.06] pt-4 xl:w-auto xl:min-w-[29rem] xl:justify-end xl:border-0 xl:pt-0">
+                <div className="flex w-full flex-wrap gap-y-4 rounded-xl bg-white/[0.02] p-4 border border-white/[0.02] xl:w-auto xl:min-w-[29rem] xl:justify-end">
                     <div className="pr-6">
                         <ProfileStat
                             icon={Heart}
-                            iconClass="border-primary/25 bg-transparent text-primary"
+                            iconClass="text-[#9146ff]"
                             label="Seguidores"
                         >
                             {followers === undefined && !isLoading ? (
@@ -106,22 +90,22 @@ export function SettingsHero({
                             )}
                         </ProfileStat>
                     </div>
-                    <div className="border-l border-white/[0.08] px-6">
+                    <div className="border-l border-white/[0.06] px-6">
                         <ProfileStat
                             icon={Video}
-                            iconClass="border-primary/25 bg-transparent text-primary"
-                            label="Tipo canal"
+                            iconClass="text-[#9146ff]"
+                            label="Tipo Canal"
                         >
                             <span className="text-[1.4rem] font-bold leading-none tracking-tight text-white">
                                 {broadcasterLabel}
                             </span>
                         </ProfileStat>
                     </div>
-                    <div className="border-l border-white/[0.08] pl-6">
+                    <div className="border-l border-white/[0.06] pl-6">
                         <ProfileStat
                             icon={Calendar}
-                            iconClass="border-primary/25 bg-transparent text-primary"
-                            label="Miembro desde"
+                            iconClass="text-[#9146ff]"
+                            label="Miembro Desde"
                         >
                             <span className="text-[1.4rem] font-bold leading-none tracking-tight text-white">
                                 {memberSince}

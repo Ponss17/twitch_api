@@ -25,6 +25,27 @@ interface DashboardHeaderProps {
     mobileMenuOpen?: boolean;
 }
 
+function getTabSubtitle(tab: string, _name: string): string {
+    switch (tab) {
+        case 'home': {
+            return `Resumen general y métricas en tiempo real de tu canal.`;
+        }
+        case 'analytics': return 'Mide el impacto y rendimiento de tus comandos en vivo.';
+        case 'followage': return 'Configura el comando para ver cuánto llevan siguiéndote.';
+        case 'clips': return 'Permite a tus viewers crear clips rápidos en tu canal.';
+        case 'shoutout': return 'Promociona y dale amor a otros streamers fácilmente.';
+        case 'trends': return 'Descubre las palabras y temas más mencionados en tu chat.';
+        case 'stalker': return 'Busca información pública detallada de cuentas de Twitch.';
+        case 'roulette': return 'Organiza sorteos y decisiones al azar con tu audiencia.';
+        case 'magic8': return 'Deja que el azar responda las dudas existenciales de tu chat.';
+        case 'russian': return 'Un minijuego letal de azar. ¿Quién sobrevivirá?';
+        case 'duel': return 'Combates entre viewers. Configura las probabilidades.';
+        case 'feedback': return 'Ayúdanos a mejorar contándonos qué te gustaría ver.';
+        case 'settings': return 'Ajustes generales de tu cuenta y preferencias.';
+        default: return 'Gestiona las herramientas de tu stream.';
+    }
+}
+
 export function DashboardHeader({
     tab,
     onSettings,
@@ -39,7 +60,7 @@ export function DashboardHeader({
 
     return (
         <header className="w-full pt-4">
-            <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 md:px-8 lg:px-12 xl:px-16">
+            <div className="mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-4 px-4 md:px-8 lg:px-12 xl:px-16">
                 <button
                     type="button"
                     onClick={onMenuToggle}
@@ -51,25 +72,33 @@ export function DashboardHeader({
                     <Menu className="h-5 w-5" />
                 </button>
 
-                <h1 className="flex flex-1 items-center gap-3 text-[1.4rem] font-semibold tracking-tight text-zinc-100 md:text-[1.6rem]">
-                    {meta.title}
-                </h1>
+                <div className="flex flex-1 flex-col justify-center">
+                    <div className="flex items-center gap-2.5">
+                        <meta.icon className="h-[1.3rem] w-[1.3rem] text-[#9146ff]" />
+                        <h1 className="text-[1.35rem] font-semibold tracking-tight text-white md:text-[1.5rem]">
+                            {meta.title}
+                        </h1>
+                    </div>
+                    <p className="mt-1 hidden text-[0.85rem] text-zinc-400 md:block">
+                        {getTabSubtitle(tab, displayName)}
+                    </p>
+                </div>
 
                 <div className="flex items-center gap-2">
                     <Dropdown>
                         <DropdownTrigger
                             aria-label="Menú de cuenta"
-                            className="group flex items-center gap-2.5 rounded-xl border border-white/[0.04] bg-bg-secondary py-1 pl-1 pr-3 transition-all hover:border-white/[0.08]"
+                            className="group flex items-center gap-3 rounded-[1.1rem] border border-white/[0.04] bg-bg-secondary py-1.5 pl-1.5 pr-4 transition-all hover:border-white/[0.08] aria-expanded:border-[#9146ff]/40 aria-expanded:bg-white/[0.02]"
                         >
                             <img
                                 src={session.profile_image_url ?? staticPath('/img/logo.svg')}
                                 alt=""
-                                className="h-8 w-8 shrink-0 rounded-full border border-white/[0.04] object-cover ring-2 ring-transparent transition-all group-hover:ring-white/10"
+                                className="h-9 w-9 shrink-0 rounded-full border-[2px] border-transparent object-cover transition-all group-aria-expanded:border-[#9146ff] group-aria-expanded:ring-4 group-aria-expanded:ring-[#9146ff]/20"
                             />
-                            <span className="hidden max-w-[120px] truncate text-[0.85rem] font-medium text-zinc-300 transition-colors group-hover:text-zinc-100 md:inline">
+                            <span className="hidden max-w-[120px] truncate text-[0.9rem] font-medium text-zinc-300 transition-colors group-hover:text-zinc-100 group-aria-expanded:text-white md:inline">
                                 {displayName}
                             </span>
-                            <DropdownChevron className="hidden size-4 shrink-0 text-zinc-500 transition-colors group-hover:text-zinc-300 md:block" />
+                            <DropdownChevron className="hidden size-4 shrink-0 text-zinc-500 transition-colors group-hover:text-zinc-300 group-aria-expanded:text-[#9146ff] md:block" />
                         </DropdownTrigger>
 
                         <DropdownPanel widthClassName="w-[230px]" zIndex={1000} className="rounded-2xl">
