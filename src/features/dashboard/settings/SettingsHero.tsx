@@ -59,7 +59,7 @@ export function SettingsHero({
                     <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2.5">
                             <h1 className="flex items-center gap-2.5 text-[1.7rem] font-bold leading-tight tracking-tight text-white md:text-[1.85rem]">
-                                <TwitchIcon className="h-8 w-8 shrink-0 text-[#9146ff] md:h-9 md:w-9" />
+                                <TwitchIcon className="h-7 w-7 shrink-0 text-[#9146ff] md:h-8 md:w-8" />
                                 <span>Hola, <span className="text-[#9146ff]">{name}</span></span>
                             </h1>
                         </div>
