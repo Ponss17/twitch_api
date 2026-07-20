@@ -81,7 +81,7 @@ export function AppToaster() {
                     style: { pointerEvents: 'auto' },
                     classNames: {
                         toast:
-                            'toast-with-progress relative overflow-hidden after:absolute after:bottom-0 after:left-0 after:h-[3px] after:content-[\'\'] after:animate-[toast-progress_4s_linear_forwards] !rounded-xl !border !border-white/10 !bg-[#141416] !px-4 !py-3.5 !text-sm !leading-snug !text-zinc-100 !shadow-[0_8px_30px_rgba(0,0,0,0.5)] !font-sans gap-2.5',
+                            'toast-with-progress relative after:absolute after:bottom-0 after:left-0 after:h-[3px] after:content-[\'\'] after:animate-[toast-progress_4s_linear_forwards] after:rounded-bl-xl !rounded-xl !border !border-white/10 !bg-[#141416] !px-4 !py-3.5 !text-sm !leading-snug !text-zinc-100 !shadow-[0_8px_30px_rgba(0,0,0,0.5)] !font-sans gap-2.5',
                         title: 'font-semibold tracking-tight',
                         description: '!text-[0.8125rem] !font-normal !text-white/55',
                         icon: 'mr-0.5',
