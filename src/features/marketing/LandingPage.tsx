@@ -142,7 +142,7 @@ export function LandingPage() {
         void (async () => {
             const params = new URLSearchParams(window.location.search);
             const authParam = params.get('auth');
-            
+
             // Si hay token en la URL, redirigir al panel INMEDIATAMENTE para que lo consuma él.
             if (authParam) {
                 setIsVerifying(true);
@@ -217,20 +217,19 @@ export function LandingPage() {
     return (
         <div className={`relative flex flex-1 flex-col font-[Outfit,sans-serif] ${GRID_BG}`} style={GRID_STYLE}>
             <header
-                className={`fixed inset-x-0 top-0 z-[1000] border-b backdrop-blur-xl transition-colors duration-300 ${
-                    scrolled
+                className={`fixed inset-x-0 top-0 z-[1000] border-b backdrop-blur-xl transition-colors duration-300 ${scrolled
                         ? 'border-white/[0.08] bg-[#09090b]/90'
                         : 'border-white/[0.04] bg-[#09090b]/50'
-                }`}
+                    }`}
             >
-                <div className="mx-auto flex max-w-[1550px] flex-col items-center justify-between gap-3 px-4 py-3 md:flex-row md:gap-0 md:px-16 md:py-[0.9rem]">
+                <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-3 px-6 py-2 md:flex-row md:gap-0 md:px-8 md:py-3">
                     <a href={appPath('/')} className="flex items-center gap-3 text-inherit no-underline">
                         <AppLogo
                             alt="LosPerris"
-                            className="h-9 w-9 object-contain md:h-16 md:w-16"
+                            className="h-8 w-8 object-contain md:h-11 md:w-11"
                             draggable={false}
                         />
-                        <h1 className="m-0 text-xl font-extrabold tracking-tight md:text-[1.6rem]">
+                        <h1 className="m-0 text-lg font-extrabold tracking-tight md:text-2xl">
                             LosPerris <span className="text-[#9146ff]">Twitch Api</span>
                         </h1>
                     </a>
@@ -254,7 +253,7 @@ export function LandingPage() {
                 </div>
             </header>
 
-            <div className="relative z-[1] mx-auto w-full max-w-[1400px] flex-1 px-6 pt-12">
+            <div className="relative z-[1] mx-auto w-full max-w-[1400px] flex-1 px-6 md:px-8 pt-12">
                 <section className="grid min-h-0 items-center gap-16 py-24 md:min-h-[88vh] md:grid-cols-2 md:gap-16 md:py-0">
                     <div className="max-w-[600px] text-center md:text-left">
                         <div className="mb-7 inline-flex animate-fade-soft items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-3.5 py-1.5 text-[0.8125rem] font-medium tracking-wide text-[#c4c4cc] shadow-sm backdrop-blur-md transition-colors hover:border-white/[0.15] hover:bg-white/[0.04]">
@@ -264,15 +263,15 @@ export function LandingPage() {
                             </span>
                             Twitch API — v5
                         </div>
-                        <h2 
-                            className="mb-5 animate-fade-soft text-[clamp(2.8rem,4.5vw,4.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-[#fafafa] opacity-0 [animation-fill-mode:forwards]" 
+                        <h2
+                            className="mb-5 animate-fade-soft text-[clamp(2.8rem,4.5vw,4.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-[#fafafa] opacity-0 [animation-fill-mode:forwards]"
                             style={{ animationDelay: '100ms' }}
                         >
                             Comandos para tu
                             <br />
                             <span className="text-[#9146ff]">Stream.</span>
                         </h2>
-                        <p 
+                        <p
                             className="mb-8 animate-fade-soft text-lg leading-relaxed text-[#c4c4cc] opacity-0 [animation-fill-mode:forwards]"
                             style={{ animationDelay: '200ms' }}
                         >
@@ -290,7 +289,7 @@ export function LandingPage() {
                                 </>
                             )}
                         </p>
-                        <div 
+                        <div
                             className="mb-6 flex animate-fade-soft flex-wrap justify-center gap-4 opacity-0 [animation-fill-mode:forwards] md:justify-start"
                             style={{ animationDelay: '300ms' }}
                         >
@@ -340,7 +339,7 @@ export function LandingPage() {
                         </p>
                     </div>
 
-                    <div 
+                    <div
                         className="relative hidden animate-fade-soft items-center justify-center opacity-0 [animation-fill-mode:forwards] md:flex"
                         style={{ animationDelay: '400ms' }}
                     >
@@ -362,8 +361,8 @@ export function LandingPage() {
                                         {requestStatus === 'loading'
                                             ? 'Petición en curso...'
                                             : requestStatus === 'success'
-                                              ? 'Reintentar'
-                                              : 'Realizar Petición'}
+                                                ? 'Reintentar'
+                                                : 'Realizar Petición'}
                                     </button>
                                     <button
                                         type="button"
@@ -396,7 +395,7 @@ export function LandingPage() {
                                     <span className="text-white/60">sk_a1b...</span>
                                     <span>&quot;</span>
                                 </div>
-                                
+
                                 {requestStatus === 'loading' && (
                                     <div className="mt-4 flex items-center gap-2 text-[0.8rem] text-white/50 animate-pulse">
                                         <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#9146ff] border-t-transparent"></span>
@@ -472,12 +471,12 @@ export function LandingPage() {
                         <p className="mt-3 text-[#71717a]">Resuelve tus dudas sobre la API</p>
                     </div>
                     <div className="mx-auto flex max-w-[800px] flex-col">
-                        <Accordion 
+                        <Accordion
                             items={FAQ_ITEMS.map((item) => ({
                                 id: item.q,
                                 title: item.q,
                                 content: item.a
-                            }))} 
+                            }))}
                         />
                     </div>
                 </section>

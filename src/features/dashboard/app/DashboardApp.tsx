@@ -170,7 +170,7 @@ function DashboardAppShell() {
                         />
 
                         <main className="flex flex-1 flex-col overflow-y-auto py-8">
-                            <div className="mx-auto w-full max-w-7xl flex-1 px-4 md:px-8 lg:px-12 xl:px-16">
+                            <div className="mx-auto w-full max-w-[1440px] flex-1 px-4 md:px-8 lg:px-12 xl:px-16">
                                 <div className={fadeIn}>
                                     <DashboardPanelShell tab={tab} onNavigate={setTab} />
                                 </div>
