@@ -15,8 +15,8 @@
         "dev:fresh": "pnpm dev:clean && pnpm dev",
         "dev:api": "node scripts/check-env.js && tsx watch -r dotenv/config backend/src/serverless.ts",
         "dev:api:e2e": "tsx -r dotenv/config backend/src/serverless.ts",
-        "dev:e2e": "concurrently -k \"pnpm dev:api:e2e\" \"pnpm dev:web:e2e\"",
-        "start:e2e": "concurrently -k -n api,web \"pnpm dev:api:e2e\" \"pnpm dev:web:e2e\"",
+        "dev:e2e": "run-p -r dev:api:e2e dev:web:e2e",
+        "start:e2e": "run-p -r -l dev:api:e2e dev:web:e2e",
         "check-env": "node scripts/check-env.js",
         "build": "tsc -p tsconfig.backend.json && node scripts/prepare-api-entry.js && node scripts/astro-build.mjs",
         "build:web": "node scripts/astro-build.mjs",
@@ -84,7 +84,6 @@
         "@types/react": "^19.2.17",
         "@types/react-dom": "^19.2.3",
         "@types/supertest": "^7.2.0",
-        "concurrently": "^9.2.1",
         "eslint": "^9.39.4",
         "eslint-plugin-astro": "^1.7.0",
         "eslint-plugin-react-hooks": "^5.2.0",
@@ -92,10 +91,16 @@
         "husky": "^9.1.7",
         "jest": "^30.2.0",
         "jest-environment-jsdom": "^30.4.1",
+        "npm-run-all2": "^9.0.2",
+        "shell-quote": "^1.10.0",
         "supertest": "^7.2.2",
         "ts-jest": "^29.4.6",
         "tsx": "^4.21.0",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.61.1"
+    },
+    "pnpm.overrides": {
+        "js-yaml": ">=4.3.0",
+        "shell-quote": ">=1.8.5"
     }
 }
