@@ -69,7 +69,7 @@ export function SettingsHero({
                     </div>
                 </div>
 
-                <div className="flex w-full flex-wrap gap-y-4 rounded-xl bg-white/[0.02] p-4 border border-white/[0.02] xl:w-auto xl:min-w-[29rem] xl:justify-end">
+                <div className="flex w-full flex-wrap gap-y-4 rounded-xl bg-black/20 shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-4 border border-white/[0.03] xl:w-auto xl:min-w-[29rem] xl:justify-end">
                     <div className="pr-6">
                         <ProfileStat
                             icon={Heart}
