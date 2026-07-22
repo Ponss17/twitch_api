@@ -44,7 +44,7 @@ export function LoginDisclaimerModal({ open, onClose }: LoginDisclaimerModalProp
                             </>
                         ) : (
                             <>
-                                <TwitchIcon className="w-5 brightness-0 invert" aria-hidden="true" />
+                                <TwitchIcon className="w-5" aria-hidden="true" />
                                 Aceptar y Conectar
                             </>
                         )}

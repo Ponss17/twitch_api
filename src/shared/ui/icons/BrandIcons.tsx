@@ -1,15 +1,24 @@
-import type { ImgHTMLAttributes, SVGProps } from 'react';
-import { staticPath } from '@/core/config/paths';
+import type { SVGProps } from 'react';
 
-export function TwitchIcon({ className, ...props }: ImgHTMLAttributes<HTMLImageElement>) {
+interface TwitchIconProps extends SVGProps<SVGSVGElement> {
+    variant?: 'brand' | 'monochrome';
+}
+
+export function TwitchIcon({ className, variant = 'monochrome', ...props }: TwitchIconProps) {
+    if (variant === 'brand') {
+        return (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className ? `block shrink-0 ${className}` : 'block shrink-0'} aria-hidden="true" {...props}>
+                <path fill="#9146FF" d="M6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0z"/>
+                <path fill="#FFFFFF" d="M20.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714v9.429z"/>
+                <path fill="#9146FF" d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714z"/>
+            </svg>
+        );
+    }
+    
     return (
-        <img
-            src={staticPath('/img/twitch.svg')}
-            alt="Twitch"
-            className={className ? `block shrink-0 ${className}` : 'block shrink-0'}
-            aria-hidden="true"
-            {...props}
-        />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className ? `block shrink-0 ${className}` : 'block shrink-0'} aria-hidden="true" {...props}>
+            <path fill="currentColor" d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714v9.429z"/>
+        </svg>
     );
 }
 
