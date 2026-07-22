@@ -364,30 +364,30 @@ export function LandingPage() {
                                     <button
                                         type="button"
                                         onClick={() => void copyTerminal()}
-                                        className="flex items-center gap-1.5 text-xs text-white/40 transition hover:text-[#9146ff]"
+                                        className="flex items-center gap-1.5 text-xs text-white/60 transition hover:text-[#a78bfa]"
                                     >
-                                        {isCopied ? <Check className="w-3.5 text-[#9146ff]" /> : <Copy className="w-3.5" />}
+                                        {isCopied ? <Check className="w-3.5 text-[#a78bfa]" /> : <Copy className="w-3.5" />}
                                         {isCopied ? 'Copiado' : 'Copiar'}
                                     </button>
                                 </div>
                             </div>
                             <div className="space-y-0 p-6 font-mono text-[0.85rem] leading-8 text-white/80">
                                 <div>
-                                    <span className="text-[#9146ff]">$</span>
+                                    <span className="font-bold text-[#a78bfa]">$</span>
                                     <span className="font-semibold text-white"> curl</span>
-                                    <span className="text-white/40"> -G</span>
+                                    <span className="text-white/60"> -G</span>
                                     <span> &quot;https://api.losperris.dev/twitch/followage&quot;</span>
                                 </div>
                                 <div>
-                                    <span className="text-white/40"> -d</span>
+                                    <span className="text-white/60"> -d</span>
                                     <span> &quot;channel=losperris&quot;</span>
                                 </div>
                                 <div>
-                                    <span className="text-white/40"> -d</span>
+                                    <span className="text-white/60"> -d</span>
                                     <span> &quot;user=mynana17&quot;</span>
                                 </div>
                                 <div>
-                                    <span className="text-white/40"> -d</span>
+                                    <span className="text-white/60"> -d</span>
                                     <span> &quot;apiKey=</span>
                                     <span className="text-white/60">sk_a1b...</span>
                                     <span>&quot;</span>
