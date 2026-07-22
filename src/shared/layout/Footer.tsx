@@ -22,16 +22,16 @@ export function Footer({ isDashboard = false }: FooterProps) {
                     </p>
                 </div>
 
-                <div className="flex-1 text-center text-[0.7rem] text-zinc-500">
+                <div className="flex-1 text-center text-[0.7rem] text-zinc-400">
                     Creado para la comunidad. No afiliado con Twitch o Amazon.
                 </div>
                 
-                <div className="flex flex-1 flex-wrap items-center justify-center gap-3 text-zinc-500 md:justify-end">
+                <div className="flex flex-1 flex-wrap items-center justify-center gap-3 text-zinc-400 md:justify-end">
                     {LEGAL_LINKS.map((link, i) => (
                         <span key={link.href} className="flex items-center gap-3">
                             <a
                                 href={link.href}
-                                className="font-medium transition-colors hover:text-[#9146ff]"
+                                className="font-medium transition-colors hover:text-[#a78bfa]"
                             >
                                 {link.label}
                             </a>
