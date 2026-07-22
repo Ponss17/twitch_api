@@ -18,7 +18,7 @@ export function Footer({ isDashboard = false }: FooterProps) {
             <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center justify-between gap-6 px-6 text-[0.75rem] md:flex-row md:gap-4">
                 <div className="flex-1">
                     <p className="flex items-center justify-center gap-1.5 font-medium text-zinc-300 md:justify-start">
-                        &copy; {year} <span className="font-bold text-[#9146ff]">LosPerrisAPI</span>
+                        &copy; {year} <span className="font-bold text-[#a78bfa]">LosPerrisAPI</span>
                     </p>
                 </div>
 
