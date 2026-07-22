@@ -343,13 +343,10 @@ export function LandingPage() {
                         className="relative hidden animate-fade-soft items-center justify-center opacity-0 [animation-fill-mode:forwards] md:flex"
                         style={{ animationDelay: '400ms' }}
                     >
-                        <div className="w-full max-w-[500px] overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02] shadow-2xl backdrop-blur-xl">
+                        <div className="w-full max-w-[500px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#0a0a0a] shadow-2xl">
                             <div className="flex items-center justify-between border-b border-white/[0.04] bg-white/[0.02] px-4 py-3">
                                 <div className="flex items-center gap-1.5 opacity-60 transition-opacity hover:opacity-100">
-                                    <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
-                                    <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
-                                    <span className="h-3 w-3 rounded-full bg-[#28c840]" />
-                                    <span className="ml-2 font-mono text-xs text-white/40">api.losperris.dev</span>
+                                    <span className="font-mono text-xs text-white/40">api.losperris.dev</span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <button
