@@ -78,7 +78,12 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                 axisLine={{ stroke: '#ffffff', strokeOpacity: 0.3, strokeWidth: 1.5 }}
                                 className="capitalize"
                             />
-                            <Tooltip content={<CustomTooltip />} cursor={false} />
+                            <Tooltip 
+                                content={<CustomTooltip />} 
+                                cursor={false} 
+                                isAnimationActive={false} 
+                                wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
+                            />
                             <Bar
                                 dataKey="avgLatency"
                                 name="Latencia"

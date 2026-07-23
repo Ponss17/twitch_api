@@ -160,7 +160,12 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                                     val >= 1000 ? `${(val / 1000).toFixed(1)}k` : val
                                 }
                             />
-                            <Tooltip content={<CustomTooltip />} cursor={false} />
+                            <Tooltip 
+                                content={<CustomTooltip />} 
+                                cursor={false} 
+                                isAnimationActive={false} 
+                                wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
+                            />
                             <Legend
                                 verticalAlign="top"
                                 align="right"
