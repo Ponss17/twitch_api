@@ -114,10 +114,10 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
             {chartData.length === 0 ? (
                 <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
                     <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
-                        <BarChart2 className="h-6 w-6 text-zinc-500" />
+                        <BarChart2 className="h-6 w-6 text-zinc-400" />
                     </div>
                     <span className="text-sm font-medium text-zinc-400">Sin datos hoy</span>
-                    <span className="mt-1 text-xs text-zinc-500">
+                    <span className="mt-1 text-xs text-zinc-400">
                         Los comandos aparecerán aquí al usarse
                     </span>
                 </div>
