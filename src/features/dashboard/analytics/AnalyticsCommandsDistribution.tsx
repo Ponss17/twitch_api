@@ -135,6 +135,7 @@ export function AnalyticsCommandsDistribution({
                             />
                             <Tooltip 
                                 content={<CustomTooltip />} 
+                                cursor={{ fill: 'transparent' }}
                                 isAnimationActive={false} 
                                 wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
                             />
