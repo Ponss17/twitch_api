@@ -64,7 +64,7 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
         if (active && payload && payload.length) {
             const data = payload[0].payload;
             return (
-                <div className="rounded-xl border border-white/10 bg-[#18181b] p-4 shadow-xl">
+                <div className="pointer-events-none rounded-xl border border-white/10 bg-[#18181b] p-4 shadow-xl">
                     <p className="mb-3 border-b border-white/10 pb-2 text-sm font-semibold capitalize text-white">
                         {label}
                     </p>
