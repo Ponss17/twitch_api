@@ -69,7 +69,7 @@ function ActivityFeedSkeleton() {
 }
 
 const LOG_DATE_DIVIDER =
-    "relative mt-1 py-2 pb-1 text-center text-[0.75rem] uppercase tracking-[1px] text-[#71717a] before:absolute before:left-0 before:top-1/2 before:h-px before:w-[calc(50%-40px)] before:bg-white/[0.08] before:content-[''] after:absolute after:right-0 after:top-1/2 after:h-px after:w-[calc(50%-40px)] after:bg-white/[0.08] after:content-['']";
+    "relative mt-1 py-2 pb-1 text-center text-[0.75rem] uppercase tracking-[1px] text-[#a1a1aa] before:absolute before:left-0 before:top-1/2 before:h-px before:w-[calc(50%-40px)] before:bg-white/[0.08] before:content-[''] after:absolute after:right-0 after:top-1/2 after:h-px after:w-[calc(50%-40px)] after:bg-white/[0.08] after:content-['']";
 
 function ActivityEmptyState({ filtered }: { filtered?: boolean }) {
     return (
@@ -132,7 +132,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                         <p className="mt-0.5 text-[0.75rem] text-[#8b8b93]">
                             Filtra por categoría o recurso en tiempo real •{' '}
                             <span
-                                className={`font-medium transition-all duration-300 group-hover/card:text-primary group-hover/card:opacity-100 ${syncing ? 'animate-blink-soft text-primary opacity-100' : 'opacity-60'}`}
+                                className={`font-medium transition-all duration-300 group-hover/card:text-primary group-hover/card:opacity-100 ${syncing ? 'animate-blink-soft text-primary opacity-100' : 'opacity-75'}`}
                             >
                                 {syncing ? 'Sincronizando...' : syncLabel}
                             </span>
@@ -176,7 +176,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             </span>
                             {ACTIVITY_CATEGORY_LABELS[category]}
                             {!isLoading && count > 0 ? (
-                                <span className="text-[0.65rem] opacity-70">{count}</span>
+                                <span className="text-[0.65rem] opacity-90">{count}</span>
                             ) : null}
                         </button>
                     );

@@ -27,7 +27,7 @@ export const SettingsGroup = forwardRef<
         <section ref={ref} className={`${fadeIn} mb-8 opacity-0`} style={{ animationDelay: `${delay}ms` }}>
             <header className="mb-3 flex items-end justify-between gap-3">
                 <div>
-                    <h3 className={`text-[1.15rem] font-bold tracking-tight ${titleColor}`}>{title}</h3>
+                    <h2 className={`text-[1.15rem] font-bold tracking-tight ${titleColor}`}>{title}</h2>
                     {description ? (
                         <p className="mt-0.5 text-[0.8rem] leading-relaxed text-[#8b8b93]">{description}</p>
                     ) : null}
@@ -103,7 +103,7 @@ export function SettingsRow({
                         ) : null}
                         <div className="min-w-0 pt-0.5">
                             {title ? (
-                                <h4 className="text-[0.9rem] font-semibold text-[#fafafa]">{title}</h4>
+                                <h3 className="text-[0.9rem] font-semibold text-[#fafafa]">{title}</h3>
                             ) : null}
                             {description ? (
                                 <p className="mt-0.5 max-w-xl text-[0.8rem] leading-relaxed text-[#8b8b93]">

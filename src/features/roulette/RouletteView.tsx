@@ -65,9 +65,9 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         <Dices className="h-4 w-4" aria-hidden />
                     </div>
                     <div className="min-w-0">
-                        <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
+                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
                             Ruleta de Viewers
-                        </h3>
+                        </h2>
                         <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
                             Sortea premios entre los usuarios activos
                         </p>
@@ -99,7 +99,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[0.75rem] font-semibold disabled:opacity-50 ${
                             announceWinnerInChat
                                 ? 'border-primary/35 bg-primary/10 text-primary'
-                                : `border-white/10 bg-white/[0.03] text-[#71717a] ${hoverSubtleChip}`
+                                : `border-white/10 bg-white/[0.03] text-zinc-400 ${hoverSubtleChip}`
                         }`}
                     >
                         <MessageSquare className="size-3.5 shrink-0" aria-hidden />
