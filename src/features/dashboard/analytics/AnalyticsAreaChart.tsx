@@ -68,7 +68,12 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             allowDecimals={false}
                             tickMargin={12}
                         />
-                        <Tooltip content={<CustomTooltip />} cursor={false} />
+                        <Tooltip 
+                            content={<CustomTooltip />} 
+                            cursor={false} 
+                            isAnimationActive={false} 
+                            wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
+                        />
                         <Area
                             type="monotone"
                             dataKey="requests"

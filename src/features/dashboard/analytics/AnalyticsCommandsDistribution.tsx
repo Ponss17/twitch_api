@@ -97,7 +97,11 @@ export function AnalyticsCommandsDistribution({
                                     );
                                 }}
                             />
-                            <Tooltip content={<CustomTooltip />} />
+                            <Tooltip 
+                                content={<CustomTooltip />} 
+                                isAnimationActive={false} 
+                                wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
+                            />
                         </PieChart>
                     </ResponsiveContainer>
                 </ChartMountGate>
