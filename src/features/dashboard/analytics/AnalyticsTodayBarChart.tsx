@@ -176,6 +176,7 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                                 dataKey="Éxitos"
                                 fill="#10b981"
                                 stroke="#10b981"
+                                activeBar={false}
                                 shape={<CustomBarShape />}
                                 maxBarSize={48}
                             />
@@ -183,6 +184,7 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                                 dataKey="Errores"
                                 fill="#ef4444"
                                 stroke="#ef4444"
+                                activeBar={false}
                                 shape={<CustomBarShape />}
                                 maxBarSize={48}
                             />
