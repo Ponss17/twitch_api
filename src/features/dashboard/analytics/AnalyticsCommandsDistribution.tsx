@@ -56,9 +56,10 @@ export function AnalyticsCommandsDistribution({
                                 data={pieData}
                                 cx="50%"
                                 cy="50%"
-                                innerRadius="48%"
+                                innerRadius="55%"
                                 outerRadius="78%"
                                 dataKey="value"
+                                isAnimationActive={false}
                                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 shape={(props: any) => {
                                     const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, index } =
