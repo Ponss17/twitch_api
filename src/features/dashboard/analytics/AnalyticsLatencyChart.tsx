@@ -8,6 +8,19 @@ interface AnalyticsLatencyChartProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pieData: any[];
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        const valNum = Number(payload[0].value) || 0;
+        return (
+            <div className="rounded-xl border border-white/10 bg-[#18181b] p-3 shadow-xl">
+                <p className="mb-1 font-semibold capitalize text-white">{label}</p>
+                <span className="text-sm font-medium text-white">Latencia : {valNum}ms ({(valNum / 1000).toFixed(3)}s)</span>
+            </div>
+        );
+    }
+    return null;
+};
 
 export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChartProps) {
     return (
@@ -65,21 +78,7 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                 axisLine={{ stroke: '#ffffff', strokeOpacity: 0.3, strokeWidth: 1.5 }}
                                 className="capitalize"
                             />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: '#18181b',
-                                    border: '1px solid #27272a',
-                                    borderRadius: '12px',
-                                    color: '#fafafa'
-                                }}
-                                itemStyle={{ color: '#fafafa', fontWeight: 500 }}
-                                // @ts-expect-error - Recharts Tooltip types are complex and generic
-                                formatter={(value: number | string | undefined) => {
-                                    const valNum = Number(value) || 0;
-                                    return [`${valNum}ms (${(valNum / 1000).toFixed(3)}s)`, 'Latencia'];
-                                }}
-                                cursor={<g />}
-                            />
+                            <Tooltip content={<CustomTooltip />} cursor={<g />} />
                             <Bar
                                 dataKey="avgLatency"
                                 name="Latencia"

@@ -9,6 +9,20 @@ interface AnalyticsCommandsDistributionProps {
     pieData: any[];
     totalRequests: number;
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+        const data = payload[0];
+        return (
+            <div className="rounded-xl border border-white/10 bg-[#18181b] px-3 py-2 shadow-xl">
+                <span className="font-semibold text-white capitalize">
+                    {data.name} : {data.value}
+                </span>
+            </div>
+        );
+    }
+    return null;
+};
 
 export function AnalyticsCommandsDistribution({
     active,
@@ -83,15 +97,7 @@ export function AnalyticsCommandsDistribution({
                                     );
                                 }}
                             />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: '#18181b',
-                                    border: '1px solid #27272a',
-                                    borderRadius: '12px',
-                                    color: '#fafafa'
-                                }}
-                                itemStyle={{ color: '#fafafa', fontWeight: 500 }}
-                            />
+                            <Tooltip content={<CustomTooltip />} />
                         </PieChart>
                     </ResponsiveContainer>
                 </ChartMountGate>
