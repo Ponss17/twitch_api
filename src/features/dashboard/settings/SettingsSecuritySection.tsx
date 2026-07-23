@@ -94,7 +94,7 @@ export function SettingsSecuritySection({
                     </span>
                     API Key Activa
                 </span>
-                <span className="text-[0.75rem] text-zinc-500">
+                <span className="text-[0.75rem] text-zinc-400">
                     Lista para autenticar peticiones (Bearer).
                 </span>
             </div>
