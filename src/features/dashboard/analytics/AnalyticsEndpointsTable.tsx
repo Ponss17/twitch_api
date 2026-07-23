@@ -18,10 +18,10 @@ export function AnalyticsEndpointsTable({ pieData }: AnalyticsEndpointsTableProp
             {pieData.length === 0 ? (
                 <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
                     <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
-                        <Activity className="h-6 w-6 text-zinc-500" />
+                        <Activity className="h-6 w-6 text-zinc-400" />
                     </div>
                     <span className="text-sm font-medium text-zinc-400">Sin datos suficientes</span>
-                    <span className="mt-1 text-xs text-zinc-500">
+                    <span className="mt-1 text-xs text-zinc-400">
                         Ejecuta comandos en tu canal para generar historial
                     </span>
                 </div>

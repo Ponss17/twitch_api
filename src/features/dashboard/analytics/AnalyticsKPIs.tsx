@@ -31,7 +31,7 @@ function RangeToggle({
                 onClick={() => setTimeRange('today')}
                 className={`rounded-md px-3 py-1 text-xs font-medium ${
                     timeRange === 'today'
-                        ? 'bg-primary/20 text-primary'
+                        ? 'bg-primary/20 text-[#a78bfa]'
                         : `text-[#8b8b93] ${hoverSubtleChip}`
                 }`}
             >
@@ -42,7 +42,7 @@ function RangeToggle({
                 onClick={() => setTimeRange('7d')}
                 className={`rounded-md px-3 py-1 text-xs font-medium ${
                     timeRange === '7d'
-                        ? 'bg-primary/20 text-primary'
+                        ? 'bg-primary/20 text-[#a78bfa]'
                         : `text-[#8b8b93] ${hoverSubtleChip}`
                 }`}
             >
@@ -77,7 +77,7 @@ function KpiTile({
             </div>
             <div className="flex flex-col">
                 {children}
-                <span className="mt-1 text-[0.7rem] font-medium text-[#6b6b73]">{subtext}</span>
+                <span className="mt-1 text-[0.7rem] font-medium text-zinc-400">{subtext}</span>
             </div>
         </div>
     );
