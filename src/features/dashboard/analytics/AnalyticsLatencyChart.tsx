@@ -94,6 +94,7 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                             fillOpacity={0.38}
                                             stroke={color}
                                             strokeWidth={1.5}
+                                            strokeDasharray="4 4"
                                             radius={[0, 4, 4, 0]}
                                         />
                                     );
