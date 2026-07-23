@@ -212,7 +212,7 @@ export function FeedbackView() {
                     ) : null}
 
                     <div className="flex items-center justify-between gap-4 border-t border-white/[0.06] pt-4 max-[600px]:flex-col max-[600px]:items-stretch">
-                        <p className="inline-flex items-start gap-1.5 text-[0.75rem] text-[#71717a]">
+                        <p className="inline-flex items-start gap-1.5 text-[0.75rem] text-zinc-400">
                             <InlineIcon icon={Shield} className="mt-0.5" />
                             Llega directo a nuestro Discord.
                         </p>
