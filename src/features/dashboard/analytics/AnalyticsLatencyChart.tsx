@@ -78,7 +78,7 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                     const valNum = Number(value) || 0;
                                     return [`${valNum}ms (${(valNum / 1000).toFixed(3)}s)`, 'Latencia'];
                                 }}
-                                cursor={{ opacity: 0 }}
+                                cursor={<g />}
                             />
                             <Bar
                                 dataKey="avgLatency"
