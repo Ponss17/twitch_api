@@ -1,7 +1,6 @@
 import React from 'react';
 import { Activity } from 'lucide-react';
 import { COLORS, AnalyticsSection } from './AnalyticsShared';
-import { hoverSubtleRowBg } from '@/core/utils/tw';
 
 interface AnalyticsEndpointsTableProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,7 +39,7 @@ export function AnalyticsEndpointsTable({ pieData }: AnalyticsEndpointsTableProp
                             {pieData.map((row, idx) => (
                                 <tr
                                     key={row.name}
-                                    className={`border-b border-white/[0.04] last:border-0 ${hoverSubtleRowBg}`}
+                                    className="border-b border-white/[0.04] last:border-0"
                                 >
                                     <td className="py-3 capitalize text-zinc-200">
                                         <div className="flex items-center gap-2">
