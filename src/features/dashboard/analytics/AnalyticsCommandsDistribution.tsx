@@ -72,10 +72,8 @@ export function AnalyticsCommandsDistribution({
                                             <path
                                                 d={path}
                                                 fill={color}
-                                                fillOpacity={0.38}
-                                                stroke={color}
-                                                strokeWidth={2}
-                                                strokeOpacity={0.8}
+                                                fillOpacity={0.8}
+                                                stroke="none"
                                                 fillRule="evenodd"
                                             />
                                         );
@@ -90,10 +88,8 @@ export function AnalyticsCommandsDistribution({
                                             startAngle={startAngle}
                                             endAngle={endAngle}
                                             fill={color}
-                                            fillOpacity={0.38}
-                                            stroke={color}
-                                            strokeWidth={2}
-                                            strokeOpacity={0.8}
+                                            fillOpacity={0.8}
+                                            stroke="none"
                                         />
                                     );
                                 }}
