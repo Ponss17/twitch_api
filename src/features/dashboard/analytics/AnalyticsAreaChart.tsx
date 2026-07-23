@@ -12,7 +12,7 @@ interface AnalyticsAreaChartProps {
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         return (
-            <div className="rounded-xl border border-white/10 bg-[#18181b] p-3 shadow-xl">
+            <div className="pointer-events-none rounded-xl border border-white/10 bg-[#18181b] p-3 shadow-xl">
                 <p className="mb-1 text-xs font-semibold text-zinc-400">{label}</p>
                 <span className="text-sm font-medium text-white">Peticiones : {payload[0].value}</span>
             </div>

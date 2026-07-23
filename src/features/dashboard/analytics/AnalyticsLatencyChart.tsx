@@ -13,7 +13,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         const valNum = Number(payload[0].value) || 0;
         return (
-            <div className="rounded-xl border border-white/10 bg-[#18181b] p-3 shadow-xl">
+            <div className="pointer-events-none rounded-xl border border-white/10 bg-[#18181b] p-3 shadow-xl">
                 <p className="mb-1 font-semibold capitalize text-white">{label}</p>
                 <span className="text-sm font-medium text-white">Latencia : {valNum}ms ({(valNum / 1000).toFixed(3)}s)</span>
             </div>
