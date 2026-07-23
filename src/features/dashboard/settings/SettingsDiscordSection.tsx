@@ -33,7 +33,7 @@ export function SettingsDiscordSection({
                 control={
                     <div className="flex items-center gap-3">
                         {discordAvatar ? (
-                            <img src={discordAvatar} alt="" className="h-9 w-9 rounded-full border border-white/10" />
+                            <img src={discordAvatar.replace('size=128', 'size=64')} alt="" className="h-9 w-9 rounded-full border border-white/10" />
                         ) : (
                             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#5865F2]/20 text-sm font-bold text-[#5865F2]">
                                 {(discordUsername || '?').slice(0, 1).toUpperCase()}

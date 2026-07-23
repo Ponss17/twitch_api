@@ -28,7 +28,7 @@ function DangerAction({
                     <Icon className="h-4 w-4" aria-hidden="true" />
                 </div>
                 <div className="min-w-0 pt-0.5">
-                    <h4 className="text-[0.9rem] font-semibold text-[#fafafa]">{title}</h4>
+                    <h3 className="text-[0.9rem] font-semibold text-[#fafafa]">{title}</h3>
                     <p className="mt-0.5 max-w-xl text-[0.8rem] leading-relaxed text-[#8b8b93]">
                         {description}
                     </p>
@@ -75,7 +75,7 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
                         description={
                             <>
                                 Borra permanentemente tu perfil y todos los datos asociados.{' '}
-                                <strong className="text-error/80">Irreversible.</strong> No afecta a tu
+                                <strong className="text-[#f87171]">Irreversible.</strong> No afecta a tu
                                 canal de Twitch.
                             </>
                         }
@@ -83,7 +83,7 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
                             <button
                                 type="button"
                                 onClick={onDeleteAccount}
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-error px-5 py-2 text-sm font-bold text-white shadow-[0_0_15px_rgba(239,68,68,0.15)] transition hover:bg-error-hover hover:shadow-[0_0_25px_rgba(239,68,68,0.3)] hover:-translate-y-0.5 sm:w-auto"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#dc2626] px-5 py-2 text-sm font-bold text-white shadow-[0_0_15px_rgba(220,38,38,0.15)] transition hover:bg-[#b91c1c] hover:shadow-[0_0_25px_rgba(220,38,38,0.3)] hover:-translate-y-0.5 sm:w-auto"
                             >
                                 <Trash2 className="h-4 w-4" aria-hidden="true" />
                                 Eliminar Cuenta
