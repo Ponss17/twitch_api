@@ -69,7 +69,7 @@ export function SettingsAccountSection({
             >
                 <div className="flex flex-wrap items-center gap-1.5">
                     <span
-                        className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold text-primary"
+                        className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold text-[#a78bfa]"
                         title="Tu plan de API: más alto = más cuota y datos más frescos"
                     >
                         <Crown className="w-3 h-3 opacity-80" /> {roleLabel}

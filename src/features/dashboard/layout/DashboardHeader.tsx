@@ -91,7 +91,7 @@ export function DashboardHeader({
                             className="group flex items-center gap-3 rounded-[1.1rem] border border-white/[0.04] bg-bg-secondary py-1.5 pl-1.5 pr-4 transition-all hover:border-white/[0.08] aria-expanded:border-[#9146ff]/40 aria-expanded:bg-white/[0.02]"
                         >
                             <img
-                                src={session.profile_image_url ?? staticPath('/img/logo.svg')}
+                                src={session.profile_image_url?.replace('300x300', '70x70') ?? staticPath('/img/logo.svg')}
                                 alt=""
                                 className="h-9 w-9 shrink-0 rounded-full border-[2px] border-transparent object-cover transition-all group-aria-expanded:border-[#9146ff] group-aria-expanded:ring-4 group-aria-expanded:ring-[#9146ff]/20"
                             />
