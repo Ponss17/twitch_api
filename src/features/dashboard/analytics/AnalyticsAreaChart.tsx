@@ -65,7 +65,7 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             }}
                             itemStyle={{ color: '#fafafa', fontWeight: 500 }}
                             labelStyle={{ color: '#a1a1aa', marginBottom: '8px', fontSize: '13px' }}
-                            cursor={{ stroke: '#3f3f46', strokeWidth: 1, strokeDasharray: '4 4' }}
+                            cursor={<g />}
                         />
                         <Area
                             type="monotone"
