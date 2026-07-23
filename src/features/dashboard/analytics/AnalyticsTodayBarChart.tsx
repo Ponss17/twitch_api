@@ -162,7 +162,7 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                             />
                             <Tooltip 
                                 content={<CustomTooltip />} 
-                                cursor={{ fill: 'transparent' }} 
+                                cursor={false} 
                                 isAnimationActive={false} 
                                 wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
                             />
