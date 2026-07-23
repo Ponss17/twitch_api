@@ -56,9 +56,9 @@ export const HomeActivityLogEntry = memo(function HomeActivityLogEntry({
             </div>
 
             <div className="shrink-0 text-right leading-tight">
-                {time ? <div className="text-[0.75rem] tabular-nums text-[#71717a]">{time}</div> : null}
+                {time ? <div className="text-[0.75rem] tabular-nums text-[#a1a1aa]">{time}</div> : null}
                 {relative ? (
-                    <div className="text-[0.7rem] text-[#52525b]">{relative}</div>
+                    <div className="text-[0.7rem] text-[#71717a]">{relative}</div>
                 ) : null}
             </div>
         </Component>

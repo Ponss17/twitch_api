@@ -50,7 +50,7 @@ export const HomeResourcesPanel = memo(function HomeResourcesPanel({ onNavigate 
                 <div className={ICON_WRAP}>
                     <LayoutGrid className="h-4 w-4" aria-hidden />
                 </div>
-                <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">Recursos</h3>
+                <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">Recursos</h2>
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col gap-5 p-4">

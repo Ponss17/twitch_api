@@ -195,9 +195,9 @@ export function ClipsView() {
                             <Images className="h-4 w-4" aria-hidden />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
+                            <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
                                 Clips Recientes
-                            </h3>
+                            </h2>
                             <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
                                 Los últimos clips de tu canal
                             </p>
@@ -304,7 +304,7 @@ export function ClipsView() {
                                                             </div>
                                                         </>
                                                     ) : (
-                                                        <div className="flex aspect-video w-full items-center justify-center bg-black/30 text-[0.75rem] font-medium text-[#71717a]">
+                                                        <div className="flex aspect-video w-full items-center justify-center bg-black/30 text-[0.75rem] font-medium text-[#a1a1aa]">
                                                             Ver clip
                                                         </div>
                                                     )}
@@ -356,7 +356,7 @@ export function ClipsView() {
                                                 >
                                                     {clip.title ?? 'Sin título'}
                                                 </a>
-                                                <div className="flex justify-between gap-2 text-[0.6875rem] text-[#71717a]">
+                                                <div className="flex justify-between gap-2 text-[0.6875rem] text-[#a1a1aa]">
                                                     <span className="truncate">{viewsStr} visualizaciones</span>
                                                     <span className="shrink-0">{dateStr}</span>
                                                 </div>
