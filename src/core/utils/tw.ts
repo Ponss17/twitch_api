@@ -52,7 +52,7 @@ const selectChevron =
 export const toolSelector = 'mb-3 flex items-center justify-between gap-2.5 max-sm:flex-col max-sm:items-stretch';
 
 export const toolLabel =
-    'flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-tight text-primary';
+    'flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-tight text-[#a78bfa]';
 
 export const selectInput =
     `[color-scheme:dark] min-w-[180px] w-auto max-w-[min(100%,240px)] shrink-0 cursor-pointer appearance-none rounded-lg border border-white/[0.08] bg-bg-secondary bg-size-[14px] bg-position-[right_8px_center] bg-no-repeat py-[7px] pr-9 pl-3 text-[0.8125rem] leading-tight text-[#fafafa] outline-none ${hoverSubtleControl} focus:border-primary focus:bg-primary/[0.02] ${selectChevron}`;
@@ -175,7 +175,7 @@ export const sidebarNavScroll =
     'flex flex-1 flex-col overflow-y-auto px-3 py-3 [scrollbar-color:rgba(255,255,255,0.08)_transparent] [scrollbar-width:thin]';
 
 export const sidebarCategoryLabel =
-    'mb-2 ml-3 mt-6 block text-[0.75rem] font-bold uppercase tracking-[0.05em] text-[#71717a] first:mt-2';
+    'mb-2 ml-3 mt-6 block text-[0.75rem] font-bold uppercase tracking-[0.05em] text-zinc-400 first:mt-2';
 
 export const sidebarSupportLink = `${sidebarNavButtonBase} mx-auto w-[calc(100%-16px)] text-zinc-400 no-underline ${hoverSubtleNav}`;
 

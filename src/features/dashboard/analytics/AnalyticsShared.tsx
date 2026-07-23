@@ -29,7 +29,7 @@ export function AnalyticsSection({
         <section className={`${analyticsPanel} flex min-h-0 flex-col ${className} ${panelClassName}`}>
             <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5">
                 <div className="min-w-0">
-                    <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">{title}</h3>
+                    <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">{title}</h2>
                 </div>
                 {(action || info) ? (
                     <div className="flex shrink-0 items-center gap-2">

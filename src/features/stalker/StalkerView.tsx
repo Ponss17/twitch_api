@@ -184,9 +184,9 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                             <Users className="h-4 w-4" aria-hidden />
                         </div>
                         <div className="min-w-0">
-                            <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
+                            <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
                                 Visor de Chat (Stalker)
-                            </h3>
+                            </h2>
                             <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
                                 Quién está en tu chat ahora mismo
                             </p>
@@ -282,9 +282,9 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                     <tr>
                                         <td colSpan={4} className="px-5 py-12 text-center">
                                             <EmptyStateIcon icon={Radio} />
-                                            <h3 className="mb-2 text-[0.95rem] font-bold text-[#fafafa]">
+                                            <h2 className="mb-2 text-[0.95rem] font-bold text-[#fafafa]">
                                                 Esperando señal...
-                                            </h3>
+                                            </h2>
                                             <p className="mx-auto max-w-[400px] text-[0.8125rem] text-[#c4c4cc]">
                                                 Dale al botón <strong className="text-[#fafafa]">Play</strong> para
                                                 comenzar a escanear el chat.
@@ -355,7 +355,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                     </div>
                 </div>
 
-                <p className="mt-2.5 text-center text-[0.6875rem] text-[#71717a]">
+                <p className="mt-2.5 text-center text-[0.6875rem] text-[#a1a1aa]">
                     * La detección de usuarios se basa en la actividad reciente del chat.
                 </p>
                 </div>

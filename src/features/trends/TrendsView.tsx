@@ -55,7 +55,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
             Conectado
         </span>
     ) : !tracking ? (
-        <span className="inline-flex items-center gap-1.5 text-[#71717a]">
+        <span className="inline-flex items-center gap-1.5 text-[#a1a1aa]">
             <InlineIcon icon={Power} />
             Reposo
         </span>
@@ -79,9 +79,9 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                         <BarChart2 className="h-4 w-4" aria-hidden />
                     </div>
                     <div className="min-w-0">
-                        <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
+                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
                             Tendencias de {displayName}
-                        </h3>
+                        </h2>
                         <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
                             Ranking de palabras en tiempo real
                         </p>
@@ -113,7 +113,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                             aria-label="Duración en minutos"
                                             className="w-10 border-none bg-transparent text-center text-[0.8125rem] font-semibold text-[#fafafa] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                                         />
-                                        <span className="text-[0.8125rem] text-[#71717a]">min</span>
+                                        <span className="text-[0.8125rem] text-[#a1a1aa]">min</span>
                                     </div>
                                     <button
                                         type="button"

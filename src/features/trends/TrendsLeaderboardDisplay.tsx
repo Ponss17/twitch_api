@@ -60,7 +60,7 @@ export function TrendsLeaderboardDisplay({
 
             {!isOverlay && (
                 <div className="border-b border-white/[0.08] px-5 py-3">
-                    <h3 className="text-[0.95rem] font-bold">Tendencias de {displayName}</h3>
+                    <h2 className="text-[0.95rem] font-bold">Tendencias de {displayName}</h2>
                 </div>
             )}
 
