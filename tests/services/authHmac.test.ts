@@ -108,8 +108,8 @@ describe('auth.service HMAC helpers', () => {
         (cacheService.setIfAbsent as jest.Mock).mockResolvedValueOnce('exists');
 
         const token = signAuthExchange({
-            apiKey: 'sk_test',
-            userId: 'user-1',
+            apiKey: 'sk_test2',
+            userId: 'user-2',
             login: 'streamer',
             displayName: 'Streamer'
         });
