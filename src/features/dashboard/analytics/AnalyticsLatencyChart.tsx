@@ -88,9 +88,23 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                 dataKey="avgLatency"
                                 name="Latencia"
                                 maxBarSize={16}
-                                activeBar={false}
                                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 shape={(props: any) => {
+                                    const color = COLORS[props.index % COLORS.length];
+                                    return (
+                                        <Rectangle
+                                            {...props}
+                                            fill={color}
+                                            fillOpacity={0.38}
+                                            stroke={color}
+                                            strokeWidth={1.5}
+                                            strokeDasharray="4 4"
+                                            radius={[0, 4, 4, 0]}
+                                        />
+                                    );
+                                }}
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                activeBar={(props: any) => {
                                     const color = COLORS[props.index % COLORS.length];
                                     return (
                                         <Rectangle
