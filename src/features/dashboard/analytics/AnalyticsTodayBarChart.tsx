@@ -34,6 +34,7 @@ const CustomBarShape = (props: any) => {
                 stroke={barStroke}
                 strokeWidth={1.2}
                 strokeOpacity={0.75}
+                strokeDasharray="4 4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
@@ -161,7 +162,9 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                             />
                             <Tooltip content={<CustomTooltip />} cursor={false} />
                             <Legend
-                                wrapperStyle={{ paddingTop: '20px', fontSize: '12px', color: '#c4c4cc' }}
+                                verticalAlign="top"
+                                align="right"
+                                wrapperStyle={{ paddingBottom: '20px', fontSize: '12px', color: '#c4c4cc' }}
                                 iconType="circle"
                             />
                             <Bar
