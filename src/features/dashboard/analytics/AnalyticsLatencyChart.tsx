@@ -80,7 +80,7 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                             />
                             <Tooltip 
                                 content={<CustomTooltip />} 
-                                cursor={false} 
+                                cursor={{ fill: 'transparent' }} 
                                 isAnimationActive={false} 
                                 wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
                             />
