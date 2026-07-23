@@ -8,6 +8,19 @@ interface AnalyticsAreaChartProps {
     areaData: any[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="rounded-xl border border-white/10 bg-[#18181b] p-3 shadow-xl">
+                <p className="mb-1 text-xs font-semibold text-zinc-400">{label}</p>
+                <span className="text-sm font-medium text-white">Peticiones : {payload[0].value}</span>
+            </div>
+        );
+    }
+    return null;
+};
+
 export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps) {
     return (
         <AnalyticsSection
@@ -55,18 +68,7 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             allowDecimals={false}
                             tickMargin={12}
                         />
-                        <Tooltip
-                            contentStyle={{
-                                backgroundColor: '#18181b',
-                                border: '1px solid #27272a',
-                                borderRadius: '12px',
-                                color: '#fafafa',
-                                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
-                            }}
-                            itemStyle={{ color: '#fafafa', fontWeight: 500 }}
-                            labelStyle={{ color: '#a1a1aa', marginBottom: '8px', fontSize: '13px' }}
-                            cursor={<g />}
-                        />
+                        <Tooltip content={<CustomTooltip />} cursor={<g />} />
                         <Area
                             type="monotone"
                             dataKey="requests"
