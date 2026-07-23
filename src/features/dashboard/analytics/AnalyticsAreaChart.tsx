@@ -73,6 +73,7 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             name="Peticiones"
                             stroke="#9146ff"
                             strokeWidth={3}
+                            strokeDasharray="6 6"
                             activeDot={{ r: 6, strokeWidth: 2, stroke: '#18181b', fill: '#9146ff' }}
                             fillOpacity={0.38}
                             fill="#9146ff"

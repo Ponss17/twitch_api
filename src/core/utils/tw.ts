@@ -14,8 +14,8 @@ export const hoverSubtleIconBtn =
 export const hoverSubtleChip =
     'transition-colors hover:bg-primary/10 hover:text-[#d4d4d8]';
 
-/** Hover morado suave — filas/tablas sin borde interactivo. */
-export const hoverSubtleRowBg = 'transition-colors hover:bg-primary/[0.06]';
+/** Hover gris suave — filas/tablas sin borde interactivo. */
+export const hoverSubtleRowBg = 'transition-colors hover:bg-white/[0.04]';
 
 /** Hover morado suave — filas con borde (Recursos, links). */
 export const hoverSubtleBorderedRow =
