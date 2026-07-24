@@ -23,3 +23,8 @@ interface ImportMetaEnv {
 interface ImportMeta {
     readonly env: ImportMetaEnv;
 }
+
+declare module '@vercel/speed-insights/astro' {
+    const SpeedInsights: any;
+    export default SpeedInsights;
+}

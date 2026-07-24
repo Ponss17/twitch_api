@@ -149,7 +149,11 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
         if (!token && req.headers.authorization?.startsWith('Bearer ')) {
             token = req.headers.authorization.split(' ')[1];
         } else if (safeString(req.query.token) || safeString(req.body?.token)) {
-            logger.warn('[Security] Token OAuth recibido en query/body (deprecado) — usar Authorization: Bearer');
+            const ip = req.headers['x-forwarded-for'] ?? req.socket?.remoteAddress ?? 'unknown';
+            logger.warn('[Security] Token recibido en query/body (deprecado) — usar Authorization: Bearer', {
+                ip,
+                path: req.path
+            });
         }
 
         if (!token) {

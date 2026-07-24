@@ -8,6 +8,8 @@ const LEGAL_LINKS = [
 
 interface FooterProps {
     isDashboard?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any;
 }
 
 export function Footer({ isDashboard = false }: FooterProps) {
