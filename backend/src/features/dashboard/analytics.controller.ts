@@ -1,4 +1,4 @@
-﻿import { Response } from 'express';
+import { Response } from 'express';
 import * as dbService from '../../core/database/dbService';
 import * as cacheService from '../../core/database/cacheService';
 import * as apiService from '../twitch/twitch.service';
@@ -23,11 +23,12 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
         const cached = await cacheService.get<Record<string, unknown>>(cacheKey);
         if (cached && isAnalyticsCacheFresh(cached, statsRev)) return res.json(cached);
 
-        const [stats, dailyStats] = await Promise.all([
+        const [stats, dailyStats, leaderboards] = await Promise.all([
             dbService.getUserStats(userId),
-            dbService.getDailyStats(userId, 7)
+            dbService.getDailyStats(userId, 7),
+            dbService.getViewerLeaderboards(userId, 10)
         ]);
-        const payload = buildAnalyticsPayload(stats, statsRev);
+        const payload = buildAnalyticsPayload(stats, statsRev, leaderboards);
         payload.timeSeries = dailyStats;
 
         await cacheService.set(
@@ -132,11 +133,12 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
                 : Promise.resolve(null),
             needAnalytics && userId
                 ? (async () => {
-                      const [stats, dailyStats] = await Promise.all([
+                      const [stats, dailyStats, leaderboards] = await Promise.all([
                           dbService.getUserStats(userId),
-                          dbService.getDailyStats(userId, 7)
+                          dbService.getDailyStats(userId, 7),
+                          dbService.getViewerLeaderboards(userId, 10)
                       ]);
-                      const payload = buildAnalyticsPayload(stats, statsRev);
+                      const payload = buildAnalyticsPayload(stats, statsRev, leaderboards);
                       payload.timeSeries = dailyStats;
                       return payload;
                   })()
