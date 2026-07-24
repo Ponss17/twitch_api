@@ -27,7 +27,8 @@ export const API_ENDPOINTS = {
     OVERLAY_EXCHANGE: `${API_BASE}/auth/overlay-exchange/`,
     EXPORT_CHECK: `${API_BASE}/dashboard/export-check/`,
     EXPORT_COMPLETE: `${API_BASE}/dashboard/export-complete/`,
-    REVEAL_API_KEY: `${API_BASE}/dashboard/reveal-api-key/`
+    REVEAL_API_KEY: `${API_BASE}/dashboard/reveal-api-key/`,
+    VIEWER_LEADERBOARD: `${API_BASE}/dashboard/viewer-leaderboard/`
 } as const;
 
 /** Página pública de estado (Better Stack). */
