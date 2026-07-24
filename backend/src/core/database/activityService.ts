@@ -35,6 +35,17 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
 
         await cacheService.del(`cache:activity:${userId}`).catch(() => {});
 
+        // Si es una actividad de un viewer (no del streamer), invalidar también el caché del leaderboard
+        // para que el próximo fetch tras un evento realtime siempre devuelva datos frescos.
+        const VIEWER_TYPES = new Set(['followage', 'clip', 'shoutout', 'magic8', 'russian', 'duel']);
+        if (VIEWER_TYPES.has(entry.type)) {
+            await Promise.all([
+                cacheService.del(`cache:leaderboard:${userId}:today:10`).catch(() => {}),
+                cacheService.del(`cache:leaderboard:${userId}:7d:10`).catch(() => {})
+            ]);
+        }
+
+
         const now = Date.now();
         const lastTrim = trimThrottle.get(userId) || 0;
         if (now - lastTrim > TRIM_THROTTLE_MS) {
