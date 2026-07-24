@@ -91,31 +91,51 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 shape={(props: any) => {
                                     const color = COLORS[props.index % COLORS.length];
+                                    const { x, y } = props;
+                                    const gradientId = `lat-gradient-${Math.round(x)}-${Math.round(y)}`;
                                     return (
-                                        <Rectangle
-                                            {...props}
-                                            fill={color}
-                                            fillOpacity={0.38}
-                                            stroke={color}
-                                            strokeWidth={1.5}
-                                            strokeDasharray="4 4"
-                                            radius={[0, 4, 4, 0]}
-                                        />
+                                        <g>
+                                            <defs>
+                                                <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+                                                    <stop offset="0%" stopColor={color} stopOpacity={0} />
+                                                    <stop offset="100%" stopColor={color} stopOpacity={0.6} />
+                                                </linearGradient>
+                                            </defs>
+                                            <Rectangle
+                                                {...props}
+                                                fill={`url(#${gradientId})`}
+                                                fillOpacity={1}
+                                                stroke={color}
+                                                strokeWidth={1.5}
+                                                strokeDasharray="4 4"
+                                                radius={[0, 4, 4, 0]}
+                                            />
+                                        </g>
                                     );
                                 }}
                                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 activeBar={(props: any) => {
                                     const color = COLORS[props.index % COLORS.length];
+                                    const { x, y } = props;
+                                    const gradientId = `lat-gradient-active-${Math.round(x)}-${Math.round(y)}`;
                                     return (
-                                        <Rectangle
-                                            {...props}
-                                            fill={color}
-                                            fillOpacity={0.38}
-                                            stroke={color}
-                                            strokeWidth={1.5}
-                                            strokeDasharray="4 4"
-                                            radius={[0, 4, 4, 0]}
-                                        />
+                                        <g>
+                                            <defs>
+                                                <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+                                                    <stop offset="0%" stopColor={color} stopOpacity={0} />
+                                                    <stop offset="100%" stopColor={color} stopOpacity={0.8} />
+                                                </linearGradient>
+                                            </defs>
+                                            <Rectangle
+                                                {...props}
+                                                fill={`url(#${gradientId})`}
+                                                fillOpacity={1}
+                                                stroke={color}
+                                                strokeWidth={1.5}
+                                                strokeDasharray="4 4"
+                                                radius={[0, 4, 4, 0]}
+                                            />
+                                        </g>
                                     );
                                 }}
                             />

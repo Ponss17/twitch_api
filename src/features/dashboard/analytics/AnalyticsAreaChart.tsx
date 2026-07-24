@@ -40,6 +40,12 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                         margin={{ top: 10, right: 30, left: -20, bottom: 0 }}
                         accessibilityLayer={false}
                     >
+                        <defs>
+                            <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#9146ff" stopOpacity={0.5} />
+                                <stop offset="95%" stopColor="#9146ff" stopOpacity={0} />
+                            </linearGradient>
+                        </defs>
                         <CartesianGrid
                             strokeDasharray="3 3"
                             stroke="#ffffff"
@@ -82,8 +88,8 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             strokeWidth={3}
                             strokeDasharray="6 6"
                             activeDot={{ r: 6, strokeWidth: 2, stroke: '#18181b', fill: '#9146ff' }}
-                            fillOpacity={0.38}
-                            fill="#9146ff"
+                            fillOpacity={1}
+                            fill="url(#colorRequests)"
                         />
                     </AreaChart>
                 </ResponsiveContainer>
