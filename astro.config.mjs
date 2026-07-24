@@ -139,7 +139,7 @@ export default defineConfig({
         starlight({
             title: 'LosPerris API',
             tagline: 'Documentación de la API para streamers de Twitch',
-            favicon: '/api/twitch/img/favicon.svg',
+            favicon: '/img/logo.svg',
             disable404Route: true,
             defaultLocale: 'root',
             locales: {
