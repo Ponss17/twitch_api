@@ -68,8 +68,8 @@ const swScope = staticPath('/');
             href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap"
             as="style"
             id="geist-font-preload"
+            onload="this.onload=null;this.rel='stylesheet'"
         />
-        <script is:inline src={staticPath('/js/font-preload.js')} defer></script>
         <noscript>
             <link
                 rel="stylesheet"

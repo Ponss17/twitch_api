@@ -71,5 +71,7 @@ export function decrypt(text: string, key: Buffer = ENCRYPTION_KEY): string {
     if (isCbcFormat(text)) {
         return decryptCbc(text, key);
     }
-    return text;
+    // Texto sin formato de cifrado reconocido: lanzar error en lugar de devolver
+    // el valor en claro para evitar filtrar datos sin cifrar silenciosamente.
+    throw new Error(`Formato de cifrado desconocido para el valor (longitud: ${text.length})`);
 }

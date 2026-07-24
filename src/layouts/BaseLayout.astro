@@ -83,8 +83,8 @@ const swScope = staticPath('/');
             href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap"
             as="style"
             id="geist-font-preload"
+            onload="this.onload=null;this.rel='stylesheet'"
         />
-        <script is:inline src={staticPath('/js/font-preload.js')} defer></script>
         <noscript>
             <link
                 rel="stylesheet"
@@ -92,6 +92,14 @@ const swScope = staticPath('/');
             />
         </noscript>
         <title>{documentTitle}</title>
+        <script is:inline>
+            window.speedInsightsBeforeSend = function (data) {
+                if (data && data.attribution && data.attribution.eventTarget) {
+                    data.attribution.eventTarget = '[redacted]';
+                }
+                return data;
+            };
+        </script>
         <SpeedInsights scriptSrc="https://va.vercel-scripts.com/v1/speed-insights/script.js" />
         {isDev && (
             <script is:inline>

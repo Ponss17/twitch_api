@@ -72,6 +72,7 @@ export interface AuthenticatedRequest extends Request {
     userId?: string;
     login?: string;
     displayName?: string;
+    userTimezone?: string;
 }
 
 export interface TwitchValidationResponse {
