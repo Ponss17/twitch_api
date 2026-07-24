@@ -1,6 +1,7 @@
 {
     "extends": "./node_modules/astro/tsconfigs/strict.json",
     "compilerOptions": {
+        "skipLibCheck": true,
         "paths": {
             "@/*": ["./src/*"],
             "@contracts/*": ["./backend/src/core/schemas/*"],

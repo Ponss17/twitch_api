@@ -60,6 +60,7 @@ export function AnalyticsCommandsDistribution({
                                 outerRadius="78%"
                                 dataKey="value"
                                 isAnimationActive={false}
+                                stroke="none"
                                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 shape={(props: any) => {
                                     const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, index } =
@@ -97,7 +98,7 @@ export function AnalyticsCommandsDistribution({
                             />
                             <Tooltip 
                                 content={<CustomTooltip />} 
-                                cursor={false}
+                                cursor={{ fill: 'transparent' }}
                                 isAnimationActive={false} 
                                 wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
                             />
