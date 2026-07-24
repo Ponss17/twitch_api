@@ -26,9 +26,17 @@ const CustomBarShape = (props: any) => {
                         Q ${x + width},${y} ${x + width},${y + radius} 
                         L ${x + width},${y + height}`;
 
+    const gradientId = `bar-gradient-${Math.round(x)}-${Math.round(y)}`;
+
     return (
         <g>
-            <path d={fillPath} fill={barFill} fillOpacity={0.38} />
+            <defs>
+                <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={barFill} stopOpacity={0.6} />
+                    <stop offset="100%" stopColor={barFill} stopOpacity={0} />
+                </linearGradient>
+            </defs>
+            <path d={fillPath} fill={`url(#${gradientId})`} fillOpacity={1} />
             <path
                 d={strokePath}
                 stroke={barStroke}
