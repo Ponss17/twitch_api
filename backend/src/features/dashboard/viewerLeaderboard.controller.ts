@@ -53,23 +53,25 @@ export const getViewerLeaderboard = async (req: AuthenticatedRequest, res: Respo
             return jsonError(res, 500, 'Error al obtener el leaderboard de viewers.');
         }
 
-        // Agrupar por user_name en memoria (Supabase no expone GROUP BY directamente en el SDK)
-        const countMap = new Map<string, { total: number; last_seen: string }>();
+        // Agrupar por user_name en memoria (case-insensitive para evitar duplicados)
+        // key = nombre en minúsculas, value guarda el nombre con la capitalización más frecuente
+        const countMap = new Map<string, { total: number; last_seen: string; display_name: string }>();
         for (const row of data ?? []) {
-            const name = row.user_name as string;
-            if (!name || name.length < 1) continue;
+            const rawName = (row.user_name as string | null)?.trim() ?? '';
+            if (!rawName) continue;
 
-            const existing = countMap.get(name);
+            const key = rawName.toLowerCase();
+            const existing = countMap.get(key);
             if (existing) {
                 existing.total += 1;
                 // Ya están ordenados por desc, el primero que encontramos es el más reciente
             } else {
-                countMap.set(name, { total: 1, last_seen: row.created_at as string });
+                countMap.set(key, { total: 1, last_seen: row.created_at as string, display_name: rawName });
             }
         }
 
-        const leaderboard: ViewerLeaderboardEntry[] = Array.from(countMap.entries())
-            .map(([user_name, { total, last_seen }]) => ({ user_name, total, last_seen }))
+        const leaderboard: ViewerLeaderboardEntry[] = Array.from(countMap.values())
+            .map(({ display_name, total, last_seen }) => ({ user_name: display_name, total, last_seen }))
             .sort((a, b) => b.total - a.total)
             .slice(0, limit);
 
