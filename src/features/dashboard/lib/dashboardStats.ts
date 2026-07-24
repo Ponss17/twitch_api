@@ -65,6 +65,12 @@ export function getTodayRequestsTotal(
     return Math.max(fromCounter, fromUsage);
 }
 
+export interface ViewerLeaderboardEntry {
+    user_name: string;
+    total: number;
+    last_seen: string;
+}
+
 /** Stats en vivo desde `user_stats` (Realtime o API). */
 export interface DashboardLiveStats {
     todayRequests: number;
@@ -81,6 +87,8 @@ export interface DashboardLiveStats {
     magic8: number;
     duel: number;
     timeSeries?: DashboardTimeSeriesRow[];
+    leaderboardToday?: ViewerLeaderboardEntry[];
+    leaderboardWeekly?: ViewerLeaderboardEntry[];
 }
 
 export interface DashboardTimeSeriesRow {
@@ -189,6 +197,18 @@ export function parseDashboardStatsFromRow(
     if ('timeSeries' in raw) {
         result.timeSeries = raw.timeSeries as DashboardTimeSeriesRow[];
     }
+    
+    if ('leaderboardToday' in raw) {
+        result.leaderboardToday = raw.leaderboardToday as ViewerLeaderboardEntry[];
+    } else if (!isPartial) {
+        result.leaderboardToday = [];
+    }
+    
+    if ('leaderboardWeekly' in raw) {
+        result.leaderboardWeekly = raw.leaderboardWeekly as ViewerLeaderboardEntry[];
+    } else if (!isPartial) {
+        result.leaderboardWeekly = [];
+    }
 
     return isPartial ? result : (result as DashboardLiveStats);
 }
@@ -206,5 +226,7 @@ export const EMPTY_DASHBOARD_LIVE_STATS: DashboardLiveStats = {
     roulette: 0,
     russian: 0,
     magic8: 0,
-    duel: 0
+    duel: 0,
+    leaderboardToday: [],
+    leaderboardWeekly: []
 };

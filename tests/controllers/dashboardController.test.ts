@@ -8,7 +8,8 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     deleteUser: jest.fn(),
     recordUserRequest: jest.fn().mockResolvedValue(undefined),
     getUser: jest.fn(),
-    addAuditLog: jest.fn().mockResolvedValue(undefined)
+    addAuditLog: jest.fn().mockResolvedValue(undefined),
+    getViewerLeaderboards: jest.fn().mockResolvedValue({ leaderboardToday: [], leaderboardWeekly: [] })
 }));
 
 jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({

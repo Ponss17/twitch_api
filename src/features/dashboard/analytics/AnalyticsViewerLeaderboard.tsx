@@ -1,10 +1,7 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Trophy, Users } from 'lucide-react';
 import { AnalyticsSection } from './AnalyticsShared';
-import { API_ENDPOINTS } from '@/core/config/config';
-import { apiFetch } from '@/core/api/auth';
-import { useRequiredSession } from '@/core/session/useSession';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 
 export interface ViewerLeaderboardEntry {
@@ -34,61 +31,70 @@ function RankIcon({ rank, color }: { rank: number; color: string }) {
 }
 
 export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderboardProps) {
-    const session = useRequiredSession();
-    const { activity } = useDashboardPanel();
-    const [data, setData] = useState<ViewerLeaderboardEntry[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    // Guardamos el timestamp del último item procesado para no re-fetchear si no hay items genuinamente nuevos
+    const { activity, stats } = useDashboardPanel();
+    const [todayMap, setTodayMap] = useState<Map<string, ViewerLeaderboardEntry>>(new Map());
+    const [weeklyMap, setWeeklyMap] = useState<Map<string, ViewerLeaderboardEntry>>(new Map());
     const lastActivityTsRef = useRef<string | null>(null);
 
-    const fetchLeaderboard = useCallback(async (showLoader = false) => {
-        if (!session) return;
-        if (showLoader) setLoading(true);
-        setError(null);
-        try {
-            const result = await apiFetch<ViewerLeaderboardEntry[]>(
-                `${API_ENDPOINTS.VIEWER_LEADERBOARD}?range=${timeRange}&limit=10`,
-                session,
-                {},
-                { logoutOn401: false }
-            );
-            setData(Array.isArray(result) ? result : []);
-        } catch {
-            setError('No se pudieron cargar los viewers.');
-        } finally {
-            setLoading(false);
-        }
-    }, [session, timeRange]);
-
-    // Carga inicial
+    // 1. Inicializar mapas base desde los stats globales cargados una sola vez (getSummary)
     useEffect(() => {
-        fetchLeaderboard(true);
-    }, [fetchLeaderboard]);
+        const tMap = new Map<string, ViewerLeaderboardEntry>();
+        for (const entry of stats.leaderboardToday || []) {
+            tMap.set(entry.user_name.toLowerCase(), { ...entry });
+        }
+        setTodayMap(tMap);
 
-    // Realtime: cuando llega actividad nueva de tipo viewer, refrescar con debounce
+        const wMap = new Map<string, ViewerLeaderboardEntry>();
+        for (const entry of stats.leaderboardWeekly || []) {
+            wMap.set(entry.user_name.toLowerCase(), { ...entry });
+        }
+        setWeeklyMap(wMap);
+        
+        // Guardamos el TS inicial para no procesar actividad que ya venía en el payload inicial
+        if (activity.length > 0 && !lastActivityTsRef.current) {
+            lastActivityTsRef.current = activity[0].timestamp || null;
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [stats.leaderboardToday, stats.leaderboardWeekly]);
+
+    // 2. Parchear en tiempo real (100% en memoria, sin latencia de red)
     useEffect(() => {
         if (!activity.length) return;
         const latest = activity[0];
-        if (!latest?.type || !VIEWER_TYPES.has(latest.type)) return;
-
-        // Evitar re-fetch si el item no cambió (el array se puede re-crear sin items nuevos)
         const ts = latest.timestamp ?? '';
-        if (ts && ts === lastActivityTsRef.current) return;
+
+        if (!ts || ts === lastActivityTsRef.current) return;
         lastActivityTsRef.current = ts;
 
-        // Debounce de 2s para no spamear el API si llegan varios eventos seguidos
-        if (debounceRef.current) clearTimeout(debounceRef.current);
-        debounceRef.current = setTimeout(() => {
-            void fetchLeaderboard(false);
-        }, 2000);
+        if (!latest.type || !VIEWER_TYPES.has(latest.type)) return;
+        
+        const rawName = latest.user?.trim();
+        if (!rawName || rawName === 'Anónimo' || rawName === 'Streamer' || rawName === 'Canal') return;
 
-        return () => {
-            if (debounceRef.current) clearTimeout(debounceRef.current);
+        const key = rawName.toLowerCase();
+        
+        // Función utilitaria para incrementar o insertar
+        const incrementMap = (map: Map<string, ViewerLeaderboardEntry>) => {
+            const newMap = new Map(map);
+            const existing = newMap.get(key);
+            if (existing) {
+                existing.total += 1;
+                existing.last_seen = ts;
+            } else {
+                newMap.set(key, { user_name: rawName, total: 1, last_seen: ts });
+            }
+            return newMap;
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
+        setTodayMap(incrementMap);
+        setWeeklyMap(incrementMap);
     }, [activity]);
+
+    // 3. Proyectar el mapa a Array y ordenar (solo top 10)
+    const activeMap = timeRange === 'today' ? todayMap : weeklyMap;
+    const data = Array.from(activeMap.values())
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 10);
 
     const maxTotal = data[0]?.total ?? 1;
 
@@ -98,21 +104,7 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
             title="Viewers más activos"
             info={`Viewers que más usaron comandos ${timeRange === 'today' ? 'hoy' : 'esta semana'}.`}
         >
-            {loading ? (
-                <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center gap-3">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                        <div
-                            key={i}
-                            className="h-10 w-full animate-pulse rounded-lg bg-white/[0.04]"
-                            style={{ opacity: 1 - i * 0.15 }}
-                        />
-                    ))}
-                </div>
-            ) : error ? (
-                <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-red-500/20 bg-red-500/[0.02]">
-                    <span className="text-sm text-red-400">{error}</span>
-                </div>
-            ) : data.length === 0 ? (
+            {data.length === 0 ? (
                 <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
                     <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
                         <Users className="h-6 w-6 text-zinc-400" />
