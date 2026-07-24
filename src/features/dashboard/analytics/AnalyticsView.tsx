@@ -8,7 +8,7 @@ import { getStatsLocalDateString, buildTodayActivityStats } from '@/features/das
 import { AnalyticsKPIs } from './AnalyticsKPIs';
 import { AnalyticsAreaChart } from './AnalyticsAreaChart';
 import { AnalyticsCommandsDistribution } from './AnalyticsCommandsDistribution';
-import { AnalyticsEndpointsTable } from './AnalyticsEndpointsTable';
+import { AnalyticsViewerLeaderboard } from './AnalyticsViewerLeaderboard';
 import { AnalyticsLatencyChart } from './AnalyticsLatencyChart';
 import { AnalyticsTodayBarChart } from './AnalyticsTodayBarChart';
 
@@ -226,7 +226,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <AnalyticsEndpointsTable pieData={displayPieData} />
+                <AnalyticsViewerLeaderboard timeRange={timeRange} />
                 <AnalyticsLatencyChart active={active} pieData={displayPieData} />
             </div>
         </div>

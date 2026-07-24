@@ -14,8 +14,10 @@ import {
     getActivitySchema,
     clearUserDataSchema,
     deleteAccountSchema,
-    trackUsageSchema
+    trackUsageSchema,
+    getViewerLeaderboardSchema
 } from './dashboard.schema';
+import { getViewerLeaderboard } from './viewerLeaderboard.controller';
 import {
     overlayToolParamSchema,
     putOverlayStateSchema,
@@ -51,6 +53,7 @@ router.get(
 router.get('/user-info', validate(getUserInfoSchema), dashboardController.getUserInfo);
 router.get('/summary', validate(getSummarySchema), dashboardController.getSummary);
 router.get('/activity', validate(getActivitySchema), dashboardController.getLogs);
+router.get('/viewer-leaderboard', validate(getViewerLeaderboardSchema), getViewerLeaderboard);
 router.post(
     '/track-usage',
     csrfProtection,
