@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Trophy, Users } from 'lucide-react';
 import { AnalyticsSection } from './AnalyticsShared';
 import { API_ENDPOINTS } from '@/core/config/config';
@@ -86,7 +87,7 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
         return () => {
             if (debounceRef.current) clearTimeout(debounceRef.current);
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activity]);
 
     const maxTotal = data[0]?.total ?? 1;
@@ -131,45 +132,54 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
                         </span>
                     </div>
 
-                    {data.map((entry, idx) => {
-                        const pct = maxTotal > 0 ? (entry.total / maxTotal) * 100 : 0;
-                        const rowColor = ANALYTICS_COLORS[idx % ANALYTICS_COLORS.length];
+                    <LazyMotion features={domAnimation}>
+                        <AnimatePresence mode="popLayout">
+                            {data.map((entry, idx) => {
+                                const pct = maxTotal > 0 ? (entry.total / maxTotal) * 100 : 0;
+                                const rowColor = ANALYTICS_COLORS[idx % ANALYTICS_COLORS.length];
 
-                        return (
-                            <div
-                                key={entry.user_name}
-                                className="flex flex-col gap-1.5 rounded-lg border border-white/[0.05] bg-white/[0.02] px-3 py-2 transition-colors hover:bg-white/[0.04]"
-                            >
-                                <div className="flex items-center gap-2.5">
-                                    <RankIcon rank={idx} color={rowColor} />
-                                    <span
-                                        className="min-w-0 flex-1 truncate text-sm font-medium text-zinc-200"
-                                        title={entry.user_name}
+                                return (
+                                    <m.div
+                                        key={entry.user_name}
+                                        layout
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.9 }}
+                                        transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
+                                        className="flex flex-col gap-1.5 rounded-lg border border-white/[0.05] bg-white/[0.02] px-3 py-2 transition-colors hover:bg-white/[0.04]"
                                     >
-                                        {entry.user_name}
-                                    </span>
-                                    <span className="shrink-0 text-xs font-bold tabular-nums text-zinc-300">
-                                        {entry.total}
-                                        <span className="ml-1 font-normal text-zinc-600">
-                                            {entry.total === 1 ? 'uso' : 'usos'}
-                                        </span>
-                                    </span>
-                                </div>
+                                        <div className="flex items-center gap-2.5">
+                                            <RankIcon rank={idx} color={rowColor} />
+                                            <span
+                                                className="min-w-0 flex-1 truncate text-sm font-medium text-zinc-200"
+                                                title={entry.user_name}
+                                            >
+                                                {entry.user_name}
+                                            </span>
+                                            <span className="shrink-0 text-xs font-bold tabular-nums text-zinc-300">
+                                                {entry.total}
+                                                <span className="ml-1 font-normal text-zinc-600">
+                                                    {entry.total === 1 ? 'uso' : 'usos'}
+                                                </span>
+                                            </span>
+                                        </div>
 
-                                {/* Barra de progreso relativa al primero */}
-                                <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
-                                    <div
-                                        className="h-full rounded-full transition-[width] duration-700"
-                                        style={{
-                                            width: `${pct}%`,
-                                            backgroundColor: rowColor,
-                                            boxShadow: `0 0 10px ${rowColor}66`
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        );
-                    })}
+                                        {/* Barra de progreso relativa al primero */}
+                                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                                            <div
+                                                className="h-full rounded-full transition-[width] duration-700"
+                                                style={{
+                                                    width: `${pct}%`,
+                                                    backgroundColor: rowColor,
+                                                    boxShadow: `0 0 10px ${rowColor}40`
+                                                }}
+                                            />
+                                        </div>
+                                    </m.div>
+                                );
+                            })}
+                        </AnimatePresence>
+                    </LazyMotion>
                 </div>
             )}
         </AnalyticsSection>
