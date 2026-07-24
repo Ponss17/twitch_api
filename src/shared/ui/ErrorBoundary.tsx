@@ -22,6 +22,21 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     componentDidCatch(error: Error, info: ErrorInfo) {
         console.error('[ErrorBoundary]', error, info.componentStack);
+        
+        // Detección de error de chunk perdido tras un nuevo deploy
+        const isChunkError = 
+            error.message.includes('Failed to fetch dynamically imported module') ||
+            error.message.includes('Importing a module script failed') ||
+            error.message.includes('error loading dynamically imported module');
+
+        if (isChunkError) {
+            const lastReload = sessionStorage.getItem('chunk_error_last_reload');
+            const now = Date.now();
+            if (!lastReload || now - parseInt(lastReload, 10) > 10_000) {
+                sessionStorage.setItem('chunk_error_last_reload', now.toString());
+                window.location.reload();
+            }
+        }
     }
 
     private renderHint(): ReactNode {
