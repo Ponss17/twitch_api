@@ -61,6 +61,7 @@ export function AnalyticsCommandsDistribution({
                                 dataKey="value"
                                 isAnimationActive={false}
                                 stroke="none"
+                                paddingAngle={3}
                                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 shape={(props: any) => {
                                     const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, index } =
@@ -73,8 +74,10 @@ export function AnalyticsCommandsDistribution({
                                             <path
                                                 d={path}
                                                 fill={color}
-                                                fillOpacity={0.8}
-                                                stroke="none"
+                                                fillOpacity={0.38}
+                                                stroke={color}
+                                                strokeWidth={1.5}
+                                                strokeDasharray="4 4"
                                                 fillRule="evenodd"
                                             />
                                         );
@@ -89,8 +92,10 @@ export function AnalyticsCommandsDistribution({
                                             startAngle={startAngle}
                                             endAngle={endAngle}
                                             fill={color}
-                                            fillOpacity={0.8}
-                                            stroke="none"
+                                            fillOpacity={0.38}
+                                            stroke={color}
+                                            strokeWidth={1.5}
+                                            strokeDasharray="4 4"
                                         />
                                     );
                                 }}
