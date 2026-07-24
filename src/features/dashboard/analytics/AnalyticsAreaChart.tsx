@@ -42,8 +42,9 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                     >
                         <defs>
                             <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#9146ff" stopOpacity={0.5} />
-                                <stop offset="95%" stopColor="#9146ff" stopOpacity={0} />
+                                <stop offset="0%" stopColor="#9146ff" stopOpacity={0.6} />
+                                <stop offset="60%" stopColor="#9146ff" stopOpacity={0.15} />
+                                <stop offset="100%" stopColor="#9146ff" stopOpacity={0} />
                             </linearGradient>
                         </defs>
                         <CartesianGrid
@@ -70,7 +71,7 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             fontSize={12}
                             tickLine={false}
                             axisLine={false}
-                            domain={[0, (dataMax: number) => (dataMax === 0 ? 10 : dataMax)]}
+                            domain={[0, (dataMax: number) => (dataMax <= 1 ? 10 : Math.ceil(dataMax * 1.15))]}
                             allowDecimals={false}
                             tickMargin={12}
                         />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Trophy, Users, Medal } from 'lucide-react';
+import { Trophy, Users } from 'lucide-react';
 import { AnalyticsSection } from './AnalyticsShared';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { apiFetch } from '@/core/api/auth';
@@ -15,25 +15,15 @@ interface AnalyticsViewerLeaderboardProps {
     timeRange: 'today' | '7d';
 }
 
-const MEDAL_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'];
-const RANK_BG = [
-    'border-[#FFD700]/20 bg-[#FFD700]/[0.04]',
-    'border-[#C0C0C0]/20 bg-[#C0C0C0]/[0.04]',
-    'border-[#CD7F32]/20 bg-[#CD7F32]/[0.04]',
-];
+const ANALYTICS_COLORS = ['#7254b8', '#4a8b75', '#b3934d', '#b35656', '#4d75b3', '#b3714d', '#a85c87', '#615e9c'];
 
-function RankIcon({ rank }: { rank: number }) {
-    if (rank < 3) {
-        return (
-            <Medal
-                className="h-4 w-4 shrink-0"
-                style={{ color: MEDAL_COLORS[rank] }}
-            />
-        );
-    }
+function RankIcon({ rank, color }: { rank: number; color: string }) {
     return (
-        <span className="w-4 shrink-0 text-center text-xs font-bold text-zinc-500">
-            {rank + 1}
+        <span
+            className="w-5 shrink-0 text-center text-sm font-bold"
+            style={{ color }}
+        >
+            #{rank + 1}
         </span>
     );
 }
@@ -111,28 +101,22 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
 
                     {data.map((entry, idx) => {
                         const pct = maxTotal > 0 ? (entry.total / maxTotal) * 100 : 0;
-                        const isTop3 = idx < 3;
+                        const rowColor = ANALYTICS_COLORS[idx % ANALYTICS_COLORS.length];
 
                         return (
                             <div
                                 key={entry.user_name}
-                                className={`flex flex-col gap-1.5 rounded-lg border px-3 py-2 transition-colors ${
-                                    isTop3 ? RANK_BG[idx] : 'border-white/[0.05] bg-white/[0.02]'
-                                }`}
+                                className="flex flex-col gap-1.5 rounded-lg border border-white/[0.05] bg-white/[0.02] px-3 py-2 transition-colors hover:bg-white/[0.04]"
                             >
                                 <div className="flex items-center gap-2.5">
-                                    <RankIcon rank={idx} />
+                                    <RankIcon rank={idx} color={rowColor} />
                                     <span
-                                        className="min-w-0 flex-1 truncate text-sm font-medium capitalize text-zinc-200"
+                                        className="min-w-0 flex-1 truncate text-sm font-medium text-zinc-200"
                                         title={entry.user_name}
                                     >
                                         {entry.user_name}
                                     </span>
-                                    <span
-                                        className={`shrink-0 text-xs font-bold tabular-nums ${
-                                            isTop3 ? 'text-white' : 'text-zinc-400'
-                                        }`}
-                                    >
+                                    <span className="shrink-0 text-xs font-bold tabular-nums text-zinc-300">
                                         {entry.total}
                                         <span className="ml-1 font-normal text-zinc-600">
                                             {entry.total === 1 ? 'uso' : 'usos'}
@@ -141,15 +125,13 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
                                 </div>
 
                                 {/* Barra de progreso relativa al primero */}
-                                <div className="h-0.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                                <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
                                     <div
-                                        className="h-full rounded-full transition-all duration-700"
+                                        className="h-full rounded-full transition-[width] duration-700"
                                         style={{
                                             width: `${pct}%`,
-                                            backgroundColor: isTop3
-                                                ? MEDAL_COLORS[idx]
-                                                : '#71717a',
-                                            opacity: isTop3 ? 0.7 : 0.4
+                                            backgroundColor: rowColor,
+                                            boxShadow: `0 0 10px ${rowColor}66`
                                         }}
                                     />
                                 </div>
