@@ -248,6 +248,76 @@ export const getDailyStats = async (userId: string, days: number = 7) => {
     }
 };
 
+export const getViewerLeaderboards = async (userId: string, limit: number = 10) => {
+    try {
+        const now = new Date();
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        
+        const startOfDay = new Date(now);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const VIEWER_TYPES = ['followage', 'clip', 'shoutout', 'magic8', 'russian', 'duel'];
+
+        const { data, error } = await supabase
+            .from('activity_logs')
+            .select('user_name, created_at')
+            .eq('user_id', userId)
+            .gte('created_at', sevenDaysAgo.toISOString())
+            .in('activity_type', VIEWER_TYPES)
+            .neq('user_name', 'Anónimo')
+            .neq('user_name', 'Streamer')
+            .neq('user_name', 'Canal')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            logger.error('Error obteniendo leaderboard de viewers:', error.message);
+            return { leaderboardToday: [], leaderboardWeekly: [] };
+        }
+
+        const weeklyMap = new Map<string, { total: number; last_seen: string; display_name: string }>();
+        const todayMap = new Map<string, { total: number; last_seen: string; display_name: string }>();
+
+        for (const row of data ?? []) {
+            const rawName = (row.user_name as string | null)?.trim() ?? '';
+            if (!rawName) continue;
+
+            const key = rawName.toLowerCase();
+            const createdAt = new Date(row.created_at as string);
+            
+            // Weekly
+            const existingW = weeklyMap.get(key);
+            if (existingW) {
+                existingW.total += 1;
+            } else {
+                weeklyMap.set(key, { total: 1, last_seen: row.created_at as string, display_name: rawName });
+            }
+
+            // Today
+            if (createdAt >= startOfDay) {
+                const existingT = todayMap.get(key);
+                if (existingT) {
+                    existingT.total += 1;
+                } else {
+                    todayMap.set(key, { total: 1, last_seen: row.created_at as string, display_name: rawName });
+                }
+            }
+        }
+
+        const toArray = (map: Map<string, { total: number; last_seen: string; display_name: string }>) => Array.from(map.values())
+            .map(({ display_name, total, last_seen }) => ({ user_name: display_name, total, last_seen }))
+            .sort((a, b) => b.total - a.total)
+            .slice(0, limit);
+
+        return {
+            leaderboardToday: toArray(todayMap),
+            leaderboardWeekly: toArray(weeklyMap)
+        };
+    } catch (e) {
+        logger.error('Error fatal en getViewerLeaderboards:', e);
+        return { leaderboardToday: [], leaderboardWeekly: [] };
+    }
+};
+
 export const recordUserRequest = async (
     userId: string,
     latency: number,
