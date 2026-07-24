@@ -256,7 +256,7 @@ export function LandingPage() {
             <div className="relative z-[1] mx-auto w-full max-w-[1400px] flex-1 px-6 md:px-8 pt-12">
                 <section className="grid min-h-0 items-center gap-16 py-24 md:min-h-[88vh] md:grid-cols-2 md:gap-16 md:py-0">
                     <div className="max-w-[600px] text-center md:text-left">
-                        <div className="mb-7 inline-flex animate-fade-soft items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-3.5 py-1.5 text-[0.8125rem] font-medium tracking-wide text-[#c4c4cc] shadow-sm backdrop-blur-md transition-colors hover:border-white/[0.15] hover:bg-white/[0.04]">
+                        <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-3.5 py-1.5 text-[0.8125rem] font-medium tracking-wide text-[#c4c4cc] shadow-sm backdrop-blur-md transition-colors hover:border-white/[0.15] hover:bg-white/[0.04]">
                             <span className="relative flex h-2 w-2">
                                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#9146ff] opacity-75"></span>
                                 <span className="relative inline-flex h-2 w-2 rounded-full bg-[#9146ff]"></span>
@@ -264,16 +264,14 @@ export function LandingPage() {
                             Twitch API — v5
                         </div>
                         <h2
-                            className="mb-5 animate-fade-soft text-[clamp(2.8rem,4.5vw,4.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-[#fafafa] opacity-0 [animation-fill-mode:forwards]"
-                            style={{ animationDelay: '100ms' }}
+                            className="mb-5 text-[clamp(2.8rem,4.5vw,4.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-[#fafafa]"
                         >
                             Comandos para tu
                             <br />
                             <span className="text-[#9146ff]">Stream.</span>
                         </h2>
                         <p
-                            className="mb-8 animate-fade-soft text-lg leading-relaxed text-[#c4c4cc] opacity-0 [animation-fill-mode:forwards]"
-                            style={{ animationDelay: '200ms' }}
+                            className="mb-8 text-lg leading-relaxed text-[#c4c4cc]"
                         >
                             {legacyReloginNotice ? (
                                 <>
@@ -290,8 +288,7 @@ export function LandingPage() {
                             )}
                         </p>
                         <div
-                            className="mb-6 flex animate-fade-soft flex-wrap justify-center gap-4 opacity-0 [animation-fill-mode:forwards] md:justify-start"
-                            style={{ animationDelay: '300ms' }}
+                            className="mb-6 flex flex-wrap justify-center gap-4 md:justify-start"
                         >
                             {hasSession ? (
                                 <a
@@ -340,8 +337,7 @@ export function LandingPage() {
                     </div>
 
                     <div
-                        className="relative hidden animate-fade-soft items-center justify-center opacity-0 [animation-fill-mode:forwards] md:flex"
-                        style={{ animationDelay: '400ms' }}
+                        className="relative hidden items-center justify-center md:flex"
                     >
                         <div className="w-full max-w-[500px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#0a0a0a] shadow-2xl">
                             <div className="flex items-center justify-between border-b border-white/[0.04] bg-white/[0.02] px-4 py-3">

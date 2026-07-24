@@ -161,6 +161,14 @@
             "destination": "/api/index.js"
         },
         {
+            "source": "/favicon.svg",
+            "destination": "/img/logo.svg"
+        },
+        {
+            "source": "/favicon.ico",
+            "destination": "/img/logo.svg"
+        },
+        {
             "source": "/api/:path*",
             "destination": "/api/index.js"
         },
