@@ -1,4 +1,5 @@
-import { useMemo, useState, memo } from 'react';
+import { useMemo, useState, memo, useEffect, useRef, useCallback } from 'react';
+import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Filter, Terminal, LayoutGrid, Bot, Wrench, Swords, Activity } from 'lucide-react';
 
 import { panelCard, fadeIn } from '@/core/utils/tw';
@@ -244,26 +245,37 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                     ) : filteredActivity.length === 0 ? (
                         <ActivityEmptyState filtered={categoryFilter !== 'all' || typeFilter !== 'all'} />
                     ) : (
-                        filteredActivity.slice(0, 50).map((item, i) => {
-                            const dateLabel = item.timestamp
-                                ? formatActivityDate(item.timestamp, timeZone)
-                                : '';
-                            const showDivider = dateLabel && dateLabel !== lastDateLabel;
-                            if (showDivider) lastDateLabel = dateLabel;
-                            const key = activityEntryKey(item);
-                            const isNew = highlightKeys?.has(key) ?? false;
-                            return (
-                                <div key={`${key}-${i}`}>
-                                    {showDivider ? <div className={LOG_DATE_DIVIDER}>{dateLabel}</div> : null}
-                                    <HomeActivityLogEntry 
-                                        item={item} 
-                                        isNew={isNew} 
-                                        timeZone={timeZone} 
-                                        onClick={setSelectedActivity}
-                                    />
-                                </div>
-                            );
-                        })
+                        <LazyMotion features={domAnimation}>
+                            <AnimatePresence initial={false}>
+                                {filteredActivity.slice(0, 50).map((item, i) => {
+                                    const dateLabel = item.timestamp
+                                        ? formatActivityDate(item.timestamp, timeZone)
+                                        : '';
+                                    const showDivider = dateLabel && dateLabel !== lastDateLabel;
+                                    if (showDivider) lastDateLabel = dateLabel;
+                                    const key = activityEntryKey(item);
+                                    const isNew = highlightKeys?.has(key) ?? false;
+                                    
+                                    return (
+                                        <m.div 
+                                            key={`${key}-${i}`}
+                                            layout
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3, ease: 'easeOut' }}
+                                        >
+                                            {showDivider ? <div className={LOG_DATE_DIVIDER}>{dateLabel}</div> : null}
+                                            <HomeActivityLogEntry 
+                                                item={item} 
+                                                isNew={isNew} 
+                                                timeZone={timeZone} 
+                                                onClick={setSelectedActivity}
+                                            />
+                                        </m.div>
+                                    );
+                                })}
+                            </AnimatePresence>
+                        </LazyMotion>
                     )}
                 </div>
             </div>

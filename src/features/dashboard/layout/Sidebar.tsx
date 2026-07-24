@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { LazyMotion, domAnimation, m } from 'framer-motion';
 import type { DashboardTab } from '@/core/config/config';
 import { appPath, saveDocsReturnPath } from '@/core/config/paths';
 import { NAV_ITEMS } from '@/features/dashboard/lib/dashboardTabs';
@@ -98,15 +99,27 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                                         onChange(item.id);
                                         onClose();
                                     }}
-                                    className={sidebarNavItem(isActive)}
+                                    className={`${sidebarNavItem(isActive)} relative overflow-hidden`}
                                     aria-label={item.label}
                                     aria-current={isActive ? 'page' : undefined}
                                 >
-                                    <IconMd
-                                        icon={item.icon}
-                                        className={isActive ? 'animate-nav-icon-bounce text-white' : ''}
-                                    />
-                                    <span>{item.label}</span>
+                                    {isActive && (
+                                        <LazyMotion features={domAnimation}>
+                                            <m.div
+                                                layoutId="sidebar-active"
+                                                className="absolute inset-0 bg-primary/20"
+                                                initial={false}
+                                                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                                            />
+                                        </LazyMotion>
+                                    )}
+                                    <div className="relative z-10 flex items-center gap-3">
+                                        <IconMd
+                                            icon={item.icon}
+                                            className={isActive ? 'animate-nav-icon-bounce text-white' : ''}
+                                        />
+                                        <span>{item.label}</span>
+                                    </div>
                                 </button>
                             </div>
                         );
