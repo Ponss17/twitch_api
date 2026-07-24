@@ -15,7 +15,7 @@ if (IS_LOCAL_DEV) {
 } else {
     const CACHE_NAME = 'losperris-twitch-v12';
     /** Solo assets estáticos — no precachear páginas SSR (evita invocaciones extra en install). */
-    const urlsToCache = ['/offline', '/manifest.json', '/img/logo.svg', '/favicon.svg'];
+    const urlsToCache = ['/offline', '/manifest.json', '/img/logo.svg'];
 
     const isSameOrigin = (url) => {
         try {

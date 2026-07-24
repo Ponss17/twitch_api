@@ -437,7 +437,7 @@ const DataExport = {
         const dashboardUrl = `${siteOrigin}${appPath('/dashboard')}`;
         const aboutUrl = `${siteOrigin}${appPath('/sobre-la-api')}`;
         const logoUrl = absoluteAssetUrl('/img/logo.svg', siteOrigin);
-        const faviconUrl = absoluteAssetUrl('/favicon.svg', siteOrigin);
+
         const statusUrl = STATUS_PAGE_URL;
         const siteLabel = 'www.losperris.dev';
         const siteUrl = 'https://www.losperris.dev';
@@ -454,7 +454,7 @@ const DataExport = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Reporte de cuenta de ${name} — LosPerris Twitch API">
     <title>${name} · Reporte · LosPerris Twitch API</title>
-    <link rel="icon" href="${faviconUrl}" type="image/svg+xml">
+    <link rel="icon" type="image/svg+xml" href="${logoUrl}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
