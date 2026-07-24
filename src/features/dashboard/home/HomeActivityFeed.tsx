@@ -1,4 +1,4 @@
-import { useMemo, useState, memo, useEffect, useRef, useCallback } from 'react';
+import { useMemo, useState, memo } from 'react';
 import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Filter, Terminal, LayoutGrid, Bot, Wrench, Swords, Activity } from 'lucide-react';
 
