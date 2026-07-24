@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Trophy, Users } from 'lucide-react';
 import { AnalyticsSection } from './AnalyticsShared';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { apiFetch } from '@/core/api/auth';
 import { useRequiredSession } from '@/core/session/useSession';
+import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 
 export interface ViewerLeaderboardEntry {
     user_name: string;
@@ -16,6 +17,9 @@ interface AnalyticsViewerLeaderboardProps {
 }
 
 const ANALYTICS_COLORS = ['#7254b8', '#4a8b75', '#b3934d', '#b35656', '#4d75b3', '#b3714d', '#a85c87', '#615e9c'];
+
+// Fuera del componente: se crea una sola vez, no en cada render
+const VIEWER_TYPES = new Set(['followage', 'clip', 'shoutout', 'magic8', 'russian', 'duel']);
 
 function RankIcon({ rank, color }: { rank: number; color: string }) {
     return (
@@ -30,13 +34,17 @@ function RankIcon({ rank, color }: { rank: number; color: string }) {
 
 export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderboardProps) {
     const session = useRequiredSession();
+    const { activity } = useDashboardPanel();
     const [data, setData] = useState<ViewerLeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    // Guardamos el timestamp del último item procesado para no re-fetchear si no hay items genuinamente nuevos
+    const lastActivityTsRef = useRef<string | null>(null);
 
-    const fetchLeaderboard = useCallback(async () => {
+    const fetchLeaderboard = useCallback(async (showLoader = false) => {
         if (!session) return;
-        setLoading(true);
+        if (showLoader) setLoading(true);
         setError(null);
         try {
             const result = await apiFetch<ViewerLeaderboardEntry[]>(
@@ -53,9 +61,33 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
         }
     }, [session, timeRange]);
 
+    // Carga inicial
     useEffect(() => {
-        fetchLeaderboard();
+        fetchLeaderboard(true);
     }, [fetchLeaderboard]);
+
+    // Realtime: cuando llega actividad nueva de tipo viewer, refrescar con debounce
+    useEffect(() => {
+        if (!activity.length) return;
+        const latest = activity[0];
+        if (!latest?.type || !VIEWER_TYPES.has(latest.type)) return;
+
+        // Evitar re-fetch si el item no cambió (el array se puede re-crear sin items nuevos)
+        const ts = latest.timestamp ?? '';
+        if (ts && ts === lastActivityTsRef.current) return;
+        lastActivityTsRef.current = ts;
+
+        // Debounce de 2s para no spamear el API si llegan varios eventos seguidos
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => {
+            void fetchLeaderboard(false);
+        }, 2000);
+
+        return () => {
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activity]);
 
     const maxTotal = data[0]?.total ?? 1;
 

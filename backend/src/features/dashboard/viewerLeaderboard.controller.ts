@@ -39,13 +39,20 @@ export const getViewerLeaderboard = async (req: AuthenticatedRequest, res: Respo
             fromDate = sevenDaysAgo.toISOString();
         }
 
+        // Solo contamos activity_types donde user_name es un viewer del chat,
+        // no acciones propias del streamer (message, stalker, trends, roulette, tool)
+        const VIEWER_TYPES = ['followage', 'clip', 'shoutout', 'magic8', 'russian', 'duel'];
+
         // Query agrupada: cuenta cuántas veces aparece cada viewer
         const { data, error } = await supabase
             .from('activity_logs')
             .select('user_name, created_at')
             .eq('user_id', userId)
             .gte('created_at', fromDate)
-            .not('user_name', 'in', '("Anónimo","Streamer","Canal")')
+            .in('activity_type', VIEWER_TYPES)
+            .neq('user_name', 'Anónimo')
+            .neq('user_name', 'Streamer')
+            .neq('user_name', 'Canal')
             .order('created_at', { ascending: false });
 
         if (error) {
