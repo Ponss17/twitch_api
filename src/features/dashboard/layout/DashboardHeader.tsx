@@ -88,17 +88,17 @@ export function DashboardHeader({
                     <Dropdown>
                         <DropdownTrigger
                             aria-label="Menú de cuenta"
-                            className="group flex items-center gap-3 rounded-[1.1rem] border border-white/[0.04] bg-bg-secondary py-1.5 pl-1.5 pr-4 transition-all hover:border-white/[0.08] aria-expanded:border-[#9146ff]/40 aria-expanded:bg-white/[0.02]"
+                            className="group flex items-center gap-3 rounded-[1.1rem] border border-white/[0.08] bg-bg-secondary py-1.5 pl-1.5 pr-4 transition-colors hover:border-primary/30 hover:bg-primary/[0.04] aria-expanded:border-primary/60 aria-expanded:bg-primary/[0.08]"
                         >
                             <img
                                 src={session.profile_image_url?.replace('300x300', '70x70') ?? staticPath('/img/logo.svg')}
                                 alt=""
-                                className="h-9 w-9 shrink-0 rounded-full border-[2px] border-transparent object-cover transition-all group-aria-expanded:border-[#9146ff] group-aria-expanded:ring-4 group-aria-expanded:ring-[#9146ff]/20"
+                                className="h-9 w-9 shrink-0 rounded-full border-[2px] border-transparent object-cover transition-all group-hover:border-primary/50 group-aria-expanded:border-primary group-aria-expanded:ring-4 group-aria-expanded:ring-primary/25"
                             />
-                            <span className="hidden max-w-[120px] truncate text-[0.9rem] font-medium text-zinc-300 transition-colors group-hover:text-zinc-100 group-aria-expanded:text-white md:inline">
+                            <span className="hidden max-w-[120px] truncate text-[0.9rem] font-medium text-zinc-300 transition-colors group-hover:text-white group-aria-expanded:text-white md:inline">
                                 {displayName}
                             </span>
-                            <DropdownChevron className="hidden size-4 shrink-0 text-zinc-500 transition-colors group-hover:text-zinc-300 group-aria-expanded:text-[#9146ff] md:block" />
+                            <DropdownChevron className="hidden size-4 shrink-0 text-zinc-500 transition-colors group-hover:text-primary/70 group-aria-expanded:text-primary md:block" />
                         </DropdownTrigger>
 
                         <DropdownPanel widthClassName="w-[230px]" zIndex={1000} className="rounded-2xl">
