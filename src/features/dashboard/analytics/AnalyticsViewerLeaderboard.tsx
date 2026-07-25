@@ -92,11 +92,13 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
 
     // 3. Proyectar el mapa a Array y ordenar (solo top 10)
     const activeMap = timeRange === 'today' ? todayMap : weeklyMap;
-    const data = Array.from(activeMap.values())
+    const allEntries = Array.from(activeMap.values());
+    const data = allEntries
         .sort((a, b) => b.total - a.total)
         .slice(0, 10);
 
     const maxTotal = data[0]?.total ?? 1;
+    const totalInteractions = allEntries.reduce((sum, entry) => sum + entry.total, 0);
 
     return (
         <AnalyticsSection
@@ -117,10 +119,15 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
             ) : (
                 <div className="flex flex-1 flex-col gap-2 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                     {/* Header */}
-                    <div className="mb-1 flex items-center gap-2 px-1">
-                        <Trophy className="h-3.5 w-3.5 text-amber-400" />
-                        <span className="text-[0.7rem] font-semibold uppercase tracking-widest text-zinc-500">
-                            Ranking {timeRange === 'today' ? 'de hoy' : 'semanal'}
+                    <div className="mb-1 flex items-center justify-between px-1">
+                        <div className="flex items-center gap-2">
+                            <Trophy className="h-3.5 w-3.5 text-amber-400" />
+                            <span className="text-[0.7rem] font-semibold uppercase tracking-widest text-zinc-500">
+                                Ranking {timeRange === 'today' ? 'de hoy' : 'semanal'}
+                            </span>
+                        </div>
+                        <span className="text-[0.7rem] font-medium text-zinc-400" title="Total de usos por todos los viewers">
+                            {totalInteractions} {totalInteractions === 1 ? 'uso total' : 'usos totales'}
                         </span>
                     </div>
 
