@@ -247,7 +247,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                     ) : (
                         <LazyMotion features={domAnimation}>
                             <AnimatePresence initial={false}>
-                                {filteredActivity.slice(0, 50).map((item, i) => {
+                                {filteredActivity.slice(0, 50).map((item) => {
                                     const dateLabel = item.timestamp
                                         ? formatActivityDate(item.timestamp, timeZone)
                                         : '';
@@ -258,7 +258,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                     
                                     return (
                                         <m.div 
-                                            key={`${key}-${i}`}
+                                            key={key}
                                             layout
                                             initial={{ opacity: 0, y: -10 }}
                                             animate={{ opacity: 1, y: 0 }}
