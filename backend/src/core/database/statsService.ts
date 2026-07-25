@@ -250,11 +250,10 @@ export const getDailyStats = async (userId: string, days: number = 7) => {
 
 export const getViewerLeaderboards = async (userId: string, limit: number = 10) => {
     try {
+        const tz = await ensureUserTimezone(userId);
         const now = new Date();
         const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        
-        const startOfDay = new Date(now);
-        startOfDay.setHours(0, 0, 0, 0);
+        const todayStr = getDateFormatter(tz).format(now);
 
         const VIEWER_TYPES = ['followage', 'clip', 'shoutout', 'magic8', 'russian', 'duel'];
 
@@ -293,7 +292,8 @@ export const getViewerLeaderboards = async (userId: string, limit: number = 10) 
             }
 
             // Today
-            if (createdAt >= startOfDay) {
+            const rowDateStr = getDateFormatter(tz).format(createdAt);
+            if (rowDateStr === todayStr) {
                 const existingT = todayMap.get(key);
                 if (existingT) {
                     existingT.total += 1;
