@@ -88,12 +88,12 @@ export function DashboardHeader({
                     <Dropdown>
                         <DropdownTrigger
                             aria-label="Menú de cuenta"
-                            className="group flex items-center gap-3 rounded-[1.1rem] border border-white/[0.08] bg-bg-secondary py-1.5 pl-1.5 pr-4 transition-colors hover:border-primary/30 hover:bg-primary/[0.04] aria-expanded:border-primary/60 aria-expanded:bg-primary/[0.08]"
+                            className="group flex items-center gap-3 rounded-[1.1rem] border border-white/[0.04] bg-bg-secondary py-1.5 pl-1.5 pr-4 transition-colors hover:border-primary/25 hover:bg-primary/[0.04] aria-expanded:border-primary/25 aria-expanded:bg-primary/[0.04]"
                         >
                             <img
                                 src={session.profile_image_url?.replace('300x300', '70x70') ?? staticPath('/img/logo.svg')}
                                 alt=""
-                                className="h-9 w-9 shrink-0 rounded-full border-[2px] border-transparent object-cover transition-all group-hover:border-primary/50 group-aria-expanded:border-primary group-aria-expanded:ring-4 group-aria-expanded:ring-primary/25"
+                                className="h-9 w-9 shrink-0 rounded-full border border-transparent object-cover transition-colors group-hover:border-primary/25 group-aria-expanded:border-primary/25"
                             />
                             <span className="hidden max-w-[120px] truncate text-[0.9rem] font-medium text-zinc-300 transition-colors group-hover:text-white group-aria-expanded:text-white md:inline">
                                 {displayName}
