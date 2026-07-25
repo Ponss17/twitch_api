@@ -13,7 +13,7 @@ import {
     type Ref
 } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { hoverSubtleChip, hoverSubtleControl } from '@/core/utils/tw';
+import { hoverSubtleControl } from '@/core/utils/tw';
 
 interface DropdownContextValue {
     open: boolean;
@@ -32,10 +32,10 @@ function useDropdown(): DropdownContextValue {
 }
 
 export const dropdownTriggerCompact =
-    `flex min-w-[9.5rem] max-w-[11.5rem] items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 py-1.5 text-[0.75rem] font-medium text-[#fafafa] disabled:cursor-not-allowed disabled:opacity-50 ${hoverSubtleControl}`;
+    `flex min-w-[9.5rem] max-w-[11.5rem] items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-3 py-2 text-[0.8rem] font-medium text-white shadow-lg shadow-black/20 transition-all duration-300 hover:border-white/20 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-[#9146ff]/50 disabled:cursor-not-allowed disabled:opacity-50 ${hoverSubtleControl}`;
 
 const panelBase =
-    'absolute animate-fade-soft overflow-hidden border border-white/[0.08] bg-bg-secondary shadow-2xl';
+    'absolute animate-fade-soft overflow-hidden border border-white/10 bg-[#09090b]/85 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] ring-1 ring-white/5';
 
 interface DropdownProps {
     children: ReactNode;
@@ -109,9 +109,9 @@ interface DropdownChevronProps {
     className?: string;
 }
 
-export function DropdownChevron({ className = 'size-3.5 shrink-0 text-[#71717a] transition-transform' }: DropdownChevronProps) {
+export function DropdownChevron({ className = 'size-4 shrink-0 text-zinc-400 transition-transform duration-300' }: DropdownChevronProps) {
     const { open } = useDropdown();
-    return <ChevronDown className={`${className} ${open ? 'rotate-180' : ''}`} aria-hidden />;
+    return <ChevronDown className={`${className} ${open ? 'rotate-180 text-white' : ''}`} aria-hidden />;
 }
 
 interface DropdownPanelProps extends HTMLAttributes<HTMLDivElement> {
@@ -159,9 +159,9 @@ interface DropdownHeaderProps {
 
 export function DropdownHeader({ children }: DropdownHeaderProps) {
     return (
-        <div className="border-b border-white/5 px-4 py-3">
+        <div className="border-b border-white/10 bg-white/[0.02] px-4 py-3">
             {typeof children === 'string' ? (
-                <span className="text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-zinc-500">{children}</span>
+                <span className="text-[0.7rem] font-bold uppercase tracking-wider text-zinc-400">{children}</span>
             ) : (
                 children
             )}
@@ -170,7 +170,7 @@ export function DropdownHeader({ children }: DropdownHeaderProps) {
 }
 
 export function DropdownDivider() {
-    return <div className="my-1 border-t border-white/5" aria-hidden />;
+    return <div className="my-1.5 border-t border-white/10" aria-hidden />;
 }
 
 interface DropdownItemProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -187,8 +187,8 @@ export function DropdownItem({
     const { close } = useDropdown();
     const tone =
         variant === 'danger'
-            ? 'text-error hover:bg-error/10'
-            : `text-zinc-400 ${hoverSubtleChip} hover:text-zinc-100`;
+            ? 'text-red-400 hover:bg-red-500/10 hover:text-red-300'
+            : `text-zinc-300 hover:bg-white/10 hover:text-white transition-colors duration-200`;
 
     return (
         <button
@@ -220,7 +220,7 @@ export function DropdownLink({
 
     return (
         <a
-            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-zinc-400 no-underline ${hoverSubtleChip} hover:text-zinc-100 ${className}`.trim()}
+            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-zinc-300 no-underline hover:bg-white/10 hover:text-white transition-colors duration-200 ${className}`.trim()}
             onClick={(e) => {
                 if (closeOnClick) close();
                 onClick?.(e);
@@ -253,8 +253,8 @@ export function DropdownCheckboxItem({
 }: DropdownCheckboxItemProps) {
     return (
         <label
-            className={`flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-[0.75rem] ${hoverSubtleChip} ${
-                emphasis ? 'font-semibold text-[#fafafa]' : 'font-medium text-[#c4c4cc] hover:text-[#d4d4d8]'
+            className={`flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-[0.8rem] transition-colors duration-200 hover:bg-white/10 ${
+                emphasis ? 'font-semibold text-white' : 'font-medium text-zinc-300 hover:text-white'
             } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`.trim()}
         >
             <input
