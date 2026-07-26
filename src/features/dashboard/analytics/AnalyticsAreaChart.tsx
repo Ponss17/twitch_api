@@ -77,7 +77,7 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                         />
                         <Tooltip 
                             content={<CustomTooltip />} 
-                            cursor={{ stroke: 'transparent', strokeWidth: 0 }} 
+                            cursor={false}
                             isAnimationActive={false} 
                             wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
                         />
