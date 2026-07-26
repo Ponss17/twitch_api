@@ -28,6 +28,7 @@ const {
 import { Footer } from '@/shared/layout/Footer';
 import { staticPath, absoluteAssetUrl } from '@/core/config/paths';
 import SpeedInsights from '@vercel/speed-insights/astro';
+import Analytics from '@vercel/analytics/astro';
 
 const documentTitle = title ?? (page ? pageTitle(page) : pageTitle('Documentación'));
 
@@ -119,5 +120,6 @@ const swScope = staticPath('/');
                 data-sw-scope={swScope}
             />
         )}
+        <Analytics />
     </body>
 </html>
