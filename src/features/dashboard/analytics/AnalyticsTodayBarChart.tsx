@@ -5,9 +5,9 @@ import { BarChart2 } from 'lucide-react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomBarShape = (props: any) => {
-    const { fill, x, y, width, height, stroke } = props;
-    const barFill = fill;
-    const barStroke = stroke;
+    const { fill, x, y, width, height, stroke, payload } = props;
+    const barFill = payload?.fill ?? fill;
+    const barStroke = payload?.fill ?? stroke;
     if (!height || height === 0) return null;
 
     const radius = 4;
