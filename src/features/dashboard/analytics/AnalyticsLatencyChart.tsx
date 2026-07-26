@@ -75,7 +75,7 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                 stroke="#a1a1aa"
                                 fontSize={12}
                                 tickLine={false}
-                                axisLine={{ stroke: '#ffffff', strokeOpacity: 0.3, strokeWidth: 1.5 }}
+                                axisLine={false}
                                 className="capitalize"
                             />
                             <Tooltip 
