@@ -6,8 +6,8 @@ import { BarChart2 } from 'lucide-react';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomBarShape = (props: any) => {
     const { fill, x, y, width, height, stroke, payload } = props;
-    const barFill = payload?.fill ?? fill;
-    const barStroke = payload?.fill ?? stroke;
+    const barFill = fill;
+    const barStroke = stroke;
     if (!height || height === 0) return null;
 
     const radius = 4;
@@ -170,7 +170,7 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                             />
                             <Tooltip 
                                 content={<CustomTooltip />} 
-                                cursor={{ fill: 'transparent' }} 
+                                cursor={false} 
                                 isAnimationActive={false} 
                                 wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
                             />
