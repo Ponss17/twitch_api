@@ -24,7 +24,15 @@ function SkeletonCircle({ className = 'h-10 w-10' }: { className?: string }) {
 }
 
 /** Spinner de sesión → skeleton del shell del dashboard. */
-export function DashboardSessionSkeleton() {
+export function DashboardSessionSkeleton({ tab = 'home' }: { tab?: string }) {
+    let ContentSkeleton = HomeViewSkeleton;
+    if (tab === 'analytics') ContentSkeleton = AnalyticsSkeleton;
+    else if (tab === 'settings') ContentSkeleton = SettingsViewSkeleton;
+    else if (tab === 'trends') ContentSkeleton = TrendsSkeleton;
+    else if (tab === 'stalker') ContentSkeleton = StalkerViewSkeleton;
+    else if (tab === 'clips') ContentSkeleton = () => <div className="animate-fade-soft" aria-busy="true"><ClipsGridSkeleton /></div>;
+    else if (tab !== 'home') ContentSkeleton = CommandViewSkeleton;
+
     return (
         <div className="flex min-h-screen bg-[#09090b]" aria-busy="true" aria-label="Cargando dashboard">
             <aside className="hidden w-[240px] shrink-0 p-4 lg:block">
@@ -44,7 +52,7 @@ export function DashboardSessionSkeleton() {
                     </div>
                 </div>
                 <div className="mx-auto w-full max-w-[1600px] flex-1 p-6">
-                    <HomeViewSkeleton />
+                    <ContentSkeleton />
                 </div>
             </main>
         </div>

@@ -124,11 +124,11 @@ function DashboardAppShell() {
     }, []);
 
     if (loading && !splashOpen) {
-        return <DashboardSessionSkeleton />;
+        return <DashboardSessionSkeleton tab={tab} />;
     }
 
     if (!loading && (!authenticated || !session)) {
-        return <DashboardSessionSkeleton />;
+        return <DashboardSessionSkeleton tab={tab} />;
     }
 
     const dashboardReady = !loading && authenticated && !!session;
