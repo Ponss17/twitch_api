@@ -78,6 +78,7 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
 
         setBarDone(true);
 
+        // Aumentar el tiempo de espera (1.2 segundos) para que el usuario perciba que terminó
         doneTimerRef.current = setTimeout(() => {
             setIsLeaving(true);
             exitTimerRef.current = setTimeout(() => {
@@ -85,8 +86,8 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
                 setIsLeaving(false);
                 setBarDone(false);
                 onExited?.();
-            }, 320);
-        }, 420);
+            }, 400); // fade out duration
+        }, 1200);
 
         return () => {
             if (doneTimerRef.current) clearTimeout(doneTimerRef.current);
@@ -128,18 +129,18 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
                     />
                 </div>
 
-                {/* Textos y Loader */}
-                <div className="mb-6 flex flex-col items-center">
-                    <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight text-white">
+                {/* Textos y Loader (Con altura fija para evitar saltos) */}
+                <div className="mb-6 flex flex-col items-center justify-center h-[4.5rem] w-full">
+                    <h2 className="flex items-center justify-center gap-3 text-2xl font-bold tracking-tight text-white w-full">
                         {!barDone && (
                             <Loader2
-                                className="h-5 w-5 animate-spin text-[#9146ff]"
+                                className="h-5 w-5 shrink-0 animate-spin text-[#9146ff]"
                                 aria-hidden
                             />
                         )}
-                        {statusTitle}
+                        <span className="truncate">{statusTitle}</span>
                     </h2>
-                    <p className="mt-2 text-[0.9rem] font-medium text-[#71717a]">
+                    <p className="mt-2 text-[0.9rem] font-medium text-[#71717a] w-full truncate">
                         {statusHint}
                     </p>
                 </div>
