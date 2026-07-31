@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+
 import { AppLogo } from '@/shared/ui/AppLogo';
 import {
     resetSessionLoadProgress,
@@ -29,9 +29,22 @@ function useSmoothedProgress(target: number, active: boolean): number {
         const tick = () => {
             setDisplayed((prev) => {
                 const goal = targetRef.current;
-                if (Math.abs(prev - goal) < 0.4) return goal;
-                const step = Math.max(0.6, (goal - prev) * 0.12);
-                return Math.min(prev + step, goal);
+                
+                // Si la meta oficial es 100 (carga completada), acelerar hacia 100 y detener.
+                if (goal >= 100) {
+                    if (prev >= 100) return 100;
+                    return Math.min(100, prev + Math.max(1, (100 - prev) * 0.15));
+                }
+
+                // Si aún no hemos alcanzado la meta parcial dictada por el servidor, ir hacia ella.
+                if (prev < goal) {
+                    return Math.min(99, prev + Math.max(0.1, (goal - prev) * 0.08));
+                } 
+                
+                // Fake progress: Si ya llegamos a la meta parcial, seguimos avanzando
+                // muuuy lentamente para que la barra nunca se vea "congelada".
+                // Topamos en 99% para que nunca marque finalizado hasta que el goal sea 100.
+                return Math.min(99, prev + 0.03);
             });
             raf = requestAnimationFrame(tick);
         };
@@ -78,7 +91,7 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
 
         setBarDone(true);
 
-        // Aumentar el tiempo de espera (1.2 segundos) para que el usuario perciba que terminó
+        // Tiempo de espera (2 segundos) para que el usuario lea el mensaje de éxito antes de entrar
         doneTimerRef.current = setTimeout(() => {
             setIsLeaving(true);
             exitTimerRef.current = setTimeout(() => {
@@ -93,17 +106,17 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
             if (doneTimerRef.current) clearTimeout(doneTimerRef.current);
             if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [done]);
 
     if (!visible) return null;
 
-    const statusTitle = barDone ? '¡Listo!' : detail.label;
+    const statusTitle = barDone ? 'AUTENTICADO' : detail.label;
     const statusHint = barDone
-        ? 'Bienvenido de vuelta.'
+        ? 'Acceso concedido. Redirigiendo...'
         : detail.cached
-          ? 'Caché local activa — carga rápida.'
-          : 'Sin caché — el servidor puede tardar unos segundos.';
+            ? 'Caché local activa — carga rápida.'
+            : 'Sincronizando perfil seguro...';
 
     return (
         <div
@@ -129,33 +142,36 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
                     />
                 </div>
 
-                {/* Textos y Loader (Con altura fija para evitar saltos) */}
+                {/* Textos sin spinner, más alineados al diseño Tech Clean */}
                 <div className="mb-6 flex flex-col items-center justify-center h-[4.5rem] w-full">
-                    <h2 className="flex items-center justify-center gap-3 text-2xl font-bold tracking-tight text-white w-full">
-                        {!barDone && (
-                            <Loader2
-                                className="h-5 w-5 shrink-0 animate-spin text-[#9146ff]"
-                                aria-hidden
-                            />
-                        )}
-                        <span className="truncate">{statusTitle}</span>
+                    <h2 className="text-[1.3rem] font-bold tracking-tight text-white w-full truncate">
+                        {statusTitle}
                     </h2>
-                    <p className="mt-2 text-[0.9rem] font-medium text-[#71717a] w-full truncate">
+                    <p className="mt-1 text-[0.85rem] font-medium text-zinc-400 w-full truncate">
                         {statusHint}
                     </p>
                 </div>
 
-                {/* Barra de progreso ultra fina */}
-                <div className="w-full relative flex flex-col items-center">
-                    <div className="relative w-64 h-1 overflow-hidden rounded-full bg-white/[0.05] shadow-inner">
-                        <div
-                            className="absolute inset-y-0 left-0 rounded-full bg-[#9146ff] transition-all duration-300 ease-out shadow-[0_0_10px_#9146ff]"
-                            style={{ width: `${displayedProgress}%` }}
-                        />
+                {/* Barra de progreso de segmentos de datos */}
+                <div className="w-full max-w-[280px] relative flex flex-col items-center">
+                    <div className="flex w-full gap-[3px] h-1 mb-1">
+                        {Array.from({ length: 20 }).map((_, i) => {
+                            const isActive = i < Math.floor((displayedProgress / 100) * 20);
+                            return (
+                                <div
+                                    key={i}
+                                    className={`flex-1 rounded-[2px] transition-colors duration-200 ${
+                                        isActive 
+                                            ? 'bg-[#9146ff] shadow-[0_0_8px_#9146ff]' 
+                                            : 'bg-white/5'
+                                    }`}
+                                />
+                            );
+                        })}
                     </div>
-                    
-                    {/* Porcentaje numérico suave abajo de la barra */}
-                    <div className="mt-4 font-mono text-[0.8rem] font-medium tracking-widest text-white/40">
+
+                    {/* Porcentaje numérico */}
+                    <div className="mt-3 font-mono text-[0.75rem] font-bold tracking-[0.1em] text-[#9146ff]">
                         {progressPercent}%
                     </div>
                 </div>
