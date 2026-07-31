@@ -10,13 +10,13 @@ import { useSession, useRequiredSession } from '@/core/session/useSession';
 import { DashboardSessionSkeleton } from '@/shared/ui/Skeleton';
 import { logout, shouldShowDashboardSplash, clearDashboardSplashFlags } from '@/core/api/auth';
 import { DASHBOARD_DATA_READY_EVENT } from '@/features/dashboard/lib/dashboardPanelEvents';
-
 import { initGlobalErrorLogging } from '@/core/logging/logError';
 import { resolveDashboardTab, setTabInUrl } from '@/features/dashboard/lib/dashboardTabUrl';
 import { persistPanelReturnPath } from '@/core/config/paths';
 import { fadeIn } from '@/core/utils/tw';
 import type { DashboardTab } from '@/core/config/config';
 import { DashboardPanelProvider } from '@/features/dashboard/providers/DashboardPanelProvider';
+import { I18nProvider } from '@/core/i18n/I18nContext';
 
 function DashboardPanelShell({
     tab,
@@ -38,12 +38,14 @@ function DashboardPanelShell({
 
 export function DashboardApp() {
     return (
-        <ToastProvider>
-            <AppToaster />
-            <SessionProvider requireAuth>
-                <DashboardAppShell />
-            </SessionProvider>
-        </ToastProvider>
+        <I18nProvider>
+            <ToastProvider>
+                <AppToaster />
+                <SessionProvider requireAuth>
+                    <DashboardAppShell />
+                </SessionProvider>
+            </ToastProvider>
+        </I18nProvider>
     );
 }
 
