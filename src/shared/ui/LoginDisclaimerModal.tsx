@@ -58,23 +58,22 @@ export function LoginDisclaimerModal({ open, onClose }: LoginDisclaimerModalProp
                 stream, etc.).
             </p>
             <p>Al conectar tu cuenta, aceptas que usemos estos datos únicamente para:</p>
-            <ul>
-                <li>
-                    <Check className="w-4 h-4" />
+            <ul className="space-y-2 my-4">
+                <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 text-[#9146ff] shrink-0 mt-1" />
                     Verificar tu identidad.
                 </li>
-                <li>
-                    <Check className="w-4 h-4" />
+                <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 text-[#9146ff] shrink-0 mt-1" />
                     Ejecutar los comandos que configures.
                 </li>
-                <li>
-                    <Check className="w-4 h-4" />
+                <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 text-[#9146ff] shrink-0 mt-1" />
                     Generar estadísticas de uso (anonimizadas).
                 </li>
             </ul>
             <p className="text-sm opacity-80">
-                No almacenamos contraseñas ni tenemos acceso a acciones críticas como borrar clips o banear
-                usuarios sin tu permiso explícito.
+                Solo realizaremos acciones de moderación (como timeouts en minijuegos) o interactuaremos con tu canal si tú configuras y activas esos comandos explícitamente. No almacenamos tus contraseñas.
             </p>
             <p className="text-sm">
                 <a
