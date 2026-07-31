@@ -64,18 +64,39 @@ const swScope = staticPath('/');
         <meta name="robots" content={robotsContent} />
         <link rel="canonical" href={canonicalUrl} />
         <meta name="theme-color" content="#9146ff" />
+        
+        <!-- Open Graph -->
+        <meta property="og:site_name" content="LosPerris" />
+        <meta property="og:locale" content="es_ES" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={shareUrl} />
         <meta property="og:title" content={shareTitle} />
         <meta property="og:description" content={shareDesc} />
         <meta property="og:image" content={shareImage} />
-        <meta property="twitter:card" content="summary" />
-        <meta property="twitter:url" content={shareUrl} />
-        <meta property="twitter:title" content={shareTitle} />
-        <meta property="twitter:description" content={shareDesc} />
-        <meta property="twitter:image" content={shareImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={shareTitle} />
+        
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@losperris" />
+        <meta name="twitter:url" content={shareUrl} />
+        <meta name="twitter:title" content={shareTitle} />
+        <meta name="twitter:description" content={shareDesc} />
+        <meta name="twitter:image" content={shareImage} />
+        
         <link rel="icon" type="image/svg+xml" href={staticPath('/img/logo.svg')} />
+        <link rel="apple-touch-icon" sizes="180x180" href={staticPath('/apple-touch-icon.png')} />
         <link rel="manifest" href={staticPath('/manifest.json')} />
+
+        <!-- Structured Data -->
+        <script type="application/ld+json" set:html={JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": documentTitle,
+            "description": description,
+            "url": canonicalUrl
+        })}></script>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link rel="preconnect" href="https://cdn.discordapp.com" />
