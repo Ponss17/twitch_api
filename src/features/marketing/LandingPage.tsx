@@ -110,7 +110,7 @@ export function LandingPage() {
     const [latency, setLatency] = useState(142);
 
     const copyTerminal = async () => {
-        const text = 'curl -G "https://api.losperris.dev/twitch/followage" -d "channel=losperris" -d "user=mynana17" -d "apiKey=sk_a1b2c3d4..."';
+        const text = 'curl -G "https://ttv.losperris.dev/twitch/followage" -d "channel=losperris" -d "user=mynana17" -d "apiKey=sk_a1b2c3d4..."';
         await navigator.clipboard.writeText(text);
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
@@ -261,7 +261,7 @@ export function LandingPage() {
                                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#9146ff] opacity-75"></span>
                                 <span className="relative inline-flex h-2 w-2 rounded-full bg-[#9146ff]"></span>
                             </span>
-                            Twitch API — v5
+                            v5 · Beta activa
                         </div>
                         <h2
                             className="mb-5 text-[clamp(2.8rem,4.5vw,4.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-[#fafafa]"
@@ -342,7 +342,7 @@ export function LandingPage() {
                         <div className="w-full max-w-[500px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#0a0a0a] shadow-2xl">
                             <div className="flex items-center justify-between border-b border-white/[0.04] bg-white/[0.02] px-4 py-3">
                                 <div className="flex items-center gap-1.5 opacity-60 transition-opacity hover:opacity-100">
-                                    <span className="font-mono text-xs text-white/40">api.losperris.dev</span>
+                                    <span className="font-mono text-xs text-white/40">ttv.losperris.dev</span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <button
@@ -372,7 +372,7 @@ export function LandingPage() {
                                     <span className="font-bold text-[#a78bfa]">$</span>
                                     <span className="font-semibold text-white"> curl</span>
                                     <span className="text-white/60"> -G</span>
-                                    <span> &quot;https://api.losperris.dev/twitch/followage&quot;</span>
+                                    <span> &quot;https://ttv.losperris.dev/twitch/followage&quot;</span>
                                 </div>
                                 <div>
                                     <span className="text-white/60"> -d</span>
