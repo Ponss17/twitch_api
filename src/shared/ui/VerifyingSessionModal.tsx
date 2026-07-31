@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-
 import { AppLogo } from '@/shared/ui/AppLogo';
 import {
     resetSessionLoadProgress,
     subscribeSessionLoadProgress,
     type SessionLoadProgressDetail
 } from '@/core/session/loadProgress';
+import { useTranslation } from '@/core/i18n/I18nContext';
+
 
 interface VerifyingSessionModalProps {
     open: boolean;
@@ -72,6 +73,9 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
     const displayedProgress = useSmoothedProgress(targetProgress, visible && !isLeaving);
     const progressPercent = Math.round(displayedProgress);
 
+    // Always call hooks before any early return (Rules of Hooks)
+    const { t } = useTranslation();
+
     useEffect(() => {
         if (open) {
             setVisible(true);
@@ -111,12 +115,12 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
 
     if (!visible) return null;
 
-    const statusTitle = barDone ? 'AUTENTICADO' : detail.label;
+    const statusTitle = barDone ? t.verifying.authenticated : detail.label;
     const statusHint = barDone
-        ? 'Acceso concedido. Redirigiendo...'
+        ? t.verifying.accessGranted
         : detail.cached
-            ? 'Caché local activa — carga rápida.'
-            : 'Sincronizando perfil seguro...';
+            ? t.verifying.cacheActive
+            : t.verifying.noCache;
 
     return (
         <div
