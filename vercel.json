@@ -65,6 +65,15 @@
             ]
         },
         {
+            "source": "/(index|legal|docs|404|429|500).html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=3600, stale-while-revalidate=86400"
+                }
+            ]
+        },
+        {
             "source": "/(.*).html",
             "headers": [
                 {
