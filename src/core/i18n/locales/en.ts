@@ -138,6 +138,7 @@ export const en: Translations = {
         title: 'Settings',
         tabs: {
             general: 'General',
+            data: 'Data',
             security: 'Security',
             connections: 'Connections',
             sessionExpiredLogin: 'Session expired. Please log in again.',
@@ -215,9 +216,17 @@ export const en: Translations = {
             notAvailable: 'Not available right now'
         },
         groups: {
-            account: { title: 'Account', desc: 'Identifier and plan limits' },
+            account: { title: 'Account', desc: 'Your plan identifier and limits' },
             preferences: { title: 'Preferences', desc: 'Account settings' },
-            export: { title: 'Data', desc: 'Export your account information' },
+            data: { 
+                title: 'Account Data', 
+                desc: 'Information and management of your account data.',
+                firstLogin: 'First Login',
+                firstLoginDesc: 'Date when you first logged in.',
+                lastLogin: 'Last Previous Login',
+                lastLoginDesc: 'Date of your last session before the current one.'
+            },
+            export: { title: 'Export', desc: 'Export your account information' },
             security: { title: 'Security', desc: 'Keys and access' },
             dangerZone: { title: 'Danger Zone', desc: 'Destructive actions' },
             discord: { title: 'Discord', desc: 'Integrations' }
@@ -396,8 +405,10 @@ export const en: Translations = {
         },
         areaChart: {
             title: 'Traffic & Errors (7 days)',
-            info: 'Daily request evolution.',
-            requests: 'Requests'
+            info: 'History of the last 7 days. Today updates in real-time.',
+            requests: 'Requests',
+            noData: 'No activity',
+            noDataSub: 'Waiting for events'
         },
         leaderboard: {
             title: 'Top Users',

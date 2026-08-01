@@ -2,24 +2,19 @@ import type { DashboardProfile } from '@/features/dashboard/lib/dashboardSummary
 import { SettingsGroup } from '@/features/dashboard/settings/SettingsGroup';
 import { SettingsAccountSection } from '@/features/dashboard/settings/SettingsAccountSection';
 import { SettingsPreferencesSection } from '@/features/dashboard/settings/SettingsPreferencesSection';
-import { SettingsExportSection } from '@/features/dashboard/settings/SettingsExportSection';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface SettingsGeneralPanelProps {
     userId?: string;
     profile: DashboardProfile | null;
-    exportLoading: boolean;
     onCopyId: () => void;
-    onExport: () => void | Promise<void>;
     onPreferencesChanged: () => void;
 }
 
 export function SettingsGeneralPanel({
     userId,
     profile,
-    exportLoading,
     onCopyId,
-    onExport,
     onPreferencesChanged
 }: SettingsGeneralPanelProps) {
     const { t } = useTranslation();
@@ -45,10 +40,6 @@ export function SettingsGeneralPanel({
                     currentTimezone={profile?.timezone || 'UTC'}
                     onSettingsChanged={onPreferencesChanged}
                 />
-            </SettingsGroup>
-
-            <SettingsGroup title={gT.export.title} description={gT.export.desc} delay={80}>
-                <SettingsExportSection loading={exportLoading} onExport={onExport} />
             </SettingsGroup>
         </>
     );

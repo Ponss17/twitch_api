@@ -191,7 +191,10 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                     {LOCALE_OPTIONS.map((opt) => (
                                         <DropdownItem
                                             key={opt.value}
-                                            onClick={() => setLocale(opt.value)}
+                                            onClick={() => {
+                                                setLocale(opt.value);
+                                                showToast(t.settings.toasts.settingsSaved, 'success');
+                                            }}
                                             className={`mb-0.5 rounded-md px-2.5 py-1.5 ${
                                                 locale === opt.value ? 'bg-primary/20 text-white' : ''
                                             }`}

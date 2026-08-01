@@ -1,6 +1,7 @@
 import { fadeIn } from '@/core/utils/tw';
 import { SettingsTabs, SettingsTabPanel } from '@/features/dashboard/settings/SettingsTabs';
 import { SettingsGeneralPanel } from '@/features/dashboard/settings/SettingsGeneralPanel';
+import { SettingsDataPanel } from '@/features/dashboard/settings/SettingsDataPanel';
 import { SettingsSecurityPanel } from '@/features/dashboard/settings/SettingsSecurityPanel';
 import { SettingsConnectionsPanel } from '@/features/dashboard/settings/SettingsConnectionsPanel';
 import { SettingsModals } from '@/features/dashboard/settings/SettingsModals';
@@ -26,10 +27,16 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                 <SettingsGeneralPanel
                     userId={s.session.userId}
                     profile={s.profile}
-                    exportLoading={s.exportLoading}
                     onCopyId={() => void s.copyId()}
-                    onExport={() => void s.exportData()}
                     onPreferencesChanged={s.onPreferencesChanged}
+                />
+            </SettingsTabPanel>
+
+            <SettingsTabPanel id="datos" active={s.settingsTab}>
+                <SettingsDataPanel
+                    profile={s.profile}
+                    exportLoading={s.exportLoading}
+                    onExport={() => void s.exportData()}
                 />
             </SettingsTabPanel>
 
