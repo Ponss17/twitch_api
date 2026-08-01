@@ -151,7 +151,7 @@ describe('SessionProvider', () => {
         );
 
         await waitFor(() => expect(screen.getByText('user:streamer')).toBeInTheDocument());
-        expect(showToastMock).toHaveBeenCalledWith('Conexión inestable con el servidor', 'warning');
+        expect(showToastMock).toHaveBeenCalledWith('Conexión inestable con Twitch. Reintentando...', 'warning');
     });
 
     it('refresh keeps session identity after validate', async () => {
