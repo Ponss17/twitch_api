@@ -43,24 +43,14 @@ interface CustomBarShapeProps extends RectangleProps {
 const CustomBarShape = (props: CustomBarShapeProps) => {
     const { x = 0, y = 0, index = 0, isActive = false, ...rest } = props;
     const color = COLORS[index % COLORS.length];
-    const gradientId = `lat-gradient-${isActive ? 'active-' : ''}${Math.round(Number(x))}-${Math.round(Number(y))}`;
     return (
         <g>
-            <defs>
-                <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor={color} stopOpacity={0} />
-                    <stop offset="100%" stopColor={color} stopOpacity={isActive ? 0.8 : 0.6} />
-                </linearGradient>
-            </defs>
             <Rectangle
                 {...rest}
                 x={x}
                 y={y}
-                fill={`url(#${gradientId})`}
-                fillOpacity={1}
-                stroke={color}
-                strokeWidth={1}
-                strokeOpacity={isActive ? 0.8 : 0.4}
+                fill={color}
+                fillOpacity={isActive ? 1 : 0.85}
                 radius={[0, 4, 4, 0]}
             />
         </g>
