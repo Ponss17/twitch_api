@@ -64,7 +64,7 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
                             <button
                                 type="button"
                                 onClick={onClearData}
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-error/25 bg-error/[0.06] px-5 py-2 text-sm font-bold text-error transition hover:border-error/45 hover:bg-error/[0.14] sm:w-auto"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-error px-5 py-2 text-sm font-semibold text-white transition hover:bg-error-hover sm:w-auto"
                             >
                                 <RotateCcw className="h-4 w-4" aria-hidden="true" />
                                 {pT.resetStats}
@@ -82,7 +82,7 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
                             <button
                                 type="button"
                                 onClick={onDeleteAccount}
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-error/25 bg-error/[0.06] px-5 py-2 text-sm font-bold text-error transition hover:border-error/45 hover:bg-error/[0.14] sm:w-auto"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-error px-5 py-2 text-sm font-semibold text-white transition hover:bg-error-hover sm:w-auto"
                             >
                                 <Trash2 className="h-4 w-4" aria-hidden="true" />
                                 {pT.deleteAccount}

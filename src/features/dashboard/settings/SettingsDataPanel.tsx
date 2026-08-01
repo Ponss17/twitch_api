@@ -38,14 +38,15 @@ function DateTimeBadge({ isoDate, timezone, locale, fallback }: { isoDate?: stri
     }
 
     return (
-        <div className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-[#09090b] p-1 shadow-inner transition hover:border-white/10">
-            <div className="flex items-center gap-1.5 rounded-md bg-white/[0.04] px-2.5 py-1 text-[0.8rem] font-medium text-zinc-300">
-                <CalendarDays className="h-3.5 w-3.5 text-zinc-400" />
-                <span>{split.date}</span>
+        <div className="flex items-center gap-4 text-[0.85rem]">
+            <div className="flex items-center gap-2">
+                <CalendarDays className="h-4 w-4 text-zinc-500" />
+                <span className="font-medium text-zinc-300">{split.date}</span>
             </div>
-            <div className="flex items-center gap-1.5 rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 text-[0.8rem] font-bold text-white">
-                <Clock className="h-3.5 w-3.5 text-primary" />
-                <span>{split.time}</span>
+            <div className="h-4 w-px bg-white/[0.08]" aria-hidden="true" />
+            <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-primary/70" />
+                <span className="font-medium text-white">{split.time}</span>
             </div>
         </div>
     );

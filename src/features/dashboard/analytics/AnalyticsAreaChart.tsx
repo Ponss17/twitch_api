@@ -114,7 +114,6 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             name={chart.requests}
                             stroke="#9146ff"
                             strokeWidth={3}
-                            strokeDasharray="6 6"
                             activeDot={{ r: 6, strokeWidth: 2, stroke: '#18181b', fill: '#9146ff' }}
                             fillOpacity={1}
                             fill="url(#colorRequests)"
