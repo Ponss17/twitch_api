@@ -10,18 +10,45 @@ interface SettingsDataPanelProps {
     onExport: () => void | Promise<void>;
 }
 
-function formatDate(isoDate?: string, timezone?: string, locale = 'es-ES') {
-    if (!isoDate) return 'Desconocido';
+function formatDateTimeSplit(isoDate?: string, timezone?: string, locale = 'es-ES') {
+    if (!isoDate) return null;
     try {
-        const date = new Date(isoDate);
-        return new Intl.DateTimeFormat(locale, {
+        const dateObj = new Date(isoDate);
+        const date = new Intl.DateTimeFormat(locale, {
             timeZone: timezone || 'UTC',
-            dateStyle: 'long',
+            dateStyle: 'medium'
+        }).format(dateObj);
+        
+        const time = new Intl.DateTimeFormat(locale, {
+            timeZone: timezone || 'UTC',
             timeStyle: 'short'
-        }).format(date);
+        }).format(dateObj);
+        
+        return { date, time };
     } catch {
-        return 'Fecha inválida';
+        return null;
     }
+}
+
+function DateTimeBadge({ isoDate, timezone, locale, fallback }: { isoDate?: string, timezone?: string, locale: string, fallback: string }) {
+    const split = formatDateTimeSplit(isoDate, timezone, locale);
+    
+    if (!split) {
+        return <span className="text-sm font-medium text-zinc-500">{fallback}</span>;
+    }
+
+    return (
+        <div className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-[#09090b] p-1 shadow-inner transition hover:border-white/10">
+            <div className="flex items-center gap-1.5 rounded-md bg-white/[0.04] px-2.5 py-1 text-[0.8rem] font-medium text-zinc-300">
+                <CalendarDays className="h-3.5 w-3.5 text-zinc-400" />
+                <span>{split.date}</span>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 text-[0.8rem] font-bold text-white">
+                <Clock className="h-3.5 w-3.5 text-primary" />
+                <span>{split.time}</span>
+            </div>
+        </div>
+    );
 }
 
 export function SettingsDataPanel({
@@ -40,9 +67,12 @@ export function SettingsDataPanel({
                     icon={CalendarDays}
                     description={gT.data?.firstLoginDesc || 'Fecha de tu primer inicio de sesión'}
                     control={
-                        <div className="text-sm font-medium text-white">
-                            {formatDate(profile?.dbCreatedAt, profile?.timezone, locale)}
-                        </div>
+                        <DateTimeBadge
+                            isoDate={profile?.dbCreatedAt}
+                            timezone={profile?.timezone}
+                            locale={locale}
+                            fallback="Desconocido"
+                        />
                     }
                 />
                 
@@ -51,9 +81,12 @@ export function SettingsDataPanel({
                     icon={Clock}
                     description={gT.data?.lastLoginDesc || 'Fecha de tu última sesión'}
                     control={
-                        <div className="text-sm font-medium text-white">
-                            {formatDate(profile?.dbLastActive, profile?.timezone, locale)}
-                        </div>
+                        <DateTimeBadge
+                            isoDate={profile?.dbLastActive}
+                            timezone={profile?.timezone}
+                            locale={locale}
+                            fallback="Desconocido"
+                        />
                     }
                 />
             </SettingsGroup>

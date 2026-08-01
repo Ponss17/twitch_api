@@ -41,9 +41,8 @@ export function SettingsSecuritySection({
                 <input
                     id="profile-api-key"
                     readOnly
-                    type={keyVisible ? 'text' : 'password'}
-                    value={apiKey}
-                    autoComplete="new-password"
+                    type="text"
+                    value={keyVisible ? apiKey : '••••••••••••••••••••••••••••••••'}
                     aria-label={pT.apiKeyPrivate}
                     className="flex-1 border-none bg-transparent px-3 py-2 font-[Consolas,monospace] text-[0.9rem] text-white outline-none"
                 />
