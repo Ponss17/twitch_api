@@ -16,9 +16,9 @@ interface SettingsPreferencesSectionProps {
     onSettingsChanged: () => void;
 }
 
-const LOCALE_OPTIONS: { value: Locale; flag: string; label: string }[] = [
-    { value: 'es', flag: '🇪🇸', label: 'Español' },
-    { value: 'en', flag: '🇺🇸', label: 'English' },
+const LOCALE_OPTIONS: { value: Locale; label: string }[] = [
+    { value: 'es', label: 'Español' },
+    { value: 'en', label: 'English' },
 ];
 
 export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged }: SettingsPreferencesSectionProps) {
@@ -169,30 +169,42 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                     </span>
                 }
                 control={
-                    <div
-                        className="flex gap-2"
-                        role="radiogroup"
-                        aria-labelledby="settings-language-label"
-                    >
-                        {LOCALE_OPTIONS.map((opt) => (
-                            <button
-                                key={opt.value}
-                                role="radio"
-                                aria-checked={locale === opt.value}
-                                onClick={() => setLocale(opt.value)}
-                                className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                                    locale === opt.value
-                                        ? 'border-primary bg-primary/10 text-white shadow-[0_0_12px_rgba(145,70,255,0.2)]'
-                                        : 'border-white/[0.06] bg-transparent text-zinc-400 hover:border-white/20 hover:text-white'
-                                }`}
+                    <div className="flex w-full sm:w-auto">
+                        <Dropdown className="relative w-full sm:w-auto">
+                            <DropdownTrigger
+                                aria-labelledby="settings-language-label"
+                                className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-white/[0.06] bg-bg-secondary px-3 py-2 text-sm font-medium text-[#fafafa] transition hover:border-primary/50 sm:w-auto"
                             >
-                                <span className="text-base leading-none">{opt.flag}</span>
-                                <span>{opt.label}</span>
-                                {locale === opt.value && (
-                                    <Check className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                                )}
-                            </button>
-                        ))}
+                                <span className="truncate max-w-[180px] text-left">
+                                    {LOCALE_OPTIONS.find(opt => opt.value === locale)?.label || 'Español'}
+                                </span>
+                                <ChevronDown className="h-4 w-4 shrink-0 text-zinc-400" aria-hidden="true" />
+                            </DropdownTrigger>
+                            <DropdownPanel
+                                align="right"
+                                placement="top"
+                                zIndex={1000}
+                                widthClassName="w-full sm:w-[200px]"
+                                className="flex flex-col p-1"
+                            >
+                                <div className="max-h-[240px] overflow-y-auto px-1 py-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar]:w-1.5">
+                                    {LOCALE_OPTIONS.map((opt) => (
+                                        <DropdownItem
+                                            key={opt.value}
+                                            onClick={() => setLocale(opt.value)}
+                                            className={`mb-0.5 rounded-md px-2.5 py-1.5 ${
+                                                locale === opt.value ? 'bg-primary/20 text-white' : ''
+                                            }`}
+                                        >
+                                            <div className="flex w-full items-center justify-between">
+                                                <span className="truncate">{opt.label}</span>
+                                                {locale === opt.value && <Check className="h-3.5 w-3.5 text-primary" />}
+                                            </div>
+                                        </DropdownItem>
+                                    ))}
+                                </div>
+                            </DropdownPanel>
+                        </Dropdown>
                     </div>
                 }
             />

@@ -1,19 +1,21 @@
 import { useEffect, useRef } from 'react';
 import { useToast } from '@/shared/ui/ToastProvider';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 export function OnlineStatusMonitor() {
     const { showToast } = useToast();
+    const { t } = useTranslation();
     const wasOfflineRef = useRef(!navigator.onLine);
 
     useEffect(() => {
         const onOffline = () => {
-            showToast('Sin conexión a internet. Modo offline activado.', 'info');
+            showToast(t.globals.toasts.offline, 'info');
             wasOfflineRef.current = true;
         };
 
         const onOnline = () => {
             if (wasOfflineRef.current) {
-                showToast('Conexión restaurada', 'success');
+                showToast(t.globals.toasts.online, 'success');
             }
             wasOfflineRef.current = false;
         };
@@ -25,7 +27,7 @@ export function OnlineStatusMonitor() {
             window.removeEventListener('offline', onOffline);
             window.removeEventListener('online', onOnline);
         };
-    }, [showToast]);
+    }, [showToast, t]);
 
     return null;
 }

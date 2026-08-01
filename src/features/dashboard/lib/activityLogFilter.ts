@@ -7,6 +7,7 @@ import {
     type ActivityLogItem,
     type ActivityLogType
 } from '@/features/dashboard/lib/activityLogDisplay';
+import type { Translations } from '@/core/i18n/locales/es';
 
 export type ActivityCategoryFilter = 'all' | 'commands' | 'tools' | 'minigames';
 
@@ -30,12 +31,15 @@ function activityTypesForCategory(
     return cat.keys.map((key) => USAGE_TO_ACTIVITY[key]);
 }
 
-export const ACTIVITY_CATEGORY_LABELS: Record<ActivityCategoryFilter, string> = {
-    all: 'Todos',
-    commands: DASHBOARD_USAGE_CATEGORIES[0].label,
-    tools: DASHBOARD_USAGE_CATEGORIES[1].label,
-    minigames: DASHBOARD_USAGE_CATEGORIES[2].label
-};
+export function getActivityCategoryLabels(t: Translations): Record<ActivityCategoryFilter, string> {
+    const cat = t.home.activityLog.categories;
+    return {
+        all: cat.all,
+        commands: cat.commands,
+        tools: cat.tools,
+        minigames: cat.minigames
+    };
+}
 
 export const ACTIVITY_TYPES_BY_CATEGORY: Record<ActivityCategoryKey, readonly ActivityLogType[]> = {
     commands: activityTypesForCategory(DASHBOARD_USAGE_CATEGORIES[0]),

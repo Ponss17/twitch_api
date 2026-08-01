@@ -13,6 +13,7 @@ import {
     PrivacySectionContent,
     TermsSectionContent
 } from '@/features/legal/LegalSectionContent';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 const SECTIONS: {
     id: LegalSection;
@@ -62,6 +63,7 @@ function parseHash(): LegalSection {
 
 export function LegalPage() {
     const [active, setActive] = useState<LegalSection>(DEFAULT_SECTION);
+    const { t } = useTranslation();
 
     const selectSection = useCallback((id: LegalSection) => {
         setActive(id);
@@ -114,7 +116,7 @@ export function LegalPage() {
                     </a>
                     <nav
                         className="flex gap-1 rounded-lg border border-white/[0.08] bg-bg-card p-1"
-                        aria-label="Secciones legales"
+                        aria-label={t.common.aria.legalSections}
                     >
                         {SECTIONS.map((section) => (
                             <button

@@ -17,11 +17,12 @@ export const DEFAULT_ELIGIBILITY_FILTERS: RouletteEligibilityFilters = {
     viewers: true
 };
 
-export const ROULETTE_ROLE_OPTIONS: { key: RouletteRole; label: string }[] = [
-    { key: 'subs', label: 'Subs' },
-    { key: 'mods', label: 'Mods' },
-    { key: 'vips', label: 'VIPs' },
-    { key: 'viewers', label: 'Viewers' }
+// eslint-disable-next-line
+export const ROULETTE_ROLE_OPTIONS = (rlT: any): { key: RouletteRole; label: string }[] => [
+    { key: 'subs', label: rlT.roles.subs },
+    { key: 'mods', label: rlT.roles.mods },
+    { key: 'vips', label: rlT.roles.vips },
+    { key: 'viewers', label: rlT.roles.viewers }
 ];
 
 function isTruthyTag(value: unknown): boolean {
@@ -89,10 +90,12 @@ export function filtersToApiParam(filters: RouletteEligibilityFilters): string {
 }
 
 /** Texto del botón del selector de elegibilidad */
-export function filtersSummaryLabel(filters: RouletteEligibilityFilters): string {
-    if (isAllFilters(filters)) return 'Todos';
-    if (!hasAnyFilter(filters)) return 'Ninguno';
-    return ROULETTE_ROLE_OPTIONS.filter(({ key }) => filters[key])
+// eslint-disable-next-line
+export function filtersSummaryLabel(filters: RouletteEligibilityFilters, rlT: any): string {
+    if (isAllFilters(filters)) return rlT.all;
+    if (!hasAnyFilter(filters)) return rlT.none;
+    return ROULETTE_ROLE_OPTIONS(rlT)
+        .filter(({ key }) => filters[key])
         .map(({ label }) => label)
         .join(', ');
 }

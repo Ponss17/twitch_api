@@ -2,48 +2,96 @@ import React from 'react';
 import { Timer } from 'lucide-react';
 import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartMountGate, COLORS, AnalyticsSection } from './AnalyticsShared';
+import { useTranslation } from '@/core/i18n/I18nContext';
+import type { } from '@/core/i18n/locales/es';
+
+import type { RectangleProps } from 'recharts';
 
 interface AnalyticsLatencyChartProps {
     active: boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pieData: any[];
 }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload, label }: any) => {
+
+interface Custom{
+    active?: boolean;
+    // eslint-disable-next-line
+    payload?: any[];
+    label?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    t: any;
+}
+
+const CustomTooltip = ({ active, payload, label, t }: Custom) => {
     if (active && payload && payload.length) {
         const valNum = Number(payload[0].value) || 0;
         return (
             <div className="pointer-events-none rounded-xl border border-white/10 bg-[#18181b] p-3 shadow-xl">
                 <p className="mb-1 font-semibold capitalize text-white">{label}</p>
-                <span className="text-sm font-medium text-white">Latencia : {valNum}ms ({(valNum / 1000).toFixed(3)}s)</span>
+                <span className="text-sm font-medium text-white">{t.analytics.latencyChart.latency} : {valNum}ms ({(valNum / 1000).toFixed(3)}s)</span>
             </div>
         );
     }
     return null;
 };
 
+interface CustomBarShapeProps extends RectangleProps {
+    index?: number;
+    isActive?: boolean;
+}
+
+const CustomBarShape = (props: CustomBarShapeProps) => {
+    const { x = 0, y = 0, index = 0, isActive = false, ...rest } = props;
+    const color = COLORS[index % COLORS.length];
+    const gradientId = `lat-gradient-${isActive ? 'active-' : ''}${Math.round(Number(x))}-${Math.round(Number(y))}`;
+    return (
+        <g>
+            <defs>
+                <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor={color} stopOpacity={0} />
+                    <stop offset="100%" stopColor={color} stopOpacity={isActive ? 0.8 : 0.6} />
+                </linearGradient>
+            </defs>
+            <Rectangle
+                {...rest}
+                x={x}
+                y={y}
+                fill={`url(#${gradientId})`}
+                fillOpacity={1}
+                stroke={color}
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+                radius={[0, 4, 4, 0]}
+            />
+        </g>
+    );
+};
+
 export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChartProps) {
+    const { t } = useTranslation();
+    const chart = t.analytics.latencyChart;
+    
     return (
         <AnalyticsSection
             panelClassName="min-h-[360px]"
-            title="Latencia por comando"
-            info="Promedio en milisegundos que tarda cada comando en responder."
+            title={chart.title}
+            info={chart.info}
         >
             {pieData.length === 0 || pieData.every((d) => d.avgLatency === 0) ? (
                 <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
                     <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
                         <Timer className="h-6 w-6 text-zinc-400" />
                     </div>
-                    <span className="text-sm font-medium text-zinc-400">Sin datos de latencia</span>
+                    <span className="text-sm font-medium text-zinc-400">{chart.noData}</span>
                     <span className="mt-1 text-xs text-zinc-400">
-                        Espera a que lleguen nuevas peticiones
+                        {chart.noDataSub}
                     </span>
                 </div>
             ) : (
                 <ChartMountGate
                     active={active}
-                    className="relative min-h-0 w-full min-w-0 flex-1"
-                    srLabel="Gráfico de barras mostrando la latencia promedio por comando."
+                    className="min-h-[300px] w-full min-w-0 flex-1"
+                    srLabel={chart.title}
                 >
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                         <BarChart
@@ -79,65 +127,17 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                                 className="capitalize"
                             />
                             <Tooltip 
-                                content={<CustomTooltip />} 
+                                content={<CustomTooltip t={t} />} 
                                 cursor={false} 
                                 isAnimationActive={false} 
                                 wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
                             />
                             <Bar
                                 dataKey="avgLatency"
-                                name="Latencia"
+                                name={chart.latency}
                                 maxBarSize={16}
-                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                shape={(props: any) => {
-                                    const color = COLORS[props.index % COLORS.length];
-                                    const { x, y } = props;
-                                    const gradientId = `lat-gradient-${Math.round(x)}-${Math.round(y)}`;
-                                    return (
-                                        <g>
-                                            <defs>
-                                                <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
-                                                    <stop offset="0%" stopColor={color} stopOpacity={0} />
-                                                    <stop offset="100%" stopColor={color} stopOpacity={0.6} />
-                                                </linearGradient>
-                                            </defs>
-                                            <Rectangle
-                                                {...props}
-                                                fill={`url(#${gradientId})`}
-                                                fillOpacity={1}
-                                                stroke={color}
-                                                strokeWidth={1.5}
-                                                strokeDasharray="4 4"
-                                                radius={[0, 4, 4, 0]}
-                                            />
-                                        </g>
-                                    );
-                                }}
-                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                activeBar={(props: any) => {
-                                    const color = COLORS[props.index % COLORS.length];
-                                    const { x, y } = props;
-                                    const gradientId = `lat-gradient-active-${Math.round(x)}-${Math.round(y)}`;
-                                    return (
-                                        <g>
-                                            <defs>
-                                                <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
-                                                    <stop offset="0%" stopColor={color} stopOpacity={0} />
-                                                    <stop offset="100%" stopColor={color} stopOpacity={0.8} />
-                                                </linearGradient>
-                                            </defs>
-                                            <Rectangle
-                                                {...props}
-                                                fill={`url(#${gradientId})`}
-                                                fillOpacity={1}
-                                                stroke={color}
-                                                strokeWidth={1.5}
-                                                strokeDasharray="4 4"
-                                                radius={[0, 4, 4, 0]}
-                                            />
-                                        </g>
-                                    );
-                                }}
+                                shape={<CustomBarShape />}
+                                activeBar={<CustomBarShape isActive />}
                             />
                         </BarChart>
                     </ResponsiveContainer>

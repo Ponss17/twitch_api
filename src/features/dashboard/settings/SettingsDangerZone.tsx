@@ -2,6 +2,7 @@ import { type ReactNode } from 'react';
 import { AlertTriangle, Trash2, RotateCcw, type LucideIcon } from 'lucide-react';
 import { SettingsGroup } from '@/features/dashboard/settings/SettingsGroup';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface SettingsDangerZoneProps {
     onClearData: () => void;
@@ -43,18 +44,22 @@ function DangerAction({
 
 /** Un solo bloque: reiniciar datos + eliminar cuenta. */
 export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDangerZoneProps) {
+    const { t } = useTranslation();
+    const gT = t.settings.groups;
+    const pT = t.settings.panels;
+
     return (
         <SettingsGroup
-            title="Zona de Peligro"
-            description="Acciones irreversibles — procede con precaución"
+            title={gT.dangerZone.title}
+            description={gT.dangerZone.desc}
             accent="error"
             delay={120}
         >
                 <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-bg-card">
                     <DangerAction
                         icon={RotateCcw}
-                        title="Reiniciar Estadísticas"
-                        description="Borra el historial de comandos, clips, latencia y gráficas. Tu API Key sigue activa."
+                        title={pT.resetStats}
+                        description={pT.resetStatsDesc}
                         control={
                             <button
                                 type="button"
@@ -62,7 +67,7 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
                                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-error/25 bg-error/[0.06] px-5 py-2 text-sm font-bold text-error transition hover:border-error/45 hover:bg-error/[0.14] sm:w-auto"
                             >
                                 <RotateCcw className="h-4 w-4" aria-hidden="true" />
-                                Limpiar Datos
+                                {pT.resetStats}
                             </button>
                         }
                     />
@@ -71,14 +76,8 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
 
                     <DangerAction
                         icon={AlertTriangle}
-                        title="Eliminar Cuenta"
-                        description={
-                            <>
-                                Borra permanentemente tu perfil y todos los datos asociados.{' '}
-                                <strong className="text-[#f87171]">Irreversible.</strong> No afecta a tu
-                                canal de Twitch.
-                            </>
-                        }
+                        title={pT.deleteAccount}
+                        description={pT.deleteAccountDesc}
                         control={
                             <button
                                 type="button"
@@ -86,7 +85,7 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
                                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#dc2626] px-5 py-2 text-sm font-bold text-white shadow-[0_0_15px_rgba(220,38,38,0.15)] transition hover:bg-[#b91c1c] hover:shadow-[0_0_25px_rgba(220,38,38,0.3)] hover:-translate-y-0.5 sm:w-auto"
                             >
                                 <Trash2 className="h-4 w-4" aria-hidden="true" />
-                                Eliminar Cuenta
+                                {pT.deleteAccount}
                             </button>
                         }
                     />

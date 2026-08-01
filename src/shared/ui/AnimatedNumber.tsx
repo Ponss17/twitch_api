@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
 import { animateValue } from '@/core/utils/animateValue';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface AnimatedNumberProps {
     value: number;
@@ -24,6 +25,7 @@ export function AnimatedNumber({
     const prevRef = useRef<number | null>(null);
     const bootstrappedRef = useRef(false);
     const wasLoadingRef = useRef(isLoading);
+    const { locale } = useTranslation();
 
     useLayoutEffect(() => {
         if (isLoading) {
@@ -37,16 +39,16 @@ export function AnimatedNumber({
         const isFirstReveal = wasLoadingRef.current || !bootstrappedRef.current;
         
         if (isFirstReveal) {
-            animateValue(el, value, value, 0, suffix);
+            animateValue(el, value, value, 0, suffix, locale);
         } else {
             const start = prevRef.current ?? 0;
-            animateValue(el, start, value, duration, suffix);
+            animateValue(el, start, value, duration, suffix, locale);
         }
         
         prevRef.current = value;
         bootstrappedRef.current = true;
         wasLoadingRef.current = false;
-    }, [value, duration, suffix, isLoading]);
+    }, [value, duration, suffix, isLoading, locale]);
 
     if (isLoading) {
         return <span className={[className, PLACEHOLDER_CLASS].filter(Boolean).join(' ')}>—</span>;

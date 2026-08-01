@@ -14,11 +14,14 @@ import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { StalkerRowSkeleton } from '@/shared/ui/Skeleton';
 import { EmptyStateIcon, IconSm, InlineIcon } from '@/shared/ui/Icon';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 const LISTENER_ID = 'stalker';
 
 export function StalkerView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
+    const { t } = useTranslation();
+    const stalker = t.stalker;
     const { showToast } = useToast();
     const [scanning, setScanning] = useState(false);
     const [chatters, setChatters] = useState<StalkerUser[]>([]);
@@ -69,10 +72,11 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                 return Array.from(map.values());
             });
         } catch {
-            showToast('Error al cargar chatters', 'error');
+            showToast(stalker.toasts.errorLoad, 'error');
         } finally {
             setLoading(false);
         }
+    // eslint-disable-next-line
     }, [session, showToast]);
 
     const handleChatMessage = useCallback(
@@ -114,7 +118,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
         enabled: scanning && active,
         onMessage: handleChatMessage,
         onError: () => {
-            showToast('Error al conectar con el chat', 'error');
+            showToast(stalker.toasts.errorChat, 'error');
             setScanning(false);
         }
     });
@@ -122,12 +126,12 @@ export function StalkerView({ active = true }: { active?: boolean }) {
     const toggleScan = async () => {
         if (scanning) {
             setScanning(false);
-            showToast('Vista Congelada (Pausado)', 'info');
+            showToast(stalker.toasts.paused, 'info');
             return;
         }
 
         setScanning(true);
-        showToast('Escaneo iniciado', 'success');
+        showToast(stalker.toasts.started, 'success');
         void fetch(`${API_ENDPOINTS.BASE}/dashboard/track-usage`, withApiCredentials({
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
@@ -148,7 +152,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
             cache.set(cacheKey, info, CACHE_TTL);
             setInspectUser(info);
         } catch {
-            showToast('No se pudo cargar info del usuario', 'error');
+            showToast(stalker.toasts.errorInfo, 'error');
         }
     };
 
@@ -185,10 +189,10 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                         </div>
                         <div className="min-w-0">
                             <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
-                                Visor de Chat (Stalker)
+                                {stalker.title}
                             </h2>
                             <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
-                                Quién está en tu chat ahora mismo
+                                {stalker.info}
                             </p>
                         </div>
                     </div>
@@ -200,12 +204,12 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                             {scanning ? (
                                 <>
                                     <InlineIcon icon={Radio} className="animate-pulse" />
-                                    Escaneo iniciado
+                                    {stalker.toasts.started}
                                 </>
                             ) : (
                                 <>
                                     <InlineIcon icon={Snowflake} className="text-[#00f2ea]" />
-                                    Vista Congelada (Pausado)
+                                    {stalker.toasts.paused}
                                 </>
                             )}
                         </span>
@@ -217,8 +221,8 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                     type="search"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Buscar usuario..."
-                                    aria-label="Buscar usuario..."
+                                    placeholder={stalker.searchPlaceholder}
+                                    aria-label={stalker.searchPlaceholder}
                                     className={`${textInput} ${hoverNeutralControl} pl-9 focus:border-primary focus:bg-primary/[0.02]`}
                                 />
                             </div>
@@ -226,8 +230,8 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                             <button
                                 type="button"
                                 onClick={() => void toggleScan()}
-                                title={scanning ? 'Pausar Escaneo' : 'Iniciar Escaneo'}
-                                aria-label={scanning ? 'Pausar Escaneo' : 'Iniciar Escaneo'}
+                                title={scanning ? stalker.btnPause : stalker.btnStart}
+                                aria-label={scanning ? stalker.btnPause : stalker.btnStart}
                                 className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] transition ${
                                     scanning ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'
                                 }`}
@@ -240,18 +244,18 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                 onClick={() => {
                                     if (scanning) {
                                         void loadChatters();
-                                        showToast('Lista Stalker recargada', 'success');
+                                        showToast(stalker.toasts.reloaded, 'success');
                                     }
                                 }}
-                                title="Recargar lista"
-                                aria-label="Recargar lista"
+                                title={stalker.btnReload}
+                                aria-label={stalker.btnReload}
                                 className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#c4c4cc] ${hoverNeutralIconBtn}`}
                             >
                                 <RotateCw className="size-4 shrink-0" />
                             </button>
                         </div>
 
-                        <InfoTooltip text="Lista de usuarios conectados, clasificados por rol (Mods, VIPs, etc). Clic para detalles." />
+                        <InfoTooltip text={stalker.tooltip} />
                     </div>
                 </header>
 
@@ -262,16 +266,16 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                             <thead>
                                 <tr className="border-b border-white/[0.08] bg-black/20">
                                     <th className="w-[60px] px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
-                                        Avatar
+                                        {stalker.table.avatar}
                                     </th>
                                     <th className="px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
-                                        Usuario
+                                        {stalker.table.user}
                                     </th>
                                     <th className="px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
-                                        Login
+                                        {stalker.table.login}
                                     </th>
                                     <th className="px-5 py-3.5 text-right text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
-                                        Acción
+                                        {stalker.table.action}
                                     </th>
                                 </tr>
                             </thead>
@@ -283,11 +287,10 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                         <td colSpan={4} className="px-5 py-12 text-center">
                                             <EmptyStateIcon icon={Radio} />
                                             <h2 className="mb-2 text-[0.95rem] font-bold text-[#fafafa]">
-                                                Esperando señal...
+                                                {stalker.table.readyTitle}
                                             </h2>
                                             <p className="mx-auto max-w-[400px] text-[0.8125rem] text-[#c4c4cc]">
-                                                Dale al botón <strong className="text-[#fafafa]">Play</strong> para
-                                                comenzar a escanear el chat.
+                                                {stalker.table.readyDesc}
                                             </p>
                                         </td>
                                     </tr>
@@ -299,7 +302,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                         >
                                             <span className="inline-flex items-center justify-center gap-2">
                                                 <InlineIcon icon={Radio} className="animate-pulse" />
-                                                Esperando usuarios en el chat...
+                                                {stalker.table.waiting}
                                             </span>
                                         </td>
                                     </tr>
@@ -344,7 +347,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                                     className={`inline-flex items-center gap-1 rounded-md border border-white/[0.08] bg-transparent px-3 py-1.5 text-[0.8125rem] text-[#c4c4cc] ${hoverNeutralBorderedRow}`}
                                                 >
                                                     <Eye className="size-4 shrink-0" />
-                                                    Ver
+                                                    {stalker.table.btnView}
                                                 </button>
                                             </td>
                                         </tr>
@@ -356,7 +359,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                 </div>
 
                 <p className="mt-2.5 text-center text-[0.6875rem] text-[#a1a1aa]">
-                    * La detección de usuarios se basa en la actividad reciente del chat.
+                    {stalker.footer}
                 </p>
                 </div>
             </div>

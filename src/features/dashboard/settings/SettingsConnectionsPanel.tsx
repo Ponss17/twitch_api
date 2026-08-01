@@ -1,5 +1,6 @@
 import { SettingsGroup } from '@/features/dashboard/settings/SettingsGroup';
 import { SettingsDiscordSection } from '@/features/dashboard/settings/SettingsDiscordSection';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface SettingsConnectionsPanelProps {
     discordId?: string | null;
@@ -18,10 +19,13 @@ export function SettingsConnectionsPanel({
     onLinkClick,
     onUnlinkClick
 }: SettingsConnectionsPanelProps) {
+    const { t } = useTranslation();
+    const gT = t.settings.groups;
+
     return (
         <SettingsGroup
-            title="Conexiones"
-            description="Servicios vinculados a tu cuenta de LosPerris"
+            title={gT.discord.title}
+            description={gT.discord.desc}
             delay={40}
         >
             <SettingsDiscordSection

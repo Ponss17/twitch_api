@@ -1,14 +1,9 @@
 import type { ReactNode } from 'react';
 import { isSettingsTabId, type SettingsTabId } from '@/features/dashboard/settings/settingsPaths';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 export type { SettingsTabId };
 export { isSettingsTabId };
-
-const TABS: { id: SettingsTabId; label: string }[] = [
-    { id: 'general', label: 'General' },
-    { id: 'seguridad', label: 'Seguridad' },
-    { id: 'conexiones', label: 'Conexiones' }
-];
 
 interface SettingsTabsProps {
     active: SettingsTabId;
@@ -16,10 +11,18 @@ interface SettingsTabsProps {
 }
 
 export function SettingsTabs({ active, onChange }: SettingsTabsProps) {
+    const { t } = useTranslation();
+    
+    const TABS: { id: SettingsTabId; label: string }[] = [
+        { id: 'general', label: t.settings.tabs.general },
+        { id: 'seguridad', label: t.settings.tabs.security },
+        { id: 'conexiones', label: t.settings.tabs.connections }
+    ];
+
     return (
         <div
             className="mb-6 flex gap-1 border-b border-white/[0.08]"
-            aria-label="Secciones de ajustes"
+            aria-label={t.common.aria.settingsSections}
             role="tablist"
         >
             {TABS.map((tab) => {

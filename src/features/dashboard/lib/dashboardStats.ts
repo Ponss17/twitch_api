@@ -1,8 +1,8 @@
 /** Categorías del resumen de actividad y contadores por recurso. */
 export const DASHBOARD_USAGE_CATEGORIES = [
-    { id: 'cat-commands', label: 'Comandos', keys: ['clips', 'followage', 'so'] as const },
-    { id: 'cat-tools', label: 'Herramientas', keys: ['stalker', 'trends', 'roulette'] as const },
-    { id: 'cat-minigames', label: 'Minijuegos', keys: ['russian', 'magic8', 'duel'] as const }
+    { id: 'cat-commands', keys: ['clips', 'followage', 'so'] as const },
+    { id: 'cat-tools', keys: ['stalker', 'trends', 'roulette'] as const },
+    { id: 'cat-minigames', keys: ['russian', 'magic8', 'duel'] as const }
 ] as const;
 
 export type DashboardUsageKey = (typeof DASHBOARD_USAGE_CATEGORIES)[number]['keys'][number];
@@ -42,7 +42,7 @@ export function buildTodayActivityStats(
         const itemDate = getStatsLocalDateString(timeZone, new Date(item.timestamp));
         if (itemDate !== todayStr) continue;
         total += 1;
-        const cmd = !item.type || item.type === 'other' ? 'Otros' : item.type;
+        const cmd = !item.type || item.type === 'other' ? 'other' : item.type;
         byCommand.set(cmd, (byCommand.get(cmd) ?? 0) + 1);
     }
 

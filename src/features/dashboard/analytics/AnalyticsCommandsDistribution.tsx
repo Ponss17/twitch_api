@@ -1,7 +1,9 @@
 import React from 'react';
-import { PieChart as PieChartIcon } from 'lucide-react';
+import { Command } from 'lucide-react';
 import { PieChart, Pie, Sector, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartMountGate, COLORS, AnalyticsSection } from './AnalyticsShared';
+import { useTranslation } from '@/core/i18n/I18nContext';
+import type { } from 'recharts';
 
 interface AnalyticsCommandsDistributionProps {
     active: boolean;
@@ -9,8 +11,14 @@ interface AnalyticsCommandsDistributionProps {
     pieData: any[];
     totalRequests: number;
 }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload }: any) => {
+
+interface Custom{
+    active?: boolean;
+    // eslint-disable-next-line
+    payload?: any[];
+}
+
+const CustomTooltip = ({ active, payload }: Custom) => {
     if (active && payload && payload.length) {
         const data = payload[0];
         return (
@@ -29,26 +37,28 @@ export function AnalyticsCommandsDistribution({
     pieData,
     totalRequests
 }: AnalyticsCommandsDistributionProps) {
+    const { t } = useTranslation();
+    const chart = t.analytics.distributionChart;
+
     return (
         <AnalyticsSection
             className="col-span-1"
             panelClassName="h-[420px]"
-            title="Uso de comandos"
-            info="Proporción de uso de cada comando en el periodo activo."
+            title={chart.title}
+            info={chart.info}
         >
-            {pieData.length === 0 || pieData.every((d) => d.value === 0) ? (
+            {pieData.length === 0 ? (
                 <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
                     <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
-                        <PieChartIcon className="h-6 w-6 text-zinc-400" />
+                        <Command className="h-6 w-6 text-zinc-400" />
                     </div>
-                    <span className="text-sm font-medium text-zinc-400">Sin datos suficientes</span>
-                    <span className="mt-1 text-xs text-zinc-400">Usa comandos para ver la distribución</span>
+                    <span className="text-sm font-medium text-zinc-400">{chart.noData}</span>
+                    <span className="mt-1 text-xs text-zinc-400">{chart.noDataSub}</span>
                 </div>
             ) : (
                 <ChartMountGate
                     active={active}
-                    className="relative min-h-[200px] w-full min-w-0 flex-[1.35]"
-                    srLabel="Gráfico circular mostrando la distribución de comandos utilizados."
+                    srLabel={chart.title}
                 >
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                         <PieChart accessibilityLayer={false}>
@@ -62,14 +72,13 @@ export function AnalyticsCommandsDistribution({
                                 isAnimationActive={false}
                                 stroke="none"
                                 paddingAngle={3}
-                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                // eslint-disable-next-line
                                 shape={(props: any) => {
-                                    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, index } =
-                                        props;
+                                    const { cx = 0, cy = 0, innerRadius = 0, outerRadius = 0, startAngle = 0, endAngle = 0, index = 0 } = props;
                                     const color = COLORS[index % COLORS.length];
 
                                     if (Math.abs(endAngle - startAngle) >= 359.9) {
-                                        const path = `M ${cx},${cy - outerRadius} A ${outerRadius},${outerRadius} 0 1,0 ${cx},${cy + outerRadius} A ${outerRadius},${outerRadius} 0 1,0 ${cx},${cy - outerRadius} Z M ${cx},${cy - innerRadius} A ${innerRadius},${innerRadius} 0 1,1 ${cx},${cy + innerRadius} A ${innerRadius},${innerRadius} 0 1,1 ${cx},${cy - innerRadius} Z`;
+                                        const path = `M ${cx},${cy - Number(outerRadius)} A ${outerRadius},${outerRadius} 0 1,0 ${cx},${cy + Number(outerRadius)} A ${outerRadius},${outerRadius} 0 1,0 ${cx},${cy - Number(outerRadius)} Z M ${cx},${cy - Number(innerRadius)} A ${innerRadius},${innerRadius} 0 1,1 ${cx},${cy + Number(innerRadius)} A ${innerRadius},${innerRadius} 0 1,1 ${cx},${cy - Number(innerRadius)} Z`;
                                         return (
                                             <path
                                                 d={path}
@@ -114,11 +123,8 @@ export function AnalyticsCommandsDistribution({
             {pieData.length > 0 && pieData.some((d) => d.value > 0) && (
                 <div className="mt-3 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                     {pieData.map((entry, index) => {
-                        const percentage =
-                            totalRequests > 0
-                                ? ((entry.value / totalRequests) * 100).toFixed(1)
-                                : '0.0';
                         const pct = totalRequests > 0 ? (entry.value / totalRequests) * 100 : 0;
+                        const percentage = pct.toFixed(1);
                         const color = COLORS[index % COLORS.length];
                         return (
                             <div

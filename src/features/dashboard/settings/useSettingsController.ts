@@ -34,6 +34,7 @@ import {
     type SettingsTabId
 } from '@/features/dashboard/settings/settingsPaths';
 import type { SettingsDangerModal } from '@/features/dashboard/settings/settingsTypes';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 export type { SettingsDangerModal };
 
@@ -51,6 +52,7 @@ export function useSettingsController(active: boolean) {
     const session = useRequiredSession();
     const { refresh } = useSession();
     const { showToast } = useToast();
+    const { t, locale } = useTranslation();
     const { profile: panelProfile, updateProfile } = useDashboardPanel();
 
     const [profile, setProfile] = useState<DashboardProfile | null>(
@@ -100,10 +102,11 @@ export function useSettingsController(active: boolean) {
             updateProfileRef.current(data);
             writePanelSyncPref(currentSession.userId, Date.now().toString());
         } catch {
-            showToastRef.current('Error al cargar perfil', 'error');
+            showToastRef.current(t.settings.toasts.profileError, 'error');
         } finally {
             setLoading(false);
         }
+    // eslint-disable-next-line
     }, []);
 
     // Keep-alive / popstate: alinear sub-pestaña con el path.
@@ -214,14 +217,14 @@ export function useSettingsController(active: boolean) {
         setDiscordResult(kind);
         showToastRef.current(
             kind === 'linked'
-                ? 'Discord vinculado correctamente'
+                ? t.settings.toasts.discordLinkSuccess
                 : kind === 'error_taken'
-                  ? 'Ese Discord ya está vinculado a otra cuenta'
+                  ? t.settings.toasts.discordLinkTaken
                   : kind === 'error_auth'
-                    ? 'Debes iniciar sesión para vincular Discord'
+                    ? t.settings.toasts.discordLinkAuth
                     : kind === 'error_config'
-                      ? 'La vinculación con Discord no está disponible ahora'
-                      : 'No se pudo vincular Discord',
+                      ? t.settings.toasts.discordLinkConfig
+                      : t.settings.toasts.discordLinkError,
             kind === 'linked' ? 'success' : 'error'
         );
 
@@ -258,11 +261,11 @@ export function useSettingsController(active: boolean) {
             );
 
             if (res.status === 403) {
-                showToast('Sesión inválida o CSRF rechazado. Recarga la página.', 'error');
+                showToast(t.settings.toasts.invalidSession, 'error');
                 return;
             }
             if (!res.ok) {
-                showToast('Error al regenerar API Key', 'error');
+                showToast(t.settings.toasts.regenError, 'error');
                 return;
             }
 
@@ -276,11 +279,11 @@ export function useSettingsController(active: boolean) {
                 setRevealedKey(data.apiKey);
                 setKeyVisible(true);
                 scheduleKeyHide();
-                showToast('Nueva API Key generada', 'success');
+                showToast(t.settings.toasts.regenSuccess, 'success');
                 void refresh();
             }
         } catch {
-            showToast('Error al regenerar API Key', 'error');
+            showToast(t.settings.toasts.regenError, 'error');
         }
     };
 
@@ -320,12 +323,12 @@ export function useSettingsController(active: boolean) {
                 clearDashboardSyncPrefs(session.userId);
                 if (session.userId) broadcastHomeDataReset(session.userId);
                 writePanelSyncPref(session.userId, Date.now().toString());
-                showToast((data.message as string) ?? 'Datos limpiados', 'success');
+                showToast((data.message as string) ?? t.settings.toasts.clearSuccess, 'success');
             } else {
-                showToast(extractApiErrorMessage(data, 'No se pudieron limpiar los datos'), 'error');
+                showToast(extractApiErrorMessage(data, t.settings.toasts.clearError), 'error');
             }
         } catch {
-            showToast('Error de conexión al limpiar los datos', 'error');
+            showToast(t.settings.toasts.clearError, 'error');
         }
     };
 
@@ -341,15 +344,15 @@ export function useSettingsController(active: boolean) {
             );
             const data = await parseJsonSafe(res);
             if (res.ok && data.success) {
-                showToast('Cuenta eliminada. Redirigiendo...', 'success');
+                showToast(t.settings.toasts.deleteSuccess, 'success');
                 setTimeout(() => {
                     window.location.href = appPath('/');
                 }, 2000);
             } else {
-                showToast(extractApiErrorMessage(data, 'No se pudo eliminar la cuenta'), 'error');
+                showToast(extractApiErrorMessage(data, t.settings.toasts.deleteError), 'error');
             }
         } catch {
-            showToast('Error de conexión al eliminar la cuenta', 'error');
+            showToast(t.settings.toasts.deleteError, 'error');
         }
     };
 
@@ -360,16 +363,16 @@ export function useSettingsController(active: boolean) {
             setKeyVisible(true);
             scheduleKeyHide();
             await navigator.clipboard.writeText(key);
-            showToast('API Key copiada', 'success');
+            showToast(t.settings.toasts.copyKeySuccess, 'success');
         } catch {
-            showToast('No se pudo copiar la API Key', 'error');
+            showToast(t.settings.toasts.copyKeyError, 'error');
         }
     };
 
     const copyId = async () => {
         if (!session.userId) return;
         await navigator.clipboard.writeText(session.userId);
-        showToast('ID copiado', 'success');
+        showToast(t.settings.toasts.copyIdSuccess, 'success');
     };
 
     const exportData = async () => {
@@ -386,18 +389,17 @@ export function useSettingsController(active: boolean) {
             if (res.status === 429) {
                 const data = (await res.json()) as { error?: string };
                 showToast(
-                    extractApiErrorMessage(data, 'Debes esperar para generar otro reporte.'),
+                    extractApiErrorMessage(data, t.settings.toasts.exportLimitError),
                     'warning'
                 );
                 return;
             }
             if (!res.ok) {
-                showToast('Error de conexión al verificar límite.', 'error');
+                showToast(t.settings.toasts.limitError, 'error');
                 return;
             }
-
             const { DataExport } = await import('@/features/dashboard/lib/dataExporter');
-            await DataExport.export(session, (msg) => showToast(msg, 'success'));
+            await DataExport.export(session, t, locale, (msg) => showToast(msg, 'success'));
 
             await fetchWithRetry(
                 API_ENDPOINTS.EXPORT_COMPLETE,
@@ -407,7 +409,7 @@ export function useSettingsController(active: boolean) {
                 })
             );
         } catch {
-            showToast('Error de conexión.', 'error');
+            showToast(t.settings.toasts.connectionError, 'error');
         } finally {
             setExportLoading(false);
         }
@@ -427,15 +429,15 @@ export function useSettingsController(active: boolean) {
             );
             if (!res.ok) {
                 setDiscordResult('error');
-                showToast('No se pudo desvincular Discord', 'error');
+                showToast(t.settings.toasts.discordUnlinkError, 'error');
                 return;
             }
             setDiscordResult('unlinked');
-            showToast('Discord desvinculado', 'success');
+            showToast(t.settings.toasts.discordUnlinkSuccess, 'success');
             await syncProfile({ silent: true, fresh: true });
         } catch {
             setDiscordResult('error');
-            showToast('Error de conexión al desvincular', 'error');
+            showToast(t.settings.toasts.discordUnlinkError, 'error');
         } finally {
             setDiscordBusy(false);
         }
@@ -448,19 +450,19 @@ export function useSettingsController(active: boolean) {
 
     const openClearDataModal = () =>
         setDangerModal({
-            title: 'Reiniciar Estadísticas',
-            desc: 'Esta acción borrará todo el historial de comandos, clips y latencia. Tu cuenta y API Key seguirán activas.',
-            word: 'LIMPIAR',
-            confirmLabel: 'Confirmar y Borrar',
+            title: t.settings.dangerModals.resetTitle,
+            desc: t.settings.dangerModals.resetDesc,
+            word: t.settings.dangerModals.resetWord,
+            confirmLabel: t.settings.dangerModals.resetConfirm,
             action: clearData
         });
 
     const openDeleteAccountModal = () =>
         setDangerModal({
-            title: 'Eliminar Perfil de LosPerris API',
-            desc: '¡ATENCIÓN! Esta acción es irreversible dentro de nuestra plataforma. Se borrarán tus datos y API Key. Esto NO afectará a tu canal ni cuenta de Twitch de ninguna manera.',
-            word: 'ELIMINAR',
-            confirmLabel: 'Confirmar y Borrar',
+            title: t.settings.dangerModals.deleteTitle,
+            desc: t.settings.dangerModals.deleteDesc,
+            word: t.settings.dangerModals.deleteWord,
+            confirmLabel: t.settings.dangerModals.deleteConfirm,
             action: deleteAccount
         });
 

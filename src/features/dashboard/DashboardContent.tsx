@@ -11,6 +11,8 @@ import {
     ClipsGridSkeleton,
     CommandViewSkeleton 
 } from '@/shared/ui/Skeleton';
+import { useTranslation } from '@/core/i18n/I18nContext';
+
 const HomeView = lazy(() =>
     import('@/features/dashboard/home/HomeView').then((m) => ({ default: m.HomeView }))
 );
@@ -104,18 +106,20 @@ function renderTabPanel(tab: DashboardTab, { active, onNavigate }: TabPanelProps
 
 export function DashboardContent({ tab, onNavigate }: DashboardContentProps) {
     const mountedTabs = useMountedTabs(tab);
+    const { t } = useTranslation();
 
     return (
         <>
             {Array.from(mountedTabs).map((panelTab) => {
                 const isActive = panelTab === tab;
+                const errorTitle = `${t.common.tabError} «${panelTab}»`;
                 return (
                     <div
                         key={panelTab}
                         className={isActive ? 'animate-tab-in' : 'hidden'}
                         aria-hidden={!isActive}
                     >
-                        <ErrorBoundary title={`Error al cargar la pestaña «${panelTab}»`}>
+                        <ErrorBoundary title={errorTitle}>
                             <Suspense fallback={isActive ? <TabFallback tab={panelTab} /> : null}>
                                 {renderTabPanel(panelTab, { active: isActive, onNavigate })}
                             </Suspense>

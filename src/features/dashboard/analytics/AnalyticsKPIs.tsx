@@ -3,6 +3,8 @@ import { Zap, CheckCircle2, Gauge, Command } from 'lucide-react';
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
 import { hoverSubtleChip } from '@/core/utils/tw';
 import { AnalyticsSection } from './AnalyticsShared';
+import { useTranslation } from '@/core/i18n/I18nContext';
+import type { Translations } from '@/core/i18n/locales/es';
 
 interface AnalyticsKPIsProps {
     timeRange: 'today' | '7d';
@@ -19,10 +21,12 @@ interface AnalyticsKPIsProps {
 
 function RangeToggle({
     timeRange,
-    setTimeRange
+    setTimeRange,
+    t
 }: {
     timeRange: 'today' | '7d';
     setTimeRange: (val: 'today' | '7d') => void;
+    t: Translations;
 }) {
     return (
         <div className="flex items-center rounded-lg border border-white/[0.06] bg-bg-main p-0.5">
@@ -35,7 +39,7 @@ function RangeToggle({
                         : `text-[#8b8b93] ${hoverSubtleChip}`
                 }`}
             >
-                Hoy
+                {t.analytics.kpis.today}
             </button>
             <button
                 type="button"
@@ -46,7 +50,7 @@ function RangeToggle({
                         : `text-[#8b8b93] ${hoverSubtleChip}`
                 }`}
             >
-                7 días
+                {t.analytics.kpis.sevenDays}
             </button>
         </div>
     );
@@ -95,22 +99,23 @@ export function AnalyticsKPIs({
     successDuration,
     latencyDuration
 }: AnalyticsKPIsProps) {
-    const subtextSuffix = timeRange === 'today' ? 'hoy' : 'en 7 días';
+    const { t } = useTranslation();
+    const kpis = t.analytics.kpis;
 
     return (
         <AnalyticsSection
-            title="Resumen"
-            info="Cambia entre Hoy y 7 días para ver el mismo conjunto de métricas en otro periodo."
-            action={<RangeToggle timeRange={timeRange} setTimeRange={setTimeRange} />}
+            title={kpis.title}
+            info={kpis.info}
+            action={<RangeToggle timeRange={timeRange} setTimeRange={setTimeRange} t={t} />}
             panelClassName="min-h-[150px]"
         >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" aria-busy={isLoading}>
                 <div className="pb-5 md:pr-6 lg:pb-0">
                     <KpiTile
-                        label="Peticiones"
+                        label={kpis.requests}
                         icon={Zap}
                         iconClass="border-primary/25 bg-transparent text-primary"
-                        subtext={`peticiones ${subtextSuffix}`}
+                        subtext={timeRange === 'today' ? kpis.requestsToday : kpis.requests7d}
                     >
                         <AnimatedNumber
                             value={displayRequests}
@@ -123,10 +128,10 @@ export function AnalyticsKPIs({
 
                 <div className="border-t border-white/[0.08] py-5 md:border-l md:border-t-0 md:px-6 lg:py-0">
                     <KpiTile
-                        label="Tasa de éxito"
+                        label={kpis.successRate}
                         icon={CheckCircle2}
                         iconClass="border-primary/25 bg-transparent text-primary"
-                        subtext={`exitosas ${subtextSuffix}`}
+                        subtext={timeRange === 'today' ? kpis.successToday : kpis.success7d}
                     >
                         <AnimatedNumber
                             value={displaySuccessRate}
@@ -140,10 +145,10 @@ export function AnalyticsKPIs({
 
                 <div className="border-t border-white/[0.08] py-5 md:pr-6 lg:border-l lg:border-t-0 lg:px-6 lg:py-0">
                     <KpiTile
-                        label="Latencia media"
+                        label={kpis.latency}
                         icon={Gauge}
                         iconClass="border-primary/25 bg-transparent text-primary"
-                        subtext={`promedio ${subtextSuffix}`}
+                        subtext={timeRange === 'today' ? kpis.latencyToday : kpis.latency7d}
                     >
                         <div className="flex items-end gap-1.5">
                             <AnimatedNumber
@@ -164,10 +169,10 @@ export function AnalyticsKPIs({
 
                 <div className="border-t border-white/[0.08] pt-5 md:border-l md:border-t-0 md:px-6 md:pt-0 lg:py-0 lg:pl-6 lg:pr-0">
                     <KpiTile
-                        label="Comandos usados"
+                        label={kpis.commands}
                         icon={Command}
                         iconClass="border-primary/25 bg-transparent text-primary"
-                        subtext={`distintos ${subtextSuffix}`}
+                        subtext={timeRange === 'today' ? kpis.commandsToday : kpis.commands7d}
                     >
                         <AnimatedNumber
                             value={displayCommands}

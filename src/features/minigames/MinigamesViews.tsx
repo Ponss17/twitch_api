@@ -20,7 +20,7 @@ import { CommandGeneratorCard } from '@/features/commands/CommandGeneratorCard';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { extractApiErrorMessage, formatApiErrorForUi } from '@/core/api/apiError';
-
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 type TestResult = { status: 'idle' | 'loading' | 'success' | 'error'; message: string };
 
@@ -126,13 +126,15 @@ function GameResponse({
 
 export function Magic8View() {
     const session = useRequiredSession();
+    const { t } = useTranslation();
+    const mgT = t.minigames.magic8;
     const [question, setQuestion] = useState('');
     const [commandExtras, setCommandExtras] = useState<Record<string, string>>({});
     const [result, setResult] = useState<TestResult>({ status: 'idle', message: '' });
 
     const ask = async () => {
         if (!question.trim()) {
-            setResult({ status: 'error', message: 'Debes hacer una pregunta primero.' });
+            setResult({ status: 'error', message: mgT.errorEmpty });
             return;
         }
 
@@ -158,15 +160,15 @@ export function Magic8View() {
             />
             <MinigameCard
                 icon={MAGIC8_ICON}
-                title="Prueba la Bola 8"
-                description="Verifica que la IA responda correctamente"
-                info="Haz una pregunta directamente aquí para ver cómo respondería la IA en tu chat."
+                title={mgT.testTitle}
+                description={mgT.testDesc}
+                info={mgT.testInfo}
                 staggered
             >
                 <div className={formGrid}>
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="magic8-question" className={formGroupLabel}>
-                            Tu pregunta
+                            {mgT.questionLabel}
                         </label>
                         <input
                             id="magic8-question"
@@ -174,7 +176,7 @@ export function Magic8View() {
                             value={question}
                             onChange={(e) => setQuestion(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && void ask()}
-                            placeholder="Ej: ella me quiere, ¿debo streamear hoy?"
+                            placeholder={mgT.questionPlaceholder}
                             className={textInput}
                             disabled={result.status === 'loading'}
                         />
@@ -187,14 +189,14 @@ export function Magic8View() {
                     className={`${btnPrimary} mt-5`}
                 >
                     {result.status === 'loading' ? <Loader2 className="animate-spin" /> : <Play className="w-4 h-4" />}
-                    {result.status === 'loading' ? 'Consultando...' : 'Preguntar'}
+                    {result.status === 'loading' ? mgT.btnLoading : mgT.btnAsk}
                 </button>
                 <GameResponse
                     result={result}
                     loadingNode={
                         <div className="flex items-center gap-3 font-medium text-primary italic">
                             <Gem className="animate-pulse text-[1.8rem]" />
-                            Consultando a los espíritus...
+                            {mgT.loadingResult}
                         </div>
                     }
                 />
@@ -205,6 +207,8 @@ export function Magic8View() {
 
 export function DuelView() {
     const session = useRequiredSession();
+    const { t } = useTranslation();
+    const mgT = t.minigames.duel;
     const [target, setTarget] = useState('');
     const [challenger, setChallenger] = useState('');
     const [result, setResult] = useState<TestResult>({ status: 'idle', message: '' });
@@ -214,15 +218,14 @@ export function DuelView() {
         const challengerLogin = normalizeTwitchLogin(challenger);
 
         if (!targetLogin) {
-            setResult({ status: 'error', message: 'Debes especificar un oponente.' });
+            setResult({ status: 'error', message: mgT.errorEmptyTarget });
             return;
         }
 
         if (!TWITCH_LOGIN.test(targetLogin) || (challengerLogin && !TWITCH_LOGIN.test(challengerLogin))) {
             setResult({
                 status: 'error',
-                message:
-                    'Usa el login de Twitch (sin espacios). Ej: pepe_grillo — no el nombre visible con espacios.'
+                message: mgT.errorInvalidLogin
             });
             return;
         }
@@ -250,15 +253,15 @@ export function DuelView() {
             <CommandGeneratorCard config={COMMAND_CONFIG.duel} />
             <MinigameCard
                 icon={Swords}
-                title="Duelo 1vs1"
-                description="Nightbot: 3 mensajes. Otros bots: 1 línea"
-                info="Prueba aquí el relato. En Nightbot el chat verá reto → pelea → ganador (~5 s)."
+                title={mgT.testTitle}
+                description={mgT.testDesc}
+                info={mgT.testInfo}
                 staggered
             >
                 <div className={formGrid}>
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="duel-target" className={formGroupLabel}>
-                            Oponente (Usuario)
+                            {mgT.targetLabel}
                         </label>
                         <input
                             id="duel-target"
@@ -266,21 +269,21 @@ export function DuelView() {
                             value={target}
                             onChange={(e) => setTarget(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && void fight()}
-                            placeholder="Ej: nightbot (login, sin espacios)"
+                            placeholder={mgT.targetPlaceholder}
                             className={textInput}
                             disabled={result.status === 'loading'}
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="duel-challenger" className={formGroupLabel}>
-                            Retador (Opcional)
+                            {mgT.challengerLabel}
                         </label>
                         <input
                             id="duel-challenger"
                             type="text"
                             value={challenger}
                             onChange={(e) => setChallenger(e.target.value)}
-                            placeholder="Tu login (opcional)"
+                            placeholder={mgT.challengerPlaceholder}
                             className={textInput}
                             disabled={result.status === 'loading'}
                         />
@@ -293,14 +296,14 @@ export function DuelView() {
                     className={`${btnPrimary} mt-5`}
                 >
                     {result.status === 'loading' ? <Loader2 className="animate-spin" /> : <Gavel className="w-4 h-4" />}
-                    {result.status === 'loading' ? 'Peleando...' : '¡DUELO!'}
+                    {result.status === 'loading' ? mgT.btnLoading : mgT.btnFight}
                 </button>
                 <GameResponse
                     result={result}
                     loadingNode={
                         <div className="flex items-center gap-3 font-medium text-[#f97316] italic">
                             <Swords className="animate-[gunShake_1s_infinite_linear] text-[1.8rem]" />
-                            Calculando ganador...
+                            {mgT.loadingResult}
                         </div>
                     }
                 />
@@ -311,6 +314,8 @@ export function DuelView() {
 
 export function RussianView() {
     const session = useRequiredSession();
+    const { t } = useTranslation();
+    const mgT = t.minigames.russian;
     const [result, setResult] = useState<TestResult>({ status: 'idle', message: '' });
     const [gunDead, setGunDead] = useState(false);
     const [gunSuccess, setGunSuccess] = useState(false);
@@ -337,10 +342,10 @@ export function RussianView() {
                 }
             } else {
                 const err = await res.text();
-                setResult({ status: 'error', message: err ? parseApiError(err) : 'Error desconocido' });
+                setResult({ status: 'error', message: err ? parseApiError(err) : mgT.errorUnknown });
             }
         } catch {
-            setResult({ status: 'error', message: 'La pistola se encasquilló (Error de API)' });
+            setResult({ status: 'error', message: mgT.errorJammed });
         }
     };
 
@@ -349,8 +354,8 @@ export function RussianView() {
             <CommandGeneratorCard config={COMMAND_CONFIG.russian} />
             <MinigameCard
                 icon={RUSSIAN_ICON}
-                title="Ruleta Rusa"
-                description="Juego de azar extremo. ¿Te atreves?"
+                title={mgT.testTitle}
+                description={mgT.testDesc}
                 staggered
                 centerBody
             >
@@ -378,7 +383,7 @@ export function RussianView() {
                         className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-white/10 bg-error-dark px-10 py-3.5 text-[1rem] font-semibold text-white transition hover:-translate-y-0.5 hover:scale-105 hover:bg-error active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
                     >
                         {loading ? <Loader2 className="size-4 animate-spin" /> : <RUSSIAN_ICON className="size-4" strokeWidth={2} />}
-                        Jalar Gatillo
+                        {mgT.btnTrigger}
                     </button>
                 </div>
 
@@ -389,7 +394,7 @@ export function RussianView() {
                     loadingNode={
                         <>
                             <Loader2 className="animate-spin text-lg" />
-                            <span>Girando el cilindro...</span>
+                            <span>{mgT.loadingResult}</span>
                         </>
                     }
                 />

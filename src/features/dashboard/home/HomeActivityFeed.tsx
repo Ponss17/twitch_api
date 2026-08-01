@@ -12,15 +12,16 @@ import {
     type ActivityLogType
 } from '@/features/dashboard/lib/activityLogDisplay';
 import {
-    ACTIVITY_CATEGORY_LABELS,
     ACTIVITY_TYPES_BY_CATEGORY,
     countActivityByCategory,
     filterActivityLog,
+    getActivityCategoryLabels,
     type ActivityCategoryFilter
 } from '@/features/dashboard/lib/activityLogFilter';
 import { HomeActivityLogEntry } from '@/features/dashboard/home/HomeActivityLogEntry';
 import { ActivityDetailSheet } from '@/features/dashboard/home/ActivityDetailSheet';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface HomeActivityFeedProps {
     activity: ActivityLogItem[];
@@ -73,18 +74,18 @@ const LOG_DATE_DIVIDER =
     "relative mt-1 py-2 pb-1 text-center text-[0.75rem] uppercase tracking-[1px] text-[#a1a1aa] before:absolute before:left-0 before:top-1/2 before:h-px before:w-[calc(50%-40px)] before:bg-white/[0.08] before:content-[''] after:absolute after:right-0 after:top-1/2 after:h-px after:w-[calc(50%-40px)] after:bg-white/[0.08] after:content-['']";
 
 function ActivityEmptyState({ filtered }: { filtered?: boolean }) {
+    const { t } = useTranslation();
+    const aT = t.home.activityFeed;
     return (
         <div className="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center">
             <div className={`mb-1 flex h-11 w-11 items-center justify-center rounded-xl border ${subtleIcon('primary')}`}>
                 {filtered ? <Filter className="h-5 w-5" /> : <Terminal className="h-5 w-5" />}
             </div>
             <p className="text-[0.9rem] font-medium text-[#a1a1aa]">
-                {filtered ? 'Sin resultados' : 'Sin actividad todavía'}
+                {filtered ? aT.emptyFiltered : aT.emptyAll}
             </p>
             <p className="max-w-sm text-[0.8rem] leading-relaxed text-[#6b6b73]">
-                {filtered
-                    ? 'Prueba otro filtro o vuelve a Todos.'
-                    : 'Cuando alguien use un comando en tu chat, aparecerá aquí.'}
+                {filtered ? aT.emptyFilteredDesc : aT.emptyAllDesc}
             </p>
         </div>
     );
@@ -97,12 +98,15 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
     isLoading = false,
     isLive = false,
     highlightKeys,
-    title = 'Actividad',
+    title,
     timeZone
 }: HomeActivityFeedProps) {
     const [categoryFilter, setCategoryFilter] = useState<ActivityCategoryFilter>('all');
     const [typeFilter, setTypeFilter] = useState<ActivityLogType | 'all'>('all');
     const [selectedActivity, setSelectedActivity] = useState<ActivityLogItem | null>(null);
+    const { t, locale } = useTranslation();
+    const aT = t.home.activityFeed;
+    const categoryLabels = getActivityCategoryLabels(t);
 
     const filteredActivity = useMemo(
         () => filterActivityLog(activity, categoryFilter, typeFilter),
@@ -117,7 +121,17 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
         setTypeFilter('all');
     };
 
-    let lastDateLabel = '';
+    const renderItems = useMemo(() => {
+        let lastDateLabel = '';
+        return filteredActivity.slice(0, 50).map((item) => {
+            const dateLabel = item.timestamp
+                ? formatActivityDate(item.timestamp, timeZone, locale, t)
+                : '';
+            const showDivider = dateLabel && dateLabel !== lastDateLabel;
+            if (showDivider) lastDateLabel = dateLabel;
+            return { item, showDivider, dateLabel, key: activityEntryKey(item) };
+        });
+    }, [filteredActivity, timeZone, locale, t]);
 
     return (
         <div className={`group/card ${panelCard} ${fadeIn} flex h-[510px] flex-col`} aria-busy={isLoading}>
@@ -129,13 +143,13 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                         <Activity className="h-4 w-4" aria-hidden />
                     </div>
                     <div className="min-w-0">
-                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-white">{title}</h2>
+                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-white">{title || aT.title}</h2>
                         <p className="mt-0.5 text-[0.75rem] text-[#8b8b93]">
-                            Filtra por categoría o recurso en tiempo real •{' '}
+                            {aT.subtitle}{' '}
                             <span
                                 className={`font-medium transition-all duration-300 group-hover/card:text-primary group-hover/card:opacity-100 ${syncing ? 'animate-blink-soft text-primary opacity-100' : 'opacity-75'}`}
                             >
-                                {syncing ? 'Sincronizando...' : syncLabel}
+                                {syncing ? aT.syncing : syncLabel}
                             </span>
                         </p>
                     </div>
@@ -148,7 +162,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                     ) : null}
                     <InfoTooltip
                         placement="bottom"
-                        text="Filtra por categoría o recurso. Los eventos nuevos siguen entrando en vivo."
+                        text={aT.liveTooltip}
                     />
                 </div>
             </div>
@@ -175,7 +189,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             >
                                 <Icon className="h-2.5 w-2.5" />
                             </span>
-                            {ACTIVITY_CATEGORY_LABELS[category]}
+                            {categoryLabels[category]}
                             {!isLoading && count > 0 ? (
                                 <span className="text-[0.65rem] opacity-90">{count}</span>
                             ) : null}
@@ -188,7 +202,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                 <div
                     className="flex flex-wrap items-center gap-2 border-b border-white/[0.04] px-5 py-2.5"
                     role="group"
-                    aria-label="Filtrar por recurso"
+                    aria-label={t.common.aria.filterResource}
                 >
                     <button
                         type="button"
@@ -199,10 +213,10 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             }`}
                         aria-pressed={typeFilter === 'all'}
                     >
-                        Todos
+                        {aT.all}
                     </button>
                     {typeOptions
-                        .map((type) => ({ type, meta: getActivityMeta(type) }))
+                        .map((type) => ({ type, meta: getActivityMeta(type, t) }))
                         .sort((a, b) => a.meta.label.localeCompare(b.meta.label))
                         .map(({ type, meta }) => {
                             const active = typeFilter === type;
@@ -247,13 +261,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                     ) : (
                         <LazyMotion features={domAnimation}>
                             <AnimatePresence initial={false}>
-                                {filteredActivity.slice(0, 50).map((item) => {
-                                    const dateLabel = item.timestamp
-                                        ? formatActivityDate(item.timestamp, timeZone)
-                                        : '';
-                                    const showDivider = dateLabel && dateLabel !== lastDateLabel;
-                                    if (showDivider) lastDateLabel = dateLabel;
-                                    const key = activityEntryKey(item);
+                                {renderItems.map(({ item, showDivider, dateLabel, key }) => {
                                     const isNew = highlightKeys?.has(key) ?? false;
                                     
                                     return (

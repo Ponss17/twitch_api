@@ -10,9 +10,12 @@ import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { RouletteEligibilityDropdown } from '@/features/roulette/RouletteEligibilityDropdown';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 export function RouletteView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
+    const { t } = useTranslation();
+    const rlT = t.minigames.roulette;
     const { showToast } = useToast();
     const listRef = useRef<HTMLUListElement>(null);
 
@@ -66,10 +69,10 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     </div>
                     <div className="min-w-0">
                         <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
-                            Ruleta de Viewers
+                            {rlT.title}
                         </h2>
                         <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
-                            Sortea premios entre los usuarios activos
+                            {rlT.desc}
                         </p>
                     </div>
                 </div>
@@ -87,14 +90,14 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         disabled={isSpinning}
                         title={
                             announceWinnerInChat
-                                ? 'Anunciar ganador en chat (activado)'
-                                : 'No anunciar ganador en chat (desactivado)'
+                                ? rlT.announceChatOn
+                                : rlT.announceChatOff
                         }
                         aria-pressed={announceWinnerInChat}
                         aria-label={
                             announceWinnerInChat
-                                ? 'Anunciar ganador en chat, activado'
-                                : 'Anunciar ganador en chat, desactivado'
+                                ? rlT.announceChatOn
+                                : rlT.announceChatOff
                         }
                         className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[0.75rem] font-semibold disabled:opacity-50 ${
                             announceWinnerInChat
@@ -103,7 +106,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         }`}
                     >
                         <MessageSquare className="size-3.5 shrink-0" aria-hidden />
-                        En chat
+                        {rlT.inChat}
                     </button>
 
                     <span
@@ -117,8 +120,8 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     <button
                         type="button"
                         onClick={() => void toggleOpen()}
-                        title={isOpen ? 'Pausar inscripciones' : 'Abrir inscripciones'}
-                        aria-label={isOpen ? 'Pausar inscripciones' : 'Abrir inscripciones'}
+                        title={isOpen ? rlT.pauseEntries : rlT.openEntries}
+                        aria-label={isOpen ? rlT.pauseEntries : rlT.openEntries}
                         className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] transition ${
                             isOpen ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'
                         }`}
@@ -130,10 +133,10 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         type="button"
                         onClick={() => {
                             void loadChatters();
-                            showToast('Lista actualizada', 'success');
+                            showToast(rlT.listUpdated, 'success');
                         }}
-                        title="Recargar usuarios"
-                        aria-label="Recargar usuarios"
+                        title={rlT.reloadUsers}
+                        aria-label={rlT.reloadUsers}
                         className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#c4c4cc] ${hoverSubtleIconBtn}`}
                     >
                         <RotateCw className="h-4 w-4" />
@@ -141,7 +144,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
 
                     <OverlayUrlButton tool="roulette" />
 
-                    <InfoTooltip text="Sorteo en vivo. Elige quién puede participar y si el ganador se anuncia en el chat de Twitch (botón Chat)." />
+                    <InfoTooltip text={rlT.infoTooltip} />
                 </div>
             </header>
 
@@ -167,18 +170,18 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     className="inline-flex items-center gap-2.5 rounded-full bg-primary px-10 py-3.5 text-[1rem] font-semibold text-white transition hover:-translate-y-0.5 hover:scale-105 hover:bg-primary-hover active:translate-y-px disabled:opacity-50 disabled:hover:scale-100 max-[480px]:w-full max-[480px]:justify-center max-[480px]:px-8 max-[480px]:py-3 max-[480px]:text-[0.9375rem]"
                 >
                     {isSpinning ? <Loader2 className="animate-spin" /> : <Play className="h-4 w-4" />}
-                    {isSpinning ? 'Girando...' : 'GIRAR RULETA'}
+                    {isSpinning ? rlT.spinning : rlT.spinBtn}
                 </button>
             </div>
 
             <p className="mt-2.5 text-center text-[0.6875rem] italic opacity-60">
-                * Twitch tarda unos minutos en actualizar la lista
+                {rlT.twitchDelay}
             </p>
 
             {(isOpen || chatters.length > 0) && (
                 <div className="mt-4 text-left">
                     <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-wide text-[#71717a]">
-                        Participantes ({chatters.length})
+                        {rlT.participants} ({chatters.length})
                     </p>
                     <ul
                         ref={listRef}
@@ -186,7 +189,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     >
                         {chatters.length === 0 ? (
                             <li className="px-3 py-4 text-center text-[0.75rem] text-[#52525b]">
-                                Esperando mensajes en el chat…
+                                {rlT.waitingChat}
                             </li>
                         ) : (
                             chatters.map((u) => (
