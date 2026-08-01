@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Trophy, Users } from 'lucide-react';
-import { AnalyticsSection } from './AnalyticsShared';
+import { AnalyticsSection, COLORS } from './AnalyticsShared';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
@@ -14,8 +14,6 @@ export interface ViewerLeaderboardEntry {
 interface AnalyticsViewerLeaderboardProps {
     timeRange: 'today' | '7d';
 }
-
-const ANALYTICS_COLORS = ['#7254b8', '#4a8b75', '#b3934d', '#b35656', '#4d75b3', '#b3714d', '#a85c87', '#615e9c'];
 
 // Fuera del componente: se crea una sola vez, no en cada render
 const VIEWER_TYPES = new Set(['followage', 'clip', 'shoutout', 'magic8', 'russian', 'duel']);
@@ -139,7 +137,7 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
                         <AnimatePresence mode="popLayout">
                             {data.map((entry, idx) => {
                                 const pct = maxTotal > 0 ? (entry.total / maxTotal) * 100 : 0;
-                                const rowColor = ANALYTICS_COLORS[idx % ANALYTICS_COLORS.length];
+                                const rowColor = COLORS[idx % COLORS.length];
 
                                 return (
                                     <m.div
