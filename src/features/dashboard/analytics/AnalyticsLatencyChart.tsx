@@ -59,8 +59,8 @@ const CustomBarShape = (props: CustomBarShapeProps) => {
                 fill={`url(#${gradientId})`}
                 fillOpacity={1}
                 stroke={color}
-                strokeWidth={1.5}
-                strokeDasharray="4 4"
+                strokeWidth={1}
+                strokeOpacity={isActive ? 0.8 : 0.4}
                 radius={[0, 4, 4, 0]}
             />
         </g>

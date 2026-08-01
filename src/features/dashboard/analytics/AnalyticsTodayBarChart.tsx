@@ -58,9 +58,8 @@ const CustomBarShape = (props: CustomBarShapeProps) => {
             <path
                 d={strokePath}
                 stroke={barStroke}
-                strokeWidth={1.2}
-                strokeOpacity={0.75}
-                strokeDasharray="4 4"
+                strokeWidth={1}
+                strokeOpacity={0.4}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
