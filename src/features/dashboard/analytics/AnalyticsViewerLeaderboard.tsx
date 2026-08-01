@@ -106,7 +106,7 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
 
     return (
         <AnalyticsSection
-            panelClassName="h-[360px] flex flex-col"
+            panelClassName="h-full min-h-[360px] flex flex-col"
             title={board.title}
             info={timeRange === 'today' ? board.infoToday : board.info7d}
         >

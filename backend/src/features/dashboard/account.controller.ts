@@ -66,7 +66,9 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                         ...cached,
                         ...limits,
                         timezone,
-                        ...(discordFields ?? {})
+                        ...(discordFields ?? {}),
+                        dbCreatedAt: apiUser?.createdAt,
+                        dbLastActive: apiUser?.lastActive
                     };
                 }
 
@@ -92,7 +94,14 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                 if (!degraded) {
                     await cacheService.set(cacheKey, profileResult, resolveCache('DASHBOARD_PROFILE', apiUser?.role, apiUser?.customCacheTtl));
                 }
-                return { ...profileResult, ...limits, timezone, cacheTtl: limits.cacheTtl };
+                return { 
+                    ...profileResult, 
+                    ...limits, 
+                    timezone, 
+                    cacheTtl: limits.cacheTtl,
+                    dbCreatedAt: apiUser?.createdAt,
+                    dbLastActive: apiUser?.lastActive
+                };
             }, 'getUserInfo');
         },
         req

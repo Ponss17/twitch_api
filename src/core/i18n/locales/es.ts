@@ -136,6 +136,7 @@ export const es = {
         title: 'Ajustes',
         tabs: {
             general: 'General',
+            data: 'Datos',
             security: 'Seguridad',
             connections: 'Conexiones',
             sessionExpiredLogin: 'Sesión expirada. Por favor, inicia sesión de nuevo.',
@@ -214,7 +215,15 @@ export const es = {
         groups: {
             account: { title: 'Cuenta', desc: 'Identificador y límites de tu plan' },
             preferences: { title: 'Preferencias', desc: 'Ajustes de tu cuenta' },
-            export: { title: 'Datos', desc: 'Exporta la información de tu cuenta' },
+            data: { 
+                title: 'Datos de Cuenta', 
+                desc: 'Información y gestión de datos.',
+                firstLogin: 'Primer Ingreso',
+                firstLoginDesc: 'Fecha en la que iniciaste sesión por primera vez.',
+                lastLogin: 'Último Ingreso Previo',
+                lastLoginDesc: 'Fecha de tu última sesión antes de la actual.'
+            },
+            export: { title: 'Exportar', desc: 'Exporta la información de tu cuenta' },
             security: { title: 'Seguridad', desc: 'Claves y accesos' },
             dangerZone: { title: 'Zona de Peligro', desc: 'Acciones destructivas' },
             discord: { title: 'Discord', desc: 'Integraciones' }
@@ -391,8 +400,10 @@ export const es = {
         },
         areaChart: {
             title: 'Tráfico y Errores (7 días)',
-            info: 'Evolución de peticiones diarias.',
-            requests: 'Peticiones'
+            info: 'Historial de los últimos 7 días. El día actual se actualiza en vivo.',
+            requests: 'Peticiones',
+            noData: 'Sin actividad',
+            noDataSub: 'Esperando eventos'
         },
         leaderboard: {
             title: 'Top Usuarios',

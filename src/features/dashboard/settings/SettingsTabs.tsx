@@ -15,6 +15,7 @@ export function SettingsTabs({ active, onChange }: SettingsTabsProps) {
     
     const TABS: { id: SettingsTabId; label: string }[] = [
         { id: 'general', label: t.settings.tabs.general },
+        { id: 'datos', label: t.settings.tabs.data || 'Datos' },
         { id: 'seguridad', label: t.settings.tabs.security },
         { id: 'conexiones', label: t.settings.tabs.connections }
     ];

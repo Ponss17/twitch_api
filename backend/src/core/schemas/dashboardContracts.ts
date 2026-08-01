@@ -59,4 +59,6 @@ export interface DashboardProfile {
     discordId?: string | null;
     discordUsername?: string | null;
     discordAvatar?: string | null;
+    dbCreatedAt?: string;
+    dbLastActive?: string;
 }

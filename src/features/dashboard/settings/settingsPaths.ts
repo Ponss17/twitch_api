@@ -1,11 +1,11 @@
 import { appPath } from '@/core/config/paths';
 
-export type SettingsTabId = 'general' | 'seguridad' | 'conexiones';
+export type SettingsTabId = 'general' | 'seguridad' | 'conexiones' | 'datos';
 
 export const SETTINGS_TAB_STORAGE_KEY = 'losperris.settings.tab';
 
 export function isSettingsTabId(value: string | null | undefined): value is SettingsTabId {
-    return value === 'general' || value === 'seguridad' || value === 'conexiones';
+    return value === 'general' || value === 'seguridad' || value === 'conexiones' || value === 'datos';
 }
 
 /** Base de Settings, p. ej. `/dashboard/settings` */
