@@ -10,6 +10,8 @@ import {
 } from '@/features/roulette/lib/eligibility';
 
 describe('rouletteEligibility', () => {
+    const rlT = { all: 'Todos', none: 'Ninguno', roles: { subs: 'Subs', mods: 'Mods', vips: 'VIPs', viewers: 'Viewers' } };
+
     it('userMatchesFilters allows all when every role is enabled', () => {
         expect(userMatchesFilters({}, DEFAULT_ELIGIBILITY_FILTERS)).toBe(true);
         expect(userMatchesFilters({ mod: false, sub: false, vip: false }, DEFAULT_ELIGIBILITY_FILTERS)).toBe(
@@ -44,12 +46,12 @@ describe('rouletteEligibility', () => {
     });
 
     it('filtersSummaryLabel describes selection for the dropdown', () => {
-        expect(filtersSummaryLabel(DEFAULT_ELIGIBILITY_FILTERS)).toBe('Todos');
-        expect(filtersSummaryLabel({ subs: false, mods: false, vips: false, viewers: false })).toBe(
+        expect(filtersSummaryLabel(DEFAULT_ELIGIBILITY_FILTERS, rlT)).toBe('Todos');
+        expect(filtersSummaryLabel({ subs: false, mods: false, vips: false, viewers: false }, rlT)).toBe(
             'Ninguno'
         );
         expect(
-            filtersSummaryLabel({ subs: true, mods: true, vips: false, viewers: false })
+            filtersSummaryLabel({ subs: true, mods: true, vips: false, viewers: false }, rlT)
         ).toBe('Subs, Mods');
     });
 
