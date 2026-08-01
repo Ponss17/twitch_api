@@ -47,7 +47,6 @@ export function SettingsAccountSection({
             <SettingsRow
                 title={pT.userId}
                 icon={Hash}
-                description={t.settings.account.description}
             >
                 <div className="flex w-full overflow-hidden rounded-lg border border-white/[0.06] bg-bg-secondary transition focus-within:border-primary">
                     <input
@@ -76,7 +75,6 @@ export function SettingsAccountSection({
             <SettingsRow
                 title={pT.planAndQuota}
                 icon={Crown}
-                description={t.settings.account.description}
             >
                 <div className="flex flex-wrap items-center gap-1.5">
                     <span
