@@ -41,7 +41,7 @@ interface CustomBarShapeProps extends RectangleProps {
 }
 
 const CustomBarShape = (props: CustomBarShapeProps) => {
-    const { x = 0, y = 0, index = 0, isActive = false, ...rest } = props;
+    const { x = 0, y = 0, index = 0, ...rest } = props;
     const color = COLORS[index % COLORS.length];
     return (
         <g>
@@ -50,7 +50,7 @@ const CustomBarShape = (props: CustomBarShapeProps) => {
                 x={x}
                 y={y}
                 fill={color}
-                fillOpacity={isActive ? 1 : 0.85}
+                fillOpacity={1}
                 radius={[0, 4, 4, 0]}
             />
         </g>

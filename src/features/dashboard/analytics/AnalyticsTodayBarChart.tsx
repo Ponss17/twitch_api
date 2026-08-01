@@ -6,67 +6,6 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 import { useMemo } from 'react';
 import type { } from 'recharts';
 
-interface CustomBarShapeProps {
-    fill?: string;
-    x?: number;
-    y?: number;
-    width?: number;
-    height?: number;
-    stroke?: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    payload?: any;
-}
-
-const CustomBarShape = (props: CustomBarShapeProps) => {
-    const { fill, x, y, width, height, stroke, payload } = props;
-    const barFill = payload?.fill ?? fill;
-    const barStroke = payload?.fill ?? stroke;
-    if (!height || height === 0) return null;
-
-    const radius = 4;
-    const numX = Number(x) || 0;
-    const numY = Number(y) || 0;
-    const numWidth = Number(width) || 0;
-    const numHeight = Number(height) || 0;
-
-    const fillPath = `M ${numX},${numY + numHeight} 
-                      L ${numX},${numY + radius} 
-                      Q ${numX},${numY} ${numX + radius},${numY} 
-                      L ${numX + numWidth - radius},${numY} 
-                      Q ${numX + numWidth},${numY} ${numX + numWidth},${numY + radius} 
-                      L ${numX + numWidth},${numY + numHeight} 
-                      Z`;
-
-    const strokePath = `M ${numX},${numY + numHeight} 
-                        L ${numX},${numY + radius} 
-                        Q ${numX},${numY} ${numX + radius},${numY} 
-                        L ${numX + numWidth - radius},${numY} 
-                        Q ${numX + numWidth},${numY} ${numX + numWidth},${numY + radius} 
-                        L ${numX + numWidth},${numY + numHeight}`;
-
-    const gradientId = `bar-gradient-${Math.round(numX)}-${Math.round(numY)}`;
-
-    return (
-        <g>
-            <defs>
-                <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={barFill} stopOpacity={0.6} />
-                    <stop offset="100%" stopColor={barFill} stopOpacity={0} />
-                </linearGradient>
-            </defs>
-            <path d={fillPath} fill={`url(#${gradientId})`} fillOpacity={1} />
-            <path
-                d={strokePath}
-                stroke={barStroke}
-                strokeWidth={1}
-                strokeOpacity={0.4}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-            />
-        </g>
-    );
-};
 
 interface AnalyticsTodayBarChartProps {
     active: boolean;
@@ -213,17 +152,13 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                             <Bar
                                 dataKey={chart.success}
                                 fill="#10b981"
-                                stroke="#10b981"
-                                activeBar={<CustomBarShape />}
-                                shape={<CustomBarShape />}
+                                radius={[4, 4, 0, 0]}
                                 maxBarSize={48}
                             />
                             <Bar
                                 dataKey={chart.errors}
                                 fill="#ef4444"
-                                stroke="#ef4444"
-                                activeBar={<CustomBarShape />}
-                                shape={<CustomBarShape />}
+                                radius={[4, 4, 0, 0]}
                                 maxBarSize={48}
                             />
                         </ComposedChart>
