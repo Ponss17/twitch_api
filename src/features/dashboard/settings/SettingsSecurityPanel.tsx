@@ -1,6 +1,7 @@
 import { SettingsGroup } from '@/features/dashboard/settings/SettingsGroup';
 import { SettingsSecuritySection } from '@/features/dashboard/settings/SettingsSecuritySection';
 import { SettingsDangerZone } from '@/features/dashboard/settings/SettingsDangerZone';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface SettingsSecurityPanelProps {
     apiKey: string;
@@ -21,11 +22,14 @@ export function SettingsSecurityPanel({
     onClearData,
     onDeleteAccount
 }: SettingsSecurityPanelProps) {
+    const { t } = useTranslation();
+    const gT = t.settings.groups;
+
     return (
         <>
             <SettingsGroup
-                title="Seguridad"
-                description="Credenciales privadas de tu cuenta"
+                title={gT.security.title}
+                description={gT.security.desc}
                 delay={40}
             >
                 <SettingsSecuritySection

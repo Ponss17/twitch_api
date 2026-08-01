@@ -1,5 +1,6 @@
 import { useId, type ReactNode } from 'react';
 import { HelpCircle } from 'lucide-react';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface InfoTooltipProps {
     text: ReactNode;
@@ -11,11 +12,12 @@ interface InfoTooltipProps {
 export function InfoTooltip({ text, className, placement = 'top' }: InfoTooltipProps) {
     const opensBelow = placement === 'bottom';
     const tipId = useId();
+    const { t } = useTranslation();
 
     return (
         <button
             type="button"
-            aria-label="Más información"
+            aria-label={t.common.aria.moreInfo}
             aria-describedby={tipId}
             className={`group/info relative cursor-help border-0 bg-transparent p-0 text-[1.1rem] text-[#71717a] transition hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]${
                 className ? ` ${className}` : ''

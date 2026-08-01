@@ -7,6 +7,7 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { fadeIn } from '@/core/utils/tw';
 import { AlertTriangle } from 'lucide-react';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface HomeViewProps {
     onNavigate?: (tab: DashboardTab) => void;
@@ -25,6 +26,7 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
         highlightKeys,
         isRealtimeLive
     } = useDashboardPanel();
+    const { t, locale } = useTranslation();
 
     if (error && !hasLiveData) {
         return (
@@ -36,15 +38,15 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
     }
 
     const broadcasterLabel = (type?: string): string => {
-        if (type === 'partner') return 'Partner';
-        if (type === 'affiliate') return 'Afiliado';
-        return 'Streamer';
+        if (type === 'partner') return t.home.broadcaster.partner;
+        if (type === 'affiliate') return t.home.broadcaster.affiliate;
+        return t.home.broadcaster.streamer;
     };
 
     const formatMemberSince = (iso?: string): string => {
         if (!iso) return '---';
         try {
-            return new Date(iso).toLocaleDateString('es-ES', {
+            return new Date(iso).toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-US', {
                 day: '2-digit',
                 month: 'short',
                 year: 'numeric'
@@ -73,7 +75,7 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
                     isLive={isRealtimeLive}
                     highlightKeys={highlightKeys}
                     timeZone={profile?.timezone}
-                    title="Historial de Actividad"
+                    title={t.home.activityFeed.title}
                 />
                 <HomeResourcesPanel onNavigate={onNavigate} />
             </div>

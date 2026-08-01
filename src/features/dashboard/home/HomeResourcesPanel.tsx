@@ -4,6 +4,8 @@ import { appPath, saveDocsReturnPath, shouldSavePanelReturn } from '@/core/confi
 import { panelCard, fadeIn, hoverSubtleBorderedRow } from '@/core/utils/tw';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { UserRoundCheck, Clapperboard, Megaphone, Info, Book, Server, LayoutGrid } from 'lucide-react';
+import { useTranslation } from '@/core/i18n/I18nContext';
+import type { Translations } from '@/core/i18n/locales/es';
 import type { LucideIcon } from 'lucide-react';
 
 interface HomeResourcesPanelProps {
@@ -21,15 +23,15 @@ const QUICK_COMMANDS: { tab: DashboardTab; icon: LucideIcon; label: string }[] =
 const USEFUL_LINKS: Array<{
     href: string;
     icon: LucideIcon | React.ElementType;
-    label: string;
+    labelKey: keyof Translations['home']['resources'];
     external?: boolean;
 }> = [
-    { href: '/sobre-la-api', icon: Info, label: 'Sobre la API' },
-    { href: '/docs', icon: Book, label: 'Documentación' },
+    { href: '/sobre-la-api', icon: Info, labelKey: 'about' },
+    { href: '/docs', icon: Book, labelKey: 'docs' },
     {
         href: STATUS_PAGE_URL,
         icon: Server,
-        label: 'Status del Sistema',
+        labelKey: 'status',
         external: true
     }
 ];
@@ -41,6 +43,9 @@ const SECTION_LABEL =
     'mb-2 shrink-0 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[#8b8b93]';
 
 export const HomeResourcesPanel = memo(function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
+    const { t } = useTranslation();
+    const rT = t.home.resources;
+
     return (
         <div
             className={`${panelCard} ${fadeIn} flex h-[510px] flex-col`}
@@ -50,12 +55,12 @@ export const HomeResourcesPanel = memo(function HomeResourcesPanel({ onNavigate 
                 <div className={ICON_WRAP}>
                     <LayoutGrid className="h-4 w-4" aria-hidden />
                 </div>
-                <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">Recursos</h2>
+                <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">{rT.title}</h2>
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col gap-5 p-4">
                 <section className="flex min-h-0 flex-1 flex-col">
-                    <p className={SECTION_LABEL}>Comandos frecuentes</p>
+                    <p className={SECTION_LABEL}>{rT.commands}</p>
                     <div className="flex min-h-0 flex-1 flex-col gap-1.5">
                         {QUICK_COMMANDS.map((link) => {
                             const Icon = link.icon;
@@ -77,7 +82,7 @@ export const HomeResourcesPanel = memo(function HomeResourcesPanel({ onNavigate 
                 </section>
 
                 <section className="flex min-h-0 flex-1 flex-col">
-                    <p className={SECTION_LABEL}>Enlaces útiles</p>
+                    <p className={SECTION_LABEL}>{rT.links}</p>
                     <div className="flex min-h-0 flex-1 flex-col gap-1.5">
                         {USEFUL_LINKS.map((link) => {
                             const LinkIcon = link.icon;
@@ -93,7 +98,7 @@ export const HomeResourcesPanel = memo(function HomeResourcesPanel({ onNavigate 
                                     <span className={ICON_WRAP}>
                                         <LinkIcon className="h-4 w-4" aria-hidden />
                                     </span>
-                                    {link.label}
+                                    {rT[link.labelKey]}
                                 </a>
                             );
                         })}

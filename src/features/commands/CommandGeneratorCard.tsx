@@ -28,6 +28,7 @@ import { copyText } from '@/core/utils/clipboard';
 import { useCommandConfig } from '@/features/commands/hooks/useCommandStore';
 import { getCommandConfig } from '@/features/commands/lib/commandStore';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 function CommandCardHeader({
     icon: Icon,
@@ -61,11 +62,12 @@ function CommandCardHeader({
 }
 
 function TemplateVarsHelp({ vars }: { vars: string }) {
+    const { t } = useTranslation();
     const text = vars.replace(/^Variables(?:\s+disponibles)?:\s*/i, '').trim();
     const parts = text.split(',').map((v) => v.trim());
     return (
         <small className="mt-0.5 block text-[0.6875rem] leading-snug text-[#52525b]">
-            <strong className="text-[#fafafa]">Variables:</strong>{' '}
+            <strong className="text-[#fafafa]">{t.commands.generator.variables}</strong>{' '}
             {parts.map((part, i) => {
                 const match = part.match(/\{(\w+)\}/);
                 const badge = match ? `{${match[1]}}` : part;
@@ -89,6 +91,17 @@ interface CommandGeneratorCardProps {
 
 export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGeneratorCardProps) {
     const session = useRequiredSession();
+    const { t } = useTranslation();
+    const cmdT = t.commands.generator;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const configT: any = t.commands.config[config.id as keyof typeof t.commands.config] || {};
+
+    const title = configT.title || config.title;
+    const desc = configT.desc || config.desc;
+    const info = configT.info || config.info;
+    const templatePlaceholder = configT.templatePlaceholder || config.templatePlaceholder;
+    const templateVars = configT.templateVars || config.templateVars;
+
     const { showToast } = useToast();
     const [stored, updateConfig] = useCommandConfig(config.id);
     const [isCopied, setIsCopied] = useState(false);
@@ -153,7 +166,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
         try {
             const { login } = session;
             if (!login) {
-                showToast('No hay comando para copiar', 'error');
+                showToast(cmdT.toasts.noCommand, 'error');
                 return;
             }
             const { apiKey } = await fetchRevealApiKey();
@@ -176,11 +189,11 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                 setTimeout(() => setIsCopied(false), 2000);
             }
             showToast(
-                ok ? 'Comando copiado al portapapeles' : 'No se pudo copiar',
+                ok ? cmdT.toasts.copied : cmdT.toasts.copyError,
                 ok ? 'success' : 'error'
             );
         } catch {
-            showToast('No se pudo revelar la API Key para el comando', 'error');
+            showToast(cmdT.toasts.apiError, 'error');
         }
     };
 
@@ -188,14 +201,14 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
         <div className={`${panelCard} ${fadeIn} relative z-10 mb-5 flex flex-col focus-within:z-20`}>
             <CommandCardHeader
                 icon={config.icon}
-                title={config.title}
-                description={config.desc}
-                info={config.info}
+                title={title}
+                description={desc}
+                info={info}
             />
 
             <div className="p-5 text-[#fafafa]">
                 <SelectFieldRow
-                    label="Selecciona tu bot:"
+                    label={cmdT.botSelect}
                     icon={Bot}
                     controlId={`${config.id}-bot`}
                     value={bot}
@@ -203,55 +216,64 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                     options={botOptions}
                 />
 
-                {config.extraSelectors?.map((sel) => (
-                    <SelectFieldRow
-                        key={sel.id}
-                        rowClassName="mt-2.5"
-                        label={`${sel.label}:`}
-                        icon={sel.icon}
-                        controlId={`${config.id}-extra-${sel.id}`}
-                        value={extraValues[sel.id] ?? ''}
-                        onChange={(e) =>
-                            updateConfig({
-                                extraValues: { ...extraValues, [sel.id]: e.target.value }
-                            })
-                        }
-                        options={sel.options}
-                    />
-                ))}
+                {config.extraSelectors?.map((sel) => {
+                    const selT = configT.extraSelectors?.[sel.id];
+                    const label = selT?.label || sel.label;
+                    const options = sel.options.map(opt => ({
+                        value: opt.value,
+                        label: selT?.options?.[opt.value] || opt.label
+                    }));
+
+                    return (
+                        <SelectFieldRow
+                            key={sel.id}
+                            rowClassName="mt-2.5"
+                            label={`${label}:`}
+                            icon={sel.icon}
+                            controlId={`${config.id}-extra-${sel.id}`}
+                            value={extraValues[sel.id] ?? ''}
+                            onChange={(e) =>
+                                updateConfig({
+                                    extraValues: { ...extraValues, [sel.id]: e.target.value }
+                                })
+                            }
+                            options={options}
+                        />
+                    );
+                })}
 
                 {config.templatePlaceholder && (
                     <div className="mb-4 flex flex-col gap-1">
                         <label htmlFor={`${config.id}-template`} className={`${inputLabel} inline-flex items-center gap-1.5`}>
                             <IconSm icon={Edit} />
-                            <span>Mensaje Personalizado (Opcional)</span>
+                            <span>{cmdT.customMsg}</span>
                         </label>
                         <input
                             id={`${config.id}-template`}
                             type="text"
                             value={template}
                             onChange={(e) => updateConfig({ template: e.target.value })}
-                            placeholder={config.templatePlaceholder}
+                            placeholder={templatePlaceholder}
                             className={`${textInput} ${hoverNeutralControl} focus:border-primary focus:bg-primary/[0.02]`}
                         />
-                        {config.templateVars && <TemplateVarsHelp vars={config.templateVars} />}
+                        {templateVars && <TemplateVarsHelp vars={templateVars} />}
                     </div>
                 )}
 
                 <SelectFieldRow
-                    label="Formato de copiado:"
+                    label={cmdT.copyFormat}
                     icon={FileCode}
                     controlId={`${config.id}-format`}
                     value={format}
                     onChange={(e) => updateConfig({ format: e.target.value as 'full' | 'url' })}
                     options={[
-                        { value: 'full', label: 'Comando completo' },
-                        { value: 'url', label: 'Solo URL' }
+                        { value: 'full', label: cmdT.formatFull },
+                        { value: 'url', label: cmdT.formatUrl }
                     ]}
                 />
 
                 <div className={codeBox}>
-                    <textarea readOnly value={generated.masked} aria-label="Comando generado" className={codeTextarea} />
+                    <textarea readOnly value={generated.masked} aria-label={cmdT.ariaGenerated} className={codeTextarea} />
                     <button
                         type="button"
                         onClick={() => void copyCommand()}
@@ -259,7 +281,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                         disabled={!generated.full}
                     >
                         {isCopied ? <Check className="size-4 shrink-0" /> : <Copy className="size-4 shrink-0" />}
-                        {isCopied ? 'Copiado' : 'Copiar'}
+                        {isCopied ? cmdT.btnCopied : cmdT.btnCopy}
                     </button>
                 </div>
             </div>
@@ -284,9 +306,11 @@ export function ApiTestCard({
     children,
     onTest,
     result,
-    buttonLabel = 'Probar Respuesta'
+    buttonLabel
 }: ApiTestCardProps) {
+    const { t } = useTranslation();
     const isActive = result.status === 'success' || result.status === 'error';
+    const finalBtnLabel = buttonLabel || t.commands.apiTest.btnTest;
 
     return (
         <div className={`${panelCard} ${fadeIn} mb-5 flex flex-col [animation-delay:60ms]`}>
@@ -323,7 +347,7 @@ export function ApiTestCard({
                     ) : (
                         <Play className="size-4 shrink-0" />
                     )}
-                    {result.status === 'loading' ? 'Probando...' : buttonLabel}
+                    {result.status === 'loading' ? t.commands.apiTest.btnTesting : finalBtnLabel}
                 </button>
 
                 <div

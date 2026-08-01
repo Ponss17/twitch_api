@@ -10,7 +10,6 @@ import {
     getSession,
     resolveDegradedSession,
     stripSensitiveQueryParams,
-    readOptimisticAuthState,
     runLegacyPanelSessionMigration,
     takeLegacyReloginRedirect
 } from '@/core/api/auth';
@@ -22,6 +21,7 @@ import { useToastOptional } from '@/shared/ui/ToastProvider';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { saveOverlayStoredSession, getOverlayStoredSession } from '@/features/overlay/lib/overlaySession';
 import { useProactiveTokenRefresh } from '@/core/session/useProactiveTokenRefresh';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 export type { SessionContextValue } from '@/core/session/context';
 
@@ -37,7 +37,7 @@ export interface SessionBootstrap {
 }
 
 const DEFAULT_SESSION_BOOTSTRAP: SessionBootstrap = {
-    readOptimisticAuthState,
+    readOptimisticAuthState: () => ({ session: null, loading: true, authenticated: false }),
     resolveSessionFromUrl,
     storage: 'local'
 };
@@ -54,8 +54,11 @@ export function SessionProvider({
     bootstrap = DEFAULT_SESSION_BOOTSTRAP
 }: SessionProviderProps) {
     const showToast = useToastOptional();
+    const { t } = useTranslation();
     const showToastRef = useRef(showToast);
     showToastRef.current = showToast;
+    const tRef = useRef(t);
+    tRef.current = t;
 
     const optimistic = bootstrap.readOptimisticAuthState();
     const hydratedFromStorageRef = useRef(optimistic.authenticated);
@@ -110,7 +113,13 @@ export function SessionProvider({
                 setAuthenticated(false);
             });
             if (requireAuth) {
-                window.location.href = appPath('/');
+                const mode = new URLSearchParams(window.location.search).get('mode');
+                if (mode === 'login' || !window.location.pathname.startsWith('/login')) {
+                    showToastRef.current(tRef.current.globals.toasts.sessionExpiredLogin, 'error');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 1000);
+                }
             }
             return;
         }
@@ -130,7 +139,7 @@ export function SessionProvider({
 
         if (result.valid === true) {
             if (result.error) {
-                showToastRef.current('Conexión inestable con el servidor', 'warning');
+                showToastRef.current(tRef.current.globals.toasts.unstableConnection, 'warning');
             }
 
             const baseSession = result.networkError
@@ -175,11 +184,12 @@ export function SessionProvider({
 
         if (requireAuth) {
             invalidateSession({ broadcast: false });
+            const globalT = tRef.current.globals.toasts;
             if (bootstrap.storage === 'overlay') {
-                showToastRef.current('Enlace de overlay inválido o expirado.', 'error');
+                showToastRef.current(globalT.overlayExpired, 'error');
                 return;
             }
-            showToastRef.current('Sesión expirada. Redirigiendo...', 'error');
+            showToastRef.current(globalT.sessionExpired, 'error');
             redirectTimerRef.current = window.setTimeout(() => {
                 window.location.href = appPath('/');
             }, 2000);
@@ -202,7 +212,7 @@ export function SessionProvider({
         const onAuthFailed = () => {
             if (isWithinSessionAuthGrace()) return;
             invalidateSession({ broadcast: false });
-            showToastRef.current('Sesión expirada. Redirigiendo al login...', 'error');
+            showToastRef.current(tRef.current.globals.toasts.sessionExpiredLogin, 'error');
             if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
             redirectTimerRef.current = window.setTimeout(() => {
                 window.location.href = appPath('/');

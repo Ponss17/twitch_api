@@ -4,12 +4,12 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { fetchOverlayLink } from '@/features/overlay/lib/sync';
 import {
     getOverlayPlatformGuide,
-    overlayToolLabel,
     type OverlayPlatform
 } from '@/features/overlay/lib/overlaySetupGuide';
 import type { OverlayTool } from '@/features/overlay/lib/types';
 import { Sheet } from '@/shared/ui/Sheet';
 import { useToast } from '@/shared/ui/ToastProvider';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface OverlaySetupModalProps {
     open: boolean;
@@ -25,31 +25,36 @@ const PLATFORMS: { id: OverlayPlatform; label: string; icon: typeof Monitor }[] 
 export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProps) {
     const session = useRequiredSession();
     const { showToast } = useToast();
+    const { t } = useTranslation();
+    const mT = t.overlay.setupModal;
+    const gT = t.overlay.guide;
+    
     const [platform, setPlatform] = useState<OverlayPlatform>('obs');
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [copying, setCopying] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const guide = getOverlayPlatformGuide(tool, platform);
-    const toolLabel = overlayToolLabel(tool);
+    const guide = getOverlayPlatformGuide(tool, platform, gT);
+    const toolLabel = gT.tools[tool] ?? tool;
 
     const loadUrl = useCallback(async () => {
         setLoading(true);
         try {
             const next = await fetchOverlayLink(tool, session);
             if (!next) {
-                showToast('No se pudo generar la URL del overlay', 'error');
+                showToast(mT.generateError, 'error');
                 setUrl('');
                 return;
             }
             setUrl(next);
         } catch {
-            showToast('No se pudo generar la URL del overlay', 'error');
+            showToast(mT.generateError, 'error');
             setUrl('');
         } finally {
             setLoading(false);
         }
+    // eslint-disable-next-line
     }, [session, showToast, tool]);
 
     useEffect(() => {
@@ -71,9 +76,9 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
         try {
             await navigator.clipboard.writeText(url);
             setCopied(true);
-            showToast('URL del overlay copiada', 'success');
+            showToast(mT.copySuccess, 'success');
         } catch {
-            showToast('No se pudo copiar la URL', 'error');
+            showToast(mT.copyError, 'error');
         } finally {
             setCopying(false);
         }
@@ -83,15 +88,15 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
         <Sheet
             open={open}
             onClose={onClose}
-            title={`Overlay — ${toolLabel}`}
-            description="Sigue las instrucciones para conectar el overlay a tu software de streaming."
+            title={`${mT.titlePrefix} ${toolLabel}`}
+            description={mT.description}
             footer={
                 <div className="flex w-full flex-col gap-3 pt-2">
                     <p className="flex items-start gap-2 text-[0.7rem] leading-relaxed text-zinc-500">
                         <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-yellow-500/70" />
                         <span>
-                            La URL lleva tu token secreto.{' '}
-                            <strong className="text-zinc-300">No la compartas públicamente.</strong>
+                            {mT.warning}{' '}
+                            <strong className="text-zinc-300">{mT.warningBold}</strong>
                         </span>
                     </p>
                     <button
@@ -103,22 +108,22 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                         {loading ? (
                             <>
                                 <Loader2 className="size-4 animate-spin" aria-hidden />
-                                Generando enlace…
+                                {mT.generating}
                             </>
                         ) : copying ? (
                             <>
                                 <Loader2 className="size-4 animate-spin" aria-hidden />
-                                Copiando…
+                                {mT.copying}
                             </>
                         ) : copied ? (
                             <>
                                 <Check className="size-4 shrink-0" aria-hidden />
-                                ¡Copiado al Portapapeles!
+                                {mT.copied}
                             </>
                         ) : (
                             <>
                                 <Copy className="size-4 shrink-0" aria-hidden />
-                                Copiar URL de la Fuente
+                                {mT.copySrc}
                             </>
                         )}
                     </button>
@@ -130,7 +135,7 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                 <div
                     className="flex w-full items-center gap-1 rounded-xl border border-white/[0.04] bg-[#09090b] p-1"
                     role="tablist"
-                    aria-label="Plataforma de streaming"
+                    aria-label={t.common.aria.streamingPlatform}
                 >
                     {PLATFORMS.map(({ id, label, icon: Icon }) => {
                         const selected = platform === id;

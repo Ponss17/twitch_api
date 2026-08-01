@@ -6,6 +6,7 @@ import { calculateAccountAge, broadcasterLabel, type TwitchUser } from '@/core/t
 import { formatDate } from '@/core/utils/utils';
 import { staticPath } from '@/core/config/paths';
 import { X, Check, Copy } from 'lucide-react';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface UserInspectModalProps {
     user: TwitchUser | null;
@@ -14,6 +15,8 @@ interface UserInspectModalProps {
 }
 
 export function UserInspectModal({ user, onClose, showLogs = true }: UserInspectModalProps) {
+    const { t } = useTranslation();
+    const mT = t.modals.userInspect;
     const [logs, setLogs] = useState<ChatLogItem[]>([]);
     const [showHistory, setShowHistory] = useState(false);
     const [isIdCopied, setIsIdCopied] = useState(false);
@@ -50,7 +53,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
             <button
                 type="button"
                 onClick={onClose}
-                aria-label="Cerrar"
+                aria-label={mT.close}
                 className="absolute top-[15px] right-[15px] z-10 flex h-8 w-8 items-center justify-center rounded-full border-none bg-white/5 text-[1.2rem] text-white transition hover:rotate-90 hover:bg-error"
             >
                 <X className="w-4 h-4" />
@@ -77,26 +80,26 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
             <div className="p-6">
                 <div className="mb-5 grid grid-cols-2 gap-4 rounded-xl border border-white/[0.08] bg-bg-card p-4 max-md:grid-cols-1">
                     <div className="flex flex-col gap-1 text-left">
-                        <span className="text-[0.65rem] tracking-wide text-[#71717a] uppercase">Rango</span>
+                        <span className="text-[0.65rem] tracking-wide text-[#71717a] uppercase">{mT.rank}</span>
                         <span className="font-[Consolas,monospace] text-[0.85rem] font-medium" style={{ color: rankColor }}>
                             {rankLabel}
                         </span>
                     </div>
                     <div className="flex flex-col gap-1 text-left">
-                        <span className="text-[0.65rem] tracking-wide text-[#71717a] uppercase">ID Usuario</span>
+                        <span className="text-[0.65rem] tracking-wide text-[#71717a] uppercase">{mT.userId}</span>
                         <button
                             type="button"
                             onClick={() => void copyUserId()}
                             className="flex items-center justify-start gap-1.5 font-[Consolas,monospace] text-[0.85rem] font-medium text-[#c4c4cc] transition hover:text-[#fafafa]"
-                            title="Copiar ID"
+                            title={mT.copyId}
                         >
                             {user.id}
                             {isIdCopied ? <Check className="text-primary" /> : <Copy className="w-4 h-4" />}
-                            {isIdCopied ? <span className="text-[0.75rem] text-primary">Copiado</span> : null}
+                            {isIdCopied ? <span className="text-[0.75rem] text-primary">{mT.copied}</span> : null}
                         </button>
                     </div>
                     <div className="flex flex-col gap-1 text-left">
-                        <span className="text-[0.65rem] tracking-wide text-[#71717a] uppercase">Antigüedad</span>
+                        <span className="text-[0.65rem] tracking-wide text-[#71717a] uppercase">{mT.accountAge}</span>
                         <span className="font-[Consolas,monospace] text-[0.85rem] font-medium text-[#c4c4cc]">
                             {calculateAccountAge(user.created_at)}
                         </span>
@@ -105,16 +108,16 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
 
                 {!showHistory ? (
                     <p className="mx-auto my-2.5 px-2.5 text-center text-[0.95rem] leading-relaxed text-[#c4c4cc]">
-                        {user.description || 'Sin biografía.'}
+                        {user.description || mT.noBio}
                     </p>
                 ) : (
                     <div className="mt-5 border-t border-white/[0.08] pt-4">
                         <h4 className="mb-2.5 text-[0.95rem] font-semibold text-[#fafafa]">
-                            Historial del chat
+                            {mT.chatHistory}
                         </h4>
                         {logs.length === 0 ? (
                             <p className="py-5 text-center text-[0.85rem] text-[#71717a] italic">
-                                Sin mensajes registrados en esta sesión.
+                                {mT.noMessages}
                             </p>
                         ) : (
                             <div className="flex max-h-[200px] flex-col gap-2 overflow-y-auto">
@@ -136,7 +139,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
 
                 <div className="mt-4 rounded-b-[20px] border-t border-white/[0.08] bg-black/20 pt-5">
                     <p className="mb-4 text-center text-[0.85rem] text-[#71717a]">
-                        Cuenta creada: {formatDate(user.created_at ?? '')}
+                        {mT.accountCreated(formatDate(user.created_at ?? ''))}
                     </p>
                     {showLogs && !showHistory && (
                         <button
@@ -144,7 +147,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                             onClick={loadLogs}
                             className="w-full rounded-lg border border-white/15 bg-white/10 px-4 py-2 text-[0.8125rem] font-semibold text-[#fafafa] transition hover:border-white/30 hover:bg-white/15"
                         >
-                            Ver historial del chat
+                            {mT.viewHistory}
                         </button>
                     )}
                 </div>

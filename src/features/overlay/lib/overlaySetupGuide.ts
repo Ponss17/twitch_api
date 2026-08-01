@@ -1,22 +1,9 @@
 import type { OverlayTool } from '@/features/overlay/lib/types';
+import type { Translations } from '@/core/i18n/locales/es';
 
 export type OverlayPlatform = 'obs' | 'streamlabs';
 
-const TOOL_LABELS: Record<OverlayTool, string> = {
-    trends: 'Tendencias',
-    roulette: 'Ruleta'
-};
-
-const SIZE_HINTS: Record<OverlayTool, string> = {
-    trends: '900 × 580 px (top 10; ancho de escena si prefieres)',
-    roulette: '720 × 720 px'
-};
-
 export const OVERLAY_SETUP_VERSION = 'beta 1.2';
-
-export function overlayToolLabel(tool: OverlayTool): string {
-    return TOOL_LABELS[tool];
-}
 
 /** Muestra la URL sin token ni credenciales en query. */
 export function maskOverlayUrlForDisplay(url: string): string {
@@ -48,37 +35,38 @@ export interface OverlayPlatformGuide {
 
 export function getOverlayPlatformGuide(
     tool: OverlayTool,
-    platform: OverlayPlatform
+    platform: OverlayPlatform,
+    gT: Translations['overlay']['guide']
 ): OverlayPlatformGuide {
-    const size = SIZE_HINTS[tool];
+    const size = gT.sizes[tool];
 
     if (platform === 'obs') {
         return {
-            title: 'Configurar en OBS',
+            title: gT.obsTitle,
             steps: [
-                { title: 'Nueva fuente', detail: 'Fuentes → Navegador (Browser Source).' },
-                { title: 'Pegar URL', detail: 'Pega la URL que copiaste en el panel (botón Overlay).' },
-                { title: 'Tamaño', detail: `${size}, fondo transparente.` },
+                { title: gT.obsSteps.sourceTitle, detail: gT.obsSteps.sourceDetail },
+                { title: gT.obsSteps.urlTitle, detail: gT.obsSteps.urlDetail },
+                { title: gT.obsSteps.sizeTitle, detail: gT.obsSteps.sizeDetail(size) },
                 {
-                    title: 'Al activar escena',
-                    detail: 'Marca «Actualizar navegador cuando la escena se active».'
+                    title: gT.obsSteps.refreshTitle,
+                    detail: gT.obsSteps.refreshDetail
                 }
             ],
-            note: 'Solo muestra en pantalla. Para iniciar, girar o reiniciar, usa el panel.'
+            note: gT.obsNote
         };
     }
 
     return {
-        title: 'Configurar en Streamlabs',
+        title: gT.slTitle,
         steps: [
-            { title: 'Nueva fuente', detail: 'Fuentes → Custom Widget o Browser Source.' },
-            { title: 'Pegar URL', detail: 'Pega la URL que copiaste en el panel (botón Overlay).' },
-            { title: 'Tamaño', detail: `${size}, sin color de fondo.` },
+            { title: gT.slSteps.sourceTitle, detail: gT.slSteps.sourceDetail },
+            { title: gT.slSteps.urlTitle, detail: gT.slSteps.urlDetail },
+            { title: gT.slSteps.sizeTitle, detail: gT.slSteps.sizeDetail(size) },
             {
-                title: 'Al mostrar escena',
-                detail: 'Activa el refresco automático si tu plan lo permite.'
+                title: gT.slSteps.refreshTitle,
+                detail: gT.slSteps.refreshDetail
             }
         ],
-        note: 'Si la fuente se ve negra, revisa el tamaño, el fondo transparente y el refresco al mostrar la escena.'
+        note: gT.slNote
     };
 }

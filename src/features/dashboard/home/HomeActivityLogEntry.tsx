@@ -7,6 +7,7 @@ import {
     sanitizeActivityUser,
     type ActivityLogItem
 } from '@/features/dashboard/lib/activityLogDisplay';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface HomeActivityLogEntryProps {
     item: ActivityLogItem;
@@ -21,12 +22,13 @@ export const HomeActivityLogEntry = memo(function HomeActivityLogEntry({
     timeZone,
     onClick
 }: HomeActivityLogEntryProps) {
-    const meta = getActivityMeta(item.type);
+    const { t, locale } = useTranslation();
+    const meta = getActivityMeta(item.type, t);
     const Icon = meta.icon;
     const user = sanitizeActivityUser(item.user);
     const detail = meta.detailText(item);
-    const time = item.timestamp ? formatActivityTime(item.timestamp, timeZone) : '';
-    const relative = item.timestamp ? formatActivityRelativeTime(item.timestamp) : '';
+    const time = item.timestamp ? formatActivityTime(item.timestamp, timeZone, locale) : '';
+    const relative = item.timestamp ? formatActivityRelativeTime(item.timestamp, t) : '';
 
     const Component = onClick ? 'button' : 'div';
 

@@ -25,11 +25,15 @@ async function loadTmi(): Promise<TmiDefault> {
 }
 
 class TmiChatService {
-    client: Client | null = null;
+    private client: Client | null = null;
     private listeners = new Map<string, MessageHandler>();
     private activeClients = 0;
     private connectionPromise: Promise<void> | null = null;
-    isConnected = false;
+    private _isConnected = false;
+
+    public get isConnected(): boolean {
+        return this._isConnected;
+    }
 
     private acquireClient(): void {
         this.activeClients++;
@@ -40,7 +44,7 @@ class TmiChatService {
             this.activeClients <= 0 &&
             this.listeners.size === 0 &&
             !!this.client &&
-            this.isConnected
+            this._isConnected
         );
     }
 
@@ -51,7 +55,7 @@ class TmiChatService {
     ): Promise<void> {
         this.acquireClient();
         if (this.connectionPromise) return this.connectionPromise;
-        if (this.isConnected && this.client) return Promise.resolve();
+        if (this._isConnected && this.client) return Promise.resolve();
 
         const tmi = await loadTmi();
         const normalized = channel.replace(/^#/, '').toLowerCase();
@@ -89,7 +93,7 @@ class TmiChatService {
         this.connectionPromise = this.client
             .connect()
             .then(() => {
-                this.isConnected = true;
+                this._isConnected = true;
             })
             .catch(async (err: unknown) => {
                 const msg = String(err);
@@ -101,7 +105,7 @@ class TmiChatService {
                     attach(this.client!);
                     try {
                         await this.client!.connect();
-                        this.isConnected = true;
+                        this._isConnected = true;
                         onAnonymous?.();
                     } catch (anonErr) {
                         this.resetConnection();
@@ -126,7 +130,7 @@ class TmiChatService {
     }
 
     async say(channel: string, message: string): Promise<void> {
-        if (this.client && this.isConnected) {
+        if (this.client && this._isConnected) {
             await this.client.say(channel, message);
         }
     }
@@ -140,7 +144,7 @@ class TmiChatService {
     }
 
     private resetConnection() {
-        this.isConnected = false;
+        this._isConnected = false;
         this.client = null;
         this.connectionPromise = null;
     }

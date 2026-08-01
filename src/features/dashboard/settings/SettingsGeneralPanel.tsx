@@ -3,6 +3,7 @@ import { SettingsGroup } from '@/features/dashboard/settings/SettingsGroup';
 import { SettingsAccountSection } from '@/features/dashboard/settings/SettingsAccountSection';
 import { SettingsPreferencesSection } from '@/features/dashboard/settings/SettingsPreferencesSection';
 import { SettingsExportSection } from '@/features/dashboard/settings/SettingsExportSection';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface SettingsGeneralPanelProps {
     userId?: string;
@@ -21,9 +22,12 @@ export function SettingsGeneralPanel({
     onExport,
     onPreferencesChanged
 }: SettingsGeneralPanelProps) {
+    const { t } = useTranslation();
+    const gT = t.settings.groups;
+
     return (
         <>
-            <SettingsGroup title="Cuenta" description="Identificador y límites de tu plan" delay={40}>
+            <SettingsGroup title={gT.account.title} description={gT.account.desc} delay={40}>
                 <SettingsAccountSection
                     userId={userId}
                     rateLimit={profile?.rateLimit ?? 60}
@@ -36,14 +40,14 @@ export function SettingsGeneralPanel({
                 />
             </SettingsGroup>
 
-            <SettingsGroup title="Preferencias" description="Ajustes de tu cuenta" delay={60}>
+            <SettingsGroup title={gT.preferences.title} description={gT.preferences.desc} delay={60}>
                 <SettingsPreferencesSection
                     currentTimezone={profile?.timezone || 'UTC'}
                     onSettingsChanged={onPreferencesChanged}
                 />
             </SettingsGroup>
 
-            <SettingsGroup title="Datos" description="Exporta la información de tu cuenta" delay={80}>
+            <SettingsGroup title={gT.export.title} description={gT.export.desc} delay={80}>
                 <SettingsExportSection loading={exportLoading} onExport={onExport} />
             </SettingsGroup>
         </>

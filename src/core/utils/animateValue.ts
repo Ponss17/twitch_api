@@ -6,7 +6,8 @@ export function animateValue(
     start: number | null,
     end: number,
     duration = 1500,
-    suffix = ''
+    suffix = '',
+    locale: string = 'es'
 ): void {
     const prevRaf = animations.get(el);
     if (prevRaf !== undefined) {
@@ -18,7 +19,8 @@ export function animateValue(
     const currentVal = parseInt(textWithoutHtml.replace(/[^0-9.-]+/g, ''), 10) || 0;
     const actualStart = start !== null ? start : currentVal;
 
-    const formatted = (value: number) => `${value.toLocaleString('es-ES')}${suffix}`;
+    const bcp47 = locale === 'es' ? 'es-ES' : 'en-US';
+    const formatted = (value: number) => `${value.toLocaleString(bcp47)}${suffix}`;
 
     if (actualStart === end) {
         el.textContent = formatted(end);

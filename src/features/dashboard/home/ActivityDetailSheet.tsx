@@ -7,6 +7,7 @@ import {
     type ActivityLogItem
 } from '@/features/dashboard/lib/activityLogDisplay';
 import { btnSecondary } from '@/core/utils/tw';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface ActivityDetailSheetProps {
     item: ActivityLogItem | null;
@@ -33,18 +34,22 @@ function DetailRow({ icon: Icon, label, value, highlight = false, isLast = false
 }
 
 export function ActivityDetailSheet({ item, onClose, timeZone }: ActivityDetailSheetProps) {
+    const { t, locale } = useTranslation();
+    const iT = t.home.activityInspector;
+    
     if (!item) return null;
 
-    const meta = getActivityMeta(item.type);
+    const meta = getActivityMeta(item.type, t);
     const TypeIcon = meta.icon;
     const user = sanitizeActivityUser(item.user);
     const detail = meta.detailText(item);
-    const time = item.timestamp ? formatActivityTime(item.timestamp, timeZone) : '';
+    const time = item.timestamp ? formatActivityTime(item.timestamp, timeZone, locale) : '';
     let date = '';
     if (item.timestamp) {
         const d = new Date(item.timestamp);
         if (!Number.isNaN(d.getTime())) {
-            date = new Intl.DateTimeFormat('es-ES', {
+            const bcp47 = locale === 'es' ? 'es-ES' : 'en-US';
+            date = new Intl.DateTimeFormat(bcp47, {
                 timeZone: timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
                 day: 'numeric',
                 month: 'long',
@@ -52,12 +57,14 @@ export function ActivityDetailSheet({ item, onClose, timeZone }: ActivityDetailS
             }).format(d);
         }
     }
+    
+    const jsonStr = JSON.stringify(item, null, 2);
 
     return (
         <Sheet
             open={!!item}
             onClose={onClose}
-            title="Inspector de Evento"
+            title={iT.title}
         >
             <div className="flex flex-col gap-6 pt-1 pb-6">
                 {/* Clean Header */}
@@ -72,12 +79,12 @@ export function ActivityDetailSheet({ item, onClose, timeZone }: ActivityDetailS
 
                 {/* Flat List Card */}
                 <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] px-4 py-1">
-                    <DetailRow icon={Calendar} label="Fecha" value={date || 'Desconocida'} />
-                    <DetailRow icon={Clock} label="Hora" value={time || '---'} />
+                    <DetailRow icon={Calendar} label={iT.date} value={date || iT.unknownDate} />
+                    <DetailRow icon={Clock} label={iT.time} value={time || iT.unknownTime} />
                     {user && (
                         <DetailRow 
                             icon={User} 
-                            label="Usuario" 
+                            label={iT.user} 
                             value={
                                 <a 
                                     href={`https://twitch.tv/${user}`} 
@@ -91,22 +98,22 @@ export function ActivityDetailSheet({ item, onClose, timeZone }: ActivityDetailS
                             highlight 
                         />
                     )}
-                    <DetailRow icon={Activity} label="Resumen" value={detail} isLast />
+                    <DetailRow icon={Activity} label={iT.summary} value={detail} isLast />
                 </div>
 
                 {/* JSON Metadata (Cleaner style) */}
                 <div className="flex flex-col gap-2 pt-2">
                     <div className="flex items-center justify-between px-1">
                         <span className="text-[0.7rem] font-bold tracking-widest text-zinc-500 uppercase">
-                            Metadatos Técnicos
+                            {iT.technicalMetadata}
                         </span>
                         <button
                             type="button"
-                            onClick={() => navigator.clipboard.writeText(JSON.stringify(item, null, 2))}
+                            onClick={() => navigator.clipboard.writeText(jsonStr)}
                             className={`${btnSecondary} flex-none w-auto h-7 px-3 text-[0.65rem] font-medium`}
                         >
                             <Copy className="h-3 w-3" />
-                            Copiar
+                            {iT.copy}
                         </button>
                     </div>
                     <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-black/40">
@@ -119,12 +126,12 @@ export function ActivityDetailSheet({ item, onClose, timeZone }: ActivityDetailS
                         </div>
                         <div className="flex">
                             <div className="flex flex-col items-end border-r border-white/[0.04] bg-white/[0.01] px-3 py-4 text-[0.65rem] text-zinc-600 font-mono select-none">
-                                {JSON.stringify(item, null, 2).split('\n').map((_, i) => (
+                                {jsonStr.split('\n').map((_, i) => (
                                     <span key={i} className="leading-[1.4rem]">{i + 1}</span>
                                 ))}
                             </div>
                             <pre className="overflow-x-auto p-4 text-[0.75rem] font-mono leading-[1.4rem] text-[#c4c4cc] [scrollbar-width:thin]">
-                                {JSON.stringify(item, null, 2).split('\n').map((line, i) => {
+                                {jsonStr.split('\n').map((line, i) => {
                                     const coloredLine = line
                                         .replace(/"([^"]+)":/g, '<span class="text-white font-medium">"$1"</span>:')
                                         .replace(/: ("[^"]*")/g, ': <span class="text-primary">$1</span>')

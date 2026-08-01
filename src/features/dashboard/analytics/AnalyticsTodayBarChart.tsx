@@ -2,31 +2,49 @@ import React from 'react';
 import { ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { ChartMountGate, COLORS, AnalyticsSection } from './AnalyticsShared';
 import { BarChart2 } from 'lucide-react';
+import { useTranslation } from '@/core/i18n/I18nContext';
+import { useMemo } from 'react';
+import type { } from 'recharts';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomBarShape = (props: any) => {
+interface CustomBarShapeProps {
+    fill?: string;
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    stroke?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    payload?: any;
+}
+
+const CustomBarShape = (props: CustomBarShapeProps) => {
     const { fill, x, y, width, height, stroke, payload } = props;
     const barFill = payload?.fill ?? fill;
     const barStroke = payload?.fill ?? stroke;
     if (!height || height === 0) return null;
 
     const radius = 4;
-    const fillPath = `M ${x},${y + height} 
-                      L ${x},${y + radius} 
-                      Q ${x},${y} ${x + radius},${y} 
-                      L ${x + width - radius},${y} 
-                      Q ${x + width},${y} ${x + width},${y + radius} 
-                      L ${x + width},${y + height} 
+    const numX = Number(x) || 0;
+    const numY = Number(y) || 0;
+    const numWidth = Number(width) || 0;
+    const numHeight = Number(height) || 0;
+
+    const fillPath = `M ${numX},${numY + numHeight} 
+                      L ${numX},${numY + radius} 
+                      Q ${numX},${numY} ${numX + radius},${numY} 
+                      L ${numX + numWidth - radius},${numY} 
+                      Q ${numX + numWidth},${numY} ${numX + numWidth},${numY + radius} 
+                      L ${numX + numWidth},${numY + numHeight} 
                       Z`;
 
-    const strokePath = `M ${x},${y + height} 
-                        L ${x},${y + radius} 
-                        Q ${x},${y} ${x + radius},${y} 
-                        L ${x + width - radius},${y} 
-                        Q ${x + width},${y} ${x + width},${y + radius} 
-                        L ${x + width},${y + height}`;
+    const strokePath = `M ${numX},${numY + numHeight} 
+                        L ${numX},${numY + radius} 
+                        Q ${numX},${numY} ${numX + radius},${numY} 
+                        L ${numX + numWidth - radius},${numY} 
+                        Q ${numX + numWidth},${numY} ${numX + numWidth},${numY + radius} 
+                        L ${numX + numWidth},${numY + numHeight}`;
 
-    const gradientId = `bar-gradient-${Math.round(x)}-${Math.round(y)}`;
+    const gradientId = `bar-gradient-${Math.round(numX)}-${Math.round(numY)}`;
 
     return (
         <g>
@@ -57,84 +75,97 @@ interface AnalyticsTodayBarChartProps {
     pieData: any[];
 }
 
-export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarChartProps) {
-    const chartData = pieData.map((d, index) => ({
-        name: d.name,
-        Éxitos: d.value - d.errors,
-        Errores: d.errors,
-        'Tasa de Éxito': d.successRate || '0.0',
-        Total: d.value,
-        fill: COLORS[index % COLORS.length]
-    }));
-
+interface Custom{
+    active?: boolean;
+    // eslint-disable-next-line
+    payload?: any[];
+    label?: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const CustomTooltip = ({ active, payload, label }: any) => {
-        if (active && payload && payload.length) {
-            const data = payload[0].payload;
-            return (
-                <div className="pointer-events-none rounded-xl border border-white/10 bg-[#18181b] p-4 shadow-xl">
-                    <p className="mb-3 border-b border-white/10 pb-2 text-sm font-semibold capitalize text-white">
-                        {label}
-                    </p>
-                    <div className="flex flex-col gap-2">
+    chart: any;
+}
+
+const CustomTooltip = ({ active, payload, label, chart }: Custom) => {
+    if (active && payload && payload.length) {
+        const data = payload[0].payload;
+        return (
+            <div className="pointer-events-none rounded-xl border border-white/10 bg-[#18181b] p-4 shadow-xl">
+                <p className="mb-3 border-b border-white/10 pb-2 text-sm font-semibold capitalize text-white">
+                    {label}
+                </p>
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between gap-6">
+                        <span className="text-sm text-[#10b981]">{chart.success}:</span>
+                        <span className="text-sm font-bold text-white">
+                            {Number(data[chart.success]).toLocaleString()}
+                        </span>
+                    </div>
+                    {data[chart.errors] > 0 && (
                         <div className="flex items-center justify-between gap-6">
-                            <span className="text-sm text-[#10b981]">Éxitos:</span>
+                            <span className="text-sm text-[#ef4444]">{chart.errors}:</span>
                             <span className="text-sm font-bold text-white">
-                                {data['Éxitos'].toLocaleString()}
+                                {Number(data[chart.errors]).toLocaleString()}
                             </span>
                         </div>
-                        {data['Errores'] > 0 && (
-                            <div className="flex items-center justify-between gap-6">
-                                <span className="text-sm text-[#ef4444]">Errores:</span>
-                                <span className="text-sm font-bold text-white">
-                                    {data['Errores'].toLocaleString()}
-                                </span>
-                            </div>
-                        )}
-                        <div className="mt-1 flex items-center justify-between gap-6 border-t border-white/10 pt-2">
-                            <span className="text-sm text-[#c4c4cc]">Total:</span>
-                            <span className="text-sm font-bold text-white">
-                                {data['Total'].toLocaleString()}
-                            </span>
-                        </div>
-                        <div className="flex items-center justify-between gap-6">
-                            <span className="text-sm text-[#c4c4cc]">Éxito:</span>
-                            <span className="text-sm font-bold text-white">
-                                {data['Total'] > 0
-                                    ? ((data['Éxitos'] / data['Total']) * 100).toFixed(1)
-                                    : 0}
-                                %
-                            </span>
-                        </div>
+                    )}
+                    <div className="mt-1 flex items-center justify-between gap-6 border-t border-white/10 pt-2">
+                        <span className="text-sm text-[#c4c4cc]">{chart.total}:</span>
+                        <span className="text-sm font-bold text-white">
+                            {Number(data[chart.total]).toLocaleString()}
+                        </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-6">
+                        <span className="text-sm text-[#c4c4cc]">{chart.successRate}:</span>
+                        <span className="text-sm font-bold text-white">
+                            {data[chart.total] > 0
+                                ? ((data[chart.success] / data[chart.total]) * 100).toFixed(1)
+                                : 0}
+                            %
+                        </span>
                     </div>
                 </div>
-            );
-        }
-        return null;
-    };
+            </div>
+        );
+    }
+    return null;
+};
+
+export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarChartProps) {
+    const { t } = useTranslation();
+    const chart = t.analytics.todayChart;
+
+    const chartData = useMemo(() => {
+        return pieData.map((d, index) => ({
+            name: d.name,
+            [chart.success]: d.value - d.errors,
+            [chart.errors]: d.errors,
+            [chart.successRate]: d.successRate || '0.0',
+            [chart.total]: d.value,
+            fill: COLORS[index % COLORS.length]
+        }));
+    }, [pieData, chart]);
 
     return (
         <AnalyticsSection
             className="col-span-1 lg:col-span-2"
             panelClassName="h-[420px]"
-            title="Rendimiento por comando"
-            info="Peticiones exitosas y fallidas por comando durante el día."
+            title={chart.title}
+            info={chart.info}
         >
             {chartData.length === 0 ? (
                 <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
                     <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
                         <BarChart2 className="h-6 w-6 text-zinc-400" />
                     </div>
-                    <span className="text-sm font-medium text-zinc-400">Sin datos hoy</span>
+                    <span className="text-sm font-medium text-zinc-400">{chart.noData}</span>
                     <span className="mt-1 text-xs text-zinc-400">
-                        Los comandos aparecerán aquí al usarse
+                        {chart.noDataSub}
                     </span>
                 </div>
             ) : (
                 <ChartMountGate
                     active={active}
-                    className="min-h-0 w-full min-w-0 flex-1"
-                    srLabel="Gráfico mixto mostrando éxitos y errores por comando."
+                    className="min-h-[250px] w-full min-w-0 flex-1"
+                    srLabel={chart.title}
                 >
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                         <ComposedChart
@@ -169,7 +200,7 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                                 }
                             />
                             <Tooltip 
-                                content={<CustomTooltip />} 
+                                content={<CustomTooltip chart={chart} />} 
                                 cursor={false} 
                                 isAnimationActive={false} 
                                 wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
@@ -181,7 +212,7 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                                 iconType="circle"
                             />
                             <Bar
-                                dataKey="Éxitos"
+                                dataKey={chart.success}
                                 fill="#10b981"
                                 stroke="#10b981"
                                 activeBar={<CustomBarShape />}
@@ -189,7 +220,7 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                                 maxBarSize={48}
                             />
                             <Bar
-                                dataKey="Errores"
+                                dataKey={chart.errors}
                                 fill="#ef4444"
                                 stroke="#ef4444"
                                 activeBar={<CustomBarShape />}

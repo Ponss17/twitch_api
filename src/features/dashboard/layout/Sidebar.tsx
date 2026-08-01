@@ -15,6 +15,7 @@ import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
 import { AppLogo } from '@/shared/ui/AppLogo';
 import { IconMd } from '@/shared/ui/Icon';
 import { Book } from 'lucide-react';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface SidebarProps {
     active: DashboardTab;
@@ -24,7 +25,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps) {
-    let lastCategory = '';
+    const { t } = useTranslation();
     const asideRef = useRef<HTMLElement>(null);
 
     const supportLinkClass = `${sidebarSupportLink} underline decoration-[#52525b] underline-offset-[5px] hover:decoration-primary`;
@@ -76,11 +77,15 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                     </span>
                 </div>
 
-                <nav className={sidebarNavScroll} aria-label="Navegación del panel">
-                    {NAV_ITEMS.map((item) => {
-                        const showCategory = item.category !== lastCategory;
-                        if (item.category) lastCategory = item.category;
+                <nav className={sidebarNavScroll} aria-label={t.sidebar.navigation}>
+                    {NAV_ITEMS.map((item, index) => {
+                        const prevCategory = index > 0 ? NAV_ITEMS[index - 1].category : '';
+                        const showCategory = item.category && item.category !== prevCategory;
                         const isActive = active === item.id;
+                        
+                        // Extract translation keys safely
+                        const catKey = item.category as keyof typeof t.sidebar.categories;
+                        const itemKey = item.id as keyof typeof t.sidebar.items;
 
                         return (
                             <div key={item.id}>
@@ -90,7 +95,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                                             item.id === NAV_ITEMS[0].id ? 'mt-2' : 'mt-8'
                                         }`}
                                     >
-                                        {item.category}
+                                        {item.category ? t.sidebar.categories[catKey] : ''}
                                     </p>
                                 )}
                                 <button
@@ -100,7 +105,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                                         onClose();
                                     }}
                                     className={`${sidebarNavItem(isActive)} relative overflow-hidden`}
-                                    aria-label={item.label}
+                                    aria-label={t.sidebar.items[itemKey]}
                                     aria-current={isActive ? 'page' : undefined}
                                 >
                                     {isActive && (
@@ -118,7 +123,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                                             icon={item.icon}
                                             className={isActive ? 'animate-nav-icon-bounce text-white' : ''}
                                         />
-                                        <span>{item.label}</span>
+                                        <span>{t.sidebar.items[itemKey]}</span>
                                     </div>
                                 </button>
                             </div>
@@ -131,7 +136,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                         onClick={saveDocsReturnPath}
                     >
                         <IconMd icon={Book} />
-                        <span>Documentación</span>
+                        <span>{t.sidebar.docs}</span>
                     </a>
                     <a
                         href="https://discord.gg/PJbExZe7Tp"
@@ -140,7 +145,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                         className={supportLinkClass}
                     >
                         <DiscordIcon className="size-5 shrink-0" />
-                        <span>Discord</span>
+                        <span>{t.sidebar.discord}</span>
                     </a>
                 </nav>
             </aside>
@@ -148,7 +153,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
             {mobileOpen && (
                 <button
                     type="button"
-                    aria-label="Cerrar menú"
+                    aria-label={t.header.closeMenu}
                     className={sidebarBackdrop}
                     onClick={onClose}
                 />

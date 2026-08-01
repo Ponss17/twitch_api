@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from '@/core/i18n/I18nContext';
 import { fetchRevealApiKey } from '@/core/api/auth';
 import { buildAuthQueryParam } from '@/core/api/authQuery';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
@@ -18,6 +19,7 @@ export function useCommandApiTest(
 ) {
     const [loading, setLoading] = useState(false);
     const requestIdRef = useRef(0);
+    const { t } = useTranslation();
 
     const runTest = async (options: UseCommandApiTestOptions): Promise<void> => {
         const requestId = ++requestIdRef.current;
@@ -33,8 +35,8 @@ export function useCommandApiTest(
                 setStoredResult({
                     status: 'error',
                     message: response.ok
-                        ? 'La API no devolvió texto. Prueba de nuevo en unos segundos.'
-                        : `Error HTTP ${response.status}. La API no devolvió mensaje.`
+                        ? t.commands.generator.toasts.noCommand
+                        : `Error HTTP ${response.status}.`
                 });
                 return;
             }
@@ -49,7 +51,7 @@ export function useCommandApiTest(
             });
         } catch {
             if (requestId !== requestIdRef.current) return;
-            setStoredResult({ status: 'error', message: 'Error de conexión' });
+            setStoredResult({ status: 'error', message: t.commands.generator.toasts.apiError });
         } finally {
             if (requestId === requestIdRef.current) {
                 setLoading(false);

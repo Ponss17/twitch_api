@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, type TransitionEvent } from 'react';
 import { WheelPointer } from '@/features/roulette/WheelPointer';
 import { drawWheelOnCanvas } from '@/features/roulette/lib/wheelUtils';
 import type { RouletteUser } from '@/core/types/twitch';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 export type RouletteWheelVariant = 'full' | 'overlay';
 
@@ -31,9 +32,14 @@ export function RouletteWheelDisplay({
     onWheelTransitionEnd,
     onDismissWinner
 }: RouletteWheelDisplayProps) {
+    const { t } = useTranslation();
+    const rlT = t.minigames.roulette;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const isSpinningRef = useRef(isSpinning);
-    isSpinningRef.current = isSpinning;
+    
+    useEffect(() => {
+        isSpinningRef.current = isSpinning;
+    }, [isSpinning]);
 
     const drawWheel = useCallback((users: RouletteUser[], options: { labels?: boolean } = {}) => {
         const canvas = canvasRef.current;
@@ -109,10 +115,10 @@ export function RouletteWheelDisplay({
                         aria-hidden
                     >
                         <p className="text-[0.8125rem] font-semibold leading-snug text-[#c4c4cc]">
-                            Sin participantes
+                            {rlT.noParticipants}
                         </p>
                         <p className="mt-1 text-[0.6875rem] leading-snug text-[#52525b]">
-                            Pulsa ▶ para abrir inscripciones
+                            {rlT.pressPlay}
                         </p>
                     </div>
                 )}
@@ -134,7 +140,7 @@ export function RouletteWheelDisplay({
                         aria-live="polite"
                     >
                         <span className="rounded-full bg-black/50 px-3 py-1 text-[0.6875rem] font-semibold tracking-wide text-[#e4e4e7] uppercase backdrop-blur-sm">
-                            Girando…
+                            {rlT.spinning}
                         </span>
                     </div>
                 )}
@@ -146,18 +152,18 @@ export function RouletteWheelDisplay({
                                 <Crown className="size-6 text-amber-400" aria-hidden />
                             </div>
                             <p className="mb-1 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-[#c4c4cc]">
-                                Ganador
+                                {rlT.winner}
                             </p>
                             <p className="mb-1 text-[1.6rem] font-extrabold leading-tight text-primary">
                                 {winner.user_name}
                             </p>
                             <p className="mb-4 flex items-center justify-center gap-1.5 text-[0.85rem] text-[#c4c4cc]">
                                 <Sparkles className="size-3.5 text-primary" aria-hidden />
-                                {lastSpinCount || chatters.length} participantes
+                                {lastSpinCount || chatters.length} {rlT.participants.toLowerCase()}
                             </p>
                             {!isOverlay && !announceWinnerInChat ? (
                                 <p className="mb-3 text-[0.75rem] text-[#71717a]">
-                                    No anunciado en chat (opción desactivada)
+                                    {rlT.notAnnounced}
                                 </p>
                             ) : null}
                             {!isOverlay && onDismissWinner ? (
@@ -166,7 +172,7 @@ export function RouletteWheelDisplay({
                                     onClick={onDismissWinner}
                                     className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/10 px-5 py-2 text-[0.8125rem] font-semibold text-[#fafafa] transition hover:border-white/30 hover:bg-white/15"
                                 >
-                                    Cerrar
+                                    {rlT.close}
                                 </button>
                             ) : null}
                         </div>

@@ -46,7 +46,7 @@ export function useOverlayMirror<T extends OverlayTool>(
     const emptyState = (
         tool === 'roulette'
             ? emptyRouletteOverlayState()
-            : emptyTrendsOverlayState(session?.displayName ?? session?.login ?? 'Canal')
+            : emptyTrendsOverlayState(session?.displayName ?? session?.login ?? 'Channel')
     ) as State;
 
     const [state, setState] = useState<State>(emptyState);

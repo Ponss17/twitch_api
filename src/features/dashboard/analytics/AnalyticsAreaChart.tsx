@@ -1,6 +1,10 @@
 import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartMountGate, AnalyticsSection } from './AnalyticsShared';
+import { useTranslation } from '@/core/i18n/I18nContext';
+import type { } from '@/core/i18n/locales/es';
+
+import type { } from 'recharts';
 
 interface AnalyticsAreaChartProps {
     active: boolean;
@@ -8,13 +12,21 @@ interface AnalyticsAreaChartProps {
     areaData: any[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface Custom{
+    active?: boolean;
+    // eslint-disable-next-line
+    payload?: any[];
+    label?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    t: any;
+}
+
+const CustomTooltip = ({ active, payload, label, t }: Custom) => {
     if (active && payload && payload.length) {
         return (
             <div className="pointer-events-none rounded-xl border border-white/10 bg-[#18181b] p-3 shadow-xl">
                 <p className="mb-1 text-xs font-semibold text-zinc-400">{label}</p>
-                <span className="text-sm font-medium text-white">Peticiones : {payload[0].value}</span>
+                <span className="text-sm font-medium text-white">{t.analytics.areaChart.requests} : {payload[0].value}</span>
             </div>
         );
     }
@@ -22,17 +34,20 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps) {
+    const { t } = useTranslation();
+    const chart = t.analytics.areaChart;
+
     return (
         <AnalyticsSection
             className="col-span-1 lg:col-span-2"
             panelClassName="h-[420px]"
-            title="Peticiones por día"
-            info="Evolución diaria del total de peticiones en la última semana."
+            title={chart.title}
+            info={chart.info}
         >
             <ChartMountGate
                 active={active}
-                className="min-h-0 w-full min-w-0 flex-1"
-                srLabel="Gráfico de área mostrando peticiones de los últimos 7 días."
+                className="min-h-[250px] w-full min-w-0 flex-1"
+                srLabel={chart.title}
             >
                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                     <AreaChart
@@ -76,7 +91,7 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             tickMargin={12}
                         />
                         <Tooltip 
-                            content={<CustomTooltip />} 
+                            content={<CustomTooltip t={t} />} 
                             cursor={false}
                             isAnimationActive={false} 
                             wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
@@ -84,7 +99,7 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                         <Area
                             type="monotone"
                             dataKey="requests"
-                            name="Peticiones"
+                            name={chart.requests}
                             stroke="#9146ff"
                             strokeWidth={3}
                             strokeDasharray="6 6"

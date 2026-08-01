@@ -6,13 +6,22 @@ import { chatLogStore } from '@/features/chat/lib/chatLogStore';
 import { TabSyncService } from '@/features/dashboard/lib/tabSyncService';
 import { rankWordCounts } from '@/features/trends/lib/rankWordCounts';
 import type { TrendsOverlayState } from '@/features/overlay/lib/types';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 const STOP_WORDS = new Set([
+    // Spanish
     'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', 'y', 'o', 'pero', 'si', 'no', 'en', 'de', 'del',
     'a', 'al', 'con', 'para', 'por', 'que', 'qué', 'es', 'son', 'se', 'mi', 'tu', 'su', 'yo', 'me', 'te', 'le',
     'este', 'esta', 'estos', 'estas', 'ese', 'esa', 'esos', 'esas', 'como', 'cómo', 'cuando', 'cuándo', 'donde',
-    'dónde', 'quien', 'quién', 'solo', 'sólo', 'tan', 'muy', 'mucho', 'poco', 'más', 'menos', 'http', 'https',
-    'www', 'com'
+    'dónde', 'quien', 'quién', 'solo', 'sólo', 'tan', 'muy', 'mucho', 'poco', 'más', 'menos', 
+    // English
+    'the', 'a', 'an', 'and', 'or', 'but', 'if', 'not', 'in', 'of', 'on', 'to', 'with', 'for', 'by', 'that',
+    'this', 'these', 'those', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do',
+    'does', 'did', 'will', 'would', 'shall', 'should', 'can', 'could', 'may', 'might', 'must', 'i', 'you',
+    'he', 'she', 'it', 'we', 'they', 'my', 'your', 'his', 'her', 'its', 'our', 'their', 'me', 'him', 'us',
+    'them', 'what', 'who', 'whom', 'which', 'where', 'when', 'why', 'how', 'so', 'too', 'very',
+    // Universal
+    'http', 'https', 'www', 'com'
 ]);
 
 const LISTENER_ID = 'trends';
@@ -40,6 +49,11 @@ export function useTrendsController({
     const [isLeader, setIsLeader] = useState(false);
     const [wordCounts, setWordCounts] = useState<Record<string, number>>({});
 
+    const { t } = useTranslation();
+    const gT = t.globals.toasts;
+    const gTRef = useRef(gT);
+    gTRef.current = gT;
+
     const wordCountsRef = useRef(wordCounts);
     wordCountsRef.current = wordCounts;
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -60,7 +74,7 @@ export function useTrendsController({
     const onStateChangeRef = useRef(onStateChange);
     onStateChangeRef.current = onStateChange;
 
-    const displayName = session.displayName ?? session.login ?? 'Canal';
+    const displayName = session.displayName ?? session.login ?? t.common.channel;
 
     const buildOverlayState = useCallback(
         (overrides: Partial<TrendsOverlayState> = {}): TrendsOverlayState => {
@@ -148,7 +162,7 @@ export function useTrendsController({
         onConnected: () => updateStatus(true),
         onError: () => {
             updateStatus(false);
-            showToast('Error al conectar con el chat', 'error');
+            showToast(gTRef.current.trendsChatError, 'error');
             endTimerRef.current(true);
         }
     });
@@ -172,9 +186,9 @@ export function useTrendsController({
                 const entries = Object.entries(wordCountsRef.current);
                 if (entries.length > 0) {
                     const sorted = entries.sort((a, b) => b[1] - a[1]);
-                    showToast(`Ganador: "${sorted[0][0]}" (${sorted[0][1]})`, 'success');
+                    showToast(gTRef.current.trendsWinner(sorted[0][0], sorted[0][1]), 'success');
                 } else {
-                    showToast('¡Tiempo terminado!', 'success');
+                    showToast(gTRef.current.trendsTimeUp, 'success');
                 }
             }
             setMinutes(durationMinutesRef.current);
@@ -276,7 +290,7 @@ export function useTrendsController({
         }
 
         runTimer(minutes * 60);
-        showToast(`Tracker iniciado (${minutes} min)`, 'success');
+        showToast(gTRef.current.trendsStarted(minutes), 'success');
         emitState({
             tracking: true,
             sessionActive: true,
@@ -322,7 +336,7 @@ export function useTrendsController({
                 timerEndsAt: Date.now() + mins * 60 * 1000
             });
             if (!sync.getIsLeader()) {
-                showToastRef.current(`Tracker iniciado (${mins} min)`, 'success');
+                showToastRef.current(gTRef.current.trendsStarted(mins), 'success');
             }
         });
 

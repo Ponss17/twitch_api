@@ -5,6 +5,7 @@ import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { tmiService } from '@/features/chat/lib/tmiService';
 import type { RouletteUser } from '@/core/types/twitch';
 import { readScopedPref, writeScopedPref } from '@/core/session/localPrefs';
+import { TabSyncService } from '@/features/dashboard/lib/tabSyncService';
 import {
     DEFAULT_ELIGIBILITY_FILTERS,
     filtersToApiParam,
@@ -17,6 +18,7 @@ import {
 } from '@/features/roulette/lib/eligibility';
 import { winnerIndex } from '@/features/roulette/lib/wheelUtils';
 import type { RouletteOverlayState } from '@/features/overlay/lib/types';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 const LISTENER_ID = 'roulette';
 const ANNOUNCE_WINNER_PREF = 'roulette_announce_winner';
@@ -63,6 +65,12 @@ export function useRouletteController({
     const [spinSeq, setSpinSeq] = useState(0);
     const targetRotationRef = useRef<number | undefined>(undefined);
     const spinDurationRef = useRef<number | undefined>(undefined);
+    const syncRef = useRef<TabSyncService | null>(null);
+
+    const { t } = useTranslation();
+    const gT = t.globals.toasts;
+    const gTRef = useRef(gT);
+    gTRef.current = gT;
 
     const isOpenRef = useRef(isOpen);
     const isSpinningRef = useRef(isSpinning);
@@ -133,11 +141,8 @@ export function useRouletteController({
                 headers: authHeaders(session)
             }));
             if (!res.ok) {
-                if (!isAllFilters(filtersRef.current)) {
-                    showToast(
-                        'No se pudo filtrar participantes. Vuelve a iniciar sesión con Twitch si el filtro es nuevo.',
-                        'error'
-                    );
+                if (!syncRef.current?.getIsLeader()) {
+                    showToast(gTRef.current.rouletteLoadError, 'error');
                 }
                 return;
             }
@@ -172,7 +177,7 @@ export function useRouletteController({
                 return next.filter((u) => userMatchesFilters(u, filtersRef.current));
             });
         } catch {
-            showToast('Error al cargar usuarios del chat', 'error');
+            showToast(gTRef.current.rouletteLoadError, 'error');
         }
     }, [session, showToast, pulseCounter]);
 
@@ -207,7 +212,7 @@ export function useRouletteController({
         enabled: active && isOpen,
         onMessage: handleTmiMessage,
         onError: () => {
-            showToast('Error al conectar con el chat', 'error');
+            showToast(gTRef.current.rouletteChatError, 'error');
             setIsOpen(false);
         }
     });
@@ -218,14 +223,14 @@ export function useRouletteController({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
                 body: JSON.stringify({ message })
-            })).catch(() => showToast('No se pudo enviar el resultado al chat', 'error'));
+            })).catch(() => showToast(gTRef.current.rouletteSendError, 'error'));
         },
         [session, showToast]
     );
 
     const sendWinnerMessage = useCallback(
         (winMsg: string) => {
-            if (tmiService.isConnected && tmiService.client) {
+            if (tmiService.isConnected) {
                 void tmiService.say(session.login!, winMsg).catch(() => sendViaApi(winMsg));
             } else {
                 sendViaApi(winMsg);
@@ -248,7 +253,7 @@ export function useRouletteController({
 
             const count = participants.length;
             setLastSpinCount(count);
-            showToast(`Ganador: @${picked.user_name} (${count})`, 'success');
+            showToast(gTRef.current.rouletteWinner(picked.user_name, count), 'success');
             if (announceWinnerInChat) {
                 sendWinnerMessage(
                     `¡El ganador es @${picked.user_name}! (De ${count} participantes) ¡Felicidades!`
@@ -343,19 +348,19 @@ export function useRouletteController({
     const toggleOpen = useCallback(async () => {
         if (isOpen) {
             setIsOpen(false);
-            showToast('Inscripciones Cerradas', 'info');
+            showToast(gTRef.current.rouletteInscriptionsClosed, 'info');
             emitState({ isOpen: false });
             return;
         }
         if (!hasAnyFilter(filters)) {
-            showToast('Marca al menos un tipo de participante', 'warning');
+            showToast(gTRef.current.rouletteMissingFilter, 'warning');
             return;
         }
         setIsOpen(true);
         setChatters([]);
         setWinner(null);
         setLastSpinCount(0);
-        showToast('Inscripciones Abiertas', 'success');
+        showToast(gTRef.current.rouletteInscriptionsOpened, 'success');
         emitState({ isOpen: true, chatters: [], winner: null, lastSpinCount: 0 });
         await loadChatters();
     }, [isOpen, filters, showToast, loadChatters, emitState]);
@@ -365,7 +370,7 @@ export function useRouletteController({
         setAnnounceWinnerInChat((prev) => {
             const next = !prev;
             writeAnnounceWinnerPref(session.userId!, next);
-            showToast(next ? 'Ganador visible en chat' : 'Ganador solo en panel', 'info');
+            showToast(next ? gTRef.current.rouletteAnnounceOn : gTRef.current.rouletteAnnounceOff, 'info');
             return next;
         });
     }, [session.userId, showToast]);
