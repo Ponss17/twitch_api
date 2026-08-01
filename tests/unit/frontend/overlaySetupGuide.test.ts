@@ -1,24 +1,24 @@
 import {
     getOverlayPlatformGuide,
     maskOverlayUrlForDisplay,
-    overlayToolLabel,
+    
     OVERLAY_SETUP_VERSION
 } from '@/features/overlay/lib/overlaySetupGuide';
 
 describe('overlaySetupGuide', () => {
-    it('overlayToolLabel devuelve etiquetas legibles', () => {
-        expect(overlayToolLabel('trends')).toBe('Tendencias');
-        expect(overlayToolLabel('roulette')).toBe('Ruleta');
-    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const gT: any = { sizes: { trends: '900 × 580' }, obsTitle: 'OBS', slTitle: 'Streamlabs', obsSteps: { sourceTitle: '', sourceDetail: 'Navegador', urlTitle: '', urlDetail: '', sizeTitle: '', sizeDetail: () => '900 × 580', refreshTitle: '', refreshDetail: '' }, slSteps: { sourceTitle: '', sourceDetail: 'Custom Widget', urlTitle: '', urlDetail: '', sizeTitle: '', sizeDetail: () => '', refreshTitle: '', refreshDetail: '' } };
+
+    
 
     it('getOverlayPlatformGuide incluye tamaño OBS para tendencias', () => {
-        const obs = getOverlayPlatformGuide('trends', 'obs');
+        const obs = getOverlayPlatformGuide('trends', 'obs', gT);
         expect(obs.steps.some((step) => step.detail.includes('900 × 580'))).toBe(true);
     });
 
     it('getOverlayPlatformGuide incluye pasos distintos para OBS y Streamlabs', () => {
-        const obs = getOverlayPlatformGuide('trends', 'obs');
-        const streamlabs = getOverlayPlatformGuide('trends', 'streamlabs');
+        const obs = getOverlayPlatformGuide('trends', 'obs', gT);
+        const streamlabs = getOverlayPlatformGuide('trends', 'streamlabs', gT);
 
         expect(obs.title).toContain('OBS');
         expect(streamlabs.title).toContain('Streamlabs');
