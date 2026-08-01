@@ -1,6 +1,6 @@
 import React from 'react';
 import { Command } from 'lucide-react';
-import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartMountGate, COLORS, AnalyticsSection } from './AnalyticsShared';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { } from 'recharts';
@@ -73,8 +73,11 @@ export function AnalyticsCommandsDistribution({
                                 isAnimationActive={false}
                                 cornerRadius={4}
                                 stroke="none"
-                                activeShape={false}
-                            />
+                            >
+                                {pieData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
                             <Tooltip 
                                 content={<CustomTooltip />} 
                                 cursor={{ fill: 'transparent' }}
@@ -86,54 +89,56 @@ export function AnalyticsCommandsDistribution({
                 </ChartMountGate>
             )}
             {pieData.length > 0 && pieData.some((d) => d.value > 0) && (
-                <div className="mt-3 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                    {pieData.map((entry, index) => {
-                        const pct = totalRequests > 0 ? (entry.value / totalRequests) * 100 : 0;
-                        const percentage = pct.toFixed(1);
-                        const color = COLORS[index % COLORS.length];
-                        return (
-                            <div
-                                key={entry.name}
-                                className="flex flex-col gap-1.5 rounded-lg bg-bg-main/60 px-2.5 py-2"
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2.5 overflow-hidden">
-                                        <span
-                                            className="size-2.5 shrink-0 rounded-full"
-                                            style={{ backgroundColor: color }}
+                <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                    <div className="mt-auto flex flex-col gap-2">
+                        {pieData.map((entry, index) => {
+                            const pct = totalRequests > 0 ? (entry.value / totalRequests) * 100 : 0;
+                            const percentage = pct.toFixed(1);
+                            const color = COLORS[index % COLORS.length];
+                            return (
+                                <div
+                                    key={entry.name}
+                                    className="flex flex-col gap-1.5 rounded-lg bg-bg-main/60 px-2.5 py-2"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2.5 overflow-hidden">
+                                            <span
+                                                className="size-2.5 shrink-0 rounded-full"
+                                                style={{ backgroundColor: color }}
+                                            />
+                                            <span
+                                                className="truncate text-sm font-medium capitalize text-zinc-200"
+                                                title={entry.name}
+                                            >
+                                                {entry.name}
+                                            </span>
+                                        </div>
+                                        <div className="flex shrink-0 items-center gap-3">
+                                            <span className="text-xs text-zinc-400">
+                                                {entry.value.toLocaleString()}
+                                            </span>
+                                            <span
+                                                className="w-10 text-right text-xs font-bold"
+                                                style={{ color }}
+                                            >
+                                                {percentage}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="h-1 w-full overflow-hidden rounded-full bg-white/[0.05]">
+                                        <div
+                                            className="h-full rounded-full transition-all duration-500"
+                                            style={{
+                                                width: `${pct}%`,
+                                                backgroundColor: color,
+                                                opacity: 0.7
+                                            }}
                                         />
-                                        <span
-                                            className="truncate text-sm font-medium capitalize text-zinc-200"
-                                            title={entry.name}
-                                        >
-                                            {entry.name}
-                                        </span>
-                                    </div>
-                                    <div className="flex shrink-0 items-center gap-3">
-                                        <span className="text-xs text-zinc-400">
-                                            {entry.value.toLocaleString()}
-                                        </span>
-                                        <span
-                                            className="w-10 text-right text-xs font-bold"
-                                            style={{ color }}
-                                        >
-                                            {percentage}%
-                                        </span>
                                     </div>
                                 </div>
-                                <div className="h-1 w-full overflow-hidden rounded-full bg-white/[0.05]">
-                                    <div
-                                        className="h-full rounded-full transition-all duration-500"
-                                        style={{
-                                            width: `${pct}%`,
-                                            backgroundColor: color,
-                                            opacity: 0.7
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
             )}
         </AnalyticsSection>

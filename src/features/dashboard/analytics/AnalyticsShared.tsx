@@ -2,7 +2,16 @@ import React, { useEffect, useRef, useState, type ReactNode } from 'react';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { panelCard } from '@/core/utils/tw';
 
-export const COLORS = ['#7254b8', '#4a8b75', '#b3934d', '#b35656', '#4d75b3', '#b3714d', '#a85c87', '#615e9c'];
+export const COLORS = [
+    '#9146ff', // Twitch Purple
+    '#3b82f6', // Blue
+    '#10b981', // Emerald
+    '#f59e0b', // Amber
+    '#ef4444', // Red
+    '#ec4899', // Pink
+    '#8b5cf6', // Violet
+    '#06b6d4'  // Cyan
+];
 
 /** Panel de analytics: estilo consistente con el dashboard (elevado) */
 export const analyticsPanel = panelCard;
