@@ -71,7 +71,13 @@ function DashboardAppShell() {
         initGlobalErrorLogging();
         // Warm-up ping: despierta la función serverless de Vercel en segundo plano
         // para que los primeros comandos del usuario no sufran cold start.
-        void fetch('/api/health', { method: 'GET' }).catch(() => {/* silencioso */ });
+        void (async () => {
+            try {
+                await fetch('/api/health', { method: 'GET' });
+            } catch {
+                /* silencioso */
+            }
+        })();
     }, []);
 
     useEffect(() => {

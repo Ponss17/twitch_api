@@ -48,7 +48,7 @@ export function emptyRouletteOverlayState(): RouletteOverlayState {
     };
 }
 
-export function emptyTrendsOverlayState(displayName = 'Canal'): TrendsOverlayState {
+export function emptyTrendsOverlayState(displayName = 'Channel'): TrendsOverlayState {
     return {
         tracking: false,
         remaining: 0,

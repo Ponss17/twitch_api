@@ -3,6 +3,7 @@ import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Trophy, Users } from 'lucide-react';
 import { AnalyticsSection } from './AnalyticsShared';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 export interface ViewerLeaderboardEntry {
     user_name: string;
@@ -32,6 +33,9 @@ function RankIcon({ rank, color }: { rank: number; color: string }) {
 
 export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderboardProps) {
     const { activity, stats } = useDashboardPanel();
+    const { t } = useTranslation();
+    const board = t.analytics.leaderboard;
+
     const [todayMap, setTodayMap] = useState<Map<string, ViewerLeaderboardEntry>>(new Map());
     const [weeklyMap, setWeeklyMap] = useState<Map<string, ViewerLeaderboardEntry>>(new Map());
     const lastActivityTsRef = useRef<string | null>(null);
@@ -69,7 +73,7 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
         if (!latest.type || !VIEWER_TYPES.has(latest.type)) return;
         
         const rawName = latest.user?.trim();
-        if (!rawName || rawName === 'Anónimo' || rawName === 'Streamer' || rawName === 'Canal') return;
+        if (!rawName || rawName === 'Anónimo' || rawName === 'Streamer' || rawName === 'Canal' || rawName === 'Channel') return;
 
         const key = rawName.toLowerCase();
         
@@ -102,18 +106,18 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
 
     return (
         <AnalyticsSection
-            panelClassName="min-h-[360px]"
-            title="Viewers más activos"
-            info={`Viewers que más usaron comandos ${timeRange === 'today' ? 'hoy' : 'esta semana'}.`}
+            panelClassName="h-[360px] flex flex-col"
+            title={board.title}
+            info={timeRange === 'today' ? board.infoToday : board.info7d}
         >
             {data.length === 0 ? (
                 <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
                     <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
                         <Users className="h-6 w-6 text-zinc-400" />
                     </div>
-                    <span className="text-sm font-medium text-zinc-400">Sin actividad de viewers</span>
+                    <span className="text-sm font-medium text-zinc-400">{board.noData}</span>
                     <span className="mt-1 text-xs text-zinc-500">
-                        Los viewers aparecerán aquí al usar comandos
+                        {board.noDataSub}
                     </span>
                 </div>
             ) : (
@@ -123,11 +127,11 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
                         <div className="flex items-center gap-2">
                             <Trophy className="h-3.5 w-3.5 text-amber-400" />
                             <span className="text-[0.7rem] font-semibold uppercase tracking-widest text-zinc-500">
-                                Ranking {timeRange === 'today' ? 'de hoy' : 'semanal'}
+                                {timeRange === 'today' ? board.rankingToday : board.ranking7d}
                             </span>
                         </div>
-                        <span className="text-[0.7rem] font-medium text-zinc-400" title="Total de usos por todos los viewers">
-                            {totalInteractions} {totalInteractions === 1 ? 'uso total' : 'usos totales'}
+                        <span className="text-[0.7rem] font-medium text-zinc-400" title={board.totalInteractionsTooltip}>
+                            <strong className="text-zinc-300">{totalInteractions}</strong> {board.totalInteractions}
                         </span>
                     </div>
 
@@ -158,7 +162,7 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
                                             <span className="shrink-0 text-xs font-bold tabular-nums text-zinc-300">
                                                 {entry.total}
                                                 <span className="ml-1 font-normal text-zinc-600">
-                                                    {entry.total === 1 ? 'uso' : 'usos'}
+                                                    {entry.total === 1 ? board.unitSingular : board.unitPlural}
                                                 </span>
                                             </span>
                                         </div>

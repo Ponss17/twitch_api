@@ -6,6 +6,7 @@ import {
     resolveOverlayPollSession
 } from '@/features/overlay/lib/credentials';
 import { readOverlayOptimisticAuthState } from '@/features/overlay/lib/overlaySession';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface OverlaySessionGateProps {
     children: (session: Session) => ReactNode;
@@ -16,6 +17,9 @@ interface OverlaySessionGateProps {
  * o el navegador de OBS sirve chunks JS en caché sin SessionProvider.
  */
 export function OverlaySessionGate({ children }: OverlaySessionGateProps) {
+    const { t } = useTranslation();
+    const gT = t.overlay.gate;
+    const bT = t.overlay.banners;
     const session = useMemo(() => resolveOverlayPollSession(), []);
 
     if (session && hasOverlayPollCredentials(session)) {
@@ -26,14 +30,14 @@ export function OverlaySessionGate({ children }: OverlaySessionGateProps) {
     if (optimistic.loading) {
         return (
             <div className="min-h-screen p-2">
-                <OverlayStatusBanner message="Conectando overlay…" />
+                <OverlayStatusBanner message={bT.connecting} />
             </div>
         );
     }
 
     return (
         <div className="min-h-screen p-2">
-            <OverlayStatusBanner message="Enlace de overlay inválido. Genera uno nuevo desde el panel." />
+            <OverlayStatusBanner message={gT.invalidLink} />
         </div>
     );
 }

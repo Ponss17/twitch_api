@@ -4,6 +4,7 @@ import { AlertTriangle } from 'lucide-react';
 import { fadeIn } from '@/core/utils/tw';
 import { useRequiredSession } from '@/core/session/useSession';
 import { getStatsLocalDateString, buildTodayActivityStats } from '@/features/dashboard/lib/dashboardStats';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 import { AnalyticsKPIs } from './AnalyticsKPIs';
 import { AnalyticsAreaChart } from './AnalyticsAreaChart';
@@ -14,6 +15,7 @@ import { AnalyticsTodayBarChart } from './AnalyticsTodayBarChart';
 
 function AnalyticsViewContent({ active }: { active: boolean }) {
     const { stats, hasLiveData, error, profile, activity } = useDashboardPanel();
+    const { t } = useTranslation();
     const [timeRange, setTimeRange] = useState<'today' | '7d'>('today');
 
     const { timeSeries = [] } = stats;
@@ -57,7 +59,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             day.requests += row.requests_count;
             day.errors += row.errors_count;
 
-            const cmd = row.command_name === 'other' ? 'Otros' : row.command_name;
+            const cmd = row.command_name === 'other' ? t.analytics.other : row.command_name;
             
             if (!commandMapWeekly.has(cmd)) {
                 commandMapWeekly.set(cmd, { requests: 0, errors: 0, latency: 0 });
@@ -120,7 +122,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             summaryWeekly: { totalRequests: totalRequestsWeekly, successRate: successRateWeekly, avgLatency: avgLatencyWeekly, uniqueCommands: pieDataWeekly.length },
             summaryToday: { totalRequests: tRequests, avgLatency: todayAvgLatency, successRate: todaySuccessRate, uniqueCommands: pieDataToday.length }
         };
-    }, [timeSeries, profile?.timezone]);
+    }, [timeSeries, profile?.timezone, t.analytics.other]);
 
     const reconciledPieToday = useMemo(() => {
         if (activityToday.total === 0 || activityToday.total >= summaryToday.totalRequests) {
@@ -128,13 +130,14 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         }
         return Array.from(activityToday.byCommand.entries())
             .map(([name, value]) => ({
-                name,
+                name: name === 'other' ? t.analytics.other : name,
                 value,
                 errors: 0,
                 successRate: '100.0',
                 avgLatency: 0
             }))
             .sort((a, b) => b.value - a.value);
+    // eslint-disable-next-line
     }, [activityToday, pieDataToday, summaryToday.totalRequests]);
 
     const todayRequestsCount = useMemo(() => {
@@ -143,7 +146,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         return summaryToday.totalRequests;
     }, [activityToday.total, summaryToday.totalRequests]);
 
-    // Fix agresivo para Astro DevToolbar
+    // Fix para Astro DevToolbar - Limpiar tabindex de recharts
     useEffect(() => {
         if (!active) return;
         const cleanTabIndex = () => {
@@ -152,14 +155,12 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             });
         };
         
-        cleanTabIndex();
-        const interval = setInterval(cleanTabIndex, 100);
-        const timeout = setTimeout(() => clearInterval(interval), 2000);
+        const frame = requestAnimationFrame(() => {
+            cleanTabIndex();
+            setTimeout(cleanTabIndex, 50);
+        });
         
-        return () => {
-            clearInterval(interval);
-            clearTimeout(timeout);
-        };
+        return () => cancelAnimationFrame(frame);
     }, [active, areaData, pieDataWeekly, pieDataToday]);
 
     if (error && !hasLiveData) {

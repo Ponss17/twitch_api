@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
+import { useTranslation } from '@/core/i18n/I18nContext';
 import { X } from 'lucide-react';
 import { btnIcon } from '@/core/utils/tw';
 
@@ -13,6 +14,7 @@ interface SheetProps {
 
 export function Sheet({ open, onClose, title, description, children, footer }: SheetProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
+    const { t } = useTranslation();
 
     useEffect(() => {
         const dialog = dialogRef.current;
@@ -65,7 +67,7 @@ export function Sheet({ open, onClose, title, description, children, footer }: S
                         type="button"
                         onClick={onClose}
                         className={`${btnIcon} ml-4 shrink-0 rounded-full p-2`}
-                        aria-label="Cerrar panel"
+                        aria-label={t.common.aria.closePanel}
                     >
                         <X className="h-5 w-5" aria-hidden />
                     </button>

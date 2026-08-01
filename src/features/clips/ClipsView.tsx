@@ -12,7 +12,7 @@ import { ClipPlayerOverlay } from '@/features/clips/ClipPlayerOverlay';
 import { SelectField } from '@/shared/ui/SelectField';
 import { ClipCommandView } from '@/features/commands/CommandsViews';
 import { Star, RotateCw, Link as LinkIcon, Images, Search, Play } from 'lucide-react';
-
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface Clip {
     id: string;
@@ -25,12 +25,13 @@ interface Clip {
 
 const ITEMS_PER_PAGE = 20;
 
-const CLIPS_SORT_OPTIONS = [
-    { value: 'date-desc', label: 'Más recientes' },
-    { value: 'date-asc', label: 'Más antiguos' },
-    { value: 'views-desc', label: 'Más vistos' },
-    { value: 'views-asc', label: 'Menos vistos' }
-] as const;
+// eslint-disable-next-line
+const getClipsSortOptions = (t: any) => [
+    { value: 'date-desc', label: t.clips.sort.dateDesc },
+    { value: 'date-asc', label: t.clips.sort.dateAsc },
+    { value: 'views-desc', label: t.clips.sort.viewsDesc },
+    { value: 'views-asc', label: t.clips.sort.viewsAsc }
+];
 
 const CLIPS_GRID =
     'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5 max-[600px]:grid-cols-1';
@@ -63,9 +64,10 @@ function saveFavorites(userId: string, favorites: string[]) {
     localStorage.setItem(`clips_favs_${userId}`, JSON.stringify(favorites));
 }
 
-function formatClipDate(value?: string) {
+function formatClipDate(value?: string, locale: string = 'es') {
     if (!value) return '';
-    return new Date(value).toLocaleDateString('es-ES', {
+    const bcp47 = locale === 'es' ? 'es-ES' : 'en-US';
+    return new Date(value).toLocaleDateString(bcp47, {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
@@ -74,6 +76,10 @@ function formatClipDate(value?: string) {
 
 export function ClipsView() {
     const session = useRequiredSession();
+    const { t, locale } = useTranslation();
+    const clipsT = t.clips;
+    const CLIPS_SORT_OPTIONS = useMemo(() => getClipsSortOptions(t), [t]);
+    
     const { showToast } = useToast();
     const [clips, setClips] = useState<Clip[]>([]);
     const [favorites, setFavorites] = useState<string[]>([]);
@@ -124,13 +130,14 @@ export function ClipsView() {
                 const list = Array.isArray(data) ? data : data.clips ?? data.data ?? [];
                 setClips(list);
                 if (list.length > 0) cache.set(cacheKey, list, CACHE_TTL);
-                if (force) showToast('Clips actualizados', 'success');
+                if (force) showToast(clipsT.toasts.updated, 'success');
             } catch {
-                showToast('Error al cargar clips', 'error');
+                showToast(clipsT.toasts.errorLoad, 'error');
             } finally {
                 setLoading(false);
             }
         },
+        // eslint-disable-next-line
         [session, showToast]
     );
 
@@ -149,7 +156,7 @@ export function ClipsView() {
 
     const copyUrl = async (url: string) => {
         await navigator.clipboard.writeText(url);
-        showToast('Enlace copiado', 'success');
+        showToast(clipsT.toasts.copied, 'success');
     };
 
     const filtered = useMemo(() => {
@@ -196,10 +203,10 @@ export function ClipsView() {
                         </div>
                         <div className="min-w-0">
                             <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
-                                Clips Recientes
+                                {clipsT.title}
                             </h2>
                             <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
-                                Los últimos clips de tu canal
+                                {clipsT.info}
                             </p>
                         </div>
                     </div>
@@ -207,7 +214,7 @@ export function ClipsView() {
                         <button
                             type="button"
                             onClick={() => setShowFavsOnly((v) => !v)}
-                            title="Solo favoritos"
+                            title={clipsT.btnFavsOnly}
                             aria-pressed={showFavsOnly}
                             className={CLIP_TOOLBAR_BTN(showFavsOnly)}
                         >
@@ -216,12 +223,12 @@ export function ClipsView() {
                         <button
                             type="button"
                             onClick={() => void loadClips(true)}
-                            title="Recargar lista de clips"
+                            title={clipsT.btnReload}
                             className={CLIP_TOOLBAR_BTN()}
                         >
                             <RotateCw className="h-3.5 w-3.5" />
                         </button>
-                        <InfoTooltip text="Galería de tus clips más recientes. Se actualiza automáticamente." />
+                        <InfoTooltip text={clipsT.tooltip} />
                     </div>
                 </header>
 
@@ -239,8 +246,8 @@ export function ClipsView() {
                                     setSearch(e.target.value);
                                     setPage(1);
                                 }}
-                                placeholder="Buscar clips..."
-                                aria-label="Buscar clips"
+                                placeholder={clipsT.searchPlaceholder}
+                                aria-label={clipsT.searchPlaceholder}
                                 className={CLIPS_SEARCH}
                             />
                         </div>
@@ -251,7 +258,7 @@ export function ClipsView() {
                                     setSort(e.target.value);
                                     setPage(1);
                                 }}
-                                aria-label="Ordenar clips"
+                                aria-label={clipsT.sortLabel}
                                 className="max-[600px]:w-full max-[600px]:max-w-none"
                                 options={[...CLIPS_SORT_OPTIONS]}
                             />
@@ -262,18 +269,19 @@ export function ClipsView() {
                         <ClipsGridSkeleton count={6} className={CLIPS_GRID} />
                     ) : filtered.length === 0 ? (
                         <p className="py-8 text-center text-[0.8125rem] text-[#71717a]">
-                            No hay clips disponibles.
+                            {clipsT.noClips}
                         </p>
                     ) : (
                         <>
                             <div className={CLIPS_GRID}>
                                 {visible.map((clip, index) => {
                                     const isFav = favorites.includes(clip.id);
+                                    const bcp47 = locale === 'es' ? 'es-ES' : 'en-US';
                                     const viewsStr =
                                         clip.view_count != null
-                                            ? clip.view_count.toLocaleString('es-ES')
+                                            ? clip.view_count.toLocaleString(bcp47)
                                             : '0';
-                                    const dateStr = formatClipDate(clip.created_at);
+                                    const dateStr = formatClipDate(clip.created_at, locale);
                                     const isAboveFold = index < 6;
 
                                     return (
@@ -283,7 +291,7 @@ export function ClipsView() {
                                                     type="button"
                                                     onClick={() => openClipPlayer(clip)}
                                                     className="group/thumb relative block w-full cursor-pointer border-none bg-transparent p-0 text-left"
-                                                    aria-label={`Reproducir clip ${clip.title ?? clip.id}`}
+                                                    aria-label={clipsT.playClip(clip.title ?? clip.id)}
                                                 >
                                                     {clip.thumbnail_url ? (
                                                         <>
@@ -305,7 +313,7 @@ export function ClipsView() {
                                                         </>
                                                     ) : (
                                                         <div className="flex aspect-video w-full items-center justify-center bg-black/30 text-[0.75rem] font-medium text-[#a1a1aa]">
-                                                            Ver clip
+                                                            {clipsT.viewClip}
                                                         </div>
                                                     )}
                                                 </button>
@@ -317,7 +325,7 @@ export function ClipsView() {
                                                             e.stopPropagation();
                                                             toggleFavorite(clip.id);
                                                         }}
-                                                        title="Favorito"
+                                                        title={clipsT.favorite}
                                                         aria-pressed={isFav}
                                                         className={`${CLIP_OVERLAY_BTN} ${isFav ? 'text-primary' : ''}`}
                                                     >
@@ -331,7 +339,7 @@ export function ClipsView() {
                                                             e.stopPropagation();
                                                             void copyUrl(clip.url);
                                                         }}
-                                                        title="Copiar enlace"
+                                                        title={clipsT.copyLink}
                                                         className={CLIP_OVERLAY_BTN}
                                                     >
                                                         <LinkIcon className="h-3.5 w-3.5" />
@@ -352,12 +360,12 @@ export function ClipsView() {
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="mb-2 block truncate text-[0.8125rem] font-semibold text-primary no-underline transition hover:underline"
-                                                    title={clip.title ?? 'Sin título'}
+                                                    title={clip.title ?? clipsT.untitled}
                                                 >
-                                                    {clip.title ?? 'Sin título'}
+                                                    {clip.title ?? clipsT.untitled}
                                                 </a>
                                                 <div className="flex justify-between gap-2 text-[0.6875rem] text-[#a1a1aa]">
-                                                    <span className="truncate">{viewsStr} visualizaciones</span>
+                                                    <span className="truncate">{viewsStr} {clipsT.views}</span>
                                                     <span className="shrink-0">{dateStr}</span>
                                                 </div>
                                             </div>
@@ -371,7 +379,7 @@ export function ClipsView() {
                                     onClick={() => setPage((p) => p + 1)}
                                     className={`mt-6 w-full rounded-lg border border-white/[0.06] bg-bg-secondary py-2.5 text-[0.8125rem] font-semibold text-[#c4c4cc] ${hoverSubtleBorderedRow}`}
                                 >
-                                    Cargar más
+                                    {clipsT.loadMore}
                                 </button>
                             )}
                         </>

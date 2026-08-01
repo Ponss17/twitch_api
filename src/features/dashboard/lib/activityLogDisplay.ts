@@ -17,6 +17,7 @@ import type {
     ActivityLogType,
     DashboardActivityLog
 } from '@contracts/dashboardContracts';
+import type { Translations, Locale } from '@/core/i18n/locales/es';
 
 export type { ActivityLogType } from '@contracts/dashboardContracts';
 
@@ -52,78 +53,81 @@ export interface ActivityMeta {
 
 const ACTIVITY_ICON_CLASS = subtleIcon('primary');
 
-const ACTIVITY_META: Record<ActivityLogType, Omit<ActivityMeta, 'iconClass'>> = {
-    clip: {
-        label: 'Clip',
-        icon: Clapperboard,
-        detailText: (item) => metaStr(item.metadata, 'title') || metaStr(item.metadata, 'raw_detail') || 'Nuevo clip'
-    },
-    followage: {
-        label: 'Followage',
-        icon: UserRoundCheck,
-        detailText: (item) => {
-            const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
-            return target ? `Canal: ${target}` : 'Consulta de followage';
+function getActivityMetaDict(t: Translations): Record<ActivityLogType, Omit<ActivityMeta, 'iconClass'>> {
+    const act = t.home.activityLog.types;
+    return {
+        clip: {
+            label: act.clip.label,
+            icon: Clapperboard,
+            detailText: (item) => metaStr(item.metadata, 'title') || metaStr(item.metadata, 'raw_detail') || act.clip.defaultDetail
+        },
+        followage: {
+            label: act.followage.label,
+            icon: UserRoundCheck,
+            detailText: (item) => {
+                const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
+                return target ? act.followage.channel(target) : act.followage.defaultDetail;
+            }
+        },
+        shoutout: {
+            label: act.shoutout.label,
+            icon: Megaphone,
+            detailText: (item) => {
+                const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
+                return target ? act.shoutout.to(target) : act.shoutout.defaultDetail;
+            }
+        },
+        message: {
+            label: act.message.label,
+            icon: MessageSquare,
+            detailText: (item) => {
+                const msg = metaStr(item.metadata, 'message') || metaStr(item.metadata, 'raw_detail');
+                return msg ? `"${msg}"` : act.message.defaultDetail;
+            }
+        },
+        russian: {
+            label: act.russian.label,
+            icon: Crosshair,
+            detailText: (item) => {
+                const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
+                return target ? act.russian.channel(target) : act.russian.defaultDetail;
+            }
+        },
+        magic8: {
+            label: act.magic8.label,
+            icon: CircleDot,
+            detailText: (item) => metaStr(item.metadata, 'question') || metaStr(item.metadata, 'raw_detail') || act.magic8.defaultDetail
+        },
+        duel: {
+            label: act.duel.label,
+            icon: Swords,
+            detailText: (item) => {
+                const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
+                return target ? act.duel.vs(target) : act.duel.defaultDetail;
+            }
+        },
+        stalker: {
+            label: act.stalker.label,
+            icon: Binoculars,
+            detailText: () => act.stalker.defaultDetail
+        },
+        trends: {
+            label: act.trends.label,
+            icon: TrendingUp,
+            detailText: () => act.trends.defaultDetail
+        },
+        roulette: {
+            label: act.roulette.label,
+            icon: Dices,
+            detailText: () => act.roulette.defaultDetail
+        },
+        other: {
+            label: act.other.label,
+            icon: Activity,
+            detailText: (item) => metaStr(item.metadata, 'raw_detail') || item.type || act.other.defaultDetail
         }
-    },
-    shoutout: {
-        label: 'Shoutout',
-        icon: Megaphone,
-        detailText: (item) => {
-            const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
-            return target ? `A: ${target}` : 'Shoutout enviado';
-        }
-    },
-    message: {
-        label: 'Mensaje',
-        icon: MessageSquare,
-        detailText: (item) => {
-            const msg = metaStr(item.metadata, 'message') || metaStr(item.metadata, 'raw_detail');
-            return msg ? `"${msg}"` : 'Mensaje en chat';
-        }
-    },
-    russian: {
-        label: 'Ruleta Rusa',
-        icon: Crosshair,
-        detailText: (item) => {
-            const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
-            return target ? `Canal: ${target}` : 'Partida de ruleta rusa';
-        }
-    },
-    magic8: {
-        label: 'Bola 8',
-        icon: CircleDot,
-        detailText: (item) => metaStr(item.metadata, 'question') || metaStr(item.metadata, 'raw_detail') || 'Pregunta a la bola 8'
-    },
-    duel: {
-        label: 'Duelo',
-        icon: Swords,
-        detailText: (item) => {
-            const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
-            return target ? `vs @${target}` : 'Duelo iniciado';
-        }
-    },
-    stalker: {
-        label: 'Stalker',
-        icon: Binoculars,
-        detailText: () => 'Escaneo de stalker'
-    },
-    trends: {
-        label: 'Tendencias',
-        icon: TrendingUp,
-        detailText: () => 'Rastreo de tendencias'
-    },
-    roulette: {
-        label: 'Ruleta',
-        icon: Dices,
-        detailText: () => 'Ruleta de chatters'
-    },
-    other: {
-        label: 'Actividad',
-        icon: Activity,
-        detailText: (item) => metaStr(item.metadata, 'raw_detail') || item.type || 'Evento registrado'
-    }
-};
+    };
+}
 
 export function normalizeActivityType(type?: string): ActivityLogType {
     if (type && (KNOWN_TYPES as string[]).includes(type)) {
@@ -132,8 +136,8 @@ export function normalizeActivityType(type?: string): ActivityLogType {
     return 'other';
 }
 
-export function getActivityMeta(type?: string): ActivityMeta {
-    const meta = ACTIVITY_META[normalizeActivityType(type)];
+export function getActivityMeta(type: string | undefined, t: Translations): ActivityMeta {
+    const meta = getActivityMetaDict(t)[normalizeActivityType(type)];
     return {
         ...meta,
         iconClass: ACTIVITY_ICON_CLASS
@@ -150,33 +154,36 @@ export function activityEntryKey(item: ActivityLogItem): string {
     return `${item.timestamp ?? ''}|${normalizeActivityType(item.type)}|${item.user ?? ''}|${JSON.stringify(item.metadata)}`;
 }
 
-function activityDateLabel(date: Date, timeZone?: string): string {
+function activityDateLabel(date: Date, timeZone: string | undefined, locale: Locale): string {
     const tz = timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return new Intl.DateTimeFormat('es-ES', {
+    const bcp47 = locale === 'es' ? 'es-ES' : 'en-US';
+    return new Intl.DateTimeFormat(bcp47, {
         timeZone: tz,
         day: 'numeric',
         month: 'long'
     }).format(date);
 }
 
-export function formatActivityDate(ts: string, timeZone?: string): string {
+export function formatActivityDate(ts: string, timeZone: string | undefined, locale: Locale, t: Translations): string {
     const d = new Date(ts);
     if (Number.isNaN(d.getTime())) return '';
 
     const tz = timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const today = activityDateLabel(new Date(), tz);
-    const yesterday = activityDateLabel(new Date(Date.now() - 86_400_000), tz);
-    const label = activityDateLabel(d, tz);
-    if (label === today) return 'Hoy';
-    if (label === yesterday) return 'Ayer';
+    const today = activityDateLabel(new Date(), tz, locale);
+    const yesterday = activityDateLabel(new Date(Date.now() - 86_400_000), tz, locale);
+    const label = activityDateLabel(d, tz, locale);
+    if (label === today) return t.home.activityLog.date.today;
+    if (label === yesterday) return t.home.activityLog.date.yesterday;
     return label;
 }
 
-export function formatActivityTime(ts: string, timeZone?: string): string {
+export function formatActivityTime(ts: string, timeZone: string | undefined, locale: Locale): string {
     const date = new Date(ts);
     if (Number.isNaN(date.getTime())) return '';
+    
+    const bcp47 = locale === 'es' ? 'es-ES' : 'en-US';
 
-    const parts = new Intl.DateTimeFormat('en-US', {
+    const parts = new Intl.DateTimeFormat(bcp47, {
         timeZone: timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
         hour: 'numeric',
         minute: '2-digit',
@@ -190,17 +197,17 @@ export function formatActivityTime(ts: string, timeZone?: string): string {
     return `${hour}:${minute} ${period}`;
 }
 
-export function formatActivityRelativeTime(ts: string): string {
+export function formatActivityRelativeTime(ts: string, t: Translations): string {
     const diffMs = Date.now() - new Date(ts).getTime();
     if (Number.isNaN(diffMs) || diffMs < 0) return '';
-    if (diffMs < 60_000) return 'ahora';
+    if (diffMs < 60_000) return t.home.activityLog.relativeTime.now;
     if (diffMs < 3_600_000) {
         const mins = Math.floor(diffMs / 60_000);
-        return `hace ${mins} min`;
+        return t.home.activityLog.relativeTime.minutes(mins);
     }
     if (diffMs < 86_400_000) {
         const hours = Math.floor(diffMs / 3_600_000);
-        return `hace ${hours} h`;
+        return t.home.activityLog.relativeTime.hours(hours);
     }
     return '';
 }

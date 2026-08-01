@@ -1,6 +1,7 @@
 import { Clock, Play } from 'lucide-react';
 import { TrackerRow, formatTrendsTime } from '@/features/trends/TrackerRow';
 import { EmptyStateIcon } from '@/shared/ui/Icon';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 export type TrendsLeaderboardVariant = 'full' | 'overlay';
 
@@ -27,6 +28,9 @@ export function TrendsLeaderboardDisplay({
     variant = 'full',
     showTimer = false
 }: TrendsLeaderboardDisplayProps) {
+    const { t } = useTranslation();
+    const trends = t.trends;
+    
     const showReady = !sessionActive && ranked.length === 0;
     const showWaiting = tracking && ranked.length === 0;
     const isOverlay = variant === 'overlay';
@@ -42,11 +46,11 @@ export function TrendsLeaderboardDisplay({
                     } ${isOverlay ? '' : 'border-b border-white/[0.08] bg-warning/5'}`}
                     role="timer"
                     aria-live="polite"
-                    aria-label={`Cuenta atrás: ${formatTrendsTime(remaining)}`}
+                    aria-label={trends.countdown(formatTrendsTime(remaining))}
                 >
                     <Clock className="text-warning" />
                     <span className="text-[0.6875rem] font-semibold tracking-wide text-warning/80 uppercase">
-                        Restante
+                        {trends.remaining}
                     </span>
                     <span
                         className={`min-w-[3.5rem] text-center font-[Consolas,monospace] text-[1.125rem] font-bold tracking-wider text-warning ${
@@ -60,7 +64,7 @@ export function TrendsLeaderboardDisplay({
 
             {!isOverlay && (
                 <div className="border-b border-white/[0.08] px-5 py-3">
-                    <h2 className="text-[0.95rem] font-bold">Tendencias de {displayName}</h2>
+                    <h2 className="text-[0.95rem] font-bold">{trends.title(displayName)}</h2>
                 </div>
             )}
 
@@ -76,12 +80,12 @@ export function TrendsLeaderboardDisplay({
                             <th
                                 className={`text-left font-bold tracking-wide text-[#c4c4cc] uppercase ${headPad} ${headText}`}
                             >
-                                Palabra
+                                {trends.table.word}
                             </th>
                             <th
                                 className={`text-right font-bold tracking-wide text-[#c4c4cc] uppercase ${headPad} ${headText}`}
                             >
-                                Repeticiones
+                                {trends.table.reps}
                             </th>
                             <th className={`w-1/2 ${headPad}`} />
                         </tr>
@@ -92,24 +96,23 @@ export function TrendsLeaderboardDisplay({
                                 <td colSpan={4} className="px-5 py-10 text-center text-[#71717a]">
                                     <EmptyStateIcon icon={Play} />
                                     <h4 className="mb-1 text-[0.8125rem] font-bold text-[#fafafa]">
-                                        Listo para analizar
+                                        {trends.table.readyTitle}
                                     </h4>
                                     <p className="text-[0.8125rem]">
-                                        Presiona el botón <strong className="text-[#fafafa]">Play</strong> para
-                                        comenzar a contar palabras.
+                                        {trends.table.readyDesc}
                                     </p>
                                 </td>
                             </tr>
                         ) : showWaiting ? (
                             <tr>
                                 <td colSpan={4} className="px-5 py-5 text-center text-[0.8125rem] text-[#71717a]">
-                                    Esperando palabras...
+                                    {trends.table.waiting}
                                 </td>
                             </tr>
                         ) : ranked.length === 0 && isOverlay ? (
                             <tr>
                                 <td colSpan={4} className="px-5 py-5 text-center text-[0.8125rem] text-[#71717a]">
-                                    Sin datos aún
+                                    {trends.table.noData}
                                 </td>
                             </tr>
                         ) : (

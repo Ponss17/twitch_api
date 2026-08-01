@@ -6,7 +6,6 @@ import {
     btnDanger,
     btnIcon,
     btnSecondary,
-    confirmWordBadge,
     dangerInput,
     dangerInputGroup,
     dangerInputLabel,
@@ -24,6 +23,7 @@ import {
     modalTitleIcon
 } from '@/core/utils/tw';
 import { promoteToasterAboveModals } from '@/shared/ui/ToastProvider';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 const ModalCloseContext = createContext<(() => void) | null>(null);
 
@@ -104,6 +104,7 @@ export function BaseModal({
     }, [open]);
 
     const handleClose = useCallback(() => {
+        if (closing) return;
         setClosing(true);
         const dialog = dialogRef.current;
         const panel = panelRef.current;
@@ -120,6 +121,12 @@ export function BaseModal({
         }
 
         let done = false;
+        const fallback = window.setTimeout(() => {
+            if (done) return;
+            done = true;
+            finish();
+        }, 400);
+
         const onEnd = () => {
             if (done) return;
             done = true;
@@ -129,8 +136,13 @@ export function BaseModal({
         };
 
         panel.addEventListener('animationend', onEnd);
-        const fallback = window.setTimeout(onEnd, 400);
-    }, [onClose]);
+    }, [onClose, closing]);
+
+    useEffect(() => {
+        return () => {
+            setClosing(false);
+        };
+    }, []);
 
     useEffect(() => {
         const dialog = dialogRef.current;
@@ -178,6 +190,7 @@ export function Modal({
     closeOnBackdrop = true
 }: ModalProps) {
     const titleId = useId();
+    const { t } = useTranslation();
     return (
         <BaseModal
             open={open}
@@ -199,7 +212,7 @@ export function Modal({
                 <button
                     type="button"
                     className={btnIcon}
-                    aria-label="Cerrar"
+                    aria-label={t.common.aria.close}
                     tabIndex={-1}
                     onClick={onClose}
                 >
@@ -224,6 +237,7 @@ interface DangerConfirmModalProps {
     confirmWord: string;
     confirmLabel?: string;
     onConfirm: () => void | Promise<void>;
+    loading?: boolean;
 }
 
 export function DangerConfirmModal({
@@ -232,11 +246,15 @@ export function DangerConfirmModal({
     title,
     description,
     confirmWord,
-    confirmLabel = 'Confirmar y Borrar',
-    onConfirm
+    confirmLabel,
+    onConfirm,
+    loading = false
 }: DangerConfirmModalProps) {
+    const { t } = useTranslation();
+    const dT = t.modals.danger;
+    const finalConfirmLabel = confirmLabel || dT.defaultConfirm;
+
     const [confirmInput, setConfirmInput] = useState('');
-    const [loading, setLoading] = useState(false);
     const [shake, setShake] = useState(false);
     const [closing, setClosing] = useState(false);
     const dialogRef = useRef<HTMLDialogElement>(null);
@@ -247,7 +265,6 @@ export function DangerConfirmModal({
     useEffect(() => {
         if (!open) {
             setConfirmInput('');
-            setLoading(false);
             setShake(false);
         }
     }, [open]);
@@ -274,23 +291,43 @@ export function DangerConfirmModal({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loading, onClose]);
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
+        if (closing) return;
         setClosing(true);
         const panel = panelRef.current;
-        if (panel) {
-            const onEnd = () => {
-                panel.removeEventListener('animationend', onEnd);
-                setClosing(false);
-                dialogRef.current?.close();
-                onClose();
-            };
-            panel.addEventListener('animationend', onEnd);
-        } else {
+        
+        const finish = () => {
             setClosing(false);
             dialogRef.current?.close();
             onClose();
+        };
+        
+        if (panel) {
+            let done = false;
+            const fallback = window.setTimeout(() => {
+                if (done) return;
+                done = true;
+                finish();
+            }, 400);
+
+            const onEnd = () => {
+                if (done) return;
+                done = true;
+                window.clearTimeout(fallback);
+                panel.removeEventListener('animationend', onEnd);
+                finish();
+            };
+            panel.addEventListener('animationend', onEnd);
+        } else {
+            finish();
         }
-    };
+    }, [onClose, closing]);
+
+    useEffect(() => {
+        return () => {
+            setClosing(false);
+        };
+    }, []);
 
     const wordOk = confirmInput.trim().toUpperCase() === confirmWord.toUpperCase();
 
@@ -300,13 +337,8 @@ export function DangerConfirmModal({
             window.setTimeout(() => setShake(false), 500);
             return;
         }
-        setLoading(true);
-        try {
-            await onConfirm();
-            handleClose();
-        } finally {
-            setLoading(false);
-        }
+        await onConfirm();
+        handleClose();
     };
 
     return (
@@ -331,7 +363,7 @@ export function DangerConfirmModal({
                     <button
                         type="button"
                         className={btnIcon}
-                        aria-label="Cerrar"
+                        aria-label={t.common.aria.close}
                         tabIndex={-1}
                         disabled={loading}
                         onClick={handleClose}
@@ -343,7 +375,7 @@ export function DangerConfirmModal({
                     <p id={descId}>{description}</p>
                     <div className={dangerInputGroup}>
                         <label htmlFor="danger-modal-confirm" className={dangerInputLabel}>
-                            Escribe <span className={confirmWordBadge}>{confirmWord}</span> para confirmar:
+                            {dT.typeToConfirm(confirmWord)}
                         </label>
                         <input
                             id="danger-modal-confirm"
@@ -351,7 +383,7 @@ export function DangerConfirmModal({
                             className={dangerInput}
                             value={confirmInput}
                             autoComplete="off"
-                            placeholder="Escribe aquí..."
+                            placeholder={dT.placeholder}
                             disabled={loading}
                             onChange={(e) => setConfirmInput(e.target.value)}
                             onKeyDown={(e) => {
@@ -366,24 +398,24 @@ export function DangerConfirmModal({
                 <div className={modalFooter}>
                     <button
                         type="button"
-                        className={btnDanger}
                         disabled={!wordOk || loading}
+                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-error px-4 py-2 font-medium text-white transition hover:bg-error/90 disabled:opacity-50 sm:w-auto"
                         onClick={() => void handleSubmit()}
                     >
                         {loading ? (
                             <>
-                                <Loader2 className="animate-spin" />
-                                Procesando...
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                {dT.processing}
                             </>
                         ) : (
                             <>
                                 <Trash2 className="w-4 h-4 mr-2" aria-hidden="true" />
-                                {confirmLabel}
+                                {finalConfirmLabel}
                             </>
                         )}
                     </button>
                     <button type="button" className={btnSecondary} disabled={loading} onClick={handleClose}>
-                        Cancelar
+                        {dT.cancel}
                     </button>
                 </div>
             </div>
@@ -399,6 +431,8 @@ interface RegenKeyModalProps {
 
 export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) {
     const [loading, setLoading] = useState(false);
+    const { t } = useTranslation();
+    const rT = t.modals.regenKey;
 
     const handleConfirm = async () => {
         setLoading(true);
@@ -414,7 +448,7 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
         <Modal
             open={open}
             onClose={onClose}
-            title="Regenerar API Key"
+            title={rT.title}
             titleIcon={KeyRound}
             footer={
                 <>
@@ -427,36 +461,42 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
                         {loading ? (
                             <>
                                 <Loader2 className="animate-spin" aria-hidden="true" />
-                                Regenerando...
+                                {rT.regenerating}
                             </>
                         ) : (
                             <>
                                 <KeyRound className="h-4 w-4" aria-hidden="true" />
-                                Sí, regenerar
+                                {rT.confirm}
                             </>
                         )}
                     </button>
                     <button type="button" className={btnSecondary} disabled={loading} onClick={onClose}>
-                        Cancelar
+                        {rT.cancel}
                     </button>
                 </>
             }
         >
-            <p>
-                Al regenerar, <strong>la clave anterior deja de funcionar al instante</strong>.
-            </p>
-            <p>Tendrás que actualizar el token en:</p>
+            <div className="mb-4 flex items-start gap-3">
+                <KeyRound className="h-5 w-5 text-warning" />
+                <div className="text-center sm:text-left">
+                    <h3 className="text-lg font-bold text-white">{rT.title}</h3>
+                    <p className="mt-1 text-[0.9rem] text-zinc-400">
+                        {rT.prefixWarning} <strong>{rT.warning}</strong>.
+                    </p>
+                </div>
+            </div>
+            <p>{rT.desc1}</p>
             <ul>
                 <li>
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                    Nightbot, StreamElements, Fossabot u otros bots.
+                    {rT.point1}
                 </li>
                 <li>
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                    Cualquier script o integración que use tu API Key.
+                    {rT.point2}
                 </li>
             </ul>
-            <p className="text-sm opacity-80">Esta acción no se puede deshacer. Te mostraremos la key nueva una sola vez.</p>
+            <p className="text-sm opacity-80">{rT.disclaimer}</p>
         </Modal>
     );
 }
@@ -469,6 +509,8 @@ interface PostRegenKeyModalProps {
 
 export function PostRegenKeyModal({ open, apiKey, onClose }: PostRegenKeyModalProps) {
     const [copied, setCopied] = useState(false);
+    const { t } = useTranslation();
+    const pT = t.modals.postRegenKey;
 
     const handleCopy = async () => {
         await navigator.clipboard.writeText(apiKey);
@@ -480,42 +522,41 @@ export function PostRegenKeyModal({ open, apiKey, onClose }: PostRegenKeyModalPr
         <Modal
             open={open}
             onClose={onClose}
-            title="Copia tu nueva API Key"
+            title={pT.title}
             titleIcon={ShieldAlert}
             footer={
                 <button type="button" className={modalBtnPrimary} onClick={() => void handleCopy()}>
                     {copied ? (
                         <>
                             <Check className="h-4 w-4" aria-hidden="true" />
-                            Copiada
+                            {pT.copied}
                         </>
                     ) : (
                         <>
                             <Copy className="h-4 w-4" aria-hidden="true" />
-                            Copiar key
+                            {pT.copy}
                         </>
                     )}
                 </button>
             }
         >
             <p>
-                <strong>No volveremos a mostrar la key completa.</strong> Cópiala ahora y actualiza tus
-                bots.
+                <strong>{pT.desc1}</strong>
             </p>
             <ul>
                 <li>
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                    Guárdala en un sitio seguro (gestor de contraseñas o notas privadas).
+                    {pT.point1}
                 </li>
                 <li>
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                    Sustituye la key antigua en Nightbot / StreamElements / etc.
+                    {pT.point2}
                 </li>
             </ul>
             <code className="mt-1 block break-all rounded-lg border border-white/10 bg-black/40 px-3 py-2.5 font-mono text-sm text-[#c4b5fd]">
                 {apiKey}
             </code>
-            <p className="text-sm opacity-80">Si cierras sin copiarla, tendrás que regenerar otra vez.</p>
+            <p className="text-sm opacity-80">{pT.disclaimer}</p>
         </Modal>
     );
 }

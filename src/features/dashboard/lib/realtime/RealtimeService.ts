@@ -201,7 +201,7 @@ export class RealtimeService {
                 const patch: Partial<RealtimeStatsUpdate> = {};
                 const stateKey = keyMap[row.command_name];
                 if (stateKey) {
-                    Object.assign(patch, { [stateKey]: row.requests_count as number });
+                    (patch as Record<string, unknown>)[stateKey] = row.requests_count as number;
                 }
 
                 if (typeof row.date === 'string') {
@@ -219,105 +219,120 @@ export class RealtimeService {
                 }
             };
 
-            this.channel
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'INSERT',
-                        schema: 'public',
-                        table: 'activity_logs',
-                        filter: userFilter
-                    },
-                    (payload) => {
-                        this.dispatchActivity(
-                            formatActivityLog(payload.new as RawActivityLog)
-                        );
-                    }
-                )
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'DELETE',
-                        schema: 'public',
-                        table: 'activity_logs',
-                        filter: userFilter
-                    },
-                    () => {
-                        this.dispatchActivityDelete();
-                    }
-                )
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'UPDATE',
-                        schema: 'public',
-                        table: 'user_stats',
-                        filter: userFilter
-                    },
-                    statsHandler
-                )
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'INSERT',
-                        schema: 'public',
-                        table: 'user_stats',
-                        filter: userFilter
-                    },
-                    statsHandler
-                )
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'UPDATE',
-                        schema: 'public',
-                        table: 'user_daily_stats',
-                        filter: userFilter
-                    },
-                    dailyStatsHandler
-                )
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'INSERT',
-                        schema: 'public',
-                        table: 'user_daily_stats',
-                        filter: userFilter
-                    },
-                    dailyStatsHandler
-                )
-                .subscribe((status, err) => {
-                    if (status === 'SUBSCRIBED') {
-                        this.isConnected = true;
-                        this.onConnectionChange?.(true);
-                    } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-                        this.isConnected = false;
-                        this.onConnectionChange?.(false);
-                        const transportFailed = isTransportFailure(err);
-                        const benign = isBenignRealtimeClose(err, this.intentionalClose);
+            return new Promise<boolean>((resolve) => {
+                let resolved = false;
 
-                        if (transportFailed && !this.intentionalClose) {
-                            debugWarn(
-                                '[Realtime] WebSocket no disponible — el dashboard usará polling. ' +
-                                    'Comprueba Realtime en Supabase (Database → Tables → Enable Realtime).'
+                const finish = (result: boolean) => {
+                    if (resolved) return;
+                    resolved = true;
+                    resolve(result);
+                };
+
+                const timeout = setTimeout(() => finish(false), 5000);
+
+                this.channel!
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'INSERT',
+                            schema: 'public',
+                            table: 'activity_logs',
+                            filter: userFilter
+                        },
+                        (payload) => {
+                            this.dispatchActivity(
+                                formatActivityLog(payload.new as RawActivityLog)
                             );
-                        } else if (err && !benign) {
-                            logError('Realtime', err, 'Channel error');
                         }
-
-                        this.tearDownClient();
-
-                        if (benign && this.hasActiveSubscribers()) {
-                            this.requestRealtimeReconnect('benign');
-                        } else if (!benign && !this.intentionalClose) {
-                            this.onDisconnectCallback?.();
-                            this.requestRealtimeReconnect('error');
+                    )
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'DELETE',
+                            schema: 'public',
+                            table: 'activity_logs',
+                            filter: userFilter
+                        },
+                        () => {
+                            this.dispatchActivityDelete();
                         }
-                        this.intentionalClose = false;
-                    }
-                });
+                    )
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'UPDATE',
+                            schema: 'public',
+                            table: 'user_stats',
+                            filter: userFilter
+                        },
+                        statsHandler
+                    )
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'INSERT',
+                            schema: 'public',
+                            table: 'user_stats',
+                            filter: userFilter
+                        },
+                        statsHandler
+                    )
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'UPDATE',
+                            schema: 'public',
+                            table: 'user_daily_stats',
+                            filter: userFilter
+                        },
+                        dailyStatsHandler
+                    )
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'INSERT',
+                            schema: 'public',
+                            table: 'user_daily_stats',
+                            filter: userFilter
+                        },
+                        dailyStatsHandler
+                    )
+                    .subscribe((status, err) => {
+                        if (status === 'SUBSCRIBED') {
+                            this.isConnected = true;
+                            this.onConnectionChange?.(true);
+                            clearTimeout(timeout);
+                            finish(true);
+                        } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+                            this.isConnected = false;
+                            this.onConnectionChange?.(false);
+                            const transportFailed = isTransportFailure(err);
+                            const benign = isBenignRealtimeClose(err, this.intentionalClose);
 
-            return true;
+                            if (transportFailed && !this.intentionalClose) {
+                                debugWarn(
+                                    '[Realtime] WebSocket no disponible — el dashboard usará polling. ' +
+                                        'Comprueba Realtime en Supabase (Database → Tables → Enable Realtime).'
+                                );
+                            } else if (err && !benign) {
+                                logError('Realtime', err, 'Channel error');
+                            }
+
+                            this.tearDownClient();
+
+                            if (benign && this.hasActiveSubscribers()) {
+                                this.requestRealtimeReconnect('benign');
+                            } else if (!benign && !this.intentionalClose) {
+                                this.onDisconnectCallback?.();
+                                this.requestRealtimeReconnect('error');
+                            }
+                            this.intentionalClose = false;
+
+                            clearTimeout(timeout);
+                            finish(false);
+                        }
+                    });
+            });
         } catch {
             return false;
         }
@@ -358,15 +373,6 @@ export class RealtimeService {
             return false;
         }
         if (!(await this.setupChannel())) {
-            onConnectionChange?.(false);
-            return false;
-        }
-
-        for (let i = 0; i < 50 && !this.isConnected; i++) {
-            await new Promise((r) => setTimeout(r, 100));
-        }
-
-        if (!this.isConnected) {
             this.tearDownClient();
             if (this.refreshInterval) {
                 clearInterval(this.refreshInterval);

@@ -9,6 +9,7 @@ import { OverlaySessionProvider } from '@/features/overlay/components/OverlaySes
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import type { TrendsOverlayState } from '@/features/overlay/lib/types';
 import type { Session } from '@/core/config/config';
+import { I18nProvider, useTranslation } from '@/core/i18n/I18nContext';
 
 function OverlayTrendsContent({ session }: { session: Session }) {
     const { state, connected, stale } = useOverlayMirror('trends', session);
@@ -47,13 +48,22 @@ function OverlayTrendsApp() {
     );
 }
 
+function OverlayTrendsBoundary() {
+    const { t } = useTranslation();
+    return (
+        <ErrorBoundary title={t.overlay.apps.trendsErrorTitle}>
+            <OverlayTrendsApp />
+        </ErrorBoundary>
+    );
+}
+
 /** Raíz única para Astro (un solo client:only — SessionProvider envuelve el árbol). */
 export function OverlayTrendsRoot() {
     return (
-        <OverlaySessionProvider requireAuth>
-            <ErrorBoundary title="Overlay de tendencias">
-                <OverlayTrendsApp />
-            </ErrorBoundary>
-        </OverlaySessionProvider>
+        <I18nProvider>
+            <OverlaySessionProvider requireAuth>
+                <OverlayTrendsBoundary />
+            </OverlaySessionProvider>
+        </I18nProvider>
     );
 }

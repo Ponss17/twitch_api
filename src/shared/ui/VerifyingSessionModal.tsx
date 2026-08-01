@@ -115,7 +115,8 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
 
     if (!visible) return null;
 
-    const statusTitle = barDone ? t.verifying.authenticated : detail.label;
+    const detailLabel = detail.label === 'Iniciando…' ? t.globals.loading.starting : detail.label;
+    const statusTitle = barDone ? t.verifying.authenticated : detailLabel;
     const statusHint = barDone
         ? t.verifying.accessGranted
         : detail.cached
@@ -133,7 +134,7 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
             role="dialog"
             aria-modal="true"
             aria-live="polite"
-            aria-label="Verificando sesión"
+            aria-label={t.common.aria.verifyingSession}
         >
             <div className="flex flex-col items-center max-w-sm w-full px-6 text-center">
                 {/* Logo con resplandor */}

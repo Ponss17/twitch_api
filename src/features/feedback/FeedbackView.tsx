@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { useRequiredSession } from '@/core/session/useSession';
@@ -17,11 +17,14 @@ import { InlineIcon } from '@/shared/ui/Icon';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { DiscordIcon, TwitchIcon } from '@/shared/ui/icons/BrandIcons';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 type FeedbackIdentity = 'twitch' | 'discord';
 
 export function FeedbackView() {
     const session = useRequiredSession();
+    const { t } = useTranslation();
+    const fT = t.feedback;
     const { profile } = useDashboardPanel();
     const { showToast } = useToast();
     const [message, setMessage] = useState('');
@@ -33,17 +36,22 @@ export function FeedbackView() {
     const twitchLabel = profile?.display_name || session.displayName || session.login || 'Twitch';
     const discordLabel = profile?.discordUsername || 'Discord';
 
-    const sendAsHint = useMemo(() => {
-        if (isAnonymous) return 'Se enviará de forma totalmente anónima (sin Twitch ni Discord).';
-        if (discordLinked && identity === 'discord') {
-            return `Se enviará como Discord (@${discordLabel}).`;
-        }
-        return `Se enviará como Twitch (${twitchLabel}).`;
-    }, [isAnonymous, discordLinked, identity, discordLabel, twitchLabel]);
+    const sendAsHint = isAnonymous 
+        ? fT.hintAnonymous 
+        : (discordLinked && identity === 'discord') 
+            ? fT.hintDiscord(discordLabel) 
+            : fT.hintTwitch(twitchLabel);
+
+    const identityBtnClass = (active: boolean, activeBorder: string, activeBg: string) =>
+        `flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-[0.8125rem] font-semibold transition ${
+            active
+                ? `${activeBorder} ${activeBg} text-[#fafafa]`
+                : 'border-white/[0.08] bg-transparent text-[#c4c4cc] hover:border-white/20 hover:bg-white/[0.04]'
+        }`;
 
     const send = async () => {
         if (!message.trim()) {
-            showToast('Por favor, escribe un mensaje.', 'error');
+            showToast(fT.errorEmpty, 'error');
             return;
         }
 
@@ -75,12 +83,12 @@ export function FeedbackView() {
 
             if (res.ok) {
                 setMessage('');
-                showToast('¡Feedback enviado! Gracias por tu aporte.', 'success');
+                showToast(fT.successSend, 'success');
             } else {
-                throw new Error(data.error || data.message || 'Error al enviar');
+                throw new Error(data.error || data.message || fT.errorSend);
             }
         } catch (e) {
-            showToast((e as Error).message || 'Error al enviar. Intenta más tarde.', 'error');
+            showToast((e as Error).message || fT.errorGeneric, 'error');
         } finally {
             setSending(false);
         }
@@ -98,16 +106,16 @@ export function FeedbackView() {
                         </div>
                         <div className="min-w-0">
                             <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
-                                Feedback &amp; Sugerencias
+                                {fT.title}
                             </h2>
                             <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
-                                Ayúdanos a mejorar LosPerris API
+                                {fT.desc}
                             </p>
                         </div>
                     </div>
                     <div className="shrink-0">
                         <InfoTooltip
-                            text="Tu mensaje llega a nuestro Discord. Puedes enviarlo anónimo, como Twitch, o como Discord si lo tienes vinculado."
+                            text={fT.infoTooltip}
                             placement="bottom"
                         />
                     </div>
@@ -116,13 +124,13 @@ export function FeedbackView() {
                 <div className="flex flex-col gap-4 p-5">
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="feedback-message" className={inputLabel}>
-                            Tu Mensaje
+                            {fT.messageLabel}
                         </label>
                         <textarea
                             id="feedback-message"
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
-                            placeholder="Cuéntanos qué te gustaría ver, reporta un bug, o danos tu opinión..."
+                            placeholder={fT.messagePlaceholder}
                             className={`${textareaXl} ${hoverNeutralControl} focus:border-primary focus:bg-primary/[0.02]`}
                         />
                     </div>
@@ -130,19 +138,17 @@ export function FeedbackView() {
                     <div className="flex items-center justify-between gap-4 rounded-lg border border-white/[0.06] bg-bg-main/40 px-3.5 py-3">
                         <div className="min-w-0">
                             <p className="text-[0.8125rem] font-medium text-[#fafafa]">
-                                Enviar de forma anónima
+                                {fT.anonymousTitle}
                             </p>
                             <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
-                                {isAnonymous
-                                    ? 'No incluiremos Twitch ni Discord.'
-                                    : 'Incluiremos tu identidad por si necesitamos contactarte.'}
+                                {isAnonymous ? fT.anonymousOn : fT.anonymousOff}
                             </p>
                         </div>
                         <button
                             type="button"
                             role="switch"
                             aria-checked={isAnonymous}
-                            aria-label="Enviar de forma anónima"
+                            aria-label={fT.anonymousTitle}
                             onClick={() => setIsAnonymous(!isAnonymous)}
                             className="group shrink-0 outline-none"
                         >
@@ -163,24 +169,20 @@ export function FeedbackView() {
                     {!isAnonymous ? (
                         <div className="rounded-lg border border-white/[0.06] bg-bg-main/40 px-3.5 py-3">
                             <p className="text-[0.8125rem] font-medium text-[#fafafa]">
-                                Enviar como
+                                {fT.sendAs}
                             </p>
                             {discordLinked ? (
                                 <div
                                     className="mt-2.5 grid grid-cols-2 gap-2"
                                     role="radiogroup"
-                                    aria-label="Identidad del feedback"
+                                    aria-label={t.common.aria.feedbackIdentity}
                                 >
                                     <button
                                         type="button"
                                         role="radio"
                                         aria-checked={identity === 'twitch'}
                                         onClick={() => setIdentity('twitch')}
-                                        className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-[0.8125rem] font-semibold transition ${
-                                            identity === 'twitch'
-                                                ? 'border-[#9146ff]/50 bg-[#9146ff]/15 text-[#fafafa]'
-                                                : 'border-white/[0.08] bg-transparent text-[#c4c4cc] hover:border-white/20 hover:bg-white/[0.04]'
-                                        }`}
+                                        className={identityBtnClass(identity === 'twitch', 'border-[#9146ff]/50', 'bg-[#9146ff]/15')}
                                     >
                                         <TwitchIcon className="h-4 w-4" />
                                         <span className="min-w-0 truncate">Twitch · {twitchLabel}</span>
@@ -190,11 +192,7 @@ export function FeedbackView() {
                                         role="radio"
                                         aria-checked={identity === 'discord'}
                                         onClick={() => setIdentity('discord')}
-                                        className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-[0.8125rem] font-semibold transition ${
-                                            identity === 'discord'
-                                                ? 'border-[#5865F2]/50 bg-[#5865F2]/15 text-[#fafafa]'
-                                                : 'border-white/[0.08] bg-transparent text-[#c4c4cc] hover:border-white/20 hover:bg-white/[0.04]'
-                                        }`}
+                                        className={identityBtnClass(identity === 'discord', 'border-[#5865F2]/50', 'bg-[#5865F2]/15')}
                                     >
                                         <DiscordIcon className="h-4 w-4 text-[#5865F2]" />
                                         <span className="min-w-0 truncate">Discord · @{discordLabel}</span>
@@ -202,9 +200,8 @@ export function FeedbackView() {
                                 </div>
                             ) : (
                                 <p className="mt-1.5 text-[0.75rem] leading-snug text-[#8b8b93]">
-                                    Se enviará con tu cuenta de Twitch. Vincula Discord en{' '}
-                                    <strong className="text-[#c4c4cc]">Ajustes → Conexiones</strong> si
-                                    quieres elegir Discord.
+                                    {fT.linkDiscordText}
+                                    <strong className="text-[#c4c4cc]">{fT.linkDiscordBold}</strong>{fT.linkDiscordEnd}
                                 </p>
                             )}
                             <p className="mt-2 text-[0.75rem] leading-snug text-[#8b8b93]">{sendAsHint}</p>
@@ -214,7 +211,7 @@ export function FeedbackView() {
                     <div className="flex items-center justify-between gap-4 border-t border-white/[0.06] pt-4 max-[600px]:flex-col max-[600px]:items-stretch">
                         <p className="inline-flex items-start gap-1.5 text-[0.75rem] text-zinc-400">
                             <InlineIcon icon={Shield} className="mt-0.5" />
-                            Llega directo a nuestro Discord.
+                            {fT.footerText}
                         </p>
                         <button
                             type="button"
@@ -223,7 +220,7 @@ export function FeedbackView() {
                             className={`${btnPrimary} !mt-0 shrink-0 max-[600px]:w-full max-[600px]:justify-center`}
                         >
                             {sending ? <Loader2 className="animate-spin" /> : <Send className="h-4 w-4" />}
-                            {sending ? 'Enviando...' : 'Enviar Feedback'}
+                            {sending ? fT.btnSending : fT.btnSend}
                         </button>
                     </div>
                 </div>

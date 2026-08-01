@@ -10,9 +10,12 @@ import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { InlineIcon } from '@/shared/ui/Icon';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 export function TrendsView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
+    const { t } = useTranslation();
+    const trends = t.trends;
     const { showToast } = useToast();
 
     const handleStateChange = useOverlayPublish({
@@ -52,22 +55,22 @@ export function TrendsView({ active = true }: { active?: boolean }) {
     const statusContent = connected ? (
         <span className="inline-flex items-center gap-1.5 text-success">
             <InlineIcon icon={Circle} className="fill-current" />
-            Conectado
+            {trends.status.connected}
         </span>
     ) : !tracking ? (
         <span className="inline-flex items-center gap-1.5 text-[#a1a1aa]">
             <InlineIcon icon={Power} />
-            Reposo
+            {trends.status.idle}
         </span>
     ) : isLeader ? (
         <span className="inline-flex items-center gap-1.5 text-warning">
             <InlineIcon icon={Loader2} className="animate-spin" />
-            Conectando...
+            {trends.status.connecting}
         </span>
     ) : (
         <span className="inline-flex items-center gap-1.5 text-success">
             <InlineIcon icon={Network} />
-            Sincronizado
+            {trends.status.synced}
         </span>
     );
 
@@ -80,10 +83,10 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                     </div>
                     <div className="min-w-0">
                         <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
-                            Tendencias de {displayName}
+                            {trends.title(displayName)}
                         </h2>
                         <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
-                            Ranking de palabras en tiempo real
+                            {trends.info}
                         </p>
                     </div>
                 </div>
@@ -93,12 +96,12 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                         {!tracking && (
                             <div className="flex items-center gap-2.5 max-md:w-full max-md:flex-col max-md:items-stretch">
                                 <div className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-bg-main px-2 py-1 max-md:w-full max-md:justify-between">
-                                    <span className="px-1 text-[0.8125rem] font-medium text-[#c4c4cc]">Duración:</span>
+                                    <span className="px-1 text-[0.8125rem] font-medium text-[#c4c4cc]">{trends.duration}</span>
                                     <button
                                         type="button"
                                         onClick={() => adjustMinutes(-1)}
                                         disabled={minutes <= 1}
-                                        aria-label="Reducir minutos"
+                                        aria-label={trends.btnDecrease}
                                         className={`flex h-7 w-7 items-center justify-center rounded-md text-[#c4c4cc] disabled:cursor-not-allowed disabled:opacity-30 ${hoverSubtleIconBtn}`}
                                     >
                                         <Minus className="text-xs" />
@@ -110,16 +113,16 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                             max={60}
                                             value={minutes}
                                             onChange={(e) => applyMinutesInput(e.target.value)}
-                                            aria-label="Duración en minutos"
+                                            aria-label={trends.inputLabel}
                                             className="w-10 border-none bg-transparent text-center text-[0.8125rem] font-semibold text-[#fafafa] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                                         />
-                                        <span className="text-[0.8125rem] text-[#a1a1aa]">min</span>
+                                        <span className="text-[0.8125rem] text-[#a1a1aa]">{trends.min}</span>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={() => adjustMinutes(1)}
                                         disabled={minutes >= 60}
-                                        aria-label="Aumentar minutos"
+                                        aria-label={trends.btnIncrease}
                                         className={`flex h-7 w-7 items-center justify-center rounded-md text-[#c4c4cc] disabled:cursor-not-allowed disabled:opacity-30 ${hoverSubtleIconBtn}`}
                                     >
                                         <Plus className="text-xs" />
@@ -128,8 +131,8 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                 <button
                                     type="button"
                                     onClick={() => void startTracking()}
-                                    title="Iniciar temporizador"
-                                    aria-label="Iniciar temporizador"
+                                    title={trends.startTimer}
+                                    aria-label={trends.startTimer}
                                     className="inline-flex items-center justify-center rounded-lg border-none px-3 py-1.5 text-success transition hover:bg-success/10"
                                 >
                                     <Play className="size-4 shrink-0" />
@@ -142,11 +145,11 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                 className="flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-1.5"
                                 role="timer"
                                 aria-live="polite"
-                                aria-label={`Cuenta atrás: ${formatTrendsTime(remaining)}`}
+                                aria-label={trends.countdown(formatTrendsTime(remaining))}
                             >
                                 <Clock className="text-warning" />
                                 <span className="text-[0.6875rem] font-semibold tracking-wide text-warning/80 uppercase">
-                                    Restante
+                                    {trends.remaining}
                                 </span>
                                 <span
                                     className={`min-w-[3.5rem] text-center font-[Consolas,monospace] text-[1.125rem] font-bold tracking-wider text-warning ${
@@ -163,7 +166,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                         <button
                             type="button"
                             onClick={reset}
-                            title="Reiniciar: vuelve a la duración configurada y borra resultados"
+                            title={trends.reset}
                             className="rounded-lg border-none px-3 py-1 text-[0.8125rem] text-warning transition hover:bg-warning/10"
                         >
                             <RotateCw className="size-4 shrink-0" />
@@ -173,7 +176,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                     <OverlayUrlButton tool="trends" />
 
                     <InfoTooltip 
-                        text="Analiza las palabras más repetidas en el chat. Puedes acotar el tiempo con el temporizador." 
+                        text={trends.tooltip} 
                         placement="bottom"
                     />
                 </div>

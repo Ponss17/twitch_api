@@ -1,6 +1,7 @@
 import { Unlink, Check } from 'lucide-react';
 import { SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
 import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 const discordTitleIcon = <DiscordIcon className="h-4 w-4" aria-hidden="true" />;
 
@@ -21,15 +22,17 @@ export function SettingsDiscordSection({
     onLinkClick,
     onUnlinkClick
 }: SettingsDiscordSectionProps) {
+    const { t } = useTranslation();
+    const pT = t.settings.panels;
     const linked = Boolean(discordId);
 
     if (linked) {
         return (
             <SettingsRow
-                title="Discord"
+                title={pT.discordTitle}
                 iconNode={discordTitleIcon}
                 iconAccent="discord"
-                description="Tu Discord está vinculado para usar los comandos en el servidor."
+                description={t.settings.groups.discord.desc}
                 control={
                     <div className="flex items-center gap-3">
                         {discordAvatar ? (
@@ -42,7 +45,7 @@ export function SettingsDiscordSection({
                         <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-white">@{discordUsername || 'Discord'}</p>
                             <span className="inline-flex items-center gap-1 text-[0.7rem] font-bold text-emerald-400">
-                                <Check className="w-3 h-3" /> Vinculado
+                                <Check className="w-3 h-3" /> {pT.discordStatus(true)}
                             </span>
                         </div>
                         <button
@@ -52,7 +55,7 @@ export function SettingsDiscordSection({
                             className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[0.8rem] font-semibold text-zinc-300 transition hover:border-error/40 hover:text-error disabled:opacity-50"
                         >
                             <Unlink className="w-3.5 h-3.5" />
-                            Desvincular
+                            {pT.unlinkDiscord}
                         </button>
                     </div>
                 }
@@ -62,10 +65,10 @@ export function SettingsDiscordSection({
 
     return (
         <SettingsRow
-            title="Discord"
+            title={pT.discordTitle}
             iconNode={discordTitleIcon}
             iconAccent="discord"
-            description="Vincula tu cuenta para usar los comandos en el servidor de Discord."
+            description={t.settings.groups.discord.desc}
             control={
                 <button
                     type="button"
@@ -74,7 +77,7 @@ export function SettingsDiscordSection({
                     className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#5865F2] px-4 py-2 text-[0.8rem] font-semibold text-white transition hover:brightness-110 disabled:opacity-50 sm:w-auto"
                 >
                     <DiscordIcon className="h-4 w-4" />
-                    Vincular Discord
+                    {pT.linkDiscord}
                 </button>
             }
         />

@@ -14,6 +14,8 @@ import {
 } from '@/shared/ui/Dropdown';
 import { Heart, LogOut, Menu, Settings } from 'lucide-react';
 import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
+import { useTranslation } from '@/core/i18n/I18nContext';
+import type { Translations } from '@/core/i18n/locales/es';
 
 const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
 
@@ -25,25 +27,9 @@ interface DashboardHeaderProps {
     mobileMenuOpen?: boolean;
 }
 
-function getTabSubtitle(tab: string, _name: string): string {
-    switch (tab) {
-        case 'home': {
-            return `Resumen general y métricas en tiempo real de tu canal.`;
-        }
-        case 'analytics': return 'Mide el impacto y rendimiento de tus comandos en vivo.';
-        case 'followage': return 'Configura el comando para ver cuánto llevan siguiéndote.';
-        case 'clips': return 'Permite a tus viewers crear clips rápidos en tu canal.';
-        case 'shoutout': return 'Promociona y dale amor a otros streamers fácilmente.';
-        case 'trends': return 'Descubre las palabras y temas más mencionados en tu chat.';
-        case 'stalker': return 'Busca información pública detallada de cuentas de Twitch.';
-        case 'roulette': return 'Organiza sorteos y decisiones al azar con tu audiencia.';
-        case 'magic8': return 'Deja que el azar responda las dudas existenciales de tu chat.';
-        case 'russian': return 'Un minijuego letal de azar. ¿Quién sobrevivirá?';
-        case 'duel': return 'Combates entre viewers. Configura las probabilidades.';
-        case 'feedback': return 'Ayúdanos a mejorar contándonos qué te gustaría ver.';
-        case 'settings': return 'Ajustes generales de tu cuenta y preferencias.';
-        default: return 'Gestiona las herramientas de tu stream.';
-    }
+function getTabSubtitle(tab: string, t: Translations): string {
+    const key = tab as keyof typeof t.header.subtitles;
+    return t.header.subtitles[key] || t.header.subtitles.default;
 }
 
 export function DashboardHeader({
@@ -54,9 +40,11 @@ export function DashboardHeader({
     mobileMenuOpen = false
 }: DashboardHeaderProps) {
     const session = useRequiredSession();
+    const { t } = useTranslation();
     const meta = TAB_META[tab];
     const displayName = session.displayName ?? session.login ?? 'Streamer';
     const twitchProfileUrl = session.login ? `https://www.twitch.tv/${session.login}` : '#';
+    const tabKey = tab as keyof typeof t.sidebar.items;
 
     return (
         <header className="w-full pt-4">
@@ -65,7 +53,7 @@ export function DashboardHeader({
                     type="button"
                     onClick={onMenuToggle}
                     className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 hover:bg-white/[0.05] hover:text-zinc-100 lg:hidden"
-                    aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+                    aria-label={mobileMenuOpen ? t.header.closeMenu : t.header.openMenu}
                     aria-expanded={mobileMenuOpen}
                     aria-controls="dashboard-sidebar"
                 >
@@ -76,18 +64,18 @@ export function DashboardHeader({
                     <div className="flex items-center gap-2.5">
                         <meta.icon className="h-[1.3rem] w-[1.3rem] text-[#9146ff]" />
                         <h1 className="text-[1.35rem] font-semibold tracking-tight text-white md:text-[1.5rem]">
-                            {meta.title}
+                            {t.sidebar.items[tabKey] || meta.title}
                         </h1>
                     </div>
                     <p className="mt-1 hidden text-[0.85rem] text-zinc-400 md:block">
-                        {getTabSubtitle(tab, displayName)}
+                        {getTabSubtitle(tab, t)}
                     </p>
                 </div>
 
                 <div className="flex items-center gap-2">
                     <Dropdown>
                         <DropdownTrigger
-                            aria-label="Menú de cuenta"
+                            aria-label={t.header.accountMenu}
                             className="group flex items-center gap-3 rounded-[1.1rem] border border-white/[0.04] bg-bg-secondary py-1.5 pl-1.5 pr-4 transition-colors hover:border-primary/25 hover:bg-primary/[0.04] aria-expanded:border-primary/25 aria-expanded:bg-primary/[0.04]"
                         >
                             <img
@@ -102,23 +90,23 @@ export function DashboardHeader({
                         </DropdownTrigger>
 
                         <DropdownPanel widthClassName="w-[230px]" zIndex={1000} className="rounded-2xl">
-                            <DropdownHeader>Mi Cuenta</DropdownHeader>
+                            <DropdownHeader>{t.header.myAccount}</DropdownHeader>
                             <DropdownItem onClick={onSettings}>
                                 <Settings className="w-4 text-center" />
-                                Configuración
+                                {t.header.settings}
                             </DropdownItem>
                             <DropdownLink href={twitchProfileUrl} target="_blank" rel="noopener noreferrer">
                                 <TwitchIcon className="w-4 text-center grayscale brightness-[200] opacity-70 group-hover:opacity-100 group-hover:brightness-[250] transition-all" />
-                                Perfil de Twitch
+                                {t.header.twitchProfile}
                             </DropdownLink>
                             <DropdownLink href={PAYPAL_URL} target="_blank" rel="noopener noreferrer">
                                 <Heart className="w-4 text-center" aria-hidden />
-                                Apoyar el proyecto
+                                {t.header.supportProject}
                             </DropdownLink>
                             <DropdownDivider />
                             <DropdownItem variant="danger" onClick={onLogout}>
                                 <LogOut className="w-4 text-center" />
-                                Cerrar Sesión
+                                {t.header.logout}
                             </DropdownItem>
                         </DropdownPanel>
                     </Dropdown>

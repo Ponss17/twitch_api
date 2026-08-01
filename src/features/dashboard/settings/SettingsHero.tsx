@@ -1,5 +1,5 @@
 import { useRequiredSession } from '@/core/session/useSession';
-
+import { useTranslation } from '@/core/i18n/I18nContext';
 import { AnimatedNumber } from '@/shared/ui/AnimatedNumber';
 import { panelCard } from '@/core/utils/tw';
 import { Heart, Video, Calendar } from 'lucide-react';
@@ -47,6 +47,8 @@ export function SettingsHero({
     isLoading = false
 }: SettingsHeroProps) {
     const session = useRequiredSession();
+    const { t } = useTranslation();
+    const sT = t.settings.hero;
     const name = session.displayName ?? session.login ?? 'Streamer';
 
     return (
@@ -60,11 +62,11 @@ export function SettingsHero({
                         <div className="flex flex-wrap items-center gap-2.5">
                             <h1 className="flex items-center gap-2.5 text-[1.7rem] font-bold leading-tight tracking-tight text-white md:text-[1.85rem]">
                                 <TwitchIcon variant="brand" className="h-7 w-7 shrink-0 md:h-8 md:w-8" />
-                                <span>Hola, <span className="text-[#9146ff]">{name}</span></span>
+                                <span>{sT.hello} <span className="text-[#9146ff]">{name}</span></span>
                             </h1>
                         </div>
                         <p className="mt-1 text-[0.875rem] text-[#8b8b93]">
-                            Bienvenido a tu panel · actividad y accesos rápidos
+                            {sT.welcome}
                         </p>
                     </div>
                 </div>
@@ -74,12 +76,12 @@ export function SettingsHero({
                         <ProfileStat
                             icon={Heart}
                             iconClass="text-[#9146ff]"
-                            label="Seguidores"
+                            label={sT.followers}
                         >
                             {followers === undefined && !isLoading ? (
                                 <span
                                     className="text-[1.4rem] font-bold leading-none tracking-tight text-white"
-                                    title="No disponible ahora mismo"
+                                    title={sT.notAvailable}
                                 >
                                     —
                                 </span>
@@ -96,7 +98,7 @@ export function SettingsHero({
                         <ProfileStat
                             icon={Video}
                             iconClass="text-[#9146ff]"
-                            label="Tipo Canal"
+                            label={sT.channelType}
                         >
                             <span className="text-[1.4rem] font-bold leading-none tracking-tight text-white">
                                 {broadcasterLabel}
@@ -107,7 +109,7 @@ export function SettingsHero({
                         <ProfileStat
                             icon={Calendar}
                             iconClass="text-[#9146ff]"
-                            label="Miembro Desde"
+                            label={sT.memberSince}
                         >
                             <span className="text-[1.4rem] font-bold leading-none tracking-tight text-white">
                                 {memberSince}

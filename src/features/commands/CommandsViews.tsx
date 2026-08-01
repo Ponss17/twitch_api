@@ -5,6 +5,7 @@ import { buildCommandTestUrl, useCommandApiTest } from '@/features/commands/hook
 import { useRequiredSession } from '@/core/session/useSession';
 import { ApiTestCard, CommandGeneratorCard, FormField } from './CommandGeneratorCard';
 import { fadeIn } from '@/core/utils/tw';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 function toApiTestResult(
     loading: boolean,
@@ -18,10 +19,12 @@ function toApiTestResult(
 }
 
 const followageErrorPattern =
-    /no existe en Twitch|No se puede consultar|No se pudo consultar|No se pudo obtener|Debes ser el dueño|moderador|actualizar permisos|moderator:read:followers|Twitch no está disponible/i;
+    /no existe en Twitch|No se puede consultar|No se pudo consultar|No se pudo obtener|Debes ser el dueño|moderador|actualizar permisos|moderator:read:followers|Twitch no está disponible|does not exist|cannot fetch|could not fetch|must be owner|update permissions|Twitch is unavailable/i;
 
 export function FollowageView() {
     const session = useRequiredSession();
+    const { t } = useTranslation();
+    const viewT = t.commands.views;
     const ownerChannel = session.login ?? '';
     const [channel, setChannel] = useCommandTestField('followage', 'channel', ownerChannel);
     const [user, setUser] = useCommandTestField('followage', 'user', '');
@@ -35,7 +38,7 @@ export function FollowageView() {
         if (!channelVal || !userVal) {
             setStoredResult({
                 status: 'error',
-                message: 'Por favor, ingresa el Canal y el Usuario para probar.'
+                message: viewT.errors.missingFields
             });
             return;
         }
@@ -56,23 +59,23 @@ export function FollowageView() {
         <div className={fadeIn}>
             <CommandGeneratorCard config={COMMAND_CONFIG.follow} />
             <ApiTestCard
-                title="Prueba la API"
-                description="Verifica que todo funcione correctamente"
-                infoTooltip="Canal = el canal a consultar (el tuyo o uno donde seas mod). Usuario = el follower (cualquier login de Twitch)."
+                title={viewT.followage.testTitle}
+                description={viewT.followage.testDesc}
+                infoTooltip={viewT.followage.testTooltip}
                 onTest={handleTest}
                 result={toApiTestResult(loading, storedResult)}
             >
                 <FormField
-                    label="Canal"
+                    label={viewT.followage.channelLabel}
                     value={channel}
                     onChange={setChannel}
-                    placeholder={ownerChannel || 'ej. ponss17'}
+                    placeholder={ownerChannel || viewT.followage.channelPlaceholder}
                 />
                 <FormField
-                    label="Usuario (follower)"
+                    label={viewT.followage.userLabel}
                     value={user}
                     onChange={setUser}
-                    placeholder="Ej. mynana17"
+                    placeholder={viewT.followage.userPlaceholder}
                 />
             </ApiTestCard>
         </div>
@@ -81,6 +84,8 @@ export function FollowageView() {
 
 export function ShoutoutView() {
     const session = useRequiredSession();
+    const { t } = useTranslation();
+    const viewT = t.commands.views;
     const [channel, setChannel] = useCommandTestField('shoutout', 'channel', session.login ?? '');
     const [touser, setTouser] = useCommandTestField('shoutout', 'touser', '');
     const [storedResult, setStoredResult] = useCommandTestResult('shoutout-test');
@@ -93,7 +98,7 @@ export function ShoutoutView() {
         if (!target) {
             setStoredResult({
                 status: 'error',
-                message: 'Por favor, ingresa el Canal y el Usuario para probar.'
+                message: viewT.errors.missingFields
             });
             return;
         }
@@ -112,23 +117,23 @@ export function ShoutoutView() {
         <div className={fadeIn}>
             <CommandGeneratorCard config={COMMAND_CONFIG.shoutout} />
             <ApiTestCard
-                title="Prueba el Shoutout"
-                description="Verifica que el shoutout funcione correctamente"
-                infoTooltip="Simula una petición manual a la API de shoutout."
+                title={viewT.shoutout.testTitle}
+                description={viewT.shoutout.testDesc}
+                infoTooltip={viewT.shoutout.testTooltip}
                 onTest={handleTest}
                 result={toApiTestResult(loading, storedResult)}
             >
                 <FormField
-                    label="Canal"
+                    label={viewT.shoutout.channelLabel}
                     value={channel}
                     onChange={setChannel}
-                    placeholder="Tu canal"
+                    placeholder={viewT.shoutout.channelPlaceholder}
                 />
                 <FormField
-                    label="Usuario destino"
+                    label={viewT.shoutout.userLabel}
                     value={touser}
                     onChange={setTouser}
-                    placeholder="A quién dar shoutout"
+                    placeholder={viewT.shoutout.userPlaceholder}
                 />
             </ApiTestCard>
         </div>

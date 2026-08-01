@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 const pulse = 'animate-pulse bg-white/[0.04]';
 
@@ -25,6 +26,7 @@ function SkeletonCircle({ className = 'h-10 w-10' }: { className?: string }) {
 
 /** Spinner de sesión → skeleton del shell del dashboard. */
 export function DashboardSessionSkeleton({ tab = 'home' }: { tab?: string }) {
+    const { t } = useTranslation();
     let ContentSkeleton = HomeViewSkeleton;
     if (tab === 'analytics') ContentSkeleton = AnalyticsSkeleton;
     else if (tab === 'settings') ContentSkeleton = SettingsViewSkeleton;
@@ -34,7 +36,7 @@ export function DashboardSessionSkeleton({ tab = 'home' }: { tab?: string }) {
     else if (tab !== 'home') ContentSkeleton = CommandViewSkeleton;
 
     return (
-        <div className="flex min-h-screen bg-[#09090b]" aria-busy="true" aria-label="Cargando dashboard">
+        <div className="flex min-h-screen bg-[#09090b]" aria-busy="true" aria-label={t.globals.loading.dashboard}>
             <aside className="hidden w-[240px] shrink-0 p-4 lg:block">
                 <Skeleton className="mb-6 h-10 w-40 bg-transparent" />
                 <div className="space-y-2">
@@ -60,8 +62,9 @@ export function DashboardSessionSkeleton({ tab = 'home' }: { tab?: string }) {
 }
 
 export function HomeViewSkeleton() {
+    const { t } = useTranslation();
     return (
-        <div className="animate-fade-soft" aria-busy="true" aria-label="Cargando panel">
+        <div className="animate-fade-soft" aria-busy="true" aria-label={t.globals.loading.panel}>
             <SettingsHeroSkeleton />
             <div className="grid grid-cols-1 items-stretch gap-5 min-[1001px]:grid-cols-[1fr_310px]">
                 <div className="flex flex-col rounded-xl border border-white/[0.04] bg-bg-card h-[510px]">
@@ -108,11 +111,12 @@ export function HomeViewSkeleton() {
 }
 
 export function SettingsHeroSkeleton() {
+    const { t } = useTranslation();
     return (
         <div
             className="relative mb-8 overflow-hidden rounded-xl border border-white/[0.03] bg-zinc-900/20 px-8 py-8 shadow-2xl shadow-black/20 backdrop-blur-xl"
             aria-busy="true"
-            aria-label="Cargando perfil"
+            aria-label={t.globals.loading.profile}
         >
             <div className="relative z-10 flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
                 <div className="flex items-center gap-4">
@@ -174,11 +178,12 @@ export function StalkerRowSkeleton() {
 }
 
 export function ClipsGridSkeleton({ count = 6, className = '' }: { count?: number; className?: string }) {
+    const { t } = useTranslation();
     return (
         <div
             className={`grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 ${className}`.trim()}
             aria-busy="true"
-            aria-label="Cargando clips"
+            aria-label={t.globals.loading.clips}
         >
             {Array.from({ length: count }).map((_, i) => (
                 <div key={i} className="overflow-hidden rounded-xl border border-white/[0.04] bg-[#09090b]">
@@ -197,8 +202,9 @@ export function ClipsGridSkeleton({ count = 6, className = '' }: { count?: numbe
 }
 
 export function AnalyticsSkeleton() {
+    const { t } = useTranslation();
     return (
-        <div className="animate-fade-soft space-y-6" aria-busy="true" aria-label="Cargando analíticas">
+        <div className="animate-fade-soft space-y-6" aria-busy="true" aria-label={t.globals.loading.analytics}>
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
                 {Array.from({ length: 4 }).map((_, i) => (
                     <div key={i} className="flex flex-col rounded-xl border border-white/[0.04] bg-bg-card p-5 h-[100px] justify-between">
@@ -280,8 +286,9 @@ export function AnalyticsSkeleton() {
 }
 
 export function CommandViewSkeleton() {
+    const { t } = useTranslation();
     return (
-        <div className="animate-fade-soft w-full" aria-busy="true" aria-label="Cargando comandos">
+        <div className="animate-fade-soft w-full" aria-busy="true" aria-label={t.globals.loading.commands}>
             <div className="mb-3 flex flex-col rounded-xl border border-white/[0.04] bg-bg-card">
                 <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.04] px-5 py-3.5">
                     <div className="flex items-center gap-3">
@@ -303,8 +310,9 @@ export function CommandViewSkeleton() {
 }
 
 export function TrendsSkeleton() {
+    const { t } = useTranslation();
     return (
-        <div className="animate-fade-soft w-full" aria-busy="true" aria-label="Cargando tendencias">
+        <div className="animate-fade-soft w-full" aria-busy="true" aria-label={t.globals.loading.trends}>
             <div className="mb-3 flex flex-col rounded-xl border border-white/[0.04] bg-bg-card">
                 <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.04] px-5 py-3.5">
                     <div className="flex items-center gap-3">
@@ -328,8 +336,9 @@ export function TrendsSkeleton() {
 }
 
 export function StalkerViewSkeleton() {
+    const { t } = useTranslation();
     return (
-        <div className="animate-fade-soft w-full" aria-busy="true" aria-label="Cargando stalker">
+        <div className="animate-fade-soft w-full" aria-busy="true" aria-label={t.globals.loading.stalker}>
             <div className="mb-3 flex flex-col rounded-xl border border-white/[0.04] bg-bg-card">
                 <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.04] px-5 py-3.5">
                     <div className="flex items-center gap-3">
@@ -362,8 +371,9 @@ export function StalkerViewSkeleton() {
 }
 
 export function SettingsViewSkeleton() {
+    const { t } = useTranslation();
     return (
-        <div className="animate-fade-soft space-y-6" aria-busy="true" aria-label="Cargando ajustes">
+        <div className="animate-fade-soft space-y-6" aria-busy="true" aria-label={t.globals.loading.settings}>
             <SettingsHeroSkeleton />
             <div className="mb-6 border-b border-white/[0.04]">
                 <div className="flex gap-6 pb-2">

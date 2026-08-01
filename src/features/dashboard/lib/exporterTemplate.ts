@@ -1,4 +1,4 @@
-﻿export interface ReportTemplateData {
+export interface ReportTemplateData {
     name: string;
     safeLogin: string;
     safeUserId: string;
@@ -36,15 +36,18 @@
     legalStorage: string;
 }
 
+import type { Translations } from '@/core/i18n/locales/es';
+
 /** Genera el HTML completo del reporte de exportacion. */
-export function buildReportHtml(d: ReportTemplateData): string {
+export function buildReportHtml(d: ReportTemplateData, t: Translations): string {
+    const e = t.exporter;
     return `<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Reporte de cuenta de ${d.name} — LosPerris Twitch API">
-    <title>${d.name} · Reporte · LosPerris Twitch API</title>
+    <meta name="description" content="${e.reportBadge} de ${d.name} — LosPerris Twitch API">
+    <title>${d.name} · ${e.reportBadge} · LosPerris Twitch API</title>
     <link rel="icon" href="${d.faviconUrl}" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -199,18 +202,18 @@ export function buildReportHtml(d: ReportTemplateData): string {
                 <img src="${d.logoUrl}" alt="LosPerris">
                 <span class="brand-text">LosPerris <span class="brand-accent">Twitch Api</span></span>
             </a>
-            <nav class="site-nav" aria-label="Navegacion del sitio">
-                <a class="nav-link" href="${d.homeUrl}">Inicio</a>
-                <a class="nav-link" href="${d.docsUrl}">Documentacion</a>
-                <a class="nav-link" href="${d.aboutUrl}">Sobre la API</a>
-                <a class="nav-link nav-link-primary" href="${d.dashboardUrl}">Dashboard</a>
+            <nav class="site-nav" aria-label="${t.common.aria.settingsSections}">
+                <a class="nav-link" href="${d.homeUrl}">${e.home}</a>
+                <a class="nav-link" href="${d.docsUrl}">${e.docs}</a>
+                <a class="nav-link" href="${d.aboutUrl}">${e.docs}</a>
+                <a class="nav-link nav-link-primary" href="${d.dashboardUrl}">${e.dashboard}</a>
             </nav>
         </div>
     </header>
 
     <main class="main">
         <section class="report-intro">
-            <div class="report-badge">Reporte de cuenta</div>
+            <div class="report-badge">${e.reportBadge}</div>
             <h1 class="report-title">Tu panel en <span class="gradient-text">un archivo</span></h1>
             <p class="report-subtitle">
                 Resumen exportado desde LosPerris Twitch API. Misma identidad visual que
@@ -218,7 +221,7 @@ export function buildReportHtml(d: ReportTemplateData): string {
             </p>
         </section>
 
-        <section class="profile-hero" aria-label="Perfil del streamer">
+        <section class="profile-hero" aria-label="${e.profile}">
             ${d.safeAvatarUrl
                 ? `<img src="${d.safeAvatarUrl}" alt="" class="avatar">`
                 : `<div class="avatar-placeholder" aria-hidden="true">👤</div>`}
@@ -227,7 +230,7 @@ export function buildReportHtml(d: ReportTemplateData): string {
                 <div class="profile-login">@${d.safeLogin}</div>
                 <div class="chips">
                     <span class="chip chip-purple">${d.channelType}</span>
-                    <span class="chip chip-green">API activa</span>
+                    <span class="chip chip-green">${e.active}</span>
                     <span class="chip chip-blue">LosPerris API</span>
                 </div>
             </div>
@@ -246,57 +249,57 @@ export function buildReportHtml(d: ReportTemplateData): string {
             </p>
         </div>
 
-        <div class="quick-stats" aria-label="Resumen rapido">
-            <div class="stat-card"><div class="stat-val">${d.followerCount}</div><div class="stat-lbl">Seguidores</div></div>
-            <div class="stat-card"><div class="stat-val">${d.todayRequests.toLocaleString()}</div><div class="stat-lbl">Hoy</div></div>
-            <div class="stat-card"><div class="stat-val">${(d.totalRequests as number).toLocaleString()}</div><div class="stat-lbl">Total</div></div>
-            <div class="stat-card"><div class="stat-val">${d.successRate}</div><div class="stat-lbl">Exito</div></div>
+        <div class="quick-stats" aria-label="${e.reportBadge}">
+            <div class="stat-card"><div class="stat-val">${d.followerCount}</div><div class="stat-lbl">${e.followers}</div></div>
+            <div class="stat-card"><div class="stat-val">${d.todayRequests.toLocaleString()}</div><div class="stat-lbl">${e.today}</div></div>
+            <div class="stat-card"><div class="stat-val">${(d.totalRequests as number).toLocaleString()}</div><div class="stat-lbl">${e.total}</div></div>
+            <div class="stat-card"><div class="stat-val">${d.successRate}</div><div class="stat-lbl">${e.success}</div></div>
         </div>
 
         <section class="section">
             <div class="section-head">
                 <div class="section-icon" aria-hidden="true">👤</div>
-                <div><div class="section-kicker">Perfil</div><h2 class="section-title">Informacion de cuenta</h2></div>
+                <div><div class="section-kicker">${e.profile}</div><h2 class="section-title">${e.accountInfo}</h2></div>
             </div>
             <div class="section-body">
-                <div class="row"><span class="row-label">Nombre</span><span class="row-value">${d.name}</span></div>
-                <div class="row"><span class="row-label">Login</span><span class="row-value">@${d.safeLogin}</span></div>
-                <div class="row"><span class="row-label">ID de usuario</span><span class="row-value">${d.safeUserId}</span></div>
-                <div class="row"><span class="row-label">Tipo de canal</span><span class="row-value"><span class="badge">${d.channelType}</span></span></div>
-                <div class="row"><span class="row-label">Miembro desde</span><span class="row-value">${d.createdAtStr}</span></div>
-                <div class="row"><span class="row-label">Biografia</span><span class="row-value">${d.safeDescription}</span></div>
+                <div class="row"><span class="row-label">${e.name}</span><span class="row-value">${d.name}</span></div>
+                <div class="row"><span class="row-label">${e.login}</span><span class="row-value">@${d.safeLogin}</span></div>
+                <div class="row"><span class="row-label">ID</span><span class="row-value">${d.safeUserId}</span></div>
+                <div class="row"><span class="row-label">${e.channelType}</span><span class="row-value"><span class="badge">${d.channelType}</span></span></div>
+                <div class="row"><span class="row-label">${e.memberSince}</span><span class="row-value">${d.createdAtStr}</span></div>
+                <div class="row"><span class="row-label">${e.bio}</span><span class="row-value">${d.safeDescription}</span></div>
             </div>
         </section>
 
         <section class="section">
             <div class="section-head">
                 <div class="section-icon" aria-hidden="true">🔐</div>
-                <div><div class="section-kicker">Acceso</div><h2 class="section-title">Seguridad y API Key</h2></div>
+                <div><div class="section-kicker">${e.access}</div><h2 class="section-title">${e.securityAndApiKey}</h2></div>
             </div>
             <div class="section-body">
                 <div class="row"><span class="row-label">API Key</span><span class="row-value masked">${d.maskedKey}</span></div>
-                <div class="row"><span class="row-label">Estado</span><span class="row-value"><span class="badge badge-green">Activa</span></span></div>
-                <div class="row"><span class="row-label">Limite</span><span class="row-value">${d.rateLimit} req/min</span></div>
-                <div class="row"><span class="row-label">Nivel</span><span class="row-value">Full API</span></div>
+                <div class="row"><span class="row-label">${e.status}</span><span class="row-value"><span class="badge badge-green">${e.active}</span></span></div>
+                <div class="row"><span class="row-label">${e.limit}</span><span class="row-value">${d.rateLimit} req/min</span></div>
+                <div class="row"><span class="row-label">${e.level}</span><span class="row-value">Full API</span></div>
             </div>
         </section>
 
         <section class="section">
             <div class="section-head">
                 <div class="section-icon" aria-hidden="true">📊</div>
-                <div><div class="section-kicker">Metricas</div><h2 class="section-title">Rendimiento de la API</h2></div>
+                <div><div class="section-kicker">${e.metrics}</div><h2 class="section-title">${e.apiPerformance}</h2></div>
             </div>
             <div class="section-body">
                 <div class="metrics-grid">
-                    <div class="metric-card"><div class="metric-val mv-purple">${d.todayRequests.toLocaleString()}</div><div class="metric-lbl">Peticiones hoy</div></div>
-                    <div class="metric-card"><div class="metric-val mv-blue">${(d.totalRequests as number).toLocaleString()}</div><div class="metric-lbl">Peticiones totales</div></div>
-                    <div class="metric-card"><div class="metric-val mv-yellow">${d.averageLatency}</div><div class="metric-lbl">Latencia promedio</div></div>
-                    <div class="metric-card"><div class="metric-val mv-green">${d.successRate}</div><div class="metric-lbl">Tasa de exito</div></div>
+                    <div class="metric-card"><div class="metric-val mv-purple">${d.todayRequests.toLocaleString()}</div><div class="metric-lbl">${e.today}</div></div>
+                    <div class="metric-card"><div class="metric-val mv-blue">${(d.totalRequests as number).toLocaleString()}</div><div class="metric-lbl">${e.total}</div></div>
+                    <div class="metric-card"><div class="metric-val mv-yellow">${d.averageLatency}</div><div class="metric-lbl">Latencia</div></div>
+                    <div class="metric-card"><div class="metric-val mv-green">${d.successRate}</div><div class="metric-lbl">${e.success}</div></div>
                 </div>
                 <div class="cat-grid">
-                    <div class="cat-card"><div class="cat-icon" aria-hidden="true">API</div><div class="cat-val">${d.cmdTotal.toLocaleString()}</div><div class="cat-lbl">Comandos</div></div>
-                    <div class="cat-card"><div class="cat-icon" aria-hidden="true">🔧</div><div class="cat-val">${d.toolTotal.toLocaleString()}</div><div class="cat-lbl">Herramientas</div></div>
-                    <div class="cat-card"><div class="cat-icon" aria-hidden="true">🎮</div><div class="cat-val">${d.gameTotal.toLocaleString()}</div><div class="cat-lbl">Minijuegos</div></div>
+                    <div class="cat-card"><div class="cat-icon" aria-hidden="true">API</div><div class="cat-val">${d.cmdTotal.toLocaleString()}</div><div class="cat-lbl">CMD</div></div>
+                    <div class="cat-card"><div class="cat-icon" aria-hidden="true">🔧</div><div class="cat-val">${d.toolTotal.toLocaleString()}</div><div class="cat-lbl">Tools</div></div>
+                    <div class="cat-card"><div class="cat-icon" aria-hidden="true">🎮</div><div class="cat-val">${d.gameTotal.toLocaleString()}</div><div class="cat-lbl">Games</div></div>
                 </div>
             </div>
         </section>
@@ -304,7 +307,7 @@ export function buildReportHtml(d: ReportTemplateData): string {
         <section class="section">
             <div class="section-head">
                 <div class="section-icon" aria-hidden="true">#</div>
-                <div><div class="section-kicker">Integraciones</div><h2 class="section-title">Comandos y sintaxis para tu bot</h2></div>
+                <div><div class="section-kicker">Integraciones</div><h2 class="section-title">Comandos</h2></div>
             </div>
             <div class="section-body">
                 <div class="commands-container">
@@ -314,9 +317,9 @@ export function buildReportHtml(d: ReportTemplateData): string {
         </section>
 
         <div class="cta-strip">
-            <a class="btn btn-primary" href="${d.dashboardUrl}">Volver al dashboard</a>
-            <a class="btn btn-ghost" href="${d.docsUrl}">Ver documentacion</a>
-            <a class="btn btn-ghost" href="${d.homeUrl}">Ir al inicio</a>
+            <a class="btn btn-primary" href="${d.dashboardUrl}">${e.dashboard}</a>
+            <a class="btn btn-ghost" href="${d.docsUrl}">${e.docs}</a>
+            <a class="btn btn-ghost" href="${d.homeUrl}">${e.home}</a>
         </div>
     </main>
 
@@ -326,21 +329,20 @@ export function buildReportHtml(d: ReportTemplateData): string {
                 <img src="${d.logoUrl}" alt="">
                 <span class="footer-brand-name">LosPerris Twitch API</span>
             </div>
-            <nav class="footer-links" aria-label="Enlaces del sitio">
-                <a href="${d.homeUrl}">Inicio</a>
-                <a href="${d.dashboardUrl}">Dashboard</a>
-                <a href="${d.docsUrl}">Documentacion</a>
-                <a href="${d.aboutUrl}">Sobre la API</a>
+            <nav class="footer-links" aria-label="${e.links}">
+                <a href="${d.homeUrl}">${e.home}</a>
+                <a href="${d.dashboardUrl}">${e.dashboard}</a>
+                <a href="${d.docsUrl}">${e.docs}</a>
+                <a href="${d.aboutUrl}">${e.docs}</a>
                 <a href="${d.discordUrl}" target="_blank" rel="noopener noreferrer">Discord</a>
                 <a href="${d.statusUrl}" target="_blank" rel="noopener noreferrer">Status</a>
             </nav>
-            <nav class="footer-legal" aria-label="Legal">
-                <a href="${d.legalPrivacy}">Privacidad</a>
-                <a href="${d.legalTerms}">Terminos</a>
-                <a href="${d.legalStorage}">Almacenamiento</a>
+            <nav class="footer-legal" aria-label="${e.legal}">
+                <a href="${d.legalPrivacy}">${e.privacyPolicy}</a>
+                <a href="${d.legalTerms}">${e.terms}</a>
             </nav>
             <p class="footer-copy">
-                Reporte generado el <strong>${d.dateStr}</strong> a las <strong>${d.timeStr}</strong>
+                ${e.generatedOn} <strong>${d.dateStr}</strong> ${e.at} <strong>${d.timeStr}</strong>
                 · ID <code>${d.reportId}</code><br>
                 &copy; ${d.year}
                 <a href="${d.siteUrl}" target="_blank" rel="noopener noreferrer">${d.siteLabel}</a>.
