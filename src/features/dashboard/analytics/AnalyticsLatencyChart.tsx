@@ -73,7 +73,7 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
     
     return (
         <AnalyticsSection
-            panelClassName="min-h-[360px]"
+            panelClassName="h-full min-h-[360px] flex flex-col"
             title={chart.title}
             info={chart.info}
         >

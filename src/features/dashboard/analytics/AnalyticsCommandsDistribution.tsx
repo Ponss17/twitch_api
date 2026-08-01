@@ -59,6 +59,7 @@ export function AnalyticsCommandsDistribution({
                 <ChartMountGate
                     active={active}
                     srLabel={chart.title}
+                    className="min-h-[200px] w-full min-w-0 flex-1"
                 >
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                         <PieChart accessibilityLayer={false}>
