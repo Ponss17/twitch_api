@@ -28,18 +28,18 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
-    { id: 'home', label: 'Inicio', icon: Home, category: 'General' },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3, category: 'General' },
-    { id: 'followage', label: 'Followage', icon: UserRoundCheck, category: 'Comandos' },
-    { id: 'clips', label: 'Clips', icon: Clapperboard, category: 'Comandos' },
-    { id: 'shoutout', label: 'Shoutout', icon: Megaphone, category: 'Comandos' },
-    { id: 'trends', label: 'Tendencias', icon: TrendingUp, category: 'Herramientas' },
-    { id: 'stalker', label: 'Stalker', icon: Binoculars, category: 'Herramientas' },
-    { id: 'roulette', label: 'Ruleta', icon: Dices, category: 'Herramientas' },
-    { id: 'magic8', label: 'Bola 8', icon: MAGIC8_ICON, category: 'Minijuegos' },
-    { id: 'russian', label: 'Ruleta Rusa', icon: RUSSIAN_ICON, category: 'Minijuegos' },
-    { id: 'duel', label: 'Duelo', icon: Swords, category: 'Minijuegos' },
-    { id: 'feedback', label: 'Feedback', icon: MessageSquare, category: 'Soporte' }
+    { id: 'home', label: 'Inicio', icon: Home, category: 'general' },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3, category: 'general' },
+    { id: 'followage', label: 'Followage', icon: UserRoundCheck, category: 'commands' },
+    { id: 'clips', label: 'Clips', icon: Clapperboard, category: 'commands' },
+    { id: 'shoutout', label: 'Shoutout', icon: Megaphone, category: 'commands' },
+    { id: 'trends', label: 'Tendencias', icon: TrendingUp, category: 'tools' },
+    { id: 'stalker', label: 'Stalker', icon: Binoculars, category: 'tools' },
+    { id: 'roulette', label: 'Ruleta', icon: Dices, category: 'tools' },
+    { id: 'magic8', label: 'Bola 8', icon: MAGIC8_ICON, category: 'minigames' },
+    { id: 'russian', label: 'Ruleta Rusa', icon: RUSSIAN_ICON, category: 'minigames' },
+    { id: 'duel', label: 'Duelo', icon: Swords, category: 'minigames' },
+    { id: 'feedback', label: 'Feedback', icon: MessageSquare, category: 'support' }
 ];
 
 export const TAB_META: Record<DashboardTab, { title: string; icon: LucideIcon }> = Object.fromEntries(
