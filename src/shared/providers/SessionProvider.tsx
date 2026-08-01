@@ -113,13 +113,10 @@ export function SessionProvider({
                 setAuthenticated(false);
             });
             if (requireAuth) {
-                const mode = new URLSearchParams(window.location.search).get('mode');
-                if (mode === 'login' || !window.location.pathname.startsWith('/login')) {
-                    showToastRef.current(tRef.current.globals.toasts.sessionExpiredLogin, 'error');
-                    setTimeout(() => {
-                        window.location.href = '/login';
-                    }, 1000);
-                }
+                showToastRef.current(tRef.current.globals.toasts.sessionExpiredLogin, 'error');
+                setTimeout(() => {
+                    window.location.href = appPath('/');
+                }, 1000);
             }
             return;
         }
