@@ -130,8 +130,7 @@ export function AnalyticsCommandsDistribution({
                                             className="h-full rounded-full transition-all duration-500"
                                             style={{
                                                 width: `${pct}%`,
-                                                backgroundColor: color,
-                                                opacity: 0.7
+                                                backgroundColor: color
                                             }}
                                         />
                                     </div>

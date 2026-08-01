@@ -171,8 +171,7 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
                                                 className="h-full rounded-full transition-[width] duration-700"
                                                 style={{
                                                     width: `${pct}%`,
-                                                    backgroundColor: rowColor,
-                                                    boxShadow: `0 0 10px ${rowColor}40`
+                                                    backgroundColor: rowColor
                                                 }}
                                             />
                                         </div>
