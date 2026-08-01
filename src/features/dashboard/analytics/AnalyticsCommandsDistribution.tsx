@@ -1,6 +1,6 @@
 import React from 'react';
 import { Command } from 'lucide-react';
-import { PieChart, Pie, Sector, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartMountGate, COLORS, AnalyticsSection } from './AnalyticsShared';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { } from 'recharts';
@@ -71,44 +71,8 @@ export function AnalyticsCommandsDistribution({
                                 outerRadius="78%"
                                 dataKey="value"
                                 isAnimationActive={false}
+                                cornerRadius={4}
                                 stroke="none"
-                                paddingAngle={3}
-                                // eslint-disable-next-line
-                                shape={(props: any) => {
-                                    const { cx = 0, cy = 0, innerRadius = 0, outerRadius = 0, startAngle = 0, endAngle = 0, index = 0 } = props;
-                                    const color = COLORS[index % COLORS.length];
-
-                                    if (Math.abs(endAngle - startAngle) >= 359.9) {
-                                        const path = `M ${cx},${cy - Number(outerRadius)} A ${outerRadius},${outerRadius} 0 1,0 ${cx},${cy + Number(outerRadius)} A ${outerRadius},${outerRadius} 0 1,0 ${cx},${cy - Number(outerRadius)} Z M ${cx},${cy - Number(innerRadius)} A ${innerRadius},${innerRadius} 0 1,1 ${cx},${cy + Number(innerRadius)} A ${innerRadius},${innerRadius} 0 1,1 ${cx},${cy - Number(innerRadius)} Z`;
-                                        return (
-                                            <path
-                                                d={path}
-                                                fill={color}
-                                                fillOpacity={0.38}
-                                                stroke={color}
-                                                strokeWidth={1.5}
-                                                strokeDasharray="4 4"
-                                                fillRule="evenodd"
-                                            />
-                                        );
-                                    }
-
-                                    return (
-                                        <Sector
-                                            cx={cx}
-                                            cy={cy}
-                                            innerRadius={innerRadius}
-                                            outerRadius={outerRadius}
-                                            startAngle={startAngle}
-                                            endAngle={endAngle}
-                                            fill={color}
-                                            fillOpacity={0.38}
-                                            stroke={color}
-                                            strokeWidth={1.5}
-                                            strokeDasharray="4 4"
-                                        />
-                                    );
-                                }}
                                 activeShape={false}
                             />
                             <Tooltip 
