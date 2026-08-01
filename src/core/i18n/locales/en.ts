@@ -433,12 +433,25 @@ export const en: Translations = {
 
     sidebar: {
         categories: {
-            main: 'Main',
-            config: 'Configuration'
+            general: 'General',
+            commands: 'Commands',
+            tools: 'Tools',
+            minigames: 'Minigames',
+            support: 'Support'
         },
         items: {
             home: 'Home',
             analytics: 'Analytics',
+            followage: 'Followage',
+            clips: 'Clips',
+            shoutout: 'Shoutout',
+            trends: 'Trends',
+            stalker: 'Stalker',
+            roulette: 'Roulette',
+            magic8: 'Magic 8 Ball',
+            russian: 'Russian Roulette',
+            duel: 'Duel',
+            feedback: 'Feedback',
             settings: 'Settings'
         },
         docs: 'Documentation',

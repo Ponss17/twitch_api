@@ -426,12 +426,25 @@ export const es = {
     },
     sidebar: {
         categories: {
-            main: 'Principal',
-            config: 'Configuración'
+            general: 'General',
+            commands: 'Comandos',
+            tools: 'Herramientas',
+            minigames: 'Minijuegos',
+            support: 'Soporte'
         },
         items: {
             home: 'Inicio',
             analytics: 'Analíticas',
+            followage: 'Followage',
+            clips: 'Clips',
+            shoutout: 'Shoutout',
+            trends: 'Tendencias',
+            stalker: 'Stalker',
+            roulette: 'Ruleta',
+            magic8: 'Bola 8',
+            russian: 'Ruleta Rusa',
+            duel: 'Duelo',
+            feedback: 'Feedback',
             settings: 'Ajustes'
         },
         docs: 'Documentación',
