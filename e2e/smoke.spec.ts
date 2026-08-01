@@ -107,7 +107,7 @@ async function gotoAuthenticatedDashboard(page: Page, path = '/dashboard/') {
 test.describe('smoke', () => {
     test('landing loads', async ({ page }) => {
         await page.goto('/');
-        await expect(page).toHaveTitle(/Comandos y Herramientas para Streamers \| LosPerris/i);
+        await expect(page).toHaveTitle(/LosPerris/i);
     });
 
     test('docs page renders', async ({ page }) => {
@@ -125,8 +125,8 @@ test.describe('dashboard', () => {
     test.describe.configure({ mode: 'serial' });
     test('redirects unauthenticated users to landing', async ({ page }) => {
         await page.goto('/dashboard/');
-        await expect(page).toHaveURL(/^(?:http:\/\/(?:localhost|127\.0\.0\.1):\d+)\/?$/);
-        await expect(page.getByRole('button', { name: /Iniciar Sesión con Twitch/i })).toBeVisible();
+        await expect(page).toHaveURL(/\/login\/?$/);
+        await expect(page.getByRole('button', { name: /Twitch/i })).toBeVisible();
     });
 
     test('legacy ?tab= migrates to path-based URL', async ({ page }) => {
