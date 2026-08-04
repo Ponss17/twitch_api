@@ -10,16 +10,16 @@ interface AccordionItemProps {
 
 const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, isOpen, onClick }) => {
     return (
-        <div className="border-b border-white/[0.08] last:border-none">
+        <div className="border-b border-border-strong last:border-none">
             <button
                 type="button"
                 className="group relative flex w-full items-center justify-center py-4 text-center outline-none transition-colors hover:text-primary focus-visible:text-primary"
                 onClick={onClick}
                 aria-expanded={isOpen}
             >
-                <span className="text-[0.9375rem] font-medium text-[#fafafa] pr-6 pl-6">{title}</span>
+                <span className="text-[0.9375rem] font-medium text-text-main pr-6 pl-6">{title}</span>
                 <ChevronDown
-                    className={`absolute right-4 w-4 h-4 text-[#c4c4cc] transition-transform duration-300 ease-[cubic-bezier(0.87,_0,_0.13,_1)] ${
+                    className={`absolute right-4 w-4 h-4 text-text-muted transition-transform duration-300 ease-[cubic-bezier(0.87,_0,_0.13,_1)] ${
                         isOpen ? 'rotate-180 text-primary' : ''
                     }`}
                     aria-hidden="true"
@@ -31,7 +31,7 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, children, isOpen, 
                 }`}
             >
                 <div className="overflow-hidden">
-                    <div className="pb-4 text-center text-[0.875rem] leading-relaxed text-[#c4c4cc] px-6">
+                    <div className="pb-4 text-center text-[0.875rem] leading-relaxed text-text-muted px-6">
                         {children}
                     </div>
                 </div>
@@ -62,7 +62,7 @@ export const Accordion: React.FC<AccordionProps> = ({ items, allowMultiple = fal
     };
 
     return (
-        <div className="w-full rounded-xl border border-white/[0.08] bg-bg-secondary px-5">
+        <div className="w-full rounded-xl border border-border-strong bg-bg-secondary px-5">
             {items.map((item) => (
                 <AccordionItem
                     key={item.id}

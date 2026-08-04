@@ -35,8 +35,8 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
     const rankLabel = broadcasterLabel(user.broadcaster_type);
     const rankColor =
         user.broadcaster_type === 'partner' || user.broadcaster_type === 'affiliate'
-            ? '#9146ff'
-            : '#c4c4cc';
+            ? 'var(--primary)'
+            : 'var(--text-muted)';
 
     const loadLogs = () => {
         setLogs(chatLogStore.getByUser(user.login));
@@ -47,19 +47,19 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
         <BaseModal
             open={!!user}
             onClose={onClose}
-            className="relative my-auto max-h-[min(90vh,720px)] w-full max-w-[450px] overflow-y-auto rounded-xl border border-white/[0.08] bg-bg-card shadow-2xl"
+            className="relative my-auto max-h-[min(90vh,720px)] w-full max-w-[450px] overflow-y-auto rounded-xl border border-border-strong bg-bg-card shadow-2xl"
             aria-labelledby="user-inspect-title"
         >
             <button
                 type="button"
                 onClick={onClose}
                 aria-label={mT.close}
-                className="absolute top-[15px] right-[15px] z-10 flex h-8 w-8 items-center justify-center rounded-full border-none bg-white/5 text-[1.2rem] text-white transition hover:rotate-90 hover:bg-error"
+                className="absolute top-[15px] right-[15px] z-10 flex h-8 w-8 items-center justify-center rounded-full border-none bg-bg-secondary text-[1.2rem] text-text-main transition hover:rotate-90 hover:bg-error hover:text-white"
             >
                 <X className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-5 border-b border-white/[0.08] bg-white/[0.02] p-6 max-md:flex-col max-md:text-center">
+            <div className="flex items-center gap-5 border-b border-border-strong bg-text-main/5 p-6 max-md:flex-col max-md:text-center">
                 <img
                     src={user.profile_image_url ?? staticPath('/img/logo.svg')}
                     alt={user.display_name}
@@ -69,7 +69,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                 <div className="flex flex-col gap-1">
                     <h2
                         id="user-inspect-title"
-                        className="m-0 text-[1.4rem] leading-tight font-bold text-[#fafafa]"
+                        className="m-0 text-[1.4rem] leading-tight font-bold text-text-main"
                     >
                         {user.display_name}
                     </h2>
@@ -78,19 +78,19 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
             </div>
 
             <div className="p-6">
-                <div className="mb-5 grid grid-cols-2 gap-4 rounded-xl border border-white/[0.08] bg-bg-card p-4 max-md:grid-cols-1">
+                <div className="mb-5 grid grid-cols-2 gap-4 rounded-xl border border-border-strong bg-bg-card p-4 max-md:grid-cols-1">
                     <div className="flex flex-col gap-1 text-left">
-                        <span className="text-[0.65rem] tracking-wide text-[#71717a] uppercase">{mT.rank}</span>
+                        <span className="text-[0.65rem] tracking-wide text-text-muted uppercase">{mT.rank}</span>
                         <span className="font-[Consolas,monospace] text-[0.85rem] font-medium" style={{ color: rankColor }}>
                             {rankLabel}
                         </span>
                     </div>
                     <div className="flex flex-col gap-1 text-left">
-                        <span className="text-[0.65rem] tracking-wide text-[#71717a] uppercase">{mT.userId}</span>
+                        <span className="text-[0.65rem] tracking-wide text-text-muted uppercase">{mT.userId}</span>
                         <button
                             type="button"
                             onClick={() => void copyUserId()}
-                            className="flex items-center justify-start gap-1.5 font-[Consolas,monospace] text-[0.85rem] font-medium text-[#c4c4cc] transition hover:text-[#fafafa]"
+                            className="flex items-center justify-start gap-1.5 font-[Consolas,monospace] text-[0.85rem] font-medium text-text-muted transition hover:text-text-main"
                             title={mT.copyId}
                         >
                             {user.id}
@@ -99,24 +99,24 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                         </button>
                     </div>
                     <div className="flex flex-col gap-1 text-left">
-                        <span className="text-[0.65rem] tracking-wide text-[#71717a] uppercase">{mT.accountAge}</span>
-                        <span className="font-[Consolas,monospace] text-[0.85rem] font-medium text-[#c4c4cc]">
+                        <span className="text-[0.65rem] tracking-wide text-text-muted uppercase">{mT.accountAge}</span>
+                        <span className="font-[Consolas,monospace] text-[0.85rem] font-medium text-text-muted">
                             {calculateAccountAge(user.created_at)}
                         </span>
                     </div>
                 </div>
 
                 {!showHistory ? (
-                    <p className="mx-auto my-2.5 px-2.5 text-center text-[0.95rem] leading-relaxed text-[#c4c4cc]">
+                    <p className="mx-auto my-2.5 px-2.5 text-center text-[0.95rem] leading-relaxed text-text-muted">
                         {user.description || mT.noBio}
                     </p>
                 ) : (
-                    <div className="mt-5 border-t border-white/[0.08] pt-4">
-                        <h4 className="mb-2.5 text-[0.95rem] font-semibold text-[#fafafa]">
+                    <div className="mt-5 border-t border-border-strong pt-4">
+                        <h4 className="mb-2.5 text-[0.95rem] font-semibold text-text-main">
                             {mT.chatHistory}
                         </h4>
                         {logs.length === 0 ? (
-                            <p className="py-5 text-center text-[0.85rem] text-[#71717a] italic">
+                            <p className="py-5 text-center text-[0.85rem] text-text-muted italic">
                                 {mT.noMessages}
                             </p>
                         ) : (
@@ -124,12 +124,12 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                                 {logs.map((l, i) => (
                                     <div
                                         key={`${l.time.getTime()}-${i}`}
-                                        className="flex gap-2.5 rounded bg-white/[0.03] p-1.5 text-[0.85rem]"
+                                        className="flex gap-2.5 rounded bg-bg-secondary p-1.5 text-[0.85rem]"
                                     >
-                                        <span className="shrink-0 font-[Consolas,monospace] text-[0.8rem] whitespace-nowrap text-[#71717a]">
+                                        <span className="shrink-0 font-[Consolas,monospace] text-[0.8rem] whitespace-nowrap text-text-muted">
                                             [{l.time.toLocaleTimeString()}]
                                         </span>
-                                        <span className="break-words text-[#c4c4cc]">{l.text}</span>
+                                        <span className="break-words text-text-muted">{l.text}</span>
                                     </div>
                                 ))}
                             </div>
@@ -137,15 +137,15 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                     </div>
                 )}
 
-                <div className="mt-4 rounded-b-[20px] border-t border-white/[0.08] bg-black/20 pt-5">
-                    <p className="mb-4 text-center text-[0.85rem] text-[#71717a]">
+                <div className="mt-4 rounded-b-[20px] border-t border-border-strong bg-bg-secondary pt-5">
+                    <p className="mb-4 text-center text-[0.85rem] text-text-muted">
                         {mT.accountCreated(formatDate(user.created_at ?? ''))}
                     </p>
                     {showLogs && !showHistory && (
                         <button
                             type="button"
                             onClick={loadLogs}
-                            className="w-full rounded-lg border border-white/15 bg-white/10 px-4 py-2 text-[0.8125rem] font-semibold text-[#fafafa] transition hover:border-white/30 hover:bg-white/15"
+                            className="w-full rounded-lg border border-border-strong bg-bg-secondary px-4 py-2 text-[0.8125rem] font-semibold text-text-main transition hover:border-border-strong hover:bg-bg-hover-neutral"
                         >
                             {mT.viewHistory}
                         </button>

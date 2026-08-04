@@ -3,6 +3,7 @@ import { AlertTriangle, Trash2, RotateCcw, type LucideIcon } from 'lucide-react'
 import { SettingsGroup } from '@/features/dashboard/settings/SettingsGroup';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { btnDanger } from '@/core/utils/tw';
 
 interface SettingsDangerZoneProps {
     onClearData: () => void;
@@ -29,8 +30,8 @@ function DangerAction({
                     <Icon className="h-4 w-4" aria-hidden="true" />
                 </div>
                 <div className="min-w-0 pt-0.5">
-                    <h3 className="text-[0.9rem] font-semibold text-[#fafafa]">{title}</h3>
-                    <p className="mt-0.5 max-w-xl text-[0.8rem] leading-relaxed text-[#8b8b93]">
+                    <h3 className="text-[0.9rem] font-semibold text-text-main">{title}</h3>
+                    <p className="mt-0.5 max-w-xl text-[0.8rem] leading-relaxed text-text-muted">
                         {description}
                     </p>
                 </div>
@@ -55,7 +56,7 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
             accent="error"
             delay={120}
         >
-                <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-bg-card">
+                <div className="overflow-hidden rounded-xl border border-border-subtle bg-bg-card">
                     <DangerAction
                         icon={RotateCcw}
                         title={pT.resetStats}
@@ -64,7 +65,7 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
                             <button
                                 type="button"
                                 onClick={onClearData}
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-error px-5 py-2 text-sm font-semibold text-white transition hover:bg-error-hover sm:w-auto"
+                                className={`${btnDanger} w-full sm:w-auto px-5 py-2 !shadow-none`}
                             >
                                 <RotateCcw className="h-4 w-4" aria-hidden="true" />
                                 {pT.resetStats}
@@ -72,7 +73,7 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
                         }
                     />
 
-                    <div className="mx-4 border-t border-white/[0.06]" role="separator" />
+                    <div className="mx-4 border-t border-border-subtle" role="separator" />
 
                     <DangerAction
                         icon={AlertTriangle}
@@ -82,7 +83,7 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
                             <button
                                 type="button"
                                 onClick={onDeleteAccount}
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-error px-5 py-2 text-sm font-semibold text-white transition hover:bg-error-hover sm:w-auto"
+                                className={`${btnDanger} w-full sm:w-auto px-5 py-2 !shadow-none`}
                             >
                                 <Trash2 className="h-4 w-4" aria-hidden="true" />
                                 {pT.deleteAccount}

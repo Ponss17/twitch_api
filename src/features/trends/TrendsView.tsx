@@ -58,7 +58,7 @@ export function TrendsView({ active = true }: { active?: boolean }) {
             {trends.status.connected}
         </span>
     ) : !tracking ? (
-        <span className="inline-flex items-center gap-1.5 text-[#a1a1aa]">
+        <span className="inline-flex items-center gap-1.5 text-text-muted">
             <InlineIcon icon={Power} />
             {trends.status.idle}
         </span>
@@ -76,16 +76,16 @@ export function TrendsView({ active = true }: { active?: boolean }) {
 
     return (
         <div className={`${panelCard} ${fadeIn} mb-3 flex flex-col`}>
-            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5 max-md:flex-col max-md:items-start">
+            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5 max-md:flex-col max-md:items-start">
                 <div className="flex min-w-0 items-center gap-3">
                     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}>
                         <BarChart2 className="h-4 w-4" aria-hidden />
                     </div>
                     <div className="min-w-0">
-                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
+                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">
                             {trends.title(displayName)}
                         </h2>
-                        <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
+                        <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">
                             {trends.info}
                         </p>
                     </div>
@@ -95,14 +95,14 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                     <div className="flex flex-wrap items-center gap-[15px] max-md:w-full max-md:flex-col max-md:items-stretch">
                         {!tracking && (
                             <div className="flex items-center gap-2.5 max-md:w-full max-md:flex-col max-md:items-stretch">
-                                <div className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-bg-main px-2 py-1 max-md:w-full max-md:justify-between">
-                                    <span className="px-1 text-[0.8125rem] font-medium text-[#c4c4cc]">{trends.duration}</span>
+                                <div className="flex items-center gap-1 rounded-lg border border-border-strong bg-bg-main px-2 py-1 max-md:w-full max-md:justify-between">
+                                    <span className="px-1 text-[0.8125rem] font-medium text-text-muted">{trends.duration}</span>
                                     <button
                                         type="button"
                                         onClick={() => adjustMinutes(-1)}
                                         disabled={minutes <= 1}
                                         aria-label={trends.btnDecrease}
-                                        className={`flex h-7 w-7 items-center justify-center rounded-md text-[#c4c4cc] disabled:cursor-not-allowed disabled:opacity-30 ${hoverSubtleIconBtn}`}
+                                        className={`flex h-7 w-7 items-center justify-center rounded-md text-text-muted disabled:cursor-not-allowed disabled:opacity-30 ${hoverSubtleIconBtn}`}
                                     >
                                         <Minus className="text-xs" />
                                     </button>
@@ -114,16 +114,16 @@ export function TrendsView({ active = true }: { active?: boolean }) {
                                             value={minutes}
                                             onChange={(e) => applyMinutesInput(e.target.value)}
                                             aria-label={trends.inputLabel}
-                                            className="w-10 border-none bg-transparent text-center text-[0.8125rem] font-semibold text-[#fafafa] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                            className="w-10 border-none bg-transparent text-center text-[0.8125rem] font-semibold text-text-main outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                                         />
-                                        <span className="text-[0.8125rem] text-[#a1a1aa]">{trends.min}</span>
+                                        <span className="text-[0.8125rem] text-text-muted">{trends.min}</span>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={() => adjustMinutes(1)}
                                         disabled={minutes >= 60}
                                         aria-label={trends.btnIncrease}
-                                        className={`flex h-7 w-7 items-center justify-center rounded-md text-[#c4c4cc] disabled:cursor-not-allowed disabled:opacity-30 ${hoverSubtleIconBtn}`}
+                                        className={`flex h-7 w-7 items-center justify-center rounded-md text-text-muted disabled:cursor-not-allowed disabled:opacity-30 ${hoverSubtleIconBtn}`}
                                     >
                                         <Plus className="text-xs" />
                                     </button>

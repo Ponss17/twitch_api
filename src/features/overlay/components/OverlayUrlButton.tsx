@@ -17,7 +17,7 @@ export function OverlayUrlButton({ tool }: { tool: OverlayTool }) {
                 onClick={() => setOpen(true)}
                 title={bT.title}
                 aria-label={bT.aria}
-                className={`inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-[0.75rem] font-semibold text-[#c4c4cc] ${hoverSubtleBorderedRow}`}
+                className={`inline-flex items-center gap-1.5 rounded-lg border border-border-subtle bg-text-main/5 px-2.5 py-1.5 text-[0.75rem] font-semibold text-text-muted ${hoverSubtleBorderedRow}`}
             >
                 <Layers className="size-3.5 shrink-0" aria-hidden />
                 {bT.label}

@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
     btnCopy,
     btnPrimary,
-    hoverNeutralControl,
     panelCard,
     codeBox,
     codeTextarea,
@@ -42,7 +41,7 @@ function CommandCardHeader({
     info: string;
 }) {
     return (
-        <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5">
+        <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
             <div className="flex min-w-0 items-center gap-3">
                 <div
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}
@@ -50,8 +49,8 @@ function CommandCardHeader({
                     <Icon className="h-4 w-4" aria-hidden />
                 </div>
                 <div className="min-w-0">
-                    <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">{title}</h2>
-                    <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">{description}</p>
+                    <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">{title}</h2>
+                    <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">{description}</p>
                 </div>
             </div>
             <div className="shrink-0">
@@ -67,14 +66,14 @@ function TemplateVarsHelp({ vars }: { vars: string }) {
     const parts = text.split(',').map((v) => v.trim());
     return (
         <small className="mt-0.5 block text-[0.6875rem] leading-snug text-[#52525b]">
-            <strong className="text-[#fafafa]">{t.commands.generator.variables}</strong>{' '}
+            <strong className="text-text-main">{t.commands.generator.variables}</strong>{' '}
             {parts.map((part, i) => {
                 const match = part.match(/\{(\w+)\}/);
                 const badge = match ? `{${match[1]}}` : part;
                 return (
                     <span key={part}>
                         {i > 0 ? ', ' : ''}
-                        <code className="mx-0.5 rounded border border-primary/30 bg-primary/15 px-1 py-px text-[0.8125rem] text-[#c4b5fd]">
+                        <code className="mx-0.5 rounded border border-primary/30 bg-primary/15 px-1 py-px text-[0.8125rem] text-primary">
                             {badge}
                         </code>
                     </span>
@@ -206,7 +205,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                 info={info}
             />
 
-            <div className="p-5 text-[#fafafa]">
+            <div className="p-5 text-text-main">
                 <SelectFieldRow
                     label={cmdT.botSelect}
                     icon={Bot}
@@ -254,7 +253,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                             value={template}
                             onChange={(e) => updateConfig({ template: e.target.value })}
                             placeholder={templatePlaceholder}
-                            className={`${textInput} ${hoverNeutralControl} focus:border-primary focus:bg-primary/[0.02]`}
+                            className={textInput}
                         />
                         {templateVars && <TemplateVarsHelp vars={templateVars} />}
                     </div>
@@ -314,7 +313,7 @@ export function ApiTestCard({
 
     return (
         <div className={`${panelCard} ${fadeIn} mb-5 flex flex-col [animation-delay:60ms]`}>
-            <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5">
+            <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
                 <div className="flex min-w-0 items-center gap-3">
                     <div
                         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}
@@ -322,8 +321,8 @@ export function ApiTestCard({
                         <FlaskConical className="h-4 w-4" aria-hidden />
                     </div>
                     <div className="min-w-0">
-                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">{title}</h2>
-                        <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">{description}</p>
+                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">{title}</h2>
+                        <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">{description}</p>
                     </div>
                 </div>
                 {infoTooltip ? (
@@ -333,7 +332,7 @@ export function ApiTestCard({
                 ) : null}
             </header>
 
-            <div className="p-5 text-[#fafafa]">
+            <div className="p-5 text-text-main">
                 <div className={formGrid}>{children}</div>
 
                 <button
@@ -373,7 +372,7 @@ export function ApiTestCard({
                                 ? 'text-[#ecfdf5]'
                                 : result.status === 'error'
                                   ? 'text-[#fecaca]'
-                                  : 'text-[#fafafa]'
+                                  : 'text-text-main'
                         }`}
                     >
                         {result.message}
@@ -403,7 +402,7 @@ export function FormField({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className={`${textInput} ${hoverNeutralControl} focus:border-primary focus:bg-primary/[0.02]`}
+                className={textInput}
             />
         </div>
     );

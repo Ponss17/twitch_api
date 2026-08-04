@@ -23,7 +23,7 @@ function OverlayTrendsContent({ session }: { session: Session }) {
     }
 
     return (
-        <div className="min-h-screen overflow-hidden p-1 text-[#fafafa]">
+        <div className="min-h-screen overflow-hidden p-1 text-text-main">
             <OverlayConnectionBanners connected={connected} stale={stale} />
             <TrendsLeaderboardDisplay
                 ranked={ranked}

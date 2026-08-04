@@ -52,7 +52,7 @@ export function InlineIcon({ icon, className = '' }: IconProps) {
 export function EmptyStateIcon({ icon: Icon, className = '' }: IconProps) {
     return (
         <div
-            className={`mx-auto mb-3 flex size-14 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-[#c4c4cc] ${className}`.trim()}
+            className={`mx-auto mb-3 flex size-14 items-center justify-center rounded-full border border-border-subtle bg-text-main/5 text-text-muted ${className}`.trim()}
         >
             <Icon className="size-7" strokeWidth={2} aria-hidden />
         </div>

@@ -44,15 +44,15 @@ export function SelectField({ id, options, value, onChange, className = '' }: Se
                 type="button"
                 id={id}
                 onClick={() => setIsOpen(!isOpen)}
-                className={`flex w-full cursor-pointer appearance-none items-center justify-between rounded-lg border border-white/[0.08] bg-bg-secondary py-[7px] pl-3 pr-2.5 text-[0.8125rem] leading-tight text-[#fafafa] outline-none ${hoverNeutralControl} ${isOpen ? 'border-primary/20 bg-primary/[0.02]' : ''} focus:border-primary focus:bg-primary/[0.02]`}
+                className={`flex w-full cursor-pointer appearance-none items-center justify-between rounded-lg border border-border-strong bg-bg-secondary py-[7px] pl-3 pr-2.5 text-[0.8125rem] leading-tight text-text-main outline-none ${hoverNeutralControl} ${isOpen ? 'border-primary/20 bg-primary/[0.02]' : ''} focus:border-primary focus:bg-primary/[0.02]`}
             >
                 <span className="truncate">{selectedOption?.label}</span>
-                <ChevronDown className={`ml-2 h-4 w-4 shrink-0 text-white/50 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`ml-2 h-4 w-4 shrink-0 text-text-muted transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (
-                <div className="absolute top-full z-[3000] mt-1.5 w-full rounded-xl border border-white/[0.08] bg-[#0f0f11] p-1 shadow-xl animate-fade-soft">
-                    <ul className="flex max-h-60 flex-col gap-0.5 overflow-auto [scrollbar-color:rgba(255,255,255,0.08)_transparent] [scrollbar-width:thin]">
+                <div className="absolute top-full z-[3000] mt-1.5 w-full rounded-xl border border-border-strong bg-bg-modal p-1 shadow-xl animate-fade-soft">
+                    <ul className="flex max-h-60 flex-col gap-0.5 overflow-auto [scrollbar-color:var(--border-strong)_transparent] [scrollbar-width:thin]">
                         {options.map((opt) => (
                             <li key={opt.value}>
                                 <button
@@ -61,7 +61,7 @@ export function SelectField({ id, options, value, onChange, className = '' }: Se
                                     className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[0.8125rem] ${
                                         opt.value === value 
                                             ? 'bg-primary/10 font-medium text-primary' 
-                                            : `text-[#c4c4cc] ${hoverNeutralChip} hover:text-[#d4d4d8]`
+                                            : `text-text-muted ${hoverNeutralChip} hover:text-text-main`
                                     }`}
                                 >
                                     <span className="truncate">{opt.label}</span>

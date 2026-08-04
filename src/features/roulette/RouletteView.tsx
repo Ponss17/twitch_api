@@ -62,16 +62,16 @@ export function RouletteView({ active = true }: { active?: boolean }) {
 
     return (
         <div className={`${panelCard} ${fadeIn} mb-3 flex flex-col`}>
-            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5 max-md:flex-col max-md:items-start">
+            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5 max-md:flex-col max-md:items-start">
                 <div className="flex min-w-0 items-center gap-3">
                     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}>
                         <Dices className="h-4 w-4" aria-hidden />
                     </div>
                     <div className="min-w-0">
-                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
+                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">
                             {rlT.title}
                         </h2>
-                        <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
+                        <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">
                             {rlT.desc}
                         </p>
                     </div>
@@ -102,7 +102,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[0.75rem] font-semibold disabled:opacity-50 ${
                             announceWinnerInChat
                                 ? 'border-primary/35 bg-primary/10 text-primary'
-                                : `border-white/10 bg-white/[0.03] text-zinc-400 ${hoverSubtleChip}`
+                                : `border-border-subtle bg-bg-secondary text-text-muted ${hoverSubtleChip}`
                         }`}
                     >
                         <MessageSquare className="size-3.5 shrink-0" aria-hidden />
@@ -110,7 +110,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     </button>
 
                     <span
-                        className={`inline-block rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-[0.6875rem] font-bold tracking-wide text-[#a78bfa] transition ${
+                        className={`inline-block rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-[0.6875rem] font-bold tracking-wide text-primary/80 transition ${
                             countPulse ? 'scale-110 text-[#3b82f6]' : ''
                         }`}
                     >
@@ -137,7 +137,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         }}
                         title={rlT.reloadUsers}
                         aria-label={rlT.reloadUsers}
-                        className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#c4c4cc] ${hoverSubtleIconBtn}`}
+                        className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-text-muted ${hoverSubtleIconBtn}`}
                     >
                         <RotateCw className="h-4 w-4" />
                     </button>
@@ -180,24 +180,24 @@ export function RouletteView({ active = true }: { active?: boolean }) {
 
             {(isOpen || chatters.length > 0) && (
                 <div className="mt-4 text-left">
-                    <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-wide text-[#71717a]">
+                    <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-wide text-text-muted">
                         {rlT.participants} ({chatters.length})
                     </p>
                     <ul
                         ref={listRef}
-                        className="max-h-[200px] overflow-y-auto overflow-x-hidden rounded-lg border border-white/[0.08] bg-white/[0.02] p-1"
+                        className="max-h-[200px] overflow-y-auto overflow-x-hidden rounded-lg border border-border-strong bg-bg-secondary p-1"
                     >
                         {chatters.length === 0 ? (
-                            <li className="px-3 py-4 text-center text-[0.75rem] text-[#52525b]">
+                            <li className="px-3 py-4 text-center text-[0.75rem] text-text-muted">
                                 {rlT.waitingChat}
                             </li>
                         ) : (
                             chatters.map((u) => (
                                 <li
                                     key={u.user_login}
-                                    className="flex items-center gap-2 border-b border-white/[0.04] px-3 py-2 text-[0.8rem] last:border-0"
+                                    className="flex items-center gap-2 border-b border-border-subtle px-3 py-2 text-[0.8rem] last:border-0"
                                 >
-                                    <span className="truncate font-semibold text-[#fafafa]">
+                                    <span className="truncate font-semibold text-text-main">
                                         {u.user_name}
                                     </span>
                                     <span className="ml-auto flex shrink-0 gap-1">

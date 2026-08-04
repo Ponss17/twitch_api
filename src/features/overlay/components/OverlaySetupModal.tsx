@@ -92,11 +92,11 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
             description={mT.description}
             footer={
                 <div className="flex w-full flex-col gap-3 pt-2">
-                    <p className="flex items-start gap-2 text-[0.7rem] leading-relaxed text-zinc-500">
+                    <p className="flex items-start gap-2 text-[0.7rem] leading-relaxed text-text-muted">
                         <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-yellow-500/70" />
                         <span>
                             {mT.warning}{' '}
-                            <strong className="text-zinc-300">{mT.warningBold}</strong>
+                            <strong className="text-text-main">{mT.warningBold}</strong>
                         </span>
                     </p>
                     <button
@@ -133,7 +133,7 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
             <div className="flex flex-col gap-6 pt-1 pb-1">
                 {/* Clean Platform Switcher */}
                 <div
-                    className="flex w-full items-center gap-1 rounded-xl border border-white/[0.04] bg-[#09090b] p-1"
+                    className="flex w-full items-center gap-1 rounded-xl border border-border-subtle bg-bg-secondary p-1"
                     role="tablist"
                     aria-label={t.common.aria.streamingPlatform}
                 >
@@ -148,8 +148,8 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                                 onClick={() => setPlatform(id)}
                                 className={`flex-1 inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-[0.75rem] font-medium transition-all ${
                                     selected
-                                        ? 'bg-white/[0.03] text-white shadow-sm border border-white/[0.04]'
-                                        : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.01] border border-transparent'
+                                        ? 'bg-text-main/5 text-text-main shadow-sm border border-border-subtle'
+                                        : 'text-text-muted hover:text-text-main hover:bg-text-main/5 border border-transparent'
                                 }`}
                             >
                                 <Icon className={`size-3.5 shrink-0 ${selected ? 'text-primary' : ''}`} aria-hidden />
@@ -160,30 +160,30 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                 </div>
 
                 {/* Flat List Card for Steps */}
-                <div role="tabpanel" className="rounded-xl border border-white/[0.06] bg-white/[0.01] px-5 py-5">
-                    <h4 className="mb-4 text-[0.7rem] font-bold tracking-widest text-zinc-500 uppercase">
+                <div role="tabpanel" className="rounded-xl border border-border-subtle bg-text-main/5 px-5 py-5">
+                    <h4 className="mb-4 text-[0.7rem] font-bold tracking-widest text-text-muted uppercase">
                         {guide.title}
                     </h4>
                     <ol className="flex flex-col gap-4">
                         {guide.steps.map((step, index) => (
                             <li key={step.title} className="flex gap-4 text-[0.75rem] leading-relaxed">
                                 <div
-                                    className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.02] text-[0.65rem] font-bold text-zinc-400"
+                                    className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-lg border border-border-subtle bg-text-main/5 text-[0.65rem] font-bold text-text-muted"
                                     aria-hidden
                                 >
                                     {index + 1}
                                 </div>
                                 <div>
-                                    <strong className="block pb-0.5 font-semibold text-[#e4e4e7]">{step.title}</strong>
-                                    <span className="text-zinc-500">{step.detail}</span>
+                                    <strong className="block pb-0.5 font-semibold text-text-main">{step.title}</strong>
+                                    <span className="text-text-muted">{step.detail}</span>
                                 </div>
                             </li>
                         ))}
                     </ol>
 
-                    <div className="mt-5 flex items-start gap-2.5 rounded-lg border border-white/[0.02] bg-[#09090b] p-3">
+                    <div className="mt-5 flex items-start gap-2.5 rounded-lg border border-border-subtle bg-bg-secondary p-3">
                         <Info className="mt-0.5 size-4 shrink-0 text-primary/70" />
-                        <p className="text-[0.7rem] leading-relaxed text-zinc-500">{guide.note}</p>
+                        <p className="text-[0.7rem] leading-relaxed text-text-muted">{guide.note}</p>
                     </div>
                 </div>
             </div>

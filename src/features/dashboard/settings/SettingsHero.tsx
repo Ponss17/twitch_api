@@ -30,7 +30,7 @@ function ProfileStat({
                 <Icon className="h-5 w-5" aria-hidden />
             </div>
             <div className="flex min-w-0 flex-col gap-1">
-                <span className="text-[0.7rem] font-semibold uppercase tracking-wider text-[#8b8b93]">
+                <span className="text-[0.7rem] font-semibold uppercase tracking-wider text-text-muted">
                     {label}
                 </span>
                 {children}
@@ -60,27 +60,28 @@ export function SettingsHero({
 
                     <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2.5">
-                            <h1 className="flex items-center gap-2.5 text-[1.7rem] font-bold leading-tight tracking-tight text-white md:text-[1.85rem]">
-                                <TwitchIcon variant="brand" className="h-7 w-7 shrink-0 md:h-8 md:w-8" />
-                                <span>{sT.hello} <span className="text-[#9146ff]">{name}</span></span>
+                            <h1 className="flex items-center gap-2.5 text-[1.7rem] font-bold leading-tight tracking-tight text-text-main md:text-[1.85rem]">
+                                <TwitchIcon variant="brand" className="block liga:hidden h-7 w-7 shrink-0 md:h-8 md:w-8" />
+                                <img src="/img/liga_full.svg" alt="Liga Logo" className="hidden liga:block h-7 w-7 shrink-0 md:h-8 md:w-8" />
+                                <span>{sT.hello} <span className="text-primary">{name}</span></span>
                             </h1>
                         </div>
-                        <p className="mt-1 text-[0.875rem] text-[#8b8b93]">
+                        <p className="mt-1 text-[0.875rem] text-text-muted">
                             {sT.welcome}
                         </p>
                     </div>
                 </div>
 
-                <div className="flex w-full flex-wrap gap-y-4 rounded-xl bg-black/20 shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-4 border border-white/[0.03] xl:w-auto xl:min-w-[29rem] xl:justify-end">
+                <div className="flex w-full flex-wrap gap-y-4 rounded-xl bg-bg-secondary [box-shadow:var(--shadow-card,0_8px_30px_rgba(0,0,0,0.5))] p-4 border border-border-subtle xl:w-auto xl:min-w-[29rem] xl:justify-end">
                     <div className="pr-6">
                         <ProfileStat
                             icon={Heart}
-                            iconClass="text-[#9146ff]"
+                            iconClass="text-primary"
                             label={sT.followers}
                         >
                             {followers === undefined && !isLoading ? (
                                 <span
-                                    className="text-[1.4rem] font-bold leading-none tracking-tight text-white"
+                                    className="text-[1.4rem] font-bold leading-none tracking-tight text-text-main"
                                     title={sT.notAvailable}
                                 >
                                     —
@@ -89,29 +90,29 @@ export function SettingsHero({
                                 <AnimatedNumber
                                     value={followers ?? 0}
                                     isLoading={isLoading}
-                                    className="text-[1.4rem] font-bold leading-none tracking-tight text-white"
+                                    className="text-[1.4rem] font-bold leading-none tracking-tight text-text-main"
                                 />
                             )}
                         </ProfileStat>
                     </div>
-                    <div className="border-l border-white/[0.06] px-6">
+                    <div className="border-l border-border-subtle px-6">
                         <ProfileStat
                             icon={Video}
-                            iconClass="text-[#9146ff]"
+                            iconClass="text-primary"
                             label={sT.channelType}
                         >
-                            <span className="text-[1.4rem] font-bold leading-none tracking-tight text-white">
+                            <span className="text-[1.4rem] font-bold leading-none tracking-tight text-text-main">
                                 {broadcasterLabel}
                             </span>
                         </ProfileStat>
                     </div>
-                    <div className="border-l border-white/[0.06] pl-6">
+                    <div className="border-l border-border-subtle pl-6">
                         <ProfileStat
                             icon={Calendar}
-                            iconClass="text-[#9146ff]"
+                            iconClass="text-primary"
                             label={sT.memberSince}
                         >
-                            <span className="text-[1.4rem] font-bold leading-none tracking-tight text-white">
+                            <span className="text-[1.4rem] font-bold leading-none tracking-tight text-text-main">
                                 {memberSince}
                             </span>
                         </ProfileStat>

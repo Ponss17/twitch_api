@@ -480,7 +480,7 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
                 <KeyRound className="h-5 w-5 text-warning" />
                 <div className="text-center sm:text-left">
                     <h3 className="text-lg font-bold text-white">{rT.title}</h3>
-                    <p className="mt-1 text-[0.9rem] text-zinc-400">
+                    <p className="mt-1 text-[0.9rem] text-text-muted">
                         {rT.prefixWarning} <strong>{rT.warning}</strong>.
                     </p>
                 </div>
@@ -553,7 +553,7 @@ export function PostRegenKeyModal({ open, apiKey, onClose }: PostRegenKeyModalPr
                     {pT.point2}
                 </li>
             </ul>
-            <code className="mt-1 block break-all rounded-lg border border-white/10 bg-black/40 px-3 py-2.5 font-mono text-sm text-[#c4b5fd]">
+            <code className="mt-1 block break-all rounded-lg border border-border-subtle bg-black/40 px-3 py-2.5 font-mono text-sm text-[#c4b5fd]">
                 {apiKey}
             </code>
             <p className="text-sm opacity-80">{pT.disclaimer}</p>

@@ -25,9 +25,9 @@ interface Custom{
 const CustomTooltip = ({ active, payload, label, t }: Custom) => {
     if (active && payload && payload.length) {
         return (
-            <div className="pointer-events-none rounded-xl border border-white/10 bg-[#18181b] p-3 shadow-xl">
-                <p className="mb-1 text-xs font-semibold text-zinc-400">{label}</p>
-                <span className="text-sm font-medium text-white">{t.analytics.areaChart.requests} : {payload[0].value}</span>
+            <div className="pointer-events-none rounded-xl border border-border-subtle bg-bg-modal p-3 shadow-xl">
+                <p className="mb-1 text-xs font-semibold text-text-muted">{label}</p>
+                <span className="text-sm font-medium text-text-main">{t.analytics.areaChart.requests} : {payload[0].value}</span>
             </div>
         );
     }
@@ -46,12 +46,12 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
             info={chart.info}
         >
             {!areaData.some(d => d.requests > 0) ? (
-                <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
-                        <Activity className="h-6 w-6 text-zinc-400" />
+                <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border-subtle bg-transparent">
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-text-main/5">
+                        <Activity className="h-6 w-6 text-text-muted" />
                     </div>
-                    <span className="text-sm font-medium text-zinc-400">{chart.noData}</span>
-                    <span className="mt-1 text-xs text-zinc-400">
+                    <span className="text-sm font-medium text-text-muted">{chart.noData}</span>
+                    <span className="mt-1 text-xs text-text-muted">
                         {chart.noDataSub}
                     </span>
                 </div>
@@ -69,14 +69,14 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                     >
                         <CartesianGrid
                             strokeDasharray="3 3"
-                            stroke="#ffffff"
-                            strokeOpacity={0.06}
+                            stroke="var(--text-main)"
+                            strokeOpacity={0.1}
                             vertical={true}
                             horizontal={true}
                         />
                         <XAxis
                             dataKey="date"
-                            stroke="#71717a"
+                            stroke="var(--text-muted)"
                             fontSize={12}
                             tickLine={false}
                             axisLine={false}
@@ -87,7 +87,7 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             }}
                         />
                         <YAxis
-                            stroke="#71717a"
+                            stroke="var(--text-muted)"
                             fontSize={12}
                             tickLine={false}
                             axisLine={false}
@@ -105,11 +105,11 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             type="monotone"
                             dataKey="requests"
                             name={chart.requests}
-                            stroke="#9146ff"
+                            stroke="var(--primary)"
                             strokeWidth={3}
-                            activeDot={{ r: 6, strokeWidth: 2, stroke: '#18181b', fill: '#9146ff' }}
+                            activeDot={{ r: 6, strokeWidth: 2, stroke: '#18181b', fill: 'var(--primary)' }}
                             fillOpacity={0.15}
-                            fill="#9146ff"
+                            fill="var(--primary)"
                         />
                     </AreaChart>
                 </ResponsiveContainer>

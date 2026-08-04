@@ -42,7 +42,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     private renderHint(): ReactNode {
         if (import.meta.env.DEV) {
             return (
-                <p className="mb-4 text-sm text-[#c4c4cc]">
+                <p className="mb-4 text-sm text-text-muted">
                     Si estás en desarrollo local, prueba reiniciar el servidor, borrar caché del navegador o
                     usar ventana de incógnito sin extensiones.
                 </p>
@@ -50,7 +50,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         }
 
         return (
-            <p className="mb-4 text-sm text-[#c4c4cc]">
+            <p className="mb-4 text-sm text-text-muted">
                 Inténtalo de nuevo. Si el problema continúa, recarga la página o contacta soporte en Discord.
             </p>
         );
@@ -61,16 +61,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             if (this.props.fallback) return this.props.fallback;
 
             return (
-                <div className="rounded-xl border border-error/30 bg-[#0f0f11] p-6 text-center">
+                <div className="rounded-xl border border-error/30 bg-bg-secondary p-6 text-center">
                     <AlertTriangle className="mb-3 text-2xl text-error" />
-                    <h3 className="mb-2 text-lg font-semibold text-[#fafafa]">
+                    <h3 className="mb-2 text-lg font-semibold text-text-main">
                         {this.props.title ?? 'No se pudo cargar esta sección'}
                     </h3>
                     {this.renderHint()}
                     <button
                         type="button"
                         onClick={() => this.setState({ error: null })}
-                        className="rounded-lg bg-[#9146ff] px-4 py-2 text-sm font-semibold text-white hover:bg-[#7c3aed]"
+                        className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover"
                     >
                         Reintentar
                     </button>

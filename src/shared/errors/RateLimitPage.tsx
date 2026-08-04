@@ -56,8 +56,8 @@ export function RateLimitPage() {
             }
         >
             {hasActiveCooldown ? (
-                <div className="my-8 flex items-center justify-center gap-4 rounded-2xl border border-white/5 bg-white/[0.03] p-5">
-                    <Clock className="text-2xl text-[#9146ff]" />
+                <div className="my-8 flex items-center justify-center gap-4 rounded-2xl border border-border-subtle bg-text-main/5 p-5">
+                    <Clock className="text-2xl text-primary" />
                     <span className="font-mono text-4xl font-bold tabular-nums">{timeLeft}</span>
                 </div>
             ) : null}
@@ -68,7 +68,7 @@ export function RateLimitPage() {
                     clearRateLimitCooldown();
                     window.location.href = window.location.origin;
                 }}
-                className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-[#9146ff] px-8 py-4 text-lg font-bold text-white disabled:cursor-not-allowed disabled:border disabled:border-white/5 disabled:bg-[#27272a] disabled:text-[#71717a] disabled:shadow-none"
+                className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 text-lg font-bold text-white disabled:cursor-not-allowed disabled:border disabled:border-border-subtle disabled:bg-bg-secondary disabled:text-text-muted disabled:shadow-none"
             >
                 {ready ? <RotateCw /> : <Lock />}
                 {ready ? 'Volver al inicio' : 'Bloqueado'}

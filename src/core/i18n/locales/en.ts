@@ -163,7 +163,16 @@ export const en: Translations = {
             },
             language: {
                 label: 'Interface Language',
-                description: 'Choose the language in which the dashboard is displayed.',
+                description: 'Choose the language in which the control panel is displayed.',
+            },
+            theme: {
+                label: 'Interface Theme',
+                description: 'Choose the color scheme of the application.',
+                options: {
+                    dark: 'Dark Mode',
+                    light: 'Light Mode',
+                    liga: 'Liga Mode (LDA)'
+                }
             },
         },
         data: {

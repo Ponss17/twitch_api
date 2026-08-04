@@ -22,8 +22,8 @@ const CustomTooltip = ({ active, payload }: Custom) => {
     if (active && payload && payload.length) {
         const data = payload[0];
         return (
-            <div className="pointer-events-none rounded-xl border border-white/10 bg-[#18181b] px-3 py-2 shadow-xl">
-                <span className="font-semibold text-white capitalize">
+            <div className="pointer-events-none rounded-xl border border-border-subtle bg-bg-modal px-3 py-2 shadow-xl">
+                <span className="font-semibold text-text-main capitalize">
                     {data.name} : {data.value}
                 </span>
             </div>
@@ -48,12 +48,12 @@ export function AnalyticsCommandsDistribution({
             info={chart.info}
         >
             {pieData.length === 0 ? (
-                <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
-                        <Command className="h-6 w-6 text-zinc-400" />
+                <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border-subtle bg-transparent">
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-text-main/5">
+                        <Command className="h-6 w-6 text-text-muted" />
                     </div>
-                    <span className="text-sm font-medium text-zinc-400">{chart.noData}</span>
-                    <span className="mt-1 text-xs text-zinc-400">{chart.noDataSub}</span>
+                    <span className="text-sm font-medium text-text-muted">{chart.noData}</span>
+                    <span className="mt-1 text-xs text-text-muted">{chart.noDataSub}</span>
                 </div>
             ) : (
                 <ChartMountGate
@@ -74,7 +74,7 @@ export function AnalyticsCommandsDistribution({
                                 cornerRadius={4}
                                 stroke="none"
                             >
-                                {pieData.map((entry, index) => (
+                                {pieData.map((_, index) => (
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                             </Pie>
@@ -98,7 +98,7 @@ export function AnalyticsCommandsDistribution({
                             return (
                                 <div
                                     key={entry.name}
-                                    className="flex flex-col gap-1.5 rounded-lg bg-bg-main/60 px-2.5 py-2"
+                                    className="flex flex-col gap-1.5 rounded-lg border border-border-subtle bg-bg-secondary px-2.5 py-2"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2.5 overflow-hidden">
@@ -107,14 +107,14 @@ export function AnalyticsCommandsDistribution({
                                                 style={{ backgroundColor: color }}
                                             />
                                             <span
-                                                className="truncate text-sm font-medium capitalize text-zinc-200"
+                                                className="truncate text-sm font-medium capitalize text-text-main"
                                                 title={entry.name}
                                             >
                                                 {entry.name}
                                             </span>
                                         </div>
                                         <div className="flex shrink-0 items-center gap-3">
-                                            <span className="text-xs text-zinc-400">
+                                            <span className="text-xs text-text-muted">
                                                 {entry.value.toLocaleString()}
                                             </span>
                                             <span
@@ -125,7 +125,7 @@ export function AnalyticsCommandsDistribution({
                                             </span>
                                         </div>
                                     </div>
-                                    <div className="h-1 w-full overflow-hidden rounded-full bg-white/[0.05]">
+                                    <div className="h-1 w-full overflow-hidden rounded-full bg-text-main/5">
                                         <div
                                             className="h-full rounded-full transition-all duration-500"
                                             style={{
