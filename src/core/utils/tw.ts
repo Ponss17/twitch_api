@@ -51,7 +51,7 @@ const selectChevron =
 export const toolSelector = 'mb-3 flex items-center justify-between gap-2.5 max-sm:flex-col max-sm:items-stretch';
 
 export const toolLabel =
-    'flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-tight text-primary/80';
+    'flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-tight text-text-main';
 
 export const selectInput =
     `min-w-[180px] w-auto max-w-[min(100%,240px)] shrink-0 cursor-pointer appearance-none rounded-lg border border-border-strong bg-bg-secondary bg-size-[14px] bg-position-[right_8px_center] bg-no-repeat py-[7px] pr-9 pl-3 text-[0.8125rem] leading-tight text-text-main outline-none ${hoverSubtleControl} focus:border-primary focus:bg-primary/[0.02] ${selectChevron}`;

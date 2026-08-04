@@ -1,7 +1,7 @@
 import { useTranslation } from '@/core/i18n/I18nContext';
 import React, { ReactNode } from 'react';
 
-const proseLink = 'text-primary underline underline-offset-2';
+const proseLink = 'text-brand-text underline underline-offset-2';
 
 /** Función simple para procesar markdown básico (negrita y enlaces) a JSX */
 function parseMarkdown(text: string): ReactNode[] {

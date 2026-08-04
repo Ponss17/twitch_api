@@ -26,7 +26,7 @@ function DetailRow({ icon: Icon, label, value, highlight = false, isLast = false
                     {label}
                 </span>
             </div>
-            <div className={`text-[0.8rem] text-right max-w-[60%] truncate ${highlight ? 'font-medium text-primary' : 'text-text-main'}`}>
+            <div className={`text-[0.8rem] text-right max-w-[60%] truncate ${highlight ? 'font-medium text-brand-text' : 'text-text-main'}`}>
                 {value}
             </div>
         </div>

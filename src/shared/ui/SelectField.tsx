@@ -60,7 +60,7 @@ export function SelectField({ id, options, value, onChange, className = '' }: Se
                                     onClick={() => handleSelect(opt.value)}
                                     className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[0.8125rem] ${
                                         opt.value === value 
-                                            ? 'bg-primary/10 font-medium text-primary' 
+                                            ? 'bg-primary/10 font-medium text-brand-text' 
                                             : `text-text-muted ${hoverNeutralChip} hover:text-text-main`
                                     }`}
                                 >
