@@ -81,7 +81,7 @@ export const docsStepsMini =
     'mb-4 flex items-center gap-3 text-[0.875rem] font-medium text-text-muted';
 
 export const docsStepBadge =
-    'mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full border border-primary/30 bg-primary/15 text-[0.8rem] font-bold text-primary';
+    'mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full border border-primary/30 bg-primary/15 text-[0.8rem] font-bold text-brand-text';
 
 export const docsStepsGrid =
     'mt-6 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4';

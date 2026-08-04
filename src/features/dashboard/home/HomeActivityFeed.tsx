@@ -147,7 +147,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                         <p className="mt-0.5 text-[0.75rem] text-text-muted">
                             {aT.subtitle}{' '}
                             <span
-                                className={`font-medium transition-all duration-300 group-hover/card:text-primary group-hover/card:opacity-100 ${syncing ? 'animate-blink-soft text-primary opacity-100' : 'opacity-75'}`}
+                                className={`font-medium transition-all duration-300 group-hover/card:text-brand-text group-hover/card:opacity-100 ${syncing ? 'animate-blink-soft text-brand-text opacity-100' : 'opacity-75'}`}
                             >
                                 {syncing ? aT.syncing : syncLabel}
                             </span>
@@ -156,7 +156,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                     {isLive ? (
-                        <span className="animate-blink rounded bg-error px-1.5 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.1em] text-white">
+                        <span className="animate-blink rounded bg-red-600 px-1.5 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.1em] text-white">
                             LIVE
                         </span>
                     ) : null}
@@ -178,13 +178,13 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             type="button"
                             onClick={() => handleCategoryChange(category)}
                             className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.7rem] font-semibold transition-all duration-200 ${active
-                                ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_var(--color-primary-hover)]/10'
+                                ? 'bg-primary/15 text-brand-text ring-1 ring-primary/25 shadow-sm'
                                 : 'text-text-muted hover:bg-text-main/5 hover:text-text-main'
                                 }`}
                             aria-pressed={active}
                         >
                             <span
-                                className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${active ? 'border-primary/30 bg-primary/10 text-primary' : 'border-border-subtle bg-transparent text-text-muted'
+                                className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${active ? 'border-primary/30 bg-primary/10 text-brand-text' : 'border-border-subtle bg-transparent text-text-muted'
                                     }`}
                             >
                                 <Icon className="h-2.5 w-2.5" />

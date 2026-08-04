@@ -56,9 +56,9 @@ export function RateLimitPage() {
             }
         >
             {hasActiveCooldown ? (
-                <div className="my-8 flex items-center justify-center gap-4 rounded-2xl border border-border-subtle bg-text-main/5 p-5">
-                    <Clock className="text-2xl text-primary" />
-                    <span className="font-mono text-4xl font-bold tabular-nums">{timeLeft}</span>
+                <div className="my-6 flex items-center justify-center gap-4 rounded-xl border border-border-subtle bg-bg-card/40 px-6 py-4">
+                    <Clock className="h-6 w-6 text-brand-text" />
+                    <span className="font-mono text-3xl font-bold tabular-nums text-text-main">{timeLeft}</span>
                 </div>
             ) : null}
             <button
@@ -68,9 +68,9 @@ export function RateLimitPage() {
                     clearRateLimitCooldown();
                     window.location.href = window.location.origin;
                 }}
-                className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 text-lg font-bold text-white disabled:cursor-not-allowed disabled:border disabled:border-border-subtle disabled:bg-bg-secondary disabled:text-text-muted disabled:shadow-none"
+                className="mt-6 inline-flex items-center justify-center gap-2.5 rounded-xl bg-primary px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:border disabled:border-border-subtle disabled:bg-bg-secondary disabled:text-text-muted disabled:shadow-none disabled:hover:scale-100"
             >
-                {ready ? <RotateCw /> : <Lock />}
+                {ready ? <RotateCw className="size-4" /> : <Lock className="size-4" />}
                 {ready ? 'Volver al inicio' : 'Bloqueado'}
             </button>
         </ErrorPage>

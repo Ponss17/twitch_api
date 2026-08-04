@@ -25,15 +25,35 @@ function devNoServiceWorker() {
             server.middlewares.use(
                 /** @param {any} req @param {any} res @param {() => void} next */
                 (req, res, next) => {
-                const url = req.url ?? '';
-                if (url.includes('/sw.js')) {
-                    res.statusCode = 404;
-                    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-                    res.end('Service worker disabled in development');
-                    return;
+                    const url = req.url ?? '';
+                    if (url.includes('/sw.js')) {
+                        res.statusCode = 404;
+                        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+                        res.end('Service worker disabled in development');
+                        return;
+                    }
+                    next();
                 }
-                next();
-            }
+            );
+        }
+    };
+}
+
+function devSpaFallback() {
+    return {
+        name: 'dev-spa-fallback',
+        /** @param {any} server */
+        configureServer(server) {
+            server.middlewares.use(
+                /** @param {any} req @param {any} _res @param {() => void} next */
+                (req, _res, next) => {
+                    const url = req.url ?? '';
+                    const pathname = url.split('?')[0];
+                    if (pathname.startsWith('/dashboard/') && !pathname.includes('.')) {
+                        req.url = '/dashboard/' + (url.includes('?') ? '?' + url.split('?')[1] : '');
+                    }
+                    next();
+                }
             );
         }
     };
@@ -103,7 +123,7 @@ export default defineConfig({
     site: 'https://ttv.losperris.dev',
     trailingSlash: 'always',
     vite: {
-        plugins: [tailwindcss(), devNoServiceWorker()],
+        plugins: [tailwindcss(), devNoServiceWorker(), devSpaFallback()],
         define: {
             'import.meta.env.SUPABASE_URL': JSON.stringify(supabaseUrl),
             'import.meta.env.SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey)

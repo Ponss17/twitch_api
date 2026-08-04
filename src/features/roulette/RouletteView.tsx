@@ -101,7 +101,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                         }
                         className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[0.75rem] font-semibold disabled:opacity-50 ${
                             announceWinnerInChat
-                                ? 'border-primary/35 bg-primary/10 text-primary'
+                                ? 'border-primary/35 bg-primary/10 text-brand-text'
                                 : `border-border-subtle bg-bg-secondary text-text-muted ${hoverSubtleChip}`
                         }`}
                     >
@@ -110,7 +110,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                     </button>
 
                     <span
-                        className={`inline-block rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-[0.6875rem] font-bold tracking-wide text-primary/80 transition ${
+                        className={`inline-block rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-[0.6875rem] font-bold tracking-wide text-brand-text transition ${
                             countPulse ? 'scale-110 text-[#3b82f6]' : ''
                         }`}
                     >
@@ -202,7 +202,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                                     </span>
                                     <span className="ml-auto flex shrink-0 gap-1">
                                         {u.sub && (
-                                            <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[0.6rem] font-bold text-primary">
+                                            <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[0.6rem] font-bold text-brand-text">
                                                 SUB
                                             </span>
                                         )}

@@ -5,6 +5,7 @@
 @theme {
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-brand-text: var(--brand-text);
   --color-bg-main: var(--bg-main);
   --color-bg-secondary: var(--bg-secondary);
   --color-bg-tertiary: var(--bg-tertiary);
@@ -22,10 +23,10 @@
 
   --color-success: #10b981;
   --color-warning: #f59e0b;
-  /* Supabase destructive (hsl 10.2 77.9% 53.9%) */
-  --color-error: #e54d2e;
-  --color-error-hover: #f16a50;
-  --color-error-dark: #7f2315;
+  /* Accessible destructive red (WCAG AA text-white contrast >= 4.9:1) */
+  --color-error: #c53030;
+  --color-error-hover: #b91c1c;
+  --color-error-dark: #7f1d1d;
   --font-sans: "Geist", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
 
@@ -339,7 +340,7 @@
     color-scheme: dark;
     --primary: #ef4444;
     --primary-hover: #dc2626;
-    --brand-text: #da291c;
+    --brand-text: #f87171;
     --bg-main: #050505;
     --bg-secondary: #0a0a0a;
     --bg-tertiary: #101010;

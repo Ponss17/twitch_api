@@ -45,7 +45,7 @@ function DateTimeBadge({ isoDate, timezone, locale, fallback }: { isoDate?: stri
             </div>
             <div className="h-4 w-px bg-border-strong" aria-hidden="true" />
             <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-primary/70" />
+                <Clock className="h-4 w-4 text-brand-text" />
                 <span className="font-medium text-text-main">{split.time}</span>
             </div>
         </div>

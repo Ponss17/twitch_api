@@ -194,7 +194,7 @@ export function Magic8View() {
                 <GameResponse
                     result={result}
                     loadingNode={
-                        <div className="flex items-center gap-3 font-medium text-primary italic">
+                        <div className="flex items-center gap-3 font-medium text-brand-text italic">
                             <Gem className="animate-pulse text-[1.8rem]" />
                             {mgT.loadingResult}
                         </div>

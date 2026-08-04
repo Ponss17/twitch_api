@@ -33,10 +33,10 @@ function RangeToggle({
             <button
                 type="button"
                 onClick={() => setTimeRange('today')}
-                className={`rounded-md px-3 py-1 text-xs font-medium ${
+                className={`rounded-md px-3 py-1 text-xs ${
                     timeRange === 'today'
-                        ? 'bg-primary/20 text-primary/80'
-                        : `text-text-muted ${hoverSubtleChip}`
+                        ? 'bg-primary/20 font-semibold text-brand-text'
+                        : `font-medium text-text-muted ${hoverSubtleChip}`
                 }`}
             >
                 {t.analytics.kpis.today}
@@ -44,10 +44,10 @@ function RangeToggle({
             <button
                 type="button"
                 onClick={() => setTimeRange('7d')}
-                className={`rounded-md px-3 py-1 text-xs font-medium ${
+                className={`rounded-md px-3 py-1 text-xs ${
                     timeRange === '7d'
-                        ? 'bg-primary/20 text-primary/80'
-                        : `text-text-muted ${hoverSubtleChip}`
+                        ? 'bg-primary/20 font-semibold text-brand-text'
+                        : `font-medium text-text-muted ${hoverSubtleChip}`
                 }`}
             >
                 {t.analytics.kpis.sevenDays}

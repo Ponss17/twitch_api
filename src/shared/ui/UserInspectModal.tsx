@@ -73,7 +73,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                     >
                         {user.display_name}
                     </h2>
-                    <p className="m-0 text-[0.9rem] font-medium text-primary">@{user.login}</p>
+                    <p className="m-0 text-[0.9rem] font-medium text-brand-text">@{user.login}</p>
                 </div>
             </div>
 
