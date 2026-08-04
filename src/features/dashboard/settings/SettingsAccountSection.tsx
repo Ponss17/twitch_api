@@ -60,7 +60,7 @@ export function SettingsAccountSection({
                         type="button"
                         onClick={handleCopyId}
                         title={pT.copyUserId}
-                        className="flex items-center justify-center gap-1.5 border-l border-border-subtle bg-text-main/5 px-3 text-[0.82rem] text-text-muted transition hover:bg-primary/10 hover:text-primary"
+                        className="flex items-center justify-center gap-1.5 border-l border-border-subtle bg-text-main/5 px-3 text-[0.82rem] text-text-muted transition hover:bg-primary/10 hover:text-brand-text"
                     >
                         {isIdCopied ? (
                             <Check className="h-4 w-4" aria-hidden="true" />
@@ -78,7 +78,7 @@ export function SettingsAccountSection({
             >
                 <div className="flex flex-wrap items-center gap-1.5">
                     <span
-                        className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold text-primary/80"
+                        className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold text-brand-text"
                         title={pT.planTooltip}
                     >
                         <Crown className="w-3 h-3 opacity-80" /> {roleLabel}
@@ -87,7 +87,7 @@ export function SettingsAccountSection({
                         className="inline-flex items-center gap-1 rounded-md bg-text-main/5 px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
                         title={pT.apiQuotaTooltip}
                     >
-                        <Gauge className="w-3 h-3 text-primary/70" /> {rateLimit} req/min
+                        <Gauge className="w-3 h-3 text-brand-text" /> {rateLimit} req/min
                         {hasCustomRateLimit ? ' *' : ''}
                     </span>
                     {typeof heavyLimit === 'number' && (
@@ -102,7 +102,7 @@ export function SettingsAccountSection({
                         className="inline-flex items-center gap-1 rounded-md bg-text-main/5 px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
                         title={pT.cacheTooltip}
                     >
-                        <Clock className="w-3 h-3 text-primary/70" /> {cacheTtl}s {pT.cacheTime.replace('(min)', '').trim()}
+                        <Clock className="w-3 h-3 text-brand-text" /> {cacheTtl}s {pT.cacheTime.replace('(min)', '').trim()}
                         {hasCustomCacheTtl ? ' *' : ''}
                     </span>
                 </div>

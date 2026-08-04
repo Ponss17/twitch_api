@@ -154,11 +154,11 @@ export function RouletteWheelDisplay({
                             <p className="mb-1 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-text-muted">
                                 {rlT.winner}
                             </p>
-                            <p className="mb-1 text-[1.6rem] font-extrabold leading-tight text-primary">
+                            <p className="mb-1 text-[1.6rem] font-extrabold leading-tight text-brand-text">
                                 {winner.user_name}
                             </p>
                             <p className="mb-4 flex items-center justify-center gap-1.5 text-[0.85rem] text-text-muted">
-                                <Sparkles className="size-3.5 text-primary" aria-hidden />
+                                <Sparkles className="size-3.5 text-brand-text" aria-hidden />
                                 {lastSpinCount || chatters.length} {rlT.participants.toLowerCase()}
                             </p>
                             {!isOverlay && !announceWinnerInChat ? (

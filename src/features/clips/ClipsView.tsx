@@ -391,7 +391,7 @@ export function ClipsView() {
                                                     href={clip.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="mb-2 block truncate text-[0.8125rem] font-semibold text-primary no-underline transition hover:underline"
+                                                    className="mb-2 block truncate text-[0.8125rem] font-semibold text-text-main no-underline transition-colors hover:text-brand-text hover:underline"
                                                     title={clip.title ?? clipsT.untitled}
                                                 >
                                                     {clip.title ?? clipsT.untitled}

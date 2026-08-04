@@ -52,7 +52,7 @@ const SECTIONS: {
 const DEFAULT_SECTION: LegalSection = 'privacidad';
 
 const prose =
-    'text-[0.9375rem] leading-[1.8] text-text-muted [&_h2]:mt-9 [&_h2]:mb-3 [&_h2]:border-b [&_h2]:border-border-subtle [&_h2]:pb-2 [&_h2]:text-base [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-text-main [&_h2:first-of-type]:mt-0 [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:space-y-2.5 [&_ul]:pl-5 [&_li]:text-text-muted [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 [&_strong]:font-semibold [&_strong]:text-text-main';
+    'text-[0.9375rem] leading-[1.8] text-text-muted [&_h2]:mt-9 [&_h2]:mb-3 [&_h2]:border-b [&_h2]:border-border-subtle [&_h2]:pb-2 [&_h2]:text-base [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-text-main [&_h2:first-of-type]:mt-0 [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:space-y-2.5 [&_ul]:pl-5 [&_li]:text-text-muted [&_a]:text-brand-text [&_a]:underline [&_a]:underline-offset-2 [&_strong]:font-semibold [&_strong]:text-text-main';
 
 function parseHash(): LegalSection {
     if (typeof window === 'undefined') return DEFAULT_SECTION;
@@ -180,7 +180,7 @@ export function LegalPage() {
                                 href={LEGAL_DISCORD_URL}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="font-medium text-primary underline underline-offset-2"
+                                className="font-medium text-brand-text underline underline-offset-2"
                             >
                                 @{LEGAL_CONTACT_DISCORD}
                             </a>

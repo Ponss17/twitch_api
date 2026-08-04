@@ -95,9 +95,9 @@ export function TrendsLeaderboardDisplay({
                             <tr>
                                 <td colSpan={4} className="px-5 py-10 text-center text-text-muted">
                                     <EmptyStateIcon icon={Play} />
-                                    <h4 className="mb-1 text-[0.8125rem] font-bold text-text-main">
+                                    <p className="mb-1 text-[0.8125rem] font-bold text-text-main">
                                         {trends.table.readyTitle}
-                                    </h4>
+                                    </p>
                                     <p className="text-[0.8125rem]">
                                         {trends.table.readyDesc}
                                     </p>

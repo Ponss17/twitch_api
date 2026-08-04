@@ -50,7 +50,7 @@ export function RouletteEligibilityDropdown({
                 aria-label={`${rlT.whoCanPlay}: ${summary}`}
                 className={dropdownTriggerCompact}
             >
-                <Users className="size-3.5 shrink-0 text-primary" aria-hidden />
+                <Users className="size-3.5 shrink-0 text-brand-text" aria-hidden />
                 <span className="min-w-0 flex-1 truncate text-left">{summary}</span>
                 <DropdownChevron />
             </DropdownTrigger>

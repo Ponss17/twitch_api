@@ -67,7 +67,7 @@ export function SettingsSecuritySection({
                         disabled={keyLoading}
                         title={pT.copyKey}
                         aria-label={pT.copyKey}
-                        className="flex items-center justify-center gap-1.5 border-l border-border-subtle px-3 text-[0.82rem] text-text-muted transition hover:bg-primary/10 hover:text-primary"
+                        className="flex items-center justify-center gap-1.5 border-l border-border-subtle px-3 text-[0.82rem] text-text-muted transition hover:bg-primary/10 hover:text-brand-text"
                     >
                         {isKeyCopied ? (
                             <Check className="w-4 h-4" aria-hidden="true" />

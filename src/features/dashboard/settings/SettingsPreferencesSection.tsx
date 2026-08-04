@@ -135,12 +135,12 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                                         setSearchQuery('');
                                                     }}
                                                     className={`mb-0.5 rounded-md px-2.5 py-1.5 ${
-                                                        selectedTz === zone ? 'bg-primary/10 text-primary font-medium' : ''
+                                                        selectedTz === zone ? 'bg-primary/10 text-brand-text font-semibold' : ''
                                                     }`}
                                                 >
                                                     <div className="flex w-full items-center justify-between">
                                                         <span className="truncate">{zone.replace(/_/g, ' ')}</span>
-                                                        {selectedTz === zone && <Check className="h-3.5 w-3.5 text-primary" />}
+                                                        {selectedTz === zone && <Check className="h-3.5 w-3.5 text-brand-text" />}
                                                     </div>
                                                 </DropdownItem>
                                             ))
@@ -198,12 +198,12 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                                 showToast(t.settings.toasts.settingsSaved, 'success');
                                             }}
                                             className={`mb-0.5 rounded-md px-2.5 py-1.5 ${
-                                                locale === opt.value ? 'bg-primary/10 text-primary font-medium' : ''
+                                                locale === opt.value ? 'bg-primary/10 text-brand-text font-semibold' : ''
                                             }`}
                                         >
                                             <div className="flex w-full items-center justify-between">
                                                 <span className="truncate">{opt.label}</span>
-                                                {locale === opt.value && <Check className="h-3.5 w-3.5 text-primary" />}
+                                                {locale === opt.value && <Check className="h-3.5 w-3.5 text-brand-text" />}
                                             </div>
                                         </DropdownItem>
                                     ))}
@@ -250,12 +250,12 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                                 showToast("Tema actualizado", 'success');
                                             }}
                                             className={`mb-0.5 rounded-md px-2.5 py-1.5 ${
-                                                theme === opt ? 'bg-primary/10 text-primary font-medium' : ''
+                                                theme === opt ? 'bg-primary/10 text-brand-text font-semibold' : ''
                                             }`}
                                         >
                                             <div className="flex w-full items-center justify-between">
                                                 <span className="truncate capitalize">{opt === 'dark' ? 'Oscuro' : opt === 'light' ? 'Claro' : 'Liga'}</span>
-                                                {theme === opt && <Check className="h-3.5 w-3.5 text-primary" />}
+                                                {theme === opt && <Check className="h-3.5 w-3.5 text-brand-text" />}
                                             </div>
                                         </DropdownItem>
                                     ))}

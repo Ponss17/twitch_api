@@ -49,7 +49,7 @@ export const HomeActivityLogEntry = memo(function HomeActivityLogEntry({
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                     <span className="text-[0.85rem] font-semibold text-text-main">{meta.label}</span>
                     {user ? (
-                        <span className="text-[0.85rem] font-medium text-primary">@{user}</span>
+                        <span className="text-[0.85rem] font-medium text-brand-text">@{user}</span>
                     ) : null}
                     {detail ? (
                         <span className="min-w-0 truncate text-[0.8rem] text-text-muted">{detail}</span>

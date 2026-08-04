@@ -33,7 +33,7 @@ export function Footer({ isDashboard = false }: FooterProps) {
                         <span key={link.href} className="flex items-center gap-3">
                             <a
                                 href={link.href}
-                                className="font-medium transition-colors hover:text-primary/80"
+                                className="font-medium text-text-muted transition-colors hover:text-brand-text"
                             >
                                 {link.label}
                             </a>

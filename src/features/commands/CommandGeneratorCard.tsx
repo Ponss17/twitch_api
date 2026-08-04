@@ -65,7 +65,7 @@ function TemplateVarsHelp({ vars }: { vars: string }) {
     const text = vars.replace(/^Variables(?:\s+disponibles)?:\s*/i, '').trim();
     const parts = text.split(',').map((v) => v.trim());
     return (
-        <small className="mt-0.5 block text-[0.6875rem] leading-snug text-[#52525b]">
+        <small className="mt-0.5 block text-[0.6875rem] leading-snug text-text-muted">
             <strong className="text-text-main">{t.commands.generator.variables}</strong>{' '}
             {parts.map((part, i) => {
                 const match = part.match(/\{(\w+)\}/);
@@ -73,7 +73,7 @@ function TemplateVarsHelp({ vars }: { vars: string }) {
                 return (
                     <span key={part}>
                         {i > 0 ? ', ' : ''}
-                        <code className="mx-0.5 rounded border border-primary/30 bg-primary/15 px-1 py-px text-[0.8125rem] text-primary">
+                        <code className="mx-0.5 rounded border border-primary/30 bg-primary/15 px-1 py-px text-[0.8125rem] font-medium text-brand-text">
                             {badge}
                         </code>
                     </span>

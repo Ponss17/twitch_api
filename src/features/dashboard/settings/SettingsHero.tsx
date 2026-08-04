@@ -63,7 +63,7 @@ export function SettingsHero({
                             <h1 className="flex items-center gap-2.5 text-[1.7rem] font-bold leading-tight tracking-tight text-text-main md:text-[1.85rem]">
                                 <TwitchIcon variant="brand" className="block liga:hidden h-7 w-7 shrink-0 md:h-8 md:w-8" />
                                 <img src="/img/liga_full.svg" alt="Liga Logo" className="hidden liga:block h-7 w-7 shrink-0 md:h-8 md:w-8" />
-                                <span>{sT.hello} <span className="text-primary">{name}</span></span>
+                                <span>{sT.hello} <span className="text-brand-text">{name}</span></span>
                             </h1>
                         </div>
                         <p className="mt-1 text-[0.875rem] text-text-muted">
@@ -76,7 +76,7 @@ export function SettingsHero({
                     <div className="pr-6">
                         <ProfileStat
                             icon={Heart}
-                            iconClass="text-primary"
+                            iconClass="text-brand-text"
                             label={sT.followers}
                         >
                             {followers === undefined && !isLoading ? (
@@ -98,7 +98,7 @@ export function SettingsHero({
                     <div className="border-l border-border-subtle px-6">
                         <ProfileStat
                             icon={Video}
-                            iconClass="text-primary"
+                            iconClass="text-brand-text"
                             label={sT.channelType}
                         >
                             <span className="text-[1.4rem] font-bold leading-none tracking-tight text-text-main">
@@ -109,7 +109,7 @@ export function SettingsHero({
                     <div className="border-l border-border-subtle pl-6">
                         <ProfileStat
                             icon={Calendar}
-                            iconClass="text-primary"
+                            iconClass="text-brand-text"
                             label={sT.memberSince}
                         >
                             <span className="text-[1.4rem] font-bold leading-none tracking-tight text-text-main">
