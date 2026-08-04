@@ -59,7 +59,7 @@ export function MinigameCard({
         <div
             className={`${panelCard} ${fadeIn} mb-5 flex flex-col opacity-0 ${staggered ? '[animation-delay:120ms]' : ''}`}
         >
-            <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5">
+            <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
                 <div className="flex min-w-0 items-center gap-3">
                     {Icon ? (
                         <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}>
@@ -67,8 +67,8 @@ export function MinigameCard({
                         </div>
                     ) : null}
                     <div className="min-w-0">
-                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">{title}</h2>
-                        <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">{description}</p>
+                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">{title}</h2>
+                        <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">{description}</p>
                     </div>
                 </div>
                 {info ? (
@@ -77,7 +77,7 @@ export function MinigameCard({
                     </div>
                 ) : null}
             </header>
-            <div className={`p-5 text-[#fafafa] ${centerBody ? 'text-center' : ''}`}>{children}</div>
+            <div className={`p-5 text-text-main ${centerBody ? 'text-center' : ''}`}>{children}</div>
         </div>
     );
 }
@@ -103,7 +103,7 @@ function GameResponse({
         <div
             className={`${gameResponseCard} animate-reveal-card ${
                 loading
-                    ? 'border-white/[0.08] bg-[rgba(15,23,42,0.6)] text-[#fafafa]'
+                    ? 'border-border-strong bg-[rgba(15,23,42,0.6)] text-text-main'
                     : success
                       ? 'border-success/30 bg-[rgba(16,185,129,0.15)] text-success'
                       : 'border-error/30 bg-error/15 text-error'
@@ -368,7 +368,7 @@ export function RussianView() {
                         />
                     ) : (
                         <RUSSIAN_ICON
-                            className={`size-20 shrink-0 transition-all max-[600px]:size-16 ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : 'text-[#71717a] hover:scale-110 hover:rotate-[-5deg]'}`}
+                            className={`size-20 shrink-0 transition-all max-[600px]:size-16 ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : 'text-text-muted hover:scale-110 hover:rotate-[-5deg]'}`}
                             strokeWidth={1.75}
                             aria-hidden
                         />
@@ -380,7 +380,7 @@ export function RussianView() {
                         type="button"
                         onClick={() => void pullTrigger()}
                         disabled={loading}
-                        className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-white/10 bg-error-dark px-10 py-3.5 text-[1rem] font-semibold text-white transition hover:-translate-y-0.5 hover:scale-105 hover:bg-error active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
+                        className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-border-subtle bg-error-dark px-10 py-3.5 text-[1rem] font-semibold text-white transition hover:-translate-y-0.5 hover:scale-105 hover:bg-error active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
                     >
                         {loading ? <Loader2 className="size-4 animate-spin" /> : <RUSSIAN_ICON className="size-4" strokeWidth={2} />}
                         {mgT.btnTrigger}

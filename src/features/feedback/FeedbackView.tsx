@@ -7,7 +7,6 @@ import { MessageSquare, Shield, Send, Loader2 } from 'lucide-react';
 import {
     btnPrimary,
     fadeIn,
-    hoverNeutralControl,
     inputLabel,
     panelCard,
     textareaXl
@@ -45,8 +44,8 @@ export function FeedbackView() {
     const identityBtnClass = (active: boolean, activeBorder: string, activeBg: string) =>
         `flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-[0.8125rem] font-semibold transition ${
             active
-                ? `${activeBorder} ${activeBg} text-[#fafafa]`
-                : 'border-white/[0.08] bg-transparent text-[#c4c4cc] hover:border-white/20 hover:bg-white/[0.04]'
+                ? `${activeBorder} ${activeBg} text-text-main`
+                : 'border-border-strong bg-transparent text-text-muted hover:border-border-strong hover:bg-text-main/5'
         }`;
 
     const send = async () => {
@@ -97,7 +96,7 @@ export function FeedbackView() {
     return (
         <div className={fadeIn}>
             <section className={`${panelCard} flex flex-col`}>
-                <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5">
+                <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
                     <div className="flex min-w-0 items-center gap-3">
                         <div
                             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}
@@ -105,10 +104,10 @@ export function FeedbackView() {
                             <MessageSquare className="h-4 w-4" aria-hidden />
                         </div>
                         <div className="min-w-0">
-                            <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
+                            <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">
                                 {fT.title}
                             </h2>
-                            <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
+                            <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">
                                 {fT.desc}
                             </p>
                         </div>
@@ -131,16 +130,16 @@ export function FeedbackView() {
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             placeholder={fT.messagePlaceholder}
-                            className={`${textareaXl} ${hoverNeutralControl} focus:border-primary focus:bg-primary/[0.02]`}
+                            className={textareaXl}
                         />
                     </div>
 
-                    <div className="flex items-center justify-between gap-4 rounded-lg border border-white/[0.06] bg-bg-main/40 px-3.5 py-3">
+                    <div className="flex items-center justify-between gap-4 rounded-lg border border-border-subtle bg-bg-main/40 px-3.5 py-3">
                         <div className="min-w-0">
-                            <p className="text-[0.8125rem] font-medium text-[#fafafa]">
+                            <p className="text-[0.8125rem] font-medium text-text-main">
                                 {fT.anonymousTitle}
                             </p>
-                            <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
+                            <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">
                                 {isAnonymous ? fT.anonymousOn : fT.anonymousOff}
                             </p>
                         </div>
@@ -154,7 +153,7 @@ export function FeedbackView() {
                         >
                             <div
                                 className={`relative flex h-5 w-9 items-center rounded-full transition-colors duration-300 ${
-                                    isAnonymous ? 'bg-primary' : 'bg-white/10 group-hover:bg-white/20'
+                                    isAnonymous ? 'bg-primary' : 'bg-bg-tertiary border border-border-strong group-hover:bg-bg-hover-neutral'
                                 }`}
                             >
                                 <div
@@ -167,8 +166,8 @@ export function FeedbackView() {
                     </div>
 
                     {!isAnonymous ? (
-                        <div className="rounded-lg border border-white/[0.06] bg-bg-main/40 px-3.5 py-3">
-                            <p className="text-[0.8125rem] font-medium text-[#fafafa]">
+                        <div className="rounded-lg border border-border-subtle bg-bg-main/40 px-3.5 py-3">
+                            <p className="text-[0.8125rem] font-medium text-text-main">
                                 {fT.sendAs}
                             </p>
                             {discordLinked ? (
@@ -182,7 +181,7 @@ export function FeedbackView() {
                                         role="radio"
                                         aria-checked={identity === 'twitch'}
                                         onClick={() => setIdentity('twitch')}
-                                        className={identityBtnClass(identity === 'twitch', 'border-[#9146ff]/50', 'bg-[#9146ff]/15')}
+                                        className={identityBtnClass(identity === 'twitch', 'border-primary/50', 'bg-primary/15')}
                                     >
                                         <TwitchIcon className="h-4 w-4" />
                                         <span className="min-w-0 truncate">Twitch · {twitchLabel}</span>
@@ -199,17 +198,17 @@ export function FeedbackView() {
                                     </button>
                                 </div>
                             ) : (
-                                <p className="mt-1.5 text-[0.75rem] leading-snug text-[#8b8b93]">
+                                <p className="mt-1.5 text-[0.75rem] leading-snug text-text-muted">
                                     {fT.linkDiscordText}
-                                    <strong className="text-[#c4c4cc]">{fT.linkDiscordBold}</strong>{fT.linkDiscordEnd}
+                                    <strong className="text-text-muted">{fT.linkDiscordBold}</strong>{fT.linkDiscordEnd}
                                 </p>
                             )}
-                            <p className="mt-2 text-[0.75rem] leading-snug text-[#8b8b93]">{sendAsHint}</p>
+                            <p className="mt-2 text-[0.75rem] leading-snug text-text-muted">{sendAsHint}</p>
                         </div>
                     ) : null}
 
-                    <div className="flex items-center justify-between gap-4 border-t border-white/[0.06] pt-4 max-[600px]:flex-col max-[600px]:items-stretch">
-                        <p className="inline-flex items-start gap-1.5 text-[0.75rem] text-zinc-400">
+                    <div className="flex items-center justify-between gap-4 border-t border-border-subtle pt-4 max-[600px]:flex-col max-[600px]:items-stretch">
+                        <p className="inline-flex items-start gap-1.5 text-[0.75rem] text-text-muted">
                             <InlineIcon icon={Shield} className="mt-0.5" />
                             {fT.footerText}
                         </p>

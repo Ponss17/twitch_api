@@ -3,7 +3,7 @@ import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { panelCard } from '@/core/utils/tw';
 
 export const COLORS = [
-    '#9146ff', // Twitch Purple
+    'var(--primary)', // Theme Primary (Red in Liga, Purple in Dark/Light)
     '#3b82f6', // Blue
     '#10b981', // Emerald
     '#f59e0b', // Amber
@@ -36,9 +36,9 @@ export function AnalyticsSection({
 }) {
     return (
         <section className={`${analyticsPanel} flex min-h-0 flex-col ${className} ${panelClassName}`}>
-            <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5">
+            <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
                 <div className="min-w-0">
-                    <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">{title}</h2>
+                    <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">{title}</h2>
                 </div>
                 {(action || info) ? (
                     <div className="flex shrink-0 items-center gap-2">
@@ -48,7 +48,7 @@ export function AnalyticsSection({
                 ) : null}
             </header>
             {description ? (
-                <p className="px-5 pt-3 text-[0.8125rem] leading-relaxed text-[#8b8b93]">{description}</p>
+                <p className="px-5 pt-3 text-[0.8125rem] leading-relaxed text-text-muted">{description}</p>
             ) : null}
             <div className="flex min-h-0 flex-1 flex-col p-5">{children}</div>
         </section>

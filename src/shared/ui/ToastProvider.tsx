@@ -81,12 +81,12 @@ export function AppToaster() {
                     style: { pointerEvents: 'auto' },
                     classNames: {
                         toast:
-                            'toast-with-progress !overflow-hidden !rounded-xl !border !border-white/10 !bg-[#141416] !pl-4 !pr-10 !py-3.5 !text-sm !leading-snug !text-zinc-100 !shadow-[0_8px_30px_rgba(0,0,0,0.5)] !font-sans gap-2.5',
+                            'toast-with-progress !overflow-hidden !rounded-xl !border !border-border-subtle !bg-[#141416] !pl-4 !pr-10 !py-3.5 !text-sm !leading-snug !text-zinc-100 !shadow-[0_8px_30px_rgba(0,0,0,0.5)] !font-sans gap-2.5',
                         title: 'font-semibold tracking-tight',
                         description: '!text-[0.8125rem] !font-normal !text-white/55',
                         icon: 'mr-0.5',
                         closeButton:
-                            '!left-auto !right-2 !top-1/2 !-translate-y-1/2 !border-0 !bg-transparent !text-zinc-500 hover:!bg-white/10 hover:!text-zinc-50 transition-colors',
+                            '!left-auto !right-2 !top-1/2 !-translate-y-1/2 !border-0 !bg-transparent !text-text-muted hover:!bg-text-main/10 dark:bg-text-main/[0.08] hover:!text-zinc-50 transition-colors',
                         success:
                             'progress-success !border-success/30 !bg-[#0f1a16] !text-emerald-50 [&_[data-icon]]:!text-success',
                         error: 'progress-error !border-error/40 !bg-[#1a1110] !text-red-50 [&_[data-icon]]:!text-error',
@@ -94,7 +94,7 @@ export function AppToaster() {
                             'progress-warning !border-warning/30 !bg-[#1a160e] !text-amber-50 [&_[data-icon]]:!text-warning',
                         info: 'progress-info !border-primary/30 !bg-[#141218] !text-violet-50 [&_[data-icon]]:!text-primary',
                         loading:
-                            'progress-loading !border-zinc-400/35 !bg-[#121214] !text-zinc-100 [&_[data-icon]]:!text-zinc-400'
+                            'progress-loading !border-zinc-400/35 !bg-[#121214] !text-zinc-100 [&_[data-icon]]:!text-text-muted'
                     }
                 }}
             />

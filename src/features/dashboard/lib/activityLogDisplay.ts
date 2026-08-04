@@ -17,7 +17,8 @@ import type {
     ActivityLogType,
     DashboardActivityLog
 } from '@contracts/dashboardContracts';
-import type { Translations, Locale } from '@/core/i18n/locales/es';
+import type { Translations } from '@/core/i18n/locales/es';
+import type { Locale } from '@/core/i18n/I18nContext';
 
 export type { ActivityLogType } from '@contracts/dashboardContracts';
 

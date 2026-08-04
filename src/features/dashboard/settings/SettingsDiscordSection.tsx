@@ -36,14 +36,14 @@ export function SettingsDiscordSection({
                 control={
                     <div className="flex items-center gap-3">
                         {discordAvatar ? (
-                            <img src={discordAvatar.replace('size=128', 'size=64')} alt="" className="h-9 w-9 rounded-full border border-white/10" />
+                            <img src={discordAvatar.replace('size=128', 'size=64')} alt="" className="h-9 w-9 rounded-full border border-border-subtle" />
                         ) : (
                             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#5865F2]/20 text-sm font-bold text-[#5865F2]">
                                 {(discordUsername || '?').slice(0, 1).toUpperCase()}
                             </div>
                         )}
                         <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-white">@{discordUsername || 'Discord'}</p>
+                            <p className="truncate text-sm font-semibold text-text-main">@{discordUsername || 'Discord'}</p>
                             <span className="inline-flex items-center gap-1 text-[0.7rem] font-bold text-emerald-400">
                                 <Check className="w-3 h-3" /> {pT.discordStatus(true)}
                             </span>
@@ -52,7 +52,7 @@ export function SettingsDiscordSection({
                             type="button"
                             disabled={busy}
                             onClick={onUnlinkClick}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[0.8rem] font-semibold text-zinc-300 transition hover:border-error/40 hover:text-error disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle bg-text-main/5 px-3 py-1.5 text-[0.8rem] font-semibold text-text-main transition hover:border-error/40 hover:text-error disabled:opacity-50"
                         >
                             <Unlink className="w-3.5 h-3.5" />
                             {pT.unlinkDiscord}

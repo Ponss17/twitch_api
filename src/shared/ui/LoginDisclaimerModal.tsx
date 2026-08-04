@@ -62,15 +62,15 @@ export function LoginDisclaimerModal({ open, onClose }: LoginDisclaimerModalProp
             <p>{mT.desc2}</p>
             <ul className="space-y-2 my-4">
                 <li className="flex items-start gap-2">
-                    <Check className="w-4 h-4 text-[#9146ff] shrink-0 mt-1" />
+                    <Check className="w-4 h-4 text-primary shrink-0 mt-1" />
                     {mT.point1}
                 </li>
                 <li className="flex items-start gap-2">
-                    <Check className="w-4 h-4 text-[#9146ff] shrink-0 mt-1" />
+                    <Check className="w-4 h-4 text-primary shrink-0 mt-1" />
                     {mT.point2}
                 </li>
                 <li className="flex items-start gap-2">
-                    <Check className="w-4 h-4 text-[#9146ff] shrink-0 mt-1" />
+                    <Check className="w-4 h-4 text-primary shrink-0 mt-1" />
                     {mT.point3}
                 </li>
             </ul>

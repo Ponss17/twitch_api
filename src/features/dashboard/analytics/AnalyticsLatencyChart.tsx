@@ -26,9 +26,9 @@ const CustomTooltip = ({ active, payload, label, t }: Custom) => {
     if (active && payload && payload.length) {
         const valNum = Number(payload[0].value) || 0;
         return (
-            <div className="pointer-events-none rounded-xl border border-white/10 bg-[#18181b] p-3 shadow-xl">
-                <p className="mb-1 font-semibold capitalize text-white">{label}</p>
-                <span className="text-sm font-medium text-white">{t.analytics.latencyChart.latency} : {valNum}ms ({(valNum / 1000).toFixed(3)}s)</span>
+            <div className="pointer-events-none rounded-xl border border-border-subtle bg-bg-modal p-3 shadow-xl">
+                <p className="mb-1 font-semibold capitalize text-text-main">{label}</p>
+                <span className="text-sm font-medium text-text-main">{t.analytics.latencyChart.latency} : {valNum}ms ({(valNum / 1000).toFixed(3)}s)</span>
             </div>
         );
     }
@@ -68,12 +68,12 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
             info={chart.info}
         >
             {pieData.length === 0 || pieData.every((d) => d.avgLatency === 0) ? (
-                <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
-                        <Timer className="h-6 w-6 text-zinc-400" />
+                <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border-subtle bg-transparent">
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-text-main/5">
+                        <Timer className="h-6 w-6 text-text-muted" />
                     </div>
-                    <span className="text-sm font-medium text-zinc-400">{chart.noData}</span>
-                    <span className="mt-1 text-xs text-zinc-400">
+                    <span className="text-sm font-medium text-text-muted">{chart.noData}</span>
+                    <span className="mt-1 text-xs text-text-muted">
                         {chart.noDataSub}
                     </span>
                 </div>
@@ -92,14 +92,14 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                         >
                             <CartesianGrid
                                 strokeDasharray="3 3"
-                                stroke="#ffffff"
-                                strokeOpacity={0.05}
+                                stroke="var(--text-main)"
+                                strokeOpacity={0.1}
                                 horizontal={true}
                                 vertical={true}
                             />
                             <XAxis
                                 type="number"
-                                stroke="#71717a"
+                                stroke="var(--text-muted)"
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
@@ -110,7 +110,7 @@ export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChart
                             <YAxis
                                 type="category"
                                 dataKey="name"
-                                stroke="#a1a1aa"
+                                stroke="var(--text-muted)"
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}

@@ -49,21 +49,21 @@ function ActivityFeedSkeleton() {
             {Array.from({ length: SKELETON_ROWS }, (_, i) => (
                 <div
                     key={i}
-                    className="flex items-center gap-3 border-b border-white/[0.04] py-2.5"
+                    className="flex items-center gap-3 border-b border-border-subtle py-2.5"
                     style={{ animationDelay: `${i * 80}ms` }}
                 >
-                    <div className="h-7 w-7 shrink-0 animate-pulse rounded-md bg-white/[0.03]" />
+                    <div className="h-7 w-7 shrink-0 animate-pulse rounded-md bg-text-main/5" />
                     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                         <div
-                            className="h-3.5 animate-pulse rounded bg-white/[0.03]"
+                            className="h-3.5 animate-pulse rounded bg-text-main/5"
                             style={{ width: `${42 + (i % 3) * 10}%` }}
                         />
                         <div
-                            className="h-3 animate-pulse rounded bg-white/[0.02]"
+                            className="h-3 animate-pulse rounded bg-text-main/5"
                             style={{ width: `${55 + (i % 2) * 15}%` }}
                         />
                     </div>
-                    <div className="h-3 w-10 shrink-0 animate-pulse rounded bg-white/[0.03]" />
+                    <div className="h-3 w-10 shrink-0 animate-pulse rounded bg-text-main/5" />
                 </div>
             ))}
         </div>
@@ -71,7 +71,7 @@ function ActivityFeedSkeleton() {
 }
 
 const LOG_DATE_DIVIDER =
-    "relative mt-1 py-2 pb-1 text-center text-[0.75rem] uppercase tracking-[1px] text-[#a1a1aa] before:absolute before:left-0 before:top-1/2 before:h-px before:w-[calc(50%-40px)] before:bg-white/[0.08] before:content-[''] after:absolute after:right-0 after:top-1/2 after:h-px after:w-[calc(50%-40px)] after:bg-white/[0.08] after:content-['']";
+    "relative mt-1 py-2 pb-1 text-center text-[0.75rem] uppercase tracking-[1px] text-text-muted before:absolute before:left-0 before:top-1/2 before:h-px before:w-[calc(50%-60px)] before:bg-border-strong before:content-[''] after:absolute after:right-0 after:top-1/2 after:h-px after:w-[calc(50%-60px)] after:bg-border-strong after:content-['']";
 
 function ActivityEmptyState({ filtered }: { filtered?: boolean }) {
     const { t } = useTranslation();
@@ -81,10 +81,10 @@ function ActivityEmptyState({ filtered }: { filtered?: boolean }) {
             <div className={`mb-1 flex h-11 w-11 items-center justify-center rounded-xl border ${subtleIcon('primary')}`}>
                 {filtered ? <Filter className="h-5 w-5" /> : <Terminal className="h-5 w-5" />}
             </div>
-            <p className="text-[0.9rem] font-medium text-[#a1a1aa]">
+            <p className="text-[0.9rem] font-medium text-text-muted">
                 {filtered ? aT.emptyFiltered : aT.emptyAll}
             </p>
-            <p className="max-w-sm text-[0.8rem] leading-relaxed text-[#6b6b73]">
+            <p className="max-w-sm text-[0.8rem] leading-relaxed text-text-muted">
                 {filtered ? aT.emptyFilteredDesc : aT.emptyAllDesc}
             </p>
         </div>
@@ -135,7 +135,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
 
     return (
         <div className={`group/card ${panelCard} ${fadeIn} flex h-[510px] flex-col`} aria-busy={isLoading}>
-            <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5">
+            <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
                 <div className="flex min-w-0 items-center gap-3">
                     <div
                         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}
@@ -143,8 +143,8 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                         <Activity className="h-4 w-4" aria-hidden />
                     </div>
                     <div className="min-w-0">
-                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-white">{title || aT.title}</h2>
-                        <p className="mt-0.5 text-[0.75rem] text-[#8b8b93]">
+                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">{title || aT.title}</h2>
+                        <p className="mt-0.5 text-[0.75rem] text-text-muted">
                             {aT.subtitle}{' '}
                             <span
                                 className={`font-medium transition-all duration-300 group-hover/card:text-primary group-hover/card:opacity-100 ${syncing ? 'animate-blink-soft text-primary opacity-100' : 'opacity-75'}`}
@@ -167,7 +167,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                 </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 border-b border-white/[0.04] px-5 py-3">
+            <div className="flex flex-wrap gap-2 border-b border-border-subtle px-5 py-3">
                 {CATEGORY_FILTERS.map((category) => {
                     const count = countActivityByCategory(activity, category);
                     const active = categoryFilter === category;
@@ -178,13 +178,13 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             type="button"
                             onClick={() => handleCategoryChange(category)}
                             className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.7rem] font-semibold transition-all duration-200 ${active
-                                    ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_rgba(145,70,255,0.15)]'
-                                    : 'text-zinc-400 hover:bg-white/[0.03] hover:text-zinc-200'
+                                ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_var(--color-primary-hover)]/10'
+                                : 'text-text-muted hover:bg-text-main/5 hover:text-text-main'
                                 }`}
                             aria-pressed={active}
                         >
                             <span
-                                className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${active ? 'border-primary/30 bg-primary/10 text-primary' : 'border-white/[0.04] bg-transparent text-zinc-400'
+                                className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${active ? 'border-primary/30 bg-primary/10 text-primary' : 'border-border-subtle bg-transparent text-text-muted'
                                     }`}
                             >
                                 <Icon className="h-2.5 w-2.5" />
@@ -200,7 +200,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
 
             {typeOptions.length > 0 ? (
                 <div
-                    className="flex flex-wrap items-center gap-2 border-b border-white/[0.04] px-5 py-2.5"
+                    className="flex flex-wrap items-center gap-2 border-b border-border-subtle px-5 py-2.5"
                     role="group"
                     aria-label={t.common.aria.filterResource}
                 >
@@ -208,8 +208,8 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                         type="button"
                         onClick={() => setTypeFilter('all')}
                         className={`rounded-md px-2 py-1 text-[0.68rem] font-medium transition-all duration-200 ${typeFilter === 'all'
-                                ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_rgba(145,70,255,0.15)]'
-                                : 'text-zinc-400 hover:bg-white/[0.03] hover:text-zinc-200'
+                            ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_var(--color-primary-hover)]/10'
+                            : 'text-text-muted hover:bg-text-main/5 hover:text-text-main'
                             }`}
                         aria-pressed={typeFilter === 'all'}
                     >
@@ -228,13 +228,13 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                     type="button"
                                     onClick={() => setTypeFilter(type)}
                                     className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.68rem] font-medium transition-all duration-200 ${active
-                                            ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_rgba(145,70,255,0.15)]'
-                                            : 'text-zinc-400 hover:bg-white/[0.03] hover:text-zinc-200'
+                                        ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_var(--color-primary-hover)]/10'
+                                        : 'text-text-muted hover:bg-text-main/5 hover:text-text-main'
                                         }`}
                                     aria-pressed={active}
                                 >
                                     <span
-                                        className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${active ? 'border-primary/30 bg-primary/10 text-primary' : 'border-white/[0.04] bg-transparent text-zinc-400'
+                                        className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${active ? 'border-primary/30 bg-primary/10 text-primary' : 'border-border-subtle bg-transparent text-text-muted'
                                             }`}
                                     >
                                         <TypeIcon className="h-2.5 w-2.5" />
@@ -251,7 +251,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
 
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-4 pt-2">
                 <div
-                    className={`min-h-0 flex-1 overflow-y-auto rounded-xl border border-white/[0.08] bg-bg-secondary px-3 py-2 [overflow-anchor:none] [scrollbar-color:rgba(145,70,255,0.45)_transparent] [scrollbar-width:thin] ${!isLoading && filteredActivity.length === 0 ? 'flex items-center justify-center' : ''
+                    className={`min-h-0 flex-1 overflow-y-auto rounded-xl border border-border-strong px-3 py-2 [overflow-anchor:none] [scrollbar-width:thin] ${!isLoading && filteredActivity.length === 0 ? 'flex items-center justify-center' : ''
                         }`}
                 >
                     {isLoading ? (
@@ -263,9 +263,9 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             <AnimatePresence initial={false}>
                                 {renderItems.map(({ item, showDivider, dateLabel, key }) => {
                                     const isNew = highlightKeys?.has(key) ?? false;
-                                    
+
                                     return (
-                                        <m.div 
+                                        <m.div
                                             key={key}
                                             layout
                                             initial={{ opacity: 0, y: -10 }}
@@ -273,10 +273,10 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                             transition={{ duration: 0.3, ease: 'easeOut' }}
                                         >
                                             {showDivider ? <div className={LOG_DATE_DIVIDER}>{dateLabel}</div> : null}
-                                            <HomeActivityLogEntry 
-                                                item={item} 
-                                                isNew={isNew} 
-                                                timeZone={timeZone} 
+                                            <HomeActivityLogEntry
+                                                item={item}
+                                                isNew={isNew}
+                                                timeZone={timeZone}
                                                 onClick={setSelectedActivity}
                                             />
                                         </m.div>
@@ -287,11 +287,11 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                     )}
                 </div>
             </div>
-            
-            <ActivityDetailSheet 
-                item={selectedActivity} 
-                onClose={() => setSelectedActivity(null)} 
-                timeZone={timeZone} 
+
+            <ActivityDetailSheet
+                item={selectedActivity}
+                onClose={() => setSelectedActivity(null)}
+                timeZone={timeZone}
             />
         </div>
     );

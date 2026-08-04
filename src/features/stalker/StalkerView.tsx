@@ -7,7 +7,7 @@ import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { cache, CACHE_TTL } from '@/core/cache/cacheService';
 import { chatLogStore } from '@/features/chat/lib/chatLogStore';
 import type { StalkerUser, TwitchUser } from '@/core/types/twitch';
-import { fadeIn, hoverNeutralBorderedRow, hoverNeutralControl, hoverNeutralIconBtn, hoverSubtleRowBg, panelCard, textInput } from '@/core/utils/tw';
+import { fadeIn, hoverNeutralBorderedRow, hoverNeutralIconBtn, hoverSubtleRowBg, panelCard, textInput } from '@/core/utils/tw';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { UserInspectModal } from '@/shared/ui/UserInspectModal';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
@@ -180,7 +180,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
     return (
         <>
             <div className={`${panelCard} ${fadeIn} mb-3 flex flex-col`}>
-                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5 max-md:flex-col max-md:items-start">
+                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5 max-md:flex-col max-md:items-start">
                     <div className="flex min-w-0 items-center gap-3">
                         <div
                             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}
@@ -188,10 +188,10 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                             <Users className="h-4 w-4" aria-hidden />
                         </div>
                         <div className="min-w-0">
-                            <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
+                            <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">
                                 {stalker.title}
                             </h2>
-                            <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
+                            <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">
                                 {stalker.info}
                             </p>
                         </div>
@@ -199,7 +199,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
 
                     <div className="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:justify-between">
                         <span
-                            className={`inline-flex items-center gap-1.5 text-[0.8125rem] ${scanning ? 'text-success' : 'text-[#c4c4cc]'}`}
+                            className={`inline-flex items-center gap-1.5 text-[0.8125rem] ${scanning ? 'text-success' : 'text-text-muted'}`}
                         >
                             {scanning ? (
                                 <>
@@ -216,14 +216,14 @@ export function StalkerView({ active = true }: { active?: boolean }) {
 
                         <div className="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:flex-col max-md:items-stretch">
                             <div className="relative w-[200px] max-md:w-full">
-                                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#c4c4cc]" />
+                                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-text-muted" />
                                 <input
                                     type="search"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder={stalker.searchPlaceholder}
                                     aria-label={stalker.searchPlaceholder}
-                                    className={`${textInput} ${hoverNeutralControl} pl-9 focus:border-primary focus:bg-primary/[0.02]`}
+                                    className={`${textInput} pl-9`}
                                 />
                             </div>
 
@@ -249,7 +249,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                 }}
                                 title={stalker.btnReload}
                                 aria-label={stalker.btnReload}
-                                className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-[#c4c4cc] ${hoverNeutralIconBtn}`}
+                                className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-text-muted ${hoverNeutralIconBtn}`}
                             >
                                 <RotateCw className="size-4 shrink-0" />
                             </button>
@@ -260,21 +260,21 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                 </header>
 
                 <div className="p-5">
-                <div className="overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary">
+                <div className="overflow-hidden rounded-xl border border-border-strong bg-bg-secondary">
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse">
                             <thead>
-                                <tr className="border-b border-white/[0.08] bg-black/20">
-                                    <th className="w-[60px] px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
+                                <tr className="border-b border-border-strong bg-bg-secondary">
+                                    <th className="w-[60px] px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-text-muted uppercase">
                                         {stalker.table.avatar}
                                     </th>
-                                    <th className="px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
+                                    <th className="px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-text-muted uppercase">
                                         {stalker.table.user}
                                     </th>
-                                    <th className="px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
+                                    <th className="px-5 py-3.5 text-left text-[0.6875rem] font-bold tracking-wide text-text-muted uppercase">
                                         {stalker.table.login}
                                     </th>
-                                    <th className="px-5 py-3.5 text-right text-[0.6875rem] font-bold tracking-wide text-[#c4c4cc] uppercase">
+                                    <th className="px-5 py-3.5 text-right text-[0.6875rem] font-bold tracking-wide text-text-muted uppercase">
                                         {stalker.table.action}
                                     </th>
                                 </tr>
@@ -286,10 +286,10 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                     <tr>
                                         <td colSpan={4} className="px-5 py-12 text-center">
                                             <EmptyStateIcon icon={Radio} />
-                                            <h2 className="mb-2 text-[0.95rem] font-bold text-[#fafafa]">
+                                            <h2 className="mb-2 text-[0.95rem] font-bold text-text-main">
                                                 {stalker.table.readyTitle}
                                             </h2>
-                                            <p className="mx-auto max-w-[400px] text-[0.8125rem] text-[#c4c4cc]">
+                                            <p className="mx-auto max-w-[400px] text-[0.8125rem] text-text-muted">
                                                 {stalker.table.readyDesc}
                                             </p>
                                         </td>
@@ -298,7 +298,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                     <tr>
                                         <td
                                             colSpan={4}
-                                            className="px-5 py-10 text-center text-[0.8125rem] text-[#71717a]"
+                                            className="px-5 py-10 text-center text-[0.8125rem] text-text-muted"
                                         >
                                             <span className="inline-flex items-center justify-center gap-2">
                                                 <InlineIcon icon={Radio} className="animate-pulse" />
@@ -317,7 +317,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                             }`}
                                             onClick={() => void inspect(user.user_login)}
                                         >
-                                            <td className="border-b border-white/[0.03] px-5 py-3 align-middle">
+                                            <td className="border-b border-border-subtle px-5 py-3 align-middle">
                                                 {user.profile_image_url ? (
                                                     <img
                                                         src={user.profile_image_url}
@@ -326,25 +326,25 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                                         className="block h-8 w-8 rounded-full object-cover"
                                                     />
                                                 ) : (
-                                                    <div className="flex size-8 items-center justify-center rounded-full bg-bg-secondary text-[#71717a]">
+                                                    <div className="flex size-8 items-center justify-center rounded-full bg-bg-secondary text-text-muted">
                                                         <IconSm icon={User} />
                                                     </div>
                                                 )}
                                             </td>
-                                            <td className="border-b border-white/[0.03] px-5 py-3 align-middle text-[0.8125rem] font-semibold tracking-[0.5px]">
+                                            <td className="border-b border-border-subtle px-5 py-3 align-middle text-[0.8125rem] font-semibold tracking-[0.5px]">
                                                 {user.user_name}
                                             </td>
-                                            <td className="border-b border-white/[0.03] px-5 py-3 align-middle font-[Consolas,monospace] text-[0.8125rem] text-[#c4c4cc]">
+                                            <td className="border-b border-border-subtle px-5 py-3 align-middle font-[Consolas,monospace] text-[0.8125rem] text-text-muted">
                                                 @{user.user_login}
                                             </td>
-                                            <td className="border-b border-white/[0.03] px-5 py-3 text-right align-middle">
+                                            <td className="border-b border-border-subtle px-5 py-3 text-right align-middle">
                                                 <button
                                                     type="button"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         void inspect(user.user_login);
                                                     }}
-                                                    className={`inline-flex items-center gap-1 rounded-md border border-white/[0.08] bg-transparent px-3 py-1.5 text-[0.8125rem] text-[#c4c4cc] ${hoverNeutralBorderedRow}`}
+                                                    className={`inline-flex items-center gap-1 rounded-md border border-border-strong bg-transparent px-3 py-1.5 text-[0.8125rem] text-text-muted ${hoverNeutralBorderedRow}`}
                                                 >
                                                     <Eye className="size-4 shrink-0" />
                                                     {stalker.table.btnView}
@@ -358,7 +358,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                     </div>
                 </div>
 
-                <p className="mt-2.5 text-center text-[0.6875rem] text-[#a1a1aa]">
+                <p className="mt-2.5 text-center text-[0.6875rem] text-text-muted">
                     {stalker.footer}
                 </p>
                 </div>

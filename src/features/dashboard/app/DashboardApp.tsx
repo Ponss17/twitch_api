@@ -17,6 +17,7 @@ import { fadeIn } from '@/core/utils/tw';
 import type { DashboardTab } from '@/core/config/config';
 import { DashboardPanelProvider } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { I18nProvider } from '@/core/i18n/I18nContext';
+import { LigaEasterEgg } from '@/features/dashboard/easterEggs/LigaEasterEgg';
 
 function DashboardPanelShell({
     tab,
@@ -41,6 +42,7 @@ export function DashboardApp() {
         <I18nProvider>
             <ToastProvider>
                 <AppToaster />
+                <LigaEasterEgg />
                 <SessionProvider requireAuth>
                     <DashboardAppShell />
                 </SessionProvider>
@@ -152,13 +154,13 @@ function DashboardAppShell() {
             />
 
             {loading && splashOpen && (
-                <div className="min-h-screen bg-[#09090b]" aria-hidden />
+                <div className="min-h-screen bg-bg-main" aria-hidden />
             )}
 
             {dashboardReady && (
                 <div
                     id="dashboard-page"
-                    className={`flex min-h-full flex-1 flex-col bg-[#09090b] transition-[filter,opacity] duration-300 ${splashOpen && !splashDone ? 'pointer-events-none opacity-50 blur-[2px]' : ''
+                    className={`flex min-h-full flex-1 flex-col bg-bg-main transition-[filter,opacity] duration-300 ${splashOpen && !splashDone ? 'pointer-events-none opacity-50 blur-[2px]' : ''
                         }`}
                 >
                     <Sidebar

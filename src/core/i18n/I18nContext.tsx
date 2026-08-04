@@ -1,15 +1,18 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { es, type Locale, type Translations } from '@/core/i18n/locales/es';
+import { es, type Translations } from '@/core/i18n/locales/es';
 import { en } from '@/core/i18n/locales/en';
 
 const LOCALE_STORAGE_KEY = 'losperris_locale';
-const SUPPORTED_LOCALES: Locale[] = ['es', 'en'];
+
+/** Locales soportados. Añadir aquí para extender el sistema de idiomas. */
+export const SUPPORTED_LOCALES = ['es', 'en'] as const;
+export type Locale = (typeof SUPPORTED_LOCALES)[number];
 
 function loadLocale(): Locale {
     if (typeof window === 'undefined') return 'es';
     try {
         const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
-        if (stored && SUPPORTED_LOCALES.includes(stored as Locale)) {
+        if (stored && (SUPPORTED_LOCALES as ReadonlyArray<string>).includes(stored)) {
             return stored as Locale;
         }
     } catch {

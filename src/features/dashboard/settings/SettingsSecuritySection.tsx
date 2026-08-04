@@ -37,23 +37,23 @@ export function SettingsSecuritySection({
             info={pT.apiKeyInfo}
             description={pT.apiKeyWarning}
         >
-            <div className="flex overflow-hidden rounded-lg border border-white/[0.06] bg-bg-secondary transition focus-within:border-primary">
+            <div className="flex overflow-hidden rounded-lg border border-border-subtle bg-bg-secondary transition focus-within:border-primary">
                 <input
                     id="profile-api-key"
                     readOnly
                     type="text"
                     value={keyVisible ? apiKey : '••••••••••••••••••••••••••••••••'}
                     aria-label={pT.apiKeyPrivate}
-                    className="flex-1 border-none bg-transparent px-3 py-2 font-[Consolas,monospace] text-[0.9rem] text-white outline-none"
+                    className="flex-1 border-none bg-transparent px-3 py-2 font-[Consolas,monospace] text-[0.9rem] text-text-main outline-none"
                 />
-                <div className="flex border-l border-white/[0.08] bg-white/[0.02]">
+                <div className="flex border-l border-border-strong bg-text-main/5">
                     <button
                         type="button"
                         onClick={onToggleKey}
                         disabled={keyLoading}
                         title={pT.toggleVisibility}
                         aria-label={pT.toggleVisibility}
-                        className="flex items-center justify-center border-l border-white/[0.05] px-3 text-zinc-400 transition first:border-l-0 hover:bg-white/[0.05] hover:text-white"
+                        className="flex items-center justify-center border-l border-border-subtle px-3 text-text-muted transition first:border-l-0 hover:bg-text-main/5 hover:text-text-main"
                     >
                         {keyVisible ? (
                             <EyeOff className="w-4 h-4" aria-hidden="true" />
@@ -67,7 +67,7 @@ export function SettingsSecuritySection({
                         disabled={keyLoading}
                         title={pT.copyKey}
                         aria-label={pT.copyKey}
-                        className="flex items-center justify-center gap-1.5 border-l border-white/[0.05] px-3 text-[0.82rem] text-zinc-400 transition hover:bg-primary/10 hover:text-primary"
+                        className="flex items-center justify-center gap-1.5 border-l border-border-subtle px-3 text-[0.82rem] text-text-muted transition hover:bg-primary/10 hover:text-primary"
                     >
                         {isKeyCopied ? (
                             <Check className="w-4 h-4" aria-hidden="true" />
@@ -81,7 +81,7 @@ export function SettingsSecuritySection({
                         onClick={onRegenKey}
                         title={pT.regenKey}
                         aria-label={pT.regenKey}
-                        className="flex items-center justify-center border-l border-white/[0.05] px-3 text-zinc-400 transition hover:bg-error/[0.08] hover:text-error"
+                        className="flex items-center justify-center border-l border-border-subtle px-3 text-text-muted transition hover:bg-error/[0.08] hover:text-error"
                     >
                         <RotateCw className="w-4 h-4" aria-hidden="true" />
                     </button>
@@ -96,7 +96,7 @@ export function SettingsSecuritySection({
                     </span>
                     {pT.activeKey}
                 </span>
-                <span className="text-[0.75rem] text-zinc-400">
+                <span className="text-[0.75rem] text-text-muted">
                     {pT.activeKeyDesc}
                 </span>
             </div>

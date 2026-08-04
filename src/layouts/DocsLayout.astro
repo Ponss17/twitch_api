@@ -65,11 +65,11 @@ const swScope = staticPath('/');
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
-            rel="preload"
+            rel="stylesheet"
             href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap"
-            as="style"
             id="geist-font-preload"
-            onload="this.onload=null;this.rel='stylesheet'"
+            media="print"
+            onload="this.media='all'"
         />
         <noscript>
             <link
@@ -104,7 +104,7 @@ const swScope = staticPath('/');
         )}
     </head>
     <body class:list={[docsPage, 'flex min-h-screen flex-col']}>
-        <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded">
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-bg-secondary focus:text-primary focus:border focus:border-border-strong focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors">
             Saltar al contenido principal
         </a>
         <main id="main-content" class="flex min-h-0 flex-1 flex-col">

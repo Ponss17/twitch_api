@@ -37,10 +37,10 @@ const USEFUL_LINKS: Array<{
 ];
 
 const ROW =
-    `flex min-h-[44px] w-full items-center gap-2.5 rounded-lg border border-white/[0.06] bg-bg-secondary py-0 pl-1.5 pr-3 text-left text-[0.8125rem] font-semibold text-[#c4c4cc] ${hoverSubtleBorderedRow}`;
+    `flex min-h-[44px] w-full items-center gap-2.5 rounded-lg border border-border-subtle bg-bg-secondary py-0 pl-1.5 pr-3 text-left text-[0.8125rem] font-semibold text-text-muted ${hoverSubtleBorderedRow}`;
 
 const SECTION_LABEL =
-    'mb-2 shrink-0 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[#8b8b93]';
+    'mb-2 shrink-0 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-text-muted';
 
 export const HomeResourcesPanel = memo(function HomeResourcesPanel({ onNavigate }: HomeResourcesPanelProps) {
     const { t } = useTranslation();
@@ -51,11 +51,11 @@ export const HomeResourcesPanel = memo(function HomeResourcesPanel({ onNavigate 
             className={`${panelCard} ${fadeIn} flex h-[510px] flex-col`}
             style={{ animationDelay: '60ms' }}
         >
-            <div className="flex shrink-0 items-center gap-3 border-b border-white/[0.06] px-5 py-3.5">
+            <div className="flex shrink-0 items-center gap-3 border-b border-border-subtle px-5 py-3.5">
                 <div className={ICON_WRAP}>
                     <LayoutGrid className="h-4 w-4" aria-hidden />
                 </div>
-                <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">{rT.title}</h2>
+                <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">{rT.title}</h2>
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col gap-5 p-4">

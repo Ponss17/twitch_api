@@ -24,7 +24,7 @@ const STORAGE_KEY = 'about_tech_card_order';
 const TECH_LINK = 'text-inherit underline decoration-inherit underline-offset-2';
 
 const TECH_CARD =
-    'relative flex cursor-grab flex-col gap-1 rounded-xl border border-white/5 bg-[#121214] p-4 active:cursor-grabbing hover:border-primary/40 hover:bg-primary/[0.06]';
+    'relative flex cursor-grab flex-col gap-1 rounded-xl border border-border-subtle bg-bg-secondary p-4 active:cursor-grabbing hover:border-primary/40 hover:bg-primary/[0.06]';
 
 const TECH_CARD_DRAGGING =
     'z-20 scale-[1.02] border-primary/50 shadow-lg ring-1 ring-primary/30';
@@ -187,7 +187,7 @@ function animDelay(delay: number): CSSProperties {
 function TechCardContent({ card }: { card: TechCardDef }) {
     return (
         <>
-            <span className="text-[0.6rem] font-bold tracking-[0.1em] text-[#c4c4cc] uppercase">{card.type}</span>
+            <span className="text-[0.6rem] font-bold tracking-[0.1em] text-text-muted uppercase">{card.type}</span>
             <span className="text-[0.9rem] font-semibold text-white">{card.content}</span>
         </>
     );

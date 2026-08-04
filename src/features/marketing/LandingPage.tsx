@@ -21,7 +21,7 @@ import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTab
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
-const GRID_BG = 'bg-[#09090b]';
+const GRID_BG = 'bg-bg-main';
 
 const GRID_STYLE: React.CSSProperties = {
     backgroundImage: `
@@ -34,7 +34,7 @@ const GRID_STYLE: React.CSSProperties = {
 
 
 const CMD_CODE =
-    'rounded border border-[#9146ff]/15 bg-[#9146ff]/10 px-1.5 py-0.5 font-mono text-[0.95em] text-[#a78bfa]';
+    'rounded border border-primary/15 bg-primary/10 px-1.5 py-0.5 font-mono text-[0.95em] text-primary/80';
 
 const FEATURE_CATEGORIES = [
     {
@@ -218,26 +218,24 @@ export function LandingPage() {
         <div className={`relative flex flex-1 flex-col font-[Outfit,sans-serif] ${GRID_BG}`} style={GRID_STYLE}>
             <header
                 className={`fixed inset-x-0 top-0 z-[1000] border-b backdrop-blur-xl transition-colors duration-300 ${scrolled
-                        ? 'border-white/[0.08] bg-[#09090b]/90'
-                        : 'border-white/[0.04] bg-[#09090b]/50'
+                        ? 'border-border-strong bg-bg-main/90'
+                        : 'border-border-subtle bg-bg-main/50'
                     }`}
             >
                 <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-3 px-6 py-2 md:flex-row md:gap-0 md:px-8 md:py-3">
                     <a href={appPath('/')} className="flex items-center gap-3 text-inherit no-underline">
                         <AppLogo
-                            alt="LosPerris"
                             className="h-8 w-8 object-contain md:h-11 md:w-11"
-                            draggable={false}
                         />
                         <h1 className="m-0 text-lg font-extrabold tracking-tight md:text-2xl">
-                            LosPerris <span className="text-[#9146ff]">Twitch Api</span>
+                            LosPerris <span className="text-primary">Twitch Api</span>
                         </h1>
                     </a>
                     <nav className="flex w-full justify-center gap-2.5 md:w-auto md:gap-[15px]">
                         <a
                             href={appPath('/docs')}
                             onClick={saveDocsReturnPath}
-                            className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#c4c4cc] no-underline transition hover:bg-white/5 hover:text-[#fafafa]"
+                            className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-text-muted no-underline transition hover:bg-text-main/5 hover:text-text-main"
                         >
                             <Book className="w-4" /> Documentación
                         </a>
@@ -245,7 +243,7 @@ export function LandingPage() {
                             href="https://discord.gg/PJbExZe7Tp"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#c4c4cc] no-underline transition hover:bg-white/5 hover:text-[#fafafa]"
+                            className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-text-muted no-underline transition hover:bg-text-main/5 hover:text-text-main"
                         >
                             <DiscordIcon className="w-4" /> Comunidad
                         </a>
@@ -256,22 +254,22 @@ export function LandingPage() {
             <div className="relative z-[1] mx-auto w-full max-w-[1400px] flex-1 px-6 md:px-8 pt-12">
                 <section className="grid min-h-0 items-center gap-16 py-24 md:min-h-[88vh] md:grid-cols-2 md:gap-16 md:py-0">
                     <div className="max-w-[600px] text-center md:text-left">
-                        <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-3.5 py-1.5 text-[0.8125rem] font-medium tracking-wide text-[#c4c4cc] shadow-sm backdrop-blur-md transition-colors hover:border-white/[0.15] hover:bg-white/[0.04]">
+                        <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-border-strong bg-text-main/5 px-3.5 py-1.5 text-[0.8125rem] font-medium tracking-wide text-text-muted shadow-sm backdrop-blur-md transition-colors hover:border-white/[0.15] hover:bg-text-main/5">
                             <span className="relative flex h-2 w-2">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#9146ff] opacity-75"></span>
-                                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#9146ff]"></span>
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
+                                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
                             </span>
                             v5 · Beta activa
                         </div>
                         <h2
-                            className="mb-5 text-[clamp(2.8rem,4.5vw,4.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-[#fafafa]"
+                            className="mb-5 text-[clamp(2.8rem,4.5vw,4.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-text-main"
                         >
                             Comandos para tu
                             <br />
-                            <span className="text-[#9146ff]">Stream.</span>
+                            <span className="text-primary">Stream.</span>
                         </h2>
                         <p
-                            className="mb-8 text-lg leading-relaxed text-[#c4c4cc]"
+                            className="mb-8 text-lg leading-relaxed text-text-muted"
                         >
                             {legacyReloginNotice ? (
                                 <>
@@ -293,7 +291,7 @@ export function LandingPage() {
                             {hasSession ? (
                                 <a
                                     href={appPath('/dashboard/')}
-                                    className="inline-flex items-center gap-2.5 rounded-lg bg-[#9146ff] px-7 py-3 text-[0.95rem] font-semibold text-white no-underline shadow-[0_0_24px_-8px_#9146ff] transition-all hover:bg-[#7c3aed] hover:shadow-[0_0_36px_-6px_#9146ff]"
+                                    className="inline-flex items-center gap-2.5 rounded-lg bg-primary px-7 py-3 text-[0.95rem] font-semibold text-white no-underline animate-glow-pulse transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-hover hover:scale-[1.03]"
                                 >
                                     Ir al Panel
                                     <ArrowRight className="w-4" />
@@ -302,7 +300,7 @@ export function LandingPage() {
                                 <button
                                     type="button"
                                     onClick={() => setDisclaimerOpen(true)}
-                                    className="inline-flex items-center gap-2.5 rounded-lg bg-[#9146ff] px-7 py-3 text-[0.95rem] font-semibold text-white shadow-[0_0_24px_-8px_#9146ff] transition-all hover:bg-[#7c3aed] hover:shadow-[0_0_36px_-6px_#9146ff]"
+                                    className="inline-flex items-center gap-2.5 rounded-lg bg-primary px-7 py-3 text-[0.95rem] font-semibold text-white animate-glow-pulse transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-hover hover:scale-[1.03]"
                                 >
                                     <TwitchIcon className="w-4 brightness-0 invert" />
                                     {legacyReloginNotice
@@ -312,23 +310,23 @@ export function LandingPage() {
                             )}
                             <a
                                 href="#features"
-                                className="inline-flex items-center gap-2 rounded-lg border border-white/[0.12] px-[22px] py-[11px] text-[0.9rem] font-medium text-[#c4c4cc] no-underline transition duration-300 hover:border-[#9146ff]/50 hover:bg-[#9146ff]/[0.03] hover:text-white"
+                                className="inline-flex items-center gap-2 rounded-lg border border-white/[0.12] px-[22px] py-[11px] text-[0.9rem] font-medium text-text-muted no-underline transition duration-300 hover:border-primary/50 hover:bg-primary/[0.03] hover:text-white"
                             >
                                 Ver funciones <ArrowRight className="w-4" />
                             </a>
                         </div>
-                        <p className="mb-6 text-[0.8rem] text-[#71717a]">
+                        <p className="mb-6 text-[0.8rem] text-text-muted">
                             * Al conectar aceptas nuestra{' '}
                             <a
                                 href={legalPath('privacidad')}
-                                className="text-[#c4c4cc] underline underline-offset-2 transition hover:text-primary"
+                                className="text-text-muted underline underline-offset-2 transition hover:text-primary"
                             >
                                 política de privacidad
                             </a>{' '}
                             y{' '}
                             <a
                                 href={legalPath('terminos')}
-                                className="text-[#c4c4cc] underline underline-offset-2 transition hover:text-primary"
+                                className="text-text-muted underline underline-offset-2 transition hover:text-primary"
                             >
                                 términos de uso
                             </a>
@@ -339,8 +337,8 @@ export function LandingPage() {
                     <div
                         className="relative hidden items-center justify-center md:flex"
                     >
-                        <div className="w-full max-w-[500px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#0a0a0a] shadow-2xl">
-                            <div className="flex items-center justify-between border-b border-white/[0.04] bg-white/[0.02] px-4 py-3">
+                        <div className="w-full max-w-[500px] overflow-hidden rounded-xl border border-border-strong bg-[#0a0a0a] shadow-2xl">
+                            <div className="flex items-center justify-between border-b border-border-subtle bg-text-main/5 px-4 py-3">
                                 <div className="flex items-center gap-1.5 opacity-60 transition-opacity hover:opacity-100">
                                     <span className="font-mono text-xs text-white/40">ttv.losperris.dev</span>
                                 </div>
@@ -349,7 +347,7 @@ export function LandingPage() {
                                         type="button"
                                         onClick={handleRunRequest}
                                         disabled={requestStatus === 'loading'}
-                                        className="flex items-center gap-1.5 rounded bg-white/[0.08] px-2 py-1 text-xs text-white/70 transition hover:bg-white/[0.15] hover:text-white disabled:opacity-50"
+                                        className="flex items-center gap-1.5 rounded bg-text-main/5 px-2 py-1 text-xs text-white/70 transition hover:bg-white/[0.15] hover:text-white disabled:opacity-50"
                                     >
                                         {requestStatus === 'loading'
                                             ? 'Petición en curso...'
@@ -360,16 +358,16 @@ export function LandingPage() {
                                     <button
                                         type="button"
                                         onClick={() => void copyTerminal()}
-                                        className="flex items-center gap-1.5 text-xs text-white/60 transition hover:text-[#a78bfa]"
+                                        className="flex items-center gap-1.5 text-xs text-white/60 transition hover:text-primary/80"
                                     >
-                                        {isCopied ? <Check className="w-3.5 text-[#a78bfa]" /> : <Copy className="w-3.5" />}
+                                        {isCopied ? <Check className="w-3.5 text-primary/80" /> : <Copy className="w-3.5" />}
                                         {isCopied ? 'Copiado' : 'Copiar'}
                                     </button>
                                 </div>
                             </div>
                             <div className="space-y-0 p-6 font-mono text-[0.85rem] leading-8 text-white/80">
                                 <div>
-                                    <span className="font-bold text-[#a78bfa]">$</span>
+                                    <span className="font-bold text-primary/80">$</span>
                                     <span className="font-semibold text-white"> curl</span>
                                     <span className="text-white/60"> -G</span>
                                     <span> &quot;https://ttv.losperris.dev/twitch/followage&quot;</span>
@@ -391,13 +389,13 @@ export function LandingPage() {
 
                                 {requestStatus === 'loading' && (
                                     <div className="mt-4 flex items-center gap-2 text-[0.8rem] text-white/50 animate-pulse">
-                                        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#9146ff] border-t-transparent"></span>
+                                        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent"></span>
                                         Ejecutando petición...
                                     </div>
                                 )}
 
                                 {requestStatus === 'success' && (
-                                    <div className="mt-3 animate-fade-soft border-t border-white/[0.04] pt-3 text-[0.8rem]">
+                                    <div className="mt-3 animate-fade-soft border-t border-border-subtle pt-3 text-[0.8rem]">
                                         <div className="mb-1.5 flex items-center gap-2">
                                             <span className="text-[0.65rem] font-bold text-[#10b981]">200 OK</span>
                                             <span className="text-[0.65rem] text-white/30">{latency}ms</span>
@@ -418,9 +416,9 @@ export function LandingPage() {
                     <div className="mb-12 text-center">
 
                         <h2 className="text-5xl font-bold leading-tight tracking-tight text-white">
-                            Funciones de la <span className="text-[#9146ff]">API</span>
+                            Funciones de la <span className="text-primary">API</span>
                         </h2>
-                        <p className="mx-auto mt-4 max-w-[650px] text-lg text-[#c4c4cc]">
+                        <p className="mx-auto mt-4 max-w-[650px] text-lg text-text-muted">
                             Todo lo que necesitas para tu stream.
                         </p>
                     </div>
@@ -429,22 +427,22 @@ export function LandingPage() {
                         {FEATURE_CATEGORIES.map((cat) => (
                             <div key={cat.title}>
                                 <div className="mb-12 text-center">
-                                    <h3 className="text-4xl font-bold tracking-tight text-white">{cat.title}</h3>
-                                    <p className="mx-auto mt-3 max-w-[600px] text-[#71717a]">{cat.description}</p>
+                                    <h3 className="text-4xl font-bold tracking-tight text-text-main">{cat.title}</h3>
+                                    <p className="mx-auto mt-3 max-w-[600px] text-text-muted">{cat.description}</p>
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 min-[1024px]:grid-cols-[repeat(auto-fit,minmax(320px,1fr))]">
                                     {cat.cards.map((card) => (
                                         <div
                                             key={card.title}
-                                            className="flex min-h-[200px] flex-col items-center rounded-xl border border-white/[0.08] bg-bg-card p-8 text-center transition hover:border-[#9146ff]/40"
+                                            className="flex min-h-[200px] flex-col items-center rounded-xl border border-border-strong bg-bg-card p-8 text-center transition hover:border-primary/40"
                                         >
-                                            <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-[10px] border border-[#9146ff]/20 bg-[#9146ff]/10 text-xl text-[#a78bfa]">
+                                            <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-[10px] border border-primary/20 bg-primary/10 text-xl text-primary/80">
                                                 <card.icon className="w-5 h-5" />
                                             </div>
-                                            <h4 className="text-xl font-semibold text-white">{card.title}</h4>
-                                            <p className="mt-1.5 text-[#c4c4cc]">{card.text}</p>
+                                            <h4 className="text-xl font-semibold text-text-main">{card.title}</h4>
+                                            <p className="mt-1.5 text-text-muted">{card.text}</p>
                                             {'tag' in card && card.tag && (
-                                                <span className="mt-2 inline-block rounded border border-[#9146ff]/20 bg-[#9146ff]/10 px-2 py-1 font-mono text-xs text-[#a78bfa]">
+                                                <span className="mt-2 inline-block rounded border border-primary/20 bg-primary/10 px-2 py-1 font-mono text-xs text-primary/80">
                                                     {card.tag}
                                                 </span>
                                             )}
@@ -458,10 +456,10 @@ export function LandingPage() {
 
                 <section className="pb-20 pt-8">
                     <div className="mb-12 text-center">
-                        <h2 className="text-4xl font-bold tracking-tight text-white">
-                            Preguntas <span className="text-[#9146ff]">Frecuentes</span>
+                        <h2 className="text-4xl font-bold tracking-tight text-text-main">
+                            Preguntas <span className="text-primary">Frecuentes</span>
                         </h2>
-                        <p className="mt-3 text-[#71717a]">Resuelve tus dudas sobre la API</p>
+                        <p className="mt-3 text-text-muted">Resuelve tus dudas sobre la API</p>
                     </div>
                     <div className="mx-auto flex max-w-[800px] flex-col">
                         <Accordion

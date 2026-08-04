@@ -19,12 +19,12 @@ export function AnalyticsEndpointsTable({ pieData }: AnalyticsEndpointsTableProp
             info={aT.info}
         >
             {pieData.length === 0 ? (
-                <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
-                        <Activity className="h-6 w-6 text-zinc-400" />
+                <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border-subtle bg-transparent">
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-text-main/5">
+                        <Activity className="h-6 w-6 text-text-muted" />
                     </div>
-                    <span className="text-sm font-medium text-zinc-400">{aT.noData}</span>
-                    <span className="mt-1 text-xs text-zinc-400">
+                    <span className="text-sm font-medium text-text-muted">{aT.noData}</span>
+                    <span className="mt-1 text-xs text-text-muted">
                         {aT.noDataSub}
                     </span>
                 </div>
@@ -32,7 +32,7 @@ export function AnalyticsEndpointsTable({ pieData }: AnalyticsEndpointsTableProp
                 <div className="flex-1 overflow-x-auto">
                     <table className="w-full text-left text-sm">
                         <thead>
-                            <tr className="border-b border-white/[0.06] text-[#8b8b93]">
+                            <tr className="border-b border-border-subtle text-text-muted">
                                 <th className="pb-3 font-medium">{aT.headers.command}</th>
                                 <th className="pb-3 text-right font-medium">{aT.headers.requests}</th>
                                 <th className="pb-3 text-right font-medium">{aT.headers.success}</th>
@@ -43,9 +43,9 @@ export function AnalyticsEndpointsTable({ pieData }: AnalyticsEndpointsTableProp
                             {pieData.map((row, idx) => (
                                 <tr
                                     key={row.name}
-                                    className="border-b border-white/[0.04] last:border-0"
+                                    className="border-b border-border-subtle last:border-0"
                                 >
-                                    <td className="py-3 capitalize text-zinc-200">
+                                    <td className="py-3 capitalize text-text-main">
                                         <div className="flex items-center gap-2">
                                             <span
                                                 className="size-2 rounded-full"
@@ -56,7 +56,7 @@ export function AnalyticsEndpointsTable({ pieData }: AnalyticsEndpointsTableProp
                                             {row.name}
                                         </div>
                                     </td>
-                                    <td className="py-3 text-right font-medium text-white">
+                                    <td className="py-3 text-right font-medium text-text-main">
                                         {row.value.toLocaleString()}
                                     </td>
                                     <td className="py-3 text-right">
@@ -72,9 +72,9 @@ export function AnalyticsEndpointsTable({ pieData }: AnalyticsEndpointsTableProp
                                             {row.successRate}%
                                         </span>
                                     </td>
-                                    <td className="py-3 text-right font-mono text-xs text-zinc-400">
+                                    <td className="py-3 text-right font-mono text-xs text-text-muted">
                                         {row.avgLatency}ms
-                                        <span className="ml-1 text-[0.65rem] text-zinc-600">
+                                        <span className="ml-1 text-[0.65rem] text-text-muted">
                                             ({(row.avgLatency / 1000).toFixed(2)}s)
                                         </span>
                                     </td>
