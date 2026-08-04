@@ -28,7 +28,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
     const { t } = useTranslation();
     const asideRef = useRef<HTMLElement>(null);
 
-    const supportLinkClass = `${sidebarSupportLink} underline decoration-[#52525b] underline-offset-[5px] hover:decoration-primary`;
+    const supportLinkClass = `${sidebarSupportLink} underline decoration-text-muted underline-offset-[5px] hover:decoration-primary`;
 
     // Cerrado en móvil: no debe recibir foco (queda fuera de pantalla).
     useEffect(() => {
@@ -68,12 +68,10 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
             >
                 <div className={sidebarBrandHeader}>
                     <AppLogo
-                        alt="Logo"
-                        className="h-12 w-12 rounded-lg object-contain"
-                        draggable={false}
+                        className="pointer-events-none h-9 w-9 shrink-0 drop-shadow-md transition-all duration-300"
                     />
-                    <span className="text-[1.1rem] font-bold text-[#fafafa]">
-                        LosPerris<span className="text-[#a78bfa]">API</span>
+                    <span className="text-[1.1rem] font-bold text-text-main">
+                        LosPerris<span className="text-[color:var(--brand-text)]">API</span>
                     </span>
                 </div>
 
@@ -91,7 +89,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                             <div key={item.id}>
                                 {showCategory && (
                                     <p
-                                        className={`mb-2 px-4 text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-zinc-400 ${
+                                        className={`mb-2 px-4 text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-text-muted ${
                                             item.id === NAV_ITEMS[0].id ? 'mt-2' : 'mt-8'
                                         }`}
                                     >
@@ -121,7 +119,7 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                                     <div className="relative z-10 flex items-center gap-3">
                                         <IconMd
                                             icon={item.icon}
-                                            className={isActive ? 'animate-nav-icon-bounce text-white' : ''}
+                                            className={isActive ? 'animate-nav-icon-bounce text-primary' : ''}
                                         />
                                         <span>{t.sidebar.items[itemKey]}</span>
                                     </div>

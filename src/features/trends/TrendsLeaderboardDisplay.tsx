@@ -38,12 +38,12 @@ export function TrendsLeaderboardDisplay({
     const headText = isOverlay ? 'text-[0.625rem]' : 'text-[0.6875rem]';
 
     return (
-        <div className={isOverlay ? '' : 'overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02]'}>
+        <div className={isOverlay ? '' : 'overflow-hidden rounded-xl border border-border-strong bg-bg-secondary'}>
             {(showTimer || (isOverlay && tracking)) && (
                 <div
                     className={`flex items-center justify-center gap-2 ${
                         isOverlay ? 'px-3 py-2' : 'px-4 py-3'
-                    } ${isOverlay ? '' : 'border-b border-white/[0.08] bg-warning/5'}`}
+                    } ${isOverlay ? '' : 'border-b border-border-strong bg-warning/5'}`}
                     role="timer"
                     aria-live="polite"
                     aria-label={trends.countdown(formatTrendsTime(remaining))}
@@ -63,7 +63,7 @@ export function TrendsLeaderboardDisplay({
             )}
 
             {!isOverlay && (
-                <div className="border-b border-white/[0.08] px-5 py-3">
+                <div className="border-b border-border-strong px-5 py-3">
                     <h2 className="text-[0.95rem] font-bold">{trends.title(displayName)}</h2>
                 </div>
             )}
@@ -71,19 +71,19 @@ export function TrendsLeaderboardDisplay({
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead>
-                        <tr className="border-b border-white/[0.08] bg-black/20">
+                        <tr className="border-b border-border-strong bg-bg-secondary">
                             <th
-                                className={`w-[44px] text-left font-bold tracking-wide text-[#c4c4cc] uppercase ${headPad} ${headText}`}
+                                className={`w-[44px] text-left font-bold tracking-wide text-text-muted uppercase ${headPad} ${headText}`}
                             >
                                 #
                             </th>
                             <th
-                                className={`text-left font-bold tracking-wide text-[#c4c4cc] uppercase ${headPad} ${headText}`}
+                                className={`text-left font-bold tracking-wide text-text-muted uppercase ${headPad} ${headText}`}
                             >
                                 {trends.table.word}
                             </th>
                             <th
-                                className={`text-right font-bold tracking-wide text-[#c4c4cc] uppercase ${headPad} ${headText}`}
+                                className={`text-right font-bold tracking-wide text-text-muted uppercase ${headPad} ${headText}`}
                             >
                                 {trends.table.reps}
                             </th>
@@ -93,9 +93,9 @@ export function TrendsLeaderboardDisplay({
                     <tbody>
                         {showReady && !isOverlay ? (
                             <tr>
-                                <td colSpan={4} className="px-5 py-10 text-center text-[#71717a]">
+                                <td colSpan={4} className="px-5 py-10 text-center text-text-muted">
                                     <EmptyStateIcon icon={Play} />
-                                    <h4 className="mb-1 text-[0.8125rem] font-bold text-[#fafafa]">
+                                    <h4 className="mb-1 text-[0.8125rem] font-bold text-text-main">
                                         {trends.table.readyTitle}
                                     </h4>
                                     <p className="text-[0.8125rem]">
@@ -105,13 +105,13 @@ export function TrendsLeaderboardDisplay({
                             </tr>
                         ) : showWaiting ? (
                             <tr>
-                                <td colSpan={4} className="px-5 py-5 text-center text-[0.8125rem] text-[#71717a]">
+                                <td colSpan={4} className="px-5 py-5 text-center text-[0.8125rem] text-text-muted">
                                     {trends.table.waiting}
                                 </td>
                             </tr>
                         ) : ranked.length === 0 && isOverlay ? (
                             <tr>
-                                <td colSpan={4} className="px-5 py-5 text-center text-[0.8125rem] text-[#71717a]">
+                                <td colSpan={4} className="px-5 py-5 text-center text-[0.8125rem] text-text-muted">
                                     {trends.table.noData}
                                 </td>
                             </tr>

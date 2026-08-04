@@ -1,3 +1,7 @@
+/**
+ * @deprecated Importar `Locale` desde `@/core/i18n/I18nContext` (fuente canónica).
+ * Mantenido aquí solo para compatibilidad con imports de `Translations`.
+ */
 export type Locale = 'es' | 'en';
 
 /** Traducciones por defecto en español. */
@@ -163,6 +167,15 @@ export const es = {
                 label: 'Idioma de la Interfaz',
                 description: 'Elige el idioma en que se muestra el panel de control.',
             },
+            theme: {
+                label: 'Tema de la Interfaz',
+                description: 'Elige el esquema de colores de la aplicación.',
+                options: {
+                    dark: 'Modo Oscuro',
+                    light: 'Modo Claro',
+                    liga: 'Modo Liga (LDA)'
+                }
+            }
         },
         data: {
             title: 'Datos',

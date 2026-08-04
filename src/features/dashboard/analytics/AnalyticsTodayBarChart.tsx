@@ -26,34 +26,34 @@ const CustomTooltip = ({ active, payload, label, chart }: Custom) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         return (
-            <div className="pointer-events-none rounded-xl border border-white/10 bg-[#18181b] p-4 shadow-xl">
-                <p className="mb-3 border-b border-white/10 pb-2 text-sm font-semibold capitalize text-white">
+            <div className="pointer-events-none rounded-xl border border-border-subtle bg-bg-modal p-4 shadow-xl">
+                <p className="mb-3 border-b border-border-subtle pb-2 text-sm font-semibold capitalize text-text-main">
                     {label}
                 </p>
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between gap-6">
-                        <span className="text-sm text-[#10b981]">{chart.success}:</span>
-                        <span className="text-sm font-bold text-white">
+                        <span className="text-sm text-success">{chart.success}:</span>
+                        <span className="text-sm font-bold text-text-main">
                             {Number(data[chart.success]).toLocaleString()}
                         </span>
                     </div>
                     {data[chart.errors] > 0 && (
                         <div className="flex items-center justify-between gap-6">
-                            <span className="text-sm text-[#ef4444]">{chart.errors}:</span>
-                            <span className="text-sm font-bold text-white">
+                            <span className="text-sm text-error">{chart.errors}:</span>
+                            <span className="text-sm font-bold text-text-main">
                                 {Number(data[chart.errors]).toLocaleString()}
                             </span>
                         </div>
                     )}
-                    <div className="mt-1 flex items-center justify-between gap-6 border-t border-white/10 pt-2">
-                        <span className="text-sm text-[#c4c4cc]">{chart.total}:</span>
-                        <span className="text-sm font-bold text-white">
+                    <div className="mt-1 flex items-center justify-between gap-6 border-t border-border-subtle pt-2">
+                        <span className="text-sm text-text-muted">{chart.total}:</span>
+                        <span className="text-sm font-bold text-text-main">
                             {Number(data[chart.total]).toLocaleString()}
                         </span>
                     </div>
                     <div className="flex items-center justify-between gap-6">
-                        <span className="text-sm text-[#c4c4cc]">{chart.successRate}:</span>
-                        <span className="text-sm font-bold text-white">
+                        <span className="text-sm text-text-muted">{chart.successRate}:</span>
+                        <span className="text-sm font-bold text-text-main">
                             {data[chart.total] > 0
                                 ? ((data[chart.success] / data[chart.total]) * 100).toFixed(1)
                                 : 0}
@@ -90,12 +90,12 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
             info={chart.info}
         >
             {chartData.length === 0 ? (
-                <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
-                        <BarChart2 className="h-6 w-6 text-zinc-400" />
+                <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border-subtle bg-transparent">
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-text-main/5">
+                        <BarChart2 className="h-6 w-6 text-text-muted" />
                     </div>
-                    <span className="text-sm font-medium text-zinc-400">{chart.noData}</span>
-                    <span className="mt-1 text-xs text-zinc-400">
+                    <span className="text-sm font-medium text-text-muted">{chart.noData}</span>
+                    <span className="mt-1 text-xs text-text-muted">
                         {chart.noDataSub}
                     </span>
                 </div>
@@ -113,14 +113,14 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                         >
                             <CartesianGrid
                                 strokeDasharray="3 3"
-                                stroke="#ffffff"
-                                strokeOpacity={0.06}
+                                stroke="var(--text-main)"
+                                strokeOpacity={0.1}
                                 horizontal={true}
                                 vertical={true}
                             />
                             <XAxis
                                 dataKey="name"
-                                stroke="#71717a"
+                                stroke="var(--text-muted)"
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
@@ -128,7 +128,7 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                                 className="capitalize"
                             />
                             <YAxis
-                                stroke="#71717a"
+                                stroke="var(--text-muted)"
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
@@ -146,18 +146,18 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                             <Legend
                                 verticalAlign="top"
                                 align="right"
-                                wrapperStyle={{ paddingBottom: '20px', fontSize: '12px', color: '#c4c4cc' }}
+                                wrapperStyle={{ paddingBottom: '20px', fontSize: '12px', color: 'var(--text-muted)' }}
                                 iconType="circle"
                             />
                             <Bar
                                 dataKey={chart.success}
-                                fill="#10b981"
+                                fill="var(--color-success)"
                                 radius={[4, 4, 0, 0]}
                                 maxBarSize={48}
                             />
                             <Bar
                                 dataKey={chart.errors}
-                                fill="#ef4444"
+                                fill="var(--color-error)"
                                 radius={[4, 4, 0, 0]}
                                 maxBarSize={48}
                             />

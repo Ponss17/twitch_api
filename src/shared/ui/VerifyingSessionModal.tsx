@@ -125,7 +125,7 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
 
     return (
         <div
-            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#09090b] font-[Outfit,sans-serif]"
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-bg-main font-[Outfit,sans-serif]"
             style={{
                 opacity: isLeaving ? 0 : 1,
                 transition: 'opacity 0.4s ease-in-out',
@@ -139,20 +139,18 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
             <div className="flex flex-col items-center max-w-sm w-full px-6 text-center">
                 {/* Logo con resplandor */}
                 <div className="relative mb-10">
-                    <div className="absolute inset-0 rounded-3xl bg-[#9146ff]/20 blur-2xl" />
+                    <div className="absolute inset-0 rounded-3xl bg-primary/20 blur-2xl" />
                     <AppLogo
-                        alt="LosPerris"
-                        className="relative h-20 w-20 object-contain drop-shadow-[0_0_15px_rgba(145,70,255,0.4)] animate-pulse"
-                        draggable={false}
+                        className="relative h-20 w-20 object-contain drop-shadow-[0_0_15px_var(--primary)] animate-pulse"
                     />
                 </div>
 
                 {/* Textos sin spinner, más alineados al diseño Tech Clean */}
                 <div className="mb-6 flex flex-col items-center justify-center h-[4.5rem] w-full">
-                    <h2 className="text-[1.3rem] font-bold tracking-tight text-white w-full truncate">
+                    <h2 className="text-[1.3rem] font-bold tracking-tight text-text-main w-full truncate">
                         {statusTitle}
                     </h2>
-                    <p className="mt-1 text-[0.85rem] font-medium text-zinc-400 w-full truncate">
+                    <p className="mt-1 text-[0.85rem] font-medium text-text-muted w-full truncate">
                         {statusHint}
                     </p>
                 </div>
@@ -167,8 +165,8 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
                                     key={i}
                                     className={`flex-1 rounded-[2px] transition-colors duration-200 ${
                                         isActive 
-                                            ? 'bg-[#9146ff] shadow-[0_0_8px_#9146ff]' 
-                                            : 'bg-white/5'
+                                            ? 'bg-primary shadow-[0_0_8px_var(--primary)]' 
+                                            : 'bg-bg-secondary'
                                     }`}
                                 />
                             );
@@ -176,7 +174,7 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
                     </div>
 
                     {/* Porcentaje numérico */}
-                    <div className="mt-3 font-mono text-[0.75rem] font-bold tracking-[0.1em] text-[#9146ff]">
+                    <div className="mt-3 font-mono text-[0.75rem] font-bold tracking-[0.1em] text-primary">
                         {progressPercent}%
                     </div>
                 </div>

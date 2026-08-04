@@ -59,13 +59,13 @@ export function RouletteWheelDisplay({
         : 'relative mx-auto aspect-square max-w-[380px] p-5 max-[480px]:max-w-full max-[480px]:p-2.5';
 
     return (
-        <div className="text-center text-[#fafafa]">
+        <div className="text-center text-text-main">
             <div className={containerClass}>
                 <div
                     className={`absolute inset-5 rounded-full transition-shadow duration-300 max-[480px]:inset-2.5 ${
                         isSpinning
                             ? 'shadow-none border border-primary'
-                            : 'shadow-none border border-white/10'
+                            : 'shadow-none border border-border-subtle'
                     }`}
                     aria-hidden
                 />
@@ -96,11 +96,11 @@ export function RouletteWheelDisplay({
                 </div>
 
                 <div
-                    className="pointer-events-none absolute top-1/2 left-1/2 z-10 flex h-[14%] w-[14%] min-h-[44px] min-w-[44px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[3px] border-primary/70 bg-[#18181b] shadow-xl"
+                    className="pointer-events-none absolute top-1/2 left-1/2 z-10 flex h-[14%] w-[14%] min-h-[44px] min-w-[44px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[3px] border-primary/70 bg-bg-tertiary shadow-xl"
                     aria-hidden
                 >
                     {chatters.length === 0 ? (
-                        <Users className="h-5 w-5 text-[#71717a]" aria-hidden="true" />
+                        <Users className="h-5 w-5 text-text-muted" aria-hidden="true" />
                     ) : (
                         <Dices
                             className={`h-5 w-5 text-primary ${isSpinning ? 'animate-pulse' : ''}`}
@@ -114,10 +114,10 @@ export function RouletteWheelDisplay({
                         className="pointer-events-none absolute top-[65%] left-1/2 z-[5] w-[52%] -translate-x-1/2 -translate-y-1/2 text-center"
                         aria-hidden
                     >
-                        <p className="text-[0.8125rem] font-semibold leading-snug text-[#c4c4cc]">
+                        <p className="text-[0.8125rem] font-semibold leading-snug text-text-muted">
                             {rlT.noParticipants}
                         </p>
-                        <p className="mt-1 text-[0.6875rem] leading-snug text-[#52525b]">
+                        <p className="mt-1 text-[0.6875rem] leading-snug text-text-muted/80">
                             {rlT.pressPlay}
                         </p>
                     </div>
@@ -139,7 +139,7 @@ export function RouletteWheelDisplay({
                         className="pointer-events-none absolute inset-5 flex items-end justify-center pb-3 max-[480px]:inset-2.5"
                         aria-live="polite"
                     >
-                        <span className="rounded-full bg-black/50 px-3 py-1 text-[0.6875rem] font-semibold tracking-wide text-[#e4e4e7] uppercase backdrop-blur-sm">
+                        <span className="rounded-full bg-black/50 px-3 py-1 text-[0.6875rem] font-semibold tracking-wide text-text-main uppercase backdrop-blur-sm">
                             {rlT.spinning}
                         </span>
                     </div>
@@ -151,18 +151,18 @@ export function RouletteWheelDisplay({
                             <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full border border-amber-400/30 bg-amber-400/10">
                                 <Crown className="size-6 text-amber-400" aria-hidden />
                             </div>
-                            <p className="mb-1 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-[#c4c4cc]">
+                            <p className="mb-1 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-text-muted">
                                 {rlT.winner}
                             </p>
                             <p className="mb-1 text-[1.6rem] font-extrabold leading-tight text-primary">
                                 {winner.user_name}
                             </p>
-                            <p className="mb-4 flex items-center justify-center gap-1.5 text-[0.85rem] text-[#c4c4cc]">
+                            <p className="mb-4 flex items-center justify-center gap-1.5 text-[0.85rem] text-text-muted">
                                 <Sparkles className="size-3.5 text-primary" aria-hidden />
                                 {lastSpinCount || chatters.length} {rlT.participants.toLowerCase()}
                             </p>
                             {!isOverlay && !announceWinnerInChat ? (
-                                <p className="mb-3 text-[0.75rem] text-[#71717a]">
+                                <p className="mb-3 text-[0.75rem] text-text-muted">
                                     {rlT.notAnnounced}
                                 </p>
                             ) : null}
@@ -170,7 +170,7 @@ export function RouletteWheelDisplay({
                                 <button
                                     type="button"
                                     onClick={onDismissWinner}
-                                    className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/10 px-5 py-2 text-[0.8125rem] font-semibold text-[#fafafa] transition hover:border-white/30 hover:bg-white/15"
+                                    className="inline-flex items-center justify-center rounded-lg border border-border-strong bg-bg-secondary px-5 py-2 text-[0.8125rem] font-semibold text-text-main transition hover:border-text-main/30 hover:bg-text-main/10"
                                 >
                                     {rlT.close}
                                 </button>

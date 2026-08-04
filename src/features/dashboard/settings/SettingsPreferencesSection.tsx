@@ -1,4 +1,4 @@
-import { Globe, Languages, Search, ChevronDown, Check } from 'lucide-react';
+import { Globe, Languages, Palette, Search, ChevronDown, Check } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { btnPrimary } from '@/core/utils/tw';
 import { Dropdown, DropdownTrigger, DropdownPanel, DropdownItem } from '@/shared/ui/Dropdown';
@@ -9,7 +9,8 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import type { Locale } from '@/core/i18n/locales/es';
+import type { Locale } from '@/core/i18n/I18nContext';
+import { useTheme, type Theme } from '@/core/theme/useTheme';
 
 interface SettingsPreferencesSectionProps {
     currentTimezone: string;
@@ -26,6 +27,7 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
     const { showToast } = useToast();
     const { t, locale, setLocale } = useTranslation();
     const tz = t.settings.preferences.timezone;
+    const { theme, setTheme } = useTheme();
 
     const [saving, setSaving] = useState(false);
     
@@ -95,10 +97,10 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                             <Dropdown className="relative w-full sm:w-auto">
                                 <DropdownTrigger
                                     aria-labelledby="settings-timezone-label"
-                                    className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-white/[0.06] bg-bg-secondary px-3 py-2 text-sm font-medium text-[#fafafa] transition hover:border-primary/50 sm:w-auto"
+                                    className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2 text-sm font-medium text-text-main transition hover:border-primary/50 focus:border-primary/50 focus:outline-none sm:w-auto"
                                 >
                                     <span className="truncate max-w-[180px] text-left">{selectedTz}</span>
-                                    <ChevronDown className="h-4 w-4 shrink-0 text-zinc-400" aria-hidden="true" />
+                                    <ChevronDown className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
                                 </DropdownTrigger>
                                 <DropdownPanel
                                     align="right"
@@ -109,21 +111,21 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                 >
                                     <div className="px-2 pb-2 pt-2">
                                         <div className="relative">
-                                            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
+                                            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" aria-hidden="true" />
                                             <input
                                                 type="text"
                                                 placeholder={tz.searchPlaceholder}
                                                 aria-label={tz.searchAriaLabel}
                                                 value={searchQuery}
                                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                                className="w-full rounded-md border border-white/10 bg-black/40 py-1.5 pl-8 pr-3 text-xs text-white placeholder:text-zinc-500 focus:border-primary/50 focus:outline-none"
+                                                className="w-full rounded-md border border-border-subtle bg-bg-secondary py-1.5 pl-8 pr-3 text-xs text-text-main placeholder:text-text-muted focus:border-primary/50 focus:outline-none"
                                                 onClick={(e) => e.stopPropagation()}
                                             />
                                         </div>
                                     </div>
-                                    <div className="max-h-[240px] overflow-y-auto px-1 pb-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar]:w-1.5">
+                                    <div className="max-h-[240px] overflow-y-auto px-1 pb-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border-strong [&::-webkit-scrollbar]:w-1.5">
                                         {filteredTimezones.length === 0 ? (
-                                            <div className="py-4 text-center text-xs text-zinc-500">{tz.noResults}</div>
+                                            <div className="py-4 text-center text-xs text-text-muted">{tz.noResults}</div>
                                         ) : (
                                             filteredTimezones.map(zone => (
                                                 <DropdownItem
@@ -133,7 +135,7 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                                         setSearchQuery('');
                                                     }}
                                                     className={`mb-0.5 rounded-md px-2.5 py-1.5 ${
-                                                        selectedTz === zone ? 'bg-primary/20 text-white' : ''
+                                                        selectedTz === zone ? 'bg-primary/10 text-primary font-medium' : ''
                                                     }`}
                                                 >
                                                     <div className="flex w-full items-center justify-between">
@@ -173,12 +175,12 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                         <Dropdown className="relative w-full sm:w-auto">
                             <DropdownTrigger
                                 aria-labelledby="settings-language-label"
-                                className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-white/[0.06] bg-bg-secondary px-3 py-2 text-sm font-medium text-[#fafafa] transition hover:border-primary/50 sm:w-auto"
+                                className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2 text-sm font-medium text-text-main transition hover:border-primary/50 sm:w-auto"
                             >
                                 <span className="truncate max-w-[180px] text-left">
                                     {LOCALE_OPTIONS.find(opt => opt.value === locale)?.label || 'Español'}
                                 </span>
-                                <ChevronDown className="h-4 w-4 shrink-0 text-zinc-400" aria-hidden="true" />
+                                <ChevronDown className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
                             </DropdownTrigger>
                             <DropdownPanel
                                 align="right"
@@ -187,7 +189,7 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                 widthClassName="w-full sm:w-[200px]"
                                 className="flex flex-col p-1"
                             >
-                                <div className="max-h-[240px] overflow-y-auto px-1 py-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar]:w-1.5">
+                                <div className="max-h-[240px] overflow-y-auto px-1 py-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border-strong [&::-webkit-scrollbar]:w-1.5">
                                     {LOCALE_OPTIONS.map((opt) => (
                                         <DropdownItem
                                             key={opt.value}
@@ -196,12 +198,64 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                                 showToast(t.settings.toasts.settingsSaved, 'success');
                                             }}
                                             className={`mb-0.5 rounded-md px-2.5 py-1.5 ${
-                                                locale === opt.value ? 'bg-primary/20 text-white' : ''
+                                                locale === opt.value ? 'bg-primary/10 text-primary font-medium' : ''
                                             }`}
                                         >
                                             <div className="flex w-full items-center justify-between">
                                                 <span className="truncate">{opt.label}</span>
                                                 {locale === opt.value && <Check className="h-3.5 w-3.5 text-primary" />}
+                                            </div>
+                                        </DropdownItem>
+                                    ))}
+                                </div>
+                            </DropdownPanel>
+                        </Dropdown>
+                    </div>
+                }
+            />
+
+            <SettingsRow
+                title={t.settings.preferences.theme?.label || "Tema Visual"}
+                icon={Palette}
+                description={
+                    <span id="settings-theme-label">
+                        {t.settings.preferences.theme?.description || "Elige entre el Modo Oscuro, Claro o Liga."}
+                    </span>
+                }
+                control={
+                    <div className="flex w-full sm:w-auto">
+                        <Dropdown className="relative w-full sm:w-auto">
+                            <DropdownTrigger
+                                aria-labelledby="settings-theme-label"
+                                className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2 text-sm font-medium text-text-main transition hover:border-primary/50 focus:border-primary/50 focus:outline-none sm:w-auto"
+                            >
+                                <span className="truncate max-w-[180px] text-left">
+                                    {theme === 'dark' ? 'Oscuro' : theme === 'light' ? 'Claro' : 'Liga'}
+                                </span>
+                                <ChevronDown className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
+                            </DropdownTrigger>
+                            <DropdownPanel
+                                align="right"
+                                placement="top"
+                                zIndex={1000}
+                                widthClassName="w-full sm:w-[200px]"
+                                className="flex flex-col p-1"
+                            >
+                                <div className="max-h-[240px] overflow-y-auto px-1 py-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border-strong [&::-webkit-scrollbar]:w-1.5">
+                                    {(['dark', 'light', 'liga'] as Theme[]).map((opt) => (
+                                        <DropdownItem
+                                            key={opt}
+                                            onClick={() => {
+                                                setTheme(opt);
+                                                showToast("Tema actualizado", 'success');
+                                            }}
+                                            className={`mb-0.5 rounded-md px-2.5 py-1.5 ${
+                                                theme === opt ? 'bg-primary/10 text-primary font-medium' : ''
+                                            }`}
+                                        >
+                                            <div className="flex w-full items-center justify-between">
+                                                <span className="truncate capitalize">{opt === 'dark' ? 'Oscuro' : opt === 'light' ? 'Claro' : 'Liga'}</span>
+                                                {theme === opt && <Check className="h-3.5 w-3.5 text-primary" />}
                                             </div>
                                         </DropdownItem>
                                     ))}

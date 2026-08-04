@@ -53,14 +53,14 @@ export function Sheet({ open, onClose, title, description, children, footer }: S
             onClick={(e) => {
                 if (e.target === dialogRef.current) onClose();
             }}
-            className="fixed inset-y-0 left-auto right-0 m-0 h-full max-h-none w-full max-w-md translate-x-full overflow-hidden border-l border-white/[0.04] bg-[#09090b] text-[#fafafa] shadow-2xl transition-transform duration-300 ease-in-out open:translate-x-0 backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+            className="fixed inset-y-0 left-auto right-0 m-0 h-full max-h-none w-full max-w-md translate-x-full overflow-hidden border-l border-border-subtle bg-bg-modal text-text-main shadow-2xl transition-transform duration-300 ease-in-out open:translate-x-0 backdrop:bg-black/60 backdrop:backdrop-blur-sm"
         >
             <div className="flex h-full flex-col">
-                <header className="flex shrink-0 items-center justify-between border-b border-white/[0.06] px-6 py-4">
+                <header className="flex shrink-0 items-center justify-between border-b border-border-subtle px-6 py-4">
                     <div>
-                        <h2 className="text-[1.15rem] font-bold tracking-tight text-[#fafafa]">{title}</h2>
+                        <h2 className="text-[1.15rem] font-bold tracking-tight text-text-main">{title}</h2>
                         {description && (
-                            <p className="mt-0.5 text-[0.8rem] leading-relaxed text-[#8b8b93]">{description}</p>
+                            <p className="mt-0.5 text-[0.8rem] leading-relaxed text-text-muted">{description}</p>
                         )}
                     </div>
                     <button
@@ -76,7 +76,7 @@ export function Sheet({ open, onClose, title, description, children, footer }: S
                 <div className="flex-1 overflow-y-auto p-6">{children}</div>
 
                 {footer && (
-                    <footer className="shrink-0 border-t border-white/[0.06] bg-[#09090b] px-6 py-4">
+                    <footer className="shrink-0 border-t border-border-subtle bg-bg-secondary px-6 py-4">
                         {footer}
                     </footer>
                 )}

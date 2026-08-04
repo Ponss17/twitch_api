@@ -40,20 +40,20 @@ export function ClipPlayerOverlay({ clipId, title, embedSession, onClose }: Clip
             onClick={onClose}
         >
             <div
-                className="w-full max-w-5xl overflow-hidden rounded-xl border border-white/[0.08] bg-[#09090b] animate-fade-soft shadow-lg"
+                className="w-full max-w-5xl overflow-hidden rounded-xl border border-border-strong bg-bg-modal animate-fade-soft shadow-lg"
                 role="dialog"
                 aria-modal="true"
                 aria-label={title ?? overlayT.player}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="flex items-center justify-between border-b border-white/[0.08] bg-white/[0.02] px-5 py-4">
-                    <p className="min-w-0 flex-1 truncate text-[1.05rem] font-bold text-[#fafafa]">
+                <div className="flex items-center justify-between border-b border-border-strong bg-text-main/5 px-5 py-4">
+                    <p className="min-w-0 flex-1 truncate text-[1.05rem] font-bold text-text-main">
                         {title ?? overlayT.defaultTitle}
                     </p>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-transparent bg-transparent text-white/70 transition hover:border-white/10 hover:bg-white/5 hover:text-white"
+                        className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-transparent bg-transparent text-text-muted transition hover:border-border-subtle hover:bg-bg-hover-neutral hover:text-text-main"
                         aria-label={overlayT.close}
                     >
                         <X className="h-5 w-5" />

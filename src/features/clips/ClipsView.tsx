@@ -37,7 +37,7 @@ const CLIPS_GRID =
     'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5 max-[600px]:grid-cols-1';
 
 const CLIP_CARD =
-    'group/card relative overflow-hidden rounded-xl border border-white/[0.08] bg-bg-secondary transition-all duration-200 hover:border-primary/10 hover:bg-primary/[0.015]';
+    'group/card relative overflow-hidden rounded-xl border border-border-strong bg-bg-secondary transition-all duration-200 hover:border-primary/10 hover:bg-primary/[0.015]';
 
 const CLIP_OVERLAY_BTN =
     'flex h-7 w-7 items-center justify-center rounded-md bg-black/40 text-white/70 backdrop-blur-[2px] transition hover:bg-primary/20 hover:text-white';
@@ -46,7 +46,7 @@ const CLIP_TOOLBAR_BTN = (active = false) =>
     `flex h-8 w-8 items-center justify-center rounded-md border transition ${
         active
             ? 'border-primary/40 bg-primary/15 text-primary'
-            : `border-white/[0.08] bg-white/[0.02] text-[#c4c4cc] ${hoverSubtleControl} hover:text-[#d4d4d8]`
+            : `border-border-strong bg-text-main/5 text-text-muted ${hoverSubtleControl} hover:text-text-main`
     }`;
 
 const CLIPS_SEARCH = `${textInput} pl-9`;
@@ -72,6 +72,35 @@ function formatClipDate(value?: string, locale: string = 'es') {
         month: 'short',
         day: 'numeric'
     });
+}
+
+interface ClipThumbnailProps {
+    src: string;
+    alt?: string;
+    isAboveFold?: boolean;
+    isPriority?: boolean;
+}
+
+function ClipThumbnail({ src, alt = '', isAboveFold = false, isPriority = false }: ClipThumbnailProps) {
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    return (
+        <div className="relative aspect-video w-full overflow-hidden bg-bg-secondary">
+            {!isLoaded && (
+                <div className="absolute inset-0 animate-pulse bg-text-main/5" />
+            )}
+            <img
+                src={src}
+                alt={alt}
+                loading={isAboveFold ? 'eager' : 'lazy'}
+                fetchPriority={isPriority ? 'high' : undefined}
+                onLoad={() => setIsLoaded(true)}
+                className={`aspect-video w-full object-cover transition-all duration-500 ease-out group-hover/card:scale-105 group-hover/card:brightness-[0.9] ${
+                    isLoaded ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-95 blur-[2px]'
+                }`}
+            />
+        </div>
+    );
 }
 
 export function ClipsView() {
@@ -196,16 +225,16 @@ export function ClipsView() {
             <ClipCommandView />
 
             <div className={`${panelCard} ${fadeIn} mb-3 flex flex-col [animation-delay:60ms]`}>
-                <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5">
+                <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
                     <div className="flex min-w-0 items-center gap-3">
                         <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}>
                             <Images className="h-4 w-4" aria-hidden />
                         </div>
                         <div className="min-w-0">
-                            <h2 className="text-[0.9375rem] font-semibold tracking-tight text-[#fafafa]">
+                            <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">
                                 {clipsT.title}
                             </h2>
-                            <p className="mt-0.5 text-[0.75rem] leading-snug text-[#8b8b93]">
+                            <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">
                                 {clipsT.info}
                             </p>
                         </div>
@@ -232,11 +261,11 @@ export function ClipsView() {
                     </div>
                 </header>
 
-                <div className="p-5 text-[#fafafa]">
+                <div className="p-5 text-text-main">
                     <div className="mb-5 flex flex-wrap gap-[15px] max-[600px]:flex-col">
                         <div className="relative min-w-[200px] flex-1">
                             <Search
-                                className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[0.8125rem] text-[#71717a] w-3.5 h-3.5"
+                                className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[0.8125rem] text-text-muted w-3.5 h-3.5"
                                 aria-hidden="true"
                             />
                             <input
@@ -268,7 +297,7 @@ export function ClipsView() {
                     {loading ? (
                         <ClipsGridSkeleton count={6} className={CLIPS_GRID} />
                     ) : filtered.length === 0 ? (
-                        <p className="py-8 text-center text-[0.8125rem] text-[#71717a]">
+                        <p className="py-8 text-center text-[0.8125rem] text-text-muted">
                             {clipsT.noClips}
                         </p>
                     ) : (
@@ -285,7 +314,11 @@ export function ClipsView() {
                                     const isAboveFold = index < 6;
 
                                     return (
-                                        <article key={clip.id} className={CLIP_CARD}>
+                                        <article 
+                                            key={clip.id} 
+                                            className={`${CLIP_CARD} animate-reveal-card opacity-0`}
+                                            style={{ animationDelay: `${(index % ITEMS_PER_PAGE) * 60}ms` }}
+                                        >
                                             <div className="relative">
                                                 <button
                                                     type="button"
@@ -295,12 +328,11 @@ export function ClipsView() {
                                                 >
                                                     {clip.thumbnail_url ? (
                                                         <>
-                                                            <img
+                                                            <ClipThumbnail
                                                                 src={clip.thumbnail_url}
                                                                 alt=""
-                                                                loading={isAboveFold ? 'eager' : 'lazy'}
-                                                                fetchPriority={index === 0 ? 'high' : undefined}
-                                                                className="aspect-video w-full bg-bg-secondary object-cover transition duration-200 group-hover/card:brightness-[0.88]"
+                                                                isAboveFold={isAboveFold}
+                                                                isPriority={index === 0}
                                                             />
                                                             <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition duration-200 group-hover/card:opacity-100">
                                                                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black/45 text-white/85 backdrop-blur-[2px]">
@@ -312,7 +344,7 @@ export function ClipsView() {
                                                             </div>
                                                         </>
                                                     ) : (
-                                                        <div className="flex aspect-video w-full items-center justify-center bg-black/30 text-[0.75rem] font-medium text-[#a1a1aa]">
+                                                        <div className="flex aspect-video w-full items-center justify-center bg-black/30 text-[0.75rem] font-medium text-text-muted">
                                                             {clipsT.viewClip}
                                                         </div>
                                                     )}
@@ -364,7 +396,7 @@ export function ClipsView() {
                                                 >
                                                     {clip.title ?? clipsT.untitled}
                                                 </a>
-                                                <div className="flex justify-between gap-2 text-[0.6875rem] text-[#a1a1aa]">
+                                                <div className="flex justify-between gap-2 text-[0.6875rem] text-text-muted">
                                                     <span className="truncate">{viewsStr} {clipsT.views}</span>
                                                     <span className="shrink-0">{dateStr}</span>
                                                 </div>
@@ -377,7 +409,7 @@ export function ClipsView() {
                                 <button
                                     type="button"
                                     onClick={() => setPage((p) => p + 1)}
-                                    className={`mt-6 w-full rounded-lg border border-white/[0.06] bg-bg-secondary py-2.5 text-[0.8125rem] font-semibold text-[#c4c4cc] ${hoverSubtleBorderedRow}`}
+                                    className={`mt-6 w-full rounded-lg border border-border-subtle bg-bg-secondary py-2.5 text-[0.8125rem] font-semibold text-text-muted ${hoverSubtleBorderedRow}`}
                                 >
                                     {clipsT.loadMore}
                                 </button>

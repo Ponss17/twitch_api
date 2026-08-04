@@ -20,27 +20,27 @@ export function TrackerRow({
 
     return (
         <tr className={`animate-fade-soft duration-200 ${hoverSubtleRowBg}`}>
-            <td className={`border-b border-white/[0.03] align-middle ${cellPad}`}>
+            <td className={`border-b border-border-subtle align-middle ${cellPad}`}>
                 <span className={`inline-block font-medium ${compact ? 'text-[0.875rem]' : 'text-[1rem]'}`} style={{ color: rowColor }}>
                     #{index + 1}
                 </span>
             </td>
             <td
-                className={`word-text border-b border-white/[0.03] align-middle font-medium capitalize text-zinc-200 tracking-[0.5px] ${cellPad} ${
+                className={`word-text border-b border-border-subtle align-middle font-medium capitalize text-text-muted tracking-[0.5px] ${cellPad} ${
                     compact ? 'text-[0.75rem]' : 'text-[0.8125rem]'
                 }`}
             >
                 {word}
             </td>
             <td
-                className={`count-text border-b border-white/[0.03] text-right align-middle font-[Consolas,monospace] text-white ${cellPad} ${
+                className={`count-text border-b border-border-subtle text-right align-middle font-[Consolas,monospace] text-text-main ${cellPad} ${
                     compact ? 'text-[0.8125rem]' : 'text-[0.9375rem]'
                 }`}
             >
                 {count.toLocaleString()}
             </td>
-            <td className={`border-b border-white/[0.03] align-middle ${cellPad}`}>
-                <div className={`w-full overflow-hidden rounded-full bg-white/5 ${compact ? 'h-1.5' : 'h-2'}`}>
+            <td className={`border-b border-border-subtle align-middle ${cellPad}`}>
+                <div className={`w-full overflow-hidden rounded-full bg-border-strong ${compact ? 'h-1.5' : 'h-2'}`}>
                     <div
                         className="h-full rounded-full transition-[width] duration-500"
                         style={{

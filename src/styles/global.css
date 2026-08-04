@@ -1,13 +1,25 @@
 @import "tailwindcss";
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant liga (&:where([data-theme="liga"], [data-theme="liga"] *));
 
 @theme {
-  --color-primary: #9146ff;
-  --color-primary-hover: #7c3aed;
-  --color-bg-main: #09090b;
-  --color-bg-secondary: #0e0e10;
-  --color-bg-tertiary: #18181b;
-  --color-bg-card: #0f0f11;
-  --color-sidebar: #0a0a0c;
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-bg-main: var(--bg-main);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-bg-card: var(--bg-card);
+  --color-bg-card-hover: var(--bg-card-hover);
+  --color-bg-panel: var(--bg-panel);
+  --color-bg-modal: var(--bg-modal);
+  --color-sidebar: var(--sidebar);
+  --color-bg-hover-neutral: var(--bg-hover-neutral);
+
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
   --color-success: #10b981;
   --color-warning: #f59e0b;
   /* Supabase destructive (hsl 10.2 77.9% 53.9%) */
@@ -29,6 +41,7 @@
   --animate-tab-in: tabIn 0.25s ease-out both;
   --animate-modal-in: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-modal-out: modalOut 0.15s ease-in both;
+  --animate-glow-pulse: ctaGlowPulse 2.8s ease-in-out infinite;
 
   @keyframes fadeInSoft {
     from {
@@ -249,16 +262,112 @@
       transform: scale(0.95) translateY(8px);
     }
   }
+
+  @keyframes ctaGlowPulse {
+
+    0%,
+    100% {
+      box-shadow:
+        0 0 16px -4px var(--primary),
+        0 0 32px -12px var(--primary);
+    }
+
+    50% {
+      box-shadow:
+        0 0 28px -2px var(--primary),
+        0 0 56px -8px var(--primary),
+        0 0 80px -20px var(--primary);
+    }
+  }
 }
 
 @layer base {
-  body {
-    @apply min-h-screen bg-bg-main font-sans text-base leading-[1.6] text-[#fafafa] antialiased;
+
+  .theme-transition,
+  .theme-transition *,
+  .theme-transition *:before,
+  .theme-transition *:after {
+    transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease, fill 0.5s ease, stroke 0.5s ease !important;
+    transition-delay: 0s !important;
+  }
+
+  :root,
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --primary: #9146ff;
+    --primary-hover: #7c3aed;
+    --brand-text: #a78bfa;
+    --bg-main: #09090b;
+    --bg-secondary: #0e0e10;
+    --bg-tertiary: #18181b;
+    --bg-card: rgba(24, 24, 27, 0.4);
+    --bg-card-hover: rgba(24, 24, 27, 0.6);
+    --bg-panel: rgba(24, 24, 27, 0.3);
+    --bg-modal: #0c0c0e;
+    --sidebar: #0a0a0c;
+    --text-main: #fafafa;
+    --text-muted: #a1a1aa;
+    --border-subtle: rgba(255, 255, 255, 0.04);
+    --border-strong: rgba(255, 255, 255, 0.08);
+    --bg-hover-neutral: rgba(255, 255, 255, 0.02);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  [data-theme="light"] {
+    color-scheme: light;
+    --primary: #7c3aed;
+    --primary-hover: #6d28d9;
+    --brand-text: #7c3aed;
+    --bg-main: #fafafa;
+    --bg-secondary: #f9f9f9;
+    /* Fondo sutil lavanda para controles focus, toggles y botón central ruleta */
+    --bg-tertiary: #ede9fe;
+    --bg-card: #ffffff;
+    --bg-card-hover: #ffffff;
+    --bg-panel: #ffffff;
+    --bg-modal: #ffffff;
+    --sidebar: #ffffff;
+    --text-main: #1c1917;
+    --text-muted: #6b7280;
+    --border-subtle: rgba(0, 0, 0, 0.08);
+    --border-strong: rgba(0, 0, 0, 0.18);
+    --bg-hover-neutral: rgba(0, 0, 0, 0.03);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  [data-theme="liga"] {
+    color-scheme: dark;
+    --primary: #ef4444;
+    --primary-hover: #dc2626;
+    --brand-text: #da291c;
+    --bg-main: #050505;
+    --bg-secondary: #0a0a0a;
+    --bg-tertiary: #101010;
+    --bg-card: rgba(15, 15, 15, 0.6);
+    --bg-card-hover: rgba(20, 20, 20, 0.7);
+    --bg-panel: rgba(12, 12, 12, 0.6);
+    --bg-modal: #060606;
+    --sidebar: #060606;
+    --text-main: #fafafa;
+    --text-muted: #a1a1aa;
+    --border-subtle: rgba(255, 255, 255, 0.05);
+    --border-strong: rgba(255, 255, 255, 0.1);
+    --bg-hover-neutral: rgba(255, 255, 255, 0.02);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);
   }
 
   html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     scrollbar-width: thin;
-    scrollbar-color: #9146ff rgba(145, 70, 255, 0.1);
+    scrollbar-color: var(--primary) var(--border-subtle);
+    @apply bg-bg-main text-text-main;
+  }
+
+  body {
+    @apply bg-bg-main text-text-main;
+    min-height: 100vh;
   }
 
   *::-webkit-scrollbar {
@@ -267,19 +376,17 @@
   }
 
   *::-webkit-scrollbar-track {
-    background: rgba(145, 70, 255, 0.08);
-    border-radius: 10px;
+    background: transparent;
   }
 
   *::-webkit-scrollbar-thumb {
-    background: #9146ff;
-    border-radius: 10px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
+    background-color: var(--border-subtle);
+    border-radius: 20px;
+    border: 2px solid var(--bg-main);
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background: #7c3aed;
+    background-color: var(--border-strong);
     background-clip: padding-box;
   }
 }
@@ -318,8 +425,13 @@ a:not([class]):not([role="button"]) {
 
 /* Toast Progress Bar (CSS Puro para evitar bugs de Tailwind) */
 @keyframes toast-progress {
-  0% { width: 100%; }
-  100% { width: 0%; }
+  0% {
+    width: 100%;
+  }
+
+  100% {
+    width: 0%;
+  }
 }
 
 .toast-with-progress {
@@ -341,8 +453,28 @@ a:not([class]):not([role="button"]) {
   animation-play-state: paused;
 }
 
-.toast-with-progress.progress-success::after { background-color: #10b981; } /* emerald-500 */
-.toast-with-progress.progress-error::after { background-color: #ef4444; } /* red-500 */
-.toast-with-progress.progress-warning::after { background-color: #f59e0b; } /* amber-500 */
-.toast-with-progress.progress-info::after { background-color: #8b5cf6; } /* violet-500 */
-.toast-with-progress.progress-loading::after { background-color: #a1a1aa; animation: none; width: 100%; }
+.toast-with-progress.progress-success::after {
+  background-color: #10b981;
+}
+
+/* emerald-500 */
+.toast-with-progress.progress-error::after {
+  background-color: #ef4444;
+}
+
+/* red-500 */
+.toast-with-progress.progress-warning::after {
+  background-color: #f59e0b;
+}
+
+/* amber-500 */
+.toast-with-progress.progress-info::after {
+  background-color: #8b5cf6;
+}
+
+/* violet-500 */
+.toast-with-progress.progress-loading::after {
+  background-color: #a1a1aa;
+  animation: none;
+  width: 100%;
+}

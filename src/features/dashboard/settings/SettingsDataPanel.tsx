@@ -34,19 +34,19 @@ function DateTimeBadge({ isoDate, timezone, locale, fallback }: { isoDate?: stri
     const split = formatDateTimeSplit(isoDate, timezone, locale);
     
     if (!split) {
-        return <span className="text-sm font-medium text-zinc-500">{fallback}</span>;
+        return <span className="text-sm font-medium text-text-muted">{fallback}</span>;
     }
 
     return (
         <div className="flex items-center gap-4 text-[0.85rem]">
             <div className="flex items-center gap-2">
-                <CalendarDays className="h-4 w-4 text-zinc-500" />
-                <span className="font-medium text-zinc-300">{split.date}</span>
+                <CalendarDays className="h-4 w-4 text-text-muted" />
+                <span className="font-medium text-text-main">{split.date}</span>
             </div>
-            <div className="h-4 w-px bg-white/[0.08]" aria-hidden="true" />
+            <div className="h-4 w-px bg-border-strong" aria-hidden="true" />
             <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-primary/70" />
-                <span className="font-medium text-white">{split.time}</span>
+                <span className="font-medium text-text-main">{split.time}</span>
             </div>
         </div>
     );

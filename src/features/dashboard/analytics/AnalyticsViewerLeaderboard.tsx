@@ -109,12 +109,12 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
             info={timeRange === 'today' ? board.infoToday : board.info7d}
         >
             {data.length === 0 ? (
-                <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02]">
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
-                        <Users className="h-6 w-6 text-zinc-400" />
+                <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border-subtle bg-transparent">
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-text-main/5">
+                        <Users className="h-6 w-6 text-text-muted" />
                     </div>
-                    <span className="text-sm font-medium text-zinc-400">{board.noData}</span>
-                    <span className="mt-1 text-xs text-zinc-500">
+                    <span className="text-sm font-medium text-text-muted">{board.noData}</span>
+                    <span className="mt-1 text-xs text-text-muted">
                         {board.noDataSub}
                     </span>
                 </div>
@@ -124,12 +124,12 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
                     <div className="mb-1 flex items-center justify-between px-1">
                         <div className="flex items-center gap-2">
                             <Trophy className="h-3.5 w-3.5 text-amber-400" />
-                            <span className="text-[0.7rem] font-semibold uppercase tracking-widest text-zinc-500">
+                            <span className="text-[0.7rem] font-semibold uppercase tracking-widest text-text-muted">
                                 {timeRange === 'today' ? board.rankingToday : board.ranking7d}
                             </span>
                         </div>
-                        <span className="text-[0.7rem] font-medium text-zinc-400" title={board.totalInteractionsTooltip}>
-                            <strong className="text-zinc-300">{totalInteractions}</strong> {board.totalInteractions}
+                        <span className="text-[0.7rem] font-medium text-text-muted" title={board.totalInteractionsTooltip}>
+                            <strong className="text-text-main">{totalInteractions}</strong> {board.totalInteractions}
                         </span>
                     </div>
 
@@ -147,26 +147,26 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.9 }}
                                         transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
-                                        className="flex flex-col gap-1.5 rounded-lg border border-white/[0.05] bg-white/[0.02] px-3 py-2 transition-colors hover:bg-white/[0.04]"
+                                        className="flex flex-col gap-1.5 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2 transition-colors hover:bg-bg-secondary/80"
                                     >
                                         <div className="flex items-center gap-2.5">
                                             <RankIcon rank={idx} color={rowColor} />
                                             <span
-                                                className="min-w-0 flex-1 truncate text-sm font-medium text-zinc-200"
+                                                className="min-w-0 flex-1 truncate text-sm font-medium text-text-main"
                                                 title={entry.user_name}
                                             >
                                                 {entry.user_name}
                                             </span>
-                                            <span className="shrink-0 text-xs font-bold tabular-nums text-zinc-300">
+                                            <span className="shrink-0 text-xs font-bold tabular-nums text-text-main">
                                                 {entry.total}
-                                                <span className="ml-1 font-normal text-zinc-600">
+                                                <span className="ml-1 font-normal text-text-muted">
                                                     {entry.total === 1 ? board.unitSingular : board.unitPlural}
                                                 </span>
                                             </span>
                                         </div>
 
                                         {/* Barra de progreso relativa al primero */}
-                                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-border-strong">
                                             <div
                                                 className="h-full rounded-full transition-[width] duration-700"
                                                 style={{

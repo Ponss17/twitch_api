@@ -48,19 +48,19 @@ export function SettingsAccountSection({
                 title={pT.userId}
                 icon={Hash}
             >
-                <div className="flex w-full overflow-hidden rounded-lg border border-white/[0.06] bg-bg-secondary transition focus-within:border-primary">
+                <div className="flex w-full overflow-hidden rounded-lg border border-border-subtle bg-bg-secondary transition focus-within:border-primary">
                     <input
                         readOnly
                         type="text"
                         value={userId ?? '---'}
-                        className="flex-1 border-none bg-transparent px-3 py-2 font-[Consolas,monospace] text-[0.85rem] text-zinc-300 outline-none"
+                        className="flex-1 border-none bg-transparent px-3 py-2 font-[Consolas,monospace] text-[0.85rem] text-text-main outline-none"
                         aria-label={pT.userId}
                     />
                     <button
                         type="button"
                         onClick={handleCopyId}
                         title={pT.copyUserId}
-                        className="flex items-center justify-center gap-1.5 border-l border-white/[0.05] bg-white/[0.02] px-3 text-[0.82rem] text-zinc-400 transition hover:bg-primary/10 hover:text-primary"
+                        className="flex items-center justify-center gap-1.5 border-l border-border-subtle bg-text-main/5 px-3 text-[0.82rem] text-text-muted transition hover:bg-primary/10 hover:text-primary"
                     >
                         {isIdCopied ? (
                             <Check className="h-4 w-4" aria-hidden="true" />
@@ -78,13 +78,13 @@ export function SettingsAccountSection({
             >
                 <div className="flex flex-wrap items-center gap-1.5">
                     <span
-                        className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold text-[#a78bfa]"
+                        className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold text-primary/80"
                         title={pT.planTooltip}
                     >
                         <Crown className="w-3 h-3 opacity-80" /> {roleLabel}
                     </span>
                     <span
-                        className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-0.5 text-[0.7rem] font-semibold text-zinc-400"
+                        className="inline-flex items-center gap-1 rounded-md bg-text-main/5 px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
                         title={pT.apiQuotaTooltip}
                     >
                         <Gauge className="w-3 h-3 text-primary/70" /> {rateLimit} req/min
@@ -92,14 +92,14 @@ export function SettingsAccountSection({
                     </span>
                     {typeof heavyLimit === 'number' && (
                         <span
-                            className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-0.5 text-[0.7rem] font-semibold text-zinc-400"
+                            className="inline-flex items-center gap-1 rounded-md bg-text-main/5 px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
                             title={pT.heavyQuotaTooltip}
                         >
                             <Gauge className="w-3 h-3 text-amber-400/80" /> {heavyLimit} heavy/min
                         </span>
                     )}
                     <span
-                        className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-0.5 text-[0.7rem] font-semibold text-zinc-400"
+                        className="inline-flex items-center gap-1 rounded-md bg-text-main/5 px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
                         title={pT.cacheTooltip}
                     >
                         <Clock className="w-3 h-3 text-primary/70" /> {cacheTtl}s {pT.cacheTime.replace('(min)', '').trim()}

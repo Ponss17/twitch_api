@@ -32,10 +32,10 @@ function useDropdown(): DropdownContextValue {
 }
 
 export const dropdownTriggerCompact =
-    `flex min-w-[9.5rem] max-w-[11.5rem] items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.02] px-2.5 py-1.5 text-[0.75rem] font-medium text-[#fafafa] disabled:cursor-not-allowed disabled:opacity-50 ${hoverSubtleControl}`;
+    `flex min-w-[9.5rem] max-w-[11.5rem] items-center gap-2 rounded-lg border border-border-strong bg-text-main/5 px-2.5 py-1.5 text-[0.75rem] font-medium text-text-main disabled:cursor-not-allowed disabled:opacity-50 ${hoverSubtleControl}`;
 
 const panelBase =
-    'absolute animate-fade-soft overflow-hidden border border-white/[0.08] bg-bg-secondary shadow-2xl';
+    'absolute animate-fade-soft overflow-hidden border border-border-strong bg-bg-secondary shadow-2xl';
 
 interface DropdownProps {
     children: ReactNode;
@@ -109,7 +109,7 @@ interface DropdownChevronProps {
     className?: string;
 }
 
-export function DropdownChevron({ className = 'size-3.5 shrink-0 text-[#71717a] transition-transform' }: DropdownChevronProps) {
+export function DropdownChevron({ className = 'size-3.5 shrink-0 text-text-muted transition-transform' }: DropdownChevronProps) {
     const { open } = useDropdown();
     return <ChevronDown className={`${className} ${open ? 'rotate-180' : ''}`} aria-hidden />;
 }
@@ -159,9 +159,9 @@ interface DropdownHeaderProps {
 
 export function DropdownHeader({ children }: DropdownHeaderProps) {
     return (
-        <div className="border-b border-white/5 px-4 py-3">
+        <div className="border-b border-border-subtle px-4 py-3">
             {typeof children === 'string' ? (
-                <span className="text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-zinc-500">{children}</span>
+                <span className="text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-text-muted">{children}</span>
             ) : (
                 children
             )}
@@ -170,7 +170,7 @@ export function DropdownHeader({ children }: DropdownHeaderProps) {
 }
 
 export function DropdownDivider() {
-    return <div className="my-1 border-t border-white/5" aria-hidden />;
+    return <div className="my-1 border-t border-border-subtle" aria-hidden />;
 }
 
 interface DropdownItemProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -188,7 +188,7 @@ export function DropdownItem({
     const tone =
         variant === 'danger'
             ? 'text-error hover:bg-error/10'
-            : `text-zinc-400 ${hoverSubtleChip} hover:text-zinc-100`;
+            : `text-text-muted ${hoverSubtleChip} hover:text-text-main`;
 
     return (
         <button
@@ -220,7 +220,7 @@ export function DropdownLink({
 
     return (
         <a
-            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-zinc-400 no-underline ${hoverSubtleChip} hover:text-zinc-100 ${className}`.trim()}
+            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-text-muted no-underline ${hoverSubtleChip} hover:text-text-main ${className}`.trim()}
             onClick={(e) => {
                 if (closeOnClick) close();
                 onClick?.(e);
@@ -253,9 +253,8 @@ export function DropdownCheckboxItem({
 }: DropdownCheckboxItemProps) {
     return (
         <label
-            className={`flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-[0.75rem] ${hoverSubtleChip} ${
-                emphasis ? 'font-semibold text-[#fafafa]' : 'font-medium text-[#c4c4cc] hover:text-[#d4d4d8]'
-            } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`.trim()}
+            className={`flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-[0.75rem] ${hoverSubtleChip} ${emphasis ? 'font-semibold text-text-main' : 'font-medium text-text-muted hover:text-text-main'
+                } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`.trim()}
         >
             <input
                 ref={inputRef}
@@ -263,7 +262,7 @@ export function DropdownCheckboxItem({
                 checked={checked}
                 disabled={disabled}
                 onChange={(e) => onChange(e.target.checked)}
-                className="size-3.5 accent-[#9146ff]"
+                className="size-3.5 accent-primary"
                 {...inputProps}
             />
             {children}

@@ -101,7 +101,7 @@ export function DiscordUnlinkConfirmModal({
                 <>
                     <button
                         type="button"
-                        className="inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex items-center justify-center rounded-md border border-transparent bg-error px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-error-hover focus:outline-none focus:ring-2 focus:ring-error/50 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         disabled={disabled}
                         onClick={() => void handleConfirm()}
                     >
@@ -166,7 +166,6 @@ export function DiscordResultModal({ open, kind, onClose }: DiscordResultModalPr
 
     let title = '';
     let icon = Info;
-    let iconClass = '';
     let lead = '';
     let points: string[] = [];
     let isError = false;
@@ -175,14 +174,12 @@ export function DiscordResultModal({ open, kind, onClose }: DiscordResultModalPr
         case 'linked':
             title = dT.linked.title;
             icon = CheckCircle2;
-            iconClass = 'text-green-400';
             lead = dT.linked.lead;
             points = dT.linked.points;
             break;
         case 'unlinked':
             title = dT.unlinked.title;
             icon = CheckCircle2;
-            iconClass = 'text-green-400';
             lead = dT.unlinked.lead;
             points = dT.unlinked.points;
             break;
@@ -190,7 +187,6 @@ export function DiscordResultModal({ open, kind, onClose }: DiscordResultModalPr
             isError = true;
             title = dT.errorTaken.title;
             icon = AlertCircle;
-            iconClass = 'text-orange-400';
             lead = dT.errorTaken.lead;
             points = dT.errorTaken.points;
             break;
@@ -198,7 +194,6 @@ export function DiscordResultModal({ open, kind, onClose }: DiscordResultModalPr
             isError = true;
             title = dT.errorAuth.title;
             icon = AlertCircle;
-            iconClass = 'text-orange-400';
             lead = dT.errorAuth.lead;
             points = dT.errorAuth.points;
             break;
@@ -206,7 +201,6 @@ export function DiscordResultModal({ open, kind, onClose }: DiscordResultModalPr
             isError = true;
             title = dT.errorConfig.title;
             icon = AlertCircle;
-            iconClass = 'text-orange-400';
             lead = dT.errorConfig.lead;
             points = dT.errorConfig.points;
             break;
@@ -214,8 +208,6 @@ export function DiscordResultModal({ open, kind, onClose }: DiscordResultModalPr
             isError = true;
             title = dT.error.title;
             icon = AlertTriangle;
-            // eslint-disable-next-line
-            iconClass = 'text-red-400';
             lead = dT.error.lead;
             points = dT.error.points;
             break;
