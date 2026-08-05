@@ -2,7 +2,7 @@
  * @deprecated Importar `Locale` desde `@/core/i18n/I18nContext` (fuente canónica).
  * Mantenido aquí solo para compatibilidad con imports de `Translations`.
  */
-export type Locale = 'es' | 'en';
+export type Locale = 'es' | 'en' | 'pt';
 
 /** Traducciones por defecto en español. */
 export const es = {

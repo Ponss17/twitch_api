@@ -7,7 +7,7 @@ import {
     type ActivityLogItem
 } from '@/features/dashboard/lib/activityLogDisplay';
 import { btnSecondary } from '@/core/utils/tw';
-import { useTranslation } from '@/core/i18n/I18nContext';
+import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
 
 interface ActivityDetailSheetProps {
     item: ActivityLogItem | null;
@@ -48,7 +48,7 @@ export function ActivityDetailSheet({ item, onClose, timeZone }: ActivityDetailS
     if (item.timestamp) {
         const d = new Date(item.timestamp);
         if (!Number.isNaN(d.getTime())) {
-            const bcp47 = locale === 'es' ? 'es-ES' : 'en-US';
+            const bcp47 = getBcp47(locale);
             date = new Intl.DateTimeFormat(bcp47, {
                 timeZone: timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
                 day: 'numeric',
