@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 @custom-variant liga (&:where([data-theme="liga"], [data-theme="liga"] *));
+@custom-variant minimal (&:where([data-theme="minimal"], [data-theme="minimal"] *));
 
 @theme {
   --color-primary: var(--primary);
@@ -23,7 +24,6 @@
 
   --color-success: #10b981;
   --color-warning: #f59e0b;
-  /* Accessible destructive red (WCAG AA text-white contrast >= 4.9:1) */
   --color-error: #c53030;
   --color-error-hover: #b91c1c;
   --color-error-dark: #7f1d1d;
@@ -118,10 +118,9 @@
     }
   }
 
-  /* Usados vía animate-[…] arbitrario */
   @keyframes highlightFade {
     0% {
-      background: rgba(59, 130, 246, 0.2);
+      background: color-mix(in srgb, var(--primary) 18%, transparent);
     }
 
     100% {
@@ -312,6 +311,8 @@
     --border-strong: rgba(255, 255, 255, 0.08);
     --bg-hover-neutral: rgba(255, 255, 255, 0.02);
     --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+    --twitch-brand-color: #9146ff;
+    --twitch-brand-bg: #ffffff;
   }
 
   [data-theme="light"] {
@@ -321,7 +322,6 @@
     --brand-text: #7c3aed;
     --bg-main: #fafafa;
     --bg-secondary: #f9f9f9;
-    /* Fondo sutil lavanda para controles focus, toggles y botón central ruleta */
     --bg-tertiary: #ede9fe;
     --bg-card: #ffffff;
     --bg-card-hover: #ffffff;
@@ -334,6 +334,8 @@
     --border-strong: rgba(0, 0, 0, 0.18);
     --bg-hover-neutral: rgba(0, 0, 0, 0.03);
     --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --twitch-brand-color: #9146ff;
+    --twitch-brand-bg: #ffffff;
   }
 
   [data-theme="liga"] {
@@ -355,6 +357,42 @@
     --border-strong: rgba(255, 255, 255, 0.1);
     --bg-hover-neutral: rgba(255, 255, 255, 0.02);
     --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);
+    --twitch-brand-color: #ef4444;
+    --twitch-brand-bg: #ffffff;
+  }
+
+  [data-theme="minimal"] {
+    color-scheme: dark;
+    --primary: #ffffff;
+    --primary-hover: #e5e5e5;
+    --brand-text: #ffffff;
+    --bg-main: #000000;
+    --bg-secondary: #080808;
+    --bg-tertiary: #121212;
+    --bg-card: rgba(10, 10, 10, 0.75);
+    --bg-card-hover: rgba(18, 18, 18, 0.85);
+    --bg-panel: rgba(10, 10, 10, 0.6);
+    --bg-modal: #080808;
+    --sidebar: #000000;
+    --text-main: #ffffff;
+    --text-muted: #808080;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.16);
+    --bg-hover-neutral: rgba(255, 255, 255, 0.04);
+    --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 30px rgba(0, 0, 0, 0.8);
+    --twitch-brand-color: #ffffff;
+    --twitch-brand-bg: #1a1a1a;
+  }
+
+  [data-theme="minimal"] .bg-primary,
+  [data-theme="minimal"] .bg-primary-hover {
+    color: #000000 !important;
+  }
+
+  [data-theme="minimal"] .bg-primary svg,
+  [data-theme="minimal"] .bg-primary-hover svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
   }
 
   html {
@@ -392,90 +430,80 @@
   }
 }
 
-
-
-/* Accesibilidad: los enlaces deben ser identificables sin depender solo del color */
-a:not([class]):not([role="button"]) {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+@layer base {
+  /* Enlaces genéricos */
+  a:not([class]):not([role="button"]) {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 }
 
-/*
- * Toaster en top layer (popover) para quedar sobre <dialog showModal()>.
- * El UA resetea el popover al abrirse; hace falta :popover-open.
- */
-.app-toaster-popover,
-.app-toaster-popover:popover-open {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100dvh;
-  max-width: none;
-  max-height: none;
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: transparent;
-  overflow: visible;
-  pointer-events: none;
-}
+@layer components {
+  /* Overlay toaster sobre modales */
+  .app-toaster-popover,
+  .app-toaster-popover:popover-open {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    overflow: visible;
+    pointer-events: none;
+  }
 
-.app-toaster-popover [data-sonner-toaster] {
-  pointer-events: auto;
-}
+  .app-toaster-popover [data-sonner-toaster] {
+    pointer-events: auto;
+  }
 
-/* Toast Progress Bar (CSS Puro para evitar bugs de Tailwind) */
-@keyframes toast-progress {
-  0% {
+  .toast-with-progress {
+    position: relative;
+  }
+
+  .toast-with-progress::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    border-bottom-left-radius: 12px;
+    animation: toast-progress 4s linear forwards;
+  }
+
+  .app-toaster-popover [data-sonner-toaster]:hover .toast-with-progress::after {
+    animation-play-state: paused;
+  }
+
+  /* Estados de progreso */
+  .toast-with-progress.progress-success::after {
+    background-color: var(--color-success);
+  }
+
+  .toast-with-progress.progress-error::after {
+    background-color: #ef4444;
+  }
+
+  .toast-with-progress.progress-warning::after {
+    background-color: var(--color-warning);
+  }
+
+  .toast-with-progress.progress-info::after {
+    background-color: var(--color-primary);
+  }
+
+  .toast-with-progress.progress-loading::after {
+    background-color: var(--color-text-muted);
+    animation: none;
     width: 100%;
   }
-
-  100% {
-    width: 0%;
-  }
 }
 
-.toast-with-progress {
-  position: relative;
-}
-
-.toast-with-progress::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  border-bottom-left-radius: 12px;
-  animation: toast-progress 4s linear forwards;
-}
-
-/* Pausar la barra de progreso cuando el mouse está encima del Toaster */
-.app-toaster-popover [data-sonner-toaster]:hover .toast-with-progress::after {
-  animation-play-state: paused;
-}
-
-.toast-with-progress.progress-success::after {
-  background-color: #10b981;
-}
-
-/* emerald-500 */
-.toast-with-progress.progress-error::after {
-  background-color: #ef4444;
-}
-
-/* red-500 */
-.toast-with-progress.progress-warning::after {
-  background-color: #f59e0b;
-}
-
-/* amber-500 */
-.toast-with-progress.progress-info::after {
-  background-color: #8b5cf6;
-}
-
-/* violet-500 */
-.toast-with-progress.progress-loading::after {
-  background-color: #a1a1aa;
-  animation: none;
-  width: 100%;
+/* Barra de progreso de toasts */
+@keyframes toast-progress {
+  0% { width: 100%; }
+  100% { width: 0%; }
 }

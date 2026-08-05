@@ -70,7 +70,7 @@ const swScope = staticPath('/');
             (function() {
                 try {
                     const theme = localStorage.getItem('los_perris_theme');
-                    if (theme === 'light' || theme === 'liga') {
+                    if (theme === 'light' || theme === 'liga' || theme === 'minimal') {
                         document.documentElement.setAttribute('data-theme', theme);
                     }
                 } catch {

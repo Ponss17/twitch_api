@@ -12,7 +12,7 @@ import { ClipPlayerOverlay } from '@/features/clips/ClipPlayerOverlay';
 import { SelectField } from '@/shared/ui/SelectField';
 import { ClipCommandView } from '@/features/commands/CommandsViews';
 import { Star, RotateCw, Link as LinkIcon, Images, Search, Play } from 'lucide-react';
-import { useTranslation } from '@/core/i18n/I18nContext';
+import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
 
 interface Clip {
     id: string;
@@ -66,7 +66,7 @@ function saveFavorites(userId: string, favorites: string[]) {
 
 function formatClipDate(value?: string, locale: string = 'es') {
     if (!value) return '';
-    const bcp47 = locale === 'es' ? 'es-ES' : 'en-US';
+    const bcp47 = getBcp47(locale);
     return new Date(value).toLocaleDateString(bcp47, {
         year: 'numeric',
         month: 'short',
@@ -305,7 +305,7 @@ export function ClipsView() {
                             <div className={CLIPS_GRID}>
                                 {visible.map((clip, index) => {
                                     const isFav = favorites.includes(clip.id);
-                                    const bcp47 = locale === 'es' ? 'es-ES' : 'en-US';
+                                    const bcp47 = getBcp47(locale);
                                     const viewsStr =
                                         clip.view_count != null
                                             ? clip.view_count.toLocaleString(bcp47)

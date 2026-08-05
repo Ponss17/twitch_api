@@ -1,12 +1,23 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { es, type Translations } from '@/core/i18n/locales/es';
 import { en } from '@/core/i18n/locales/en';
+import { pt } from '@/core/i18n/locales/pt';
 
 const LOCALE_STORAGE_KEY = 'losperris_locale';
 
 /** Locales soportados. Añadir aquí para extender el sistema de idiomas. */
-export const SUPPORTED_LOCALES = ['es', 'en'] as const;
+export const SUPPORTED_LOCALES = ['es', 'en', 'pt'] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
+
+const BCP47_MAP: Record<Locale, string> = {
+    es: 'es-ES',
+    en: 'en-US',
+    pt: 'pt-BR',
+};
+
+export function getBcp47(locale: string = 'es'): string {
+    return BCP47_MAP[locale as Locale] || 'es-ES';
+}
 
 function loadLocale(): Locale {
     if (typeof window === 'undefined') return 'es';
@@ -29,7 +40,7 @@ function persistLocale(locale: Locale): void {
     }
 }
 
-const LOCALE_MAP: Record<Locale, Translations> = { es, en };
+const LOCALE_MAP: Record<Locale, Translations> = { es, en, pt };
 
 interface I18nContextValue {
     locale: Locale;

@@ -20,6 +20,7 @@ interface SettingsPreferencesSectionProps {
 const LOCALE_OPTIONS: { value: Locale; label: string }[] = [
     { value: 'es', label: 'Español' },
     { value: 'en', label: 'English' },
+    { value: 'pt', label: 'Português' },
 ];
 
 export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged }: SettingsPreferencesSectionProps) {
@@ -230,7 +231,7 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                 className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2 text-sm font-medium text-text-main transition hover:border-primary/50 focus:border-primary/50 focus:outline-none sm:w-auto"
                             >
                                 <span className="truncate max-w-[180px] text-left">
-                                    {theme === 'dark' ? 'Oscuro' : theme === 'light' ? 'Claro' : 'Liga'}
+                                    {theme === 'dark' ? 'Oscuro' : theme === 'light' ? 'Claro' : theme === 'liga' ? 'Liga' : 'Oscuro Minimal'}
                                 </span>
                                 <ChevronDown className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
                             </DropdownTrigger>
@@ -242,7 +243,7 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                 className="flex flex-col p-1"
                             >
                                 <div className="max-h-[240px] overflow-y-auto px-1 py-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border-strong [&::-webkit-scrollbar]:w-1.5">
-                                    {(['dark', 'light', 'liga'] as Theme[]).map((opt) => (
+                                    {(['dark', 'light', 'liga', 'minimal'] as Theme[]).map((opt) => (
                                         <DropdownItem
                                             key={opt}
                                             onClick={() => {
@@ -254,7 +255,7 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                             }`}
                                         >
                                             <div className="flex w-full items-center justify-between">
-                                                <span className="truncate capitalize">{opt === 'dark' ? 'Oscuro' : opt === 'light' ? 'Claro' : 'Liga'}</span>
+                                                <span className="truncate">{opt === 'dark' ? 'Oscuro' : opt === 'light' ? 'Claro' : opt === 'liga' ? 'Liga' : 'Oscuro Minimal'}</span>
                                                 {theme === opt && <Check className="h-3.5 w-3.5 text-brand-text" />}
                                             </div>
                                         </DropdownItem>

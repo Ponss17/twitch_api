@@ -165,7 +165,7 @@ export const sidebarNavItem = (active: boolean) => {
 };
 
 export const sidebarShell = (mobileOpen: boolean) =>
-    `fixed left-0 top-0 z-[1000] flex h-screen w-[240px] flex-col bg-sidebar transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`;
+    `fixed left-0 top-0 z-[1000] flex h-screen w-[240px] flex-col bg-sidebar border-r border-border-subtle transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`;
 
 export const sidebarBrandHeader =
     'flex h-20 shrink-0 items-center gap-3 px-5 py-4';

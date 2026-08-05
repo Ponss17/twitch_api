@@ -2,7 +2,8 @@
 
 :root,
 :root[data-theme='dark'],
-:root[data-theme='light'] {
+:root[data-theme='light'],
+:root[data-theme='minimal'] {
 	--lp-purple: #9146ff;
 	--lp-purple-light: #b794ff;
 	--lp-purple-muted: #a78bfa;
@@ -1160,7 +1161,7 @@ starlight-tabs {
 	color: var(--lp-purple-light) !important;
 }
 
-.hero .sl-link-button :global(svg) {
+.hero .sl-link-button svg {
 	flex-shrink: 0;
 	opacity: 0.92;
 }
