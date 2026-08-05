@@ -1,3 +1,5 @@
+import { getBcp47 } from '@/core/i18n/I18nContext';
+
 const animations = new WeakMap<HTMLElement, number>();
 
 /** Contador animado — paridad con frontend/core/ui-core.ts */
@@ -19,7 +21,7 @@ export function animateValue(
     const currentVal = parseInt(textWithoutHtml.replace(/[^0-9.-]+/g, ''), 10) || 0;
     const actualStart = start !== null ? start : currentVal;
 
-    const bcp47 = locale === 'es' ? 'es-ES' : 'en-US';
+    const bcp47 = getBcp47(locale);
     const formatted = (value: number) => `${value.toLocaleString(bcp47)}${suffix}`;
 
     if (actualStart === end) {

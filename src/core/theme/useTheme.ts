@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 /** Temas soportados. Añadir aquí para extender el sistema de temas. */
-export const SUPPORTED_THEMES = ['dark', 'light', 'liga'] as const;
+export const SUPPORTED_THEMES = ['dark', 'light', 'liga', 'minimal'] as const;
 export type Theme = (typeof SUPPORTED_THEMES)[number];
 
 const THEME_KEY = 'los_perris_theme';

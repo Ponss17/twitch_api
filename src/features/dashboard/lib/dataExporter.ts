@@ -4,6 +4,7 @@ import { withApiCredentials, fetchRevealApiKey } from '@/core/api/auth';
 import { absoluteAssetUrl, appPath, legalPath } from '@/core/config/paths';
 import { buildReportHtml } from './exporterTemplate';
 import type { Translations } from '@/core/i18n/locales/es';
+import { getBcp47 } from '@/core/i18n/I18nContext';
 
 interface AnalyticsData {
     todayRequests?: number;
@@ -363,7 +364,7 @@ const DataExport = {
     },
 
     async export(session: Session, t: Translations, locale: string, onSuccess?: (message: string) => void) {
-        const bcp47 = locale === 'es' ? 'es-ES' : 'en-US';
+        const bcp47 = getBcp47(locale);
         const user = session;
         const name = this.escapeHtml(user.displayName || user.login || 'Usuario');
         const safeLogin = this.escapeHtml(user.login || '---');

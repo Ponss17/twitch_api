@@ -7,7 +7,7 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { fadeIn } from '@/core/utils/tw';
 import { AlertTriangle } from 'lucide-react';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
-import { useTranslation } from '@/core/i18n/I18nContext';
+import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
 
 interface HomeViewProps {
     onNavigate?: (tab: DashboardTab) => void;
@@ -46,7 +46,7 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
     const formatMemberSince = (iso?: string): string => {
         if (!iso) return '---';
         try {
-            return new Date(iso).toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-US', {
+            return new Date(iso).toLocaleDateString(getBcp47(locale), {
                 day: '2-digit',
                 month: 'short',
                 year: 'numeric'

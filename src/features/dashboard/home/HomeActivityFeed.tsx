@@ -156,9 +156,13 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                     {isLive ? (
-                        <span className="animate-blink rounded bg-red-600 px-1.5 py-0.5 text-[0.6rem] font-black uppercase tracking-[0.1em] text-white">
-                            LIVE
-                        </span>
+                        <div className="flex items-center gap-1.5 rounded-md border border-border-subtle bg-bg-secondary px-2 py-1 text-[0.6875rem] font-semibold tracking-wide text-text-main">
+                            <span className="relative flex h-2 w-2">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+                            </span>
+                            <span>LIVE</span>
+                        </div>
                     ) : null}
                     <InfoTooltip
                         placement="bottom"

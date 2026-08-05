@@ -18,7 +18,7 @@ import type {
     DashboardActivityLog
 } from '@contracts/dashboardContracts';
 import type { Translations } from '@/core/i18n/locales/es';
-import type { Locale } from '@/core/i18n/I18nContext';
+import { getBcp47, type Locale } from '@/core/i18n/I18nContext';
 
 export type { ActivityLogType } from '@contracts/dashboardContracts';
 
@@ -157,7 +157,7 @@ export function activityEntryKey(item: ActivityLogItem): string {
 
 function activityDateLabel(date: Date, timeZone: string | undefined, locale: Locale): string {
     const tz = timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const bcp47 = locale === 'es' ? 'es-ES' : 'en-US';
+    const bcp47 = getBcp47(locale);
     return new Intl.DateTimeFormat(bcp47, {
         timeZone: tz,
         day: 'numeric',
@@ -178,11 +178,11 @@ export function formatActivityDate(ts: string, timeZone: string | undefined, loc
     return label;
 }
 
-export function formatActivityTime(ts: string, timeZone: string | undefined, locale: Locale): string {
+export function formatActivityTime(ts: string, timeZone?: string, locale: Locale = 'en'): string {
     const date = new Date(ts);
     if (Number.isNaN(date.getTime())) return '';
     
-    const bcp47 = locale === 'es' ? 'es-ES' : 'en-US';
+    const bcp47 = getBcp47(locale);
 
     const parts = new Intl.DateTimeFormat(bcp47, {
         timeZone: timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -193,7 +193,8 @@ export function formatActivityTime(ts: string, timeZone: string | undefined, loc
 
     const hour = parts.find((p) => p.type === 'hour')?.value ?? '12';
     const minute = parts.find((p) => p.type === 'minute')?.value ?? '00';
-    const period = (parts.find((p) => p.type === 'dayPeriod')?.value ?? 'am').toLowerCase();
+    const rawPeriod = (parts.find((p) => p.type === 'dayPeriod')?.value ?? 'am').toLowerCase();
+    const period = rawPeriod.includes('p') ? 'pm' : 'am';
 
     return `${hour}:${minute} ${period}`;
 }
