@@ -5,6 +5,7 @@ import SpeedInsights from '@vercel/speed-insights/astro';
 import Analytics from '@vercel/analytics/astro';
 import { staticPath, absoluteAssetUrl } from '@/core/config/paths';
 import { pageTitle } from '@/core/config/pageTitle';
+import { getThemeInitScript } from '@/core/theme';
 
 export interface Props {
     /** Nombre de la página; se formatea como «Página | LosPerris». */
@@ -65,19 +66,8 @@ const swScope = staticPath('/');
         <link rel="canonical" href={canonicalUrl} />
         <meta name="theme-color" content="#9146ff" />
         
-        {/* Evitar Flash of Unstyled Content (FOUC) */}
-        <script is:inline>
-            (function() {
-                try {
-                    const theme = localStorage.getItem('los_perris_theme');
-                    if (theme === 'light' || theme === 'liga' || theme === 'minimal') {
-                        document.documentElement.setAttribute('data-theme', theme);
-                    }
-                } catch {
-                    /* ignore */
-                }
-            })();
-        </script>
+        {/* Evitar Flash of Unstyled Content (FOUC) síncronamente */}
+        <script is:inline set:html={getThemeInitScript()} />
         
         <!-- Open Graph -->
         <meta property="og:site_name" content="LosPerris" />
@@ -116,15 +106,14 @@ const swScope = staticPath('/');
         <link rel="preconnect" href="https://cdn.discordapp.com" />
         <link
             rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap"
-            id="geist-font-preload"
+            href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=Inter:wght@300..800&family=Plus+Jakarta+Sans:wght@400..800&family=Rubik:wght@400..900&family=Space+Grotesk:wght@400..700&display=swap"
             media="print"
             onload="this.media='all'"
         />
         <noscript>
             <link
                 rel="stylesheet"
-                href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap"
+                href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=Inter:wght@300..800&family=Plus+Jakarta+Sans:wght@400..800&family=Rubik:wght@400..900&family=Space+Grotesk:wght@400..700&display=swap"
             />
         </noscript>
         <title>{documentTitle}</title>
@@ -170,11 +159,11 @@ const swScope = staticPath('/');
         )}
         <slot name="head" />
     </head>
-    <body class="flex min-h-screen flex-col bg-bg-main text-text-main antialiased">
+    <body class="flex min-h-screen flex-col bg-bg-main text-text-main antialiased relative">
         <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-bg-secondary focus:text-primary focus:border focus:border-border-strong focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors">
             Saltar al contenido principal
         </a>
-        <main id="main-content" class="flex min-h-0 flex-1 flex-col">
+        <main id="main-content" class="relative z-10 flex min-h-0 flex-1 flex-col bg-transparent">
             <slot />
         </main>
         {footer && <Footer client:visible isDashboard={Astro.url.pathname.includes('/dashboard')} />}

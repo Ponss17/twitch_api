@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { appPath, dashboardHomePath, docsReturnPath, saveDocsReturnPath, staticPath } from '@/core/config/paths';
 import { aboutFadeIn } from '@/core/utils/tw';
 import { AboutTechCards } from '@/features/about/AboutTechCards';
+import { copyText } from '@/core/utils/clipboard';
 
 function animDelay(delay: number): CSSProperties {
     return { animationDelay: `${delay * 0.1}s` };
@@ -66,13 +67,11 @@ export function AboutPage() {
     }, []);
 
     const copyDiscord = async () => {
-        try {
-            await navigator.clipboard.writeText('ponsschiquito');
+        const ok = await copyText('ponsschiquito');
+        if (ok) {
             setToastVisible(true);
             if (toastTimerRef.current !== null) window.clearTimeout(toastTimerRef.current);
             toastTimerRef.current = window.setTimeout(() => setToastVisible(false), 3000);
-        } catch {
-            /* ignore */
         }
     };
 

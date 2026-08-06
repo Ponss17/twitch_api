@@ -139,7 +139,7 @@ describe('gamesController', () => {
 
             await startDuel(req, res);
 
-            expect(playDuel).toHaveBeenCalledWith('Hero', 'Enemy');
+            expect(playDuel).toHaveBeenCalledWith('Hero', 'Enemy', 'es');
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
                 expect.objectContaining({ type: 'duel', user: 'Hero', metadata: { target: 'Enemy' } })
@@ -162,7 +162,7 @@ describe('gamesController', () => {
 
             await startDuel(req, res);
 
-            expect(playDuel).toHaveBeenCalledWith('KeanuReeves', 'Enemy');
+            expect(playDuel).toHaveBeenCalledWith('KeanuReeves', 'Enemy', 'es');
         });
 
         it('should chain Nightbot messages via Response-Url', async () => {

@@ -20,14 +20,14 @@ export function DiscordLinkConfirmModal({ open, onClose, onConfirm }: DiscordLin
             open={open}
             onClose={onClose}
             title={dT.title}
-            titleIconNode={<DiscordIcon className="h-5 w-5 text-[#5865F2]" />}
+            titleIconNode={<DiscordIcon className="h-5 w-5 text-brand-text" />}
             footer={
                 <>
                     <button
                         type="button"
                         onClick={onConfirm}
                         data-modal-primary
-                        className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#5865F2] px-3 py-2 text-[0.8125rem] font-semibold text-white transition hover:-translate-y-0.5 hover:brightness-110"
+                        className={`${modalBtnPrimary} inline-flex min-w-0 flex-1 items-center justify-center gap-1.5`}
                     >
                         <DiscordIcon className="h-4 w-4" aria-hidden="true" />
                         {dT.continue}
@@ -42,15 +42,15 @@ export function DiscordLinkConfirmModal({ open, onClose, onConfirm }: DiscordLin
             <p className="mt-4">{dT.desc2}</p>
             <ul className="my-4 space-y-2">
                 <li className="flex items-start gap-2">
-                    <Check className="mt-1 h-4 w-4 shrink-0 text-[#5865F2]" />
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-brand-text" />
                     {dT.point1}
                 </li>
                 <li className="flex items-start gap-2">
-                    <Check className="mt-1 h-4 w-4 shrink-0 text-[#5865F2]" />
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-brand-text" />
                     {dT.point2}
                 </li>
                 <li className="flex items-start gap-2">
-                    <Check className="mt-1 h-4 w-4 shrink-0 text-[#5865F2]" />
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-brand-text" />
                     {dT.point3}
                 </li>
             </ul>

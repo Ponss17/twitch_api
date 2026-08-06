@@ -148,6 +148,8 @@ export const dangerInput =
     'w-full rounded-lg border border-border-strong bg-bg-secondary px-3 py-3 text-center text-base font-semibold uppercase tracking-[0.2em] text-text-main outline-none transition placeholder:font-normal placeholder:normal-case placeholder:tracking-normal placeholder:opacity-50 focus:border-error focus:bg-error/[0.08]';
 
 export const modalShake = 'animate-modal-shake';
+export const sheetIn = 'animate-sheet-in';
+export const sheetOut = 'animate-sheet-out';
 
 export const aboutFadeIn = 'opacity-0 animate-about-in';
 export const aboutLegoIn = 'opacity-0 animate-about-lego';

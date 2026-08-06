@@ -10,7 +10,8 @@ import { AuthenticatedRequest } from '../../types/twitch';
 import { safeString, sanitizeHtml } from '../../core/utils/validationHelpers';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
-import { getTimePhraseBetween } from '../../core/utils/time';
+import { getTimePhraseBetween, normalizeLanguage } from '../../core/utils/time';
+import { getFollowageTexts } from '../twitch/twitchUserService';
 import * as dbService from '../../core/database/dbService';
 
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
@@ -127,6 +128,9 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
     const channel = req.query.channel as string;
     const user = req.query.user as string;
     const userId = req.userId;
+    const rawLang = req.query.lang as string;
+    const lang = normalizeLanguage(rawLang);
+    const texts = getFollowageTexts(lang);
 
     let sanitizedUser = user;
     if (sanitizedUser?.includes('$(') || sanitizedUser?.includes('${')) sanitizedUser = 'Anónimo';
@@ -143,16 +147,16 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             // Helix: broadcaster o moderador del canal (scope moderator:read:followers).
             const cacheKey = ownerScopedCacheKey(
                 userId,
-                `cache:cmd:followage:v6:channel:${channel}:user:${user}`
+                `cache:cmd:followage:v7:channel:${channel}:user:${user}:lang:${lang}`
             );
             const cached = await cacheService.get<{ text: string; timePhrase: string; followDateMs?: number }>(cacheKey);
 
             if (cached && typeof cached === 'object' && !Array.isArray(cached)) {
                 const entry = { ...cached };
                 if (entry.followDateMs) {
-                    const newTimePhrase = getTimePhraseBetween(new Date(entry.followDateMs));
+                    const newTimePhrase = getTimePhraseBetween(new Date(entry.followDateMs), new Date(), lang);
                     entry.timePhrase = newTimePhrase;
-                    entry.text = `${user} ha seguido a ${channel} por ${newTimePhrase}.`;
+                    entry.text = texts.following(user, channel, newTimePhrase);
                 }
                 const template = safeString(req.query.template);
                 if (template && entry.timePhrase && entry.timePhrase !== 'error') {
@@ -166,7 +170,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             const apiResult = await withTwitchAuth(
                 req,
                 res,
-                async (token: string) => apiService.getFollowAge(channel, user, token),
+                async (token: string) => apiService.getFollowAge(channel, user, token, lang),
                 'FOLLOWAGE'
             );
 
@@ -181,7 +185,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
             }
 
             // Solo cachear follows reales (con fecha). "no sigue" / errores no se cachean.
-            if (apiResult.timePhrase !== 'error' && apiResult.timePhrase !== 'no sigue') {
+            if (apiResult.timePhrase !== 'error' && apiResult.timePhrase !== texts.notFollowingTime) {
                 const ttl = resolveCache(
                     'COMMAND',
                     res.locals?.apiUser?.role,

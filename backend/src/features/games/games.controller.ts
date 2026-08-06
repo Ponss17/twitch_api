@@ -42,6 +42,8 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
             effectiveUserId = fallback?.userId || ANONYMOUS_USER_ID;
         }
 
+        const lang = (req.query.lang as string) || 'es';
+
         const answer = await trackRequest(
             effectiveUserId,
             {
@@ -50,7 +52,7 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
                 metadata: { question },
                 incrementStat: 'magic8'
             },
-            () => magic8Service.generateMagic8Response(question, mood as string, user as string),
+            () => magic8Service.generateMagic8Response(question, mood as string, user as string, lang),
             req
         );
 
@@ -91,6 +93,7 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
 
         const isHardcore = hardcore === 'true';
         const sendToChat = req.query.sendToChat === 'true';
+        const lang = (req.query.lang as string) || 'es';
 
         const result = await trackRequest(
             effectiveUserId || ANONYMOUS_USER_ID,
@@ -111,7 +114,8 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
                             user as string,
                             token,
                             isHardcore,
-                            sendToChat
+                            sendToChat,
+                            lang
                         );
                     },
                     'RUSSIAN'
@@ -139,6 +143,7 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
         const target = req.query.target as string;
         let challenger = (req.query.challenger as string) || 'KeanuReeves';
         if (challenger?.includes('$(') || challenger?.includes('${')) challenger = 'Anónimo';
+        const lang = (req.query.lang as string) || 'es';
 
         let effectiveUserId = req.userId;
         if (!effectiveUserId) {
@@ -157,7 +162,7 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
                 metadata: { target },
                 incrementStat: 'duel'
             },
-            () => Promise.resolve(duelService.playDuel(challenger, target)),
+            () => Promise.resolve(duelService.playDuel(challenger, target, lang)),
             req
         );
 

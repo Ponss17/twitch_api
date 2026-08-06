@@ -15,6 +15,7 @@ import { StalkerRowSkeleton } from '@/shared/ui/Skeleton';
 import { EmptyStateIcon, IconSm, InlineIcon } from '@/shared/ui/Icon';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { useDebounce } from '@/shared/hooks/useDebounce';
 
 const LISTENER_ID = 'stalker';
 
@@ -26,7 +27,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
     const [scanning, setScanning] = useState(false);
     const [chatters, setChatters] = useState<StalkerUser[]>([]);
     const [search, setSearch] = useState('');
-    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const debouncedSearch = useDebounce(search, 300);
     const [loading, setLoading] = useState(false);
     const [inspectUser, setInspectUser] = useState<TwitchUser | null>(null);
     const [highlightLogin, setHighlightLogin] = useState<string | null>(null);
@@ -35,15 +36,6 @@ export function StalkerView({ active = true }: { active?: boolean }) {
     const chattersRef = useRef(chatters);
     chattersRef.current = chatters;
     const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    useEffect(() => {
-        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-        searchTimeoutRef.current = setTimeout(() => setDebouncedSearch(search), 300);
-        return () => {
-            if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-        };
-    }, [search]);
 
     const loadChatters = useCallback(async () => {
         if (!scanningRef.current || !session.login) return;

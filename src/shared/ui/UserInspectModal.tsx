@@ -7,6 +7,7 @@ import { formatDate } from '@/core/utils/utils';
 import { staticPath } from '@/core/config/paths';
 import { X, Check, Copy } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { copyText } from '@/core/utils/clipboard';
 
 interface UserInspectModalProps {
     user: TwitchUser | null;
@@ -23,9 +24,11 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
 
     const copyUserId = async () => {
         if (!user) return;
-        await navigator.clipboard.writeText(user.id);
-        setIsIdCopied(true);
-        setTimeout(() => setIsIdCopied(false), 2000);
+        const ok = await copyText(user.id);
+        if (ok) {
+            setIsIdCopied(true);
+            setTimeout(() => setIsIdCopied(false), 2000);
+        }
     };
 
 
@@ -59,7 +62,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                 <X className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-5 border-b border-border-strong bg-text-main/5 p-6 max-md:flex-col max-md:text-center">
+            <div className="flex items-center gap-5 border-b border-border-subtle bg-bg-secondary/70 p-6 max-md:flex-col max-md:text-center">
                 <img
                     src={user.profile_image_url ?? staticPath('/img/logo.svg')}
                     alt={user.display_name}
