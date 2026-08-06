@@ -91,8 +91,8 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
         >
             {chartData.length === 0 ? (
                 <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border-subtle bg-transparent">
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-text-main/5">
-                        <BarChart2 className="h-6 w-6 text-text-muted" />
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                        <BarChart2 className="h-6 w-6 text-brand-text" />
                     </div>
                     <span className="text-sm font-medium text-text-muted">{chart.noData}</span>
                     <span className="mt-1 text-xs text-text-muted">
@@ -144,9 +144,7 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
                                 wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
                             />
                             <Legend
-                                verticalAlign="top"
-                                align="right"
-                                wrapperStyle={{ paddingBottom: '20px', fontSize: '12px', color: 'var(--text-muted)' }}
+                                wrapperStyle={{ top: 0, right: 0, paddingBottom: '20px', fontSize: '12px', color: 'var(--text-muted)' }}
                                 iconType="circle"
                             />
                             <Bar

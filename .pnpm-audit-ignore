@@ -1,5 +1,8 @@
 {
   "GHSA-mh99-v99m-4gvg": {
     "reason": "Patched versions 1.1.16 and 2.1.2 are installed. Pnpm audit throws a false positive expecting >=5.0.8"
+  },
+  "GHSA-7p8r-x3mc-p8w7": {
+    "reason": "Vulnerability in transitive devDependency yaml-language-server (used solely by @astrojs/check at build time, not in production runtime bundle)."
   }
 }

@@ -1,5 +1,5 @@
-import { Copy, Check, Loader2, Monitor, Radio, Info, AlertTriangle } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { Copy, Check, Loader2, Monitor, Radio, Info, AlertTriangle, Palette } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRequiredSession } from '@/core/session/useSession';
 import { fetchOverlayLink } from '@/features/overlay/lib/sync';
 import {
@@ -10,6 +10,9 @@ import type { OverlayTool } from '@/features/overlay/lib/types';
 import { Sheet } from '@/shared/ui/Sheet';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { readScopedPref, writeScopedPref } from '@/core/session/localPrefs';
+import { resolveWheelPalette, ROULETTE_COLOR_PRESETS } from '@/features/roulette/lib/wheelUtils';
+import { copyText } from '@/core/utils/clipboard';
 
 interface OverlaySetupModalProps {
     open: boolean;
@@ -22,6 +25,8 @@ const PLATFORMS: { id: OverlayPlatform; label: string; icon: typeof Monitor }[] 
     { id: 'streamlabs', label: 'Streamlabs', icon: Radio }
 ];
 
+const OBS_ROULETTE_COLOR_PREF = 'roulette_obs_wheel_color';
+
 export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProps) {
     const session = useRequiredSession();
     const { showToast } = useToast();
@@ -30,13 +35,37 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
     const gT = t.overlay.guide;
     
     const [platform, setPlatform] = useState<OverlayPlatform>('obs');
-    const [url, setUrl] = useState('');
+    const [rawUrl, setRawUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [copying, setCopying] = useState(false);
     const [copied, setCopied] = useState(false);
 
+    const [obsWheelColor, setObsWheelColor] = useState<string>(() =>
+        readScopedPref(OBS_ROULETTE_COLOR_PREF, session.userId) || 'auto'
+    );
+
     const guide = getOverlayPlatformGuide(tool, platform, gT);
     const toolLabel = gT.tools[tool] ?? tool;
+
+    const handleColorChange = (newColor: string) => {
+        setObsWheelColor(newColor);
+        writeScopedPref(OBS_ROULETTE_COLOR_PREF, session.userId, newColor);
+    };
+
+    const finalUrl = useMemo(() => {
+        if (!rawUrl) return '';
+        if (tool !== 'roulette' || !obsWheelColor || obsWheelColor === 'auto') {
+            return rawUrl;
+        }
+        try {
+            const urlObj = new URL(rawUrl, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+            urlObj.searchParams.set('color', obsWheelColor);
+            return urlObj.toString();
+        } catch {
+            const sep = rawUrl.includes('?') ? '&' : '?';
+            return `${rawUrl}${sep}color=${encodeURIComponent(obsWheelColor)}`;
+        }
+    }, [rawUrl, tool, obsWheelColor]);
 
     const loadUrl = useCallback(async () => {
         setLoading(true);
@@ -44,25 +73,25 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
             const next = await fetchOverlayLink(tool, session);
             if (!next) {
                 showToast(mT.generateError, 'error');
-                setUrl('');
+                setRawUrl('');
                 return;
             }
-            setUrl(next);
+            setRawUrl(next);
         } catch {
             showToast(mT.generateError, 'error');
-            setUrl('');
+            setRawUrl('');
         } finally {
             setLoading(false);
         }
-    // eslint-disable-next-line
-    }, [session, showToast, tool]);
+    }, [session, showToast, tool, mT.generateError]);
 
     useEffect(() => {
         if (!open) return;
         setPlatform('obs');
         setCopied(false);
+        setObsWheelColor(readScopedPref(OBS_ROULETTE_COLOR_PREF, session.userId) || 'auto');
         void loadUrl();
-    }, [open, loadUrl]);
+    }, [open, loadUrl, session.userId]);
 
     useEffect(() => {
         if (!copied) return;
@@ -71,17 +100,16 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
     }, [copied]);
 
     const copyUrl = async () => {
-        if (!url || copying) return;
+        if (!finalUrl || copying) return;
         setCopying(true);
-        try {
-            await navigator.clipboard.writeText(url);
+        const ok = await copyText(finalUrl);
+        if (ok) {
             setCopied(true);
             showToast(mT.copySuccess, 'success');
-        } catch {
+        } else {
             showToast(mT.copyError, 'error');
-        } finally {
-            setCopying(false);
         }
+        setCopying(false);
     };
 
     return (
@@ -102,7 +130,7 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                     <button
                         type="button"
                         className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-[0.8rem] font-semibold text-white shadow-[0_0_20px_rgba(145,70,255,0.2)] transition-all hover:bg-primary-light hover:-translate-y-0.5 hover:shadow-[0_0_25px_rgba(145,70,255,0.3)] disabled:pointer-events-none disabled:opacity-50"
-                        disabled={!url || loading || copying}
+                        disabled={!finalUrl || loading || copying}
                         onClick={() => void copyUrl()}
                     >
                         {loading ? (
@@ -130,7 +158,7 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                 </div>
             }
         >
-            <div className="flex flex-col gap-6 pt-1 pb-1">
+            <div className="flex flex-col gap-5 pt-1 pb-1">
                 {/* Clean Platform Switcher */}
                 <div
                     className="flex w-full items-center gap-1 rounded-xl border border-border-subtle bg-bg-secondary p-1"
@@ -148,8 +176,8 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                                 onClick={() => setPlatform(id)}
                                 className={`flex-1 inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-[0.75rem] font-medium transition-all ${
                                     selected
-                                        ? 'bg-text-main/5 text-text-main shadow-sm border border-border-subtle'
-                                        : 'text-text-muted hover:text-text-main hover:bg-text-main/5 border border-transparent'
+                                        ? 'bg-primary/15 text-brand-text shadow-xs border border-primary/30'
+                                        : 'text-text-muted hover:text-text-main hover:bg-primary/10 border border-transparent'
                                 }`}
                             >
                                 <Icon className={`size-3.5 shrink-0 ${selected ? 'text-primary' : ''}`} aria-hidden />
@@ -159,8 +187,75 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                     })}
                 </div>
 
+                {/* Personalización exclusiva de OBS para Ruleta */}
+                {tool === 'roulette' && (
+                    <div className="rounded-xl border border-border-subtle bg-bg-secondary/70 backdrop-blur-xs p-4 shadow-xs">
+                        <div className="flex items-center justify-between gap-2 pb-2">
+                            <div className="flex items-center gap-2">
+                                <Palette className="size-4 text-primary" />
+                                <h4 className="text-[0.75rem] font-bold text-text-main">
+                                    Color en Directo (OBS / Stream)
+                                </h4>
+                            </div>
+                            <span className="rounded-md border border-border-subtle bg-bg-secondary px-2 py-0.5 text-[0.65rem] font-medium text-text-muted">
+                                Solo Overlay
+                            </span>
+                        </div>
+                        <p className="mb-3 text-[0.7rem] leading-relaxed text-text-muted">
+                            Personaliza cómo verán la ruleta tus espectadores en OBS sin cambiar el tema de tu panel.
+                        </p>
+
+                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                            {ROULETTE_COLOR_PRESETS.map((preset) => {
+                                const isSelected = obsWheelColor === preset.id;
+                                const palette = resolveWheelPalette(preset.id);
+                                return (
+                                    <button
+                                        key={preset.id}
+                                        type="button"
+                                        onClick={() => handleColorChange(preset.id)}
+                                        title={preset.label}
+                                        className={`group relative flex items-center gap-2 overflow-hidden rounded-lg border px-2.5 py-2 text-left text-[0.7rem] font-medium transition-all ${
+                                            isSelected
+                                                ? 'border-primary bg-primary/10 text-text-main shadow-xs'
+                                                : 'border-border-subtle bg-bg-secondary text-text-muted hover:border-border-strong hover:text-text-main'
+                                        }`}
+                                    >
+                                        <span
+                                            className="size-3.5 shrink-0 rounded-full border border-white/20"
+                                            style={{ backgroundColor: preset.isAuto ? 'var(--primary)' : palette.primaryHex }}
+                                        />
+                                        <span className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
+                                            <span className="inline-block whitespace-nowrap transition-transform duration-700 ease-out group-hover:-translate-x-1/3">
+                                                {preset.label}
+                                            </span>
+                                        </span>
+                                        {isSelected && <Check className="ml-auto size-3 shrink-0 text-primary" />}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2">
+                            <span className="text-[0.7rem] text-text-muted">Color personalizado:</span>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="color"
+                                    aria-label="Color personalizado para OBS"
+                                    value={obsWheelColor.startsWith('#') ? obsWheelColor : '#9146ff'}
+                                    onChange={(e) => handleColorChange(e.target.value)}
+                                    className="size-6 cursor-pointer rounded border-0 bg-transparent p-0"
+                                />
+                                <span className="font-mono text-[0.7rem] uppercase text-text-main">
+                                    {obsWheelColor.startsWith('#') ? obsWheelColor : 'Preset'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Flat List Card for Steps */}
-                <div role="tabpanel" className="rounded-xl border border-border-subtle bg-text-main/5 px-5 py-5">
+                <div role="tabpanel" className="rounded-xl border border-border-subtle bg-bg-secondary/70 backdrop-blur-xs px-5 py-5 shadow-xs">
                     <h4 className="mb-4 text-[0.7rem] font-bold tracking-widest text-text-muted uppercase">
                         {guide.title}
                     </h4>
@@ -168,7 +263,7 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                         {guide.steps.map((step, index) => (
                             <li key={step.title} className="flex gap-4 text-[0.75rem] leading-relaxed">
                                 <div
-                                    className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-lg border border-border-subtle bg-text-main/5 text-[0.65rem] font-bold text-text-muted"
+                                    className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-[0.65rem] font-bold text-brand-text"
                                     aria-hidden
                                 >
                                     {index + 1}
@@ -181,7 +276,7 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                         ))}
                     </ol>
 
-                    <div className="mt-5 flex items-start gap-2.5 rounded-lg border border-border-subtle bg-bg-secondary p-3">
+                    <div className="mt-5 flex items-start gap-2.5 rounded-lg border border-border-subtle bg-bg-main/50 p-3">
                         <Info className="mt-0.5 size-4 shrink-0 text-primary/70" />
                         <p className="text-[0.7rem] leading-relaxed text-text-muted">{guide.note}</p>
                     </div>

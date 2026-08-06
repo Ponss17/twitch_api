@@ -36,7 +36,7 @@ export const HomeActivityLogEntry = memo(function HomeActivityLogEntry({
         <Component
             data-entry-key={activityEntryKey(item)}
             onClick={() => onClick?.(item)}
-            className={`group flex w-full text-left items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 ${isNew ? 'bg-primary/[0.08] shadow-[inset_2px_0_0_0_var(--primary)]' : ''} ${isNew ? 'animate-slide-in-soft' : ''} ${onClick ? 'cursor-pointer hover:bg-text-main/5 hover:shadow-sm' : ''}`}
+            className={`group flex w-full text-left items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 ${isNew ? 'bg-primary/[0.08] shadow-[inset_2px_0_0_0_var(--primary)]' : ''} ${isNew ? 'animate-fade-soft' : ''} ${onClick ? 'cursor-pointer hover:bg-primary/[0.06] hover:text-text-main hover:shadow-sm' : ''}`}
         >
             <div
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${meta.iconClass}`}

@@ -21,6 +21,7 @@ export interface CommandConfigItem {
     templatePlaceholder?: string;
     templateVars?: string;
     extraSelectors?: ExtraSelector[];
+    supportsLanguage?: boolean;
     generate: (
         domain: string,
         login: string,
@@ -32,6 +33,11 @@ export interface CommandConfigItem {
     ) => { full: string; url: string };
 }
 
+const appendLangParam = (params: string, extraValues?: Record<string, string>) => {
+    const lang = extraValues?.lang;
+    return lang && lang !== 'es' ? `${params}&lang=${encodeURIComponent(lang)}` : params;
+};
+
 export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     follow: {
         id: 'follow',
@@ -41,10 +47,12 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
         info: 'Genera el código para que tu bot responda con el tiempo exacto que un usuario te sigue.',
         templatePlaceholder: 'Ej: {user} lleva sufriendo {time}.',
         templateVars: 'Variables: {user}, {time}, {channel}',
-        generate: (domain, login, tokenParam, bot, templateVal, _queryParams) => {
+        supportsLanguage: true,
+        generate: (domain, login, tokenParam, bot, templateVal, _queryParams, extraValues = {}) => {
             const botUtils = CommandGenerator.bots[bot] || CommandGenerator.bots.nightbot;
             const userArg = botUtils.arg('touser');
             let params = `channel=${login}&user=${userArg}&${tokenParam}`;
+            params = appendLangParam(params, extraValues);
             if (templateVal) params += `&template=${encodeURIComponent(templateVal)}`;
             const cmd = CommandGenerator.generate(bot, `${domain}/followage`, params);
             return { full: botUtils.addcmd('!followage', cmd), url: cmd };
@@ -115,6 +123,7 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
             const userArg = botUtils.arg('user');
             const queryArg = botUtils.arg('query') || botUtils.arg('args') || '(?)';
             let params = `channel=${login}&question=${queryArg}&user=${userArg}&mood=${mood}&${tokenParam}`;
+            params = appendLangParam(params, extraValues);
             if (templateVal) params += `&template=${encodeURIComponent(templateVal)}`;
             const cmd = CommandGenerator.generate(bot, `${domain}/minigames/magic8`, params);
             return { full: botUtils.addcmd('!8ball', cmd), url: cmd };
@@ -137,10 +146,12 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
                 ]
             }
         ],
+        supportsLanguage: true,
         generate: (domain, login, tokenParam, bot, _templateVal, _queryParams, extraValues = {}) => {
             const botUtils = CommandGenerator.bots[bot];
             const userArg = botUtils.arg('user');
-            const params = `channel=${login}&user=${userArg}&hardcore=${extraValues.hardcore === 'true'}&${tokenParam}`;
+            let params = `channel=${login}&user=${userArg}&hardcore=${extraValues.hardcore === 'true'}&${tokenParam}`;
+            params = appendLangParam(params, extraValues);
             const cmd = CommandGenerator.generate(bot, `${domain}/minigames/russian`, params);
             return { full: botUtils.addcmd('!ruleta', cmd), url: cmd };
         }
@@ -151,11 +162,13 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
         icon: Swords,
         desc: 'Duelo 1vs1 narrado (Nightbot: 3 mensajes)',
         info: 'Con Nightbot el bot cuenta el duelo en 3 mensajes. En otros bots sale en una sola línea.',
-        generate: (domain, login, tokenParam, bot, _templateVal, _queryParams) => {
+        supportsLanguage: true,
+        generate: (domain, login, tokenParam, bot, _templateVal, _queryParams, extraValues = {}) => {
             const botUtils = CommandGenerator.bots[bot];
             const challengerArg = botUtils.arg('user');
             const targetArg = botUtils.arg('touser') || botUtils.arg('1');
-            const params = `channel=${login}&challenger=${challengerArg}&target=${targetArg}&${tokenParam}`;
+            let params = `channel=${login}&challenger=${challengerArg}&target=${targetArg}&${tokenParam}`;
+            params = appendLangParam(params, extraValues);
             const cmd = CommandGenerator.generate(bot, `${domain}/minigames/duel`, params);
             return { full: botUtils.addcmd('!duelo', cmd), url: cmd };
         }

@@ -47,8 +47,8 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
         >
             {!areaData.some(d => d.requests > 0) ? (
                 <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border-subtle bg-transparent">
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-text-main/5">
-                        <Activity className="h-6 w-6 text-text-muted" />
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                        <Activity className="h-6 w-6 text-brand-text" />
                     </div>
                     <span className="text-sm font-medium text-text-muted">{chart.noData}</span>
                     <span className="mt-1 text-xs text-text-muted">

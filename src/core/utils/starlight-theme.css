@@ -3,7 +3,8 @@
 :root,
 :root[data-theme='dark'],
 :root[data-theme='light'],
-:root[data-theme='minimal'] {
+:root[data-theme='minimal'],
+:root[data-theme='matrix'] {
 	--lp-purple: #9146ff;
 	--lp-purple-light: #b794ff;
 	--lp-purple-muted: #a78bfa;
@@ -11,8 +12,8 @@
 	--lp-purple-glow: rgba(145, 70, 255, 0.15);
 	--lp-purple-border: rgba(145, 70, 255, 0.35);
 
-	--sl-font: 'Geist', system-ui, -apple-system, sans-serif;
-	--sl-font-mono: 'Geist Mono', ui-monospace, monospace;
+	--sl-font: var(--font-family-base, 'Geist', system-ui, -apple-system, sans-serif);
+	--sl-font-mono: var(--font-family-mono, 'Geist Mono', ui-monospace, monospace);
 
 	--sl-color-accent-low: var(--lp-purple-glow);
 	--sl-color-accent: var(--lp-purple);

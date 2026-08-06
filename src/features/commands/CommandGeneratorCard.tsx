@@ -1,4 +1,4 @@
-import { Edit, Check, Loader2, AlertTriangle, Copy, Play, Bot, FileCode, FlaskConical } from 'lucide-react';
+import { Edit, Check, Loader2, AlertTriangle, Copy, Play, Bot, FileCode, FlaskConical, Languages } from 'lucide-react';
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
@@ -127,6 +127,15 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
         [config.excludedBots]
     );
 
+    const langOptions = useMemo(
+        () => [
+            { value: 'es', label: cmdT.langOptions.es },
+            { value: 'en', label: cmdT.langOptions.en },
+            { value: 'pt', label: cmdT.langOptions.pt }
+        ],
+        [cmdT.langOptions]
+    );
+
     useEffect(() => {
         if (!botOptions.length) return;
         if (!botOptions.some((opt) => opt.value === bot)) {
@@ -214,6 +223,22 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                     onChange={(e) => updateConfig({ bot: e.target.value })}
                     options={botOptions}
                 />
+
+                {config.supportsLanguage && (
+                    <SelectFieldRow
+                        rowClassName="mt-2.5"
+                        label={cmdT.langSelect}
+                        icon={Languages}
+                        controlId={`${config.id}-lang`}
+                        value={extraValues.lang || 'es'}
+                        onChange={(e) =>
+                            updateConfig({
+                                extraValues: { ...extraValues, lang: e.target.value }
+                            })
+                        }
+                        options={langOptions}
+                    />
+                )}
 
                 {config.extraSelectors?.map((sel) => {
                     const selT = configT.extraSelectors?.[sel.id];

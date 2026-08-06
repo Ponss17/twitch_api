@@ -17,6 +17,7 @@ import { Accordion } from '@/shared/ui/Accordion';
 import { TwitchIcon, DiscordIcon } from '@/shared/ui/icons/BrandIcons';
 import { UserRoundCheck, Clapperboard, Megaphone, TrendingUp, Binoculars, Dices, Swords, MessageSquare, Book, ArrowRight, Copy, Check } from 'lucide-react';
 import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTabs';
+import { copyText } from '@/core/utils/clipboard';
 
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
@@ -111,9 +112,11 @@ export function LandingPage() {
 
     const copyTerminal = async () => {
         const text = 'curl -G "https://ttv.losperris.dev/twitch/followage" -d "channel=losperris" -d "user=mynana17" -d "apiKey=sk_a1b2c3d4..."';
-        await navigator.clipboard.writeText(text);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
+        const ok = await copyText(text);
+        if (ok) {
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 2000);
+        }
     };
 
     const handleRunRequest = () => {
@@ -218,8 +221,8 @@ export function LandingPage() {
         <div className={`relative flex flex-1 flex-col font-[Outfit,sans-serif] ${GRID_BG}`} style={GRID_STYLE}>
             <header
                 className={`fixed inset-x-0 top-0 z-[1000] border-b backdrop-blur-xl transition-colors duration-300 ${scrolled
-                        ? 'border-border-strong bg-bg-main/90'
-                        : 'border-border-subtle bg-bg-main/50'
+                    ? 'border-border-strong bg-bg-main/90'
+                    : 'border-border-subtle bg-bg-main/50'
                     }`}
             >
                 <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-3 px-6 py-2 md:flex-row md:gap-0 md:px-8 md:py-3">

@@ -48,9 +48,12 @@ export function promoteToasterAboveModals(): void {
     }
 }
 
+import { useTheme } from '@/core/theme';
+
 /** Toaster en top layer (popover) para quedar sobre modales nativos. */
 export function AppToaster() {
     const ref = useRef<HTMLDivElement>(null);
+    const { theme } = useTheme();
 
     useEffect(() => {
         const el = ref.current;
@@ -65,12 +68,13 @@ export function AppToaster() {
     return (
         <div
             ref={ref}
+            data-theme={theme}
             {...{ [TOAST_POPOVER_ATTR]: '' }}
             popover="manual"
             className="app-toaster-popover pointer-events-none m-0 h-dvh w-screen max-h-none max-w-none border-0 bg-transparent p-0"
         >
             <Toaster
-                theme="dark"
+                theme={theme === 'light' ? 'light' : 'dark'}
                 closeButton
                 position="bottom-right"
                 gap={12}
@@ -81,20 +85,22 @@ export function AppToaster() {
                     style: { pointerEvents: 'auto' },
                     classNames: {
                         toast:
-                            'toast-with-progress !overflow-hidden !rounded-xl !border !border-border-subtle !bg-[#141416] !pl-4 !pr-10 !py-3.5 !text-sm !leading-snug !text-zinc-100 !shadow-[0_8px_30px_rgba(0,0,0,0.5)] !font-sans gap-2.5',
-                        title: 'font-semibold tracking-tight',
-                        description: '!text-[0.8125rem] !font-normal !text-white/55',
+                            'toast-with-progress !overflow-hidden !rounded-xl !border !border-border-strong !bg-bg-modal !pl-4 !pr-10 !py-3.5 !text-sm !leading-snug !text-text-main !shadow-[0_8px_30px_rgba(0,0,0,0.25)] !font-[inherit] gap-2.5',
+                        title: 'font-semibold tracking-tight !text-text-main',
+                        description: '!text-[0.8125rem] !font-normal !text-text-muted',
                         icon: 'mr-0.5',
                         closeButton:
-                            '!left-auto !right-2 !top-1/2 !-translate-y-1/2 !border-0 !bg-transparent !text-text-muted hover:!bg-text-main/10 dark:bg-text-main/[0.08] hover:!text-zinc-50 transition-colors',
+                            '!left-auto !right-2 !top-1/2 !-translate-y-1/2 !border-0 !bg-transparent !text-text-muted hover:!bg-bg-hover-neutral hover:!text-text-main transition-colors',
                         success:
-                            'progress-success !border-success/30 !bg-[#0f1a16] !text-emerald-50 [&_[data-icon]]:!text-success',
-                        error: 'progress-error !border-error/40 !bg-[#1a1110] !text-red-50 [&_[data-icon]]:!text-error',
+                            'progress-success [&_[data-icon]]:!text-emerald-400',
+                        error:
+                            'progress-error [&_[data-icon]]:!text-rose-400',
                         warning:
-                            'progress-warning !border-warning/30 !bg-[#1a160e] !text-amber-50 [&_[data-icon]]:!text-warning',
-                        info: 'progress-info !border-primary/30 !bg-[#141218] !text-violet-50 [&_[data-icon]]:!text-primary',
+                            'progress-warning [&_[data-icon]]:!text-amber-400',
+                        info:
+                            'progress-info [&_[data-icon]]:!text-primary',
                         loading:
-                            'progress-loading !border-zinc-400/35 !bg-[#121214] !text-zinc-100 [&_[data-icon]]:!text-text-muted'
+                            'progress-loading [&_[data-icon]]:!text-text-muted'
                     }
                 }}
             />

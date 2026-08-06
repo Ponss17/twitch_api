@@ -1,7 +1,8 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { X } from 'lucide-react';
 import { btnIcon } from '@/core/utils/tw';
+import { promoteToasterAboveModals } from '@/shared/ui/ToastProvider';
 
 interface SheetProps {
     open: boolean;
@@ -14,24 +15,70 @@ interface SheetProps {
 
 export function Sheet({ open, onClose, title, description, children, footer }: SheetProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
+    const [closing, setClosing] = useState(false);
     const { t } = useTranslation();
 
     useEffect(() => {
         const dialog = dialogRef.current;
         if (!dialog) return;
 
-        if (open) {
+        if (open && !dialog.open) {
+            setClosing(false);
             dialog.showModal();
+            promoteToasterAboveModals();
             document.body.style.overflow = 'hidden';
-        } else {
+            return;
+        }
+
+        if (!open && dialog.open) {
+            setClosing(false);
             dialog.close();
             document.body.style.overflow = '';
         }
+    }, [open]);
 
+    useEffect(() => {
         return () => {
             document.body.style.overflow = '';
         };
-    }, [open]);
+    }, []);
+
+    const handleClose = useCallback(() => {
+        if (closing) return;
+        setClosing(true);
+        const dialog = dialogRef.current;
+        const panel = panelRef.current;
+
+        const finish = () => {
+            setClosing(false);
+            dialog?.close();
+            document.body.style.overflow = '';
+            onClose();
+        };
+
+        if (!panel) {
+            finish();
+            return;
+        }
+
+        let done = false;
+        const fallback = window.setTimeout(() => {
+            if (done) return;
+            done = true;
+            finish();
+        }, 320);
+
+        const onEnd = () => {
+            if (done) return;
+            done = true;
+            window.clearTimeout(fallback);
+            panel.removeEventListener('animationend', onEnd);
+            finish();
+        };
+
+        panel.addEventListener('animationend', onEnd);
+    }, [onClose, closing]);
 
     // Handle escape key
     useEffect(() => {
@@ -40,22 +87,28 @@ export function Sheet({ open, onClose, title, description, children, footer }: S
 
         const handleCancel = (e: Event) => {
             e.preventDefault();
-            onClose();
+            handleClose();
         };
 
         dialog.addEventListener('cancel', handleCancel);
         return () => dialog.removeEventListener('cancel', handleCancel);
-    }, [onClose]);
+    }, [handleClose]);
 
     return (
         <dialog
             ref={dialogRef}
             onClick={(e) => {
-                if (e.target === dialogRef.current) onClose();
+                if (e.target === dialogRef.current) handleClose();
             }}
-            className="fixed inset-y-0 left-auto right-0 m-0 h-full max-h-none w-full max-w-md translate-x-full overflow-hidden border-l border-border-subtle bg-bg-modal text-text-main shadow-2xl transition-transform duration-300 ease-in-out open:translate-x-0 backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+            className="fixed inset-0 z-50 m-0 h-full max-h-none w-full max-w-none border-none bg-transparent p-0 overflow-hidden backdrop:bg-black/65 backdrop:backdrop-blur-xs"
         >
-            <div className="flex h-full flex-col">
+            <div
+                ref={panelRef}
+                onClick={(e) => e.stopPropagation()}
+                className={`fixed inset-y-0 right-0 z-10 flex h-full w-full max-w-md flex-col border-l border-border-subtle bg-bg-modal text-text-main shadow-2xl ${
+                    closing ? 'animate-sheet-out' : 'animate-sheet-in'
+                }`}
+            >
                 <header className="flex shrink-0 items-center justify-between border-b border-border-subtle px-6 py-4">
                     <div>
                         <h2 className="text-[1.15rem] font-bold tracking-tight text-text-main">{title}</h2>
@@ -65,7 +118,7 @@ export function Sheet({ open, onClose, title, description, children, footer }: S
                     </div>
                     <button
                         type="button"
-                        onClick={onClose}
+                        onClick={handleClose}
                         className={`${btnIcon} ml-4 shrink-0 rounded-full p-2`}
                         aria-label={t.common.aria.closePanel}
                     >

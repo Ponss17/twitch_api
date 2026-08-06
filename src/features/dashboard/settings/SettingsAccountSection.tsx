@@ -60,7 +60,7 @@ export function SettingsAccountSection({
                         type="button"
                         onClick={handleCopyId}
                         title={pT.copyUserId}
-                        className="flex items-center justify-center gap-1.5 border-l border-border-subtle bg-text-main/5 px-3 text-[0.82rem] text-text-muted transition hover:bg-primary/10 hover:text-brand-text"
+                        className="flex items-center justify-center gap-1.5 border-l border-border-subtle bg-bg-secondary px-3 text-[0.82rem] text-text-muted transition hover:bg-primary/10 hover:text-brand-text"
                     >
                         {isIdCopied ? (
                             <Check className="h-4 w-4" aria-hidden="true" />
@@ -78,13 +78,13 @@ export function SettingsAccountSection({
             >
                 <div className="flex flex-wrap items-center gap-1.5">
                     <span
-                        className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold text-brand-text"
+                        className="inline-flex items-center gap-1 rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-[0.7rem] font-semibold text-brand-text"
                         title={pT.planTooltip}
                     >
                         <Crown className="w-3 h-3 opacity-80" /> {roleLabel}
                     </span>
                     <span
-                        className="inline-flex items-center gap-1 rounded-md bg-text-main/5 px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
+                        className="inline-flex items-center gap-1 rounded-md border border-border-subtle bg-bg-secondary px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
                         title={pT.apiQuotaTooltip}
                     >
                         <Gauge className="w-3 h-3 text-brand-text" /> {rateLimit} req/min
@@ -92,14 +92,14 @@ export function SettingsAccountSection({
                     </span>
                     {typeof heavyLimit === 'number' && (
                         <span
-                            className="inline-flex items-center gap-1 rounded-md bg-text-main/5 px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
+                            className="inline-flex items-center gap-1 rounded-md border border-border-subtle bg-bg-secondary px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
                             title={pT.heavyQuotaTooltip}
                         >
-                            <Gauge className="w-3 h-3 text-amber-400/80" /> {heavyLimit} heavy/min
+                            <Gauge className="w-3 h-3 text-brand-text" /> {heavyLimit} heavy/min
                         </span>
                     )}
                     <span
-                        className="inline-flex items-center gap-1 rounded-md bg-text-main/5 px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
+                        className="inline-flex items-center gap-1 rounded-md border border-border-subtle bg-bg-secondary px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
                         title={pT.cacheTooltip}
                     >
                         <Clock className="w-3 h-3 text-brand-text" /> {cacheTtl}s {pT.cacheTime.replace('(min)', '').trim()}

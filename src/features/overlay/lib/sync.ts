@@ -51,11 +51,18 @@ export async function fetchOverlayLink(
             headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
             body: JSON.stringify({ tool })
         }));
-        if (!res.ok) return null;
-        const data = (await res.json()) as { url?: string };
-        return data.url ?? null;
+        if (res.ok) {
+            const data = (await res.json()) as { url?: string };
+            if (data.url) return data.url;
+        }
     } catch (err) {
         debugWarn('[overlay] fetchOverlayLink failed:', err);
-        return null;
     }
+
+    // Fallback elegante para entorno local si el backend no está disponible
+    if (typeof window !== 'undefined') {
+        const base = `${window.location.origin}/overlay/${tool}`;
+        return session.apiKey ? `${base}?key=${encodeURIComponent(session.apiKey)}` : base;
+    }
+    return null;
 }

@@ -10,7 +10,7 @@ import { useToast } from '@/shared/ui/ToastProvider';
 import { SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { Locale } from '@/core/i18n/I18nContext';
-import { useTheme, type Theme } from '@/core/theme/useTheme';
+import { useTheme, SUPPORTED_THEMES, THEME_DEFINITIONS } from '@/core/theme';
 
 interface SettingsPreferencesSectionProps {
     currentTimezone: string;
@@ -220,7 +220,7 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                 icon={Palette}
                 description={
                     <span id="settings-theme-label">
-                        {t.settings.preferences.theme?.description || "Elige entre el Modo Oscuro, Claro o Liga."}
+                        {t.settings.preferences.theme?.description || "Elige entre Oscuro, Claro, Liga, Minimal o Neo Matrix."}
                     </span>
                 }
                 control={
@@ -230,8 +230,13 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                 aria-labelledby="settings-theme-label"
                                 className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2 text-sm font-medium text-text-main transition hover:border-primary/50 focus:border-primary/50 focus:outline-none sm:w-auto"
                             >
-                                <span className="truncate max-w-[180px] text-left">
-                                    {theme === 'dark' ? 'Oscuro' : theme === 'light' ? 'Claro' : theme === 'liga' ? 'Liga' : 'Oscuro Minimal'}
+                                <span className="flex items-center gap-2 truncate max-w-[180px] text-left">
+                                    <span
+                                        className="h-2.5 w-2.5 shrink-0 rounded-full border border-white/20 shadow-sm"
+                                        style={{ backgroundColor: THEME_DEFINITIONS[theme]?.accentColor ?? '#9146ff' }}
+                                        aria-hidden="true"
+                                    />
+                                    <span className="truncate">{t.settings.preferences.theme?.options[theme] ?? theme}</span>
                                 </span>
                                 <ChevronDown className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
                             </DropdownTrigger>
@@ -243,20 +248,27 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                 className="flex flex-col p-1"
                             >
                                 <div className="max-h-[240px] overflow-y-auto px-1 py-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border-strong [&::-webkit-scrollbar]:w-1.5">
-                                    {(['dark', 'light', 'liga', 'minimal'] as Theme[]).map((opt) => (
+                                    {SUPPORTED_THEMES.map((opt) => (
                                         <DropdownItem
                                             key={opt}
                                             onClick={() => {
                                                 setTheme(opt);
-                                                showToast("Tema actualizado", 'success');
+                                                showToast(t.settings.toasts.settingsSaved, 'success');
                                             }}
                                             className={`mb-0.5 rounded-md px-2.5 py-1.5 ${
                                                 theme === opt ? 'bg-primary/10 text-brand-text font-semibold' : ''
                                             }`}
                                         >
-                                            <div className="flex w-full items-center justify-between">
-                                                <span className="truncate">{opt === 'dark' ? 'Oscuro' : opt === 'light' ? 'Claro' : opt === 'liga' ? 'Liga' : 'Oscuro Minimal'}</span>
-                                                {theme === opt && <Check className="h-3.5 w-3.5 text-brand-text" />}
+                                            <div className="flex w-full items-center justify-between gap-2">
+                                                <div className="flex items-center gap-2 truncate">
+                                                    <span
+                                                        className="h-2.5 w-2.5 shrink-0 rounded-full border border-white/20 shadow-sm"
+                                                        style={{ backgroundColor: THEME_DEFINITIONS[opt].accentColor }}
+                                                        aria-hidden="true"
+                                                    />
+                                                    <span className="truncate">{t.settings.preferences.theme?.options[opt] ?? opt}</span>
+                                                </div>
+                                                {theme === opt && <Check className="h-3.5 w-3.5 text-brand-text shrink-0" />}
                                             </div>
                                         </DropdownItem>
                                     ))}

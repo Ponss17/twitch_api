@@ -165,14 +165,49 @@ function mapFollowageHelixError(
     return null;
 }
 
+export const getFollowageTexts = (lang: string = 'es') => {
+    const l = (lang || 'es').toLowerCase().trim();
+    if (l.startsWith('en')) {
+        return {
+            owner: (u: string) => `${u} is the channel owner.`,
+            ownerTime: 'a lifetime',
+            notFollowing: (u: string, ch: string) => `${u} does not follow ${ch}.`,
+            notFollowingTime: 'does not follow',
+            following: (u: string, ch: string, time: string) => `${u} has followed ${ch} for ${time}.`,
+            noScopesError: 'Your account lacks the follow permission (moderator:read:followers). Please log out of the panel and log in again accepting all permissions.'
+        };
+    }
+    if (l.startsWith('pt')) {
+        return {
+            owner: (u: string) => `${u} é o dono do canal.`,
+            ownerTime: 'a vida toda',
+            notFollowing: (u: string, ch: string) => `${u} não segue ${ch}.`,
+            notFollowingTime: 'não segue',
+            following: (u: string, ch: string, time: string) => `${u} está seguindo ${ch} por ${time}.`,
+            noScopesError: 'Sua conta não tem a permissão de follows (moderator:read:followers). Saia do painel e entre novamente aceitando todas as permissões.'
+        };
+    }
+    return {
+        owner: (u: string) => `${u} es el dueño del canal.`,
+        ownerTime: 'toda la vida',
+        notFollowing: (u: string, ch: string) => `${u} no sigue a ${ch}.`,
+        notFollowingTime: 'no sigue',
+        following: (u: string, ch: string, time: string) => `${u} ha seguido a ${ch} por ${time}.`,
+        noScopesError: 'Tu cuenta no tiene el permiso de follows (moderator:read:followers). Cierra sesión en el panel y vuelve a entrar aceptando todos los permisos.'
+    };
+};
+
 export const getFollowAge = async (
     channel: string,
     user: string,
-    token: string
+    token: string,
+    lang: string = 'es'
 ): Promise<FollowAgeResult> => {
     if (!token?.trim()) {
         throw new TwitchApiError('Token expirado o inválido.', 401);
     }
+
+    const texts = getFollowageTexts(lang);
 
     try {
         const channelId = await resolveFollowageLoginId(channel, token, 'canal');
@@ -183,8 +218,8 @@ export const getFollowAge = async (
 
         if (channelId === userId) {
             return {
-                text: `${user} es el dueño del canal.`,
-                timePhrase: 'toda la vida'
+                text: texts.owner(user),
+                timePhrase: texts.ownerTime
             };
         }
 
@@ -199,21 +234,10 @@ export const getFollowAge = async (
 
         const follows = Array.isArray(followRes.data?.data) ? followRes.data.data : [];
         if (follows.length === 0) {
-            // Sin scope / sin ser mod: Twitch responde 200 con data=[] y total = seguidores del canal.
-            // Con permiso y sin follow: a veces total=0; a veces total sigue siendo el del canal
-            // (docs de Twitch muestran ese caso). No confiar solo en total.
             const totalRaw = followRes.data?.total;
             const total =
                 typeof totalRaw === 'number' && Number.isFinite(totalRaw) ? totalRaw : null;
-            logger.warn('Followage Helix data vacía', {
-                channel,
-                user,
-                channelId,
-                userId,
-                total,
-                hasTotalKey: followRes.data != null && 'total' in followRes.data
-            });
-
+            
             let tokenUserId: string | undefined;
             let tokenLogin: string | undefined;
             try {
@@ -224,26 +248,35 @@ export const getFollowAge = async (
                 tokenUserId = validation.user_id;
                 tokenLogin = validation.login;
                 if (!validation.scopes?.includes('moderator:read:followers')) {
-                    return followageError(
-                        'Tu cuenta no tiene el permiso de follows (moderator:read:followers). Cierra sesión en el panel y vuelve a entrar aceptando todos los permisos.'
-                    );
+                    return followageError(texts.noScopesError);
                 }
-                // Dueño o mod del canal: Twitch lo valida en Helix (403 si no).
-                // No exigir tokenUserId === channelId (bloqueaba mods y pruebas en otros canales).
-            } catch (scopeErr) {
-                if (helixHttpStatus(scopeErr) === 401) throw scopeErr;
-                logger.warn('Followage: no se pudo validar scopes OAuth', scopeErr);
+            } catch (valErr) {
+                if (helixHttpStatus(valErr) === 401) throw valErr;
+                logger.warn('Followage: no se pudo validar token para diagnóstico', valErr);
+            }
+
+            const isBroadcasterToken =
+                tokenUserId && (tokenUserId === channelId || tokenLogin?.toLowerCase() === channel.toLowerCase());
+            if (isBroadcasterToken && total === 0) {
+                logger.warn('Followage: broadcaster token con total 0 → usuario no sigue', {
+                    channel,
+                    user,
+                    channelId,
+                    userId
+                });
+                return {
+                    text: texts.notFollowing(user, channel),
+                    timePhrase: texts.notFollowingTime
+                };
             }
 
             if (total === 0) {
                 return {
-                    text: `${user} no sigue a ${channel}.`,
-                    timePhrase: 'no sigue'
+                    text: texts.notFollowing(user, channel),
+                    timePhrase: texts.notFollowingTime
                 };
             }
 
-            // total>0 + data=[] puede ser (a) sin permiso o (b) no sigue con total del canal.
-            // Probar listado sin user_id: si hay filas, el token SÍ tiene permiso → "no sigue".
             try {
                 const probe = await apiClient.get('https://api.twitch.tv/helix/channels/followers', {
                     headers,
@@ -251,28 +284,11 @@ export const getFollowAge = async (
                 });
                 const probeData = Array.isArray(probe.data?.data) ? probe.data.data : [];
                 if (probeData.length > 0) {
-                    logger.warn('Followage: permiso OK, usuario no sigue', {
-                        channel,
-                        user,
-                        channelId,
-                        userId,
-                        tokenUserId,
-                        tokenLogin,
-                        total
-                    });
                     return {
-                        text: `${user} no sigue a ${channel}.`,
-                        timePhrase: 'no sigue'
+                        text: texts.notFollowing(user, channel),
+                        timePhrase: texts.notFollowingTime
                     };
                 }
-                logger.warn('Followage: probe también vacío (sin permiso real)', {
-                    channel,
-                    channelId,
-                    tokenUserId,
-                    tokenLogin,
-                    probeTotal:
-                        typeof probe.data?.total === 'number' ? probe.data.total : null
-                });
             } catch (probeErr) {
                 if (helixHttpStatus(probeErr) === 401) throw probeErr;
                 logger.warn('Followage: probe de permiso falló', probeErr);
@@ -295,10 +311,10 @@ export const getFollowAge = async (
             );
         }
 
-        const timePhrase = getTimePhraseBetween(followDate);
+        const timePhrase = getTimePhraseBetween(followDate, new Date(), lang);
 
         return {
-            text: `${user} ha seguido a ${channel} por ${timePhrase}.`,
+            text: texts.following(user, channel, timePhrase),
             timePhrase,
             followDateMs: followDate.getTime()
         };

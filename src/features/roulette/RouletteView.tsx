@@ -5,7 +5,7 @@ import { useRouletteController } from '@/features/roulette/hooks/useRouletteCont
 import { RouletteWheelDisplay } from '@/features/roulette/RouletteWheelDisplay';
 import { OverlayUrlButton } from '@/features/overlay/components/OverlayUrlButton';
 import { useOverlayPublish } from '@/features/overlay/hooks/useOverlayPublish';
-import { fadeIn, hoverSubtleChip, hoverSubtleIconBtn, panelCard } from '@/core/utils/tw';
+import { fadeIn, hoverSubtleIconBtn, panelCard } from '@/core/utils/tw';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { RouletteEligibilityDropdown } from '@/features/roulette/RouletteEligibilityDropdown';
 import { useToast } from '@/shared/ui/ToastProvider';
@@ -99,14 +99,14 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                                 ? rlT.announceChatOn
                                 : rlT.announceChatOff
                         }
-                        className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[0.75rem] font-semibold disabled:opacity-50 ${
+                        className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-[0.75rem] font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${
                             announceWinnerInChat
-                                ? 'border-primary/35 bg-primary/10 text-brand-text'
-                                : `border-border-subtle bg-bg-secondary text-text-muted ${hoverSubtleChip}`
+                                ? 'border-primary/40 bg-primary/10 text-primary hover:bg-primary/20'
+                                : 'border-border-subtle bg-bg-secondary text-text-muted hover:border-border-strong hover:text-text-main'
                         }`}
                     >
-                        <MessageSquare className="size-3.5 shrink-0" aria-hidden />
-                        {rlT.inChat}
+                        <MessageSquare className="h-3.5 w-3.5 shrink-0" />
+                        <span>{rlT.inChat}</span>
                     </button>
 
                     <span
@@ -135,6 +135,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                             void loadChatters();
                             showToast(rlT.listUpdated, 'success');
                         }}
+                        disabled={!isOpen || isSpinning}
                         title={rlT.reloadUsers}
                         aria-label={rlT.reloadUsers}
                         className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-text-muted ${hoverSubtleIconBtn}`}
@@ -156,6 +157,7 @@ export function RouletteView({ active = true }: { active?: boolean }) {
                 isSpinning={isSpinning}
                 winner={winner}
                 lastSpinCount={lastSpinCount}
+                wheelColor="auto"
                 variant="full"
                 announceWinnerInChat={announceWinnerInChat}
                 onWheelTransitionEnd={onWheelTransitionEnd}

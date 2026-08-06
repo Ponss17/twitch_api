@@ -147,7 +147,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                         <p className="mt-0.5 text-[0.75rem] text-text-muted">
                             {aT.subtitle}{' '}
                             <span
-                                className={`font-medium transition-all duration-300 group-hover/card:text-brand-text group-hover/card:opacity-100 ${syncing ? 'animate-blink-soft text-brand-text opacity-100' : 'opacity-75'}`}
+                                className={`font-medium transition-all duration-300 group-hover/card:text-brand-text group-hover/card:opacity-100 ${syncing ? 'animate-pulse text-brand-text opacity-100' : 'opacity-75'}`}
                             >
                                 {syncing ? aT.syncing : syncLabel}
                             </span>
@@ -183,7 +183,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             onClick={() => handleCategoryChange(category)}
                             className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.7rem] font-semibold transition-all duration-200 ${active
                                 ? 'bg-primary/15 text-brand-text ring-1 ring-primary/25 shadow-sm'
-                                : 'text-text-muted hover:bg-text-main/5 hover:text-text-main'
+                                : 'text-text-muted hover:bg-primary/10 hover:text-text-main'
                                 }`}
                             aria-pressed={active}
                         >
@@ -213,7 +213,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                         onClick={() => setTypeFilter('all')}
                         className={`rounded-md px-2 py-1 text-[0.68rem] font-medium transition-all duration-200 ${typeFilter === 'all'
                             ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_var(--color-primary-hover)]/10'
-                            : 'text-text-muted hover:bg-text-main/5 hover:text-text-main'
+                            : 'text-text-muted hover:bg-primary/10 hover:text-text-main'
                             }`}
                         aria-pressed={typeFilter === 'all'}
                     >
@@ -233,7 +233,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                     onClick={() => setTypeFilter(type)}
                                     className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.68rem] font-medium transition-all duration-200 ${active
                                         ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_var(--color-primary-hover)]/10'
-                                        : 'text-text-muted hover:bg-text-main/5 hover:text-text-main'
+                                        : 'text-text-muted hover:bg-primary/10 hover:text-text-main'
                                         }`}
                                     aria-pressed={active}
                                 >

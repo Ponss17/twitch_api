@@ -17,7 +17,7 @@ import { fadeIn } from '@/core/utils/tw';
 import type { DashboardTab } from '@/core/config/config';
 import { DashboardPanelProvider } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { I18nProvider } from '@/core/i18n/I18nContext';
-import { LigaEasterEgg } from '@/features/dashboard/easterEggs/LigaEasterEgg';
+import { ThemeEasterEggs } from '@/features/dashboard/easterEggs/ThemeEasterEggs';
 
 function DashboardPanelShell({
     tab,
@@ -42,8 +42,8 @@ export function DashboardApp() {
         <I18nProvider>
             <ToastProvider>
                 <AppToaster />
-                <LigaEasterEgg />
                 <SessionProvider requireAuth>
+                    <ThemeEasterEggs />
                     <DashboardAppShell />
                 </SessionProvider>
             </ToastProvider>
