@@ -1,7 +1,5 @@
 @import "tailwindcss";
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
-@custom-variant liga (&:where([data-theme="liga"], [data-theme="liga"] *));
-@custom-variant minimal (&:where([data-theme="minimal"], [data-theme="minimal"] *));
+@import "./themes.css";
 
 @theme {
   --color-primary: var(--primary);
@@ -27,385 +25,110 @@
   --color-error: #c53030;
   --color-error-hover: #b91c1c;
   --color-error-dark: #7f1d1d;
-  --font-sans: "Geist", system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-sans: var(--font-family-base, "Geist", system-ui, sans-serif);
+  --font-mono: var(--font-family-mono, "Geist Mono", ui-monospace, monospace);
 
-  --animate-fade-soft: fadeInSoft 0.4s ease-out forwards;
-  --animate-blink: blink 1.5s infinite;
-  --animate-blink-soft: blinkSoft 2s infinite;
-  --animate-slide-in-soft: slideInSoft 0.3s ease-out forwards;
+  --animate-fade-soft: fadeInSoft 0.35s ease-out forwards;
   --animate-reveal-card: revealCard 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  --animate-nav-icon-bounce: navIconBounce 0.5s ease;
+  --animate-nav-icon-bounce: navIconBounce 0.45s ease;
   --animate-modal-shake: modalShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-  --animate-about-in: aboutFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  --animate-about-lego: aboutLegoIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  --animate-tab-in: tabIn 0.25s ease-out both;
-  --animate-modal-in: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-about-in: aboutFadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-about-lego: aboutLegoIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  --animate-modal-in: modalIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-modal-out: modalOut 0.15s ease-in both;
+  --animate-sheet-in: sheetIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-sheet-out: sheetOut 0.2s cubic-bezier(0.4, 0, 1, 1) both;
   --animate-glow-pulse: ctaGlowPulse 2.8s ease-in-out infinite;
+  --animate-tab-in: tabIn 0.2s ease-out forwards;
 
   @keyframes fadeInSoft {
-    from {
-      opacity: 0;
-      transform: translateY(5px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes blink {
-
-    0%,
-    100% {
-      opacity: 1;
-    }
-
-    50% {
-      opacity: 0.5;
-    }
-  }
-
-  @keyframes blinkSoft {
-    0% {
-      opacity: 0.4;
-    }
-
-    50% {
-      opacity: 1;
-    }
-
-    100% {
-      opacity: 0.4;
-    }
-  }
-
-  @keyframes slideInSoft {
-    from {
-      opacity: 0;
-      transform: translateY(4px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes revealCard {
-    0% {
-      opacity: 0;
-      transform: translateY(10px) scale(0.98);
-    }
-
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  @keyframes navIconBounce {
-
-    0%,
-    100% {
-      transform: scale(1);
-    }
-
-    50% {
-      transform: scale(1.2);
-    }
-  }
-
-  @keyframes highlightFade {
-    0% {
-      background: color-mix(in srgb, var(--primary) 18%, transparent);
-    }
-
-    100% {
-      background: transparent;
-    }
-  }
-
-  @keyframes bounceIn {
-    0% {
-      transform: scale(0.3);
-      opacity: 0;
-    }
-
-    50% {
-      transform: scale(1.1);
-      opacity: 1;
-    }
-
-    70% {
-      transform: scale(0.9);
-    }
-
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  @keyframes gunShake {
-
-    10%,
-    90% {
-      transform: translate3d(-2px, 0, 0) rotate(-2deg);
-    }
-
-    20%,
-    80% {
-      transform: translate3d(4px, 0, 0) rotate(2deg);
-    }
-
-    30%,
-    50%,
-    70% {
-      transform: translate3d(-6px, 0, 0) rotate(-3deg);
-    }
-
-    40%,
-    60% {
-      transform: translate3d(6px, 0, 0) rotate(3deg);
-    }
-  }
-
-  @keyframes modalShake {
-
-    10%,
-    90% {
-      transform: translate3d(-1px, 0, 0);
-    }
-
-    20%,
-    80% {
-      transform: translate3d(2px, 0, 0);
-    }
-
-    30%,
-    50%,
-    70% {
-      transform: translate3d(-4px, 0, 0);
-    }
-
-    40%,
-    60% {
-      transform: translate3d(4px, 0, 0);
-    }
-  }
-
-  @keyframes aboutFadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes aboutLegoIn {
-    0% {
-      opacity: 0;
-      transform: translateY(-40px) rotateX(-15deg) scale(1.05);
-      filter: blur(4px);
-    }
-
-    60% {
-      transform: translateY(4px) rotateX(5deg) scale(0.98);
-      filter: blur(0);
-    }
-
-    100% {
-      opacity: 1;
-      transform: translateY(0) rotateX(0) scale(1);
-    }
+    0% { opacity: 0; transform: translateY(10px) scale(0.98); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
   }
 
   @keyframes tabIn {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  @keyframes navIconBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+
+  @keyframes highlightFade {
+    0% { background: color-mix(in srgb, var(--primary) 18%, transparent); }
+    100% { background: transparent; }
+  }
+
+  @keyframes gunShake {
+    10%, 90% { transform: translate3d(-2px, 0, 0) rotate(-2deg); }
+    20%, 80% { transform: translate3d(4px, 0, 0) rotate(2deg); }
+    30%, 50%, 70% { transform: translate3d(-6px, 0, 0) rotate(-3deg); }
+    40%, 60% { transform: translate3d(6px, 0, 0) rotate(3deg); }
+  }
+
+  @keyframes modalShake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+  }
+
+  @keyframes aboutFadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes aboutLegoIn {
+    0% { opacity: 0; transform: translateY(-40px) rotateX(-15deg) scale(1.05); filter: blur(4px); }
+    60% { transform: translateY(4px) rotateX(5deg) scale(0.98); filter: blur(0); }
+    100% { opacity: 1; transform: translateY(0) rotateX(0) scale(1); }
   }
 
   @keyframes modalIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95) translateY(8px);
-    }
-
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
   }
 
   @keyframes modalOut {
-    from {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
+    from { opacity: 1; transform: scale(1) translateY(0); }
+    to { opacity: 0; transform: scale(0.95) translateY(8px); }
+  }
 
-    to {
-      opacity: 0;
-      transform: scale(0.95) translateY(8px);
-    }
+  @keyframes sheetIn {
+    from { opacity: 0.6; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes sheetOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(100%); }
   }
 
   @keyframes ctaGlowPulse {
-
-    0%,
-    100% {
-      box-shadow:
-        0 0 16px -4px var(--primary),
-        0 0 32px -12px var(--primary);
-    }
-
-    50% {
-      box-shadow:
-        0 0 28px -2px var(--primary),
-        0 0 56px -8px var(--primary),
-        0 0 80px -20px var(--primary);
-    }
+    0%, 100% { box-shadow: 0 0 16px -4px var(--primary), 0 0 32px -12px var(--primary); }
+    50% { box-shadow: 0 0 28px -2px var(--primary), 0 0 56px -8px var(--primary), 0 0 80px -20px var(--primary); }
   }
 }
 
 @layer base {
-
-  .theme-transition,
-  .theme-transition *,
-  .theme-transition *:before,
-  .theme-transition *:after {
-    transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease, fill 0.5s ease, stroke 0.5s ease !important;
-    transition-delay: 0s !important;
-  }
-
-  :root,
-  [data-theme="dark"] {
-    color-scheme: dark;
-    --primary: #9146ff;
-    --primary-hover: #7c3aed;
-    --brand-text: #a78bfa;
-    --bg-main: #09090b;
-    --bg-secondary: #0e0e10;
-    --bg-tertiary: #18181b;
-    --bg-card: rgba(24, 24, 27, 0.4);
-    --bg-card-hover: rgba(24, 24, 27, 0.6);
-    --bg-panel: rgba(24, 24, 27, 0.3);
-    --bg-modal: #0c0c0e;
-    --sidebar: #0a0a0c;
-    --text-main: #fafafa;
-    --text-muted: #a1a1aa;
-    --border-subtle: rgba(255, 255, 255, 0.04);
-    --border-strong: rgba(255, 255, 255, 0.08);
-    --bg-hover-neutral: rgba(255, 255, 255, 0.02);
-    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-    --twitch-brand-color: #9146ff;
-    --twitch-brand-bg: #ffffff;
-  }
-
-  [data-theme="light"] {
-    color-scheme: light;
-    --primary: #7c3aed;
-    --primary-hover: #6d28d9;
-    --brand-text: #7c3aed;
-    --bg-main: #fafafa;
-    --bg-secondary: #f9f9f9;
-    --bg-tertiary: #ede9fe;
-    --bg-card: #ffffff;
-    --bg-card-hover: #ffffff;
-    --bg-panel: #ffffff;
-    --bg-modal: #ffffff;
-    --sidebar: #ffffff;
-    --text-main: #1c1917;
-    --text-muted: #6b7280;
-    --border-subtle: rgba(0, 0, 0, 0.08);
-    --border-strong: rgba(0, 0, 0, 0.18);
-    --bg-hover-neutral: rgba(0, 0, 0, 0.03);
-    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
-    --twitch-brand-color: #9146ff;
-    --twitch-brand-bg: #ffffff;
-  }
-
-  [data-theme="liga"] {
-    color-scheme: dark;
-    --primary: #ef4444;
-    --primary-hover: #dc2626;
-    --brand-text: #f87171;
-    --bg-main: #050505;
-    --bg-secondary: #0a0a0a;
-    --bg-tertiary: #101010;
-    --bg-card: rgba(15, 15, 15, 0.6);
-    --bg-card-hover: rgba(20, 20, 20, 0.7);
-    --bg-panel: rgba(12, 12, 12, 0.6);
-    --bg-modal: #060606;
-    --sidebar: #060606;
-    --text-main: #fafafa;
-    --text-muted: #a1a1aa;
-    --border-subtle: rgba(255, 255, 255, 0.05);
-    --border-strong: rgba(255, 255, 255, 0.1);
-    --bg-hover-neutral: rgba(255, 255, 255, 0.02);
-    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);
-    --twitch-brand-color: #ef4444;
-    --twitch-brand-bg: #ffffff;
-  }
-
-  [data-theme="minimal"] {
-    color-scheme: dark;
-    --primary: #ffffff;
-    --primary-hover: #e5e5e5;
-    --brand-text: #ffffff;
-    --bg-main: #000000;
-    --bg-secondary: #080808;
-    --bg-tertiary: #121212;
-    --bg-card: rgba(10, 10, 10, 0.75);
-    --bg-card-hover: rgba(18, 18, 18, 0.85);
-    --bg-panel: rgba(10, 10, 10, 0.6);
-    --bg-modal: #080808;
-    --sidebar: #000000;
-    --text-main: #ffffff;
-    --text-muted: #808080;
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-strong: rgba(255, 255, 255, 0.16);
-    --bg-hover-neutral: rgba(255, 255, 255, 0.04);
-    --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 30px rgba(0, 0, 0, 0.8);
-    --twitch-brand-color: #ffffff;
-    --twitch-brand-bg: #1a1a1a;
-  }
-
-  [data-theme="minimal"] .bg-primary,
-  [data-theme="minimal"] .bg-primary-hover {
-    color: #000000 !important;
-  }
-
-  [data-theme="minimal"] .bg-primary svg,
-  [data-theme="minimal"] .bg-primary-hover svg {
-    color: #000000 !important;
-    stroke: #000000 !important;
-  }
-
-  html {
-    font-family: var(--font-sans);
+  html, body {
+    font-family: var(--font-family-base, var(--font-sans));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg-main);
+    color: var(--text-main);
     scrollbar-width: thin;
     scrollbar-color: var(--primary) var(--border-subtle);
-    @apply bg-bg-main text-text-main;
   }
 
   body {
-    @apply bg-bg-main text-text-main;
     min-height: 100vh;
   }
 
@@ -428,10 +151,7 @@
     background-color: var(--border-strong);
     background-clip: padding-box;
   }
-}
 
-@layer base {
-  /* Enlaces genéricos */
   a:not([class]):not([role="button"]) {
     text-decoration: underline;
     text-underline-offset: 3px;
@@ -478,31 +198,13 @@
     animation-play-state: paused;
   }
 
-  /* Estados de progreso */
-  .toast-with-progress.progress-success::after {
-    background-color: var(--color-success);
-  }
-
-  .toast-with-progress.progress-error::after {
-    background-color: #ef4444;
-  }
-
-  .toast-with-progress.progress-warning::after {
-    background-color: var(--color-warning);
-  }
-
-  .toast-with-progress.progress-info::after {
-    background-color: var(--color-primary);
-  }
-
-  .toast-with-progress.progress-loading::after {
-    background-color: var(--color-text-muted);
-    animation: none;
-    width: 100%;
-  }
+  .toast-with-progress.progress-success::after { background-color: var(--success, #10b981); }
+  .toast-with-progress.progress-error::after { background-color: var(--error, #ef4444); }
+  .toast-with-progress.progress-warning::after { background-color: var(--warning, #f59e0b); }
+  .toast-with-progress.progress-info::after { background-color: var(--primary, #9146ff); }
+  .toast-with-progress.progress-loading::after { background-color: var(--text-muted, #a1a1aa); animation: none; width: 100%; }
 }
 
-/* Barra de progreso de toasts */
 @keyframes toast-progress {
   0% { width: 100%; }
   100% { width: 0%; }

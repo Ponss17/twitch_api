@@ -7,7 +7,8 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { fadeIn } from '@/core/utils/tw';
 import { AlertTriangle } from 'lucide-react';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
-import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
+import { useTranslation } from '@/core/i18n/I18nContext';
+import { formatDate } from '@/core/utils/utils';
 
 interface HomeViewProps {
     onNavigate?: (tab: DashboardTab) => void;
@@ -43,25 +44,12 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
         return t.home.broadcaster.streamer;
     };
 
-    const formatMemberSince = (iso?: string): string => {
-        if (!iso) return '---';
-        try {
-            return new Date(iso).toLocaleDateString(getBcp47(locale), {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-            });
-        } catch {
-            return '---';
-        }
-    };
-
     return (
         <div className={fadeIn}>
             <SettingsHero
                 followers={profile?.followers}
                 broadcasterLabel={broadcasterLabel(profile?.broadcaster_type)}
-                memberSince={formatMemberSince(profile?.created_at)}
+                memberSince={formatDate(profile?.created_at ?? '', locale)}
                 isLive={profile?.isLive}
                 isLoading={!hasLiveData}
             />

@@ -1,9 +1,8 @@
 import React from 'react';
 import { Command } from 'lucide-react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartMountGate, COLORS, AnalyticsSection } from './AnalyticsShared';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import type { } from 'recharts';
 
 interface AnalyticsCommandsDistributionProps {
     active: boolean;
@@ -40,6 +39,11 @@ export function AnalyticsCommandsDistribution({
     const { t } = useTranslation();
     const chart = t.analytics.distributionChart;
 
+    const coloredPieData = pieData.map((entry, index) => ({
+        ...entry,
+        fill: COLORS[index % COLORS.length]
+    }));
+
     return (
         <AnalyticsSection
             className="col-span-1"
@@ -49,8 +53,8 @@ export function AnalyticsCommandsDistribution({
         >
             {pieData.length === 0 ? (
                 <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border-subtle bg-transparent">
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-text-main/5">
-                        <Command className="h-6 w-6 text-text-muted" />
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                        <Command className="h-6 w-6 text-brand-text" />
                     </div>
                     <span className="text-sm font-medium text-text-muted">{chart.noData}</span>
                     <span className="mt-1 text-xs text-text-muted">{chart.noDataSub}</span>
@@ -64,7 +68,7 @@ export function AnalyticsCommandsDistribution({
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                         <PieChart accessibilityLayer={false}>
                             <Pie
-                                data={pieData}
+                                data={coloredPieData}
                                 cx="50%"
                                 cy="50%"
                                 innerRadius="55%"
@@ -73,11 +77,7 @@ export function AnalyticsCommandsDistribution({
                                 isAnimationActive={false}
                                 cornerRadius={4}
                                 stroke="none"
-                            >
-                                {pieData.map((_, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
+                            />
                             <Tooltip 
                                 content={<CustomTooltip />} 
                                 cursor={{ fill: 'transparent' }}

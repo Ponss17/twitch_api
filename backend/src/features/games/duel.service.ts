@@ -7,7 +7,7 @@ interface Scenario {
     sequences: [string, string, string][];
 }
 
-const SCENARIOS: Scenario[] = [
+const SCENARIOS_ES: Scenario[] = [
     {
         name: 'Western',
         sequences: [
@@ -145,6 +145,142 @@ const SCENARIOS: Scenario[] = [
     }
 ];
 
+const SCENARIOS_EN: Scenario[] = [
+    {
+        name: 'Western',
+        sequences: [
+            [
+                '{c} has challenged {t} to a death duel in the Wild West...',
+                'The sun is at high noon. Both stare intensely, hands on their holsters. Tumbleweed rolls by...',
+                'BANG! Smoke clears and {w} holsters their weapon while {l} falls defeated in the dust.'
+            ],
+            [
+                '{c} challenges {t} in front of the Saloon. The piano stops...',
+                '{c} and {t} wait. The sheriff counts: one... two...',
+                'At three, {w} had already fired. {l} stood no chance. Farewell cowboy.'
+            ]
+        ]
+    },
+    {
+        name: 'Magic',
+        sequences: [
+            [
+                '{c} challenges {t} to a duel of sorcerers...',
+                'Spellbooks open. Arcane sparks fill the air. Both raise their staves...',
+                '{w} utters the forbidden words of the Void. {l} is turned into a harmless toad.'
+            ],
+            [
+                '{c} raises their wand against {t}. Magic duel!',
+                'Red and green sparks clash in the air. The fight is even... for a second.',
+                '{w}\'s spell sends {l} flying into the wall. Victory for {w}!'
+            ]
+        ]
+    },
+    {
+        name: 'Sci-Fi',
+        sequences: [
+            [
+                '{c} has challenged {t} to a duel on the orbital platform...',
+                'Lightsabers ignite. Both circle, sizing each other up...',
+                'A hum, a flash, and {w} defeats {l}. The Dark Side always prevails.'
+            ],
+            [
+                '{c} locks onto {t}. Plasma cannons primed...',
+                'Thrusters roar. Target lock blinks red...',
+                'Direct hit from {w}. {l}\'s armor disintegrates. Game Over.'
+            ]
+        ]
+    },
+    {
+        name: 'Anime',
+        sequences: [
+            [
+                '{c} has challenged {t} to a deathmatch...',
+                'Tension rises. Their auras intensify. The ground shakes...',
+                '{w} appears behind {l}. "Omae wa mou shindeiru". {l} screams "NANI?!?" and collapses.'
+            ],
+            [
+                '{c} challenges {t}. Power is charging...',
+                'For what feels like three episodes, energy builds up. Chat holds their breath...',
+                '{w} unleashes a beam visible from space. {l} is obliterated. Epic victory!'
+            ]
+        ]
+    },
+    {
+        name: 'Gaming',
+        sequences: [
+            [
+                '{c} challenged {t} to a 1v1 in the lobby...',
+                'The match loads. Both look for an angle. Sniper glints in the distance...',
+                '{w} hits a 360 no-scope. Humiliating killcam for {l}. "Uninstall", writes {w}.'
+            ],
+            [
+                '{c} throws the gauntlet at {t} on the final lap...',
+                'Near the finish line. Shells are flying. Friendship is at stake...',
+                '{w} lands the blue shell just in time. {l} spins off track. Victory!'
+            ]
+        ]
+    }
+];
+
+const SCENARIOS_PT: Scenario[] = [
+    {
+        name: 'Western',
+        sequences: [
+            [
+                '{c} desafiou {t} para um duelo mortal no Velho Oeste...',
+                'O sol está a pino. Os dois se encaram com a mão no coldre...',
+                'BANG! A fumaça baixa e {w} guarda a arma enquanto {l} cai na poeira.'
+            ],
+            [
+                '{c} desafia {t} em frente ao Saloon. A música para...',
+                '{c} e {t} esperam. O xerife conta: um... dois...',
+                'No três, {w} já atirou. {l} não teve chance. Adeus vaqueiro.'
+            ]
+        ]
+    },
+    {
+        name: 'Magic',
+        sequences: [
+            [
+                '{c} desafia {t} para um duelo de feiticeiros...',
+                'Grimórios se abrem. Faíscas arcanas no ar. Ambos levantam seus cajados...',
+                '{w} profere o feitiço proibido. {l} é transformado num sapinho inofensivo.'
+            ]
+        ]
+    },
+    {
+        name: 'Sci-Fi',
+        sequences: [
+            [
+                '{c} desafiou {t} para um duelo na plataforma orbital...',
+                'Sabres de luz se acendem. Os dois se encaram...',
+                'Um zumbido, um clarão, e {w} derrota {l}.'
+            ]
+        ]
+    },
+    {
+        name: 'Anime',
+        sequences: [
+            [
+                '{c} desafiou {t} para um combate mortal...',
+                'A tensão sobe. A aura dos dois se intensifica...',
+                '{w} aparece atrás de {l}. "Omae wa mou shindeiru". {l} grita "NANI?!?" e cai derrotado.'
+            ]
+        ]
+    },
+    {
+        name: 'Gaming',
+        sequences: [
+            [
+                '{c} desafiou {t} para um 1v1 no lobby...',
+                'A partida carrega. Ambos buscam posição...',
+                '{w} acerta um 360 no-scope. Killcam humilhante para {l}. "Desinstala", digita {w}.'
+            ]
+        ]
+    }
+];
+
 const at = (name: string) => `@${name.replace(/^@/, '')}`;
 
 const fillPlaceholders = (
@@ -171,7 +307,7 @@ export type DuelResult = {
     message: string;
 };
 
-export const playDuel = (challenger: string, target: string): DuelResult => {
+export const playDuel = (challenger: string, target: string, lang: string = 'es'): DuelResult => {
     const isChallengerWinner = Math.random() < 0.5;
 
     const cleanChallenger = challenger.replace(/^@/, '');
@@ -179,7 +315,14 @@ export const playDuel = (challenger: string, target: string): DuelResult => {
     const winner = isChallengerWinner ? cleanChallenger : cleanTarget;
     const loser = isChallengerWinner ? cleanTarget : cleanChallenger;
 
-    const scenario = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)];
+    const l = (lang || 'es').toLowerCase().trim();
+    const scenarios = l.startsWith('en')
+        ? SCENARIOS_EN
+        : l.startsWith('pt')
+        ? SCENARIOS_PT
+        : SCENARIOS_ES;
+
+    const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
     const sequence = scenario.sequences[Math.floor(Math.random() * scenario.sequences.length)];
 
     const vars = { c: cleanChallenger, t: cleanTarget, w: winner, l: loser };

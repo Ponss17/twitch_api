@@ -1,0 +1,205 @@
+/* ==========================================================================
+   SISTEMA DE TEMAS VISUALES — LOSPERRIS API
+   Define las variables CSS, tokens y contrastes para cada tema soportado.
+   ========================================================================== */
+
+/* Variantes Tailwind CSS */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant liga (&:where([data-theme="liga"], [data-theme="liga"] *));
+@custom-variant minimal (&:where([data-theme="minimal"], [data-theme="minimal"] *));
+@custom-variant matrix (&:where([data-theme="matrix"], [data-theme="matrix"] *));
+
+@layer base {
+  /* Transición de tema 100% fluida, continua y sin destellos (Zero-Flicker) */
+  .theme-transition,
+  .theme-transition body,
+  .theme-transition header,
+  .theme-transition aside,
+  .theme-transition main,
+  .theme-transition nav,
+  .theme-transition footer,
+  .theme-transition div,
+  .theme-transition section,
+  .theme-transition article,
+  .theme-transition button,
+  .theme-transition a,
+  .theme-transition span,
+  .theme-transition p,
+  .theme-transition h1,
+  .theme-transition h2,
+  .theme-transition h3,
+  .theme-transition input,
+  .theme-transition select,
+  .theme-transition textarea {
+    transition: background-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition-delay: 0s !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-transition,
+    .theme-transition * {
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     1. TEMA POR DEFECTO: OSCURO / TWITCH PURPLE (dark)
+     ------------------------------------------------------------------------ */
+  :root,
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --font-family-base: "Geist", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-family-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --primary: #9146ff;
+    --primary-hover: #7c3aed;
+    --brand-text: #a78bfa;
+    --bg-main: #09090b;
+    --bg-secondary: #0e0e10;
+    --bg-tertiary: #18181b;
+    --bg-card: rgba(24, 24, 27, 0.4);
+    --bg-card-hover: rgba(24, 24, 27, 0.6);
+    --bg-panel: rgba(24, 24, 27, 0.3);
+    --bg-modal: #0c0c0e;
+    --sidebar: #0a0a0c;
+    --text-main: #fafafa;
+    --text-muted: #a1a1aa;
+    --border-subtle: rgba(255, 255, 255, 0.04);
+    --border-strong: rgba(255, 255, 255, 0.08);
+    --bg-hover-neutral: rgba(255, 255, 255, 0.02);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+    --twitch-brand-color: #9146ff;
+    --twitch-brand-bg: #ffffff;
+  }
+
+  /* ------------------------------------------------------------------------
+     2. TEMA CLARO: VIBRANTE / VIOLETA (light)
+     ------------------------------------------------------------------------ */
+  [data-theme="light"] {
+    color-scheme: light;
+    --font-family-base: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-family-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --primary: #7c3aed;
+    --primary-hover: #6d28d9;
+    --brand-text: #7c3aed;
+    --bg-main: #fafafa;
+    --bg-secondary: #f9f9f9;
+    --bg-tertiary: #ede9fe;
+    --bg-card: #ffffff;
+    --bg-card-hover: #ffffff;
+    --bg-panel: #ffffff;
+    --bg-modal: #ffffff;
+    --sidebar: #ffffff;
+    --text-main: #1c1917;
+    --text-muted: #6b7280;
+    --border-subtle: rgba(0, 0, 0, 0.08);
+    --border-strong: rgba(0, 0, 0, 0.18);
+    --bg-hover-neutral: rgba(0, 0, 0, 0.03);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --twitch-brand-color: #9146ff;
+    --twitch-brand-bg: #ffffff;
+  }
+
+  /* ------------------------------------------------------------------------
+     3. TEMA EDICIÓN ESPECIAL: LIGA LDA (liga)
+     ------------------------------------------------------------------------ */
+  [data-theme="liga"] {
+    color-scheme: dark;
+    --font-family-base: "Rubik", "Geist", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-family-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --primary: #ef4444;
+    --primary-hover: #dc2626;
+    --brand-text: #f87171;
+    --bg-main: #050505;
+    --bg-secondary: #0a0a0a;
+    --bg-tertiary: #101010;
+    --bg-card: rgba(15, 15, 15, 0.6);
+    --bg-card-hover: rgba(20, 20, 20, 0.7);
+    --bg-panel: rgba(12, 12, 12, 0.6);
+    --bg-modal: #060606;
+    --sidebar: #060606;
+    --text-main: #fafafa;
+    --text-muted: #a1a1aa;
+    --border-subtle: rgba(255, 255, 255, 0.05);
+    --border-strong: rgba(255, 255, 255, 0.1);
+    --bg-hover-neutral: rgba(255, 255, 255, 0.02);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);
+    --twitch-brand-color: #ef4444;
+    --twitch-brand-bg: #ffffff;
+  }
+
+  /* ------------------------------------------------------------------------
+     4. TEMA MINIMALISTA: HIGH-CONTRAST MONOCHROME (minimal)
+     ------------------------------------------------------------------------ */
+  [data-theme="minimal"] {
+    color-scheme: dark;
+    --font-family-base: "Space Grotesk", "Inter", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-family-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --primary: #ffffff;
+    --primary-hover: #e5e5e5;
+    --brand-text: #ffffff;
+    --bg-main: #000000;
+    --bg-secondary: #080808;
+    --bg-tertiary: #121212;
+    --bg-card: rgba(10, 10, 10, 0.75);
+    --bg-card-hover: rgba(18, 18, 18, 0.85);
+    --bg-panel: rgba(10, 10, 10, 0.6);
+    --bg-modal: #080808;
+    --sidebar: #000000;
+    --text-main: #ffffff;
+    --text-muted: #808080;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.16);
+    --bg-hover-neutral: rgba(255, 255, 255, 0.04);
+    --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 30px rgba(0, 0, 0, 0.8);
+    --twitch-brand-color: #ffffff;
+    --twitch-brand-bg: #1a1a1a;
+  }
+
+  /* ------------------------------------------------------------------------
+     5. TEMA CIBERNÉTICO: NEO MATRIX GREEN (matrix)
+     ------------------------------------------------------------------------ */
+  [data-theme="matrix"] {
+    color-scheme: dark;
+    --font-family-base: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --font-family-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --primary: #00ff66;
+    --primary-hover: #00dd55;
+    --brand-text: #00ff66;
+    --bg-main: #040804;
+    --bg-secondary: #081008;
+    --bg-tertiary: #0e1c0e;
+    --bg-card: rgba(8, 16, 8, 0.7);
+    --bg-card-hover: rgba(12, 24, 12, 0.85);
+    --bg-panel: rgba(6, 12, 6, 0.7);
+    --bg-modal: #050a05;
+    --sidebar: #030603;
+    --text-main: #ffffff;
+    --text-muted: #8a998d;
+    --border-subtle: rgba(0, 255, 102, 0.12);
+    --border-strong: rgba(0, 255, 102, 0.28);
+    --bg-hover-neutral: rgba(0, 255, 102, 0.05);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);
+    --twitch-brand-color: #00ff66;
+    --twitch-brand-bg: #000000;
+  }
+
+  /* Ajustes de contraste para botones primarios en Minimal y Matrix */
+  [data-theme="minimal"] .bg-primary,
+  [data-theme="minimal"] .bg-primary-hover,
+  [data-theme="matrix"] .bg-primary,
+  [data-theme="matrix"] .bg-primary-hover {
+    color: #000000 !important;
+  }
+
+  [data-theme="minimal"] .bg-primary svg,
+  [data-theme="minimal"] .bg-primary-hover svg,
+  [data-theme="matrix"] .bg-primary svg,
+  [data-theme="matrix"] .bg-primary-hover svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+  }
+
+}

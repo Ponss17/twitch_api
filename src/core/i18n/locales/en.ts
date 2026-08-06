@@ -169,9 +169,11 @@ export const en: Translations = {
                 label: 'Interface Theme',
                 description: 'Choose the color scheme of the application.',
                 options: {
-                    dark: 'Dark Mode',
-                    light: 'Light Mode',
-                    liga: 'Liga Mode (LDA)'
+                    dark: 'Dark',
+                    light: 'Light',
+                    liga: 'Liga (LDA)',
+                    minimal: 'Minimal',
+                    matrix: 'Neo Matrix'
                 }
             },
         },
@@ -763,6 +765,12 @@ export const en: Translations = {
         generator: {
             variables: 'Available variables:',
             botSelect: 'Select Bot',
+            langSelect: 'Bot response language',
+            langOptions: {
+                es: 'Español',
+                en: 'English',
+                pt: 'Português',
+            },
             customMsg: 'Custom Message',
             copyFormat: 'Copy Format',
             formatFull: 'Full Command',

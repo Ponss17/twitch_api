@@ -166,9 +166,11 @@ export const pt: Translations = {
                 label: 'Tema da Interface',
                 description: 'Escolha o esquema de cores da aplicação.',
                 options: {
-                    dark: 'Modo Escuro',
-                    light: 'Modo Claro',
-                    liga: 'Modo Liga (LDA)'
+                    dark: 'Escuro',
+                    light: 'Claro',
+                    liga: 'Liga (LDA)',
+                    minimal: 'Minimal',
+                    matrix: 'Neo Matrix'
                 }
             },
         },
@@ -753,6 +755,12 @@ export const pt: Translations = {
         generator: {
             variables: 'Variáveis disponíveis:',
             botSelect: 'Selecionar Bot',
+            langSelect: 'Idioma de resposta do bot',
+            langOptions: {
+                es: 'Español',
+                en: 'English',
+                pt: 'Português',
+            },
             customMsg: 'Mensagem Personalizada',
             copyFormat: 'Copiar Formato',
             formatFull: 'Comando Completo',

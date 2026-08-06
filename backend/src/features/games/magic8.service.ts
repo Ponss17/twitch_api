@@ -24,13 +24,20 @@ async function getGroqClient(): Promise<GroqClient> {
     return groqClient;
 }
 
-function buildSystemPrompt(moodRaw: string, userName: string): string {
+function buildSystemPrompt(moodRaw: string, userName: string, lang: string = 'es'): string {
     const mood = resolveMagic8Mood(moodRaw);
     const config = MAGIC8_MOODS[mood];
+    const l = (lang || 'es').toLowerCase().trim();
+    const langInstruction = l.startsWith('en')
+        ? 'LANGUAGE REQUIREMENT: Respond strictly in natural, engaging English.'
+        : l.startsWith('pt')
+        ? 'LANGUAGE REQUIREMENT: Responda estritamente em português natural e envolvente.'
+        : 'LANGUAGE REQUIREMENT: Responde en español.';
 
     return [
         config.persona(userName),
         MAGIC8_REASONING_RULES,
+        langInstruction,
         `REGLA ESTRICTA: Dirígete ÚNICAMENTE a ${userName}. NUNCA etiquetes con '@' a otra persona mencionada en la pregunta.`
     ].join('\n\n');
 }
@@ -47,13 +54,15 @@ function sanitizeMentions(content: string, userName: string): string {
 export async function generateMagic8Response(
     question: string,
     mood: string = 'classic',
-    user?: string
+    user?: string,
+    lang: string = 'es'
 ): Promise<string> {
     try {
         const userName = user ? `@${user}` : 'vástago';
         const resolvedMood = resolveMagic8Mood(mood);
+        const l = (lang || 'es').toLowerCase().trim();
         
-        const cacheKey = `${userName.toLowerCase()}|${resolvedMood}|${question.toLowerCase().trim()}`;
+        const cacheKey = `${userName.toLowerCase()}|${resolvedMood}|${l}|${question.toLowerCase().trim()}`;
         const cached = responseCache.get(cacheKey);
         if (cached && cached.expiry > Date.now()) {
             return cached.content;
@@ -66,7 +75,7 @@ export async function generateMagic8Response(
                 messages: [
                     {
                         role: 'system',
-                        content: buildSystemPrompt(resolvedMood, userName)
+                        content: buildSystemPrompt(resolvedMood, userName, lang)
                     },
                     {
                         role: 'user',
@@ -81,9 +90,13 @@ export async function generateMagic8Response(
             { timeout: 10_000 }
         );
 
-        const rawContent =
-            completion.choices[0]?.message?.content ||
-            '🔮 La bola está nublada... intenta de nuevo.';
+        const fallback = l.startsWith('en')
+            ? '🔮 The crystal ball is clouded... try again.'
+            : l.startsWith('pt')
+            ? '🔮 A bola de cristal está nublada... tente novamente.'
+            : '🔮 La bola está nublada... intenta de nuevo.';
+
+        const rawContent = completion.choices[0]?.message?.content || fallback;
 
         const finalContent = sanitizeMentions(rawContent, userName);
 

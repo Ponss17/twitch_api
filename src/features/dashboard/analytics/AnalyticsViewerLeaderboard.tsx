@@ -110,8 +110,8 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
         >
             {data.length === 0 ? (
                 <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border-subtle bg-transparent">
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-text-main/5">
-                        <Users className="h-6 w-6 text-text-muted" />
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                        <Users className="h-6 w-6 text-brand-text" />
                     </div>
                     <span className="text-sm font-medium text-text-muted">{board.noData}</span>
                     <span className="mt-1 text-xs text-text-muted">
@@ -123,7 +123,7 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
                     {/* Header */}
                     <div className="mb-1 flex items-center justify-between px-1">
                         <div className="flex items-center gap-2">
-                            <Trophy className="h-3.5 w-3.5 text-amber-400" />
+                            <Trophy className="h-3.5 w-3.5 text-brand-text" />
                             <span className="text-[0.7rem] font-semibold uppercase tracking-widest text-text-muted">
                                 {timeRange === 'today' ? board.rankingToday : board.ranking7d}
                             </span>

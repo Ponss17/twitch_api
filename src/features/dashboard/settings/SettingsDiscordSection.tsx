@@ -38,13 +38,13 @@ export function SettingsDiscordSection({
                         {discordAvatar ? (
                             <img src={discordAvatar.replace('size=128', 'size=64')} alt="" className="h-9 w-9 rounded-full border border-border-subtle" />
                         ) : (
-                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#5865F2]/20 text-sm font-bold text-[#5865F2]">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-brand-text">
                                 {(discordUsername || '?').slice(0, 1).toUpperCase()}
                             </div>
                         )}
                         <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-text-main">@{discordUsername || 'Discord'}</p>
-                            <span className="inline-flex items-center gap-1 text-[0.7rem] font-bold text-emerald-400">
+                            <span className="inline-flex items-center gap-1 text-[0.7rem] font-bold text-brand-text">
                                 <Check className="w-3 h-3" /> {pT.discordStatus(true)}
                             </span>
                         </div>
@@ -74,7 +74,7 @@ export function SettingsDiscordSection({
                     type="button"
                     disabled={busy}
                     onClick={onLinkClick}
-                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#5865F2] px-4 py-2 text-[0.8rem] font-semibold text-white transition hover:brightness-110 disabled:opacity-50 sm:w-auto"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-[0.8rem] font-semibold text-white shadow-sm transition hover:bg-primary-hover hover:-translate-y-0.5 disabled:opacity-50 sm:w-auto"
                 >
                     <DiscordIcon className="h-4 w-4" />
                     {pT.linkDiscord}

@@ -18,6 +18,7 @@ export interface RouletteOverlayState {
     spinSeq: number;
     targetRotation?: number;
     spinDuration?: number;
+    wheelColor?: string;
     updatedAt: number;
 }
 

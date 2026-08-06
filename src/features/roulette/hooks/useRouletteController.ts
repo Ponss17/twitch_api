@@ -23,13 +23,23 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 const LISTENER_ID = 'roulette';
 const ANNOUNCE_WINNER_PREF = 'roulette_announce_winner';
 const LEGACY_ANNOUNCE_WINNER_KEY = 'roulette_announce_winner_in_chat';
+const WHEEL_COLOR_PREF = 'roulette_obs_wheel_color';
 
-function readAnnounceWinnerPref(userId: string): boolean {
+function readWheelColorPref(userId?: string): string {
+    const stored = readScopedPref(WHEEL_COLOR_PREF, userId);
+    return stored || 'auto';
+}
+
+export function writeWheelColorPref(userId: string | undefined, color: string): void {
+    writeScopedPref(WHEEL_COLOR_PREF, userId, color);
+}
+
+function readAnnounceWinnerPref(userId?: string): boolean {
     const stored = readScopedPref(ANNOUNCE_WINNER_PREF, userId, LEGACY_ANNOUNCE_WINNER_KEY);
     return stored === null ? true : stored === '1';
 }
 
-export function writeAnnounceWinnerPref(userId: string, enabled: boolean): void {
+export function writeAnnounceWinnerPref(userId: string | undefined, enabled: boolean): void {
     writeScopedPref(ANNOUNCE_WINNER_PREF, userId, enabled ? '1' : '0', LEGACY_ANNOUNCE_WINNER_KEY);
 }
 
@@ -61,6 +71,11 @@ export function useRouletteController({
     const pulseTimerRef = useRef<number | null>(null);
     const [lastSpinCount, setLastSpinCount] = useState(0);
     const [announceWinnerInChat, setAnnounceWinnerInChat] = useState(true);
+    const [wheelColor, setWheelColorState] = useState<string>(() =>
+        readWheelColorPref(session.userId)
+    );
+    const wheelColorRef = useRef(wheelColor);
+    wheelColorRef.current = wheelColor;
     const spinSeqRef = useRef(0);
     const [spinSeq, setSpinSeq] = useState(0);
     const targetRotationRef = useRef<number | undefined>(undefined);
@@ -97,6 +112,7 @@ export function useRouletteController({
             spinSeq: spinSeqRef.current,
             targetRotation: targetRotationRef.current,
             spinDuration: spinDurationRef.current,
+            wheelColor: wheelColorRef.current,
             updatedAt: Date.now(),
             ...overrides
         }),
@@ -109,6 +125,16 @@ export function useRouletteController({
     const emitState = useCallback((overrides: Partial<RouletteOverlayState> = {}) => {
         onStateChangeRef.current?.(buildOverlayStateRef.current(overrides));
     }, []);
+
+    const setWheelColor = useCallback(
+        (color: string) => {
+            setWheelColorState(color);
+            wheelColorRef.current = color;
+            writeWheelColorPref(session.userId, color);
+            emitState({ wheelColor: color });
+        },
+        [session.userId, emitState]
+    );
 
     const pulseCounter = useCallback(() => {
         setCountPulse(true);
@@ -420,6 +446,8 @@ export function useRouletteController({
         wheelRotation,
         wheelTransition,
         spinSeq,
+        wheelColor,
+        setWheelColor,
         toggleOpen,
         loadChatters,
         spin,

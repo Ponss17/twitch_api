@@ -23,6 +23,7 @@ import { appPath } from '@/core/config/paths';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 import type { DiscordResultKind } from '@/features/dashboard/settings/DiscordLinkModals';
+import { copyText } from '@/core/utils/clipboard';
 import {
     isSettingsTabId,
     parseSettingsTabFromLocation,
@@ -362,8 +363,12 @@ export function useSettingsController(active: boolean) {
             setRevealedKey(key);
             setKeyVisible(true);
             scheduleKeyHide();
-            await navigator.clipboard.writeText(key);
-            showToast(t.settings.toasts.copyKeySuccess, 'success');
+            const ok = await copyText(key);
+            if (ok) {
+                showToast(t.settings.toasts.copyKeySuccess, 'success');
+            } else {
+                showToast(t.settings.toasts.copyKeyError, 'error');
+            }
         } catch {
             showToast(t.settings.toasts.copyKeyError, 'error');
         }
@@ -371,8 +376,8 @@ export function useSettingsController(active: boolean) {
 
     const copyId = async () => {
         if (!session.userId) return;
-        await navigator.clipboard.writeText(session.userId);
-        showToast(t.settings.toasts.copyIdSuccess, 'success');
+        const ok = await copyText(session.userId);
+        if (ok) showToast(t.settings.toasts.copyIdSuccess, 'success');
     };
 
     const exportData = async () => {

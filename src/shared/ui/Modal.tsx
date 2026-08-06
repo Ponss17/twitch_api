@@ -24,6 +24,7 @@ import {
 } from '@/core/utils/tw';
 import { promoteToasterAboveModals } from '@/shared/ui/ToastProvider';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { copyText } from '@/core/utils/clipboard';
 
 const ModalCloseContext = createContext<(() => void) | null>(null);
 
@@ -513,9 +514,11 @@ export function PostRegenKeyModal({ open, apiKey, onClose }: PostRegenKeyModalPr
     const pT = t.modals.postRegenKey;
 
     const handleCopy = async () => {
-        await navigator.clipboard.writeText(apiKey);
-        setCopied(true);
-        window.setTimeout(() => setCopied(false), 2000);
+        const ok = await copyText(apiKey);
+        if (ok) {
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 2000);
+        }
     };
 
     return (

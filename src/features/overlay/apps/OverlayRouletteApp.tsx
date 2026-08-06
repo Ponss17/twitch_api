@@ -18,6 +18,9 @@ function OverlayRouletteContent({ session }: { session: Session }) {
         return <div className="min-h-screen" aria-hidden />;
     }
 
+    const urlColor = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('color') || new URLSearchParams(window.location.search).get('theme') : undefined;
+    const effectiveColor = rouletteState.wheelColor || urlColor || undefined;
+
     return (
         <div className="flex min-h-screen items-center justify-center overflow-hidden p-4">
             <div className="flex flex-col items-center gap-2">
@@ -29,6 +32,7 @@ function OverlayRouletteContent({ session }: { session: Session }) {
                     isSpinning={rouletteState.isSpinning}
                     winner={rouletteState.winner}
                     lastSpinCount={rouletteState.lastSpinCount}
+                    wheelColor={effectiveColor}
                     variant="overlay"
                 />
             </div>

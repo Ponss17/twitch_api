@@ -171,9 +171,11 @@ export const es = {
                 label: 'Tema de la Interfaz',
                 description: 'Elige el esquema de colores de la aplicación.',
                 options: {
-                    dark: 'Modo Oscuro',
-                    light: 'Modo Claro',
-                    liga: 'Modo Liga (LDA)'
+                    dark: 'Oscuro',
+                    light: 'Claro',
+                    liga: 'Liga (LDA)',
+                    minimal: 'Minimal',
+                    matrix: 'Neo Matrix'
                 }
             }
         },
@@ -758,6 +760,12 @@ export const es = {
         generator: {
             variables: 'Variables disponibles:',
             botSelect: 'Seleccionar Bot',
+            langSelect: 'Idioma de respuesta del bot',
+            langOptions: {
+                es: 'Español',
+                en: 'English',
+                pt: 'Português',
+            },
             customMsg: 'Mensaje Personalizado',
             copyFormat: 'Formato de Copia',
             formatFull: 'Comando Completo',

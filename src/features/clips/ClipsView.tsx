@@ -13,6 +13,8 @@ import { SelectField } from '@/shared/ui/SelectField';
 import { ClipCommandView } from '@/features/commands/CommandsViews';
 import { Star, RotateCw, Link as LinkIcon, Images, Search, Play } from 'lucide-react';
 import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
+import { formatDate } from '@/core/utils/utils';
+import { copyText } from '@/core/utils/clipboard';
 
 interface Clip {
     id: string;
@@ -62,16 +64,6 @@ function loadFavorites(userId: string): string[] {
 
 function saveFavorites(userId: string, favorites: string[]) {
     localStorage.setItem(`clips_favs_${userId}`, JSON.stringify(favorites));
-}
-
-function formatClipDate(value?: string, locale: string = 'es') {
-    if (!value) return '';
-    const bcp47 = getBcp47(locale);
-    return new Date(value).toLocaleDateString(bcp47, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
 }
 
 interface ClipThumbnailProps {
@@ -184,8 +176,8 @@ export function ClipsView() {
     };
 
     const copyUrl = async (url: string) => {
-        await navigator.clipboard.writeText(url);
-        showToast(clipsT.toasts.copied, 'success');
+        const ok = await copyText(url);
+        if (ok) showToast(clipsT.toasts.copied, 'success');
     };
 
     const filtered = useMemo(() => {
@@ -310,7 +302,7 @@ export function ClipsView() {
                                         clip.view_count != null
                                             ? clip.view_count.toLocaleString(bcp47)
                                             : '0';
-                                    const dateStr = formatClipDate(clip.created_at, locale);
+                                    const dateStr = formatDate(clip.created_at ?? '', locale);
                                     const isAboveFold = index < 6;
 
                                     return (
