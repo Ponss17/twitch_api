@@ -9,12 +9,13 @@ import {
 } from './commands.schema';
 
 import { csrfProtection } from '../../core/middleware/csrfProtection';
+import { globalRateLimiter } from '../../core/middleware/redisRateLimiter';
 
 const router = Router();
 
-router.get('/create-clip', validate(createClipSchema), /* codeql[js/missing-rate-limiting] */ createClip);
-router.get('/followage', validate(followageSchema), /* codeql[js/missing-rate-limiting] */ followage);
-router.get('/shoutout', validate(shoutoutSchema), /* codeql[js/missing-rate-limiting] */ getShoutout);
-router.post('/send-message', csrfProtection, validate(sendMessageSchema), /* codeql[js/missing-rate-limiting] */ sendMessage);
+router.get('/create-clip', globalRateLimiter, validate(createClipSchema), createClip);
+router.get('/followage', globalRateLimiter, validate(followageSchema), followage);
+router.get('/shoutout', globalRateLimiter, validate(shoutoutSchema), getShoutout);
+router.post('/send-message', globalRateLimiter, csrfProtection, validate(sendMessageSchema), sendMessage);
 
 export default router;
