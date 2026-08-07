@@ -5,7 +5,9 @@ allowBuilds:
 
 overrides:
   yaml: "2.9.0"
-  js-yaml@3: "3.15.0"
+  js-yaml@3: "3.15.1"
+  js-yaml@4: "^4.3.1"
+  postcss: "^8.5.25"
   esbuild: "0.28.1"
   "@types/hast": "3.0.4"
   fast-uri: ">=3.1.5"
