@@ -53,8 +53,11 @@ router.get(
 router.get('/user-info', validate(getUserInfoSchema), dashboardController.getUserInfo);
 // codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.get('/summary', validate(getSummarySchema), dashboardController.getSummary);
+// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.get('/activity', validate(getActivitySchema), dashboardController.getLogs);
+// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.get('/viewer-leaderboard', validate(getViewerLeaderboardSchema), getViewerLeaderboard);
+// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.post(
     '/track-usage',
     csrfProtection,
@@ -63,6 +66,7 @@ router.post(
 );
 
 
+// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.post(
     '/clear-data',
     csrfProtection,
@@ -77,6 +81,7 @@ router.delete(
     dashboardController.deleteAccount
 );
 
+// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.post('/export-check', csrfProtection, validate(exportCheckSchema), dashboardController.exportCheck);
 router.post(
     '/export-complete',

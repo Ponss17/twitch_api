@@ -17,13 +17,16 @@ router.post(
     validate(regenerateKeySchema),
     systemController.regenerateKey
 );
+// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.post(
     '/feedback',
     csrfProtection,
     validate(submitFeedbackSchema),
     systemController.submitFeedback
 );
+// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.get('/health', systemController.getHealth);
+// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.get('/realtime-token', systemController.generateRealtimeToken);
 
 export default router;
