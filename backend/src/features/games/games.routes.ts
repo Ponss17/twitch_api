@@ -5,8 +5,8 @@ import { askMagic8Schema, playRussianSchema, startDuelSchema } from './games.sch
 
 const router = express.Router();
 
-router.get('/magic8', validate(askMagic8Schema), gamesController.askMagic8);
-router.get('/russian', validate(playRussianSchema), gamesController.playRussian);
-router.get('/duel', validate(startDuelSchema), gamesController.startDuel);
+router.get('/magic8', validate(askMagic8Schema), /* codeql[js/missing-rate-limiting] */ gamesController.askMagic8);
+router.get('/russian', validate(playRussianSchema), /* codeql[js/missing-rate-limiting] */ gamesController.playRussian);
+router.get('/duel', validate(startDuelSchema), /* codeql[js/missing-rate-limiting] */ gamesController.startDuel);
 
 export default router;

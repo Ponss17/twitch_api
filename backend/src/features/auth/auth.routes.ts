@@ -9,14 +9,14 @@ const router = express.Router();
 
 router.use(authRateLimiter);
 
-router.get('/twitch', validate(loginSchema), authController.login);
-router.get('/twitch/callback', validate(callbackSchema), authController.callback);
-router.get('/exchange', validate(exchangeSchema), authController.exchange);
-router.post('/logout', csrfProtection, authController.logout);
-router.get('/overlay-exchange', validate(overlayExchangeSchema), authController.overlayExchange);
+router.get('/twitch', validate(loginSchema), /* codeql[js/missing-rate-limiting] */ authController.login);
+router.get('/twitch/callback', validate(callbackSchema), /* codeql[js/missing-rate-limiting] */ authController.callback);
+router.get('/exchange', validate(exchangeSchema), /* codeql[js/missing-rate-limiting] */ authController.exchange);
+router.post('/logout', csrfProtection, /* codeql[js/missing-rate-limiting] */ authController.logout);
+router.get('/overlay-exchange', validate(overlayExchangeSchema), /* codeql[js/missing-rate-limiting] */ authController.overlayExchange);
 
-router.get('/discord', authController.discordLinkStart);
-router.get('/discord/callback', authController.discordLinkCallback);
-router.post('/discord/unlink', csrfProtection, authController.discordUnlink);
+router.get('/discord', /* codeql[js/missing-rate-limiting] */ authController.discordLinkStart);
+router.get('/discord/callback', /* codeql[js/missing-rate-limiting] */ authController.discordLinkCallback);
+router.post('/discord/unlink', csrfProtection, /* codeql[js/missing-rate-limiting] */ authController.discordUnlink);
 
 export default router;

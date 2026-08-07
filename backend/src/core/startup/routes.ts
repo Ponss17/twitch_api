@@ -28,7 +28,7 @@ export const configureRoutes = (app: Application) => {
         next();
     });
 
-    app.get(['/health', '/api/health'], globalRateLimiter, (_req: Request, res: Response) => {
+    app.get(['/health', '/api/health'], globalRateLimiter, /* codeql[js/missing-rate-limiting] */ (_req: Request, res: Response) => {
         const isConfigured = !!(CONFIG.TWITCH_CLIENT_ID && CONFIG.TWITCH_CLIENT_SECRET);
         res.json({
             status: isConfigured ? 'ok' : 'maintenance',
@@ -36,8 +36,8 @@ export const configureRoutes = (app: Application) => {
         });
     });
 
-    app.get(['/robots.txt', '/api/robots.txt'], globalRateLimiter, getRobotsTxt);
-    app.get(['/sitemap.xml', '/api/sitemap.xml'], globalRateLimiter, getSitemapXml);
+    app.get(['/robots.txt', '/api/robots.txt'], globalRateLimiter, /* codeql[js/missing-rate-limiting] */ getRobotsTxt);
+    app.get(['/sitemap.xml', '/api/sitemap.xml'], globalRateLimiter, /* codeql[js/missing-rate-limiting] */ getSitemapXml);
 
     app.use(apiKeyValidator);
     app.use(checkToken);
