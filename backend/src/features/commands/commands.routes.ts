@@ -13,9 +13,9 @@ import { globalRateLimiter } from '../../core/middleware/redisRateLimiter';
 
 const router = Router();
 
-router.get('/create-clip', globalRateLimiter, validate(createClipSchema), createClip);
-router.get('/followage', globalRateLimiter, validate(followageSchema), followage);
-router.get('/shoutout', globalRateLimiter, validate(shoutoutSchema), getShoutout);
-router.post('/send-message', globalRateLimiter, csrfProtection, validate(sendMessageSchema), sendMessage);
+router.get('/create-clip', globalRateLimiter, validate(createClipSchema), /* codeql[js/missing-rate-limiting] */ createClip);
+router.get('/followage', globalRateLimiter, validate(followageSchema), /* codeql[js/missing-rate-limiting] */ followage);
+router.get('/shoutout', globalRateLimiter, validate(shoutoutSchema), /* codeql[js/missing-rate-limiting] */ getShoutout);
+router.post('/send-message', globalRateLimiter, csrfProtection, validate(sendMessageSchema), /* codeql[js/missing-rate-limiting] */ sendMessage);
 
 export default router;

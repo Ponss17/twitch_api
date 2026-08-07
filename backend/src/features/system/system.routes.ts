@@ -10,22 +10,22 @@ import { globalRateLimiter } from '../../core/middleware/redisRateLimiter';
 const router = express.Router();
 
 
-router.get('/validate', globalRateLimiter, systemController.validateToken);
+router.get('/validate', globalRateLimiter, /* codeql[js/missing-rate-limiting] */ systemController.validateToken);
 router.post(
     '/regenerate-key',
     globalRateLimiter,
     csrfProtection,
     validate(regenerateKeySchema),
-    systemController.regenerateKey
+    /* codeql[js/missing-rate-limiting] */ systemController.regenerateKey
 );
 router.post(
     '/feedback',
     globalRateLimiter,
     csrfProtection,
     validate(submitFeedbackSchema),
-    systemController.submitFeedback
+    /* codeql[js/missing-rate-limiting] */ systemController.submitFeedback
 );
-router.get('/health', globalRateLimiter, systemController.getHealth);
-router.get('/realtime-token', globalRateLimiter, systemController.generateRealtimeToken);
+router.get('/health', globalRateLimiter, /* codeql[js/missing-rate-limiting] */ systemController.getHealth);
+router.get('/realtime-token', globalRateLimiter, /* codeql[js/missing-rate-limiting] */ systemController.generateRealtimeToken);
 
 export default router;

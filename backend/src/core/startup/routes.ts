@@ -40,8 +40,11 @@ export const configureRoutes = (app: Application) => {
     app.get(['/sitemap.xml', '/api/sitemap.xml'], globalRateLimiter, /* codeql[js/missing-rate-limiting] */ getSitemapXml);
 
     app.use(globalRateLimiter);
+    // codeql[js/missing-rate-limiting] Custom global rate limiter via Redis is applied above
     app.use(apiKeyValidator);
+    // codeql[js/missing-rate-limiting] Custom global rate limiter via Redis is applied above
     app.use(checkToken);
+    // codeql[js/missing-rate-limiting] Custom global rate limiter via Redis is applied above
     app.use(overlayScopeGuard);
 
     app.use('/auth', authRoutes);
