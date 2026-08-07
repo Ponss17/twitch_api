@@ -6,8 +6,8 @@ import { globalRateLimiter } from '../../core/middleware/redisRateLimiter';
 
 const router = express.Router();
 
-router.get('/magic8', globalRateLimiter, validate(askMagic8Schema), gamesController.askMagic8);
-router.get('/russian', globalRateLimiter, validate(playRussianSchema), gamesController.playRussian);
-router.get('/duel', globalRateLimiter, validate(startDuelSchema), gamesController.startDuel);
+router.get('/magic8', globalRateLimiter, validate(askMagic8Schema), /* codeql[js/missing-rate-limiting] */ gamesController.askMagic8);
+router.get('/russian', globalRateLimiter, validate(playRussianSchema), /* codeql[js/missing-rate-limiting] */ gamesController.playRussian);
+router.get('/duel', globalRateLimiter, validate(startDuelSchema), /* codeql[js/missing-rate-limiting] */ gamesController.startDuel);
 
 export default router;
