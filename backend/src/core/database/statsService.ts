@@ -132,7 +132,7 @@ async function ensureStatsRow(userId: string): Promise<void> {
     if (!error) addToExistsCache(userId);
 }
 
-// incrementUserStats has been replaced by the unified log_user_request
+
 
 export const getUserStats = async (userId: string): Promise<Record<string, number>> => {
     try {
@@ -177,10 +177,8 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
             }
         }
 
-        const tz =
-            cachedTz ||
-            (userResult as { users?: { timezone?: string } } | null)?.users?.timezone ||
-            'UTC';
+        const userRow = (userResult as { data?: { timezone?: string } | null } | null);
+        const tz = cachedTz || userRow?.data?.timezone || 'UTC';
         const todayStr = getDateFormatter(tz).format(new Date());
 
         const lastStatsDate = totals?.last_stats_date as string | undefined;
