@@ -201,13 +201,11 @@ export const discordLinkStart = (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const discordLinkCallback = async (req: Request, res: Response) => {
-    const { code, state, error } = req.query as {
-        code?: string;
-        state?: string;
-        error?: string;
-    };
+    const code = req.query.code;
+    const state = req.query.state;
+    const error = req.query.error;
 
-    if (error || !code || !state) {
+    if ((typeof error === 'string' && error.length > 0) || typeof code !== 'string' || typeof state !== 'string') {
         return res.redirect(frontendPagePath('/dashboard/settings', 'discord=error'));
     }
 
