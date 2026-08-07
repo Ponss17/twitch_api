@@ -20,8 +20,8 @@ export const loginSchema = z.object({
     query: z.object({
         redirect_origin: optionalOrigin
     }),
-    body: z.any().optional(),
-    params: z.any().optional()
+    body: z.object({}).optional(),
+    params: z.object({}).optional()
 });
 
 export const callbackSchema = z.object({

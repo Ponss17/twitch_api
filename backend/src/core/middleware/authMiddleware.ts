@@ -144,16 +144,22 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             return respondSessionUnavailable(res, req);
         }
 
-        let token = safeString(req.query.token) || safeString(req.body?.token);
+        const queryToken = safeString(req.query.token) || safeString(req.body?.token);
+        let token = '';
 
-        if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+        if (req.headers.authorization?.startsWith('Bearer ')) {
             token = req.headers.authorization.split(' ')[1];
-        } else if (safeString(req.query.token) || safeString(req.body?.token)) {
+        }
+
+        if (queryToken && !token) {
             const ip = req.headers['x-forwarded-for'] ?? req.socket?.remoteAddress ?? 'unknown';
             logger.warn('[Security] Token recibido en query/body (deprecado) — usar Authorization: Bearer', {
                 ip,
                 path: req.path
             });
+            token = queryToken;
+        } else if (!token) {
+            token = queryToken;
         }
 
         if (!token) {

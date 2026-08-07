@@ -203,9 +203,6 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
 };
 
 /**
- * Limitador para intentos de login (Fuerza Bruta).
- */
-/**
  * Limitador para revelar API Key en el panel (auditoría / abuso).
  */
 export const revealKeyRateLimiter = async (req: Request, res: Response, next: NextFunction) => {

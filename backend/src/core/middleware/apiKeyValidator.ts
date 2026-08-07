@@ -222,7 +222,8 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         const user = await dbService.getUserByApiKey(apiKey);
 
         if (user && user.isActive) {
-            await getValidTokenForUser(user);
+            const { accessToken } = await getValidTokenForUser(user);
+            user.accessToken = accessToken;
             validKeysCache.set(apiKey, { user, expiry: Date.now() + CACHE_TTL_MS });
             cacheService
                 .setCachedApiUser(apiKey, user)
