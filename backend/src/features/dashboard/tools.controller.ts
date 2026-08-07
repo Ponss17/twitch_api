@@ -1,4 +1,5 @@
-﻿import { Response } from 'express';
+import { safeString } from '../../core/utils/validationHelpers';
+import { Response } from 'express';
 import * as cacheService from '../../core/database/cacheService';
 import * as apiService from '../twitch/twitch.service';
 import { ownerScopedCacheKey, resolveCache } from '../../core/config/cacheTtl';
@@ -10,8 +11,8 @@ import { trackRequest } from '../../core/utils/tracking';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 
 export const getClips = async (req: AuthenticatedRequest, res: Response) => {
-    const channel = req.query.channel as string;
-    const limitNum = parseInt(req.query.limit as string, 10) || 20;
+    const channel = safeString(req.query.channel);
+    const limitNum = parseInt(safeString(req.query.limit), 10) || 20;
     const userId = req.userId;
 
     const result = await trackRequest(
@@ -45,14 +46,14 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
-    const channel = req.query.channel as string;
-    const eligibilityRaw = req.query.eligibility as string | undefined;
+    const channel = safeString(req.query.channel);
+    const eligibilityRaw = safeString(req.query.eligibility);
     const eligibility = apiService.parseEligibilityQuery(eligibilityRaw);
     const userId = req.userId;
 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
-    const source = req.query.source as string | undefined;
+    const source = safeString(req.query.source);
     const isRoulette = source === 'roulette';
 
     const result = await trackRequest(
