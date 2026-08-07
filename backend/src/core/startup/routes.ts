@@ -39,7 +39,7 @@ export const configureRoutes = (app: Application) => {
     app.get(['/robots.txt', '/api/robots.txt'], globalRateLimiter, /* codeql[js/missing-rate-limiting] */ getRobotsTxt);
     app.get(['/sitemap.xml', '/api/sitemap.xml'], globalRateLimiter, /* codeql[js/missing-rate-limiting] */ getSitemapXml);
 
-    app.use(['/api', '/auth', '/twitch'], globalRateLimiter);
+    app.use(globalRateLimiter);
     app.use(apiKeyValidator);
     app.use(checkToken);
     app.use(overlayScopeGuard);
