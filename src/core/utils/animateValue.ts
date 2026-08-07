@@ -17,7 +17,7 @@ export function animateValue(
         animations.delete(el);
     }
 
-    const textWithoutHtml = (el.textContent ?? '').replace(/<[^>]*>?/gm, '');
+    const textWithoutHtml = (el.textContent ?? '').replace(/<[^>]*>/g, '');
     const currentVal = parseInt(textWithoutHtml.replace(/[^0-9.-]+/g, ''), 10) || 0;
     const actualStart = start !== null ? start : currentVal;
 

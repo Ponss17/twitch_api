@@ -5,6 +5,9 @@ on:
         branches: [main, master]
     pull_request:
 
+permissions:
+  contents: read
+
 env:
     TWITCH_CLIENT_ID: ci_test_id
     TWITCH_CLIENT_SECRET: ci_test_secret

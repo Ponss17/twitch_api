@@ -126,6 +126,7 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
         );
 
         if (result) {
+            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
             if (format === 'json') return res.json(result);
             return res.send(result.message);
         }
@@ -184,6 +185,7 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
         }
 
         // StreamElements / Fossabot / preview: un solo mensaje (esos bots no tienen Response-Url).
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
         res.send(result.message);
     } catch (error) {
         logger.error('Error en startDuel:', error);

@@ -38,7 +38,7 @@ export const get = async <T = unknown>(key: string): Promise<T | null> => {
         const value = await kv.get<T>(`twitch_api:${key}`);
         return value;
     } catch (error) {
-        console.error(`[Cache] Error KV get (${key}):`, error);
+        console.error('[Cache] Error KV get:', { key, error });
         return null; // Fail-soft: devolver null para que el sistema consulte la DB original
     }
 };
@@ -56,7 +56,7 @@ export const set = async <T = unknown>(
             disableKvWrites('KV no permite escritura');
             return;
         }
-        console.error(`[Cache] Error KV set (${key}):`, error);
+        console.error('[Cache] Error KV set:', { key, error });
     }
 };
 
@@ -91,7 +91,7 @@ export const setIfAbsent = async <T = unknown>(
             disableKvWrites('KV no permite escritura');
             return 'unavailable';
         }
-        console.error(`[Cache] Error KV setIfAbsent (${key}):`, error);
+        console.error('[Cache] Error KV setIfAbsent:', { key, error });
         return 'unavailable';
     }
 };
@@ -105,7 +105,7 @@ export const del = async (key: string): Promise<void> => {
             disableKvWrites('KV no permite escritura');
             return;
         }
-        console.error(`[Cache] Error KV del (${key}):`, error);
+        console.error('[Cache] Error KV del:', { key, error });
     }
 };
 
