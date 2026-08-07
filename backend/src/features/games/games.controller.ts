@@ -1,3 +1,4 @@
+import { safeString } from '../../core/utils/validationHelpers';
 import { Response } from 'express';
 import { logger } from '../../core/utils/logger';
 import * as magic8Service from './magic8.service';
@@ -14,7 +15,7 @@ import { trackRequest } from '../../core/utils/tracking';
  * Helper para obtener credenciales de respaldo si no hay sesión activa (para comandos de chat)
  */
 const getFallbackAuth = async (req: AuthenticatedRequest) => {
-    const channel = (req.query.channel as string) || (req.query.user as string);
+    const channel = safeString(req.query.channel) || safeString(req.query.user);
     if (!channel) return null;
     try {
         return await authService.getValidTokenByLogin(channel);
@@ -30,9 +31,9 @@ const getFallbackAuth = async (req: AuthenticatedRequest) => {
 
 export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const question = req.query.question as string;
-        const mood = req.query.mood as string;
-        let user = req.query.user as string;
+        const question = safeString(req.query.question);
+        const mood = safeString(req.query.mood);
+        let user = safeString(req.query.user);
         if (user?.includes('$(') || user?.includes('${')) user = 'Anónimo';
 
         // Fallback para tracking si no hay sesión
@@ -42,7 +43,7 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
             effectiveUserId = fallback?.userId || ANONYMOUS_USER_ID;
         }
 
-        const lang = (req.query.lang as string) || 'es';
+        const lang = safeString(req.query.lang) || 'es';
 
         const answer = await trackRequest(
             effectiveUserId,
@@ -77,7 +78,7 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
 export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { channel, hardcore, format } = req.query;
-        let user = req.query.user as string;
+        let user = safeString(req.query.user);
         if (user?.includes('$(') || user?.includes('${')) user = 'Anónimo';
 
         // Fallback de Token: Si no hay token de sesión, buscamos el del propio canal/streamer
@@ -93,7 +94,7 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
 
         const isHardcore = hardcore === 'true';
         const sendToChat = req.query.sendToChat === 'true';
-        const lang = (req.query.lang as string) || 'es';
+        const lang = safeString(req.query.lang) || 'es';
 
         const result = await trackRequest(
             effectiveUserId || ANONYMOUS_USER_ID,
@@ -140,10 +141,10 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
 
 export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const target = req.query.target as string;
-        let challenger = (req.query.challenger as string) || 'KeanuReeves';
+        const target = safeString(req.query.target);
+        let challenger = safeString(req.query.challenger) || 'KeanuReeves';
         if (challenger?.includes('$(') || challenger?.includes('${')) challenger = 'Anónimo';
-        const lang = (req.query.lang as string) || 'es';
+        const lang = safeString(req.query.lang) || 'es';
 
         let effectiveUserId = req.userId;
         if (!effectiveUserId) {

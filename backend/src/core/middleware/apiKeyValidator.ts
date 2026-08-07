@@ -1,3 +1,4 @@
+import { safeString } from '../utils/validationHelpers';
 import { Request, Response, NextFunction } from 'express';
 import * as dbService from '../database/dbService';
 import * as cacheService from '../database/cacheService';
@@ -56,7 +57,7 @@ export const invalidateUserCache = (userId: string): void => {
 function readOverlayToken(req: Request): string {
     const fromHeader = ((req.headers['x-overlay-token'] as string) || '').trim();
     if (fromHeader) return fromHeader;
-    return ((req.query.overlayToken as string) || '').trim();
+    return (safeString(req.query.overlayToken) || '').trim();
 }
 
 async function rejectApiKeyUnauthorized(
@@ -117,7 +118,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         }
     }
 
-    const rawApiKey = ((req.query.apiKey as string) || (req.headers['x-api-key'] as string) || '')
+    const rawApiKey = (safeString(req.query.apiKey) || (req.headers['x-api-key'] as string) || '')
         .trim()
         .toLowerCase();
 

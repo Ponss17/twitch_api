@@ -15,9 +15,9 @@ import { getFollowageTexts } from '../twitch/twitchUserService';
 import * as dbService from '../../core/database/dbService';
 
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
-    const channel = req.query.channel as string;
+    const channel = safeString(req.query.channel);
     const userId = req.userId;
-    let customTitle = (req.query.q as string) || (req.query.title as string);
+    let customTitle = safeString(req.query.q) || safeString(req.query.title);
     if (
         customTitle === '[invalid variable]' ||
         customTitle === 'null' ||
@@ -32,7 +32,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
         userId,
         {
             type: 'clip',
-            user: (req.query.user as string) || req.displayName || 'Streamer',
+            user: safeString(req.query.user) || req.displayName || 'Streamer',
             incrementStat: 'clips',
             skipActivityLog: true
         },
@@ -63,7 +63,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
             );
 
             if (userId) {
-                let chatter = (req.query.user as string) || req.displayName || 'Streamer';
+                let chatter = safeString(req.query.user) || req.displayName || 'Streamer';
                 if (chatter.includes('$(') || chatter.includes('${')) chatter = 'Anónimo';
                 await dbService.addUserActivity(userId, {
                     type: 'clip',
@@ -79,7 +79,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
                     const safeUrl = sanitizeHtml(clipUrl);
                     const safeChannel = sanitizeHtml(channel);
                     const safeTitle = sanitizeHtml(finalTitle || '');
-                    let safeUser = (req.query.user as string) || req.displayName || 'Streamer';
+                    let safeUser = safeString(req.query.user) || req.displayName || 'Streamer';
                     if (safeUser.includes('$(') || safeUser.includes('${')) safeUser = 'Anónimo';
                     safeUser = sanitizeHtml(safeUser);
                     return template
@@ -125,10 +125,10 @@ function applyFollowageTemplate(
 }
 
 export const followage = async (req: AuthenticatedRequest, res: Response) => {
-    const channel = req.query.channel as string;
-    const user = req.query.user as string;
+    const channel = safeString(req.query.channel);
+    const user = safeString(req.query.user);
     const userId = req.userId;
-    const rawLang = req.query.lang as string;
+    const rawLang = safeString(req.query.lang);
     const lang = normalizeLanguage(rawLang);
     const texts = getFollowageTexts(lang);
 
@@ -265,8 +265,8 @@ export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
-    const touser = req.query.touser as string;
-    let sanitizedUser = req.query.user as string;
+    const touser = safeString(req.query.touser);
+    let sanitizedUser = safeString(req.query.user);
     if (sanitizedUser?.includes('$(') || sanitizedUser?.includes('${')) sanitizedUser = 'Anónimo';
 
     const result = await trackRequest(
