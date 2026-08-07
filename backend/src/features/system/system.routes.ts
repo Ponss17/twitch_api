@@ -11,20 +11,20 @@ const router = express.Router();
 
 router.use(globalRateLimiter);
 
-router.get('/validate', systemController.validateToken);
+router.get('/validate', /* codeql[js/missing-rate-limiting] */ systemController.validateToken);
 router.post(
     '/regenerate-key',
     csrfProtection,
     validate(regenerateKeySchema),
-    systemController.regenerateKey
+    /* codeql[js/missing-rate-limiting] */ systemController.regenerateKey
 );
 router.post(
     '/feedback',
     csrfProtection,
     validate(submitFeedbackSchema),
-    systemController.submitFeedback
+    /* codeql[js/missing-rate-limiting] */ systemController.submitFeedback
 );
-router.get('/health', systemController.getHealth);
-router.get('/realtime-token', systemController.generateRealtimeToken);
+router.get('/health', /* codeql[js/missing-rate-limiting] */ systemController.getHealth);
+router.get('/realtime-token', /* codeql[js/missing-rate-limiting] */ systemController.generateRealtimeToken);
 
 export default router;
