@@ -29,78 +29,85 @@ import { updateSettingsSchema } from './dashboard.schema';
 
 const router = Router();
 
-router.use(globalRateLimiter);
 
 router.get(
     '/reveal-api-key',
     requireDashboardAjax,
     revealKeyRateLimiter,
-    /* codeql[js/missing-rate-limiting] */ dashboardController.revealApiKey
+    dashboardController.revealApiKey
 );
 
-router.patch('/settings', csrfProtection, validate(updateSettingsSchema), /* codeql[js/missing-rate-limiting] */ dashboardController.updateSettings);
+router.patch('/settings', globalRateLimiter, csrfProtection, validate(updateSettingsSchema), dashboardController.updateSettings);
 
-router.get('/get-clips', heavyRateLimiter, validate(getClipsSchema), /* codeql[js/missing-rate-limiting] */ dashboardController.getClips);
+router.get('/get-clips', heavyRateLimiter, validate(getClipsSchema), dashboardController.getClips);
 router.get(
     '/analytics',
+    globalRateLimiter,
     validate(getAnalyticsSchema),
-    /* codeql[js/missing-rate-limiting] */ dashboardController.getAnalytics
+    dashboardController.getAnalytics
 );
 router.get(
     '/chatters',
     heavyRateLimiter,
     validate(getChattersSchema),
-    /* codeql[js/missing-rate-limiting] */ dashboardController.getChatters
+    dashboardController.getChatters
 );
-router.get('/user-info', validate(getUserInfoSchema), /* codeql[js/missing-rate-limiting] */ dashboardController.getUserInfo);
-router.get('/summary', validate(getSummarySchema), /* codeql[js/missing-rate-limiting] */ dashboardController.getSummary);
-router.get('/activity', validate(getActivitySchema), /* codeql[js/missing-rate-limiting] */ dashboardController.getLogs);
-router.get('/viewer-leaderboard', validate(getViewerLeaderboardSchema), /* codeql[js/missing-rate-limiting] */ getViewerLeaderboard);
+router.get('/user-info', globalRateLimiter, validate(getUserInfoSchema), dashboardController.getUserInfo);
+router.get('/summary', heavyRateLimiter, validate(getSummarySchema), dashboardController.getSummary);
+router.get('/activity', globalRateLimiter, validate(getActivitySchema), dashboardController.getLogs);
+router.get('/viewer-leaderboard', globalRateLimiter, validate(getViewerLeaderboardSchema), getViewerLeaderboard);
 router.post(
     '/track-usage',
+    globalRateLimiter,
     csrfProtection,
     validate(trackUsageSchema),
-    /* codeql[js/missing-rate-limiting] */ dashboardController.trackToolUsage
+    dashboardController.trackToolUsage
 );
 
 
 router.post(
     '/clear-data',
+    globalRateLimiter,
     csrfProtection,
     validate(clearUserDataSchema),
-    /* codeql[js/missing-rate-limiting] */ dashboardController.clearUserData
+    dashboardController.clearUserData
 );
 router.delete(
     '/delete-account',
+    heavyRateLimiter,
     csrfProtection,
     validate(deleteAccountSchema),
-    /* codeql[js/missing-rate-limiting] */ dashboardController.deleteAccount
+    dashboardController.deleteAccount
 );
 
-router.post('/export-check', csrfProtection, validate(exportCheckSchema), /* codeql[js/missing-rate-limiting] */ dashboardController.exportCheck);
+router.post('/export-check', globalRateLimiter, csrfProtection, validate(exportCheckSchema), dashboardController.exportCheck);
 router.post(
     '/export-complete',
+    globalRateLimiter,
     csrfProtection,
     validate(exportCompleteSchema),
-    /* codeql[js/missing-rate-limiting] */ dashboardController.recordExportComplete
+    dashboardController.recordExportComplete
 );
 
 router.get(
     '/overlay-state/:tool',
+    globalRateLimiter,
     validate(overlayToolParamSchema),
-    /* codeql[js/missing-rate-limiting] */ overlayController.getOverlayState
+    overlayController.getOverlayState
 );
 router.put(
     '/overlay-state/:tool',
+    globalRateLimiter,
     csrfProtection,
     validate(putOverlayStateSchema),
-    /* codeql[js/missing-rate-limiting] */ overlayController.putOverlayState
+    overlayController.putOverlayState
 );
 router.post(
     '/overlay-link',
+    globalRateLimiter,
     csrfProtection,
     validate(overlayLinkSchema),
-    /* codeql[js/missing-rate-limiting] */ overlayController.createOverlayLink
+    overlayController.createOverlayLink
 );
 
 export default router;
