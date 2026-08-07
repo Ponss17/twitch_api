@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: 🔒 Security Vulnerability
+    url: https://github.com/Ponss17/twitch_api/security/advisories/new
+    about: >
+      Report security vulnerabilities privately via GitHub Security Advisories.
+      Do NOT open a public issue. See SECURITY.md for the full policy.
+  - name: 💬 General Discussion
+    url: https://discord.com/channels/1525664117501726852/1527769691840315442
+    about: For general questions, reach out via Discord (ponss17).
