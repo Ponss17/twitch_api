@@ -1,3 +1,4 @@
+import { safeString } from '../../core/utils/validationHelpers';
 import { Request, Response } from 'express';
 import * as authService from './auth.service';
 import { MESSAGES } from '../../core/config/messages';
@@ -25,8 +26,8 @@ const isAllowedOrigin = (origin: string, req: Request): boolean => {
 };
 
 export const login = (req: Request, res: Response) => {
-    const redirectOrigin = (req.query.redirect_origin as string) || '';
-    const tz = (req.query.tz as string) || '';
+    const redirectOrigin = safeString(req.query.redirect_origin) || '';
+    const tz = safeString(req.query.tz) || '';
 
     const extraData: Record<string, unknown> = {};
     if (tz) extraData.tz = tz;
@@ -98,7 +99,7 @@ export const callback = async (req: Request, res: Response) => {
 };
 
 export const exchange = async (req: Request, res: Response) => {
-    const auth = req.query.auth as string;
+    const auth = safeString(req.query.auth);
 
     if (!auth) {
         return jsonError(res, 400, 'Falta el token de autenticación.', { code: 'MISSING_AUTH' });
@@ -147,7 +148,7 @@ export const logout = async (req: AuthenticatedRequest, res: Response) => {
 
 /** Intercambia overlayToken firmado por sesión de solo lectura (sin API key maestra). */
 export const overlayExchange = (req: Request, res: Response) => {
-    const overlayToken = req.query.overlayToken as string;
+    const overlayToken = safeString(req.query.overlayToken);
 
     if (!overlayToken) {
         return jsonError(res, 400, 'Falta el token del overlay.', { code: 'MISSING_OVERLAY_TOKEN' });
@@ -178,7 +179,7 @@ export const discordLinkStart = (req: AuthenticatedRequest, res: Response) => {
     }
 
     try {
-        const redirectOrigin = (req.query.redirect_origin as string) || '';
+        const redirectOrigin = safeString(req.query.redirect_origin) || '';
         const url = discordAuthService.getDiscordAuthorizeUrl(
             userId,
             redirectOrigin && isAllowedOrigin(redirectOrigin, req) ? redirectOrigin : undefined

@@ -1,3 +1,4 @@
+import { safeString } from '../../core/utils/validationHelpers';
 import { Response } from 'express';
 import * as dbService from '../../core/database/dbService';
 import * as cacheService from '../../core/database/cacheService';
@@ -67,7 +68,7 @@ export const getLogs = async (req: AuthenticatedRequest, res: Response) => {
 
 export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
     const token = req.twitchToken;
-    const login = req.query.login as string;
+    const login = safeString(req.query.login);
     const userId = req.userId;
     const cacheId = userId || login?.toLowerCase() || '';
 

@@ -1,3 +1,4 @@
+import { safeString } from '../../core/utils/validationHelpers';
 import { Response } from 'express';
 import { supabase } from '../../core/database/supabaseClient';
 import * as cacheService from '../../core/database/cacheService';
@@ -17,7 +18,7 @@ export const getViewerLeaderboard = async (req: AuthenticatedRequest, res: Respo
     const userId = req.userId;
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
-    const range = (req.query.range as string) || 'today';
+    const range = safeString(req.query.range) || 'today';
     const limit = Math.min(Number(req.query.limit) || 10, 25);
 
     try {

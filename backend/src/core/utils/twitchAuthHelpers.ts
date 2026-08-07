@@ -1,3 +1,4 @@
+import { safeString } from './validationHelpers';
 import { Request, Response } from 'express';
 import axios from 'axios';
 import { logger } from '../utils/logger';
@@ -49,7 +50,7 @@ export const withTwitchAuth = async <T>(
     context: string
 ): Promise<T> => {
     let token = req.twitchToken;
-    const rawApiKey = (req.query.apiKey as string) || (req.headers['x-api-key'] as string) || '';
+    const rawApiKey = safeString(req.query.apiKey) || (req.headers['x-api-key'] as string) || '';
     const apiKey = typeof rawApiKey === 'string' ? rawApiKey.trim().toLowerCase() : '';
 
     let attempts = 0;
