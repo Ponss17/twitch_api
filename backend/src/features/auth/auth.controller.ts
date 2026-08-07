@@ -12,16 +12,17 @@ import { AuthenticatedRequest } from '../../types/twitch';
 import * as discordAuthService from './discordAuth.service';
 import { notifyPanelSession } from '../../core/database/userDiscordService';
 
-const isAllowedOrigin = (origin: string, req: Request): boolean => {
+const getValidOrigin = (origin: string, req: Request): string | null => {
     try {
         const url = new URL(origin);
         const host = req.get('host');
 
-        if (host && url.host === host) return true;
+        if (host && url.host === host) return url.origin;
 
-        return ALLOWED_ORIGINS.includes(url.origin);
+        if (ALLOWED_ORIGINS.includes(url.origin)) return url.origin;
+        return null;
     } catch {
-        return false;
+        return null;
     }
 };
 
@@ -40,7 +41,8 @@ export const login = (req: Request, res: Response) => {
 };
 
 export const callback = async (req: Request, res: Response) => {
-    const { code, state } = req.query as { code: string; state: string };
+    const code = safeString(req.query.code);
+    const state = safeString(req.query.state);
 
     if (!code) {
         return res.redirect(frontendPagePath('/', 'error=no_code'));
@@ -69,8 +71,10 @@ export const callback = async (req: Request, res: Response) => {
         const query = `auth=${encodeURIComponent(authToken)}`;
 
         let redirectUrl: string;
-        if (redirectOrigin && isAllowedOrigin(redirectOrigin, req)) {
-            redirectUrl = `${redirectOrigin}?${query}`;
+        const validOrigin = redirectOrigin ? getValidOrigin(redirectOrigin, req) : null;
+        
+        if (validOrigin) {
+            redirectUrl = `${validOrigin}?${query}`;
         } else {
             redirectUrl = frontendPagePath('/dashboard/', query);
         }
@@ -84,11 +88,12 @@ export const callback = async (req: Request, res: Response) => {
         if (state) {
             try {
                 const decoded = authService.verifyState(state);
-                if (
-                    decoded?.redirectOrigin &&
-                    isAllowedOrigin(decoded.redirectOrigin as string, req)
-                ) {
-                    errorRedirect = `${decoded.redirectOrigin}?error=auth_failed`;
+                const decodedOrigin = decoded?.redirectOrigin as string;
+                if (decodedOrigin) {
+                    const validErrorOrigin = getValidOrigin(decodedOrigin, req);
+                    if (validErrorOrigin) {
+                        errorRedirect = `${validErrorOrigin}?error=auth_failed`;
+                    }
                 }
             } catch (_e) {
                 // Ignorar errores de decodificación en el error handler
@@ -182,7 +187,7 @@ export const discordLinkStart = (req: AuthenticatedRequest, res: Response) => {
         const redirectOrigin = safeString(req.query.redirect_origin) || '';
         const url = discordAuthService.getDiscordAuthorizeUrl(
             userId,
-            redirectOrigin && isAllowedOrigin(redirectOrigin, req) ? redirectOrigin : undefined
+            redirectOrigin ? getValidOrigin(redirectOrigin, req) ?? undefined : undefined
         );
         return res.redirect(url);
     } catch (error: unknown) {
