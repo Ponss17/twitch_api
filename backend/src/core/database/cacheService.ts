@@ -123,10 +123,8 @@ export const getCachedApiUserMeta = async (apiKey: string): Promise<CachedApiUse
     return get<CachedApiUserMeta>(key);
 };
 
-/** @deprecated Usar getCachedApiUserMeta + getUser para no cachear tokens en KV. */
-export const getCachedApiUser = async (apiKey: string): Promise<StoredUser | null> => {
-    return getCachedApiUserMeta(apiKey) as Promise<StoredUser | null>;
-};
+
+
 
 export const setCachedApiUser = async (apiKey: string, user: StoredUser): Promise<void> => {
     const meta: CachedApiUserMeta = {

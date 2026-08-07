@@ -12,9 +12,13 @@ const buildAllowedOrigins = (): string[] => {
     const origins = [
         'https://ttv.losperris.dev',
         'https://www.losperris.dev',
-        'https://losperris.dev',
-        ...LOCAL_ORIGINS
+        'https://losperris.dev'
     ];
+
+    const isProd = process.env.NODE_ENV === 'production';
+    if (!isProd) {
+        origins.push(...LOCAL_ORIGINS);
+    }
 
     try {
         const { origin } = new URL(CONFIG.BASE_URL);

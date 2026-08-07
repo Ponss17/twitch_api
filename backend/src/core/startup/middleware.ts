@@ -122,7 +122,6 @@ export const configureMiddleware = (app: Application) => {
                 crossOriginEmbedderPolicy: false,
                 crossOriginResourcePolicy: false,
                 noSniff: true,
-                xssFilter: true,
                 hidePoweredBy: true,
                 frameguard: { action: 'deny' },
                 hsts: {
@@ -140,7 +139,7 @@ export const configureMiddleware = (app: Application) => {
         skipForAssets((req, res, next) => {
             res.setHeader(
                 'Permissions-Policy',
-                'camera=(), microphone=(), geolocation=(), interest-cohort=()'
+                'camera=(), microphone=(), geolocation=(), fullscreen=(self "https://clips.twitch.tv" "https://*.twitch.tv"), encrypted-media=(self "https://clips.twitch.tv" "https://*.twitch.tv")'
             );
             next();
         })

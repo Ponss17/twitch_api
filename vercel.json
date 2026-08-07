@@ -1,5 +1,6 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
+    "trailingSlash": false,
     "buildCommand": "pnpm build",
     "installCommand": "pnpm install",
     "outputDirectory": "dist",
@@ -138,15 +139,7 @@
             "destination": "/404.html"
         },
         {
-            "source": "/404/",
-            "destination": "/404.html"
-        },
-        {
             "source": "/429",
-            "destination": "/429/index.html"
-        },
-        {
-            "source": "/429/",
             "destination": "/429/index.html"
         },
         {
@@ -154,11 +147,15 @@
             "destination": "/500.html"
         },
         {
-            "source": "/500/",
-            "destination": "/500.html"
+            "source": "/api/:path*",
+            "destination": "/api/index.js"
         },
         {
-            "source": "/api/:path+/",
+            "source": "/auth/:path*",
+            "destination": "/api/index.js"
+        },
+        {
+            "source": "/twitch/:path*",
             "destination": "/api/index.js"
         },
         {
@@ -168,26 +165,6 @@
         {
             "source": "/favicon.ico",
             "destination": "/img/logo.svg"
-        },
-        {
-            "source": "/api/:path*",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/auth/:path+/",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/auth/:path*",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/twitch/:path+/",
-            "destination": "/api/index.js"
-        },
-        {
-            "source": "/twitch/:path*",
-            "destination": "/api/index.js"
         },
         {
             "source": "/health",

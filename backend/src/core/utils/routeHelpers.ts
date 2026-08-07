@@ -156,12 +156,5 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
         return true;
     }
 
-    // 6. Vistas HTML Públicas adicionales (si las hubiera en el futuro)
-    const publicHtmlPaths: string[] = [];
-
-    const isHtmlPath = publicHtmlPaths.some(
-        (prefix) => cleanPath === prefix || cleanPath.startsWith(`${prefix}/`)
-    );
-
-    return isHtmlPath;
+    return false;
 };
