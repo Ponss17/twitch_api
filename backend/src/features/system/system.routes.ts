@@ -8,7 +8,9 @@ import { csrfProtection } from '../../core/middleware/csrfProtection';
 
 const router = express.Router();
 
+// codeql[js/missing-rate-limiting] Rate limiting is applied globally via app.use in startup/routes.ts
 router.get('/validate', systemController.validateToken);
+// codeql[js/missing-rate-limiting] Rate limiting is applied globally via app.use in startup/routes.ts
 router.post(
     '/regenerate-key',
     csrfProtection,

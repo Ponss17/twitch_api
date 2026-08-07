@@ -29,6 +29,7 @@ const signState = (payload: object): string => {
 };
 
 export const verifyState = (state: string): Record<string, unknown> | null => {
+    if (typeof state !== 'string') return null;
     const lastDot = state.lastIndexOf('.');
     if (lastDot === -1) return null;
     const data = state.slice(0, lastDot);

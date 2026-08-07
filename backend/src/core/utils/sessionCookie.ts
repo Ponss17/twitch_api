@@ -4,13 +4,16 @@ import { CONFIG } from '../config/env';
 
 export const SESSION_COOKIE_NAME = 'lp_sess';
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const SESSION_COOKIE_VERSION = 'v1';
+const GCM_IV_BYTES = 12;
+const GCM_TAG_BYTES = 16;
 
 function getSigningSecret(): string {
     return CONFIG.HMAC_SIGNING_SECRET ?? (CONFIG.TWITCH_CLIENT_SECRET as string);
 }
 
-function signPayload(encoded: string): string {
-    return crypto.createHmac('sha256', getSigningSecret()).update(encoded).digest('base64url');
+function getEncryptionKey(): Buffer {
+    return crypto.createHash('sha256').update(getSigningSecret(), 'utf8').digest();
 }
 
 function cookieOptions(maxAge: number): CookieOptions {
@@ -28,28 +31,41 @@ export function createSessionCookieValue(userId: string): string {
         userId,
         exp: Date.now() + SESSION_TTL_MS
     };
-    const encoded = Buffer.from(JSON.stringify(payload)).toString('base64url');
-    return `${encoded}.${signPayload(encoded)}`;
+    const plaintext = Buffer.from(JSON.stringify(payload), 'utf8');
+    const iv = crypto.randomBytes(GCM_IV_BYTES);
+    const cipher = crypto.createCipheriv('aes-256-gcm', getEncryptionKey(), iv);
+    const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final()]);
+    const tag = cipher.getAuthTag();
+
+    return `${SESSION_COOKIE_VERSION}.${iv.toString('base64url')}.${ciphertext.toString('base64url')}.${tag.toString('base64url')}`;
 }
 
 export function verifySessionCookieValue(value: string): string | null {
-    const lastDot = value.lastIndexOf('.');
-    if (lastDot === -1) return null;
+    const parts = value.split('.');
+    if (parts.length !== 4) return null;
 
-    const encoded = value.slice(0, lastDot);
-    const sig = value.slice(lastDot + 1);
-    const expected = signPayload(encoded);
+    const [version, ivB64, ciphertextB64, tagB64] = parts;
+    if (version !== SESSION_COOKIE_VERSION) return null;
 
+    let decrypted: Buffer;
     try {
-        if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) {
+        const iv = Buffer.from(ivB64, 'base64url');
+        const ciphertext = Buffer.from(ciphertextB64, 'base64url');
+        const tag = Buffer.from(tagB64, 'base64url');
+
+        if (iv.length !== GCM_IV_BYTES || tag.length !== GCM_TAG_BYTES) {
             return null;
         }
+
+        const decipher = crypto.createDecipheriv('aes-256-gcm', getEncryptionKey(), iv);
+        decipher.setAuthTag(tag);
+        decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
     } catch {
         return null;
     }
 
     try {
-        const parsed = JSON.parse(Buffer.from(encoded, 'base64url').toString()) as {
+        const parsed = JSON.parse(decrypted.toString('utf8')) as {
             userId?: string;
             exp?: number;
         };
