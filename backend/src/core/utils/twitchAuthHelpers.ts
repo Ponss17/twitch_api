@@ -50,7 +50,7 @@ export const withTwitchAuth = async <T>(
     context: string
 ): Promise<T> => {
     let token = req.twitchToken;
-    // codeql[js/sensitive-data-read-from-get-request] False positive: Chatbots (e.g., StreamElements urlfetch) require API keys via query string because they cannot set custom headers in simple GET requests.
+    // codeql[js/sensitive-get-query] False positive: Chatbots (e.g., StreamElements urlfetch) require API keys via query string because they cannot set custom headers in simple GET requests.
     const rawApiKey = safeString(req.query.apiKey) || (req.headers['x-api-key'] as string) || '';
     const apiKey = typeof rawApiKey === 'string' ? rawApiKey.trim().toLowerCase() : '';
 
