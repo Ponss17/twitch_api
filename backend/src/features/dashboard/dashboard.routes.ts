@@ -2,7 +2,7 @@ import { Router } from 'express';
 import * as dashboardController from './dashboard.controller';
 import * as overlayController from './overlay/controller';
 import { csrfProtection } from '../../core/middleware/csrfProtection';
-import { heavyRateLimiter, revealKeyRateLimiter } from '../../core/middleware/redisRateLimiter';
+import { globalRateLimiter, heavyRateLimiter, revealKeyRateLimiter } from '../../core/middleware/redisRateLimiter';
 import { requireDashboardAjax } from '../../core/middleware/dashboardAjaxGuard';
 import { validate } from '../../core/middleware/validate';
 import {
@@ -29,6 +29,8 @@ import { updateSettingsSchema } from './dashboard.schema';
 
 const router = Router();
 
+router.use(globalRateLimiter);
+
 router.get(
     '/reveal-api-key',
     requireDashboardAjax,
@@ -51,13 +53,9 @@ router.get(
     dashboardController.getChatters
 );
 router.get('/user-info', validate(getUserInfoSchema), dashboardController.getUserInfo);
-// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.get('/summary', validate(getSummarySchema), dashboardController.getSummary);
-// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.get('/activity', validate(getActivitySchema), dashboardController.getLogs);
-// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.get('/viewer-leaderboard', validate(getViewerLeaderboardSchema), getViewerLeaderboard);
-// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.post(
     '/track-usage',
     csrfProtection,
@@ -66,14 +64,12 @@ router.post(
 );
 
 
-// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.post(
     '/clear-data',
     csrfProtection,
     validate(clearUserDataSchema),
     dashboardController.clearUserData
 );
-// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.delete(
     '/delete-account',
     csrfProtection,
@@ -81,7 +77,6 @@ router.delete(
     dashboardController.deleteAccount
 );
 
-// codeql[js/missing-rate-limiting] Rate limiting is applied globally
 router.post('/export-check', csrfProtection, validate(exportCheckSchema), dashboardController.exportCheck);
 router.post(
     '/export-complete',

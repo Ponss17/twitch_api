@@ -1,6 +1,6 @@
 import { Application, Request, Response } from 'express';
 import { CONFIG } from '../config/env';
-import { globalRateLimiter, authRateLimiter } from '../middleware/redisRateLimiter';
+import { globalRateLimiter } from '../middleware/redisRateLimiter';
 import { apiKeyValidator } from '../middleware/apiKeyValidator';
 import checkToken from '../middleware/authMiddleware';
 import { isApiRoute, isJsonApiRoute } from '../utils/routeHelpers';
@@ -28,7 +28,7 @@ export const configureRoutes = (app: Application) => {
         next();
     });
 
-    app.get(['/health', '/api/health'], (_req: Request, res: Response) => {
+    app.get(['/health', '/api/health'], globalRateLimiter, (_req: Request, res: Response) => {
         const isConfigured = !!(CONFIG.TWITCH_CLIENT_ID && CONFIG.TWITCH_CLIENT_SECRET);
         res.json({
             status: isConfigured ? 'ok' : 'maintenance',
@@ -36,16 +36,15 @@ export const configureRoutes = (app: Application) => {
         });
     });
 
-    app.get(['/robots.txt', '/api/robots.txt'], getRobotsTxt);
-    app.get(['/sitemap.xml', '/api/sitemap.xml'], getSitemapXml);
+    app.get(['/robots.txt', '/api/robots.txt'], globalRateLimiter, getRobotsTxt);
+    app.get(['/sitemap.xml', '/api/sitemap.xml'], globalRateLimiter, getSitemapXml);
 
     app.use(apiKeyValidator);
     app.use(checkToken);
     app.use(overlayScopeGuard);
-    app.use(globalRateLimiter);
 
-    app.use('/auth', authRateLimiter, authRoutes);
-    app.use('/api/auth', authRateLimiter, authRoutes);
+    app.use('/auth', authRoutes);
+    app.use('/api/auth', authRoutes);
 
     app.use('/api', apiRouter);
     app.use('/', apiRouter);
