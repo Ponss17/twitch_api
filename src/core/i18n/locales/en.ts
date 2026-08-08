@@ -229,8 +229,8 @@ export const en: Translations = {
         groups: {
             account: { title: 'Account', desc: 'Your plan identifier and limits' },
             preferences: { title: 'Preferences', desc: 'Account settings' },
-            data: { 
-                title: 'Account Data', 
+            data: {
+                title: 'Account Data',
                 desc: 'Information and management of your account data.',
                 firstLogin: 'First Login',
                 firstLoginDesc: 'Date when you first logged in.',
