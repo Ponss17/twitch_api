@@ -4,6 +4,12 @@ export const safeString = (val: unknown): string => {
     return '';
 };
 
+export const toSafePathIdentifier = (val: unknown): string => {
+    const normalized = safeString(val).trim().toLowerCase();
+    if (!normalized) return '';
+    return /^[a-z0-9_]{1,25}$/.test(normalized) ? normalized : '';
+};
+
 /**
  * Escapa caracteres HTML peligrosos para prevenir XSS.
  * Usar en cualquier input que se renderice en el DOM.
