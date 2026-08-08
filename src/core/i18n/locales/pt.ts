@@ -798,6 +798,8 @@ export const pt: Translations = {
                 channelPlaceholder: 'Canal',
                 userLabel: 'Usuário',
                 userPlaceholder: 'Usuário',
+                disclaimerTitle: 'Requer StreamElements',
+                disclaimerText: 'Este comando consulta o watchtime através da API pública do StreamElements. Só funciona se o canal tiver o sistema de Lealdade/Pontos ativado no StreamElements.',
             },
             shoutout: {
                 testTitle: 'Testar Shoutout',

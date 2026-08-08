@@ -808,6 +808,8 @@ export const en: Translations = {
                 channelPlaceholder: 'Channel',
                 userLabel: 'User',
                 userPlaceholder: 'User',
+                disclaimerTitle: 'Requires StreamElements',
+                disclaimerText: 'This command fetches watchtime through the public StreamElements API. It only works if the channel has the Loyalty/Points system enabled on StreamElements.',
             },
             shoutout: {
                 testTitle: 'Test Shoutout',

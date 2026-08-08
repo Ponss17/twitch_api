@@ -6,6 +6,7 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { ApiTestCard, CommandGeneratorCard, FormField } from './CommandGeneratorCard';
 import { fadeIn } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { Info } from 'lucide-react';
 
 function toApiTestResult(
     loading: boolean,
@@ -119,6 +120,13 @@ export function WatchtimeView() {
     return (
         <div className={fadeIn}>
             <CommandGeneratorCard config={COMMAND_CONFIG.watchtime} />
+            <div className="mb-6 flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/[0.04] p-4 text-sm text-text-muted">
+                <Info className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <div>
+                    <strong className="block text-[var(--color-text)] mb-1">{viewT.watchtime.disclaimerTitle}</strong>
+                    {viewT.watchtime.disclaimerText}
+                </div>
+            </div>
             <ApiTestCard
                 title={viewT.watchtime.testTitle}
                 description={viewT.watchtime.testDesc}

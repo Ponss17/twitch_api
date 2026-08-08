@@ -803,6 +803,8 @@ export const es = {
                 channelPlaceholder: 'Canal',
                 userLabel: 'Usuario',
                 userPlaceholder: 'Usuario',
+                disclaimerTitle: 'Requiere StreamElements',
+                disclaimerText: 'Este comando consulta el watchtime a través de la API pública de StreamElements. Solo funciona si el canal tiene activado el sistema de Lealtad/Puntos en StreamElements.',
             },
             shoutout: {
                 testTitle: 'Probar Shoutout',
