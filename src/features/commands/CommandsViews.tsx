@@ -120,33 +120,60 @@ export function WatchtimeView() {
         });
     };
 
+    // Badge que va dentro del header de la tarjeta de comando
+    const disclaimerBadge = (
+        <button
+            type="button"
+            onClick={() => setSheetOpen(true)}
+            className="flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[0.7rem] font-medium text-primary transition-colors hover:bg-primary/20"
+        >
+            <Info className="h-3 w-3 shrink-0" />
+            {viewT.watchtime.disclaimerTitle}
+        </button>
+    );
+
     return (
         <div className={fadeIn}>
-            <CommandGeneratorCard config={COMMAND_CONFIG.watchtime} />
+            {/* Tarjeta de generador con el badge de aviso en el header */}
+            <CommandGeneratorCard
+                config={COMMAND_CONFIG.watchtime}
+                headerBadge={disclaimerBadge}
+            />
 
-            {/* Botón discreto que abre el sheet con el disclaimer de StreamElements */}
-            <div className="mb-5 flex justify-end">
-                <button
-                    type="button"
-                    onClick={() => setSheetOpen(true)}
-                    className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[0.78rem] text-text-muted transition-colors hover:bg-bg-elevated hover:text-primary"
-                >
-                    <Info className="h-3.5 w-3.5 shrink-0" />
-                    {viewT.watchtime.disclaimerTitle}
-                </button>
-            </div>
-
-            {/* Sheet con la explicación completa */}
+            {/* Sheet con explicación detallada de cómo funciona StreamElements */}
             <Sheet
                 open={sheetOpen}
                 onClose={() => setSheetOpen(false)}
                 title={viewT.watchtime.disclaimerTitle}
                 description={viewT.watchtime.disclaimerSubtitle}
             >
-                <div className="space-y-4 text-sm text-text-muted leading-relaxed">
-                    <p>{viewT.watchtime.disclaimerText}</p>
-                    <p>{viewT.watchtime.disclaimerStep1}</p>
-                    <p>{viewT.watchtime.disclaimerStep2}</p>
+                <div className="space-y-5">
+                    {/* Bloque principal: qué es */}
+                    <div className="rounded-xl border border-border-subtle bg-bg-elevated p-4">
+                        <div className="mb-2 flex items-center gap-2">
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
+                                <Info className="h-3.5 w-3.5 text-primary" />
+                            </div>
+                            <span className="text-[0.8rem] font-semibold text-text-main">¿Qué es el watchtime?</span>
+                        </div>
+                        <p className="text-[0.8rem] leading-relaxed text-text-muted">
+                            {viewT.watchtime.disclaimerText}
+                        </p>
+                    </div>
+
+                    {/* Bloque advertencia */}
+                    <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-4">
+                        <p className="text-[0.8rem] leading-relaxed text-amber-400/90">
+                            {viewT.watchtime.disclaimerStep1}
+                        </p>
+                    </div>
+
+                    {/* Bloque cómo activarlo */}
+                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] p-4">
+                        <p className="text-[0.8rem] leading-relaxed text-emerald-400/90">
+                            {viewT.watchtime.disclaimerStep2}
+                        </p>
+                    </div>
                 </div>
             </Sheet>
 
