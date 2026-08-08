@@ -7,7 +7,7 @@ import { ownerScopedCacheKey, resolveCache } from '../../core/config/cacheTtl';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { AuthenticatedRequest } from '../../types/twitch';
-import { safeString, sanitizeHtml } from '../../core/utils/validationHelpers';
+import { safeString, sanitizeHtml, toSafePathIdentifier } from '../../core/utils/validationHelpers';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
 import { normalizeLanguage, formatDuration, getTimePhraseBetween } from '../../core/utils/time';
@@ -348,12 +348,16 @@ function applyWatchtimeTemplate(templateRaw: string, timePhrase: string, user: s
 }
 
 export const watchtime = async (req: AuthenticatedRequest, res: Response) => {
-    const channel = safeString(req.query.channel);
-    const user = safeString(req.query.user);
+    const channel = toSafePathIdentifier(req.query.channel);
+    const user = toSafePathIdentifier(req.query.user);
     const userId = req.userId;
     const rawLang = safeString(req.query.lang);
     const lang = normalizeLanguage(rawLang);
     const wtTexts = getWatchtimeTexts(lang);
+
+    if (!channel || !user) {
+        return res.status(400).json({ error: 'Parámetros inválidos.' });
+    }
 
     let sanitizedUser = user;
     if (sanitizedUser?.includes('$(') || sanitizedUser?.includes('${')) sanitizedUser = 'Anónimo';
