@@ -16,7 +16,7 @@ interface AnalyticsViewerLeaderboardProps {
 }
 
 // Fuera del componente: se crea una sola vez, no en cada render
-const VIEWER_TYPES = new Set(['followage', 'clip', 'shoutout', 'magic8', 'russian', 'duel']);
+const VIEWER_TYPES = new Set(['followage', 'watchtime', 'clip', 'shoutout', 'magic8', 'russian', 'duel']);
 
 function RankIcon({ rank, color }: { rank: number; color: string }) {
     return (

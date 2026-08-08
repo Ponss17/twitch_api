@@ -82,6 +82,67 @@ export function FollowageView() {
     );
 }
 
+export function WatchtimeView() {
+    const session = useRequiredSession();
+    const { t } = useTranslation();
+    const viewT = t.commands.views;
+    const ownerChannel = session.login ?? '';
+    const [channel, setChannel] = useCommandTestField('watchtime', 'channel', ownerChannel);
+    const [user, setUser] = useCommandTestField('watchtime', 'user', '');
+    const [storedResult, setStoredResult] = useCommandTestResult('watchtime-test');
+    const { loading, runTest } = useCommandApiTest(setStoredResult);
+
+    const handleTest = async (): Promise<void> => {
+        const channelVal = channel.trim().toLowerCase();
+        const userVal = user.trim();
+
+        if (!channelVal || !userVal) {
+            setStoredResult({
+                status: 'error',
+                message: viewT.errors.missingFields
+            });
+            return;
+        }
+
+        await runTest({
+            buildUrl: (apiKey) =>
+                buildCommandTestUrl(
+                    `${API_ENDPOINTS.BASE}/watchtime/`,
+                    { user: userVal, channel: channelVal },
+                    apiKey
+                ),
+            validateResponse: (text, responseOk) =>
+                responseOk && text.trim().length > 0 && !followageErrorPattern.test(text)
+        });
+    };
+
+    return (
+        <div className={fadeIn}>
+            <CommandGeneratorCard config={COMMAND_CONFIG.watchtime} />
+            <ApiTestCard
+                title={viewT.watchtime.testTitle}
+                description={viewT.watchtime.testDesc}
+                infoTooltip={viewT.watchtime.testTooltip}
+                onTest={handleTest}
+                result={toApiTestResult(loading, storedResult)}
+            >
+                <FormField
+                    label={viewT.watchtime.channelLabel}
+                    value={channel}
+                    onChange={setChannel}
+                    placeholder={ownerChannel || viewT.watchtime.channelPlaceholder}
+                />
+                <FormField
+                    label={viewT.watchtime.userLabel}
+                    value={user}
+                    onChange={setUser}
+                    placeholder={viewT.watchtime.userPlaceholder}
+                />
+            </ApiTestCard>
+        </div>
+    );
+}
+
 export function ShoutoutView() {
     const session = useRequiredSession();
     const { t } = useTranslation();

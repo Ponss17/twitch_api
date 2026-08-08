@@ -13,7 +13,8 @@ import {
     Crosshair,
     Swords,
     MessageSquare,
-    BarChart3
+    BarChart3,
+    Clock
 } from 'lucide-react';
 
 /** Iconos canónicos de minijuegos (sidebar, docs, comandos, landing). */
@@ -31,6 +32,7 @@ export const NAV_ITEMS: NavItem[] = [
     { id: 'home', label: 'Inicio', icon: Home, category: 'general' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, category: 'general' },
     { id: 'followage', label: 'Followage', icon: UserRoundCheck, category: 'commands' },
+    { id: 'watchtime', label: 'Watchtime', icon: Clock, category: 'commands' },
     { id: 'clips', label: 'Clips', icon: Clapperboard, category: 'commands' },
     { id: 'shoutout', label: 'Shoutout', icon: Megaphone, category: 'commands' },
     { id: 'trends', label: 'Tendencias', icon: TrendingUp, category: 'tools' },

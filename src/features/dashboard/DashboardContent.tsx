@@ -25,6 +25,9 @@ const SettingsView = lazy(() =>
 const FollowageView = lazy(() =>
     import('@/features/commands/CommandsViews').then((m) => ({ default: m.FollowageView }))
 );
+const WatchtimeView = lazy(() =>
+    import('@/features/commands/CommandsViews').then((m) => ({ default: m.WatchtimeView }))
+);
 const ShoutoutView = lazy(() =>
     import('@/features/commands/CommandsViews').then((m) => ({ default: m.ShoutoutView }))
 );
@@ -79,6 +82,8 @@ function renderTabPanel(tab: DashboardTab, { active, onNavigate }: TabPanelProps
             return <AnalyticsView active={active} />;
         case 'followage':
             return <FollowageView />;
+        case 'watchtime':
+            return <WatchtimeView />;
         case 'clips':
             return <ClipsView />;
         case 'shoutout':
