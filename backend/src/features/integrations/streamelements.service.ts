@@ -12,8 +12,11 @@ export interface WatchtimeResponse {
  */
 export async function getStreamElementsWatchtime(channel: string, username: string): Promise<WatchtimeResponse> {
     try {
+        const safeChannel = encodeURIComponent(channel);
+        const safeUsername = encodeURIComponent(username);
+
         // 1. Obtener el ID de cuenta de StreamElements a partir del nombre del canal
-        const channelRes = await axios.get(`https://api.streamelements.com/kappa/v2/channels/${channel}`, {
+        const channelRes = await axios.get(`https://api.streamelements.com/kappa/v2/channels/${safeChannel}`, {
             timeout: 5000,
             validateStatus: () => true
         });
@@ -27,9 +30,10 @@ export async function getStreamElementsWatchtime(channel: string, username: stri
         }
 
         const accountId = channelRes.data._id;
+        const safeAccountId = encodeURIComponent(String(accountId));
 
         // 2. Obtener los puntos/watchtime del usuario en ese canal
-        const pointsRes = await axios.get(`https://api.streamelements.com/kappa/v2/points/${accountId}/${username}`, {
+        const pointsRes = await axios.get(`https://api.streamelements.com/kappa/v2/points/${safeAccountId}/${safeUsername}`, {
             timeout: 5000,
             validateStatus: () => true
         });
