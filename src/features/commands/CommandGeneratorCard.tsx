@@ -1,16 +1,12 @@
-import { Edit, Check, Loader2, AlertTriangle, Copy, Play, Bot, FileCode, FlaskConical, Languages } from 'lucide-react';
-
+import { Edit, Check, Copy, Bot, FileCode, Languages } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
     btnCopy,
-    btnPrimary,
     panelCard,
     codeBox,
     codeTextarea,
     fadeIn,
-    formGrid,
     inputLabel,
-    responseCard,
     textInput
 } from '@/core/utils/tw';
 import { SelectFieldRow } from '@/shared/ui/SelectField';
@@ -318,122 +314,5 @@ export function CommandGeneratorCard({ config, onExtraValuesChange, headerBadge 
     );
 }
 
-interface ApiTestCardProps {
-    title: string;
-    description: string;
-    infoTooltip?: string;
-    children: ReactNode;
-    onTest: () => Promise<void>;
-    result: { status: 'idle' | 'loading' | 'success' | 'error'; message: string };
-    buttonLabel?: string;
-}
-
-export function ApiTestCard({
-    title,
-    description,
-    infoTooltip,
-    children,
-    onTest,
-    result,
-    buttonLabel
-}: ApiTestCardProps) {
-    const { t } = useTranslation();
-    const isActive = result.status === 'success' || result.status === 'error';
-    const finalBtnLabel = buttonLabel || t.commands.apiTest.btnTest;
-
-    return (
-        <div className={`${panelCard} ${fadeIn} mb-5 flex flex-col [animation-delay:60ms]`}>
-            <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
-                <div className="flex min-w-0 items-center gap-3">
-                    <div
-                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}
-                    >
-                        <FlaskConical className="h-4 w-4" aria-hidden />
-                    </div>
-                    <div className="min-w-0">
-                        <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">{title}</h2>
-                        <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">{description}</p>
-                    </div>
-                </div>
-                {infoTooltip ? (
-                    <div className="shrink-0">
-                        <InfoTooltip text={infoTooltip} placement="bottom" />
-                    </div>
-                ) : null}
-            </header>
-
-            <div className="p-5 text-text-main">
-                <div className={formGrid}>{children}</div>
-
-                <button
-                    type="button"
-                    onClick={() => void onTest()}
-                    disabled={result.status === 'loading'}
-                    className={btnPrimary}
-                >
-                    {result.status === 'loading' ? (
-                        <Loader2 className="size-4 shrink-0 animate-spin" />
-                    ) : (
-                        <Play className="size-4 shrink-0" />
-                    )}
-                    {result.status === 'loading' ? t.commands.apiTest.btnTesting : finalBtnLabel}
-                </button>
-
-                <div
-                    className={`${responseCard} ${
-                        isActive ? 'flex animate-reveal-card' : 'hidden'
-                    } ${
-                        result.status === 'success'
-                            ? 'border-success/30 bg-[rgba(16,185,129,0.15)]'
-                            : result.status === 'error'
-                              ? 'border-error/30 bg-error/15'
-                              : ''
-                    }`}
-                >
-                    {result.status === 'success' && (
-                        <Check className="size-5 shrink-0 text-success" />
-                    )}
-                    {result.status === 'error' && (
-                        <AlertTriangle className="size-5 shrink-0 text-error" />
-                    )}
-                    <div
-                        className={`min-w-0 flex-1 whitespace-pre-wrap break-words ${
-                            result.status === 'success'
-                                ? 'text-[#ecfdf5]'
-                                : result.status === 'error'
-                                  ? 'text-[#fecaca]'
-                                  : 'text-text-main'
-                        }`}
-                    >
-                        {result.message}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-export function FormField({
-    label,
-    value,
-    onChange,
-    placeholder
-}: {
-    label?: string;
-    value: string;
-    onChange: (v: string) => void;
-    placeholder?: string;
-}) {
-    return (
-        <div className="flex flex-col gap-1">
-            {label ? <span className={inputLabel}>{label}</span> : null}
-            <input
-                type="text"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                placeholder={placeholder}
-                className={textInput}
-            />
-        </div>
-    );
-}
+export { ApiTestCard } from './ApiTestCard';
+export { FormField } from './FormField';
