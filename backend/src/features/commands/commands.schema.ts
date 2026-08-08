@@ -34,3 +34,12 @@ export const shoutoutSchema = z.object({
         template: z.string().max(500).optional()
     })
 });
+
+export const watchtimeSchema = z.object({
+    query: z.object({
+        channel: twitchUsername,
+        user: twitchUsername,
+        lang: z.string().max(10).optional(),
+        template: z.string().max(500).optional()
+    })
+});

@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { createClip, followage, sendMessage, getShoutout } from './commands.controller';
+import { createClip, followage, sendMessage, getShoutout, watchtime } from './commands.controller';
 import { validate } from '../../core/middleware/validate';
 import {
     createClipSchema,
     followageSchema,
     shoutoutSchema,
-    sendMessageSchema
+    sendMessageSchema,
+    watchtimeSchema
 } from './commands.schema';
 
 import { csrfProtection } from '../../core/middleware/csrfProtection';
@@ -17,5 +18,6 @@ router.get('/create-clip', globalRateLimiter, validate(createClipSchema), /* cod
 router.get('/followage', globalRateLimiter, validate(followageSchema), /* codeql[js/missing-rate-limiting] */ followage);
 router.get('/shoutout', globalRateLimiter, validate(shoutoutSchema), /* codeql[js/missing-rate-limiting] */ getShoutout);
 router.post('/send-message', globalRateLimiter, csrfProtection, validate(sendMessageSchema), /* codeql[js/missing-rate-limiting] */ sendMessage);
+router.get('/watchtime', globalRateLimiter, validate(watchtimeSchema), /* codeql[js/missing-rate-limiting] */ watchtime);
 
 export default router;

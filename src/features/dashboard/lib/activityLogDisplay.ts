@@ -3,6 +3,7 @@ import {
     Activity,
     Binoculars,
     Clapperboard,
+    Clock,
     Crosshair,
     CircleDot,
     Dices,
@@ -68,6 +69,14 @@ function getActivityMetaDict(t: Translations): Record<ActivityLogType, Omit<Acti
             detailText: (item) => {
                 const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
                 return target ? act.followage.channel(target) : act.followage.defaultDetail;
+            }
+        },
+        watchtime: {
+            label: 'Watchtime', // TODO: Podría añadirse a las traducciones del frontend
+            icon: Clock,
+            detailText: (item) => {
+                const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
+                return target ? act.followage.channel(target) : act.followage.defaultDetail; // Reutiliza la de followage para "canal"
             }
         },
         shoutout: {
