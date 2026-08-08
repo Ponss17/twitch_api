@@ -33,12 +33,14 @@ function CommandCardHeader({
     icon: Icon,
     title,
     description,
-    info
+    info,
+    badge
 }: {
     icon: React.ElementType;
     title: string;
     description: string;
     info: string;
+    badge?: ReactNode;
 }) {
     return (
         <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
@@ -53,7 +55,8 @@ function CommandCardHeader({
                     <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">{description}</p>
                 </div>
             </div>
-            <div className="shrink-0">
+            <div className="flex shrink-0 items-center gap-2">
+                {badge}
                 <InfoTooltip text={info} placement="bottom" />
             </div>
         </header>
@@ -86,9 +89,10 @@ function TemplateVarsHelp({ vars }: { vars: string }) {
 interface CommandGeneratorCardProps {
     config: CommandConfigItem;
     onExtraValuesChange?: (values: Record<string, string>) => void;
+    headerBadge?: ReactNode;
 }
 
-export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGeneratorCardProps) {
+export function CommandGeneratorCard({ config, onExtraValuesChange, headerBadge }: CommandGeneratorCardProps) {
     const session = useRequiredSession();
     const { t } = useTranslation();
     const cmdT = t.commands.generator;
@@ -212,6 +216,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange }: CommandGen
                 title={title}
                 description={desc}
                 info={info}
+                badge={headerBadge}
             />
 
             <div className="p-5 text-text-main">
