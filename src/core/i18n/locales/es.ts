@@ -804,7 +804,10 @@ export const es = {
                 userLabel: 'Usuario',
                 userPlaceholder: 'Usuario',
                 disclaimerTitle: 'Requiere StreamElements',
-                disclaimerText: 'Este comando consulta el watchtime a través de la API pública de StreamElements. Solo funciona si el canal tiene activado el sistema de Lealtad/Puntos en StreamElements.',
+                disclaimerSubtitle: '¿Cómo funciona el watchtime?',
+                disclaimerText: 'Este comando obtiene el tiempo que lleva un usuario viendo tu canal usando la API pública de StreamElements. No utiliza datos propios de Twitch.',
+                disclaimerStep1: '⚠️ Solo funciona si el canal tiene activado el sistema de Lealtad/Puntos en StreamElements (streamelements.com). Si el canal no está registrado ahí, el comando devolverá un error.',
+                disclaimerStep2: '💡 Para activarlo, el streamer debe ir a StreamElements › Loyalty y habilitar el sistema de puntos. Una vez activo, el bot empieza a registrar el tiempo automáticamente.',
             },
             shoutout: {
                 testTitle: 'Probar Shoutout',

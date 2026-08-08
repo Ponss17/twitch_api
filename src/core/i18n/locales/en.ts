@@ -809,7 +809,10 @@ export const en: Translations = {
                 userLabel: 'User',
                 userPlaceholder: 'User',
                 disclaimerTitle: 'Requires StreamElements',
-                disclaimerText: 'This command fetches watchtime through the public StreamElements API. It only works if the channel has the Loyalty/Points system enabled on StreamElements.',
+                disclaimerSubtitle: 'How does watchtime work?',
+                disclaimerText: 'This command gets the time a user has been watching your channel using the public StreamElements API. It does not use native Twitch data.',
+                disclaimerStep1: '⚠️ It only works if the channel has the Loyalty/Points system enabled on StreamElements (streamelements.com). If the channel is not registered there, the command will return an error.',
+                disclaimerStep2: '💡 To enable it, the streamer must go to StreamElements › Loyalty and enable the points system. Once active, the bot will start tracking time automatically.',
             },
             shoutout: {
                 testTitle: 'Test Shoutout',
