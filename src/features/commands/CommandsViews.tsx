@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { COMMAND_CONFIG } from '@/features/commands/lib/config';
 import { useCommandTestField, useCommandTestResult } from '@/features/commands/hooks/useCommandStore';
@@ -6,6 +7,7 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { ApiTestCard, CommandGeneratorCard, FormField } from './CommandGeneratorCard';
 import { fadeIn } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { Sheet } from '@/shared/ui/Sheet';
 import { Info } from 'lucide-react';
 
 function toApiTestResult(
@@ -92,6 +94,7 @@ export function WatchtimeView() {
     const [user, setUser] = useCommandTestField('watchtime', 'user', '');
     const [storedResult, setStoredResult] = useCommandTestResult('watchtime-test');
     const { loading, runTest } = useCommandApiTest(setStoredResult);
+    const [sheetOpen, setSheetOpen] = useState(false);
 
     const handleTest = async (): Promise<void> => {
         const channelVal = channel.trim().toLowerCase();
@@ -120,13 +123,33 @@ export function WatchtimeView() {
     return (
         <div className={fadeIn}>
             <CommandGeneratorCard config={COMMAND_CONFIG.watchtime} />
-            <div className="mb-6 flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/[0.04] p-4 text-sm text-text-muted">
-                <Info className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                <div>
-                    <strong className="block text-[var(--color-text)] mb-1">{viewT.watchtime.disclaimerTitle}</strong>
-                    {viewT.watchtime.disclaimerText}
-                </div>
+
+            {/* Botón discreto que abre el sheet con el disclaimer de StreamElements */}
+            <div className="mb-5 flex justify-end">
+                <button
+                    type="button"
+                    onClick={() => setSheetOpen(true)}
+                    className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[0.78rem] text-text-muted transition-colors hover:bg-bg-elevated hover:text-primary"
+                >
+                    <Info className="h-3.5 w-3.5 shrink-0" />
+                    {viewT.watchtime.disclaimerTitle}
+                </button>
             </div>
+
+            {/* Sheet con la explicación completa */}
+            <Sheet
+                open={sheetOpen}
+                onClose={() => setSheetOpen(false)}
+                title={viewT.watchtime.disclaimerTitle}
+                description={viewT.watchtime.disclaimerSubtitle}
+            >
+                <div className="space-y-4 text-sm text-text-muted leading-relaxed">
+                    <p>{viewT.watchtime.disclaimerText}</p>
+                    <p>{viewT.watchtime.disclaimerStep1}</p>
+                    <p>{viewT.watchtime.disclaimerStep2}</p>
+                </div>
+            </Sheet>
+
             <ApiTestCard
                 title={viewT.watchtime.testTitle}
                 description={viewT.watchtime.testDesc}
