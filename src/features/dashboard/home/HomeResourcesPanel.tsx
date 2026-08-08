@@ -3,7 +3,7 @@ import { STATUS_PAGE_URL, type DashboardTab } from '@/core/config/config';
 import { appPath, saveDocsReturnPath, shouldSavePanelReturn } from '@/core/config/paths';
 import { panelCard, fadeIn, hoverSubtleBorderedRow } from '@/core/utils/tw';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
-import { UserRoundCheck, Clapperboard, Megaphone, Info, Book, Server, LayoutGrid } from 'lucide-react';
+import { UserRoundCheck, Clock, Clapperboard, Megaphone, Info, Book, Server, LayoutGrid } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { Translations } from '@/core/i18n/locales/es';
 import type { LucideIcon } from 'lucide-react';
@@ -16,6 +16,7 @@ const ICON_WRAP = `flex h-8 w-8 shrink-0 items-center justify-center rounded-lg 
 
 const QUICK_COMMANDS: { tab: DashboardTab; icon: LucideIcon; label: string }[] = [
     { tab: 'followage' as DashboardTab, icon: UserRoundCheck, label: 'Followage' },
+    { tab: 'watchtime' as DashboardTab, icon: Clock, label: 'Watchtime' },
     { tab: 'clips' as DashboardTab, icon: Clapperboard, label: 'Clips' },
     { tab: 'shoutout' as DashboardTab, icon: Megaphone, label: 'Shoutout' }
 ];

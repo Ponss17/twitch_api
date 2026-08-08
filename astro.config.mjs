@@ -82,6 +82,7 @@ const DASHBOARD_TAB_SLUGS = new Set([
     'home',
     'analytics',
     'followage',
+    'watchtime',
     'clips',
     'shoutout',
     'trends',
