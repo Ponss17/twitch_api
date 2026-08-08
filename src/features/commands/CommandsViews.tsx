@@ -147,32 +147,34 @@ export function WatchtimeView() {
                 title={viewT.watchtime.disclaimerTitle}
                 description={viewT.watchtime.disclaimerSubtitle}
             >
-                <div className="space-y-5">
-                    {/* Bloque principal: qué es */}
-                    <div className="rounded-xl border border-border-subtle bg-bg-elevated p-4">
-                        <div className="mb-2 flex items-center gap-2">
-                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15">
-                                <Info className="h-3.5 w-3.5 text-primary" />
-                            </div>
-                            <span className="text-[0.8rem] font-semibold text-text-main">¿Qué es el watchtime?</span>
-                        </div>
+                <div className="space-y-6">
+                    <div>
+                        <h3 className="mb-2 flex items-center gap-2 text-[0.85rem] font-semibold text-text-main">
+                            <Info className="h-4 w-4 text-primary" />
+                            {viewT.watchtime.disclaimerWhat}
+                        </h3>
                         <p className="text-[0.8rem] leading-relaxed text-text-muted">
                             {viewT.watchtime.disclaimerText}
                         </p>
                     </div>
 
-                    {/* Bloque advertencia */}
-                    <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-4">
-                        <p className="text-[0.8rem] leading-relaxed text-amber-400/90">
-                            {viewT.watchtime.disclaimerStep1}
-                        </p>
-                    </div>
-
-                    {/* Bloque cómo activarlo */}
-                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] p-4">
-                        <p className="text-[0.8rem] leading-relaxed text-emerald-400/90">
-                            {viewT.watchtime.disclaimerStep2}
-                        </p>
+                    <div className="space-y-4">
+                        <div className="flex gap-3">
+                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-border-subtle text-xs font-medium text-text-main">
+                                1
+                            </span>
+                            <p className="mt-0.5 text-[0.8rem] leading-relaxed text-text-muted">
+                                {viewT.watchtime.disclaimerStep1.replace('⚠️ ', '')}
+                            </p>
+                        </div>
+                        <div className="flex gap-3">
+                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-border-subtle text-xs font-medium text-text-main">
+                                2
+                            </span>
+                            <p className="mt-0.5 text-[0.8rem] leading-relaxed text-text-muted">
+                                {viewT.watchtime.disclaimerStep2.replace('💡 ', '')}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </Sheet>
