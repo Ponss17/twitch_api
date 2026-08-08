@@ -1,2 +1,0 @@
--- Obsoleto: usar bot_discord_read_access.sql
--- (Realtime en discord_link_events + RPCs seguros; no publicar users completo).
