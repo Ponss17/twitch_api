@@ -6,6 +6,7 @@
 export type ActivityLogType =
     | 'clip'
     | 'followage'
+    | 'watchtime'
     | 'shoutout'
     | 'message'
     | 'russian'
