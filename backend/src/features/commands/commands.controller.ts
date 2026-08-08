@@ -11,7 +11,7 @@ import { safeString, sanitizeHtml } from '../../core/utils/validationHelpers';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
 import { getTimePhraseBetween, normalizeLanguage } from '../../core/utils/time';
-import { getFollowageTexts } from '../twitch/twitchUserService';
+import { getFollowageTexts, getFollowAge } from '../twitch/twitchUserService';
 import * as dbService from '../../core/database/dbService';
 
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
@@ -315,4 +315,143 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
         res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
         return res.send('No se pudo generar el shoutout. Intenta de nuevo.');
     }
+};
+
+// --- Textos para watchtime (diferentes de followage) ---
+function getWatchtimeTexts(lang: string = 'es') {
+    const l = (lang || 'es').toLowerCase().trim();
+    if (l.startsWith('en')) {
+        return {
+            owner: (u: string) => `${u} is the channel owner. They've been here since the beginning!`,
+            notWatching: (u: string, ch: string) => `${u} is not following ${ch}, so there's no watchtime to show.`,
+            notWatchingTime: 'not following',
+            watching: (u: string, ch: string, time: string) => `${u} has been watching ${ch} for ${time}.`,
+            noScopesError: 'Your account lacks the follow permission (moderator:read:followers). Please log out and log in again.'
+        };
+    }
+    if (l.startsWith('pt')) {
+        return {
+            owner: (u: string) => `${u} é o dono do canal. Está aqui desde o início!`,
+            notWatching: (u: string, ch: string) => `${u} não segue ${ch}, então não há watchtime para mostrar.`,
+            notWatchingTime: 'não segue',
+            watching: (u: string, ch: string, time: string) => `${u} assiste ${ch} há ${time}.`,
+            noScopesError: 'Sua conta não tem a permissão de follows. Saia do painel e entre novamente.'
+        };
+    }
+    return {
+        owner: (u: string) => `${u} es el dueño del canal. ¡Lleva aquí desde el principio!`,
+        notWatching: (u: string, ch: string) => `${u} no sigue a ${ch}, así que no hay watchtime que mostrar.`,
+        notWatchingTime: 'no sigue',
+        watching: (u: string, ch: string, time: string) => `${u} lleva ${time} viendo a ${ch}.`,
+        noScopesError: 'Tu cuenta no tiene el permiso de follows (moderator:read:followers). Cierra sesión en el panel y vuelve a entrar.'
+    };
+}
+
+function applyWatchtimeTemplate(templateRaw: string, timePhrase: string, user: string, channel: string): string {
+    return templateRaw
+        .replace(/[\r\n]/g, '')
+        .replace('{time}', timePhrase)
+        .replace('{user}', user)
+        .replace('{channel}', channel);
+}
+
+export const watchtime = async (req: AuthenticatedRequest, res: Response) => {
+    const channel = safeString(req.query.channel);
+    const user = safeString(req.query.user);
+    const userId = req.userId;
+    const rawLang = safeString(req.query.lang);
+    const lang = normalizeLanguage(rawLang);
+    const wtTexts = getWatchtimeTexts(lang);
+    // También necesitamos los textos de followage para comparar el timePhrase interno
+    const followTexts = getFollowageTexts(lang);
+
+    let sanitizedUser = user;
+    if (sanitizedUser?.includes('$(') || sanitizedUser?.includes('${')) sanitizedUser = 'Anónimo';
+
+    const result = await trackRequest(
+        userId,
+        {
+            type: 'watchtime',
+            user: sanitizedUser,
+            metadata: { target: channel },
+            incrementStat: 'followage' // reutilizamos el mismo stat que followage
+        },
+        async () => {
+            const cacheKey = ownerScopedCacheKey(
+                userId,
+                `cache:cmd:watchtime:v1:channel:${channel}:user:${user}:lang:${lang}`
+            );
+            const cached = await cacheService.get<{ text: string; timePhrase: string; followDateMs?: number }>(cacheKey);
+
+            if (cached && typeof cached === 'object' && !Array.isArray(cached)) {
+                const entry = { ...cached };
+                // Recalcular tiempo en vivo si tenemos la fecha de follow
+                if (entry.followDateMs) {
+                    const newTimePhrase = getTimePhraseBetween(new Date(entry.followDateMs), new Date(), lang);
+                    entry.timePhrase = newTimePhrase;
+                    entry.text = wtTexts.watching(user, channel, newTimePhrase);
+                }
+                const template = safeString(req.query.template);
+                if (template && entry.timePhrase && entry.timePhrase !== 'error') {
+                    return applyWatchtimeTemplate(template, entry.timePhrase, user, channel);
+                }
+                if (typeof entry.text === 'string' && entry.text.trim() && entry.timePhrase !== 'error') {
+                    return entry.text;
+                }
+            }
+
+            // Llamamos a la misma API que followage (misma fuente de verdad)
+            const apiResult = await withTwitchAuth(
+                req,
+                res,
+                async (token: string) => getFollowAge(channel, user, token, lang),
+                'WATCHTIME'
+            );
+
+            if (!apiResult || typeof apiResult.text !== 'string' || !apiResult.text.trim()) {
+                return 'No se pudo obtener el watchtime. Vuelve a iniciar sesión en el panel e intenta de nuevo.';
+            }
+
+            // Traducir el resultado de followage a textos de watchtime
+            let watchtimeText: string;
+            if (apiResult.timePhrase === followTexts.ownerTime) {
+                watchtimeText = wtTexts.owner(user);
+            } else if (apiResult.timePhrase === followTexts.notFollowingTime || apiResult.timePhrase === 'error') {
+                watchtimeText = wtTexts.notWatching(user, channel);
+            } else {
+                watchtimeText = wtTexts.watching(user, channel, apiResult.timePhrase);
+            }
+
+            // Cachear solo follows reales (con fecha conocida)
+            if (apiResult.timePhrase !== 'error' && apiResult.timePhrase !== followTexts.notFollowingTime) {
+                const ttl = resolveCache(
+                    'COMMAND',
+                    res.locals?.apiUser?.role,
+                    res.locals?.apiUser?.customCacheTtl
+                );
+                await cacheService.set(cacheKey, { ...apiResult, text: watchtimeText }, ttl);
+            }
+
+            const rawTemplate = safeString(req.query.template);
+            if (rawTemplate && apiResult.timePhrase && apiResult.timePhrase !== 'error' && apiResult.timePhrase !== followTexts.notFollowingTime) {
+                return applyWatchtimeTemplate(
+                    rawTemplate,
+                    sanitizeHtml(apiResult.timePhrase),
+                    sanitizeHtml(user),
+                    sanitizeHtml(channel)
+                );
+            }
+
+            return watchtimeText;
+        },
+        req
+    );
+
+    const body = typeof result === 'string' && result.trim()
+        ? result.trim()
+        : 'No se pudo obtener el watchtime. Intenta de nuevo en unos segundos.';
+
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
+    return res.send(body);
 };
