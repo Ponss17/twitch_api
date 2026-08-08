@@ -1,0 +1,100 @@
+---
+title: "Watchtime"
+description: "Consulta cuánto tiempo lleva un usuario viendo tu canal de Twitch."
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import ApiEndpoint from '@/components/docs/ApiEndpoint.astro';
+import AuthNotice from '@/components/docs/AuthNotice.astro';
+import ApiParamsTable from '@/components/docs/ApiParamsTable.astro';
+import ApiFlowRequest from '@/components/docs/ApiFlowRequest.astro';
+import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
+import ApiRequestExample from '@/components/docs/ApiRequestExample.astro';
+import BotCommandAuthAside from '@/components/docs/BotCommandAuthAside.astro';
+
+Consulta el tiempo de permanencia o seguimiento de un viewer en tu canal con un mensaje enfocado en el tiempo que lleva viéndote. La respuesta es texto plano lista para bots como Nightbot, StreamElements, etc.
+
+<ApiEndpoint path="/watchtime" />
+<AuthNotice />
+
+## Límites
+
+<Aside type="note" title="Rate limit y caché">
+  Usa el **límite general** de tu rol (30–120 req/min). Las respuestas se cachean según el rol (Default **60 s** → Partner **240 s**).
+  Se guarda la **fecha inicial**; en cada acierto de caché el tiempo se **recalcula en tiempo real**, sin llamar otra vez a Twitch.
+</Aside>
+
+## Parámetros
+
+<ApiParamsTable params={[
+  { name: 'channel', type: 'string', required: true, description: 'Canal de Twitch donde se ejecuta el comando.' },
+  { name: 'user', type: 'string', required: true, description: 'Usuario cuyo tiempo se consulta.' },
+  { name: 'apiKey', type: 'string', required: true, description: 'Clave de API de tu cuenta.' },
+  { name: 'lang', type: 'string', required: false, description: 'Idioma de respuesta (`es`, `en`, `pt`). Por defecto `es`.' },
+  { name: 'template', type: 'string', required: false, description: 'Plantilla personalizada con `{user}`, `{time}` y `{channel}`.' },
+]} />
+
+<div class="api-flow">
+
+## Ejemplo de petición
+
+Con **cURL** o **URL** la respuesta muestra solo el mensaje. Con **cURL -i** ves cabeceras HTTP + cuerpo.
+
+<ApiFlowRequest
+  flowId="flow-watchtime"
+  path="/watchtime"
+  query={{
+    channel: 'losperris',
+    user: 'viewer123',
+    apiKey: 'TU_API_KEY',
+  }}
+/>
+
+## Plantillas personalizadas
+
+Añade `template` para controlar el mensaje del bot. Placeholders: `{user}`, `{time}` y `{channel}`.
+
+<ApiRequestExample
+  path="/watchtime"
+  query={{
+    channel: 'losperris',
+    user: 'viewer123',
+    apiKey: 'TU_API_KEY',
+    template: '{user} lleva {time} viendo a {channel}',
+  }}
+/>
+
+## Respuestas
+
+<ApiFlowResponse
+  flowId="flow-watchtime"
+  responses={[
+  {
+    tabLabel: '200',
+    status: 200,
+    format: 'text',
+    body: 'viewer123 lleva 2 años y 3 meses viendo a losperris.',
+  },
+  {
+    tabLabel: 'Sin follow/tiempo',
+    status: 200,
+    format: 'text',
+    body: 'viewer123 no sigue a losperris, así que no hay watchtime que mostrar.',
+  },
+  {
+    tabLabel: 'Key inválida (200)',
+    status: 200,
+    format: 'text',
+    body: 'Error de autenticación. Clave API inválida o expirada. Regenerala o pide ayuda a Ponss 🦆',
+  },
+  {
+    tabLabel: '429',
+    status: 429,
+    format: 'text',
+    body: '',
+  },
+]} />
+
+<BotCommandAuthAside />
+
+</div>
