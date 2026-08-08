@@ -17,3 +17,4 @@ coverage/
 # Notas internas (local only — no subir a GitHub)
 /docs/
 legal-edit-draft.md
+scripts/supabase/
