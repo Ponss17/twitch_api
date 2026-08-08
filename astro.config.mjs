@@ -199,6 +199,7 @@ export default defineConfig({
                     label: 'Comandos',
                     items: [
                         { label: 'Followage', link: '/docs/comandos/followage/' },
+                        { label: 'Watchtime', link: '/docs/comandos/watchtime/' },
                         { label: 'Clips', link: '/docs/comandos/clips/' },
                         { label: 'Shoutout', link: '/docs/comandos/shoutout/' },
                     ]
