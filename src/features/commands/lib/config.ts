@@ -1,5 +1,5 @@
 import { CommandGenerator } from './commandGenerator';
-import { UserRoundCheck, Video, Megaphone, Theater, Flame, Swords } from 'lucide-react';
+import { UserRoundCheck, Clock, Video, Megaphone, Theater, Flame, Swords } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTabs';
 
@@ -56,6 +56,25 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
             if (templateVal) params += `&template=${encodeURIComponent(templateVal)}`;
             const cmd = CommandGenerator.generate(bot, `${domain}/followage`, params);
             return { full: botUtils.addcmd('!followage', cmd), url: cmd };
+        }
+    },
+    watchtime: {
+        id: 'watchtime',
+        title: 'Comando !watchtime',
+        icon: Clock,
+        desc: 'Muestra cuánto tiempo lleva alguien viendo tu canal',
+        info: 'Genera el código para que tu bot responda con el tiempo exacto que un espectador lleva en el canal.',
+        templatePlaceholder: 'Ej: {user} lleva {time} viendo el stream.',
+        templateVars: 'Variables: {user}, {time}, {channel}',
+        supportsLanguage: true,
+        generate: (domain, login, tokenParam, bot, templateVal, _queryParams, extraValues = {}) => {
+            const botUtils = CommandGenerator.bots[bot] || CommandGenerator.bots.nightbot;
+            const userArg = botUtils.arg('touser');
+            let params = `channel=${login}&user=${userArg}&${tokenParam}`;
+            params = appendLangParam(params, extraValues);
+            if (templateVal) params += `&template=${encodeURIComponent(templateVal)}`;
+            const cmd = CommandGenerator.generate(bot, `${domain}/watchtime`, params);
+            return { full: botUtils.addcmd('!watchtime', cmd), url: cmd };
         }
     },
     clip: {

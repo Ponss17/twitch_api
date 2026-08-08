@@ -66,6 +66,7 @@ export type DashboardTab =
     | 'home'
     | 'analytics'
     | 'followage'
+    | 'watchtime'
     | 'clips'
     | 'shoutout'
     | 'trends'

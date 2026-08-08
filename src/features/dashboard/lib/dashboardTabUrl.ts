@@ -13,6 +13,7 @@ const VALID_TABS: ReadonlySet<DashboardTab> = new Set([
     'home',
     'analytics',
     'followage',
+    'watchtime',
     'clips',
     'shoutout',
     'trends',

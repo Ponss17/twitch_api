@@ -1,4 +1,4 @@
-﻿/** Tipos e integraciones de comandos para el reporte de exportacion. */
+/** Tipos e integraciones de comandos para el reporte de exportacion. */
 
 export interface AnalyticsData {
     todayRequests?: number;
@@ -35,6 +35,15 @@ export const COMMAND_INTEGRATIONS = [
         variants: [
             { name: 'Texto por Defecto', params: 'channel=$(channel)&user=$(touser)', desc: 'Texto estandar de la API' },
             { name: 'Plantilla Personalizada', params: 'channel=$(channel)&user=$(touser)&template={user}%20lleva%20{time}%20bancando%20a%20{channel}', desc: 'Personaliza tu propia respuesta ({time}, {user}, {channel})' }
+        ]
+    },
+    {
+        id: 'watchtime',
+        label: 'Watchtime (Tiempo de Visualización)',
+        description: 'Muestra cuanto tiempo lleva alguien viendo el stream',
+        variants: [
+            { name: 'Texto por Defecto', params: 'channel=$(channel)&user=$(touser)', desc: 'Texto estandar de la API' },
+            { name: 'Plantilla Personalizada', params: 'channel=$(channel)&user=$(touser)&template={user}%20lleva%20viendo%20a%20{channel}%20por%20{time}', desc: 'Personaliza tu propia respuesta ({time}, {user}, {channel})' }
         ]
     },
     {
