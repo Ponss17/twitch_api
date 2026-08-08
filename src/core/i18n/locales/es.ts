@@ -804,6 +804,7 @@ export const es = {
                 userLabel: 'Usuario',
                 userPlaceholder: 'Usuario',
                 disclaimerTitle: 'Requiere StreamElements',
+                disclaimerWhat: '¿Qué es el watchtime?',
                 disclaimerSubtitle: '¿Cómo funciona el watchtime?',
                 disclaimerText: 'Este comando obtiene el tiempo que lleva un usuario viendo tu canal usando la API pública de StreamElements. No utiliza datos propios de Twitch.',
                 disclaimerStep1: '⚠️ Solo funciona si el canal tiene activado el sistema de Lealtad/Puntos en StreamElements (streamelements.com). Si el canal no está registrado ahí, el comando devolverá un error.',
