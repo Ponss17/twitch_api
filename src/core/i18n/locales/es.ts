@@ -230,8 +230,8 @@ export const es = {
         groups: {
             account: { title: 'Cuenta', desc: 'Identificador y límites de tu plan' },
             preferences: { title: 'Preferencias', desc: 'Ajustes de tu cuenta' },
-            data: { 
-                title: 'Datos de Cuenta', 
+            data: {
+                title: 'Datos de Cuenta',
                 desc: 'Información y gestión de datos.',
                 firstLogin: 'Primer Ingreso',
                 firstLoginDesc: 'Fecha en la que iniciaste sesión por primera vez.',
