@@ -14,7 +14,7 @@ import {
     rolesFromTags,
     tagsMatchFilters,
     userMatchesFilters,
-    type RouletteEligibilityFilters
+    type EligibilityFilters
 } from '@/features/tools/lib/eligibility';
 import { winnerIndex } from '@/features/tools/roulette/lib/wheelUtils';
 import type { RouletteOverlayState } from '@/features/overlay/lib/types';
@@ -76,7 +76,7 @@ export function useRouletteController({
         participants: RouletteUser[];
     } | null>(null);
     const [chatters, setChatters] = useState<RouletteUser[]>([]);
-    const [filters, setFilters] = useState<RouletteEligibilityFilters>(DEFAULT_ELIGIBILITY_FILTERS);
+    const [filters, setFilters] = useState<EligibilityFilters>(DEFAULT_ELIGIBILITY_FILTERS);
     const [isOpen, setIsOpen] = useState(false);
     const [isSpinning, setIsSpinning] = useState(false);
     const [winner, setWinner] = useState<RouletteUser | null>(null);
