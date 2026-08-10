@@ -101,11 +101,14 @@ function toRow(user: StoredUser): Record<string, unknown> {
         last_active: user.lastActive
             ? new Date(user.lastActive).toISOString()
             : new Date().toISOString(),
-        created_at: user.createdAt
-            ? new Date(user.createdAt).toISOString()
-            : new Date().toISOString(),
         token_expires_at: resolveTokenExpiresAtIso(user)
     };
+
+    // Nunca default a "ahora": un upsert sin createdAt pisaría el primer ingreso real.
+    // Si falta, se omite la columna y Supabase conserva el valor existente (o DEFAULT en insert).
+    if (user.createdAt) {
+        row.created_at = new Date(user.createdAt).toISOString();
+    }
 
     // No pisar Discord en upsert si el caller no trajo esos campos
     // (p. ej. login Twitch construye StoredUser sin discord* → antes borraba el vínculo).

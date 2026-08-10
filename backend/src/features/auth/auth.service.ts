@@ -300,6 +300,13 @@ export const handleCallback = async (
         apiKey = existingUser.apiKey;
     }
 
+    const nowIso = new Date().toISOString();
+    // Primer ingreso: solo se asigna en el alta. Si el usuario ya existe pero el campo
+    // no vino en caché, NO usar "ahora" (saveUser omite created_at y conserva el de DB).
+    const createdAt = existingUser?.createdAt ?? (existingUser ? undefined : nowIso);
+    // Último ingreso previo en UI = lastActive anterior; al loguear guardamos este login.
+    const previousLastActive = existingUser?.lastActive;
+
     const storedUser: StoredUser = {
         userId: user.id,
         login: user.login,
@@ -309,7 +316,7 @@ export const handleCallback = async (
         expiresIn: expires_in,
         obtainedAt: Date.now(),
         tokenExpiresAt: Date.now() + expires_in * 1000,
-        createdAt: existingUser?.createdAt || new Date().toISOString(),
+        createdAt,
         apiKey,
         profileImageUrl: user.profile_image_url,
         isActive: existingUser?.isActive ?? true,
@@ -319,7 +326,9 @@ export const handleCallback = async (
         role: existingUser?.role,
         stats: existingUser?.stats,
         totalRequests: existingUser?.totalRequests,
-        lastActive: existingUser?.lastActive,
+        // Conserva el lastActive previo para "Último Ingreso Previo" hasta el próximo bump.
+        // Si no había, marca este login.
+        lastActive: previousLastActive ?? nowIso,
         timezone: (existingUser?.timezone && existingUser.timezone !== 'UTC') ? existingUser.timezone : ((decodedState?.tz as string) || 'UTC'),
         // Preservar vínculo Discord: un re-login Twitch no debe desvincular.
         discordId: existingUser?.discordId ?? null,
