@@ -17,6 +17,7 @@ export type ApiErrorCode =
     | 'ACCOUNT_SUSPENDED'
     | 'MISSING_OVERLAY_TOKEN'
     | 'INVALID_OVERLAY_TOKEN'
+    | 'OVERLAY_REVOKED'
     | 'AJAX_REQUIRED'
     | 'API_KEY_NOT_FOUND';
 
