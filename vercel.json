@@ -147,16 +147,16 @@
             "destination": "/500.html"
         },
         {
-            "source": "/api/:path*",
-            "destination": "/api/index.js"
+            "source": "/api/(.*)",
+            "destination": "/api"
         },
         {
-            "source": "/auth/:path*",
-            "destination": "/api/index.js"
+            "source": "/auth/(.*)",
+            "destination": "/api"
         },
         {
-            "source": "/twitch/:path*",
-            "destination": "/api/index.js"
+            "source": "/twitch/(.*)",
+            "destination": "/api"
         },
         {
             "source": "/favicon.svg",
@@ -168,15 +168,19 @@
         },
         {
             "source": "/health",
-            "destination": "/api/index.js"
+            "destination": "/api"
+        },
+        {
+            "source": "/health/",
+            "destination": "/api"
         },
         {
             "source": "/robots.txt",
-            "destination": "/api/index.js"
+            "destination": "/api"
         },
         {
             "source": "/sitemap.xml",
-            "destination": "/api/index.js"
+            "destination": "/api"
         }
     ]
 }
