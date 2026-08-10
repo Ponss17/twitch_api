@@ -10,18 +10,18 @@ import {
     dropdownTriggerCompact
 } from '@/shared/ui/Dropdown';
 import {
-    ROULETTE_ROLE_OPTIONS,
+    ROLE_OPTIONS,
     filtersSummaryLabel,
     hasAnyFilter,
     isAllFilters,
     setAllFilters,
-    type RouletteEligibilityFilters
+    type EligibilityFilters
 } from '@/features/tools/lib/eligibility';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface EligibilityDropdownProps {
-    filters: RouletteEligibilityFilters;
-    onChange: (filters: RouletteEligibilityFilters) => void;
+    filters: EligibilityFilters;
+    onChange: (filters: EligibilityFilters) => void;
     disabled?: boolean;
 }
 
@@ -69,7 +69,7 @@ export function EligibilityDropdown({
                     {rlT.all}
                 </DropdownCheckboxItem>
                 <DropdownDivider />
-                {ROULETTE_ROLE_OPTIONS(rlT).map(({ key, label }) => (
+                {ROLE_OPTIONS(rlT).map(({ key, label }) => (
                     <DropdownCheckboxItem
                         key={key}
                         checked={filters[key]}
