@@ -1,6 +1,6 @@
 import { useOverlayMirror } from '@/features/overlay/hooks/useOverlayMirror';
 import { useRouletteOverlayVisible } from '@/features/overlay/hooks/useOverlayVisibilityClock';
-import { RouletteWheelDisplay } from '@/features/roulette/RouletteWheelDisplay';
+import { RouletteWheelDisplay } from '@/features/tools/roulette/RouletteWheelDisplay';
 import { OverlayConnectionBanners } from '@/features/overlay/components/OverlayConnectionBanners';
 import { OverlaySessionGate } from '@/features/overlay/components/OverlaySessionGate';
 import { OverlaySessionProvider } from '@/features/overlay/components/OverlaySessionProvider';

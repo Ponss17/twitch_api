@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Trophy, Users } from 'lucide-react';
+import { VIEWER_ACTIVITY_TYPES } from '@contracts/commandCatalog';
 import { AnalyticsSection, COLORS } from './AnalyticsShared';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { useTranslation } from '@/core/i18n/I18nContext';
@@ -15,8 +16,7 @@ interface AnalyticsViewerLeaderboardProps {
     timeRange: 'today' | '7d';
 }
 
-// Fuera del componente: se crea una sola vez, no en cada render
-const VIEWER_TYPES = new Set(['followage', 'watchtime', 'clip', 'shoutout', 'magic8', 'russian', 'duel']);
+const VIEWER_TYPES = new Set<string>(VIEWER_ACTIVITY_TYPES);
 
 function RankIcon({ rank, color }: { rank: number; color: string }) {
     return (

@@ -1,0 +1,15 @@
+---
+/**
+ * Tema fijo de marca (oscuro) para docs.
+ * No lee prefers-color-scheme ni localStorage de Starlight.
+ */
+---
+
+<script is:inline>
+	window.StarlightThemeProvider = (() => {
+		document.documentElement.dataset.theme = 'dark';
+		return {
+			updatePickers() {}
+		};
+	})();
+</script>

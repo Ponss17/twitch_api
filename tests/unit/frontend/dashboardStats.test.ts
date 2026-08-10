@@ -91,6 +91,7 @@ describe('sumDashboardCategoryUsage', () => {
             sumDashboardCategoryUsage({
                 clips: 2,
                 followage: 1,
+                watchtime: 0,
                 so: 1,
                 message: 1,
                 stalker: 10,
@@ -98,9 +99,10 @@ describe('sumDashboardCategoryUsage', () => {
                 roulette: 5,
                 russian: 0,
                 magic8: 0,
-                duel: 0
+                duel: 0,
+                slots: 0
             })
-        ).toBe(29);
+        ).toBe(30);
     });
 
     it('devuelve 0 sin datos', () => {

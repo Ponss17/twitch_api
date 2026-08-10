@@ -1,7 +1,7 @@
 import { CommandGenerator } from './commandGenerator';
 import { UserRoundCheck, Clock, Video, Megaphone, Theater, Flame, Swords } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTabs';
+import { MAGIC8_ICON, RUSSIAN_ICON, SLOTS_ICON } from '@/features/minigames/icons';
 
 export interface ExtraSelector {
     id: string;
@@ -190,6 +190,22 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
             params = appendLangParam(params, extraValues);
             const cmd = CommandGenerator.generate(bot, `${domain}/minigames/duel`, params);
             return { full: botUtils.addcmd('!duelo', cmd), url: cmd };
+        }
+    },
+    slots: {
+        id: 'slots',
+        title: 'Comando !slots',
+        icon: SLOTS_ICON,
+        desc: 'Tragamonedas para el chat',
+        info: 'Con Nightbot los carretes salen en 3 mensajes. En otros bots, solo el resultado final.',
+        supportsLanguage: true,
+        generate: (domain, login, tokenParam, bot, _templateVal, _queryParams, extraValues = {}) => {
+            const botUtils = CommandGenerator.bots[bot];
+            const userArg = botUtils.arg('user');
+            let params = `channel=${login}&user=${userArg}&${tokenParam}`;
+            params = appendLangParam(params, extraValues);
+            const cmd = CommandGenerator.generate(bot, `${domain}/minigames/slots`, params);
+            return { full: botUtils.addcmd('!slots', cmd), url: cmd };
         }
     }
 };

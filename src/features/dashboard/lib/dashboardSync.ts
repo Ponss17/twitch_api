@@ -4,10 +4,10 @@ import { readScopedPref, removeScopedPref, writeScopedPref } from '@/core/sessio
 export const DASHBOARD_POLL_MS = 90_000;
 
 /** Polling de Inicio cuando Realtime no está conectado (fallback). */
-export const DASHBOARD_FALLBACK_POLL_MS = 8_000;
+export const DASHBOARD_FALLBACK_POLL_MS = 12_000;
 
 /** Polling del Perfil — rol/seguidores cambian poco; menos carga en Vercel. */
-export const PROFILE_POLL_MS = 60_000;
+export const PROFILE_POLL_MS = 120_000;
 
 /** Pref unificado entre Inicio (panel) y Perfil. */
 const PANEL_SYNC_PREF = 'panel_last_sync';

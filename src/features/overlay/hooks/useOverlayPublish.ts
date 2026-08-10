@@ -8,6 +8,7 @@ type OverlayStateForTool<T extends OverlayTool> = T extends 'roulette'
     : TrendsOverlayState;
 
 const PUBLISH_DEBOUNCE_MS = 500;
+const TRENDS_PUBLISH_DEBOUNCE_MS = 1_500;
 
 export interface UseOverlayPublishOptions<T extends OverlayTool> {
     tool: T;
@@ -16,6 +17,7 @@ export interface UseOverlayPublishOptions<T extends OverlayTool> {
     isCritical: (state: OverlayStateForTool<T>) => boolean;
     shouldSkip?: (state: OverlayStateForTool<T>) => boolean;
     resetCacheWhen?: (state: OverlayStateForTool<T>) => boolean;
+    debounceMs?: number;
 }
 
 export function useOverlayPublish<T extends OverlayTool>({
@@ -24,11 +26,14 @@ export function useOverlayPublish<T extends OverlayTool>({
     active = true,
     isCritical,
     shouldSkip,
-    resetCacheWhen
+    resetCacheWhen,
+    debounceMs
 }: UseOverlayPublishOptions<T>) {
     const publishTimerRef = useRef<number | null>(null);
     const sessionRef = useRef(session);
     sessionRef.current = session;
+    const waitMs =
+        debounceMs ?? (tool === 'trends' ? TRENDS_PUBLISH_DEBOUNCE_MS : PUBLISH_DEBOUNCE_MS);
 
     const publish = useCallback(
         (state: OverlayStateForTool<T>) => {
@@ -52,9 +57,9 @@ export function useOverlayPublish<T extends OverlayTool>({
             publishTimerRef.current = window.setTimeout(() => {
                 void publishOverlayState(tool, state, sessionRef.current);
                 publishTimerRef.current = null;
-            }, PUBLISH_DEBOUNCE_MS);
+            }, waitMs);
         },
-        [active, isCritical, resetCacheWhen, shouldSkip, tool]
+        [active, isCritical, resetCacheWhen, shouldSkip, tool, waitMs]
     );
 
     useEffect(() => {

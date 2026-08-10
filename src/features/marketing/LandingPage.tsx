@@ -16,7 +16,7 @@ import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { Accordion } from '@/shared/ui/Accordion';
 import { TwitchIcon, DiscordIcon } from '@/shared/ui/icons/BrandIcons';
 import { UserRoundCheck, Clapperboard, Megaphone, TrendingUp, Binoculars, Dices, Swords, MessageSquare, Book, ArrowRight, Copy, Check } from 'lucide-react';
-import { MAGIC8_ICON, RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTabs';
+import { MAGIC8_ICON, RUSSIAN_ICON, SLOTS_ICON } from '@/features/minigames/icons';
 import { copyText } from '@/core/utils/clipboard';
 
 import Lenis from 'lenis';
@@ -62,7 +62,8 @@ const FEATURE_CATEGORIES = [
         cards: [
             { icon: MAGIC8_ICON, title: 'Bola 8', text: 'Respuestas aleatorias para las dudas más existenciales de tu chat.', tag: '!8ball' },
             { icon: RUSSIAN_ICON, title: 'Ruleta Rusa', text: 'Prueba tu suerte con un revólver virtual. ¿Sobrevivirás?', tag: '!ruleta' },
-            { icon: Swords, title: 'Duelo', text: 'Desafía a otros a un combate narrado. En Nightbot: 3 mensajes del bot.', tag: '!duelo @user' }
+            { icon: Swords, title: 'Duelo', text: 'Desafía a otros a un combate narrado. En Nightbot: 3 mensajes del bot.', tag: '!duelo @user' },
+            { icon: SLOTS_ICON, title: 'Slots', text: 'Tragamonedas del chat. En Nightbot: 3 mensajes (carretes). En otros bots: solo el resultado.', tag: '!slots' }
         ]
     },
     {
@@ -91,7 +92,7 @@ const FAQ_ITEMS = [
     },
     {
         q: '¿Qué comandos están disponibles?',
-        a: 'Tenemos comandos de información (followage, clips, shoutout), herramientas de análisis (tendencias, stalker), y minijuegos (bola 8, ruleta). Revisa la sección de arriba para ver todos los detalles.'
+        a: 'Tenemos comandos de información (followage, clips, shoutout), herramientas (tendencias, stalker, ruleta) y minijuegos (bola 8, ruleta rusa, duelo, slots). Revisa la sección de arriba para ver todos los detalles.'
     },
     {
         q: '¿Dónde puedo obtener soporte?',
@@ -228,9 +229,10 @@ export function LandingPage() {
                 <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-3 px-6 py-2 md:flex-row md:gap-0 md:px-8 md:py-3">
                     <a href={appPath('/')} className="flex items-center gap-3 text-inherit no-underline">
                         <AppLogo
-                            className="h-8 w-8 object-contain md:h-11 md:w-11"
+                            className="h-8 w-8 shrink-0 text-primary md:h-11 md:w-11"
+                            aria-hidden
                         />
-                        <h1 className="m-0 text-lg font-extrabold tracking-tight md:text-2xl">
+                        <h1 className="m-0 text-lg font-extrabold tracking-tight text-text-main md:text-2xl">
                             LosPerris <span className="text-primary">Twitch Api</span>
                         </h1>
                     </a>
@@ -257,9 +259,8 @@ export function LandingPage() {
             <div className="relative z-[1] mx-auto w-full max-w-[1400px] flex-1 px-6 md:px-8 pt-12">
                 <section className="grid min-h-0 items-center gap-16 py-24 md:min-h-[88vh] md:grid-cols-2 md:gap-16 md:py-0">
                     <div className="max-w-[600px] text-center md:text-left">
-                        <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-border-strong bg-text-main/5 px-3.5 py-1.5 text-[0.8125rem] font-medium tracking-wide text-text-muted shadow-sm backdrop-blur-md transition-colors hover:border-white/[0.15] hover:bg-text-main/5">
+                        <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-border-strong bg-text-main/5 px-3.5 py-1.5 text-[0.8125rem] font-medium tracking-wide text-text-muted backdrop-blur-md transition-colors hover:border-white/[0.15] hover:bg-text-main/5">
                             <span className="relative flex h-2 w-2">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
                                 <span className="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
                             </span>
                             v5 · Beta activa
@@ -294,7 +295,7 @@ export function LandingPage() {
                             {hasSession ? (
                                 <a
                                     href={appPath('/dashboard/')}
-                                    className="inline-flex items-center gap-2.5 rounded-lg bg-primary px-7 py-3 text-[0.95rem] font-semibold text-white no-underline animate-glow-pulse transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-hover hover:scale-[1.03]"
+                                    className="inline-flex items-center gap-2.5 rounded-lg bg-primary px-7 py-3 text-[0.95rem] font-semibold text-white no-underline transition-colors duration-200 hover:bg-primary-hover"
                                 >
                                     Ir al Panel
                                     <ArrowRight className="w-4" />
@@ -303,7 +304,7 @@ export function LandingPage() {
                                 <button
                                     type="button"
                                     onClick={() => setDisclaimerOpen(true)}
-                                    className="inline-flex items-center gap-2.5 rounded-lg bg-primary px-7 py-3 text-[0.95rem] font-semibold text-white animate-glow-pulse transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-hover hover:scale-[1.03]"
+                                    className="inline-flex items-center gap-2.5 rounded-lg bg-primary px-7 py-3 text-[0.95rem] font-semibold text-white transition-colors duration-200 hover:bg-primary-hover"
                                 >
                                     <TwitchIcon className="w-4 brightness-0 invert" />
                                     {legacyReloginNotice

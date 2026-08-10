@@ -59,6 +59,7 @@ export const MESSAGES = {
         SHOUTOUT_HEADLINE: '¡Vayan a seguir a {user}! Estaba jugando {game}',
         RUSSIAN_ERROR: 'Error interno en la Ruleta Rusa.',
         DUEL_ERROR: 'Error al iniciar el duelo.',
+        SLOTS_ERROR: 'Error al girar los slots.',
         MISSING_OPPONENT: 'Debes especificar un oponente (@usuario).'
     },
     DASHBOARD: {

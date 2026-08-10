@@ -29,7 +29,7 @@ export const ROULETTE_OVERLAY_WINNER_MS = 20_000;
 
 /** Escucha pasiva en OBS — solo para detectar que el panel publicó una sesión nueva. */
 export const OVERLAY_POLL_IDLE_MS = 60_000;
-export const OVERLAY_POLL_TRENDS_MS = 1_500;
+export const OVERLAY_POLL_TRENDS_MS = 2_500;
 export const OVERLAY_POLL_ROULETTE_MS = 600;
 export const OVERLAY_POLL_SPINNING_MS = 300;
 

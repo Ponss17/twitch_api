@@ -2,7 +2,7 @@ import * as cacheService from '../database/cacheService';
 import { invalidateUserMemoryCache } from '../database/userService';
 import { invalidateStatsCache } from '../database/statsService';
 import { logger } from './logger';
-import { overlayStateKey, overlayRevokeKey } from '../../features/dashboard/overlay/keys';
+import { overlayStateKey, overlayRevokeKey } from '../overlay/keys';
 import { invalidateUserInfoCache } from '../../features/twitch/twitchUserService';
 import { ownerScopedCacheKey } from '../config/cacheTtl';
 

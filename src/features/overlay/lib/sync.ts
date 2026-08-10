@@ -25,7 +25,7 @@ export async function publishOverlayState(
     lastPublishedFingerprint.set(tool, fingerprint);
 
     try {
-        const res = await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-state/${tool}`, withApiCredentials({
+        const res = await fetch(`${API_ENDPOINTS.OVERLAY_STATE}${tool}`, withApiCredentials({
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
             body: JSON.stringify({ state }),
@@ -46,7 +46,7 @@ export async function fetchOverlayLink(
     session: Session
 ): Promise<string | null> {
     try {
-        const res = await fetch(`${API_ENDPOINTS.BASE}/dashboard/overlay-link`, withApiCredentials({
+        const res = await fetch(API_ENDPOINTS.OVERLAY_LINK, withApiCredentials({
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
             body: JSON.stringify({ tool })

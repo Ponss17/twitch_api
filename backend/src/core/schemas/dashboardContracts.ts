@@ -1,21 +1,27 @@
 /**
- * Contratos JSON del panel (FE ↔ BE). Solo tipos — importar con `import type`.
+ * Contratos JSON del panel (FE ↔ BE).
  * Alias FE: `@contracts/*` → `backend/src/core/schemas/*`.
  */
 
-export type ActivityLogType =
-    | 'clip'
-    | 'followage'
-    | 'watchtime'
-    | 'shoutout'
-    | 'message'
-    | 'russian'
-    | 'magic8'
-    | 'duel'
-    | 'stalker'
-    | 'trends'
-    | 'roulette'
-    | 'other';
+import type { ActivityLogType } from './commandCatalog';
+
+export type {
+    ActivityLogType,
+    ToolUsageType,
+    ViewerActivityType
+} from './commandCatalog';
+
+export {
+    ACTIVITY_LOG_TYPES,
+    BOT_PATH_MARKERS,
+    TOOL_USAGE_ENUM,
+    TOOL_USAGE_TYPES,
+    VIEWER_ACTIVITY_TYPES,
+    isActivityLogType,
+    isBotCommandPath,
+    isToolUsageType,
+    isViewerActivityType
+} from './commandCatalog';
 
 /** Entrada para escribir activity_logs. */
 export interface ActivityLogEntry {

@@ -4,12 +4,14 @@ import { getApiBaseUrl } from './exporterUtils';
 const CMD_PATHS: Record<string, string> = {
     clips: '/dashboard/get-clips',
     followage: '/followage',
+    watchtime: '/watchtime',
     message: '/send-message',
     so: '/shoutout',
     magic8: '/minigames/magic8',
     russian: '/minigames/russian',
     duel: '/minigames/duel',
-    roulette: '/minigames/roulette',
+    slots: '/minigames/slots',
+    roulette: '',
     stalker: '',
     trends: ''
 };

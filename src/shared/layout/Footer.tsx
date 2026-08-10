@@ -1,4 +1,6 @@
+import { Fragment } from 'react';
 import { legalPath } from '@/core/config/paths';
+import { APP_BOTTOM_BAR } from '@/core/utils/tw';
 
 const LEGAL_LINKS = [
     { href: legalPath('terminos'), label: 'Términos' },
@@ -16,31 +18,45 @@ export function Footer({ isDashboard = false }: FooterProps) {
     const year = new Date().getFullYear();
 
     return (
-        <footer className={`app-footer mt-auto w-full shrink-0 border-t border-border-subtle bg-bg-main py-6 ${isDashboard ? 'lg:pl-[240px]' : ''}`}>
-            <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center justify-between gap-6 px-6 text-[0.75rem] md:flex-row md:gap-4">
-                <div className="flex-1">
-                    <p className="flex items-center justify-center gap-1.5 font-medium text-text-main md:justify-start">
-                        &copy; {year} <span className="font-bold text-[color:var(--brand-text)]">LosPerrisAPI</span>
-                    </p>
-                </div>
+        <footer
+            className={`app-footer mt-auto flex w-full items-center bg-bg-main ${
+                isDashboard
+                    ? `${APP_BOTTOM_BAR} max-lg:h-auto max-lg:py-4 lg:pl-[240px]`
+                    : 'shrink-0 border-t border-border-subtle py-6'
+            }`}
+        >
+            <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-2 px-6 text-[0.75rem] leading-none text-text-muted md:flex-row md:items-center md:justify-between md:gap-6">
+                <p className="flex min-w-0 flex-1 items-center justify-center gap-1.5 font-medium text-text-main md:justify-start">
+                    <span>
+                        &copy; {year}{' '}
+                        <span className="font-bold text-[color:var(--brand-text)]">LosPerrisAPI</span>
+                    </span>
+                </p>
 
-                <div className="flex-1 text-center text-[0.7rem] text-text-muted">
+                <p className="min-w-0 flex-1 text-center">
                     Creado para la comunidad. No afiliado con Twitch o Amazon.
-                </div>
-                
-                <div className="flex flex-1 flex-wrap items-center justify-center gap-3 text-text-muted md:justify-end">
+                </p>
+
+                <nav
+                    className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-x-3 gap-y-1 md:justify-end"
+                    aria-label="Enlaces legales"
+                >
                     {LEGAL_LINKS.map((link, i) => (
-                        <span key={link.href} className="flex items-center gap-3">
+                        <Fragment key={link.href}>
+                            {i > 0 ? (
+                                <span className="select-none opacity-50" aria-hidden="true">
+                                    ·
+                                </span>
+                            ) : null}
                             <a
                                 href={link.href}
                                 className="font-medium text-text-muted transition-colors hover:text-brand-text"
                             >
                                 {link.label}
                             </a>
-                            {i < LEGAL_LINKS.length - 1 && <span>•</span>}
-                        </span>
+                        </Fragment>
                     ))}
-                </div>
+                </nav>
             </div>
         </footer>
     );

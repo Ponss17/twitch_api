@@ -72,6 +72,14 @@
     --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
     --twitch-brand-color: #9146ff;
     --twitch-brand-bg: #ffffff;
+    --chart-1: #9146ff;
+    --chart-2: #a78bfa;
+    --chart-3: #818cf8;
+    --chart-4: #c084fc;
+    --chart-5: #22d3ee;
+    --chart-6: #e879f9;
+    --chart-7: #6366f1;
+    --chart-8: #67e8f9;
   }
 
   /* ------------------------------------------------------------------------
@@ -100,6 +108,14 @@
     --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
     --twitch-brand-color: #9146ff;
     --twitch-brand-bg: #ffffff;
+    --chart-1: #7c3aed;
+    --chart-2: #8b5cf6;
+    --chart-3: #a78bfa;
+    --chart-4: #6366f1;
+    --chart-5: #06b6d4;
+    --chart-6: #d946ef;
+    --chart-7: #4f46e5;
+    --chart-8: #0ea5e9;
   }
 
   /* ------------------------------------------------------------------------
@@ -128,6 +144,14 @@
     --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);
     --twitch-brand-color: #ef4444;
     --twitch-brand-bg: #ffffff;
+    --chart-1: #ef4444;
+    --chart-2: #f87171;
+    --chart-3: #fb923c;
+    --chart-4: #fbbf24;
+    --chart-5: #fca5a5;
+    --chart-6: #fdba74;
+    --chart-7: #fecaca;
+    --chart-8: #dc2626;
   }
 
   /* ------------------------------------------------------------------------
@@ -156,6 +180,14 @@
     --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 30px rgba(0, 0, 0, 0.8);
     --twitch-brand-color: #ffffff;
     --twitch-brand-bg: #1a1a1a;
+    --chart-1: #ffffff;
+    --chart-2: #e5e5e5;
+    --chart-3: #d4d4d4;
+    --chart-4: #a3a3a3;
+    --chart-5: #737373;
+    --chart-6: #fafafa;
+    --chart-7: #525252;
+    --chart-8: #c4c4c4;
   }
 
   /* ------------------------------------------------------------------------
@@ -184,6 +216,14 @@
     --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);
     --twitch-brand-color: #00ff66;
     --twitch-brand-bg: #000000;
+    --chart-1: #00ff66;
+    --chart-2: #33ff88;
+    --chart-3: #66ffaa;
+    --chart-4: #00cc55;
+    --chart-5: #99ffcc;
+    --chart-6: #22dd66;
+    --chart-7: #00aa44;
+    --chart-8: #88ffbb;
   }
 
   /* Ajustes de contraste para botones primarios en Minimal y Matrix */

@@ -1,3 +1,5 @@
+import { isBotCommandPath } from '../schemas/commandCatalog';
+
 const isStaticAsset = (path: string): boolean => {
     return (
         /\.(webp|png|jpg|jpeg|gif|css|js|ico|svg|woff2?|map|json)$/i.test(path) ||
@@ -21,14 +23,7 @@ export const isPublicHtmlRoute = (path: string, method: string = 'GET'): boolean
     return true;
 };
 
-export const isBotCommand = (path: string): boolean =>
-    path.includes('/followage') ||
-    path.includes('/shoutout') ||
-    path.includes('/create-clip') ||
-    path.includes('/send-message') ||
-    path.includes('/magic8') ||
-    path.includes('/russian') ||
-    path.includes('/duel');
+export const isBotCommand = (path: string): boolean => isBotCommandPath(path);
 
 /** Retorno OAuth (Twitch/Discord): no validar ni borrar lp_sess en middleware — el controller reemite la cookie. */
 export const isOAuthCallbackRoute = (path: string): boolean => {

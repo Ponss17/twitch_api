@@ -1,4 +1,4 @@
-import { isPublicRoute, isPublicHtmlRoute } from '../../backend/src/core/utils/routeHelpers';
+import { isPublicRoute, isPublicHtmlRoute, isBotCommand, isJsonApiRoute } from '../../backend/src/core/utils/routeHelpers';
 
 describe('isPublicRoute', () => {
     it('trata el landing / como público (GET)', () => {
@@ -18,6 +18,23 @@ describe('isPublicRoute', () => {
 
     it('no trata comandos bot como públicos', () => {
         expect(isPublicRoute('/api/twitch/followage', 'GET')).toBe(false);
+    });
+});
+
+describe('isBotCommand', () => {
+    it('incluye followage, watchtime y minijuegos', () => {
+        expect(isBotCommand('/api/watchtime')).toBe(true);
+        expect(isBotCommand('/watchtime')).toBe(true);
+        expect(isBotCommand('/api/followage')).toBe(true);
+        expect(isBotCommand('/api/minigames/slots')).toBe(true);
+        expect(isBotCommand('/api/dashboard/analytics')).toBe(false);
+    });
+});
+
+describe('isJsonApiRoute', () => {
+    it('excluye comandos de bot (texto plano)', () => {
+        expect(isJsonApiRoute('/api/watchtime')).toBe(false);
+        expect(isJsonApiRoute('/api/followage')).toBe(false);
     });
 });
 

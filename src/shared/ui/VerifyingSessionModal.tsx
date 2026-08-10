@@ -141,7 +141,7 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
                 <div className="relative mb-10">
                     <div className="absolute inset-0 rounded-3xl bg-primary/20 blur-2xl" />
                     <AppLogo
-                        className="relative h-20 w-20 object-contain drop-shadow-[0_0_15px_var(--primary)] animate-pulse"
+                        className="relative h-20 w-20 text-primary object-contain drop-shadow-[0_0_15px_var(--primary)] animate-pulse"
                     />
                 </div>
 

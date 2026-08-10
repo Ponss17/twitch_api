@@ -46,9 +46,9 @@ Unlike standard chat bots, this project is a complete platform that acts as the 
 | :--- | :--- |
 | **Broadcaster Dashboard** | Centralized management portal with secure Twitch OAuth authentication and dynamic UI theming (Light/Dark/Matrix). |
 | **Internationalization (i18n)** | The platform's default language is Spanish, but includes native i18n support to switch languages dynamically from the settings. |
-| **Interactive Minigames** | Built-in chat modules like the Roulette betting system and Follow-Stalker. |
-| **OBS Integration** | Chroma-ready, transparent web views designed to be injected directly as Browser Sources in OBS Studio for live alerts. |
-| **Bot Synchronization** | Native bi-directional integration with Nightbot and StreamElements to prevent command collision. |
+| **Interactive Minigames** | Chat modules (Magic 8, Russian Roulette, Duel) plus panel tools (roulette giveaways, trends, stalker, questions). |
+| **OBS Integration** | Transparent browser sources for roulette and trends, synced via overlay tokens. |
+| **Bot Integration** | URL templates for Nightbot, StreamElements, Fossabot, Wizebot, and Streamlabs; watchtime reads StreamElements public points when available. |
 
 ---
 
@@ -58,10 +58,10 @@ Built using a **Serverless Modular Monolith** pattern, the system balances devel
 
 | Layer | Technologies Used | Purpose |
 | :--- | :--- | :--- |
-| **Frontend** | Astro.js, React.js, Tailwind | Hyper-fast SSR routing (Astro) combined with interactive client-side islands (React) for the Dashboard. |
-| **Backend API** | Express.js (Node.js) | Domain-Driven Design (DDD) encapsulating Auth, Commands, and Minigames into autonomous modules. |
-| **Database** | PostgreSQL (Supabase) | Primary relational data storage secured by strictly enforced Row Level Security (RLS) policies. |
-| **State & Cache** | Redis (Vercel KV) | Handles ephemeral state, memory caching, and role-based rate limiting to prevent API abuse. |
+| **Frontend** | Astro.js (static), React.js, Tailwind | Static marketing/docs + interactive client islands for the Dashboard. |
+| **Backend API** | Express.js (Node.js) | Domain modules for Auth, Commands, Games, and Dashboard on a single Vercel serverless entry. |
+| **Database** | PostgreSQL (Supabase) | Primary relational storage. Server uses the service role; authorization is enforced in Express middleware. Realtime clients use scoped JWTs. |
+| **State & Cache** | Redis (Vercel KV) + in-process L1 | Ephemeral overlay state, rate limiting, and short-lived response cache. |
 
 ---
 
@@ -84,9 +84,9 @@ For vulnerability reports, please read the [Security Policy](./SECURITY.md) befo
 
 Reliability is non-negotiable for live streaming tools. The repository enforces a strict continuous integration pipeline:
 
-- **Unit & Integration:** Over 70 Jest test suites validating everything from cryptographic injectors to core routing logic.
-- **End-to-End (E2E):** Playwright is utilized to simulate full browser sessions, testing the Twitch OAuth flow.
-- **Static Analysis:** Husky Git hooks prevent any commit that fails `@typescript-eslint` rules or TypeScript compilation.
+- **Unit & Integration:** Jest suites covering crypto/HMAC helpers, routing, and core controllers.
+- **End-to-End (E2E):** Playwright smoke tests for dashboard auth flows.
+- **Static Analysis:** Husky Git hooks prevent commits that fail `@typescript-eslint` rules or TypeScript compilation.
 
 ---
 

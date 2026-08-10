@@ -1,5 +1,5 @@
 import { Check, AlertTriangle, Loader2, type LucideIcon } from 'lucide-react';
-import { type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { gameResponseCard } from '@/core/utils/tw';
 import { extractApiErrorMessage, formatApiErrorForUi } from '@/core/api/apiError';
 
@@ -31,25 +31,64 @@ export function GameResponse({
     errorIcon?: LucideIcon;
 }) {
     const isActive = result.status === 'success' || result.status === 'error';
-    if (!isActive && result.status !== 'loading') return null;
-
-    const success = result.status === 'success';
     const loading = result.status === 'loading';
+    const success = result.status === 'success';
+
+    const [visible, setVisible] = useState(false);
+    const [isHiding, setIsHiding] = useState(false);
+
+    useEffect(() => {
+        if (loading) {
+            setVisible(true);
+            setIsHiding(false);
+            return;
+        }
+
+        if (!isActive) {
+            setVisible(false);
+            setIsHiding(false);
+            return;
+        }
+
+        setVisible(true);
+        setIsHiding(false);
+
+        const fadeTimer = window.setTimeout(() => setIsHiding(true), 8_000);
+        const hideTimer = window.setTimeout(() => setVisible(false), 10_000);
+
+        return () => {
+            window.clearTimeout(fadeTimer);
+            window.clearTimeout(hideTimer);
+        };
+    }, [isActive, loading, result.status, result.message]);
+
+    if (loading) {
+        return (
+            <div
+                className={`${gameResponseCard} animate-reveal-card border-border-strong bg-[rgba(15,23,42,0.6)] text-text-main`}
+            >
+                {loadingNode}
+            </div>
+        );
+    }
+
+    if (!isActive || !visible) return null;
 
     return (
         <div
             className={`${gameResponseCard} animate-reveal-card ${
-                loading
-                    ? 'border-border-strong bg-[rgba(15,23,42,0.6)] text-text-main'
-                    : success
-                      ? 'border-success/30 bg-[rgba(16,185,129,0.15)] text-success'
-                      : 'border-error/30 bg-error/15 text-error'
+                success
+                    ? 'border-primary/30 bg-primary/10 text-text-main'
+                    : 'border-error/30 bg-error/15 text-error'
             }`}
+            style={{
+                opacity: isHiding ? 0 : 1,
+                transition: isHiding ? 'opacity 2s ease-out' : undefined
+            }}
         >
-            {loading && loadingNode}
-            {success && <SuccessIcon className="text-lg" aria-hidden="true" />}
+            {success && <SuccessIcon className="text-lg text-primary" aria-hidden="true" />}
             {result.status === 'error' && <ErrorIcon className="text-lg" aria-hidden="true" />}
-            {!loading && <div className="min-w-0 flex-1">{result.message}</div>}
+            <div className="min-w-0 flex-1">{result.message}</div>
         </div>
     );
 }

@@ -6,7 +6,7 @@ import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 import { useRequiredSession } from '@/core/session/useSession';
 import { COMMAND_CONFIG } from '@/features/commands/lib/config';
 import { CommandGeneratorCard } from '@/features/commands/CommandGeneratorCard';
-import { RUSSIAN_ICON } from '@/features/dashboard/lib/dashboardTabs';
+import { RUSSIAN_ICON } from '@/features/minigames/icons';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { MinigameCard } from '../MinigameCard';
 import { GameResponse, parseApiError, type TestResult } from '../lib/minigameUtils';
@@ -26,7 +26,7 @@ export function RussianView() {
         setGunSuccess(false);
 
         try {
-            const url = `${API_ENDPOINTS.BASE}/minigames/russian?user=${encodeURIComponent(session.login ?? '')}&channel=${encodeURIComponent(session.login ?? '')}&hardcore=false&format=json&_nocache=${Date.now()}`;
+            const url = `${API_ENDPOINTS.RUSSIAN}?user=${encodeURIComponent(session.login ?? '')}&channel=${encodeURIComponent(session.login ?? '')}&hardcore=false&format=json&_nocache=${Date.now()}`;
             const res = await fetchWithRetry(url, withApiCredentials({ headers: authHeaders(session) }));
             if (res.ok) {
                 const data = (await res.json()) as { status?: string; message: string };
@@ -61,13 +61,13 @@ export function RussianView() {
                 <div className="relative z-[1] my-5 flex justify-center px-5 py-5">
                     {gunDead ? (
                         <Skull
-                            className={`size-20 shrink-0 transition-all max-[600px]:size-16 text-error ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : ''}`}
+                            className={`size-20 shrink-0 transition-all max-[600px]:size-16 text-error ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-primary' : ''}`}
                             strokeWidth={1.75}
                             aria-hidden
                         />
                     ) : (
                         <RUSSIAN_ICON
-                            className={`size-20 shrink-0 transition-all max-[600px]:size-16 ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-success' : 'text-text-muted hover:scale-110 hover:rotate-[-5deg]'}`}
+                            className={`size-20 shrink-0 transition-all max-[600px]:size-16 ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-primary' : 'text-text-muted hover:scale-110 hover:rotate-[-5deg]'}`}
                             strokeWidth={1.75}
                             aria-hidden
                         />

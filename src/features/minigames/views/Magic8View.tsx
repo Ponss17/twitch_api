@@ -7,7 +7,7 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { COMMAND_CONFIG } from '@/features/commands/lib/config';
 import { btnPrimary, fadeIn, formGrid, formGroupLabel, textInput } from '@/core/utils/tw';
 import { CommandGeneratorCard } from '@/features/commands/CommandGeneratorCard';
-import { MAGIC8_ICON } from '@/features/dashboard/lib/dashboardTabs';
+import { MAGIC8_ICON } from '@/features/minigames/icons';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { MinigameCard } from '../MinigameCard';
 import { GameResponse, parseApiError, type TestResult } from '../lib/minigameUtils';

@@ -173,10 +173,17 @@ export const sidebarBrandHeader =
     'flex h-20 shrink-0 items-center gap-3 px-5 py-4';
 
 export const sidebarNavScroll =
-    'flex flex-1 flex-col overflow-y-auto px-3 py-3 [scrollbar-color:var(--color-text-muted)_transparent] [scrollbar-width:thin]';
+    'flex flex-1 flex-col overflow-y-auto px-3 py-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden';
 
 export const sidebarCategoryLabel =
     'mb-2 ml-3 mt-6 block text-[0.75rem] font-bold uppercase tracking-[0.05em] text-text-muted first:mt-2';
+
+/**
+ * Franja inferior compartida: sidebar (Feedback / Docs / Comunidad) + footer de página.
+ * Misma altura en desktop para que el border-t forme una sola línea horizontal.
+ */
+export const APP_BOTTOM_BAR_H = 'h-[4.25rem]';
+export const APP_BOTTOM_BAR = `shrink-0 border-t border-border-subtle ${APP_BOTTOM_BAR_H}`;
 
 export const sidebarSupportLink = `${sidebarNavButtonBase} mx-auto w-[calc(100%-16px)] text-text-muted no-underline ${hoverSubtleNav}`;
 

@@ -23,33 +23,41 @@ const SettingsView = lazy(() =>
     import('@/features/dashboard/settings/SettingsView').then((m) => ({ default: m.SettingsView }))
 );
 const FollowageView = lazy(() =>
-    import('@/features/commands/CommandsViews').then((m) => ({ default: m.FollowageView }))
+    import('@/features/commands/views/FollowageView').then((m) => ({ default: m.FollowageView }))
 );
 const WatchtimeView = lazy(() =>
-    import('@/features/commands/CommandsViews').then((m) => ({ default: m.WatchtimeView }))
+    import('@/features/commands/views/WatchtimeView').then((m) => ({ default: m.WatchtimeView }))
 );
 const ShoutoutView = lazy(() =>
-    import('@/features/commands/CommandsViews').then((m) => ({ default: m.ShoutoutView }))
+    import('@/features/commands/views/ShoutoutView').then((m) => ({ default: m.ShoutoutView }))
 );
 const ClipsView = lazy(() => import('@/features/clips/ClipsView').then((m) => ({ default: m.ClipsView })));
 const Magic8View = lazy(() =>
-    import('@/features/minigames/MinigamesViews').then((m) => ({ default: m.Magic8View }))
+    import('@/features/minigames/views/Magic8View').then((m) => ({ default: m.Magic8View }))
 );
-const DuelView = lazy(() => import('@/features/minigames/MinigamesViews').then((m) => ({ default: m.DuelView })));
+const DuelView = lazy(() =>
+    import('@/features/minigames/views/DuelView').then((m) => ({ default: m.DuelView }))
+);
 const RussianView = lazy(() =>
-    import('@/features/minigames/MinigamesViews').then((m) => ({ default: m.RussianView }))
+    import('@/features/minigames/views/RussianView').then((m) => ({ default: m.RussianView }))
+);
+const SlotsView = lazy(() =>
+    import('@/features/minigames/views/SlotsView').then((m) => ({ default: m.SlotsView }))
 );
 const FeedbackView = lazy(() =>
     import('@/features/feedback/FeedbackView').then((m) => ({ default: m.FeedbackView }))
 );
 const TrendsView = lazy(() =>
-    import('@/features/trends/TrendsView').then((m) => ({ default: m.TrendsView }))
+    import('@/features/tools/trends/TrendsView').then((m) => ({ default: m.TrendsView }))
 );
 const StalkerView = lazy(() =>
-    import('@/features/stalker/StalkerView').then((m) => ({ default: m.StalkerView }))
+    import('@/features/tools/stalker/StalkerView').then((m) => ({ default: m.StalkerView }))
 );
 const RouletteView = lazy(() =>
-    import('@/features/roulette/RouletteView').then((m) => ({ default: m.RouletteView }))
+    import('@/features/tools/roulette/RouletteView').then((m) => ({ default: m.RouletteView }))
+);
+const QuestionsView = lazy(() =>
+    import('@/features/tools/questions/QuestionsView').then((m) => ({ default: m.QuestionsView }))
 );
 
 interface DashboardContentProps {
@@ -85,7 +93,7 @@ function renderTabPanel(tab: DashboardTab, { active, onNavigate }: TabPanelProps
         case 'watchtime':
             return <WatchtimeView />;
         case 'clips':
-            return <ClipsView />;
+            return <ClipsView active={active} />;
         case 'shoutout':
             return <ShoutoutView />;
         case 'settings':
@@ -96,6 +104,10 @@ function renderTabPanel(tab: DashboardTab, { active, onNavigate }: TabPanelProps
             return <DuelView />;
         case 'russian':
             return <RussianView />;
+        case 'slots':
+            return <SlotsView />;
+        case 'questions':
+            return <QuestionsView active={active} />;
         case 'feedback':
             return <FeedbackView />;
         case 'trends':

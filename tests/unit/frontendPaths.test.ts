@@ -10,7 +10,7 @@ jest.mock('../../backend/src/core/config/env', () => ({
 }));
 
 import { frontendPagePath, APP_MOUNT } from '../../backend/src/core/utils/frontendPaths';
-import { overlayPagePath } from '../../backend/src/features/dashboard/overlay/keys';
+import { overlayPagePath } from '../../backend/src/core/overlay/keys';
 
 const DIST_ROOT = path.join(__dirname, '../../dist');
 
