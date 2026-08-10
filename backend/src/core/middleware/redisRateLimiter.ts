@@ -272,3 +272,34 @@ export const authRateLimiter = async (req: Request, res: Response, next: NextFun
         });
     }
 };
+
+/** Feedback Discord — evita spam del webhook (5 / 15 min por usuario+IP). */
+export const feedbackRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
+    const apiUser = res.locals?.apiUser as { userId?: string } | undefined;
+    const userId = apiUser?.userId || 'anon';
+    const safeIp = getSafeIp(req);
+    const key = `rl:feedback:${userId}:${safeIp}`;
+    const windowSeconds = 15 * 60;
+    const limit = RATE_LIMITS.FEEDBACK;
+
+    try {
+        const count = await kvIncrWithWindow(key, windowSeconds);
+        if (count > limit) {
+            return res.status(429).json({
+                error: 'Too Many Requests',
+                message: 'Demasiados feedbacks. Espera unos minutos e inténtalo de nuevo.'
+            });
+        }
+        return next();
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            logger.debug('KV feedback rate limit omitido en desarrollo', { error });
+            return next();
+        }
+        logger.error('Error in Feedback Rate Limiter:', error);
+        return res.status(503).json({
+            error: 'Service Unavailable',
+            message: 'Servicio temporalmente no disponible'
+        });
+    }
+};

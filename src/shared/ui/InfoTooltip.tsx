@@ -5,11 +5,11 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 interface InfoTooltipProps {
     text: ReactNode;
     className?: string;
-    /** `top` por defecto; usa `bottom` si el icono está pegado a contenido superior (p. ej. Inicio). */
+    /** `bottom` por defecto; usa `top` si hay espacio arriba. */
     placement?: 'top' | 'bottom';
 }
 
-export function InfoTooltip({ text, className, placement = 'top' }: InfoTooltipProps) {
+export function InfoTooltip({ text, className, placement = 'bottom' }: InfoTooltipProps) {
     const opensBelow = placement === 'bottom';
     const tipId = useId();
     const { t } = useTranslation();

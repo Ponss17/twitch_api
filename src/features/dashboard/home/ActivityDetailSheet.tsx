@@ -133,9 +133,16 @@ export function ActivityDetailSheet({ item, onClose, timeZone }: ActivityDetailS
                             </div>
                             <pre className="overflow-x-auto bg-bg-main/60 p-4 text-[0.75rem] font-mono leading-[1.4rem] text-text-muted [scrollbar-width:thin]">
                                 {jsonStr.split('\n').map((line, i) => {
-                                    const coloredLine = line
-                                        .replace(/"([^"]+)":/g, '<span class="text-text-main font-medium">"$1"</span>:')
-                                        .replace(/: ("[^"]*")/g, ': <span class="text-brand-text">$1</span>')
+                                    const escapeHtml = (s: string) =>
+                                        s
+                                            .replace(/&/g, '&amp;')
+                                            .replace(/</g, '&lt;')
+                                            .replace(/>/g, '&gt;')
+                                            .replace(/"/g, '&quot;');
+                                    const safe = escapeHtml(line);
+                                    const coloredLine = safe
+                                        .replace(/&quot;([^&]+)&quot;:/g, '<span class="text-text-main font-medium">&quot;$1&quot;</span>:')
+                                        .replace(/: (&quot;[^&]*&quot;)/g, ': <span class="text-brand-text">$1</span>')
                                         .replace(/: ([0-9]+)/g, ': <span class="text-primary">$1</span>')
                                         .replace(/: (true|false|null)/g, ': <span class="text-primary/80">$1</span>');
                                     return <div key={i} dangerouslySetInnerHTML={{ __html: coloredLine || ' ' }} />;

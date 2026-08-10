@@ -22,9 +22,22 @@ const VALID_TABS: ReadonlySet<DashboardTab> = new Set([
     'roulette',
     'russian',
     'duel',
+    'slots',
+    'questions',
     'settings',
     'feedback'
 ]);
+
+/** Pestañas antiguas → id actual. */
+const LEGACY_TAB_MAP: Record<string, DashboardTab> = {
+    giveaway: 'questions'
+};
+
+function resolveLegacyTab(value: string | null | undefined): DashboardTab | null {
+    if (!value) return null;
+    if (LEGACY_TAB_MAP[value]) return LEGACY_TAB_MAP[value];
+    return isDashboardTab(value) ? value : null;
+}
 
 const LAST_TAB_BASE = 'twitch_dashboard_last_tab';
 const LEGACY_LAST_TAB_KEY = 'twitch_dashboard_last_tab';
@@ -54,14 +67,14 @@ export function parseTabFromPathname(pathname: string): DashboardTab | null {
     const segment = pathname.slice(prefix.length).split('/').filter(Boolean)[0];
     if (!segment) return 'home';
 
-    return isDashboardTab(segment) ? segment : null;
+    return resolveLegacyTab(segment);
 }
 
 function getSavedTab(userId?: string): DashboardTab | null {
     if (typeof window === 'undefined') return null;
     try {
         const saved = readScopedPref(LAST_TAB_BASE, userId, LEGACY_LAST_TAB_KEY);
-        return isDashboardTab(saved) ? saved : null;
+        return resolveLegacyTab(saved);
     } catch {
         return null;
     }
@@ -97,11 +110,11 @@ export function resolveDashboardTab(
         return fromPath;
     }
 
-    const fromHash = hash.replace(/^#/, '');
-    if (isDashboardTab(fromHash)) return fromHash;
+    const fromHash = resolveLegacyTab(hash.replace(/^#/, ''));
+    if (fromHash) return fromHash;
 
-    const fromQuery = new URLSearchParams(search).get('tab');
-    if (isDashboardTab(fromQuery)) return fromQuery;
+    const fromQuery = resolveLegacyTab(new URLSearchParams(search).get('tab'));
+    if (fromQuery) return fromQuery;
 
     if (fromPath === 'home' && isBareDashboardPath(pathname)) {
         const saved = getSavedTab(userId);

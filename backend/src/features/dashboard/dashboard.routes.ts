@@ -1,92 +1,80 @@
 import { Router } from 'express';
-import * as dashboardController from './dashboard.controller';
+import * as analyticsController from './analytics.controller';
+import * as accountController from './account.controller';
+import * as settingsController from './settings.controller';
 import * as overlayController from './overlay/controller';
+import { getViewerLeaderboard } from './viewerLeaderboard.controller';
+import toolsRoutes from '../tools/tools.routes';
 import { csrfProtection } from '../../core/middleware/csrfProtection';
 import { globalRateLimiter, heavyRateLimiter, revealKeyRateLimiter } from '../../core/middleware/redisRateLimiter';
 import { requireDashboardAjax } from '../../core/middleware/dashboardAjaxGuard';
 import { validate } from '../../core/middleware/validate';
 import {
-    getClipsSchema,
-    getChattersSchema,
     getUserInfoSchema,
     getSummarySchema,
     getAnalyticsSchema,
     getActivitySchema,
     clearUserDataSchema,
     deleteAccountSchema,
-    trackUsageSchema,
-    getViewerLeaderboardSchema
+    getViewerLeaderboardSchema,
+    updateSettingsSchema
 } from './dashboard.schema';
-import { getViewerLeaderboard } from './viewerLeaderboard.controller';
-import {
-    overlayToolParamSchema,
-    putOverlayStateSchema,
-    overlayLinkSchema,
-    exportCheckSchema,
-    exportCompleteSchema
-} from './overlay/schema';
-import { updateSettingsSchema } from './dashboard.schema';
+import { exportCheckSchema, exportCompleteSchema } from './export.schema';
+import { overlayToolParamSchema, putOverlayStateSchema, overlayLinkSchema } from './overlay/schema';
 
 const router = Router();
 
+/** Tools del panel: `/get-clips`, `/chatters`, `/track-usage` (mismas URLs). */
+router.use(toolsRoutes);
 
 router.get(
     '/reveal-api-key',
     requireDashboardAjax,
     revealKeyRateLimiter,
-    /* codeql[js/missing-rate-limiting] */ dashboardController.revealApiKey
+    /* codeql[js/missing-rate-limiting] */ accountController.revealApiKey
 );
 
-router.patch('/settings', globalRateLimiter, csrfProtection, validate(updateSettingsSchema), /* codeql[js/missing-rate-limiting] */ dashboardController.updateSettings);
+router.patch(
+    '/settings',
+    globalRateLimiter,
+    csrfProtection,
+    validate(updateSettingsSchema),
+    /* codeql[js/missing-rate-limiting] */ settingsController.updateSettings
+);
 
-router.get('/get-clips', heavyRateLimiter, validate(getClipsSchema), /* codeql[js/missing-rate-limiting] */ dashboardController.getClips);
 router.get(
     '/analytics',
     globalRateLimiter,
     validate(getAnalyticsSchema),
-    /* codeql[js/missing-rate-limiting] */ dashboardController.getAnalytics
+    /* codeql[js/missing-rate-limiting] */ analyticsController.getAnalytics
 );
-router.get(
-    '/chatters',
-    heavyRateLimiter,
-    validate(getChattersSchema),
-    /* codeql[js/missing-rate-limiting] */ dashboardController.getChatters
-);
-router.get('/user-info', globalRateLimiter, validate(getUserInfoSchema), /* codeql[js/missing-rate-limiting] */ dashboardController.getUserInfo);
-router.get('/summary', heavyRateLimiter, validate(getSummarySchema), /* codeql[js/missing-rate-limiting] */ dashboardController.getSummary);
-router.get('/activity', globalRateLimiter, validate(getActivitySchema), /* codeql[js/missing-rate-limiting] */ dashboardController.getLogs);
+router.get('/user-info', globalRateLimiter, validate(getUserInfoSchema), /* codeql[js/missing-rate-limiting] */ accountController.getUserInfo);
+router.get('/summary', heavyRateLimiter, validate(getSummarySchema), /* codeql[js/missing-rate-limiting] */ analyticsController.getSummary);
+router.get('/activity', globalRateLimiter, validate(getActivitySchema), /* codeql[js/missing-rate-limiting] */ analyticsController.getLogs);
 router.get('/viewer-leaderboard', globalRateLimiter, validate(getViewerLeaderboardSchema), /* codeql[js/missing-rate-limiting] */ getViewerLeaderboard);
-router.post(
-    '/track-usage',
-    globalRateLimiter,
-    csrfProtection,
-    validate(trackUsageSchema),
-    /* codeql[js/missing-rate-limiting] */ dashboardController.trackToolUsage
-);
-
 
 router.post(
     '/clear-data',
     globalRateLimiter,
     csrfProtection,
     validate(clearUserDataSchema),
-    /* codeql[js/missing-rate-limiting] */ dashboardController.clearUserData
+    /* codeql[js/missing-rate-limiting] */ accountController.clearUserData
 );
 router.delete(
     '/delete-account',
     heavyRateLimiter,
     csrfProtection,
     validate(deleteAccountSchema),
-    /* codeql[js/missing-rate-limiting] */ dashboardController.deleteAccount
+    /* codeql[js/missing-rate-limiting] */ accountController.deleteAccount
 );
 
-router.post('/export-check', globalRateLimiter, csrfProtection, validate(exportCheckSchema), /* codeql[js/missing-rate-limiting] */ dashboardController.exportCheck);
+router.post('/export-check', globalRateLimiter, csrfProtection, validate(exportCheckSchema), /* codeql[js/missing-rate-limiting] */ settingsController.exportCheck);
 router.post(
     '/export-complete',
     globalRateLimiter,
     csrfProtection,
     validate(exportCompleteSchema),
-    /* codeql[js/missing-rate-limiting] */ dashboardController.recordExportComplete
+    /* codeql[js/missing-rate-limiting] */ settingsController.recordExportComplete
 );
 
 router.get(

@@ -34,7 +34,7 @@ export function WatchtimeView() {
         await runTest({
             buildUrl: (apiKey) =>
                 buildCommandTestUrl(
-                    `${API_ENDPOINTS.BASE}/watchtime/`,
+                    `${API_ENDPOINTS.WATCHTIME}`,
                     { user: userVal, channel: channelVal },
                     apiKey
                 ),

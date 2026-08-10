@@ -54,14 +54,13 @@ export const callback = async (req: Request, res: Response) => {
             decodedState = authService.verifyState(state);
         }
 
-        const { user, redirectOrigin, apiKey } = await authService.handleCallback(
+        const { user, redirectOrigin } = await authService.handleCallback(
             code,
             state,
             decodedState
         );
 
         const authToken = authService.signAuthExchange({
-            apiKey,
             userId: user.id,
             login: user.login,
             displayName: user.display_name,
@@ -152,7 +151,7 @@ export const logout = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 /** Intercambia overlayToken firmado por sesión de solo lectura (sin API key maestra). */
-export const overlayExchange = (req: Request, res: Response) => {
+export const overlayExchange = async (req: Request, res: Response) => {
     const overlayToken = safeString(req.query.overlayToken);
 
     if (!overlayToken) {
@@ -163,6 +162,12 @@ export const overlayExchange = (req: Request, res: Response) => {
     if (!payload) {
         return jsonError(res, 401, 'Enlace de overlay inválido o expirado.', {
             code: 'INVALID_OVERLAY_TOKEN'
+        });
+    }
+
+    if (await authService.isOverlayTokenRevoked(payload)) {
+        return jsonError(res, 401, 'Enlace de overlay revocado. Genera uno nuevo desde el panel.', {
+            code: 'OVERLAY_REVOKED'
         });
     }
 

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { jsonError } from '../utils/jsonResponse';
-import type { OverlayReadPayload } from '../../features/auth/auth.service';
+import type { OverlayReadPayload } from '../overlay/keys';
 import type { StoredUser } from '../../types/twitch';
 
 /** Sesión mínima para overlay — sin API key ni tokens OAuth. */

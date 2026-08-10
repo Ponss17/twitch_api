@@ -38,8 +38,8 @@ export function SettingsTabs({ active, onChange }: SettingsTabsProps) {
                         aria-controls={`settings-panel-${tab.id}`}
                         onClick={() => onChange(tab.id)}
                         className={`relative -mb-px px-3.5 py-2.5 text-[0.875rem] font-semibold transition ${isActive
-                                ? 'border-b-2 border-primary text-text-main'
-                                : 'border-b-2 border-transparent text-text-muted hover:text-text-main'
+                                ? 'border-b-2 border-primary text-primary'
+                                : 'border-b-2 border-transparent text-text-muted hover:bg-bg-hover-neutral hover:text-text-main'
                             }`}
                     >
                         {tab.label}

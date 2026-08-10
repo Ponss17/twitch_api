@@ -1,8 +1,8 @@
 import { useOverlayMirror } from '@/features/overlay/hooks/useOverlayMirror';
 import { useOverlayTrendsRemaining } from '@/features/overlay/hooks/useOverlayTrendsRemaining';
 import { useTrendsOverlayVisible } from '@/features/overlay/hooks/useOverlayVisibilityClock';
-import { TrendsLeaderboardDisplay } from '@/features/trends/TrendsLeaderboardDisplay';
-import { rankWordCounts } from '@/features/trends/lib/rankWordCounts';
+import { TrendsLeaderboardDisplay } from '@/features/tools/trends/TrendsLeaderboardDisplay';
+import { rankWordCounts } from '@/features/tools/trends/lib/rankWordCounts';
 import { OverlayConnectionBanners } from '@/features/overlay/components/OverlayConnectionBanners';
 import { OverlaySessionGate } from '@/features/overlay/components/OverlaySessionGate';
 import { OverlaySessionProvider } from '@/features/overlay/components/OverlaySessionProvider';

@@ -11,7 +11,7 @@ import { Sheet } from '@/shared/ui/Sheet';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { readScopedPref, writeScopedPref } from '@/core/session/localPrefs';
-import { resolveWheelPalette, ROULETTE_COLOR_PRESETS } from '@/features/roulette/lib/wheelUtils';
+import { resolveWheelPalette, ROULETTE_COLOR_PRESETS } from '@/features/tools/roulette/lib/wheelUtils';
 import { copyText } from '@/core/utils/clipboard';
 
 interface OverlaySetupModalProps {

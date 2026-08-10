@@ -5,7 +5,7 @@ import { validate } from '../../core/middleware/validate';
 import { regenerateKeySchema, submitFeedbackSchema } from './system.schema';
 
 import { csrfProtection } from '../../core/middleware/csrfProtection';
-import { globalRateLimiter } from '../../core/middleware/redisRateLimiter';
+import { feedbackRateLimiter, globalRateLimiter } from '../../core/middleware/redisRateLimiter';
 
 const router = express.Router();
 
@@ -21,6 +21,7 @@ router.post(
 router.post(
     '/feedback',
     globalRateLimiter,
+    feedbackRateLimiter,
     csrfProtection,
     validate(submitFeedbackSchema),
     /* codeql[js/missing-rate-limiting] */ systemController.submitFeedback

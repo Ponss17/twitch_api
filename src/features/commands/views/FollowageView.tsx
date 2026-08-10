@@ -30,7 +30,7 @@ export function FollowageView() {
         await runTest({
             buildUrl: (apiKey) =>
                 buildCommandTestUrl(
-                    `${API_ENDPOINTS.BASE}/followage/`,
+                    `${API_ENDPOINTS.FOLLOWAGE}`,
                     { user: userVal, channel: channelVal },
                     apiKey
                 ),

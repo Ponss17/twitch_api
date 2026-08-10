@@ -1,5 +1,5 @@
 import { bindCommandStoreUser } from '@/features/commands/lib/commandStore';
-import { clearDashboardSplashFlags } from '@/features/dashboard/lib/splashFlags';
+import { clearDashboardSplashFlags } from '@/core/session/splashFlags';
 import { getSession, removeSessionStorage } from './sessionStorage';
 import { clearValidateCache } from './validateCache';
 import { clearRevealedApiKeyCache } from './revealApiKey';

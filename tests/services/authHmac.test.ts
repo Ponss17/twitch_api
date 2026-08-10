@@ -62,7 +62,6 @@ describe('auth.service HMAC helpers', () => {
 
     it('verifyAuthExchange round-trips signed exchange tokens', () => {
         const payload = {
-            apiKey: 'sk_test',
             userId: 'user-1',
             login: 'streamer',
             displayName: 'Streamer'
@@ -75,7 +74,6 @@ describe('auth.service HMAC helpers', () => {
     it('verifyAuthExchange rejects expired tokens', () => {
         const encoded = Buffer.from(
             JSON.stringify({
-                apiKey: 'sk_test',
                 userId: 'user-1',
                 login: 'streamer',
                 displayName: 'Streamer',
@@ -93,7 +91,6 @@ describe('auth.service HMAC helpers', () => {
 
     it('consumeAuthExchangeToken allows first use and rejects replay', async () => {
         const payload = {
-            apiKey: 'sk_test',
             userId: 'user-1',
             login: 'streamer',
             displayName: 'Streamer'
@@ -108,7 +105,6 @@ describe('auth.service HMAC helpers', () => {
         (cacheService.setIfAbsent as jest.Mock).mockResolvedValueOnce('exists');
 
         const token = signAuthExchange({
-            apiKey: 'sk_test2',
             userId: 'user-2',
             login: 'streamer',
             displayName: 'Streamer'
@@ -123,7 +119,6 @@ describe('auth.service HMAC helpers', () => {
         (cacheService.setIfAbsent as jest.Mock).mockResolvedValueOnce('unavailable');
 
         const token = signAuthExchange({
-            apiKey: 'sk_test_prod',
             userId: 'user-prod-down',
             login: 'streamer-prod',
             displayName: 'Streamer Prod'

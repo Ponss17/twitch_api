@@ -1,0 +1,131 @@
+---
+title: "Slots"
+description: "Tragamonedas del chat. En Nightbot: 3 mensajes (carretes). En otros bots: solo el resultado."
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import ApiEndpoint from '@/components/docs/ApiEndpoint.astro';
+import AuthNotice from '@/components/docs/AuthNotice.astro';
+import ApiParamsTable from '@/components/docs/ApiParamsTable.astro';
+import ApiFlowRequest from '@/components/docs/ApiFlowRequest.astro';
+import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
+
+Minijuego de **tragamonedas** para el chat: tres símbolos al azar y un veredicto (jackpot, casi o nada).
+
+Con **Nightbot**, el bot revela los carretes en **3 mensajes** (primer símbolo → segundo → resultado), con ~5 s entre cada uno. Con StreamElements, Fossabot u otros, el bot publica **solo la línea final**.
+
+<ApiEndpoint path="/minigames/slots" />
+<AuthNotice />
+
+## Cómo se ve en el chat (Nightbot)
+
+```text
+viewer123: !slots
+Nightbot:  🎰 @viewer123 gira... 🍒 | ❓ | ❓
+           (≈ 5 s)
+Nightbot:  🎰 🍒 | 🍋 | ❓
+           (≈ 5 s)
+Nightbot:  🎰 🍒 | 🍋 | 🔔 — @viewer123 no se lleva nada esta vez. ¡Otra!
+```
+
+Los mensajes salen **como Nightbot**, usando el header `Nightbot-Response-Url` (misma idea que el [Duelo](/docs/minijuegos/duel/)).
+
+## Parámetros
+
+<ApiParamsTable params={[
+  { name: 'user', type: 'string', required: false, description: 'Viewer que tira. Si el bot no sustituye la variable (`$(user)` sin reemplazar), se usa un placeholder genérico.' },
+  { name: 'channel', type: 'string', required: false, description: 'Login del canal (el generador del panel ya lo incluye).' },
+  { name: 'interval', type: 'number', required: false, description: 'Segundos entre mensajes Nightbot (mínimo y default: `5`).' },
+  { name: 'lang', type: 'string', required: false, description: 'Idioma de la respuesta: `es` (default), `en` o `pt`.' },
+  { name: 'apiKey', type: 'string', required: true, description: 'Clave de API de tu cuenta.' },
+]} />
+
+## Resultados
+
+| Resultado | Condición |
+| --- | --- |
+| Jackpot | Tres símbolos iguales |
+| Casi | Dos iguales |
+| Nada | Tres distintos |
+
+Símbolos posibles: 🍒 🍋 🔔 ⭐ 💎 7️⃣
+
+<Aside type="note" title="Comportamiento">
+  En Nightbot la API responde el 1.er mensaje al `urlfetch` y publica el 2.º y 3.º con el Response-Url del bot. En otros bots responde solo la línea final (con emoji 🎰).
+</Aside>
+
+<div class="api-flow">
+
+## Ejemplo de petición
+
+<ApiFlowRequest
+  flowId="flow-slots"
+  path="/minigames/slots"
+  query={{
+    channel: 'tu_canal',
+    user: 'viewer123',
+    apiKey: 'TU_API_KEY',
+  }}
+/>
+
+## Respuestas
+
+<ApiFlowResponse
+  flowId="flow-slots"
+  responses={[
+  {
+    tabLabel: '200 Nightbot',
+    status: 200,
+    format: 'text',
+    body: '🎰 @viewer123 gira... 🍒 | ❓ | ❓',
+  },
+  {
+    tabLabel: '200 otros bots',
+    status: 200,
+    format: 'text',
+    body: '🎰 🍒 | 🍋 | 🔔 — @viewer123 no se lleva nada esta vez. ¡Otra!',
+  },
+  {
+    tabLabel: '500',
+    status: 500,
+    format: 'text',
+    body: 'Error al girar los slots.',
+  },
+]} />
+
+</div>
+
+## Integración con bots
+
+<Tabs>
+  <TabItem label="Nightbot">
+    ```text
+    !addcom !slots $(urlfetch https://ttv.losperris.dev/api/minigames/slots?channel=TU_CANAL&user=$(user)&apiKey=TU_API_KEY)
+    ```
+    Nightbot enviará los 3 mensajes como el bot.
+  </TabItem>
+  <TabItem label="StreamElements">
+    ```text
+    !command add !slots ${customapi.https://ttv.losperris.dev/api/minigames/slots?channel=TU_CANAL&user=${user}&apiKey=TU_API_KEY}
+    ```
+    Un solo mensaje con el resultado final.
+  </TabItem>
+  <TabItem label="Fossabot">
+    ```text
+    !addcmd !slots $(customapi https://ttv.losperris.dev/api/minigames/slots?channel=TU_CANAL&user=$(user)&apiKey=TU_API_KEY)
+    ```
+    Un solo mensaje con el resultado final.
+  </TabItem>
+  <TabItem label="Worybot">
+    ```text
+    !command add !slots $(urlfetch https://ttv.losperris.dev/api/minigames/slots?channel=TU_CANAL&user=$(user_name)&apiKey=TU_API_KEY)
+    ```
+    Un solo mensaje con el resultado final.
+  </TabItem>
+  <TabItem label="Streamlabs">
+    ```text
+    {readapi.https://ttv.losperris.dev/api/minigames/slots?channel=TU_CANAL&user={user.name}&apiKey=TU_API_KEY}
+    ```
+    Un solo mensaje con el resultado final.
+  </TabItem>
+</Tabs>

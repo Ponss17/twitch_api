@@ -7,7 +7,7 @@ import {
     setAllFilters,
     tagsMatchFilters,
     userMatchesFilters
-} from '@/features/roulette/lib/eligibility';
+} from '@/features/tools/lib/eligibility';
 
 describe('rouletteEligibility', () => {
     const rlT = { all: 'Todos', none: 'Ninguno', roles: { subs: 'Subs', mods: 'Mods', vips: 'VIPs', viewers: 'Viewers' } };

@@ -1,24 +1,6 @@
 import { z } from 'zod';
 import { twitchUsername } from '../../core/schemas/twitchUsername';
 
-export const getClipsSchema = z.object({
-    query: z.object({
-        channel: twitchUsername,
-        limit: z.coerce.number().min(1).max(100).default(20)
-    })
-});
-
-export const getChattersSchema = z.object({
-    query: z.object({
-        channel: twitchUsername,
-        eligibility: z
-            .string()
-            .max(48)
-            .regex(/^(all|(subs|mods|vips|viewers)(,(subs|mods|vips|viewers))*)$/)
-            .optional()
-    })
-});
-
 const loginQuery = z.object({
     login: twitchUsername
 });
@@ -60,14 +42,6 @@ export const deleteAccountSchema = z.object({
     body: z.object({
         confirm: z.string().refine((val) => val === 'ELIMINAR', {
             message: 'Debes escribir ELIMINAR para confirmar esta acción.'
-        })
-    })
-});
-
-export const trackUsageSchema = z.object({
-    body: z.object({
-        tool: z.enum(['trends', 'stalker', 'roulette'] as const, {
-            message: 'Herramienta inválida. Valores: trends, stalker, roulette'
         })
     })
 });

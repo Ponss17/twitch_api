@@ -109,7 +109,12 @@ export function AnalyticsKPIs({
             action={<RangeToggle timeRange={timeRange} setTimeRange={setTimeRange} t={t} />}
             panelClassName="min-h-[150px]"
         >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" aria-busy={isLoading}>
+            <div
+                className={`grid grid-cols-1 md:grid-cols-2 ${
+                    timeRange === 'today' ? 'lg:grid-cols-3' : 'lg:grid-cols-4'
+                }`}
+                aria-busy={isLoading}
+            >
                 <div className="pb-5 md:pr-6 lg:pb-0">
                     <KpiTile
                         label={kpis.requests}
@@ -126,24 +131,30 @@ export function AnalyticsKPIs({
                     </KpiTile>
                 </div>
 
-                <div className="border-t border-border-strong py-5 md:border-l md:border-t-0 md:px-6 lg:py-0">
-                    <KpiTile
-                        label={kpis.successRate}
-                        icon={CheckCircle2}
-                        iconClass="border-primary/25 bg-transparent text-primary"
-                        subtext={timeRange === 'today' ? kpis.successToday : kpis.success7d}
-                    >
-                        <AnimatedNumber
-                            value={displaySuccessRate}
-                            duration={successDuration}
-                            suffix="%"
-                            isLoading={isLoading}
-                            className="text-[1.85rem] font-bold leading-none tracking-tight text-text-main"
-                        />
-                    </KpiTile>
-                </div>
+                {timeRange === '7d' ? (
+                    <div className="border-t border-border-strong py-5 md:border-l md:border-t-0 md:px-6 lg:py-0">
+                        <KpiTile
+                            label={kpis.successRate}
+                            icon={CheckCircle2}
+                            iconClass="border-primary/25 bg-transparent text-primary"
+                            subtext={kpis.success7d}
+                        >
+                            <AnimatedNumber
+                                value={displaySuccessRate}
+                                duration={successDuration}
+                                suffix="%"
+                                isLoading={isLoading}
+                                className="text-[1.85rem] font-bold leading-none tracking-tight text-text-main"
+                            />
+                        </KpiTile>
+                    </div>
+                ) : null}
 
-                <div className="border-t border-border-strong py-5 md:pr-6 lg:border-l lg:border-t-0 lg:px-6 lg:py-0">
+                <div
+                    className={`border-t border-border-strong py-5 md:pr-6 lg:border-l lg:border-t-0 lg:px-6 lg:py-0 ${
+                        timeRange === 'today' ? 'md:border-l md:border-t-0 md:pl-6 md:pr-0' : ''
+                    }`}
+                >
                     <KpiTile
                         label={kpis.latency}
                         icon={Gauge}

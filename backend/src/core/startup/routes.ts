@@ -12,6 +12,16 @@ import { jsonError } from '../utils/jsonResponse';
 import { stripTwitchPrefix } from '../middleware/twitchPrefix';
 import { overlayScopeGuard } from '../middleware/overlayScope';
 
+/**
+ * Composer HTTP único (aliases intencionales — no quitar sin auditar bots/OAuth).
+ *
+ * Montajes:
+ * - API: `/api/*` (frontend + bots) y `/` (tras `stripTwitchPrefix` de `/twitch/*`)
+ * - Auth: `/api/auth/*` (preferido) y `/auth/*` (legacy / consola Twitch) → features/auth
+ * - Health: `/health` y `/api/health`
+ * - SEO: `/robots.txt` + `/sitemap.xml` (+ `/api/...`) → features/system/seo.controller
+ * - Features API: `routes/index.ts` → minigames, dashboard(+tools), system, commands
+ */
 export const configureRoutes = (app: Application) => {
     app.use(stripTwitchPrefix);
     app.use((req, res, next) => {

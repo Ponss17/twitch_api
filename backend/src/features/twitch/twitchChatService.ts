@@ -329,16 +329,30 @@ export const getChatters = async (
             );
         if (cached) return cached;
 
-        const response = await apiClient.get('https://api.twitch.tv/helix/chat/chatters', {
-            params: {
-                broadcaster_id: broadcasterId,
-                moderator_id: moderatorId,
-                first: 100
-            },
-            headers: getHeaders(token)
-        });
-        const chatters = response.data.data;
-        // Cachear por 30 segundos — suficiente para evitar ráfagas repetidas
+        const chatters: { user_id: string; user_login: string; user_name: string }[] = [];
+        let cursor: string | undefined;
+        const MAX_PAGES = 10;
+
+        for (let page = 0; page < MAX_PAGES; page++) {
+            const response = await apiClient.get('https://api.twitch.tv/helix/chat/chatters', {
+                params: {
+                    broadcaster_id: broadcasterId,
+                    moderator_id: moderatorId,
+                    first: 100,
+                    ...(cursor ? { after: cursor } : {})
+                },
+                headers: getHeaders(token)
+            });
+            const rows = (response.data.data ?? []) as {
+                user_id: string;
+                user_login: string;
+                user_name: string;
+            }[];
+            chatters.push(...rows);
+            cursor = response.data.pagination?.cursor as string | undefined;
+            if (!cursor || rows.length === 0) break;
+        }
+
         await cacheService.set(cacheKey, chatters, CACHE_TTL_MATRIX.CHATTERS.default);
         return chatters;
     } catch (error) {

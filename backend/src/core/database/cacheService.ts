@@ -1,12 +1,47 @@
 import { kv } from './redisClient';
 import { StoredUser } from '../../types/twitch';
 import { CACHE_TTL_MATRIX, ownerScopedCacheKey } from '../config/cacheTtl';
+import { BoundedMap } from '../utils/boundedCache';
 
 /** Metadatos cacheables sin tokens OAuth (resolver con getUser en apiKeyValidator). */
 export type CachedApiUserMeta = Pick<
     StoredUser,
     'userId' | 'login' | 'displayName' | 'apiKey' | 'isActive' | 'profileImageUrl' | 'customRateLimit' | 'customCacheTtl' | 'role'
 >;
+
+const L1_MAX = 800;
+const L1_DEFAULT_TTL_MS = 15_000;
+const l1Cache = new BoundedMap<string, { value: unknown; expiry: number }>(L1_MAX);
+
+function l1Get<T>(key: string): T | undefined {
+    if (skipL1(key)) return undefined;
+    const hit = l1Cache.get(key);
+    if (!hit) return undefined;
+    if (hit.expiry < Date.now()) {
+        l1Cache.delete(key);
+        return undefined;
+    }
+    return hit.value as T;
+}
+
+function l1Set(key: string, value: unknown, ttlSeconds: number): void {
+    if (skipL1(key)) return;
+    const ttlMs = Math.max(1, Math.min(ttlSeconds, 120)) * 1000;
+    l1Cache.set(key, { value, expiry: Date.now() + Math.min(ttlMs, L1_DEFAULT_TTL_MS * 4) });
+}
+
+/** Claves de revocación / auth: siempre ir a KV (L1 cross-instance puede quedar stale). */
+function skipL1(key: string): boolean {
+    return (
+        key.startsWith('cache:overlay:revoke:') ||
+        key.startsWith('cache:apikey:revoked:') ||
+        key.startsWith('auth:revoke:')
+    );
+}
+
+function l1Del(key: string): void {
+    l1Cache.delete(key);
+}
 
 let kvWritesDisabled = false;
 
@@ -34,8 +69,14 @@ export function isKvWriteAvailable(): boolean {
 })();
 
 export const get = async <T = unknown>(key: string): Promise<T | null> => {
+    const cached = l1Get<T>(key);
+    if (cached !== undefined) return cached;
+
     try {
         const value = await kv.get<T>(`twitch_api:${key}`);
+        if (value !== null && value !== undefined) {
+            l1Set(key, value, 30);
+        }
         return value;
     } catch (error) {
         console.error('[Cache] Error KV get:', { key, error });
@@ -48,6 +89,7 @@ export const set = async <T = unknown>(
     value: T,
     ttlSeconds: number = 60
 ): Promise<void> => {
+    l1Set(key, value, ttlSeconds);
     if (!isKvWriteAvailable()) return;
     try {
         await kv.set(`twitch_api:${key}`, value, { ex: ttlSeconds });
@@ -85,6 +127,7 @@ export const setIfAbsent = async <T = unknown>(
         if (result === null || result === undefined) {
             return 'exists';
         }
+        l1Set(key, value, ttlSeconds);
         return 'acquired';
     } catch (error) {
         if (process.env.NODE_ENV !== 'production') {
@@ -97,6 +140,7 @@ export const setIfAbsent = async <T = unknown>(
 };
 
 export const del = async (key: string): Promise<void> => {
+    l1Del(key);
     if (!isKvWriteAvailable()) return;
     try {
         await kv.del(`twitch_api:${key}`);
@@ -213,6 +257,7 @@ export const clearApiKeyRevocation = async (apiKey: string): Promise<void> => {
 };
 
 export const invalidateApiKeyCache = async (apiKey: string): Promise<void> => {
+    l1Del(`cache:apiuser:${apiKey}`);
     if (!isKvWriteAvailable()) return;
     try {
         await kv.del(`twitch_api:cache:apiuser:${apiKey}`);

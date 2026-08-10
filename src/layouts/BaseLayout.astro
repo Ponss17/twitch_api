@@ -5,7 +5,7 @@ import SpeedInsights from '@vercel/speed-insights/astro';
 import Analytics from '@vercel/analytics/astro';
 import { staticPath, absoluteAssetUrl } from '@/core/config/paths';
 import { pageTitle } from '@/core/config/pageTitle';
-import { getThemeInitScript } from '@/core/theme';
+import { getThemeInitScript, getBrandThemeInitScript } from '@/core/theme';
 
 export interface Props {
     /** Nombre de la página; se formatea como «Página | LosPerris». */
@@ -23,6 +23,11 @@ export interface Props {
     noindex?: boolean;
     /** Muestra el footer global al final de la página. */
     footer?: boolean;
+    /**
+     * Superficie pública de marca: fuerza tema dark sin tocar la preferencia
+     * guardada del panel (`los_perris_theme`).
+     */
+    brandTheme?: boolean;
 }
 
 const {
@@ -37,8 +42,11 @@ const {
     ogUrl,
     robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
     noindex = false,
-    footer = false
+    footer = false,
+    brandTheme = false
 } = Astro.props;
+
+const themeInitScript = brandTheme ? getBrandThemeInitScript() : getThemeInitScript();
 
 const documentTitle = title ?? (page ? pageTitle(page) : pageTitle('Inicio'));
 
@@ -67,7 +75,7 @@ const swScope = staticPath('/');
         <meta name="theme-color" content="#9146ff" />
         
         {/* Evitar Flash of Unstyled Content (FOUC) síncronamente */}
-        <script is:inline set:html={getThemeInitScript()} />
+        <script is:inline set:html={themeInitScript} />
         
         <!-- Open Graph -->
         <meta property="og:site_name" content="LosPerris" />

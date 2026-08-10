@@ -2,15 +2,16 @@ import React, { useEffect, useRef, useState, type ReactNode } from 'react';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { panelCard } from '@/core/utils/tw';
 
+/** Paleta de charts: tokens por tema (`--chart-1`…`--chart-8` en themes.css). */
 export const COLORS = [
-    'var(--primary)', // Theme Primary (Red in Liga, Purple in Dark/Light)
-    '#3b82f6', // Blue
-    '#10b981', // Emerald
-    '#f59e0b', // Amber
-    '#ef4444', // Red
-    '#ec4899', // Pink
-    '#8b5cf6', // Violet
-    '#06b6d4'  // Cyan
+    'var(--chart-1)',
+    'var(--chart-2)',
+    'var(--chart-3)',
+    'var(--chart-4)',
+    'var(--chart-5)',
+    'var(--chart-6)',
+    'var(--chart-7)',
+    'var(--chart-8)'
 ];
 
 /** Panel de analytics: estilo consistente con el dashboard (elevado) */
