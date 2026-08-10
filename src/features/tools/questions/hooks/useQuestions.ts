@@ -9,7 +9,7 @@ import {
     DEFAULT_ELIGIBILITY_FILTERS,
     hasAnyFilter,
     tagsMatchFilters,
-    type RouletteEligibilityFilters
+    type EligibilityFilters
 } from '@/features/tools/lib/eligibility';
 
 export type QuestionStatus = 'pending' | 'answered' | 'skipped';
@@ -42,7 +42,7 @@ export function useQuestions({ tabActive = true }: { tabActive?: boolean } = {})
     const [isActive, setIsActive] = useState(false);
     const [keywordInput, setKeywordInput] = useState('pregunta');
     const [items, setItems] = useState<QuestionItem[]>([]);
-    const [filters, setFilters] = useState<RouletteEligibilityFilters>(DEFAULT_ELIGIBILITY_FILTERS);
+    const [filters, setFilters] = useState<EligibilityFilters>(DEFAULT_ELIGIBILITY_FILTERS);
 
     const keyword = useMemo(() => normalizeChatKeyword(keywordInput), [keywordInput]);
     const keywordRef = useRef(keyword);
