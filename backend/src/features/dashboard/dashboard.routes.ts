@@ -6,7 +6,7 @@ import * as overlayController from './overlay/controller';
 import { getViewerLeaderboard } from './viewerLeaderboard.controller';
 import toolsRoutes from '../tools/tools.routes';
 import { csrfProtection } from '../../core/middleware/csrfProtection';
-import { globalRateLimiter, heavyRateLimiter, revealKeyRateLimiter } from '../../core/middleware/redisRateLimiter';
+import { globalRateLimiter, heavyRateLimiter, revealKeyRateLimiter, destructiveAccountRateLimiter } from '../../core/middleware/redisRateLimiter';
 import { requireDashboardAjax } from '../../core/middleware/dashboardAjaxGuard';
 import { validate } from '../../core/middleware/validate';
 import {
@@ -58,23 +58,34 @@ router.post(
     globalRateLimiter,
     csrfProtection,
     validate(clearUserDataSchema),
-    /* codeql[js/missing-rate-limiting] */ accountController.clearUserData
+    // codeql[js/missing-rate-limiting]: globalRateLimiter + app-level limiter (Redis KV; CodeQL no lo modela).
+    accountController.clearUserData
 );
 router.delete(
     '/delete-account',
     heavyRateLimiter,
+    destructiveAccountRateLimiter,
     csrfProtection,
     validate(deleteAccountSchema),
-    /* codeql[js/missing-rate-limiting] */ accountController.deleteAccount
+    // codeql[js/missing-rate-limiting]: heavyRateLimiter + destructiveAccountRateLimiter (Redis KV).
+    accountController.deleteAccount
 );
 
-router.post('/export-check', globalRateLimiter, csrfProtection, validate(exportCheckSchema), /* codeql[js/missing-rate-limiting] */ settingsController.exportCheck);
+router.post(
+    '/export-check',
+    globalRateLimiter,
+    csrfProtection,
+    validate(exportCheckSchema),
+    // codeql[js/missing-rate-limiting]: globalRateLimiter + app-level limiter (Redis KV).
+    settingsController.exportCheck
+);
 router.post(
     '/export-complete',
     globalRateLimiter,
     csrfProtection,
     validate(exportCompleteSchema),
-    /* codeql[js/missing-rate-limiting] */ settingsController.recordExportComplete
+    // codeql[js/missing-rate-limiting]: globalRateLimiter + app-level limiter (Redis KV).
+    settingsController.recordExportComplete
 );
 
 router.get(

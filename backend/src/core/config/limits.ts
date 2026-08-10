@@ -7,5 +7,7 @@ export const RATE_LIMITS = {
     /** Fallback legacy; la cuota real de heavy viene de USER_ROLES.heavyLimit */
     HEAVY: 5,
     REVEAL_API_KEY: 5, // Revelar API Key en panel (por minuto / usuario)
-    FEEDBACK: 5 // Feedback Discord (por 15 min / usuario+IP)
+    FEEDBACK: 5, // Feedback Discord (por 15 min / usuario+IP)
+    /** Borrar cuenta / acciones destructivas (por 15 min / usuario) */
+    DESTRUCTIVE_ACCOUNT: 3
 };
