@@ -266,6 +266,6 @@ export const invalidateApiKeyCache = async (apiKey: string): Promise<void> => {
             disableKvWrites('KV no permite escritura');
             return;
         }
-        console.error(`[Cache] Error KV del apiuser (${apiKey}):`, error);
+        console.error('[Cache] Error KV del apiuser:', { apiKey, error });
     }
 };

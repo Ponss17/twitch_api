@@ -303,3 +303,35 @@ export const feedbackRateLimiter = async (req: Request, res: Response, next: Nex
         });
     }
 };
+
+/** Borrar cuenta — cuota estricta (3 / 15 min por usuario). */
+export const destructiveAccountRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
+    const apiUser = res.locals?.apiUser as { userId?: string } | undefined;
+    const userId = apiUser?.userId;
+    if (!userId) return next();
+
+    const key = `rl:destructive-account:${userId}`;
+    const windowSeconds = 15 * 60;
+    const limit = RATE_LIMITS.DESTRUCTIVE_ACCOUNT;
+
+    try {
+        const count = await kvIncrWithWindow(key, windowSeconds);
+        if (count > limit) {
+            return res.status(429).json({
+                error: 'Too Many Requests',
+                message: 'Demasiados intentos de eliminar la cuenta. Espera unos minutos.'
+            });
+        }
+        return next();
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            logger.debug('KV destructive-account rate limit omitido en desarrollo', { error });
+            return next();
+        }
+        logger.error('Error in Destructive Account Rate Limiter:', error);
+        return res.status(503).json({
+            error: 'Service Unavailable',
+            message: 'Servicio temporalmente no disponible'
+        });
+    }
+};
