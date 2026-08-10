@@ -91,6 +91,8 @@ const DASHBOARD_TAB_SLUGS = new Set([
     'roulette',
     'russian',
     'duel',
+    'slots',
+    'questions',
     'settings',
     'feedback'
 ]);
@@ -174,6 +176,7 @@ export default defineConfig({
                 Header: './src/components/StarlightHeader.astro',
                 SiteTitle: './src/components/StarlightSiteTitle.astro',
                 ThemeSelect: './src/components/StarlightThemeSelect.astro',
+                ThemeProvider: './src/components/StarlightThemeProvider.astro',
                 Sidebar: './src/components/StarlightSidebar.astro',
             },
             customCss: [
@@ -220,6 +223,7 @@ export default defineConfig({
                         { label: 'Bola 8', link: '/docs/minijuegos/magic8/' },
                         { label: 'Ruleta Rusa', link: '/docs/minijuegos/russian/' },
                         { label: 'Duelo', link: '/docs/minijuegos/duel/' },
+                        { label: 'Slots', link: '/docs/minijuegos/slots/' },
                     ]
                 },
                 {

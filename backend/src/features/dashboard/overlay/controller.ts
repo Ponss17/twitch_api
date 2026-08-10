@@ -8,7 +8,7 @@ import { AuthenticatedRequest } from '../../../types/twitch';
 import { jsonError } from '../../../core/utils/jsonResponse';
 import { frontendPagePath } from '../../../core/utils/frontendPaths';
 import { signOverlayReadToken } from '../../auth/auth.service';
-import { overlayPagePath, overlayStateKey } from './keys';
+import { overlayPagePath, overlayStateKey } from '../../../core/overlay/keys';
 
 function overlayToolMismatch(res: Response, requestedTool: string): boolean {
     const tokenTool = res.locals?.overlayTool as string | undefined;

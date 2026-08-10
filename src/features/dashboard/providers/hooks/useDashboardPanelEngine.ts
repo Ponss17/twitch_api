@@ -21,10 +21,12 @@ import type { useDashboardPanelState } from './useDashboardPanelState';
 const PANEL_SYNC_CHANNEL = 'dashboard_panel_data_sync';
 const POLL_MS = DASHBOARD_POLL_MS;
 const FALLBACK_POLL_MS = DASHBOARD_FALLBACK_POLL_MS;
-const REALTIME_SAFETY_POLL_MS = 20_000;
+const REALTIME_SAFETY_POLL_MS = 75_000;
+const REALTIME_SAFETY_POLL_IDLE_MS = 120_000;
 
 interface UseDashboardPanelEngineOptions {
     active: boolean;
+    prioritySync?: boolean;
     session: Session;
     showToast: (message: string, type: 'success' | 'error' | 'warning') => void;
     state: ReturnType<typeof useDashboardPanelState>['state'];
@@ -34,6 +36,7 @@ interface UseDashboardPanelEngineOptions {
 
 export function useDashboardPanelEngine({
     active,
+    prioritySync = true,
     session,
     showToast,
     state,
@@ -48,6 +51,8 @@ export function useDashboardPanelEngine({
     const syncingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const activeRef = useRef(active);
     activeRef.current = active;
+    const prioritySyncRef = useRef(prioritySync);
+    prioritySyncRef.current = prioritySync;
     const sessionRef = useRef(session);
     sessionRef.current = session;
     const showToastRef = useRef(showToast);
@@ -288,7 +293,7 @@ export function useDashboardPanelEngine({
                     return;
                 }
                 void performSyncRef.current();
-            }, REALTIME_SAFETY_POLL_MS);
+            }, prioritySyncRef.current ? REALTIME_SAFETY_POLL_MS : REALTIME_SAFETY_POLL_IDLE_MS);
         } else if (active && state.isTabLeader) {
             startSmartPollingRef.current();
         } else if (pollRef.current) {
@@ -302,7 +307,7 @@ export function useDashboardPanelEngine({
                 pollRef.current = null;
             }
         };
-    }, [active, isRealtimeLive, state.isTabLeader]);
+    }, [active, isRealtimeLive, state.isTabLeader, prioritySync]);
 
     useEffect(() => {
         if (!state.isTabLeader) return;

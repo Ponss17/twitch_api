@@ -23,4 +23,4 @@ export {
     markDashboardSplashForFreshLogin,
     clearDashboardSplashFlags,
     shouldShowDashboardSplash
-} from '@/features/dashboard/lib/splashFlags';
+} from '@/core/session/splashFlags';

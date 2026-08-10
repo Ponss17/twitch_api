@@ -188,6 +188,7 @@ export class RealtimeService {
                 const keyMap: Record<string, keyof DashboardLiveStats> = {
                     clips: 'clips',
                     followage: 'followage',
+                    watchtime: 'watchtime',
                     so: 'so',
                     message: 'message',
                     stalker: 'stalker',
@@ -195,7 +196,8 @@ export class RealtimeService {
                     roulette: 'roulette',
                     russian: 'russian',
                     magic8: 'magic8',
-                    duel: 'duel'
+                    duel: 'duel',
+                    slots: 'slots'
                 };
 
                 const patch: Partial<RealtimeStatsUpdate> = {};

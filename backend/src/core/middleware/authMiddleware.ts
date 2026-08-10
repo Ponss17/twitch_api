@@ -153,13 +153,18 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
 
         if (queryToken && !token) {
             const ip = req.headers['x-forwarded-for'] ?? req.socket?.remoteAddress ?? 'unknown';
-            logger.warn('[Security] Token recibido en query/body (deprecado) — usar Authorization: Bearer', {
-                ip,
-                path: req.path
-            });
-            token = queryToken;
-        } else if (!token) {
-            token = queryToken;
+            if (process.env.NODE_ENV === 'production') {
+                logger.warn('[Security] Token en query/body rechazado en producción', {
+                    ip,
+                    path: req.path
+                });
+            } else {
+                logger.warn('[Security] Token recibido en query/body (deprecado) — usar Authorization: Bearer', {
+                    ip,
+                    path: req.path
+                });
+                token = queryToken;
+            }
         }
 
         if (!token) {

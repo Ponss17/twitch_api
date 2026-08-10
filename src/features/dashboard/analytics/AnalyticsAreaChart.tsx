@@ -107,7 +107,7 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                             name={chart.requests}
                             stroke="var(--primary)"
                             strokeWidth={3}
-                            activeDot={{ r: 6, strokeWidth: 2, stroke: '#18181b', fill: 'var(--primary)' }}
+                            activeDot={{ r: 6, strokeWidth: 2, stroke: 'var(--bg-main)', fill: 'var(--primary)' }}
                             fillOpacity={0.15}
                             fill="var(--primary)"
                         />

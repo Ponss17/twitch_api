@@ -29,7 +29,7 @@ export function ShoutoutView() {
         await runTest({
             buildUrl: (apiKey) =>
                 buildCommandTestUrl(
-                    `${API_ENDPOINTS.BASE}/shoutout/`,
+                    `${API_ENDPOINTS.SHOUTOUT}`,
                     { channel: channelVal, touser: target },
                     apiKey
                 )

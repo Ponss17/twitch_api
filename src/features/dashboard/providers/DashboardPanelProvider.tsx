@@ -31,6 +31,7 @@ export function useDashboardPanel(): DashboardPanelContextValue {
 
 interface DashboardPanelProviderProps {
     active: boolean;
+    prioritySync?: boolean;
     session: Session;
     showToast: (message: string, type: 'success' | 'error' | 'warning') => void;
     children: ReactNode;
@@ -38,6 +39,7 @@ interface DashboardPanelProviderProps {
 
 export function DashboardPanelProvider({
     active,
+    prioritySync = true,
     session,
     showToast,
     children
@@ -46,6 +48,7 @@ export function DashboardPanelProvider({
 
     useDashboardPanelEngine({
         active,
+        prioritySync,
         session,
         showToast,
         state,

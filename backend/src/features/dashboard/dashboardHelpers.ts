@@ -53,6 +53,7 @@ export const buildEmptyUserAnalytics = (): Record<string, number | string> => {
     const stats: Record<string, number> = {
         clips: 0,
         followage: 0,
+        watchtime: 0,
         so: 0,
         stalker: 0,
         trends: 0,
@@ -61,6 +62,7 @@ export const buildEmptyUserAnalytics = (): Record<string, number | string> => {
         russian: 0,
         magic8: 0,
         duel: 0,
+        slots: 0,
         today_req_raw: 0,
         today_err_raw: 0,
         today_lat_raw: 0,

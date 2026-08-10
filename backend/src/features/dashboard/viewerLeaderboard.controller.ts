@@ -7,6 +7,7 @@ import { logger } from '../../core/utils/logger';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { MESSAGES } from '../../core/config/messages';
 import { AuthenticatedRequest } from '../../types/twitch';
+import { VIEWER_ACTIVITY_TYPES } from '../../core/schemas/commandCatalog';
 
 export interface ViewerLeaderboardEntry {
     user_name: string;
@@ -42,19 +43,18 @@ export const getViewerLeaderboard = async (req: AuthenticatedRequest, res: Respo
 
         // Solo contamos activity_types donde user_name es un viewer del chat,
         // no acciones propias del streamer (message, stalker, trends, roulette, tool)
-        const VIEWER_TYPES = ['followage', 'clip', 'shoutout', 'magic8', 'russian', 'duel'];
-
-        // Query agrupada: cuenta cuántas veces aparece cada viewer
         const { data, error } = await supabase
             .from('activity_logs')
             .select('user_name, created_at')
             .eq('user_id', userId)
             .gte('created_at', fromDate)
-            .in('activity_type', VIEWER_TYPES)
+            .in('activity_type', [...VIEWER_ACTIVITY_TYPES])
             .neq('user_name', 'Anónimo')
             .neq('user_name', 'Streamer')
             .neq('user_name', 'Canal')
-            .order('created_at', { ascending: false });
+            .order('created_at', { ascending: false })
+            // Cap para evitar payload enorme; el índice compuesto reduce el scan.
+            .limit(2500);
 
         if (error) {
             logger.error('Error obteniendo leaderboard de viewers:', error.message);

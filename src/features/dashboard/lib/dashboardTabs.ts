@@ -9,17 +9,13 @@ import {
     TrendingUp,
     Binoculars,
     Dices,
-    CircleDot,
-    Crosshair,
     Swords,
     MessageSquare,
     BarChart3,
-    Clock
+    Clock,
+    MessageCircleQuestion
 } from 'lucide-react';
-
-/** Iconos canónicos de minijuegos (sidebar, docs, comandos, landing). */
-export const MAGIC8_ICON = CircleDot;
-export const RUSSIAN_ICON = Crosshair;
+import { MAGIC8_ICON, RUSSIAN_ICON, SLOTS_ICON } from '@/features/minigames/icons';
 
 export interface NavItem {
     id: DashboardTab;
@@ -38,9 +34,11 @@ export const NAV_ITEMS: NavItem[] = [
     { id: 'trends', label: 'Tendencias', icon: TrendingUp, category: 'tools' },
     { id: 'stalker', label: 'Stalker', icon: Binoculars, category: 'tools' },
     { id: 'roulette', label: 'Ruleta', icon: Dices, category: 'tools' },
+    { id: 'questions', label: 'Preguntas', icon: MessageCircleQuestion, category: 'tools' },
     { id: 'magic8', label: 'Bola 8', icon: MAGIC8_ICON, category: 'minigames' },
     { id: 'russian', label: 'Ruleta Rusa', icon: RUSSIAN_ICON, category: 'minigames' },
     { id: 'duel', label: 'Duelo', icon: Swords, category: 'minigames' },
+    { id: 'slots', label: 'Slots', icon: SLOTS_ICON, category: 'minigames' },
     { id: 'feedback', label: 'Feedback', icon: MessageSquare, category: 'support' }
 ];
 

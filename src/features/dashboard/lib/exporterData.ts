@@ -31,38 +31,38 @@ export const COMMAND_INTEGRATIONS = [
     {
         id: 'followage',
         label: 'Followage (Tiempo de Seguimiento)',
-        description: 'Muestra cuanto tiempo lleva alguien siguiendo',
+        description: 'Muestra cuánto tiempo lleva alguien siguiendo',
         variants: [
-            { name: 'Texto por Defecto', params: 'channel=$(channel)&user=$(touser)', desc: 'Texto estandar de la API' },
+            { name: 'Texto por Defecto', params: 'channel=$(channel)&user=$(touser)', desc: 'Texto estándar de la API' },
             { name: 'Plantilla Personalizada', params: 'channel=$(channel)&user=$(touser)&template={user}%20lleva%20{time}%20bancando%20a%20{channel}', desc: 'Personaliza tu propia respuesta ({time}, {user}, {channel})' }
         ]
     },
     {
         id: 'watchtime',
         label: 'Watchtime (Tiempo de Visualización)',
-        description: 'Muestra cuanto tiempo lleva alguien viendo el stream',
+        description: 'Muestra cuánto tiempo lleva alguien viendo el stream',
         variants: [
-            { name: 'Texto por Defecto', params: 'channel=$(channel)&user=$(touser)', desc: 'Texto estandar de la API' },
+            { name: 'Texto por Defecto', params: 'channel=$(channel)&user=$(touser)', desc: 'Texto estándar de la API' },
             { name: 'Plantilla Personalizada', params: 'channel=$(channel)&user=$(touser)&template={user}%20lleva%20viendo%20a%20{channel}%20por%20{time}', desc: 'Personaliza tu propia respuesta ({time}, {user}, {channel})' }
         ]
     },
     {
         id: 'so',
-        label: 'Shoutout (Promocion)',
+        label: 'Shoutout (Promoción)',
         description: 'Promociona a otro streamer en el chat',
         variants: [
-            { name: 'Shoutout Estandar', params: 'channel=$(channel)&touser=$(touser)', desc: 'Muestra la ultima categoria y enlace del streamer' },
+            { name: 'Shoutout Estándar', params: 'channel=$(channel)&touser=$(touser)', desc: 'Muestra la última categoría y enlace del streamer' },
             { name: 'Shoutout Personalizado', params: 'channel=$(channel)&touser=$(touser)&template=Vayan%20a%20seguir%20a%20{user},%20estuvo%20jugando%20{game}!%20{url}', desc: 'Plantilla a medida ({user}, {game}, {url})' }
         ]
     },
     {
         id: 'magic8',
-        label: 'Bola 8 Magica',
+        label: 'Bola 8 Mágica',
         description: 'Responde preguntas con la IA de LosPerris',
         variants: [
-            { name: 'Bola 8 Clasica', params: 'question=$(query)&user=$(user)&mood=classic', desc: 'Respuestas solemnes y misticas' },
-            { name: 'Bola 8 Sarcastica', params: 'question=$(query)&user=$(user)&mood=sarcastic', desc: 'Respuestas cinicas y condescendientes' },
-            { name: 'Bola 8 Toxica', params: 'question=$(query)&user=$(user)&mood=toxic', desc: 'Respuestas posesivas y manipuladoras' },
+            { name: 'Bola 8 Clásica', params: 'question=$(query)&user=$(user)&mood=classic', desc: 'Respuestas solemnes y místicas' },
+            { name: 'Bola 8 Sarcástica', params: 'question=$(query)&user=$(user)&mood=sarcastic', desc: 'Respuestas cínicas y condescendientes' },
+            { name: 'Bola 8 Tóxica', params: 'question=$(query)&user=$(user)&mood=toxic', desc: 'Respuestas posesivas y manipuladoras' },
             { name: 'Bola 8 Amable', params: 'question=$(query)&user=$(user)&mood=helpful', desc: 'Respuestas dulces y motivacionales' }
         ]
     },
@@ -81,20 +81,29 @@ export const COMMAND_INTEGRATIONS = [
         label: 'Duelo 1v1',
         description: 'Peleas a muerte entre dos espectadores',
         variants: [
-            { name: 'Duelo Estandar', params: 'challenger=$(user)&target=$(touser)', desc: 'Enfrenta al usuario actual contra quien mencione' }
+            { name: 'Duelo Estándar', params: 'challenger=$(user)&target=$(touser)', desc: 'Enfrenta al usuario actual contra quien mencione' }
+        ]
+    },
+    {
+        id: 'slots',
+        label: 'Slots',
+        description: 'Tragamonedas sencilla para el chat',
+        variants: [
+            { name: 'Girar slots', params: 'channel=$(channel)&user=$(user)', desc: 'Tres carretes: jackpot, casi o nada' }
         ]
     },
     {
         id: 'roulette',
-        label: 'Ruleta Casino',
-        description: 'Minijuego de suerte',
+        label: 'Ruleta de Sorteos',
+        description: 'Sorteos del chat con overlay (solo Dashboard)',
+        dashboard: true,
         variants: [
-            { name: 'Jugar Ruleta', params: 'channel=$(channel)&user=$(user)', desc: 'Apuestas de suerte estandar' }
+            { name: 'Dashboard', params: '', desc: 'Herramienta exclusiva del panel de control' }
         ]
     },
     {
         id: 'stalker',
-        label: 'Stalker (Escaner de Viewers)',
+        label: 'Stalker (Escáner de Viewers)',
         description: 'Analiza la lista de espectadores del canal (solo Dashboard)',
         dashboard: true,
         variants: [
@@ -104,7 +113,7 @@ export const COMMAND_INTEGRATIONS = [
     {
         id: 'trends',
         label: 'Trends (Tendencias de Chat)',
-        description: 'Rastrea palabras y frases mas usadas en el chat (solo Dashboard)',
+        description: 'Rastrea palabras y frases más usadas en el chat (solo Dashboard)',
         dashboard: true,
         variants: [
             { name: 'Dashboard', params: '', desc: 'Herramienta exclusiva del panel de control' }

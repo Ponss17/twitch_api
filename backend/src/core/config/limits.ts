@@ -6,5 +6,6 @@ export const RATE_LIMITS = {
     LOGIN: 15, // Intentos de login (por 5 min)
     /** Fallback legacy; la cuota real de heavy viene de USER_ROLES.heavyLimit */
     HEAVY: 5,
-    REVEAL_API_KEY: 5 // Revelar API Key en panel (por minuto / usuario)
+    REVEAL_API_KEY: 5, // Revelar API Key en panel (por minuto / usuario)
+    FEEDBACK: 5 // Feedback Discord (por 15 min / usuario+IP)
 };

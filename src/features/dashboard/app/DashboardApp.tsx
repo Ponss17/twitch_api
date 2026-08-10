@@ -28,10 +28,15 @@ function DashboardPanelShell({
 }) {
     const session = useRequiredSession();
     const { showToast } = useToast();
-    const panelActive = true;
+    const prioritySync = tab === 'home' || tab === 'analytics';
 
     return (
-        <DashboardPanelProvider active={panelActive} session={session} showToast={showToast}>
+        <DashboardPanelProvider
+            active
+            prioritySync={prioritySync}
+            session={session}
+            showToast={showToast}
+        >
             <DashboardContent tab={tab} onNavigate={onNavigate} />
         </DashboardPanelProvider>
     );

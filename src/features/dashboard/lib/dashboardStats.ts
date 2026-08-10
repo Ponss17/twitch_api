@@ -1,8 +1,8 @@
 /** Categorías del resumen de actividad y contadores por recurso. */
 export const DASHBOARD_USAGE_CATEGORIES = [
-    { id: 'cat-commands', keys: ['clips', 'followage', 'so'] as const },
+    { id: 'cat-commands', keys: ['clips', 'followage', 'watchtime', 'so', 'message'] as const },
     { id: 'cat-tools', keys: ['stalker', 'trends', 'roulette'] as const },
-    { id: 'cat-minigames', keys: ['russian', 'magic8', 'duel'] as const }
+    { id: 'cat-minigames', keys: ['russian', 'magic8', 'duel', 'slots'] as const }
 ] as const;
 
 export type DashboardUsageKey = (typeof DASHBOARD_USAGE_CATEGORIES)[number]['keys'][number];
@@ -78,6 +78,7 @@ export interface DashboardLiveStats {
     avgLatencyMs: number;
     clips: number;
     followage: number;
+    watchtime: number;
     so: number;
     message: number;
     stalker: number;
@@ -86,6 +87,7 @@ export interface DashboardLiveStats {
     russian: number;
     magic8: number;
     duel: number;
+    slots: number;
     timeSeries?: DashboardTimeSeriesRow[];
     leaderboardToday?: ViewerLeaderboardEntry[];
     leaderboardWeekly?: ViewerLeaderboardEntry[];
@@ -138,6 +140,7 @@ export function mergeDashboardStats(
 const COUNT_COLUMNS: Record<string, keyof DashboardLiveStats> = {
     clips_count: 'clips',
     followage_count: 'followage',
+    watchtime_count: 'watchtime',
     so_count: 'so',
     message_count: 'message',
     stalker_count: 'stalker',
@@ -145,7 +148,8 @@ const COUNT_COLUMNS: Record<string, keyof DashboardLiveStats> = {
     roulette_count: 'roulette',
     russian_count: 'russian',
     magic8_count: 'magic8',
-    duel_count: 'duel'
+    duel_count: 'duel',
+    slots_count: 'slots'
 };
 
 export function parseDashboardStatsFromRow(
@@ -219,6 +223,7 @@ export const EMPTY_DASHBOARD_LIVE_STATS: DashboardLiveStats = {
     avgLatencyMs: 0,
     clips: 0,
     followage: 0,
+    watchtime: 0,
     so: 0,
     message: 0,
     stalker: 0,
@@ -227,6 +232,7 @@ export const EMPTY_DASHBOARD_LIVE_STATS: DashboardLiveStats = {
     russian: 0,
     magic8: 0,
     duel: 0,
+    slots: 0,
     leaderboardToday: [],
     leaderboardWeekly: []
 };

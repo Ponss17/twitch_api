@@ -2,6 +2,7 @@ import { supabase } from './supabaseClient';
 import { logger } from '../utils/logger';
 import { getUserTimezone, setUserTimezone, hasUserTimezone } from './userTimezoneCache';
 import * as cacheService from './cacheService';
+import { VIEWER_ACTIVITY_TYPES } from '../schemas/commandCatalog';
 
 const DEFAULT_STAT_FIELDS = [
     'total_requests',
@@ -253,14 +254,12 @@ export const getViewerLeaderboards = async (userId: string, limit: number = 10) 
         const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const todayStr = getDateFormatter(tz).format(now);
 
-        const VIEWER_TYPES = ['followage', 'clip', 'shoutout', 'magic8', 'russian', 'duel'];
-
         const { data, error } = await supabase
             .from('activity_logs')
             .select('user_name, created_at')
             .eq('user_id', userId)
             .gte('created_at', sevenDaysAgo.toISOString())
-            .in('activity_type', VIEWER_TYPES)
+            .in('activity_type', [...VIEWER_ACTIVITY_TYPES])
             .neq('user_name', 'Anónimo')
             .neq('user_name', 'Streamer')
             .neq('user_name', 'Canal')

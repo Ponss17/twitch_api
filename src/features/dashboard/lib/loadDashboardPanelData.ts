@@ -25,16 +25,13 @@ export async function loadDashboardPanelData(
     session: Session,
     options?: { fresh?: boolean }
 ): Promise<DashboardPanelLoadResult> {
-    const [summaryResult, activityResult, profileResult] = await Promise.allSettled([
+    const [summaryResult, activityResult] = await Promise.allSettled([
         fetchDashboardSummary(session, undefined, { fresh: options?.fresh }),
         apiFetch<ActivityLogItem[] | { logs?: ActivityLogItem[] }>(
             API_ENDPOINTS.ACTIVITY,
             session,
             {},
             { logoutOn401: false }
-        ),
-        import('@/features/dashboard/lib/dashboardSummary').then((m) =>
-            m.fetchDashboardProfile(session, { fresh: options?.fresh })
         )
     ]);
 
@@ -50,10 +47,12 @@ export async function loadDashboardPanelData(
         failures.push(activityResult.reason);
     }
 
-    if (profileResult.status === 'fulfilled') {
-        profile = profileResult.value;
-    } else {
-        failures.push(profileResult.reason);
+    const summaryProfile =
+        summaryResult.status === 'fulfilled' && summaryResult.value.profile
+            ? (summaryResult.value.profile as DashboardProfile)
+            : null;
+    if (summaryProfile) {
+        profile = summaryProfile;
     }
 
     const statsTimeZone =
@@ -69,6 +68,9 @@ export async function loadDashboardPanelData(
             try {
                 const freshSummary = await fetchDashboardSummary(session, undefined, { fresh: true });
                 summary = freshSummary.analytics as Record<string, unknown> | null;
+                if (freshSummary.profile) {
+                    profile = freshSummary.profile as DashboardProfile;
+                }
             } catch (e) {
                 failures.push(e);
             }
@@ -79,6 +81,15 @@ export async function loadDashboardPanelData(
             : EMPTY_DASHBOARD_LIVE_STATS;
     } else {
         failures.push(summaryResult.reason);
+    }
+
+    if (!profile && session.login) {
+        try {
+            const { fetchDashboardProfile } = await import('@/features/dashboard/lib/dashboardSummary');
+            profile = await fetchDashboardProfile(session, { fresh: options?.fresh });
+        } catch (e) {
+            failures.push(e);
+        }
     }
 
     if (summaryResult.status === 'rejected' && activityResult.status === 'rejected') {

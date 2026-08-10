@@ -6,6 +6,7 @@ import {
     Clock,
     Crosshair,
     CircleDot,
+    Cherry,
     Dices,
     Megaphone,
     MessageSquare,
@@ -18,6 +19,7 @@ import type {
     ActivityLogType,
     DashboardActivityLog
 } from '@contracts/dashboardContracts';
+import { isActivityLogType } from '@contracts/commandCatalog';
 import type { Translations } from '@/core/i18n/locales/es';
 import { getBcp47, type Locale } from '@/core/i18n/I18nContext';
 
@@ -31,20 +33,6 @@ function metaStr(meta: Record<string, unknown> | undefined, key: string): string
     const val = meta?.[key];
     return typeof val === 'string' ? val.trim() : '';
 }
-
-const KNOWN_TYPES: ActivityLogType[] = [
-    'clip',
-    'followage',
-    'shoutout',
-    'message',
-    'russian',
-    'magic8',
-    'duel',
-    'stalker',
-    'trends',
-    'roulette',
-    'other'
-];
 
 export interface ActivityMeta {
     label: string;
@@ -72,11 +60,11 @@ function getActivityMetaDict(t: Translations): Record<ActivityLogType, Omit<Acti
             }
         },
         watchtime: {
-            label: 'Watchtime', // TODO: Podría añadirse a las traducciones del frontend
+            label: act.watchtime.label,
             icon: Clock,
             detailText: (item) => {
                 const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
-                return target ? act.followage.channel(target) : act.followage.defaultDetail; // Reutiliza la de followage para "canal"
+                return target ? act.watchtime.channel(target) : act.watchtime.defaultDetail;
             }
         },
         shoutout: {
@@ -116,6 +104,11 @@ function getActivityMetaDict(t: Translations): Record<ActivityLogType, Omit<Acti
                 return target ? act.duel.vs(target) : act.duel.defaultDetail;
             }
         },
+        slots: {
+            label: act.slots.label,
+            icon: Cherry,
+            detailText: () => act.slots.defaultDetail
+        },
         stalker: {
             label: act.stalker.label,
             icon: Binoculars,
@@ -140,8 +133,8 @@ function getActivityMetaDict(t: Translations): Record<ActivityLogType, Omit<Acti
 }
 
 export function normalizeActivityType(type?: string): ActivityLogType {
-    if (type && (KNOWN_TYPES as string[]).includes(type)) {
-        return type as ActivityLogType;
+    if (type && isActivityLogType(type)) {
+        return type;
     }
     return 'other';
 }

@@ -10,7 +10,7 @@ import { panelCard, fadeIn, textInput, hoverSubtleControl, hoverSubtleBorderedRo
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { ClipPlayerOverlay } from '@/features/clips/ClipPlayerOverlay';
 import { SelectField } from '@/shared/ui/SelectField';
-import { ClipCommandView } from '@/features/commands/CommandsViews';
+import { ClipCommandView } from '@/features/clips/ClipCommandView';
 import { Star, RotateCw, Link as LinkIcon, Images, Search, Play } from 'lucide-react';
 import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
 import { formatDate } from '@/core/utils/utils';
@@ -95,7 +95,7 @@ function ClipThumbnail({ src, alt = '', isAboveFold = false, isPriority = false 
     );
 }
 
-export function ClipsView() {
+export function ClipsView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
     const { t, locale } = useTranslation();
     const clipsT = t.clips;
@@ -143,14 +143,22 @@ export function ClipsView() {
 
             setLoading(true);
             try {
-                const params = new URLSearchParams({ channel: session.login });
+                const params = new URLSearchParams({
+                    channel: session.login,
+                    limit: String(ITEMS_PER_PAGE)
+                });
                 const data = await apiFetch<Clip[] | { clips?: Clip[]; data?: Clip[] }>(
                     `${API_ENDPOINTS.CLIPS}?${params}`,
                     session
                 );
                 const list = Array.isArray(data) ? data : data.clips ?? data.data ?? [];
                 setClips(list);
-                if (list.length > 0) cache.set(cacheKey, list, CACHE_TTL);
+                // No cachear vacío: un primer load sin clips ocultaría clips nuevos hasta el TTL.
+                if (list.length > 0) {
+                    cache.set(cacheKey, list, CACHE_TTL);
+                } else {
+                    cache.clear(cacheKey);
+                }
                 if (force) showToast(clipsT.toasts.updated, 'success');
             } catch {
                 showToast(clipsT.toasts.errorLoad, 'error');
@@ -163,8 +171,9 @@ export function ClipsView() {
     );
 
     useEffect(() => {
+        if (!active) return;
         void loadClips();
-    }, [loadClips]);
+    }, [active, loadClips]);
 
     const toggleFavorite = (clipId: string) => {
         if (!session.userId) return;

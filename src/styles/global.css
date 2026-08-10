@@ -125,7 +125,7 @@
     background-color: var(--bg-main);
     color: var(--text-main);
     scrollbar-width: thin;
-    scrollbar-color: var(--primary) var(--border-subtle);
+    scrollbar-color: var(--border-strong) transparent;
   }
 
   body {
@@ -133,8 +133,8 @@
   }
 
   *::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   *::-webkit-scrollbar-track {
@@ -142,14 +142,12 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background-color: var(--border-subtle);
-    border-radius: 20px;
-    border: 2px solid var(--bg-main);
+    background-color: color-mix(in srgb, var(--border-strong) 70%, transparent);
+    border-radius: 999px;
   }
 
   *::-webkit-scrollbar-thumb:hover {
     background-color: var(--border-strong);
-    background-clip: padding-box;
   }
 
   a:not([class]):not([role="button"]) {

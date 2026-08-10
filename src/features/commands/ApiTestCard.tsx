@@ -94,7 +94,7 @@ export function ApiTestCard({
                         visible ? 'flex animate-reveal-card' : 'hidden'
                     } ${
                         result.status === 'success'
-                            ? 'border-success/30 bg-[rgba(16,185,129,0.15)]'
+                            ? 'border-primary/30 bg-primary/10'
                             : result.status === 'error'
                               ? 'border-error/30 bg-error/15'
                               : ''
@@ -105,7 +105,7 @@ export function ApiTestCard({
                     }}
                 >
                     {result.status === 'success' && (
-                        <Check className="size-5 shrink-0 text-success" />
+                        <Check className="size-5 shrink-0 text-primary" />
                     )}
                     {result.status === 'error' && (
                         <AlertTriangle className="size-5 shrink-0 text-error" />
@@ -113,9 +113,9 @@ export function ApiTestCard({
                     <div
                         className={`min-w-0 flex-1 whitespace-pre-wrap break-words ${
                             result.status === 'success'
-                                ? 'text-[#ecfdf5]'
+                                ? 'text-text-main'
                                 : result.status === 'error'
-                                  ? 'text-[#fecaca]'
+                                  ? 'text-error'
                                   : 'text-text-main'
                         }`}
                     >

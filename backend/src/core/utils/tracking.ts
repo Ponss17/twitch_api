@@ -47,6 +47,22 @@ function persistRequestMetrics(
     });
 }
 
+function scheduleBackground(work: Promise<unknown>): void {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { waitUntil } = require('@vercel/functions') as {
+            waitUntil?: (p: Promise<unknown>) => void;
+        };
+        if (typeof waitUntil === 'function') {
+            waitUntil(work);
+            return;
+        }
+    } catch {
+        /* fuera de Vercel */
+    }
+    void work;
+}
+
 /**
  * Wrapper universal para rastrear peticiones, métricas y actividad.
  * Unifica la lógica que antes estaba dispersa entre juegos y comandos.
@@ -67,24 +83,26 @@ export const trackRequest = async <T>(
 
     const startTime = Date.now();
     try {
-        // Ejecutar la acción principal (ej. llamar a Twitch o generar respuesta)
         const result = await action();
-
         const latency = Date.now() - startTime;
 
         if (userId) {
-            await persistRequestMetrics(userId, resolvedOptions, latency, true).catch((err) => {
-                logger.error('Error en métricas background (éxito):', err);
-            });
+            scheduleBackground(
+                persistRequestMetrics(userId, resolvedOptions, latency, true).catch((err) => {
+                    logger.error('Error en métricas background (éxito):', err);
+                })
+            );
         }
 
         return result;
     } catch (error) {
         const latency = Date.now() - startTime;
         if (userId) {
-            await persistRequestMetrics(userId, resolvedOptions, latency, false).catch((err) => {
-                logger.error('Error en métricas background (fallo):', err);
-            });
+            scheduleBackground(
+                persistRequestMetrics(userId, resolvedOptions, latency, false).catch((err) => {
+                    logger.error('Error en métricas background (fallo):', err);
+                })
+            );
         }
         throw error;
     }

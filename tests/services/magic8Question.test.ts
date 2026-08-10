@@ -3,8 +3,8 @@ import {
     analyzeMagic8Question,
     buildMagic8UserMessage,
     normalizeMagic8Question
-} from '../../backend/src/features/games/magic8Question';
-import { getMoodResponseGuide, resolveMagic8Mood } from '../../backend/src/features/games/magic8Moods';
+} from '../../backend/src/features/minigames/magic8Question';
+import { getMoodResponseGuide, resolveMagic8Mood } from '../../backend/src/features/minigames/magic8Moods';
 
 describe('magic8Question', () => {
     describe('normalizeMagic8Question', () => {

@@ -9,8 +9,10 @@ import { logger } from '../../core/utils/logger';
 import { BoundedMap } from '../../core/utils/boundedCache';
 import { AppError } from '../../core/errors/AppError';
 import { MESSAGES } from '../../core/config/messages';
-import { overlayRevokeKey } from '../dashboard/overlay/keys';
+import { overlayRevokeKey, type OverlayReadPayload } from '../../core/overlay/keys';
 import { getHmacSecrets, getPrimaryHmacSecret } from '../../core/utils/hmacSecrets';
+
+export type { OverlayReadPayload } from '../../core/overlay/keys';
 
 const overlayTokenCache = new BoundedMap<string, { payload: OverlayReadPayload; expiry: number }>(200);
 const OVERLAY_TOKEN_CACHE_MS = 5 * 60 * 1000;
@@ -101,7 +103,6 @@ export async function consumeAuthExchangeToken(token: string): Promise<AuthExcha
 }
 
 export interface AuthExchangePayload {
-    apiKey: string;
     userId: string;
     login: string;
     displayName: string;
@@ -115,16 +116,6 @@ export const signAuthExchange = (payload: AuthExchangePayload): string => {
     const sig = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
     return `${encoded}.${sig}`;
 };
-
-export interface OverlayReadPayload {
-    userId: string;
-    tool: 'roulette' | 'trends';
-    login: string;
-    displayName: string;
-    profile_image_url?: string;
-    /** Epoch ms — emisión del token (revocación por invalidación de caché). */
-    iat?: number;
-}
 
 export const signOverlayReadToken = (payload: OverlayReadPayload): string => {
     const iat = Date.now();
@@ -217,11 +208,11 @@ export const verifyAuthExchange = (token: string): AuthExchangePayload | null =>
             exp?: number;
         };
         if (!data.exp || data.exp < Date.now()) return null;
+        if (!data.userId || !data.login) return null;
         return {
-            apiKey: data.apiKey,
             userId: data.userId,
             login: data.login,
-            displayName: data.displayName,
+            displayName: data.displayName || data.login,
             profile_image_url: data.profile_image_url
         };
     } catch {

@@ -175,7 +175,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
     const latencyDaily = summaryToday.avgLatency;
     const successRateDaily = parseFloat(summaryToday.successRate) || 0;
     
-    const commandKeys = ['clips', 'followage', 'so', 'message', 'stalker', 'trends', 'roulette', 'russian', 'magic8', 'duel'] as const;
+    const commandKeys = ['clips', 'followage', 'watchtime', 'so', 'message', 'stalker', 'trends', 'roulette', 'russian', 'magic8', 'duel', 'slots'] as const;
     const uniqueCommandsDaily =
         reconciledPieToday.length > 0
             ? reconciledPieToday.length

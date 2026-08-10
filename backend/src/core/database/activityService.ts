@@ -6,6 +6,7 @@ import type {
     ActivityLogEntry,
     DashboardActivityLog
 } from '../schemas/dashboardContracts';
+import { VIEWER_ACTIVITY_TYPES } from '../schemas/commandCatalog';
 
 export type { ActivityLogEntry } from '../schemas/dashboardContracts';
 export type StoredActivityLog = DashboardActivityLog;
@@ -37,8 +38,8 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
 
         // Si es una actividad de un viewer (no del streamer), invalidar también el caché del leaderboard
         // para que el próximo fetch tras un evento realtime siempre devuelva datos frescos.
-        const VIEWER_TYPES = new Set(['followage', 'clip', 'shoutout', 'magic8', 'russian', 'duel']);
-        if (VIEWER_TYPES.has(entry.type)) {
+        const viewerTypes = new Set<string>(VIEWER_ACTIVITY_TYPES);
+        if (viewerTypes.has(entry.type)) {
             await Promise.all([
                 cacheService.del(`cache:leaderboard:${userId}:today:10`).catch(() => {}),
                 cacheService.del(`cache:leaderboard:${userId}:7d:10`).catch(() => {})

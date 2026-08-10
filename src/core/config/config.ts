@@ -2,7 +2,15 @@ const API_BASE = '/api';
 
 export const API_ENDPOINTS = {
     BASE: API_BASE,
+    FOLLOWAGE: `${API_BASE}/followage/`,
+    WATCHTIME: `${API_BASE}/watchtime/`,
+    SHOUTOUT: `${API_BASE}/shoutout/`,
+    CREATE_CLIP: `${API_BASE}/create-clip/`,
+    SEND_MESSAGE: `${API_BASE}/send-message/`,
     MAGIC8: `${API_BASE}/minigames/magic8/`,
+    RUSSIAN: `${API_BASE}/minigames/russian/`,
+    DUEL: `${API_BASE}/minigames/duel/`,
+    SLOTS: `${API_BASE}/minigames/slots/`,
     ANALYTICS: `${API_BASE}/dashboard/analytics/`,
     REGENERATE_KEY: `${API_BASE}/system/regenerate-key/`,
     FEEDBACK: `${API_BASE}/system/feedback/`,
@@ -10,15 +18,15 @@ export const API_ENDPOINTS = {
     USER_INFO: `${API_BASE}/dashboard/user-info/`,
     SUMMARY: `${API_BASE}/dashboard/summary/`,
     SETTINGS: `${API_BASE}/dashboard/settings/`,
-    SEND_MESSAGE: `${API_BASE}/send-message/`,
     CLIPS: `${API_BASE}/dashboard/get-clips/`,
     ACTIVITY: `${API_BASE}/dashboard/activity/`,
     CLEAR_DATA: `${API_BASE}/dashboard/clear-data/`,
     DELETE_ACCOUNT: `${API_BASE}/dashboard/delete-account/`,
-
+    TRACK_USAGE: `${API_BASE}/dashboard/track-usage/`,
+    OVERLAY_STATE: `${API_BASE}/dashboard/overlay-state/`,
+    OVERLAY_LINK: `${API_BASE}/dashboard/overlay-link/`,
     VALIDATE: `${API_BASE}/system/validate/`,
     REALTIME_TOKEN: `${API_BASE}/system/realtime-token/`,
-    DUEL: `${API_BASE}/minigames/duel/`,
     AUTH_LOGIN: `${API_BASE}/auth/twitch/`,
     AUTH_EXCHANGE: `${API_BASE}/auth/exchange/`,
     AUTH_LOGOUT: `${API_BASE}/auth/logout/`,
@@ -75,6 +83,8 @@ export type DashboardTab =
     | 'roulette'
     | 'russian'
     | 'duel'
+    | 'slots'
+    | 'questions'
     | 'settings'
     | 'feedback';
 

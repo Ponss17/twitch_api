@@ -14,13 +14,16 @@ export type ActivityCategoryFilter = 'all' | 'commands' | 'tools' | 'minigames';
 const USAGE_TO_ACTIVITY: Record<DashboardUsageKey, ActivityLogType> = {
     clips: 'clip',
     followage: 'followage',
+    watchtime: 'watchtime',
     so: 'shoutout',
+    message: 'message',
     stalker: 'stalker',
     trends: 'trends',
     roulette: 'roulette',
     russian: 'russian',
     magic8: 'magic8',
-    duel: 'duel'
+    duel: 'duel',
+    slots: 'slots'
 };
 
 type ActivityCategoryKey = Exclude<ActivityCategoryFilter, 'all'>;
