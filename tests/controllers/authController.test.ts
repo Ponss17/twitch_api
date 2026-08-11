@@ -2,11 +2,24 @@ import { Request, Response } from 'express';
 
 jest.mock('../../backend/src/features/auth/auth.service', () => ({
     getAuthorizeUrl: jest.fn(),
+    createOAuthState: jest.fn().mockReturnValue('signed-browser-state'),
+    consumeOAuthState: jest.fn().mockResolvedValue('ok'),
     handleCallback: jest.fn(),
     signAuthExchange: jest.fn().mockReturnValue('signed-auth-token'),
     verifyState: jest.fn(),
     verifyAuthExchange: jest.fn(),
     consumeAuthExchangeToken: jest.fn().mockResolvedValue('ok')
+}));
+
+jest.mock('../../backend/src/core/utils/oauthStateCookie', () => ({
+    setOAuthStateCookie: jest.fn(),
+    clearOAuthStateCookie: jest.fn(),
+    readOAuthStateCookie: jest.fn().mockReturnValue('signed-browser-state')
+}));
+
+jest.mock('../../backend/src/core/utils/sessionState', () => ({
+    establishSession: jest.fn().mockResolvedValue(undefined),
+    revokeSessions: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('../../backend/src/core/database/dbService', () => ({
@@ -26,6 +39,10 @@ jest.mock('@/core/utils/logger', () => ({
 
 import * as authService from '../../backend/src/features/auth/auth.service';
 import { login, callback, exchange } from '../../backend/src/features/auth/auth.controller';
+import {
+    readOAuthStateCookie,
+    setOAuthStateCookie
+} from '../../backend/src/core/utils/oauthStateCookie';
 
 const mockReq = (overrides = {}) =>
     ({
@@ -75,8 +92,10 @@ describe('authController', () => {
 
             expect(authService.getAuthorizeUrl).toHaveBeenCalledWith(
                 'https://losperris.dev',
-                undefined
+                undefined,
+                'signed-browser-state'
             );
+            expect(setOAuthStateCookie).toHaveBeenCalledWith(res, 'signed-browser-state');
         });
     });
 
@@ -93,9 +112,10 @@ describe('authController', () => {
         });
 
         it('should redirect to dashboard on successful auth', async () => {
-            const req = mockReq({ query: { code: 'abc123', state: '' } });
+            const req = mockReq({ query: { code: 'abc123', state: 'signed-browser-state' } });
             const res = mockRes();
 
+            (authService.verifyState as jest.Mock).mockReturnValue({});
             (authService.handleCallback as jest.Mock).mockResolvedValue({
                 user: { id: '999', login: 'testuser', display_name: 'TestUser' },
                 redirectOrigin: '',
@@ -110,9 +130,10 @@ describe('authController', () => {
         });
 
         it('should redirect to error on auth failure', async () => {
-            const req = mockReq({ query: { code: 'bad', state: '' } });
+            const req = mockReq({ query: { code: 'bad', state: 'signed-browser-state' } });
             const res = mockRes();
 
+            (authService.verifyState as jest.Mock).mockReturnValue({});
             (authService.handleCallback as jest.Mock).mockRejectedValue(new Error('Invalid code'));
 
             await callback(req, res);
@@ -123,9 +144,10 @@ describe('authController', () => {
         });
 
         it('should redirect to dashboard for normal user flow', async () => {
-            const req = mockReq({ query: { code: 'abc', state: '' } });
+            const req = mockReq({ query: { code: 'abc', state: 'signed-browser-state' } });
             const res = mockRes();
 
+            (authService.verifyState as jest.Mock).mockReturnValue({});
             (authService.handleCallback as jest.Mock).mockResolvedValue({
                 user: { id: '999', login: 'testuser', display_name: 'TestUser' },
                 redirectOrigin: '',
@@ -137,6 +159,41 @@ describe('authController', () => {
             expect(res.redirect).toHaveBeenCalledWith(
                 expect.stringMatching(/\/dashboard\/\?auth=/)
             );
+        });
+
+        it('rejects callback without state before token exchange', async () => {
+            const req = mockReq({ query: { code: 'abc' } });
+            const res = mockRes();
+
+            await callback(req, res);
+
+            expect(authService.handleCallback).not.toHaveBeenCalled();
+            expect(res.redirect).toHaveBeenCalledWith(expect.stringMatching(/invalid_state$/));
+        });
+
+        it('rejects callback when browser cookie does not match state', async () => {
+            const req = mockReq({ query: { code: 'abc', state: 'signed-browser-state' } });
+            const res = mockRes();
+            (authService.verifyState as jest.Mock).mockReturnValue({});
+            (readOAuthStateCookie as jest.Mock).mockReturnValueOnce('different-state');
+
+            await callback(req, res);
+
+            expect(authService.consumeOAuthState).not.toHaveBeenCalled();
+            expect(authService.handleCallback).not.toHaveBeenCalled();
+            expect(res.redirect).toHaveBeenCalledWith(expect.stringMatching(/invalid_state$/));
+        });
+
+        it('rejects replayed state before token exchange', async () => {
+            const req = mockReq({ query: { code: 'abc', state: 'signed-browser-state' } });
+            const res = mockRes();
+            (authService.verifyState as jest.Mock).mockReturnValue({});
+            (authService.consumeOAuthState as jest.Mock).mockResolvedValueOnce('replay');
+
+            await callback(req, res);
+
+            expect(authService.handleCallback).not.toHaveBeenCalled();
+            expect(res.redirect).toHaveBeenCalledWith(expect.stringMatching(/state_replayed$/));
         });
     });
 

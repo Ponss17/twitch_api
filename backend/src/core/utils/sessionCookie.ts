@@ -4,7 +4,7 @@ import { CONFIG } from '../config/env';
 
 export const SESSION_COOKIE_NAME = 'lp_sess';
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
-const SESSION_COOKIE_VERSION = 'v1';
+const SESSION_COOKIE_VERSION = 'v2';
 const GCM_IV_BYTES = 12;
 const GCM_TAG_BYTES = 16;
 
@@ -26,9 +26,21 @@ function cookieOptions(maxAge: number): CookieOptions {
     };
 }
 
-export function createSessionCookieValue(userId: string): string {
+export interface SessionClaims {
+    userId: string;
+    issuedAt: number;
+    nonce: string;
+}
+
+export function createSessionCookieValue(
+    userId: string,
+    nonce: string = crypto.randomBytes(32).toString('base64url'),
+    issuedAt: number = Date.now()
+): string {
     const payload = {
         userId,
+        issuedAt,
+        nonce,
         exp: Date.now() + SESSION_TTL_MS
     };
     const plaintext = Buffer.from(JSON.stringify(payload), 'utf8');
@@ -40,7 +52,7 @@ export function createSessionCookieValue(userId: string): string {
     return `${SESSION_COOKIE_VERSION}.${iv.toString('base64url')}.${ciphertext.toString('base64url')}.${tag.toString('base64url')}`;
 }
 
-export function verifySessionCookieValue(value: string): string | null {
+export function verifySessionCookieClaims(value: string): SessionClaims | null {
     const parts = value.split('.');
     if (parts.length !== 4) return null;
 
@@ -68,14 +80,30 @@ export function verifySessionCookieValue(value: string): string | null {
         const parsed = JSON.parse(decrypted.toString('utf8')) as {
             userId?: string;
             exp?: number;
+            issuedAt?: number;
+            nonce?: string;
         };
-        if (!parsed.userId || !parsed.exp || parsed.exp < Date.now()) {
+        if (
+            !parsed.userId ||
+            !parsed.exp ||
+            parsed.exp < Date.now() ||
+            !parsed.issuedAt ||
+            !parsed.nonce
+        ) {
             return null;
         }
-        return parsed.userId;
+        return {
+            userId: parsed.userId,
+            issuedAt: parsed.issuedAt,
+            nonce: parsed.nonce
+        };
     } catch {
         return null;
     }
+}
+
+export function verifySessionCookieValue(value: string): string | null {
+    return verifySessionCookieClaims(value)?.userId ?? null;
 }
 
 function parseCookieHeader(cookieHeader: string | undefined): Record<string, string> {
@@ -92,15 +120,19 @@ function parseCookieHeader(cookieHeader: string | undefined): Record<string, str
 }
 
 export function readSessionUserId(req: Request): string | null {
+    return readSessionClaims(req)?.userId ?? null;
+}
+
+export function readSessionClaims(req: Request): SessionClaims | null {
     const cookies = parseCookieHeader(req.headers.cookie);
     const raw = cookies[SESSION_COOKIE_NAME];
     if (!raw) return null;
-    return verifySessionCookieValue(raw);
+    return verifySessionCookieClaims(raw);
 }
 
 /** Usa res.cookie (no res.append): en Vercel append de Set-Cookie se pierde con frecuencia. */
-export function setSessionCookie(res: Response, userId: string): void {
-    const value = createSessionCookieValue(userId);
+export function setSessionCookie(res: Response, userId: string, nonce?: string): void {
+    const value = createSessionCookieValue(userId, nonce);
     res.cookie(SESSION_COOKIE_NAME, value, cookieOptions(SESSION_TTL_MS));
 }
 
