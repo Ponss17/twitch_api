@@ -14,6 +14,7 @@ import { establishSession } from '../../core/utils/sessionState';
 import { isAuthenticationError } from '../../core/errors/AppError';
 import { APP_VERSION } from '../../core/config/appVersion';
 import { invalidateAuthCache } from '../../core/middleware/authMiddleware';
+import { realtimeSubjectUuid } from '../../core/utils/realtimeSubjectUuid';
 
 import { AuthenticatedRequest } from '../../types/twitch';
 
@@ -440,12 +441,12 @@ export const generateRealtimeToken = async (req: AuthenticatedRequest, res: Resp
             return jsonError(res, 401, 'Usuario no autenticado', { code: 'UNAUTHORIZED' });
         }
 
-        // Token JWT con 15 minutos de vida (antes: 5 min).
-        // El frontend lo renueva cada 10 min → 60% menos llamadas a este endpoint.
+        // Realtime apply_rls castea auth.uid()/sub a uuid. El Twitch id NO cabe ahí:
+        // sub = UUID estable; user_id = Twitch id (texto) para las políticas RLS.
         const TOKEN_TTL_S = 900; // 15 minutos
         const now = Math.floor(Date.now() / 1000);
         const payload = {
-            sub: userId,
+            sub: realtimeSubjectUuid(userId),
             user_id: userId,
             login: login || dbUser.login,
             role: 'authenticated',
