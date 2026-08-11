@@ -1,6 +1,11 @@
 import { Request, Response } from 'express';
+import express from 'express';
+import request from 'supertest';
 import { kv } from '@/core/database/redisClient';
-import { globalRateLimiter } from '../../backend/src/core/middleware/redisRateLimiter';
+import {
+    globalRateLimiter,
+    preAuthRateLimiter
+} from '../../backend/src/core/middleware/redisRateLimiter';
 
 jest.mock('@/core/database/cacheService', () => ({
     isKvWriteAvailable: jest.fn().mockReturnValue(true)
@@ -10,7 +15,8 @@ jest.mock('@/core/utils/logger', () => ({
     logger: {
         warn: jest.fn(),
         error: jest.fn(),
-        info: jest.fn()
+        info: jest.fn(),
+        debug: jest.fn()
     }
 }));
 
@@ -27,14 +33,7 @@ jest.mock('@/core/database/redisClient', () => {
         kv: {
             incr: incrMock,
             expire: jest.fn(),
-            pipeline: jest.fn().mockReturnValue({
-                incr: jest.fn().mockReturnThis(),
-                expire: jest.fn().mockReturnThis(),
-                exec: jest.fn().mockImplementation(async () => {
-                    const val = await incrMock('test');
-                    return [val, 1];
-                })
-            })
+            eval: jest.fn().mockImplementation((_script, keys) => incrMock(keys[0]))
         }
     };
 });
@@ -101,5 +100,35 @@ describe('globalRateLimiter', () => {
         await globalRateLimiter(req, res, next);
 
         expect(res.status).toHaveBeenCalledWith(429);
+    });
+
+    it('compone antiabuso NAT y cuotas separadas por usuario sin doble cobro', async () => {
+        const counters = new Map<string, number>();
+        (kv.eval as jest.Mock).mockImplementation(async (_script, keys: string[]) => {
+            const count = (counters.get(keys[0]) || 0) + 1;
+            counters.set(keys[0], count);
+            return count;
+        });
+
+        const app = express();
+        app.set('trust proxy', true);
+        app.use(preAuthRateLimiter);
+        app.use((incoming, outgoing, nextMiddleware) => {
+            const userId = String(incoming.headers['x-test-user']);
+            (incoming as Request & { userId: string }).userId = userId;
+            outgoing.locals.apiUser = { userId, role: 'default' };
+            outgoing.locals.isApiKeyRequest = true;
+            nextMiddleware();
+        });
+        app.get('/api/test', globalRateLimiter, (_incoming, outgoing) => outgoing.sendStatus(204));
+
+        await request(app).get('/api/test').set('X-Forwarded-For', '203.0.113.8').set('X-Test-User', 'user-a').expect(204);
+        await request(app).get('/api/test').set('X-Forwarded-For', '203.0.113.8').set('X-Test-User', 'user-b').expect(204);
+
+        const keys = [...counters.keys()];
+        expect(keys.filter((key) => key.includes('rl:preauth:203.0.113.8'))).toHaveLength(1);
+        expect(keys.some((key) => key.includes('rl:api:user-a'))).toBe(true);
+        expect(keys.some((key) => key.includes('rl:api:user-b'))).toBe(true);
+        expect([...counters.values()].reduce((sum, count) => sum + count, 0)).toBe(4);
     });
 });

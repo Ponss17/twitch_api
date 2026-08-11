@@ -2,6 +2,41 @@ import { sendChatMessage, timeoutUser, getUserId } from '../twitch/twitch.servic
 import { logger } from '../../core/utils/logger';
 import { kv } from '../../core/database/redisClient';
 
+const ROULETTE_TTL_SECONDS = 86400;
+const PLAY_ROULETTE_SCRIPT = `
+local key = KEYS[1]
+local bullet = tonumber(redis.call('HGET', key, 'bullet'))
+local chamber = tonumber(redis.call('HGET', key, 'chamber')) or 0
+
+if not bullet then
+  bullet = tonumber(ARGV[1])
+end
+
+chamber = chamber + 1
+local dead = chamber >= bullet
+
+if dead then
+  redis.call('DEL', key)
+else
+  redis.call('HSET', key, 'bullet', bullet, 'chamber', chamber)
+  redis.call('EXPIRE', key, ARGV[2])
+end
+
+return { bullet, chamber, dead and 1 or 0 }
+`;
+
+async function pullTrigger(channel: string): Promise<{ chamber: number; bullet: number; isDead: boolean }> {
+    const key = `twitch_api:russian:${channel.toLowerCase()}`;
+    const newBullet = Math.floor(Math.random() * 6) + 1;
+    const result = await kv.eval<string[], [number, number, number]>(
+        PLAY_ROULETTE_SCRIPT,
+        [key],
+        [String(newBullet), String(ROULETTE_TTL_SECONDS)]
+    );
+    const [bullet, chamber, dead] = result.map(Number);
+    return { bullet, chamber, isDead: dead === 1 };
+}
+
 export const playRussianRoulette = async (
     channel: string,
     triggerUser: string,
@@ -11,27 +46,8 @@ export const playRussianRoulette = async (
     lang: string = 'es'
 ) => {
     try {
-        const bulletKey = `twitch_api:russian_bullet:${channel.toLowerCase()}`;
-        const chamberKey = `twitch_api:russian_chamber:${channel.toLowerCase()}`;
-
-        // Obtener la posición de la bala o generar una nueva (1 a 6)
-        let bulletPosition = await kv.get<number>(bulletKey);
-        if (!bulletPosition) {
-            bulletPosition = Math.floor(Math.random() * 6) + 1;
-            await kv.set(bulletKey, bulletPosition, { ex: 86400 }); // Expira en 24h
-        }
-
-        // Avanzar el tambor atómicamente
-        const currentChamber = await kv.incr(chamberKey);
-        await kv.expire(chamberKey, 86400);
-
-        const isDead = currentChamber >= bulletPosition;
-
-        // Si se dispara el arma, resetear el tambor para el siguiente juego
-        if (isDead) {
-            await kv.del(bulletKey);
-            await kv.del(chamberKey);
-        }
+        // Inicialización, avance, disparo y reset ocurren en una sola operación Redis.
+        const { isDead } = await pullTrigger(channel);
 
         const broadcasterId = await getUserId(channel, token);
 
@@ -100,6 +116,7 @@ export const playRussianRoulette = async (
 
         let message = '';
         let status = 'alive';
+        let hardcoreApplied = false;
 
         if (isDead) {
             status = 'dead';
@@ -122,6 +139,7 @@ export const playRussianRoulette = async (
                                 : 'Perdió en la Ruleta Rusa (!ruleta)',
                             token
                         );
+                        hardcoreApplied = true;
                         message += isEn
                             ? ' (Hardcore Mode: 60s timeout 🕒)'
                             : isPt
@@ -154,7 +172,7 @@ export const playRussianRoulette = async (
         return {
             status,
             message,
-            hardcore_applied: hardcore && isDead
+            hardcore_applied: hardcoreApplied
         };
     } catch (error) {
         logger.error('Error in Russian Roulette service:', error);

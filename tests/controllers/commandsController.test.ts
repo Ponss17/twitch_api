@@ -29,6 +29,10 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
+jest.mock('../../backend/src/features/integrations/streamelements.service', () => ({
+    getStreamElementsWatchtime: jest.fn()
+}));
+
 import * as dbService from '../../backend/src/core/database/dbService';
 import * as apiService from '../../backend/src/features/twitch/twitch.service';
 import * as cacheService from '../../backend/src/core/database/cacheService';
@@ -36,8 +40,10 @@ import {
     createClip,
     sendMessage,
     getShoutout,
-    followage
+    followage,
+    watchtime
 } from '../../backend/src/features/commands/commands.controller';
+import { getStreamElementsWatchtime } from '../../backend/src/features/integrations/streamelements.service';
 import { AuthenticatedRequest } from '@/types/twitch';
 
 const mockReq = (overrides = {}) =>
@@ -130,6 +136,25 @@ describe('commandsController', () => {
             );
         });
 
+        it('reemplaza todas las apariciones de cada variable', async () => {
+            const req = mockReq({
+                query: {
+                    channel: 'testchannel',
+                    user: 'viewer',
+                    q: 'Gol con $&',
+                    template: '{user}/{user} {title}/{title} {url}/{url}'
+                }
+            });
+            const res = mockRes();
+            (apiService.createClip as jest.Mock).mockResolvedValue('https://clips.twitch.tv/$&');
+
+            await createClip(req, res);
+
+            expect(res.send).toHaveBeenCalledWith(
+                'viewer/viewer Gol con $&amp;/Gol con $&amp; https://clips.twitch.tv/$&amp;/https://clips.twitch.tv/$&amp;'
+            );
+        });
+
         it('should fallback to stream title if no q/title provided', async () => {
             const req = mockReq({
                 query: {
@@ -217,6 +242,27 @@ describe('commandsController', () => {
             expect(cacheService.set).not.toHaveBeenCalled();
             expect(res.send).toHaveBeenCalledWith('No se puede consultar followage.');
         });
+
+        it('reemplaza todas las variables de la plantilla', async () => {
+            (cacheService.get as jest.Mock).mockResolvedValue({
+                text: 'cached',
+                timePhrase: '2 meses'
+            });
+            const req = mockReq({
+                query: {
+                    channel: 'channel',
+                    user: 'viewer',
+                    template: '{user} {user} {time} {time} {channel} {channel}'
+                }
+            });
+            const res = mockRes();
+
+            await followage(req, res);
+
+            expect(res.send).toHaveBeenCalledWith(
+                'viewer viewer 2 meses 2 meses channel channel'
+            );
+        });
     });
 
     describe('getShoutout', () => {
@@ -235,6 +281,45 @@ describe('commandsController', () => {
                     type: 'shoutout',
                     metadata: expect.objectContaining({ target: 'TargetUser' })
                 })
+            );
+        });
+
+        it('reemplaza todas las apariciones en shoutout', async () => {
+            (apiService.getUserId as jest.Mock).mockResolvedValue('target_id');
+            (apiService.getChannelInfo as jest.Mock).mockResolvedValue({ game_name: 'Chess' });
+            const req = mockReq({
+                query: {
+                    touser: 'TargetUser',
+                    template: '{user}/{user} {game}/{game} {url}/{url}'
+                }
+            });
+            const res = mockRes();
+
+            await getShoutout(req, res);
+
+            expect(res.send).toHaveBeenCalledWith(
+                'TargetUser/TargetUser Chess/Chess https://twitch.tv/TargetUser/https://twitch.tv/TargetUser'
+            );
+        });
+    });
+
+    describe('watchtime', () => {
+        it('reemplaza todas las apariciones en watchtime', async () => {
+            (cacheService.get as jest.Mock).mockResolvedValue(null);
+            (getStreamElementsWatchtime as jest.Mock).mockResolvedValue({ minutes: 120 });
+            const req = mockReq({
+                query: {
+                    channel: 'channel',
+                    user: 'viewer',
+                    template: '{user}/{user} {time}/{time} {channel}/{channel}'
+                }
+            });
+            const res = mockRes();
+
+            await watchtime(req, res);
+
+            expect(res.send).toHaveBeenCalledWith(
+                'viewer/viewer 2 horas/2 horas channel/channel'
             );
         });
     });

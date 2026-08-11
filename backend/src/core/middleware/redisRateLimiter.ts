@@ -24,8 +24,16 @@ async function incrementPerMinuteCounter(
     return kvIncrWithWindow(key, 60);
 }
 
+const INCREMENT_WITH_WINDOW_SCRIPT = `
+local count = redis.call('INCR', KEYS[1])
+if count == 1 then
+  redis.call('EXPIRE', KEYS[1], ARGV[1])
+end
+return count
+`;
+
 /**
- * Helper centralizado: pipeline INCR + EXPIRE en una sola ventana configurable.
+ * Helper centralizado: incremento y TTL atómicos, sin renovar la ventana.
  * Fail-open en dev/test si KV no está disponible.
  */
 async function kvIncrWithWindow(key: string, windowSeconds: number): Promise<number> {
@@ -35,11 +43,13 @@ async function kvIncrWithWindow(key: string, windowSeconds: number): Promise<num
     const windowSlot = Math.floor(Date.now() / (windowSeconds * 1000));
     const redisKey = `twitch_api:${key}:${windowSlot}`;
     try {
-        const [count] = (await kv.pipeline().incr(redisKey).expire(redisKey, windowSeconds).exec()) as [
-            number,
-            number
-        ];
-        return count;
+        return Number(
+            await kv.eval<string[], number>(
+                INCREMENT_WITH_WINDOW_SCRIPT,
+                [redisKey],
+                [String(windowSeconds)]
+            )
+        );
     } catch (error) {
         if (process.env.NODE_ENV !== 'production') {
             logger.debug(`KV counter failed for ${key}, fail-open en dev/test`, { error });
@@ -70,28 +80,47 @@ export async function blockIfUnauthorizedScanExceeded(
     return false;
 }
 
+/** Cortafuegos previo a auth; la cuota funcional se cobra después por usuario. */
+export const preAuthRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
+    const cleanPath = req.originalUrl.split('?')[0];
+    const publicHtml = isPublicHtmlRoute(cleanPath, req.method);
+
+    if (isPublicRoute(cleanPath, req.method) && !publicHtml) return next();
+
+    try {
+        const limit = publicHtml ? RATE_LIMITS.PUBLIC_HTML : RATE_LIMITS.PRE_AUTH;
+        const namespace = publicHtml ? 'rl:pubhtml' : 'rl:preauth';
+        const key = `${namespace}:${getSafeIp(req)}`;
+        const count = await incrementPerMinuteCounter(key);
+        applyRateLimitHeaders(res, limit, count);
+
+        if (count > limit) {
+            logger.warn(`🛑 Pre-auth rate limit exceeded for ${key} on ${cleanPath}`);
+            return handleLimitExceeded(req, res, cleanPath);
+        }
+        return next();
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            logger.debug('KV pre-auth rate limit omitido en desarrollo', { error });
+            return next();
+        }
+        logger.error('Error in pre-auth rate limiter:', error);
+        return res.status(503).json({
+            error: 'Service Unavailable',
+            message: 'Servicio temporalmente no disponible'
+        });
+    }
+};
+
 /**
- * Middleware de Rate Limiting Global usando Vercel KV (Redis).
+ * Cuota post-auth usando Vercel KV (Redis).
  * Dashboard OAuth (`rl:sess:`), bots/API key e IPs anónimas usan KV para
  * consistencia entre réplicas; L1 solo como fallback si KV no está disponible.
  */
 export const globalRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
     const cleanPath = req.originalUrl.split('?')[0];
 
-    // Páginas HTML públicas: límite global por IP vía KV (consistente entre réplicas)
-    if (isPublicHtmlRoute(cleanPath, req.method)) {
-        const count = await incrementPerMinuteCounter(`rl:pubhtml:${getSafeIp(req)}`);
-        applyRateLimitHeaders(res, RATE_LIMITS.PUBLIC_HTML, count);
-
-        if (count > RATE_LIMITS.PUBLIC_HTML) {
-            logger.warn(`🛑 Public HTML rate limit exceeded for rl:pubhtml:${getSafeIp(req)} on ${cleanPath}`);
-            return handleLimitExceeded(req, res, cleanPath);
-        }
-
-        return next();
-    }
-
-    // Rutas públicas restantes (assets, health, auth callback…): sin límite global
+    // Las rutas públicas ya fueron tratadas por el cortafuegos previo.
     if (isPublicRoute(cleanPath, req.method)) {
         return next();
     }
@@ -121,7 +150,6 @@ export const globalRateLimiter = async (req: Request, res: Response, next: NextF
             return next();
         }
 
-        // Usa kvIncrWithWindow: INCR + EXPIRE atómico en un solo round-trip a Redis
         const count = await kvIncrWithWindow(key, 60);
 
         applyRateLimitHeaders(res, limit, count);

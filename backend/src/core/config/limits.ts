@@ -1,4 +1,5 @@
 export const RATE_LIMITS = {
+    PRE_AUTH: 3000, // Cortafuegos por IP antes de autenticar; no sustituye cuotas por usuario
     DASHBOARD: 500, // Sesión OAuth del dashboard — floor; roles altos usan rate×10 si supera esto
     PUBLIC: 100, // Límite para IPs anónimas en rutas protegidas
     PUBLIC_HTML: 300, // Páginas públicas HTML (/, /docs) por IP

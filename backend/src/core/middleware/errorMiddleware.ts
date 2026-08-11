@@ -6,6 +6,10 @@ import { frontendPagePath, rateLimitPagePath } from '../utils/frontendPaths';
 import { jsonError } from '../utils/jsonResponse';
 import { redactSensitiveUrl } from '../utils/redactSensitiveUrl';
 
+function acceptedRequestId(value: string | undefined): string | undefined {
+    return value && value.length <= 128 && /^[A-Za-z0-9._:-]+$/.test(value) ? value : undefined;
+}
+
 export const errorHandler = async (
     err: {
         status?: number;
@@ -34,6 +38,7 @@ export const errorHandler = async (
 
     const status = err.statusCode || err.status || 500;
     const message = err.message || 'Error interno del servidor';
+    const clientMessage = status >= 500 ? 'Error interno del servidor' : message;
 
     // Limpiar requestId al finalizar
     clearRequestId();
@@ -41,16 +46,16 @@ export const errorHandler = async (
     if (isBotCommand(req.path)) {
         res.setHeader('Content-Type', 'text/plain');
         const finalMsg =
-            status >= 500 ? 'Error interno del servidor. Pide ayuda a Ponss 🦆' : message;
+            status >= 500 ? 'Error interno del servidor. Pide ayuda a Ponss 🦆' : clientMessage;
         return res.status(200).send(finalMsg);
     }
 
     if (isJsonApiRoute(req.path)) {
-        return jsonError(res, status, message);
+        return jsonError(res, status, clientMessage);
     }
 
     if (isApiRoute(req.path)) {
-        return res.status(status).send(message);
+        return res.status(status).send(clientMessage);
     }
 
     if (req.accepts('html')) {
@@ -67,7 +72,7 @@ export const errorHandler = async (
         success: false,
         error: {
             code: status,
-            message,
+            message: clientMessage,
             timestamp: new Date().toISOString(),
             requestId
         }
@@ -90,8 +95,14 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
     asyncContext.run(new Map(), () => {
         const start = Date.now();
 
-        const requestId = logger.startRequest(req.method, req.path);
+        const requestId = logger.startRequest(
+            req.method,
+            req.path,
+            undefined,
+            acceptedRequestId(req.get('x-request-id'))
+        );
         res.locals.requestId = requestId;
+        res.setHeader('X-Request-ID', requestId);
 
         if (verboseRequests) {
             const safeUrl = redactSensitiveUrl(req.originalUrl);
