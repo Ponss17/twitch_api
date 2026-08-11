@@ -11,13 +11,39 @@ const DASHBOARD_USAGE_KEYS: readonly DashboardUsageKey[] = DASHBOARD_USAGE_CATEG
     (cat) => cat.keys
 );
 
+export function resolveSafeTimezone(timeZone?: string): string {
+    const candidate = timeZone || 'UTC';
+    try {
+        new Intl.DateTimeFormat('en-US', { timeZone: candidate }).format();
+        return candidate;
+    } catch {
+        return 'UTC';
+    }
+}
+
 export function getStatsLocalDateString(timeZone?: string, date: Date = new Date()): string {
     return new Intl.DateTimeFormat('en-CA', {
-        timeZone: timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timeZone: resolveSafeTimezone(timeZone),
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
     }).format(date);
+}
+
+export function buildLocalDateRange(
+    timeZone: string | undefined,
+    days: number,
+    now: Date = new Date()
+): string[] {
+    const count = Math.max(1, Math.floor(days));
+    const dates = new Set<string>();
+    for (let offset = count - 1; offset >= 0; offset -= 1) {
+        dates.add(getStatsLocalDateString(timeZone, new Date(now.getTime() - offset * 86_400_000)));
+    }
+    for (let offset = count; dates.size < count; offset += 1) {
+        dates.add(getStatsLocalDateString(timeZone, new Date(now.getTime() - offset * 86_400_000)));
+    }
+    return [...dates].sort().slice(-count);
 }
 
 /** `last_stats_date` anterior al día local efectivo → contadores del día en cero. */

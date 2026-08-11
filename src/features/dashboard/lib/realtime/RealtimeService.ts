@@ -28,9 +28,9 @@ export class RealtimeService {
     private tokenExpiry = 0;
     private refreshInterval: ReturnType<typeof setInterval> | null = null;
     private session: Session | null = null;
+    private timezone = 'UTC';
     private dispatchStats: (stats: RealtimeStatsUpdate) => void = () => {};
     private dispatchActivity: (log: ActivityLogItem) => void = () => {};
-    private dispatchActivityDelete: () => void = () => {};
     private isConnected = false;
     private intentionalClose = false;
     private onDisconnectCallback: (() => void) | null = null;
@@ -52,16 +52,18 @@ export class RealtimeService {
 
     setDispatchers(
         onStats: (stats: RealtimeStatsUpdate) => void,
-        onActivity: (log: ActivityLogItem) => void,
-        onActivityDelete?: () => void
+        onActivity: (log: ActivityLogItem) => void
     ): void {
         this.dispatchStats = onStats;
         this.dispatchActivity = onActivity;
-        this.dispatchActivityDelete = onActivityDelete ?? (() => {});
     }
 
     get connected(): boolean {
         return this.isConnected;
+    }
+
+    setTimezone(timezone?: string): void {
+        this.timezone = timezone || 'UTC';
     }
 
     private hasValidCredentials(): boolean {
@@ -150,11 +152,9 @@ export class RealtimeService {
     }
 
     private handleStatsRow(raw: Record<string, unknown>): void {
-        // Si last_stats_date es de "ayer" según TZ del browser, no aplicar el patch
-        // (evita poner analytics a 0 cerca de medianoche por mismatch de zona).
         const patch = parseDashboardStatsFromRow(raw, {
             isPartialUpdate: true,
-            todayLocal: getStatsLocalDateString()
+            todayLocal: getStatsLocalDateString(this.timezone)
         });
         if (Object.keys(patch).length === 0) return;
         this.dispatchStats(patch as DashboardLiveStats);
@@ -245,18 +245,6 @@ export class RealtimeService {
                             this.dispatchActivity(
                                 formatActivityLog(payload.new as RawActivityLog)
                             );
-                        }
-                    )
-                    .on(
-                        'postgres_changes',
-                        {
-                            event: 'DELETE',
-                            schema: 'public',
-                            table: 'activity_logs',
-                            filter: userFilter
-                        },
-                        () => {
-                            this.dispatchActivityDelete();
                         }
                     )
                     .on(

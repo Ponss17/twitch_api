@@ -13,13 +13,12 @@ export interface RawActivityLog {
 export interface RealtimeCallbacks {
     onStatsUpdate: (stats: RealtimeStatsUpdate) => void;
     onActivityInsert: (log: ActivityLogItem) => void;
-    /** Llamado cuando se detectan DELETEs en activity_logs (borrado masivo desde zona peligrosa). */
-    onActivityDelete?: () => void;
 }
 
 export interface RealtimeSubscribeOptions {
     onDisconnect?: () => void;
     onConnectionChange?: (connected: boolean) => void;
+    timezone?: string;
 }
 
 export interface SubscriberEntry {

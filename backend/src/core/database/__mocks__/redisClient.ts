@@ -2,11 +2,13 @@
 // @ts-nocheck
 
 export const kv = {
+    ping: jest.fn().mockResolvedValue('PONG'),
     get: jest.fn().mockResolvedValue(null),
     set: jest.fn().mockResolvedValue('OK'),
     del: jest.fn().mockResolvedValue(1),
     incr: jest.fn().mockResolvedValue(1),
     expire: jest.fn().mockResolvedValue(1),
+    eval: jest.fn().mockResolvedValue([1, 1, 1]),
     hset: jest.fn(),
     hget: jest.fn(),
     hgetall: jest.fn(),

@@ -83,6 +83,10 @@ export function useSettingsController(active: boolean) {
     updateProfileRef.current = updateProfile;
     const showToastRef = useRef(showToast);
     showToastRef.current = showToast;
+    const profileLoadRef = useRef<{ generation: number; controller: AbortController | null }>({
+        generation: 0,
+        controller: null
+    });
 
     const changeSettingsTab = useCallback((tab: SettingsTabId) => {
         setSettingsTab(tab);
@@ -92,20 +96,36 @@ export function useSettingsController(active: boolean) {
 
     const syncProfile = useCallback(async (options?: { silent?: boolean; fresh?: boolean }) => {
         const currentSession = sessionRef.current;
+        profileLoadRef.current.controller?.abort();
+        const controller = new AbortController();
+        const generation = profileLoadRef.current.generation + 1;
+        profileLoadRef.current = { generation, controller };
         if (!currentSession.login) {
             setLoading(false);
             return;
         }
         if (!options?.silent && !profileRef.current) setLoading(true);
         try {
-            const data = await fetchDashboardProfile(currentSession, { fresh: options?.fresh });
+            const data = await fetchDashboardProfile(currentSession, {
+                fresh: options?.fresh,
+                signal: controller.signal
+            });
+            if (
+                controller.signal.aborted ||
+                profileLoadRef.current.generation !== generation ||
+                sessionRef.current.userId !== currentSession.userId
+            ) return;
             setProfile(data);
             updateProfileRef.current(data);
             writePanelSyncPref(currentSession.userId, Date.now().toString());
-        } catch {
+        } catch (error) {
+            if (controller.signal.aborted || (error as Error).name === 'AbortError') return;
             showToastRef.current(t.settings.toasts.profileError, 'error');
         } finally {
-            setLoading(false);
+            if (profileLoadRef.current.generation === generation) {
+                profileLoadRef.current.controller = null;
+                setLoading(false);
+            }
         }
     // eslint-disable-next-line
     }, []);
@@ -158,6 +178,8 @@ export function useSettingsController(active: boolean) {
     useEffect(() => {
         return () => {
             if (keyHideTimerRef.current) window.clearTimeout(keyHideTimerRef.current);
+            profileLoadRef.current.controller?.abort();
+            profileLoadRef.current.generation++;
         };
     }, []);
 

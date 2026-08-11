@@ -21,11 +21,17 @@ jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
 jest.mock('../../backend/src/core/database/cacheService', () => ({
     get: jest.fn().mockResolvedValue(null),
     set: jest.fn().mockResolvedValue(undefined),
+    setSensitive: jest.fn().mockResolvedValue(undefined),
     del: jest.fn().mockResolvedValue(undefined),
     getStatsRevision: jest.fn().mockResolvedValue(0),
     invalidateDashboardCache: jest.fn().mockResolvedValue(undefined),
     invalidateDashboardAnalytics: jest.fn().mockResolvedValue(undefined),
-    bumpStatsRevision: jest.fn().mockResolvedValue(undefined)
+    bumpStatsRevision: jest.fn().mockResolvedValue(undefined),
+    revokeApiKeyGlobally: jest.fn().mockResolvedValue(undefined)
+}));
+
+jest.mock('../../backend/src/core/utils/sessionState', () => ({
+    revokeSessions: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('@/core/database/redisClient');
@@ -96,6 +102,26 @@ describe('dashboardController', () => {
                     totalRequests: 100,
                     todayRequests: 10
                 })
+            );
+        });
+
+        it('devuelve todas las filas diarias aunque superen el feed de 50', async () => {
+            const req = mockReq();
+            const res = mockRes();
+            const rows = Array.from({ length: 60 }, (_, index) => ({
+                date: '2026-08-10',
+                command_name: `command-${index}`,
+                requests_count: 1,
+                errors_count: 0,
+                latency_sum: 10
+            }));
+            (dbService.getUserStats as jest.Mock).mockResolvedValue({});
+            (dbService.getDailyStats as jest.Mock).mockResolvedValue(rows);
+
+            await getAnalytics(req, res);
+
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ timeSeries: rows })
             );
         });
 

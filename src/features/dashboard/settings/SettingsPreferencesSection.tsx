@@ -11,6 +11,7 @@ import { SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { Locale } from '@/core/i18n/I18nContext';
 import { useTheme, SUPPORTED_THEMES, THEME_DEFINITIONS } from '@/core/theme';
+import { resolveSafeTimezone } from '@/features/dashboard/lib/dashboardStats';
 
 interface SettingsPreferencesSectionProps {
     currentTimezone: string;
@@ -34,19 +35,17 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
     
     const [timezones] = useState(() => {
         try {
-            return Intl.supportedValuesOf('timeZone');
+            return Array.from(new Set(['UTC', ...Intl.supportedValuesOf('timeZone')]));
         } catch {
-            return [currentTimezone || 'UTC'];
+            return ['UTC'];
         }
     });
 
-    const [selectedTz, setSelectedTz] = useState(currentTimezone || 'UTC');
+    const [selectedTz, setSelectedTz] = useState(resolveSafeTimezone(currentTimezone));
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        if (currentTimezone) {
-            setSelectedTz(currentTimezone);
-        }
+        setSelectedTz(resolveSafeTimezone(currentTimezone));
     }, [currentTimezone]);
 
     const filteredTimezones = useMemo(() => {

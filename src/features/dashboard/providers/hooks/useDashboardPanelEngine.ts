@@ -6,6 +6,7 @@ import { formatFetchErrorForUi, isFetchNetworkError } from '@/core/api/apiError'
 import { logError } from '@/core/logging/logError';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { loadDashboardPanelData } from '@/features/dashboard/lib/loadDashboardPanelData';
+import type { ActivityLogItem } from '@/features/dashboard/lib/activityLogDisplay';
 import type { DashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
 import {
     DASHBOARD_FALLBACK_POLL_MS,
@@ -124,7 +125,7 @@ export function useDashboardPanelEngine({
                 }
 
                 if (analyticsLoaded) currentActions.setStats(analytics);
-                currentActions.setActivity(activityLogs);
+                currentActions.applyFetchedActivity(activityLogs);
                 if (fetchedProfile) currentActions.setProfile(fetchedProfile);
                 currentActions.markDataReady();
                 if (opts.clearError) currentActions.setError(null);
@@ -260,6 +261,7 @@ export function useDashboardPanelEngine({
         id: 'dashboard',
         active: state.isTabLeader,
         session,
+        timezone: state.profile?.timezone,
         onStatsUpdate: (next) => {
             actionsRef.current.handleRealtimeStats(next);
             syncRef.current?.broadcast('SYNC_STATS', next);
@@ -267,10 +269,6 @@ export function useDashboardPanelEngine({
         onActivityInsert: (log) => {
             actionsRef.current.handleRealtimeActivity(log);
             syncRef.current?.broadcast('SYNC_ACTIVITY_INSERT', log);
-        },
-        onActivityDelete: () => {
-            actionsRef.current.setActivity([]);
-            syncRef.current?.broadcast('SYNC_ACTIVITY', []);
         },
         onDisconnect: handleRealtimeDisconnect
     });
@@ -340,7 +338,7 @@ export function useDashboardPanelEngine({
         };
     }, [state.isTabLeader, state.statsTimeZone]);
 
-    // Solo recrear TabSync al cambiar de usuario — antes se recreaba cada render y descartaba los 200.
+    // TabSync solo debe recrearse al cambiar de usuario, nunca por render.
     useEffect(() => {
         panelBootstrappedRef.current = false;
         refsBag.current.dataReadyFiredRef.current = false;
@@ -369,11 +367,11 @@ export function useDashboardPanelEngine({
         });
 
         sync.on('SYNC_ACTIVITY', (payload) => {
-            actionsRef.current.setActivity(payload as unknown as never[]);
+            actionsRef.current.applyFetchedActivity(payload as ActivityLogItem[]);
             actionsRef.current.markDataReady();
         });
         sync.on('SYNC_ACTIVITY_INSERT', (payload) => {
-            actionsRef.current.handleRealtimeActivity(payload as never);
+            actionsRef.current.handleRealtimeActivity(payload as ActivityLogItem);
         });
         sync.on('SYNC_PROFILE', (payload) =>
             actionsRef.current.setProfile(payload as DashboardProfile)

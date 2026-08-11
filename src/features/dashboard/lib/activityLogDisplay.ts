@@ -157,6 +157,39 @@ export function activityEntryKey(item: ActivityLogItem): string {
     return `${item.timestamp ?? ''}|${normalizeActivityType(item.type)}|${item.user ?? ''}|${JSON.stringify(item.metadata)}`;
 }
 
+const MERGE_RECENT_GRACE_MS = 120_000;
+
+/**
+ * Fusiona la lista servida por el fetch con la lista en vivo. Conserva solo las
+ * entradas locales más recientes que el fetch (inserts de realtime que la
+ * respuesta aún no incluía); las demás ausentes se consideran borradas.
+ */
+export function mergeActivityLogs(
+    fetched: readonly ActivityLogItem[],
+    current: readonly ActivityLogItem[],
+    limit = 50
+): ActivityLogItem[] {
+    const merged = new Map<string, ActivityLogItem>();
+    let newestFetched = 0;
+    for (const item of fetched) {
+        merged.set(activityEntryKey(item), item);
+        const ts = Date.parse(item.timestamp ?? '') || 0;
+        if (ts > newestFetched) newestFetched = ts;
+    }
+
+    const cutoff = Math.max(newestFetched, Date.now() - MERGE_RECENT_GRACE_MS);
+    for (const item of current) {
+        const key = activityEntryKey(item);
+        if (merged.has(key)) continue;
+        const ts = Date.parse(item.timestamp ?? '') || 0;
+        if (ts > cutoff) merged.set(key, item);
+    }
+
+    return Array.from(merged.values())
+        .sort((a, b) => (Date.parse(b.timestamp ?? '') || 0) - (Date.parse(a.timestamp ?? '') || 0))
+        .slice(0, limit);
+}
+
 function activityDateLabel(date: Date, timeZone: string | undefined, locale: Locale): string {
     const tz = timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
     const bcp47 = getBcp47(locale);

@@ -1,5 +1,7 @@
 import {
     EMPTY_DASHBOARD_LIVE_STATS,
+    buildLocalDateRange,
+    getStatsLocalDateString,
     getTodayRequestsTotal,
     isStatsDateOutdated,
     mergeDashboardStats,
@@ -7,6 +9,20 @@ import {
     parseDashboardStatsFromRow,
     sumDashboardCategoryUsage
 } from '@/features/dashboard/lib/dashboardStats';
+
+describe('timezone helpers', () => {
+    it('tolera una zona inválida usando UTC', () => {
+        const date = new Date('2026-08-10T23:30:00.000Z');
+        expect(getStatsLocalDateString('Foo/Bar', date)).toBe('2026-08-10');
+    });
+
+    it('genera exactamente siete fechas en la zona configurada', () => {
+        const dates = buildLocalDateRange('America/Mexico_City', 7, new Date('2026-03-09T06:30:00.000Z'));
+        expect(dates).toHaveLength(7);
+        expect(new Set(dates).size).toBe(7);
+        expect(dates.at(-1)).toBe('2026-03-09');
+    });
+});
 
 describe('parseDashboardStatsFromRow', () => {
     it('devuelve ceros cuando no hay peticiones', () => {
