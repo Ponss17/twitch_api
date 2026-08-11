@@ -65,6 +65,17 @@ describe('generateRealtimeToken', () => {
                 expiresIn: 900 // 15 minutos (antes era 300)
             })
         );
+        expect(jwt.sign).toHaveBeenCalledWith(
+            expect.objectContaining({
+                user_id: '12345',
+                sub: expect.stringMatching(
+                    /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+                ),
+                role: 'authenticated'
+            }),
+            'test-secret',
+            expect.objectContaining({ algorithm: 'HS256' })
+        );
     });
 
     it('debería retornar 500 si jwt.sign falla', async () => {
