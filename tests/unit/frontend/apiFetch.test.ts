@@ -1,5 +1,6 @@
 jest.mock('@/core/auth/sessionLifecycle', () => ({
-    invalidateSession: jest.fn()
+    invalidateSession: jest.fn(),
+    isIntentionalLogout: jest.fn(() => false)
 }));
 
 jest.mock('@/core/auth/sessionStorage', () => ({
