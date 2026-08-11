@@ -10,11 +10,16 @@ import { CommandGeneratorCard } from '@/features/commands/CommandGeneratorCard';
 import { MAGIC8_ICON } from '@/features/minigames/icons';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { MinigameCard } from '../MinigameCard';
-import { GameResponse, parseApiError, type TestResult } from '../lib/minigameUtils';
+import {
+    createMinigameParams,
+    GameResponse,
+    parseApiError,
+    type TestResult
+} from '../lib/minigameUtils';
 
 export function Magic8View() {
     const session = useRequiredSession();
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     const mgT = t.minigames.magic8;
     const [question, setQuestion] = useState('');
     const [commandExtras, setCommandExtras] = useState<Record<string, string>>({});
@@ -30,7 +35,13 @@ export function Magic8View() {
         const mood = commandExtras.mood || 'classic';
 
         try {
-            const url = `${API_ENDPOINTS.MAGIC8}?question=${encodeURIComponent(question)}&mood=${mood}&user=${encodeURIComponent(session.login ?? '')}&_nocache=${Date.now()}`;
+            const params = createMinigameParams(locale, {
+                question,
+                mood,
+                user: session.login ?? '',
+                _nocache: Date.now().toString()
+            });
+            const url = `${API_ENDPOINTS.MAGIC8}?${params}`;
             const res = await fetchWithRetry(url, withApiCredentials({ headers: authHeaders(session) }));
             const text = await res.text();
             setResult({ status: res.ok ? 'success' : 'error', message: res.ok ? text : parseApiError(text) });

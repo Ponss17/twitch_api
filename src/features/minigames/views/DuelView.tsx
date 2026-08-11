@@ -9,11 +9,18 @@ import { btnPrimary, fadeIn, formGrid, formGroupLabel, textInput } from '@/core/
 import { CommandGeneratorCard } from '@/features/commands/CommandGeneratorCard';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { MinigameCard } from '../MinigameCard';
-import { GameResponse, parseApiError, normalizeTwitchLogin, TWITCH_LOGIN, type TestResult } from '../lib/minigameUtils';
+import {
+    createMinigameParams,
+    GameResponse,
+    parseApiError,
+    normalizeTwitchLogin,
+    TWITCH_LOGIN,
+    type TestResult
+} from '../lib/minigameUtils';
 
 export function DuelView() {
     const session = useRequiredSession();
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     const mgT = t.minigames.duel;
     const [target, setTarget] = useState('');
     const [challenger, setChallenger] = useState('');
@@ -36,7 +43,7 @@ export function DuelView() {
         setResult({ status: 'loading', message: '' });
 
         try {
-            const params = new URLSearchParams({ target: targetLogin });
+            const params = createMinigameParams(locale, { target: targetLogin });
             if (challengerLogin) params.set('challenger', challengerLogin);
             params.set('_nocache', Date.now().toString());
             const url = `${API_ENDPOINTS.DUEL}?${params}`;

@@ -9,11 +9,16 @@ import { CommandGeneratorCard } from '@/features/commands/CommandGeneratorCard';
 import { RUSSIAN_ICON } from '@/features/minigames/icons';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { MinigameCard } from '../MinigameCard';
-import { GameResponse, parseApiError, type TestResult } from '../lib/minigameUtils';
+import {
+    createMinigameParams,
+    GameResponse,
+    parseApiError,
+    type TestResult
+} from '../lib/minigameUtils';
 
 export function RussianView() {
     const session = useRequiredSession();
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     const mgT = t.minigames.russian;
     const [result, setResult] = useState<TestResult>({ status: 'idle', message: '' });
     const [gunDead, setGunDead] = useState(false);
@@ -26,7 +31,14 @@ export function RussianView() {
         setGunSuccess(false);
 
         try {
-            const url = `${API_ENDPOINTS.RUSSIAN}?user=${encodeURIComponent(session.login ?? '')}&channel=${encodeURIComponent(session.login ?? '')}&hardcore=false&format=json&_nocache=${Date.now()}`;
+            const params = createMinigameParams(locale, {
+                user: session.login ?? '',
+                channel: session.login ?? '',
+                hardcore: 'false',
+                format: 'json',
+                _nocache: Date.now().toString()
+            });
+            const url = `${API_ENDPOINTS.RUSSIAN}?${params}`;
             const res = await fetchWithRetry(url, withApiCredentials({ headers: authHeaders(session) }));
             if (res.ok) {
                 const data = (await res.json()) as { status?: string; message: string };

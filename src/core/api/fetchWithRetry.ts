@@ -13,10 +13,17 @@ export async function fetchWithRetry(
         retryDelayMs?: number;
         /** Número máximo de reintentos. Default: 1 */
         maxRetries?: number;
+        /** Permite reintentar una mutación que el caller sabe que es idempotente. */
+        retryUnsafe?: boolean;
     }
 ): Promise<Response> {
     const retryDelayMs = options?.retryDelayMs ?? 900;
-    const maxRetries = options?.maxRetries ?? 1;
+    const method = (init?.method ?? 'GET').toUpperCase();
+    const headers = new Headers(init?.headers);
+    const isSafeMethod = ['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method);
+    const canRetry =
+        isSafeMethod || options?.retryUnsafe === true || headers.has('Idempotency-Key');
+    const maxRetries = canRetry ? (options?.maxRetries ?? 1) : 0;
 
     let response = await fetch(input, init);
 
