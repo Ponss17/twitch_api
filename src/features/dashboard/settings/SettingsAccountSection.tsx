@@ -47,66 +47,67 @@ export function SettingsAccountSection({
             <SettingsRow
                 title={pT.userId}
                 icon={Hash}
-            >
-                <div className="flex w-full overflow-hidden rounded-lg border border-border-subtle bg-bg-secondary transition focus-within:border-primary">
-                    <input
-                        readOnly
-                        type="text"
-                        value={userId ?? '---'}
-                        className="flex-1 border-none bg-transparent px-3 py-2 font-[Consolas,monospace] text-[0.85rem] text-text-main outline-none"
-                        aria-label={pT.userId}
-                    />
-                    <button
-                        type="button"
-                        onClick={handleCopyId}
-                        title={pT.copyUserId}
-                        className="flex items-center justify-center gap-1.5 border-l border-border-subtle bg-bg-secondary px-3 text-[0.82rem] text-text-muted transition hover:bg-primary/10 hover:text-brand-text"
-                    >
-                        {isIdCopied ? (
-                            <Check className="h-4 w-4" aria-hidden="true" />
-                        ) : (
-                            <Copy className="h-4 w-4" aria-hidden="true" />
-                        )}
-                        {isIdCopied ? t.common.copied : pT.copyKey}
-                    </button>
-                </div>
-            </SettingsRow>
+                control={
+                    <div className="flex min-w-0 max-w-full items-center gap-1.5">
+                        <code className="truncate rounded-md border border-border-subtle bg-bg-secondary px-2.5 py-1.5 font-[Consolas,monospace] text-[0.8rem] text-text-main">
+                            {userId ?? '---'}
+                        </code>
+                        <button
+                            type="button"
+                            onClick={handleCopyId}
+                            title={pT.copyUserId}
+                            aria-label={pT.copyUserId}
+                            className="inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-border-subtle text-text-muted transition hover:bg-bg-hover-neutral hover:text-text-main"
+                        >
+                            {isIdCopied ? (
+                                <Check className="h-3.5 w-3.5 text-success" aria-hidden="true" />
+                            ) : (
+                                <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                            )}
+                        </button>
+                    </div>
+                }
+            />
 
             <SettingsRow
                 title={pT.planAndQuota}
                 icon={Crown}
-            >
-                <div className="flex flex-wrap items-center gap-1.5">
-                    <span
-                        className="inline-flex items-center gap-1 rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-[0.7rem] font-semibold text-brand-text"
-                        title={pT.planTooltip}
-                    >
-                        <Crown className="w-3 h-3 opacity-80" /> {roleLabel}
-                    </span>
-                    <span
-                        className="inline-flex items-center gap-1 rounded-md border border-border-subtle bg-bg-secondary px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
-                        title={pT.apiQuotaTooltip}
-                    >
-                        <Gauge className="w-3 h-3 text-brand-text" /> {rateLimit} req/min
-                        {hasCustomRateLimit ? ' *' : ''}
-                    </span>
-                    {typeof heavyLimit === 'number' && (
+                control={
+                    <div className="flex flex-wrap items-center justify-end gap-1.5">
+                        <span
+                            className="inline-flex items-center gap-1 rounded-md border border-primary/20 bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold text-brand-text"
+                            title={pT.planTooltip}
+                        >
+                            <Crown className="h-3 w-3 opacity-80" aria-hidden="true" /> {roleLabel}
+                        </span>
                         <span
                             className="inline-flex items-center gap-1 rounded-md border border-border-subtle bg-bg-secondary px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
-                            title={pT.heavyQuotaTooltip}
+                            title={pT.apiQuotaTooltip}
                         >
-                            <Gauge className="w-3 h-3 text-brand-text" /> {heavyLimit} heavy/min
+                            <Gauge className="h-3 w-3 text-brand-text" aria-hidden="true" /> {rateLimit}{' '}
+                            req/min
+                            {hasCustomRateLimit ? ' *' : ''}
                         </span>
-                    )}
-                    <span
-                        className="inline-flex items-center gap-1 rounded-md border border-border-subtle bg-bg-secondary px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
-                        title={pT.cacheTooltip}
-                    >
-                        <Clock className="w-3 h-3 text-brand-text" /> {cacheTtl}s {pT.cacheTime.replace('(min)', '').trim()}
-                        {hasCustomCacheTtl ? ' *' : ''}
-                    </span>
-                </div>
-            </SettingsRow>
+                        {typeof heavyLimit === 'number' ? (
+                            <span
+                                className="inline-flex items-center gap-1 rounded-md border border-border-subtle bg-bg-secondary px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
+                                title={pT.heavyQuotaTooltip}
+                            >
+                                <Gauge className="h-3 w-3 text-brand-text" aria-hidden="true" />{' '}
+                                {heavyLimit} heavy/min
+                            </span>
+                        ) : null}
+                        <span
+                            className="inline-flex items-center gap-1 rounded-md border border-border-subtle bg-bg-secondary px-2 py-0.5 text-[0.7rem] font-semibold text-text-muted"
+                            title={pT.cacheTooltip}
+                        >
+                            <Clock className="h-3 w-3 text-brand-text" aria-hidden="true" /> {cacheTtl}s{' '}
+                            {pT.cacheTime.replace('(min)', '').trim()}
+                            {hasCustomCacheTtl ? ' *' : ''}
+                        </span>
+                    </div>
+                }
+            />
         </>
     );
 }

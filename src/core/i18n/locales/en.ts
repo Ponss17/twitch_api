@@ -209,10 +209,16 @@ export const en: Translations = {
             exportLimitError: 'You must wait before generating another report.'
         },
         dangerModals: {
-            resetTitle: 'Reset Statistics',
-            resetDesc: 'This action will erase all command history, clips, and latency data. Your account and API Key will remain active.',
+            resetTitle: 'Reset data',
+            resetDesc: 'Choose what to erase. Your account and API Key stay active.',
             resetWord: 'CLEAR',
             resetConfirm: 'Confirm and Clear',
+            resetScopesLabel: 'What to clear',
+            resetScopeStats: 'Statistics and activity',
+            resetScopeStatsHint: 'Command usage, analytics, clips, and the panel activity feed.',
+            resetScopeQuestions: 'Question history',
+            resetScopeQuestionsHint: 'Questions captured from chat in the Questions tool.',
+            resetScopesRequired: 'Select at least one option.',
             deleteTitle: 'Delete LosPerris API Profile',
             deleteDesc: 'WARNING! This action is irreversible within our platform. Your data and API Key will be deleted. This will NOT affect your Twitch channel or account in any way.',
             deleteWord: 'DELETE',
@@ -263,8 +269,8 @@ export const en: Translations = {
             copyKey: 'Copy',
             regenKey: 'Regenerate',
             dangerZoneTitle: 'Danger Zone',
-            resetStats: 'Reset Statistics',
-            resetStatsDesc: 'Clears historical usage and analytics. Does not affect your account.',
+            resetStats: 'Reset data',
+            resetStatsDesc: 'Choose what to clear: analytics, activity, or question history. Does not affect your account.',
             deleteAccount: 'Delete Account',
             deleteAccountDesc: 'Permanently deletes all your data and logs you out.',
             discordTitle: 'Discord',
@@ -675,7 +681,8 @@ export const en: Translations = {
             trendsTimeUp: 'Time is up!',
             trendsStarted: (minutes: number): string => `Trends started for ${minutes} minutes.`,
             overlayExpired: 'Overlay link expired.',
-            sessionExpired: 'Session expired.'
+            sessionExpired: 'Session expired.',
+            loggedOut: 'Signed out successfully.'
         }
     },
     clips: {
@@ -1059,6 +1066,8 @@ export const en: Translations = {
             started: 'Question listening enabled',
             stopped: 'Question listening paused',
             missingFilter: 'Pick at least one role that can ask',
+            loadError: 'Could not load question history',
+            retentionHint: 'Up to {max} questions are kept and auto-deleted after {days} days, or whenever you clear them.'
         },
     },
     overlay: {

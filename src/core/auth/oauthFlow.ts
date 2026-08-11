@@ -1,8 +1,9 @@
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
+import { appPath } from '@/core/config/paths';
 import { withApiCredentials } from './apiCredentials';
 import { runLegacyPanelSessionMigration } from './legacySessionMigration';
 import { getSession } from './sessionStorage';
-import { invalidateSession } from './sessionLifecycle';
+import { invalidateSession, markIntentionalLogout } from './sessionLifecycle';
 import { clearRevealedApiKeyCache } from './revealApiKey';
 
 const SENSITIVE_QUERY_PARAMS = [
@@ -122,6 +123,7 @@ export function startTwitchLogin(): void {
 }
 
 export async function logout(): Promise<void> {
+    markIntentionalLogout();
     try {
         await fetch(API_ENDPOINTS.AUTH_LOGOUT, withApiCredentials({ method: 'POST' }));
     } catch {
@@ -129,5 +131,5 @@ export async function logout(): Promise<void> {
     }
     clearRevealedApiKeyCache();
     invalidateSession({ broadcast: true });
-    window.location.href = window.location.origin + window.location.pathname;
+    window.location.href = appPath('/');
 }

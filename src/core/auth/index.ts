@@ -5,7 +5,7 @@ export {
     consumeLegacyReloginNotice
 } from './legacySessionMigration';
 export { clearValidateCache } from './validateCache';
-export { invalidateSession, initAuthSync } from './sessionLifecycle';
+export { invalidateSession, initAuthSync, isIntentionalLogout, consumeIntentionalLogout, markIntentionalLogout } from './sessionLifecycle';
 export { mergeSessionFromValidate, resolveDegradedSession } from './sessionMerge';
 export { authHeaders, type AuthHeaderOptions } from './authHeaders';
 export { withApiCredentials } from './apiCredentials';

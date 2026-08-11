@@ -10,15 +10,36 @@ import { logger } from '../../core/utils/logger';
 import { buildEmptyUserAnalytics } from './dashboardHelpers';
 import { buildDashboardProfile } from '../../core/utils/dashboardProfile';
 import { AuthenticatedRequest } from '../../types/twitch';
-import { invalidateAllUserCaches, invalidateDashboardStatsCaches, invalidateOverlayStateCaches } from '../../core/utils/cacheInvalidation';
+import { invalidateAllUserCaches, invalidateDashboardStatsCaches, invalidateOverlayStateCaches, invalidateUserPlanCaches } from '../../core/utils/cacheInvalidation';
 import { clearSessionCookie } from '../../core/utils/sessionCookie';
-import { invalidateAuthCache } from '../../core/middleware/authMiddleware';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { maskApiKey } from '../../core/utils/maskApiKey';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
 import { revokeSessions } from '../../core/utils/sessionState';
 import { overlayRevokeKey } from '../../core/overlay/keys';
+import { invalidateAuthCache } from '../../core/middleware/authMiddleware';
+import * as questionsService from '../../core/database/questionsService';
+import type { StoredUser } from '../../types/twitch';
+
+function requestWantsFreshData(req: AuthenticatedRequest): boolean {
+    const fresh = req.query?.fresh;
+    return fresh === '1' || fresh === 'true';
+}
+
+async function reloadApiUserFromDb(
+    req: AuthenticatedRequest,
+    res: Response,
+    userId: string
+): Promise<StoredUser | null> {
+    await invalidateUserPlanCaches(userId, req.login);
+    const user = await dbService.getUser(userId);
+    if (user) {
+        res.locals.apiUser = user;
+        req.userTimezone = user.timezone ?? req.userTimezone;
+    }
+    return user;
+}
 
 export const revealApiKey = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
@@ -51,6 +72,11 @@ export const revealApiKey = async (req: AuthenticatedRequest, res: Response) => 
 export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
     const login = safeString(req.query.login);
     const userId = req.userId;
+    const wantFresh = requestWantsFreshData(req);
+
+    if (wantFresh && userId) {
+        await reloadApiUserFromDb(req, res, userId);
+    }
 
     const result = await trackRequest(
         userId,
@@ -63,16 +89,18 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                 const cacheKey = ownerScopedCacheKey(userId, `cache:cmd:getUserInfo:login:${login}`);
                 const timezone = apiUser?.timezone || 'UTC';
                 const discordFields = userId ? await dbService.getDiscordLinkFields(userId) : null;
-                const cached = await cacheService.get(cacheKey);
-                if (cached && typeof cached === 'object') {
-                    return {
-                        ...cached,
-                        ...limits,
-                        timezone,
-                        ...(discordFields ?? {}),
-                        dbCreatedAt: apiUser?.createdAt,
-                        dbLastActive: apiUser?.lastActive
-                    };
+                if (!wantFresh) {
+                    const cached = await cacheService.get(cacheKey);
+                    if (cached && typeof cached === 'object') {
+                        return {
+                            ...cached,
+                            ...limits,
+                            timezone,
+                            ...(discordFields ?? {}),
+                            dbCreatedAt: apiUser?.createdAt,
+                            dbLastActive: apiUser?.lastActive
+                        };
+                    }
                 }
 
                 const info = await apiService.getUserInfo(login, token);
@@ -118,20 +146,42 @@ export const clearUserData = async (req: AuthenticatedRequest, res: Response) =>
     const userId = req.userId;
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
+    const clearStats = req.body?.scopes?.stats ?? true;
+    const clearQuestions = req.body?.scopes?.questions ?? true;
+
     try {
-        await dbService.clearUserStatsAndLogs(userId);
-        await Promise.all([
-            invalidateDashboardStatsCaches(userId, req.login),
-            invalidateOverlayStateCaches(userId),
-            cacheService.del(`cache:activity:${userId}`),
-            cacheService.del(`cache:dashboard:analytics:${userId}`),
-            cacheService.del(`cache:analytics:${userId}`)
-        ]);
+        if (clearStats) {
+            await dbService.clearUserStatsAndLogs(userId);
+            await Promise.all([
+                invalidateDashboardStatsCaches(userId, req.login),
+                invalidateOverlayStateCaches(userId),
+                cacheService.del(`cache:activity:${userId}`),
+                cacheService.del(`cache:dashboard:analytics:${userId}`),
+                cacheService.del(`cache:analytics:${userId}`)
+            ]);
+        }
+
+        if (clearQuestions) {
+            try {
+                await questionsService.clearStreamerQuestions(userId, false);
+            } catch (questionsErr) {
+                logger.warn(
+                    'clearUserData: streamer_questions wipe skipped:',
+                    (questionsErr as Error).message
+                );
+            }
+        }
+
+        const parts: string[] = [];
+        if (clearStats) parts.push('estadísticas y actividad');
+        if (clearQuestions) parts.push('historial de preguntas');
+
         res.json({
             success: true,
-            message: 'Estadisticas y actividad reiniciadas correctamente.',
-            analytics: buildEmptyUserAnalytics(),
-            activity: [] as unknown[]
+            message: `Se borró: ${parts.join(' y ')}.`,
+            cleared: { stats: clearStats, questions: clearQuestions },
+            analytics: clearStats ? buildEmptyUserAnalytics() : undefined,
+            activity: clearStats ? ([] as unknown[]) : undefined
         });
     } catch (e) {
         logger.error('Error clearing user data:', e);
