@@ -9,7 +9,8 @@ import { isPublicRoute, isApiRoute, isJsonApiRoute, isOAuthCallbackRoute } from 
 import { safeString } from '../utils/validationHelpers';
 import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 import { jsonError } from '../utils/jsonResponse';
-import { readSessionUserId, clearSessionCookie } from '../utils/sessionCookie';
+import { readSessionClaims, clearSessionCookie } from '../utils/sessionCookie';
+import { validateSessionState } from '../utils/sessionState';
 import { getValidTokenForUser } from '../../features/auth/auth.service';
 import {
     type CookieResolveResult,
@@ -45,11 +46,15 @@ async function tryResolveCookieSession(
     req: AuthenticatedRequest,
     res: Response
 ): Promise<CookieResolveResult> {
-    const cookieUserId = readSessionUserId(req);
-    if (!cookieUserId) return { status: 'missing' };
+    const claims = readSessionClaims(req);
+    if (!claims) return { status: 'missing' };
+    const cookieUserId = claims.userId;
 
-    const revoked = await cacheService.get<boolean>(`auth:revoke:user:${cookieUserId}`);
-    if (revoked) {
+    const sessionState = await validateSessionState(claims);
+    if (sessionState === 'unavailable') {
+        return { status: 'transient' };
+    }
+    if (sessionState === 'revoked') {
         clearSessionCookie(res);
         return { status: 'missing' };
     }
@@ -316,18 +321,13 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
 
 export const invalidateAuthCache = (
     userId: string,
-    options?: { revokeSession?: boolean }
+    _options?: { revokeSession?: boolean }
 ) => {
     userCache.delete(userId);
-    // Logout / delete-account: revoke cookie sessions briefly. Regenerate-key: no.
-    if (options?.revokeSession !== false) {
-        void cacheService.set(`auth:revoke:user:${userId}`, true, TOKEN_VALIDATION_TTL / 1000);
-    }
 };
 
-/** Quita el flag temporal de revocación (p. ej. tras login fresco). */
 export const unrevokeAuthSession = async (userId: string): Promise<void> => {
-    await cacheService.del(`auth:revoke:user:${userId}`);
+    void userId;
 };
 
 export default checkToken;

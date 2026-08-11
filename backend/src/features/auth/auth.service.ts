@@ -30,6 +30,30 @@ const signState = (payload: object): string => {
     return `${data}.${sig}`;
 };
 
+export const createOAuthState = (
+    redirectOrigin: string,
+    extraData?: Record<string, unknown>
+): string =>
+    signState({
+        redirectOrigin,
+        ...extraData,
+        nonce: crypto.randomBytes(32).toString('base64url')
+    });
+
+export type OAuthStateConsumeResult = 'ok' | 'replay' | 'unavailable';
+
+export async function consumeOAuthState(state: string): Promise<OAuthStateConsumeResult> {
+    const hash = crypto.createHash('sha256').update(state).digest('hex');
+    const result = await cacheService.setIfAbsent(
+        `auth:oauth-state:burn:${hash}`,
+        '1',
+        Math.ceil(STATE_TTL_MS / 1000)
+    );
+    if (result === 'acquired') return 'ok';
+    if (result === 'exists') return 'replay';
+    return 'unavailable';
+}
+
 export const verifyState = (state: string): Record<string, unknown> | null => {
     if (typeof state !== 'string') return null;
     const lastDot = state.lastIndexOf('.');
@@ -182,8 +206,11 @@ export const verifyOverlayReadToken = (token: string): OverlayReadPayload | null
 /** Tokens emitidos antes de la revocación (regenerate-key, delete-account) quedan invalidados. */
 export async function isOverlayTokenRevoked(payload: OverlayReadPayload): Promise<boolean> {
     if (!payload.iat) return false;
-    const revokedAt = await cacheService.get<number>(overlayRevokeKey(payload.userId));
-    return typeof revokedAt === 'number' && payload.iat < revokedAt;
+    const result = await cacheService.getSensitive<number>(overlayRevokeKey(payload.userId));
+    if (result.status === 'unavailable') {
+        throw new Error('OVERLAY_REVOCATION_STORE_UNAVAILABLE');
+    }
+    return typeof result.value === 'number' && payload.iat < result.value;
 }
 
 export const verifyAuthExchange = (token: string): AuthExchangePayload | null => {
@@ -222,11 +249,12 @@ export const verifyAuthExchange = (token: string): AuthExchangePayload | null =>
 
 export const getAuthorizeUrl = (
     redirectOrigin: string,
-    extraData?: Record<string, unknown>
+    extraData?: Record<string, unknown>,
+    providedState?: string
 ): string => {
     const scope =
         'user:read:email moderator:read:followers clips:edit moderator:read:chatters user:write:chat chat:read chat:edit moderator:manage:banned_users channel:read:vips channel:read:subscriptions';
-    const state = signState({ redirectOrigin, ...extraData });
+    const state = providedState ?? createOAuthState(redirectOrigin, extraData);
 
     const params = new URLSearchParams({
         client_id: CONFIG.TWITCH_CLIENT_ID as string,
@@ -568,10 +596,14 @@ export const regenerateApiKey = async (userId: string): Promise<string> => {
     // Invalidar caché en memoria y en KV para que la clave vieja deje de funcionar de inmediato
     _invalidateCacheFn?.(userId);
     if (oldApiKey) {
-        cacheService
-            .invalidateApiKeyCache(oldApiKey)
-            .catch((e) => logger.error('Error invalidate KV api key cache:', e));
+        await cacheService.revokeApiKeyGlobally(oldApiKey);
+        await cacheService.invalidateApiKeyCache(oldApiKey);
     }
+    await cacheService.setSensitive(
+        overlayRevokeKey(userId),
+        Date.now(),
+        30 * 24 * 60 * 60
+    );
 
     return newApiKey;
 };

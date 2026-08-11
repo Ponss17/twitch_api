@@ -6,11 +6,18 @@ import { logger } from '../../core/utils/logger';
 import { ALLOWED_ORIGINS } from '../../core/config/origins';
 import { frontendPagePath } from '../../core/utils/frontendPaths';
 import { jsonError } from '../../core/utils/jsonResponse';
-import { setSessionCookie, clearSessionCookie, readSessionUserId } from '../../core/utils/sessionCookie';
-import { invalidateAuthCache, unrevokeAuthSession } from '../../core/middleware/authMiddleware';
+import { clearSessionCookie, readSessionUserId } from '../../core/utils/sessionCookie';
+import { invalidateAuthCache } from '../../core/middleware/authMiddleware';
 import { AuthenticatedRequest } from '../../types/twitch';
 import * as discordAuthService from './discordAuth.service';
 import { notifyPanelSession } from '../../core/database/userDiscordService';
+import {
+    clearOAuthStateCookie,
+    readOAuthStateCookie,
+    setOAuthStateCookie
+} from '../../core/utils/oauthStateCookie';
+import { establishSession, revokeSessions } from '../../core/utils/sessionState';
+import crypto from 'crypto';
 
 const getValidOrigin = (origin: string, req: Request): string | null => {
     try {
@@ -33,10 +40,16 @@ export const login = (req: Request, res: Response) => {
     const extraData: Record<string, unknown> = {};
     if (tz) extraData.tz = tz;
 
-    const url = authService.getAuthorizeUrl(
+    const state = authService.createOAuthState(
         redirectOrigin,
         Object.keys(extraData).length > 0 ? extraData : undefined
     );
+    const url = authService.getAuthorizeUrl(
+        redirectOrigin,
+        Object.keys(extraData).length > 0 ? extraData : undefined,
+        state
+    );
+    setOAuthStateCookie(res, state);
     res.redirect(url);
 };
 
@@ -45,15 +58,34 @@ export const callback = async (req: Request, res: Response) => {
     const state = safeString(req.query.state);
 
     if (!code) {
+        clearOAuthStateCookie(res);
         return res.redirect(frontendPagePath('/', 'error=no_code'));
+    }
+    if (!state) {
+        clearOAuthStateCookie(res);
+        return res.redirect(frontendPagePath('/', 'error=invalid_state'));
     }
 
     try {
-        let decodedState: Record<string, unknown> | null = null;
-        if (state) {
-            decodedState = authService.verifyState(state);
+        const cookieState = readOAuthStateCookie(req);
+        const decodedState = authService.verifyState(state);
+        const browserStateMatches =
+            cookieState !== null &&
+            cookieState.length === state.length &&
+            crypto.timingSafeEqual(Buffer.from(cookieState), Buffer.from(state));
+        if (!decodedState || !browserStateMatches) {
+            clearOAuthStateCookie(res);
+            return res.redirect(frontendPagePath('/', 'error=invalid_state'));
         }
 
+        clearOAuthStateCookie(res);
+        const consumeResult = await authService.consumeOAuthState(state);
+        if (consumeResult === 'replay') {
+            return res.redirect(frontendPagePath('/', 'error=state_replayed'));
+        }
+        if (consumeResult === 'unavailable') {
+            return res.redirect(frontendPagePath('/', 'error=auth_unavailable'));
+        }
         const { user, redirectOrigin } = await authService.handleCallback(
             code,
             state,
@@ -84,19 +116,17 @@ export const callback = async (req: Request, res: Response) => {
         logger.error(MESSAGES.AUTH.AUTH_ERROR, { error: errorMessage });
 
         let errorRedirect = frontendPagePath('/', 'error=auth_failed');
-        if (state) {
-            try {
-                const decoded = authService.verifyState(state);
-                const decodedOrigin = decoded?.redirectOrigin as string;
-                if (decodedOrigin) {
-                    const validErrorOrigin = getValidOrigin(decodedOrigin, req);
-                    if (validErrorOrigin) {
-                        errorRedirect = `${validErrorOrigin}?error=auth_failed`;
-                    }
+        try {
+            const decoded = authService.verifyState(state);
+            const decodedOrigin = decoded?.redirectOrigin as string;
+            if (decodedOrigin) {
+                const validErrorOrigin = getValidOrigin(decodedOrigin, req);
+                if (validErrorOrigin) {
+                    errorRedirect = `${validErrorOrigin}?error=auth_failed`;
                 }
-            } catch (_e) {
-                // Ignorar errores de decodificación en el error handler
             }
+        } catch {
+            // El origen de error solo se usa si el state sigue siendo criptográficamente válido.
         }
         res.redirect(errorRedirect);
     }
@@ -124,8 +154,7 @@ export const exchange = async (req: Request, res: Response) => {
         });
     }
 
-    setSessionCookie(res, payload.userId);
-    await unrevokeAuthSession(payload.userId);
+    await establishSession(res, payload.userId);
     // Await: en Vercel un void tras res.json se congela y el bot nunca ve el evento.
     await notifyPanelSession(payload.userId, 'session_login');
 
@@ -142,9 +171,17 @@ export const exchange = async (req: Request, res: Response) => {
 export const logout = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId ?? readSessionUserId(req);
     if (userId) {
-        invalidateAuthCache(userId);
-        // Await antes de clear cookie / respuesta (mismo motivo que login).
-        await notifyPanelSession(userId, 'session_logout');
+        try {
+            await revokeSessions(userId);
+            invalidateAuthCache(userId, { revokeSession: false });
+            await notifyPanelSession(userId, 'session_logout');
+        } catch (error) {
+            logger.error('No se pudo revocar la sesión durante logout', { error });
+            return jsonError(res, 503, 'No se pudo cerrar la sesión de forma segura.', {
+                code: 'SERVICE_UNAVAILABLE',
+                details: { reason: 'SESSION_REVOCATION_UNAVAILABLE' }
+            });
+        }
     }
     clearSessionCookie(res);
     return res.json({ success: true });
@@ -216,8 +253,7 @@ export const discordLinkCallback = async (req: Request, res: Response) => {
 
     try {
         const { userId } = await discordAuthService.handleDiscordLinkCallback(code, state);
-        setSessionCookie(res, userId);
-        await unrevokeAuthSession(userId);
+        await establishSession(res, userId);
         return res.redirect(frontendPagePath('/dashboard/settings', 'discord=linked'));
     } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : '';

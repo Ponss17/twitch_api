@@ -2,6 +2,7 @@ const mockValidateToken = jest.fn();
 const mockGetUser = jest.fn();
 const mockUpdateLastActive = jest.fn().mockResolvedValue(undefined);
 const mockCacheGet = jest.fn();
+const mockSensitiveGet = jest.fn();
 const mockGetValidTokenForUser = jest.fn(
     async (user: { accessToken?: string; userId: string }) => ({
         accessToken: user.accessToken || 'tok',
@@ -24,6 +25,7 @@ jest.mock('../../backend/src/features/auth/auth.service', () => ({
 
 jest.mock('../../backend/src/core/database/cacheService', () => ({
     get: (...args: unknown[]) => mockCacheGet(...args),
+    getSensitive: (...args: unknown[]) => mockSensitiveGet(...args),
     set: jest.fn(),
     del: jest.fn()
 }));
@@ -53,10 +55,11 @@ describe('authMiddleware — cookie session', () => {
         next = jest.fn();
         jest.clearAllMocks();
         mockCacheGet.mockResolvedValue(null);
+        mockSensitiveGet.mockResolvedValue({ status: 'ok', value: 'session-nonce' });
     });
 
     it('autentica solo con cookie lp_sess válida', async () => {
-        const cookieValue = createSessionCookieValue('cookie-user');
+        const cookieValue = createSessionCookieValue('cookie-user', 'session-nonce');
         const res = mockRes();
         res.cookie = jest.fn().mockReturnThis();
         res.clearCookie = jest.fn().mockReturnThis();
@@ -95,7 +98,7 @@ describe('authMiddleware — cookie session', () => {
     });
 
     it('no borra cookie y responde 503 en error transient de DB', async () => {
-        const cookieValue = createSessionCookieValue('cookie-user');
+        const cookieValue = createSessionCookieValue('cookie-user', 'session-nonce');
         const clearCookie = jest.fn().mockReturnThis();
         const res = mockRes();
         res.clearCookie = clearCookie;
@@ -111,6 +114,63 @@ describe('authMiddleware — cookie session', () => {
 
         expect(res.status).toHaveBeenCalledWith(503);
         expect(clearCookie).not.toHaveBeenCalled();
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('rechaza una cookie anterior al logout aunque siga criptográficamente válida', async () => {
+        const cookieValue = createSessionCookieValue('cookie-user', 'old-nonce');
+        const res = mockRes();
+        res.clearCookie = jest.fn().mockReturnThis();
+        const req = mockReq({
+            path: '/api/dashboard/summary/',
+            originalUrl: '/api/dashboard/summary/',
+            headers: { cookie: `${SESSION_COOKIE_NAME}=${encodeURIComponent(cookieValue)}` }
+        });
+        mockSensitiveGet.mockResolvedValue({ status: 'ok', value: 'revoked-nonce' });
+
+        await checkToken(req, res, next);
+
+        expect(res.clearCookie).toHaveBeenCalled();
+        expect(mockGetUser).not.toHaveBeenCalled();
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('acepta un login nuevo sin reactivar la cookie anterior', async () => {
+        const freshCookie = createSessionCookieValue('cookie-user', 'new-nonce');
+        const res = mockRes();
+        const req = mockReq({
+            path: '/api/dashboard/summary/',
+            originalUrl: '/api/dashboard/summary/',
+            headers: { cookie: `${SESSION_COOKIE_NAME}=${encodeURIComponent(freshCookie)}` }
+        });
+        mockSensitiveGet.mockResolvedValue({ status: 'ok', value: 'new-nonce' });
+        mockGetUser.mockResolvedValue({
+            userId: 'cookie-user',
+            login: 'ponss',
+            displayName: 'Ponss',
+            accessToken: 'fresh-tok',
+            isActive: true
+        });
+
+        await checkToken(req, res, next);
+
+        expect(next).toHaveBeenCalled();
+        expect(req.userId).toBe('cookie-user');
+    });
+
+    it('falla cerrado si no puede consultar el estado distribuido', async () => {
+        const cookieValue = createSessionCookieValue('cookie-user', 'session-nonce');
+        const res = mockRes();
+        const req = mockReq({
+            path: '/api/dashboard/summary/',
+            originalUrl: '/api/dashboard/summary/',
+            headers: { cookie: `${SESSION_COOKIE_NAME}=${encodeURIComponent(cookieValue)}` }
+        });
+        mockSensitiveGet.mockResolvedValue({ status: 'unavailable', value: null });
+
+        await checkToken(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(503);
         expect(next).not.toHaveBeenCalled();
     });
 });

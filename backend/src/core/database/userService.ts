@@ -14,6 +14,12 @@ import { DEFAULT_USER_ROLE, normalizeUserRole } from '../config/userRoles';
 import { logger } from '../utils/logger';
 import { BoundedMap } from '../utils/boundedCache';
 import { setUserTimezone, clearUserTimezone } from './userTimezoneCache';
+import {
+    apiKeyLookupHash,
+    decryptStoredApiKey,
+    encryptApiKey,
+    normalizeApiKey
+} from '../utils/apiKeySecurity';
 
 /** L1 en RAM de la instancia serverless — evita round-trips a KV/Supabase en bots activos. */
 const userMemoryCache = new BoundedMap<string, { user: StoredUser; expiry: number }>(1000);
@@ -68,6 +74,11 @@ async function decryptAndMigrateIfNeeded(
             user.refreshToken = result.plaintext;
             needsMigration ||= result.needsMigration;
         }
+        if (user.apiKey) {
+            const result = decryptStoredApiKey(user.apiKey);
+            user.apiKey = result.plaintext;
+            needsMigration ||= result.legacy || user.apiKeyHash !== apiKeyLookupHash(result.plaintext);
+        }
     } catch (e) {
         logger.error(`O Descifrado fallido para ${context}:`, (e as Error).message);
         return null;
@@ -91,6 +102,7 @@ function toRow(user: StoredUser): Record<string, unknown> {
         access_token: user.accessToken ?? null,
         refresh_token: user.refreshToken ?? null,
         api_key: user.apiKey ?? null,
+        api_key_hash: user.apiKeyHash ?? null,
         is_active: user.isActive ?? true,
         blocked_reason: user.blockedReason ?? null,
         custom_rate_limit: user.customRateLimit ?? null,
@@ -147,6 +159,7 @@ function hydrateUserFromRow(row: Record<string, unknown>): StoredUser {
         expiresIn: 0,
         obtainedAt: 0,
         apiKey: (row.api_key as string) ?? undefined,
+        apiKeyHash: (row.api_key_hash as string) ?? undefined,
         isActive: row.is_active as boolean,
         blockedReason: (row.blocked_reason as string) ?? undefined,
         customRateLimit: (row.custom_rate_limit as number) ?? undefined,
@@ -173,9 +186,29 @@ function rememberUserCaches(user: StoredUser): void {
     });
 }
 
-/** Garantiza tokens en claro al servir desde caché (evita Bearer gcm:... a Twitch). */
+function secureUserForL2(user: StoredUser): StoredUser {
+    const secure = { ...user };
+    if (secure.accessToken && !isAlreadyEncrypted(secure.accessToken)) {
+        secure.accessToken = encrypt(secure.accessToken);
+    }
+    if (secure.refreshToken && !isAlreadyEncrypted(secure.refreshToken)) {
+        secure.refreshToken = encrypt(secure.refreshToken);
+    }
+    if (secure.apiKey) {
+        const plaintext = decryptStoredApiKey(secure.apiKey).plaintext;
+        secure.apiKeyHash = apiKeyLookupHash(plaintext);
+        secure.apiKey = encryptApiKey(plaintext);
+    }
+    return secure;
+}
+
+/** Garantiza secretos en claro solo al servirlos dentro del proceso. */
 async function ensurePlaintextUser(user: StoredUser, context: string): Promise<StoredUser | null> {
-    if (!isAlreadyEncrypted(user.accessToken) && !isAlreadyEncrypted(user.refreshToken)) {
+    if (
+        !isAlreadyEncrypted(user.accessToken) &&
+        !isAlreadyEncrypted(user.refreshToken) &&
+        (!user.apiKey || !isAlreadyEncrypted(user.apiKey))
+    ) {
         return user;
     }
     return decryptAndMigrateIfNeeded(user, context);
@@ -203,6 +236,11 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
     if (secureUser.refreshToken && !isAlreadyEncrypted(secureUser.refreshToken)) {
         secureUser.refreshToken = encrypt(secureUser.refreshToken);
     }
+    if (secureUser.apiKey) {
+        const plaintext = decryptStoredApiKey(secureUser.apiKey).plaintext;
+        secureUser.apiKeyHash = apiKeyLookupHash(plaintext);
+        secureUser.apiKey = encryptApiKey(plaintext);
+    }
 
     if (options?.tokensOnly) {
         const { error } = await supabase
@@ -223,8 +261,11 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
         // Fusionar con caché existente para no perder campos (p. ej. Discord) no cargados en `user`.
         const cacheKey = `cache:user:id:${user.userId}`;
         const cached = await cacheService.get<StoredUser>(cacheKey);
+        const cachedPlain = cached
+            ? await ensurePlaintextUser(cached, `caché tokens ${user.userId}`)
+            : null;
         const merged: StoredUser = {
-            ...(cached ?? user),
+            ...(cachedPlain ?? user),
             accessToken: user.accessToken,
             refreshToken: user.refreshToken,
             expiresIn: user.expiresIn,
@@ -232,11 +273,12 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
             tokenExpiresAt: user.tokenExpiresAt
         };
         rememberUserCaches(merged);
+        const secureMerged = secureUserForL2(merged);
         await Promise.all([
-            cacheService.set(cacheKey, merged, CACHE_TTL_MATRIX.API_USER.default),
+            cacheService.set(cacheKey, secureMerged, CACHE_TTL_MATRIX.API_USER.default),
             cacheService.set(
                 `cache:user:login:${user.login.toLowerCase()}`,
-                merged,
+                secureMerged,
                 CACHE_TTL_MATRIX.USER_BY_LOGIN.default
             )
         ]).catch((e) => logger.error('Error actualizando caché de usuario (tokens):', e));
@@ -289,11 +331,9 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
             const plain = await ensurePlaintextUser(cached, `caché ${userId}`);
             if (!plain) return null;
             rememberUserCaches(plain);
-            if (plain !== cached) {
-                await cacheService
-                    .set(cacheKey, plain, CACHE_TTL_MATRIX.API_USER.default)
-                    .catch((e) => logger.error('Error reescribiendo caché de usuario:', e));
-            }
+            await cacheService
+                .set(cacheKey, secureUserForL2(plain), CACHE_TTL_MATRIX.API_USER.default)
+                .catch((e) => logger.error('Error reescribiendo caché de usuario:', e));
             return plain;
         }
 
@@ -308,7 +348,11 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
         rememberUserCaches(result);
 
         // 10 min: suficiente para no re-consultar Supabase en cada comando del bot
-        await cacheService.set(cacheKey, result, CACHE_TTL_MATRIX.API_USER.default);
+        await cacheService.set(
+            cacheKey,
+            secureUserForL2(result),
+            CACHE_TTL_MATRIX.API_USER.default
+        );
         return result;
     })();
 
@@ -329,11 +373,9 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
         const plain = await ensurePlaintextUser(cached, `caché login ${login}`);
         if (!plain) return null;
         rememberUserCaches(plain);
-        if (plain !== cached) {
-            await cacheService
-                .set(cacheKey, plain, CACHE_TTL_MATRIX.USER_BY_LOGIN.default)
-                .catch((e) => logger.error('Error reescribiendo caché login:', e));
-        }
+        await cacheService
+            .set(cacheKey, secureUserForL2(plain), CACHE_TTL_MATRIX.USER_BY_LOGIN.default)
+            .catch((e) => logger.error('Error reescribiendo caché login:', e));
         return plain;
     }
 
@@ -346,25 +388,35 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
 
     rememberUserCaches(result);
 
-    await cacheService.set(cacheKey, result, CACHE_TTL_MATRIX.USER_BY_LOGIN.default);
+    await cacheService.set(
+        cacheKey,
+        secureUserForL2(result),
+        CACHE_TTL_MATRIX.USER_BY_LOGIN.default
+    );
     return result;
 };
 
 export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null> => {
-    const clean = apiKey.replace(/-/g, '');
-    const normalizedKey =
-        clean.length === 32
-            ? `${clean.slice(0, 8)}-${clean.slice(8, 12)}-${clean.slice(12, 16)}-${clean.slice(16, 20)}-${clean.slice(20)}`
-            : apiKey;
-
+    const normalizedKey = normalizeApiKey(apiKey);
     const lookupKeys = normalizedKey === apiKey ? [normalizedKey] : [normalizedKey, apiKey];
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
         .from('users')
         .select('*')
-        .in('api_key', lookupKeys)
+        .eq('api_key_hash', apiKeyLookupHash(normalizedKey))
         .limit(1)
         .maybeSingle();
+
+    if (!data) {
+        const legacy = await supabase
+            .from('users')
+            .select('*')
+            .in('api_key', lookupKeys)
+            .limit(1)
+            .maybeSingle();
+        data = legacy.data;
+        error = legacy.error;
+    }
 
     if (error || !data) return null;
 
@@ -375,7 +427,7 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
         return null;
     }
 
-    const result = await decryptAndMigrateIfNeeded(user, `api_key ${apiKey}`);
+    const result = await decryptAndMigrateIfNeeded(user, `api_key hash ${apiKeyLookupHash(apiKey)}`);
     if (!result) return null;
 
     rememberUserCaches(result);
