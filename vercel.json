@@ -149,7 +149,11 @@
     ],
     "rewrites": [
         {
-            "source": "/dashboard/:path*",
+            "source": "/dashboard/(.*)",
+            "destination": "/dashboard/index.html"
+        },
+        {
+            "source": "/dashboard",
             "destination": "/dashboard/index.html"
         },
         {

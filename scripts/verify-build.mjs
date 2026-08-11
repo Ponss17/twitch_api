@@ -53,8 +53,13 @@ const imageCache = vercel.headers?.find((entry) => entry.source === '/img/:path*
     ?.headers?.find((header) => header.key === 'Cache-Control')?.value ?? '';
 if (imageCache.includes('immutable')) failures.push('unhashed /img assets must not be immutable');
 if (vercel.trailingSlash !== true) failures.push('Vercel trailingSlash must match Astro trailingSlash=always');
-if (!vercel.rewrites?.some((entry) => entry.source === '/dashboard/:path*')) {
-    failures.push('dashboard SPA rewrite is missing');
+const dashboardSpaRewrite = vercel.rewrites?.find(
+    (entry) =>
+        entry.destination === '/dashboard/index.html' &&
+        (entry.source === '/dashboard/(.*)' || entry.source === '/dashboard/:path(.*)')
+);
+if (!dashboardSpaRewrite) {
+    failures.push('dashboard SPA rewrite must use /dashboard/(.*) → /dashboard/index.html ( :path* breaks nested refresh )');
 }
 
 if (failures.length) {
