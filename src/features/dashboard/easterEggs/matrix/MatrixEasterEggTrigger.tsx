@@ -15,7 +15,6 @@ export function MatrixEasterEggTrigger() {
     const [show, setShow] = useState(false);
 
     useSecretCode(MATRIX_CODE, () => {
-        // Easter-egg console message
         /* eslint-disable no-console */
         const s = 'color:#00ff44;font-family:monospace;font-size:16px;background:#000;padding:5px 20px;font-weight:bold;border-left:4px solid #00ff44;display:block;';
         console.log('%cWake up, Neo...', s);
@@ -23,7 +22,6 @@ export function MatrixEasterEggTrigger() {
         console.log('%cFollow the white rabbit.', s);
         /* eslint-enable no-console */
 
-        // Request fullscreen
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(() => { });
         }

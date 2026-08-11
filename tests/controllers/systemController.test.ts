@@ -1,4 +1,8 @@
 import { Response } from 'express';
+
+jest.mock('../../backend/src/core/utils/sessionState', () => ({
+    establishSession: jest.fn().mockResolvedValue(undefined)
+}));
 import axios from 'axios';
 
 jest.mock('axios', () => {
@@ -59,6 +63,7 @@ import * as dbService from '../../backend/src/core/database/dbService';
 import * as authService from '../../backend/src/features/auth/auth.service';
 import { invalidateAllUserCaches } from '../../backend/src/core/utils/cacheInvalidation';
 import * as apiService from '../../backend/src/features/twitch/twitch.service';
+import { kv } from '../../backend/src/core/database/redisClient';
 import {
     validateToken,
     regenerateKey,
@@ -292,6 +297,40 @@ describe('systemController', () => {
                     uptime: expect.any(String)
                 })
             );
+        });
+
+        it('serves liveness without checking dependencies', async () => {
+            const req = mockReq({ query: { probe: 'live' } });
+            const res = mockRes();
+            jest.mocked(kv.ping).mockClear();
+
+            await getHealth(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ status: 'alive', probe: 'liveness', version: '5.0.0' })
+            );
+            expect(kv.ping).not.toHaveBeenCalled();
+        });
+
+        it('reports a real Redis ping failure in readiness', async () => {
+            const now = jest.spyOn(Date, 'now').mockReturnValue(Date.now() + 20_000);
+            jest.mocked(kv.ping).mockRejectedValueOnce(new Error('Redis unavailable'));
+            const req = mockReq({ query: { probe: 'ready' } });
+            const res = mockRes();
+
+            await getHealth(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(503);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    probe: 'readiness',
+                    services: expect.objectContaining({
+                        cache: expect.objectContaining({ status: 'offline' })
+                    })
+                })
+            );
+            now.mockRestore();
         });
     });
 });

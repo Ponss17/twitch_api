@@ -10,15 +10,25 @@
  * los assets se generaran como '///_astro/...' en lugar de '/_astro/'.
  */
 import { spawnSync } from 'node:child_process';
+import { rmSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
 // Heredamos el entorno completo pero sobreescribimos BASE_URL con el valor
 // que Astro espera (path relativo '/', no URL absoluta).
 const env = { ...process.env, BASE_URL: '/' };
+const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
-const result = spawnSync('astro', ['build'], {
+// Solo artefactos regenerables. Nunca borra api/_bundle, que se compila antes.
+for (const relative of ['dist', '.astro', path.join('node_modules', '.vite')]) {
+    rmSync(path.join(root, relative), { recursive: true, force: true });
+}
+
+const astroBin = path.join(root, 'node_modules', '.bin', process.platform === 'win32' ? 'astro.cmd' : 'astro');
+const result = spawnSync(astroBin, ['build'], {
     stdio: 'inherit',
     env,
-    shell: true
+    shell: false
 });
 
 process.exit(result.status ?? 1);
