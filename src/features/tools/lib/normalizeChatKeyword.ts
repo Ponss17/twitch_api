@@ -6,3 +6,11 @@ export function normalizeChatKeyword(raw: string, fallback = '!pregunta'): strin
     if (!withoutBang) return fallback.startsWith('!') ? fallback : `!${fallback}`;
     return `!${withoutBang}`;
 }
+
+export function matchesChatKeyword(message: string, keyword: string): boolean {
+    const normalizedMessage = message.trimStart().toLowerCase();
+    const normalizedKeyword = keyword.toLowerCase();
+    if (!normalizedMessage.startsWith(normalizedKeyword)) return false;
+    const boundary = normalizedMessage.charAt(normalizedKeyword.length);
+    return boundary === '' || /\s/.test(boundary);
+}

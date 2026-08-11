@@ -7,6 +7,13 @@ export type TestResult = { status: 'idle' | 'loading' | 'success' | 'error'; mes
 
 export const TWITCH_LOGIN = /^@?[a-zA-Z0-9_]{1,25}$/;
 
+export function createMinigameParams(
+    locale: string,
+    values: Record<string, string>
+): URLSearchParams {
+    return new URLSearchParams({ ...values, lang: locale });
+}
+
 export function normalizeTwitchLogin(raw: string): string {
     return raw.trim().replace(/^@+/, '');
 }

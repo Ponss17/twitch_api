@@ -10,7 +10,12 @@ import { CommandGeneratorCard } from '@/features/commands/CommandGeneratorCard';
 import { SLOTS_ICON } from '@/features/minigames/icons';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { MinigameCard } from '../MinigameCard';
-import { GameResponse, parseApiError, type TestResult } from '../lib/minigameUtils';
+import {
+    createMinigameParams,
+    GameResponse,
+    parseApiError,
+    type TestResult
+} from '../lib/minigameUtils';
 
 const IDLE_REELS: [string, string, string] = ['❓', '❓', '❓'];
 const REVEAL_MS = 520;
@@ -31,7 +36,7 @@ function wait(ms: number): Promise<void> {
 
 export function SlotsView() {
     const session = useRequiredSession();
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     const mgT = t.minigames.slots;
     const [result, setResult] = useState<TestResult>({ status: 'idle', message: '' });
     const [reels, setReels] = useState<[string, string, string]>(IDLE_REELS);
@@ -44,7 +49,7 @@ export function SlotsView() {
         setReels(IDLE_REELS);
 
         try {
-            const params = new URLSearchParams({
+            const params = createMinigameParams(locale, {
                 user: session.login ?? '',
                 channel: session.login ?? '',
                 _nocache: Date.now().toString()
