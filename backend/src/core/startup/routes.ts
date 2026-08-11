@@ -1,6 +1,6 @@
 import { Application, Request, Response } from 'express';
 import { CONFIG } from '../config/env';
-import { globalRateLimiter } from '../middleware/redisRateLimiter';
+import { preAuthRateLimiter } from '../middleware/redisRateLimiter';
 import { apiKeyValidator } from '../middleware/apiKeyValidator';
 import checkToken from '../middleware/authMiddleware';
 import { isApiRoute, isJsonApiRoute } from '../utils/routeHelpers';
@@ -38,7 +38,7 @@ export const configureRoutes = (app: Application) => {
         next();
     });
 
-    app.get(['/health', '/api/health'], globalRateLimiter, /* codeql[js/missing-rate-limiting] */ (_req: Request, res: Response) => {
+    app.get(['/health', '/api/health'], preAuthRateLimiter, /* codeql[js/missing-rate-limiting] */ (_req: Request, res: Response) => {
         const isConfigured = !!(CONFIG.TWITCH_CLIENT_ID && CONFIG.TWITCH_CLIENT_SECRET);
         res.json({
             status: isConfigured ? 'ok' : 'maintenance',
@@ -46,15 +46,15 @@ export const configureRoutes = (app: Application) => {
         });
     });
 
-    app.get(['/robots.txt', '/api/robots.txt'], globalRateLimiter, /* codeql[js/missing-rate-limiting] */ getRobotsTxt);
-    app.get(['/sitemap.xml', '/api/sitemap.xml'], globalRateLimiter, /* codeql[js/missing-rate-limiting] */ getSitemapXml);
+    app.get(['/robots.txt', '/api/robots.txt'], preAuthRateLimiter, /* codeql[js/missing-rate-limiting] */ getRobotsTxt);
+    app.get(['/sitemap.xml', '/api/sitemap.xml'], preAuthRateLimiter, /* codeql[js/missing-rate-limiting] */ getSitemapXml);
 
-    app.use(globalRateLimiter);
-    // codeql[js/missing-rate-limiting] Custom global rate limiter via Redis is applied above
+    app.use(preAuthRateLimiter);
+    // codeql[js/missing-rate-limiting] Redis pre-auth limiter is applied above
     app.use(apiKeyValidator);
-    // codeql[js/missing-rate-limiting] Custom global rate limiter via Redis is applied above
+    // codeql[js/missing-rate-limiting] Redis pre-auth limiter is applied above
     app.use(checkToken);
-    // codeql[js/missing-rate-limiting] Custom global rate limiter via Redis is applied above
+    // codeql[js/missing-rate-limiting] Feature routes apply post-auth Redis quotas
     app.use(overlayScopeGuard);
 
     app.use('/auth', authRoutes);

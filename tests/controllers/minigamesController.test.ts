@@ -99,6 +99,25 @@ describe('minigamesController', () => {
             await askMagic8(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.setHeader).toHaveBeenCalledWith(
+                'Content-Type',
+                'text/plain; charset=utf-8'
+            );
+        });
+
+        it('returns HTML-looking payload literally as text/plain', async () => {
+            const payload = '<img src=x onerror=alert(1)>';
+            const req = mockReq({ query: { question: 'Test?', user: 'Player1' } });
+            const res = mockRes();
+            (generateMagic8Response as jest.Mock).mockResolvedValue(payload);
+
+            await askMagic8(req, res);
+
+            expect(res.setHeader).toHaveBeenCalledWith(
+                'Content-Type',
+                'text/plain; charset=utf-8'
+            );
+            expect(res.send).toHaveBeenCalledWith(payload);
         });
     });
 

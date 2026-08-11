@@ -13,6 +13,8 @@ jest.mock('@/core/database/redisClient');
 import { playDuel } from '../../backend/src/features/minigames/duel.service';
 import { playRussianRoulette } from '../../backend/src/features/minigames/russian.service';
 import { playSlots } from '../../backend/src/features/minigames/slots.service';
+import { kv } from '@/core/database/redisClient';
+import { timeoutUser } from '@/features/twitch/twitch.service';
 
 describe('juegos (duel, russian roulette, slots)', () => {
     describe('playDuel', () => {
@@ -44,6 +46,11 @@ describe('juegos (duel, russian roulette, slots)', () => {
     });
 
     describe('playRussianRoulette', () => {
+        beforeEach(() => {
+            (kv.eval as jest.Mock).mockResolvedValue([1, 1, 1]);
+            (timeoutUser as jest.Mock).mockResolvedValue(undefined);
+        });
+
         it('retorna status vivo o muerto y un mensaje descriptivo', async () => {
             const res = await playRussianRoulette('ch1', 'u1', 'token', false, false);
 
@@ -60,6 +67,49 @@ describe('juegos (duel, russian roulette, slots)', () => {
 
             expect(res.status).toBe('dead');
             expect(res.message).toContain('El Streamer es inmortal');
+            expect(res.hardcore_applied).toBe(false);
+        });
+
+        it('marca hardcore solo después de aplicar el timeout', async () => {
+            const applied = await playRussianRoulette('streamer', 'viewer', 'token', true, false);
+            expect(applied.hardcore_applied).toBe(true);
+
+            (timeoutUser as jest.Mock).mockRejectedValueOnce(new Error('Twitch failed'));
+            const failed = await playRussianRoulette('streamer', 'viewer', 'token', true, false);
+            expect(failed.hardcore_applied).toBe(false);
+        });
+
+        it('serializa init, disparos y reset bajo concurrencia', async () => {
+            let bullet: number | null = null;
+            let chamber = 0;
+            (kv.eval as jest.Mock).mockImplementation(async (_script, _keys, args) => {
+                if (bullet === null) bullet = Number(args[0]);
+                chamber += 1;
+                const dead = chamber >= bullet;
+                const result = [bullet, chamber, dead ? 1 : 0];
+                if (dead) {
+                    bullet = null;
+                    chamber = 0;
+                }
+                return result;
+            });
+            jest.spyOn(Math, 'random').mockReturnValue(0.99);
+
+            const round = await Promise.all(
+                Array.from({ length: 6 }, () =>
+                    playRussianRoulette('channel', 'viewer', 'token', false, false)
+                )
+            );
+            expect(round.filter((result) => result.status === 'dead')).toHaveLength(1);
+
+            const nextRound = await playRussianRoulette(
+                'channel',
+                'viewer',
+                'token',
+                false,
+                false
+            );
+            expect(nextRound.status).toBe('alive');
         });
     });
 });

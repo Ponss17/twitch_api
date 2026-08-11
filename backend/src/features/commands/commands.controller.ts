@@ -15,10 +15,19 @@ import { getFollowageTexts } from '../twitch/twitchUserService';
 import * as dbService from '../../core/database/dbService';
 import { getStreamElementsWatchtime } from '../integrations/streamelements.service';
 
+const fillTemplate = (templateRaw: string, variables: Record<string, string>): string => {
+    let output = templateRaw.replace(/[\r\n]/g, '');
+    for (const [name, value] of Object.entries(variables)) {
+        output = output.split(`{${name}}`).join(value);
+    }
+    return output;
+};
+
 export const createClip = async (req: AuthenticatedRequest, res: Response) => {
-    const channel = safeString(req.query.channel);
+    const input = req.method === 'POST' ? req.body : req.query;
+    const channel = safeString(input.channel);
     const userId = req.userId;
-    let customTitle = safeString(req.query.q) || safeString(req.query.title);
+    let customTitle = safeString(input.q) || safeString(input.title);
     if (
         customTitle === '[invalid variable]' ||
         customTitle === 'null' ||
@@ -33,7 +42,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
         userId,
         {
             type: 'clip',
-            user: safeString(req.query.user) || req.displayName || 'Streamer',
+            user: safeString(input.user) || req.displayName || 'Streamer',
             incrementStat: 'clips',
             skipActivityLog: true
         },
@@ -64,7 +73,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
             );
 
             if (userId) {
-                let chatter = safeString(req.query.user) || req.displayName || 'Streamer';
+                let chatter = safeString(input.user) || req.displayName || 'Streamer';
                 if (chatter.includes('$(') || chatter.includes('${')) chatter = 'Anónimo';
                 await dbService.addUserActivity(userId, {
                     type: 'clip',
@@ -74,20 +83,20 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
             }
 
             if (clipUrl) {
-                const rawTemplate = safeString(req.query.template);
+                const rawTemplate = safeString(input.template);
                 if (rawTemplate) {
-                    const template = rawTemplate.replace(/[\r\n]/g, '');
                     const safeUrl = sanitizeHtml(clipUrl);
                     const safeChannel = sanitizeHtml(channel);
                     const safeTitle = sanitizeHtml(finalTitle || '');
-                    let safeUser = safeString(req.query.user) || req.displayName || 'Streamer';
+                    let safeUser = safeString(input.user) || req.displayName || 'Streamer';
                     if (safeUser.includes('$(') || safeUser.includes('${')) safeUser = 'Anónimo';
                     safeUser = sanitizeHtml(safeUser);
-                    return template
-                        .replace('{user}', safeUser)
-                        .replace('{url}', safeUrl)
-                        .replace('{channel}', safeChannel)
-                        .replace('{title}', safeTitle);
+                    return fillTemplate(rawTemplate, {
+                        user: safeUser,
+                        url: safeUrl,
+                        channel: safeChannel,
+                        title: safeTitle
+                    });
                 }
                 return clipUrl;
             }
@@ -118,11 +127,7 @@ function applyFollowageTemplate(
     user: string,
     channel: string
 ): string {
-    const template = templateRaw.replace(/[\r\n]/g, '');
-    return template
-        .replace('{time}', timePhrase)
-        .replace('{user}', user)
-        .replace('{channel}', channel);
+    return fillTemplate(templateRaw, { time: timePhrase, user, channel });
 }
 
 export const followage = async (req: AuthenticatedRequest, res: Response) => {
@@ -290,11 +295,11 @@ export const getShoutout = async (req: AuthenticatedRequest, res: Response) => {
 
                     const rawPattern =
                         safeString(req.query.template) || MESSAGES.COMMANDS.SHOUTOUT_HEADLINE;
-                    const messagePattern = rawPattern.replace(/[\r\n]/g, '');
-                    const message = messagePattern
-                        .replace('{user}', touser)
-                        .replace('{game}', gameName)
-                        .replace('{url}', url);
+                    const message = fillTemplate(rawPattern, {
+                        user: touser,
+                        game: gameName,
+                        url
+                    });
 
                     return message;
                 },
@@ -340,11 +345,7 @@ function getWatchtimeTexts(lang: string = 'es') {
 }
 
 function applyWatchtimeTemplate(templateRaw: string, timePhrase: string, user: string, channel: string): string {
-    return templateRaw
-        .replace(/[\r\n]/g, '')
-        .replace('{time}', timePhrase)
-        .replace('{user}', user)
-        .replace('{channel}', channel);
+    return fillTemplate(templateRaw, { time: timePhrase, user, channel });
 }
 
 export const watchtime = async (req: AuthenticatedRequest, res: Response) => {

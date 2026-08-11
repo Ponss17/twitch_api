@@ -3,6 +3,8 @@ import { logger } from '../../core/utils/logger';
 
 const NIGHTBOT_MSG_MAX = 400;
 const MIN_INTERVAL_SEC = 5;
+const MAX_INTERVAL_SEC = 10;
+const NIGHTBOT_TIMEOUT_MS = 5000;
 
 export const truncateForNightbot = (text: string): string =>
     text.length <= NIGHTBOT_MSG_MAX ? text : `${text.slice(0, NIGHTBOT_MSG_MAX - 1)}…`;
@@ -14,6 +16,7 @@ export function isAllowedNightbotResponseUrl(url: string): boolean {
     try {
         const parsed = new URL(url);
         if (parsed.protocol !== 'https:') return false;
+        if (parsed.username || parsed.password || (parsed.port && parsed.port !== '443')) return false;
         const host = parsed.hostname.toLowerCase();
         return host === 'nightbot.tv' || host.endsWith('.nightbot.tv');
     } catch {
@@ -46,7 +49,8 @@ export const postNightbotMessage = async (responseUrl: string, message: string):
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body,
-        redirect: 'error'
+        redirect: 'error',
+        signal: AbortSignal.timeout(NIGHTBOT_TIMEOUT_MS)
     });
     if (!res.ok) {
         const text = await res.text().catch(() => '');
@@ -63,7 +67,8 @@ export const scheduleNightbotFollowUps = (
     followUps: string[],
     intervalSec: number = MIN_INTERVAL_SEC
 ): Promise<void> => {
-    const intervalMs = Math.max(MIN_INTERVAL_SEC, intervalSec) * 1000;
+    const intervalMs =
+        Math.min(MAX_INTERVAL_SEC, Math.max(MIN_INTERVAL_SEC, intervalSec)) * 1000;
 
     const run = async () => {
         for (let i = 0; i < followUps.length; i++) {
