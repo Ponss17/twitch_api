@@ -2,7 +2,7 @@ import { Response } from 'express';
 import * as authService from '../auth/auth.service';
 import * as dbService from '../../core/database/dbService';
 import * as apiService from '../twitch/twitch.service';
-import * as cacheService from '../../core/database/cacheService';
+import { kv } from '../../core/database/redisClient';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import { CONFIG } from '../../core/config/env';
@@ -10,8 +10,9 @@ import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { invalidateAllUserCaches } from '../../core/utils/cacheInvalidation';
-import { setSessionCookie } from '../../core/utils/sessionCookie';
+import { establishSession } from '../../core/utils/sessionState';
 import { isAuthenticationError } from '../../core/errors/AppError';
+import { APP_VERSION } from '../../core/config/appVersion';
 import { invalidateAuthCache } from '../../core/middleware/authMiddleware';
 
 import { AuthenticatedRequest } from '../../types/twitch';
@@ -81,7 +82,9 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                 timezone?: string;
                 tokenExpiresAt?: number;
             };
-            setSessionCookie(res, user.userId);
+            if (!res.locals.isCookieSession) {
+                await establishSession(res, user.userId);
+            }
             // tokenExpiresAt para useProactiveTokenRefresh (no devolver apiKey/token al panel)
             let tokenExpiresAt =
                 user.tokenExpiresAt && user.tokenExpiresAt > 0 ? user.tokenExpiresAt : null;
@@ -120,7 +123,9 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
             const tokenExpiresAt =
                 dbUser?.tokenExpiresAt && dbUser.tokenExpiresAt > 0 ? dbUser.tokenExpiresAt : null;
             if (validation.user_id) {
-                setSessionCookie(res, validation.user_id);
+                if (!res.locals.isCookieSession) {
+                    await establishSession(res, validation.user_id);
+                }
             }
             return res.json(
                 panelValidatePayload({
@@ -301,6 +306,15 @@ let healthCacheExpiry = 0;
 
 export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
     try {
+        if (req.query.probe === 'live') {
+            return res.status(200).json({
+                status: 'alive',
+                probe: 'liveness',
+                timestamp: new Date().toISOString(),
+                version: APP_VERSION
+            });
+        }
+
         const now = Date.now();
         // 1. Cache en memoria (warm start): respuesta instantánea
         if (cachedHealthResult && healthCacheExpiry > now) {
@@ -326,7 +340,7 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
             (async () => {
                 const start = Date.now();
                 try {
-                    await cacheService.get('health-ping');
+                    await kv.ping();
                     return { status: 'online', latency: Date.now() - start };
                 } catch {
                     return { status: 'offline', latency: Date.now() - start };
@@ -356,8 +370,9 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
         const httpStatus = isOperational ? 200 : 503;
         const responseData = {
             status: isOperational ? 'operational' : dbStatus === 'online' ? 'degraded' : 'down',
+            probe: 'readiness',
             timestamp: new Date().toISOString(),
-            version: process.env.npm_package_version || '2.9.4',
+            version: APP_VERSION,
             uptime: `${Math.floor(process.uptime())}s`,
             services: {
                 database: {
@@ -384,9 +399,9 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
             }
         };
 
-        // Guardar en caché en memoria por 60 segundos (sobrevive warm starts)
+        // Caché breve: evita amplificar probes sin ocultar recuperaciones durante un minuto.
         cachedHealthResult = { httpStatus, data: responseData };
-        healthCacheExpiry = now + 60_000;
+        healthCacheExpiry = now + 10_000;
 
         res.status(httpStatus).json(responseData);
     } catch (e) {

@@ -1,8 +1,10 @@
 import winston from 'winston';
 import Transport from 'winston-transport';
-import * as dbService from '../database/dbService';
+import { waitUntil } from '@vercel/functions';
+import { addSystemLog } from '../database/systemLogService';
 import { randomUUID } from 'crypto';
 import { AsyncLocalStorage } from 'async_hooks';
+import { sanitizeLogValue } from './logSanitizer';
 
 const { combine, timestamp, printf, colorize, errors, json } = winston.format;
 
@@ -47,20 +49,7 @@ const prodFormat = combine(
     errors({ stack: true }),
     json({
         space: 0,
-        replacer: (key, value) => {
-            // Sanitizar datos sensibles
-            if (typeof value === 'string') {
-                // Mask API keys
-                if (key.toLowerCase().includes('apikey') || key.toLowerCase().includes('api_key')) {
-                    return value.length > 8 ? `${value.slice(0, 4)}****${value.slice(-4)}` : '****';
-                }
-                // Mask tokens
-                if (key.toLowerCase().includes('token') || key.toLowerCase().includes('password')) {
-                    return '****';
-                }
-            }
-            return value;
-        }
+        replacer: (_key, value) => sanitizeLogValue(value)
     })
 );
 
@@ -84,53 +73,35 @@ class DatabaseTransport extends Transport {
                 return;
             }
 
-            // Sanitizar para evitar errores de estructura circular (ej. AxiosError con request/response)
-            const sanitizeObj = (obj: unknown): unknown => {
-                if (!obj || typeof obj !== 'object') return obj;
-                try {
-                    // JSON.stringify maneja objetos normales. Si lanza, es circular.
-                    JSON.stringify(obj);
-                    return obj;
-                } catch {
-                    // Si es circular o da error, extraer solo lo seguro
-                    const errObj = obj as Record<string, unknown>;
-                    if (obj instanceof Error || errObj.isAxiosError) {
-                        const response = errObj.response as Record<string, unknown> | undefined;
-                        return {
-                            message: errObj.message,
-                            name: errObj.name,
-                            stack: errObj.stack,
-                            status: response?.status,
-                            code: errObj.code
-                        };
-                    }
-                    return '[Unserializable/Circular Object]';
-                }
-            };
-
             // Estructurar el log para la base de datos
             const logEntry = {
                 message,
-                details: sanitizeObj(details) as Record<string, unknown>,
+                details: sanitizeLogValue(details) as Record<string, unknown>,
                 requestId,
                 timestamp: new Date().toISOString()
             };
 
-            dbService
-                .addSystemLog(level, message, logEntry)
+            const persistence = addSystemLog(level as 'error' | 'warn', message, logEntry)
                 .then(() => {
                     this.consecutiveFailures = 0;
                 })
-                .catch((err: Error) => {
+                .catch(() => {
                     this.consecutiveFailures++;
                     if (this.consecutiveFailures >= 3) {
                         // Circuit breaker: pausar por 60 segundos después de 3 fallos
                         this.pausedUntil = Date.now() + 60_000;
                         this.consecutiveFailures = 0;
                     }
-                    // Fallback a console.error para no perder logs críticos
-                    console.error('❌ Error saving log to DB:', err);
+                    // El transporte Console ya emitió el evento sanitizado a stdout.
+                    console.error('System log persistence failed; retained in stdout');
                 });
+            if (isVercel) {
+                try {
+                    waitUntil(persistence);
+                } catch {
+                    // Fuera de un request de Vercel, la promesa sigue activa como fallback local.
+                }
+            }
         }
         callback();
     }
@@ -192,7 +163,7 @@ const enrichLog = (level: string, msg: string, args: unknown[]): Record<string, 
     if (args.length > 0) {
         // Si el primer argumento es un objeto, extraer metadata
         if (typeof args[0] === 'object' && args[0] !== null) {
-            const firstArg = { ...(args[0] as Record<string, unknown>) };
+            const firstArg = sanitizeLogValue(args[0]) as Record<string, unknown>;
 
             if (firstArg.requestId) {
                 meta.requestId = firstArg.requestId;
@@ -219,7 +190,7 @@ const enrichLog = (level: string, msg: string, args: unknown[]): Record<string, 
                 meta.details = firstArg;
             }
         } else {
-            meta.details = args;
+            meta.details = sanitizeLogValue(args);
         }
     }
 
@@ -263,8 +234,8 @@ export const logger = {
     /**
      * Log de inicio de request con correlación
      */
-    startRequest: (method: string, url: string, userId?: string) => {
-        const requestId = generateRequestId();
+    startRequest: (method: string, url: string, userId?: string, suppliedRequestId?: string) => {
+        const requestId = suppliedRequestId || generateRequestId();
         setRequestId(requestId);
 
         const isPollingRoute =

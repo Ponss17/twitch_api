@@ -5,7 +5,6 @@ import SpeedInsights from '@vercel/speed-insights/astro';
 import Analytics from '@vercel/analytics/astro';
 import { staticPath, absoluteAssetUrl } from '@/core/config/paths';
 import { pageTitle } from '@/core/config/pageTitle';
-import { getThemeInitScript, getBrandThemeInitScript } from '@/core/theme';
 
 export interface Props {
     /** Nombre de la página; se formatea como «Página | LosPerris». */
@@ -46,7 +45,9 @@ const {
     brandTheme = false
 } = Astro.props;
 
-const themeInitScript = brandTheme ? getBrandThemeInitScript() : getThemeInitScript();
+const themeInitScriptPath = staticPath(
+    brandTheme ? '/js/brand-theme-init.js' : '/js/theme-init.js'
+);
 
 const documentTitle = title ?? (page ? pageTitle(page) : pageTitle('Inicio'));
 
@@ -75,7 +76,7 @@ const swScope = staticPath('/');
         <meta name="theme-color" content="#9146ff" />
         
         {/* Evitar Flash of Unstyled Content (FOUC) síncronamente */}
-        <script is:inline set:html={themeInitScript} />
+        <script is:inline src={themeInitScriptPath}></script>
         
         <!-- Open Graph -->
         <meta property="og:site_name" content="LosPerris" />
@@ -115,8 +116,6 @@ const swScope = staticPath('/');
         <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=Inter:wght@300..800&family=Plus+Jakarta+Sans:wght@400..800&family=Rubik:wght@400..900&family=Space+Grotesk:wght@400..700&display=swap"
-            media="print"
-            onload="this.media='all'"
         />
         <noscript>
             <link
@@ -125,14 +124,7 @@ const swScope = staticPath('/');
             />
         </noscript>
         <title>{documentTitle}</title>
-        <script is:inline>
-            window.speedInsightsBeforeSend = function (data) {
-                if (data && data.attribution && data.attribution.eventTarget) {
-                    data.attribution.eventTarget = '[redacted]';
-                }
-                return data;
-            };
-        </script>
+        <script is:inline src={staticPath('/js/speed-insights-redaction.js')}></script>
         <SpeedInsights scriptSrc="https://va.vercel-scripts.com/v1/speed-insights/script.js" />
         {isDev && (
             <script is:inline>

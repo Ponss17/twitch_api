@@ -14,8 +14,10 @@ coverage/
 
 .agents/
 
-# Notas internas (local only — no subir a GitHub)
+# Notas internas y borradores SQL (local only; no versionar)
 /docs/
 legal-edit-draft.md
-scripts/supabase/
+/scripts/supabase/
+/supabase/
+/backend/migrations/*.sql
 .vscode/

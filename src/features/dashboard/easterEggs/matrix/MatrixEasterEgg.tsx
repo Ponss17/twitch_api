@@ -15,7 +15,6 @@ type DialogStep = {
 const KATAKANA =
     'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF<>';
 
-// Moved out of the effect so the array is not re-allocated on every render.
 const BOOT_SEQUENCE = [
     'Microsoft Windows [Versión 10.0.26280.8875]',
     '(c) Microsoft Corporation. Todos los derechos reservados.',
@@ -36,10 +35,8 @@ const BOOT_SEQUENCE = [
     'FATAL ERROR: OVERRIDE INITIATED.'
 ];
 
-// BSOD uses a fixed font stack – constant avoids repeated inline object creation.
 const SEGOE_STYLE = { fontFamily: 'Segoe UI, system-ui, sans-serif' };
 
-// Canvas layer config – static, no need to live inside the component.
 const CANVAS_LAYERS = [
     { fontSize: 10, speed: 1.0, color: '#004411', count: 80, isBg: true, headColor: '' },
     { fontSize: 16, speed: 2.0, color: '#00aa22', count: 40, isBg: false, headColor: '#aaffaa' },
@@ -172,8 +169,6 @@ export function MatrixEasterEgg({ onClose }: { onClose: () => void }) {
         return null;
     }, [step, dialogs, T]);
 
-    // Consolidated character info – avoids repeating the same ternary chain
-    // three times across the JSX (src, alt, and label were all duplicated).
     const charInfo = useMemo(() => {
         if (currentDialog?.options) return { src: '/img/matrix/pildora.svg', alt: 'Pildora', label: 'PÍLDORA' };
         if (currentDialog?.text === T.morpheus_question) return { src: '/img/matrix/morfeo.svg', alt: 'Morfeo', label: 'MORFEO' };
