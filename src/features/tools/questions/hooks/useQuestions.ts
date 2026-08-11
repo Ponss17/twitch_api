@@ -4,7 +4,10 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { IGNORED_BOTS } from '@/core/config/config';
-import { normalizeChatKeyword } from '@/features/tools/lib/normalizeChatKeyword';
+import {
+    matchesChatKeyword,
+    normalizeChatKeyword
+} from '@/features/tools/lib/normalizeChatKeyword';
 import {
     DEFAULT_ELIGIBILITY_FILTERS,
     hasAnyFilter,
@@ -27,7 +30,7 @@ const MAX_ITEMS = 100;
 
 function stripKeyword(message: string, keyword: string): string {
     const trimmed = message.trim();
-    if (trimmed.toLowerCase().startsWith(keyword.toLowerCase())) {
+    if (matchesChatKeyword(trimmed, keyword)) {
         return trimmed.slice(keyword.length).trim();
     }
     return trimmed;
@@ -57,7 +60,7 @@ export function useQuestions({ tabActive = true }: { tabActive?: boolean } = {})
         onMessage: (_channel, tags, message) => {
             const kw = keywordRef.current;
             const trimmed = message.trim();
-            if (!trimmed.toLowerCase().startsWith(kw.toLowerCase())) return;
+            if (!matchesChatKeyword(trimmed, kw)) return;
             if (!tagsMatchFilters(tags, filtersRef.current)) return;
 
             const username = tags.username?.toLowerCase() || '';

@@ -44,9 +44,12 @@ export function useProactiveTokenRefresh(
     sessionRef.current = session;
 
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const generationRef = useRef(0);
 
     useEffect(() => {
         if (!authenticated || !session) return;
+        const generation = ++generationRef.current;
+        let active = true;
 
         function clearTimer() {
             if (timerRef.current !== null) {
@@ -56,13 +59,15 @@ export function useProactiveTokenRefresh(
         }
 
         function scheduleNext() {
+            if (!active || generation !== generationRef.current) return;
             clearTimer();
 
             let delayMs: number;
 
-            if (session?.tokenExpiresAt && session.tokenExpiresAt > Date.now()) {
+            const currentSession = sessionRef.current;
+            if (currentSession?.tokenExpiresAt && currentSession.tokenExpiresAt > Date.now()) {
                 // Tenemos la fecha exacta de expiración — calcular el delay preciso
-                const msUntilExpiry = session.tokenExpiresAt - Date.now();
+                const msUntilExpiry = currentSession.tokenExpiresAt - Date.now();
                 delayMs = Math.max(msUntilExpiry - REFRESH_BEFORE_EXPIRY_MS, 60_000);
             } else {
                 // Sin fecha conocida → usar intervalo fijo de 3.5h
@@ -70,6 +75,7 @@ export function useProactiveTokenRefresh(
             }
 
             timerRef.current = setTimeout(async () => {
+                if (!active || generation !== generationRef.current) return;
                 // CRÍTICO: limpiar el caché de validate antes de llamar refresh().
                 // Sin esto, validateSession() devuelve el caché local sin
                 // llegar al backend, y el token de Twitch nunca se renueva.
@@ -77,18 +83,25 @@ export function useProactiveTokenRefresh(
 
                 try {
                     await refreshRef.current();
-                    // Tras un refresh exitoso, reprogramar el siguiente
-                    scheduleNext();
+                    if (active && generation === generationRef.current) scheduleNext();
                 } catch {
-                    // Si el refresh falla, reintentamos en 5 minutos
-                    timerRef.current = setTimeout(() => scheduleNext(), 5 * 60 * 1000);
+                    if (active && generation === generationRef.current) {
+                        timerRef.current = setTimeout(() => scheduleNext(), 5 * 60 * 1000);
+                    }
                 }
             }, delayMs);
         }
 
         scheduleNext();
 
-        return () => clearTimer();
+        return () => {
+            active = false;
+            // Invalidate this effect's generation without clobbering a newer effect's value.
+            if (generationRef.current === generation) {
+                generationRef.current = generation + 1;
+            }
+            clearTimer();
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [authenticated, session?.tokenExpiresAt, session?.userId]);
 }

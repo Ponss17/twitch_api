@@ -4,12 +4,64 @@ import { debugWarn } from '@/core/logging/debugLog';
 import type { OverlayTool, RouletteOverlayState, TrendsOverlayState } from '@/features/overlay/lib/types';
 import { overlayStateFingerprint } from '@/features/overlay/lib/overlayStateUtils';
 
+type QueuedPublish = {
+    state: RouletteOverlayState | TrendsOverlayState;
+    session: Session;
+    fingerprint: string;
+    resolve: () => void;
+    reject: (error: unknown) => void;
+};
+
 const lastPublishedFingerprint = new Map<OverlayTool, string>();
+const publishQueues = new Map<OverlayTool, Promise<void>>();
+const latestQueued = new Map<OverlayTool, QueuedPublish>();
 
 /** Omite PUT si el payload lógico no cambió (ahorra invocaciones serverless). */
 export function resetOverlayPublishCache(tool?: OverlayTool): void {
-    if (tool) lastPublishedFingerprint.delete(tool);
-    else lastPublishedFingerprint.clear();
+    if (tool) {
+        lastPublishedFingerprint.delete(tool);
+        latestQueued.delete(tool);
+        publishQueues.delete(tool);
+    } else {
+        lastPublishedFingerprint.clear();
+        latestQueued.clear();
+        publishQueues.clear();
+    }
+}
+
+async function drainOverlayQueue(tool: OverlayTool): Promise<void> {
+    while (latestQueued.has(tool)) {
+        const job = latestQueued.get(tool)!;
+        latestQueued.delete(tool);
+
+        // Coalesce updates queued in the same tick so only the newest ships.
+        await Promise.resolve();
+        if (latestQueued.has(tool)) {
+            job.resolve();
+            continue;
+        }
+
+        lastPublishedFingerprint.set(tool, job.fingerprint);
+        try {
+            const res = await fetch(`${API_ENDPOINTS.OVERLAY_STATE}${tool}`, withApiCredentials({
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', ...authHeaders(job.session) },
+                body: JSON.stringify({ state: job.state }),
+                cache: 'no-store'
+            }));
+            if (!res.ok && lastPublishedFingerprint.get(tool) === job.fingerprint) {
+                lastPublishedFingerprint.delete(tool);
+            }
+            job.resolve();
+        } catch (err) {
+            if (lastPublishedFingerprint.get(tool) === job.fingerprint) {
+                lastPublishedFingerprint.delete(tool);
+            }
+            debugWarn('[overlay] publishOverlayState failed:', err);
+            job.reject(err);
+        }
+    }
+    publishQueues.delete(tool);
 }
 
 export async function publishOverlayState(
@@ -18,27 +70,20 @@ export async function publishOverlayState(
     session: Session
 ): Promise<void> {
     const fingerprint = overlayStateFingerprint(tool, state);
-    if (lastPublishedFingerprint.get(tool) === fingerprint) return;
+    if (lastPublishedFingerprint.get(tool) === fingerprint && !latestQueued.has(tool)) return;
 
-    // Reserva la huella antes del fetch para evitar PUT duplicados en vuelo
-    // (p. ej. emitState explícito + useEffect de sync en el mismo tick).
-    lastPublishedFingerprint.set(tool, fingerprint);
+    return new Promise<void>((resolve, reject) => {
+        const previous = latestQueued.get(tool);
+        if (previous) previous.resolve();
 
-    try {
-        const res = await fetch(`${API_ENDPOINTS.OVERLAY_STATE}${tool}`, withApiCredentials({
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
-            body: JSON.stringify({ state }),
-            cache: 'no-store'
-        }));
-        if (!res.ok) {
-            lastPublishedFingerprint.delete(tool);
-            return;
-        }
-    } catch (err) {
-        lastPublishedFingerprint.delete(tool);
-        debugWarn('[overlay] publishOverlayState failed:', err);
-    }
+        latestQueued.set(tool, { state, session, fingerprint, resolve, reject });
+
+        if (publishQueues.has(tool)) return;
+
+        const drain = drainOverlayQueue(tool);
+        publishQueues.set(tool, drain);
+        void drain;
+    });
 }
 
 export async function fetchOverlayLink(

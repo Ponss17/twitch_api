@@ -3,6 +3,10 @@ import { API_ENDPOINTS, IGNORED_BOTS, type Session } from '@/core/config/config'
 import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { tmiService } from '@/features/chat/lib/tmiService';
+import {
+    matchesChatKeyword,
+    normalizeChatKeyword
+} from '@/features/tools/lib/normalizeChatKeyword';
 import type { RouletteUser } from '@/core/types/twitch';
 import { readScopedPref, writeScopedPref } from '@/core/session/localPrefs';
 import { TabSyncService } from '@/features/dashboard/lib/tabSyncService';
@@ -19,7 +23,6 @@ import {
 import { winnerIndex } from '@/features/tools/roulette/lib/wheelUtils';
 import type { RouletteOverlayState } from '@/features/overlay/lib/types';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { normalizeChatKeyword } from '@/features/tools/lib/normalizeChatKeyword';
 import {
     appendWinnerHistory,
     clearWinnerHistory,
@@ -289,7 +292,7 @@ export function useRouletteController({
 
             if (entryModeRef.current === 'keyword') {
                 const kw = keywordRef.current;
-                if (!message.trim().toLowerCase().startsWith(kw.toLowerCase())) return;
+                if (!matchesChatKeyword(message, kw)) return;
             }
 
             const roles = rolesFromTags(tags);

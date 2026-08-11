@@ -24,12 +24,14 @@ async function loadTmi(): Promise<TmiDefault> {
     return tmiLib;
 }
 
-class TmiChatService {
+export class TmiChatService {
     private client: Client | null = null;
     private listeners = new Map<string, MessageHandler>();
     private activeClients = 0;
     private connectionPromise: Promise<void> | null = null;
     private _isConnected = false;
+    private activeConnectionKey: string | null = null;
+    private generation = 0;
 
     public get isConnected(): boolean {
         return this._isConnected;
@@ -39,86 +41,45 @@ class TmiChatService {
         this.activeClients++;
     }
 
-    private shouldDisconnect(): boolean {
-        return (
-            this.activeClients <= 0 &&
-            this.listeners.size === 0 &&
-            !!this.client &&
-            this._isConnected
-        );
-    }
-
     async connect(
         channel: string,
         auth?: { username: string; token: string },
         onAnonymous?: () => void
     ): Promise<void> {
         this.acquireClient();
-        if (this.connectionPromise) return this.connectionPromise;
-        if (this._isConnected && this.client) return Promise.resolve();
-
-        const tmi = await loadTmi();
         const normalized = channel.replace(/^#/, '').toLowerCase();
-        const opts: Options = {
-            channels: [normalized],
-            connection: { secure: true, reconnect: true },
-            options: { skipUpdatingEmotesets: true, messages: { emotes: false } }
-        };
+        const authKey = auth?.username && auth.token
+            ? `${auth.username.toLowerCase()}:${auth.token}`
+            : 'anonymous';
+        const connectionKey = `${normalized}|${authKey}`;
 
-        if (auth?.username && auth?.token) {
-            opts.identity = {
-                username: auth.username,
-                password: `oauth:${auth.token.replace(/^oauth:/, '')}`
-            };
+        if (this.activeConnectionKey === connectionKey) {
+            if (this.connectionPromise) return this.connectionPromise;
+            if (this._isConnected && this.client) return;
         }
 
-        const attach = (client: Client) => {
-            client.on('message', (_channel, tags, message, self) => {
-                if (self) return;
-                const t: TmiTags = {
-                    username: tags.username,
-                    'display-name': tags['display-name'],
-                    mod: tags.mod as TmiTags['mod'],
-                    subscriber: tags.subscriber as TmiTags['subscriber'],
-                    vip: tags.vip as TmiTags['vip'],
-                    badges: tags.badges as TmiTags['badges']
-                };
-                this.listeners.forEach((cb) => cb(_channel, t, message));
-            });
-        };
+        const previousClient = this.client;
+        const generation = ++this.generation;
+        this.activeConnectionKey = connectionKey;
+        this.client = null;
+        this._isConnected = false;
+        if (previousClient) void previousClient.disconnect().catch(() => undefined);
 
-        this.client = new tmi.Client(opts);
-        attach(this.client);
-
-        this.connectionPromise = this.client
-            .connect()
-            .then(() => {
-                this._isConnected = true;
-            })
-            .catch(async (err: unknown) => {
-                const msg = String(err);
-                const isLoginError = auth && msg.includes('Login unsuccessful');
-
-                if (isLoginError) {
-                    delete opts.identity;
-                    this.client = new tmi.Client(opts);
-                    attach(this.client!);
-                    try {
-                        await this.client!.connect();
-                        this._isConnected = true;
-                        onAnonymous?.();
-                    } catch (anonErr) {
-                        this.resetConnection();
-                        throw anonErr;
-                    }
-                } else {
-                    this.resetConnection();
-                    throw err;
-                }
-            })
-            .then(() => undefined);
-
-        return this.connectionPromise;
+        const promise = this.establishConnection(
+            normalized,
+            auth,
+            onAnonymous,
+            connectionKey,
+            generation
+        );
+        this.connectionPromise = promise;
+        try {
+            await promise;
+        } finally {
+            if (this.generation === generation && this.connectionPromise === promise) {
+                this.connectionPromise = null;
+            }
+        }
     }
 
     addListener(id: string, callback: MessageHandler) {
@@ -135,18 +96,97 @@ class TmiChatService {
         }
     }
 
-    disconnect() {
+    disconnect(): void {
         if (this.activeClients > 0) this.activeClients--;
 
-        if (this.shouldDisconnect()) {
-            void this.client!.disconnect().then(() => this.resetConnection());
-        }
+        if (this.activeClients > 0 || this.listeners.size > 0) return;
+
+        ++this.generation;
+        const client = this.client;
+        this.resetConnection();
+        if (client) void client.disconnect().catch(() => undefined);
     }
 
-    private resetConnection() {
+    private async establishConnection(
+        channel: string,
+        auth: { username: string; token: string } | undefined,
+        onAnonymous: (() => void) | undefined,
+        connectionKey: string,
+        generation: number
+    ): Promise<void> {
+        const tmi = await loadTmi();
+        if (!this.isCurrent(connectionKey, generation)) return;
+
+        const opts: Options = {
+            channels: [channel],
+            connection: { secure: true, reconnect: true },
+            options: { skipUpdatingEmotesets: true, messages: { emotes: false } }
+        };
+        if (auth?.username && auth.token) {
+            opts.identity = {
+                username: auth.username,
+                password: `oauth:${auth.token.replace(/^oauth:/, '')}`
+            };
+        }
+
+        let client = new tmi.Client(opts);
+        this.attach(client, generation);
+        this.client = client;
+
+        try {
+            await client.connect();
+        } catch (err) {
+            const isLoginError = Boolean(auth) && String(err).includes('Login unsuccessful');
+            if (!isLoginError || !this.isCurrent(connectionKey, generation)) throw err;
+
+            await client.disconnect().catch(() => undefined);
+            delete opts.identity;
+            client = new tmi.Client(opts);
+            this.attach(client, generation);
+            this.client = client;
+            await client.connect();
+            if (!this.isCurrent(connectionKey, generation)) {
+                await client.disconnect().catch(() => undefined);
+                return;
+            }
+            onAnonymous?.();
+        }
+
+        if (!this.isCurrent(connectionKey, generation)) {
+            await client.disconnect().catch(() => undefined);
+            return;
+        }
+        this._isConnected = true;
+    }
+
+    private attach(client: Client, generation: number): void {
+        client.on('message', (_channel, tags, message, self) => {
+            if (self || generation !== this.generation || client !== this.client) return;
+            const t: TmiTags = {
+                username: tags.username,
+                'display-name': tags['display-name'],
+                mod: tags.mod as TmiTags['mod'],
+                subscriber: tags.subscriber as TmiTags['subscriber'],
+                vip: tags.vip as TmiTags['vip'],
+                badges: tags.badges as TmiTags['badges']
+            };
+            this.listeners.forEach((cb) => cb(_channel, t, message));
+        });
+    }
+
+    private isCurrent(connectionKey: string, generation: number): boolean {
+        return (
+            generation === this.generation &&
+            connectionKey === this.activeConnectionKey &&
+            this.activeClients > 0
+        );
+    }
+
+    private resetConnection(): void {
         this._isConnected = false;
         this.client = null;
         this.connectionPromise = null;
+        this.activeConnectionKey = null;
     }
 }
 
