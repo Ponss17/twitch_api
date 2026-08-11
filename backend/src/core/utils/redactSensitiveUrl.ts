@@ -1,6 +1,6 @@
 /** Query params que nunca deben aparecer en logs. */
 const SENSITIVE_QUERY =
-    /([?&])(apiKey|token|access_token|refresh_token|auth|overlayToken|code)=([^&]*)/gi;
+    /([?&])(apiKey|api_key|token|access_token|refresh_token|auth|authorization|cookie|secret|client_secret|overlayToken|code)=([^&]*)/gi;
 
 /** Redacta secretos en query strings de URLs / originalUrl. */
 export function redactSensitiveUrl(url: string): string {

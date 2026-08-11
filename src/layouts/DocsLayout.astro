@@ -2,7 +2,6 @@
 import '../styles/global.css';
 import { docsPage } from '@/core/utils/docsTw';
 import { pageTitle } from '@/core/config/pageTitle';
-import { getBrandThemeInitScript } from '@/core/theme';
 
 export interface Props {
     /** Nombre de la página; se formatea como «Página | LosPerris». */
@@ -50,7 +49,7 @@ const swScope = staticPath('/');
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#9146ff" />
         {/* Evitar Flash of Unstyled Content (FOUC) síncronamente */}
-        <script is:inline set:html={getBrandThemeInitScript()} />
+        <script is:inline src={staticPath('/js/brand-theme-init.js')}></script>
         <meta name="description" content={description} />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         <link rel="canonical" href={canonicalUrl} />
@@ -70,8 +69,6 @@ const swScope = staticPath('/');
         <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=Inter:wght@300..800&family=Plus+Jakarta+Sans:wght@400..800&family=Rubik:wght@400..900&family=Space+Grotesk:wght@400..700&display=swap"
-            media="print"
-            onload="this.media='all'"
         />
         <noscript>
             <link

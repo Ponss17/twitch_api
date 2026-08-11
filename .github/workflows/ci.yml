@@ -48,11 +48,21 @@ jobs:
             - name: Test
               run: pnpm test
 
+            - name: Verify migrations
+              run: pnpm verify:migrations
+
             - name: Security audit (high+)
-              run: pnpm audit --audit-level=high --ignore GHSA-mh99-v99m-4gvg
+              run: pnpm audit --audit-level=high
 
             - name: Build
               run: pnpm run build
+              env:
+                  NODE_ENV: production
+
+            - name: Production smoke
+              run: pnpm smoke
+              env:
+                  NODE_ENV: production
 
     e2e:
         runs-on: ubuntu-latest
