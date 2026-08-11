@@ -7,7 +7,7 @@ import {
 } from '@/features/tools/lib/normalizeChatKeyword';
 
 describe('frontend behavior fixes', () => {
-    it('SelectField expone semántica, props y teclado nativos', () => {
+    it('SelectField usa dropdown propio legible y dispara onChange', () => {
         const onChange = jest.fn();
         render(
             <SelectField
@@ -23,11 +23,13 @@ describe('frontend behavior fixes', () => {
             />
         );
 
-        const select = screen.getByRole('combobox', { name: 'Orden' });
-        expect(select).toHaveAttribute('name', 'sort');
-        expect(select).toBeRequired();
-        fireEvent.change(select, { target: { value: 'old' } });
-        expect(onChange).toHaveBeenCalled();
+        const trigger = screen.getByRole('button', { name: 'Orden' });
+        expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
+        expect(document.querySelector('input[name="sort"]')).toHaveAttribute('required');
+
+        fireEvent.click(trigger);
+        fireEvent.click(screen.getByRole('option', { name: 'Antiguos' }));
+        expect(onChange).toHaveBeenCalledWith({ target: { value: 'old' } });
     });
 
     it('exige fin o whitespace después del keyword', () => {
