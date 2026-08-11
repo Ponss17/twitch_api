@@ -40,10 +40,7 @@ export const addUserActivity = async (userId: string, entry: ActivityLogEntry): 
         // para que el próximo fetch tras un evento realtime siempre devuelva datos frescos.
         const viewerTypes = new Set<string>(VIEWER_ACTIVITY_TYPES);
         if (viewerTypes.has(entry.type)) {
-            await Promise.all([
-                cacheService.del(`cache:leaderboard:${userId}:today:10`).catch(() => {}),
-                cacheService.del(`cache:leaderboard:${userId}:7d:10`).catch(() => {})
-            ]);
+            await cacheService.bumpStatsRevision(userId).catch(() => {});
         }
 
 

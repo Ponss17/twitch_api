@@ -34,6 +34,7 @@ export interface ReportTemplateData {
     legalPrivacy: string;
     legalTerms: string;
     legalStorage: string;
+    snapshotJson: string;
 }
 
 import type { Translations } from '@/core/i18n/locales/es';
@@ -351,6 +352,7 @@ export function buildReportHtml(d: ReportTemplateData, t: Translations): string 
         </div>
     </footer>
 </div>
+<script type="application/json" id="losperris-data-snapshot">${d.snapshotJson}</script>
 </body>
 </html>`;
 }

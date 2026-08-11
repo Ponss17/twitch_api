@@ -5,7 +5,7 @@ export interface AnalyticsData {
     totalRequests?: number;
     averageLatency?: string;
     successRate?: string;
-    [key: string]: number | string | undefined;
+    [key: string]: unknown;
 }
 
 export const COMMAND_INTEGRATIONS = [

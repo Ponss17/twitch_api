@@ -7,7 +7,11 @@ import { resolveCache } from '../../core/config/cacheTtl';
 import { resolveUserLimits } from '../../core/config/userRoles';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
-import { buildAnalyticsPayload, isAnalyticsCacheFresh } from './dashboardHelpers';
+import {
+    buildAnalyticsPayload,
+    flattenCachedDashboardProfile,
+    isAnalyticsCacheFresh
+} from './dashboardHelpers';
 import { buildDashboardProfile } from '../../core/utils/dashboardProfile';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { TwitchApiError, AppError } from '../../core/errors/AppError';
@@ -76,10 +80,22 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
     const analyticsKey = userId && cacheId ? `cache:dashboard:analytics:${cacheId}` : null;
     const statsRev = userId ? await cacheService.getStatsRevision(userId) : 0;
 
-    const [cachedProfile, cachedAnalytics] = await Promise.all([
+    const [rawCachedProfile, cachedAnalytics] = await Promise.all([
         profileKey ? cacheService.get<Record<string, unknown>>(profileKey) : Promise.resolve(null),
         analyticsKey ? cacheService.get<Record<string, unknown>>(analyticsKey) : Promise.resolve(null)
     ]);
+
+    const { profile: cachedProfile, wasNested: cachedProfileWasNested } =
+        flattenCachedDashboardProfile(rawCachedProfile);
+
+    if (profileKey && cachedProfile && cachedProfileWasNested) {
+        const { isLive: _isLive, ...toStore } = cachedProfile;
+        await cacheService.set(
+            profileKey,
+            toStore,
+            resolveCache('DASHBOARD_PROFILE', res.locals?.apiUser?.role, res.locals?.apiUser?.customCacheTtl)
+        );
+    }
 
     const analyticsCacheHit = Boolean(cachedAnalytics) && isAnalyticsCacheFresh(cachedAnalytics, statsRev);
     const limits = resolveUserLimits(res.locals?.apiUser);
@@ -148,11 +164,10 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
 
         const profileDegraded = Boolean((profile as { degraded?: boolean } | null)?.degraded);
         if (needProfile && profileKey && profile && !profileDegraded) {
-            const { isLive: _isLive, degraded: _degraded, ...profileWithoutLive } =
-                profile as { isLive?: boolean; degraded?: boolean } & Record<string, unknown>;
+            const { isLive: _isLive, ...flatProfile } = { ...profile.profileData, ...profile.limits };
             await cacheService.set(
                 profileKey,
-                { ...profileWithoutLive, ...profile.limits },
+                flatProfile,
                 resolveCache('DASHBOARD_PROFILE', res.locals.apiUser?.role, res.locals.apiUser?.customCacheTtl)
             );
         }

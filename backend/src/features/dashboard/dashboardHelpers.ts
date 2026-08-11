@@ -27,10 +27,10 @@ export function isAnalyticsCacheFresh(
     cached: Record<string, unknown> | null,
     currentRev: number
 ): boolean {
-    if (!cached) return false;
+    if (!cached || currentRev < 0) return false;
     const cachedRev =
         typeof cached[ANALYTICS_STATS_REV_KEY] === 'number' ? cached[ANALYTICS_STATS_REV_KEY] : -1;
-    return cachedRev >= currentRev;
+    return cachedRev === currentRev;
 }
 
 export function buildAnalyticsPayload(
@@ -45,6 +45,37 @@ export function buildAnalyticsPayload(
         [ANALYTICS_STATS_REV_KEY]: statsRev,
         leaderboardToday: leaderboards?.leaderboardToday || [],
         leaderboardWeekly: leaderboards?.leaderboardWeekly || []
+    };
+}
+
+/** Desanida el formato legacy del cache de perfil (`{ profileData, limits, degraded }`). */
+export function flattenCachedDashboardProfile(
+    cached: Record<string, unknown> | null
+): { profile: Record<string, unknown> | null; wasNested: boolean } {
+    if (!cached) return { profile: null, wasNested: false };
+    const nested = cached.profileData;
+    const looksNested =
+        nested !== null &&
+        typeof nested === 'object' &&
+        !Array.isArray(nested) &&
+        typeof (cached as { login?: unknown }).login !== 'string' &&
+        typeof (nested as { login?: unknown }).login === 'string';
+    if (!looksNested) return { profile: cached, wasNested: false };
+
+    const nestedProfile = nested as Record<string, unknown>;
+    const nestedLimits =
+        cached.limits !== null && typeof cached.limits === 'object' && !Array.isArray(cached.limits)
+            ? (cached.limits as Record<string, unknown>)
+            : {};
+    const {
+        profileData: _profileData,
+        limits: _limits,
+        degraded: _degraded,
+        ...rest
+    } = cached;
+    return {
+        profile: { ...nestedProfile, ...nestedLimits, ...rest },
+        wasNested: true
     };
 }
 

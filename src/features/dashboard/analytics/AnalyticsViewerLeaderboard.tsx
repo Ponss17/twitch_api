@@ -74,8 +74,7 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
         if (!rawName || rawName === 'Anónimo' || rawName === 'Streamer' || rawName === 'Canal' || rawName === 'Channel') return;
 
         const key = rawName.toLowerCase();
-        
-        // Función utilitaria para incrementar o insertar
+
         const incrementMap = (map: Map<string, ViewerLeaderboardEntry>) => {
             const newMap = new Map(map);
             const existing = newMap.get(key);

@@ -9,11 +9,9 @@ export interface UseDashboardRealtimeOptions {
     id: string;
     active: boolean;
     session: Session;
+    timezone?: string;
     onStatsUpdate?: (stats: RealtimeStatsUpdate) => void;
     onActivityInsert?: (log: ActivityLogItem) => void;
-    /** Llamado cuando se detecta un DELETE masivo en activity_logs (ej. borrado de zona peligrosa). */
-    onActivityDelete?: () => void;
-    /** Llamado si Realtime cae y hay que volver a polling. */
     onDisconnect?: () => void;
 }
 
@@ -21,20 +19,18 @@ export function useDashboardRealtime({
     id,
     active,
     session,
+    timezone,
     onStatsUpdate,
     onActivityInsert,
-    onActivityDelete,
     onDisconnect
 }: UseDashboardRealtimeOptions): { isLive: boolean } {
     const [isLive, setIsLive] = useState(false);
     const onStatsRef = useRef(onStatsUpdate);
     const onActivityRef = useRef(onActivityInsert);
-    const onActivityDeleteRef = useRef(onActivityDelete);
     const onDisconnectRef = useRef(onDisconnect);
 
     onStatsRef.current = onStatsUpdate;
     onActivityRef.current = onActivityInsert;
-    onActivityDeleteRef.current = onActivityDelete;
     onDisconnectRef.current = onDisconnect;
 
     const sessionKey = session.userId ?? '';
@@ -56,10 +52,10 @@ export function useDashboardRealtime({
                 session,
                 {
                     onStatsUpdate: (stats) => onStatsRef.current?.(stats),
-                    onActivityInsert: (log) => onActivityRef.current?.(log),
-                    onActivityDelete: () => onActivityDeleteRef.current?.()
+                    onActivityInsert: (log) => onActivityRef.current?.(log)
                 },
                 {
+                    timezone,
                     onDisconnect: () => {
                         setIsLive(false);
                         onDisconnectRef.current?.();
@@ -76,7 +72,7 @@ export function useDashboardRealtime({
         };
         // sessionKey estabiliza credenciales; el objeto session cambia de identidad sin mutar datos.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [active, id, sessionKey]);
+    }, [active, id, sessionKey, timezone]);
 
     return { isLive };
 }

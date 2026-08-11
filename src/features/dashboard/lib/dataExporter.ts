@@ -9,6 +9,29 @@ import { buildCommandRows } from './exporterCommandRows';
 import type { AnalyticsData } from './exporterData';
 import { escapeHtml, getExportSiteOrigin, maskKey } from './exporterUtils';
 
+interface ExportUserInfo {
+    followers?: number | string;
+    broadcaster_type?: string;
+    created_at?: string;
+    description?: string;
+    rateLimit?: number;
+    timezone?: string;
+    discordId?: string | null;
+    discordUsername?: string | null;
+}
+
+export async function resolveExportApiKey(
+    includeApiKey: boolean,
+    reveal: () => Promise<{ apiKey: string }> = fetchRevealApiKey
+): Promise<string> {
+    if (!includeApiKey) return 'TU_API_KEY';
+    try {
+        return (await reveal()).apiKey || 'TU_API_KEY';
+    } catch {
+        return 'TU_API_KEY';
+    }
+}
+
 const DataExport = {
     async fetchAnalytics(_session: Session): Promise<AnalyticsData> {
         try {
@@ -20,7 +43,7 @@ const DataExport = {
         return {};
     },
 
-    async fetchUserInfo(session: Session) {
+    async fetchUserInfo(session: Session): Promise<ExportUserInfo> {
         try {
             const url = `${API_ENDPOINTS.USER_INFO}?login=${encodeURIComponent(session.login ?? '')}`;
             const res = await fetch(url, withApiCredentials());
@@ -37,7 +60,23 @@ const DataExport = {
         };
     },
 
-    async export(session: Session, t: Translations, locale: string, onSuccess?: (message: string) => void) {
+    async fetchActivity(): Promise<unknown[]> {
+        try {
+            const res = await fetch(API_ENDPOINTS.ACTIVITY, withApiCredentials());
+            if (res.ok) return await res.json();
+        } catch (error) {
+            console.error('[DataExport] Error fetching activity:', error);
+        }
+        return [];
+    },
+
+    async export(
+        session: Session,
+        t: Translations,
+        locale: string,
+        onSuccess?: (message: string) => void,
+        options: { includeApiKey?: boolean } = {}
+    ) {
         const bcp47 = getBcp47(locale);
         const user = session;
         const name = escapeHtml(user.displayName || user.login || 'Usuario');
@@ -53,16 +92,14 @@ const DataExport = {
         });
         const timeStr = now.toLocaleTimeString(bcp47);
 
-        const userInfo = await this.fetchUserInfo(session);
-        const analytics = await this.fetchAnalytics(session);
+        const [userInfo, analytics, activity] = await Promise.all([
+            this.fetchUserInfo(session),
+            this.fetchAnalytics(session),
+            this.fetchActivity()
+        ]);
 
-        let apiKey = '';
-        try {
-            apiKey = (await fetchRevealApiKey()).apiKey;
-        } catch {
-            /* export sin key en comandos si reveal falla */
-        }
-        const maskedKey = maskKey(apiKey);
+        const apiKey = await resolveExportApiKey(options.includeApiKey === true);
+        const maskedKey = options.includeApiKey === true ? maskKey(apiKey) : 'No incluida';
 
         const todayRequests = analytics.todayRequests ?? 0;
         const totalRequests = analytics.totalRequests ?? 0;
@@ -136,7 +173,21 @@ const DataExport = {
             rateLimit: userInfo.rateLimit || 120, commandRows,
             homeUrl, docsUrl, dashboardUrl, aboutUrl, logoUrl,
             faviconUrl: logoUrl, statusUrl, siteLabel, siteUrl,
-            discordUrl, legalPrivacy, legalTerms, legalStorage
+            discordUrl, legalPrivacy, legalTerms, legalStorage,
+            snapshotJson: JSON.stringify({
+                exportedAt: now.toISOString(),
+                profile: {
+                    login: user.login,
+                    userId: user.userId,
+                    displayName: user.displayName,
+                    timezone: userInfo.timezone,
+                    discordId: userInfo.discordId,
+                    discordUsername: userInfo.discordUsername
+                },
+                analytics,
+                dailyStats: analytics.timeSeries ?? [],
+                activity
+            }).replace(/</g, '\\u003c')
         }, t);
 
         const blob = new Blob([html], { type: 'text/html;charset=utf-8' });

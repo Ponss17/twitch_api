@@ -1,29 +1,41 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { Suspense, useMemo, useEffect, useState } from 'react';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { AlertTriangle } from 'lucide-react';
 import { fadeIn } from '@/core/utils/tw';
 import { useRequiredSession } from '@/core/session/useSession';
-import { getStatsLocalDateString, buildTodayActivityStats } from '@/features/dashboard/lib/dashboardStats';
+import { buildLocalDateRange, getStatsLocalDateString } from '@/features/dashboard/lib/dashboardStats';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 import { AnalyticsKPIs } from './AnalyticsKPIs';
-import { AnalyticsAreaChart } from './AnalyticsAreaChart';
-import { AnalyticsCommandsDistribution } from './AnalyticsCommandsDistribution';
-import { AnalyticsViewerLeaderboard } from './AnalyticsViewerLeaderboard';
-import { AnalyticsLatencyChart } from './AnalyticsLatencyChart';
-import { AnalyticsTodayBarChart } from './AnalyticsTodayBarChart';
+
+const AnalyticsAreaChart = React.lazy(() =>
+    import('./AnalyticsAreaChart').then((module) => ({ default: module.AnalyticsAreaChart }))
+);
+const AnalyticsCommandsDistribution = React.lazy(() =>
+    import('./AnalyticsCommandsDistribution').then((module) => ({
+        default: module.AnalyticsCommandsDistribution
+    }))
+);
+const AnalyticsViewerLeaderboard = React.lazy(() =>
+    import('./AnalyticsViewerLeaderboard').then((module) => ({
+        default: module.AnalyticsViewerLeaderboard
+    }))
+);
+const AnalyticsLatencyChart = React.lazy(() =>
+    import('./AnalyticsLatencyChart').then((module) => ({ default: module.AnalyticsLatencyChart }))
+);
+const AnalyticsTodayBarChart = React.lazy(() =>
+    import('./AnalyticsTodayBarChart').then((module) => ({
+        default: module.AnalyticsTodayBarChart
+    }))
+);
 
 function AnalyticsViewContent({ active }: { active: boolean }) {
-    const { stats, hasLiveData, error, profile, activity } = useDashboardPanel();
+    const { stats, hasLiveData, error, profile } = useDashboardPanel();
     const { t } = useTranslation();
     const [timeRange, setTimeRange] = useState<'today' | '7d'>('today');
 
     const { timeSeries = [] } = stats;
-
-    const activityToday = useMemo(
-        () => buildTodayActivityStats(activity, profile?.timezone),
-        [activity, profile?.timezone]
-    );
 
     const { areaData, pieDataWeekly, pieDataToday, summaryWeekly, summaryToday } = useMemo(() => {
         const todayDateStr = getStatsLocalDateString(profile?.timezone);
@@ -35,26 +47,12 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         let tErrors = 0;
         let tLatency = 0;
 
-        const tz = profile?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const dateFormatter = new Intl.DateTimeFormat('en-CA', {
-            timeZone: tz,
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        });
-
-        // Pre-fill last 7 días de forma robusta con la zona horaria del usuario
-        for (let i = 6; i >= 0; i--) {
-            const targetDate = new Date(Date.now() - i * 86400000);
-            const dateStr = dateFormatter.format(targetDate);
+        for (const dateStr of buildLocalDateRange(profile?.timezone, 7)) {
             dailyMap.set(dateStr, { date: dateStr, requests: 0, errors: 0 });
         }
 
         timeSeries.forEach((row) => {
-            // Integramos cualquier fila desfasada por zona horaria para garantizar que la matemática cuadre
-            if (!dailyMap.has(row.date)) {
-                dailyMap.set(row.date, { date: row.date, requests: 0, errors: 0 });
-            }
+            if (!dailyMap.has(row.date)) return;
             const day = dailyMap.get(row.date)!;
             day.requests += row.requests_count;
             day.errors += row.errors_count;
@@ -124,27 +122,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         };
     }, [timeSeries, profile?.timezone, t.analytics.other]);
 
-    const reconciledPieToday = useMemo(() => {
-        if (activityToday.total === 0 || activityToday.total >= summaryToday.totalRequests) {
-            return pieDataToday;
-        }
-        return Array.from(activityToday.byCommand.entries())
-            .map(([name, value]) => ({
-                name: name === 'other' ? t.analytics.other : name,
-                value,
-                errors: 0,
-                successRate: '100.0',
-                avgLatency: 0
-            }))
-            .sort((a, b) => b.value - a.value);
-    // eslint-disable-next-line
-    }, [activityToday, pieDataToday, summaryToday.totalRequests]);
-
-    const todayRequestsCount = useMemo(() => {
-        if (activityToday.total === 0) return summaryToday.totalRequests;
-        if (activityToday.total < summaryToday.totalRequests) return activityToday.total;
-        return summaryToday.totalRequests;
-    }, [activityToday.total, summaryToday.totalRequests]);
+    const todayRequestsCount = summaryToday.totalRequests;
 
     // Fix para Astro DevToolbar - Limpiar tabindex de recharts
     useEffect(() => {
@@ -177,8 +155,8 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
     
     const commandKeys = ['clips', 'followage', 'watchtime', 'so', 'message', 'stalker', 'trends', 'roulette', 'russian', 'magic8', 'duel', 'slots'] as const;
     const uniqueCommandsDaily =
-        reconciledPieToday.length > 0
-            ? reconciledPieToday.length
+        pieDataToday.length > 0
+            ? pieDataToday.length
             : commandKeys.filter((key) => (stats[key] ?? 0) > 0).length;
 
     const latencyWeekly = summaryWeekly.avgLatency ?? 0;
@@ -190,7 +168,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
     const displaySuccessRate = timeRange === 'today' ? successRateDaily : successRateWeekly;
     const displayLatency = timeRange === 'today' ? latencyDaily : latencyWeekly;
     const displayCommands = timeRange === 'today' ? uniqueCommandsDaily : uniqueCommandsWeekly;
-    const displayPieData = timeRange === 'today' ? reconciledPieToday : pieDataWeekly;
+    const displayPieData = timeRange === 'today' ? pieDataToday : pieDataWeekly;
     const displayPieTotal = timeRange === 'today' ? todayRequestsCount : summaryWeekly.totalRequests;
 
     const isLoading = !hasLiveData;
@@ -213,23 +191,25 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 latencyDuration={latencyDuration}
             />
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                {timeRange === 'today' ? (
-                    <AnalyticsTodayBarChart active={active} pieData={displayPieData} />
-                ) : (
-                    <AnalyticsAreaChart active={active} areaData={areaData} />
-                )}
-                <AnalyticsCommandsDistribution
-                    active={active}
-                    pieData={displayPieData}
-                    totalRequests={displayPieTotal}
-                />
-            </div>
+            <Suspense fallback={null}>
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    {timeRange === 'today' ? (
+                        <AnalyticsTodayBarChart active={active} pieData={displayPieData} />
+                    ) : (
+                        <AnalyticsAreaChart active={active} areaData={areaData} />
+                    )}
+                    <AnalyticsCommandsDistribution
+                        active={active}
+                        pieData={displayPieData}
+                        totalRequests={displayPieTotal}
+                    />
+                </div>
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <AnalyticsViewerLeaderboard timeRange={timeRange} />
-                <AnalyticsLatencyChart active={active} pieData={displayPieData} />
-            </div>
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <AnalyticsViewerLeaderboard timeRange={timeRange} />
+                    <AnalyticsLatencyChart active={active} pieData={displayPieData} />
+                </div>
+            </Suspense>
         </div>
     );
 }
