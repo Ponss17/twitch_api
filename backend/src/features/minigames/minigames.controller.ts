@@ -32,6 +32,7 @@ const getFallbackAuth = async (req: AuthenticatedRequest) => {
 // ==========================================
 
 export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     try {
         const question = safeString(req.query.question);
         const mood = safeString(req.query.mood);
@@ -63,13 +64,13 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
         
-        res.send(answer);
+        return res.send(answer);
     } catch (error) {
         logger.error('Error en askMagic8:', error);
         if (error instanceof Error && error.message === MESSAGES.MAGIC8.MISSING_API_KEY) {
             return res.status(503).send(MESSAGES.MAGIC8.MISSING_API_KEY);
         }
-        res.status(500).send(MESSAGES.MAGIC8.GROQ_ERROR);
+        return res.status(500).send(MESSAGES.MAGIC8.GROQ_ERROR);
     }
 };
 
@@ -155,8 +156,7 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
             effectiveUserId = fallback?.userId || ANONYMOUS_USER_ID;
         }
 
-        const rawInterval = parseInt(String(req.query.interval ?? '5'), 10);
-        const intervalSec = Number.isFinite(rawInterval) ? rawInterval : 5;
+        const intervalSec = Math.min(10, Math.max(5, Number(req.query.interval) || 5));
 
         const result = await trackRequest(
             effectiveUserId,
@@ -214,8 +214,7 @@ export const playSlots = async (req: AuthenticatedRequest, res: Response) => {
             effectiveUserId = fallback?.userId || ANONYMOUS_USER_ID;
         }
 
-        const rawInterval = parseInt(String(req.query.interval ?? '5'), 10);
-        const intervalSec = Number.isFinite(rawInterval) ? rawInterval : 5;
+        const intervalSec = Math.min(10, Math.max(5, Number(req.query.interval) || 5));
 
         const result = await trackRequest(
             effectiveUserId,

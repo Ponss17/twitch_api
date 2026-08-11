@@ -37,6 +37,7 @@ const mockRes = () => {
     res.json = jest.fn().mockReturnValue(res);
     res.send = jest.fn().mockReturnValue(res);
     res.sendFile = jest.fn().mockReturnValue(res);
+    res.setHeader = jest.fn().mockReturnValue(res);
     res.statusCode = 200;
     res.locals = {};
     res.on = jest.fn().mockImplementation((event, cb) => {
@@ -69,7 +70,7 @@ describe('errorMiddleware', () => {
             errorHandler({ message: 'Server error' }, req, res, mockNext);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.send).toHaveBeenCalledWith('Server error');
+            expect(res.send).toHaveBeenCalledWith('Error interno del servidor');
         });
 
         it('should return JSON for non-API routes that do not accept HTML', () => {
