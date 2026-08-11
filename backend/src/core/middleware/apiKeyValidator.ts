@@ -16,6 +16,7 @@ import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 import { isBotCommand, isApiRoute } from '../utils/routeHelpers';
 import { blockIfUnauthorizedScanExceeded } from './redisRateLimiter';
 import { isAuthenticationError } from '../errors/AppError';
+import { apiKeyLookupHash } from '../utils/apiKeySecurity';
 
 interface CachedApiKey {
     user: StoredUser;
@@ -41,7 +42,7 @@ export const invalidateUserCache = (userId: string): void => {
     if (keysToInvalidate.length > 0) {
         for (const key of keysToInvalidate) {
             cacheService
-                .invalidateApiKeyCache(key)
+                .invalidateApiKeyCacheByHash(key)
                 .catch((e) => logger.error('Error invalidate KV key cache iteration:', e));
         }
         logger.info(
@@ -124,12 +125,13 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
 
     const apiKeyRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i;
     const apiKey = rawApiKey && apiKeyRegex.test(rawApiKey) ? rawApiKey : '';
+    const apiKeyHash = apiKey ? apiKeyLookupHash(apiKey) : '';
 
     if (rawApiKey && !apiKey) {
         logger.warn(`[Security] API Key con formato inválido detectada desde IP: ${req.ip}`);
     }
 
-    if (apiKey && invalidKeysCache.has(apiKey)) {
+    if (apiKey && invalidKeysCache.has(apiKeyHash)) {
         return rejectInvalidApiKey(req, res, 'Clave API bloqueada temporalmente.');
     }
 
@@ -139,7 +141,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             await cacheService.clearApiKeyRevocation(apiKey);
             try {
                 await getValidTokenForUser(dbUser);
-                validKeysCache.set(apiKey, { user: dbUser, expiry: Date.now() + CACHE_TTL_MS });
+                validKeysCache.set(apiKeyHash, { user: dbUser, expiry: Date.now() + CACHE_TTL_MS });
                 res.locals.apiUser = dbUser;
                 res.locals.isApiKeyRequest = true;
                 return next();
@@ -157,7 +159,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
                 return res.status(503).json({ error: errorMsg });
             }
         }
-        invalidKeysCache.set(apiKey);
+        invalidKeysCache.set(apiKeyHash);
         if (req.headers.authorization?.startsWith('Bearer ')) {
             return next();
         }
@@ -171,7 +173,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
     }
 
     try {
-        const cached = validKeysCache.get(apiKey);
+        const cached = validKeysCache.get(apiKeyHash);
         if (cached && cached.expiry > Date.now()) {
             if (!cached.user.isActive) {
                 return res.status(403).json({ error: 'Cuenta suspendida.' });
@@ -180,7 +182,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
                 try {
                     const { accessToken } = await getValidTokenForUser(cached.user);
                     cached.user.accessToken = accessToken;
-                    validKeysCache.set(apiKey, {
+                    validKeysCache.set(apiKeyHash, {
                         user: cached.user,
                         expiry: Date.now() + CACHE_TTL_MS
                     });
@@ -188,7 +190,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
                     const error = e as Error;
                     const isAuthError = isAuthenticationError(e);
                     if (isAuthError) {
-                        invalidKeysCache.set(apiKey);
+                        invalidKeysCache.set(apiKeyHash);
                         return rejectApiKeyUnauthorized(req, res, () =>
                             res.status(401).json({ error: error.message })
                         );
@@ -200,7 +202,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             res.locals.isApiKeyRequest = true;
             return next();
         }
-        if (cached) validKeysCache.delete(apiKey);
+        if (cached) validKeysCache.delete(apiKeyHash);
 
         const kvCachedMeta = await cacheService.getCachedApiUserMeta(apiKey);
         if (kvCachedMeta) {
@@ -212,7 +214,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
             if (user && user.isActive) {
                 res.locals.apiUser = user;
                 res.locals.isApiKeyRequest = true;
-                validKeysCache.set(apiKey, { user, expiry: Date.now() + CACHE_TTL_MS });
+                validKeysCache.set(apiKeyHash, { user, expiry: Date.now() + CACHE_TTL_MS });
                 return next();
             }
             if (user && !user.isActive) {
@@ -225,7 +227,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         if (user && user.isActive) {
             const { accessToken } = await getValidTokenForUser(user);
             user.accessToken = accessToken;
-            validKeysCache.set(apiKey, { user, expiry: Date.now() + CACHE_TTL_MS });
+            validKeysCache.set(apiKeyHash, { user, expiry: Date.now() + CACHE_TTL_MS });
             cacheService
                 .setCachedApiUser(apiKey, user)
                 .catch((e) => logger.error('Error setCachedApiUser KV:', e));
@@ -234,7 +236,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         } else if (user && !user.isActive) {
             return res.status(403).json({ error: 'Cuenta suspendida.' });
         } else {
-            invalidKeysCache.set(apiKey);
+            invalidKeysCache.set(apiKeyHash);
             return rejectInvalidApiKey(
                 req,
                 res,
@@ -246,7 +248,7 @@ export const apiKeyValidator = async (req: Request, res: Response, next: NextFun
         const isAuthError = isAuthenticationError(error);
 
         if (apiKey && isAuthError) {
-            invalidKeysCache.set(apiKey);
+            invalidKeysCache.set(apiKeyHash);
         }
 
         logger.warn('API Key validation failed in validator:', error.message);

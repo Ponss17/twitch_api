@@ -18,7 +18,8 @@ const optionalOrigin = z
 
 export const loginSchema = z.object({
     query: z.object({
-        redirect_origin: optionalOrigin
+        redirect_origin: optionalOrigin,
+        tz: z.string().min(1).max(100).optional()
     }),
     body: z.object({}).optional(),
     params: z.object({}).optional()
@@ -27,7 +28,7 @@ export const loginSchema = z.object({
 export const callbackSchema = z.object({
     query: z.object({
         code: z.string().min(1, 'El código es obligatorio'),
-        state: z.string().optional()
+        state: z.string().min(20).max(4096)
     })
 });
 

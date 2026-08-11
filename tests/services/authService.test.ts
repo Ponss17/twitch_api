@@ -27,6 +27,17 @@ jest.mock('@/core/utils/logger', () => ({
     logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
 }));
 
+jest.mock('../../backend/src/core/database/cacheService', () => ({
+    setIfAbsent: jest.fn(),
+    revokeApiKeyGlobally: jest.fn().mockResolvedValue(undefined),
+    invalidateApiKeyCache: jest.fn().mockResolvedValue(undefined),
+    setSensitive: jest.fn().mockResolvedValue(undefined),
+    getSensitive: jest.fn(),
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn()
+}));
+
 import axios from 'axios';
 import * as dbService from '../../backend/src/core/database/dbService';
 import {
@@ -36,6 +47,7 @@ import {
     handleCallback
 } from '../../backend/src/features/auth/auth.service';
 import { StoredUser } from '@/types/twitch';
+import * as cacheService from '../../backend/src/core/database/cacheService';
 
 const mockStoredUser: StoredUser = {
     userId: '123',
@@ -112,6 +124,17 @@ describe('authService', () => {
                     apiKey: newKey
                 })
             );
+            expect(cacheService.revokeApiKeyGlobally).toHaveBeenCalledWith('test-api-key');
+            expect(cacheService.invalidateApiKeyCache).toHaveBeenCalledWith('test-api-key');
+        });
+
+        it('does not confirm a new key when distributed revocation fails', async () => {
+            (dbService.getUser as jest.Mock).mockResolvedValue({ ...mockStoredUser });
+            (cacheService.revokeApiKeyGlobally as jest.Mock).mockRejectedValueOnce(
+                new Error('redis unavailable')
+            );
+
+            await expect(regenerateApiKey('123')).rejects.toThrow('redis unavailable');
         });
 
         it('should throw if user not found', async () => {

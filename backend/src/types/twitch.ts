@@ -43,6 +43,7 @@ export interface StoredUser {
     expiresIn: number;
     obtainedAt: number;
     apiKey?: string;
+    apiKeyHash?: string;
     isActive?: boolean;
     blockedReason?: string;
     customRateLimit?: number;
