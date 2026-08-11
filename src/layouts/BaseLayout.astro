@@ -52,7 +52,13 @@ const themeInitScriptPath = staticPath(
 const documentTitle = title ?? (page ? pageTitle(page) : pageTitle('Inicio'));
 
 const siteOrigin = canonical ? new URL(canonical).origin : Astro.url.origin;
-const canonicalUrl = canonical ?? Astro.url.href;
+/** trailingSlash: 'always' — el canonical debe terminar en / (salvo archivos). */
+const rawCanonical = canonical ?? Astro.url.href;
+const canonicalParsed = new URL(rawCanonical);
+if (!canonicalParsed.pathname.endsWith('/') && !/\.[a-z0-9]+$/i.test(canonicalParsed.pathname)) {
+    canonicalParsed.pathname = `${canonicalParsed.pathname}/`;
+}
+const canonicalUrl = canonicalParsed.href;
 const shareTitle = ogTitle ?? documentTitle;
 const shareDesc = ogDescription ?? description;
 const shareImage = ogImage ?? absoluteAssetUrl('/img/og-banner.png', siteOrigin);
