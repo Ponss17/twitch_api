@@ -35,12 +35,17 @@ export async function fetchDashboardSummary(
 
 export async function fetchDashboardProfile(
     session: Session,
-    options?: { fresh?: boolean }
+    options?: { fresh?: boolean; signal?: AbortSignal }
 ): Promise<DashboardProfile> {
     const login = session.login ?? '';
     let url = `${API_ENDPOINTS.USER_INFO}?login=${encodeURIComponent(login)}`;
     if (options?.fresh) {
         url += `&_=${Date.now()}`;
     }
-    return apiFetch<DashboardProfile>(url, session, {}, { logoutOn401: false });
+    return apiFetch<DashboardProfile>(
+        url,
+        session,
+        { signal: options?.signal },
+        { logoutOn401: false }
+    );
 }

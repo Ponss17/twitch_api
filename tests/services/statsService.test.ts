@@ -3,6 +3,7 @@ const mockSupabase = {
     select: jest.fn().mockReturnThis(),
     upsert: jest.fn().mockReturnThis(),
     update: jest.fn().mockReturnThis(),
+    delete: jest.fn().mockReturnThis(),
     eq: jest.fn().mockReturnThis(),
     single: jest.fn(),
     gte: jest.fn().mockReturnThis(),
@@ -79,16 +80,29 @@ describe('statsService', () => {
     });
 
     describe('clearUserStatsAndLogs', () => {
-        it('elimina stats y logs en paralelo', async () => {
-            const deleteMock = { eq: jest.fn().mockResolvedValue({ error: null }) };
+        it('usa la limpieza transaccional cuando está disponible', async () => {
+            mockSupabase.rpc.mockResolvedValue({ error: null });
+            await statsService.clearUserStatsAndLogs('user1');
+            expect(mockSupabase.rpc).toHaveBeenCalledWith('clear_user_stats_and_logs', {
+                p_user_id: 'user1'
+            });
+            expect(cacheService.bumpStatsRevision).toHaveBeenCalledWith('user1');
+        });
+
+        it('no confirma éxito si una tabla falla en el fallback', async () => {
+            mockSupabase.rpc.mockResolvedValue({
+                error: { code: 'PGRST202', message: 'clear_user_stats_and_logs missing' }
+            });
+            const eq = jest.fn()
+                .mockResolvedValueOnce({ error: null })
+                .mockResolvedValueOnce({ error: { message: 'daily failed' } })
+                .mockResolvedValueOnce({ error: null });
             mockSupabase.from.mockReturnValue({
-                delete: jest.fn().mockReturnValue(deleteMock)
+                delete: jest.fn().mockReturnValue({ eq })
             });
 
-            await statsService.clearUserStatsAndLogs('user1');
-            expect(mockSupabase.from).toHaveBeenCalledWith('user_stats');
-            expect(mockSupabase.from).toHaveBeenCalledWith('activity_logs');
-            expect(cacheService.bumpStatsRevision).toHaveBeenCalledWith('user1');
+            await expect(statsService.clearUserStatsAndLogs('user1')).rejects.toThrow('Limpieza incompleta');
+            expect(cacheService.bumpStatsRevision).not.toHaveBeenCalled();
         });
     });
 });

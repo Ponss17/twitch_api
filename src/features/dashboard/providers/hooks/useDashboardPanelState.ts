@@ -7,7 +7,7 @@ import {
     type DashboardLiveStats,
     type RealtimeStatsUpdate
 } from '@/features/dashboard/lib/dashboardStats';
-import { activityEntryKey, type ActivityLogItem } from '@/features/dashboard/lib/activityLogDisplay';
+import { activityEntryKey, mergeActivityLogs, type ActivityLogItem } from '@/features/dashboard/lib/activityLogDisplay';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { dispatchDashboardDataReady } from '@/features/dashboard/lib/dashboardPanelEvents';
 import { consumeHomeDataResetPending } from '@/features/dashboard/lib/dashboardSync';
@@ -25,7 +25,6 @@ export function useDashboardPanelState(session: Session) {
     const [isTabLeader, setIsTabLeader] = useState(false);
     const [isRealtimeLive, setIsRealtimeLive] = useState(false);
 
-    // Refs for state
     const highlightTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
     const dataReadyFiredRef = useRef(false);
     const hasLiveDataRef = useRef(false);
@@ -122,6 +121,18 @@ export function useDashboardPanelState(session: Session) {
         [markActivityHighlight]
     );
 
+    // Con realtime activo, un poll puede llegar sin los últimos inserts; fusionar
+    // en vez de reemplazar evita que esas entradas desaparezcan de la lista.
+    const applyFetchedActivity = useCallback((activityLogs: ActivityLogItem[]) => {
+        if (resetPendingRef.current) {
+            setActivity(activityLogs);
+            return;
+        }
+        setActivity((prev) =>
+            isRealtimeLiveRef.current ? mergeActivityLogs(activityLogs, prev) : activityLogs
+        );
+    }, []);
+
     const actions = useMemo(
         () => ({
             setStats,
@@ -136,9 +147,17 @@ export function useDashboardPanelState(session: Session) {
             markActivityHighlight,
             applyHomeDataReset,
             handleRealtimeStats,
-            handleRealtimeActivity
+            handleRealtimeActivity,
+            applyFetchedActivity
         }),
-        [markDataReady, markActivityHighlight, applyHomeDataReset, handleRealtimeStats, handleRealtimeActivity]
+        [
+            markDataReady,
+            markActivityHighlight,
+            applyHomeDataReset,
+            handleRealtimeStats,
+            handleRealtimeActivity,
+            applyFetchedActivity
+        ]
     );
 
     const refs = useMemo(

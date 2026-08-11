@@ -140,12 +140,8 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
         const now = Date.now();
         const cached = STATS_CACHE.get(userId);
 
-        if (cached && cached.expiry > now) {
-            return cached.data;
-        }
-
         const remoteRev = await cacheService.getStatsRevision(userId);
-        if (cached && cached.rev >= remoteRev) {
+        if (cached && remoteRev >= 0 && cached.rev === remoteRev) {
             STATS_CACHE.set(userId, { ...cached, expiry: now + STATS_TTL });
             return cached.data;
         }
@@ -217,7 +213,9 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
                 if (k) STATS_CACHE.delete(k);
             }
         }
-        STATS_CACHE.set(userId, { data: numericStats, expiry: now + STATS_TTL, tz, rev: remoteRev });
+        if (remoteRev >= 0) {
+            STATS_CACHE.set(userId, { data: numericStats, expiry: now + STATS_TTL, tz, rev: remoteRev });
+        }
         return numericStats;
     } catch (e) {
         logger.error('Error obteniendo estadísticas:', e);
@@ -228,7 +226,8 @@ export const getUserStats = async (userId: string): Promise<Record<string, numbe
 export const getDailyStats = async (userId: string, days: number = 7) => {
     try {
         const tz = await ensureUserTimezone(userId);
-        const dateLimit = localDateDaysAgo(tz, days);
+        const safeDays = Math.max(1, Math.floor(days));
+        const dateLimit = localDateDaysAgo(tz, safeDays - 1);
         const { data, error } = await supabase
             .from('user_daily_stats')
             .select('*')
@@ -251,14 +250,44 @@ export const getViewerLeaderboards = async (userId: string, limit: number = 10) 
     try {
         const tz = await ensureUserTimezone(userId);
         const now = new Date();
-        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const todayStr = getDateFormatter(tz).format(now);
+        const firstDate = localDateDaysAgo(tz, 6);
+        const safeLimit = Math.max(1, Math.min(Math.floor(limit), 25));
+
+        const rpc = await supabase.rpc('get_viewer_leaderboard', {
+            p_user_id: userId,
+            p_from_date: firstDate,
+            p_to_date: todayStr,
+            p_timezone: tz,
+            p_limit: safeLimit
+        });
+
+        if (!rpc.error && rpc.data) {
+            const weekly = (rpc.data as Array<{ user_name: string; total: number; last_seen: string }>)
+                .map((row) => ({ ...row, total: Number(row.total) }));
+            const todayRpc = await supabase.rpc('get_viewer_leaderboard', {
+                p_user_id: userId,
+                p_from_date: todayStr,
+                p_to_date: todayStr,
+                p_timezone: tz,
+                p_limit: safeLimit
+            });
+            if (!todayRpc.error) {
+                return {
+                    leaderboardToday: (todayRpc.data ?? []).map((row: { user_name: string; total: number; last_seen: string }) => ({
+                        ...row,
+                        total: Number(row.total)
+                    })),
+                    leaderboardWeekly: weekly
+                };
+            }
+        }
 
         const { data, error } = await supabase
             .from('activity_logs')
             .select('user_name, created_at')
             .eq('user_id', userId)
-            .gte('created_at', sevenDaysAgo.toISOString())
+            .gte('created_at', new Date(now.getTime() - 8 * 86_400_000).toISOString())
             .in('activity_type', [...VIEWER_ACTIVITY_TYPES])
             .neq('user_name', 'Anónimo')
             .neq('user_name', 'Streamer')
@@ -279,6 +308,8 @@ export const getViewerLeaderboards = async (userId: string, limit: number = 10) 
 
             const key = rawName.toLowerCase();
             const createdAt = new Date(row.created_at as string);
+            const rowDateStr = getDateFormatter(tz).format(createdAt);
+            if (rowDateStr < firstDate || rowDateStr > todayStr) continue;
             
             // Weekly
             const existingW = weeklyMap.get(key);
@@ -289,7 +320,6 @@ export const getViewerLeaderboards = async (userId: string, limit: number = 10) 
             }
 
             // Today
-            const rowDateStr = getDateFormatter(tz).format(createdAt);
             if (rowDateStr === todayStr) {
                 const existingT = todayMap.get(key);
                 if (existingT) {
@@ -303,7 +333,7 @@ export const getViewerLeaderboards = async (userId: string, limit: number = 10) 
         const toArray = (map: Map<string, { total: number; last_seen: string; display_name: string }>) => Array.from(map.values())
             .map(({ display_name, total, last_seen }) => ({ user_name: display_name, total, last_seen }))
             .sort((a, b) => b.total - a.total)
-            .slice(0, limit);
+            .slice(0, safeLimit);
 
         return {
             leaderboardToday: toArray(todayMap),
@@ -369,11 +399,29 @@ export const recordUserRequest = async (
 
 export const clearUserStatsAndLogs = async (userId: string): Promise<void> => {
     try {
-        await Promise.all([
+        const rpcResult = await supabase.rpc('clear_user_stats_and_logs', {
+            p_user_id: userId
+        });
+        const rpcMissing =
+            rpcResult.error?.code === 'PGRST202' ||
+            rpcResult.error?.code === '42883' ||
+            rpcResult.error?.message?.includes('Could not find the function');
+
+        if (rpcResult.error && !rpcMissing) {
+            throw new Error(`No se pudieron limpiar los datos: ${rpcResult.error.message}`);
+        }
+
+        if (rpcMissing) {
+            const results = await Promise.all([
             supabase.from('user_stats').delete().eq('user_id', userId),
             supabase.from('user_daily_stats').delete().eq('user_id', userId),
             supabase.from('activity_logs').delete().eq('user_id', userId)
-        ]);
+            ]);
+            const failed = results.find((result) => result.error);
+            if (failed?.error) {
+                throw new Error(`Limpieza incompleta: ${failed.error.message}`);
+            }
+        }
 
         STATS_CACHE.delete(userId);
         EXISTS_CACHE.delete(userId);

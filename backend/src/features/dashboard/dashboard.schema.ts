@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { twitchUsername } from '../../core/schemas/twitchUsername';
+import { isValidIanaTimezone } from '../../core/utils/ianaTimezone';
 
 const loginQuery = z.object({
     login: twitchUsername
@@ -22,11 +23,10 @@ export const updateSettingsSchema = z.object({
         timezone: z
             .string()
             .min(1, 'La zona horaria es requerida.')
-            .max(50, 'Identificador de zona horaria demasiado largo.')
-            .regex(
-                /^[A-Za-z0-9_/+-]+$/,
-                'Formato de zona horaria inválido. Usa un identificador IANA (ej: America/Mexico_City).'
-            )
+            .max(100, 'Identificador de zona horaria demasiado largo.')
+            .refine(isValidIanaTimezone, {
+                message: 'Zona horaria IANA inválida (ej: America/Mexico_City).'
+            })
     })
 });
 

@@ -88,16 +88,14 @@ function scheduleDestroyIfIdle(): void {
 }
 
 function dispatchToSubscribers(
-    kind: 'stats' | 'activity' | 'activityDelete',
-    payload: RealtimeStatsUpdate | ActivityLogItem | null
+    kind: 'stats' | 'activity',
+    payload: RealtimeStatsUpdate | ActivityLogItem
 ): void {
     for (const entry of subscribers.values()) {
         if (kind === 'stats') {
             entry.callbacks.onStatsUpdate(payload as RealtimeStatsUpdate);
-        } else if (kind === 'activity') {
+        } else {
             entry.callbacks.onActivityInsert(payload as ActivityLogItem);
-        } else if (kind === 'activityDelete') {
-            entry.callbacks.onActivityDelete?.();
         }
     }
 }
@@ -126,8 +124,7 @@ function ensureService(session: Session): RealtimeService {
 
     realtimeServiceInstance.setDispatchers(
         (stats) => dispatchToSubscribers('stats', stats),
-        (log) => dispatchToSubscribers('activity', log),
-        () => dispatchToSubscribers('activityDelete', null)
+        (log) => dispatchToSubscribers('activity', log)
     );
 
     return realtimeServiceInstance;
@@ -138,6 +135,7 @@ async function ensureConnected(session: Session): Promise<boolean> {
     if (subscribers.size === 0) return false;
 
     const service = ensureService(session);
+    service.setTimezone(subscribers.values().next().value?.options.timezone);
     if (service.connected) return true;
     if (connectInFlight) return connectInFlight;
 

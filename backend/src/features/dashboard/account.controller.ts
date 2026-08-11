@@ -17,6 +17,8 @@ import { jsonError } from '../../core/utils/jsonResponse';
 import { maskApiKey } from '../../core/utils/maskApiKey';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
+import { revokeSessions } from '../../core/utils/sessionState';
+import { overlayRevokeKey } from '../../core/overlay/keys';
 
 export const revealApiKey = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
@@ -143,7 +145,17 @@ export const deleteAccount = async (req: AuthenticatedRequest, res: Response) =>
 
     try {
         const apiUser = res.locals?.apiUser as { apiKey?: string } | undefined;
-        const apiKey = apiUser?.apiKey;
+        const storedUser = apiUser?.apiKey ? null : await dbService.getUser(userId);
+        const apiKey = apiUser?.apiKey ?? storedUser?.apiKey;
+        await revokeSessions(userId);
+        await cacheService.setSensitive(
+            overlayRevokeKey(userId),
+            Date.now(),
+            30 * 24 * 60 * 60
+        );
+        if (apiKey) {
+            await cacheService.revokeApiKeyGlobally(apiKey);
+        }
         await dbService.deleteUser(userId);
         await invalidateAllUserCaches(userId, { apiKey, login: req.login, revokeApiKey: true });
         invalidateAuthCache(userId);

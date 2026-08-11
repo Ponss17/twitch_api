@@ -2,11 +2,12 @@ import { kv } from './redisClient';
 import { StoredUser } from '../../types/twitch';
 import { CACHE_TTL_MATRIX, ownerScopedCacheKey } from '../config/cacheTtl';
 import { BoundedMap } from '../utils/boundedCache';
+import { apiKeyLookupHash } from '../utils/apiKeySecurity';
 
 /** Metadatos cacheables sin tokens OAuth (resolver con getUser en apiKeyValidator). */
 export type CachedApiUserMeta = Pick<
     StoredUser,
-    'userId' | 'login' | 'displayName' | 'apiKey' | 'isActive' | 'profileImageUrl' | 'customRateLimit' | 'customCacheTtl' | 'role'
+    'userId' | 'login' | 'displayName' | 'isActive' | 'profileImageUrl' | 'customRateLimit' | 'customCacheTtl' | 'role'
 >;
 
 const L1_MAX = 800;
@@ -35,6 +36,7 @@ function skipL1(key: string): boolean {
     return (
         key.startsWith('cache:overlay:revoke:') ||
         key.startsWith('cache:apikey:revoked:') ||
+        key.startsWith('cache:stats:rev:') ||
         key.startsWith('auth:revoke:')
     );
 }
@@ -153,6 +155,33 @@ export const del = async (key: string): Promise<void> => {
     }
 };
 
+export type SensitiveGetResult<T> =
+    | { status: 'ok'; value: T | null }
+    | { status: 'unavailable'; value: null };
+
+export const getSensitive = async <T = unknown>(key: string): Promise<SensitiveGetResult<T>> => {
+    try {
+        const value = await kv.get<T>(`twitch_api:${key}`);
+        return { status: 'ok', value: value ?? null };
+    } catch (error) {
+        console.error('[Cache] Error KV sensitive get:', { key, error });
+        return { status: 'unavailable', value: null };
+    }
+};
+
+export const setSensitive = async <T = unknown>(
+    key: string,
+    value: T,
+    ttlSeconds: number
+): Promise<void> => {
+    try {
+        await kv.set(`twitch_api:${key}`, value, { ex: ttlSeconds });
+    } catch (error) {
+        console.error('[Cache] Error KV sensitive set:', { key, error });
+        throw error;
+    }
+};
+
 export const getCachedUserId = async (username: string): Promise<string | null> => {
     const key = `cache:userId:${username.toLowerCase()}`;
     return get<string>(key);
@@ -163,7 +192,7 @@ export const setCachedUserId = async (username: string, id: string): Promise<voi
 };
 
 export const getCachedApiUserMeta = async (apiKey: string): Promise<CachedApiUserMeta | null> => {
-    const key = `cache:apiuser:${apiKey}`;
+    const key = `cache:apiuser:${apiKeyLookupHash(apiKey)}`;
     return get<CachedApiUserMeta>(key);
 };
 
@@ -175,14 +204,17 @@ export const setCachedApiUser = async (apiKey: string, user: StoredUser): Promis
         userId: user.userId,
         login: user.login,
         displayName: user.displayName,
-        apiKey: user.apiKey,
         isActive: user.isActive,
         profileImageUrl: user.profileImageUrl,
         customRateLimit: user.customRateLimit,
         customCacheTtl: user.customCacheTtl,
         role: user.role
     };
-    await set(`cache:apiuser:${apiKey}`, meta, CACHE_TTL_MATRIX.API_USER.default);
+    await set(
+        `cache:apiuser:${apiKeyLookupHash(apiKey)}`,
+        meta,
+        CACHE_TTL_MATRIX.API_USER.default
+    );
 };
 
 /** Invalida caché del dashboard tras borrar datos, eliminar cuenta, etc. */
@@ -190,15 +222,17 @@ export const statsRevisionKey = (userId: string): string => `cache:stats:rev:${u
 
 /** Marca stats invalidadas en KV — todas las réplicas serverless respetan la revisión. */
 export const bumpStatsRevision = async (userId: string): Promise<void> => {
-    await set(statsRevisionKey(userId), Date.now(), 300);
+    l1Del(statsRevisionKey(userId));
+    if (!isKvWriteAvailable()) return;
+    await kv.incr(`twitch_api:${statsRevisionKey(userId)}`);
 };
 
 export const getStatsRevision = async (userId: string): Promise<number> => {
     try {
         const value = await kv.get<number>(`twitch_api:${statsRevisionKey(userId)}`);
-        return typeof value === 'number' ? value : 0;
+        return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : -1;
     } catch {
-        return 0;
+        return -1;
     }
 };
 
@@ -232,40 +266,50 @@ export const invalidateDashboardAnalytics = async (userId: string): Promise<void
 
 /** Réplicas serverless rechazan la clave antigua tras regenerar (TTL = API_USER). */
 export const revokeApiKeyGlobally = async (apiKey: string): Promise<void> => {
-    const normalized = apiKey.trim().toLowerCase();
-    if (!normalized) return;
-    await set(`cache:apikey:revoked:${normalized}`, 1, CACHE_TTL_MATRIX.API_USER.default);
+    if (!apiKey.trim()) return;
+    await setSensitive(
+        `cache:apikey:revoked:${apiKeyLookupHash(apiKey)}`,
+        1,
+        CACHE_TTL_MATRIX.API_USER.default
+    );
 };
 
 export const isApiKeyRevoked = async (apiKey: string): Promise<boolean> => {
-    const normalized = apiKey.trim().toLowerCase();
-    if (!normalized) return false;
-    const flag = await get<number>(`cache:apikey:revoked:${normalized}`);
-    return flag !== null;
+    if (!apiKey.trim()) return false;
+    const result = await getSensitive<number>(
+        `cache:apikey:revoked:${apiKeyLookupHash(apiKey)}`
+    );
+    if (result.status === 'unavailable') {
+        throw new Error('API_KEY_REVOCATION_STORE_UNAVAILABLE');
+    }
+    return result.value !== null;
 };
 
 /** Quita revocación KV (p. ej. flag obsoleto tras clear-data antes del fix). */
 export const clearApiKeyRevocation = async (apiKey: string): Promise<void> => {
-    const normalized = apiKey.trim().toLowerCase();
-    if (!normalized) return;
+    if (!apiKey.trim()) return;
     if (!isKvWriteAvailable()) return;
     try {
-        await kv.del(`twitch_api:cache:apikey:revoked:${normalized}`);
+        await kv.del(`twitch_api:cache:apikey:revoked:${apiKeyLookupHash(apiKey)}`);
     } catch {
         /* ignore */
     }
 };
 
 export const invalidateApiKeyCache = async (apiKey: string): Promise<void> => {
-    l1Del(`cache:apiuser:${apiKey}`);
+    return invalidateApiKeyCacheByHash(apiKeyLookupHash(apiKey));
+};
+
+export const invalidateApiKeyCacheByHash = async (hash: string): Promise<void> => {
+    l1Del(`cache:apiuser:${hash}`);
     if (!isKvWriteAvailable()) return;
     try {
-        await kv.del(`twitch_api:cache:apiuser:${apiKey}`);
+        await kv.del(`twitch_api:cache:apiuser:${hash}`);
     } catch (error) {
         if (process.env.NODE_ENV !== 'production') {
             disableKvWrites('KV no permite escritura');
             return;
         }
-        console.error('[Cache] Error KV del apiuser:', { apiKey, error });
+        console.error('[Cache] Error KV del apiuser:', { hash, error });
     }
 };
