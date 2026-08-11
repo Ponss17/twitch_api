@@ -2,7 +2,7 @@ import type { Session } from '@/core/config/config';
 import { parseHttpErrorBody } from '@/core/api/apiError';
 import { authHeaders } from './authHeaders';
 import { withApiCredentials } from './apiCredentials';
-import { invalidateSession } from './sessionLifecycle';
+import { invalidateSession, isIntentionalLogout } from './sessionLifecycle';
 import { getSession } from './sessionStorage';
 import { isWithinSessionAuthGrace, clearSessionAuthGrace } from './sessionAuthGrace';
 import { clearValidateCache } from './validateCache';
@@ -62,13 +62,14 @@ export async function apiFetch<T>(
             }
 
             const shouldLogout =
-                lastResponse.status === 401 && options.logoutOn401 !== false && !inGrace;
-            if (lastResponse.status === 401 && !inGrace && options.logoutOn401 !== false) {
+                lastResponse.status === 401 &&
+                options.logoutOn401 !== false &&
+                !inGrace &&
+                !isIntentionalLogout();
+            if (shouldLogout) {
                 clearValidateCache(getSession());
                 clearSessionAuthGrace();
                 window.dispatchEvent(new CustomEvent('session:auth-failed'));
-            }
-            if (shouldLogout) {
                 invalidateSession({ broadcast: true });
                 window.location.href = window.location.origin + window.location.pathname;
                 await new Promise(() => {});

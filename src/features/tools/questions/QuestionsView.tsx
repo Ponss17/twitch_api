@@ -28,7 +28,10 @@ export function QuestionsView({ active = true }: { active?: boolean }) {
         markSkipped,
         removeItem,
         clearAll,
-        clearDone
+        clearDone,
+        loadingHistory,
+        maxItems,
+        maxAgeDays
     } = useQuestions({ tabActive: active });
 
     return (
@@ -145,15 +148,24 @@ export function QuestionsView({ active = true }: { active?: boolean }) {
                         </span>
                     )}
                 </div>
+                <p className="mb-3 text-[0.75rem] text-text-muted">
+                    {qT.retentionHint
+                        .replace('{max}', String(maxItems))
+                        .replace('{days}', String(maxAgeDays))}
+                </p>
 
                 <div className="flex-1 overflow-y-auto">
-                    <QuestionsList
-                        items={items}
-                        currentId={current?.id ?? null}
-                        onAnswer={markAnswered}
-                        onSkip={markSkipped}
-                        onRemove={removeItem}
-                    />
+                    {loadingHistory ? (
+                        <p className="py-8 text-center text-[0.8125rem] text-text-muted">{t.common.loading}</p>
+                    ) : (
+                        <QuestionsList
+                            items={items}
+                            currentId={current?.id ?? null}
+                            onAnswer={markAnswered}
+                            onSkip={markSkipped}
+                            onRemove={removeItem}
+                        />
+                    )}
                 </div>
             </div>
         </div>

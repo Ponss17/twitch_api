@@ -11,7 +11,9 @@ import {
     resolveDegradedSession,
     stripSensitiveQueryParams,
     runLegacyPanelSessionMigration,
-    takeLegacyReloginRedirect
+    takeLegacyReloginRedirect,
+    isIntentionalLogout,
+    consumeIntentionalLogout
 } from '@/core/api/auth';
 import { isWithinSessionAuthGrace } from '@/core/auth/sessionAuthGrace';
 import type { Session } from '@/core/config/config';
@@ -112,6 +114,14 @@ export function SessionProvider({
                 setLoading(false);
                 setAuthenticated(false);
             });
+            const intentional = consumeIntentionalLogout();
+            if (intentional) {
+                showToastRef.current(tRef.current.globals.toasts.loggedOut, 'success');
+                if (requireAuth) {
+                    window.location.href = appPath('/');
+                }
+                return;
+            }
             if (requireAuth) {
                 showToastRef.current(tRef.current.globals.toasts.sessionExpiredLogin, 'error');
                 setTimeout(() => {
@@ -182,6 +192,11 @@ export function SessionProvider({
         if (requireAuth) {
             invalidateSession({ broadcast: false });
             const globalT = tRef.current.globals.toasts;
+            if (consumeIntentionalLogout() || isIntentionalLogout()) {
+                showToastRef.current(globalT.loggedOut, 'success');
+                window.location.href = appPath('/');
+                return;
+            }
             if (bootstrap.storage === 'overlay') {
                 showToastRef.current(globalT.overlayExpired, 'error');
                 return;
@@ -208,6 +223,7 @@ export function SessionProvider({
 
         const onAuthFailed = () => {
             if (isWithinSessionAuthGrace()) return;
+            if (isIntentionalLogout()) return;
             invalidateSession({ broadcast: false });
             showToastRef.current(tRef.current.globals.toasts.sessionExpiredLogin, 'error');
             if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);

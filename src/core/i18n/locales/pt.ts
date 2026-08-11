@@ -205,10 +205,16 @@ export const pt: Translations = {
             exportLimitError: 'Você precisa aguardar antes de gerar outro relatório.'
         },
         dangerModals: {
-            resetTitle: 'Resetar Estatísticas',
-            resetDesc: 'Esta ação apagará todo o histórico de comandos, clips e dados de latência. Sua conta e API Key permanecerão ativas.',
+            resetTitle: 'Resetar dados',
+            resetDesc: 'Escolha o que apagar. Sua conta e API Key permanecerão ativas.',
             resetWord: 'LIMPAR',
             resetConfirm: 'Confirmar e Limpar',
+            resetScopesLabel: 'O que apagar',
+            resetScopeStats: 'Estatísticas e atividade',
+            resetScopeStatsHint: 'Uso de comandos, análises, clips e o registro de atividade do painel.',
+            resetScopeQuestions: 'Histórico de perguntas',
+            resetScopeQuestionsHint: 'Perguntas capturadas do chat na ferramenta Perguntas.',
+            resetScopesRequired: 'Marque pelo menos uma opção.',
             deleteTitle: 'Excluir Perfil LosPerris API',
             deleteDesc: 'ATENÇÃO! Esta ação é irreversível em nossa plataforma. Seus dados e API Key serão excluídos. Isso NÃO afetará seu canal ou conta Twitch de nenhuma forma.',
             deleteWord: 'EXCLUIR',
@@ -259,8 +265,8 @@ export const pt: Translations = {
             copyKey: 'Copiar',
             regenKey: 'Regenerar',
             dangerZoneTitle: 'Zona de Perigo',
-            resetStats: 'Resetar Estatísticas',
-            resetStatsDesc: 'Limpa o histórico de uso e análises. Não afeta sua conta.',
+            resetStats: 'Resetar dados',
+            resetStatsDesc: 'Escolha o que limpar: análises, atividade ou histórico de perguntas. Não afeta sua conta.',
             deleteAccount: 'Excluir Conta',
             deleteAccountDesc: 'Exclui permanentemente todos os seus dados e faz logout.',
             discordTitle: 'Discord',
@@ -665,7 +671,8 @@ export const pt: Translations = {
             trendsTimeUp: 'Tempo esgotado!',
             trendsStarted: (minutes: number): string => `Tendências iniciadas por ${minutes} minutos.`,
             overlayExpired: 'Link do overlay expirado.',
-            sessionExpired: 'Sessão expirada.'
+            sessionExpired: 'Sessão expirada.',
+            loggedOut: 'Sessão encerrada com sucesso.'
         }
     },
     clips: {
@@ -1049,6 +1056,8 @@ export const pt: Translations = {
             started: 'Escuta de perguntas ativada',
             stopped: 'Escuta de perguntas pausada',
             missingFilter: 'Escolha pelo menos um cargo que possa perguntar',
+            loadError: 'Não foi possível carregar o histórico de perguntas',
+            retentionHint: 'São guardadas até {max} perguntas e apagadas após {days} dias, ou quando você limpar.'
         },
     },
     overlay: {

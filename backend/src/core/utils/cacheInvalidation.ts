@@ -60,12 +60,23 @@ export async function invalidateDiscordLinkCaches(
     userId: string,
     login?: string
 ): Promise<void> {
+    await invalidateUserPlanCaches(userId, login);
+}
+
+/**
+ * Plan / rol / cuota / perfil de panel: capas que suelen quedar stale
+ * si se edita `users` a mano en Supabase.
+ */
+export async function invalidateUserPlanCaches(
+    userId: string,
+    login?: string
+): Promise<void> {
     const { invalidateUserCache } = await import('../middleware/apiKeyValidator');
     const { invalidateAuthCache, unrevokeAuthSession } = await import('../middleware/authMiddleware');
     invalidateUserCache(userId);
     invalidateUserMemoryCache(userId);
     invalidateAuthCache(userId, { revokeSession: false });
-    // Discord no debe dejar la sesión revocada (ni heredar un flag de un bug previo).
+    // No dejar la sesión marcada como revocada por un flag viejo.
     await unrevokeAuthSession(userId).catch(() => {});
 
     const tasks: Promise<void>[] = [
@@ -81,7 +92,7 @@ export async function invalidateDiscordLinkCaches(
     }
 
     await Promise.allSettled(tasks).catch((e) =>
-        logger.warn('Error invalidando caches de Discord:', e)
+        logger.warn('Error invalidando caches de plan/perfil:', e)
     );
 }
 

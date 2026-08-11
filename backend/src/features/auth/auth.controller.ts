@@ -7,7 +7,6 @@ import { ALLOWED_ORIGINS } from '../../core/config/origins';
 import { frontendPagePath } from '../../core/utils/frontendPaths';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { clearSessionCookie, readSessionUserId } from '../../core/utils/sessionCookie';
-import { invalidateAuthCache } from '../../core/middleware/authMiddleware';
 import { AuthenticatedRequest } from '../../types/twitch';
 import * as discordAuthService from './discordAuth.service';
 import { notifyPanelSession } from '../../core/database/userDiscordService';
@@ -17,6 +16,7 @@ import {
     setOAuthStateCookie
 } from '../../core/utils/oauthStateCookie';
 import { establishSession, revokeSessions } from '../../core/utils/sessionState';
+import { invalidateUserPlanCaches } from '../../core/utils/cacheInvalidation';
 import crypto from 'crypto';
 
 const getValidOrigin = (origin: string, req: Request): string | null => {
@@ -155,6 +155,7 @@ export const exchange = async (req: Request, res: Response) => {
     }
 
     await establishSession(res, payload.userId);
+    await invalidateUserPlanCaches(payload.userId, payload.login);
     // Await: en Vercel un void tras res.json se congela y el bot nunca ve el evento.
     await notifyPanelSession(payload.userId, 'session_login');
 
@@ -172,8 +173,9 @@ export const logout = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId ?? readSessionUserId(req);
     if (userId) {
         try {
+            const login = req.login || (res.locals?.apiUser as { login?: string } | undefined)?.login;
             await revokeSessions(userId);
-            invalidateAuthCache(userId, { revokeSession: false });
+            await invalidateUserPlanCaches(userId, login);
             await notifyPanelSession(userId, 'session_logout');
         } catch (error) {
             logger.error('No se pudo revocar la sesión durante logout', { error });

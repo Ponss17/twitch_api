@@ -210,10 +210,16 @@ export const es = {
             exportLimitError: 'Debes esperar para generar otro reporte.'
         },
         dangerModals: {
-            resetTitle: 'Reiniciar Estadísticas',
-            resetDesc: 'Esta acción borrará todo el historial de comandos, clips y latencia. Tu cuenta y API Key seguirán activas.',
+            resetTitle: 'Reiniciar datos',
+            resetDesc: 'Elige qué borrar. Tu cuenta y API Key seguirán activas.',
             resetWord: 'LIMPIAR',
             resetConfirm: 'Confirmar y Borrar',
+            resetScopesLabel: 'Qué borrar',
+            resetScopeStats: 'Estadísticas y actividad',
+            resetScopeStatsHint: 'Uso de comandos, analíticas, clips y el registro de actividad del panel.',
+            resetScopeQuestions: 'Historial de preguntas',
+            resetScopeQuestionsHint: 'Preguntas capturadas del chat en la herramienta Preguntas.',
+            resetScopesRequired: 'Marca al menos una opción.',
             deleteTitle: 'Eliminar Perfil de LosPerris API',
             deleteDesc: '¡ATENCIÓN! Esta acción es irreversible dentro de nuestra plataforma. Se borrarán tus datos y API Key. Esto NO afectará a tu canal ni cuenta de Twitch de ninguna manera.',
             deleteWord: 'ELIMINAR',
@@ -264,8 +270,8 @@ export const es = {
             copyKey: 'Copiar',
             regenKey: 'Regenerar',
             dangerZoneTitle: 'Zona de Peligro',
-            resetStats: 'Reiniciar Estadísticas',
-            resetStatsDesc: 'Limpia el uso histórico y analíticas. No afecta a tu cuenta.',
+            resetStats: 'Reiniciar datos',
+            resetStatsDesc: 'Elige qué limpiar: analíticas, actividad o historial de preguntas. No afecta a tu cuenta.',
             deleteAccount: 'Eliminar Cuenta',
             deleteAccountDesc: 'Borra todos tus datos permanentemente y cierra tu sesión.',
             discordTitle: 'Discord',
@@ -554,7 +560,8 @@ export const es = {
             trendsTimeUp: '¡Tiempo agotado!',
             trendsStarted: (minutes: number): string => `Tendencias iniciadas por ${minutes} minutos.`,
             overlayExpired: 'Enlace de overlay expirado.',
-            sessionExpired: 'Sesión expirada.'
+            sessionExpired: 'Sesión expirada.',
+            loggedOut: 'Sesión cerrada correctamente.'
         }
     },
     modals: {
@@ -1054,6 +1061,8 @@ export const es = {
             started: 'Escucha de preguntas activada',
             stopped: 'Escucha de preguntas pausada',
             missingFilter: 'Elige al menos un rol que pueda preguntar',
+            loadError: 'No se pudo cargar el historial de preguntas',
+            retentionHint: 'Se guardan hasta {max} preguntas y se borran a los {days} días, o cuando tú las limpies.'
         },
     },
     overlay: {

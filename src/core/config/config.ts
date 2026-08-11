@@ -20,6 +20,7 @@ export const API_ENDPOINTS = {
     SETTINGS: `${API_BASE}/dashboard/settings/`,
     CLIPS: `${API_BASE}/dashboard/get-clips/`,
     ACTIVITY: `${API_BASE}/dashboard/activity/`,
+    QUESTIONS: `${API_BASE}/dashboard/questions/`,
     CLEAR_DATA: `${API_BASE}/dashboard/clear-data/`,
     DELETE_ACCOUNT: `${API_BASE}/dashboard/delete-account/`,
     TRACK_USAGE: `${API_BASE}/dashboard/track-usage/`,
