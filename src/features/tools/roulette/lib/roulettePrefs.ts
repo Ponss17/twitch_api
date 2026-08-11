@@ -14,6 +14,27 @@ const ENTRY_MODE_PREF = 'roulette_entry_mode';
 const KEYWORD_PREF = 'roulette_entry_keyword';
 const HISTORY_PREF = 'roulette_winner_history';
 const HISTORY_CAP = 20;
+const ANNOUNCE_WINNER_PREF = 'roulette_announce_winner';
+const LEGACY_ANNOUNCE_WINNER_KEY = 'roulette_announce_winner_in_chat';
+const WHEEL_COLOR_PREF = 'roulette_obs_wheel_color';
+
+export function readWheelColorPref(userId?: string): string {
+    const stored = readScopedPref(WHEEL_COLOR_PREF, userId);
+    return stored || 'auto';
+}
+
+export function writeWheelColorPref(userId: string | undefined, color: string): void {
+    writeScopedPref(WHEEL_COLOR_PREF, userId, color);
+}
+
+export function readAnnounceWinnerPref(userId?: string): boolean {
+    const stored = readScopedPref(ANNOUNCE_WINNER_PREF, userId, LEGACY_ANNOUNCE_WINNER_KEY);
+    return stored === null ? true : stored === '1';
+}
+
+export function writeAnnounceWinnerPref(userId: string | undefined, enabled: boolean): void {
+    writeScopedPref(ANNOUNCE_WINNER_PREF, userId, enabled ? '1' : '0', LEGACY_ANNOUNCE_WINNER_KEY);
+}
 
 export function readEntryModePref(userId?: string): RouletteEntryMode {
     const stored = readScopedPref(ENTRY_MODE_PREF, userId);

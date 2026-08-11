@@ -17,6 +17,27 @@ import { AuthenticatedRequest } from '../../types/twitch';
 import { TwitchApiError, AppError } from '../../core/errors/AppError';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
+import { invalidateUserPlanCaches } from '../../core/utils/cacheInvalidation';
+import type { StoredUser } from '../../types/twitch';
+
+function requestWantsFreshData(req: AuthenticatedRequest): boolean {
+    const fresh = req.query?.fresh;
+    return fresh === '1' || fresh === 'true';
+}
+
+async function reloadApiUserFromDb(
+    req: AuthenticatedRequest,
+    res: Response,
+    userId: string
+): Promise<StoredUser | null> {
+    await invalidateUserPlanCaches(userId, req.login);
+    const user = await dbService.getUser(userId);
+    if (user) {
+        res.locals.apiUser = user;
+        req.userTimezone = user.timezone ?? req.userTimezone;
+    }
+    return user;
+}
 
 export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
@@ -75,14 +96,23 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
     const login = safeString(req.query.login);
     const userId = req.userId;
     const cacheId = userId || login?.toLowerCase() || '';
+    const wantFresh = requestWantsFreshData(req);
+
+    if (wantFresh && userId) {
+        await reloadApiUserFromDb(req, res, userId);
+    }
 
     const profileKey = cacheId ? `cache:dashboard:profile:${cacheId}` : null;
     const analyticsKey = userId && cacheId ? `cache:dashboard:analytics:${cacheId}` : null;
     const statsRev = userId ? await cacheService.getStatsRevision(userId) : 0;
 
     const [rawCachedProfile, cachedAnalytics] = await Promise.all([
-        profileKey ? cacheService.get<Record<string, unknown>>(profileKey) : Promise.resolve(null),
-        analyticsKey ? cacheService.get<Record<string, unknown>>(analyticsKey) : Promise.resolve(null)
+        !wantFresh && profileKey
+            ? cacheService.get<Record<string, unknown>>(profileKey)
+            : Promise.resolve(null),
+        !wantFresh && analyticsKey
+            ? cacheService.get<Record<string, unknown>>(analyticsKey)
+            : Promise.resolve(null)
     ]);
 
     const { profile: cachedProfile, wasNested: cachedProfileWasNested } =

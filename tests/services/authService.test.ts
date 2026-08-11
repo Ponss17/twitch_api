@@ -225,7 +225,8 @@ describe('authService', () => {
                     discordAvatar: 'https://cdn.discord/avatar.png',
                     discordLinkedAt: '2026-03-01T00:00:00.000Z',
                     discordUpdatedAt: '2026-03-02T00:00:00.000Z'
-                })
+                }),
+                { preservePlan: true }
             );
         });
 
@@ -241,7 +242,8 @@ describe('authService', () => {
                     userId: '123',
                     isActive: true, // default
                     customRateLimit: undefined // default
-                })
+                }),
+                { preservePlan: false }
             );
         });
     });

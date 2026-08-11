@@ -28,7 +28,7 @@ export async function fetchDashboardSummary(
 ): Promise<DashboardSummaryResponse> {
     let url = buildSummaryUrl(login ?? session.login);
     if (options?.fresh) {
-        url += `${url.includes('?') ? '&' : '?'}_=${Date.now()}`;
+        url += `${url.includes('?') ? '&' : '?'}fresh=1`;
     }
     return apiFetch<DashboardSummaryResponse>(url, session, {}, { logoutOn401: false });
 }
@@ -40,7 +40,7 @@ export async function fetchDashboardProfile(
     const login = session.login ?? '';
     let url = `${API_ENDPOINTS.USER_INFO}?login=${encodeURIComponent(login)}`;
     if (options?.fresh) {
-        url += `&_=${Date.now()}`;
+        url += `&fresh=1`;
     }
     return apiFetch<DashboardProfile>(
         url,

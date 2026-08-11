@@ -10,20 +10,28 @@ import {
 import { invalidateAllUserCaches } from '../utils/cacheInvalidation';
 import * as cacheService from './cacheService';
 import { CACHE_TTL_MATRIX } from '../config/cacheTtl';
-import { DEFAULT_USER_ROLE, normalizeUserRole } from '../config/userRoles';
 import { logger } from '../utils/logger';
-import { BoundedMap } from '../utils/boundedCache';
-import { setUserTimezone, clearUserTimezone } from './userTimezoneCache';
+import { setUserTimezone } from './userTimezoneCache';
 import {
     apiKeyLookupHash,
     decryptStoredApiKey,
     encryptApiKey,
     normalizeApiKey
 } from '../utils/apiKeySecurity';
+import {
+    fromRow,
+    resolveTokenExpiresAtIso,
+    userToRow
+} from './userRowMapper';
+import {
+    invalidateUserMemoryCache,
+    pendingGetUser,
+    rememberUserCaches,
+    userMemoryCache
+} from './userMemoryCache';
 
-/** L1 en RAM de la instancia serverless — evita round-trips a KV/Supabase en bots activos. */
-const userMemoryCache = new BoundedMap<string, { user: StoredUser; expiry: number }>(1000);
-const pendingGetUser = new Map<string, Promise<StoredUser | null>>();
+export { invalidateUserMemoryCache } from './userMemoryCache';
+
 const migratedUsersCache = new Set<string>();
 const MAX_MIGRATED_CACHE = 500;
 
@@ -34,14 +42,6 @@ const addToMigratedCache = (userId: string) => {
     }
     migratedUsersCache.add(userId);
 };
-
-export const invalidateUserMemoryCache = (userId: string): void => {
-    userMemoryCache.delete(userId);
-    pendingGetUser.delete(userId);
-    clearUserTimezone(userId);
-};
-
-
 
 const isAlreadyEncrypted = (val?: string | null) =>
     !!val && (val.startsWith('gcm:') || isCbcFormat(val));
@@ -93,98 +93,15 @@ async function decryptAndMigrateIfNeeded(
     return user;
 }
 
-// Convierte un StoredUser del sistema al formato de columnas de Supabase
-function toRow(user: StoredUser): Record<string, unknown> {
-    const row: Record<string, unknown> = {
-        user_id: user.userId,
-        login: user.login,
-        display_name: user.displayName,
-        access_token: user.accessToken ?? null,
-        refresh_token: user.refreshToken ?? null,
-        api_key: user.apiKey ?? null,
-        api_key_hash: user.apiKeyHash ?? null,
-        is_active: user.isActive ?? true,
-        blocked_reason: user.blockedReason ?? null,
-        custom_rate_limit: user.customRateLimit ?? null,
-        custom_cache_ttl: user.customCacheTtl ?? null,
-        role: user.role ?? DEFAULT_USER_ROLE,
-        profile_image_url: user.profileImageUrl ?? null,
-        timezone: user.timezone ?? 'UTC',
-        last_active: user.lastActive
-            ? new Date(user.lastActive).toISOString()
-            : new Date().toISOString(),
-        token_expires_at: resolveTokenExpiresAtIso(user)
-    };
-
-    // Nunca default a "ahora": un upsert sin createdAt pisaría el primer ingreso real.
-    // Si falta, se omite la columna y Supabase conserva el valor existente (o DEFAULT en insert).
-    if (user.createdAt) {
-        row.created_at = new Date(user.createdAt).toISOString();
-    }
-
-    // No pisar Discord en upsert si el caller no trajo esos campos
-    // (p. ej. login Twitch construye StoredUser sin discord* → antes borraba el vínculo).
-    if ('discordId' in user) {
-        row.discord_id = user.discordId ?? null;
-        row.discord_username = user.discordUsername ?? null;
-        row.discord_avatar = user.discordAvatar ?? null;
-        row.discord_linked_at = user.discordLinkedAt ?? null;
-        row.discord_updated_at = user.discordUpdatedAt ?? null;
-    }
-
-    return row;
-}
-
-function resolveTokenExpiresAtIso(user: StoredUser): string | null {
-    if (user.tokenExpiresAt && user.tokenExpiresAt > 0) {
-        return new Date(user.tokenExpiresAt).toISOString();
-    }
-    if (user.obtainedAt && user.expiresIn) {
-        return new Date(user.obtainedAt + user.expiresIn * 1000).toISOString();
-    }
-    return null;
-}
-
-function hydrateUserFromRow(row: Record<string, unknown>): StoredUser {
-    const tokenExpiresAt = row.token_expires_at
-        ? new Date(row.token_expires_at as string).getTime()
-        : undefined;
-
-    return {
-        userId: row.user_id as string,
-        login: row.login as string,
-        displayName: row.display_name as string,
-        accessToken: (row.access_token as string) ?? '',
-        refreshToken: (row.refresh_token as string) ?? '',
-        expiresIn: 0,
-        obtainedAt: 0,
-        apiKey: (row.api_key as string) ?? undefined,
-        apiKeyHash: (row.api_key_hash as string) ?? undefined,
-        isActive: row.is_active as boolean,
-        blockedReason: (row.blocked_reason as string) ?? undefined,
-        customRateLimit: (row.custom_rate_limit as number) ?? undefined,
-        customCacheTtl: (row.custom_cache_ttl as number) ?? undefined,
-        role: normalizeUserRole(row.role as string | undefined),
-        profileImageUrl: (row.profile_image_url as string) ?? undefined,
-        timezone: (row.timezone as string) ?? 'UTC',
-        lastActive: (row.last_active as string) ?? undefined,
-        createdAt: (row.created_at as string) ?? undefined,
-        tokenExpiresAt,
-        discordId: (row.discord_id as string) ?? null,
-        discordUsername: (row.discord_username as string) ?? null,
-        discordAvatar: (row.discord_avatar as string) ?? null,
-        discordLinkedAt: (row.discord_linked_at as string) ?? null,
-        discordUpdatedAt: (row.discord_updated_at as string) ?? null
-    };
-}
-
-function rememberUserCaches(user: StoredUser): void {
-    setUserTimezone(user.userId, user.timezone);
-    userMemoryCache.set(user.userId, {
-        user,
-        expiry: Date.now() + CACHE_TTL_MATRIX.API_USER.default * 1000
-    });
-}
+export type SaveUserOptions = {
+    /** Persiste tokens sin invalidar cachés de apiKey/login (refresh OAuth). */
+    tokensOnly?: boolean;
+    /**
+     * No escribe role / custom_rate_limit / custom_cache_ttl.
+     * Así un plan puesto a mano en Supabase no se pisa en re-login.
+     */
+    preservePlan?: boolean;
+};
 
 function secureUserForL2(user: StoredUser): StoredUser {
     const secure = { ...user };
@@ -214,22 +131,10 @@ async function ensurePlaintextUser(user: StoredUser, context: string): Promise<S
     return decryptAndMigrateIfNeeded(user, context);
 }
 
-// Convierte una fila de Supabase al tipo StoredUser de la aplicación
-function fromRow(row: Record<string, unknown>): StoredUser {
-    return hydrateUserFromRow(row);
-}
-
-export type SaveUserOptions = {
-    /** Persiste tokens sin invalidar cachés de apiKey/login (refresh OAuth). */
-    tokensOnly?: boolean;
-};
-
 export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Promise<void> => {
-    // Clonamos sin modificar el objeto original
     const secureUser = { ...user };
     if (secureUser.isActive === undefined) secureUser.isActive = true;
 
-    // Solo ciframos si el token NO está ya cifrado (contiene ':' que usa el formato iv:encrypted)
     if (secureUser.accessToken && !isAlreadyEncrypted(secureUser.accessToken)) {
         secureUser.accessToken = encrypt(secureUser.accessToken);
     }
@@ -257,31 +162,11 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
             throw error;
         }
 
-        // DB guarda cifrado; caché L1/KV debe quedar en claro para Helix/auth.
-        // Fusionar con caché existente para no perder campos (p. ej. Discord) no cargados en `user`.
-        const cacheKey = `cache:user:id:${user.userId}`;
-        const cached = await cacheService.get<StoredUser>(cacheKey);
-        const cachedPlain = cached
-            ? await ensurePlaintextUser(cached, `caché tokens ${user.userId}`)
-            : null;
-        const merged: StoredUser = {
-            ...(cachedPlain ?? user),
-            accessToken: user.accessToken,
-            refreshToken: user.refreshToken,
-            expiresIn: user.expiresIn,
-            obtainedAt: user.obtainedAt,
-            tokenExpiresAt: user.tokenExpiresAt
-        };
-        rememberUserCaches(merged);
-        const secureMerged = secureUserForL2(merged);
         await Promise.all([
-            cacheService.set(cacheKey, secureMerged, CACHE_TTL_MATRIX.API_USER.default),
-            cacheService.set(
-                `cache:user:login:${user.login.toLowerCase()}`,
-                secureMerged,
-                CACHE_TTL_MATRIX.USER_BY_LOGIN.default
-            )
-        ]).catch((e) => logger.error('Error actualizando caché de usuario (tokens):', e));
+            cacheService.del(`cache:user:id:${user.userId}`),
+            cacheService.del(`cache:user:login:${user.login.toLowerCase()}`)
+        ]).catch((e) => logger.error('Error invalidando caché tras tokensOnly:', e));
+        invalidateUserMemoryCache(user.userId);
         const { invalidateAuthCache } = await import('../middleware/authMiddleware');
         invalidateAuthCache(user.userId, { revokeSession: false });
         return;
@@ -289,7 +174,9 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
 
     const { error } = await supabase
         .from('users')
-        .upsert(toRow(secureUser), { onConflict: 'user_id' });
+        .upsert(userToRow(secureUser, { preservePlan: options?.preservePlan }), {
+            onConflict: 'user_id'
+        });
 
     if (error) {
         logger.error('Error guardando usuario en Supabase:', error.message);
@@ -311,30 +198,40 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
     invalidateUserMemoryCache(user.userId);
 };
 
-export const getUser = async (userId: string): Promise<StoredUser | null> => {
-    const memoryHit = userMemoryCache.get(userId);
-    if (memoryHit && memoryHit.expiry > Date.now()) {
-        const plain = await ensurePlaintextUser(memoryHit.user, `memoria ${userId}`);
-        if (!plain) return null;
-        if (plain !== memoryHit.user) rememberUserCaches(plain);
-        return plain;
-    }
-    if (memoryHit) userMemoryCache.delete(userId);
+export const getUser = async (
+    userId: string,
+    options?: { bypassCache?: boolean }
+): Promise<StoredUser | null> => {
+    if (!options?.bypassCache) {
+        const memoryHit = userMemoryCache.get(userId);
+        if (memoryHit && memoryHit.expiry > Date.now()) {
+            const plain = await ensurePlaintextUser(memoryHit.user, `memoria ${userId}`);
+            if (!plain) return null;
+            if (plain !== memoryHit.user) rememberUserCaches(plain);
+            return plain;
+        }
+        if (memoryHit) userMemoryCache.delete(userId);
 
-    const inFlight = pendingGetUser.get(userId);
-    if (inFlight) return inFlight;
+        const inFlight = pendingGetUser.get(userId);
+        if (inFlight) return inFlight;
+    } else {
+        invalidateUserMemoryCache(userId);
+        await cacheService.del(`cache:user:id:${userId}`).catch(() => {});
+    }
 
     const fetchPromise = (async (): Promise<StoredUser | null> => {
-        const cacheKey = `cache:user:id:${userId}`;
-        const cached = await cacheService.get<StoredUser>(cacheKey);
-        if (cached) {
-            const plain = await ensurePlaintextUser(cached, `caché ${userId}`);
-            if (!plain) return null;
-            rememberUserCaches(plain);
-            await cacheService
-                .set(cacheKey, secureUserForL2(plain), CACHE_TTL_MATRIX.API_USER.default)
-                .catch((e) => logger.error('Error reescribiendo caché de usuario:', e));
-            return plain;
+        if (!options?.bypassCache) {
+            const cacheKey = `cache:user:id:${userId}`;
+            const cached = await cacheService.get<StoredUser>(cacheKey);
+            if (cached) {
+                const plain = await ensurePlaintextUser(cached, `caché ${userId}`);
+                if (!plain) return null;
+                rememberUserCaches(plain);
+                await cacheService
+                    .set(cacheKey, secureUserForL2(plain), CACHE_TTL_MATRIX.API_USER.default)
+                    .catch((e) => logger.error('Error reescribiendo caché de usuario:', e));
+                return plain;
+            }
         }
 
         const { data, error } = await supabase.from('users').select('*').eq('user_id', userId).single();
@@ -347,20 +244,23 @@ export const getUser = async (userId: string): Promise<StoredUser | null> => {
 
         rememberUserCaches(result);
 
-        // 10 min: suficiente para no re-consultar Supabase en cada comando del bot
         await cacheService.set(
-            cacheKey,
+            `cache:user:id:${userId}`,
             secureUserForL2(result),
             CACHE_TTL_MATRIX.API_USER.default
         );
         return result;
     })();
 
-    pendingGetUser.set(userId, fetchPromise);
+    if (!options?.bypassCache) {
+        pendingGetUser.set(userId, fetchPromise);
+    }
     try {
         return await fetchPromise;
     } finally {
-        pendingGetUser.delete(userId);
+        if (!options?.bypassCache) {
+            pendingGetUser.delete(userId);
+        }
     }
 };
 
@@ -454,6 +354,17 @@ export const deleteUser = async (userId: string): Promise<void> => {
         if (!user) return;
 
         logger.info(`🚮 Eliminando datos de usuario: ${user.login} (${userId})`);
+
+        const { error: questionsError } = await supabase
+            .from('streamer_questions')
+            .delete()
+            .eq('user_id', userId);
+        if (questionsError) {
+            logger.warn(
+                `streamer_questions wipe skipped for ${userId}:`,
+                questionsError.message
+            );
+        }
 
         const { error } = await supabase.from('users').delete().eq('user_id', userId);
 

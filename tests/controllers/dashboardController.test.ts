@@ -12,6 +12,10 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     getViewerLeaderboards: jest.fn().mockResolvedValue({ leaderboardToday: [], leaderboardWeekly: [] })
 }));
 
+jest.mock('../../backend/src/core/database/questionsService', () => ({
+    clearStreamerQuestions: jest.fn().mockResolvedValue([])
+}));
+
 jest.mock('../../backend/src/core/utils/cacheInvalidation', () => ({
     invalidateAllUserCaches: jest.fn().mockResolvedValue(undefined),
     invalidateDashboardStatsCaches: jest.fn().mockResolvedValue(undefined),
@@ -48,6 +52,7 @@ jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
 }));
 
 import * as dbService from '../../backend/src/core/database/dbService';
+import * as questionsService from '../../backend/src/core/database/questionsService';
 import { invalidateAllUserCaches, invalidateDashboardStatsCaches } from '../../backend/src/core/utils/cacheInvalidation';
 import { getAnalytics, getLogs, clearUserData, deleteAccount, exportCheck, recordExportComplete, revealApiKey } from '../../backend/src/features/dashboard/dashboard.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
@@ -186,8 +191,8 @@ describe('dashboardController', () => {
     });
 
     describe('clearUserData', () => {
-        it('should clear stats and invalidate cache', async () => {
-            const req = mockReq({ login: 'streamer' });
+        it('should clear stats and questions by default', async () => {
+            const req = mockReq({ login: 'streamer', body: { confirm: 'LIMPIAR' } });
             const res = mockRes();
 
             (dbService.clearUserStatsAndLogs as jest.Mock).mockResolvedValue(undefined);
@@ -195,13 +200,58 @@ describe('dashboardController', () => {
             await clearUserData(req, res);
 
             expect(dbService.clearUserStatsAndLogs).toHaveBeenCalledWith('123');
+            expect(questionsService.clearStreamerQuestions).toHaveBeenCalledWith('123', false);
             expect(invalidateDashboardStatsCaches).toHaveBeenCalledWith('123', 'streamer');
             expect(invalidateAllUserCaches).not.toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: true,
+                    cleared: { stats: true, questions: true },
                     analytics: expect.objectContaining({ todayRequests: 0, clips: 0 }),
                     activity: []
+                })
+            );
+        });
+
+        it('should clear only questions when stats is false', async () => {
+            const req = mockReq({
+                login: 'streamer',
+                body: { confirm: 'LIMPIAR', scopes: { stats: false, questions: true } }
+            });
+            const res = mockRes();
+
+            await clearUserData(req, res);
+
+            expect(dbService.clearUserStatsAndLogs).not.toHaveBeenCalled();
+            expect(questionsService.clearStreamerQuestions).toHaveBeenCalledWith('123', false);
+            expect(invalidateDashboardStatsCaches).not.toHaveBeenCalled();
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    cleared: { stats: false, questions: true },
+                    analytics: undefined,
+                    activity: undefined
+                })
+            );
+        });
+
+        it('should clear only stats when questions is false', async () => {
+            const req = mockReq({
+                login: 'streamer',
+                body: { confirm: 'LIMPIAR', scopes: { stats: true, questions: false } }
+            });
+            const res = mockRes();
+
+            (dbService.clearUserStatsAndLogs as jest.Mock).mockResolvedValue(undefined);
+
+            await clearUserData(req, res);
+
+            expect(dbService.clearUserStatsAndLogs).toHaveBeenCalledWith('123');
+            expect(questionsService.clearStreamerQuestions).not.toHaveBeenCalled();
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: true,
+                    cleared: { stats: true, questions: false }
                 })
             );
         });

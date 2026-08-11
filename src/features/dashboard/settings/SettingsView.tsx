@@ -1,12 +1,13 @@
 import { fadeIn } from '@/core/utils/tw';
 import { SettingsTabs, SettingsTabPanel } from '@/features/dashboard/settings/SettingsTabs';
+import { SettingsProfileHeader } from '@/features/dashboard/settings/SettingsProfileHeader';
 import { SettingsGeneralPanel } from '@/features/dashboard/settings/SettingsGeneralPanel';
 import { SettingsDataPanel } from '@/features/dashboard/settings/SettingsDataPanel';
 import { SettingsSecurityPanel } from '@/features/dashboard/settings/SettingsSecurityPanel';
 import { SettingsConnectionsPanel } from '@/features/dashboard/settings/SettingsConnectionsPanel';
 import { SettingsModals } from '@/features/dashboard/settings/SettingsModals';
 import { useSettingsController } from '@/features/dashboard/settings/useSettingsController';
-import { SettingsHeroSkeleton } from '@/shared/ui/Skeleton';
+import { SettingsProfileHeaderSkeleton } from '@/shared/ui/Skeleton';
 
 export function SettingsView({ active = true }: { active?: boolean }) {
     const s = useSettingsController(active);
@@ -14,13 +15,17 @@ export function SettingsView({ active = true }: { active?: boolean }) {
     if (s.loading && !s.profile) {
         return (
             <div className={fadeIn}>
-                <SettingsHeroSkeleton />
+                <SettingsProfileHeaderSkeleton />
             </div>
         );
     }
 
     return (
         <div className={`${fadeIn} w-full`}>
+            <SettingsProfileHeader
+                memberSinceIso={s.profile?.created_at ?? s.profile?.dbCreatedAt}
+            />
+
             <SettingsTabs active={s.settingsTab} onChange={s.changeSettingsTab} />
 
             <SettingsTabPanel id="general" active={s.settingsTab}>

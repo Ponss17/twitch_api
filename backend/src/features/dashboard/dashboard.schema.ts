@@ -31,11 +31,29 @@ export const updateSettingsSchema = z.object({
 });
 
 export const clearUserDataSchema = z.object({
-    body: z.object({
-        confirm: z.string().refine((val) => val === 'LIMPIAR', {
-            message: 'Debes escribir LIMPIAR para confirmar esta acción.'
+    body: z
+        .object({
+            confirm: z.string().refine((val) => val === 'LIMPIAR', {
+                message: 'Debes escribir LIMPIAR para confirmar esta acción.'
+            }),
+            scopes: z
+                .object({
+                    stats: z.boolean().optional(),
+                    questions: z.boolean().optional()
+                })
+                .optional()
         })
-    })
+        .superRefine((body, ctx) => {
+            const stats = body.scopes?.stats ?? true;
+            const questions = body.scopes?.questions ?? true;
+            if (!stats && !questions) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ['scopes'],
+                    message: 'Selecciona al menos un tipo de dato para borrar.'
+                });
+            }
+        })
 });
 
 export const deleteAccountSchema = z.object({

@@ -22,7 +22,7 @@ export function SettingsTabs({ active, onChange }: SettingsTabsProps) {
 
     return (
         <div
-            className="mb-6 flex gap-1 border-b border-border-strong"
+            className="mb-7 flex gap-0.5 border-b border-border-subtle"
             aria-label={t.common.aria.settingsSections}
             role="tablist"
         >
@@ -37,10 +37,11 @@ export function SettingsTabs({ active, onChange }: SettingsTabsProps) {
                         aria-selected={isActive}
                         aria-controls={`settings-panel-${tab.id}`}
                         onClick={() => onChange(tab.id)}
-                        className={`relative -mb-px px-3.5 py-2.5 text-[0.875rem] font-semibold transition ${isActive
+                        className={`relative -mb-px px-4 py-2.5 text-[0.875rem] font-semibold transition ${
+                            isActive
                                 ? 'border-b-2 border-primary text-primary'
-                                : 'border-b-2 border-transparent text-text-muted hover:bg-bg-hover-neutral hover:text-text-main'
-                            }`}
+                                : 'border-b-2 border-transparent text-text-muted hover:text-text-main'
+                        }`}
                     >
                         {tab.label}
                     </button>

@@ -104,12 +104,11 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                 </DropdownTrigger>
                                 <DropdownPanel
                                     align="right"
-                                    placement="top"
                                     zIndex={1000}
                                     widthClassName="w-full sm:w-[280px]"
-                                    className="flex flex-col p-1"
+                                    className="p-1"
                                 >
-                                    <div className="px-2 pb-2 pt-2">
+                                    <div className="shrink-0 border-b border-border-subtle px-2 pb-2 pt-2">
                                         <div className="relative">
                                             <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" aria-hidden="true" />
                                             <input
@@ -123,7 +122,7 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                             />
                                         </div>
                                     </div>
-                                    <div className="max-h-[240px] overflow-y-auto px-1 pb-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border-strong [&::-webkit-scrollbar]:w-1.5">
+                                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-1 py-1">
                                         {filteredTimezones.length === 0 ? (
                                             <div className="py-4 text-center text-xs text-text-muted">{tz.noResults}</div>
                                         ) : (
@@ -184,7 +183,6 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                             </DropdownTrigger>
                             <DropdownPanel
                                 align="right"
-                                placement="top"
                                 zIndex={1000}
                                 widthClassName="w-full sm:w-[200px]"
                                 className="flex flex-col p-1"
@@ -241,7 +239,6 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                             </DropdownTrigger>
                             <DropdownPanel
                                 align="right"
-                                placement="top"
                                 zIndex={1000}
                                 widthClassName="w-full sm:w-[200px]"
                                 className="flex flex-col p-1"
