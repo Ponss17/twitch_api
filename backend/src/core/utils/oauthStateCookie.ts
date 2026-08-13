@@ -3,23 +3,25 @@ import { Request, Response } from 'express';
 export const OAUTH_STATE_COOKIE_NAME = 'lp_oauth_state';
 const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
 
-const options = {
-    path: '/',
-    httpOnly: true,
-    secure: true,
-    sameSite: 'lax' as const
-};
+
 
 export function setOAuthStateCookie(res: Response, state: string): void {
+    // codeql[js/clear-text-storage-of-sensitive-data] State is a CSRF token, not a plaintext password
     res.cookie(OAUTH_STATE_COOKIE_NAME, state, {
-        ...options,
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
         maxAge: OAUTH_STATE_TTL_MS
     });
 }
 
 export function clearOAuthStateCookie(res: Response): void {
     res.clearCookie(OAUTH_STATE_COOKIE_NAME, {
-        ...options,
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
         maxAge: 0
     });
 }

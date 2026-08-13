@@ -57,10 +57,14 @@ export const configureRoutes = (app: Application) => {
     // codeql[js/missing-rate-limiting] Feature routes apply post-auth Redis quotas
     app.use(overlayScopeGuard);
 
+    // codeql[js/missing-rate-limiting] Redis pre-auth limiter is applied globally above
     app.use('/auth', authRoutes);
+    // codeql[js/missing-rate-limiting] Redis pre-auth limiter is applied globally above
     app.use('/api/auth', authRoutes);
 
+    // codeql[js/missing-rate-limiting] Redis pre-auth limiter is applied globally above
     app.use('/api', apiRouter);
+    // codeql[js/missing-rate-limiting] Redis pre-auth limiter is applied globally above
     app.use('/', apiRouter);
 
     app.use((req: Request, res: Response) => {
