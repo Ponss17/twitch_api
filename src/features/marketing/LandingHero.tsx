@@ -46,7 +46,11 @@ export function LandingHero({ hasSession, legacyReloginNotice, onLoginClick }: L
                 />
                 <div className="relative mx-auto max-w-[820px] px-5 pt-28 pb-12 text-center md:px-8 md:pt-40 md:pb-14">
                     <p className="mb-6 inline-flex items-center rounded-lg border border-border-subtle bg-bg-secondary px-3 py-1 text-[0.78rem] font-medium text-text-muted">
-                        Nightbot · StreamElements · Streamlabs
+                        <a href="https://nightbot.tv/" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-text-main">Nightbot</a>
+                        <span className="mx-1.5">·</span>
+                        <a href="https://streamelements.com/" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-text-main">StreamElements</a>
+                        <span className="mx-1.5">·</span>
+                        <a href="https://streamlabs.com/" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-text-main">Streamlabs</a>
                     </p>
                     <h1 className="text-[2.35rem] leading-[1.08] font-semibold tracking-tight text-text-main sm:text-5xl md:text-[3.5rem] md:leading-[1.05]">
                         Comandos para tu

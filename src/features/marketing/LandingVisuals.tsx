@@ -43,7 +43,7 @@ export function VisualConnect({ fill = false }: { fill?: boolean }) {
 
     return (
         <div
-            className={`flex items-center justify-center gap-4 ${fill ? 'h-[172px] px-5' : 'mt-8 min-h-[148px]'}`}
+            className={`flex items-center justify-center gap-4 ${fill ? 'h-[172px] bg-bg-main px-5' : 'mt-8 min-h-[148px] rounded-xl border border-border-subtle bg-bg-main p-3'}`}
         >
             <TwitchIcon variant="brand" className="h-11 w-11 shrink-0" />
             <div className="flex w-[4.75rem] items-center justify-between sm:w-28" aria-hidden>
@@ -59,7 +59,7 @@ export function VisualConnect({ fill = false }: { fill?: boolean }) {
                 ))}
             </div>
             <AppLogo
-                className={`h-11 w-11 shrink-0 transition-[color,opacity] duration-500 ${
+                className={`h-14 w-14 shrink-0 transition-[color,opacity] duration-500 ${
                     connected ? 'text-primary opacity-100' : 'text-text-muted opacity-35'
                 }`}
                 aria-hidden

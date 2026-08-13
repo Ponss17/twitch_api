@@ -65,9 +65,6 @@ export function LandingHeader({ scrolled, hasSession, onLoginClick }: LandingHea
                         </a>
                     ) : (
                         <>
-                            <button type="button" onClick={onLoginClick} className={`${navLink} hidden sm:inline`}>
-                                Entrar
-                            </button>
                             <button type="button" onClick={onLoginClick} className={landingBtnHeader}>
                                 Empezar
                             </button>

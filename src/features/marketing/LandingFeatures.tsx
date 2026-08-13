@@ -22,7 +22,7 @@ export function LandingFeatures() {
                         Empieza con un comando
                     </h2>
                     <p className="mt-3 text-base leading-relaxed text-text-muted md:text-lg">
-                        Tres pasos. Sin tarjeta y sin otro programa.
+                        Fácilmente en 3 pasos. Todo desde el navegador.
                     </p>
                 </LandingReveal>
                 <LandingRevealList className="relative z-[1] mx-auto grid max-w-[1040px] gap-4 md:grid-cols-3">
@@ -64,11 +64,11 @@ export function LandingFeatures() {
                                 </div>
                                 <h3 className="mt-4 text-lg font-semibold text-text-main">{item.title}</h3>
                                 <p className="mt-2 flex-1 text-sm leading-relaxed text-text-muted">{item.text}</p>
-                                <ul className="mt-4 flex flex-wrap gap-1.5">
+                                <ul className="mt-4 flex flex-wrap gap-1">
                                     {item.items.map((chip) => (
                                         <li
                                             key={chip}
-                                            className="rounded-md border border-border-subtle bg-bg-main/50 px-2 py-0.5 font-mono text-[0.68rem] text-text-muted"
+                                            className="rounded-md border border-border-subtle bg-bg-main/50 px-1.5 py-0.5 font-mono text-[0.65rem] text-text-muted"
                                         >
                                             {chip}
                                         </li>
