@@ -178,9 +178,7 @@ export function LandingFit() {
                                     </div>
                                 ) : null}
                                 {phase === 'sent' ? (
-                                    <p className="px-4 py-0.5 text-[13px] text-text-muted">
-                                        Nightbot está escribiendo…
-                                    </p>
+                                    <div className="h-6" aria-hidden />
                                 ) : null}
                                 {phase === 'reply' ? (
                                     <div className="motion-safe:animate-fade-soft motion-reduce:animate-none">
