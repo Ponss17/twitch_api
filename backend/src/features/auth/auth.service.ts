@@ -3,7 +3,8 @@ export {
     refreshUserToken,
     getValidTokenByLogin,
     getValidTokenForUser,
-    getValidToken
+    getValidToken,
+    usableAccessToken
 } from './accessToken.service';
 
 export type {
