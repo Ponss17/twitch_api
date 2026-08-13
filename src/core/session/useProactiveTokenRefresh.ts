@@ -3,34 +3,22 @@ import type { Session } from '@/core/config/config';
 import { clearValidateCache } from '@/core/api/auth';
 
 /**
- * Intervalo entre un refresh exitoso y el siguiente chequeo.
- * El token de Twitch dura ~4h; renovamos 35 minutos antes para dar
- * margen ante cold starts de Vercel (buffer real en backend: 30min).
+ * El token de Twitch dura ~4h. Disparamos validate ~40 min antes
+ * para que el backend renueve (buffer backend: 30 min).
  */
-const REFRESH_BEFORE_EXPIRY_MS = 35 * 60 * 1000; // 35 minutos
-/**
- * Si no conocemos el tokenExpiresAt exacto, programamos un refresh
- * cada 3h30m para garantizar que el token siempre esté fresco.
- */
-const FALLBACK_REFRESH_INTERVAL_MS = 3.5 * 60 * 60 * 1000; // 3.5 horas
+const REFRESH_BEFORE_EXPIRY_MS = 40 * 60 * 1000;
+/** Sin tokenExpiresAt conocido: forzar validate periódico. */
+const FALLBACK_REFRESH_INTERVAL_MS = 3 * 60 * 60 * 1000;
+/** Reintentos si el validate/renew falla (capados; no spam). */
+const RETRY_DELAYS_MS = [30_000, 60_000, 120_000] as const;
+const MAX_FAILS_BEFORE_COOLDOWN = 5;
+const COOLDOWN_AFTER_MAX_FAILS_MS = 10 * 60 * 1000;
+const VISIBILITY_DEBOUNCE_MS = 15_000;
 
 /**
- * Hook que programa un refresh proactivo del token de Twitch.
- *
- * En lugar de esperar a que una petición falle con 401 para renovar,
- * calcula cuándo vence el token y programa un setTimeout que llama a
- * `refresh()` (del SessionContext) antes de que expire.
- *
- * IMPORTANTE: limpia el caché de validate antes de llamar refresh(),
- * de lo contrario validateSession() devolvería el caché local sin llegar
- * al backend, y el token de Twitch nunca se renovaría.
- *
- * Tras cada refresh exitoso, reprograma el siguiente timer automáticamente,
- * logrando una sesión que se mantiene viva indefinidamente sin acción del usuario.
- *
- * @param session - Sesión actual (puede incluir `tokenExpiresAt` si el backend lo proveyó).
- * @param refresh  - Función del SessionProvider que revalida la sesión.
- * @param authenticated - Solo activa el timer si el usuario está autenticado.
+ * Programa validate/renew del token Twitch antes de que venza.
+ * Limpia el caché de validate para forzar al backend a renovar.
+ * Debounce + tope de fallos para no martillar la API.
  */
 export function useProactiveTokenRefresh(
     session: Session | null,
@@ -45,11 +33,15 @@ export function useProactiveTokenRefresh(
 
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const generationRef = useRef(0);
+    const failCountRef = useRef(0);
+    const inFlightRef = useRef(false);
+    const lastVisibilityRenewRef = useRef(0);
 
     useEffect(() => {
         if (!authenticated || !session) return;
         const generation = ++generationRef.current;
         let active = true;
+        failCountRef.current = 0;
 
         function clearTimer() {
             if (timerRef.current !== null) {
@@ -58,49 +50,72 @@ export function useProactiveTokenRefresh(
             }
         }
 
-        function scheduleNext() {
-            if (!active || generation !== generationRef.current) return;
-            clearTimer();
-
-            let delayMs: number;
-
+        function delayUntilNextRenew(): number {
             const currentSession = sessionRef.current;
             if (currentSession?.tokenExpiresAt && currentSession.tokenExpiresAt > Date.now()) {
-                // Tenemos la fecha exacta de expiración — calcular el delay preciso
                 const msUntilExpiry = currentSession.tokenExpiresAt - Date.now();
-                delayMs = Math.max(msUntilExpiry - REFRESH_BEFORE_EXPIRY_MS, 60_000);
-            } else {
-                // Sin fecha conocida → usar intervalo fijo de 3.5h
-                delayMs = FALLBACK_REFRESH_INTERVAL_MS;
+                return Math.max(msUntilExpiry - REFRESH_BEFORE_EXPIRY_MS, 5_000);
             }
+            return FALLBACK_REFRESH_INTERVAL_MS;
+        }
 
-            timerRef.current = setTimeout(async () => {
-                if (!active || generation !== generationRef.current) return;
-                // CRÍTICO: limpiar el caché de validate antes de llamar refresh().
-                // Sin esto, validateSession() devuelve el caché local sin
-                // llegar al backend, y el token de Twitch nunca se renueva.
-                clearValidateCache(sessionRef.current);
-
-                try {
-                    await refreshRef.current();
-                    if (active && generation === generationRef.current) scheduleNext();
-                } catch {
-                    if (active && generation === generationRef.current) {
-                        timerRef.current = setTimeout(() => scheduleNext(), 5 * 60 * 1000);
-                    }
+        async function runRenew() {
+            if (!active || generation !== generationRef.current) return;
+            if (inFlightRef.current) return;
+            inFlightRef.current = true;
+            clearValidateCache(sessionRef.current);
+            try {
+                await refreshRef.current();
+                failCountRef.current = 0;
+                if (active && generation === generationRef.current) {
+                    scheduleNext(delayUntilNextRenew());
                 }
+            } catch {
+                if (!active || generation !== generationRef.current) return;
+                failCountRef.current += 1;
+                if (failCountRef.current >= MAX_FAILS_BEFORE_COOLDOWN) {
+                    failCountRef.current = 0;
+                    scheduleNext(COOLDOWN_AFTER_MAX_FAILS_MS);
+                    return;
+                }
+                const idx = Math.min(failCountRef.current - 1, RETRY_DELAYS_MS.length - 1);
+                scheduleNext(RETRY_DELAYS_MS[idx] ?? 120_000);
+            } finally {
+                inFlightRef.current = false;
+            }
+        }
+
+        function scheduleNext(delayMs: number) {
+            if (!active || generation !== generationRef.current) return;
+            clearTimer();
+            timerRef.current = setTimeout(() => {
+                void runRenew();
             }, delayMs);
         }
 
-        scheduleNext();
+        const onVisible = () => {
+            if (document.visibilityState !== 'visible') return;
+            if (!active || generation !== generationRef.current) return;
+            const now = Date.now();
+            if (now - lastVisibilityRenewRef.current < VISIBILITY_DEBOUNCE_MS) return;
+            const expiresAt = sessionRef.current?.tokenExpiresAt;
+            const nearExpiry =
+                !expiresAt || expiresAt - now < REFRESH_BEFORE_EXPIRY_MS + 5 * 60 * 1000;
+            if (!nearExpiry) return;
+            lastVisibilityRenewRef.current = now;
+            void runRenew();
+        };
+
+        scheduleNext(delayUntilNextRenew());
+        document.addEventListener('visibilitychange', onVisible);
 
         return () => {
             active = false;
-            // Invalidate this effect's generation without clobbering a newer effect's value.
             if (generationRef.current === generation) {
                 generationRef.current = generation + 1;
             }
             clearTimer();
+            document.removeEventListener('visibilitychange', onVisible);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [authenticated, session?.tokenExpiresAt, session?.userId]);

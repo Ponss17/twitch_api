@@ -19,9 +19,16 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     updateLastActive: mockUpdateLastActive
 }));
 
-jest.mock('../../backend/src/features/auth/auth.service', () => ({
-    getValidTokenForUser: (...args: unknown[]) => mockGetValidTokenForUser(...args)
-}));
+jest.mock('../../backend/src/features/auth/auth.service', () => {
+    const actual = jest.requireActual('../../backend/src/features/auth/auth.service') as Record<
+        string,
+        unknown
+    >;
+    return {
+        ...actual,
+        getValidTokenForUser: (...args: unknown[]) => mockGetValidTokenForUser(...args)
+    };
+});
 
 jest.mock('../../backend/src/core/database/cacheService', () => ({
     get: (...args: unknown[]) => mockCacheGet(...args),
@@ -158,19 +165,38 @@ describe('authMiddleware — cookie session', () => {
         expect(req.userId).toBe('cookie-user');
     });
 
-    it('falla cerrado si no puede consultar el estado distribuido', async () => {
+    it('mantiene la cookie del panel si falla el refresh OAuth de Twitch', async () => {
+        const { AppError } = await import('../../backend/src/core/errors/AppError');
         const cookieValue = createSessionCookieValue('cookie-user', 'session-nonce');
+        const clearCookie = jest.fn().mockReturnThis();
         const res = mockRes();
+        res.clearCookie = clearCookie;
         const req = mockReq({
             path: '/api/dashboard/summary/',
             originalUrl: '/api/dashboard/summary/',
             headers: { cookie: `${SESSION_COOKIE_NAME}=${encodeURIComponent(cookieValue)}` }
         });
-        mockSensitiveGet.mockResolvedValue({ status: 'unavailable', value: null });
+
+        mockGetUser.mockResolvedValue({
+            userId: 'cookie-user',
+            login: 'ponss',
+            displayName: 'Ponss',
+            accessToken: 'stale-tok',
+            tokenExpiresAt: Date.now() - 60_000,
+            isActive: true,
+            timezone: 'UTC'
+        });
+        mockGetValidTokenForUser.mockRejectedValueOnce(
+            new AppError('Sesión expirada. Por favor, vuelve a autenticarte o pide ayuda a Ponss 🦆', 401)
+        );
 
         await checkToken(req, res, next);
 
-        expect(res.status).toHaveBeenCalledWith(503);
-        expect(next).not.toHaveBeenCalled();
+        expect(next).toHaveBeenCalled();
+        expect(clearCookie).not.toHaveBeenCalled();
+        expect(res.locals.isCookieSession).toBe(true);
+        expect(req.userId).toBe('cookie-user');
+        // Seguro: no adjuntar access token Twitch ya vencido (Helix fallará en el endpoint).
+        expect(req.twitchToken).toBeUndefined();
     });
 });
