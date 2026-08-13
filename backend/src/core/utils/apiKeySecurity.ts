@@ -11,7 +11,7 @@ export function normalizeApiKey(apiKey: string): string {
 }
 
 export function apiKeyLookupHash(apiKey: string): string {
-    // codeql[js/insufficient-password-hash] API keys are high-entropy system tokens, HMAC is cryptographically sufficient
+    // codeql[js/insufficient-password-hash] Huella HMAC de API key (alta entropía), no hash de password
     return crypto
         .createHmac('sha256', getPrimaryHmacSecret())
         .update(normalizeApiKey(apiKey))
