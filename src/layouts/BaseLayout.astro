@@ -6,6 +6,11 @@ import Analytics from '@vercel/analytics/astro';
 import { staticPath, absoluteAssetUrl } from '@/core/config/paths';
 import { pageTitle } from '@/core/config/pageTitle';
 
+const FONTS_BRAND =
+    'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap';
+const FONTS_APP =
+    'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap';
+
 export interface Props {
     /** Nombre de la página; se formatea como «Página | LosPerris». */
     page?: string;
@@ -45,6 +50,7 @@ const {
     brandTheme = false
 } = Astro.props;
 
+const fontsHref = brandTheme ? FONTS_BRAND : FONTS_APP;
 const themeInitScriptPath = staticPath(
     brandTheme ? '/js/brand-theme-init.js' : '/js/theme-init.js'
 );
@@ -118,17 +124,7 @@ const swScope = staticPath('/');
         })}></script>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link rel="preconnect" href="https://cdn.discordapp.com" />
-        <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=Inter:wght@300..800&family=Plus+Jakarta+Sans:wght@400..800&family=Rubik:wght@400..900&family=Space+Grotesk:wght@400..700&display=swap"
-        />
-        <noscript>
-            <link
-                rel="stylesheet"
-                href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=Inter:wght@300..800&family=Plus+Jakarta+Sans:wght@400..800&family=Rubik:wght@400..900&family=Space+Grotesk:wght@400..700&display=swap"
-            />
-        </noscript>
+        <link rel="stylesheet" href={fontsHref} />
         <title>{documentTitle}</title>
         <script is:inline src={staticPath('/js/speed-insights-redaction.js')}></script>
         <SpeedInsights scriptSrc="https://va.vercel-scripts.com/v1/speed-insights/script.js" />

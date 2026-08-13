@@ -1,0 +1,28 @@
+@keyframes landing-levitate {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+    50% {
+        transform: translate3d(0, -10px, 0);
+    }
+}
+
+.landing-float {
+    contain: layout paint;
+    overflow: clip;
+    isolation: isolate;
+}
+
+.landing-levitate {
+    animation: landing-levitate var(--lev-dur, 5.5s) ease-in-out infinite;
+    animation-delay: var(--lev-delay, 0s);
+    will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .landing-levitate {
+        animation: none;
+        will-change: auto;
+    }
+}
