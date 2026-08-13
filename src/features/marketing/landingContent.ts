@@ -41,7 +41,7 @@ export const FEATURE_STEPS = [
     {
         n: '01',
         title: 'Conecta Twitch',
-        text: 'Entras con tu cuenta de streamer. No pedimos tarjeta ni instalas nada: el panel queda en el navegador.',
+        text: 'Entras con tu cuenta de streamer. Todo funciona directo en el navegador, sin necesidad de instalar programas adicionales.',
         visual: 'connect'
     },
     {
@@ -78,8 +78,8 @@ export const PANEL_ITEMS = [
 
 export const FIT_POINTS = [
     {
-        title: 'Sin tarjeta',
-        text: 'El panel es gratis. No hay plan de pago para usarlo.'
+        title: '100% Gratis',
+        text: 'El panel es completamente gratis y sin costos ocultos.'
     },
     {
         title: 'Sin instalar',
@@ -134,7 +134,7 @@ export const FAQ_ITEMS = [
     {
         id: 'gratis',
         title: '¿Es gratis?',
-        content: 'Sí. LosPerrisAPI es gratis. No pedimos tarjeta ni hay plan de pago para usar el panel.'
+        content: 'Sí. LosPerrisAPI es completamente gratis. Puedes usar todas las funciones del panel sin costo.'
     },
     {
         id: 'bots',

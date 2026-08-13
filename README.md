@@ -5,9 +5,8 @@
 
   <p>
     <img src="https://img.shields.io/github/actions/workflow/status/Ponss17/twitch_api/ci.yml?branch=master&label=CI&logo=github&style=flat-square" alt="CI Status" />
-    <img src="https://img.shields.io/github/actions/workflow/status/Ponss17/twitch_api/codeql.yml?branch=master&label=CodeQL&logo=github&style=flat-square" alt="CodeQL Status" />
     <img src="https://img.shields.io/badge/license-Source--Available-blueviolet?style=flat-square" alt="License: Source-Available" />
-    <img src="https://img.shields.io/badge/security%20policy-SECURITY.md-critical?style=flat-square&logo=shield" alt="Security Policy" />
+    <img src="https://img.shields.io/badge/security%20policy-SECURITY.md-blue?style=flat-square&logo=shield" alt="Security Policy" />
     <img src="https://img.shields.io/badge/platform-Vercel%20%2B%20Supabase-black?style=flat-square&logo=vercel" alt="Platform" />
     <img src="https://img.shields.io/badge/node-22-339933?style=flat-square&logo=node.js" alt="Node 22" />
   </p>
