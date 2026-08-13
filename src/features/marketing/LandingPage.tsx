@@ -1,484 +1,156 @@
-import React, { useEffect, useState } from 'react';
-import { LoginDisclaimerModal } from '@/shared/ui/LoginDisclaimerModal';
-import { VerifyingSessionModal } from '@/shared/ui/VerifyingSessionModal';
-import { AppLogo } from '@/shared/ui/AppLogo';
-import {
-    resolveSessionFromUrl,
-    markDashboardSplashForFreshLogin,
-    clearDashboardSplashFlags,
-    getSession,
-    runLegacyPanelSessionMigration,
-    takeLegacyReloginRedirect,
-    consumeLegacyReloginNotice
-} from '@/core/api/auth';
-import { appPath, legalPath, saveDocsReturnPath } from '@/core/config/paths';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { appPath } from '@/core/config/paths';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
-import { Accordion } from '@/shared/ui/Accordion';
-import { TwitchIcon, DiscordIcon } from '@/shared/ui/icons/BrandIcons';
-import { UserRoundCheck, Clapperboard, Megaphone, TrendingUp, Binoculars, Dices, Swords, MessageSquare, Book, ArrowRight, Copy, Check } from 'lucide-react';
-import { MAGIC8_ICON, RUSSIAN_ICON, SLOTS_ICON } from '@/features/minigames/icons';
-import { copyText } from '@/core/utils/clipboard';
+import { LandingHeader } from './LandingHeader';
+import { LandingHero } from './LandingHero';
+import { LandingFeatures } from './LandingFeatures';
+import { LandingFit } from './LandingFit';
+import { LandingFaq } from './LandingFaq';
 
-import Lenis from 'lenis';
-import 'lenis/dist/lenis.css';
-
-const GRID_BG = 'bg-bg-main';
-
-const GRID_STYLE: React.CSSProperties = {
-    backgroundImage: `
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
-    `,
-    backgroundSize: '60px 60px'
-};
-
-
-
-const CMD_CODE =
-    'rounded border border-primary/15 bg-primary/10 px-1.5 py-0.5 font-mono text-[0.95em] text-primary/80';
-
-const FEATURE_CATEGORIES = [
-    {
-        title: 'Comandos',
-        description: 'Interacción directa y automática para dinamizar tu chat.',
-        cards: [
-            { icon: UserRoundCheck, title: 'Followage', text: 'Muestra cuánto tiempo lleva un usuario siguiendo el canal. ¡Celebra la lealtad!', tag: '!followage' },
-            { icon: Clapperboard, title: 'Clips', text: 'Captura los mejores momentos al instante.', tag: '!clip' },
-            { icon: Megaphone, title: 'Shoutout', text: 'Promociona a otros streamers con un solo comando.', tag: '!so @user' }
-        ]
-    },
-    {
-        title: 'Herramientas',
-        description: 'Utilidades prácticas para explorar información y dinamizar tu stream.',
-        cards: [
-            { icon: TrendingUp, title: 'Tendencias', text: 'Ranking de palabras en tiempo real. Descubre de qué habla tu chat.' },
-            { icon: Binoculars, title: 'Stalker', text: 'Investiga perfiles y obtén info pública detallada.' },
-            { icon: Dices, title: 'Ruleta', text: 'Juego de azar para sorteos o decisiones rápidas en vivo.' }
-        ]
-    },
-    {
-        title: 'Minijuegos',
-        description: 'Mantén a tu audiencia entretenida incluso cuando no estás.',
-        cards: [
-            { icon: MAGIC8_ICON, title: 'Bola 8', text: 'Respuestas aleatorias para las dudas más existenciales de tu chat.', tag: '!8ball' },
-            { icon: RUSSIAN_ICON, title: 'Ruleta Rusa', text: 'Prueba tu suerte con un revólver virtual. ¿Sobrevivirás?', tag: '!ruleta' },
-            { icon: Swords, title: 'Duelo', text: 'Desafía a otros a un combate narrado. En Nightbot: 3 mensajes del bot.', tag: '!duelo @user' },
-            { icon: SLOTS_ICON, title: 'Slots', text: 'Tragamonedas del chat. En Nightbot: 3 mensajes (carretes). En otros bots: solo el resultado.', tag: '!slots' }
-        ]
-    },
-    {
-        title: 'Soporte',
-        description: 'Ayuda y documentación para que nunca te quedes atrás.',
-        cards: [
-            { icon: MessageSquare, title: 'Feedback', text: 'Reporta errores o sugiere nuevas funciones directamente.' },
-            { icon: Book, title: 'Documentación', text: 'Guías paso a paso para configurar tu bot en segundos.' },
-            { icon: DiscordIcon, title: 'Discord', text: 'Únete a nuestra comunidad para obtener soporte en vivo y compartir ideas.' }
-        ]
-    }
-] as const;
-
-const FAQ_ITEMS = [
-    {
-        q: '¿Cómo empiezo a usar la API?',
-        a: 'Simplemente conecta tu cuenta de Twitch usando el botón de arriba. Una vez autenticado, obtendrás tu API key personal y podrás configurar los comandos desde el dashboard.'
-    },
-    {
-        q: '¿Es gratis?',
-        a: 'Sí, la API es completamente gratuita. Todos los comandos y herramientas están disponibles sin costo alguno.'
-    },
-    {
-        q: '¿Necesito un bot para usar los comandos?',
-        a: 'Sí, necesitas integrar la API con tu bot de Twitch (como Nightbot, StreamElements, o tu propio bot). La documentación incluye guías para las plataformas más populares.'
-    },
-    {
-        q: '¿Qué comandos están disponibles?',
-        a: 'Tenemos comandos de información (followage, clips, shoutout), herramientas (tendencias, stalker, ruleta) y minijuegos (bola 8, ruleta rusa, duelo, slots). Revisa la sección de arriba para ver todos los detalles.'
-    },
-    {
-        q: '¿Dónde puedo obtener soporte?',
-        a: 'Puedes revisar la documentación completa, unirte a nuestro servidor de Discord, o enviar feedback directamente desde el dashboard. Estamos aquí para ayudarte.'
-    }
-];
-
+const LoginDisclaimerModal = lazy(() =>
+    import('@/shared/ui/LoginDisclaimerModal').then((m) => ({ default: m.LoginDisclaimerModal }))
+);
+const VerifyingSessionModal = lazy(() =>
+    import('@/shared/ui/VerifyingSessionModal').then((m) => ({ default: m.VerifyingSessionModal }))
+);
 
 export function LandingPage() {
     const [scrolled, setScrolled] = useState(false);
     const [disclaimerOpen, setDisclaimerOpen] = useState(false);
     const [isVerifying, setIsVerifying] = useState(false);
-    const [isCopied, setIsCopied] = useState(false);
     const [hasSession, setHasSession] = useState(false);
     const [legacyReloginNotice, setLegacyReloginNotice] = useState(false);
-    const [requestStatus, setRequestStatus] = useState<'idle' | 'loading' | 'success'>('idle');
-    const [latency, setLatency] = useState(142);
-
-    const copyTerminal = async () => {
-        const text = 'curl -G "https://ttv.losperris.dev/twitch/followage" -d "channel=losperris" -d "user=mynana17" -d "apiKey=sk_a1b2c3d4..."';
-        const ok = await copyText(text);
-        if (ok) {
-            setIsCopied(true);
-            setTimeout(() => setIsCopied(false), 2000);
-        }
-    };
-
-    const handleRunRequest = () => {
-        if (requestStatus === 'loading') return;
-        setRequestStatus('idle'); // Reset if it was success
-        setTimeout(() => {
-            setRequestStatus('loading');
-            const newLatency = Math.floor(Math.random() * (150 - 45 + 1)) + 45;
-            setLatency(newLatency);
-            setTimeout(() => setRequestStatus('success'), newLatency + 400);
-        }, 50);
-    };
 
     useEffect(() => {
-        clearDashboardSplashFlags();
+        void import('@/core/api/auth').then(
+            ({
+                clearDashboardSplashFlags,
+                runLegacyPanelSessionMigration,
+                takeLegacyReloginRedirect,
+                consumeLegacyReloginNotice,
+                getSession,
+                resolveSessionFromUrl,
+                markDashboardSplashForFreshLogin
+            }) => {
+                clearDashboardSplashFlags();
+                runLegacyPanelSessionMigration();
+                takeLegacyReloginRedirect();
+                if (consumeLegacyReloginNotice()) {
+                    setLegacyReloginNotice(true);
+                }
 
-        // Usuarios con apiKey/token viejos en LS: limpiar y pedir re-login (cookie).
-        runLegacyPanelSessionMigration();
-        takeLegacyReloginRedirect(); // ya estamos en landing
-        if (consumeLegacyReloginNotice()) {
-            setLegacyReloginNotice(true);
-        }
+                setHasSession(!!getSession());
 
-        setHasSession(!!getSession());
+                void (async () => {
+                    const params = new URLSearchParams(window.location.search);
+                    const authParam = params.get('auth');
 
-        void (async () => {
-            const params = new URLSearchParams(window.location.search);
-            const authParam = params.get('auth');
+                    if (authParam) {
+                        setIsVerifying(true);
+                        reportSessionLoadProgress({
+                            progress: 12,
+                            label: 'Preparando tu panel...',
+                            cached: false
+                        });
+                        markDashboardSplashForFreshLogin();
+                        window.location.href =
+                            appPath('/dashboard/') + `?auth=${encodeURIComponent(authParam)}`;
+                        return;
+                    }
 
-            // Si hay token en la URL, redirigir al panel INMEDIATAMENTE para que lo consuma él.
-            if (authParam) {
-                setIsVerifying(true);
-                reportSessionLoadProgress({
-                    progress: 12,
-                    label: 'Preparando tu panel...',
-                    cached: false
-                });
-                markDashboardSplashForFreshLogin();
-                window.location.href = appPath('/dashboard/') + `?auth=${encodeURIComponent(authParam)}`;
-                return;
+                    const sessionParams = await resolveSessionFromUrl();
+                    if (sessionParams.isNewLogin !== true) return;
+
+                    setIsVerifying(true);
+                    reportSessionLoadProgress({
+                        progress: 12,
+                        label: 'Preparando tu panel...',
+                        cached: false
+                    });
+                    markDashboardSplashForFreshLogin();
+                    window.location.href = appPath('/dashboard/');
+                })();
             }
-
-            // Si no hay token nuevo, intentar recuperar la sesión local
-            const sessionParams = await resolveSessionFromUrl();
-            const isFreshLogin = sessionParams.isNewLogin === true;
-
-            if (!isFreshLogin) return;
-
-            setIsVerifying(true);
-            reportSessionLoadProgress({
-                progress: 12,
-                label: 'Preparando tu panel...',
-                cached: false
-            });
-            markDashboardSplashForFreshLogin();
-            window.location.href = appPath('/dashboard/');
-        })();
+        );
     }, []);
 
     useEffect(() => {
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            orientation: 'vertical',
-            gestureOrientation: 'vertical',
-            smoothWheel: true,
-            wheelMultiplier: 1,
-            touchMultiplier: 2,
-            infinite: false
+        let cancelled = false;
+        let cleanup: (() => void) | undefined;
+
+        void import('lenis/dist/lenis.css');
+        void import('lenis').then(({ default: Lenis }) => {
+            if (cancelled) return;
+
+            const lenis = new Lenis({
+                duration: 1.2,
+                easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                orientation: 'vertical',
+                gestureOrientation: 'vertical',
+                smoothWheel: true,
+                wheelMultiplier: 1,
+                touchMultiplier: 2,
+                infinite: false
+            });
+
+            const onLenisScroll = ({ scroll }: { scroll: number }) => setScrolled(scroll > 20);
+            lenis.on('scroll', onLenisScroll);
+
+            let rafId = 0;
+            const raf = (time: number) => {
+                lenis.raf(time);
+                rafId = requestAnimationFrame(raf);
+            };
+            rafId = requestAnimationFrame(raf);
+
+            const anchorHandler = (e: Event) => {
+                const anchor = e.currentTarget as HTMLAnchorElement;
+                const href = anchor.getAttribute('href');
+                if (!href || href === '#') return;
+                e.preventDefault();
+                lenis.scrollTo(href);
+            };
+
+            const anchors = document.querySelectorAll('a[href^="#"]');
+            anchors.forEach((anchor) => anchor.addEventListener('click', anchorHandler));
+
+            cleanup = () => {
+                cancelAnimationFrame(rafId);
+                lenis.off('scroll', onLenisScroll);
+                lenis.destroy();
+                anchors.forEach((anchor) => anchor.removeEventListener('click', anchorHandler));
+            };
         });
 
-        const onLenisScroll = ({ scroll }: { scroll: number }) => setScrolled(scroll > 20);
-        lenis.on('scroll', onLenisScroll);
-
-        let rafId = 0;
-        const raf = (time: number) => {
-            lenis.raf(time);
-            rafId = requestAnimationFrame(raf);
-        };
-        rafId = requestAnimationFrame(raf);
-
-        const anchorHandler = (e: Event) => {
-            const anchor = e.currentTarget as HTMLAnchorElement;
-            const href = anchor.getAttribute('href');
-            if (!href || href === '#') return;
-            e.preventDefault();
-            lenis.scrollTo(href);
-        };
-
-        const anchors = document.querySelectorAll('a[href^="#"]');
-        anchors.forEach((anchor) => anchor.addEventListener('click', anchorHandler));
-
         return () => {
-            cancelAnimationFrame(rafId);
-            lenis.off('scroll', onLenisScroll);
-            lenis.destroy();
-            anchors.forEach((anchor) => anchor.removeEventListener('click', anchorHandler));
+            cancelled = true;
+            cleanup?.();
         };
     }, []);
 
+    const openLogin = () => setDisclaimerOpen(true);
+
     return (
-        <div className={`relative flex flex-1 flex-col font-[Outfit,sans-serif] ${GRID_BG}`} style={GRID_STYLE}>
-            <header
-                className={`fixed inset-x-0 top-0 z-[1000] border-b backdrop-blur-xl transition-colors duration-300 ${scrolled
-                    ? 'border-border-strong bg-bg-main/90'
-                    : 'border-border-subtle bg-bg-main/50'
-                    }`}
-            >
-                <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-3 px-6 py-2 md:flex-row md:gap-0 md:px-8 md:py-3">
-                    <a href={appPath('/')} className="flex items-center gap-3 text-inherit no-underline">
-                        <AppLogo
-                            className="h-8 w-8 shrink-0 text-primary md:h-11 md:w-11"
-                            aria-hidden
-                        />
-                        <h1 className="m-0 text-lg font-extrabold tracking-tight text-text-main md:text-2xl">
-                            LosPerris <span className="text-primary">Twitch Api</span>
-                        </h1>
-                    </a>
-                    <nav className="flex w-full justify-center gap-2.5 md:w-auto md:gap-[15px]">
-                        <a
-                            href={appPath('/docs')}
-                            onClick={saveDocsReturnPath}
-                            className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-text-muted no-underline transition hover:bg-text-main/5 hover:text-text-main"
-                        >
-                            <Book className="w-4" /> Documentación
-                        </a>
-                        <a
-                            href="https://discord.gg/PJbExZe7Tp"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-text-muted no-underline transition hover:bg-text-main/5 hover:text-text-main"
-                        >
-                            <DiscordIcon className="w-4" /> Comunidad
-                        </a>
-                    </nav>
-                </div>
-            </header>
+        <div className="relative flex flex-1 flex-col bg-bg-main">
+            <LandingHeader scrolled={scrolled} hasSession={hasSession} onLoginClick={openLogin} />
 
-            <div className="relative z-[1] mx-auto w-full max-w-[1400px] flex-1 px-6 md:px-8 pt-12">
-                <section className="grid min-h-0 items-center gap-16 py-24 md:min-h-[88vh] md:grid-cols-2 md:gap-16 md:py-0">
-                    <div className="max-w-[600px] text-center md:text-left">
-                        <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-border-strong bg-text-main/5 px-3.5 py-1.5 text-[0.8125rem] font-medium tracking-wide text-text-muted backdrop-blur-md transition-colors hover:border-white/[0.15] hover:bg-text-main/5">
-                            <span className="relative flex h-2 w-2">
-                                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
-                            </span>
-                            v5 · Beta activa
-                        </div>
-                        <h2
-                            className="mb-5 text-[clamp(2.8rem,4.5vw,4.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-text-main"
-                        >
-                            Comandos para tu
-                            <br />
-                            <span className="text-primary">Stream.</span>
-                        </h2>
-                        <p
-                            className="mb-8 text-lg leading-relaxed text-text-muted"
-                        >
-                            {legacyReloginNotice ? (
-                                <>
-                                    Mejoramos la seguridad del panel: tu sesión anterior ya no es válida.
-                                    Vuelve a iniciar sesión con Twitch y entras al panel como siempre.
-                                </>
-                            ) : (
-                                <>
-                                    Configura <code className={CMD_CODE}>!followage</code>,{' '}
-                                    <code className={CMD_CODE}>!clip</code>,{' '}
-                                    <code className={CMD_CODE}>!shoutout</code> y más en segundos. Sin
-                                    complicaciones.
-                                </>
-                            )}
-                        </p>
-                        <div
-                            className="mb-6 flex flex-wrap justify-center gap-4 md:justify-start"
-                        >
-                            {hasSession ? (
-                                <a
-                                    href={appPath('/dashboard/')}
-                                    className="inline-flex items-center gap-2.5 rounded-lg bg-primary px-7 py-3 text-[0.95rem] font-semibold text-white no-underline transition-colors duration-200 hover:bg-primary-hover"
-                                >
-                                    Ir al Panel
-                                    <ArrowRight className="w-4" />
-                                </a>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => setDisclaimerOpen(true)}
-                                    className="inline-flex items-center gap-2.5 rounded-lg bg-primary px-7 py-3 text-[0.95rem] font-semibold text-white transition-colors duration-200 hover:bg-primary-hover"
-                                >
-                                    <TwitchIcon className="w-4 brightness-0 invert" />
-                                    {legacyReloginNotice
-                                        ? 'Volver a conectar con Twitch'
-                                        : 'Iniciar Sesión con Twitch'}
-                                </button>
-                            )}
-                            <a
-                                href="#features"
-                                className="inline-flex items-center gap-2 rounded-lg border border-white/[0.12] px-[22px] py-[11px] text-[0.9rem] font-medium text-text-muted no-underline transition duration-300 hover:border-primary/50 hover:bg-primary/[0.03] hover:text-white"
-                            >
-                                Ver funciones <ArrowRight className="w-4" />
-                            </a>
-                        </div>
-                        <p className="mb-6 text-[0.8rem] text-text-muted">
-                            * Al conectar aceptas nuestra{' '}
-                            <a
-                                href={legalPath('privacidad')}
-                                className="text-text-muted underline underline-offset-2 transition hover:text-primary"
-                            >
-                                política de privacidad
-                            </a>{' '}
-                            y{' '}
-                            <a
-                                href={legalPath('terminos')}
-                                className="text-text-muted underline underline-offset-2 transition hover:text-primary"
-                            >
-                                términos de uso
-                            </a>
-                            .
-                        </p>
-                    </div>
-
-                    <div
-                        className="relative hidden items-center justify-center md:flex"
-                    >
-                        <div className="w-full max-w-[500px] overflow-hidden rounded-xl border border-border-strong bg-[#0a0a0a] shadow-2xl">
-                            <div className="flex items-center justify-between border-b border-border-subtle bg-text-main/5 px-4 py-3">
-                                <div className="flex items-center gap-1.5 opacity-60 transition-opacity hover:opacity-100">
-                                    <span className="font-mono text-xs text-white/40">ttv.losperris.dev</span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={handleRunRequest}
-                                        disabled={requestStatus === 'loading'}
-                                        className="flex items-center gap-1.5 rounded bg-text-main/5 px-2 py-1 text-xs text-white/70 transition hover:bg-white/[0.15] hover:text-white disabled:opacity-50"
-                                    >
-                                        {requestStatus === 'loading'
-                                            ? 'Petición en curso...'
-                                            : requestStatus === 'success'
-                                                ? 'Reintentar'
-                                                : 'Realizar Petición'}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => void copyTerminal()}
-                                        className="flex items-center gap-1.5 text-xs text-white/60 transition hover:text-primary/80"
-                                    >
-                                        {isCopied ? <Check className="w-3.5 text-primary/80" /> : <Copy className="w-3.5" />}
-                                        {isCopied ? 'Copiado' : 'Copiar'}
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="space-y-0 p-6 font-mono text-[0.85rem] leading-8 text-white/80">
-                                <div>
-                                    <span className="font-bold text-primary/80">$</span>
-                                    <span className="font-semibold text-white"> curl</span>
-                                    <span className="text-white/60"> -G</span>
-                                    <span> &quot;https://ttv.losperris.dev/twitch/followage&quot;</span>
-                                </div>
-                                <div>
-                                    <span className="text-white/60"> -d</span>
-                                    <span> &quot;channel=losperris&quot;</span>
-                                </div>
-                                <div>
-                                    <span className="text-white/60"> -d</span>
-                                    <span> &quot;user=mynana17&quot;</span>
-                                </div>
-                                <div>
-                                    <span className="text-white/60"> -d</span>
-                                    <span> &quot;apiKey=</span>
-                                    <span className="text-white/60">sk_a1b...</span>
-                                    <span>&quot;</span>
-                                </div>
-
-                                {requestStatus === 'loading' && (
-                                    <div className="mt-4 flex items-center gap-2 text-[0.8rem] text-white/50 animate-pulse">
-                                        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent"></span>
-                                        Ejecutando petición...
-                                    </div>
-                                )}
-
-                                {requestStatus === 'success' && (
-                                    <div className="mt-3 animate-fade-soft border-t border-border-subtle pt-3 text-[0.8rem]">
-                                        <div className="mb-1.5 flex items-center gap-2">
-                                            <span className="text-[0.65rem] font-bold text-[#10b981]">200 OK</span>
-                                            <span className="text-[0.65rem] text-white/30">{latency}ms</span>
-                                        </div>
-                                        <div className="text-white/60">
-                                            <span className="mr-1.5 text-[#10b981]">✔</span>@mynana17 sigue losperris desde hace 2 años y 1 mes.
-                                        </div>
-                                    </div>
-                                )}
-
-
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="features" className="scroll-mt-[100px] py-16 md:py-24">
-                    <div className="mb-12 text-center">
-
-                        <h2 className="text-5xl font-bold leading-tight tracking-tight text-white">
-                            Funciones de la <span className="text-primary">API</span>
-                        </h2>
-                        <p className="mx-auto mt-4 max-w-[650px] text-lg text-text-muted">
-                            Todo lo que necesitas para tu stream.
-                        </p>
-                    </div>
-
-                    <div className="space-y-20">
-                        {FEATURE_CATEGORIES.map((cat) => (
-                            <div key={cat.title}>
-                                <div className="mb-12 text-center">
-                                    <h3 className="text-4xl font-bold tracking-tight text-text-main">{cat.title}</h3>
-                                    <p className="mx-auto mt-3 max-w-[600px] text-text-muted">{cat.description}</p>
-                                </div>
-                                <div className="grid grid-cols-1 gap-6 min-[1024px]:grid-cols-[repeat(auto-fit,minmax(320px,1fr))]">
-                                    {cat.cards.map((card) => (
-                                        <div
-                                            key={card.title}
-                                            className="flex min-h-[200px] flex-col items-center rounded-xl border border-border-strong bg-bg-card p-8 text-center transition hover:border-primary/40"
-                                        >
-                                            <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-[10px] border border-primary/20 bg-primary/10 text-xl text-primary/80">
-                                                <card.icon className="w-5 h-5" />
-                                            </div>
-                                            <h4 className="text-xl font-semibold text-text-main">{card.title}</h4>
-                                            <p className="mt-1.5 text-text-muted">{card.text}</p>
-                                            {'tag' in card && card.tag && (
-                                                <span className="mt-2 inline-block rounded border border-primary/20 bg-primary/10 px-2 py-1 font-mono text-xs text-primary/80">
-                                                    {card.tag}
-                                                </span>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                <section className="pb-20 pt-8">
-                    <div className="mb-12 text-center">
-                        <h2 className="text-4xl font-bold tracking-tight text-text-main">
-                            Preguntas <span className="text-primary">Frecuentes</span>
-                        </h2>
-                        <p className="mt-3 text-text-muted">Resuelve tus dudas sobre la API</p>
-                    </div>
-                    <div className="mx-auto flex max-w-[800px] flex-col">
-                        <Accordion
-                            items={FAQ_ITEMS.map((item) => ({
-                                id: item.q,
-                                title: item.q,
-                                content: item.a
-                            }))}
-                        />
-                    </div>
-                </section>
+            <div className="relative z-[1] flex-1">
+                <LandingHero
+                    hasSession={hasSession}
+                    legacyReloginNotice={legacyReloginNotice}
+                    onLoginClick={openLogin}
+                />
+                <LandingFeatures />
+                <LandingFit />
+                <LandingFaq />
             </div>
 
-            <LoginDisclaimerModal open={disclaimerOpen} onClose={() => setDisclaimerOpen(false)} />
-            <VerifyingSessionModal open={isVerifying} />
+            <Suspense fallback={null}>
+                {disclaimerOpen ? (
+                    <LoginDisclaimerModal open={disclaimerOpen} onClose={() => setDisclaimerOpen(false)} />
+                ) : null}
+                {isVerifying ? <VerifyingSessionModal open={isVerifying} /> : null}
+            </Suspense>
         </div>
     );
 }

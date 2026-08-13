@@ -15,46 +15,54 @@ interface VerifyingSessionModalProps {
     onExited?: () => void;
 }
 
-function useSmoothedProgress(target: number, active: boolean): number {
-    const [displayed, setDisplayed] = useState(0);
+function useSmoothedProgress(
+    target: number,
+    active: boolean,
+    onFrame: (value: number) => void
+) {
     const targetRef = useRef(target);
+    const valueRef = useRef(0);
+    const onFrameRef = useRef(onFrame);
     targetRef.current = target;
+    onFrameRef.current = onFrame;
 
     useEffect(() => {
-        if (!active) {
-            setDisplayed(0);
-            return;
-        }
+        if (!active) return;
+
+        valueRef.current = 0;
+        onFrameRef.current(0);
 
         let raf = 0;
-        const tick = () => {
-            setDisplayed((prev) => {
-                const goal = targetRef.current;
-                
-                // Si la meta oficial es 100 (carga completada), acelerar hacia 100 y detener.
-                if (goal >= 100) {
-                    if (prev >= 100) return 100;
-                    return Math.min(100, prev + Math.max(1, (100 - prev) * 0.15));
-                }
+        let running = true;
 
-                // Si aún no hemos alcanzado la meta parcial dictada por el servidor, ir hacia ella.
-                if (prev < goal) {
-                    return Math.min(99, prev + Math.max(0.1, (goal - prev) * 0.08));
-                } 
-                
-                // Fake progress: Si ya llegamos a la meta parcial, seguimos avanzando
-                // muuuy lentamente para que la barra nunca se vea "congelada".
-                // Topamos en 99% para que nunca marque finalizado hasta que el goal sea 100.
-                return Math.min(99, prev + 0.03);
-            });
+        const tick = () => {
+            if (!running) return;
+
+            const prev = valueRef.current;
+            const goal = targetRef.current;
+            let next: number;
+
+            if (goal >= 100) {
+                next = prev >= 100 ? 100 : Math.min(100, prev + Math.max(1, (100 - prev) * 0.15));
+            } else if (prev < goal) {
+                next = Math.min(99, prev + Math.max(0.1, (goal - prev) * 0.08));
+            } else {
+                next = Math.min(99, prev + 0.03);
+            }
+
+            valueRef.current = next;
+            onFrameRef.current(next);
+
+            if (goal >= 100 && next >= 100) return;
             raf = requestAnimationFrame(tick);
         };
 
         raf = requestAnimationFrame(tick);
-        return () => cancelAnimationFrame(raf);
+        return () => {
+            running = false;
+            cancelAnimationFrame(raf);
+        };
     }, [active]);
-
-    return displayed;
 }
 
 export function VerifyingSessionModal({ open, done = false, onExited }: VerifyingSessionModalProps) {
@@ -70,8 +78,15 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
     const doneTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const targetProgress = barDone ? 100 : detail.progress;
-    const displayedProgress = useSmoothedProgress(targetProgress, visible && !isLeaving);
-    const progressPercent = Math.round(displayedProgress);
+    const barFillRef = useRef<HTMLDivElement>(null);
+    const [progressPercent, setProgressPercent] = useState(0);
+
+    useSmoothedProgress(targetProgress, visible && !isLeaving, (value) => {
+        const fill = barFillRef.current;
+        if (fill) fill.style.width = `${value}%`;
+        const pct = Math.round(value);
+        setProgressPercent((prev) => (prev === pct ? prev : pct));
+    });
 
     // Always call hooks before any early return (Rules of Hooks)
     const { t } = useTranslation();
@@ -137,43 +152,21 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
             aria-label={t.common.aria.verifyingSession}
         >
             <div className="flex flex-col items-center max-w-sm w-full px-6 text-center">
-                {/* Logo con resplandor */}
-                <div className="relative mb-10">
-                    <div className="absolute inset-0 rounded-3xl bg-primary/20 blur-2xl" />
-                    <AppLogo
-                        className="relative h-20 w-20 text-primary object-contain drop-shadow-[0_0_15px_var(--primary)] animate-pulse"
-                    />
-                </div>
+                <AppLogo className="mb-10 h-20 w-20 text-primary" />
 
-                {/* Textos sin spinner, más alineados al diseño Tech Clean */}
-                <div className="mb-6 flex flex-col items-center justify-center h-[4.5rem] w-full">
-                    <h2 className="text-[1.3rem] font-bold tracking-tight text-text-main w-full truncate">
+                <div className="mb-6 flex h-[4.5rem] w-full flex-col items-center justify-center">
+                    <h2 className="w-full truncate text-[1.3rem] font-bold tracking-tight text-text-main">
                         {statusTitle}
                     </h2>
-                    <p className="mt-1 text-[0.85rem] font-medium text-text-muted w-full truncate">
+                    <p className="mt-1 w-full truncate text-[0.85rem] font-medium text-text-muted">
                         {statusHint}
                     </p>
                 </div>
 
-                {/* Barra de progreso de segmentos de datos */}
-                <div className="w-full max-w-[280px] relative flex flex-col items-center">
-                    <div className="flex w-full gap-[3px] h-1 mb-1">
-                        {Array.from({ length: 20 }).map((_, i) => {
-                            const isActive = i < Math.floor((displayedProgress / 100) * 20);
-                            return (
-                                <div
-                                    key={i}
-                                    className={`flex-1 rounded-[2px] transition-colors duration-200 ${
-                                        isActive 
-                                            ? 'bg-primary shadow-[0_0_8px_var(--primary)]' 
-                                            : 'bg-bg-secondary'
-                                    }`}
-                                />
-                            );
-                        })}
+                <div className="relative flex w-full max-w-[280px] flex-col items-center">
+                    <div className="h-0.5 w-full overflow-hidden rounded-full bg-bg-secondary">
+                        <div ref={barFillRef} className="h-full w-0 rounded-full bg-primary" />
                     </div>
-
-                    {/* Porcentaje numérico */}
                     <div className="mt-3 font-mono text-[0.75rem] font-bold tracking-[0.1em] text-primary">
                         {progressPercent}%
                     </div>
