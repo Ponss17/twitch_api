@@ -1,16 +1,20 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { LandingPage } from '@/features/marketing/LandingPage';
+import { staticPath } from '@/core/config/paths';
+
+const lcpShot = staticPath('/img/ss/home.png');
 ---
 
 <BaseLayout
-    title="LosPerris Twitch Api"
-    description="Herramientas avanzadas para tu Stream de Twitch. Genera tu API Key y configura comandos gratis como !followage, !clip, minijuegos y estadísticas en segundos."
+    title="LosPerrisAPI - twitch api"
+    description="Comandos, overlays OBS y minijuegos para tu stream. Compatible con Nightbot, StreamElements y Streamlabs."
     canonical="https://ttv.losperris.dev/"
-    ogTitle="LosPerris Twitch Api"
-    ogDescription="Herramientas para tu Stream. Genera tu API Key y configura comandos como !followage o !clip en segundos."
+    ogTitle="LosPerrisAPI — comandos y overlays para Twitch"
+    ogDescription="Comandos, overlays OBS y minijuegos para Nightbot, StreamElements y Streamlabs."
     footer
     brandTheme
 >
+    <link slot="head" rel="preload" as="image" href={lcpShot} fetchpriority="high" />
     <LandingPage client:idle />
 </BaseLayout>
