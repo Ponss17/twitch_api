@@ -11,7 +11,7 @@ import { BoundedMap, NegativeCache } from '../utils/boundedCache';
 import { jsonError } from '../utils/jsonResponse';
 import { readSessionClaims, clearSessionCookie } from '../utils/sessionCookie';
 import { validateSessionState } from '../utils/sessionState';
-import { getValidTokenForUser } from '../../features/auth/auth.service';
+import { getValidTokenForUser, usableAccessToken } from '../../features/auth/auth.service';
 import {
     type CookieResolveResult,
     isAuthCookieError,
@@ -66,8 +66,37 @@ async function tryResolveCookieSession(
             return { status: 'missing' };
         }
 
-        const { accessToken } = await getValidTokenForUser(user);
-        user.accessToken = accessToken;
+        // Panel cookie ≠ Twitch OAuth. Si el access token (~4h) no se puede renovar,
+        // el usuario sigue autenticado en el panel; Helix fallará en endpoints concretos.
+        // Nunca adjuntar un access token ya vencido a la request.
+        let accessToken: string | undefined = usableAccessToken(user);
+        try {
+            const refreshed = await getValidTokenForUser(user);
+            accessToken = refreshed.accessToken;
+            user.accessToken = accessToken;
+            if (refreshed.tokenExpiresAt) {
+                user.tokenExpiresAt = refreshed.tokenExpiresAt;
+            }
+        } catch (tokenError) {
+            accessToken = usableAccessToken(user);
+            if (isTransientCookieError(tokenError)) {
+                logger.warn(
+                    '[Auth] Twitch token refresh transient for cookie session; keeping panel session:',
+                    (tokenError as Error).message
+                );
+            } else if (isAuthCookieError(tokenError)) {
+                logger.warn(
+                    '[Auth] Twitch OAuth expired/unrefreshable for cookie session; keeping panel session:',
+                    (tokenError as Error).message
+                );
+            } else {
+                logger.warn(
+                    '[Auth] Twitch token refresh unexpected error; keeping panel session:',
+                    (tokenError as Error).message
+                );
+            }
+        }
+
         res.locals.apiUser = user;
         res.locals.isCookieSession = true;
         res.locals.authSource = 'cookie';
@@ -79,12 +108,7 @@ async function tryResolveCookieSession(
         return { status: 'ok', user };
     } catch (error) {
         logger.warn('[Auth] Cookie session error:', (error as Error).message);
-
-        if (isAuthCookieError(error)) {
-            clearSessionCookie(res);
-            return { status: 'missing' };
-        }
-        // DB/red/desconocido: no borrar cookie (evita falsos logouts).
+        // Solo errores de DB/red al cargar el usuario — nunca borrar cookie por Twitch OAuth.
         return { status: 'transient' };
     }
 }
@@ -112,19 +136,35 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             }
 
             try {
-                const { accessToken } = await getValidTokenForUser(user);
+                const { accessToken, tokenExpiresAt } = await getValidTokenForUser(user);
                 user.accessToken = accessToken;
+                if (tokenExpiresAt) user.tokenExpiresAt = tokenExpiresAt;
                 req.twitchToken = accessToken;
             } catch (error) {
+                const stored = usableAccessToken(user);
                 if (isTransientCookieError(error)) {
-                    return respondSessionUnavailable(res, req);
+                    // Cookie panel: no tumbar la sesión por Twitch caído.
+                    if (res.locals.isCookieSession) {
+                        req.twitchToken = stored;
+                    } else {
+                        return respondSessionUnavailable(res, req);
+                    }
+                } else if (isAuthCookieError(error)) {
+                    // API key / bearer: 401. Cookie panel: mantener sesión (Twitch OAuth ≠ logout).
+                    if (res.locals.isCookieSession) {
+                        logger.warn(
+                            '[Auth] Twitch OAuth unusable on cookie request; panel session kept:',
+                            (error as Error).message
+                        );
+                        req.twitchToken = stored;
+                    } else {
+                        return await rejectUnauthorized(req, res, () =>
+                            jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN)
+                        );
+                    }
+                } else {
+                    req.twitchToken = stored;
                 }
-                if (isAuthCookieError(error)) {
-                    return await rejectUnauthorized(req, res, () =>
-                        jsonError(res, 401, MESSAGES.AUTH.INVALID_TOKEN)
-                    );
-                }
-                req.twitchToken = user.accessToken;
             }
 
             throttledUpdateLastActive(user.userId);

@@ -92,10 +92,16 @@ export const withTwitchAuth = async <T>(
                             `[${context}] 401 detected (attempt ${attempts}), refreshing OAuth for cookie session...`
                         );
                         try {
-                            token = await authService.refreshUserToken(userId);
+                            const renewed = await authService.refreshUserToken(userId);
+                            token = renewed.accessToken;
                             req.twitchToken = token;
-                            const apiUser = res.locals.apiUser as { accessToken?: string } | undefined;
-                            if (apiUser) apiUser.accessToken = token;
+                            const apiUser = res.locals.apiUser as
+                                | { accessToken?: string; tokenExpiresAt?: number }
+                                | undefined;
+                            if (apiUser) {
+                                apiUser.accessToken = token;
+                                apiUser.tokenExpiresAt = renewed.tokenExpiresAt;
+                            }
                             continue;
                         } catch (refreshErr) {
                             logger.error(`[${context}] OAuth refresh failed:`, refreshErr);

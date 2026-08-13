@@ -78,13 +78,15 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
             if (!res.locals.isCookieSession) {
                 await establishSession(res, user.userId);
             }
-            // tokenExpiresAt para useProactiveTokenRefresh (no devolver apiKey/token al panel)
+            // tokenExpiresAt fresco (post-renew del middleware) para useProactiveTokenRefresh
             let tokenExpiresAt =
                 user.tokenExpiresAt && user.tokenExpiresAt > 0 ? user.tokenExpiresAt : null;
-            if (!tokenExpiresAt) {
+            // Si el objeto en memoria quedó stale, leer DB (p. ej. renew en otra petición).
+            if (!tokenExpiresAt || tokenExpiresAt < Date.now() + 30 * 60 * 1000) {
                 const fresh = await dbService.getUser(user.userId);
-                tokenExpiresAt =
-                    fresh?.tokenExpiresAt && fresh.tokenExpiresAt > 0 ? fresh.tokenExpiresAt : null;
+                if (fresh?.tokenExpiresAt && fresh.tokenExpiresAt > 0) {
+                    tokenExpiresAt = fresh.tokenExpiresAt;
+                }
             }
             return res.json(
                 panelValidatePayload({
