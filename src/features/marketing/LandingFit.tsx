@@ -132,7 +132,6 @@ export function LandingFit() {
 
                 <LandingReveal className="h-full min-h-[380px]">
                     <div className="flex h-full min-h-[380px] flex-col overflow-hidden rounded-lg border border-border-subtle bg-[#18181b]">
-                            {/* Header de Twitch */}
                             <div className="relative flex items-center justify-center border-b border-white/5 bg-[#18181b] px-4 py-3">
                                 <div className="absolute left-4 opacity-50 hover:opacity-100 cursor-pointer transition-opacity">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -141,7 +140,6 @@ export function LandingFit() {
                                 <UsersIcon className="absolute right-4 h-[18px] w-[18px] text-[#adadb8]" />
                             </div>
 
-                            {/* Selector de comandos */}
                             <div className="border-b border-white/5 bg-[#18181b] px-3 py-2" role="tablist" aria-label="Probar comando">
                                 <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
                                     {FIT_DEMOS.map((item, i) => (
@@ -163,7 +161,6 @@ export function LandingFit() {
                                 </div>
                             </div>
 
-                            {/* Área de mensajes */}
                             <div className="flex min-h-0 flex-1 flex-col py-2 bg-[#18181b]">
                                 <p className="px-4 py-1 text-[13px] leading-5 text-[#adadb8]">
                                     ¡Te damos la bienvenida a la sala de chat de ponss17!
