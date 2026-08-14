@@ -6,7 +6,6 @@ import { landingBtnPrimary, landingBtnSecondary } from './landingContent';
 export function NotFound404() {
     return (
         <section className="relative flex min-h-[calc(100vh-220px)] flex-1 items-center justify-center overflow-hidden px-6 py-16 text-center">
-            {/* Background patterns similar to LandingHero */}
             <div
                 className="pointer-events-none absolute inset-0 opacity-40"
                 style={{

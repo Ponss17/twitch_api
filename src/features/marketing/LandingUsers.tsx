@@ -31,9 +31,7 @@ export function LandingUsers() {
                     setUsers(data.users);
                 }
             })
-            .catch(() => {
-                /* silencioso: la sección se oculta si no hay datos */
-            })
+            .catch(() => {})
             .finally(() => {
                 if (isMounted) setLoading(false);
             });
