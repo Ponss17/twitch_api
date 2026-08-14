@@ -7,7 +7,7 @@ import axios from 'axios';
 import { apiClient, getHeaders } from '../twitch/twitchClient';
 
 export const PUBLIC_USERS_CACHE_KEY = 'system:public_users';
-const CACHE_TTL_SECONDS = 7200;
+const CACHE_TTL_SECONDS = 24 * 60 * 60;
 const DEFAULT_DESCRIPTION =
     'Pionero de LosPerris API. Manteniendo la barra de calidad absurdamente alta.';
 
@@ -126,7 +126,6 @@ export const getPublicUsers = async (_req: Request, res: Response) => {
                     broadcasterType === 'affiliate' || broadcasterType === 'partner'
                         ? broadcasterType
                         : 'streamer',
-                // Copy fijo de marketing: no pasamos la bio de Twitch a la landing.
                 description: DEFAULT_DESCRIPTION
             };
         });
