@@ -136,7 +136,7 @@ export function LandingHero({ hasSession, legacyReloginNotice, onLoginClick }: L
                     >
                         {tab.text}
                     </p>
-                    <div className="mx-auto max-w-[1040px] overflow-hidden rounded-xl border border-border-subtle bg-bg-secondary shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+                    <div className="mx-auto max-w-[1080px] overflow-hidden rounded-xl border border-border-subtle bg-bg-secondary shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
                         <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-2.5">
                             <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
                             <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />

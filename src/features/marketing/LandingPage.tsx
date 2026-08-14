@@ -3,9 +3,11 @@ import { appPath } from '@/core/config/paths';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { LandingHeader } from './LandingHeader';
 import { LandingHero } from './LandingHero';
+import { LandingUsers } from './LandingUsers';
 import { LandingFeatures } from './LandingFeatures';
 import { LandingFit } from './LandingFit';
 import { LandingFaq } from './LandingFaq';
+import { LandingResources } from './LandingResources';
 
 const LoginDisclaimerModal = lazy(() =>
     import('@/shared/ui/LoginDisclaimerModal').then((m) => ({ default: m.LoginDisclaimerModal }))
@@ -142,6 +144,8 @@ export function LandingPage() {
                 />
                 <LandingFeatures />
                 <LandingFit />
+                <LandingUsers />
+                <LandingResources />
                 <LandingFaq />
             </div>
 
