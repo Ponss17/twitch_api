@@ -7,6 +7,7 @@ import { isApiRoute, isJsonApiRoute } from '../utils/routeHelpers';
 import authRoutes from '../../features/auth/auth.routes';
 import apiRouter from '../../routes/index';
 import { getRobotsTxt, getSitemapXml } from '../../features/system/seo.controller';
+import { getPublicUsers } from '../../features/system/systemPublicUsers.controller';
 import { errorHandler } from '../middleware/errorMiddleware';
 import { jsonError } from '../utils/jsonResponse';
 import { stripTwitchPrefix } from '../middleware/twitchPrefix';
@@ -48,6 +49,7 @@ export const configureRoutes = (app: Application) => {
 
     app.get(['/robots.txt', '/api/robots.txt'], preAuthRateLimiter, /* codeql[js/missing-rate-limiting] */ getRobotsTxt);
     app.get(['/sitemap.xml', '/api/sitemap.xml'], preAuthRateLimiter, /* codeql[js/missing-rate-limiting] */ getSitemapXml);
+    app.get(['/api/system/public-users', '/system/public-users'], preAuthRateLimiter, /* codeql[js/missing-rate-limiting] */ getPublicUsers);
 
     app.use(preAuthRateLimiter);
     // codeql[js/missing-rate-limiting] Redis pre-auth limiter is applied above

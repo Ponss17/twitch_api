@@ -17,7 +17,6 @@ export function LandingFaq() {
             </LandingReveal>
             <LandingReveal className="relative z-[1] mx-auto max-w-[720px]">
                 <Accordion
-                    allowMultiple
                     items={FAQ_ITEMS.map((item) => ({
                         id: item.id,
                         title: item.title,

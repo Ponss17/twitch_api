@@ -7,3 +7,4 @@ export * from './systemKey.controller';
 export * from './systemFeedback.controller';
 export * from './systemHealth.controller';
 export * from './systemRealtime.controller';
+export * from './systemPublicUsers.controller';

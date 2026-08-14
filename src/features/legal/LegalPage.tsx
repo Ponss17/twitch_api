@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState, type MouseEvent, type ReactNode } from 'react';
-import { ArrowLeft, FileText, HardDrive, Scale, Shield } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { ArrowLeft, FileText } from 'lucide-react';
 import { appPath, type LegalSection } from '@/core/config/paths';
 import {
     LEGAL_CONTACT_DISCORD,
@@ -20,7 +19,6 @@ const SECTIONS: {
     label: string;
     title: string;
     description: string;
-    icon: LucideIcon;
     Content: () => ReactNode;
 }[] = [
     {
@@ -28,7 +26,6 @@ const SECTIONS: {
         label: 'Privacidad',
         title: 'Política de privacidad',
         description: 'Información sobre el tratamiento de datos personales.',
-        icon: Shield,
         Content: PrivacySectionContent
     },
     {
@@ -36,7 +33,6 @@ const SECTIONS: {
         label: 'Términos',
         title: 'Términos de uso',
         description: 'Condiciones de acceso y uso del servicio.',
-        icon: Scale,
         Content: TermsSectionContent
     },
     {
@@ -44,7 +40,6 @@ const SECTIONS: {
         label: 'Almacenamiento',
         title: 'Política de almacenamiento',
         description: 'Uso de cookies, almacenamiento local y tecnologías similares.',
-        icon: HardDrive,
         Content: CookiesSectionContent
     }
 ];
@@ -100,70 +95,67 @@ export function LegalPage() {
 
     const current = SECTIONS.find((s) => s.id === active) ?? SECTIONS[0];
     const Content = current.Content;
-    const SectionIcon = current.icon;
 
     return (
         <div className="flex flex-1 flex-col bg-bg-main">
-            <header className="sticky top-0 z-10 border-b border-border-strong bg-bg-main/95 backdrop-blur-md">
-                <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-5 py-4">
-                    <a
-                        href={appPath('/')}
-                        onClick={handleBack}
-                        className="inline-flex shrink-0 items-center gap-2 text-sm font-medium text-text-muted no-underline transition hover:text-text-main"
-                    >
-                        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                        Volver
-                    </a>
-                    <nav
-                        className="flex gap-1 rounded-lg border border-border-strong bg-bg-card p-1"
-                        aria-label={t.common.aria.legalSections}
-                    >
-                        {SECTIONS.map((section) => (
-                            <button
-                                key={section.id}
-                                type="button"
-                                onClick={() => selectSection(section.id)}
-                                className={`cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold transition ${
-                                    active === section.id
-                                        ? 'bg-primary text-white'
-                                        : 'text-text-muted hover:bg-text-main/5 hover:text-text-main'
-                                }`}
-                                aria-current={active === section.id ? 'page' : undefined}
-                            >
-                                {section.label}
-                            </button>
-                        ))}
+            <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-12 md:py-16">
+                <a
+                    href={appPath('/')}
+                    onClick={handleBack}
+                    className="mb-10 inline-flex shrink-0 items-center gap-2 text-sm font-medium text-text-muted no-underline transition hover:text-text-main"
+                >
+                    <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                    Volver
+                </a>
+
+                <div className="mb-10">
+                    <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-text-muted">
+                        <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+                        Documentación legal
+                    </p>
+                    <h1 className="mb-8 text-2xl font-bold tracking-tight text-text-main sm:text-3xl">
+                        Centro Legal
+                    </h1>
+                    
+                    <nav className="flex flex-wrap gap-8 border-b border-border-strong" aria-label={t.common.aria.legalSections}>
+                        {SECTIONS.map((section) => {
+                            const isActive = active === section.id;
+                            return (
+                                <button
+                                    key={section.id}
+                                    type="button"
+                                    onClick={() => selectSection(section.id)}
+                                    className={`relative pb-4 text-[0.9rem] font-medium transition-colors cursor-pointer ${
+                                        isActive ? 'text-text-main' : 'text-text-muted hover:text-text-main'
+                                    }`}
+                                    aria-current={isActive ? 'page' : undefined}
+                                >
+                                    {section.label}
+                                    {isActive && (
+                                        <span className="absolute bottom-[-1px] left-0 h-[2px] w-full bg-primary" />
+                                    )}
+                                </button>
+                            );
+                        })}
                     </nav>
                 </div>
-            </header>
 
-            <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-10">
                 <div
                     key={active}
-                    className="animate-fade-soft rounded-2xl border border-border-strong bg-bg-card/60 p-6 sm:p-8"
+                    className="animate-fade-soft"
                 >
-                    <div className="mb-6 flex items-start justify-between gap-4">
+                    <div className="mb-8 flex items-start justify-between gap-4">
                         <div className="min-w-0 flex-1">
-                            <p className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-text-muted">
-                                <FileText className="h-3.5 w-3.5" aria-hidden="true" />
-                                Documentación legal
-                            </p>
-                            <h1 className="mb-2 text-2xl font-extrabold tracking-tight text-text-main sm:text-3xl">
+                            <h2 className="mb-2 text-2xl font-bold tracking-tight text-text-main sm:text-3xl">
                                 {current.title}
-                            </h1>
-                            <p className="text-sm leading-relaxed text-text-muted">{current.description}</p>
-                        </div>
-                        <div
-                            className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/30 text-primary"
-                            aria-hidden="true"
-                        >
-                            <SectionIcon className="h-5 w-5" />
+                            </h2>
+                            <p className="text-base text-text-muted">{current.description}</p>
                         </div>
                     </div>
 
                     <div className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-border-subtle pb-6 text-xs text-text-muted">
                         <span>
-                            Servicio: <strong className="font-medium text-text-muted">{LEGAL_OPERATOR}</strong>
+                            Servicio: <strong className="font-medium text-text-main">{LEGAL_OPERATOR}</strong>
                         </span>
                         <span>Última actualización: {LEGAL_UPDATED}</span>
                     </div>

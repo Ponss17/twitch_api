@@ -7,9 +7,9 @@ export type Locale = 'es' | 'en' | 'pt';
 /** Traducciones por defecto en español. */
 export const es = {
     legal: {
-        introTerms: 'Los presentes términos regulan el acceso y uso de **LosPerrisBot**, disponible en [ttv.losperris.dev](https://ttv.losperris.dev). Al utilizar el sitio, conectar su cuenta de Twitch (la aplicación aparece como **LosPerris - API**) o emplear su API Key, usted acepta estas condiciones y la política de privacidad.',
-        introPrivacy: 'La presente política describe el tratamiento de la información personal en [ttv.losperris.dev](https://ttv.losperris.dev) por parte de **LosPerrisBot**. Al conectar Twitch, la aplicación autorizada se identifica como **LosPerris - API**.',
-        introCookies: 'Este documento complementa la política de privacidad y describe el uso de almacenamiento local y tecnologías similares en **LosPerrisBot**. No empleamos cookies de publicidad ni vendemos datos derivados de la navegación.',
+        introTerms: 'Los presentes términos regulan el acceso y uso de **LosPerris API**, disponible en [ttv.losperris.dev](https://ttv.losperris.dev). Al utilizar el sitio, conectar su cuenta de Twitch (la aplicación aparece como **LosPerris - API**) o emplear su API Key, usted acepta estas condiciones y la política de privacidad.',
+        introPrivacy: 'La presente política describe el tratamiento de la información personal en [ttv.losperris.dev](https://ttv.losperris.dev) por parte de **LosPerris API**. Al conectar Twitch, la aplicación autorizada se identifica como **LosPerris - API**.',
+        introCookies: 'Este documento complementa la política de privacidad y describe el uso de almacenamiento local y tecnologías similares en **LosPerris API**. No empleamos cookies de publicidad ni vendemos datos derivados de la navegación.',
         sections: [
             {
                 title: 'Descripción del servicio',
@@ -37,7 +37,7 @@ export const es = {
             },
             {
                 title: 'Quién gestiona los datos',
-                content: 'Tus datos son procesados por LosPerrisBot, operando bajo la infraestructura detallada a continuación. Actuamos como intermediarios entre tu cuenta de Twitch y las funciones del panel.'
+                content: 'Tus datos son procesados por LosPerris API, operando bajo la infraestructura detallada a continuación. Actuamos como intermediarios entre tu cuenta de Twitch y las funciones del panel.'
             },
             {
                 title: 'Datos que recopilamos',
@@ -49,7 +49,7 @@ export const es = {
             },
             {
                 title: 'Uso de los datos',
-                content: 'Tus datos se utilizan exclusivamente para habilitar las funcionalidades de tu panel de control, procesar tus configuraciones de minijuegos y estadísticas. No vendemos ni cedemos datos a terceros con fines publicitarios.'
+                content: 'Tus datos se utilizan exclusivamente para habilitar las funcionalidades de tu panel de control, procesar tus configuraciones de minijuegos y estadísticas. No vendemos ni cedemos datos a terceros con fines publicitarios. En la página de inicio podemos mostrar, de cuentas activas pioneras con avatar público, el login, nombre visible, imagen de perfil y tipo de afiliado de Twitch, junto a un texto fijo de marketing (nunca tu biografía de Twitch ni tokens).'
             },
             {
                 title: 'Proveedores y terceros',
@@ -57,7 +57,7 @@ export const es = {
             },
             {
                 title: 'Conservación de los datos',
-                content: 'Los perfiles y la configuración se mantienen mientras la cuenta esté activa. Los registros de actividad del canal se truncan automáticamente a los 200 eventos más recientes por usuario. Si eliminas tu cuenta, se borran inmediatamente de la base de datos principal.'
+                content: 'Los perfiles y la configuración se mantienen mientras tu cuenta esté activa. Los registros de actividad de tu canal guardan únicamente los eventos más recientes. Si decides eliminar tu cuenta, todos tus datos se borran inmediatamente de forma permanente de nuestra base de datos.'
             },
             {
                 title: 'Derechos del usuario',
@@ -65,7 +65,7 @@ export const es = {
             },
             {
                 title: 'Cookies y almacenamiento local',
-                content: 'Utilizamos cookies de sesión encriptadas y almacenamiento local (localStorage/IndexedDB) estrictamente necesarios para mantener tu sesión activa, cachear estadísticas y persistir tus preferencias del panel (modo oscuro, idioma).'
+                content: 'Utilizamos una cookie de sesión httpOnly cifrada (`lp_sess`) para mantener tu acceso al panel, y almacenamiento local (localStorage/IndexedDB) para preferencias (modo oscuro, idioma) y cachés temporales del panel. No empleamos cookies de publicidad ni vendemos datos derivados de la navegación.'
             },
             {
                 title: 'Menores de edad',
@@ -81,19 +81,19 @@ export const es = {
             },
             {
                 title: 'Almacenamiento local',
-                content: 'Se utiliza localStorage para retener tu API Key, tus preferencias del panel y acelerar la carga de la página almacenando respuestas temporales en caché.'
+                content: 'Se utiliza localStorage/IndexedDB para preferencias del panel y para acelerar la carga con respuestas temporales en caché. La autenticación del panel se basa en la cookie de sesión, no en guardar tu API Key en claro.'
             },
             {
                 title: 'Service worker',
-                content: 'Podemos emplear Service Workers para soportar notificaciones o capacidades offline del panel, los cuales residen en tu dispositivo local.'
+                content: 'Podemos emplear Service Workers para soportar notificaciones o capacidades offline del panel, los cuales residen en tu dispositivo local. No los usamos para publicidad ni rastreo comercial.'
             },
             {
                 title: 'Métricas de rendimiento',
-                content: 'Utilizamos Vercel Web Vitals y Speed Insights de forma anónima para monitorizar tiempos de carga e identificar cuellos de botella en la plataforma.'
+                content: 'Utilizamos Vercel Web Analytics y Speed Insights de forma agregada/anónima para monitorizar tiempos de carga e identificar cuellos de botella. No son cookies de publicidad ni perfiles publicitarios.'
             },
             {
-                title: 'Eliminación del almacenamiento',
-                content: 'Puedes limpiar todo el almacenamiento local cerrando sesión, limpiando los datos del sitio en tu navegador, o utilizando el botón de limpiar estadísticas en Configuración.'
+                title: 'Gestión y eliminación',
+                content: 'Puedes limpiar el almacenamiento local cerrando sesión, borrando los datos del sitio en tu navegador, o usando las opciones de limpieza en Configuración. Al cerrar sesión también se invalida la cookie de sesión del panel.'
             }
         ]
     },
