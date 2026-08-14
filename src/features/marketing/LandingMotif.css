@@ -25,4 +25,34 @@
         animation: none;
         will-change: auto;
     }
+    
+    .landing-marquee, .landing-marquee-reverse {
+        animation-play-state: paused;
+    }
+}
+
+.landing-marquee {
+    animation: landing-marquee 40s linear infinite;
+}
+
+.landing-marquee:hover {
+    animation-play-state: paused;
+}
+
+.landing-marquee-reverse {
+    animation: landing-marquee-reverse 40s linear infinite;
+}
+
+.landing-marquee-reverse:hover {
+    animation-play-state: paused;
+}
+
+@keyframes landing-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(-50% - 0.5rem)); }
+}
+
+@keyframes landing-marquee-reverse {
+    from { transform: translateX(calc(-50% - 0.5rem)); }
+    to { transform: translateX(0); }
 }

@@ -1,12 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { ErrorPage } from '@/shared/errors/ErrorPage';
+import { NotFound404 } from '@/features/marketing/NotFound404';
 ---
 
 <BaseLayout page="404 - Página No Encontrada" footer brandTheme>
-    <ErrorPage
-        code="404"
-        title="¡Ups! Te has perdido"
-        message="La página que buscas no existe o ha sido movida a otra dimensión."
-    />
+    <NotFound404 client:load />
 </BaseLayout>

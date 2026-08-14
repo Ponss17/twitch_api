@@ -79,9 +79,14 @@ export async function invalidateUserPlanCaches(
     // No dejar la sesión marcada como revocada por un flag viejo.
     await unrevokeAuthSession(userId).catch(() => {});
 
+    const { invalidatePublicUsersCache } = await import(
+        '../../features/system/systemPublicUsers.controller'
+    );
+
     const tasks: Promise<void>[] = [
         cacheService.del(`cache:user:id:${userId}`),
-        cacheService.del(`cache:dashboard:profile:${userId}`)
+        cacheService.del(`cache:dashboard:profile:${userId}`),
+        invalidatePublicUsersCache()
     ];
     if (login) {
         const normalized = login.toLowerCase();
@@ -108,6 +113,10 @@ export async function invalidateAllUserCaches(
     invalidateAuthCache(userId, { revokeSession: false });
     invalidateStatsCache(userId);
 
+    const { invalidatePublicUsersCache } = await import(
+        '../../features/system/systemPublicUsers.controller'
+    );
+
     const tasks: Promise<void>[] = [
         cacheService.del(`cache:user:id:${userId}`),
         ...(options.login ? [cacheService.del(`cache:user:login:${options.login.toLowerCase()}`)] : []),
@@ -115,7 +124,8 @@ export async function invalidateAllUserCaches(
         cacheService.bumpStatsRevision(userId),
         invalidateOverlayStateCaches(userId),
         cacheService.set(overlayRevokeKey(userId), Date.now(), 30 * 24 * 3600),
-        invalidateHelixUserCaches(userId, options.login)
+        invalidateHelixUserCaches(userId, options.login),
+        invalidatePublicUsersCache()
     ];
 
     if (options.revokeApiKey && options.apiKey) {

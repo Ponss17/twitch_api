@@ -25,7 +25,7 @@ export function LandingFeatures() {
                         Fácilmente en 3 pasos. Todo desde el navegador.
                     </p>
                 </LandingReveal>
-                <LandingRevealList className="relative z-[1] mx-auto grid max-w-[1040px] gap-4 md:grid-cols-3">
+                <LandingRevealList className="relative z-[1] mx-auto grid max-w-[1080px] gap-4 md:grid-cols-3">
                     {FEATURE_STEPS.map((step) => (
                         <LandingRevealItem
                             key={step.n}
@@ -52,7 +52,7 @@ export function LandingFeatures() {
                         Comandos, overlays y minijuegos. Sin otro programa.
                     </p>
                 </LandingReveal>
-                <LandingRevealList className="relative z-[1] mx-auto grid max-w-[1040px] gap-4 md:grid-cols-3">
+                <LandingRevealList className="relative z-[1] mx-auto grid max-w-[1080px] gap-4 md:grid-cols-3">
                     {PANEL_ITEMS.map((item) => {
                         const Icon = PANEL_ICONS[item.title];
                         return (

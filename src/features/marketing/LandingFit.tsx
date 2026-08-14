@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FIT_DEMOS, FIT_POINTS } from './landingContent';
 import { SettingsIcon, SwordIcon, UsersIcon, VideoIcon } from './landingIcons';
 import { LandingReveal } from './LandingReveal';
-import { LandingStage } from './LandingStage';
+import { LandingFloatIcons } from './LandingMotif';
 
 const NIGHTBOT_COLOR = '#1E90FF';
 const STREAMER_COLOR = '#FF4500';
@@ -47,12 +47,12 @@ function ChatLine({
     role: 'viewer' | 'broadcaster' | 'bot';
 }) {
     return (
-        <p className="px-4 py-0.5 text-[13px] leading-5 text-text-main">
+        <p className="px-4 py-1 text-[13px] leading-5 text-[#efeff1] hover:bg-[#1f1f23] transition-colors">
             <ChatBadge role={role} />
             <span className="font-semibold" style={{ color }}>
                 {user}
             </span>
-            <span>: {text}</span>
+            <span className="text-[#efeff1]"> : {text}</span>
         </p>
     );
 }
@@ -110,8 +110,9 @@ export function LandingFit() {
     };
 
     return (
-        <LandingStage id="encaja">
-            <div className="mx-auto grid max-w-[1040px] items-stretch gap-10 md:grid-cols-2 md:gap-12">
+        <section id="encaja" className="relative scroll-mt-24 px-5 pt-16 pb-20 md:px-8 md:pt-24 md:pb-28 overflow-hidden">
+            <LandingFloatIcons layout="c" side="left" />
+            <div className="relative z-[1] mx-auto grid max-w-[1080px] items-center gap-10 md:grid-cols-2 md:gap-12">
                 <LandingReveal className="flex flex-col justify-center">
                     <h2 className="text-3xl font-semibold tracking-tight text-text-main md:text-[2.25rem] md:leading-tight">
                         Solo copias y pegas
@@ -130,13 +131,19 @@ export function LandingFit() {
                 </LandingReveal>
 
                 <LandingReveal className="h-full min-h-[380px]">
-                    <div className="flex h-full min-h-[380px] flex-col overflow-hidden rounded-xl border border-border-subtle bg-bg-secondary">
-                            <div className="relative flex items-center justify-center border-b border-border-subtle px-4 py-3">
-                                <p className="text-[0.95rem] text-text-main">Chat del stream</p>
-                                <UsersIcon className="absolute right-4 h-4 w-4 text-text-muted" />
+                    <div className="flex h-full min-h-[380px] flex-col overflow-hidden rounded-lg border border-border-subtle bg-[#18181b]">
+                            {/* Header de Twitch */}
+                            <div className="relative flex items-center justify-center border-b border-white/5 bg-[#18181b] px-4 py-3">
+                                <div className="absolute left-4 opacity-50 hover:opacity-100 cursor-pointer transition-opacity">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                                </div>
+                                <p className="text-[13px] font-semibold uppercase tracking-widest text-[#efeff1]">Chat del stream</p>
+                                <UsersIcon className="absolute right-4 h-[18px] w-[18px] text-[#adadb8]" />
                             </div>
-                            <div className="border-b border-border-subtle px-3 py-2" role="tablist" aria-label="Probar comando">
-                                <div className="flex rounded-lg bg-bg-main p-1">
+
+                            {/* Selector de comandos */}
+                            <div className="border-b border-white/5 bg-[#18181b] px-3 py-2" role="tablist" aria-label="Probar comando">
+                                <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
                                     {FIT_DEMOS.map((item, i) => (
                                         <button
                                             key={item.id}
@@ -144,10 +151,10 @@ export function LandingFit() {
                                             role="tab"
                                             aria-selected={i === index}
                                             onClick={() => setIndex(i)}
-                                            className={`min-w-0 flex-1 truncate rounded-md px-1.5 py-1.5 font-mono text-[0.68rem] font-medium transition sm:px-2 sm:text-[0.72rem] ${
+                                            className={`shrink-0 rounded-md px-3 py-1.5 font-mono text-[12px] font-semibold transition sm:text-[13px] ${
                                                 i === index
-                                                    ? 'bg-primary/15 text-primary'
-                                                    : 'text-text-muted hover:text-text-main'
+                                                    ? 'bg-[#5c16c5] text-white shadow-sm'
+                                                    : 'bg-[#1f1f23] text-[#adadb8] hover:bg-[#26262c] hover:text-[#efeff1]'
                                             }`}
                                         >
                                             {item.command.split(' ')[0]}
@@ -156,8 +163,9 @@ export function LandingFit() {
                                 </div>
                             </div>
 
-                            <div className="flex min-h-0 flex-1 flex-col py-2">
-                                <p className="px-4 py-1 text-[13px] leading-5 text-text-muted">
+                            {/* Área de mensajes */}
+                            <div className="flex min-h-0 flex-1 flex-col py-2 bg-[#18181b]">
+                                <p className="px-4 py-1 text-[13px] leading-5 text-[#adadb8]">
                                     ¡Te damos la bienvenida a la sala de chat de ponss17!
                                 </p>
                                 <ChatLine
@@ -193,31 +201,39 @@ export function LandingFit() {
                                 ) : null}
                             </div>
 
-                            <div className="px-3 pt-1 pb-3">
-                                <div className="flex min-h-[42px] w-full items-center rounded-md border border-white/20 px-3 py-2.5 text-[13px]">
+                            <div className="px-4 pt-2 pb-4 bg-[#18181b]">
+                                <div className="flex min-h-[40px] w-full items-center rounded-md border border-[#303032] bg-[#1f1f23] px-3 py-2 text-[13px] transition-all hover:border-[#464649] focus-within:border-[#a970ff] focus-within:bg-black focus-within:ring-1 focus-within:ring-[#a970ff]">
                                     {phase === 'typing' ? (
                                         <>
-                                            <span className="text-text-main">{typed}</span>
-                                            <span className="ml-px inline-block h-[1em] w-px bg-text-main motion-safe:animate-pulse" />
+                                            <span className="text-[#efeff1]">{typed}</span>
+                                            <span className="ml-px inline-block h-[1em] w-[2px] bg-[#efeff1] motion-safe:animate-pulse" />
                                         </>
                                     ) : (
-                                        <span className="text-text-muted">Enviar un mensaje</span>
+                                        <span className="text-[#adadb8] font-medium">Enviar un mensaje</span>
                                     )}
                                 </div>
-                                <div className="mt-2.5 flex items-center justify-end gap-3">
-                                    <SettingsIcon className="h-4 w-4 text-text-muted" />
-                                    <button
-                                        type="button"
-                                        onClick={sendNow}
-                                        className="rounded-md bg-primary px-4 py-1.5 text-[13px] font-medium text-white transition hover:bg-primary-hover"
-                                    >
-                                        Enviar
-                                    </button>
+                                <div className="mt-2 flex items-center justify-between">
+                                    <div className="flex items-center gap-1">
+                                        <div className="flex items-center gap-1.5 rounded-md hover:bg-[#26262c] p-1.5 cursor-pointer text-[#00f0ff] transition-colors" title="Puntos del canal">
+                                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2l6 14-6-4-6 4 6-14z"/></svg>
+                                            <span className="text-[12px] font-bold">1.2K</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <SettingsIcon className="h-[18px] w-[18px] text-[#adadb8] hover:text-[#efeff1] cursor-pointer transition-colors" />
+                                        <button
+                                            type="button"
+                                            onClick={sendNow}
+                                            className="rounded bg-[#9146ff] hover:bg-[#772ce8] px-3 py-1.5 text-[13px] font-semibold text-white transition-colors shadow-sm"
+                                        >
+                                            Chat
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                     </div>
                 </LandingReveal>
             </div>
-        </LandingStage>
+        </section>
     );
 }

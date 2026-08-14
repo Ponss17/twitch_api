@@ -28,9 +28,10 @@ type RevealProps = {
     children: ReactNode;
     className?: string;
     delay?: number;
+    style?: React.CSSProperties;
 };
 
-export function LandingReveal({ children, className, delay = 0 }: RevealProps) {
+export function LandingReveal({ children, className, delay = 0, style }: RevealProps) {
     const { ref, shown } = useInView<HTMLDivElement>();
 
     return (
@@ -41,7 +42,10 @@ export function LandingReveal({ children, className, delay = 0 }: RevealProps) {
                     ? 'motion-safe:animate-about-in motion-safe:[animation-fill-mode:both] motion-reduce:animate-none'
                     : 'opacity-0'
             } ${className ?? ''}`.trim()}
-            style={shown && delay ? { animationDelay: `${delay}s` } : undefined}
+            style={{
+                ...(shown && delay ? { animationDelay: `${delay}s` } : {}),
+                ...style
+            }}
         >
             {children}
         </div>
