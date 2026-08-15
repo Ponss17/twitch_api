@@ -5,11 +5,10 @@ import { logger } from '../../core/utils/logger';
 import { CONFIG } from '../../core/config/env';
 import axios from 'axios';
 import { apiClient, getHeaders } from '../twitch/twitchClient';
+import { sanitizePublicTwitchDescription } from './publicTwitchDescription';
 
-export const PUBLIC_USERS_CACHE_KEY = 'system:public_users';
+export const PUBLIC_USERS_CACHE_KEY = 'system:public_users:v2';
 const CACHE_TTL_SECONDS = 24 * 60 * 60;
-const DEFAULT_DESCRIPTION =
-    'Pionero de LosPerris API. Manteniendo la barra de calidad absurdamente alta.';
 
 type PublicUserRow = {
     login: string;
@@ -21,12 +20,14 @@ type TwitchUserLite = {
     login?: string;
     profile_image_url?: string;
     broadcaster_type?: string;
+    description?: string;
 };
 
 export async function invalidatePublicUsersCache(): Promise<void> {
-    await kv.del(PUBLIC_USERS_CACHE_KEY).catch((e) =>
-        logger.warn('No se pudo invalidar cache de public-users:', e)
-    );
+    await Promise.allSettled([
+        kv.del(PUBLIC_USERS_CACHE_KEY),
+        kv.del('system:public_users')
+    ]).catch((e) => logger.warn('No se pudo invalidar cache de public-users:', e));
 }
 
 async function getTwitchAppToken(): Promise<string | null> {
@@ -126,7 +127,7 @@ export const getPublicUsers = async (_req: Request, res: Response) => {
                     broadcasterType === 'affiliate' || broadcasterType === 'partner'
                         ? broadcasterType
                         : 'streamer',
-                description: DEFAULT_DESCRIPTION
+                description: sanitizePublicTwitchDescription(tu?.description)
             };
         });
 
