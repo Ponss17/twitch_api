@@ -49,7 +49,7 @@ export const es = {
             },
             {
                 title: 'Uso de los datos',
-                content: 'Tus datos se utilizan exclusivamente para habilitar las funcionalidades de tu panel de control, procesar tus configuraciones de minijuegos y estadísticas. No vendemos ni cedemos datos a terceros con fines publicitarios. En la página de inicio podemos mostrar, de cuentas activas pioneras con avatar público, el login, nombre visible, imagen de perfil y tipo de afiliado de Twitch, junto a un texto fijo de marketing (nunca tu biografía de Twitch ni tokens).'
+                content: 'Tus datos se utilizan exclusivamente para habilitar las funcionalidades de tu panel de control, procesar tus configuraciones de minijuegos y estadísticas. No vendemos ni cedemos datos a terceros con fines publicitarios. En la página de inicio podemos mostrar, de cuentas activas pioneras con avatar público, el login, nombre visible, imagen de perfil, tipo de afiliado y una versión filtrada de tu biografía pública de Twitch (sin enlaces clicables). Nunca mostramos tokens ni datos privados.'
             },
             {
                 title: 'Proveedores y terceros',
