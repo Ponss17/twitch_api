@@ -11,7 +11,7 @@ import {
 } from 'recharts';
 import { BarChart2 } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { AnalyticsSection, ChartMountGate, COLORS } from './AnalyticsShared';
+import { AnalyticsSection, ChartMountGate, COLORS, AnalyticsEmptyState } from './AnalyticsShared';
 
 interface AnalyticsTodayBarChartProps {
     active: boolean;
@@ -62,23 +62,21 @@ export function AnalyticsTodayBarChart({ active, pieData }: AnalyticsTodayBarCha
 
     return (
         <AnalyticsSection
-            className="col-span-1 lg:col-span-2"
-            panelClassName="h-[420px]"
+            className="col-span-1"
+            panelClassName="h-[320px]"
             title={chart.title}
             info={chart.info}
         >
             {chartData.length === 0 ? (
-                <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border-subtle bg-transparent">
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                        <BarChart2 className="h-6 w-6 text-brand-text" />
-                    </div>
-                    <span className="text-sm font-medium text-text-muted">{chart.noData}</span>
-                    <span className="mt-1 text-xs text-text-muted">{chart.noDataSub}</span>
-                </div>
+                <AnalyticsEmptyState
+                    icon={BarChart2}
+                    title={chart.noData}
+                    description={chart.noDataSub}
+                />
             ) : (
                 <ChartMountGate
                     active={active}
-                    className="min-h-[250px] w-full min-w-0 flex-1"
+                    className="min-h-[200px] w-full min-w-0 flex-1"
                     srLabel={chart.title}
                 >
                     <ResponsiveContainer width="100%" height="100%" minWidth={0}>
