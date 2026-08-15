@@ -18,6 +18,12 @@ importers:
 
   .:
     dependencies:
+      '@fontsource/geist':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/geist-mono':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@supabase/supabase-js':
         specifier: ^2.110.8
         version: 2.110.8
@@ -901,6 +907,12 @@ packages:
 
   '@expressive-code/plugin-text-markers@0.44.1':
     resolution: {integrity: sha512-B3BsJoJ8CFMlcIX9f+X9tcI3C4zPDO601+YuLi9GheSTNro7ZfqSjLptMQKBHOWZvxnAtY5zvIX7iO/qtBhNBg==}
+
+  '@fontsource/geist-mono@5.3.0':
+    resolution: {integrity: sha512-UtJ1BBBCVpMYdIcW7nEB45UAoAw5M53ZXs2t0ciPW+IokuAAIc56M8+kW5tXbRJCTpDw4XTtU7proT6NdQAHTg==}
+
+  '@fontsource/geist@5.3.0':
+    resolution: {integrity: sha512-u03ftlfVwb05uijq2jGDJ03/HKGqMKaNFk7KOhkpBUex8+BhrAOfMs/XciJ2UUNUX9fEsZbZQld/RWMA2oFU7g==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -6335,6 +6347,10 @@ snapshots:
   '@expressive-code/plugin-text-markers@0.44.1':
     dependencies:
       '@expressive-code/core': 0.44.1
+
+  '@fontsource/geist-mono@5.3.0': {}
+
+  '@fontsource/geist@5.3.0': {}
 
   '@humanfs/core@0.19.2':
     dependencies:

@@ -388,21 +388,23 @@ export const pt: Translations = {
             errors: 'Erros',
             successRate: 'Taxa de Sucesso',
             total: 'Total de Requisições',
-            noData: 'Sem dados hoje',
-            noDataSub: 'Use um comando'
+            noData: 'Ainda sem atividade hoje',
+            noDataSub: 'Quando usar um comando no chat, o detalhamento aparece aqui.'
         },
         latencyChart: {
             title: 'Desempenho e Latência',
             info: 'Tempo de resposta por comando.',
-            noData: 'Sem latência',
-            noDataSub: 'Aguardando dados',
-            latency: 'Latência Média'
+            noData: 'Sem medições ainda',
+            noDataSub: 'A latência aparece quando seus comandos começam a ser usados.',
+            latency: 'Latência Média',
+            colCommand: 'Comando',
+            colLatency: 'Latência'
         },
         endpointsTable: {
             title: 'Comandos Mais Usados',
             info: 'Lista de comandos com requisições, taxa de sucesso e latência média.',
-            noData: 'Dados insuficientes',
-            noDataSub: 'Execute comandos no seu canal para gerar histórico',
+            noData: 'Sem histórico ainda',
+            noDataSub: 'Execute comandos no seu canal para gerar esta lista.',
             headers: {
                 command: 'Comando',
                 requests: 'Requisições',
@@ -410,31 +412,28 @@ export const pt: Translations = {
                 latency: 'Latência'
             }
         },
-        distributionChart: {
-            title: 'Distribuição de Comandos',
-            info: 'Requisições por comando.',
-            noData: 'Sem comandos',
-            noDataSub: 'Inicie a atividade'
-        },
         areaChart: {
             title: 'Tráfego e Erros (7 dias)',
             info: 'Histórico dos últimos 7 dias. Hoje atualiza em tempo real.',
             requests: 'Requisições',
-            noData: 'Sem atividade',
-            noDataSub: 'Aguardando eventos'
+            errors: 'Erros',
+            noData: 'Sem tráfego esta semana',
+            noDataSub: 'Quando houver requisições, você verá a curva dos últimos 7 dias.'
         },
         leaderboard: {
             title: 'Top Usuários',
             infoToday: 'Usuários mais ativos hoje.',
             info7d: 'Usuários mais ativos em 7 dias.',
-            noData: 'Sem usuários',
-            noDataSub: 'Aguardando interações',
+            noData: 'Ninguém interagiu ainda',
+            noDataSub: 'Os viewers aparecem aqui ao usar seus comandos.',
             rankingToday: 'Top Hoje',
             ranking7d: 'Top 7 Dias',
             totalInteractions: 'interações',
             totalInteractionsTooltip: 'Total de usos por todos os espectadores',
             unitSingular: 'uso',
-            unitPlural: 'usos'
+            unitPlural: 'usos',
+            colUser: 'Usuário',
+            colUses: 'Usos'
         }
     },
     header: {

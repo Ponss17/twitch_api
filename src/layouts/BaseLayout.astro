@@ -6,10 +6,8 @@ import Analytics from '@vercel/analytics/astro';
 import { staticPath, absoluteAssetUrl } from '@/core/config/paths';
 import { pageTitle } from '@/core/config/pageTitle';
 
-const FONTS_BRAND =
-    'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap';
-const FONTS_APP =
-    'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap';
+const FONTS_THEME =
+    'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap';
 
 export interface Props {
     /** Nombre de la página; se formatea como «Página | LosPerris». */
@@ -50,7 +48,7 @@ const {
     brandTheme = false
 } = Astro.props;
 
-const fontsHref = brandTheme ? FONTS_BRAND : FONTS_APP;
+const fontsHref = brandTheme ? null : FONTS_THEME;
 const themeInitScriptPath = staticPath(
     brandTheme ? '/js/brand-theme-init.js' : '/js/theme-init.js'
 );
@@ -122,9 +120,13 @@ const swScope = staticPath('/');
             "description": description,
             "url": canonicalUrl
         })}></script>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link rel="stylesheet" href={fontsHref} />
+        {fontsHref ? (
+            <>
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+                <link rel="stylesheet" href={fontsHref} />
+            </>
+        ) : null}
         <title>{documentTitle}</title>
         <script is:inline src={staticPath('/js/speed-insights-redaction.js')}></script>
         <SpeedInsights scriptSrc="https://va.vercel-scripts.com/v1/speed-insights/script.js" />

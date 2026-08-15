@@ -47,7 +47,7 @@ export function DashboardHeader({
     const tabKey = tab as keyof typeof t.sidebar.items;
 
     return (
-        <header className="w-full pt-4">
+        <header className="w-full pt-3">
             <div className="mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-4 px-4 md:px-8 lg:px-12 xl:px-16">
                 <button
                     type="button"

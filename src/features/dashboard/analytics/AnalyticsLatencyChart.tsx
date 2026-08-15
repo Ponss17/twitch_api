@@ -1,138 +1,55 @@
-import React from 'react';
+import { useMemo } from 'react';
 import { Timer } from 'lucide-react';
-import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ChartMountGate, COLORS, AnalyticsSection } from './AnalyticsShared';
+import { AnalyticsSection, AnalyticsSimpleList, AnalyticsEmptyState } from './AnalyticsShared';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import type { } from '@/core/i18n/locales/es';
 
-import type { RectangleProps } from 'recharts';
+interface LatencyEntry {
+    name: string;
+    value: number;
+    avgLatency: number;
+    successRate?: string;
+}
 
 interface AnalyticsLatencyChartProps {
     active: boolean;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pieData: any[];
+    pieData: LatencyEntry[];
 }
 
-interface Custom{
-    active?: boolean;
-    // eslint-disable-next-line
-    payload?: any[];
-    label?: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    t: any;
-}
-
-const CustomTooltip = ({ active, payload, label, t }: Custom) => {
-    if (active && payload && payload.length) {
-        const valNum = Number(payload[0].value) || 0;
-        return (
-            <div className="pointer-events-none rounded-xl border border-border-subtle bg-bg-modal p-3 shadow-xl">
-                <p className="mb-1 font-semibold capitalize text-text-main">{label}</p>
-                <span className="text-sm font-medium text-text-main">{t.analytics.latencyChart.latency} : {valNum}ms ({(valNum / 1000).toFixed(3)}s)</span>
-            </div>
-        );
-    }
-    return null;
-};
-
-interface CustomBarShapeProps extends RectangleProps {
-    index?: number;
-    isActive?: boolean;
-}
-
-const CustomBarShape = (props: CustomBarShapeProps) => {
-    const { x = 0, y = 0, index = 0, ...rest } = props;
-    const color = COLORS[index % COLORS.length];
-    return (
-        <g>
-            <Rectangle
-                {...rest}
-                x={x}
-                y={y}
-                fill={color}
-                fillOpacity={1}
-                radius={[0, 4, 4, 0]}
-            />
-        </g>
-    );
-};
-
-export function AnalyticsLatencyChart({ active, pieData }: AnalyticsLatencyChartProps) {
+export function AnalyticsLatencyChart({ pieData }: AnalyticsLatencyChartProps) {
     const { t } = useTranslation();
     const chart = t.analytics.latencyChart;
-    
+
+    const rows = useMemo(() => {
+        return pieData
+            .filter((d) => Number(d.avgLatency) > 0)
+            .slice()
+            .sort((a, b) => b.avgLatency - a.avgLatency)
+            .map((entry) => ({
+                id: entry.name,
+                left: entry.name,
+                right: `${Math.round(entry.avgLatency)} ms`,
+                title: entry.name
+            }));
+    }, [pieData]);
+
     return (
         <AnalyticsSection
-            panelClassName="h-full min-h-[360px] flex flex-col"
+            panelClassName="h-[270px] flex flex-col"
             title={chart.title}
             info={chart.info}
         >
-            {pieData.length === 0 || pieData.every((d) => d.avgLatency === 0) ? (
-                <div className="flex min-h-[240px] w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-border-subtle bg-transparent">
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                        <Timer className="h-6 w-6 text-brand-text" />
-                    </div>
-                    <span className="text-sm font-medium text-text-muted">{chart.noData}</span>
-                    <span className="mt-1 text-xs text-text-muted">
-                        {chart.noDataSub}
-                    </span>
-                </div>
-            ) : (
-                <ChartMountGate
-                    active={active}
-                    className="min-h-[300px] w-full min-w-0 flex-1"
-                    srLabel={chart.title}
-                >
-                    <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                        <BarChart
-                            data={pieData}
-                            layout="vertical"
-                            margin={{ top: 0, right: 30, left: 20, bottom: 0 }}
-                            accessibilityLayer={false}
-                        >
-                            <CartesianGrid
-                                strokeDasharray="3 3"
-                                stroke="var(--text-main)"
-                                strokeOpacity={0.1}
-                                horizontal={true}
-                                vertical={true}
-                            />
-                            <XAxis
-                                type="number"
-                                stroke="var(--text-muted)"
-                                fontSize={12}
-                                tickLine={false}
-                                axisLine={false}
-                                tickMargin={8}
-                                tickFormatter={(val) => `${val}ms`}
-                                domain={[0, (dataMax: number) => (dataMax === 0 ? 10 : dataMax)]}
-                            />
-                            <YAxis
-                                type="category"
-                                dataKey="name"
-                                stroke="var(--text-muted)"
-                                fontSize={12}
-                                tickLine={false}
-                                axisLine={false}
-                                className="capitalize"
-                            />
-                            <Tooltip 
-                                content={<CustomTooltip t={t} />} 
-                                cursor={false} 
-                                isAnimationActive={false} 
-                                wrapperStyle={{ pointerEvents: 'none', outline: 'none' }} 
-                            />
-                            <Bar
-                                dataKey="avgLatency"
-                                name={chart.latency}
-                                maxBarSize={16}
-                                shape={<CustomBarShape />}
-                                activeBar={<CustomBarShape isActive />}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </ChartMountGate>
-            )}
+            <AnalyticsSimpleList
+                leftHeader={chart.colCommand}
+                rightHeader={chart.colLatency}
+                rows={rows}
+                empty={
+                    <AnalyticsEmptyState
+                        icon={Timer}
+                        title={chart.noData}
+                        description={chart.noDataSub}
+                    />
+                }
+            />
         </AnalyticsSection>
     );
 }
