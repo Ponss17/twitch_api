@@ -11,11 +11,6 @@ import { AnalyticsKPIs } from './AnalyticsKPIs';
 const AnalyticsAreaChart = React.lazy(() =>
     import('./AnalyticsAreaChart').then((module) => ({ default: module.AnalyticsAreaChart }))
 );
-const AnalyticsCommandsDistribution = React.lazy(() =>
-    import('./AnalyticsCommandsDistribution').then((module) => ({
-        default: module.AnalyticsCommandsDistribution
-    }))
-);
 const AnalyticsViewerLeaderboard = React.lazy(() =>
     import('./AnalyticsViewerLeaderboard').then((module) => ({
         default: module.AnalyticsViewerLeaderboard
@@ -58,7 +53,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             day.errors += row.errors_count;
 
             const cmd = row.command_name === 'other' ? t.analytics.other : row.command_name;
-            
+
             if (!commandMapWeekly.has(cmd)) {
                 commandMapWeekly.set(cmd, { requests: 0, errors: 0, latency: 0 });
             }
@@ -75,7 +70,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 cmdStatsT.requests += row.requests_count;
                 cmdStatsT.errors += row.errors_count;
                 cmdStatsT.latency += row.latency_sum || 0;
-                
+
                 tRequests += row.requests_count;
                 tErrors += row.errors_count;
                 tLatency += row.latency_sum || 0;
@@ -113,31 +108,40 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         const todayAvgLatency = tRequests > 0 ? Math.round(tLatency / tRequests) : 0;
         const todaySuccessRate = tRequests > 0 ? ((1 - tErrors / tRequests) * 100).toFixed(1) : '0.0';
 
-        return { 
-            areaData: sortedArea, 
-            pieDataWeekly, 
+        return {
+            areaData: sortedArea,
+            pieDataWeekly,
             pieDataToday,
-            summaryWeekly: { totalRequests: totalRequestsWeekly, successRate: successRateWeekly, avgLatency: avgLatencyWeekly, uniqueCommands: pieDataWeekly.length },
-            summaryToday: { totalRequests: tRequests, avgLatency: todayAvgLatency, successRate: todaySuccessRate, uniqueCommands: pieDataToday.length }
+            summaryWeekly: {
+                totalRequests: totalRequestsWeekly,
+                successRate: successRateWeekly,
+                avgLatency: avgLatencyWeekly,
+                uniqueCommands: pieDataWeekly.length
+            },
+            summaryToday: {
+                totalRequests: tRequests,
+                avgLatency: todayAvgLatency,
+                successRate: todaySuccessRate,
+                uniqueCommands: pieDataToday.length
+            }
         };
     }, [timeSeries, profile?.timezone, t.analytics.other]);
 
     const todayRequestsCount = summaryToday.totalRequests;
 
-    // Fix para Astro DevToolbar - Limpiar tabindex de recharts
     useEffect(() => {
         if (!active) return;
         const cleanTabIndex = () => {
-            document.querySelectorAll('.recharts-wrapper [tabindex]').forEach(el => {
+            document.querySelectorAll('.recharts-wrapper [tabindex]').forEach((el) => {
                 el.removeAttribute('tabindex');
             });
         };
-        
+
         const frame = requestAnimationFrame(() => {
             cleanTabIndex();
             setTimeout(cleanTabIndex, 50);
         });
-        
+
         return () => cancelAnimationFrame(frame);
     }, [active, areaData, pieDataWeekly, pieDataToday]);
 
@@ -152,8 +156,21 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
 
     const latencyDaily = summaryToday.avgLatency;
     const successRateDaily = parseFloat(summaryToday.successRate) || 0;
-    
-    const commandKeys = ['clips', 'followage', 'watchtime', 'so', 'message', 'stalker', 'trends', 'roulette', 'russian', 'magic8', 'duel', 'slots'] as const;
+
+    const commandKeys = [
+        'clips',
+        'followage',
+        'watchtime',
+        'so',
+        'message',
+        'stalker',
+        'trends',
+        'roulette',
+        'russian',
+        'magic8',
+        'duel',
+        'slots'
+    ] as const;
     const uniqueCommandsDaily =
         pieDataToday.length > 0
             ? pieDataToday.length
@@ -169,7 +186,6 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
     const displayLatency = timeRange === 'today' ? latencyDaily : latencyWeekly;
     const displayCommands = timeRange === 'today' ? uniqueCommandsDaily : uniqueCommandsWeekly;
     const displayPieData = timeRange === 'today' ? pieDataToday : pieDataWeekly;
-    const displayPieTotal = timeRange === 'today' ? todayRequestsCount : summaryWeekly.totalRequests;
 
     const isLoading = !hasLiveData;
     const requestsDuration = displayRequests === 0 ? 0 : active ? 400 : 0;
@@ -177,7 +193,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
     const latencyDuration = active ? 1000 : 0;
 
     return (
-        <div className={`space-y-6 ${fadeIn}`}>
+        <div className={`space-y-5 ${fadeIn}`}>
             <AnalyticsKPIs
                 timeRange={timeRange}
                 setTimeRange={setTimeRange}
@@ -192,20 +208,13 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             />
 
             <Suspense fallback={null}>
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                    {timeRange === 'today' ? (
-                        <AnalyticsTodayBarChart active={active} pieData={displayPieData} />
-                    ) : (
-                        <AnalyticsAreaChart active={active} areaData={areaData} />
-                    )}
-                    <AnalyticsCommandsDistribution
-                        active={active}
-                        pieData={displayPieData}
-                        totalRequests={displayPieTotal}
-                    />
-                </div>
+                {timeRange === 'today' ? (
+                    <AnalyticsTodayBarChart active={active} pieData={displayPieData} />
+                ) : (
+                    <AnalyticsAreaChart active={active} areaData={areaData} />
+                )}
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     <AnalyticsViewerLeaderboard timeRange={timeRange} />
                     <AnalyticsLatencyChart active={active} pieData={displayPieData} />
                 </div>

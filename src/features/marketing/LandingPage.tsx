@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { appPath } from '@/core/config/paths';
+import { getSession } from '@/core/auth/sessionStorage';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { LandingHeader } from './LandingHeader';
 import { LandingHero } from './LandingHero';
@@ -16,21 +17,31 @@ const VerifyingSessionModal = lazy(() =>
     import('@/shared/ui/VerifyingSessionModal').then((m) => ({ default: m.VerifyingSessionModal }))
 );
 
+function syncSessionHint(hasSession: boolean) {
+    try {
+        if (hasSession) document.documentElement.setAttribute('data-lp-sess', '1');
+        else document.documentElement.removeAttribute('data-lp-sess');
+    } catch {
+        /* ignore */
+    }
+}
+
 export function LandingPage() {
     const [scrolled, setScrolled] = useState(false);
     const [disclaimerOpen, setDisclaimerOpen] = useState(false);
     const [isVerifying, setIsVerifying] = useState(false);
-    const [hasSession, setHasSession] = useState(false);
     const [legacyReloginNotice, setLegacyReloginNotice] = useState(false);
 
     useEffect(() => {
+        syncSessionHint(!!getSession());
+
         void import('@/core/api/auth').then(
             ({
                 clearDashboardSplashFlags,
                 runLegacyPanelSessionMigration,
                 takeLegacyReloginRedirect,
                 consumeLegacyReloginNotice,
-                getSession,
+                getSession: getAuthSession,
                 resolveSessionFromUrl,
                 markDashboardSplashForFreshLogin
             }) => {
@@ -41,7 +52,7 @@ export function LandingPage() {
                     setLegacyReloginNotice(true);
                 }
 
-                setHasSession(!!getSession());
+                syncSessionHint(!!getAuthSession());
 
                 void (async () => {
                     const params = new URLSearchParams(window.location.search);
@@ -134,14 +145,10 @@ export function LandingPage() {
 
     return (
         <div className="relative flex flex-1 flex-col bg-bg-main">
-            <LandingHeader scrolled={scrolled} hasSession={hasSession} onLoginClick={openLogin} />
+            <LandingHeader scrolled={scrolled} onLoginClick={openLogin} />
 
             <div className="relative z-[1] flex-1">
-                <LandingHero
-                    hasSession={hasSession}
-                    legacyReloginNotice={legacyReloginNotice}
-                    onLoginClick={openLogin}
-                />
+                <LandingHero legacyReloginNotice={legacyReloginNotice} onLoginClick={openLogin} />
                 <LandingFeatures />
                 <LandingFit />
                 <LandingUsers />

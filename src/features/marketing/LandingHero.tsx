@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
-import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
-import { appPath, legalPath, staticPath } from '@/core/config/paths';
-import { landingBtnPrimary, landingBtnSecondary, PRODUCT_TABS } from './landingContent';
-import { ArrowRightIcon } from './landingIcons';
+import { legalPath, staticPath } from '@/core/config/paths';
+import { landingBtnSecondary, PRODUCT_TABS } from './landingContent';
+import { LandingAuthCta } from './LandingAuthCta';
 
 type LandingHeroProps = {
-    hasSession: boolean;
     legacyReloginNotice: boolean;
     onLoginClick: () => void;
 };
 
-export function LandingHero({ hasSession, legacyReloginNotice, onLoginClick }: LandingHeroProps) {
+export function LandingHero({ legacyReloginNotice, onLoginClick }: LandingHeroProps) {
     const [index, setIndex] = useState(0);
     const [paused, setPaused] = useState(false);
     const total = PRODUCT_TABS.length;
@@ -63,40 +61,35 @@ export function LandingHero({ hasSession, legacyReloginNotice, onLoginClick }: L
                             : 'Comandos, overlays y minijuegos. Pégalo en Nightbot, StreamElements, Streamlabs u OBS.'}
                     </p>
                     <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                        {hasSession ? (
-                            <a href={appPath('/dashboard/')} className={landingBtnPrimary}>
-                                Ir al Panel
-                                <ArrowRightIcon className="h-4 w-4" />
-                            </a>
-                        ) : (
-                            <button type="button" onClick={onLoginClick} className={landingBtnPrimary}>
-                                <TwitchIcon className="h-4 w-4" />
-                                {legacyReloginNotice ? 'Volver a conectar con Twitch' : 'Empezar'}
-                            </button>
-                        )}
+                        <LandingAuthCta
+                            variant="hero"
+                            legacyReloginNotice={legacyReloginNotice}
+                            onLoginClick={onLoginClick}
+                        />
                         <a href="#panel" className={landingBtnSecondary}>
                             Ver el panel
                         </a>
                     </div>
-                    {!hasSession ? (
-                        <p className="mx-auto mt-4 max-w-sm text-[0.75rem] leading-relaxed text-text-muted">
-                            Al conectar aceptas la{' '}
-                            <a
-                                href={legalPath('privacidad')}
-                                className="underline underline-offset-2 transition hover:text-text-main"
-                            >
-                                política de privacidad
-                            </a>{' '}
-                            y los{' '}
-                            <a
-                                href={legalPath('terminos')}
-                                className="underline underline-offset-2 transition hover:text-text-main"
-                            >
-                                términos de uso
-                            </a>
-                            .
-                        </p>
-                    ) : null}
+                    <p
+                        data-lp-auth-disclaimer
+                        className="mx-auto mt-4 max-w-sm text-[0.75rem] leading-relaxed text-text-muted"
+                    >
+                        Al conectar aceptas la{' '}
+                        <a
+                            href={legalPath('privacidad')}
+                            className="underline underline-offset-2 transition hover:text-text-main"
+                        >
+                            política de privacidad
+                        </a>{' '}
+                        y los{' '}
+                        <a
+                            href={legalPath('terminos')}
+                            className="underline underline-offset-2 transition hover:text-text-main"
+                        >
+                            términos de uso
+                        </a>
+                        .
+                    </p>
                 </div>
             </div>
 

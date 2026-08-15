@@ -1,18 +1,18 @@
 import { AppLogo } from '@/shared/ui/AppLogo';
 import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
 import { appPath, saveDocsReturnPath } from '@/core/config/paths';
-import { DISCORD_COMMUNITY_URL, landingBtnHeader } from './landingContent';
+import { DISCORD_COMMUNITY_URL } from './landingContent';
+import { LandingAuthCta } from './LandingAuthCta';
 
 const navLink =
     'rounded-md px-3 py-1.5 text-sm font-medium text-text-muted no-underline transition hover:text-text-main';
 
 type LandingHeaderProps = {
     scrolled: boolean;
-    hasSession: boolean;
     onLoginClick: () => void;
 };
 
-export function LandingHeader({ scrolled, hasSession, onLoginClick }: LandingHeaderProps) {
+export function LandingHeader({ scrolled, onLoginClick }: LandingHeaderProps) {
     return (
         <header
             className={`fixed inset-x-0 top-0 z-[1000] border-b ${
@@ -59,17 +59,7 @@ export function LandingHeader({ scrolled, hasSession, onLoginClick }: LandingHea
                     >
                         <DiscordIcon className="h-4 w-4" />
                     </a>
-                    {hasSession ? (
-                        <a href={appPath('/dashboard/')} className={landingBtnHeader}>
-                            Panel
-                        </a>
-                    ) : (
-                        <>
-                            <button type="button" onClick={onLoginClick} className={landingBtnHeader}>
-                                Empezar
-                            </button>
-                        </>
-                    )}
+                    <LandingAuthCta variant="header" onLoginClick={onLoginClick} />
                 </div>
             </div>
         </header>

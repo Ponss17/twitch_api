@@ -394,21 +394,23 @@ export const en: Translations = {
             errors: 'Errors',
             successRate: 'Success Rate',
             total: 'Total Requests',
-            noData: 'No data today',
-            noDataSub: 'Use a command'
+            noData: 'No activity today yet',
+            noDataSub: 'When you use a command in chat, the breakdown will show up here.'
         },
         latencyChart: {
             title: 'Performance & Latency',
             info: 'Response time per command.',
-            noData: 'No latency',
-            noDataSub: 'Waiting for data',
-            latency: 'Avg Latency'
+            noData: 'No measurements yet',
+            noDataSub: 'Latency shows up once your commands start getting used.',
+            latency: 'Avg Latency',
+            colCommand: 'Command',
+            colLatency: 'Latency'
         },
         endpointsTable: {
             title: 'Most Used Commands',
             info: 'List of commands with requests, success rate, and avg latency.',
-            noData: 'Not enough data',
-            noDataSub: 'Run commands in your channel to generate history',
+            noData: 'No history yet',
+            noDataSub: 'Run commands in your channel to build this list.',
             headers: {
                 command: 'Command',
                 requests: 'Requests',
@@ -416,31 +418,28 @@ export const en: Translations = {
                 latency: 'Latency'
             }
         },
-        distributionChart: {
-            title: 'Command Distribution',
-            info: 'Requests per command.',
-            noData: 'No commands',
-            noDataSub: 'Start activity'
-        },
         areaChart: {
             title: 'Traffic & Errors (7 days)',
             info: 'History of the last 7 days. Today updates in real-time.',
             requests: 'Requests',
-            noData: 'No activity',
-            noDataSub: 'Waiting for events'
+            errors: 'Errors',
+            noData: 'No traffic this week',
+            noDataSub: 'When requests come in, you will see the last 7 days here.'
         },
         leaderboard: {
             title: 'Top Users',
             infoToday: 'Most active users today.',
             info7d: 'Most active users in 7 days.',
-            noData: 'No users',
-            noDataSub: 'Waiting for interactions',
+            noData: 'No interactions yet',
+            noDataSub: 'Viewers will appear here when they use your commands.',
             rankingToday: 'Top Today',
             ranking7d: 'Top 7 Days',
             totalInteractions: 'interactions',
             totalInteractionsTooltip: 'Total uses by all viewers',
             unitSingular: 'use',
-            unitPlural: 'uses'
+            unitPlural: 'uses',
+            colUser: 'User',
+            colUses: 'Uses'
         }
     },
 
