@@ -2,6 +2,7 @@ import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
 import { appPath } from '@/core/config/paths';
 import { landingBtnHeader, landingBtnPrimary } from './landingContent';
 import { ArrowRightIcon } from './landingIcons';
+import './LandingAuthCta.css';
 
 type LandingAuthCtaProps = {
     legacyReloginNotice?: boolean;
