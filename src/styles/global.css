@@ -208,18 +208,3 @@
   0% { width: 100%; }
   100% { width: 0%; }
 }
-.lp-auth-cta [data-lp-auth='session'],
-.lp-auth-cta [data-lp-auth='guest'] {
-  grid-area: 1 / 1;
-}
-html[data-lp-sess='1'] .lp-auth-cta [data-lp-auth='guest'] {
-  visibility: hidden;
-  pointer-events: none;
-}
-html:not([data-lp-sess='1']) .lp-auth-cta [data-lp-auth='session'] {
-  visibility: hidden;
-  pointer-events: none;
-}
-html[data-lp-sess='1'] [data-lp-auth-disclaimer] {
-  display: none;
-}
