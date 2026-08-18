@@ -152,7 +152,7 @@ const DataExport = {
         const homeUrl = `${siteOrigin}${appPath('/')}`;
         const docsUrl = `${siteOrigin}${appPath('/docs')}`;
         const dashboardUrl = `${siteOrigin}${appPath('/dashboard')}`;
-        const aboutUrl = `${siteOrigin}${appPath('/sobre-la-api')}`;
+        const aboutUrl = `${siteOrigin}${appPath('/about')}`;
         const logoUrl = absoluteAssetUrl('/img/logo.svg', siteOrigin);
 
         const statusUrl = STATUS_PAGE_URL;

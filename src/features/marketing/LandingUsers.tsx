@@ -124,7 +124,7 @@ export function LandingUsers() {
                     Streamers que utilizan la API
                 </h2>
                 <p className="mt-3 text-base leading-relaxed text-text-muted md:text-lg">
-                    Únete a una comunidad creciente de creadores que ya están llevando sus directos al siguiente nivel.
+                    Únete a los streamers que ya confían en la API para sus directos.
                 </p>
             </LandingReveal>
 

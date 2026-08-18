@@ -26,7 +26,7 @@ const USEFUL_LINKS: Array<{
     labelKey: keyof Translations['home']['resources'];
     external?: boolean;
 }> = [
-    { href: '/sobre-la-api', icon: Info, labelKey: 'about' },
+    { href: '/about', icon: Info, labelKey: 'about' },
     { href: '/docs', icon: Book, labelKey: 'docs' },
     {
         href: STATUS_PAGE_URL,

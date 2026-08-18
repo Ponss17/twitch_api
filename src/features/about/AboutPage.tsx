@@ -1,10 +1,9 @@
 import { Book, ArrowLeft, User, Code2, Users } from 'lucide-react';
-import { DiscordIcon, InstagramIcon } from '@/shared/ui/icons/BrandIcons';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { appPath, dashboardHomePath, docsReturnPath, saveDocsReturnPath, staticPath } from '@/core/config/paths';
 import { aboutFadeIn } from '@/core/utils/tw';
 import { AboutTechCards } from '@/features/about/AboutTechCards';
-import { copyText } from '@/core/utils/clipboard';
 
 function animDelay(delay: number): CSSProperties {
     return { animationDelay: `${delay * 0.1}s` };
@@ -51,29 +50,10 @@ function AboutHeader() {
 
 export function AboutPage() {
     const [returnPath, setReturnPath] = useState(() => dashboardHomePath());
-    const [toastVisible, setToastVisible] = useState(false);
-    const toastTimerRef = useRef<number | null>(null);
 
     useEffect(() => {
         setReturnPath(docsReturnPath());
     }, []);
-
-    useEffect(() => {
-        return () => {
-            if (toastTimerRef.current !== null) {
-                window.clearTimeout(toastTimerRef.current);
-            }
-        };
-    }, []);
-
-    const copyDiscord = async () => {
-        const ok = await copyText('ponsschiquito');
-        if (ok) {
-            setToastVisible(true);
-            if (toastTimerRef.current !== null) window.clearTimeout(toastTimerRef.current);
-            toastTimerRef.current = window.setTimeout(() => setToastVisible(false), 3000);
-        }
-    };
 
     return (
         <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-bg-main font-[Outfit,Inter,system-ui,sans-serif] text-sm text-text-main">
@@ -93,39 +73,19 @@ export function AboutPage() {
                     </a>
 
                     <div className={`max-w-[700px] ${aboutFadeIn}`} style={animDelay(1)}>
-                        <h1 className="mb-5 text-4xl font-extrabold tracking-tight text-text-main md:text-5xl">
-                            Sobre LosPerris API
+                        <h1 className="mb-5 text-3xl font-extrabold tracking-tight text-text-main md:text-4xl">
+                            LosPerris API
                         </h1>
-                        <p className="mb-10 text-lg text-text-muted leading-relaxed md:text-xl md:leading-relaxed">
+                        <p className="mb-6 text-lg text-text-muted leading-relaxed md:text-xl md:leading-relaxed">
                             Desarrollo, propósito y las tecnologías detrás de la plataforma. Una API de alto rendimiento creada por y para la comunidad de Twitch.
                         </p>
-
-                        <div className="flex flex-wrap items-center gap-4">
-                            <button
-                                type="button"
-                                className="group flex cursor-pointer items-center gap-2.5 rounded-md border border-border-subtle bg-text-main/5 px-5 py-2.5 text-sm font-medium text-text-main transition-all hover:border-border-strong hover:bg-text-main/5"
-                                onClick={() => void copyDiscord()}
-                            >
-                                <DiscordIcon className="h-4 w-4 text-[#5865f2] transition-transform group-hover:scale-110" aria-hidden="true" />
-                                Discord: ponsschiquito
-                            </button>
-                            <a
-                                href="https://www.instagram.com/ponss_jean/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group flex items-center gap-2.5 rounded-md border border-border-subtle bg-text-main/5 px-5 py-2.5 text-sm font-medium text-text-main transition-all hover:border-border-strong hover:bg-text-main/5 no-underline"
-                            >
-                                <InstagramIcon className="h-4 w-4 text-[#e4405f] transition-transform group-hover:scale-110" aria-hidden="true" />
-                                Instagram: ponss_jean
-                            </a>
-                        </div>
                     </div>
                 </section>
 
                 {/* Module 1: El Proyecto */}
                 <section className="mb-20">
                     <div className={`mb-6 flex items-center gap-3 ${aboutFadeIn}`} style={animDelay(2)}>
-                        <div className="flex h-8 w-8 items-center justify-center rounded-md border border-border-subtle bg-text-main/5">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-md border border-border-subtle bg-bg-secondary">
                             <Book className="h-4 w-4 text-text-muted" />
                         </div>
                         <h2 className="text-xl font-medium tracking-tight text-text-main">
@@ -133,9 +93,9 @@ export function AboutPage() {
                         </h2>
                     </div>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                        <div className={`group flex flex-col rounded-xl border border-border-subtle bg-text-main/5 p-6 transition-all hover:border-border-subtle hover:bg-text-main/5 ${aboutFadeIn}`} style={animDelay(2)}>
+                        <div className={`group flex flex-col rounded-xl border border-border-subtle bg-bg-secondary p-6 transition-all hover:border-border-strong ${aboutFadeIn}`} style={animDelay(2)}>
                             <div className="mb-4 flex items-start justify-between">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border-subtle bg-text-main/5">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border-subtle bg-bg-main">
                                     <User className="h-5 w-5 text-primary" />
                                 </div>
                                 <div className="flex items-center gap-1.5 rounded-md border border-border-subtle bg-text-main/5 px-2 py-1 text-[0.7rem] font-medium text-text-muted">
@@ -149,8 +109,8 @@ export function AboutPage() {
                             </p>
                         </div>
 
-                        <div className={`group flex flex-col rounded-xl border border-border-subtle bg-text-main/5 p-6 transition-all hover:border-border-subtle hover:bg-text-main/5 ${aboutFadeIn}`} style={animDelay(3)}>
-                            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-border-subtle bg-text-main/5">
+                        <div className={`group flex flex-col rounded-xl border border-border-subtle bg-bg-secondary p-6 transition-all hover:border-border-strong ${aboutFadeIn}`} style={animDelay(3)}>
+                            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-border-subtle bg-bg-main">
                                 <Code2 className="h-5 w-5 text-primary" />
                             </div>
                             <span className="mb-1 text-[0.7rem] font-bold tracking-widest text-text-muted uppercase">02 / El porqué de esto</span>
@@ -160,8 +120,8 @@ export function AboutPage() {
                             </p>
                         </div>
 
-                        <div className={`group flex flex-col rounded-xl border border-border-subtle bg-text-main/5 p-6 transition-all hover:border-border-subtle hover:bg-text-main/5 ${aboutFadeIn}`} style={animDelay(4)}>
-                            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-border-subtle bg-text-main/5">
+                        <div className={`group flex flex-col rounded-xl border border-border-subtle bg-bg-secondary p-6 transition-all hover:border-border-strong ${aboutFadeIn}`} style={animDelay(4)}>
+                            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-border-subtle bg-bg-main">
                                 <Users className="h-5 w-5 text-primary" />
                             </div>
                             <span className="mb-1 text-[0.7rem] font-bold tracking-widest text-text-muted uppercase">03 / Quiénes somos</span>
@@ -176,7 +136,7 @@ export function AboutPage() {
                 {/* Module 3: Client Libraries (Tecnologías) */}
                 <section className={`border-t border-primary/20 pt-12 ${aboutFadeIn}`} style={animDelay(8)}>
                     <div className="mb-6 flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-md border border-border-subtle bg-text-main/5">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-md border border-border-subtle bg-bg-secondary">
                             <Code2 className="h-4 w-4 text-text-muted" />
                         </div>
                         <h2 className="text-xl font-medium tracking-tight text-text-main">
@@ -191,14 +151,14 @@ export function AboutPage() {
                 {/* Module 4: Filosofía / Texto Adicional */}
                 <section className={`mt-20 border-t border-primary/20 pt-12 ${aboutFadeIn}`} style={animDelay(9)}>
                     <div className="mb-6 flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-md border border-border-subtle bg-text-main/5">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-md border border-border-subtle bg-bg-secondary">
                             <Users className="h-4 w-4 text-text-muted" />
                         </div>
                         <h2 className="text-xl font-medium tracking-tight text-text-main">
                             Arquitectura del Proyecto
                         </h2>
                     </div>
-                    <div className="rounded-xl border border-border-subtle bg-text-main/5 p-8 md:p-12">
+                    <div className="rounded-xl border border-border-subtle bg-bg-secondary p-8 md:p-12">
                         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:items-center">
                             <div>
                                 <h3 className="mb-4 text-2xl font-normal tracking-tight text-text-main">
@@ -227,15 +187,6 @@ export function AboutPage() {
                 </section>
 
             </main>
-
-            <div
-                className={`pointer-events-none fixed right-[30px] bottom-[30px] z-[2000] rounded-md border border-border-subtle bg-bg-modal px-6 py-3 text-sm font-medium text-text-main shadow-xl transition-all duration-300 ${toastVisible ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
-                    }`}
-                role="status"
-                aria-live="polite"
-            >
-                Copiado: ponsschiquito
-            </div>
         </div>
     );
 }
