@@ -4,7 +4,7 @@ import { SettingsIcon, SwordIcon, UsersIcon, VideoIcon } from './landingIcons';
 import { LandingReveal } from './LandingReveal';
 import { LandingFloatIcons } from './LandingMotif';
 
-const NIGHTBOT_COLOR = '#1E90FF';
+const NIGHTBOT_COLOR = '#47487f';
 const STREAMER_COLOR = '#FF4500';
 
 function ChatBadge({ role }: { role: 'viewer' | 'broadcaster' | 'bot' }) {
@@ -12,7 +12,7 @@ function ChatBadge({ role }: { role: 'viewer' | 'broadcaster' | 'bot' }) {
         return (
             <span
                 className="mr-1 inline-flex h-4 w-4 items-center justify-center rounded-[0.2rem] text-white"
-                style={{ backgroundColor: '#00ad03' }}
+                style={{ backgroundColor: '#05994f' }}
                 title="Moderador"
             >
                 <span className="sr-only">Moderador</span>
@@ -132,102 +132,107 @@ export function LandingFit() {
 
                 <LandingReveal className="h-full min-h-[380px]">
                     <div className="flex h-full min-h-[380px] flex-col overflow-hidden rounded-lg border border-border-subtle bg-[#18181b]">
-                            <div className="relative flex items-center justify-center border-b border-white/5 bg-[#18181b] px-4 py-3">
-                                <div className="absolute left-4 opacity-50 hover:opacity-100 cursor-pointer transition-opacity">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                                </div>
-                                <p className="text-[13px] font-semibold uppercase tracking-widest text-[#efeff1]">Chat del stream</p>
-                                <UsersIcon className="absolute right-4 h-[18px] w-[18px] text-[#adadb8]" />
+                        <div className="relative flex items-center justify-center border-b border-white/5 bg-[#18181b] px-4 py-3">
+                            <div className="absolute left-4 opacity-50 hover:opacity-100 cursor-pointer transition-opacity">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
                             </div>
+                            <p className="text-[13px] font-semibold uppercase tracking-widest text-[#efeff1]">Chat del stream</p>
+                            <UsersIcon className="absolute right-4 h-[18px] w-[18px] text-[#adadb8]" />
+                        </div>
 
-                            <div className="border-b border-white/5 bg-[#18181b] px-3 py-2" role="tablist" aria-label="Probar comando">
-                                <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
-                                    {FIT_DEMOS.map((item, i) => (
-                                        <button
-                                            key={item.id}
-                                            type="button"
-                                            role="tab"
-                                            aria-selected={i === index}
-                                            onClick={() => setIndex(i)}
-                                            className={`shrink-0 rounded-md px-3 py-1.5 font-mono text-[12px] font-semibold transition sm:text-[13px] ${
-                                                i === index
-                                                    ? 'bg-[#5c16c5] text-white shadow-sm'
-                                                    : 'bg-[#1f1f23] text-[#adadb8] hover:bg-[#26262c] hover:text-[#efeff1]'
+                        <div className="border-b border-white/5 bg-[#18181b] px-3 py-2" role="tablist" aria-label="Probar comando">
+                            <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+                                {FIT_DEMOS.map((item, i) => (
+                                    <button
+                                        key={item.id}
+                                        type="button"
+                                        role="tab"
+                                        aria-selected={i === index}
+                                        onClick={() => setIndex(i)}
+                                        className={`shrink-0 rounded-md px-3 py-1.5 font-mono text-[12px] font-semibold transition sm:text-[13px] ${i === index
+                                                ? 'bg-[#5c16c5] text-white shadow-sm'
+                                                : 'bg-[#1f1f23] text-[#adadb8] hover:bg-[#26262c] hover:text-[#efeff1]'
                                             }`}
-                                        >
-                                            {item.command.split(' ')[0]}
-                                        </button>
-                                    ))}
-                                </div>
+                                    >
+                                        {item.command.split(' ')[0]}
+                                    </button>
+                                ))}
                             </div>
+                        </div>
 
-                            <div className="flex min-h-0 flex-1 flex-col py-2 bg-[#18181b]">
-                                <p className="px-4 py-1 text-[13px] leading-5 text-[#adadb8]">
-                                    ¡Te damos la bienvenida a la sala de chat de ponss17!
-                                </p>
-                                <ChatLine
-                                    user="ponss17"
-                                    color={STREAMER_COLOR}
-                                    text="buenas"
-                                    role="broadcaster"
-                                />
-                                {phase !== 'typing' ? (
-                                    <div className="motion-safe:animate-fade-soft motion-reduce:animate-none">
-                                        <ChatLine
-                                            key={`${demo.id}-cmd-${run}`}
-                                            user={demo.user}
-                                            color={demo.color}
-                                            text={demo.command}
-                                            role={demo.role}
-                                        />
-                                    </div>
-                                ) : null}
-                                {phase === 'sent' ? (
-                                    <div className="h-6" aria-hidden />
-                                ) : null}
-                                {phase === 'reply' ? (
-                                    <div className="motion-safe:animate-fade-soft motion-reduce:animate-none">
-                                        <ChatLine
-                                            key={`${demo.id}-bot-${run}`}
-                                            user="Nightbot"
-                                            color={NIGHTBOT_COLOR}
-                                            text={demo.reply}
-                                            role="bot"
-                                        />
-                                    </div>
-                                ) : null}
-                            </div>
-
-                            <div className="px-4 pt-2 pb-4 bg-[#18181b]">
-                                <div className="flex min-h-[40px] w-full items-center rounded-md border border-[#303032] bg-[#1f1f23] px-3 py-2 text-[13px] transition-all hover:border-[#464649] focus-within:border-[#a970ff] focus-within:bg-black focus-within:ring-1 focus-within:ring-[#a970ff]">
-                                    {phase === 'typing' ? (
-                                        <>
-                                            <span className="text-[#efeff1]">{typed}</span>
-                                            <span className="ml-px inline-block h-[1em] w-[2px] bg-[#efeff1] motion-safe:animate-pulse" />
-                                        </>
-                                    ) : (
-                                        <span className="text-[#adadb8] font-medium">Enviar un mensaje</span>
-                                    )}
+                        <div className="flex min-h-0 flex-1 flex-col py-2 bg-[#18181b]">
+                            <p className="px-4 py-1 text-[13px] leading-5 text-[#adadb8]">
+                                ¡Te damos la bienvenida a la sala de chat de ponss17!
+                            </p>
+                            <ChatLine
+                                user="ponss17"
+                                color={STREAMER_COLOR}
+                                text="buenas"
+                                role="broadcaster"
+                            />
+                            {phase !== 'typing' ? (
+                                <div className="motion-safe:animate-fade-soft motion-reduce:animate-none">
+                                    <ChatLine
+                                        key={`${demo.id}-cmd-${run}`}
+                                        user={demo.user}
+                                        color={demo.color}
+                                        text={demo.command}
+                                        role={demo.role}
+                                    />
                                 </div>
-                                <div className="mt-2 flex items-center justify-between">
-                                    <div className="flex items-center gap-1">
-                                        <div className="flex items-center gap-1.5 rounded-md hover:bg-[#26262c] p-1.5 cursor-pointer text-[#00f0ff] transition-colors" title="Puntos del canal">
-                                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2l6 14-6-4-6 4 6-14z"/></svg>
+                            ) : null}
+                            {phase === 'sent' ? (
+                                <div className="h-6" aria-hidden />
+                            ) : null}
+                            {phase === 'reply' ? (
+                                <div className="motion-safe:animate-fade-soft motion-reduce:animate-none">
+                                    <ChatLine
+                                        key={`${demo.id}-bot-${run}`}
+                                        user="Nightbot"
+                                        color={NIGHTBOT_COLOR}
+                                        text={demo.reply}
+                                        role="bot"
+                                    />
+                                </div>
+                            ) : null}
+                        </div>
+
+                        <div className="px-4 pt-2 pb-4 bg-[#18181b]">
+                            <div className="flex min-h-[40px] w-full items-center rounded-md border border-[#303032] bg-[#1f1f23] px-3 py-2 text-[13px] transition-all hover:border-[#464649] focus-within:border-[#a970ff] focus-within:bg-black focus-within:ring-1 focus-within:ring-[#a970ff]">
+                                {phase === 'typing' ? (
+                                    <>
+                                        <span className="text-[#efeff1]">{typed}</span>
+                                        <span className="ml-px inline-block h-[1em] w-[2px] bg-[#efeff1] motion-safe:animate-pulse" />
+                                    </>
+                                ) : (
+                                    <span className="text-[#adadb8] font-medium">Enviar un mensaje</span>
+                                )}
+                            </div>
+                            <div className="mt-2 flex items-center justify-between">
+                                <div className="flex items-center gap-1">
+                                    <div className="flex items-center gap-2 rounded-md hover:bg-[#26262c] p-1.5 cursor-pointer transition-colors" title="500 Bits, 1.2K Perricoins">
+                                        <div className="flex items-center gap-1 text-[#efeff1]">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 20 20"><path fill="#801eff" d="m10 1-8 9 8-2z" /><path fill="#ab5cff" d="m10 1 8 9-8-2z" /><path fill="#a272ff" d="m2 10 8 9V8z" /><path fill="#d4aef8" d="m18 10-8 9V8z" /></svg>
+                                            <span className="text-[12px] font-bold">500</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-[#adadb8] hover:text-[#efeff1] transition-colors">
+                                            <img src="/img/logo.png" alt="Perricoins" className="w-4 h-4 object-contain rounded-full" />
                                             <span className="text-[12px] font-bold">1.2K</span>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <SettingsIcon className="h-[18px] w-[18px] text-[#adadb8] hover:text-[#efeff1] cursor-pointer transition-colors" />
-                                        <button
-                                            type="button"
-                                            onClick={sendNow}
-                                            className="rounded bg-[#9146ff] hover:bg-[#772ce8] px-3 py-1.5 text-[13px] font-semibold text-white transition-colors shadow-sm"
-                                        >
-                                            Chat
-                                        </button>
-                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <SettingsIcon className="h-[18px] w-[18px] text-[#adadb8] hover:text-[#efeff1] cursor-pointer transition-colors" />
+                                    <button
+                                        type="button"
+                                        onClick={sendNow}
+                                        className="rounded bg-[#9146ff] hover:bg-[#772ce8] px-3 py-1.5 text-[13px] font-semibold text-white transition-colors shadow-sm"
+                                    >
+                                        Chat
+                                    </button>
                                 </div>
                             </div>
+                        </div>
                     </div>
                 </LandingReveal>
             </div>

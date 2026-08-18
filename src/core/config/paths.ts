@@ -71,7 +71,7 @@ const PANEL_RETURN_PATH_KEY = 'twitch_docs_return_path';
 /** Páginas secundarias: no guardar como origen ni usar como destino de retorno. */
 const SECONDARY_SEGMENTS = [
     '/docs',
-    '/sobre-la-api',
+    '/about',
     '/legal',
     '/404',
     '/429',
@@ -116,7 +116,7 @@ export function normalizePanelReturnPath(pathname: string): string {
 }
 
 /**
- * Persiste la ruta del panel (dashboard con pestaña o landing) para retorno desde docs/sobre-la-api.
+ * Persiste la ruta del panel (dashboard con pestaña o landing) para retorno desde docs/about.
  * No escribe si la URL actual es una página secundaria.
  */
 export function persistPanelReturnPath(): void {
@@ -145,5 +145,5 @@ export function docsReturnPath(): string {
 
 /** Enlaces internos del dashboard que deben recordar el origen al salir. */
 export function shouldSavePanelReturn(href: string): boolean {
-    return href === '/docs' || href === '/sobre-la-api';
+    return href === '/docs' || href === '/about';
 }

@@ -64,7 +64,7 @@ describe('paths (frontend)', () => {
     });
 
     it('saveDocsReturnPath no guarda desde páginas secundarias', () => {
-        window.history.pushState({}, '', '/sobre-la-api/');
+        window.history.pushState({}, '', '/about/');
         saveDocsReturnPath();
         expect(sessionStorage.getItem('twitch_docs_return_path')).toBeNull();
     });
@@ -103,9 +103,9 @@ describe('paths (frontend)', () => {
         expect(legalPath()).toBe('/legal');
     });
 
-    it('shouldSavePanelReturn incluye docs y sobre-la-api', () => {
+    it('shouldSavePanelReturn incluye docs y about', () => {
         expect(shouldSavePanelReturn('/docs')).toBe(true);
-        expect(shouldSavePanelReturn('/sobre-la-api')).toBe(true);
+        expect(shouldSavePanelReturn('/about')).toBe(true);
         expect(shouldSavePanelReturn('/legal')).toBe(false);
     });
 });
