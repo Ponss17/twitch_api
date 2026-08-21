@@ -1,11 +1,11 @@
 import { API_ENDPOINTS, type Session } from '@/core/config/config';
 import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { debugWarn } from '@/core/logging/debugLog';
-import type { OverlayTool, RouletteOverlayState, TrendsOverlayState } from '@/features/overlay/lib/types';
+import type { OverlayTool, AnyOverlayState } from '@/features/overlay/lib/types';
 import { overlayStateFingerprint } from '@/features/overlay/lib/overlayStateUtils';
 
 type QueuedPublish = {
-    state: RouletteOverlayState | TrendsOverlayState;
+    state: AnyOverlayState;
     session: Session;
     fingerprint: string;
     resolve: () => void;
@@ -66,7 +66,7 @@ async function drainOverlayQueue(tool: OverlayTool): Promise<void> {
 
 export async function publishOverlayState(
     tool: OverlayTool,
-    state: RouletteOverlayState | TrendsOverlayState,
+    state: AnyOverlayState,
     session: Session
 ): Promise<void> {
     const fingerprint = overlayStateFingerprint(tool, state);

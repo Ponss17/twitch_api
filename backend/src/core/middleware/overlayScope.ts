@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { jsonError } from '../utils/jsonResponse';
-import type { OverlayReadPayload } from '../overlay/keys';
+import { OVERLAY_TOOLS, type OverlayReadPayload } from '../overlay/keys';
 import type { StoredUser } from '../../types/twitch';
 
 /** Sesión mínima para overlay — sin API key ni tokens OAuth. */
@@ -28,7 +28,8 @@ function isOverlayAllowedRoute(req: Request): boolean {
     if (req.method !== 'GET') return false;
 
     const path = normalizePath(req);
-    return /^\/(?:api\/)?dashboard\/overlay-state\/(roulette|trends)$/.test(path);
+    const tools = OVERLAY_TOOLS.join('|');
+    return new RegExp(`^/(?:api/)?dashboard/overlay-state/(${tools})$`).test(path);
 }
 
 /**

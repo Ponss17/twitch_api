@@ -206,7 +206,8 @@ export const en: Translations = {
             discordLinkAuth: 'You must log in to link Discord',
             discordLinkConfig: 'Discord linking is not available right now',
             discordLinkError: 'Could not link Discord',
-            exportLimitError: 'You must wait before generating another report.'
+            exportLimitError: 'You must wait before generating another report.',
+            exportSuccess: 'File downloaded successfully'
         },
         dangerModals: {
             resetTitle: 'Reset data',
@@ -239,12 +240,17 @@ export const en: Translations = {
                 title: 'Account Data',
                 desc: 'Information and management of your account data.',
                 firstLogin: 'First Login',
-                firstLoginDesc: 'Date when you first logged in.',
+                firstLoginDesc:
+                    'The first time you signed in to LosPerrisAPI (not your Twitch account creation date).',
                 lastLogin: 'Last Previous Login',
                 lastLoginDesc: 'Date of your last session before the current one.'
             },
             export: { title: 'Export', desc: 'Export your account information' },
             security: { title: 'Security', desc: 'Keys and access' },
+            auditLogs: {
+                title: 'Audit logs',
+                desc: 'Sign-ins, API key changes, Discord, and data resets.'
+            },
             dangerZone: { title: 'Danger Zone', desc: 'Destructive actions' },
             discord: { title: 'Discord', desc: 'Integrations' }
         },
@@ -278,8 +284,43 @@ export const en: Translations = {
             linkDiscord: 'Link Discord',
             unlinkDiscord: 'Unlink Discord',
             fullReport: 'Full Account Report',
-            exportReport: 'Export Data',
-            exportDesc: 'Download a JSON file with your activity history and settings for data portability compliance.'
+            exportReport: 'Export HTML',
+            exportDesc: 'Download an HTML report with your profile, activity, and settings.',
+            csvReport: 'Analytics CSV',
+            exportCsv: 'Export CSV',
+            csvDesc: 'Download a CSV with the summary, per-command usage, and the last 7 days. Useful for Excel or a weekly recap.'
+        },
+        auditLogs: {
+            action: 'Action',
+            when: 'When',
+            show: 'View log',
+            hide: 'Hide',
+            close: 'Close',
+            empty: 'No events yet. They appear when you sign in, change your API key, or link Discord.',
+            error: 'Could not load the audit log.',
+            page: (current: number, total: number): string => `Page ${current} of ${total}`,
+            prevPage: 'Previous page',
+            nextPage: 'Next page',
+            actions: {
+                session_login: 'Signed in',
+                session_logout: 'Signed out',
+                api_key_regenerated: 'Regenerated your API key',
+                api_key_revealed: 'Revealed your API key',
+                discord_linked: 'Linked Discord',
+                discord_unlinked: 'Unlinked Discord',
+                stats_cleared: 'Cleared your data'
+            },
+            scopes: {
+                stats: 'Stats and activity',
+                questions: 'Question history',
+                both: 'Stats and questions'
+            },
+            relativeTime: {
+                now: 'just now',
+                minutes: (mins: number): string => `${mins} min ago`,
+                hours: (hours: number): string => `${hours} h ago`,
+                days: (days: number): string => `${days} d ago`
+            }
         },
     },
 
@@ -369,6 +410,9 @@ export const en: Translations = {
     },
     analytics: {
         other: 'Other',
+        prevPage: 'Previous page',
+        nextPage: 'Next page',
+        rangeGroup: 'Time range',
         kpis: {
             title: 'Global Performance',
             info: 'Aggregated metrics of your API usage.',
@@ -399,24 +443,13 @@ export const en: Translations = {
         },
         latencyChart: {
             title: 'Performance & Latency',
-            info: 'Response time per command.',
+            info: 'Usage and response time per command.',
             noData: 'No measurements yet',
             noDataSub: 'Latency shows up once your commands start getting used.',
             latency: 'Avg Latency',
             colCommand: 'Command',
+            colRequests: 'Count',
             colLatency: 'Latency'
-        },
-        endpointsTable: {
-            title: 'Most Used Commands',
-            info: 'List of commands with requests, success rate, and avg latency.',
-            noData: 'No history yet',
-            noDataSub: 'Run commands in your channel to build this list.',
-            headers: {
-                command: 'Command',
-                requests: 'Requests',
-                success: 'Success',
-                latency: 'Latency'
-            }
         },
         areaChart: {
             title: 'Traffic & Errors (7 days)',
@@ -689,14 +722,18 @@ export const en: Translations = {
         info: 'Explore and manage your Twitch clips.',
         btnFavsOnly: 'Show favorites only',
         btnReload: 'Reload clips',
-        tooltip: 'Clip management',
-        searchPlaceholder: 'Search clips...',
+        btnExportCsv: 'Export gallery to CSV',
+        tooltip: 'Clip tools: download, VOD, and CSV.',
+        searchPlaceholder: 'Search by title or creator...',
         sortLabel: 'Sort by',
         noClips: 'No clips found.',
         viewClip: 'View Clip',
-        playClip: (title) => `Play clip: ${title}`,
+        playClip: (title: string): string => `Play clip: ${title}`,
         favorite: 'Add to favorites',
         copyLink: 'Copy link',
+        download: 'Download MP4',
+        openVod: 'Open on VOD',
+        byCreator: 'by {name}',
         untitled: 'Untitled',
         views: 'views',
         loadMore: 'Load more',
@@ -711,6 +748,13 @@ export const en: Translations = {
             errorLoad: 'Error loading clips',
             copied: 'Link copied',
             copyError: 'Error copying',
+            downloaded: 'Clip downloaded',
+            downloadOpened: 'Video opened — save it from the browser',
+            downloadUnavailable: 'Could not get the MP4 for this clip',
+            downloadNeedsRelogin:
+                'To download clips, sign out and sign back in with Twitch (new permission).',
+            csvExported: 'Clips CSV downloaded',
+            csvEmpty: 'No clips to export',
         },
         overlay: {
             close: 'Close',
@@ -1115,12 +1159,32 @@ export const en: Translations = {
             slNote: 'If the source is black, check the size, transparent background, and refresh on scene show.',
             tools: {
                 trends: 'Trends',
-                roulette: 'Roulette'
+                roulette: 'Roulette',
+                questions: 'Questions'
             },
             sizes: {
                 trends: '900 × 580 px (top 10; full width if preferred)',
-                roulette: '720 × 720 px'
+                roulette: '720 × 720 px',
+                questions: '800 × 280 px (current question; full width if preferred)'
             }
+        },
+        appearance: {
+            title: 'On-stream appearance',
+            badge: 'Overlay only',
+            desc: 'Color and size go in the OBS URL. They do not change your dashboard theme or add extra requests.',
+            colorLabel: 'Color',
+            customColor: 'Custom color',
+            preset: 'Preset',
+            scaleLabel: 'Size',
+            scaleSm: 'Small',
+            scaleMd: 'Normal',
+            scaleLg: 'Large'
+        },
+        questions: {
+            now: 'Current question',
+            waitingTitle: 'Listening',
+            waitingHint: 'Viewers ask with !{keyword}',
+            queue: '{count} in queue'
         },
         banners: {
             connecting: 'Connecting overlay…',
@@ -1131,7 +1195,8 @@ export const en: Translations = {
         },
         apps: {
             rouletteErrorTitle: 'Roulette Overlay',
-            trendsErrorTitle: 'Trends Overlay'
+            trendsErrorTitle: 'Trends Overlay',
+            questionsErrorTitle: 'Questions Overlay'
         }
     }
 };

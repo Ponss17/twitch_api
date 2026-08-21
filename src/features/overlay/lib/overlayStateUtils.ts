@@ -1,12 +1,13 @@
-import type { OverlayTool, RouletteOverlayState, TrendsOverlayState } from '@/features/overlay/lib/types';
-
-type OverlayPayload = RouletteOverlayState | TrendsOverlayState;
+import type {
+    AnyOverlayState,
+    OverlayTool,
+    QuestionsOverlayState,
+    RouletteOverlayState,
+    TrendsOverlayState
+} from '@/features/overlay/lib/types';
 
 /** Huella estable — ignora `updatedAt` (cambia en cada build pero no el contenido lógico). */
-export function overlayStateFingerprint(
-    tool: OverlayTool,
-    state: OverlayPayload
-): string {
+export function overlayStateFingerprint(tool: OverlayTool, state: AnyOverlayState): string {
     const { updatedAt: _u, ...rest } = state;
     return JSON.stringify({ tool, ...rest });
 }
@@ -30,6 +31,7 @@ export const ROULETTE_OVERLAY_WINNER_MS = 20_000;
 /** Escucha pasiva en OBS — solo para detectar que el panel publicó una sesión nueva. */
 export const OVERLAY_POLL_IDLE_MS = 60_000;
 export const OVERLAY_POLL_TRENDS_MS = 2_500;
+export const OVERLAY_POLL_QUESTIONS_MS = 2_500;
 export const OVERLAY_POLL_ROULETTE_MS = 600;
 export const OVERLAY_POLL_SPINNING_MS = 300;
 
@@ -42,7 +44,7 @@ export interface OverlayPollAnchors {
 
 export function updateOverlayPollAnchors(
     tool: OverlayTool,
-    state: RouletteOverlayState | TrendsOverlayState | null,
+    state: AnyOverlayState | null,
     anchors: OverlayPollAnchors
 ): void {
     if (!state) return;
@@ -60,6 +62,8 @@ export function updateOverlayPollAnchors(
         }
         return;
     }
+
+    if (tool === 'questions') return;
 
     const trends = state as TrendsOverlayState;
     if (trends.tracking) {
@@ -86,7 +90,7 @@ export function updateOverlayPollAnchors(
  */
 export function resolveOverlayPollIntervalMs(
     tool: OverlayTool,
-    state: RouletteOverlayState | TrendsOverlayState | null,
+    state: AnyOverlayState | null,
     now: number,
     anchors: OverlayPollAnchors
 ): number {
@@ -94,20 +98,20 @@ export function resolveOverlayPollIntervalMs(
 
     if (tool === 'trends') {
         const trends = state as TrendsOverlayState;
-        if (
-            trends.tracking ||
-            shouldShowTrendsOverlay(trends, now, anchors.trendsEndedAt)
-        ) {
+        if (trends.tracking || shouldShowTrendsOverlay(trends, now, anchors.trendsEndedAt)) {
             return OVERLAY_POLL_TRENDS_MS;
         }
         return OVERLAY_POLL_IDLE_MS;
     }
 
+    if (tool === 'questions') {
+        return shouldShowQuestionsOverlay(state as QuestionsOverlayState)
+            ? OVERLAY_POLL_QUESTIONS_MS
+            : OVERLAY_POLL_IDLE_MS;
+    }
+
     const roulette = state as RouletteOverlayState;
-    if (
-        roulette.isSpinning ||
-        shouldShowRouletteOverlay(roulette, now, anchors.winnerShownAt)
-    ) {
+    if (roulette.isSpinning || shouldShowRouletteOverlay(roulette, now, anchors.winnerShownAt)) {
         if (roulette.isSpinning) return OVERLAY_POLL_SPINNING_MS;
         return OVERLAY_POLL_ROULETTE_MS;
     }
@@ -150,4 +154,9 @@ export function shouldShowRouletteOverlay(
 
     if (state.isOpen) return true;
     return false;
+}
+
+/** Visible con pregunta actual o mientras se escucha el chat (espera). */
+export function shouldShowQuestionsOverlay(state: QuestionsOverlayState): boolean {
+    return Boolean(state.current) || state.isActive;
 }

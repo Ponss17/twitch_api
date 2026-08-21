@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import type { RouletteOverlayState, TrendsOverlayState } from '@/features/overlay/lib/types';
+import type { QuestionsOverlayState, RouletteOverlayState, TrendsOverlayState } from '@/features/overlay/lib/types';
 import {
     ROULETTE_OVERLAY_WINNER_MS,
+    shouldShowQuestionsOverlay,
     shouldShowRouletteOverlay,
     shouldShowTrendsOverlay,
     TRENDS_OVERLAY_RESULTS_MS
@@ -71,4 +72,8 @@ export function useTrendsOverlayVisible(state: TrendsOverlayState): boolean {
     const now = useVisibilityClock(ticking);
 
     return shouldShowTrendsOverlay(state, now, endedAt);
+}
+
+export function useQuestionsOverlayVisible(state: QuestionsOverlayState): boolean {
+    return shouldShowQuestionsOverlay(state);
 }

@@ -3,6 +3,7 @@ import { useOverlayTrendsRemaining } from '@/features/overlay/hooks/useOverlayTr
 import { useTrendsOverlayVisible } from '@/features/overlay/hooks/useOverlayVisibilityClock';
 import { TrendsLeaderboardDisplay } from '@/features/tools/trends/TrendsLeaderboardDisplay';
 import { rankWordCounts } from '@/features/tools/trends/lib/rankWordCounts';
+import { OverlayAppearanceRoot } from '@/features/overlay/components/OverlayAppearanceRoot';
 import { OverlayConnectionBanners } from '@/features/overlay/components/OverlayConnectionBanners';
 import { OverlaySessionGate } from '@/features/overlay/components/OverlaySessionGate';
 import { OverlaySessionProvider } from '@/features/overlay/components/OverlaySessionProvider';
@@ -23,20 +24,22 @@ function OverlayTrendsContent({ session }: { session: Session }) {
     }
 
     return (
-        <div className="min-h-screen overflow-hidden p-1 text-text-main">
-            <OverlayConnectionBanners connected={connected} stale={stale} />
-            <TrendsLeaderboardDisplay
-                ranked={ranked}
-                maxCount={maxCount}
-                tracking={trendsState.tracking}
-                remaining={displayRemaining}
-                timerEnded={trendsState.timerEnded}
-                sessionActive={trendsState.sessionActive}
-                displayName={trendsState.displayName}
-                variant="overlay"
-                showTimer={trendsState.tracking}
-            />
-        </div>
+        <OverlayAppearanceRoot>
+            <div className="min-h-screen overflow-hidden p-1 text-text-main">
+                <OverlayConnectionBanners connected={connected} stale={stale} />
+                <TrendsLeaderboardDisplay
+                    ranked={ranked}
+                    maxCount={maxCount}
+                    tracking={trendsState.tracking}
+                    remaining={displayRemaining}
+                    timerEnded={trendsState.timerEnded}
+                    sessionActive={trendsState.sessionActive}
+                    displayName={trendsState.displayName}
+                    variant="overlay"
+                    showTimer={trendsState.tracking}
+                />
+            </div>
+        </OverlayAppearanceRoot>
     );
 }
 

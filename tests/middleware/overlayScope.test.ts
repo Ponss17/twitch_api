@@ -51,6 +51,16 @@ describe('overlayScopeGuard', () => {
         expect(next).toHaveBeenCalled();
     });
 
+    it('allows overlay GET on questions overlay-state route', () => {
+        const req = mockReq('GET', '/api/dashboard/overlay-state/questions');
+        const res = mockRes({ isOverlayReadRequest: true, overlayTool: 'questions' });
+        const next = jest.fn() as NextFunction;
+
+        overlayScopeGuard(req, res, next);
+
+        expect(next).toHaveBeenCalled();
+    });
+
     it('blocks overlay from dashboard summary', () => {
         const req = mockReq('GET', '/api/dashboard/summary');
         const res = mockRes({ isOverlayReadRequest: true });
