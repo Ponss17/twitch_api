@@ -7,7 +7,7 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 interface SettingsDataPanelProps {
     profile: DashboardProfile | null;
     exportLoading: boolean;
-    onExport: () => void | Promise<void>;
+    onExport: (format: 'html' | 'csv') => void | Promise<void>;
 }
 
 function formatDateTimeSplit(isoDate?: string, timezone?: string, locale = 'es-ES') {

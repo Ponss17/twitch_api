@@ -9,6 +9,7 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     recordUserRequest: jest.fn().mockResolvedValue(undefined),
     getUser: jest.fn(),
     addAuditLog: jest.fn().mockResolvedValue(undefined),
+    getUserAuditLogs: jest.fn().mockResolvedValue({ logs: [], page: 1, pageSize: 20, total: 0 }),
     getViewerLeaderboards: jest.fn().mockResolvedValue({ leaderboardToday: [], leaderboardWeekly: [] })
 }));
 
@@ -54,7 +55,7 @@ jest.mock('../../backend/src/features/twitch/twitch.service', () => ({
 import * as dbService from '../../backend/src/core/database/dbService';
 import * as questionsService from '../../backend/src/core/database/questionsService';
 import { invalidateAllUserCaches, invalidateDashboardStatsCaches } from '../../backend/src/core/utils/cacheInvalidation';
-import { getAnalytics, getLogs, clearUserData, deleteAccount, exportCheck, recordExportComplete, revealApiKey } from '../../backend/src/features/dashboard/dashboard.controller';
+import { getAnalytics, getLogs, clearUserData, deleteAccount, exportCheck, recordExportComplete, revealApiKey, getUserAuditLogs } from '../../backend/src/features/dashboard/dashboard.controller';
 import { AuthenticatedRequest } from '@/types/twitch';
 
 const mockReq = (overrides = {}) =>
@@ -202,6 +203,10 @@ describe('dashboardController', () => {
             expect(dbService.clearUserStatsAndLogs).toHaveBeenCalledWith('123');
             expect(questionsService.clearStreamerQuestions).toHaveBeenCalledWith('123', false);
             expect(invalidateDashboardStatsCaches).toHaveBeenCalledWith('123', 'streamer');
+            expect(dbService.addAuditLog).toHaveBeenCalledWith('stats_cleared', '123', '123', {
+                stats: true,
+                questions: true
+            });
             expect(invalidateAllUserCaches).not.toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -387,6 +392,36 @@ describe('dashboardController', () => {
             const res = mockRes();
 
             await revealApiKey(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+        });
+    });
+
+    describe('getUserAuditLogs', () => {
+        it('returns the current user page with no-store', async () => {
+            const payload = {
+                logs: [{ action: 'session_login', createdAt: '2026-08-21T12:00:00.000Z' }],
+                page: 1,
+                pageSize: 20,
+                total: 1
+            };
+            (dbService.getUserAuditLogs as jest.Mock).mockResolvedValueOnce(payload);
+
+            const req = mockReq({ query: { page: '1' } });
+            const res = mockRes();
+
+            await getUserAuditLogs(req, res);
+
+            expect(dbService.getUserAuditLogs).toHaveBeenCalledWith('123', 1);
+            expect(res.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-store');
+            expect(res.json).toHaveBeenCalledWith(payload);
+        });
+
+        it('returns 401 without userId', async () => {
+            const req = mockReq({ userId: undefined });
+            const res = mockRes();
+
+            await getUserAuditLogs(req, res);
 
             expect(res.status).toHaveBeenCalledWith(401);
         });

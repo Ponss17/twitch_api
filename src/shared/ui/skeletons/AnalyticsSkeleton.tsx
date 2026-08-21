@@ -33,6 +33,28 @@ export function AnalyticsSkeleton() {
                 </div>
             </div>
 
+            <div className="flex min-h-[220px] flex-col rounded-xl border border-border-subtle bg-bg-card">
+                <div className="flex items-center border-b border-border-subtle px-5 py-2.5">
+                    <Skeleton className="h-4 w-40 bg-transparent" />
+                </div>
+                <div className="flex flex-1 flex-col gap-3 px-5 py-4">
+                    <div className="flex justify-between border-b border-border-subtle pb-2">
+                        <Skeleton className="h-3 w-20 bg-transparent" />
+                        <Skeleton className="h-3 w-16 bg-transparent" />
+                        <Skeleton className="h-3 w-14 bg-transparent" />
+                        <Skeleton className="h-3 w-16 bg-transparent" />
+                    </div>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="flex items-center justify-between gap-4">
+                            <Skeleton className="h-3.5 w-28 bg-transparent" />
+                            <Skeleton className="h-3.5 w-10 bg-transparent" />
+                            <Skeleton className="h-3.5 w-12 bg-transparent" />
+                            <Skeleton className="h-3.5 w-16 bg-transparent" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                 <div className="flex h-[270px] flex-col rounded-xl border border-border-subtle bg-bg-card">
                     <div className="flex items-center justify-between border-b border-border-subtle px-5 py-2.5">

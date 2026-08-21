@@ -72,7 +72,7 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
         [areaData]
     );
     const yAxis = evenYAxis(peak);
-    const hasSeries = areaData.length > 0;
+    const hasSeries = peak > 0;
 
     const handleMouseMove = useCallback(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -116,7 +116,11 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
             panelClassName="h-[320px]"
             title={chart.title}
             info={chart.info}
-            action={<SeriesLegend requestsLabel={chart.requests} errorsLabel={chart.errors} />}
+            action={
+                hasSeries ? (
+                    <SeriesLegend requestsLabel={chart.requests} errorsLabel={chart.errors} />
+                ) : null
+            }
         >
             {!hasSeries ? (
                 <AnalyticsEmptyState

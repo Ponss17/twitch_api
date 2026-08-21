@@ -12,6 +12,7 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 interface HomeActivityLogEntryProps {
     item: ActivityLogItem;
     isNew?: boolean;
+    isActive?: boolean;
     timeZone?: string;
     onClick?: (item: ActivityLogItem) => void;
 }
@@ -19,6 +20,7 @@ interface HomeActivityLogEntryProps {
 export const HomeActivityLogEntry = memo(function HomeActivityLogEntry({
     item,
     isNew = false,
+    isActive = false,
     timeZone,
     onClick
 }: HomeActivityLogEntryProps) {
@@ -32,11 +34,18 @@ export const HomeActivityLogEntry = memo(function HomeActivityLogEntry({
 
     const Component = onClick ? 'button' : 'div';
 
+    const stateClass = isActive
+        ? 'bg-primary/[0.08]'
+        : isNew
+          ? 'bg-white/[0.02] animate-fade-soft'
+          : '';
+
     return (
         <Component
             data-entry-key={activityEntryKey(item)}
             onClick={() => onClick?.(item)}
-            className={`group flex w-full text-left items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 ${isNew ? 'bg-primary/[0.08] shadow-[inset_2px_0_0_0_var(--primary)]' : ''} ${isNew ? 'animate-fade-soft' : ''} ${onClick ? 'cursor-pointer hover:bg-primary/[0.06] hover:text-text-main hover:shadow-sm' : ''}`}
+            aria-current={isActive ? 'true' : undefined}
+            className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors duration-200 ${stateClass} ${onClick ? `cursor-pointer hover:bg-white/[0.02] hover:text-text-main ${isActive ? 'hover:bg-primary/[0.08]' : ''}` : ''}`}
         >
             <div
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${meta.iconClass}`}

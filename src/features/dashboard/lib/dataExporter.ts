@@ -8,6 +8,7 @@ import { getBcp47 } from '@/core/i18n/I18nContext';
 import { buildCommandRows } from './exporterCommandRows';
 import type { AnalyticsData } from './exporterData';
 import { escapeHtml, getExportSiteOrigin, maskKey } from './exporterUtils';
+import { buildAnalyticsCsv } from './exporterCsv';
 
 interface ExportUserInfo {
     followers?: number | string;
@@ -30,6 +31,17 @@ export async function resolveExportApiKey(
     } catch {
         return 'TU_API_KEY';
     }
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 }
 
 const DataExport = {
@@ -191,16 +203,24 @@ const DataExport = {
         }, t);
 
         const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `MisDatos_LosPerrisAPI_${user.login || 'usuario'}.html`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+        downloadBlob(blob, `MisDatos_LosPerrisAPI_${user.login || 'usuario'}.html`);
 
-        onSuccess?.('Archivo descargado correctamente');
+        onSuccess?.(t.settings.toasts.exportSuccess);
+    },
+
+    async exportCsv(
+        session: Session,
+        t: Translations,
+        onSuccess?: (message: string) => void
+    ) {
+        const analytics = await this.fetchAnalytics(session);
+        const csv = buildAnalyticsCsv(analytics, {
+            login: session.login || 'usuario',
+            exportedAt: new Date().toISOString()
+        });
+        const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+        downloadBlob(blob, `Analytics_LosPerrisAPI_${session.login || 'usuario'}.csv`);
+        onSuccess?.(t.settings.toasts.exportSuccess);
     }
 };
 
