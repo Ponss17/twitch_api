@@ -2,7 +2,8 @@ export {
     Dropdown,
     DropdownTrigger,
     DropdownChevron,
-    dropdownTriggerCompact
+    dropdownTriggerCompact,
+    useDropdown
 } from './DropdownContext';
 export { DropdownPanel } from './DropdownPanel';
 export {

@@ -3,7 +3,6 @@ import type { DashboardTab } from '@/core/config/config';
 import { SettingsHero } from '@/features/dashboard/settings/SettingsHero';
 import { HomeActivityFeed } from '@/features/dashboard/home/HomeActivityFeed';
 import { HomeResourcesPanel } from '@/features/dashboard/home/HomeResourcesPanel';
-import { FeatureAnnouncementBanner } from '@/features/dashboard/announcements/FeatureAnnouncementBanner';
 import { useRequiredSession } from '@/core/session/useSession';
 import { fadeIn } from '@/core/utils/tw';
 import { AlertTriangle } from 'lucide-react';
@@ -47,8 +46,6 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
 
     return (
         <div className={fadeIn}>
-            <FeatureAnnouncementBanner surface="home" />
-
             <SettingsHero
                 followers={profile?.followers}
                 broadcasterLabel={broadcasterLabel(profile?.broadcaster_type)}
