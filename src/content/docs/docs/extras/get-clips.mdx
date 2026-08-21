@@ -130,7 +130,9 @@ Devuelve clips recientes de un canal en **JSON**. Sirve para widgets, carruseles
 
 </div>
 
-Campos principales de cada clip: `id`, `url`, `embed_url`, `broadcaster_name`, `creator_name`, `title`, `view_count`, `created_at`, `thumbnail_url`, `duration`.
+Campos principales de cada clip: `id`, `url`, `embed_url`, `broadcaster_name`, `creator_name`, `title`, `view_count`, `created_at`, `thumbnail_url`, `duration`, `video_id`, `vod_offset`.
+
+En el panel ([Clips](/dashboard/clips)) puedes **descargar el MP4** (desde el CDN de Twitch, en el navegador), exportar la galería a **CSV** y abrir el **VOD** en el offset del clip.
 
 <Aside type="tip" title="CORS">
   Las peticiones GET incluyen cabeceras CORS abiertas. Puedes consumir el endpoint con `fetch()` desde el frontend.

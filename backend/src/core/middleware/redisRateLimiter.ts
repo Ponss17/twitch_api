@@ -231,6 +231,43 @@ export const heavyRateLimiter = async (req: Request, res: Response, next: NextFu
 };
 
 /**
+ * Cuota por usuario (sesión cookie o API key) para Get Clips Download.
+ * Helix limita ~100 req/min por app; no se puede dejar el panel sin tope.
+ */
+export const clipDownloadRateLimiter = async (req: Request, res: Response, next: NextFunction) => {
+    const apiUser = res.locals?.apiUser as { userId?: string; role?: string } | undefined;
+    const userId = apiUser?.userId || (req as AuthenticatedRequest).userId;
+    if (!userId) return next();
+
+    const key = `rl:clipdl:${userId}`;
+    const limit = resolveUserHeavyLimit(apiUser);
+
+    try {
+        const count = await kvIncrWithWindow(key, 60);
+        applyRateLimitHeaders(res, limit, count);
+
+        if (count > limit) {
+            return res.status(429).json({
+                error: 'Too Many Requests',
+                message: `Demasiadas descargas de clips (max ${limit}/min).`
+            });
+        }
+        return next();
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            logger.debug('KV clip-download rate limit omitido en desarrollo', { error });
+            return next();
+        }
+
+        logger.error('Error in Clip Download Rate Limiter:', error);
+        return res.status(503).json({
+            error: 'Service Unavailable',
+            message: 'Servicio temporalmente no disponible'
+        });
+    }
+};
+
+/**
  * Limitador para revelar API Key en el panel (auditoría / abuso).
  */
 export const revealKeyRateLimiter = async (req: Request, res: Response, next: NextFunction) => {

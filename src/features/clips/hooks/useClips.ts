@@ -6,6 +6,10 @@ import { useToast } from '@/shared/ui/ToastProvider';
 import { cache, CACHE_TTL } from '@/core/cache/cacheService';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { copyText } from '@/core/utils/clipboard';
+import {
+    downloadClipMp4,
+    downloadClipsCsv
+} from '@/features/clips/lib/clipMedia';
 
 export interface Clip {
     id: string;
@@ -14,6 +18,10 @@ export interface Clip {
     thumbnail_url?: string;
     created_at?: string;
     view_count?: number;
+    creator_name?: string;
+    duration?: number;
+    video_id?: string;
+    vod_offset?: number | null;
 }
 
 export const ITEMS_PER_PAGE = 20;
@@ -59,6 +67,7 @@ export function useClips({ active = true }: { active?: boolean } = {}) {
         generation: 0,
         controller: null
     });
+    const downloadInFlightRef = useRef(false);
 
     useEffect(() => {
         if (session.userId) {
@@ -149,6 +158,7 @@ export function useClips({ active = true }: { active?: boolean } = {}) {
     const copyUrl = async (url: string) => {
         const ok = await copyText(url);
         if (ok) showToast(clipsT.toasts.copied, 'success');
+        else showToast(clipsT.toasts.copyError, 'error');
     };
 
     const filtered = useMemo(() => {
@@ -158,7 +168,11 @@ export function useClips({ active = true }: { active?: boolean } = {}) {
         }
         if (search) {
             const q = search.toLowerCase();
-            list = list.filter((c) => (c.title ?? '').toLowerCase().includes(q));
+            list = list.filter(
+                (c) =>
+                    (c.title ?? '').toLowerCase().includes(q) ||
+                    (c.creator_name ?? '').toLowerCase().includes(q)
+            );
         }
         list.sort((a, b) => {
             const aFav = favorites.includes(a.id) ? 1 : 0;
@@ -179,6 +193,63 @@ export function useClips({ active = true }: { active?: boolean } = {}) {
         });
         return list;
     }, [clips, search, sort, favorites, showFavsOnly]);
+
+    const downloadClip = async (clip: Clip) => {
+        if (downloadInFlightRef.current) return;
+        downloadInFlightRef.current = true;
+        let officialUrl: string | null = null;
+        let needsRelogin = false;
+
+        try {
+            if (session.login) {
+                try {
+                    const params = new URLSearchParams({
+                        channel: session.login,
+                        clip_id: clip.id
+                    });
+                    const data = await apiFetch<{
+                        landscape_download_url?: string | null;
+                        portrait_download_url?: string | null;
+                    }>(`${API_ENDPOINTS.CLIP_DOWNLOAD}?${params}`, session, {}, { logoutOn401: false });
+                    officialUrl =
+                        data.landscape_download_url?.trim() ||
+                        data.portrait_download_url?.trim() ||
+                        null;
+                } catch (err) {
+                    const msg = err instanceof Error ? err.message : '';
+                    if (/iniciar sesión|sign in|login|permiso nuevo|re-?log/i.test(msg)) {
+                        needsRelogin = true;
+                    }
+                }
+            }
+
+            if (needsRelogin && !officialUrl) {
+                showToast(clipsT.toasts.downloadNeedsRelogin, 'warning');
+                return;
+            }
+
+            const result = await downloadClipMp4({
+                thumbnailUrl: clip.thumbnail_url,
+                title: clip.title,
+                id: clip.id,
+                officialUrl
+            });
+            if (result === 'downloaded') showToast(clipsT.toasts.downloaded, 'success');
+            else if (result === 'opened') showToast(clipsT.toasts.downloadOpened, 'info');
+            else showToast(clipsT.toasts.downloadUnavailable, 'warning');
+        } finally {
+            downloadInFlightRef.current = false;
+        }
+    };
+
+    const exportCsv = () => {
+        if (filtered.length === 0) {
+            showToast(clipsT.toasts.csvEmpty, 'warning');
+            return;
+        }
+        downloadClipsCsv(filtered, session.login || 'usuario');
+        showToast(clipsT.toasts.csvExported, 'success');
+    };
 
     const visible = filtered.slice(0, page * ITEMS_PER_PAGE);
     const hasMore = visible.length < filtered.length || serverHasMore;
@@ -226,6 +297,8 @@ export function useClips({ active = true }: { active?: boolean } = {}) {
         onSearchChange,
         onSortChange,
         toggleFavorite,
-        copyUrl
+        copyUrl,
+        downloadClip,
+        exportCsv
     };
 }
