@@ -1,28 +1,12 @@
 import type { DashboardTab } from '@/core/config/config';
-import { useRequiredSession } from '@/core/session/useSession';
-import { staticPath } from '@/core/config/paths';
 import { TAB_META } from '@/features/dashboard/lib/dashboardTabs';
-import {
-    Dropdown,
-    DropdownChevron,
-    DropdownDivider,
-    DropdownHeader,
-    DropdownItem,
-    DropdownLink,
-    DropdownPanel,
-    DropdownTrigger
-} from '@/shared/ui/Dropdown';
-import { Heart, LogOut, Menu, Settings } from 'lucide-react';
-import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
+import { Menu } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { Translations } from '@/core/i18n/locales/es';
-
-const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
+import { NotificationsBell } from '@/features/dashboard/announcements/NotificationsBell';
 
 interface DashboardHeaderProps {
     tab: DashboardTab;
-    onSettings: () => void;
-    onLogout: () => void;
     onMenuToggle: () => void;
     mobileMenuOpen?: boolean;
 }
@@ -34,16 +18,11 @@ function getTabSubtitle(tab: string, t: Translations): string {
 
 export function DashboardHeader({
     tab,
-    onSettings,
-    onLogout,
     onMenuToggle,
     mobileMenuOpen = false
 }: DashboardHeaderProps) {
-    const session = useRequiredSession();
     const { t } = useTranslation();
     const meta = TAB_META[tab];
-    const displayName = session.displayName ?? session.login ?? 'Streamer';
-    const twitchProfileUrl = session.login ? `https://www.twitch.tv/${session.login}` : '#';
     const tabKey = tab as keyof typeof t.sidebar.items;
 
     return (
@@ -73,43 +52,7 @@ export function DashboardHeader({
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <Dropdown>
-                        <DropdownTrigger
-                            aria-label={t.header.accountMenu}
-                            className="group flex items-center gap-3 rounded-[1.1rem] border border-border-subtle bg-bg-secondary py-1.5 pl-1.5 pr-4 transition-colors hover:border-border-strong hover:bg-white/[0.02] aria-expanded:border-primary/25 aria-expanded:bg-primary/[0.08]"
-                        >
-                            <img
-                                src={session.profile_image_url?.replace('300x300', '70x70') ?? staticPath('/img/logo.svg')}
-                                alt=""
-                                className="h-9 w-9 shrink-0 rounded-full border border-transparent object-cover transition-colors group-hover:border-primary/25 group-aria-expanded:border-primary/25"
-                            />
-                            <span className="hidden max-w-[120px] truncate text-[0.9rem] font-medium text-text-main transition-colors group-hover:text-text-main group-aria-expanded:text-text-main md:inline">
-                                {displayName}
-                            </span>
-                            <DropdownChevron className="hidden size-4 shrink-0 text-text-muted transition-colors group-hover:text-primary/70 group-aria-expanded:text-primary md:block" />
-                        </DropdownTrigger>
-
-                        <DropdownPanel widthClassName="w-[230px]" zIndex={1000} className="rounded-2xl">
-                            <DropdownHeader>{t.header.myAccount}</DropdownHeader>
-                            <DropdownItem onClick={onSettings}>
-                                <Settings className="w-4 text-center" />
-                                {t.header.settings}
-                            </DropdownItem>
-                            <DropdownLink href={twitchProfileUrl} target="_blank" rel="noopener noreferrer">
-                                <TwitchIcon className="w-4 text-center opacity-70 group-hover:opacity-100 transition-all text-text-muted group-hover:text-primary" />
-                                {t.header.twitchProfile}
-                            </DropdownLink>
-                            <DropdownLink href={PAYPAL_URL} target="_blank" rel="noopener noreferrer">
-                                <Heart className="w-4 text-center" aria-hidden />
-                                {t.header.supportProject}
-                            </DropdownLink>
-                            <DropdownDivider />
-                            <DropdownItem variant="danger" onClick={onLogout}>
-                                <LogOut className="w-4 text-center" />
-                                {t.header.logout}
-                            </DropdownItem>
-                        </DropdownPanel>
-                    </Dropdown>
+                    <NotificationsBell />
                 </div>
             </div>
         </header>

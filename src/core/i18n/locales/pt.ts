@@ -321,13 +321,19 @@ export const pt: Translations = {
     },
     announcements: {
         badge: 'Novidade',
+        bellLabel: 'Notificações',
+        countLabel: '{count} novidades',
+        emptyTitle: 'Sem novidades',
+        emptyBody: 'Quando houver algo novo no painel, aparece aqui.',
+        timeNew: 'Novo',
+        markAllRead: 'Marcar tudo como lido',
         dismiss: 'Entendi',
         reloginCta: 'Sair e entrar de novo',
         reloginLoading: 'Saindo…',
         items: {
             'clips-download-2026-08': {
-                title: 'Novo: baixar clips em MP4',
-                body: 'Agora você pode baixar seus clips pelo painel. Saia e entre de novo com a Twitch para liberar a nova permissão.'
+                title: 'Baixar clips em MP4',
+                body: 'Saia e entre de novo com a Twitch para liberar a nova permissão.'
             }
         }
     },
