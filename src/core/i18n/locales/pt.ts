@@ -319,6 +319,18 @@ export const pt: Translations = {
             }
         },
     },
+    announcements: {
+        badge: 'Novidade',
+        dismiss: 'Entendi',
+        reloginCta: 'Sair e entrar de novo',
+        reloginLoading: 'Saindo…',
+        items: {
+            'clips-download-2026-08': {
+                title: 'Novo: baixar clips em MP4',
+                body: 'Agora você pode baixar seus clips pelo painel. Saia e entre de novo com a Twitch para liberar a nova permissão.'
+            }
+        }
+    },
     home: {
         title: 'Início',
         tabs: {

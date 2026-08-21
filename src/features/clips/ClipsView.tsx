@@ -24,6 +24,7 @@ import {
     buildClipVodUrl,
     formatClipDuration
 } from '@/features/clips/lib/clipMedia';
+import { FeatureAnnouncementBanner } from '@/features/dashboard/announcements/FeatureAnnouncementBanner';
 
 const CLIPS_GRID =
     'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5 max-[600px]:grid-cols-1';
@@ -111,6 +112,7 @@ export function ClipsView({ active = true }: { active?: boolean }) {
 
     return (
         <>
+            <FeatureAnnouncementBanner surface="clips" />
             <ClipCommandView />
 
             <div className={`${panelCard} ${fadeIn} mb-3 flex flex-col [animation-delay:60ms]`}>

@@ -324,6 +324,19 @@ export const en: Translations = {
         },
     },
 
+    announcements: {
+        badge: 'New',
+        dismiss: 'Got it',
+        reloginCta: 'Sign out and sign back in',
+        reloginLoading: 'Signing out…',
+        items: {
+            'clips-download-2026-08': {
+                title: 'New: download clips as MP4',
+                body: 'You can now download your clips from the panel. Sign out and sign back in with Twitch to unlock the new permission.'
+            }
+        }
+    },
+
     // --- Dashboard Home ---
     home: {
         title: 'Home',
