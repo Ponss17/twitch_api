@@ -324,6 +324,18 @@ export const es = {
             }
         },
     },
+    announcements: {
+        badge: 'Novedad',
+        dismiss: 'Entendido',
+        reloginCta: 'Cerrar sesión y volver a entrar',
+        reloginLoading: 'Cerrando sesión…',
+        items: {
+            'clips-download-2026-08': {
+                title: 'Nuevo: descarga de clips en MP4',
+                body: 'Ya puedes bajar tus clips desde el panel. Cierra sesión e inicia de nuevo con Twitch para desbloquear el permiso nuevo.'
+            }
+        }
+    },
     home: {
         title: 'Inicio',
         tabs: {
