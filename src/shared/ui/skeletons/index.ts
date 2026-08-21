@@ -1,6 +1,6 @@
 export { DashboardSessionSkeleton } from './DashboardSessionSkeleton';
 export { HomeViewSkeleton } from './HomeViewSkeleton';
-export { SettingsHeroSkeleton, SettingsProfileHeaderSkeleton } from './SettingsSkeletons';
+export { SettingsHeroSkeleton, SettingsProfileHeaderSkeleton, SettingsTabsSkeleton } from './SettingsSkeletons';
 export { StalkerRowSkeleton } from './StalkerRowSkeleton';
 export { ClipsGridSkeleton } from './ClipsGridSkeleton';
 export { AnalyticsSkeleton } from './AnalyticsSkeleton';

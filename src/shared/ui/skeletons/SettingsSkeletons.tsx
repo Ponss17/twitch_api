@@ -54,13 +54,6 @@ export function SettingsProfileHeaderSkeleton() {
     const { t } = useTranslation();
     return (
         <div className="mb-5" aria-busy="true" aria-label={t.globals.loading.profile}>
-            <div className="mb-5 flex items-center gap-3.5">
-                <Skeleton className="size-14 shrink-0 rounded-full" />
-                <div className="min-w-0 space-y-2">
-                    <Skeleton className="h-6 w-40" />
-                    <Skeleton className="h-3.5 w-52" />
-                </div>
-            </div>
             <div className="mb-7 flex gap-4 border-b border-border-subtle pb-0">
                 <Skeleton className="mb-2.5 h-5 w-16" />
                 <Skeleton className="mb-2.5 h-5 w-14" />
@@ -73,4 +66,9 @@ export function SettingsProfileHeaderSkeleton() {
             </div>
         </div>
     );
+}
+
+/** Carga de Ajustes sin cabecera de perfil. */
+export function SettingsTabsSkeleton() {
+    return <SettingsProfileHeaderSkeleton />;
 }

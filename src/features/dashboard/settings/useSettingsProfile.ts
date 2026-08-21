@@ -88,7 +88,15 @@ export function useSettingsProfile({
             const incoming = panelProfile;
             if (!prev) return incoming;
             // Spread respeta null (p. ej. Discord desvinculado); no usar ?? que lo ignoraría.
-            return { ...prev, ...incoming };
+            // No pisar fechas de ingreso si el summary aún no las trae.
+            const next = { ...prev, ...incoming };
+            if (incoming.dbCreatedAt == null && prev.dbCreatedAt != null) {
+                next.dbCreatedAt = prev.dbCreatedAt;
+            }
+            if (incoming.dbLastActive == null && prev.dbLastActive != null) {
+                next.dbLastActive = prev.dbLastActive;
+            }
+            return next;
         });
         setLoading(false);
     }, [panelProfile]);

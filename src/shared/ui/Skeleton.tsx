@@ -3,6 +3,7 @@ export {
     HomeViewSkeleton,
     SettingsHeroSkeleton,
     SettingsProfileHeaderSkeleton,
+    SettingsTabsSkeleton,
     StalkerRowSkeleton,
     ClipsGridSkeleton,
     AnalyticsSkeleton,

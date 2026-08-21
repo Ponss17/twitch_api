@@ -38,12 +38,14 @@ export function useSettingsController(active: boolean) {
     const { showToast } = useToast();
     const { t, locale } = useTranslation();
     const { profile: panelProfile, updateProfile } = useDashboardPanel();
+    const [auditEpoch, setAuditEpoch] = useState(0);
+    const bumpAuditLogs = useCallback(() => setAuditEpoch((n) => n + 1), []);
     const {
         dangerModal,
         setDangerModal,
         openClearDataModal,
         openDeleteAccountModal
-    } = useSettingsDangerActions({ session, showToast, t });
+    } = useSettingsDangerActions({ session, showToast, t, onDataCleared: bumpAuditLogs });
 
     const { profile, loading, syncProfile } = useSettingsProfile({
         active,
@@ -168,6 +170,7 @@ export function useSettingsController(active: boolean) {
                 setKeyVisible(true);
                 scheduleKeyHide();
                 showToast(t.settings.toasts.regenSuccess, 'success');
+                bumpAuditLogs();
                 void refresh();
             }
         } catch {
@@ -181,6 +184,7 @@ export function useSettingsController(active: boolean) {
             setRevealedKey(result.apiKey);
             setKeyVisible(true);
             scheduleKeyHide();
+            bumpAuditLogs();
         } catch (e) {
             showToast((e as Error).message || 'No se pudo revelar la API Key', 'error');
         }
@@ -198,6 +202,7 @@ export function useSettingsController(active: boolean) {
 
     const copyKey = async () => {
         try {
+            const neededReveal = !revealedKey;
             const key = revealedKey || (await fetchRevealApiKey()).apiKey;
             setRevealedKey(key);
             setKeyVisible(true);
@@ -205,6 +210,7 @@ export function useSettingsController(active: boolean) {
             const ok = await copyText(key);
             if (ok) {
                 showToast(t.settings.toasts.copyKeySuccess, 'success');
+                if (neededReveal) bumpAuditLogs();
             } else {
                 showToast(t.settings.toasts.copyKeyError, 'error');
             }
@@ -219,7 +225,7 @@ export function useSettingsController(active: boolean) {
         if (ok) showToast(t.settings.toasts.copyIdSuccess, 'success');
     };
 
-    const exportData = async () => {
+    const exportData = async (format: 'html' | 'csv' = 'html') => {
         setExportLoading(true);
         try {
             const res = await fetchWithRetry(
@@ -243,7 +249,11 @@ export function useSettingsController(active: boolean) {
                 return;
             }
             const { DataExport } = await import('@/features/dashboard/lib/dataExporter');
-            await DataExport.export(session, t, locale, (msg) => showToast(msg, 'success'));
+            if (format === 'csv') {
+                await DataExport.exportCsv(session, t, (msg) => showToast(msg, 'success'));
+            } else {
+                await DataExport.export(session, t, locale, (msg) => showToast(msg, 'success'));
+            }
 
             await fetchWithRetry(
                 API_ENDPOINTS.EXPORT_COMPLETE,
@@ -282,6 +292,7 @@ export function useSettingsController(active: boolean) {
         setRegenOpen,
         regenOpen,
         regenerateKey,
+        auditEpoch,
         openClearDataModal,
         openDeleteAccountModal,
         dangerModal,

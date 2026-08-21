@@ -18,6 +18,12 @@ export const getActivitySchema = z.object({
     query: z.object({}).optional()
 });
 
+export const getUserAuditLogsSchema = z.object({
+    query: z.object({
+        page: z.coerce.number().int().min(1).max(100).optional().default(1)
+    })
+});
+
 export const updateSettingsSchema = z.object({
     body: z.object({
         timezone: z

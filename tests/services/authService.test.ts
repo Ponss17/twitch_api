@@ -122,7 +122,8 @@ describe('authService', () => {
                 expect.objectContaining({
                     userId: '123',
                     apiKey: newKey
-                })
+                }),
+                { preservePlan: true, preserveCreatedAt: true }
             );
             expect(cacheService.revokeApiKeyGlobally).toHaveBeenCalledWith('test-api-key');
             expect(cacheService.invalidateApiKeyCache).toHaveBeenCalledWith('test-api-key');
@@ -219,15 +220,16 @@ describe('authService', () => {
                     stats: { clips: 10 },
                     totalRequests: 10,
                     lastActive: '2026-02-23T00:00:00.000Z',
-                    createdAt: '2026-01-01T00:00:00.000Z', // preserved
                     discordId: 'discord-99',
                     discordUsername: 'MyDiscord',
                     discordAvatar: 'https://cdn.discord/avatar.png',
                     discordLinkedAt: '2026-03-01T00:00:00.000Z',
                     discordUpdatedAt: '2026-03-02T00:00:00.000Z'
                 }),
-                { preservePlan: true }
+                { preservePlan: true, preserveCreatedAt: true }
             );
+            const savedUser = (dbService.saveUser as jest.Mock).mock.calls[0][0];
+            expect(savedUser.createdAt).toBeUndefined();
         });
 
         it('should use default values for new users', async () => {
@@ -241,9 +243,10 @@ describe('authService', () => {
                 expect.objectContaining({
                     userId: '123',
                     isActive: true, // default
+                    role: 'default',
                     customRateLimit: undefined // default
                 }),
-                { preservePlan: false }
+                { preservePlan: false, preserveCreatedAt: false }
             );
         });
     });

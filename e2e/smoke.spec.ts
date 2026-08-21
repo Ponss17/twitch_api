@@ -53,6 +53,13 @@ async function mockDashboardPanelRoutes(page: Page) {
             body: JSON.stringify([])
         })
     );
+    await page.route('**/api/dashboard/audit-logs**', (route) =>
+        route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({ logs: [], page: 1, pageSize: 20, total: 0 })
+        })
+    );
     await page.route('**/api/dashboard/user-info**', (route) =>
         route.fulfill({
             status: 200,

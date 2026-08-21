@@ -87,7 +87,9 @@ async function decryptAndMigrateIfNeeded(
     if (needsMigration && !migratedUsersCache.has(user.userId)) {
         addToMigratedCache(user.userId);
         logger.info(`Migrando tokens legacy a GCM para usuario: ${user.login} (${user.userId})`);
-        await saveUser(user).catch((err) => logger.error('Error migrando usuario:', err));
+        await saveUser(user, { preservePlan: true, preserveCreatedAt: true }).catch((err) =>
+            logger.error('Error migrando usuario:', err)
+        );
     }
 
     return user;
@@ -101,6 +103,11 @@ export type SaveUserOptions = {
      * Así un plan puesto a mano en Supabase no se pisa en re-login.
      */
     preservePlan?: boolean;
+    /**
+     * No escribe created_at (primer ingreso). Evita pisarlo en re-login
+     * aunque el payload traiga fecha o getUser haya fallado parcialmente.
+     */
+    preserveCreatedAt?: boolean;
 };
 
 function secureUserForL2(user: StoredUser): StoredUser {
@@ -172,11 +179,34 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
         return;
     }
 
-    const { error } = await supabase
-        .from('users')
-        .upsert(userToRow(secureUser, { preservePlan: options?.preservePlan }), {
-            onConflict: 'user_id'
+    const row = userToRow(secureUser, {
+        preservePlan: options?.preservePlan,
+        preserveCreatedAt: options?.preserveCreatedAt
+    });
+
+    // Importante: un upsert de PostgREST con columnas omitidas (role, etc.) NO las
+    // conserva — las rellena con NULL/default y pisa el plan en Supabase.
+    // Con preservePlan usamos UPDATE: solo toca las columnas enviadas.
+    let error: { message: string } | null = null;
+    if (options?.preservePlan) {
+        const { user_id: _omitUserId, ...patch } = row;
+        const result = await supabase
+            .from('users')
+            .update(patch)
+            .eq('user_id', user.userId)
+            .select('user_id');
+        error = result.error;
+        if (!error && (!result.data || result.data.length === 0)) {
+            logger.error('preservePlan UPDATE no encontró fila', { userId: user.userId });
+            throw new Error('Usuario no encontrado al actualizar (preservePlan).');
+        }
+    } else {
+        const result = await supabase.from('users').upsert(row, {
+            onConflict: 'user_id',
+            defaultToNull: false
         });
+        error = result.error;
+    }
 
     if (error) {
         logger.error('Error guardando usuario en Supabase:', error.message);
