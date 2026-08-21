@@ -1,0 +1,89 @@
+---
+title: "Preguntas"
+description: "Bandeja de preguntas del chat con comando configurable y overlay para OBS."
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+import DashboardAuthNotice from '@/components/docs/DashboardAuthNotice.astro';
+import OverlayApiSection from '@/components/docs/OverlayApiSection.astro';
+import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
+
+Herramienta del panel que recoge preguntas del chat con un comando configurable (por defecto `!pregunta`). Tú las gestionas en la bandeja: responder, pasar o quitar. El overlay de OBS muestra la pregunta actual y cuántas quedan en cola.
+
+<DashboardAuthNotice />
+
+## Acceso
+
+Abre **[Preguntas](/dashboard/questions)** en el panel. Usa el botón **Overlay** para copiar la URL firmada. El chat se escucha **en el navegador**: deja la pestaña abierta mientras recojas preguntas.
+
+## Límites
+
+<Aside type="note" title="Rate limit y persistencia">
+  Usa la **sesión del dashboard** (límite de sesión según rol, ver [Límites](/docs/limits/)). El historial se guarda hasta **100** preguntas y se borra a los **7 días**, o cuando tú lo limpies. El **estado del overlay** (pregunta actual y cola) se guarda en KV con TTL de **2 horas**. La **URL del overlay** incluye un token de solo lectura válido **30 días** — no la compartas en stream ni en chat público.
+</Aside>
+
+<OverlayApiSection tool="questions" flowId="flow-questions" />
+
+<div class="api-flow">
+
+## Configuración en OBS
+
+<Steps>
+1. En el panel, pulsa **Overlay** y copia la URL (incluye `overlayToken` de solo lectura).
+2. Opcional: elige **color** y **tamaño** en el mismo modal; van en la URL (`?color=` y `?scale=`), sin peticiones extra.
+3. En OBS, añade una fuente **Navegador** (Browser Source).
+4. Pega la URL, usa **800 × 280 px** (o el ancho de tu escena) y **fondo transparente**.
+5. Marca **Actualizar navegador cuando la escena se active**.
+6. En el panel, elige quién puede preguntar, configura el comando y pulsa **Iniciar**.
+</Steps>
+
+<Aside type="note" title="Control desde el panel">
+  OBS solo refleja la pregunta actual. Para iniciar, pausar, responder o pasar, usa el panel. El overlay se oculta cuando no hay cola y la escucha está pausada.
+</Aside>
+
+## Cómo funciona
+
+- **Comando:** por defecto `pregunta` (el viewer escribe `!pregunta texto`). Puedes cambiarlo antes de iniciar.
+- **Filtros:** elige qué roles pueden preguntar (subs, mods, VIPs, viewers). Hace falta al menos uno.
+- **Bandeja:** la pregunta más reciente pendiente es la **actual**. Respóndela, pásala o quítala.
+- **Overlay:** muestra la pregunta actual y un contador de cola. Si estás escuchando y aún no hay preguntas, enseña una espera con el comando.
+- **Sincronización:** el panel publica el estado solo cuando cambia la pregunta o la cola (poll lento en OBS, como Tendencias).
+
+<Aside type="caution" title="Qué no hace">
+  No responde solo en el chat: es una cola para que tú elijas qué leer en stream. Los mensajes de bots conocidos se ignoran.
+</Aside>
+
+## Formato del estado (`QuestionsOverlayState`)
+
+El panel publica este objeto en `PUT /dashboard/overlay-state/questions` y el overlay lo lee con `GET`. Solo envía la pregunta actual (no todo el historial):
+
+<ApiFlowResponse
+  flowId="flow-questions-state"
+  responses={[
+    {
+      tabLabel: '200 (activo)',
+      status: 200,
+      format: 'json',
+      body: `{
+  "state": {
+    "isActive": true,
+    "keyword": "pregunta",
+    "pendingCount": 3,
+    "current": {
+      "displayName": "Viewer1",
+      "text": "¿Cuál es tu juego favorito?"
+    },
+    "updatedAt": 1752012234567
+  }
+}`,
+    },
+    {
+      tabLabel: '200 (vacío)',
+      status: 200,
+      format: 'json',
+      body: '{ "state": null }',
+    },
+  ]}
+/>
+
+</div>

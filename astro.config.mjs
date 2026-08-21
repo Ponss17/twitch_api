@@ -75,7 +75,8 @@ const FRONTEND_EXACT = new Set([
     '/sw.js',
     '/manifest.json',
     '/overlay/roulette',
-    '/overlay/trends'
+    '/overlay/trends',
+    '/overlay/questions'
 ]);
 
 const DASHBOARD_TAB_SLUGS = new Set([
@@ -230,6 +231,7 @@ export default defineConfig({
                         { label: 'Tendencias', link: '/docs/herramientas/trends/' },
                         { label: 'Stalker', link: '/docs/herramientas/stalker/' },
                         { label: 'Ruleta', link: '/docs/herramientas/roulette/' },
+                        { label: 'Preguntas', link: '/docs/herramientas/questions/' },
                     ]
                 },
 

@@ -207,7 +207,8 @@ export const es = {
             discordLinkAuth: 'Debes iniciar sesión para vincular Discord',
             discordLinkConfig: 'La vinculación con Discord no está disponible ahora',
             discordLinkError: 'No se pudo vincular Discord',
-            exportLimitError: 'Debes esperar para generar otro reporte.'
+            exportLimitError: 'Debes esperar para generar otro reporte.',
+            exportSuccess: 'Archivo descargado correctamente'
         },
         dangerModals: {
             resetTitle: 'Reiniciar datos',
@@ -240,12 +241,17 @@ export const es = {
                 title: 'Datos de Cuenta',
                 desc: 'Información y gestión de datos.',
                 firstLogin: 'Primer Ingreso',
-                firstLoginDesc: 'Fecha en la que iniciaste sesión por primera vez.',
+                firstLoginDesc:
+                    'Primera vez que entraste a LosPerrisAPI (no es la fecha de creación de tu cuenta de Twitch).',
                 lastLogin: 'Último Ingreso Previo',
                 lastLoginDesc: 'Fecha de tu última sesión antes de la actual.'
             },
             export: { title: 'Exportar', desc: 'Exporta la información de tu cuenta' },
             security: { title: 'Seguridad', desc: 'Claves y accesos' },
+            auditLogs: {
+                title: 'Registro de seguridad',
+                desc: 'Inicios de sesión, cambios de API key, Discord y limpieza de datos.'
+            },
             dangerZone: { title: 'Zona de Peligro', desc: 'Acciones destructivas' },
             discord: { title: 'Discord', desc: 'Integraciones' }
         },
@@ -279,8 +285,43 @@ export const es = {
             linkDiscord: 'Vincular Discord',
             unlinkDiscord: 'Desvincular Discord',
             fullReport: 'Reporte de Cuenta Completo',
-            exportReport: 'Exportar Datos',
-            exportDesc: 'Descarga un archivo JSON con tu historial de actividad y ajustes para cumplir con la portabilidad de datos.'
+            exportReport: 'Exportar HTML',
+            exportDesc: 'Descarga un reporte HTML con tu perfil, actividad y ajustes.',
+            csvReport: 'Analíticas en CSV',
+            exportCsv: 'Exportar CSV',
+            csvDesc: 'Descarga un CSV con el resumen, uso por comando y la serie de los últimos 7 días. Sirve para Excel o un recap semanal.'
+        },
+        auditLogs: {
+            action: 'Acción',
+            when: 'Cuándo',
+            show: 'Ver registro',
+            hide: 'Ocultar',
+            close: 'Cerrar',
+            empty: 'Aún no hay eventos. Aparecerán al iniciar sesión, tocar tu API key o vincular Discord.',
+            error: 'No se pudo cargar el registro.',
+            page: (current: number, total: number): string => `Página ${current} de ${total}`,
+            prevPage: 'Página anterior',
+            nextPage: 'Página siguiente',
+            actions: {
+                session_login: 'Inicio de sesión',
+                session_logout: 'Cierre de sesión',
+                api_key_regenerated: 'Regeneraste tu API key',
+                api_key_revealed: 'Mostraste tu API key',
+                discord_linked: 'Conectaste Discord',
+                discord_unlinked: 'Desconectaste Discord',
+                stats_cleared: 'Limpiaste tus datos'
+            },
+            scopes: {
+                stats: 'Estadísticas y actividad',
+                questions: 'Historial de preguntas',
+                both: 'Estadísticas y preguntas'
+            },
+            relativeTime: {
+                now: 'ahora',
+                minutes: (mins: number): string => `hace ${mins} min`,
+                hours: (hours: number): string => `hace ${hours} h`,
+                days: (days: number): string => `hace ${days} d`
+            }
         },
     },
     home: {
@@ -368,6 +409,9 @@ export const es = {
     },
     analytics: {
         other: 'Otros',
+        prevPage: 'Página anterior',
+        nextPage: 'Página siguiente',
+        rangeGroup: 'Rango de tiempo',
         kpis: {
             title: 'Rendimiento Global',
             info: 'Métricas agregadas del uso de tu API.',
@@ -398,24 +442,13 @@ export const es = {
         },
         latencyChart: {
             title: 'Rendimiento y Latencia',
-            info: 'Tiempo de respuesta por comando.',
+            info: 'Uso y tiempo de respuesta por comando.',
             noData: 'Sin mediciones todavía',
             noDataSub: 'La latencia aparece cuando tus comandos empiezan a usarse.',
             latency: 'Latencia Media',
             colCommand: 'Comando',
+            colRequests: 'Cantidad',
             colLatency: 'Latencia'
-        },
-        endpointsTable: {
-            title: 'Comandos más usados',
-            info: 'Lista de comandos con peticiones, éxito y latencia media.',
-            noData: 'Sin historial todavía',
-            noDataSub: 'Ejecuta comandos en tu canal para generar este listado.',
-            headers: {
-                command: 'Comando',
-                requests: 'Peticiones',
-                success: 'Éxito',
-                latency: 'Latencia'
-            }
         },
         areaChart: {
             title: 'Tráfico y Errores (7 días)',
@@ -684,14 +717,18 @@ export const es = {
         info: 'Explora y gestiona tus clips de Twitch.',
         btnFavsOnly: 'Mostrar solo favoritos',
         btnReload: 'Recargar clips',
-        tooltip: 'Gestión de clips',
-        searchPlaceholder: 'Buscar clips...',
+        btnExportCsv: 'Exportar galería a CSV',
+        tooltip: 'Gestión de clips: descarga, VOD y CSV.',
+        searchPlaceholder: 'Buscar por título o creador...',
         sortLabel: 'Ordenar por',
         noClips: 'No se encontraron clips.',
         viewClip: 'Ver Clip',
         playClip: (title: string): string => `Reproducir clip: ${title}`,
         favorite: 'Añadir a favoritos',
         copyLink: 'Copiar enlace',
+        download: 'Descargar MP4',
+        openVod: 'Ver en el VOD',
+        byCreator: 'por {name}',
         untitled: 'Sin título',
         views: 'vistas',
         loadMore: 'Cargar más',
@@ -706,6 +743,13 @@ export const es = {
             errorLoad: 'Error al cargar clips',
             copied: 'Enlace copiado',
             copyError: 'Error al copiar',
+            downloaded: 'Clip descargado',
+            downloadOpened: 'Se abrió el vídeo: guárdalo desde el navegador',
+            downloadUnavailable: 'No se pudo obtener el MP4 de este clip',
+            downloadNeedsRelogin:
+                'Para descargar clips, cierra sesión y vuelve a entrar con Twitch (permiso nuevo).',
+            csvExported: 'CSV de clips descargado',
+            csvEmpty: 'No hay clips para exportar',
         },
         overlay: {
             close: 'Cerrar',
@@ -1110,12 +1154,32 @@ export const es = {
             slNote: 'Si la fuente se ve negra, revisa el tamaño, el fondo transparente y el refresco al mostrar la escena.',
             tools: {
                 trends: 'Tendencias',
-                roulette: 'Ruleta'
+                roulette: 'Ruleta',
+                questions: 'Preguntas'
             },
             sizes: {
                 trends: '900 × 580 px (top 10; ancho de escena si prefieres)',
-                roulette: '720 × 720 px'
+                roulette: '720 × 720 px',
+                questions: '800 × 280 px (pregunta actual; ancho de escena si prefieres)'
             }
+        },
+        appearance: {
+            title: 'Apariencia en directo',
+            badge: 'Solo overlay',
+            desc: 'Color y tamaño van en la URL de OBS. No cambia el tema del panel ni genera peticiones extra.',
+            colorLabel: 'Color',
+            customColor: 'Color personalizado',
+            preset: 'Preset',
+            scaleLabel: 'Tamaño',
+            scaleSm: 'Pequeño',
+            scaleMd: 'Normal',
+            scaleLg: 'Grande'
+        },
+        questions: {
+            now: 'Pregunta actual',
+            waitingTitle: 'Escuchando',
+            waitingHint: 'Los viewers preguntan con !{keyword}',
+            queue: '{count} en cola'
         },
         banners: {
             connecting: 'Conectando overlay…',
@@ -1126,7 +1190,8 @@ export const es = {
         },
         apps: {
             rouletteErrorTitle: 'Overlay de ruleta',
-            trendsErrorTitle: 'Overlay de tendencias'
+            trendsErrorTitle: 'Overlay de tendencias',
+            questionsErrorTitle: 'Overlay de preguntas'
         }
     }
 };

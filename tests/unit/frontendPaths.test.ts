@@ -43,6 +43,11 @@ describe('frontendPagePath', () => {
         expect(url).toBe('http://localhost:4321/overlay/roulette?overlayToken=abc');
     });
 
+    it('builds overlay URL for questions', () => {
+        const url = frontendPagePath(overlayPagePath('questions'), 'overlayToken=abc');
+        expect(url).toBe('http://localhost:4321/overlay/questions?overlayToken=abc');
+    });
+
     it('builds 404 redirect at root (error middleware)', () => {
         expect(frontendPagePath('/404')).toBe('http://localhost:4321/404');
     });

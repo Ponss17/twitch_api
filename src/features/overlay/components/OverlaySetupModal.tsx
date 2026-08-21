@@ -12,6 +12,7 @@ import { useToast } from '@/shared/ui/ToastProvider';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { readScopedPref, writeScopedPref } from '@/core/session/localPrefs';
 import { resolveWheelPalette, ROULETTE_COLOR_PRESETS } from '@/features/tools/roulette/lib/wheelUtils';
+import { appendOverlayAppearanceParams, isOverlayScaleId, type OverlayScaleId } from '@/features/overlay/lib/overlayAppearance';
 import { copyText } from '@/core/utils/clipboard';
 
 interface OverlaySetupModalProps {
@@ -26,6 +27,15 @@ const PLATFORMS: { id: OverlayPlatform; label: string; icon: typeof Monitor }[] 
 ];
 
 const OBS_ROULETTE_COLOR_PREF = 'roulette_obs_wheel_color';
+const OBS_OVERLAY_SCALE_PREF = 'overlay_obs_scale';
+
+function overlayColorPrefKey(tool: OverlayTool): string {
+    return tool === 'roulette' ? OBS_ROULETTE_COLOR_PREF : `overlay_obs_color_${tool}`;
+}
+
+function overlayScalePrefKey(tool: OverlayTool): string {
+    return `${OBS_OVERLAY_SCALE_PREF}_${tool}`;
+}
 
 export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProps) {
     const session = useRequiredSession();
@@ -34,6 +44,7 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
     const mT = t.overlay.setupModal;
     const gT = t.overlay.guide;
     
+    const aT = t.overlay.appearance;
     const [platform, setPlatform] = useState<OverlayPlatform>('obs');
     const [rawUrl, setRawUrl] = useState('');
     const [loading, setLoading] = useState(false);
@@ -41,31 +52,34 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
     const [copied, setCopied] = useState(false);
 
     const [obsWheelColor, setObsWheelColor] = useState<string>(() =>
-        readScopedPref(OBS_ROULETTE_COLOR_PREF, session.userId) || 'auto'
+        readScopedPref(overlayColorPrefKey(tool), session.userId) || 'auto'
     );
+    const [obsScale, setObsScale] = useState<OverlayScaleId>(() => {
+        const stored = readScopedPref(overlayScalePrefKey(tool), session.userId);
+        return stored && isOverlayScaleId(stored) ? stored : 'md';
+    });
 
     const guide = getOverlayPlatformGuide(tool, platform, gT);
     const toolLabel = gT.tools[tool] ?? tool;
 
     const handleColorChange = (newColor: string) => {
         setObsWheelColor(newColor);
-        writeScopedPref(OBS_ROULETTE_COLOR_PREF, session.userId, newColor);
+        writeScopedPref(overlayColorPrefKey(tool), session.userId, newColor);
     };
 
-    const finalUrl = useMemo(() => {
-        if (!rawUrl) return '';
-        if (tool !== 'roulette' || !obsWheelColor || obsWheelColor === 'auto') {
-            return rawUrl;
-        }
-        try {
-            const urlObj = new URL(rawUrl, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
-            urlObj.searchParams.set('color', obsWheelColor);
-            return urlObj.toString();
-        } catch {
-            const sep = rawUrl.includes('?') ? '&' : '?';
-            return `${rawUrl}${sep}color=${encodeURIComponent(obsWheelColor)}`;
-        }
-    }, [rawUrl, tool, obsWheelColor]);
+    const handleScaleChange = (next: OverlayScaleId) => {
+        setObsScale(next);
+        writeScopedPref(overlayScalePrefKey(tool), session.userId, next);
+    };
+
+    const finalUrl = useMemo(
+        () =>
+            appendOverlayAppearanceParams(rawUrl, {
+                color: obsWheelColor,
+                scale: obsScale
+            }),
+        [rawUrl, obsWheelColor, obsScale]
+    );
 
     const loadUrl = useCallback(async () => {
         setLoading(true);
@@ -89,9 +103,11 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
         if (!open) return;
         setPlatform('obs');
         setCopied(false);
-        setObsWheelColor(readScopedPref(OBS_ROULETTE_COLOR_PREF, session.userId) || 'auto');
+        setObsWheelColor(readScopedPref(overlayColorPrefKey(tool), session.userId) || 'auto');
+        const storedScale = readScopedPref(overlayScalePrefKey(tool), session.userId);
+        setObsScale(storedScale && isOverlayScaleId(storedScale) ? storedScale : 'md');
         void loadUrl();
-    }, [open, loadUrl, session.userId]);
+    }, [open, loadUrl, session.userId, tool]);
 
     useEffect(() => {
         if (!copied) return;
@@ -187,72 +203,89 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
                     })}
                 </div>
 
-                {/* Personalización exclusiva de OBS para Ruleta */}
-                {tool === 'roulette' && (
-                    <div className="rounded-xl border border-border-subtle bg-bg-secondary/70 backdrop-blur-xs p-4 shadow-xs">
-                        <div className="flex items-center justify-between gap-2 pb-2">
-                            <div className="flex items-center gap-2">
-                                <Palette className="size-4 text-primary" />
-                                <h4 className="text-[0.75rem] font-bold text-text-main">
-                                    Color en Directo (OBS / Stream)
-                                </h4>
-                            </div>
-                            <span className="rounded-md border border-border-subtle bg-bg-secondary px-2 py-0.5 text-[0.65rem] font-medium text-text-muted">
-                                Solo Overlay
+                {/* Color y tamaño van en la URL — sin peticiones extra a Vercel */}
+                <div className="rounded-xl border border-border-subtle bg-bg-secondary/70 backdrop-blur-xs p-4 shadow-xs">
+                    <div className="flex items-center justify-between gap-2 pb-2">
+                        <div className="flex items-center gap-2">
+                            <Palette className="size-4 text-primary" />
+                            <h4 className="text-[0.75rem] font-bold text-text-main">{aT.title}</h4>
+                        </div>
+                        <span className="rounded-md border border-border-subtle bg-bg-secondary px-2 py-0.5 text-[0.65rem] font-medium text-text-muted">
+                            {aT.badge}
+                        </span>
+                    </div>
+                    <p className="mb-3 text-[0.7rem] leading-relaxed text-text-muted">{aT.desc}</p>
+
+                    <p className="mb-2 text-[0.7rem] font-semibold text-text-muted">{aT.colorLabel}</p>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                        {ROULETTE_COLOR_PRESETS.map((preset) => {
+                            const isSelected = obsWheelColor === preset.id;
+                            const palette = resolveWheelPalette(preset.id);
+                            return (
+                                <button
+                                    key={preset.id}
+                                    type="button"
+                                    onClick={() => handleColorChange(preset.id)}
+                                    title={preset.label}
+                                    className={`group relative flex items-center gap-2 overflow-hidden rounded-lg border px-2.5 py-2 text-left text-[0.7rem] font-medium transition-all ${
+                                        isSelected
+                                            ? 'border-primary bg-primary/10 text-text-main shadow-xs'
+                                            : 'border-border-subtle bg-bg-secondary text-text-muted hover:border-border-strong hover:text-text-main'
+                                    }`}
+                                >
+                                    <span
+                                        className="size-3.5 shrink-0 rounded-full border border-white/20"
+                                        style={{ backgroundColor: preset.isAuto ? 'var(--primary)' : palette.primaryHex }}
+                                    />
+                                    <span className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
+                                        <span className="inline-block whitespace-nowrap transition-transform duration-700 ease-out group-hover:-translate-x-1/3">
+                                            {preset.label}
+                                        </span>
+                                    </span>
+                                    {isSelected && <Check className="ml-auto size-3 shrink-0 text-primary" />}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2">
+                        <span className="text-[0.7rem] text-text-muted">{aT.customColor}</span>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="color"
+                                aria-label={aT.customColor}
+                                value={obsWheelColor.startsWith('#') ? obsWheelColor : '#9146ff'}
+                                onChange={(e) => handleColorChange(e.target.value)}
+                                className="size-6 cursor-pointer rounded border-0 bg-transparent p-0"
+                            />
+                            <span className="font-mono text-[0.7rem] uppercase text-text-main">
+                                {obsWheelColor.startsWith('#') ? obsWheelColor : aT.preset}
                             </span>
                         </div>
-                        <p className="mb-3 text-[0.7rem] leading-relaxed text-text-muted">
-                            Personaliza cómo verán la ruleta tus espectadores en OBS sin cambiar el tema de tu panel.
-                        </p>
-
-                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                            {ROULETTE_COLOR_PRESETS.map((preset) => {
-                                const isSelected = obsWheelColor === preset.id;
-                                const palette = resolveWheelPalette(preset.id);
-                                return (
-                                    <button
-                                        key={preset.id}
-                                        type="button"
-                                        onClick={() => handleColorChange(preset.id)}
-                                        title={preset.label}
-                                        className={`group relative flex items-center gap-2 overflow-hidden rounded-lg border px-2.5 py-2 text-left text-[0.7rem] font-medium transition-all ${
-                                            isSelected
-                                                ? 'border-primary bg-primary/10 text-text-main shadow-xs'
-                                                : 'border-border-subtle bg-bg-secondary text-text-muted hover:border-border-strong hover:text-text-main'
-                                        }`}
-                                    >
-                                        <span
-                                            className="size-3.5 shrink-0 rounded-full border border-white/20"
-                                            style={{ backgroundColor: preset.isAuto ? 'var(--primary)' : palette.primaryHex }}
-                                        />
-                                        <span className="min-w-0 flex-1 overflow-hidden whitespace-nowrap">
-                                            <span className="inline-block whitespace-nowrap transition-transform duration-700 ease-out group-hover:-translate-x-1/3">
-                                                {preset.label}
-                                            </span>
-                                        </span>
-                                        {isSelected && <Check className="ml-auto size-3 shrink-0 text-primary" />}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2">
-                            <span className="text-[0.7rem] text-text-muted">Color personalizado:</span>
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="color"
-                                    aria-label="Color personalizado para OBS"
-                                    value={obsWheelColor.startsWith('#') ? obsWheelColor : '#9146ff'}
-                                    onChange={(e) => handleColorChange(e.target.value)}
-                                    className="size-6 cursor-pointer rounded border-0 bg-transparent p-0"
-                                />
-                                <span className="font-mono text-[0.7rem] uppercase text-text-main">
-                                    {obsWheelColor.startsWith('#') ? obsWheelColor : 'Preset'}
-                                </span>
-                            </div>
-                        </div>
                     </div>
-                )}
+
+                    <p className="mt-4 mb-2 text-[0.7rem] font-semibold text-text-muted">{aT.scaleLabel}</p>
+                    <div className="grid grid-cols-3 gap-2">
+                        {(['sm', 'md', 'lg'] as const).map((id) => {
+                            const selected = obsScale === id;
+                            const label = id === 'sm' ? aT.scaleSm : id === 'lg' ? aT.scaleLg : aT.scaleMd;
+                            return (
+                                <button
+                                    key={id}
+                                    type="button"
+                                    onClick={() => handleScaleChange(id)}
+                                    className={`rounded-lg border px-2 py-2 text-[0.7rem] font-medium transition-all ${
+                                        selected
+                                            ? 'border-primary bg-primary/10 text-text-main'
+                                            : 'border-border-subtle bg-bg-secondary text-text-muted hover:border-border-strong hover:text-text-main'
+                                    }`}
+                                >
+                                    {label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
 
                 {/* Flat List Card for Steps */}
                 <div role="tabpanel" className="rounded-xl border border-border-subtle bg-bg-secondary/70 backdrop-blur-xs px-5 py-5 shadow-xs">

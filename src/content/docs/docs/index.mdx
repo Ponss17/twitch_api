@@ -13,7 +13,7 @@ import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 **LosPerris Twitch API** es una API REST gratuita para streamers de Twitch. Expone comandos de chat, herramientas para el directo y minijuegos que tu comunidad puede usar desde Nightbot, StreamElements, Fossabot, Wizebot, Streamlabs o tu propio bot.
 
-El panel en [ttv.losperris.dev](https://ttv.losperris.dev/dashboard) genera las URLs con tu API Key, permite probar cada endpoint y ofrece overlays para OBS en herramientas como Tendencias o Ruleta.
+El panel en [ttv.losperris.dev](https://ttv.losperris.dev/dashboard) genera las URLs con tu API Key, permite probar cada endpoint y ofrece overlays para OBS en herramientas como Tendencias, Ruleta o Preguntas.
 
 ---
 
@@ -22,7 +22,7 @@ El panel en [ttv.losperris.dev](https://ttv.losperris.dev/dashboard) genera las 
 | Categoría | Qué hace | Ejemplos |
 | :--- | :--- | :--- |
 | **Comandos** | Respuestas de texto para el chat de Twitch | Followage, Clips, Shoutout |
-| **Herramientas** | Utilidades para el stream y overlays | Tendencias, Stalker, Ruleta |
+| **Herramientas** | Utilidades para el stream y overlays | Tendencias, Stalker, Ruleta, Preguntas |
 | **Minijuegos** | Interacción con viewers desde el chat | Bola 8, Ruleta Rusa, Duelo |
 | **Extras** | Endpoints auxiliares y referencia de errores | Listar clips, códigos de error |
 
@@ -73,5 +73,6 @@ Consulta [Límites de uso](/docs/limits/) para el detalle por rol y endpoint.
   <LinkCard title="Tu API Key" href="/docs/auth/" description="Formato UUID, cabeceras y regeneración de clave." />
   <LinkCard title="Followage" href="/docs/comandos/followage/" description="Tu primer endpoint: parámetros, plantillas y respuestas." />
   <LinkCard title="Tendencias" href="/docs/herramientas/trends/" description="Overlay de tendencias de Twitch para OBS." />
+  <LinkCard title="Preguntas" href="/docs/herramientas/questions/" description="Bandeja de preguntas del chat con overlay para OBS." />
   <LinkCard title="Ayuda" href="/docs/extras/errores/" description="Códigos de error y qué hacer cuando algo falla." />
 </CardGrid>

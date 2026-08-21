@@ -1,13 +1,17 @@
 import { MessageCircleQuestion, Play, Pause, Square, Trash2, Eraser } from 'lucide-react';
+import { useEffect, useMemo } from 'react';
 import { useQuestions } from './hooks/useQuestions';
 import { QuestionsList } from './components/QuestionsList';
 import { RouletteEligibilityDropdown } from '@/features/tools/roulette/RouletteEligibilityDropdown';
-import { hoverNeutralIconBtn, panelCard, fadeIn, textInput } from '@/core/utils/tw';
+import { OverlayUrlButton } from '@/features/overlay/components/OverlayUrlButton';
+import { useOverlayPublish } from '@/features/overlay/hooks/useOverlayPublish';
+import { hoverSubtleIconBtn, panelCard, fadeIn, textInput } from '@/core/utils/tw';
 import { InlineIcon } from '@/shared/ui/Icon';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
 import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
+import type { QuestionsOverlayState } from '@/features/overlay/lib/types';
 
 export function QuestionsView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
@@ -17,6 +21,7 @@ export function QuestionsView({ active = true }: { active?: boolean }) {
     const {
         isActive,
         keywordInput,
+        keyword,
         setKeyword,
         filters,
         setFilters,
@@ -33,6 +38,30 @@ export function QuestionsView({ active = true }: { active?: boolean }) {
         maxItems,
         maxAgeDays
     } = useQuestions({ tabActive: active });
+
+    const publishOverlay = useOverlayPublish({
+        tool: 'questions',
+        session,
+        active,
+        shouldSkip: (state) => !active && !state.isActive && !state.current,
+        isCritical: () => true,
+        resetCacheWhen: (state) => !state.isActive && !state.current
+    });
+
+    const overlayState = useMemo<QuestionsOverlayState>(
+        () => ({
+            isActive,
+            keyword,
+            pendingCount: Math.max(0, pending.length - (current ? 1 : 0)),
+            current: current ? { displayName: current.displayName, text: current.text } : null,
+            updatedAt: Date.now()
+        }),
+        [isActive, keyword, pending.length, current]
+    );
+
+    useEffect(() => {
+        publishOverlay(overlayState);
+    }, [overlayState, publishOverlay]);
 
     return (
         <div className={`${panelCard} ${fadeIn} mb-3 flex min-h-[500px] flex-col`}>
@@ -114,7 +143,7 @@ export function QuestionsView({ active = true }: { active?: boolean }) {
                             disabled={items.every((q) => q.status === 'pending')}
                             title={qT.btnClearDone}
                             aria-label={qT.btnClearDone}
-                            className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-text-muted disabled:cursor-not-allowed disabled:opacity-40 ${hoverNeutralIconBtn}`}
+                            className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-text-muted disabled:cursor-not-allowed disabled:opacity-40 ${hoverSubtleIconBtn}`}
                         >
                             <Eraser className="size-4 shrink-0" />
                         </button>
@@ -125,12 +154,13 @@ export function QuestionsView({ active = true }: { active?: boolean }) {
                             disabled={items.length === 0 && !isActive}
                             title={qT.btnClear}
                             aria-label={qT.btnClear}
-                            className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-text-muted disabled:cursor-not-allowed disabled:opacity-40 ${hoverNeutralIconBtn}`}
+                            className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-text-muted disabled:cursor-not-allowed disabled:opacity-40 ${hoverSubtleIconBtn}`}
                         >
                             <Trash2 className="size-4 shrink-0" />
                         </button>
                     </div>
 
+                    <OverlayUrlButton tool="questions" />
                     <InfoTooltip text={qT.tooltip} />
                 </div>
             </header>
