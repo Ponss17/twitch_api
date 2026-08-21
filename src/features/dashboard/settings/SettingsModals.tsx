@@ -49,7 +49,7 @@ function ClearScopeOptions({
             <input
                 id={`clear-scope-${id}`}
                 type="checkbox"
-                className="mt-0.5 size-4 shrink-0 accent-error"
+                className="mt-0.5 size-4 shrink-0 accent-primary"
                 checked={checked}
                 onChange={(e) => onChange({ ...scopes, [id]: e.target.checked })}
             />
@@ -118,20 +118,22 @@ export function SettingsModals({
                 onClose={onCloseDiscordResult}
             />
 
-            <DangerConfirmModal
-                open={!!dangerModal}
-                onClose={onCloseDanger}
-                title={dangerModal?.title ?? ''}
-                description={dangerModal?.desc ?? ''}
-                confirmWord={dangerModal?.word ?? ''}
-                confirmLabel={dangerModal?.confirmLabel}
-                canConfirm={canConfirm}
-                onConfirm={dangerModal?.action ?? (async () => {})}
-            >
-                {scopes && dangerModal?.onClearScopesChange ? (
-                    <ClearScopeOptions scopes={scopes} onChange={dangerModal.onClearScopesChange} />
-                ) : null}
-            </DangerConfirmModal>
+            {dangerModal ? (
+                <DangerConfirmModal
+                    open
+                    onClose={onCloseDanger}
+                    title={dangerModal.title}
+                    description={dangerModal.desc}
+                    confirmWord={dangerModal.word}
+                    confirmLabel={dangerModal.confirmLabel}
+                    canConfirm={canConfirm}
+                    onConfirm={dangerModal.action}
+                >
+                    {scopes && dangerModal.onClearScopesChange ? (
+                        <ClearScopeOptions scopes={scopes} onChange={dangerModal.onClearScopesChange} />
+                    ) : null}
+                </DangerConfirmModal>
+            ) : null}
         </>
     );
 }

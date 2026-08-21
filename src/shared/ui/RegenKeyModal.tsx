@@ -1,8 +1,8 @@
 import { Loader2, Check, KeyRound } from 'lucide-react';
 import { useState } from 'react';
-import { btnDanger, btnSecondary } from '@/core/utils/tw';
+import { btnDanger, modalBtnSecondary } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { Modal } from './ModalShell';
+import { Modal, ModalCloseButton, useModalClose } from './ModalShell';
 
 interface RegenKeyModalProps {
     open: boolean;
@@ -15,52 +15,18 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
     const { t } = useTranslation();
     const rT = t.modals.regenKey;
 
-    const handleConfirm = async () => {
-        setLoading(true);
-        try {
-            await onConfirm();
-            onClose();
-        } finally {
-            setLoading(false);
-        }
-    };
-
     return (
         <Modal
             open={open}
             onClose={onClose}
             title={rT.title}
             titleIcon={KeyRound}
-            footer={
-                <>
-                    <button
-                        type="button"
-                        className={btnDanger}
-                        disabled={loading}
-                        onClick={() => void handleConfirm()}
-                    >
-                        {loading ? (
-                            <>
-                                <Loader2 className="animate-spin" aria-hidden="true" />
-                                {rT.regenerating}
-                            </>
-                        ) : (
-                            <>
-                                <KeyRound className="h-4 w-4" aria-hidden="true" />
-                                {rT.confirm}
-                            </>
-                        )}
-                    </button>
-                    <button type="button" className={btnSecondary} disabled={loading} onClick={onClose}>
-                        {rT.cancel}
-                    </button>
-                </>
-            }
+            footer={<RegenKeyActions loading={loading} setLoading={setLoading} onConfirm={onConfirm} />}
         >
             <div className="mb-4 flex items-start gap-3">
                 <KeyRound className="h-5 w-5 text-warning" />
                 <div className="text-center sm:text-left">
-                    <h3 className="text-lg font-bold text-white">{rT.title}</h3>
+                    <p className="text-lg font-bold text-white">{rT.title}</p>
                     <p className="mt-1 text-[0.9rem] text-text-muted">
                         {rT.prefixWarning} <strong>{rT.warning}</strong>.
                     </p>
@@ -79,5 +45,50 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
             </ul>
             <p className="text-sm opacity-80">{rT.disclaimer}</p>
         </Modal>
+    );
+}
+
+function RegenKeyActions({
+    loading,
+    setLoading,
+    onConfirm
+}: {
+    loading: boolean;
+    setLoading: (v: boolean) => void;
+    onConfirm: () => void | Promise<void>;
+}) {
+    const close = useModalClose();
+    const { t } = useTranslation();
+    const rT = t.modals.regenKey;
+
+    const handleConfirm = async () => {
+        setLoading(true);
+        try {
+            await onConfirm();
+            close?.();
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <>
+            <button type="button" className={btnDanger} disabled={loading} onClick={() => void handleConfirm()}>
+                {loading ? (
+                    <>
+                        <Loader2 className="animate-spin" aria-hidden="true" />
+                        {rT.regenerating}
+                    </>
+                ) : (
+                    <>
+                        <KeyRound className="h-4 w-4" aria-hidden="true" />
+                        {rT.confirm}
+                    </>
+                )}
+            </button>
+            <ModalCloseButton className={modalBtnSecondary} disabled={loading}>
+                {rT.cancel}
+            </ModalCloseButton>
+        </>
     );
 }

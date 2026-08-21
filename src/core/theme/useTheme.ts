@@ -26,6 +26,16 @@ let currentTheme: Theme = getInitialTheme();
 let transitionTimeout: ReturnType<typeof setTimeout> | undefined;
 const listeners = new Set<(theme: Theme) => void>();
 
+const THEME_TRANSITION_MS = 380;
+
+function prefersReducedMotion(): boolean {
+    return (
+        typeof window !== 'undefined' &&
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
+}
+
 export function applyDomTheme(theme: Theme) {
     const root = document.documentElement;
     if (theme === 'dark') {
@@ -34,11 +44,47 @@ export function applyDomTheme(theme: Theme) {
         root.setAttribute('data-theme', theme);
     }
 
-    // Sincronizar color de barra del navegador móvil
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
         metaThemeColor.setAttribute('content', THEME_META_COLORS[theme] ?? '#09090b');
     }
+}
+
+function runWithThemeTransition(apply: () => void) {
+    if (typeof window === 'undefined') {
+        apply();
+        return;
+    }
+
+    const root = document.documentElement;
+
+    if (prefersReducedMotion()) {
+        apply();
+        return;
+    }
+
+    const doc = document as Document & {
+        startViewTransition?: (cb: () => void) => { finished: Promise<void> };
+    };
+
+    if (typeof doc.startViewTransition === 'function') {
+        try {
+            const transition = doc.startViewTransition(apply);
+            void transition.finished.catch(() => {
+                /* ignore abort */
+            });
+            return;
+        } catch {
+            /* fallback CSS below */
+        }
+    }
+
+    root.classList.add('theme-transition');
+    apply();
+    if (transitionTimeout) clearTimeout(transitionTimeout);
+    transitionTimeout = setTimeout(() => {
+        root.classList.remove('theme-transition');
+    }, THEME_TRANSITION_MS);
 }
 
 export const setTheme = (theme: Theme) => {
@@ -49,19 +95,13 @@ export const setTheme = (theme: Theme) => {
     if (typeof window !== 'undefined') {
         localStorage.setItem(THEME_STORAGE_KEY, theme);
 
-        const root = document.documentElement;
-        root.classList.add('theme-transition');
-        applyDomTheme(theme);
-
-        const easterEgg = THEME_DEFINITIONS[theme]?.easterEggEvent;
-        if (easterEgg) {
-            window.dispatchEvent(new CustomEvent(easterEgg));
-        }
-
-        if (transitionTimeout) clearTimeout(transitionTimeout);
-        transitionTimeout = setTimeout(() => {
-            root.classList.remove('theme-transition');
-        }, 260);
+        runWithThemeTransition(() => {
+            applyDomTheme(theme);
+            const easterEgg = THEME_DEFINITIONS[theme]?.easterEggEvent;
+            if (easterEgg) {
+                window.dispatchEvent(new CustomEvent(easterEgg));
+            }
+        });
     }
     listeners.forEach((listener) => listener(theme));
 };
@@ -73,7 +113,6 @@ export const useTheme = () => {
         const handler = (newTheme: Theme) => setThemeState(newTheme);
         listeners.add(handler);
 
-        // Asegurar que el DOM coincide al montar
         applyDomTheme(currentTheme);
 
         return () => {

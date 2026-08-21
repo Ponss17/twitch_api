@@ -111,7 +111,7 @@ export function LandingHero({ legacyReloginNotice, onLoginClick }: LandingHeroPr
                                 className={`rounded-md px-2.5 py-1.5 text-[0.78rem] font-medium transition sm:px-3.5 sm:text-sm ${
                                     active
                                         ? 'bg-primary/15 text-text-main'
-                                        : 'text-text-muted hover:bg-bg-hover-neutral hover:text-text-main'
+                                        : 'text-text-muted hover:bg-white/[0.02] hover:text-text-main'
                                 }`}
                             >
                                 {item.label}

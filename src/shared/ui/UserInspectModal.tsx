@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BaseModal } from '@/shared/ui/Modal';
+import { BaseModal, ModalCloseButton } from '@/shared/ui/Modal';
 import type { ChatLogItem } from '@/features/chat/lib/chatLogStore';
 import { chatLogStore } from '@/features/chat/lib/chatLogStore';
 import { calculateAccountAge, broadcasterLabel, type TwitchUser } from '@/core/types/twitch';
@@ -50,17 +50,15 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
         <BaseModal
             open={!!user}
             onClose={onClose}
-            className="relative my-auto max-h-[min(90vh,720px)] w-full max-w-[450px] overflow-y-auto rounded-xl border border-border-strong bg-bg-card shadow-2xl"
+            className="relative my-auto max-h-[min(90vh,720px)] w-full max-w-[450px] overflow-y-auto overscroll-contain rounded-xl border border-border-strong bg-bg-card shadow-2xl [scrollbar-width:thin]"
             aria-labelledby="user-inspect-title"
         >
-            <button
-                type="button"
-                onClick={onClose}
+            <ModalCloseButton
                 aria-label={mT.close}
                 className="absolute top-[15px] right-[15px] z-10 flex h-8 w-8 items-center justify-center rounded-full border-none bg-bg-secondary text-[1.2rem] text-text-main transition hover:rotate-90 hover:bg-error hover:text-white"
             >
                 <X className="w-4 h-4" />
-            </button>
+            </ModalCloseButton>
 
             <div className="flex items-center gap-5 border-b border-border-subtle bg-bg-secondary/70 p-6 max-md:flex-col max-md:text-center">
                 <img
@@ -148,7 +146,7 @@ export function UserInspectModal({ user, onClose, showLogs = true }: UserInspect
                         <button
                             type="button"
                             onClick={loadLogs}
-                            className="w-full rounded-lg border border-border-strong bg-bg-secondary px-4 py-2 text-[0.8125rem] font-semibold text-text-main transition hover:border-border-strong hover:bg-bg-hover-neutral"
+                            className="w-full rounded-lg border border-border-strong bg-bg-secondary px-4 py-2 text-[0.8125rem] font-semibold text-text-main transition hover:border-border-strong hover:bg-white/[0.02]"
                         >
                             {mT.viewHistory}
                         </button>

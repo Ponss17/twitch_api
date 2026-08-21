@@ -57,7 +57,7 @@ export function SettingsAccountSection({
                             onClick={handleCopyId}
                             title={pT.copyUserId}
                             aria-label={pT.copyUserId}
-                            className="inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-border-subtle text-text-muted transition hover:bg-bg-hover-neutral hover:text-text-main"
+                            className="inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-border-subtle text-text-muted transition hover:bg-white/[0.02] hover:text-text-main"
                         >
                             {isIdCopied ? (
                                 <Check className="h-3.5 w-3.5 text-success" aria-hidden="true" />

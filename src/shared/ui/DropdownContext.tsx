@@ -31,7 +31,7 @@ export function useDropdown(): DropdownContextValue {
 }
 
 export const dropdownTriggerCompact =
-    `flex min-w-[9.5rem] max-w-[11.5rem] items-center gap-2 rounded-lg border border-border-strong bg-text-main/5 px-2.5 py-1.5 text-[0.75rem] font-medium text-text-main disabled:cursor-not-allowed disabled:opacity-50 ${hoverSubtleControl}`;
+    `flex min-w-[9.5rem] max-w-[11.5rem] items-center gap-2 rounded-lg border border-border-strong bg-text-main/5 px-2.5 py-1.5 text-[0.75rem] font-medium text-text-main transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${hoverSubtleControl} aria-expanded:border-primary/25 aria-expanded:bg-primary/[0.08]`;
 
 interface DropdownProps {
     children: ReactNode;
