@@ -181,9 +181,9 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             key={category}
                             type="button"
                             onClick={() => handleCategoryChange(category)}
-                            className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.7rem] font-semibold transition-all duration-200 ${active
+                            className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.7rem] font-semibold transition-colors duration-200 ${active
                                 ? 'bg-primary/15 text-brand-text ring-1 ring-primary/25 shadow-sm'
-                                : 'text-text-muted hover:bg-primary/10 hover:text-text-main'
+                                : 'text-text-muted hover:bg-white/[0.02] hover:text-text-main'
                                 }`}
                             aria-pressed={active}
                         >
@@ -211,9 +211,9 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                     <button
                         type="button"
                         onClick={() => setTypeFilter('all')}
-                        className={`rounded-md px-2 py-1 text-[0.68rem] font-medium transition-all duration-200 ${typeFilter === 'all'
+                        className={`rounded-md px-2 py-1 text-[0.68rem] font-medium transition-colors duration-200 ${typeFilter === 'all'
                             ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_var(--color-primary-hover)]/10'
-                            : 'text-text-muted hover:bg-primary/10 hover:text-text-main'
+                            : 'text-text-muted hover:bg-white/[0.02] hover:text-text-main'
                             }`}
                         aria-pressed={typeFilter === 'all'}
                     >
@@ -231,9 +231,9 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                     key={type}
                                     type="button"
                                     onClick={() => setTypeFilter(type)}
-                                    className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.68rem] font-medium transition-all duration-200 ${active
+                                    className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.68rem] font-medium transition-colors duration-200 ${active
                                         ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_var(--color-primary-hover)]/10'
-                                        : 'text-text-muted hover:bg-primary/10 hover:text-text-main'
+                                        : 'text-text-muted hover:bg-white/[0.02] hover:text-text-main'
                                         }`}
                                     aria-pressed={active}
                                 >
@@ -267,6 +267,9 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                             <AnimatePresence initial={false}>
                                 {renderItems.map(({ item, showDivider, dateLabel, key }) => {
                                     const isNew = highlightKeys?.has(key) ?? false;
+                                    const isActive =
+                                        selectedActivity != null &&
+                                        activityEntryKey(selectedActivity) === key;
 
                                     return (
                                         <m.div
@@ -280,6 +283,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                             <HomeActivityLogEntry
                                                 item={item}
                                                 isNew={isNew}
+                                                isActive={isActive}
                                                 timeZone={timeZone}
                                                 onClick={setSelectedActivity}
                                             />

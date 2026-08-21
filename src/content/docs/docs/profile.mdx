@@ -77,12 +77,13 @@ Cuerpo JSON: `{ "timezone": "Europe/Madrid" }`
 
 ### Datos (exportar)
 
-Genera un **reporte de cuenta completo** en HTML.
+Genera un **reporte de cuenta completo** en HTML o un **CSV de analíticas** (resumen, uso por comando y serie de 7 días). El CSV se arma en el navegador con los mismos datos; no añade endpoints nuevos.
 
 Nombre al descargar:
 
 ```text
 MisDatos_LosPerrisAPI_tu_login.html
+Analytics_LosPerrisAPI_tu_login.csv
 ```
 
 | Bloque del reporte | Detalle |
@@ -101,7 +102,7 @@ Entre descargas hay **4 minutos** de espera por usuario. Si intentas antes, ver�
 <Steps>
 1. Pulsa **Generar reporte**.
 2. El panel verifica el cooldown (`POST /api/dashboard/export-check`).
-3. Se arma el HTML en el navegador y se descarga solo.
+3. Se arma el HTML o el CSV en el navegador y se descarga solo.
 4. Se registra la exportación (`POST /api/dashboard/export-complete`).
 </Steps>
 
@@ -181,7 +182,7 @@ Si el enlace de Discord ya está usado por otra cuenta Twitch, verás un error y
 | :--- | :--- |
 | User ID, rol, límites | Configuración → **General** |
 | Zona horaria | Configuración → **General** |
-| Exportar HTML | Configuración → **General** |
+| Exportar HTML / CSV | Configuración → **Datos** |
 | API Key | Configuración → **Seguridad** |
 | Zona de peligro | Configuración → **Seguridad** |
 | Discord | Configuración → **Conexiones** |

@@ -31,9 +31,10 @@ type UseSettingsDangerActionsParams = {
     session: Session;
     showToast: ShowToast;
     t: Translations;
+    onDataCleared?: () => void;
 };
 
-export function useSettingsDangerActions({ session, showToast, t }: UseSettingsDangerActionsParams) {
+export function useSettingsDangerActions({ session, showToast, t, onDataCleared }: UseSettingsDangerActionsParams) {
     const [dangerModal, setDangerModal] = useState<SettingsDangerModal | null>(null);
     const clearScopesRef = useRef<ClearDataScopes>(DEFAULT_CLEAR_SCOPES);
 
@@ -56,6 +57,7 @@ export function useSettingsDangerActions({ session, showToast, t }: UseSettingsD
                     if (session.userId) broadcastHomeDataReset(session.userId);
                 }
                 writePanelSyncPref(session.userId, Date.now().toString());
+                onDataCleared?.();
                 showToast((data.message as string) ?? t.settings.toasts.clearSuccess, 'success');
             } else {
                 showToast(extractApiErrorMessage(data, t.settings.toasts.clearError), 'error');

@@ -118,5 +118,14 @@ export const COMMAND_INTEGRATIONS = [
         variants: [
             { name: 'Dashboard', params: '', desc: 'Herramienta exclusiva del panel de control' }
         ]
+    },
+    {
+        id: 'questions',
+        label: 'Preguntas del chat',
+        description: 'Bandeja de preguntas con overlay OBS (solo Dashboard)',
+        dashboard: true,
+        variants: [
+            { name: 'Dashboard', params: '', desc: 'Herramienta exclusiva del panel de control' }
+        ]
     }
 ];

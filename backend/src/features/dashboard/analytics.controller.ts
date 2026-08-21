@@ -133,6 +133,9 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
 
     const mergeProfileLimits = (profile: Record<string, unknown> | null) => {
         if (!profile) return profile;
+        const apiUser = res.locals?.apiUser as
+            | { timezone?: string; createdAt?: string; lastActive?: string }
+            | undefined;
         return {
             ...profile,
             role: limits.role,
@@ -142,8 +145,10 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
             cacheTtl: limits.cacheTtl,
             hasCustomRateLimit: limits.hasCustomRateLimit,
             hasCustomCacheTtl: limits.hasCustomCacheTtl,
-            timezone: res.locals?.apiUser?.timezone || 'UTC',
-            ...(discordFields ?? {})
+            timezone: apiUser?.timezone || 'UTC',
+            ...(discordFields ?? {}),
+            dbCreatedAt: apiUser?.createdAt,
+            dbLastActive: apiUser?.lastActive
         };
     };
 

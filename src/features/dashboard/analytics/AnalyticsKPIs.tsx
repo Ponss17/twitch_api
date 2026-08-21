@@ -29,10 +29,15 @@ function RangeToggle({
     t: Translations;
 }) {
     return (
-        <div className="flex items-center rounded-lg border border-border-subtle bg-bg-main p-0.5">
+        <div
+            className="flex items-center rounded-lg border border-border-subtle bg-bg-main p-0.5"
+            role="group"
+            aria-label={t.analytics.rangeGroup}
+        >
             <button
                 type="button"
                 onClick={() => setTimeRange('today')}
+                aria-pressed={timeRange === 'today'}
                 className={`rounded-md px-3 py-1 text-xs ${
                     timeRange === 'today'
                         ? 'bg-primary/20 font-semibold text-brand-text'
@@ -44,6 +49,7 @@ function RangeToggle({
             <button
                 type="button"
                 onClick={() => setTimeRange('7d')}
+                aria-pressed={timeRange === '7d'}
                 className={`rounded-md px-3 py-1 text-xs ${
                     timeRange === '7d'
                         ? 'bg-primary/20 font-semibold text-brand-text'

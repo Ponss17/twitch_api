@@ -1,4 +1,4 @@
-import { updateSettingsSchema, clearUserDataSchema } from '../../../backend/src/features/dashboard/dashboard.schema';
+import { updateSettingsSchema, clearUserDataSchema, getUserAuditLogsSchema } from '../../../backend/src/features/dashboard/dashboard.schema';
 
 describe('updateSettingsSchema', () => {
     it('acepta zonas IANA reales', () => {
@@ -30,5 +30,20 @@ describe('clearUserDataSchema', () => {
                 body: { confirm: 'LIMPIAR', scopes: { stats: false, questions: false } }
             }).success
         ).toBe(false);
+    });
+});
+
+describe('getUserAuditLogsSchema', () => {
+    it('acepta página por defecto', () => {
+        expect(getUserAuditLogsSchema.safeParse({ query: {} }).success).toBe(true);
+    });
+
+    it('acepta páginas dentro de rango', () => {
+        expect(getUserAuditLogsSchema.safeParse({ query: { page: '2' } }).success).toBe(true);
+    });
+
+    it('rechaza páginas inválidas', () => {
+        expect(getUserAuditLogsSchema.safeParse({ query: { page: '0' } }).success).toBe(false);
+        expect(getUserAuditLogsSchema.safeParse({ query: { page: '101' } }).success).toBe(false);
     });
 });

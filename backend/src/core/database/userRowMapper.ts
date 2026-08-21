@@ -46,7 +46,7 @@ export function hydrateUserFromRow(row: Record<string, unknown>): StoredUser {
 
 export function userToRow(
     user: StoredUser,
-    options?: { preservePlan?: boolean }
+    options?: { preservePlan?: boolean; preserveCreatedAt?: boolean }
 ): Record<string, unknown> {
     const row: Record<string, unknown> = {
         user_id: user.userId,
@@ -67,12 +67,14 @@ export function userToRow(
     };
 
     if (!options?.preservePlan) {
+        // Solo alta / escritura explícita de plan. En re-login NO incluir estas
+        // columnas: el upsert de PostgREST las reseteaba a default/NULL.
         row.custom_rate_limit = user.customRateLimit ?? null;
         row.custom_cache_ttl = user.customCacheTtl ?? null;
         row.role = user.role ?? DEFAULT_USER_ROLE;
     }
 
-    if (user.createdAt) {
+    if (!options?.preserveCreatedAt && user.createdAt) {
         row.created_at = new Date(user.createdAt).toISOString();
     }
 

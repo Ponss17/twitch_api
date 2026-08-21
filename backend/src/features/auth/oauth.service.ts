@@ -9,6 +9,7 @@ import { AppError } from '../../core/errors/AppError';
 import { MESSAGES } from '../../core/config/messages';
 import { overlayRevokeKey } from '../../core/overlay/keys';
 import { getHmacSecrets, getPrimaryHmacSecret } from '../../core/utils/hmacSecrets';
+import { DEFAULT_USER_ROLE } from '../../core/config/userRoles';
 
 const TWITCH_AUTH_URL = 'https://id.twitch.tv/oauth2';
 const TWITCH_API_URL = 'https://api.twitch.tv/helix';
@@ -82,7 +83,7 @@ export const getAuthorizeUrl = (
     providedState?: string
 ): string => {
     const scope =
-        'user:read:email moderator:read:followers clips:edit moderator:read:chatters user:write:chat chat:read chat:edit moderator:manage:banned_users channel:read:vips channel:read:subscriptions';
+        'user:read:email moderator:read:followers clips:edit channel:manage:clips moderator:read:chatters user:write:chat chat:read chat:edit moderator:manage:banned_users channel:read:vips channel:read:subscriptions';
     const state = providedState ?? createOAuthState(redirectOrigin, extraData);
 
     const params = new URLSearchParams({
@@ -158,9 +159,9 @@ export const handleCallback = async (
     }
 
     const nowIso = new Date().toISOString();
-    // Primer ingreso: solo se asigna en el alta. Si el usuario ya existe pero el campo
-    // no vino en caché, NO usar "ahora" (saveUser omite created_at y conserva el de DB).
-    const createdAt = existingUser?.createdAt ?? (existingUser ? undefined : nowIso);
+    // Primer ingreso: solo en el alta. En re-login no se manda created_at al upsert.
+    const isExisting = Boolean(existingUser);
+    const createdAt = isExisting ? undefined : nowIso;
     // Último ingreso previo en UI = lastActive anterior; al loguear guardamos este login.
     const previousLastActive = existingUser?.lastActive;
 
@@ -180,7 +181,7 @@ export const handleCallback = async (
         blockedReason: existingUser?.blockedReason,
         customRateLimit: existingUser?.customRateLimit,
         customCacheTtl: existingUser?.customCacheTtl,
-        role: existingUser?.role,
+        role: isExisting ? existingUser?.role : DEFAULT_USER_ROLE,
         stats: existingUser?.stats,
         totalRequests: existingUser?.totalRequests,
         // Conserva el lastActive previo para "Último Ingreso Previo" hasta el próximo bump.
@@ -202,8 +203,10 @@ export const handleCallback = async (
     }
 
     // preservePlan: el rol/cuota en Supabase es la fuente de verdad (no se pisa en re-login).
+    // preserveCreatedAt: el primer ingreso no se reescribe nunca en re-login.
     await dbService.saveUser(storedUser, {
-        preservePlan: Boolean(existingUser)
+        preservePlan: isExisting,
+        preserveCreatedAt: isExisting
     });
 
     // Invalidar L1 de API keys: si no, instancias warm siguen con el accessToken
@@ -237,7 +240,7 @@ export const regenerateApiKey = async (userId: string): Promise<string> => {
     const newApiKey = crypto.randomUUID();
     user.apiKey = newApiKey;
 
-    await dbService.saveUser(user);
+    await dbService.saveUser(user, { preservePlan: true, preserveCreatedAt: true });
 
     // Invalidar caché en memoria y en KV para que la clave vieja deje de funcionar de inmediato
     _invalidateCacheFn?.(userId);

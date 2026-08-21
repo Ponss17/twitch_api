@@ -14,6 +14,7 @@ import {
     getSummarySchema,
     getAnalyticsSchema,
     getActivitySchema,
+    getUserAuditLogsSchema,
     clearUserDataSchema,
     deleteAccountSchema,
     getViewerLeaderboardSchema,
@@ -51,6 +52,12 @@ router.get(
 router.get('/user-info', globalRateLimiter, validate(getUserInfoSchema), /* codeql[js/missing-rate-limiting] */ accountController.getUserInfo);
 router.get('/summary', heavyRateLimiter, validate(getSummarySchema), /* codeql[js/missing-rate-limiting] */ analyticsController.getSummary);
 router.get('/activity', globalRateLimiter, validate(getActivitySchema), /* codeql[js/missing-rate-limiting] */ analyticsController.getLogs);
+router.get(
+    '/audit-logs',
+    globalRateLimiter,
+    validate(getUserAuditLogsSchema),
+    /* codeql[js/missing-rate-limiting] */ accountController.getUserAuditLogs
+);
 router.get('/viewer-leaderboard', globalRateLimiter, validate(getViewerLeaderboardSchema), /* codeql[js/missing-rate-limiting] */ getViewerLeaderboard);
 
 router.post(

@@ -142,6 +142,23 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
     if (!res.headersSent) return jsonError(res, 404, MESSAGES.DASHBOARD.USER_INFO_ERROR, { code: 'NOT_FOUND' });
 };
 
+export const getUserAuditLogs = async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.userId;
+    if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
+
+    const rawPage = req.query?.page ?? (res.locals?.query as { page?: unknown } | undefined)?.page;
+    const page = Number(rawPage) || 1;
+
+    try {
+        const payload = await dbService.getUserAuditLogs(userId, page);
+        res.setHeader('Cache-Control', 'no-store');
+        return res.json(payload);
+    } catch (e) {
+        logger.error('Error leyendo audit logs:', e);
+        return jsonError(res, 500, MESSAGES.DASHBOARD.ANALYTICS_ERROR);
+    }
+};
+
 export const clearUserData = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
@@ -175,6 +192,11 @@ export const clearUserData = async (req: AuthenticatedRequest, res: Response) =>
         const parts: string[] = [];
         if (clearStats) parts.push('estadísticas y actividad');
         if (clearQuestions) parts.push('historial de preguntas');
+
+        await dbService.addAuditLog('stats_cleared', userId, userId, {
+            stats: clearStats,
+            questions: clearQuestions
+        });
 
         res.json({
             success: true,

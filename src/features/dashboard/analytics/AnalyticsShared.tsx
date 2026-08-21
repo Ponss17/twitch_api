@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ChevronLeft, ChevronRight, type LucideIcon } from 'lucide-react';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { hoverSubtleIconBtn } from '@/core/utils/tw';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 export const COLORS = [
     'var(--chart-1)',
@@ -59,6 +60,7 @@ export function AnalyticsSection({
 
 export function AnalyticsSimpleList({
     leftHeader,
+    middleHeader,
     rightHeader,
     rows,
     empty,
@@ -66,14 +68,17 @@ export function AnalyticsSimpleList({
     resetKey
 }: {
     leftHeader: string;
+    middleHeader?: string;
     rightHeader: string;
-    rows: Array<{ id: string; left: string; right: string; title?: string }>;
+    rows: Array<{ id: string; left: string; middle?: string; right: string; title?: string }>;
     empty: ReactNode;
     pageSize?: number;
     resetKey?: string | number;
 }) {
+    const { t } = useTranslation();
     const [page, setPage] = useState(0);
     const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
+    const hasMiddle = Boolean(middleHeader);
 
     useEffect(() => {
         setPage(0);
@@ -89,15 +94,34 @@ export function AnalyticsSimpleList({
 
     return (
         <div className="flex min-h-0 flex-1 flex-col">
-            <div className="flex items-center justify-between gap-3 border-b border-border-subtle pb-2">
-                <span className="text-[0.75rem] font-semibold text-text-muted">{leftHeader}</span>
-                <span className="text-[0.75rem] font-semibold text-text-muted">{rightHeader}</span>
+            <div
+                className={`grid items-center gap-3 border-b border-border-subtle pb-2 ${
+                    hasMiddle ? 'grid-cols-3' : 'grid-cols-[minmax(0,1fr)_auto]'
+                }`}
+            >
+                <span className="min-w-0 text-[0.75rem] font-semibold text-text-muted">
+                    {leftHeader}
+                </span>
+                {hasMiddle ? (
+                    <span className="text-center text-[0.75rem] font-semibold text-text-muted">
+                        {middleHeader}
+                    </span>
+                ) : null}
+                <span
+                    className={`text-[0.75rem] font-semibold text-text-muted ${
+                        hasMiddle ? 'text-right' : 'justify-self-end'
+                    }`}
+                >
+                    {rightHeader}
+                </span>
             </div>
             <ul className="min-h-0 flex-1">
                 {slice.map((row) => (
                     <li
                         key={row.id}
-                        className="flex items-center justify-between gap-4 border-b border-border-subtle/60 py-2.5 last:border-b-0"
+                        className={`grid items-center gap-3 border-b border-border-subtle/60 py-2.5 last:border-b-0 ${
+                            hasMiddle ? 'grid-cols-3' : 'grid-cols-[minmax(0,1fr)_auto]'
+                        }`}
                     >
                         <span
                             className="min-w-0 truncate text-[0.875rem] text-text-main"
@@ -105,7 +129,16 @@ export function AnalyticsSimpleList({
                         >
                             {row.left}
                         </span>
-                        <span className="shrink-0 text-[0.875rem] tabular-nums text-text-muted">
+                        {hasMiddle ? (
+                            <span className="text-center text-[0.875rem] tabular-nums text-text-muted">
+                                {row.middle ?? '—'}
+                            </span>
+                        ) : null}
+                        <span
+                            className={`text-[0.875rem] tabular-nums text-text-muted ${
+                                hasMiddle ? 'text-right' : 'justify-self-end'
+                            }`}
+                        >
                             {row.right}
                         </span>
                     </li>
@@ -114,7 +147,7 @@ export function AnalyticsSimpleList({
             <div className="mt-auto flex items-center justify-end gap-0.5 pt-2">
                 <button
                     type="button"
-                    aria-label="Previous page"
+                    aria-label={t.analytics.prevPage}
                     disabled={page <= 0}
                     onClick={() => setPage((p) => Math.max(0, p - 1))}
                     className={`flex h-7 w-7 items-center justify-center rounded-md text-text-muted disabled:opacity-30 ${hoverSubtleIconBtn}`}
@@ -123,7 +156,7 @@ export function AnalyticsSimpleList({
                 </button>
                 <button
                     type="button"
-                    aria-label="Next page"
+                    aria-label={t.analytics.nextPage}
                     disabled={page >= pageCount - 1}
                     onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
                     className={`flex h-7 w-7 items-center justify-center rounded-md text-text-muted disabled:opacity-30 ${hoverSubtleIconBtn}`}

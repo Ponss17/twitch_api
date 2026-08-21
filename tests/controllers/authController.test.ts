@@ -27,6 +27,10 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     recordUserRequest: jest.fn().mockResolvedValue(undefined)
 }));
 
+jest.mock('../../backend/src/core/database/auditService', () => ({
+    addAuditLog: jest.fn().mockResolvedValue(undefined)
+}));
+
 jest.mock('../../backend/src/core/database/cacheService', () => ({
     get: jest.fn(),
     set: jest.fn(),
@@ -38,7 +42,8 @@ jest.mock('@/core/utils/logger', () => ({
 }));
 
 import * as authService from '../../backend/src/features/auth/auth.service';
-import { login, callback, exchange } from '../../backend/src/features/auth/auth.controller';
+import * as auditService from '../../backend/src/core/database/auditService';
+import { login, callback, exchange, logout } from '../../backend/src/features/auth/auth.controller';
 import {
     readOAuthStateCookie,
     setOAuthStateCookie
@@ -277,6 +282,7 @@ describe('authController', () => {
             expect(res.json).not.toHaveBeenCalledWith(
                 expect.objectContaining({ apiKey: expect.anything() })
             );
+            expect(auditService.addAuditLog).toHaveBeenCalledWith('session_login', '999', '999');
         });
 
         it('should return 503 if auth exchange store is unavailable', async () => {
@@ -298,6 +304,18 @@ describe('authController', () => {
                 success: false,
                 error: expect.objectContaining({ code: 'SERVICE_UNAVAILABLE' })
             });
+        });
+    });
+
+    describe('logout', () => {
+        it('revokes the session and writes a logout audit log', async () => {
+            const req = mockReq({ userId: '999', login: 'testuser' });
+            const res = mockRes();
+
+            await logout(req as never, res);
+
+            expect(auditService.addAuditLog).toHaveBeenCalledWith('session_logout', '999', '999');
+            expect(res.json).toHaveBeenCalledWith({ success: true });
         });
     });
 });

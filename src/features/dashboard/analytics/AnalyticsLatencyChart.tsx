@@ -27,6 +27,7 @@ export function AnalyticsLatencyChart({ pieData }: AnalyticsLatencyChartProps) {
             .map((entry) => ({
                 id: entry.name,
                 left: entry.name,
+                middle: entry.value.toLocaleString(),
                 right: `${Math.round(entry.avgLatency)} ms`,
                 title: entry.name
             }));
@@ -40,6 +41,7 @@ export function AnalyticsLatencyChart({ pieData }: AnalyticsLatencyChartProps) {
         >
             <AnalyticsSimpleList
                 leftHeader={chart.colCommand}
+                middleHeader={chart.colRequests}
                 rightHeader={chart.colLatency}
                 rows={rows}
                 empty={
