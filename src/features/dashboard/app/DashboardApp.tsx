@@ -173,13 +173,13 @@ function DashboardAppShell() {
                         onChange={setTab}
                         mobileOpen={mobileMenuOpen}
                         onClose={() => setMobileMenuOpen(false)}
+                        onSettings={() => setTab('settings')}
+                        onLogout={logout}
                     />
 
                     <div className="flex min-h-0 flex-1 flex-col lg:ml-[240px]">
                         <DashboardHeader
                             tab={tab}
-                            onSettings={() => setTab('settings')}
-                            onLogout={logout}
                             onMenuToggle={() => setMobileMenuOpen((open) => !open)}
                             mobileMenuOpen={mobileMenuOpen}
                         />

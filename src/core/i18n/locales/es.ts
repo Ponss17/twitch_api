@@ -326,13 +326,19 @@ export const es = {
     },
     announcements: {
         badge: 'Novedad',
+        bellLabel: 'Notificaciones',
+        countLabel: '{count} novedades nuevas',
+        emptyTitle: 'Sin novedades',
+        emptyBody: 'Cuando haya algo nuevo en el panel, aparecerá aquí.',
+        timeNew: 'Nuevo',
+        markAllRead: 'Marcar todo como leído',
         dismiss: 'Entendido',
         reloginCta: 'Cerrar sesión y volver a entrar',
         reloginLoading: 'Cerrando sesión…',
         items: {
             'clips-download-2026-08': {
-                title: 'Nuevo: descarga de clips en MP4',
-                body: 'Ya puedes bajar tus clips desde el panel. Cierra sesión e inicia de nuevo con Twitch para desbloquear el permiso nuevo.'
+                title: 'Descarga de clips en MP4',
+                body: 'Cierra sesión e inicia de nuevo con Twitch para desbloquear el permiso nuevo.'
             }
         }
     },

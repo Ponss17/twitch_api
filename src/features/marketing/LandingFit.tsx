@@ -216,7 +216,13 @@ export function LandingFit() {
                                             <span className="text-[12px] font-bold">500</span>
                                         </div>
                                         <div className="flex items-center gap-1 text-[#adadb8] hover:text-[#efeff1] transition-colors">
-                                            <img src="/img/logo.png" alt="Perricoins" className="w-4 h-4 object-contain rounded-full" />
+                                            <img
+                                                src="/img/logo.png"
+                                                alt="Perricoins"
+                                                className="h-4 w-4 rounded-full object-contain"
+                                                loading="lazy"
+                                                decoding="async"
+                                            />
                                             <span className="text-[12px] font-bold">1.2K</span>
                                         </div>
                                     </div>

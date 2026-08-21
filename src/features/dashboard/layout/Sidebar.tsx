@@ -1,41 +1,61 @@
 import { useEffect, useRef } from 'react';
 import { LazyMotion, domAnimation, m } from 'framer-motion';
 import type { DashboardTab } from '@/core/config/config';
-import { appPath, saveDocsReturnPath } from '@/core/config/paths';
+import { appPath, saveDocsReturnPath, staticPath } from '@/core/config/paths';
 import { NAV_ITEMS } from '@/features/dashboard/lib/dashboardTabs';
 import {
     sidebarBackdrop,
     sidebarBrandHeader,
     sidebarNavItem,
     sidebarNavScroll,
-    sidebarShell,
-    hoverSubtleIconBtn,
-    APP_BOTTOM_BAR
+    sidebarShell
 } from '@/core/utils/tw';
-import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
+import { DiscordIcon, TwitchIcon } from '@/shared/ui/icons/BrandIcons';
 import { AppLogo } from '@/shared/ui/AppLogo';
 import { IconMd } from '@/shared/ui/Icon';
-import { Book, MessageSquare } from 'lucide-react';
+import { Book, Heart, LogOut, MessageSquare, Settings } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { useRequiredSession } from '@/core/session/useSession';
+import {
+    Dropdown,
+    DropdownChevron,
+    DropdownDivider,
+    DropdownItem,
+    DropdownLink,
+    DropdownPanel,
+    DropdownTrigger
+} from '@/shared/ui/Dropdown';
+
+const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
 
 interface SidebarProps {
     active: DashboardTab;
     onChange: (tab: DashboardTab) => void;
     mobileOpen: boolean;
     onClose: () => void;
+    onSettings: () => void;
+    onLogout: () => void;
 }
 
 const MAIN_NAV = NAV_ITEMS.filter((item) => item.category !== 'support');
 
-const supportIconBtn =
-    `inline-flex h-full min-w-0 flex-col items-center justify-center gap-1 rounded-lg border border-transparent px-1 py-1.5 text-[0.65rem] font-medium leading-none text-text-muted no-underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40 ${hoverSubtleIconBtn}`;
-
-export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps) {
+export function Sidebar({
+    active,
+    onChange,
+    mobileOpen,
+    onClose,
+    onSettings,
+    onLogout
+}: SidebarProps) {
     const { t } = useTranslation();
+    const session = useRequiredSession();
     const asideRef = useRef<HTMLElement>(null);
-    const feedbackActive = active === 'feedback';
+    const displayName = session.displayName ?? session.login ?? 'Streamer';
+    const loginLabel = session.login ? `@${session.login}` : '';
+    const twitchProfileUrl = session.login ? `https://www.twitch.tv/${session.login}` : '#';
+    const avatarSrc =
+        session.profile_image_url?.replace('300x300', '70x70') ?? staticPath('/img/logo.svg');
 
-    // Cerrado en móvil: no debe recibir foco (queda fuera de pantalla).
     useEffect(() => {
         const el = asideRef.current;
         if (!el) return;
@@ -133,50 +153,88 @@ export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps)
                     })}
                 </nav>
 
-                <div className={`${APP_BOTTOM_BAR} flex items-center px-2.5`}>
-                    <div
-                        className="grid h-full w-full grid-cols-3 gap-1 py-1"
-                        role="group"
-                        aria-label={t.sidebar.categories.support}
-                    >
-                        <button
-                            type="button"
-                            onClick={() => {
-                                onChange('feedback');
-                                onClose();
-                            }}
-                            className={`${supportIconBtn} ${
-                                feedbackActive ? 'border-primary/25 bg-primary/15 text-primary' : ''
-                            }`}
-                            aria-label={t.sidebar.items.feedback}
-                            aria-current={feedbackActive ? 'page' : undefined}
-                            title={t.sidebar.items.feedback}
+                <div className="shrink-0 border-t border-border-subtle px-2.5 py-2">
+                    <Dropdown className="relative w-full">
+                        <DropdownTrigger
+                            aria-label={t.header.accountMenu}
+                            className="group flex w-full items-center gap-2.5 rounded-xl border border-transparent px-2 py-2 text-left transition-colors hover:bg-white/[0.02] aria-expanded:border-border-subtle aria-expanded:bg-white/[0.03]"
                         >
-                            <MessageSquare className="size-4 shrink-0" strokeWidth={2} aria-hidden />
-                            <span className="max-w-full truncate">{t.sidebar.items.feedback}</span>
-                        </button>
-                        <a
-                            href={appPath('/docs')}
-                            onClick={saveDocsReturnPath}
-                            className={supportIconBtn}
-                            aria-label={t.sidebar.docs}
-                            title={t.sidebar.docs}
+                            <img
+                                src={avatarSrc}
+                                alt=""
+                                className="size-9 shrink-0 rounded-full object-cover"
+                            />
+                            <span className="min-w-0 flex-1">
+                                <span className="block truncate text-[0.875rem] font-semibold text-text-main">
+                                    {displayName}
+                                </span>
+                                {loginLabel && (
+                                    <span className="block truncate text-[0.7rem] text-text-muted">
+                                        {loginLabel}
+                                    </span>
+                                )}
+                            </span>
+                            <DropdownChevron className="size-4 shrink-0 text-text-muted transition-colors group-hover:text-text-main group-aria-expanded:text-text-main" />
+                        </DropdownTrigger>
+
+                        <DropdownPanel
+                            align="left"
+                            placement="top"
+                            widthClassName="w-[220px]"
+                            zIndex={1000}
+                            className="rounded-2xl"
+                            padding="compact"
                         >
-                            <Book className="size-4 shrink-0" strokeWidth={2} aria-hidden />
-                            <span className="max-w-full truncate">{t.sidebar.docs}</span>
-                        </a>
-                        <a
-                            href="https://discord.gg/PJbExZe7Tp"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={supportIconBtn}
-                            aria-label={t.sidebar.discord}
-                            title={t.sidebar.discord}
-                        >
-                            <DiscordIcon className="size-4 shrink-0" aria-hidden />
-                            <span className="max-w-full truncate">{t.sidebar.discord}</span>
-                        </a>
-                    </div>
+                            <DropdownItem
+                                onClick={() => {
+                                    onSettings();
+                                    onClose();
+                                }}
+                            >
+                                <Settings className="w-4 text-center" />
+                                {t.header.settings}
+                            </DropdownItem>
+                            <DropdownLink
+                                href={twitchProfileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <TwitchIcon className="w-4 text-center text-text-muted opacity-70 transition-all group-hover:text-text-main group-hover:opacity-100" />
+                                {t.header.twitchProfile}
+                            </DropdownLink>
+                            <DropdownLink href={PAYPAL_URL} target="_blank" rel="noopener noreferrer">
+                                <Heart className="w-4 text-center" aria-hidden />
+                                {t.header.supportProject}
+                            </DropdownLink>
+                            <DropdownDivider />
+                            <DropdownItem
+                                onClick={() => {
+                                    onChange('feedback');
+                                    onClose();
+                                }}
+                            >
+                                <MessageSquare className="w-4 text-center" />
+                                {t.sidebar.items.feedback}
+                            </DropdownItem>
+                            <DropdownLink href={appPath('/docs')} onClick={saveDocsReturnPath}>
+                                <Book className="w-4 text-center" />
+                                {t.sidebar.docs}
+                            </DropdownLink>
+                            <DropdownLink
+                                href="https://discord.gg/PJbExZe7Tp"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <DiscordIcon className="w-4 text-center" aria-hidden />
+                                {t.sidebar.discord}
+                            </DropdownLink>
+                            <DropdownDivider />
+                            <DropdownItem variant="danger" onClick={onLogout}>
+                                <LogOut className="w-4 text-center" />
+                                {t.header.logout}
+                            </DropdownItem>
+                        </DropdownPanel>
+                    </Dropdown>
                 </div>
             </aside>
 
