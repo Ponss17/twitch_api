@@ -9,7 +9,7 @@ import {
     sidebarNavItem,
     sidebarNavScroll,
     sidebarShell,
-    hoverSubtleNav,
+    hoverSubtleIconBtn,
     APP_BOTTOM_BAR
 } from '@/core/utils/tw';
 import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
@@ -28,7 +28,7 @@ interface SidebarProps {
 const MAIN_NAV = NAV_ITEMS.filter((item) => item.category !== 'support');
 
 const supportIconBtn =
-    `inline-flex h-full min-w-0 flex-col items-center justify-center gap-1 rounded-lg border border-transparent px-1 py-1.5 text-[0.65rem] font-medium leading-none text-text-muted no-underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40 ${hoverSubtleNav}`;
+    `inline-flex h-full min-w-0 flex-col items-center justify-center gap-1 rounded-lg border border-transparent px-1 py-1.5 text-[0.65rem] font-medium leading-none text-text-muted no-underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40 ${hoverSubtleIconBtn}`;
 
 export function Sidebar({ active, onChange, mobileOpen, onClose }: SidebarProps) {
     const { t } = useTranslation();

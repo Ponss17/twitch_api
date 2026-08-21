@@ -67,7 +67,7 @@ export function Sheet({ open, onClose, title, description, children, footer }: S
             if (done) return;
             done = true;
             finish();
-        }, 320);
+        }, 360);
 
         const onEnd = () => {
             if (done) return;

@@ -5,6 +5,7 @@
 @theme {
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-primary-btn: var(--primary-btn, var(--primary));
   --color-brand-text: var(--brand-text);
   --color-bg-main: var(--bg-main);
   --color-bg-secondary: var(--bg-secondary);
@@ -14,7 +15,6 @@
   --color-bg-panel: var(--bg-panel);
   --color-bg-modal: var(--bg-modal);
   --color-sidebar: var(--sidebar);
-  --color-bg-hover-neutral: var(--bg-hover-neutral);
 
   --color-text-main: var(--text-main);
   --color-text-muted: var(--text-muted);
@@ -35,10 +35,12 @@
   --animate-modal-shake: modalShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   --animate-about-in: aboutFadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-about-lego: aboutLegoIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  --animate-modal-in: modalIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-modal-out: modalOut 0.15s ease-in both;
-  --animate-sheet-in: sheetIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-sheet-out: sheetOut 0.2s cubic-bezier(0.4, 0, 1, 1) both;
+  --animate-modal-in: modalIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-modal-out: modalOut 0.2s cubic-bezier(0.4, 0, 1, 1) both;
+  --animate-modal-backdrop-in: modalBackdropIn 0.28s ease-out both;
+  --animate-modal-backdrop-out: modalBackdropOut 0.2s ease-in both;
+  --animate-sheet-in: sheetIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-sheet-out: sheetOut 0.22s cubic-bezier(0.4, 0, 1, 1) both;
   --animate-glow-pulse: ctaGlowPulse 2.8s ease-in-out infinite;
   --animate-tab-in: tabIn 0.2s ease-out forwards;
 
@@ -93,17 +95,27 @@
   }
 
   @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.95) translateY(8px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
   }
 
   @keyframes modalOut {
-    from { opacity: 1; transform: scale(1) translateY(0); }
-    to { opacity: 0; transform: scale(0.95) translateY(8px); }
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(8px) scale(0.98); }
+  }
+
+  @keyframes modalBackdropIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes modalBackdropOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
   }
 
   @keyframes sheetIn {
-    from { opacity: 0.6; transform: translateX(100%); }
+    from { opacity: 0; transform: translateX(100%); }
     to { opacity: 1; transform: translateX(0); }
   }
 
@@ -158,6 +170,36 @@
 }
 
 @layer components {
+  /* Backdrop fade for centered modals (<dialog class="modal-dialog">) */
+  .modal-dialog {
+    position: fixed;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border: none;
+    background: transparent;
+    overflow: hidden;
+    color: inherit;
+  }
+
+  .modal-dialog::backdrop {
+    background-color: rgb(0 0 0 / 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .modal-dialog[open]:not(.modal-dialog-closing)::backdrop {
+    animation: modalBackdropIn 0.28s ease-out both;
+  }
+
+  .modal-dialog.modal-dialog-closing::backdrop {
+    animation: modalBackdropOut 0.2s ease-in both;
+  }
+
   /* Overlay toaster sobre modales */
   .app-toaster-popover,
   .app-toaster-popover:popover-open {

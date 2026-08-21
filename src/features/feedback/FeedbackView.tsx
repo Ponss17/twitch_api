@@ -153,7 +153,7 @@ export function FeedbackView() {
                         >
                             <div
                                 className={`relative flex h-5 w-9 items-center rounded-full transition-colors duration-300 ${
-                                    isAnonymous ? 'bg-primary' : 'bg-bg-tertiary border border-border-strong group-hover:bg-bg-hover-neutral'
+                                    isAnonymous ? 'bg-primary' : 'bg-bg-tertiary border border-border-strong group-hover:bg-white/[0.02]'
                                 }`}
                             >
                                 <div

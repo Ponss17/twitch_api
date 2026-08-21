@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { appPath } from '@/core/config/paths';
 import { card } from '@/core/utils/tw';
+import { Skeleton, SkeletonCircle } from '@/shared/ui/skeletons/SkeletonPrimitives';
 import { LandingReveal } from './LandingReveal';
 import { LandingFloatIcons } from './LandingMotif';
 
@@ -16,6 +17,34 @@ function broadcasterLabel(type: string): string {
     if (type === 'affiliate') return 'Afiliado';
     if (type === 'partner') return 'Partner';
     return 'Streamer';
+}
+
+function PioneerCardSkeleton() {
+    return (
+        <div className={`${card} flex w-[220px] shrink-0 flex-col p-4 md:w-[240px]`}>
+            <div className="flex items-start gap-3">
+                <SkeletonCircle className="h-11 w-11" />
+                <div className="flex flex-1 flex-col gap-2 pt-1">
+                    <Skeleton className="h-3.5 w-24" />
+                    <Skeleton className="h-3 w-16" />
+                </div>
+            </div>
+            <div className="mt-4 flex flex-col gap-2">
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-[90%]" />
+                <Skeleton className="h-3 w-3/4" />
+            </div>
+        </div>
+    );
+}
+
+function PioneerBio({ description }: { description: string }) {
+    const text = description.trim();
+    return (
+        <p className="mt-4 text-sm leading-relaxed text-text-muted line-clamp-3 overflow-hidden">
+            {text || 'Sin descripción en Twitch.'}
+        </p>
+    );
 }
 
 export function LandingUsers() {
@@ -42,8 +71,29 @@ export function LandingUsers() {
 
     if (loading) {
         return (
-            <section className="relative scroll-mt-24 px-5 pt-16 pb-20 md:px-8 md:pt-24 md:pb-28 text-center text-text-muted">
-                Cargando pioneros...
+            <section
+                id="pioneros"
+                className="relative scroll-mt-24 overflow-hidden px-5 pt-16 pb-20 md:px-8 md:pt-24 md:pb-28"
+                aria-busy="true"
+                aria-label="Cargando pioneros"
+            >
+                <LandingFloatIcons layout="c" side="right" />
+                <div className="relative z-[1] mx-auto mb-10 max-w-[1080px] text-center md:mb-14">
+                    <Skeleton className="mx-auto h-9 w-72 max-w-full md:h-10 md:w-[28rem]" />
+                    <Skeleton className="mx-auto mt-4 h-5 w-full max-w-md" />
+                </div>
+                <div className="relative z-[1] mx-auto flex w-full max-w-[1080px] flex-col gap-4">
+                    <div className="flex gap-4 overflow-hidden py-2">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <PioneerCardSkeleton key={`a-${i}`} />
+                        ))}
+                    </div>
+                    <div className="flex gap-4 overflow-hidden py-2">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <PioneerCardSkeleton key={`b-${i}`} />
+                        ))}
+                    </div>
+                </div>
             </section>
         );
     }
@@ -105,9 +155,7 @@ export function LandingUsers() {
                                     </svg>
                                 </a>
                             </div>
-                            <p className="mt-4 text-sm leading-relaxed text-text-muted line-clamp-3 overflow-hidden">
-                                {user.description}
-                            </p>
+                            <PioneerBio description={user.description} />
                         </div>
                     ))}
                 </div>

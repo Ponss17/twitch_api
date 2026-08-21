@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useId, type ElementType } from 'react';
-import { toolLabel, toolSelector, hoverNeutralChip, hoverNeutralControl } from '@/core/utils/tw';
+import { toolLabel, toolSelector, hoverSubtleChip, hoverSubtleControl } from '@/core/utils/tw';
 import { IconSm } from '@/shared/ui/Icon';
 import { ChevronDown, Check } from 'lucide-react';
 
@@ -86,7 +86,7 @@ export function SelectField({
                 aria-expanded={isOpen}
                 aria-controls={listboxId}
                 onClick={() => setIsOpen((open) => !open)}
-                className={`flex w-full cursor-pointer appearance-none items-center justify-between rounded-lg border border-border-strong bg-bg-secondary py-[7px] pl-3 pr-2.5 text-[0.8125rem] leading-tight text-text-main outline-none ${hoverNeutralControl} ${isOpen ? 'border-primary/20 bg-primary/[0.02]' : ''} focus:border-primary focus:bg-primary/[0.02] disabled:cursor-not-allowed disabled:opacity-50`}
+                className={`flex w-full cursor-pointer appearance-none items-center justify-between rounded-lg border border-border-strong bg-bg-secondary py-[7px] pl-3 pr-2.5 text-[0.8125rem] leading-tight text-text-main outline-none ${hoverSubtleControl} ${isOpen ? 'border-primary/25 bg-primary/[0.08]' : ''} focus:border-primary focus:bg-white/[0.02] disabled:cursor-not-allowed disabled:opacity-50`}
             >
                 <span className="truncate">{selectedOption?.label}</span>
                 <ChevronDown
@@ -111,10 +111,10 @@ export function SelectField({
                                         role="option"
                                         aria-selected={selected}
                                         onClick={() => handleSelect(opt.value)}
-                                        className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[0.8125rem] ${
+                                        className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[0.8125rem] transition-colors ${
                                             selected
-                                                ? 'bg-primary/10 font-medium text-brand-text'
-                                                : `text-text-muted ${hoverNeutralChip} hover:text-text-main`
+                                                ? 'bg-primary/[0.08] font-medium text-brand-text hover:bg-primary/[0.08]'
+                                                : `text-text-muted ${hoverSubtleChip} hover:text-text-main`
                                         }`}
                                     >
                                         <span className="truncate">{opt.label}</span>

@@ -90,7 +90,7 @@ export function AppToaster() {
                         description: '!text-[0.8125rem] !font-normal !text-text-muted',
                         icon: 'mr-0.5',
                         closeButton:
-                            '!left-auto !right-2 !top-1/2 !-translate-y-1/2 !border-0 !bg-transparent !text-text-muted hover:!bg-bg-hover-neutral hover:!text-text-main transition-colors',
+                            '!left-auto !right-2 !top-1/2 !-translate-y-1/2 !border-0 !bg-transparent !text-text-muted hover:!bg-white/[0.02] hover:!text-text-main transition-colors',
                         success:
                             'progress-success [&_[data-icon]]:!text-emerald-400',
                         error:

@@ -109,7 +109,7 @@ export function SettingsRow({
                             </div>
                         ) : null}
                         <div className="min-w-0">
-                            {title ? (
+                            {typeof title === 'string' && title.trim() ? (
                                 <h3 className="text-[0.875rem] font-medium text-text-main">{title}</h3>
                             ) : null}
                             {description ? (
@@ -120,7 +120,7 @@ export function SettingsRow({
                         </div>
                     </div>
                     {control || info ? (
-                        <div className="flex w-full shrink-0 items-center justify-end gap-2 sm:w-auto sm:max-w-[min(100%,28rem)]">
+                        <div className="flex w-full shrink-0 items-center justify-end gap-2 sm:ml-auto sm:w-auto">
                             {control}
                             {info ? <InfoTooltip text={info} placement="bottom" /> : null}
                         </div>

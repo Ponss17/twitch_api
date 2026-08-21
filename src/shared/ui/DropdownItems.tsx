@@ -30,12 +30,15 @@ export function DropdownDivider() {
 
 interface DropdownItemProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'default' | 'danger';
+    /** Opción seleccionada / activa — mismo morado que el historial. */
+    active?: boolean;
 }
 
 export function DropdownItem({
     children,
     className = '',
     variant = 'default',
+    active = false,
     onClick,
     ...props
 }: DropdownItemProps) {
@@ -43,12 +46,15 @@ export function DropdownItem({
     const tone =
         variant === 'danger'
             ? 'text-error hover:bg-error/10'
-            : `text-text-muted ${hoverSubtleChip} hover:text-text-main`;
+            : active
+              ? 'bg-primary/[0.08] font-semibold text-brand-text hover:bg-primary/[0.08]'
+              : `text-text-muted ${hoverSubtleChip} hover:text-text-main`;
 
     return (
         <button
             type="button"
-            className={`flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm font-medium transition ${tone} ${className}`.trim()}
+            aria-current={active ? 'true' : undefined}
+            className={`flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm font-medium transition-colors ${tone} ${className}`.trim()}
             onClick={(e) => {
                 close();
                 onClick?.(e);

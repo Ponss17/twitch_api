@@ -1,7 +1,7 @@
-import { AlertTriangle, Trash2, RotateCcw } from 'lucide-react';
+import { AlertTriangle, RotateCcw } from 'lucide-react';
 import { SettingsGroup, SettingsRow } from '@/features/dashboard/settings/SettingsGroup';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { btnDanger } from '@/core/utils/tw';
+import { btnSecondary } from '@/core/utils/tw';
 
 interface SettingsDangerZoneProps {
     onClearData: () => void;
@@ -15,14 +15,8 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
     const pT = t.settings.panels;
 
     return (
-        <SettingsGroup
-            title={gT.dangerZone.title}
-            description={gT.dangerZone.desc}
-            accent="error"
-            delay={120}
-        >
+        <SettingsGroup title={gT.dangerZone.title} description={gT.dangerZone.desc} delay={120}>
             <SettingsRow
-                accent="error"
                 icon={RotateCcw}
                 title={pT.resetStats}
                 description={pT.resetStatsDesc}
@@ -30,15 +24,13 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
                     <button
                         type="button"
                         onClick={onClearData}
-                        className={`${btnDanger} w-full sm:w-auto px-5 py-2 !shadow-none`}
+                        className={`${btnSecondary} w-full min-w-[12.25rem] sm:w-auto`}
                     >
-                        <RotateCcw className="h-4 w-4" aria-hidden="true" />
                         {pT.resetStats}
                     </button>
                 }
             />
             <SettingsRow
-                accent="error"
                 icon={AlertTriangle}
                 title={pT.deleteAccount}
                 description={pT.deleteAccountDesc}
@@ -46,9 +38,8 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
                     <button
                         type="button"
                         onClick={onDeleteAccount}
-                        className={`${btnDanger} w-full sm:w-auto px-5 py-2 !shadow-none`}
+                        className={`${btnSecondary} w-full min-w-[12.25rem] sm:w-auto`}
                     >
-                        <Trash2 className="h-4 w-4" aria-hidden="true" />
                         {pT.deleteAccount}
                     </button>
                 }
