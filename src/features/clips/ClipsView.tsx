@@ -6,10 +6,24 @@ import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { ClipPlayerOverlay } from '@/features/clips/ClipPlayerOverlay';
 import { SelectField } from '@/shared/ui/SelectField';
 import { ClipCommandView } from '@/features/clips/ClipCommandView';
-import { Star, RotateCw, Link as LinkIcon, Images, Search, Play } from 'lucide-react';
+import {
+    Star,
+    RotateCw,
+    Link as LinkIcon,
+    Images,
+    Search,
+    Play,
+    Download,
+    FileSpreadsheet,
+    ExternalLink
+} from 'lucide-react';
 import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
 import { formatDate } from '@/core/utils/utils';
 import { ITEMS_PER_PAGE, useClips, type Clip } from '@/features/clips/hooks/useClips';
+import {
+    buildClipVodUrl,
+    formatClipDuration
+} from '@/features/clips/lib/clipMedia';
 
 const CLIPS_GRID =
     'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5 max-[600px]:grid-cols-1';
@@ -78,7 +92,9 @@ export function ClipsView({ active = true }: { active?: boolean }) {
         onSearchChange,
         onSortChange,
         toggleFavorite,
-        copyUrl
+        copyUrl,
+        downloadClip,
+        exportCsv
     } = useClips({ active });
 
     const [playingClip, setPlayingClip] = useState<Clip | null>(null);
@@ -112,7 +128,16 @@ export function ClipsView({ active = true }: { active?: boolean }) {
                             </p>
                         </div>
                     </div>
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                        <button
+                            type="button"
+                            onClick={exportCsv}
+                            title={clipsT.btnExportCsv}
+                            aria-label={clipsT.btnExportCsv}
+                            className={CLIP_TOOLBAR_BTN()}
+                        >
+                            <FileSpreadsheet className="h-3.5 w-3.5" />
+                        </button>
                         <button
                             type="button"
                             onClick={() => setShowFavsOnly((v) => !v)}
@@ -178,11 +203,13 @@ export function ClipsView({ active = true }: { active?: boolean }) {
                                             ? clip.view_count.toLocaleString(bcp47)
                                             : '0';
                                     const dateStr = formatDate(clip.created_at ?? '', locale);
+                                    const durationStr = formatClipDuration(clip.duration);
+                                    const vodUrl = buildClipVodUrl(clip.video_id, clip.vod_offset);
                                     const isAboveFold = index < 6;
 
                                     return (
-                                        <article 
-                                            key={clip.id} 
+                                        <article
+                                            key={clip.id}
                                             className={`${CLIP_CARD} animate-reveal-card opacity-0`}
                                             style={{ animationDelay: `${(index % ITEMS_PER_PAGE) * 60}ms` }}
                                         >
@@ -217,7 +244,24 @@ export function ClipsView({ active = true }: { active?: boolean }) {
                                                     )}
                                                 </button>
 
-                                                <div className="absolute top-2 right-2 z-[2] flex gap-1 opacity-0 transition duration-200 group-hover/card:opacity-100">
+                                                {durationStr ? (
+                                                    <span className="pointer-events-none absolute bottom-2 left-2 z-[1] rounded bg-black/65 px-1.5 py-0.5 font-mono text-[0.65rem] text-white">
+                                                        {durationStr}
+                                                    </span>
+                                                ) : null}
+
+                                                <div className="absolute top-2 right-2 z-[2] flex flex-wrap justify-end gap-1 opacity-0 transition duration-200 group-hover/card:opacity-100">
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            void downloadClip(clip);
+                                                        }}
+                                                        title={clipsT.download}
+                                                        className={CLIP_OVERLAY_BTN}
+                                                    >
+                                                        <Download className="h-3.5 w-3.5" />
+                                                    </button>
                                                     <button
                                                         type="button"
                                                         onClick={(e) => {
@@ -258,14 +302,34 @@ export function ClipsView({ active = true }: { active?: boolean }) {
                                                     href={clip.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="mb-2 block truncate text-[0.8125rem] font-semibold text-text-main no-underline transition-colors hover:text-brand-text hover:underline"
+                                                    className="mb-1 block truncate text-[0.8125rem] font-semibold text-text-main no-underline transition-colors hover:text-brand-text hover:underline"
                                                     title={clip.title ?? clipsT.untitled}
                                                 >
                                                     {clip.title ?? clipsT.untitled}
                                                 </a>
-                                                <div className="flex justify-between gap-2 text-[0.6875rem] text-text-muted">
+                                                {clip.creator_name ? (
+                                                    <p className="mb-1.5 truncate text-[0.6875rem] text-text-muted">
+                                                        {clipsT.byCreator.replace('{name}', clip.creator_name)}
+                                                    </p>
+                                                ) : null}
+                                                <div className="flex items-center justify-between gap-2 text-[0.6875rem] text-text-muted">
                                                     <span className="truncate">{viewsStr} {clipsT.views}</span>
-                                                    <span className="shrink-0">{dateStr}</span>
+                                                    <span className="flex shrink-0 items-center gap-1.5">
+                                                        <span>{dateStr}</span>
+                                                        {vodUrl ? (
+                                                            <a
+                                                                href={vodUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                title={clipsT.openVod}
+                                                                aria-label={clipsT.openVod}
+                                                                className="inline-flex text-text-muted transition hover:text-brand-text"
+                                                                onClick={(e) => e.stopPropagation()}
+                                                            >
+                                                                <ExternalLink className="h-3 w-3" />
+                                                            </a>
+                                                        ) : null}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </article>
@@ -289,10 +353,10 @@ export function ClipsView({ active = true }: { active?: boolean }) {
 
             {playingClip ? (
                 <ClipPlayerOverlay
-                    clipId={playingClip.id}
-                    title={playingClip.title}
+                    clip={playingClip}
                     embedSession={embedSession}
                     onClose={closeClipPlayer}
+                    onDownload={() => void downloadClip(playingClip)}
                 />
             ) : null}
         </>

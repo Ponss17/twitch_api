@@ -90,6 +90,7 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
         '/chatters',
         '/user-info',
         '/get-clips',
+        '/clip-download',
         '/clear-data',
         '/delete-account',
         '/track-usage',

@@ -13,5 +13,6 @@ export {
     getFollowersCountSafe,
     isStreamLiveSafe
 } from './twitchUserService';
-export { createClip, getClips } from './twitchClipService';
+export { createClip, getClips, getClipDownloadUrls } from './twitchClipService';
+export type { ClipDownloadUrls } from './twitchClipService';
 export { getChannelInfo, sendChatMessage, getChatters, timeoutUser, filterChattersByEligibility, annotateChatterRoles, filterAndAnnotateChatters, parseEligibilityQuery } from './twitchChatService';
