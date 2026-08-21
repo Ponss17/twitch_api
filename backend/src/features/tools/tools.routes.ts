@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { csrfProtection } from '../../core/middleware/csrfProtection';
-import { globalRateLimiter, heavyRateLimiter } from '../../core/middleware/redisRateLimiter';
+import { globalRateLimiter, heavyRateLimiter, clipDownloadRateLimiter } from '../../core/middleware/redisRateLimiter';
 import { validate } from '../../core/middleware/validate';
-import { getClips, getChatters, trackToolUsage } from './tools.controller';
-import { getClipsSchema, getChattersSchema, trackUsageSchema } from './tools.schema';
+import { getClips, getChatters, trackToolUsage, getClipDownload } from './tools.controller';
+import { getClipsSchema, getChattersSchema, trackUsageSchema, getClipDownloadSchema } from './tools.schema';
+
 import {
     addQuestion,
     clearQuestions,
@@ -26,6 +27,14 @@ import {
 const router = Router();
 
 router.get('/get-clips', heavyRateLimiter, validate(getClipsSchema), /* codeql[js/missing-rate-limiting] */ getClips);
+router.get(
+    '/clip-download',
+    globalRateLimiter,
+    clipDownloadRateLimiter,
+    heavyRateLimiter,
+    validate(getClipDownloadSchema),
+    /* codeql[js/missing-rate-limiting] */ getClipDownload
+);
 router.get('/chatters', heavyRateLimiter, validate(getChattersSchema), /* codeql[js/missing-rate-limiting] */ getChatters);
 router.post(
     '/track-usage',

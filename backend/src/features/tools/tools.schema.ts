@@ -11,6 +11,19 @@ export const getClipsSchema = z.object({
     })
 });
 
+/** IDs de clip Helix: slug alfanumérico con guiones (hasta ~100 chars). */
+export const getClipDownloadSchema = z.object({
+    query: z.object({
+        channel: twitchUsername,
+        clip_id: z
+            .string()
+            .trim()
+            .min(1)
+            .max(128)
+            .regex(/^[A-Za-z0-9_-]+$/)
+    })
+});
+
 export const getChattersSchema = z.object({
     query: z.object({
         channel: twitchUsername,

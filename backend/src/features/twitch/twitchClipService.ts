@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { TwitchClip } from '../../types/twitch';
 import { TwitchApiError } from '../../core/errors/AppError';
 import { apiClient, recordSuccess, handleTwitchError, getHeaders } from './twitchClient';
@@ -51,5 +52,55 @@ export const getClips = async (
         return clipsRes.data.data as TwitchClip[];
     } catch (error) {
         return handleTwitchError(error, `getClips(${channel})`);
+    }
+};
+
+export type ClipDownloadUrls = {
+    clip_id: string;
+    landscape_download_url: string | null;
+    portrait_download_url: string | null;
+};
+
+/** Helix Get Clips Download — URLs temporales oficiales (requiere channel:manage:clips). */
+export const getClipDownloadUrls = async (
+    channel: string,
+    editorId: string,
+    clipId: string,
+    token: string,
+    knownBroadcasterId?: string
+): Promise<ClipDownloadUrls> => {
+    try {
+        const broadcasterId = knownBroadcasterId || (await getUserId(channel, token));
+        const headers = getHeaders(token);
+
+        const res = await apiClient.get(`https://api.twitch.tv/helix/clips/downloads`, {
+            headers,
+            params: {
+                broadcaster_id: broadcasterId,
+                editor_id: editorId,
+                clip_id: clipId
+            }
+        });
+
+        recordSuccess();
+        const row = (res.data?.data as ClipDownloadUrls[] | undefined)?.[0];
+        if (!row) {
+            throw new TwitchApiError('Twitch no devolvió URL de descarga para este clip', 404);
+        }
+        return row;
+    } catch (error: unknown) {
+        if (error instanceof TwitchApiError) throw error;
+        // 4xx del caller (clip inválido / no editor) no es outage de Twitch.
+        if (axios.isAxiosError(error)) {
+            const status = error.response?.status;
+            if (status && status >= 400 && status < 500 && status !== 429) {
+                const data = error.response?.data as { message?: string } | undefined;
+                throw new TwitchApiError(
+                    data?.message || 'No se pudo obtener la descarga de este clip',
+                    status
+                );
+            }
+        }
+        return handleTwitchError(error, `getClipDownloadUrls(${channel}, ${clipId})`);
     }
 };

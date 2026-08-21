@@ -9,6 +9,7 @@ import { AuthenticatedRequest } from '../../types/twitch';
 import { jsonError } from '../../core/utils/jsonResponse';
 import { trackRequest } from '../../core/utils/tracking';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
+import { AppError } from '../../core/errors/AppError';
 
 export const getClips = async (req: AuthenticatedRequest, res: Response) => {
     const channel = safeString(req.query.channel);
@@ -43,6 +44,66 @@ export const getClips = async (req: AuthenticatedRequest, res: Response) => {
 
     if (result) return res.json(result);
     if (!res.headersSent) return jsonError(res, 404, MESSAGES.DASHBOARD.CLIPS_ERROR, { code: 'NOT_FOUND' });
+};
+
+/** URL temporal oficial (Helix clips/downloads) para descargar el MP4 del clip. */
+export const getClipDownload = async (req: AuthenticatedRequest, res: Response) => {
+    const channel = safeString(req.query.channel);
+    const clipId = safeString(req.query.clip_id);
+    const userId = req.userId;
+
+    if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
+
+    const result = await trackRequest(
+        userId,
+        {
+            type: 'other',
+            user: channel,
+            metadata: { action: 'Clip Download', clipId },
+            skipActivityLog: true,
+            skipRequestCount: true
+        },
+        async () => {
+            try {
+                return await withTwitchAuth(
+                    req,
+                    res,
+                    (token) => {
+                        const sameChannel =
+                            Boolean(req.login) &&
+                            channel.toLowerCase() === String(req.login).toLowerCase();
+                        return apiService.getClipDownloadUrls(
+                            channel,
+                            userId,
+                            clipId,
+                            token,
+                            sameChannel ? userId : undefined
+                        );
+                    },
+                    'getClipDownload'
+                );
+            } catch (error: unknown) {
+                const status =
+                    error instanceof AppError
+                        ? error.statusCode
+                        : (error as { statusCode?: number })?.statusCode;
+                // Sin scope channel:manage:clips → pedir re-login (403, no cierra sesión en el panel).
+                if (status === 401 || status === 403) {
+                    throw new AppError(
+                        'Necesitas volver a iniciar sesión en Twitch para descargar clips (permiso nuevo).',
+                        403
+                    );
+                }
+                throw error;
+            }
+        },
+        req
+    );
+
+    if (result) return res.json(result);
+    if (!res.headersSent) {
+        return jsonError(res, 404, 'No se pudo obtener la descarga de este clip', { code: 'NOT_FOUND' });
+    }
 };
 
 export const getChatters = async (req: AuthenticatedRequest, res: Response) => {
