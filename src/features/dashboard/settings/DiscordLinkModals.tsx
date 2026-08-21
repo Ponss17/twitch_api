@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AlertCircle, AlertTriangle, Check, CheckCircle2, Info, Loader2, Trash2, Unlink, XCircle } from 'lucide-react';
-import { Modal } from '@/shared/ui/Modal';
-import { btnSecondary, modalBtnPrimary } from '@/core/utils/tw';
+import { Modal, ModalCloseButton, useModalClose } from '@/shared/ui/Modal';
+import { modalBtnSecondary, modalBtnPrimary } from '@/core/utils/tw';
 import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
@@ -32,9 +32,7 @@ export function DiscordLinkConfirmModal({ open, onClose, onConfirm }: DiscordLin
                         <DiscordIcon className="h-4 w-4" aria-hidden="true" />
                         {dT.continue}
                     </button>
-                    <button type="button" className={btnSecondary} onClick={onClose}>
-                        {t.modals.login.cancel}
-                    </button>
+                    <ModalCloseButton className={modalBtnSecondary}>{t.modals.login.cancel}</ModalCloseButton>
                 </>
             }
         >
@@ -78,16 +76,6 @@ export function DiscordUnlinkConfirmModal({
     const { t } = useTranslation();
     const dT = t.modals.discordUnlink;
 
-    const handleConfirm = async () => {
-        setLoading(true);
-        try {
-            await onConfirm();
-            onClose();
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const disabled = loading || busy;
 
     return (
@@ -98,29 +86,12 @@ export function DiscordUnlinkConfirmModal({
             titleIcon={Unlink}
             closeOnBackdrop={!disabled}
             footer={
-                <>
-                    <button
-                        type="button"
-                        className="inline-flex items-center justify-center rounded-md border border-transparent bg-error px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-error-hover focus:outline-none focus:ring-2 focus:ring-error/50 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        disabled={disabled}
-                        onClick={() => void handleConfirm()}
-                    >
-                        {loading ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                {dT.unlinking}
-                            </>
-                        ) : (
-                            <>
-                                <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
-                                {dT.confirm}
-                            </>
-                        )}
-                    </button>
-                    <button type="button" className={btnSecondary} disabled={disabled} onClick={onClose}>
-                        {t.modals.login.cancel}
-                    </button>
-                </>
+                <DiscordUnlinkActions
+                    disabled={disabled}
+                    loading={loading}
+                    setLoading={setLoading}
+                    onConfirm={onConfirm}
+                />
             }
         >
             <p>{username ? dT.descUsername(username) : dT.descNoUsername}</p>
@@ -141,6 +112,58 @@ export function DiscordUnlinkConfirmModal({
             </ul>
             <p className="text-sm opacity-80">{dT.disclaimer}</p>
         </Modal>
+    );
+}
+
+function DiscordUnlinkActions({
+    disabled,
+    loading,
+    setLoading,
+    onConfirm
+}: {
+    disabled: boolean;
+    loading: boolean;
+    setLoading: (v: boolean) => void;
+    onConfirm: () => void | Promise<void>;
+}) {
+    const close = useModalClose();
+    const { t } = useTranslation();
+    const dT = t.modals.discordUnlink;
+
+    const handleConfirm = async () => {
+        setLoading(true);
+        try {
+            await onConfirm();
+            close?.();
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <>
+            <button
+                type="button"
+                className="inline-flex items-center justify-center rounded-md border border-transparent bg-error px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-error-hover focus:outline-none focus:ring-2 focus:ring-error/50 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={disabled}
+                onClick={() => void handleConfirm()}
+            >
+                {loading ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {dT.unlinking}
+                    </>
+                ) : (
+                    <>
+                        <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                        {dT.confirm}
+                    </>
+                )}
+            </button>
+            <ModalCloseButton className={modalBtnSecondary} disabled={disabled}>
+                {t.modals.login.cancel}
+            </ModalCloseButton>
+        </>
     );
 }
 
@@ -220,13 +243,9 @@ export function DiscordResultModal({ open, kind, onClose }: DiscordResultModalPr
             title={title}
             titleIcon={icon}
             footer={
-                <button
-                    type="button"
-                    className={isError ? btnSecondary : modalBtnPrimary}
-                    onClick={onClose}
-                >
+                <ModalCloseButton className={isError ? modalBtnSecondary : modalBtnPrimary}>
                     {isError ? dT.close : dT.gotIt}
-                </button>
+                </ModalCloseButton>
             }
         >
             <p>{lead}</p>

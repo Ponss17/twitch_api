@@ -97,7 +97,7 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                             <Dropdown className="relative w-full sm:w-auto">
                                 <DropdownTrigger
                                     aria-labelledby="settings-timezone-label"
-                                    className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2 text-sm font-medium text-text-main transition hover:border-primary/50 focus:border-primary/50 focus:outline-none sm:w-auto"
+                                    className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2 text-sm font-medium text-text-main transition-colors hover:border-border-strong hover:bg-white/[0.02] aria-expanded:border-primary/25 aria-expanded:bg-primary/[0.08] sm:w-auto"
                                 >
                                     <span className="truncate max-w-[180px] text-left">{selectedTz}</span>
                                     <ChevronDown className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
@@ -129,13 +129,12 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                             filteredTimezones.map(zone => (
                                                 <DropdownItem
                                                     key={zone}
+                                                    active={selectedTz === zone}
                                                     onClick={() => {
                                                         setSelectedTz(zone);
                                                         setSearchQuery('');
                                                     }}
-                                                    className={`mb-0.5 rounded-md px-2.5 py-1.5 ${
-                                                        selectedTz === zone ? 'bg-primary/10 text-brand-text font-semibold' : ''
-                                                    }`}
+                                                    className="mb-0.5 rounded-md px-2.5 py-1.5"
                                                 >
                                                     <div className="flex w-full items-center justify-between">
                                                         <span className="truncate">{zone.replace(/_/g, ' ')}</span>
@@ -174,7 +173,7 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                         <Dropdown className="relative w-full sm:w-auto">
                             <DropdownTrigger
                                 aria-labelledby="settings-language-label"
-                                className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2 text-sm font-medium text-text-main transition hover:border-primary/50 sm:w-auto"
+                                className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2 text-sm font-medium text-text-main transition-colors hover:border-border-strong hover:bg-white/[0.02] aria-expanded:border-primary/25 aria-expanded:bg-primary/[0.08] sm:w-auto"
                             >
                                 <span className="truncate max-w-[180px] text-left">
                                     {LOCALE_OPTIONS.find(opt => opt.value === locale)?.label || 'Español'}
@@ -191,13 +190,12 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                     {LOCALE_OPTIONS.map((opt) => (
                                         <DropdownItem
                                             key={opt.value}
+                                            active={locale === opt.value}
                                             onClick={() => {
                                                 setLocale(opt.value);
                                                 showToast(t.settings.toasts.settingsSaved, 'success');
                                             }}
-                                            className={`mb-0.5 rounded-md px-2.5 py-1.5 ${
-                                                locale === opt.value ? 'bg-primary/10 text-brand-text font-semibold' : ''
-                                            }`}
+                                            className="mb-0.5 rounded-md px-2.5 py-1.5"
                                         >
                                             <div className="flex w-full items-center justify-between">
                                                 <span className="truncate">{opt.label}</span>
@@ -225,7 +223,7 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                         <Dropdown className="relative w-full sm:w-auto">
                             <DropdownTrigger
                                 aria-labelledby="settings-theme-label"
-                                className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2 text-sm font-medium text-text-main transition hover:border-primary/50 focus:border-primary/50 focus:outline-none sm:w-auto"
+                                className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2 text-sm font-medium text-text-main transition-colors hover:border-border-strong hover:bg-white/[0.02] aria-expanded:border-primary/25 aria-expanded:bg-primary/[0.08] sm:w-auto"
                             >
                                 <span className="flex items-center gap-2 truncate max-w-[180px] text-left">
                                     <span
@@ -247,13 +245,12 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                     {SUPPORTED_THEMES.map((opt) => (
                                         <DropdownItem
                                             key={opt}
+                                            active={theme === opt}
                                             onClick={() => {
                                                 setTheme(opt);
                                                 showToast(t.settings.toasts.settingsSaved, 'success');
                                             }}
-                                            className={`mb-0.5 rounded-md px-2.5 py-1.5 ${
-                                                theme === opt ? 'bg-primary/10 text-brand-text font-semibold' : ''
-                                            }`}
+                                            className="mb-0.5 rounded-md px-2.5 py-1.5"
                                         >
                                             <div className="flex w-full items-center justify-between gap-2">
                                                 <div className="flex items-center gap-2 truncate">

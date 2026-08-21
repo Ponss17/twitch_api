@@ -1,40 +1,45 @@
-/* ==========================================================================
-   SISTEMA DE TEMAS VISUALES — LOSPERRIS API
-   Define las variables CSS, tokens y contrastes para cada tema soportado.
-   ========================================================================== */
-
-/* Variantes Tailwind CSS */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 @custom-variant liga (&:where([data-theme="liga"], [data-theme="liga"] *));
 @custom-variant minimal (&:where([data-theme="minimal"], [data-theme="minimal"] *));
 @custom-variant matrix (&:where([data-theme="matrix"], [data-theme="matrix"] *));
 
 @layer base {
-  /* Transición de tema 100% fluida, continua y sin destellos (Zero-Flicker) */
+  @media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 0.38s;
+      animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    ::view-transition-old(root) {
+      animation-name: theme-vt-fade-out;
+    }
+
+    ::view-transition-new(root) {
+      animation-name: theme-vt-fade-in;
+    }
+  }
+
+  @keyframes theme-vt-fade-out {
+    to { opacity: 0; }
+  }
+
+  @keyframes theme-vt-fade-in {
+    from { opacity: 0; }
+  }
+
   .theme-transition,
   .theme-transition body,
   .theme-transition header,
   .theme-transition aside,
   .theme-transition main,
   .theme-transition nav,
-  .theme-transition footer,
-  .theme-transition div,
-  .theme-transition section,
-  .theme-transition article,
-  .theme-transition button,
-  .theme-transition a,
-  .theme-transition span,
-  .theme-transition p,
-  .theme-transition h1,
-  .theme-transition h2,
-  .theme-transition h3,
-  .theme-transition input,
-  .theme-transition select,
-  .theme-transition textarea {
-    transition: background-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-                border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-                color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  .theme-transition footer {
+    transition:
+      background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
     transition-delay: 0s !important;
   }
 
@@ -45,9 +50,6 @@
     }
   }
 
-  /* ------------------------------------------------------------------------
-     1. TEMA POR DEFECTO: OSCURO / TWITCH PURPLE (dark)
-     ------------------------------------------------------------------------ */
   :root,
   [data-theme="dark"] {
     color-scheme: dark;
@@ -68,7 +70,6 @@
     --text-muted: #a1a1aa;
     --border-subtle: rgba(255, 255, 255, 0.04);
     --border-strong: rgba(255, 255, 255, 0.08);
-    --bg-hover-neutral: rgba(255, 255, 255, 0.02);
     --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
     --twitch-brand-color: #9146ff;
     --twitch-brand-bg: #ffffff;
@@ -82,9 +83,11 @@
     --chart-8: #67e8f9;
   }
 
-  /* ------------------------------------------------------------------------
-     2. TEMA CLARO: VIBRANTE / VIOLETA (light)
-     ------------------------------------------------------------------------ */
+  :root:not([data-theme]),
+  [data-theme="dark"] {
+    --primary-btn: color-mix(in srgb, var(--primary) 78%, var(--bg-main));
+  }
+
   [data-theme="light"] {
     color-scheme: light;
     --font-family-base: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -104,7 +107,6 @@
     --text-muted: #6b7280;
     --border-subtle: rgba(0, 0, 0, 0.08);
     --border-strong: rgba(0, 0, 0, 0.18);
-    --bg-hover-neutral: rgba(0, 0, 0, 0.03);
     --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
     --twitch-brand-color: #9146ff;
     --twitch-brand-bg: #ffffff;
@@ -118,9 +120,6 @@
     --chart-8: #0ea5e9;
   }
 
-  /* ------------------------------------------------------------------------
-     3. TEMA EDICIÓN ESPECIAL: LIGA LDA (liga)
-     ------------------------------------------------------------------------ */
   [data-theme="liga"] {
     color-scheme: dark;
     --font-family-base: "Rubik", "Geist", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -140,7 +139,6 @@
     --text-muted: #a1a1aa;
     --border-subtle: rgba(255, 255, 255, 0.05);
     --border-strong: rgba(255, 255, 255, 0.1);
-    --bg-hover-neutral: rgba(255, 255, 255, 0.02);
     --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);
     --twitch-brand-color: #ef4444;
     --twitch-brand-bg: #ffffff;
@@ -154,9 +152,6 @@
     --chart-8: #dc2626;
   }
 
-  /* ------------------------------------------------------------------------
-     4. TEMA MINIMALISTA: HIGH-CONTRAST MONOCHROME (minimal)
-     ------------------------------------------------------------------------ */
   [data-theme="minimal"] {
     color-scheme: dark;
     --font-family-base: "Space Grotesk", "Inter", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -176,7 +171,6 @@
     --text-muted: #808080;
     --border-subtle: rgba(255, 255, 255, 0.08);
     --border-strong: rgba(255, 255, 255, 0.16);
-    --bg-hover-neutral: rgba(255, 255, 255, 0.04);
     --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 30px rgba(0, 0, 0, 0.8);
     --twitch-brand-color: #ffffff;
     --twitch-brand-bg: #1a1a1a;
@@ -190,9 +184,6 @@
     --chart-8: #c4c4c4;
   }
 
-  /* ------------------------------------------------------------------------
-     5. TEMA CIBERNÉTICO: NEO MATRIX GREEN (matrix)
-     ------------------------------------------------------------------------ */
   [data-theme="matrix"] {
     color-scheme: dark;
     --font-family-base: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -212,7 +203,6 @@
     --text-muted: #8a998d;
     --border-subtle: rgba(0, 255, 102, 0.12);
     --border-strong: rgba(0, 255, 102, 0.28);
-    --bg-hover-neutral: rgba(0, 255, 102, 0.05);
     --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);
     --twitch-brand-color: #00ff66;
     --twitch-brand-bg: #000000;
@@ -226,18 +216,21 @@
     --chart-8: #88ffbb;
   }
 
-  /* Ajustes de contraste para botones primarios en Minimal y Matrix */
   [data-theme="minimal"] .bg-primary,
   [data-theme="minimal"] .bg-primary-hover,
+  [data-theme="minimal"] .bg-primary-btn,
   [data-theme="matrix"] .bg-primary,
-  [data-theme="matrix"] .bg-primary-hover {
+  [data-theme="matrix"] .bg-primary-hover,
+  [data-theme="matrix"] .bg-primary-btn {
     color: #000000 !important;
   }
 
   [data-theme="minimal"] .bg-primary svg,
   [data-theme="minimal"] .bg-primary-hover svg,
+  [data-theme="minimal"] .bg-primary-btn svg,
   [data-theme="matrix"] .bg-primary svg,
-  [data-theme="matrix"] .bg-primary-hover svg {
+  [data-theme="matrix"] .bg-primary-hover svg,
+  [data-theme="matrix"] .bg-primary-btn svg {
     color: #000000 !important;
     stroke: #000000 !important;
   }

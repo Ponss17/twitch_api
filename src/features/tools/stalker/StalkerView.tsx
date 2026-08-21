@@ -7,7 +7,7 @@ import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { cache, CACHE_TTL } from '@/core/cache/cacheService';
 import { chatLogStore } from '@/features/chat/lib/chatLogStore';
 import type { StalkerUser, TwitchUser } from '@/core/types/twitch';
-import { fadeIn, hoverNeutralBorderedRow, hoverNeutralIconBtn, hoverSubtleRowBg, panelCard, textInput } from '@/core/utils/tw';
+import { fadeIn, hoverSubtleBorderedRow, hoverSubtleIconBtn, hoverSubtleRowBg, panelCard, textInput } from '@/core/utils/tw';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { UserInspectModal } from '@/shared/ui/UserInspectModal';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
@@ -271,7 +271,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                 }}
                                 title={stalker.btnReload}
                                 aria-label={stalker.btnReload}
-                                className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-text-muted ${hoverNeutralIconBtn}`}
+                                className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-text-muted ${hoverSubtleIconBtn}`}
                             >
                                 <RotateCw className="size-4 shrink-0" />
                             </button>
@@ -366,7 +366,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                                         e.stopPropagation();
                                                         void inspect(user.user_login);
                                                     }}
-                                                    className={`inline-flex items-center gap-1 rounded-md border border-border-strong bg-transparent px-3 py-1.5 text-[0.8125rem] text-text-muted ${hoverNeutralBorderedRow}`}
+                                                    className={`inline-flex items-center gap-1 rounded-md border border-border-strong bg-transparent px-3 py-1.5 text-[0.8125rem] text-text-muted ${hoverSubtleBorderedRow}`}
                                                 >
                                                     <Eye className="size-4 shrink-0" />
                                                     {stalker.table.btnView}

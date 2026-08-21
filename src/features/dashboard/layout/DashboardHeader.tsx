@@ -47,7 +47,7 @@ export function DashboardHeader({
     const tabKey = tab as keyof typeof t.sidebar.items;
 
     return (
-        <header className="w-full pt-3">
+        <header className="w-full pt-7">
             <div className="mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-4 px-4 md:px-8 lg:px-12 xl:px-16">
                 <button
                     type="button"
@@ -76,7 +76,7 @@ export function DashboardHeader({
                     <Dropdown>
                         <DropdownTrigger
                             aria-label={t.header.accountMenu}
-                            className="group flex items-center gap-3 rounded-[1.1rem] border border-border-subtle bg-bg-secondary py-1.5 pl-1.5 pr-4 transition-colors hover:border-primary/25 hover:bg-primary/[0.04] aria-expanded:border-primary/25 aria-expanded:bg-primary/[0.04]"
+                            className="group flex items-center gap-3 rounded-[1.1rem] border border-border-subtle bg-bg-secondary py-1.5 pl-1.5 pr-4 transition-colors hover:border-border-strong hover:bg-white/[0.02] aria-expanded:border-primary/25 aria-expanded:bg-primary/[0.08]"
                         >
                             <img
                                 src={session.profile_image_url?.replace('300x300', '70x70') ?? staticPath('/img/logo.svg')}
