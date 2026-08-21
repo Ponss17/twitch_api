@@ -7,14 +7,11 @@ import {
 import { overlayAuthHeaders, overlayStatePollUrl } from '@/features/overlay/lib/overlayApi';
 import { debugWarn } from '@/core/logging/debugLog';
 import type {
+    OverlayStateForTool,
     OverlayTool,
-    RouletteOverlayState,
-    TrendsOverlayState
+    RouletteOverlayState
 } from '@/features/overlay/lib/types';
-import {
-    emptyRouletteOverlayState,
-    emptyTrendsOverlayState
-} from '@/features/overlay/lib/types';
+import { emptyOverlayState } from '@/features/overlay/lib/types';
 import {
     OVERLAY_POLL_IDLE_MS,
     overlayStateFingerprint,
@@ -37,16 +34,15 @@ export function useOverlayMirror<T extends OverlayTool>(
     tool: T,
     session: Session | null
 ): {
-    state: T extends 'roulette' ? RouletteOverlayState : TrendsOverlayState;
+    state: OverlayStateForTool<T>;
     connected: boolean;
     stale: boolean;
 } {
-    type State = T extends 'roulette' ? RouletteOverlayState : TrendsOverlayState;
+    type State = OverlayStateForTool<T>;
 
-    const emptyState = (
-        tool === 'roulette'
-            ? emptyRouletteOverlayState()
-            : emptyTrendsOverlayState(session?.displayName ?? session?.login ?? 'Channel')
+    const emptyState = emptyOverlayState(
+        tool,
+        session?.displayName ?? session?.login ?? 'Channel'
     ) as State;
 
     const [state, setState] = useState<State>(emptyState);

@@ -1,6 +1,7 @@
 import { useOverlayMirror } from '@/features/overlay/hooks/useOverlayMirror';
 import { useRouletteOverlayVisible } from '@/features/overlay/hooks/useOverlayVisibilityClock';
 import { RouletteWheelDisplay } from '@/features/tools/roulette/RouletteWheelDisplay';
+import { OverlayAppearanceRoot } from '@/features/overlay/components/OverlayAppearanceRoot';
 import { OverlayConnectionBanners } from '@/features/overlay/components/OverlayConnectionBanners';
 import { OverlaySessionGate } from '@/features/overlay/components/OverlaySessionGate';
 import { OverlaySessionProvider } from '@/features/overlay/components/OverlaySessionProvider';
@@ -22,21 +23,23 @@ function OverlayRouletteContent({ session }: { session: Session }) {
     const effectiveColor = rouletteState.wheelColor || urlColor || undefined;
 
     return (
-        <div className="flex min-h-screen items-center justify-center overflow-hidden p-4">
-            <div className="flex flex-col items-center gap-2">
-                <OverlayConnectionBanners connected={connected} stale={stale} />
-                <RouletteWheelDisplay
-                    chatters={rouletteState.chatters}
-                    wheelRotation={rouletteState.wheelRotation}
-                    wheelTransition={rouletteState.wheelTransition}
-                    isSpinning={rouletteState.isSpinning}
-                    winner={rouletteState.winner}
-                    lastSpinCount={rouletteState.lastSpinCount}
-                    wheelColor={effectiveColor}
-                    variant="overlay"
-                />
+        <OverlayAppearanceRoot>
+            <div className="flex min-h-screen items-center justify-center overflow-hidden p-4">
+                <div className="flex flex-col items-center gap-2">
+                    <OverlayConnectionBanners connected={connected} stale={stale} />
+                    <RouletteWheelDisplay
+                        chatters={rouletteState.chatters}
+                        wheelRotation={rouletteState.wheelRotation}
+                        wheelTransition={rouletteState.wheelTransition}
+                        isSpinning={rouletteState.isSpinning}
+                        winner={rouletteState.winner}
+                        lastSpinCount={rouletteState.lastSpinCount}
+                        wheelColor={effectiveColor}
+                        variant="overlay"
+                    />
+                </div>
             </div>
-        </div>
+        </OverlayAppearanceRoot>
     );
 }
 

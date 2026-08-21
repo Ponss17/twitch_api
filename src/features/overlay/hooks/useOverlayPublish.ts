@@ -1,14 +1,10 @@
 import { useCallback, useEffect, useRef } from 'react';
 import type { Session } from '@/core/config/config';
 import { publishOverlayState, resetOverlayPublishCache } from '@/features/overlay/lib/sync';
-import type { OverlayTool, RouletteOverlayState, TrendsOverlayState } from '@/features/overlay/lib/types';
-
-type OverlayStateForTool<T extends OverlayTool> = T extends 'roulette'
-    ? RouletteOverlayState
-    : TrendsOverlayState;
+import type { OverlayStateForTool, OverlayTool } from '@/features/overlay/lib/types';
 
 const PUBLISH_DEBOUNCE_MS = 500;
-const TRENDS_PUBLISH_DEBOUNCE_MS = 1_500;
+const SLOW_PUBLISH_DEBOUNCE_MS = 1_500;
 
 export interface UseOverlayPublishOptions<T extends OverlayTool> {
     tool: T;
@@ -33,7 +29,7 @@ export function useOverlayPublish<T extends OverlayTool>({
     const sessionRef = useRef(session);
     sessionRef.current = session;
     const waitMs =
-        debounceMs ?? (tool === 'trends' ? TRENDS_PUBLISH_DEBOUNCE_MS : PUBLISH_DEBOUNCE_MS);
+        debounceMs ?? (tool === 'roulette' ? PUBLISH_DEBOUNCE_MS : SLOW_PUBLISH_DEBOUNCE_MS);
 
     const publish = useCallback(
         (state: OverlayStateForTool<T>) => {

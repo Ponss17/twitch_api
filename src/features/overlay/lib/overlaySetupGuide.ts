@@ -3,7 +3,7 @@ import type { Translations } from '@/core/i18n/locales/es';
 
 export type OverlayPlatform = 'obs' | 'streamlabs';
 
-export const OVERLAY_SETUP_VERSION = 'beta 1.2';
+export const OVERLAY_SETUP_VERSION = 'beta 1.4';
 
 /** Muestra la URL sin token ni credenciales en query. */
 export function maskOverlayUrlForDisplay(url: string): string {

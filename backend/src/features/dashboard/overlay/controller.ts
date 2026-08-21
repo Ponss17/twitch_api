@@ -81,7 +81,7 @@ export const putOverlayState = async (req: AuthenticatedRequest, res: Response) 
 
 export const createOverlayLink = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.userId;
-    const { tool } = req.body as { tool: 'roulette' | 'trends' };
+    const { tool } = req.body as { tool: 'roulette' | 'trends' | 'questions' };
 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 

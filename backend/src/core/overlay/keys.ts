@@ -3,7 +3,7 @@
  * no dependan de `features/dashboard`.
  */
 
-export const OVERLAY_TOOLS = ['roulette', 'trends'] as const;
+export const OVERLAY_TOOLS = ['roulette', 'trends', 'questions'] as const;
 export type OverlayToolName = (typeof OVERLAY_TOOLS)[number];
 
 export const overlayStateKey = (userId: string, tool: string): string =>
@@ -11,8 +11,7 @@ export const overlayStateKey = (userId: string, tool: string): string =>
 
 export const overlayRevokeKey = (userId: string): string => `cache:overlay:revoke:${userId}`;
 
-export const overlayPagePath = (tool: OverlayToolName): string =>
-    tool === 'roulette' ? '/overlay/roulette' : '/overlay/trends';
+export const overlayPagePath = (tool: OverlayToolName): string => `/overlay/${tool}`;
 
 /** Payload firmado en tokens de lectura de overlay (OBS / browser source). */
 export interface OverlayReadPayload {

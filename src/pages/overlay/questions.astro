@@ -1,0 +1,8 @@
+---
+import OverlayLayout from '../../layouts/OverlayLayout.astro';
+import { OverlayQuestionsRoot } from '@/features/overlay/apps/OverlayQuestionsApp';
+---
+
+<OverlayLayout title="Preguntas Overlay">
+    <OverlayQuestionsRoot client:only="react" />
+</OverlayLayout>

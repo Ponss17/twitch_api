@@ -2,7 +2,7 @@ import * as cacheService from '../database/cacheService';
 import { invalidateUserMemoryCache } from '../database/userService';
 import { invalidateStatsCache } from '../database/statsService';
 import { logger } from './logger';
-import { overlayStateKey, overlayRevokeKey } from '../overlay/keys';
+import { OVERLAY_TOOLS, overlayStateKey, overlayRevokeKey } from '../overlay/keys';
 import { invalidateUserInfoCache } from '../../features/twitch/twitchUserService';
 import { ownerScopedCacheKey } from '../config/cacheTtl';
 
@@ -24,10 +24,9 @@ export async function invalidateHelixUserCaches(userId: string, login?: string):
 }
 
 export async function invalidateOverlayStateCaches(userId: string): Promise<void> {
-    await Promise.allSettled([
-        cacheService.del(overlayStateKey(userId, 'roulette')),
-        cacheService.del(overlayStateKey(userId, 'trends'))
-    ]).catch((e) => logger.warn('Error invalidando estado overlay:', e));
+    await Promise.allSettled(
+        OVERLAY_TOOLS.map((tool) => cacheService.del(overlayStateKey(userId, tool)))
+    ).catch((e) => logger.warn('Error invalidando estado overlay:', e));
 }
 
 export interface UserCacheInvalidationOptions {

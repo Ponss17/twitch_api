@@ -3,10 +3,12 @@ import {
     overlayTrendsRemaining,
     shouldShowRouletteOverlay,
     shouldShowTrendsOverlay,
+    shouldShowQuestionsOverlay,
     ROULETTE_OVERLAY_WINNER_MS,
     TRENDS_OVERLAY_RESULTS_MS,
     OVERLAY_POLL_IDLE_MS,
     OVERLAY_POLL_TRENDS_MS,
+    OVERLAY_POLL_QUESTIONS_MS,
     OVERLAY_POLL_ROULETTE_MS,
     OVERLAY_POLL_SPINNING_MS,
     resolveOverlayPollIntervalMs,
@@ -334,5 +336,61 @@ describe('overlayStateUtils', () => {
         updateOverlayPollAnchors('roulette', nextWinner, anchors);
         expect(anchors.lastSpinSeq).toBe(2);
         expect(anchors.winnerShownAt).toBeGreaterThanOrEqual(before);
+    });
+
+    it('shouldShowQuestionsOverlay visible con pregunta actual o escucha activa', () => {
+        expect(
+            shouldShowQuestionsOverlay({
+                isActive: false,
+                keyword: 'pregunta',
+                pendingCount: 0,
+                current: null,
+                updatedAt: Date.now()
+            })
+        ).toBe(false);
+
+        expect(
+            shouldShowQuestionsOverlay({
+                isActive: true,
+                keyword: 'pregunta',
+                pendingCount: 0,
+                current: null,
+                updatedAt: Date.now()
+            })
+        ).toBe(true);
+
+        expect(
+            shouldShowQuestionsOverlay({
+                isActive: false,
+                keyword: 'pregunta',
+                pendingCount: 1,
+                current: { displayName: 'Viewer', text: 'Hola?' },
+                updatedAt: Date.now()
+            })
+        ).toBe(true);
+    });
+
+    it('resolveOverlayPollIntervalMs usa poll lento de tendencias para preguntas activas', () => {
+        const anchors: OverlayPollAnchors = {
+            winnerShownAt: null,
+            trendsEndedAt: null,
+            lastSpinSeq: -1,
+            wasTracking: false
+        };
+        const idle = {
+            isActive: false,
+            keyword: 'pregunta',
+            pendingCount: 0,
+            current: null,
+            updatedAt: Date.now()
+        };
+        expect(resolveOverlayPollIntervalMs('questions', idle, Date.now(), anchors)).toBe(
+            OVERLAY_POLL_IDLE_MS
+        );
+
+        const live = { ...idle, isActive: true };
+        expect(resolveOverlayPollIntervalMs('questions', live, Date.now(), anchors)).toBe(
+            OVERLAY_POLL_QUESTIONS_MS
+        );
     });
 });

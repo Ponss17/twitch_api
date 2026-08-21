@@ -1,7 +1,7 @@
 import { Check, SkipForward, Trash2, MessageCircleQuestion } from 'lucide-react';
 import type { QuestionItem } from '../hooks/useQuestions';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { hoverNeutralIconBtn } from '@/core/utils/tw';
+import { hoverSubtleIconBtn } from '@/core/utils/tw';
 
 interface QuestionsListProps {
     items: QuestionItem[];
@@ -83,7 +83,7 @@ export function QuestionsList({ items, currentId, onAnswer, onSkip, onRemove }: 
                                             onClick={() => onAnswer(q.id)}
                                             title={qT.btnAnswer}
                                             aria-label={qT.btnAnswer}
-                                            className={`rounded-lg border-none p-1.5 text-success ${hoverNeutralIconBtn}`}
+                                            className={`rounded-lg border-none p-1.5 text-success ${hoverSubtleIconBtn}`}
                                         >
                                             <Check className="size-4" />
                                         </button>
@@ -92,7 +92,7 @@ export function QuestionsList({ items, currentId, onAnswer, onSkip, onRemove }: 
                                             onClick={() => onSkip(q.id)}
                                             title={qT.btnSkip}
                                             aria-label={qT.btnSkip}
-                                            className={`rounded-lg border-none p-1.5 text-warning ${hoverNeutralIconBtn}`}
+                                            className={`rounded-lg border-none p-1.5 text-warning ${hoverSubtleIconBtn}`}
                                         >
                                             <SkipForward className="size-4" />
                                         </button>
@@ -103,7 +103,7 @@ export function QuestionsList({ items, currentId, onAnswer, onSkip, onRemove }: 
                                     onClick={() => onRemove(q.id)}
                                     title={qT.btnRemove}
                                     aria-label={qT.btnRemove}
-                                    className={`rounded-lg border-none p-1.5 text-text-muted ${hoverNeutralIconBtn}`}
+                                    className={`rounded-lg border-none p-1.5 text-text-muted ${hoverSubtleIconBtn}`}
                                 >
                                     <Trash2 className="size-4" />
                                 </button>

@@ -46,7 +46,7 @@ Unlike standard chat bots, this project is a complete platform that acts as the 
 | **Broadcaster Dashboard** | Centralized management portal with secure Twitch OAuth authentication and dynamic UI theming (Light/Dark/Matrix). |
 | **Internationalization (i18n)** | The platform's default language is Spanish, but includes native i18n support to switch languages dynamically from the settings. |
 | **Interactive Minigames** | Chat modules (Magic 8, Russian Roulette, Duel) plus panel tools (roulette giveaways, trends, stalker, questions). |
-| **OBS Integration** | Transparent browser sources for roulette and trends, synced via overlay tokens. |
+| **OBS Integration** | Transparent browser sources for roulette, trends, and questions, synced via overlay tokens. |
 | **Bot Integration** | URL templates for Nightbot, StreamElements, Fossabot, Wizebot, and Streamlabs; watchtime reads StreamElements public points when available. |
 
 ---

@@ -11,75 +11,50 @@ import ApiFlowResponse from '@/components/docs/ApiFlowResponse.astro';
 
 
 interface Props {
-
-	tool: 'trends' | 'roulette';
-
+	tool: 'trends' | 'roulette' | 'questions';
 	flowId: string;
-
 }
 
-
-
 const { tool, flowId } = Astro.props;
-
-const toolLabel = tool === 'trends' ? 'trends' : 'roulette';
-
-
+const toolLabel = tool;
 
 const getStateExample =
-
-	tool === 'trends'
-
+	tool === 'questions'
 		? `{
-
   "state": {
-
-    "tracking": true,
-
-    "remaining": 142,
-
-    "timerEnded": false,
-
-    "wordCounts": { "hola": 24, "gg": 18 },
-
-    "minutes": 5,
-
-    "displayName": "TuCanal",
-
-    "sessionActive": true,
-
-    "timerEndsAt": 1752012345678,
-
+    "isActive": true,
+    "keyword": "pregunta",
+    "pendingCount": 3,
+    "current": { "displayName": "Viewer1", "text": "¿Cuál es tu juego favorito?" },
     "updatedAt": 1752012234567
-
   }
-
 }`
-
-		: `{
-
+		: tool === 'trends'
+		? `{
   "state": {
-
-    "chatters": [{ "user_login": "viewer1", "user_name": "Viewer1" }],
-
-    "isOpen": true,
-
-    "isSpinning": false,
-
-    "wheelRotation": 0,
-
-    "wheelTransition": "none",
-
-    "winner": null,
-
-    "lastSpinCount": 0,
-
-    "spinSeq": 0,
-
+    "tracking": true,
+    "remaining": 142,
+    "timerEnded": false,
+    "wordCounts": { "hola": 24, "gg": 18 },
+    "minutes": 5,
+    "displayName": "TuCanal",
+    "sessionActive": true,
+    "timerEndsAt": 1752012234567,
     "updatedAt": 1752012234567
-
   }
-
+}`
+		: `{
+  "state": {
+    "chatters": [{ "user_login": "viewer1", "user_name": "Viewer1" }],
+    "isOpen": true,
+    "isSpinning": false,
+    "wheelRotation": 0,
+    "wheelTransition": "none",
+    "winner": null,
+    "lastSpinCount": 0,
+    "spinSeq": 0,
+    "updatedAt": 1752012234567
+  }
 }`;
 
 ---

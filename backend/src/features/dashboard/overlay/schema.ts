@@ -1,17 +1,19 @@
 import { z } from 'zod';
+import { OVERLAY_TOOLS } from '../../../core/overlay/keys';
 
 const MAX_OVERLAY_STATE_BYTES = 64 * 1024;
 const MAX_OVERLAY_KEYS = 200;
+const overlayToolEnum = z.enum(OVERLAY_TOOLS);
 
 export const overlayToolParamSchema = z.object({
     params: z.object({
-        tool: z.enum(['roulette', 'trends'] as const)
+        tool: overlayToolEnum
     })
 });
 
 export const putOverlayStateSchema = z.object({
     params: z.object({
-        tool: z.enum(['roulette', 'trends'] as const)
+        tool: overlayToolEnum
     }),
     body: z.object({
         state: z
@@ -27,6 +29,6 @@ export const putOverlayStateSchema = z.object({
 
 export const overlayLinkSchema = z.object({
     body: z.object({
-        tool: z.enum(['roulette', 'trends'] as const)
+        tool: overlayToolEnum
     })
 });

@@ -1,10 +1,11 @@
 import type { RouletteUser } from '@/core/types/twitch';
 
-export type OverlayTool = 'roulette' | 'trends';
+export type OverlayTool = 'roulette' | 'trends' | 'questions';
 
 export const OVERLAY_PAGE_PATHS: Record<OverlayTool, string> = {
     roulette: '/overlay/roulette',
-    trends: '/overlay/trends'
+    trends: '/overlay/trends',
+    questions: '/overlay/questions'
 };
 
 export interface RouletteOverlayState {
@@ -35,6 +36,28 @@ export interface TrendsOverlayState {
     updatedAt: number;
 }
 
+export interface QuestionsOverlayCurrent {
+    displayName: string;
+    text: string;
+}
+
+export interface QuestionsOverlayState {
+    isActive: boolean;
+    keyword: string;
+    pendingCount: number;
+    current: QuestionsOverlayCurrent | null;
+    updatedAt: number;
+}
+
+export type OverlayStateMap = {
+    roulette: RouletteOverlayState;
+    trends: TrendsOverlayState;
+    questions: QuestionsOverlayState;
+};
+
+export type OverlayStateForTool<T extends OverlayTool> = OverlayStateMap[T];
+export type AnyOverlayState = OverlayStateMap[OverlayTool];
+
 export function emptyRouletteOverlayState(): RouletteOverlayState {
     return {
         chatters: [],
@@ -60,4 +83,23 @@ export function emptyTrendsOverlayState(displayName = 'Channel'): TrendsOverlayS
         sessionActive: false,
         updatedAt: Date.now()
     };
+}
+
+export function emptyQuestionsOverlayState(): QuestionsOverlayState {
+    return {
+        isActive: false,
+        keyword: 'pregunta',
+        pendingCount: 0,
+        current: null,
+        updatedAt: Date.now()
+    };
+}
+
+export function emptyOverlayState(
+    tool: OverlayTool,
+    displayName = 'Channel'
+): AnyOverlayState {
+    if (tool === 'roulette') return emptyRouletteOverlayState();
+    if (tool === 'questions') return emptyQuestionsOverlayState();
+    return emptyTrendsOverlayState(displayName);
 }
