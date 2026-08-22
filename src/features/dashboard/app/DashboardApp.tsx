@@ -18,6 +18,7 @@ import type { DashboardTab } from '@/core/config/config';
 import { DashboardPanelProvider } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { I18nProvider } from '@/core/i18n/I18nContext';
 import { ThemeEasterEggs } from '@/features/dashboard/easterEggs/ThemeEasterEggs';
+import { FeedbackWidget } from '@/features/dashboard/feedback/FeedbackWidget';
 
 function DashboardPanelShell({
     tab,
@@ -194,6 +195,8 @@ function DashboardAppShell() {
                     </div>
                 </div>
             )}
+            
+            {dashboardReady && <FeedbackWidget />}
         </>
     );
 }

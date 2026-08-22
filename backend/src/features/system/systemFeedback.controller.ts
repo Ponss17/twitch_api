@@ -10,10 +10,12 @@ import { jsonError } from '../../core/utils/jsonResponse';
 import { AuthenticatedRequest } from '../../types/twitch';
 
 export const submitFeedback = async (req: AuthenticatedRequest, res: Response) => {
-    const { message, anonymous = false, identity } = req.body as {
+    const { message, anonymous = false, identity, type = 'general', discordUsername } = req.body as {
         message: string;
         anonymous?: boolean;
         identity?: 'twitch' | 'discord';
+        type?: 'bug' | 'suggestion' | 'general';
+        discordUsername?: string;
     };
     const { userId, login, twitchToken } = req;
 
@@ -86,6 +88,9 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
     }
 
     try {
+        const typeEmoji = type === 'bug' ? '🐛' : type === 'suggestion' ? '💡' : '💬';
+        const typeLabel = type === 'bug' ? 'Bug / Problema' : type === 'suggestion' ? 'Sugerencia' : 'General';
+        
         const fields: { name: string; value: string; inline?: boolean }[] = [
             {
                 name: '🪪 Identidad',
@@ -96,16 +101,30 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
                 name: anonymous ? '🆔 Usuario' : '🆔 ID',
                 value: idField,
                 inline: true
+            },
+            {
+                name: `${typeEmoji} Tipo`,
+                value: typeLabel,
+                inline: true
             }
         ];
 
         if (!anonymous) {
             fields.push({ name: '🏷️ Rango', value: userType, inline: true });
         }
+        if (discordUsername && identity === 'twitch') {
+            fields.push({ name: '👾 Discord Contacto', value: discordUsername, inline: true });
+        }
         if (accountField) {
             fields.push({ name: '🔗 Cuenta', value: accountField, inline: false });
         }
         fields.push({ name: '📝 Mensaje', value: message, inline: false });
+
+        let embedColor = 0x9146ff; // Twitch Purple default
+        if (anonymous) embedColor = 0x71717a; // Gray
+        else if (type === 'bug') embedColor = 0xef4444; // Red
+        else if (type === 'suggestion') embedColor = 0x10b981; // Emerald
+        else if (identityLabel === MESSAGES.FEEDBACK.IDENTITY_DISCORD) embedColor = 0x5865f2; // Discord Blurple
 
         await axios.post(CONFIG.DISCORD_FEEDBACK_WEBHOOK_URL, {
             username: username.slice(0, 80),
@@ -113,7 +132,7 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
             embeds: [
                 {
                     title: MESSAGES.FEEDBACK.EMBED_TITLE,
-                    color: anonymous ? 0x71717a : identityLabel === MESSAGES.FEEDBACK.IDENTITY_DISCORD ? 0x5865f2 : 0x9146ff,
+                    color: embedColor,
                     fields,
                     footer: { text: MESSAGES.FEEDBACK.EMBED_FOOTER },
                     timestamp: new Date().toISOString()
