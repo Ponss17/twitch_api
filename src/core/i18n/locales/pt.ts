@@ -572,7 +572,8 @@ export const pt: Translations = {
     },
     modals: {
         danger: {
-            typeToConfirm: (word: string): string => `Digite "${word}" para confirmar`,
+            typeToConfirmBefore: 'Digite',
+            typeToConfirmAfter: 'para confirmar',
             placeholder: 'Digite aqui...',
             processing: 'Processando...',
             cancel: 'Cancelar',

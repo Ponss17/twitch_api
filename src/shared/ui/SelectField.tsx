@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useId, type ElementType } from 'react';
+import { useState, useRef, useEffect, useId, type ElementType, type ReactNode } from 'react';
 import { toolLabel, toolSelector, hoverSubtleChip, hoverSubtleControl } from '@/core/utils/tw';
 import { IconSm } from '@/shared/ui/Icon';
 import { ChevronDown, Check } from 'lucide-react';
@@ -6,6 +6,9 @@ import { ChevronDown, Check } from 'lucide-react';
 export interface SelectFieldOption {
     value: string;
     label: string;
+    icon?: ReactNode;
+    disabled?: boolean;
+    title?: string;
 }
 
 export interface SelectFieldProps {
@@ -58,7 +61,8 @@ export function SelectField({
         };
     }, [isOpen]);
 
-    const handleSelect = (val: string) => {
+    const handleSelect = (val: string, optionDisabled?: boolean) => {
+        if (optionDisabled) return;
         onChange?.({ target: { value: val } });
         setIsOpen(false);
     };
@@ -88,7 +92,14 @@ export function SelectField({
                 onClick={() => setIsOpen((open) => !open)}
                 className={`flex w-full cursor-pointer appearance-none items-center justify-between rounded-lg border border-border-strong bg-bg-secondary py-[7px] pl-3 pr-2.5 text-[0.8125rem] leading-tight text-text-main outline-none ${hoverSubtleControl} ${isOpen ? 'border-primary/25 bg-primary/[0.08]' : ''} focus:border-primary focus:bg-white/[0.02] disabled:cursor-not-allowed disabled:opacity-50`}
             >
-                <span className="truncate">{selectedOption?.label}</span>
+                <span className="flex min-w-0 items-center gap-2">
+                    {selectedOption?.icon ? (
+                        <span className="flex shrink-0 items-center text-text-muted [&_svg]:size-3.5">
+                            {selectedOption.icon}
+                        </span>
+                    ) : null}
+                    <span className="truncate">{selectedOption?.label}</span>
+                </span>
                 <ChevronDown
                     className={`ml-2 h-4 w-4 shrink-0 text-text-muted transition-transform ${isOpen ? 'rotate-180' : ''}`}
                 />
@@ -100,25 +111,46 @@ export function SelectField({
                         id={listboxId}
                         role="listbox"
                         aria-label={ariaLabel}
-                        className="flex max-h-60 flex-col gap-0.5 overflow-auto [scrollbar-color:var(--border-strong)_transparent] [scrollbar-width:thin]"
+                        className="!m-0 flex !list-none max-h-60 flex-col gap-0.5 overflow-auto !p-0 !pl-0 [scrollbar-color:var(--border-strong)_transparent] [scrollbar-width:thin]"
                     >
                         {options.map((opt) => {
                             const selected = opt.value === (value ?? selectedOption?.value);
+                            const optionDisabled = Boolean(opt.disabled);
                             return (
-                                <li key={opt.value} role="presentation">
+                                <li key={opt.value} role="presentation" className="!list-none !m-0 !p-0">
                                     <button
                                         type="button"
                                         role="option"
                                         aria-selected={selected}
-                                        onClick={() => handleSelect(opt.value)}
-                                        className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[0.8125rem] transition-colors ${
-                                            selected
-                                                ? 'bg-primary/[0.08] font-medium text-brand-text hover:bg-primary/[0.08]'
-                                                : `text-text-muted ${hoverSubtleChip} hover:text-text-main`
+                                        aria-disabled={optionDisabled}
+                                        disabled={optionDisabled}
+                                        title={opt.title}
+                                        onClick={() => handleSelect(opt.value, optionDisabled)}
+                                        className={`flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-[0.8125rem] transition-colors ${
+                                            optionDisabled
+                                                ? 'cursor-not-allowed opacity-45 text-text-muted'
+                                                : selected
+                                                  ? 'bg-primary/[0.08] font-medium text-text-main hover:bg-primary/[0.08]'
+                                                  : `text-text-muted ${hoverSubtleChip} hover:text-text-main`
                                         }`}
                                     >
-                                        <span className="truncate">{opt.label}</span>
-                                        {selected && <Check className="h-3.5 w-3.5" />}
+                                        <span className="flex min-w-0 items-center gap-2">
+                                            {opt.icon ? (
+                                                <span
+                                                    className={`flex shrink-0 items-center [&_svg]:size-3.5 ${
+                                                        selected && !optionDisabled
+                                                            ? 'text-primary'
+                                                            : 'text-text-muted'
+                                                    }`}
+                                                >
+                                                    {opt.icon}
+                                                </span>
+                                            ) : null}
+                                            <span className="truncate">{opt.label}</span>
+                                        </span>
+                                        {selected && !optionDisabled && (
+                                            <Check className="h-3.5 w-3.5 shrink-0 text-primary" />
+                                        )}
                                     </button>
                                 </li>
                             );

@@ -162,7 +162,7 @@ export function Sidebar({
                             <img
                                 src={avatarSrc}
                                 alt=""
-                                className="size-9 shrink-0 rounded-full object-cover"
+                                className="size-9 shrink-0 rounded-full object-cover ring-1 ring-border-subtle"
                             />
                             <span className="min-w-0 flex-1">
                                 <span className="block truncate text-[0.875rem] font-semibold text-text-main">
@@ -174,7 +174,7 @@ export function Sidebar({
                                     </span>
                                 )}
                             </span>
-                            <DropdownChevron className="size-4 shrink-0 text-text-muted transition-colors group-hover:text-text-main group-aria-expanded:text-text-main" />
+                            <DropdownChevron className="size-3.5 shrink-0 text-text-muted transition-transform group-hover:text-text-main group-aria-expanded:rotate-180 group-aria-expanded:text-text-main" />
                         </DropdownTrigger>
 
                         <DropdownPanel
@@ -182,46 +182,58 @@ export function Sidebar({
                             placement="top"
                             widthClassName="w-[220px]"
                             zIndex={1000}
-                            className="rounded-2xl"
+                            className="rounded-xl"
                             padding="compact"
                         >
                             <DropdownItem
+                                className="rounded-lg"
                                 onClick={() => {
                                     onSettings();
                                     onClose();
                                 }}
                             >
-                                <Settings className="w-4 text-center" />
+                                <Settings className="size-4 shrink-0" aria-hidden />
                                 {t.header.settings}
                             </DropdownItem>
                             <DropdownLink
+                                className="rounded-lg"
                                 href={twitchProfileUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
-                                <TwitchIcon className="w-4 text-center text-text-muted opacity-70 transition-all group-hover:text-text-main group-hover:opacity-100" />
+                                <TwitchIcon className="size-4 shrink-0" aria-hidden />
                                 {t.header.twitchProfile}
                             </DropdownLink>
-                            <DropdownLink href={PAYPAL_URL} target="_blank" rel="noopener noreferrer">
-                                <Heart className="w-4 text-center" aria-hidden />
-                                {t.header.supportProject}
-                            </DropdownLink>
                             <DropdownDivider />
-                            <DropdownLink href={appPath('/docs')} onClick={saveDocsReturnPath}>
-                                <Book className="w-4 text-center" />
+                            <DropdownLink
+                                className="rounded-lg"
+                                href={appPath('/docs')}
+                                onClick={saveDocsReturnPath}
+                            >
+                                <Book className="size-4 shrink-0" aria-hidden />
                                 {t.sidebar.docs}
                             </DropdownLink>
                             <DropdownLink
+                                className="rounded-lg"
                                 href="https://discord.gg/PJbExZe7Tp"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
-                                <DiscordIcon className="w-4 text-center" aria-hidden />
+                                <DiscordIcon className="size-4 shrink-0" aria-hidden />
                                 {t.sidebar.discord}
                             </DropdownLink>
+                            <DropdownLink
+                                className="rounded-lg"
+                                href={PAYPAL_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <Heart className="size-4 shrink-0" aria-hidden />
+                                {t.header.supportProject}
+                            </DropdownLink>
                             <DropdownDivider />
-                            <DropdownItem variant="danger" onClick={onLogout}>
-                                <LogOut className="w-4 text-center" />
+                            <DropdownItem className="rounded-lg" variant="danger" onClick={onLogout}>
+                                <LogOut className="size-4 shrink-0" aria-hidden />
                                 {t.header.logout}
                             </DropdownItem>
                         </DropdownPanel>

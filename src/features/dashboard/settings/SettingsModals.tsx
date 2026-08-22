@@ -44,7 +44,11 @@ function ClearScopeOptions({
     ) => (
         <label
             htmlFor={`clear-scope-${id}`}
-            className="flex cursor-pointer items-start gap-3 rounded-lg border border-border-subtle bg-bg-main/40 px-3 py-2.5"
+            className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2.5 transition-colors ${
+                checked
+                    ? 'border-border-strong bg-bg-secondary'
+                    : 'border-border-subtle bg-bg-main/40 hover:border-border-strong hover:bg-white/[0.02]'
+            }`}
         >
             <input
                 id={`clear-scope-${id}`}

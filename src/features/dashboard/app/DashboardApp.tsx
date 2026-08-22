@@ -18,14 +18,23 @@ import type { DashboardTab } from '@/core/config/config';
 import { DashboardPanelProvider } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { I18nProvider } from '@/core/i18n/I18nContext';
 import { ThemeEasterEggs } from '@/features/dashboard/easterEggs/ThemeEasterEggs';
-import { FeedbackWidget } from '@/features/dashboard/feedback/FeedbackWidget';
 
-function DashboardPanelShell({
+function DashboardMain({
     tab,
-    onNavigate
+    onNavigate,
+    mobileMenuOpen,
+    onMenuToggle,
+    onCloseMobile,
+    onSettings,
+    onLogout
 }: {
     tab: DashboardTab;
     onNavigate: (next: DashboardTab) => void;
+    mobileMenuOpen: boolean;
+    onMenuToggle: () => void;
+    onCloseMobile: () => void;
+    onSettings: () => void;
+    onLogout: () => void | Promise<void>;
 }) {
     const session = useRequiredSession();
     const { showToast } = useToast();
@@ -38,7 +47,30 @@ function DashboardPanelShell({
             session={session}
             showToast={showToast}
         >
-            <DashboardContent tab={tab} onNavigate={onNavigate} />
+            <Sidebar
+                active={tab}
+                onChange={onNavigate}
+                mobileOpen={mobileMenuOpen}
+                onClose={onCloseMobile}
+                onSettings={onSettings}
+                onLogout={onLogout}
+            />
+
+            <div className="flex min-h-0 flex-1 flex-col lg:ml-[240px]">
+                <DashboardHeader
+                    tab={tab}
+                    onMenuToggle={onMenuToggle}
+                    mobileMenuOpen={mobileMenuOpen}
+                />
+
+                <main className="flex flex-1 flex-col overflow-y-auto py-5">
+                    <div className="mx-auto w-full max-w-[1440px] flex-1 px-4 md:px-8 lg:px-12 xl:px-16">
+                        <div className={fadeIn}>
+                            <DashboardContent tab={tab} onNavigate={onNavigate} />
+                        </div>
+                    </div>
+                </main>
+            </div>
         </DashboardPanelProvider>
     );
 }
@@ -169,34 +201,17 @@ function DashboardAppShell() {
                     className={`flex min-h-full flex-1 flex-col bg-bg-main transition-[filter,opacity] duration-300 ${splashOpen && !splashDone ? 'pointer-events-none opacity-50 blur-[2px]' : ''
                         }`}
                 >
-                    <Sidebar
-                        active={tab}
-                        onChange={setTab}
-                        mobileOpen={mobileMenuOpen}
-                        onClose={() => setMobileMenuOpen(false)}
+                    <DashboardMain
+                        tab={tab}
+                        onNavigate={setTab}
+                        mobileMenuOpen={mobileMenuOpen}
+                        onMenuToggle={() => setMobileMenuOpen((open) => !open)}
+                        onCloseMobile={() => setMobileMenuOpen(false)}
                         onSettings={() => setTab('settings')}
                         onLogout={logout}
                     />
-
-                    <div className="flex min-h-0 flex-1 flex-col lg:ml-[240px]">
-                        <DashboardHeader
-                            tab={tab}
-                            onMenuToggle={() => setMobileMenuOpen((open) => !open)}
-                            mobileMenuOpen={mobileMenuOpen}
-                        />
-
-                        <main className="flex flex-1 flex-col overflow-y-auto py-5">
-                            <div className="mx-auto w-full max-w-[1440px] flex-1 px-4 md:px-8 lg:px-12 xl:px-16">
-                                <div className={fadeIn}>
-                                    <DashboardPanelShell tab={tab} onNavigate={setTab} />
-                                </div>
-                            </div>
-                        </main>
-                    </div>
                 </div>
             )}
-            
-            {dashboardReady && <FeedbackWidget />}
         </>
     );
 }

@@ -18,6 +18,19 @@ export const hoverSubtleBorderedRow =
 export const hoverSubtleControl =
     'transition-colors hover:border-border-strong hover:bg-white/[0.02]';
 
+/** Chip/tab inactivo: hover gris. Morado solo cuando está activo. */
+export const themeIdleChip =
+    'border border-transparent text-text-muted transition-colors hover:bg-white/[0.02] hover:text-text-main';
+
+export const themeActiveChip =
+    'border border-primary/30 bg-primary/[0.08] text-text-main';
+
+export const themeIdleChoice =
+    `border border-border-subtle bg-bg-secondary text-text-muted ${hoverSubtleControl} hover:text-text-main`;
+
+export const themeActiveChoice =
+    'border border-primary/35 bg-primary/[0.07] text-text-main';
+
 const selectChevron =
     "bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\")]";
 
@@ -77,7 +90,7 @@ export const clipPlayerPanel =
     'relative aspect-video w-full min-h-[300px] max-w-4xl overflow-hidden rounded-xl bg-black border border-border-subtle';
 
 export const modalPanel =
-    'relative w-full max-w-[500px] outline-none overflow-hidden rounded-xl border border-border-subtle bg-bg-modal shadow-[0_8px_30px_rgba(0,0,0,0.15)]';
+    'relative w-full max-w-[500px] overflow-hidden rounded-xl border border-border-subtle bg-bg-modal shadow-[0_8px_30px_rgba(0,0,0,0.15)] outline-none';
 
 export const modalHeader =
     'flex items-center justify-between px-6 pt-6 pb-4';
@@ -87,7 +100,7 @@ export const modalTitle = 'm-0 flex items-center gap-2.5 text-[1.15rem] font-bol
 export const modalTitleIcon = 'text-primary';
 
 export const modalBody =
-    'px-6 py-2 text-[0.85rem] leading-relaxed text-text-muted [&_p]:mb-4 [&_p:last-child]:mb-0 [&_strong]:text-text-main [&_ul]:my-4 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5';
+    'px-6 py-2 text-[0.85rem] leading-relaxed text-text-muted [&_p]:mb-4 [&_p:last-child]:mb-0 [&_strong]:text-text-main [&_ul:not([role=listbox])]:my-4 [&_ul:not([role=listbox])]:list-disc [&_ul:not([role=listbox])]:space-y-2 [&_ul:not([role=listbox])]:pl-5';
 
 /** Primary primero en el DOM → queda a la izquierda. */
 export const modalFooter =
@@ -111,7 +124,7 @@ export const btnIcon =
     'rounded-lg border border-transparent bg-transparent px-2 py-1.5 text-text-muted outline-none transition hover:bg-white/[0.02] hover:text-text-main focus-visible:border-border-strong focus-visible:bg-white/[0.02] focus-visible:text-text-main disabled:opacity-50';
 
 export const dangerModalPanel =
-    'relative w-full max-w-[500px] outline-none overflow-hidden rounded-xl border border-border-subtle bg-bg-modal shadow-[0_8px_30px_rgba(0,0,0,0.15)]';
+    'relative w-full max-w-[500px] overflow-hidden rounded-xl border border-border-subtle bg-bg-modal shadow-[0_8px_30px_rgba(0,0,0,0.15)] outline-none';
 
 export const dangerModalHeader =
     'flex items-center justify-between px-6 pt-6 pb-4';
@@ -124,7 +137,7 @@ export const dangerInputGroup =
 export const dangerInputLabel = 'mb-2.5 block text-[0.85rem] text-text-muted';
 
 export const confirmWordBadge =
-    'rounded bg-bg-tertiary px-1.5 py-0.5 font-mono text-sm font-extrabold tracking-wide text-text-main';
+    'inline-block rounded px-1.5 py-px font-mono text-[0.8125rem] font-semibold tracking-wide text-text-main bg-white/[0.04] border border-border-subtle';
 
 export const dangerInput =
     'w-full rounded-lg border border-border-strong bg-bg-secondary px-3 py-3 text-center text-base font-semibold uppercase tracking-[0.2em] text-text-main outline-none transition placeholder:font-normal placeholder:normal-case placeholder:tracking-normal placeholder:opacity-50 focus:border-primary focus:bg-primary/[0.02]';

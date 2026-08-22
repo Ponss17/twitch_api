@@ -105,7 +105,7 @@ export function Sheet({ open, onClose, title, description, children, footer }: S
             <div
                 ref={panelRef}
                 onClick={(e) => e.stopPropagation()}
-                className={`fixed inset-y-0 right-0 z-10 flex h-full w-full max-w-md flex-col border-l border-border-subtle bg-bg-modal text-text-main shadow-2xl ${
+                className={`fixed inset-y-0 right-0 z-10 flex h-full w-full max-w-md flex-col overflow-hidden border-l border-border-subtle bg-bg-modal text-text-main shadow-2xl ${
                     closing ? 'animate-sheet-out' : 'animate-sheet-in'
                 }`}
             >

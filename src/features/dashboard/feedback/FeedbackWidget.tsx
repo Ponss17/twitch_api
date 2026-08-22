@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { MessageSquare } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { FeedbackModal } from './FeedbackModal';
 
+/** Botón de feedback para el header del panel (abre el modal). */
 export function FeedbackWidget() {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
@@ -12,10 +12,16 @@ export function FeedbackWidget() {
             <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="fixed right-5 bottom-20 z-50 flex size-11 items-center justify-center rounded-xl border border-primary/50 bg-bg-panel/55 text-primary shadow-lg backdrop-blur-md transition hover:border-primary hover:bg-primary/10 active:scale-95 lg:bottom-16"
+                aria-expanded={open}
+                aria-haspopup="dialog"
+                className={`inline-flex h-9 items-center justify-center rounded-xl border px-3 text-[0.8125rem] font-medium transition-colors ${
+                    open
+                        ? 'border-primary/30 bg-primary/[0.08] text-text-main'
+                        : 'border-border-subtle bg-bg-secondary text-text-muted hover:border-border-strong hover:bg-white/[0.02] hover:text-text-main'
+                }`}
                 aria-label={t.feedback.widgetAria}
             >
-                <MessageSquare className="size-5" strokeWidth={1.75} aria-hidden />
+                {t.sidebar.items.feedback}
             </button>
 
             <FeedbackModal open={open} onClose={() => setOpen(false)} />
