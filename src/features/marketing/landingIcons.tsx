@@ -61,10 +61,11 @@ export function DicesIcon(props: SVGProps<SVGSVGElement>) {
 
 export function SwordIcon({ className, ...props }: SVGProps<SVGSVGElement>) {
     return (
-        <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden {...props}>
-            <polygon points="17 3.5 21 7.5 9.5 19 5.5 15" />
-            <polygon points="11 8.8 15.2 13 13.8 14.4 9.6 10.2" />
-            <polygon points="5 15.5 8.5 19 7 20.5 3.5 17" />
+        <svg viewBox="0 0 20 20" fill="currentColor" className={className} aria-hidden {...props}>
+            <g transform="translate(20,0) scale(-1,1)">
+                <path d="M17.7 2.3a1 1 0 0 0-1.4 0L14 4.6l-1.3-1.3a1 1 0 0 0-1.4 1.4L12.6 6 4 14.6V16h1.4l8.6-8.6 1.3 1.3a1 1 0 0 0 1.4-1.4L15.4 6l2.3-2.3a1 1 0 0 0 0-1.4z" />
+                <path d="M3 15.5l1.5 1.5-1 1a.7.7 0 0 1-1-1l.5-1.5z" />
+            </g>
         </svg>
     );
 }

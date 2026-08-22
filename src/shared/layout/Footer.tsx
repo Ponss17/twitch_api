@@ -25,7 +25,7 @@ export function Footer({ isDashboard = false }: FooterProps) {
                     : 'shrink-0 border-t border-border-subtle py-6'
             }`}
         >
-            <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-2 px-6 text-[0.75rem] leading-none text-text-muted md:flex-row md:items-center md:justify-between md:gap-6">
+            <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-2 px-6 text-[0.75rem] text-text-muted md:flex-row md:items-center md:justify-between md:gap-6">
                 <p className="flex min-w-0 flex-1 items-center justify-center gap-1.5 font-medium text-text-main md:justify-start">
                     <span>
                         &copy; {year}{' '}
@@ -33,12 +33,12 @@ export function Footer({ isDashboard = false }: FooterProps) {
                     </span>
                 </p>
 
-                <p className="min-w-0 flex-1 text-center">
+                <p className="flex min-w-0 flex-1 items-center justify-center md:truncate md:whitespace-nowrap">
                     Creado para la comunidad. No afiliado con Twitch o Amazon.
                 </p>
 
                 <nav
-                    className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-x-3 gap-y-1 md:justify-end"
+                    className="flex min-w-0 flex-1 items-center justify-center gap-x-3 md:justify-end"
                     aria-label="Enlaces legales"
                 >
                     {LEGAL_LINKS.map((link, i) => (
