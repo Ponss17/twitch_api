@@ -26,7 +26,7 @@ jest.mock('@/core/utils/twitchAuthHelpers', () => ({
 }));
 
 jest.mock('@/core/utils/logger', () => ({
-    logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() }
+    logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }
 }));
 
 jest.mock('../../backend/src/features/integrations/streamelements.service', () => ({
