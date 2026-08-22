@@ -8,7 +8,6 @@ import { ApiTestCard, CommandGeneratorCard, FormField } from '../CommandGenerato
 import { fadeIn } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { Sheet } from '@/shared/ui/Sheet';
-import { Info } from 'lucide-react';
 import { toApiTestResult, followageErrorPattern } from '../lib/viewUtils';
 
 export function WatchtimeView() {
@@ -47,9 +46,8 @@ export function WatchtimeView() {
         <button
             type="button"
             onClick={() => setSheetOpen(true)}
-            className="flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[0.7rem] font-medium text-primary transition-colors hover:bg-primary/20"
+            className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[0.7rem] font-medium text-primary transition-colors hover:bg-primary/20"
         >
-            <Info className="h-3 w-3 shrink-0" />
             {viewT.watchtime.disclaimerTitle}
         </button>
     );
@@ -69,8 +67,7 @@ export function WatchtimeView() {
             >
                 <div className="space-y-6">
                     <div>
-                        <h3 className="mb-2 flex items-center gap-2 text-[0.85rem] font-semibold text-text-main">
-                            <Info className="h-4 w-4 text-primary" />
+                        <h3 className="mb-2 text-[0.85rem] font-semibold text-text-main">
                             {viewT.watchtime.disclaimerWhat}
                         </h3>
                         <p className="text-[0.8rem] leading-relaxed text-text-muted">
@@ -80,7 +77,7 @@ export function WatchtimeView() {
 
                     <div className="space-y-4">
                         <div className="flex gap-3">
-                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-border-subtle text-xs font-medium text-text-main">
+                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/[0.07] text-xs font-medium text-primary">
                                 1
                             </span>
                             <p className="mt-0.5 text-[0.8rem] leading-relaxed text-text-muted">
@@ -88,7 +85,7 @@ export function WatchtimeView() {
                             </p>
                         </div>
                         <div className="flex gap-3">
-                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-border-subtle text-xs font-medium text-text-main">
+                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/[0.07] text-xs font-medium text-primary">
                                 2
                             </span>
                             <p className="mt-0.5 text-[0.8rem] leading-relaxed text-text-muted">

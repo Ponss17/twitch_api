@@ -583,7 +583,8 @@ export const en: Translations = {
     },
     modals: {
         danger: {
-            typeToConfirm: (word: string): string => `Type "${word}" to confirm`,
+            typeToConfirmBefore: 'Type',
+            typeToConfirmAfter: 'to confirm',
             placeholder: 'Type here...',
             processing: 'Processing...',
             cancel: 'Cancel',
