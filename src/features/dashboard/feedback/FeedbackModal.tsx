@@ -1,11 +1,15 @@
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect, type ReactNode } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useSession } from '@/core/session/useSession';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { authHeaders, withApiCredentials } from '@/core/api/auth';
-import { modalBtnPrimary, modalBtnSecondary, textInput } from '@/core/utils/tw';
+import { inputLabel, modalBtnPrimary, modalBtnSecondary, textInput } from '@/core/utils/tw';
 import { Modal, ModalCloseButton } from '@/shared/ui/Modal';
+import { SelectField } from '@/shared/ui/SelectField';
+import { DiscordIcon } from '@/shared/ui/icons/BrandIcons';
+import { useOptionalDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
+import { staticPath } from '@/core/config/paths';
 
 export interface FeedbackModalProps {
     open: boolean;
@@ -15,8 +19,29 @@ export interface FeedbackModalProps {
 type FeedbackType = 'bug' | 'suggestion' | 'general';
 type FeedbackIdentity = 'twitch' | 'discord';
 
+function ContactAvatar({
+    src,
+    fallback
+}: {
+    src?: string | null;
+    fallback: ReactNode;
+}) {
+    if (src) {
+        return (
+            <img
+                src={src}
+                alt=""
+                className="size-3.5 rounded-full object-cover"
+                loading="lazy"
+            />
+        );
+    }
+    return <>{fallback}</>;
+}
+
 export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
     const { session } = useSession();
+    const panel = useOptionalDashboardPanel();
     const { t } = useTranslation();
     const fT = t.feedback;
 
@@ -37,16 +62,51 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
         setErrorMessage('');
     }, [open]);
 
-    const typeBtn = (active: boolean, activeClass: string) =>
-        `flex items-center justify-center rounded-xl border px-2 py-2.5 transition-all ${
-            active
-                ? activeClass
-                : 'border-border-strong bg-bg-secondary text-text-muted hover:bg-white/[0.02] hover:text-text-main'
-        }`;
+    const twitchAvatar =
+        session?.profile_image_url?.replace('300x300', '70x70') ?? staticPath('/img/logo.svg');
+    const discordLinked = Boolean(panel?.profile?.discordId);
+    const discordAvatar = panel?.profile?.discordAvatar?.replace('size=128', 'size=64') ?? null;
+
+    useEffect(() => {
+        if (!discordLinked && identity === 'discord') {
+            setIdentity('twitch');
+        }
+    }, [discordLinked, identity]);
+
+    const typeOptions = [
+        { value: 'general', label: fT.typeGeneral },
+        { value: 'suggestion', label: fT.typeIdea },
+        { value: 'bug', label: fT.typeBug }
+    ];
+
+    const identityOptions = [
+        {
+            value: 'twitch',
+            label: 'Twitch',
+            icon: <ContactAvatar src={twitchAvatar} fallback={null} />
+        },
+        {
+            value: 'discord',
+            label: 'Discord',
+            icon: (
+                <ContactAvatar
+                    src={discordLinked ? discordAvatar : null}
+                    fallback={<DiscordIcon className="size-3.5" />}
+                />
+            ),
+            disabled: !discordLinked,
+            title: discordLinked ? undefined : fT.discordRequiresLink
+        }
+    ];
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!message.trim()) return;
+        if (identity === 'discord' && !discordLinked) {
+            setStatus('error');
+            setErrorMessage(fT.discordRequiresLink);
+            return;
+        }
 
         setStatus('loading');
         setErrorMessage('');
@@ -123,72 +183,38 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                 <form id="feedback-modal-form" onSubmit={handleSubmit} className="space-y-4">
                     <p className="text-[0.8125rem] text-text-muted">{fT.desc}</p>
 
-                    <div className="space-y-2">
-                        <p className="text-[0.8125rem] font-medium text-text-main">{fT.typeLabel}</p>
-                        <div className="grid grid-cols-3 gap-2">
-                            <button
-                                type="button"
-                                onClick={() => setType('general')}
-                                className={typeBtn(
-                                    type === 'general',
-                                    'border-primary/40 bg-primary/10 text-primary'
-                                )}
-                            >
-                                <span className="text-[0.75rem] font-medium">{fT.typeGeneral}</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setType('suggestion')}
-                                className={typeBtn(
-                                    type === 'suggestion',
-                                    'border-success/40 bg-success/10 text-success'
-                                )}
-                            >
-                                <span className="text-[0.75rem] font-medium">{fT.typeIdea}</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setType('bug')}
-                                className={typeBtn(
-                                    type === 'bug',
-                                    'border-error/40 bg-error/10 text-error'
-                                )}
-                            >
-                                <span className="text-[0.75rem] font-medium">{fT.typeBug}</span>
-                            </button>
-                        </div>
+                    <div className="space-y-1.5">
+                        <label htmlFor="feedback-modal-type" className={inputLabel}>
+                            {fT.typeLabel}
+                        </label>
+                        <SelectField
+                            id="feedback-modal-type"
+                            aria-label={fT.typeLabel}
+                            value={type}
+                            options={typeOptions}
+                            className="!max-w-none w-full"
+                            onChange={(e) => setType(e.target.value as FeedbackType)}
+                        />
                     </div>
 
-                    <div className="space-y-2">
-                        <p className="text-[0.8125rem] font-medium text-text-main">{fT.contactBy}</p>
-                        <div className="flex rounded-lg border border-border-strong bg-bg-secondary p-1">
-                            <button
-                                type="button"
-                                onClick={() => setIdentity('twitch')}
-                                className={`flex-1 rounded-md py-1.5 text-[0.8125rem] font-medium transition ${
-                                    identity === 'twitch'
-                                        ? 'bg-bg-panel text-primary shadow-sm'
-                                        : 'text-text-muted hover:text-text-main'
-                                }`}
-                            >
-                                Twitch
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setIdentity('discord')}
-                                title={fT.discordRequiresLink}
-                                className={`flex-1 rounded-md py-1.5 text-[0.8125rem] font-medium transition ${
-                                    identity === 'discord'
-                                        ? 'bg-[#5865F2]/15 text-[#5865F2] shadow-sm'
-                                        : 'text-text-muted hover:text-text-main'
-                                }`}
-                            >
-                                Discord
-                            </button>
-                        </div>
-
+                    <div className="space-y-1.5">
+                        <label htmlFor="feedback-modal-contact" className={inputLabel}>
+                            {fT.contactBy}
+                        </label>
+                        <SelectField
+                            id="feedback-modal-contact"
+                            aria-label={fT.contactBy}
+                            value={identity}
+                            options={identityOptions}
+                            className="!max-w-none w-full"
+                            onChange={(e) => {
+                                const next = e.target.value as FeedbackIdentity;
+                                if (next === 'discord' && !discordLinked) return;
+                                setIdentity(next);
+                            }}
+                        />
                         {identity === 'twitch' && (
-                            <div>
+                            <div className="pt-1">
                                 <input
                                     type="text"
                                     placeholder={fT.discordOptionalPlaceholder}
@@ -203,11 +229,8 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                         )}
                     </div>
 
-                    <div className="space-y-2">
-                        <label
-                            htmlFor="feedback-modal-message"
-                            className="text-[0.8125rem] font-medium text-text-main"
-                        >
+                    <div className="space-y-1.5">
+                        <label htmlFor="feedback-modal-message" className={inputLabel}>
                             {fT.messageLabel}
                         </label>
                         <textarea

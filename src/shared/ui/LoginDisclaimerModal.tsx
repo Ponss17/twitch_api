@@ -4,6 +4,7 @@ import { legalPath } from '@/core/config/paths';
 import { modalBtnSecondary, modalBtnPrimary } from '@/core/utils/tw';
 import { Modal, ModalCloseButton } from '@/shared/ui/Modal';
 import { Loader2 } from 'lucide-react';
+import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface LoginDisclaimerModalProps {
@@ -41,7 +42,10 @@ export function LoginDisclaimerModal({ open, onClose }: LoginDisclaimerModalProp
                                 {mT.validating}
                             </>
                         ) : (
-                            mT.accept
+                            <>
+                                <TwitchIcon className="h-4 w-4" aria-hidden="true" />
+                                {mT.accept}
+                            </>
                         )}
                     </button>
                     <ModalCloseButton className={modalBtnSecondary} disabled={loading}>

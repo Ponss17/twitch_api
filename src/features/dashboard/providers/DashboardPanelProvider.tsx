@@ -29,6 +29,10 @@ export function useDashboardPanel(): DashboardPanelContextValue {
     return ctx;
 }
 
+export function useOptionalDashboardPanel(): DashboardPanelContextValue | null {
+    return useContext(DashboardPanelContext);
+}
+
 interface DashboardPanelProviderProps {
     active: boolean;
     prioritySync?: boolean;

@@ -4,6 +4,7 @@ import { Menu } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { Translations } from '@/core/i18n/locales/es';
 import { NotificationsBell } from '@/features/dashboard/announcements/NotificationsBell';
+import { FeedbackWidget } from '@/features/dashboard/feedback/FeedbackWidget';
 
 interface DashboardHeaderProps {
     tab: DashboardTab;
@@ -52,6 +53,7 @@ export function DashboardHeader({
                 </div>
 
                 <div className="flex items-center gap-2">
+                    <FeedbackWidget />
                     <NotificationsBell />
                 </div>
             </div>

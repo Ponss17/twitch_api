@@ -629,7 +629,8 @@ export const es = {
             viewHistory: 'Ver historial del chat'
         },
         danger: {
-            typeToConfirm: (word: string): string => `Escribe "${word}" para confirmar`,
+            typeToConfirmBefore: 'Escribe',
+            typeToConfirmAfter: 'para confirmar',
             placeholder: 'Escribe aquí...',
             processing: 'Procesando...',
             cancel: 'Cancelar',

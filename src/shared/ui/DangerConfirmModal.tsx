@@ -5,6 +5,7 @@ import {
     btnIcon,
     modalBtnSecondary,
     modalBtnPrimary,
+    confirmWordBadge,
     dangerInput,
     dangerInputGroup,
     dangerInputLabel,
@@ -181,7 +182,9 @@ export function DangerConfirmModal({
                         {children}
                         <div className={dangerInputGroup}>
                             <label htmlFor="danger-modal-confirm" className={dangerInputLabel}>
-                                {dT.typeToConfirm(confirmWord)}
+                                {dT.typeToConfirmBefore}{' '}
+                                <span className={confirmWordBadge}>&quot;{confirmWord}&quot;</span>{' '}
+                                {dT.typeToConfirmAfter}
                             </label>
                             <input
                                 id="danger-modal-confirm"

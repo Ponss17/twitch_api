@@ -135,7 +135,7 @@ export function SettingsAuditLogs({ active, refreshEpoch, timezone }: SettingsAu
                                     return (
                                         <div
                                             key={`${row.createdAt}-${row.action}-${index}`}
-                                            className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3"
+                                            className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 transition-colors hover:bg-white/[0.02]"
                                         >
                                             <div className="min-w-0">
                                                 <div className="truncate text-[0.875rem] font-medium text-text-main">
@@ -149,12 +149,14 @@ export function SettingsAuditLogs({ active, refreshEpoch, timezone }: SettingsAu
                                             </div>
                                             <div className="shrink-0 whitespace-nowrap text-right">
                                                 {relative ? (
-                                                    <div className="text-[0.78rem] text-text-muted">
+                                                    <span className="inline-block rounded px-1.5 py-px text-[0.75rem] font-medium text-text-main bg-white/[0.04] border border-border-subtle">
                                                         {relative}
-                                                    </div>
+                                                    </span>
                                                 ) : null}
                                                 {absolute ? (
-                                                    <div className="text-[0.72rem] tabular-nums text-text-muted">
+                                                    <div
+                                                        className={`text-[0.72rem] tabular-nums text-text-muted ${relative ? 'mt-1' : ''}`}
+                                                    >
                                                         {absolute}
                                                     </div>
                                                 ) : null}
