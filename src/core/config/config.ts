@@ -88,8 +88,7 @@ export type DashboardTab =
     | 'duel'
     | 'slots'
     | 'questions'
-    | 'settings'
-    | 'feedback';
+    | 'settings';
 
 export interface Session {
     token?: string;

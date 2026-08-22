@@ -13,7 +13,7 @@ import {
 import { DiscordIcon, TwitchIcon } from '@/shared/ui/icons/BrandIcons';
 import { AppLogo } from '@/shared/ui/AppLogo';
 import { IconMd } from '@/shared/ui/Icon';
-import { Book, Heart, LogOut, MessageSquare, Settings } from 'lucide-react';
+import { Book, Heart, LogOut, Settings } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
 import {
@@ -207,15 +207,6 @@ export function Sidebar({
                                 {t.header.supportProject}
                             </DropdownLink>
                             <DropdownDivider />
-                            <DropdownItem
-                                onClick={() => {
-                                    onChange('feedback');
-                                    onClose();
-                                }}
-                            >
-                                <MessageSquare className="w-4 text-center" />
-                                {t.sidebar.items.feedback}
-                            </DropdownItem>
                             <DropdownLink href={appPath('/docs')} onClick={saveDocsReturnPath}>
                                 <Book className="w-4 text-center" />
                                 {t.sidebar.docs}

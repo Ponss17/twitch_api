@@ -10,7 +10,6 @@ import {
     Binoculars,
     Dices,
     Swords,
-    MessageSquare,
     BarChart3,
     Clock,
     MessageCircleQuestion
@@ -38,8 +37,7 @@ export const NAV_ITEMS: NavItem[] = [
     { id: 'magic8', label: 'Bola 8', icon: MAGIC8_ICON, category: 'minigames' },
     { id: 'russian', label: 'Ruleta Rusa', icon: RUSSIAN_ICON, category: 'minigames' },
     { id: 'duel', label: 'Duelo', icon: Swords, category: 'minigames' },
-    { id: 'slots', label: 'Slots', icon: SLOTS_ICON, category: 'minigames' },
-    { id: 'feedback', label: 'Feedback', icon: MessageSquare, category: 'support' }
+    { id: 'slots', label: 'Slots', icon: SLOTS_ICON, category: 'minigames' }
 ];
 
 export const TAB_META: Record<DashboardTab, { title: string; icon: LucideIcon }> = Object.fromEntries(

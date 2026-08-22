@@ -94,8 +94,7 @@ const DASHBOARD_TAB_SLUGS = new Set([
     'duel',
     'slots',
     'questions',
-    'settings',
-    'feedback'
+    'settings'
 ]);
 
 /** @param {string} path */
