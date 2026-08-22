@@ -3,6 +3,7 @@ import { CONFIG } from '../../core/config/env';
 import { TwitchUser, StoredUser } from '../../types/twitch';
 import * as dbService from '../../core/database/dbService';
 import * as cacheService from '../../core/database/cacheService';
+import { supabase } from '../../core/database/supabaseClient';
 import crypto from 'crypto';
 import { logger } from '../../core/utils/logger';
 import { AppError } from '../../core/errors/AppError';
@@ -159,8 +160,25 @@ export const handleCallback = async (
     }
 
     const nowIso = new Date().toISOString();
-    // Primer ingreso: solo en el alta. En re-login no se manda created_at al upsert.
-    const isExisting = Boolean(existingUser);
+    // Primer ingreso: solo en el alta.
+    // Si getUser falló (p.ej. por error de descifrado) pero el usuario existe en DB,
+    // igualmente lo tratamos como existente para no sobreescribir created_at, apiKey ni Discord.
+    let isExisting = Boolean(existingUser);
+    let rawFallbackRow: Record<string, unknown> | null = null;
+    if (!isExisting) {
+        const { data: existsRow } = await supabase
+            .from('users')
+            .select('user_id, api_key, discord_id, discord_username, discord_avatar, discord_linked_at, discord_updated_at')
+            .eq('user_id', user.id)
+            .maybeSingle();
+        if (existsRow) {
+            isExisting = true;
+            rawFallbackRow = existsRow as Record<string, unknown>;
+            // BUG-2: preservar apiKey existente (encriptada) sin regenerarla
+            if (existsRow.api_key) apiKey = existsRow.api_key as string;
+            logger.warn(`Re-login sin descifrado exitoso para ${user.login} (${user.id}): preservando datos críticos desde fila raw.`);
+        }
+    }
     const createdAt = isExisting ? undefined : nowIso;
     // Último ingreso previo en UI = lastActive anterior; al loguear guardamos este login.
     const previousLastActive = existingUser?.lastActive;
@@ -184,16 +202,14 @@ export const handleCallback = async (
         role: isExisting ? existingUser?.role : DEFAULT_USER_ROLE,
         stats: existingUser?.stats,
         totalRequests: existingUser?.totalRequests,
-        // Conserva el lastActive previo para "Último Ingreso Previo" hasta el próximo bump.
-        // Si no había, marca este login.
         lastActive: previousLastActive ?? nowIso,
         timezone: (existingUser?.timezone && existingUser.timezone !== 'UTC') ? existingUser.timezone : ((decodedState?.tz as string) || 'UTC'),
-        // Preservar vínculo Discord: un re-login Twitch no debe desvincular.
-        discordId: existingUser?.discordId ?? null,
-        discordUsername: existingUser?.discordUsername ?? null,
-        discordAvatar: existingUser?.discordAvatar ?? null,
-        discordLinkedAt: existingUser?.discordLinkedAt ?? null,
-        discordUpdatedAt: existingUser?.discordUpdatedAt ?? null
+        // BUG-4: Preservar vínculo Discord — si getUser falló, usar rawFallbackRow
+        discordId: existingUser?.discordId ?? (rawFallbackRow?.discord_id as string | null) ?? null,
+        discordUsername: existingUser?.discordUsername ?? (rawFallbackRow?.discord_username as string | null) ?? null,
+        discordAvatar: existingUser?.discordAvatar ?? (rawFallbackRow?.discord_avatar as string | null) ?? null,
+        discordLinkedAt: existingUser?.discordLinkedAt ?? (rawFallbackRow?.discord_linked_at as string | null) ?? null,
+        discordUpdatedAt: existingUser?.discordUpdatedAt ?? (rawFallbackRow?.discord_updated_at as string | null) ?? null
     };
 
     if (!refresh_token) {

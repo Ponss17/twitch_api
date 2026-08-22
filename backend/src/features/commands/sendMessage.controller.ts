@@ -5,12 +5,16 @@ import { MESSAGES } from '../../core/config/messages';
 import { AuthenticatedRequest } from '../../types/twitch';
 import { withTwitchAuth } from '../../core/utils/twitchAuthHelpers';
 import { trackRequest } from '../../core/utils/tracking';
+import { safeString } from '../../core/utils/validationHelpers';
 
 export const sendMessage = async (req: AuthenticatedRequest, res: Response) => {
-    const message = req.body.message as string;
+    const message = safeString(req.body?.message);
     const userId = req.userId;
 
     if (!userId) return res.status(401).send(MESSAGES.SYSTEM.USER_NOT_FOUND);
+    if (!message || message.trim().length === 0 || message.length > 500) {
+        return res.status(400).json({ error: 'Mensaje inválido o demasiado largo (máx. 500 caracteres).' });
+    }
 
     const actorLogin =
         req.login ||

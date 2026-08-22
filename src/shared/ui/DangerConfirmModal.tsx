@@ -139,8 +139,12 @@ export function DangerConfirmModal({
             window.setTimeout(() => setShake(false), 500);
             return;
         }
-        await onConfirm();
-        handleClose();
+        try {
+            await onConfirm();
+            handleClose();
+        } catch {
+            // el toast ya muestra el error; dejar el modal abierto
+        }
     };
 
     return (
