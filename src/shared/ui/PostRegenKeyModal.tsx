@@ -1,4 +1,3 @@
-import { Copy, Check, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
 import { modalBtnPrimary } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
@@ -29,20 +28,9 @@ export function PostRegenKeyModal({ open, apiKey, onClose }: PostRegenKeyModalPr
             open={open}
             onClose={onClose}
             title={pT.title}
-            titleIcon={ShieldAlert}
             footer={
                 <button type="button" className={modalBtnPrimary} onClick={() => void handleCopy()}>
-                    {copied ? (
-                        <>
-                            <Check className="h-4 w-4" aria-hidden="true" />
-                            {pT.copied}
-                        </>
-                    ) : (
-                        <>
-                            <Copy className="h-4 w-4" aria-hidden="true" />
-                            {pT.copy}
-                        </>
-                    )}
+                    {copied ? pT.copied : pT.copy}
                 </button>
             }
         >
@@ -50,14 +38,8 @@ export function PostRegenKeyModal({ open, apiKey, onClose }: PostRegenKeyModalPr
                 <strong>{pT.desc1}</strong>
             </p>
             <ul>
-                <li>
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                    {pT.point1}
-                </li>
-                <li>
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                    {pT.point2}
-                </li>
+                <li>{pT.point1}</li>
+                <li>{pT.point2}</li>
             </ul>
             <code className="mt-1 block break-all rounded-lg border border-border-subtle bg-black/40 px-3 py-2.5 font-mono text-sm text-[#c4b5fd]">
                 {apiKey}

@@ -3,8 +3,7 @@ import { startTwitchLogin } from '@/core/api/auth';
 import { legalPath } from '@/core/config/paths';
 import { modalBtnSecondary, modalBtnPrimary } from '@/core/utils/tw';
 import { Modal, ModalCloseButton } from '@/shared/ui/Modal';
-import { Loader2, Check, Shield } from 'lucide-react';
-import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
+import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface LoginDisclaimerModalProps {
@@ -31,27 +30,23 @@ export function LoginDisclaimerModal({ open, onClose }: LoginDisclaimerModalProp
             open={open}
             onClose={onClose}
             title={mT.title}
-            titleIcon={Shield}
             closeOnBackdrop={!loading}
             closeDisabled={loading}
             footer={
                 <>
-                    <ModalCloseButton className={modalBtnSecondary} disabled={loading}>
-                        {mT.cancel}
-                    </ModalCloseButton>
                     <button type="button" className={modalBtnPrimary} disabled={loading} onClick={handleConfirm}>
                         {loading ? (
                             <>
-                                <Loader2 className="animate-spin" />
+                                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                                 {mT.validating}
                             </>
                         ) : (
-                            <>
-                                <TwitchIcon className="w-5" aria-hidden="true" />
-                                {mT.accept}
-                            </>
+                            mT.accept
                         )}
                     </button>
+                    <ModalCloseButton className={modalBtnSecondary} disabled={loading}>
+                        {mT.cancel}
+                    </ModalCloseButton>
                 </>
             }
         >
@@ -61,19 +56,10 @@ export function LoginDisclaimerModal({ open, onClose }: LoginDisclaimerModalProp
                 {mT.desc1End}
             </p>
             <p>{mT.desc2}</p>
-            <ul className="my-4 space-y-2">
-                <li className="flex items-start gap-2">
-                    <Check className="mt-1 h-4 w-4 shrink-0 text-primary" />
-                    {mT.point1}
-                </li>
-                <li className="flex items-start gap-2">
-                    <Check className="mt-1 h-4 w-4 shrink-0 text-primary" />
-                    {mT.point2}
-                </li>
-                <li className="flex items-start gap-2">
-                    <Check className="mt-1 h-4 w-4 shrink-0 text-primary" />
-                    {mT.point3}
-                </li>
+            <ul className="my-4">
+                <li>{mT.point1}</li>
+                <li>{mT.point2}</li>
+                <li>{mT.point3}</li>
             </ul>
             <p className="text-sm opacity-80">{mT.disclaimer}</p>
             <p className="text-sm">
