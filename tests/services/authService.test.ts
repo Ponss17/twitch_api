@@ -4,6 +4,18 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     saveUser: jest.fn()
 }));
 
+jest.mock('../../backend/src/core/database/supabaseClient', () => ({
+    supabase: {
+        from: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
+        insert: jest.fn().mockReturnThis(),
+        update: jest.fn().mockReturnThis(),
+        delete: jest.fn().mockReturnThis()
+    }
+}));
+
 jest.mock('axios', () => {
     const mockAxios = {
         post: jest.fn(),
