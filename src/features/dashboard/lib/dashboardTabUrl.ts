@@ -24,13 +24,13 @@ const VALID_TABS: ReadonlySet<DashboardTab> = new Set([
     'duel',
     'slots',
     'questions',
-    'settings',
-    'feedback'
+    'settings'
 ]);
 
 /** Pestañas antiguas → id actual. */
 const LEGACY_TAB_MAP: Record<string, DashboardTab> = {
-    giveaway: 'questions'
+    giveaway: 'questions',
+    feedback: 'home'
 };
 
 function resolveLegacyTab(value: string | null | undefined): DashboardTab | null {

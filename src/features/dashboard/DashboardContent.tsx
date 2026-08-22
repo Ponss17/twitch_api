@@ -44,9 +44,6 @@ const RussianView = lazy(() =>
 const SlotsView = lazy(() =>
     import('@/features/minigames/views/SlotsView').then((m) => ({ default: m.SlotsView }))
 );
-const FeedbackView = lazy(() =>
-    import('@/features/feedback/FeedbackView').then((m) => ({ default: m.FeedbackView }))
-);
 const TrendsView = lazy(() =>
     import('@/features/tools/trends/TrendsView').then((m) => ({ default: m.TrendsView }))
 );
@@ -108,8 +105,6 @@ function renderTabPanel(tab: DashboardTab, { active, onNavigate }: TabPanelProps
             return <SlotsView />;
         case 'questions':
             return <QuestionsView active={active} />;
-        case 'feedback':
-            return <FeedbackView />;
         case 'trends':
             return <TrendsView active={active} />;
         case 'stalker':

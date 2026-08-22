@@ -178,7 +178,7 @@ export function AboutPage() {
                                 <div className="group border-l-2 border-border-subtle pl-6 transition-colors hover:border-primary/50">
                                     <h4 className="mb-2 text-xs font-bold tracking-[0.15em] text-text-muted uppercase transition-colors group-hover:text-text-main">Crecimiento Orgánico</h4>
                                     <p className="text-[0.95rem] text-text-muted leading-relaxed">
-                                        Al ser un proyecto para ayudar, siempre estoy abierto a escuchar ideas. Si alguien necesita una función nueva para su chat, me lo puede comentar por Discord o por la seccion de feedback del dashboard e intento agregarlo poco a poco si lo veo conveniente.
+                                        Al ser un proyecto para ayudar, siempre estoy abierto a escuchar ideas. Si alguien necesita una función nueva para su chat, me lo puede comentar por Discord o con el botón de feedback del panel e intento agregarlo poco a poco si lo veo conveniente.
                                     </p>
                                 </div>
                             </div>
