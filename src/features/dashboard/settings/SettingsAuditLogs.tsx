@@ -75,7 +75,6 @@ export function SettingsAuditLogs({ active, refreshEpoch, timezone }: SettingsAu
                 open={open}
                 onClose={() => setOpen(false)}
                 title={gT.title}
-                titleIconNode={null}
                 footer={
                     showPagination ? (
                         <div className="flex w-full items-center justify-center gap-1">

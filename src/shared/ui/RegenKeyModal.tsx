@@ -1,6 +1,6 @@
-import { Loader2, Check, KeyRound } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { btnDanger, modalBtnSecondary } from '@/core/utils/tw';
+import { modalBtnPrimary, modalBtnSecondary } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { Modal, ModalCloseButton, useModalClose } from './ModalShell';
 
@@ -20,22 +20,15 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
             open={open}
             onClose={onClose}
             title={rT.title}
-            titleIcon={KeyRound}
             footer={<RegenKeyActions loading={loading} setLoading={setLoading} onConfirm={onConfirm} />}
         >
             <p className="mb-3 text-[0.9rem] text-text-muted">
                 {rT.prefixWarning} <strong>{rT.warning}</strong>.
             </p>
             <p>{rT.desc1}</p>
-            <ul className="my-3 space-y-2">
-                <li className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                    <span>{rT.point1}</span>
-                </li>
-                <li className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                    <span>{rT.point2}</span>
-                </li>
+            <ul className="my-3">
+                <li>{rT.point1}</li>
+                <li>{rT.point2}</li>
             </ul>
             <p className="text-sm opacity-80">{rT.disclaimer}</p>
         </Modal>
@@ -67,17 +60,14 @@ function RegenKeyActions({
 
     return (
         <>
-            <button type="button" className={btnDanger} disabled={loading} onClick={() => void handleConfirm()}>
+            <button type="button" className={modalBtnPrimary} disabled={loading} onClick={() => void handleConfirm()}>
                 {loading ? (
                     <>
-                        <Loader2 className="animate-spin" aria-hidden="true" />
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                         {rT.regenerating}
                     </>
                 ) : (
-                    <>
-                        <KeyRound className="h-4 w-4" aria-hidden="true" />
-                        {rT.confirm}
-                    </>
+                    rT.confirm
                 )}
             </button>
             <ModalCloseButton className={modalBtnSecondary} disabled={loading}>
