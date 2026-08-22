@@ -249,15 +249,15 @@ export function DiscordResultModal({ open, kind, onClose }: DiscordResultModalPr
             }
         >
             <p>{lead}</p>
-            <ul>
+            <ul className="my-4 space-y-2">
                 {points.map((point) => (
-                    <li key={point}>
+                    <li key={point} className="flex items-start gap-2">
                         {isError ? (
                             <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" aria-hidden="true" />
                         ) : (
                             <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" aria-hidden="true" />
                         )}
-                        {point}
+                        <span>{point}</span>
                     </li>
                 ))}
             </ul>

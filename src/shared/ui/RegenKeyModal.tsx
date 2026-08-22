@@ -23,24 +23,18 @@ export function RegenKeyModal({ open, onClose, onConfirm }: RegenKeyModalProps) 
             titleIcon={KeyRound}
             footer={<RegenKeyActions loading={loading} setLoading={setLoading} onConfirm={onConfirm} />}
         >
-            <div className="mb-4 flex items-start gap-3">
-                <KeyRound className="h-5 w-5 text-warning" />
-                <div className="text-center sm:text-left">
-                    <p className="text-lg font-bold text-white">{rT.title}</p>
-                    <p className="mt-1 text-[0.9rem] text-text-muted">
-                        {rT.prefixWarning} <strong>{rT.warning}</strong>.
-                    </p>
-                </div>
-            </div>
+            <p className="mb-3 text-[0.9rem] text-text-muted">
+                {rT.prefixWarning} <strong>{rT.warning}</strong>.
+            </p>
             <p>{rT.desc1}</p>
-            <ul>
-                <li>
+            <ul className="my-3 space-y-2">
+                <li className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                    {rT.point1}
+                    <span>{rT.point1}</span>
                 </li>
-                <li>
+                <li className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                    {rT.point2}
+                    <span>{rT.point2}</span>
                 </li>
             </ul>
             <p className="text-sm opacity-80">{rT.disclaimer}</p>

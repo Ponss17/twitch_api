@@ -119,7 +119,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         typeof result === 'string' && result.trim()
             ? result.trim()
             : followagePlainText(result);
-    logger.warn('Followage respuesta', {
+    logger.debug('Followage respuesta', {
         channel,
         user,
         bodyPreview: body.slice(0, 180)

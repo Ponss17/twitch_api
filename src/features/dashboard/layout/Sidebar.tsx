@@ -153,7 +153,7 @@ export function Sidebar({
                     })}
                 </nav>
 
-                <div className="shrink-0 border-t border-border-subtle px-2.5 py-2">
+                <div className="flex h-[4.25rem] shrink-0 items-center border-t border-border-subtle px-2.5">
                     <Dropdown className="relative w-full">
                         <DropdownTrigger
                             aria-label={t.header.accountMenu}
