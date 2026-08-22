@@ -74,9 +74,9 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
             setTimeout(() => {
                 onClose();
             }, 2500);
-        } catch (error: any) {
+        } catch (error: unknown) {
             setStatus('error');
-            setErrorMessage(error.message || 'Ocurrió un error inesperado');
+            setErrorMessage(error instanceof Error ? error.message : 'Ocurrió un error inesperado');
         }
     };
 
