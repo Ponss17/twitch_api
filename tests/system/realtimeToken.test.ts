@@ -9,7 +9,7 @@ jest.mock('@/core/utils/logger', () => ({
 jest.mock('@/core/database/dbService', () => ({}));
 
 jest.mock('@/core/config/env', () => ({
-    CONFIG: { SUPABASE_JWT_SECRET: 'test-secret' }
+    CONFIG: { SUPABASE_URL: 'https://test.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'test_key', SUPABASE_JWT_SECRET: 'test-secret' }
 }));
 
 jest.mock('jsonwebtoken', () => ({
