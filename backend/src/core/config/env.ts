@@ -101,8 +101,8 @@ const envVars = {
     BASE_URL:
         resolveProductionUrl(process.env.BASE_URL, 'BASE_URL') ||
         (isTest ? 'http://localhost' : undefined),
-    SUPABASE_URL: process.env.SUPABASE_URL,
-    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    SUPABASE_URL: process.env.SUPABASE_URL || (isTest ? 'https://test.supabase.co' : undefined),
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || (isTest ? 'test_service_key' : undefined),
     SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || (isTest ? 'test_anon' : undefined),
     SUPABASE_JWT_SECRET:
         process.env.SUPABASE_JWT_SECRET ||
