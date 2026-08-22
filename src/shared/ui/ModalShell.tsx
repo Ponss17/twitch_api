@@ -1,4 +1,3 @@
-import { AlertTriangle } from 'lucide-react';
 import {
     useEffect,
     useId,
@@ -60,9 +59,10 @@ interface ModalProps {
     open: boolean;
     onClose: () => void;
     title: string;
+    /** Opcional; por defecto los modales van sin icono de título. */
     titleIcon?: LucideIcon;
-    /** Icono custom (p. ej. Discord). `null` oculta el icono. */
-    titleIconNode?: ReactNode;
+    /** Icono custom. `null` o omitido = sin icono. */
+    titleIconNode?: ReactNode | null;
     titleBadge?: string;
     children: ReactNode;
     footer?: ReactNode;
@@ -226,7 +226,7 @@ export function Modal({
     open,
     onClose,
     title,
-    titleIcon: TitleIcon = AlertTriangle,
+    titleIcon,
     titleIconNode,
     titleBadge,
     children,
@@ -247,7 +247,7 @@ export function Modal({
             <ModalChrome
                 titleId={titleId}
                 title={title}
-                TitleIcon={TitleIcon}
+                titleIcon={titleIcon}
                 titleIconNode={titleIconNode}
                 titleBadge={titleBadge}
                 footer={footer}
@@ -263,7 +263,7 @@ export function Modal({
 function ModalChrome({
     titleId,
     title,
-    TitleIcon,
+    titleIcon: TitleIcon,
     titleIconNode,
     titleBadge,
     children,
@@ -273,8 +273,8 @@ function ModalChrome({
 }: {
     titleId: string;
     title: string;
-    TitleIcon: LucideIcon;
-    titleIconNode?: ReactNode;
+    titleIcon?: LucideIcon;
+    titleIconNode?: ReactNode | null;
     titleBadge?: string;
     children: ReactNode;
     footer?: ReactNode;
@@ -285,13 +285,18 @@ function ModalChrome({
     const closeFromContext = useContext(ModalCloseContext);
     const handleClose = closeFromContext ?? fallbackClose;
 
+    const titleIconEl =
+        titleIconNode !== undefined && titleIconNode !== null
+            ? titleIconNode
+            : TitleIcon
+              ? <TitleIcon className={modalTitleIcon} aria-hidden="true" />
+              : null;
+
     return (
         <>
             <div className={modalHeader}>
                 <h3 id={titleId} className={modalTitle}>
-                    {titleIconNode !== undefined
-                        ? titleIconNode
-                        : <TitleIcon className={modalTitleIcon} aria-hidden="true" />}
+                    {titleIconEl}
                     {title}
                     {titleBadge ? (
                         <span className="rounded-md border border-primary/35 bg-primary/15 px-1.5 py-0.5 text-[0.625rem] font-bold tracking-wide text-primary">

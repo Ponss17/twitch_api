@@ -1,13 +1,5 @@
 import { useState, FormEvent, useEffect } from 'react';
-import {
-    Send,
-    AlertCircle,
-    CheckCircle2,
-    MessageSquare,
-    Bug,
-    Lightbulb,
-    Loader2
-} from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useSession } from '@/core/session/useSession';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { API_ENDPOINTS } from '@/core/config/config';
@@ -46,7 +38,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
     }, [open]);
 
     const typeBtn = (active: boolean, activeClass: string) =>
-        `flex flex-col items-center justify-center rounded-xl border px-1 py-2 transition-all ${
+        `flex items-center justify-center rounded-xl border px-2 py-2.5 transition-all ${
             active
                 ? activeClass
                 : 'border-border-strong bg-bg-secondary text-text-muted hover:bg-white/[0.02] hover:text-text-main'
@@ -96,14 +88,10 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
             open={open}
             onClose={onClose}
             title={fT.title}
-            titleIcon={MessageSquare}
             closeDisabled={status === 'loading'}
             footer={
                 status === 'success' ? undefined : (
                     <>
-                        <ModalCloseButton className={modalBtnSecondary} disabled={status === 'loading'}>
-                            {t.common.cancel}
-                        </ModalCloseButton>
                         <button
                             type="submit"
                             form="feedback-modal-form"
@@ -116,21 +104,18 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                                     {fT.btnSending}
                                 </>
                             ) : (
-                                <>
-                                    <Send className="size-4" aria-hidden />
-                                    {fT.btnSend}
-                                </>
+                                fT.btnSend
                             )}
                         </button>
+                        <ModalCloseButton className={modalBtnSecondary} disabled={status === 'loading'}>
+                            {t.common.cancel}
+                        </ModalCloseButton>
                     </>
                 )
             }
         >
             {status === 'success' ? (
-                <div className="flex flex-col items-center py-4 text-center">
-                    <div className="mb-3 flex size-14 items-center justify-center rounded-full bg-success/10 text-success">
-                        <CheckCircle2 className="size-7" aria-hidden />
-                    </div>
+                <div className="py-6 text-center">
                     <h4 className="mb-1 text-[1rem] font-semibold text-text-main">{fT.successTitle}</h4>
                     <p className="text-[0.8125rem] text-text-muted">{fT.successBody}</p>
                 </div>
@@ -149,8 +134,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                                     'border-primary/40 bg-primary/10 text-primary'
                                 )}
                             >
-                                <MessageSquare className="mb-1 size-5" aria-hidden />
-                                <span className="text-[0.7rem] font-medium">{fT.typeGeneral}</span>
+                                <span className="text-[0.75rem] font-medium">{fT.typeGeneral}</span>
                             </button>
                             <button
                                 type="button"
@@ -160,8 +144,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                                     'border-success/40 bg-success/10 text-success'
                                 )}
                             >
-                                <Lightbulb className="mb-1 size-5" aria-hidden />
-                                <span className="text-[0.7rem] font-medium">{fT.typeIdea}</span>
+                                <span className="text-[0.75rem] font-medium">{fT.typeIdea}</span>
                             </button>
                             <button
                                 type="button"
@@ -171,8 +154,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                                     'border-error/40 bg-error/10 text-error'
                                 )}
                             >
-                                <Bug className="mb-1 size-5" aria-hidden />
-                                <span className="text-[0.7rem] font-medium">{fT.typeBug}</span>
+                                <span className="text-[0.75rem] font-medium">{fT.typeBug}</span>
                             </button>
                         </div>
                     </div>
@@ -241,9 +223,8 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                     </div>
 
                     {status === 'error' && (
-                        <div className="flex items-center gap-2 rounded-lg bg-error/10 px-3 py-2 text-[0.8125rem] text-error">
-                            <AlertCircle className="size-4 shrink-0" aria-hidden />
-                            <span>{errorMessage}</span>
+                        <div className="rounded-lg bg-error/10 px-3 py-2 text-[0.8125rem] text-error">
+                            {errorMessage}
                         </div>
                     )}
                 </form>

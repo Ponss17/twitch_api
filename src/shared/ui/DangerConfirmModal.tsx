@@ -1,15 +1,15 @@
-import { AlertTriangle, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useEffect, useId, useRef, useState, useCallback, type ReactNode } from 'react';
-import { X, Trash2 } from 'lucide-react';
+import { X } from 'lucide-react';
 import {
     btnIcon,
     modalBtnSecondary,
+    modalBtnPrimary,
     dangerInput,
     dangerInputGroup,
     dangerInputLabel,
     dangerModalHeader,
     dangerModalPanel,
-    dangerModalTitleIcon,
     dialogBase,
     modalBody,
     modalFooter,
@@ -163,8 +163,7 @@ export function DangerConfirmModal({
                 >
                     <div className={dangerModalHeader}>
                         <h3 id={titleId} className={modalTitle}>
-                            <AlertTriangle className={dangerModalTitleIcon} aria-hidden="true" />
-                            <span>{title}</span>
+                            {title}
                         </h3>
                         <button
                             type="button"
@@ -206,19 +205,16 @@ export function DangerConfirmModal({
                         <button
                             type="button"
                             disabled={!ready || loading}
-                            className="flex w-full items-center justify-center gap-2 rounded-lg bg-error px-4 py-2 font-medium text-white transition hover:bg-error/90 disabled:opacity-50 sm:w-auto"
+                            className={modalBtnPrimary}
                             onClick={() => void handleSubmit()}
                         >
                             {loading ? (
                                 <>
-                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                                     {dT.processing}
                                 </>
                             ) : (
-                                <>
-                                    <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
-                                    {finalConfirmLabel}
-                                </>
+                                finalConfirmLabel
                             )}
                         </button>
                         <button type="button" className={modalBtnSecondary} disabled={loading} onClick={handleClose}>

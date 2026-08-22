@@ -87,10 +87,11 @@ export const modalTitle = 'm-0 flex items-center gap-2.5 text-[1.15rem] font-bol
 export const modalTitleIcon = 'text-primary';
 
 export const modalBody =
-    'px-6 py-2 text-[0.85rem] leading-relaxed text-text-muted [&_p]:mb-4 [&_p:last-child]:mb-0 [&_strong]:text-text-main [&_ul]:my-4 [&_ul]:list-none [&_ul]:space-y-3 [&_ul]:pl-0 [&_li]:flex [&_li]:items-start [&_li]:gap-3 [&_li_svg]:mt-0.5 [&_li_svg]:shrink-0';
+    'px-6 py-2 text-[0.85rem] leading-relaxed text-text-muted [&_p]:mb-4 [&_p:last-child]:mb-0 [&_strong]:text-text-main [&_ul]:my-4 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5';
 
+/** Primary primero en el DOM → queda a la izquierda. */
 export const modalFooter =
-    'mt-2 flex flex-row-reverse gap-3 px-6 pt-4 pb-6 bg-bg-secondary border-t border-border-subtle';
+    'mt-2 flex gap-3 px-6 pt-4 pb-6 bg-bg-secondary border-t border-border-subtle';
 
 const modalBtnBase =
     'inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[0.8125rem] font-semibold outline-none transition disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-card';
