@@ -8,7 +8,7 @@ jest.mock('../../backend/src/features/twitch/twitchClient', () => ({
 }));
 
 jest.mock('../../backend/src/core/config/env', () => ({
-    CONFIG: {
+    CONFIG: { SUPABASE_URL: 'https://test.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'test_key',
         TWITCH_CLIENT_SECRET: 'test-secret-for-hmac',
         HMAC_SIGNING_SECRET: undefined,
         DISCORD_CLIENT_ID: 'discord-client',
