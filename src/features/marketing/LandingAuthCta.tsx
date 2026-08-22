@@ -43,6 +43,7 @@ export function LandingAuthCta({
                 href={appPath('/dashboard/')}
                 className={`${shell} lp-auth-cta__session col-start-1 row-start-1`}
                 data-lp-auth="session"
+                aria-label="Panel de control"
             >
                 {sessionInner}
             </a>
@@ -51,6 +52,7 @@ export function LandingAuthCta({
                 onClick={onLoginClick}
                 className={`${shell} lp-auth-cta__guest col-start-1 row-start-1`}
                 data-lp-auth="guest"
+                aria-label={guestLabel}
             >
                 {guestInner}
             </button>
