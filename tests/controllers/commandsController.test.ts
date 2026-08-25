@@ -200,6 +200,29 @@ describe('commandsController', () => {
                 })
             );
         });
+
+        it('atribuye anuncios del panel a la feature (source)', async () => {
+            const req = mockReq({
+                body: { message: 'Ganador: Alice', source: 'roulette' }
+            });
+            const res = mockRes();
+
+            (apiService.sendChatMessage as jest.Mock).mockResolvedValue(undefined);
+
+            await sendMessage(req, res);
+
+            expect(dbService.addUserActivity).toHaveBeenCalledWith(
+                '123',
+                expect.objectContaining({
+                    type: 'roulette',
+                    metadata: expect.objectContaining({
+                        message: 'Ganador: Alice',
+                        source: 'roulette',
+                        announce: true
+                    })
+                })
+            );
+        });
     });
 
     describe('followage', () => {

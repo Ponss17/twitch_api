@@ -142,7 +142,25 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
 
         res.json({ success: true, message: MESSAGES.FEEDBACK.SUCCESS });
     } catch (error) {
-        logger.error('Error enviando feedback a Discord:', error);
+        const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+        const discordCode =
+            axios.isAxiosError(error) && error.response?.data && typeof error.response.data === 'object'
+                ? (error.response.data as { code?: number }).code
+                : undefined;
+        // 10015 = Unknown Webhook (borrado o URL vieja en env)
+        const webhookGone = status === 404 || discordCode === 10015;
+
+        logger.error('Error enviando feedback a Discord:', {
+            status,
+            discordCode,
+            message: error instanceof Error ? error.message : String(error)
+        });
+
+        if (webhookGone) {
+            return jsonError(res, 503, MESSAGES.FEEDBACK.WEBHOOK_UNAVAILABLE, {
+                code: 'SERVICE_UNAVAILABLE'
+            });
+        }
         return jsonError(res, 500, MESSAGES.FEEDBACK.SEND_ERROR, { code: 'INTERNAL_ERROR' });
     }
 };

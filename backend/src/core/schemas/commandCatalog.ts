@@ -35,6 +35,21 @@ export const VIEWER_ACTIVITY_TYPES = [
 export const TOOL_USAGE_TYPES = ['trends', 'stalker', 'roulette'] as const;
 
 /**
+ * Features del panel que anuncian en chat vía POST /send-message.
+ * El historial/stats se atribuyen a la feature (no al tipo genérico `message`).
+ */
+export const CHAT_ANNOUNCE_SOURCES = {
+    roulette: { type: 'roulette', incrementStat: 'roulette' }
+} as const;
+
+export type ChatAnnounceSource = keyof typeof CHAT_ANNOUNCE_SOURCES;
+
+export const CHAT_ANNOUNCE_SOURCE_KEYS = Object.keys(CHAT_ANNOUNCE_SOURCES) as [
+    ChatAnnounceSource,
+    ...ChatAnnounceSource[]
+];
+
+/**
  * Todos los `activity_logs.type` reconocidos (incluye tools, message y other).
  * Orden estable para UI / filtros.
  */

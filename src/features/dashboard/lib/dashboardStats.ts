@@ -1,6 +1,7 @@
 /** Categorías del resumen de actividad y contadores por recurso. */
 export const DASHBOARD_USAGE_CATEGORIES = [
-    { id: 'cat-commands', keys: ['clips', 'followage', 'watchtime', 'so', 'message'] as const },
+    // `message` (/send-message) es API interna; no se muestra en historial/stats del panel.
+    { id: 'cat-commands', keys: ['clips', 'followage', 'watchtime', 'so'] as const },
     { id: 'cat-tools', keys: ['stalker', 'trends', 'roulette'] as const },
     { id: 'cat-minigames', keys: ['russian', 'magic8', 'duel', 'slots'] as const }
 ] as const;
