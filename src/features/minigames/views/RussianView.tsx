@@ -86,29 +86,35 @@ export function RussianView() {
                     )}
                 </div>
 
-                <div className="relative before:absolute before:top-[-10px] before:left-1/2 before:h-0.5 before:w-[200px] before:-translate-x-1/2 before:bg-gradient-to-r before:from-transparent before:via-primary/30 before:to-transparent max-[600px]:before:w-[100px]">
+                <div className="relative before:absolute before:top-[-10px] before:left-1/2 before:h-px before:w-[200px] before:-translate-x-1/2 before:bg-gradient-to-r before:from-transparent before:via-error/30 before:to-transparent max-[600px]:before:w-[100px]">
                     <button
                         type="button"
                         onClick={() => void pullTrigger()}
                         disabled={loading}
                         className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-border-subtle bg-error-dark px-10 py-3.5 text-[1rem] font-semibold text-white transition hover:-translate-y-0.5 hover:scale-105 hover:bg-error active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
                     >
-                        {loading ? <Loader2 className="size-4 animate-spin" /> : <RUSSIAN_ICON className="size-4" strokeWidth={2} />}
+                        {loading ? (
+                            <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                            <RUSSIAN_ICON className="size-4" strokeWidth={2} />
+                        )}
                         {mgT.btnTrigger}
                     </button>
                 </div>
 
-                <GameResponse
-                    result={result}
-                    successIcon={Check}
-                    errorIcon={Skull}
-                    loadingNode={
-                        <>
-                            <Loader2 className="animate-spin text-lg" />
-                            <span>{mgT.loadingResult}</span>
-                        </>
-                    }
-                />
+                <div className="mt-5 w-full max-w-md">
+                    <GameResponse
+                        result={result}
+                        successIcon={Check}
+                        errorIcon={Skull}
+                        loadingNode={
+                            <>
+                                <Loader2 className="animate-spin text-lg" />
+                                <span>{mgT.loadingResult}</span>
+                            </>
+                        }
+                    />
+                </div>
             </MinigameCard>
         </>
     );
