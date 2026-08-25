@@ -452,7 +452,7 @@ export const en: Translations = {
         },
         todayChart: {
             title: 'Activity Today',
-            info: 'Requests per command today.',
+            info: 'Requests and errors per command today.',
             success: 'Successes',
             errors: 'Errors',
             successRate: 'Success Rate',
@@ -517,6 +517,8 @@ export const en: Translations = {
         },
         closeMenu: 'Close menu',
         openMenu: 'Open menu',
+        enterFocusMode: 'Full view',
+        exitFocusMode: 'Exit full view',
         accountMenu: 'Account menu',
         myAccount: 'MY ACCOUNT',
         settings: 'Settings',
@@ -553,7 +555,9 @@ export const en: Translations = {
         },
         docs: 'Documentation',
         discord: 'Community',
-        navigation: 'Dashboard Navigation'
+        navigation: 'Dashboard Navigation',
+        collapseMenu: 'Collapse menu',
+        expandMenu: 'Expand menu'
     },
 
     // --- Common ---
@@ -568,6 +572,7 @@ export const en: Translations = {
         loading: 'Loading...',
         error: 'Error',
         success: 'Success',
+        moreOptions: 'More options',
         tabError: 'Error loading tab',
         aria: {
             close: 'Close',
@@ -1141,7 +1146,14 @@ export const en: Translations = {
             stopped: 'Question listening paused',
             missingFilter: 'Pick at least one role that can ask',
             loadError: 'Could not load question history',
-            retentionHint: 'Up to {max} questions are kept and auto-deleted after {days} days, or whenever you clear them.'
+            retentionHint: 'Up to {max} questions are kept and auto-deleted after {days} days, or whenever you clear them.',
+            btnHistory: 'View history',
+            historyTitle: 'Question history',
+            historyEmpty: 'No saved questions',
+            historyFilterAll: 'All',
+            historyFilterPending: 'Pending',
+            historyFilterAnswered: 'Answered',
+            historyFilterSkipped: 'Skipped'
         },
     },
     overlay: {

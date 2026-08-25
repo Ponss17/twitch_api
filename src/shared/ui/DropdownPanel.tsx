@@ -9,7 +9,9 @@ import { createPortal } from 'react-dom';
 import { useDropdown } from './DropdownContext';
 
 const panelBase =
-    'fixed isolate flex flex-col overflow-hidden overscroll-contain border border-border-strong bg-bg-modal text-text-main shadow-2xl';
+    'fixed isolate border border-border-strong bg-bg-modal text-text-main shadow-[0_8px_24px_rgba(0,0,0,0.35)]';
+const panelScroll =
+    'max-h-full overflow-x-hidden overflow-y-auto overscroll-contain rounded-[inherit]';
 
 type DropdownPlacement = 'auto' | 'top' | 'bottom';
 
@@ -18,9 +20,14 @@ interface DropdownPanelProps extends HTMLAttributes<HTMLDivElement> {
     /** `auto` elige arriba/abajo según el espacio en viewport (default). */
     placement?: DropdownPlacement;
     padding?: 'none' | 'compact';
-    zIndex?: 50 | 1000;
+    zIndex?: 50 | 1000 | 1200;
     widthClassName?: string;
+    /** Ancho igual al del trigger (sin usar `w-full`, que en `fixed` es el viewport). */
+    matchTrigger?: boolean;
 }
+
+/** Encima del overlay de modo focus (`z-[1100]`). */
+export const DROPDOWN_Z_FOCUS = 1200 as const;
 
 function resolveTriggerEl(container: HTMLDivElement | null): HTMLElement | null {
     if (!container) return null;
@@ -38,6 +45,7 @@ export function DropdownPanel({
     padding = 'none',
     zIndex = 50,
     widthClassName = 'min-w-[11.5rem]',
+    matchTrigger = false,
     className = '',
     role = 'menu',
     style,
@@ -65,12 +73,14 @@ export function DropdownPanel({
         }
 
         const maxHeight = Math.max(120, placeBottom ? spaceBelow : spaceAbove);
-        const width = Math.max(rect.width, 180);
+        const matchWidth = matchTrigger || widthClassName.includes('w-full');
+        const triggerW = Math.round(rect.width);
+        const width = matchWidth ? triggerW : Math.max(triggerW, 180);
         const next: CSSProperties = {
             maxHeight,
             minWidth: width,
-            width: widthClassName.includes('w-full') ? width : undefined,
-            zIndex: zIndex === 1000 ? 1000 : 50
+            width: matchWidth ? triggerW : undefined,
+            zIndex
         };
 
         if (placeBottom) {
@@ -89,14 +99,13 @@ export function DropdownPanel({
             next.left = Math.max(viewportPad, rect.left);
         }
 
-        // Evitar que se salga por la izquierda en pantallas estrechas
         if (typeof next.left === 'number' && next.left + width > window.innerWidth - viewportPad) {
             next.left = Math.max(viewportPad, window.innerWidth - viewportPad - width);
             next.right = 'auto';
         }
 
         setCoords(next);
-    }, [align, containerRef, placement, widthClassName, zIndex]);
+    }, [align, containerRef, matchTrigger, placement, widthClassName, zIndex]);
 
     useLayoutEffect(() => {
         if (!open) {
@@ -116,17 +125,17 @@ export function DropdownPanel({
     if (!open || typeof document === 'undefined' || !coords) return null;
 
     const padClass = padding === 'compact' ? 'p-1.5' : '';
-    const zClass = zIndex === 1000 ? 'z-[1000]' : 'z-50';
+    const zClass = zIndex === 1200 ? 'z-[1200]' : zIndex === 1000 ? 'z-[1000]' : 'z-50';
 
     return createPortal(
         <div
             ref={panelRef}
             role={role}
-            className={`${panelBase} ${zClass} ${widthClassName} rounded-xl ${padClass} ${className}`.trim()}
+            className={`${panelBase} ${zClass} ${widthClassName} rounded-xl ${className}`.trim()}
             style={{ ...coords, ...style }}
             {...props}
         >
-            {children}
+            <div className={`${panelScroll} ${padClass}`.trim()}>{children}</div>
         </div>,
         document.body
     );

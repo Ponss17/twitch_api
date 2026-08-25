@@ -12,6 +12,7 @@ import {
     CommandViewSkeleton 
 } from '@/shared/ui/Skeleton';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { useToolFocus } from '@/features/dashboard/lib/ToolFocusContext';
 
 const HomeView = lazy(() =>
     import('@/features/dashboard/home/HomeView').then((m) => ({ default: m.HomeView }))
@@ -119,6 +120,7 @@ function renderTabPanel(tab: DashboardTab, { active, onNavigate }: TabPanelProps
 export function DashboardContent({ tab, onNavigate }: DashboardContentProps) {
     const mountedTabs = useMountedTabs(tab);
     const { t } = useTranslation();
+    const { focusMode } = useToolFocus();
 
     return (
         <>
@@ -128,12 +130,28 @@ export function DashboardContent({ tab, onNavigate }: DashboardContentProps) {
                 return (
                     <div
                         key={panelTab}
-                        className={isActive ? 'animate-tab-in' : 'hidden'}
+                        className={
+                            isActive
+                                ? focusMode
+                                    ? 'flex min-h-0 flex-1 flex-col animate-tab-in'
+                                    : 'animate-tab-in'
+                                : 'hidden'
+                        }
                         aria-hidden={!isActive}
                     >
                         <ErrorBoundary title={errorTitle}>
-                            <Suspense fallback={isActive ? <TabFallback tab={panelTab} /> : null}>
-                                {renderTabPanel(panelTab, { active: isActive, onNavigate })}
+                            <Suspense
+                                fallback={
+                                    isActive ? (
+                                        <div className={focusMode ? 'min-h-0 flex-1' : undefined}>
+                                            <TabFallback tab={panelTab} />
+                                        </div>
+                                    ) : null
+                                }
+                            >
+                                <div className={focusMode && isActive ? 'flex min-h-0 flex-1 flex-col' : undefined}>
+                                    {renderTabPanel(panelTab, { active: isActive, onNavigate })}
+                                </div>
                             </Suspense>
                         </ErrorBoundary>
                     </div>

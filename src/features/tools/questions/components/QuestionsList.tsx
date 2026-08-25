@@ -2,6 +2,7 @@ import { Check, SkipForward, Trash2, MessageCircleQuestion } from 'lucide-react'
 import type { QuestionItem } from '../hooks/useQuestions';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { hoverSubtleIconBtn } from '@/core/utils/tw';
+import { SimpleEmptyState } from '@/shared/ui/SimpleEmptyState';
 
 interface QuestionsListProps {
     items: QuestionItem[];
@@ -25,9 +26,8 @@ export function QuestionsList({ items, currentId, onAnswer, onSkip, onRemove }: 
 
     if (items.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border-subtle bg-bg-overlay/30 py-20 text-text-muted">
-                <MessageCircleQuestion className="mb-4 h-12 w-12 opacity-50" />
-                <p className="text-sm font-medium">{qT.emptyList}</p>
+            <div className="rounded-xl border-2 border-dashed border-border-subtle bg-bg-overlay/30 py-20">
+                <SimpleEmptyState icon={MessageCircleQuestion} label={qT.emptyList} />
             </div>
         );
     }

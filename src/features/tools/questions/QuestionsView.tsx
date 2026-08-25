@@ -1,22 +1,26 @@
-import { MessageCircleQuestion, Play, Pause, Square, Trash2, Eraser } from 'lucide-react';
-import { useEffect, useMemo } from 'react';
+import { Eraser, History, MessageCircleQuestion, Play, Pause, Square, Trash2 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuestions } from './hooks/useQuestions';
 import { QuestionsList } from './components/QuestionsList';
+import { QuestionsHistoryModal } from './components/QuestionsHistoryModal';
+import { ToolPanelHeader } from '@/features/tools/components/ToolPanelHeader';
+import { ToolMoreMenu } from '@/features/tools/components/ToolMoreMenu';
 import { RouletteEligibilityDropdown } from '@/features/tools/roulette/RouletteEligibilityDropdown';
 import { OverlayUrlButton } from '@/features/overlay/components/OverlayUrlButton';
 import { useOverlayPublish } from '@/features/overlay/hooks/useOverlayPublish';
-import { hoverSubtleIconBtn, panelCard, fadeIn, textInput } from '@/core/utils/tw';
+import { toolPanelShell, fadeIn, toolConfigInput, toolHeaderIconBtn } from '@/core/utils/tw';
 import { InlineIcon } from '@/shared/ui/Icon';
-import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
-import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import type { QuestionsOverlayState } from '@/features/overlay/lib/types';
+import { useToolFocus } from '@/features/dashboard/lib/ToolFocusContext';
 
 export function QuestionsView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();
     const { t } = useTranslation();
     const qT = t.tools.questions;
+    const { focusMode } = useToolFocus();
+    const [historyOpen, setHistoryOpen] = useState(false);
 
     const {
         isActive,
@@ -63,24 +67,45 @@ export function QuestionsView({ active = true }: { active?: boolean }) {
         publishOverlay(overlayState);
     }, [overlayState, publishOverlay]);
 
-    return (
-        <div className={`${panelCard} ${fadeIn} mb-3 flex min-h-[500px] flex-col`}>
-            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5 max-md:flex-col max-md:items-start">
-                <div className="flex min-w-0 items-center gap-3">
-                    <div
-                        className={`flex size-9 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}
-                    >
-                        <MessageCircleQuestion className="size-5" />
-                    </div>
-                    <div className="flex min-w-0 flex-col">
-                        <h2 className="truncate text-base font-bold text-text-main">
-                            {qT.title} ({session.login})
-                        </h2>
-                        <span className="truncate text-[0.8125rem] text-text-muted">{qT.description}</span>
-                    </div>
-                </div>
+    const moreItems = useMemo(
+        () => [
+            {
+                id: 'history',
+                label: qT.btnHistory,
+                icon: History,
+                onClick: () => setHistoryOpen(true)
+            },
+            {
+                id: 'clear-done',
+                label: qT.btnClearDone,
+                icon: Eraser,
+                onClick: clearDone,
+                disabled: items.every((q) => q.status === 'pending'),
+                dividerBefore: true
+            },
+            {
+                id: 'clear-all',
+                label: qT.btnClear,
+                icon: Trash2,
+                onClick: clearAll,
+                disabled: items.length === 0 && !isActive,
+                variant: 'danger' as const
+            }
+        ],
+        [qT, clearDone, clearAll, items, isActive]
+    );
 
-                <div className="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:justify-between">
+    return (
+        <div
+            className={`${toolPanelShell(focusMode)} ${
+                focusMode ? 'min-h-0' : `min-h-[500px] ${fadeIn}`
+            }`}
+        >
+            <ToolPanelHeader
+                icon={MessageCircleQuestion}
+                title={`${qT.title} (${session.login})`}
+                description={qT.description}
+                status={
                     <span
                         className={`inline-flex items-center gap-1.5 text-[0.8125rem] ${
                             isActive ? 'text-success' : 'text-text-muted'
@@ -98,12 +123,31 @@ export function QuestionsView({ active = true }: { active?: boolean }) {
                             </>
                         )}
                     </span>
-
-                    <div className="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:flex-col max-md:items-stretch">
+                }
+                primaryAction={
+                    <button
+                        type="button"
+                        onClick={toggleListening}
+                        title={isActive ? qT.btnStop : qT.btnStart}
+                        aria-label={isActive ? qT.btnStop : qT.btnStart}
+                        className={`${toolHeaderIconBtn} ${
+                            isActive
+                                ? 'text-warning hover:bg-warning/10'
+                                : 'text-success hover:bg-success/10'
+                        }`}
+                    >
+                        {isActive ? (
+                            <Square className="size-4 shrink-0" />
+                        ) : (
+                            <Play className="size-4 shrink-0" />
+                        )}
+                    </button>
+                }
+                config={
+                    <>
                         <RouletteEligibilityDropdown filters={filters} onChange={setFilters} />
-
-                        <div className="relative w-[180px] max-md:w-full">
-                            <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[0.8125rem] font-bold text-text-muted">
+                        <div className="relative w-[160px] max-md:w-full">
+                            <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[0.8125rem] font-bold leading-none text-text-muted">
                                 !
                             </span>
                             <input
@@ -111,72 +155,37 @@ export function QuestionsView({ active = true }: { active?: boolean }) {
                                 value={keywordInput}
                                 onChange={(e) => setKeyword(e.target.value)}
                                 disabled={isActive}
-                                className={`${textInput} pl-7`}
+                                className={`${toolConfigInput} pl-7`}
                                 placeholder={qT.keywordPlaceholder}
                                 aria-label={qT.keywordLabel}
                             />
                         </div>
-
-                        <button
-                            type="button"
-                            onClick={toggleListening}
-                            title={isActive ? qT.btnStop : qT.btnStart}
-                            aria-label={isActive ? qT.btnStop : qT.btnStart}
-                            className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] transition ${
-                                isActive
-                                    ? 'text-warning hover:bg-warning/10'
-                                    : 'text-success hover:bg-success/10'
-                            }`}
-                        >
-                            {isActive ? (
-                                <Square className="size-4 shrink-0" />
-                            ) : (
-                                <Play className="size-4 shrink-0" />
-                            )}
-                        </button>
-
-                        <div className="mx-0.5 h-4 w-px bg-border-strong" />
-
-                        <button
-                            type="button"
-                            onClick={clearDone}
-                            disabled={items.every((q) => q.status === 'pending')}
-                            title={qT.btnClearDone}
-                            aria-label={qT.btnClearDone}
-                            className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-text-muted disabled:cursor-not-allowed disabled:opacity-40 ${hoverSubtleIconBtn}`}
-                        >
-                            <Eraser className="size-4 shrink-0" />
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={clearAll}
-                            disabled={items.length === 0 && !isActive}
-                            title={qT.btnClear}
-                            aria-label={qT.btnClear}
-                            className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-text-muted disabled:cursor-not-allowed disabled:opacity-40 ${hoverSubtleIconBtn}`}
-                        >
-                            <Trash2 className="size-4 shrink-0" />
-                        </button>
-                    </div>
-
-                    <OverlayUrlButton tool="questions" />
-                    <InfoTooltip text={qT.tooltip} />
-                </div>
-            </header>
+                    </>
+                }
+                trailing={
+                    <>
+                        <OverlayUrlButton tool="questions" compact />
+                        <ToolMoreMenu items={moreItems} helpText={qT.tooltip} />
+                    </>
+                }
+            />
 
             <div className="flex flex-1 flex-col overflow-hidden p-5">
-                <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-text-muted">
+                <div className="mb-4 flex flex-wrap items-center gap-2 text-sm font-semibold text-text-muted">
                     <MessageCircleQuestion className="size-4" />
                     {qT.listTitle}
                     <span className="rounded-full bg-border-strong px-2 py-0.5 text-xs text-text-main">
                         {pending.length}
                     </span>
-                    {items.length > pending.length && (
-                        <span className="text-[0.75rem] font-normal text-text-muted">
+                    {items.length > pending.length ? (
+                        <button
+                            type="button"
+                            onClick={() => setHistoryOpen(true)}
+                            className="rounded-md px-1.5 py-0.5 text-[0.75rem] font-normal text-text-muted underline-offset-2 hover:text-text-main hover:underline"
+                        >
                             · {items.length - pending.length} {qT.doneCount}
-                        </span>
-                    )}
+                        </button>
+                    ) : null}
                 </div>
                 <p className="mb-3 text-[0.75rem] text-text-muted">
                     {qT.retentionHint
@@ -186,7 +195,9 @@ export function QuestionsView({ active = true }: { active?: boolean }) {
 
                 <div className="flex-1 overflow-y-auto">
                     {loadingHistory ? (
-                        <p className="py-8 text-center text-[0.8125rem] text-text-muted">{t.common.loading}</p>
+                        <p className="py-8 text-center text-[0.8125rem] text-text-muted">
+                            {t.common.loading}
+                        </p>
                     ) : (
                         <QuestionsList
                             items={items}
@@ -198,6 +209,17 @@ export function QuestionsView({ active = true }: { active?: boolean }) {
                     )}
                 </div>
             </div>
+
+            <QuestionsHistoryModal
+                open={historyOpen}
+                onClose={() => setHistoryOpen(false)}
+                items={items}
+                onAnswer={markAnswered}
+                onSkip={markSkipped}
+                onRemove={removeItem}
+                maxItems={maxItems}
+                maxAgeDays={maxAgeDays}
+            />
         </div>
     );
 }
