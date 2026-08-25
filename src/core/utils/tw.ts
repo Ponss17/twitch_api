@@ -196,7 +196,7 @@ export const sidebarContentOffset = 'lg:ml-[var(--lp-sidebar-w,220px)]';
 export const sidebarFooterOffset = 'lg:pl-[var(--lp-sidebar-w,220px)]';
 
 export const sidebarShell = (mobileOpen: boolean, collapsed = false) =>
-    `fixed left-0 top-0 z-[1000] flex h-screen w-[220px] flex-col overflow-hidden border-r border-border-subtle bg-sidebar transition-[transform,width] ${SIDEBAR_MOTION} ${
+    `fixed left-0 top-0 z-[1000] flex h-screen w-[220px] flex-col border-r border-border-subtle bg-sidebar transition-[transform,width] ${SIDEBAR_MOTION} ${
         collapsed ? 'lg:w-[72px]' : 'lg:w-[220px]'
     } ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`;
 
