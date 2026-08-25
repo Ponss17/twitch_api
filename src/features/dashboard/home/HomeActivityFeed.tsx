@@ -21,6 +21,7 @@ import {
 import { HomeActivityLogEntry } from '@/features/dashboard/home/HomeActivityLogEntry';
 import { ActivityDetailSheet } from '@/features/dashboard/home/ActivityDetailSheet';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
+import { SimpleEmptyState } from '@/shared/ui/SimpleEmptyState';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface HomeActivityFeedProps {
@@ -77,17 +78,12 @@ function ActivityEmptyState({ filtered }: { filtered?: boolean }) {
     const { t } = useTranslation();
     const aT = t.home.activityFeed;
     return (
-        <div className="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center">
-            <div className={`mb-1 flex h-11 w-11 items-center justify-center rounded-xl border ${subtleIcon('primary')}`}>
-                {filtered ? <Filter className="h-5 w-5" /> : <Terminal className="h-5 w-5" />}
-            </div>
-            <p className="text-[0.9rem] font-medium text-text-muted">
-                {filtered ? aT.emptyFiltered : aT.emptyAll}
-            </p>
-            <p className="max-w-sm text-[0.8rem] leading-relaxed text-text-muted">
-                {filtered ? aT.emptyFilteredDesc : aT.emptyAllDesc}
-            </p>
-        </div>
+        <SimpleEmptyState
+            icon={filtered ? Filter : Terminal}
+            label={filtered ? aT.emptyFiltered : aT.emptyAll}
+            description={filtered ? aT.emptyFilteredDesc : aT.emptyAllDesc}
+            className="min-h-0 w-full flex-1 py-16"
+        />
     );
 }
 
@@ -254,15 +250,14 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
             ) : null}
 
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-4 pt-2">
-                <div
-                    className={`min-h-0 flex-1 overflow-y-auto rounded-xl border border-border-strong px-3 py-2 [overflow-anchor:none] [scrollbar-width:thin] ${!isLoading && filteredActivity.length === 0 ? 'flex items-center justify-center' : ''
-                        }`}
-                >
-                    {isLoading ? (
+                {isLoading ? (
+                    <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-border-strong px-3 py-2 [scrollbar-width:thin]">
                         <ActivityFeedSkeleton />
-                    ) : filteredActivity.length === 0 ? (
-                        <ActivityEmptyState filtered={categoryFilter !== 'all' || typeFilter !== 'all'} />
-                    ) : (
+                    </div>
+                ) : filteredActivity.length === 0 ? (
+                    <ActivityEmptyState filtered={categoryFilter !== 'all' || typeFilter !== 'all'} />
+                ) : (
+                    <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-border-strong px-3 py-2 [overflow-anchor:none] [scrollbar-width:thin]">
                         <LazyMotion features={domAnimation}>
                             <AnimatePresence initial={false}>
                                 {renderItems.map(({ item, showDivider, dateLabel, key }) => {
@@ -292,8 +287,8 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                 })}
                             </AnimatePresence>
                         </LazyMotion>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
 
             <ActivityDetailSheet

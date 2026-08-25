@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState, type ReactNode } from 'react';
-import { ChevronLeft, ChevronRight, type LucideIcon } from 'lucide-react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { type LucideIcon } from 'lucide-react';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
+import { SimpleEmptyState } from '@/shared/ui/SimpleEmptyState';
 import { hoverSubtleIconBtn } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export const COLORS = [
     'var(--chart-1)',
@@ -41,9 +43,11 @@ export function AnalyticsSection({
         >
             <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-2.5">
                 <div className="min-w-0">
-                    <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">{title}</h2>
+                    <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">
+                        {title}
+                    </h2>
                 </div>
-                {(action || info) ? (
+                {action || info ? (
                     <div className="flex shrink-0 items-center gap-2">
                         {action}
                         {info ? <InfoTooltip text={info} placement="bottom" /> : null}
@@ -51,9 +55,13 @@ export function AnalyticsSection({
                 ) : null}
             </header>
             {description ? (
-                <p className="px-5 pt-2.5 text-[0.8125rem] leading-relaxed text-text-muted">{description}</p>
+                <p className="px-5 pt-2 text-[0.8125rem] leading-relaxed text-text-muted">
+                    {description}
+                </p>
             ) : null}
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-5 pb-3 pt-2">{children}</div>
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-5 pb-3 pt-2">
+                {children}
+            </div>
         </section>
     );
 }
@@ -64,7 +72,7 @@ export function AnalyticsSimpleList({
     rightHeader,
     rows,
     empty,
-    pageSize = 6,
+    pageSize = 5,
     resetKey
 }: {
     leftHeader: string;
@@ -119,7 +127,7 @@ export function AnalyticsSimpleList({
                 {slice.map((row) => (
                     <li
                         key={row.id}
-                        className={`grid items-center gap-3 border-b border-border-subtle/60 py-2.5 last:border-b-0 ${
+                        className={`grid items-center gap-3 border-b border-border-subtle/60 py-2 last:border-b-0 ${
                             hasMiddle ? 'grid-cols-3' : 'grid-cols-[minmax(0,1fr)_auto]'
                         }`}
                     >
@@ -169,70 +177,100 @@ export function AnalyticsSimpleList({
 }
 
 export function AnalyticsEmptyState({
-    icon: Icon,
+    icon,
     title,
     description
 }: {
     icon: LucideIcon;
     title: string;
-    description: string;
+    description?: string;
 }) {
     return (
-        <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center px-4 py-6 text-center">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
-                <Icon className="h-5 w-5 text-brand-text" aria-hidden />
-            </div>
-            <p className="text-[0.9375rem] font-semibold tracking-tight text-text-main">{title}</p>
-            <p className="mt-1.5 max-w-[16rem] text-[0.8125rem] leading-relaxed text-text-muted">
-                {description}
-            </p>
+        <SimpleEmptyState
+            icon={icon}
+            label={title}
+            description={description}
+            className="min-h-0 w-full flex-1 py-6"
+        />
+    );
+}
+
+export function AnalyticsSeriesLegend({
+    requestsLabel,
+    errorsLabel
+}: {
+    requestsLabel: string;
+    errorsLabel: string;
+}) {
+    return (
+        <div className="flex items-center gap-3 text-[0.7rem] font-medium text-text-muted">
+            <span className="inline-flex items-center gap-1.5">
+                <span className="size-1.5 rounded-full bg-primary" aria-hidden />
+                {requestsLabel}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+                <span className="size-1.5 rounded-full bg-error" aria-hidden />
+                {errorsLabel}
+            </span>
         </div>
     );
 }
 
-export function ChartMountGate({
-    active,
-    className,
-    srLabel,
-    children
-}: {
-    active: boolean;
-    className?: string;
-    srLabel?: string;
-    children: ReactNode;
-}) {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [canRender, setCanRender] = useState(false);
+/** Escala Y legible con pocos datos (evita eje 0–10 cuando el pico es 1). */
+export function evenYAxis(dataMax: number): { max: number; ticks: number[] } {
+    if (!Number.isFinite(dataMax) || dataMax <= 0) {
+        return { max: 4, ticks: [0, 1, 2, 3, 4] };
+    }
+    if (dataMax <= 4) {
+        return { max: 4, ticks: [0, 1, 2, 3, 4] };
+    }
+    let max = Math.ceil(dataMax * 1.12);
+    if (max < 4) max = 4;
+    while (max % 4 !== 0) max += 1;
+    const step = max / 4;
+    return {
+        max,
+        ticks: [0, step, step * 2, step * 3, max]
+    };
+}
+
+/** Recharts pone tabindex en <g>; lo quitamos para a11y / auditorías. */
+export function useStripRechartsTabIndex(enabled: boolean, deps: unknown[] = []) {
+    const rootRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (!active) {
-            setCanRender(false);
-            return;
-        }
+        if (!enabled) return;
+        const root = rootRef.current;
+        if (!root) return;
 
-        const node = containerRef.current;
-        if (!node) return;
-
-        const update = () => {
-            const { width, height } = node.getBoundingClientRect();
-            setCanRender(width > 0 && height > 0);
+        const strip = () => {
+            root.querySelectorAll('.recharts-wrapper [tabindex], .recharts-surface [tabindex], g[tabindex]').forEach(
+                (el) => {
+                    el.removeAttribute('tabindex');
+                }
+            );
         };
 
-        update();
-        const observer = new ResizeObserver(update);
-        observer.observe(node);
+        strip();
+        const raf = requestAnimationFrame(strip);
+        const t1 = window.setTimeout(strip, 50);
+        const t2 = window.setTimeout(strip, 300);
+        const mo = new MutationObserver(strip);
+        mo.observe(root, {
+            subtree: true,
+            childList: true,
+            attributes: true,
+            attributeFilter: ['tabindex']
+        });
 
-        return () => observer.disconnect();
-    }, [active]);
+        return () => {
+            cancelAnimationFrame(raf);
+            window.clearTimeout(t1);
+            window.clearTimeout(t2);
+            mo.disconnect();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- deps explícitas del caller
+    }, [enabled, ...deps]);
 
-    return (
-        <div ref={containerRef} className={className}>
-            {srLabel ? <span className="sr-only">{srLabel}</span> : null}
-            {canRender ? (
-                <div aria-hidden="true" className="h-full w-full min-h-0 min-w-0">
-                    {children}
-                </div>
-            ) : null}
-        </div>
-    );
+    return rootRef;
 }
