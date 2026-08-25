@@ -45,6 +45,8 @@
   --animate-sheet-out: sheetOut 0.22s cubic-bezier(0.4, 0, 1, 1) both;
   --animate-glow-pulse: ctaGlowPulse 2.8s ease-in-out infinite;
   --animate-tab-in: tabIn 0.2s ease-out forwards;
+  --animate-dropdown-in-up: dropdownInUp 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-dropdown-in-right: dropdownInRight 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @keyframes fadeInSoft {
     from { opacity: 0; transform: translateY(4px); }
@@ -59,6 +61,16 @@
   @keyframes tabIn {
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes dropdownInUp {
+    from { opacity: 0; transform: translateY(6px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes dropdownInRight {
+    from { opacity: 0; transform: translateX(-6px) scale(0.98); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
   }
 
   @keyframes navIconBounce {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { DashboardTab } from '@/core/config/config';
-import { appPath, saveDocsReturnPath, staticPath } from '@/core/config/paths';
+import { staticPath } from '@/core/config/paths';
 import { NAV_ITEMS } from '@/features/dashboard/lib/dashboardTabs';
 import {
     sidebarBackdrop,
@@ -12,22 +12,16 @@ import {
     SIDEBAR_MOTION,
     hoverSubtleIconBtn
 } from '@/core/utils/tw';
-import { DiscordIcon, TwitchIcon } from '@/shared/ui/icons/BrandIcons';
 import { AppLogo } from '@/shared/ui/AppLogo';
 import { IconMd } from '@/shared/ui/Icon';
-import { Book, ChevronsUpDown, Heart, LogOut, PanelLeft, PanelLeftClose, Settings } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
 import {
     Dropdown,
-    DropdownDivider,
-    DropdownItem,
-    DropdownLink,
-    DropdownPanel,
     DropdownTrigger
 } from '@/shared/ui/Dropdown';
-
-const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
+import { SidebarAccountMenu } from './SidebarAccountMenu';
 
 interface SidebarProps {
     active: DashboardTab;
@@ -152,9 +146,9 @@ export function Sidebar({
                             onClick={toggleCollapsed}
                         >
                             {railCollapsed ? (
-                                <PanelLeft className="size-5" aria-hidden />
+                                <ChevronRight className="size-4" aria-hidden />
                             ) : (
-                                <PanelLeftClose className="size-4" aria-hidden />
+                                <ChevronLeft className="size-4" aria-hidden />
                             )}
                         </button>
                     ) : null}
@@ -234,12 +228,12 @@ export function Sidebar({
                 </nav>
 
                 <div
-                    className={`flex h-[4.25rem] shrink-0 items-center border-t border-border-subtle transition-[padding,justify-content] ${SIDEBAR_MOTION} ${
+                    className={`relative flex h-[4.25rem] shrink-0 items-center overflow-visible border-t border-border-subtle transition-[padding,justify-content] ${SIDEBAR_MOTION} ${
                         railCollapsed ? 'justify-center px-1.5' : 'px-2.5'
                     }`}
                 >
                     <Dropdown
-                        className={`relative transition-[width] ${SIDEBAR_MOTION} ${
+                        className={`relative overflow-visible transition-[width] ${SIDEBAR_MOTION} ${
                             railCollapsed ? 'w-auto' : 'w-full'
                         }`}
                     >
@@ -274,75 +268,16 @@ export function Sidebar({
                                     </span>
                                 ) : null}
                             </span>
-                            <ChevronsUpDown
-                                className={`size-3.5 shrink-0 text-text-muted transition-[opacity,max-width,color] ${SIDEBAR_MOTION} group-hover:text-text-main group-aria-expanded:text-text-main ${
-                                    railCollapsed ? 'max-w-0 opacity-0' : 'max-w-4 opacity-100'
-                                }`}
-                                aria-hidden
-                            />
                         </DropdownTrigger>
 
-                        <DropdownPanel
-                            align="left"
-                            placement="top"
-                            matchTrigger={!railCollapsed}
-                            widthClassName={railCollapsed ? 'min-w-[13.5rem]' : undefined}
-                            zIndex={1000}
-                            className="rounded-xl"
-                            padding="compact"
-                        >
-                            <DropdownItem
-                                className="rounded-lg"
-                                onClick={() => {
-                                    onSettings();
-                                    onClose();
-                                }}
-                            >
-                                <Settings className="size-4 shrink-0" aria-hidden />
-                                {t.header.settings}
-                            </DropdownItem>
-                            <DropdownLink
-                                className="rounded-lg"
-                                href={twitchProfileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <TwitchIcon className="size-4 shrink-0" aria-hidden />
-                                {t.header.twitchProfile}
-                            </DropdownLink>
-                            <DropdownDivider />
-                            <DropdownLink
-                                className="rounded-lg"
-                                href={appPath('/docs')}
-                                onClick={saveDocsReturnPath}
-                            >
-                                <Book className="size-4 shrink-0" aria-hidden />
-                                {t.sidebar.docs}
-                            </DropdownLink>
-                            <DropdownLink
-                                className="rounded-lg"
-                                href="https://discord.gg/PJbExZe7Tp"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <DiscordIcon className="size-4 shrink-0" aria-hidden />
-                                {t.sidebar.discord}
-                            </DropdownLink>
-                            <DropdownLink
-                                className="rounded-lg"
-                                href={PAYPAL_URL}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <Heart className="size-4 shrink-0" aria-hidden />
-                                {t.header.supportProject}
-                            </DropdownLink>
-                            <DropdownDivider />
-                            <DropdownItem className="rounded-lg" variant="danger" onClick={onLogout}>
-                                <LogOut className="size-4 shrink-0" aria-hidden />
-                                {t.header.logout}
-                            </DropdownItem>
-                        </DropdownPanel>
+                        <SidebarAccountMenu
+                            railCollapsed={railCollapsed}
+                            twitchProfileUrl={twitchProfileUrl}
+                            t={t}
+                            onSettings={onSettings}
+                            onClose={onClose}
+                            onLogout={onLogout}
+                        />
                     </Dropdown>
                 </div>
             </aside>
