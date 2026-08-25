@@ -15,22 +15,25 @@ type LandingHeaderProps = {
 export function LandingHeader({ scrolled, onLoginClick }: LandingHeaderProps) {
     return (
         <header
-            className={`fixed inset-x-0 top-0 z-[1000] border-b ${
+            className={`fixed inset-x-0 top-0 z-[1000] isolate border-b transition-[background-color,border-color,backdrop-filter] duration-200 ${
                 scrolled
-                    ? 'border-border-subtle bg-bg-main/80 backdrop-blur-md'
-                    : 'border-transparent bg-transparent'
+                    ? 'border-border-subtle bg-bg-main/95 backdrop-blur-md'
+                    : 'border-transparent bg-bg-main/70 backdrop-blur-sm'
             }`}
         >
-            <div className="mx-auto grid h-14 max-w-[1120px] grid-cols-[1fr_auto] items-center gap-3 px-5 md:h-16 md:grid-cols-[1fr_auto_1fr] md:px-8">
-                <a href={appPath('/')} className="flex min-w-0 items-center gap-2.5 text-inherit no-underline">
+            <div className="mx-auto flex h-14 max-w-[1120px] items-center gap-3 px-5 md:h-16 md:px-8">
+                <a href={appPath('/')} className="flex min-w-0 shrink-0 items-center gap-2.5 text-inherit no-underline">
                     <AppLogo className="h-7 w-7 shrink-0 text-primary md:h-8 md:w-8" aria-hidden />
                     <span className="truncate text-base font-bold tracking-tight text-text-main md:text-lg">
                         LosPerris<span className="text-brand-text">API</span>
                     </span>
                 </a>
 
-                <nav className="hidden items-center justify-center gap-0.5 md:flex" aria-label="Secciones">
-                    <a href="#panel" className={navLink}>
+                <nav
+                    className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 md:flex"
+                    aria-label="Secciones"
+                >
+                    <a href="#producto" className={navLink}>
                         Producto
                     </a>
                     <a href={appPath('/docs')} onClick={saveDocsReturnPath} className={navLink}>
@@ -46,7 +49,7 @@ export function LandingHeader({ scrolled, onLoginClick }: LandingHeaderProps) {
                     </a>
                 </nav>
 
-                <div className="flex items-center justify-end gap-1">
+                <div className="ml-auto flex shrink-0 items-center justify-end gap-1">
                     <a href={appPath('/docs')} onClick={saveDocsReturnPath} className={`${navLink} md:hidden`}>
                         Docs
                     </a>
