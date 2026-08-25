@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { twitchUsername } from '../../core/schemas/twitchUsername';
+import { CHAT_ANNOUNCE_SOURCE_KEYS } from '../../core/schemas/commandCatalog';
 
 const createClipInput = z.object({
     channel: twitchUsername,
@@ -30,7 +31,9 @@ export const sendMessageSchema = z.object({
         message: z
             .string()
             .min(1, 'El mensaje no puede estar vacío')
-            .max(500, 'Mensaje demasiado largo')
+            .max(500, 'Mensaje demasiado largo'),
+        /** Feature del panel que anuncia (atribuye historial); omitir = API genérica `message`. */
+        source: z.enum(CHAT_ANNOUNCE_SOURCE_KEYS).optional()
     })
 });
 

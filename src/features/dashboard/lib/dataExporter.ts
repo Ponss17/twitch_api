@@ -145,8 +145,7 @@ const DataExport = {
             ((analytics.clips as number) || 0) +
             ((analytics.followage as number) || 0) +
             ((analytics.watchtime as number) || 0) +
-            ((analytics.so as number) || 0) +
-            ((analytics.message as number) || 0);
+            ((analytics.so as number) || 0);
         const toolTotal =
             ((analytics.stalker as number) || 0) +
             ((analytics.trends as number) || 0) +

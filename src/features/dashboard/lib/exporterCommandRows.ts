@@ -1,11 +1,10 @@
-﻿import { COMMAND_INTEGRATIONS, type AnalyticsData } from './exporterData';
+import { COMMAND_INTEGRATIONS, type AnalyticsData } from './exporterData';
 import { getApiBaseUrl } from './exporterUtils';
 
 const CMD_PATHS: Record<string, string> = {
     clips: '/dashboard/get-clips',
     followage: '/followage',
     watchtime: '/watchtime',
-    message: '/send-message',
     so: '/shoutout',
     magic8: '/minigames/magic8',
     russian: '/minigames/russian',

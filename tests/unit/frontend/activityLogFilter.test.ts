@@ -43,6 +43,7 @@ describe('activityLogFilter', () => {
 
     it('covers every known category type list', () => {
         expect(ACTIVITY_TYPES_BY_CATEGORY.commands).toContain('shoutout');
+        expect(ACTIVITY_TYPES_BY_CATEGORY.commands).not.toContain('message');
         expect(ACTIVITY_TYPES_BY_CATEGORY.tools).toHaveLength(3);
         expect(ACTIVITY_TYPES_BY_CATEGORY.minigames).toContain('magic8');
     });
