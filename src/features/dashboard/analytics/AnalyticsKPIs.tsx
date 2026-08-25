@@ -30,17 +30,23 @@ function RangeToggle({
 }) {
     return (
         <div
-            className="flex items-center rounded-lg border border-border-subtle bg-bg-main p-0.5"
+            className="relative grid grid-cols-2 rounded-lg border border-border-subtle bg-bg-main p-0.5"
             role="group"
             aria-label={t.analytics.rangeGroup}
         >
+            <span
+                aria-hidden
+                className={`pointer-events-none absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-md bg-primary/20 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    timeRange === '7d' ? 'translate-x-full' : 'translate-x-0'
+                }`}
+            />
             <button
                 type="button"
                 onClick={() => setTimeRange('today')}
                 aria-pressed={timeRange === 'today'}
-                className={`rounded-md px-3 py-1 text-xs ${
+                className={`relative z-10 rounded-md px-3 py-1 text-xs transition-colors duration-300 ${
                     timeRange === 'today'
-                        ? 'bg-primary/20 font-semibold text-brand-text'
+                        ? 'font-semibold text-brand-text'
                         : `font-medium text-text-muted ${hoverSubtleChip}`
                 }`}
             >
@@ -50,9 +56,9 @@ function RangeToggle({
                 type="button"
                 onClick={() => setTimeRange('7d')}
                 aria-pressed={timeRange === '7d'}
-                className={`rounded-md px-3 py-1 text-xs ${
+                className={`relative z-10 rounded-md px-3 py-1 text-xs transition-colors duration-300 ${
                     timeRange === '7d'
-                        ? 'bg-primary/20 font-semibold text-brand-text'
+                        ? 'font-semibold text-brand-text'
                         : `font-medium text-text-muted ${hoverSubtleChip}`
                 }`}
             >
@@ -76,18 +82,18 @@ function KpiTile({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex flex-col gap-2 px-1 py-1">
+        <div className="flex flex-col gap-1 px-1 py-0.5">
             <div className="flex items-center justify-between gap-2">
-                <span className="text-[0.75rem] font-medium text-text-muted">{label}</span>
+                <span className="text-[0.7rem] font-medium text-text-muted">{label}</span>
                 <div
-                    className={`flex h-7 w-7 items-center justify-center rounded-md border ${iconClass}`}
+                    className={`flex size-6 items-center justify-center rounded-md border ${iconClass}`}
                 >
-                    <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                    <Icon className="size-3" aria-hidden="true" />
                 </div>
             </div>
             <div className="flex flex-col">
                 {children}
-                <span className="mt-1 text-[0.7rem] font-medium text-text-muted">{subtext}</span>
+                <span className="mt-0.5 text-[0.65rem] font-medium text-text-muted">{subtext}</span>
             </div>
         </div>
     );
@@ -107,16 +113,18 @@ export function AnalyticsKPIs({
 }: AnalyticsKPIsProps) {
     const { t } = useTranslation();
     const kpis = t.analytics.kpis;
+    const valueClass =
+        'text-[1.5rem] font-bold leading-none tracking-tight text-text-main';
 
     return (
         <AnalyticsSection
             title={kpis.title}
             info={kpis.info}
             action={<RangeToggle timeRange={timeRange} setTimeRange={setTimeRange} t={t} />}
-            panelClassName=""
+            panelClassName="shrink-0"
         >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" aria-busy={isLoading}>
-                <div className="pb-4 md:pr-6 lg:pb-0">
+                <div className="pb-3 md:pr-5 lg:pb-0">
                     <KpiTile
                         label={kpis.requests}
                         icon={Zap}
@@ -127,12 +135,12 @@ export function AnalyticsKPIs({
                             value={displayRequests}
                             duration={requestsDuration}
                             isLoading={isLoading}
-                            className="text-[1.75rem] font-bold leading-none tracking-tight text-text-main"
+                            className={valueClass}
                         />
                     </KpiTile>
                 </div>
 
-                <div className="border-t border-border-strong py-4 md:border-l md:border-t-0 md:px-6 lg:py-0">
+                <div className="border-t border-border-strong py-3 md:border-l md:border-t-0 md:px-5 lg:py-0">
                     <KpiTile
                         label={kpis.successRate}
                         icon={CheckCircle2}
@@ -144,12 +152,12 @@ export function AnalyticsKPIs({
                             duration={successDuration}
                             suffix="%"
                             isLoading={isLoading}
-                            className="text-[1.75rem] font-bold leading-none tracking-tight text-text-main"
+                            className={valueClass}
                         />
                     </KpiTile>
                 </div>
 
-                <div className="border-t border-border-strong py-4 md:pr-6 lg:border-l lg:border-t-0 lg:px-6 lg:py-0">
+                <div className="border-t border-border-strong py-3 md:pr-5 lg:border-l lg:border-t-0 lg:px-5 lg:py-0">
                     <KpiTile
                         label={kpis.latency}
                         icon={Gauge}
@@ -161,11 +169,11 @@ export function AnalyticsKPIs({
                                 value={displayLatency}
                                 duration={latencyDuration}
                                 isLoading={isLoading}
-                                className="text-[1.75rem] font-bold leading-none tracking-tight text-text-main"
+                                className={valueClass}
                             />
-                            <span className="mb-0.5 text-sm font-bold text-text-main">ms</span>
+                            <span className="mb-0.5 text-xs font-bold text-text-main">ms</span>
                             {!isLoading && displayLatency > 0 ? (
-                                <span className="mb-1 text-xs font-medium text-text-muted">
+                                <span className="mb-0.5 text-[0.65rem] font-medium text-text-muted">
                                     ({(displayLatency / 1000).toFixed(2)}s)
                                 </span>
                             ) : null}
@@ -173,7 +181,7 @@ export function AnalyticsKPIs({
                     </KpiTile>
                 </div>
 
-                <div className="border-t border-border-strong pt-4 md:border-l md:border-t-0 md:px-6 md:pt-0 lg:py-0 lg:pl-6 lg:pr-0">
+                <div className="border-t border-border-strong pt-3 md:border-l md:border-t-0 md:px-5 md:pt-0 lg:py-0 lg:pl-5 lg:pr-0">
                     <KpiTile
                         label={kpis.commands}
                         icon={Command}
@@ -184,7 +192,7 @@ export function AnalyticsKPIs({
                             value={displayCommands}
                             duration={1500}
                             isLoading={isLoading}
-                            className="text-[1.75rem] font-bold leading-none tracking-tight text-text-main"
+                            className={valueClass}
                         />
                     </KpiTile>
                 </div>
