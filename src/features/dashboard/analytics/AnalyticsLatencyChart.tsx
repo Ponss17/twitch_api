@@ -11,7 +11,6 @@ interface LatencyEntry {
 }
 
 interface AnalyticsLatencyChartProps {
-    active: boolean;
     pieData: LatencyEntry[];
 }
 
@@ -35,7 +34,7 @@ export function AnalyticsLatencyChart({ pieData }: AnalyticsLatencyChartProps) {
 
     return (
         <AnalyticsSection
-            panelClassName="h-[270px] flex flex-col"
+            panelClassName="flex h-[244px] flex-col"
             title={chart.title}
             info={chart.info}
         >

@@ -132,18 +132,34 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
     useEffect(() => {
         if (!active) return;
         const cleanTabIndex = () => {
-            document.querySelectorAll('.recharts-wrapper [tabindex]').forEach((el) => {
-                el.removeAttribute('tabindex');
-            });
+            document
+                .querySelectorAll(
+                    '.recharts-wrapper [tabindex], .recharts-surface [tabindex], .recharts-wrapper g[tabindex]'
+                )
+                .forEach((el) => {
+                    el.removeAttribute('tabindex');
+                });
         };
 
-        const frame = requestAnimationFrame(() => {
-            cleanTabIndex();
-            setTimeout(cleanTabIndex, 50);
+        cleanTabIndex();
+        const frame = requestAnimationFrame(cleanTabIndex);
+        const t1 = window.setTimeout(cleanTabIndex, 50);
+        const t2 = window.setTimeout(cleanTabIndex, 400);
+        const mo = new MutationObserver(cleanTabIndex);
+        mo.observe(document.body, {
+            subtree: true,
+            childList: true,
+            attributes: true,
+            attributeFilter: ['tabindex']
         });
 
-        return () => cancelAnimationFrame(frame);
-    }, [active, areaData, pieDataWeekly, pieDataToday]);
+        return () => {
+            cancelAnimationFrame(frame);
+            window.clearTimeout(t1);
+            window.clearTimeout(t2);
+            mo.disconnect();
+        };
+    }, [active, areaData, pieDataWeekly, pieDataToday, timeRange]);
 
     if (error && !hasLiveData) {
         return (
@@ -162,7 +178,6 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
         'followage',
         'watchtime',
         'so',
-        'message',
         'stalker',
         'trends',
         'roulette',
@@ -193,7 +208,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
     const latencyDuration = active ? 1000 : 0;
 
     return (
-        <div className={`space-y-5 ${fadeIn}`}>
+        <div className={`space-y-4 ${fadeIn}`}>
             <AnalyticsKPIs
                 timeRange={timeRange}
                 setTimeRange={setTimeRange}
@@ -208,15 +223,17 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             />
 
             <Suspense fallback={null}>
-                {timeRange === 'today' ? (
-                    <AnalyticsTodayBarChart active={active} pieData={displayPieData} />
-                ) : (
-                    <AnalyticsAreaChart active={active} areaData={areaData} />
-                )}
+                <div key={timeRange} className="space-y-4 animate-tab-in">
+                    {timeRange === 'today' ? (
+                        <AnalyticsTodayBarChart active={active} pieData={displayPieData} />
+                    ) : (
+                        <AnalyticsAreaChart active={active} areaData={areaData} />
+                    )}
 
-                <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
-                    <AnalyticsViewerLeaderboard timeRange={timeRange} />
-                    <AnalyticsLatencyChart active={active} pieData={displayPieData} />
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                        <AnalyticsViewerLeaderboard timeRange={timeRange} />
+                        <AnalyticsLatencyChart pieData={displayPieData} />
+                    </div>
                 </div>
             </Suspense>
         </div>

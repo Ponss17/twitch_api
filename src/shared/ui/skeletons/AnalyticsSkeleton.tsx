@@ -1,97 +1,85 @@
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { Skeleton } from './SkeletonPrimitives';
 
+const panel =
+    'rounded-xl border border-border-subtle bg-bg-panel shadow-[0_8px_30px_rgba(0,0,0,0.15)]';
+
 export function AnalyticsSkeleton() {
     const { t } = useTranslation();
     return (
-        <div className="animate-fade-soft space-y-5" aria-busy="true" aria-label={t.globals.loading.analytics}>
-            <div className="rounded-xl border border-border-subtle bg-bg-card">
-                <div className="flex items-center justify-between border-b border-border-subtle px-5 py-2.5">
-                    <Skeleton className="h-4 w-40 bg-transparent" />
-                    <Skeleton className="h-7 w-28 rounded-md bg-transparent" />
-                </div>
-                <div className="grid grid-cols-2 gap-4 p-4 lg:grid-cols-4">
+        <div
+            className="space-y-4 animate-fade-soft"
+            aria-busy="true"
+            aria-label={t.globals.loading.analytics}
+        >
+            <section className={`${panel} shrink-0`}>
+                <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-2.5">
+                    <Skeleton className="h-4 w-36" />
+                    <Skeleton className="h-7 w-28 rounded-lg" />
+                </header>
+                <div className="grid grid-cols-1 px-5 py-2 md:grid-cols-2 lg:grid-cols-4">
                     {Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="flex flex-col gap-2 py-1">
-                            <Skeleton className="h-3 w-20 bg-transparent" />
-                            <Skeleton className="h-7 w-24 bg-transparent" />
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="flex h-[320px] flex-col rounded-xl border border-border-subtle bg-bg-card">
-                <div className="flex items-center justify-between border-b border-border-subtle px-5 py-2.5">
-                    <Skeleton className="h-4 w-44 bg-transparent" />
-                    <Skeleton className="h-4 w-28 bg-transparent" />
-                </div>
-                <div className="flex flex-1 flex-col justify-between p-4">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                        <Skeleton key={i} className="h-px w-full bg-border-subtle" />
-                    ))}
-                    <Skeleton className="mt-3 h-24 w-full rounded-t-xl bg-gradient-to-t from-primary/[0.03] to-transparent" />
-                </div>
-            </div>
-
-            <div className="flex min-h-[220px] flex-col rounded-xl border border-border-subtle bg-bg-card">
-                <div className="flex items-center border-b border-border-subtle px-5 py-2.5">
-                    <Skeleton className="h-4 w-40 bg-transparent" />
-                </div>
-                <div className="flex flex-1 flex-col gap-3 px-5 py-4">
-                    <div className="flex justify-between border-b border-border-subtle pb-2">
-                        <Skeleton className="h-3 w-20 bg-transparent" />
-                        <Skeleton className="h-3 w-16 bg-transparent" />
-                        <Skeleton className="h-3 w-14 bg-transparent" />
-                        <Skeleton className="h-3 w-16 bg-transparent" />
-                    </div>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="flex items-center justify-between gap-4">
-                            <Skeleton className="h-3.5 w-28 bg-transparent" />
-                            <Skeleton className="h-3.5 w-10 bg-transparent" />
-                            <Skeleton className="h-3.5 w-12 bg-transparent" />
-                            <Skeleton className="h-3.5 w-16 bg-transparent" />
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                <div className="flex h-[270px] flex-col rounded-xl border border-border-subtle bg-bg-card">
-                    <div className="flex items-center justify-between border-b border-border-subtle px-5 py-2.5">
-                        <Skeleton className="h-4 w-32 bg-transparent" />
-                        <Skeleton className="h-4 w-12 bg-transparent" />
-                    </div>
-                    <div className="flex flex-1 flex-col px-5 pb-3 pt-2">
-                        <div className="mb-2 flex justify-between border-b border-border-subtle pb-2">
-                            <Skeleton className="h-3 w-16 bg-transparent" />
-                            <Skeleton className="h-3 w-10 bg-transparent" />
-                        </div>
-                        {Array.from({ length: 5 }).map((_, i) => (
-                            <div key={i} className="flex items-center justify-between py-2.5">
-                                <Skeleton className="h-3.5 w-28 bg-transparent" />
-                                <Skeleton className="h-3.5 w-8 bg-transparent" />
+                        <div
+                            key={i}
+                            className={`flex flex-col gap-1.5 px-1 py-1 ${
+                                i === 0
+                                    ? 'pb-3 md:pr-5 lg:pb-0'
+                                    : 'border-t border-border-strong py-3 md:border-l md:border-t-0 md:px-5 lg:py-0'
+                            }`}
+                        >
+                            <div className="flex items-center justify-between gap-2">
+                                <Skeleton className="h-2.5 w-20" />
+                                <Skeleton className="size-6 rounded-md" />
                             </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="flex h-[270px] flex-col rounded-xl border border-border-subtle bg-bg-card">
-                    <div className="flex items-center gap-3 border-b border-border-subtle px-5 py-2.5">
-                        <Skeleton className="h-4 w-44 bg-transparent" />
-                    </div>
-                    <div className="flex flex-1 flex-col px-5 pb-3 pt-2">
-                        <div className="mb-2 flex justify-between border-b border-border-subtle pb-2">
-                            <Skeleton className="h-3 w-20 bg-transparent" />
-                            <Skeleton className="h-3 w-14 bg-transparent" />
+                            <Skeleton className="h-7 w-16" />
+                            <Skeleton className="h-2 w-24" />
                         </div>
-                        {Array.from({ length: 5 }).map((_, i) => (
-                            <div key={i} className="flex items-center justify-between py-2.5">
-                                <Skeleton className="h-3.5 w-24 bg-transparent" />
-                                <Skeleton className="h-3.5 w-12 bg-transparent" />
-                            </div>
-                        ))}
-                    </div>
+                    ))}
                 </div>
+            </section>
+
+            <section className={`${panel} flex h-[280px] flex-col`}>
+                <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-2.5">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="size-3.5 rounded-full" />
+                </header>
+                <div className="flex min-h-0 flex-1 items-end gap-2.5 px-5 pb-4 pt-5">
+                    {[38, 62, 45, 78, 52, 70, 40, 58].map((h, i) => (
+                        <Skeleton
+                            key={i}
+                            className="min-w-0 flex-1 rounded-t-md"
+                            style={{ height: `${h}%`, maxWidth: 22 }}
+                        />
+                    ))}
+                </div>
+            </section>
+
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                {Array.from({ length: 2 }).map((_, panelIdx) => (
+                    <section key={panelIdx} className={`${panel} flex h-[244px] flex-col`}>
+                        <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-2.5">
+                            <Skeleton className="h-4 w-32" />
+                            {panelIdx === 0 ? <Skeleton className="h-3 w-8" /> : null}
+                        </header>
+                        <div className="flex min-h-0 flex-1 flex-col px-5 pb-3 pt-2">
+                            <div className="mb-1 flex justify-between gap-3 border-b border-border-subtle pb-2">
+                                <Skeleton className="h-2.5 w-16" />
+                                <Skeleton className="h-2.5 w-10" />
+                                {panelIdx === 1 ? <Skeleton className="h-2.5 w-14" /> : null}
+                            </div>
+                            {Array.from({ length: 4 }).map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="flex items-center justify-between gap-3 py-2"
+                                >
+                                    <Skeleton className="h-3.5 w-28" />
+                                    <Skeleton className="h-3.5 w-8" />
+                                    {panelIdx === 1 ? <Skeleton className="h-3.5 w-12" /> : null}
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                ))}
             </div>
         </div>
     );
