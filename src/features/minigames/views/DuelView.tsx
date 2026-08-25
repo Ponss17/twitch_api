@@ -105,13 +105,17 @@ export function DuelView() {
                     disabled={result.status === 'loading'}
                     className={`${btnPrimary} mt-5`}
                 >
-                    {result.status === 'loading' ? <Loader2 className="animate-spin" /> : <Gavel className="w-4 h-4" />}
+                    {result.status === 'loading' ? (
+                        <Loader2 className="animate-spin" />
+                    ) : (
+                        <Gavel className="h-4 w-4" />
+                    )}
                     {result.status === 'loading' ? mgT.btnLoading : mgT.btnFight}
                 </button>
                 <GameResponse
                     result={result}
                     loadingNode={
-                        <div className="flex items-center gap-3 font-medium text-[#f97316] italic">
+                        <div className="flex items-center gap-3 font-medium italic text-warning">
                             <Swords className="animate-[gunShake_1s_infinite_linear] text-[1.8rem]" />
                             {mgT.loadingResult}
                         </div>

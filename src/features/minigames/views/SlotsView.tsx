@@ -23,7 +23,10 @@ const REVEAL_MS = 520;
 function parseReelsFromMessage(message: string): [string, string, string] | null {
     const chunk = message.match(/🎰\s*(.+?)(?:\s*[—–-]|$)/)?.[1]?.trim();
     if (!chunk) return null;
-    const parts = chunk.split('|').map((p) => p.trim()).filter(Boolean);
+    const parts = chunk
+        .split('|')
+        .map((p) => p.trim())
+        .filter(Boolean);
     if (parts.length < 3) return null;
     return [parts[0]!, parts[1]!, parts[2]!];
 }
@@ -55,7 +58,10 @@ export function SlotsView() {
                 _nocache: Date.now().toString()
             });
             const url = `${API_ENDPOINTS.SLOTS}?${params}`;
-            const res = await fetchWithRetry(url, withApiCredentials({ headers: authHeaders(session) }));
+            const res = await fetchWithRetry(
+                url,
+                withApiCredentials({ headers: authHeaders(session) })
+            );
             const text = await res.text();
 
             if (!res.ok) {
@@ -102,19 +108,19 @@ export function SlotsView() {
                 staggered
                 centerBody
             >
-                <div className="relative z-[1] my-5 flex justify-center gap-2.5 px-5 py-2 max-[600px]:gap-2">
+                <div className="my-4 inline-flex items-center gap-2 rounded-2xl border border-border-subtle bg-bg-secondary/60 p-3 shadow-inner max-[600px]:gap-1.5 max-[600px]:p-2.5">
                     {reels.map((symbol, i) => {
                         const locked = symbol !== '❓';
                         const pulsing = busy && !locked;
                         return (
                             <div
                                 key={i}
-                                className={`flex h-20 w-[4.5rem] items-center justify-center rounded-xl border text-[2.35rem] leading-none shadow-inner transition-all duration-300 max-[600px]:h-16 max-[600px]:w-14 max-[600px]:text-[1.85rem] ${
+                                className={`flex h-20 w-[4.5rem] items-center justify-center rounded-xl border text-[2.35rem] leading-none transition-all duration-300 max-[600px]:h-16 max-[600px]:w-14 max-[600px]:text-[1.85rem] ${
                                     locked
-                                        ? 'border-primary/35 bg-primary/10 scale-105'
+                                        ? 'scale-105 border-primary/40 bg-primary/10'
                                         : pulsing
-                                          ? 'animate-pulse border-border-strong bg-bg-secondary text-text-muted'
-                                          : 'border-border-subtle bg-bg-secondary text-text-muted'
+                                          ? 'animate-pulse border-border-strong bg-bg-main text-text-muted'
+                                          : 'border-border-subtle bg-bg-main/80 text-text-muted'
                                 }`}
                                 aria-hidden
                             >
@@ -124,7 +130,7 @@ export function SlotsView() {
                     })}
                 </div>
 
-                <div className="relative before:absolute before:top-[-10px] before:left-1/2 before:h-0.5 before:w-[200px] before:-translate-x-1/2 before:bg-gradient-to-r before:from-transparent before:via-primary/30 before:to-transparent max-[600px]:before:w-[100px]">
+                <div className="relative mt-1 before:absolute before:top-[-10px] before:left-1/2 before:h-px before:w-[200px] before:-translate-x-1/2 before:bg-gradient-to-r before:from-transparent before:via-primary/25 before:to-transparent max-[600px]:before:w-[100px]">
                     <button
                         type="button"
                         onClick={() => void spin()}
@@ -140,15 +146,17 @@ export function SlotsView() {
                     </button>
                 </div>
 
-                <GameResponse
-                    result={result}
-                    loadingNode={
-                        <div className="flex items-center gap-3 font-medium text-primary italic">
-                            <SLOTS_ICON className="animate-[gunShake_1s_infinite_linear] text-[1.8rem]" />
-                            {mgT.loadingResult}
-                        </div>
-                    }
-                />
+                <div className="mt-5 w-full max-w-md">
+                    <GameResponse
+                        result={result}
+                        loadingNode={
+                            <div className="flex items-center gap-3 font-medium italic text-primary">
+                                <SLOTS_ICON className="animate-[gunShake_1s_infinite_linear] text-[1.8rem]" />
+                                {mgT.loadingResult}
+                            </div>
+                        }
+                    />
+                </div>
             </MinigameCard>
         </div>
     );
