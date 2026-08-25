@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { legalPath } from '@/core/config/paths';
-import { APP_BOTTOM_BAR } from '@/core/utils/tw';
+import { APP_BOTTOM_BAR, sidebarFooterOffset } from '@/core/utils/tw';
 
 const LEGAL_LINKS = [
     { href: legalPath('terminos'), label: 'Términos' },
@@ -21,7 +21,7 @@ export function Footer({ isDashboard = false }: FooterProps) {
         <footer
             className={`app-footer mt-auto flex w-full items-center bg-bg-main ${
                 isDashboard
-                    ? `${APP_BOTTOM_BAR} max-lg:h-auto max-lg:py-4 lg:pl-[240px]`
+                    ? `${APP_BOTTOM_BAR} max-lg:h-auto max-lg:py-4 ${sidebarFooterOffset}`
                     : 'shrink-0 border-t border-border-subtle py-6'
             }`}
         >

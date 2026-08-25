@@ -143,7 +143,7 @@ export function NotificationsBell() {
         <Dropdown>
             <DropdownTrigger
                 aria-label={aT.bellLabel}
-                className="relative flex size-9 items-center justify-center rounded-xl border border-border-subtle bg-bg-secondary text-text-muted transition-colors hover:border-border-strong hover:bg-white/[0.02] hover:text-text-main aria-expanded:border-border-strong aria-expanded:bg-white/[0.03] aria-expanded:text-text-main"
+                className="relative flex size-9 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-white/[0.02] hover:text-text-main aria-expanded:bg-white/[0.03] aria-expanded:text-text-main"
             >
                 <Bell className="size-4" aria-hidden />
                 {count > 0 && (

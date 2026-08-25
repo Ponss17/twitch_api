@@ -7,15 +7,16 @@ import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { cache, CACHE_TTL } from '@/core/cache/cacheService';
 import { chatLogStore } from '@/features/chat/lib/chatLogStore';
 import type { StalkerUser, TwitchUser } from '@/core/types/twitch';
-import { fadeIn, hoverSubtleBorderedRow, hoverSubtleIconBtn, hoverSubtleRowBg, panelCard, textInput } from '@/core/utils/tw';
+import { fadeIn, hoverSubtleBorderedRow, hoverSubtleRowBg, toolPanelShell, toolConfigInput, toolHeaderIconBtn } from '@/core/utils/tw';
 import { useToast } from '@/shared/ui/ToastProvider';
 import { UserInspectModal } from '@/shared/ui/UserInspectModal';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { StalkerRowSkeleton } from '@/shared/ui/Skeleton';
 import { EmptyStateIcon, IconSm, InlineIcon } from '@/shared/ui/Icon';
-import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useDebounce } from '@/shared/hooks/useDebounce';
+import { useToolFocus } from '@/features/dashboard/lib/ToolFocusContext';
+import { ToolPanelHeader } from '@/features/tools/components/ToolPanelHeader';
 
 const LISTENER_ID = 'stalker';
 const CHATTERS_CLIENT_TTL_MS = 40_000;
@@ -25,6 +26,7 @@ export function StalkerView({ active = true }: { active?: boolean }) {
     const { t } = useTranslation();
     const stalker = t.tools.stalker;
     const { showToast } = useToast();
+    const { focusMode } = useToolFocus();
     const [scanning, setScanning] = useState(false);
     const [chatters, setChatters] = useState<StalkerUser[]>([]);
     const [search, setSearch] = useState('');
@@ -201,25 +203,12 @@ export function StalkerView({ active = true }: { active?: boolean }) {
 
     return (
         <>
-            <div className={`${panelCard} ${fadeIn} mb-3 flex flex-col`}>
-                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5 max-md:flex-col max-md:items-start">
-                    <div className="flex min-w-0 items-center gap-3">
-                        <div
-                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${subtleIcon('primary')}`}
-                        >
-                            <Users className="h-4 w-4" aria-hidden />
-                        </div>
-                        <div className="min-w-0">
-                            <h2 className="text-[0.9375rem] font-semibold tracking-tight text-text-main">
-                                {stalker.title}
-                            </h2>
-                            <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">
-                                {stalker.info}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:justify-between">
+            <div className={`${toolPanelShell(focusMode)} ${focusMode ? 'min-h-0' : fadeIn}`}>
+                <ToolPanelHeader
+                    icon={Users}
+                    title={stalker.title}
+                    description={stalker.info}
+                    status={
                         <span
                             className={`inline-flex items-center gap-1.5 text-[0.8125rem] ${scanning ? 'text-success' : 'text-text-muted'}`}
                         >
@@ -235,32 +224,41 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                 </>
                             )}
                         </span>
-
-                        <div className="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:flex-col max-md:items-stretch">
-                            <div className="relative w-[200px] max-md:w-full">
-                                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-text-muted" />
-                                <input
-                                    type="search"
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    placeholder={stalker.searchPlaceholder}
-                                    aria-label={stalker.searchPlaceholder}
-                                    className={`${textInput} pl-9`}
-                                />
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={() => void toggleScan()}
-                                title={scanning ? stalker.btnPause : stalker.btnStart}
-                                aria-label={scanning ? stalker.btnPause : stalker.btnStart}
-                                className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] transition ${
-                                    scanning ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'
-                                }`}
-                            >
-                                {scanning ? <Pause className="size-4 shrink-0" /> : <Play className="size-4 shrink-0" />}
-                            </button>
-
+                    }
+                    primaryAction={
+                        <button
+                            type="button"
+                            onClick={() => void toggleScan()}
+                            title={scanning ? stalker.btnPause : stalker.btnStart}
+                            aria-label={scanning ? stalker.btnPause : stalker.btnStart}
+                            className={`${toolHeaderIconBtn} ${
+                                scanning
+                                    ? 'text-warning hover:bg-warning/10'
+                                    : 'text-success hover:bg-success/10'
+                            }`}
+                        >
+                            {scanning ? (
+                                <Pause className="size-4 shrink-0" />
+                            ) : (
+                                <Play className="size-4 shrink-0" />
+                            )}
+                        </button>
+                    }
+                    config={
+                        <div className="relative w-[220px] max-w-full max-md:w-full">
+                            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-text-muted" />
+                            <input
+                                type="search"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder={stalker.searchPlaceholder}
+                                aria-label={stalker.searchPlaceholder}
+                                className={`${toolConfigInput} pl-9`}
+                            />
+                        </div>
+                    }
+                    trailing={
+                        <>
                             <button
                                 type="button"
                                 onClick={() => {
@@ -271,17 +269,16 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                 }}
                                 title={stalker.btnReload}
                                 aria-label={stalker.btnReload}
-                                className={`rounded-lg border-none px-3 py-1 text-[0.8125rem] text-text-muted ${hoverSubtleIconBtn}`}
+                                className={toolHeaderIconBtn}
                             >
                                 <RotateCw className="size-4 shrink-0" />
                             </button>
-                        </div>
+                            <InfoTooltip text={stalker.tooltip} />
+                        </>
+                    }
+                />
 
-                        <InfoTooltip text={stalker.tooltip} />
-                    </div>
-                </header>
-
-                <div className="p-5">
+                <div className="min-h-0 flex-1 overflow-y-auto p-5">
                 <div className="overflow-hidden rounded-xl border border-border-strong bg-bg-secondary">
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse">

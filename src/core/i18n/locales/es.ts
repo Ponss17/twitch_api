@@ -450,7 +450,7 @@ export const es = {
         },
         todayChart: {
             title: 'Actividad Hoy',
-            info: 'Peticiones de cada comando hoy.',
+            info: 'Peticiones y errores de cada comando hoy.',
             success: 'Éxitos',
             errors: 'Errores',
             successRate: 'Tasa de Éxito',
@@ -514,6 +514,8 @@ export const es = {
         },
         closeMenu: 'Cerrar menú',
         openMenu: 'Abrir menú',
+        enterFocusMode: 'Vista completa',
+        exitFocusMode: 'Salir de vista completa',
         accountMenu: 'Menú de cuenta',
         myAccount: 'MI CUENTA',
         settings: 'Ajustes',
@@ -549,7 +551,9 @@ export const es = {
         },
         docs: 'Documentación',
         discord: 'Comunidad',
-        navigation: 'Navegación del panel'
+        navigation: 'Navegación del panel',
+        collapseMenu: 'Colapsar menú',
+        expandMenu: 'Expandir menú'
     },
     common: {
         channel: 'Canal',
@@ -562,6 +566,7 @@ export const es = {
         loading: 'Cargando...',
         error: 'Error',
         success: 'Éxito',
+        moreOptions: 'Más opciones',
         tabError: 'Error al cargar la pestaña',
         aria: {
             close: 'Cerrar',
@@ -1135,7 +1140,14 @@ export const es = {
             stopped: 'Escucha de preguntas pausada',
             missingFilter: 'Elige al menos un rol que pueda preguntar',
             loadError: 'No se pudo cargar el historial de preguntas',
-            retentionHint: 'Se guardan hasta {max} preguntas y se borran a los {days} días, o cuando tú las limpies.'
+            retentionHint: 'Se guardan hasta {max} preguntas y se borran a los {days} días, o cuando tú las limpies.',
+            btnHistory: 'Ver historial',
+            historyTitle: 'Historial de preguntas',
+            historyEmpty: 'No hay preguntas guardadas',
+            historyFilterAll: 'Todas',
+            historyFilterPending: 'Pendientes',
+            historyFilterAnswered: 'Respondidas',
+            historyFilterSkipped: 'Pasadas'
         },
     },
     overlay: {

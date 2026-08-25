@@ -46,3 +46,11 @@ export const TAB_META: Record<DashboardTab, { title: string; icon: LucideIcon }>
 
 TAB_META.settings = { title: 'Configuración', icon: Settings };
 TAB_META.magic8 = { title: 'Bola 8 Mágica', icon: MAGIC8_ICON };
+
+const TOOL_TAB_IDS = new Set(
+    NAV_ITEMS.filter((item) => item.category === 'tools').map((item) => item.id)
+);
+
+export function isToolTab(tab: DashboardTab): boolean {
+    return TOOL_TAB_IDS.has(tab);
+}
