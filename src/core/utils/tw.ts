@@ -4,10 +4,24 @@ export const card =
 /** Panel calmado (Settings/Analytics): borde suave, sin hover de acento. */
 export const panelCard = 'rounded-xl border border-border-subtle bg-bg-panel shadow-[0_8px_30px_rgba(0,0,0,0.15)] backdrop-blur-md';
 
+export const toolPanelShell = (focusMode = false) =>
+    focusMode
+        ? 'flex h-full min-h-0 flex-col overflow-hidden bg-bg-main'
+        : `${panelCard} mb-3 flex flex-col`;
+
+export const toolHeaderTopRow =
+    'flex flex-wrap items-center justify-between gap-3 px-5 py-3';
+
+export const toolHeaderConfigBar =
+    'flex flex-wrap items-center justify-between gap-2.5 border-t border-border-subtle px-5 py-2.5';
+
 export const fadeIn = 'animate-fade-soft opacity-0';
 
 export const hoverSubtleIconBtn =
     'transition-colors hover:bg-white/[0.02] hover:text-text-main';
+
+export const toolHeaderIconBtn =
+    `inline-flex size-8 shrink-0 items-center justify-center rounded-lg border-none text-text-muted disabled:cursor-not-allowed disabled:opacity-40 ${hoverSubtleIconBtn}`;
 
 export const hoverSubtleChip = hoverSubtleIconBtn;
 export const hoverSubtleRowBg = hoverSubtleIconBtn;
@@ -17,6 +31,15 @@ export const hoverSubtleBorderedRow =
 
 export const hoverSubtleControl =
     'transition-colors hover:border-border-strong hover:bg-white/[0.02]';
+
+export const toolConfigControl =
+    `inline-flex h-8 shrink-0 items-center gap-2 rounded-lg border border-border-subtle bg-bg-secondary px-2.5 text-[0.8125rem] font-medium leading-none text-text-main ${hoverSubtleControl}`;
+
+export const toolConfigInput =
+    `h-8 w-full rounded-lg border border-border-subtle bg-bg-secondary px-3 py-0 text-[0.8125rem] leading-none text-text-main outline-none ${hoverSubtleControl} focus:border-primary focus:bg-primary/[0.02] disabled:cursor-not-allowed disabled:opacity-50`;
+
+export const toolConfigSegment =
+    'inline-flex h-8 shrink-0 items-center rounded-lg border border-border-subtle bg-bg-secondary p-0.5 text-[0.75rem]';
 
 /** Chip/tab inactivo: hover gris. Morado solo cuando está activo. */
 export const themeIdleChip =
@@ -150,25 +173,46 @@ export const aboutFadeIn = 'opacity-0 animate-about-in';
 export const aboutLegoIn = 'opacity-0 animate-about-lego';
 
 /* —— Sidebar (dashboard + docs) —— */
-export const sidebarNavButtonBase =
-    'relative mb-0.5 flex items-center gap-3 rounded-md border border-transparent px-3 py-1.5 text-left font-[inherit] text-[0.85rem] font-medium transition-all outline-none focus-visible:bg-bg-tertiary focus-visible:text-text-main focus-visible:ring-1 focus-visible:ring-text-main/10';
+/** Misma curva en shell, labels y margen del main. */
+export const SIDEBAR_MOTION =
+    'duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]';
 
-export const sidebarNavItem = (active: boolean) => {
-    const width = 'mx-auto w-[calc(100%-16px)]';
+export const sidebarNavButtonBase =
+    `relative mb-0.5 flex items-center rounded-md border border-transparent py-1.5 text-left font-[inherit] text-[0.85rem] font-medium outline-none transition-[width,padding,margin,background-color,color,box-shadow] ${SIDEBAR_MOTION} focus-visible:bg-bg-tertiary focus-visible:text-text-main focus-visible:ring-1 focus-visible:ring-text-main/10`;
+
+export const sidebarNavItem = (active: boolean, collapsed = false) => {
+    const width = collapsed
+        ? 'mx-auto w-10 justify-center px-0'
+        : 'mx-auto w-[calc(100%-16px)] justify-start px-3';
     if (active) {
         return `${sidebarNavButtonBase} ${width} bg-primary/15 text-text-main shadow-none dark:bg-primary/20 dark:shadow-md dark:shadow-black/40 [&_svg]:text-primary`;
     }
     return `${sidebarNavButtonBase} ${width} text-text-muted ${hoverSubtleIconBtn}`;
 };
 
-export const sidebarShell = (mobileOpen: boolean) =>
-    `fixed left-0 top-0 z-[1000] flex h-screen w-[240px] flex-col bg-sidebar border-r border-border-subtle transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`;
+export const SIDEBAR_WIDTH_EXPANDED_PX = 220;
+export const SIDEBAR_WIDTH_COLLAPSED_PX = 72;
+export const sidebarContentOffset = 'lg:ml-[var(--lp-sidebar-w,220px)]';
+export const sidebarFooterOffset = 'lg:pl-[var(--lp-sidebar-w,220px)]';
 
-export const sidebarBrandHeader =
-    'flex h-20 shrink-0 items-center gap-3 px-5 py-4';
+export const sidebarShell = (mobileOpen: boolean, collapsed = false) =>
+    `fixed left-0 top-0 z-[1000] flex h-screen w-[220px] flex-col overflow-hidden border-r border-border-subtle bg-sidebar transition-[transform,width] ${SIDEBAR_MOTION} ${
+        collapsed ? 'lg:w-[72px]' : 'lg:w-[220px]'
+    } ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`;
+
+export const sidebarBrandHeader = (collapsed = false) =>
+    `relative flex h-16 shrink-0 items-center overflow-hidden transition-[padding] ${SIDEBAR_MOTION} ${
+        collapsed ? 'justify-center px-2' : 'justify-between gap-2 px-3'
+    }`;
+
+/** Label de nav: se recorta con el ancho en vez de desmontarse. */
+export const sidebarLabelClip = (collapsed: boolean) =>
+    `overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] ${SIDEBAR_MOTION} ${
+        collapsed ? 'max-w-0 opacity-0' : 'max-w-[9.5rem] opacity-100'
+    }`;
 
 export const sidebarNavScroll =
-    'flex flex-1 flex-col overflow-y-auto px-3 py-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden';
+    'flex flex-1 flex-col overflow-x-hidden overflow-y-auto px-3 py-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden';
 
 export const sidebarCategoryLabel =
     'mb-2 ml-3 mt-6 block text-[0.75rem] font-bold uppercase tracking-[0.05em] text-text-muted first:mt-2';

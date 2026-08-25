@@ -1,24 +1,25 @@
-import { useEffect, useRef } from 'react';
-import { LazyMotion, domAnimation, m } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 import type { DashboardTab } from '@/core/config/config';
 import { appPath, saveDocsReturnPath, staticPath } from '@/core/config/paths';
 import { NAV_ITEMS } from '@/features/dashboard/lib/dashboardTabs';
 import {
     sidebarBackdrop,
     sidebarBrandHeader,
+    sidebarLabelClip,
     sidebarNavItem,
     sidebarNavScroll,
-    sidebarShell
+    sidebarShell,
+    SIDEBAR_MOTION,
+    hoverSubtleIconBtn
 } from '@/core/utils/tw';
 import { DiscordIcon, TwitchIcon } from '@/shared/ui/icons/BrandIcons';
 import { AppLogo } from '@/shared/ui/AppLogo';
 import { IconMd } from '@/shared/ui/Icon';
-import { Book, Heart, LogOut, Settings } from 'lucide-react';
+import { Book, ChevronsUpDown, Heart, LogOut, PanelLeft, PanelLeftClose, Settings } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
 import {
     Dropdown,
-    DropdownChevron,
     DropdownDivider,
     DropdownItem,
     DropdownLink,
@@ -35,9 +36,28 @@ interface SidebarProps {
     onClose: () => void;
     onSettings: () => void;
     onLogout: () => void;
+    /** Solo desktop: rail icon-only. */
+    collapsed?: boolean;
+    onCollapsedChange?: (collapsed: boolean) => void;
 }
 
 const MAIN_NAV = NAV_ITEMS.filter((item) => item.category !== 'support');
+
+function useIsDesktopLg(): boolean {
+    const [desktop, setDesktop] = useState(() =>
+        typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false
+    );
+
+    useEffect(() => {
+        const mq = window.matchMedia('(min-width: 1024px)');
+        const onChange = () => setDesktop(mq.matches);
+        onChange();
+        mq.addEventListener('change', onChange);
+        return () => mq.removeEventListener('change', onChange);
+    }, []);
+
+    return desktop;
+}
 
 export function Sidebar({
     active,
@@ -45,11 +65,16 @@ export function Sidebar({
     mobileOpen,
     onClose,
     onSettings,
-    onLogout
+    onLogout,
+    collapsed = false,
+    onCollapsedChange
 }: SidebarProps) {
     const { t } = useTranslation();
     const session = useRequiredSession();
     const asideRef = useRef<HTMLElement>(null);
+    const isDesktop = useIsDesktopLg();
+    /** En móvil el drawer siempre muestra labels; el rail compacto solo en lg+. */
+    const railCollapsed = collapsed && isDesktop;
     const displayName = session.displayName ?? session.login ?? 'Streamer';
     const loginLabel = session.login ? `@${session.login}` : '';
     const twitchProfileUrl = session.login ? `https://www.twitch.tv/${session.login}` : '#';
@@ -84,68 +109,123 @@ export function Sidebar({
         return () => window.removeEventListener('keydown', onKey);
     }, [mobileOpen, onClose]);
 
+    const toggleCollapsed = () => {
+        onCollapsedChange?.(!collapsed);
+    };
+
     return (
         <>
             <aside
                 ref={asideRef}
                 id="dashboard-sidebar"
-                className={sidebarShell(mobileOpen)}
+                className={sidebarShell(mobileOpen, railCollapsed)}
+                data-collapsed={railCollapsed ? 'true' : 'false'}
             >
-                <div className={sidebarBrandHeader}>
-                    <AppLogo
-                        className="pointer-events-none h-9 w-9 shrink-0 text-primary transition-colors duration-300"
-                    />
-                    <span className="text-[1.1rem] font-bold text-text-main">
-                        LosPerris<span className="text-[color:var(--brand-text)]">API</span>
-                    </span>
+                <div className={sidebarBrandHeader(railCollapsed)}>
+                    <div
+                        className={`flex min-w-0 items-center gap-2.5 overflow-hidden transition-[opacity,max-width] ${SIDEBAR_MOTION} ${
+                            railCollapsed
+                                ? 'pointer-events-none max-w-0 opacity-0'
+                                : 'max-w-[9.5rem] opacity-100'
+                        }`}
+                        aria-hidden={railCollapsed}
+                    >
+                        <AppLogo className="pointer-events-none h-8 w-8 shrink-0 text-primary" />
+                        <span className="whitespace-nowrap text-[1.05rem] font-bold leading-none text-text-main">
+                            LosPerris
+                            <span className="text-[color:var(--brand-text)]">API</span>
+                        </span>
+                    </div>
+                    {onCollapsedChange ? (
+                        <button
+                            type="button"
+                            className={`shrink-0 items-center justify-center rounded-lg text-text-muted ${hoverSubtleIconBtn} ${
+                                railCollapsed
+                                    ? 'inline-flex size-10'
+                                    : 'hidden size-8 lg:inline-flex'
+                            }`}
+                            aria-label={
+                                railCollapsed ? t.sidebar.expandMenu : t.sidebar.collapseMenu
+                            }
+                            aria-expanded={!railCollapsed}
+                            aria-controls="dashboard-sidebar"
+                            onClick={toggleCollapsed}
+                        >
+                            {railCollapsed ? (
+                                <PanelLeft className="size-5" aria-hidden />
+                            ) : (
+                                <PanelLeftClose className="size-4" aria-hidden />
+                            )}
+                        </button>
+                    ) : null}
                 </div>
 
                 <nav className={sidebarNavScroll} aria-label={t.sidebar.navigation}>
                     {MAIN_NAV.map((item, index) => {
                         const prevCategory = index > 0 ? MAIN_NAV[index - 1].category : '';
-                        const showCategory = item.category && item.category !== prevCategory;
+                        const isCategoryStart =
+                            Boolean(item.category) && item.category !== prevCategory;
                         const isActive = active === item.id;
 
                         const catKey = item.category as keyof typeof t.sidebar.categories;
                         const itemKey = item.id as keyof typeof t.sidebar.items;
+                        const itemLabel = t.sidebar.items[itemKey];
 
                         return (
                             <div key={item.id}>
-                                {showCategory && (
-                                    <p
-                                        className={`mb-2 px-4 text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-text-muted ${
-                                            index === 0 ? 'mt-2' : 'mt-8'
-                                        }`}
-                                    >
-                                        {item.category ? t.sidebar.categories[catKey] : ''}
-                                    </p>
-                                )}
+                                {isCategoryStart ? (
+                                    <>
+                                        <p
+                                            className={`overflow-hidden px-4 text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-text-muted transition-[max-height,margin,opacity,padding] ${SIDEBAR_MOTION} ${
+                                                railCollapsed
+                                                    ? 'mb-0 mt-0 max-h-0 opacity-0'
+                                                    : `mb-2 max-h-8 opacity-100 ${index === 0 ? 'mt-2' : 'mt-8'}`
+                                            }`}
+                                            aria-hidden={railCollapsed}
+                                        >
+                                            {item.category ? t.sidebar.categories[catKey] : ''}
+                                        </p>
+                                        {index > 0 ? (
+                                            <div
+                                                className={`mx-auto h-px w-5 bg-border-subtle transition-[margin,opacity] ${SIDEBAR_MOTION} ${
+                                                    railCollapsed
+                                                        ? 'my-2.5 opacity-100'
+                                                        : 'my-0 max-h-0 opacity-0'
+                                                }`}
+                                                aria-hidden
+                                            />
+                                        ) : null}
+                                    </>
+                                ) : null}
                                 <button
                                     type="button"
                                     onClick={() => {
                                         onChange(item.id);
                                         onClose();
                                     }}
-                                    className={`${sidebarNavItem(isActive)} relative overflow-hidden`}
-                                    aria-label={t.sidebar.items[itemKey]}
+                                    className={`${sidebarNavItem(isActive, railCollapsed)} relative overflow-hidden`}
+                                    aria-label={itemLabel}
+                                    title={railCollapsed ? itemLabel : undefined}
                                     aria-current={isActive ? 'page' : undefined}
                                 >
-                                    {isActive && (
-                                        <LazyMotion features={domAnimation}>
-                                            <m.div
-                                                layoutId="sidebar-active"
-                                                className="absolute inset-0 bg-primary/20"
-                                                initial={false}
-                                                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                                            />
-                                        </LazyMotion>
-                                    )}
-                                    <div className="relative z-10 flex items-center gap-3">
+                                    {isActive ? (
+                                        <span
+                                            className="absolute inset-0 bg-primary/20"
+                                            aria-hidden
+                                        />
+                                    ) : null}
+                                    <div
+                                        className={`relative z-10 flex min-w-0 items-center transition-[gap] ${SIDEBAR_MOTION} ${
+                                            railCollapsed ? 'gap-0' : 'gap-3'
+                                        }`}
+                                    >
                                         <IconMd
                                             icon={item.icon}
-                                            className={isActive ? 'animate-nav-icon-bounce text-primary' : ''}
+                                            className={`shrink-0 ${isActive ? 'text-primary' : ''}`}
                                         />
-                                        <span>{t.sidebar.items[itemKey]}</span>
+                                        <span className={sidebarLabelClip(railCollapsed)}>
+                                            {itemLabel}
+                                        </span>
                                     </div>
                                 </button>
                             </div>
@@ -153,34 +233,60 @@ export function Sidebar({
                     })}
                 </nav>
 
-                <div className="flex h-[4.25rem] shrink-0 items-center border-t border-border-subtle px-2.5">
-                    <Dropdown className="relative w-full">
+                <div
+                    className={`flex h-[4.25rem] shrink-0 items-center border-t border-border-subtle transition-[padding,justify-content] ${SIDEBAR_MOTION} ${
+                        railCollapsed ? 'justify-center px-1.5' : 'px-2.5'
+                    }`}
+                >
+                    <Dropdown
+                        className={`relative transition-[width] ${SIDEBAR_MOTION} ${
+                            railCollapsed ? 'w-auto' : 'w-full'
+                        }`}
+                    >
                         <DropdownTrigger
                             aria-label={t.header.accountMenu}
-                            className="group flex w-full items-center gap-2.5 rounded-xl border border-transparent px-2 py-2 text-left transition-colors hover:bg-white/[0.02] aria-expanded:border-border-subtle aria-expanded:bg-white/[0.03]"
+                            title={railCollapsed ? displayName : undefined}
+                            className={`group flex items-center rounded-xl border border-transparent text-left transition-[padding,gap,width] ${SIDEBAR_MOTION} hover:bg-white/[0.02] aria-expanded:border-border-subtle aria-expanded:bg-white/[0.03] ${
+                                railCollapsed
+                                    ? 'justify-center gap-0 p-1.5'
+                                    : 'w-full gap-2.5 px-2 py-2'
+                            }`}
                         >
                             <img
                                 src={avatarSrc}
                                 alt=""
                                 className="size-9 shrink-0 rounded-full object-cover ring-1 ring-border-subtle"
                             />
-                            <span className="min-w-0 flex-1">
-                                <span className="block truncate text-[0.875rem] font-semibold text-text-main">
+                            <span
+                                className={`min-w-0 flex-1 overflow-hidden transition-[max-width,opacity] ${SIDEBAR_MOTION} ${
+                                    railCollapsed
+                                        ? 'max-w-0 opacity-0'
+                                        : 'max-w-[9rem] opacity-100'
+                                }`}
+                                aria-hidden={railCollapsed}
+                            >
+                                <span className="block truncate whitespace-nowrap text-[0.875rem] font-semibold text-text-main">
                                     {displayName}
                                 </span>
-                                {loginLabel && (
-                                    <span className="block truncate text-[0.7rem] text-text-muted">
+                                {loginLabel ? (
+                                    <span className="block truncate whitespace-nowrap text-[0.7rem] text-text-muted">
                                         {loginLabel}
                                     </span>
-                                )}
+                                ) : null}
                             </span>
-                            <DropdownChevron className="size-3.5 shrink-0 text-text-muted transition-transform group-hover:text-text-main group-aria-expanded:rotate-180 group-aria-expanded:text-text-main" />
+                            <ChevronsUpDown
+                                className={`size-3.5 shrink-0 text-text-muted transition-[opacity,max-width,color] ${SIDEBAR_MOTION} group-hover:text-text-main group-aria-expanded:text-text-main ${
+                                    railCollapsed ? 'max-w-0 opacity-0' : 'max-w-4 opacity-100'
+                                }`}
+                                aria-hidden
+                            />
                         </DropdownTrigger>
 
                         <DropdownPanel
                             align="left"
                             placement="top"
-                            widthClassName="w-[220px]"
+                            matchTrigger={!railCollapsed}
+                            widthClassName={railCollapsed ? 'min-w-[13.5rem]' : undefined}
                             zIndex={1000}
                             className="rounded-xl"
                             padding="compact"

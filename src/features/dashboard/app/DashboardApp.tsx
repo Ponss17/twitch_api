@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState, type AnimationEvent } from 'react';
 import { Sidebar } from '@/features/dashboard/layout/Sidebar';
 import { DashboardHeader } from '@/features/dashboard/layout/DashboardHeader';
 import { DashboardContent } from '@/features/dashboard/DashboardContent';
@@ -13,11 +13,19 @@ import { DASHBOARD_DATA_READY_EVENT } from '@/features/dashboard/lib/dashboardPa
 import { initGlobalErrorLogging } from '@/core/logging/logError';
 import { resolveDashboardTab, setTabInUrl } from '@/features/dashboard/lib/dashboardTabUrl';
 import { persistPanelReturnPath } from '@/core/config/paths';
-import { fadeIn } from '@/core/utils/tw';
+import { fadeIn, SIDEBAR_WIDTH_COLLAPSED_PX, SIDEBAR_WIDTH_EXPANDED_PX, sidebarContentOffset } from '@/core/utils/tw';
 import type { DashboardTab } from '@/core/config/config';
 import { DashboardPanelProvider } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { I18nProvider } from '@/core/i18n/I18nContext';
 import { ThemeEasterEggs } from '@/features/dashboard/easterEggs/ThemeEasterEggs';
+import {
+    readSidebarCollapsedPref,
+    writeSidebarCollapsedPref
+} from '@/features/dashboard/lib/sidebarPrefs';
+import { isToolTab } from '@/features/dashboard/lib/dashboardTabs';
+import { ToolFocusProvider } from '@/features/dashboard/lib/ToolFocusContext';
+
+type ToolFocusPhase = 'off' | 'pre' | 'in' | 'on' | 'out';
 
 function DashboardMain({
     tab,
@@ -39,6 +47,81 @@ function DashboardMain({
     const session = useRequiredSession();
     const { showToast } = useToast();
     const prioritySync = tab === 'home' || tab === 'analytics';
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(readSidebarCollapsedPref);
+    const [focusPhase, setFocusPhase] = useState<ToolFocusPhase>('off');
+    const toolFocus =
+        (focusPhase === 'in' || focusPhase === 'on' || focusPhase === 'out') && isToolTab(tab);
+    const focusBusy = focusPhase !== 'off';
+
+    const handleSidebarCollapsedChange = useCallback((next: boolean) => {
+        setSidebarCollapsed(next);
+        writeSidebarCollapsedPref(next);
+    }, []);
+
+    const enterFocusMode = useCallback(() => {
+        if (focusPhase !== 'off') return;
+        onCloseMobile();
+        setFocusPhase('pre');
+    }, [focusPhase, onCloseMobile]);
+
+    const exitFocusMode = useCallback(() => {
+        setFocusPhase((phase) => {
+            if (phase === 'off' || phase === 'out') return phase;
+            if (phase === 'pre') return 'off';
+            return 'out';
+        });
+    }, []);
+
+    const onFocusShellAnimationEnd = useCallback(
+        (e: AnimationEvent<HTMLDivElement>) => {
+            if (e.target !== e.currentTarget) return;
+            if (focusPhase === 'pre') setFocusPhase('in');
+            else if (focusPhase === 'in') setFocusPhase('on');
+            else if (focusPhase === 'out') setFocusPhase('off');
+        },
+        [focusPhase]
+    );
+
+    useEffect(() => {
+        if (focusPhase !== 'pre' && focusPhase !== 'in' && focusPhase !== 'out') return;
+        const safety = window.setTimeout(() => {
+            setFocusPhase((phase) => {
+                if (phase === 'pre') return 'in';
+                if (phase === 'in') return 'on';
+                if (phase === 'out') return 'off';
+                return phase;
+            });
+        }, 450);
+        return () => window.clearTimeout(safety);
+    }, [focusPhase]);
+
+    useEffect(() => {
+        if (!isToolTab(tab) && focusPhase !== 'off') {
+            setFocusPhase('off');
+        }
+    }, [tab, focusPhase]);
+
+    useEffect(() => {
+        if (!focusBusy) return;
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') exitFocusMode();
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [focusBusy, exitFocusMode]);
+
+    useLayoutEffect(() => {
+        const width = sidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED_PX : SIDEBAR_WIDTH_EXPANDED_PX;
+        document.documentElement.style.setProperty('--lp-sidebar-w', `${width}px`);
+        return () => {
+            document.documentElement.style.removeProperty('--lp-sidebar-w');
+        };
+    }, [sidebarCollapsed]);
+
+    useEffect(() => {
+        document.body.classList.toggle('tool-focus-mode', toolFocus);
+        return () => document.body.classList.remove('tool-focus-mode');
+    }, [toolFocus]);
 
     return (
         <DashboardPanelProvider
@@ -47,30 +130,82 @@ function DashboardMain({
             session={session}
             showToast={showToast}
         >
-            <Sidebar
-                active={tab}
-                onChange={onNavigate}
-                mobileOpen={mobileMenuOpen}
-                onClose={onCloseMobile}
-                onSettings={onSettings}
-                onLogout={onLogout}
-            />
-
-            <div className="flex min-h-0 flex-1 flex-col lg:ml-[240px]">
-                <DashboardHeader
-                    tab={tab}
-                    onMenuToggle={onMenuToggle}
-                    mobileMenuOpen={mobileMenuOpen}
+            <ToolFocusProvider focusMode={toolFocus} exitFocusMode={exitFocusMode}>
+                <Sidebar
+                    active={tab}
+                    onChange={onNavigate}
+                    mobileOpen={mobileMenuOpen}
+                    onClose={onCloseMobile}
+                    onSettings={onSettings}
+                    onLogout={onLogout}
+                    collapsed={sidebarCollapsed}
+                    onCollapsedChange={handleSidebarCollapsedChange}
                 />
 
-                <main className="flex flex-1 flex-col overflow-y-auto py-5">
-                    <div className="mx-auto w-full max-w-[1440px] flex-1 px-4 md:px-8 lg:px-12 xl:px-16">
-                        <div className={fadeIn}>
-                            <DashboardContent tab={tab} onNavigate={onNavigate} />
-                        </div>
+                <div
+                    className={`flex min-h-0 flex-1 flex-col transition-[margin-left] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${sidebarContentOffset}`}
+                >
+                    <div className={toolFocus ? 'pointer-events-none' : undefined} aria-hidden={toolFocus || undefined}>
+                        <DashboardHeader
+                            tab={tab}
+                            onMenuToggle={onMenuToggle}
+                            mobileMenuOpen={mobileMenuOpen}
+                            onEnterFocusMode={
+                                !focusBusy && isToolTab(tab) ? enterFocusMode : undefined
+                            }
+                        />
                     </div>
-                </main>
-            </div>
+
+                    <div
+                        className={
+                            toolFocus
+                                ? [
+                                      'fixed inset-0 z-[1100] flex flex-col bg-bg-main',
+                                      focusPhase === 'in'
+                                          ? 'animate-tool-focus-in'
+                                          : focusPhase === 'out'
+                                            ? 'animate-tool-focus-out'
+                                            : 'opacity-100'
+                                  ].join(' ')
+                                : [
+                                      'relative flex min-h-0 flex-1 flex-col overflow-y-auto py-5',
+                                      focusPhase === 'pre' ? 'animate-tool-focus-out' : ''
+                                  ]
+                                      .filter(Boolean)
+                                      .join(' ')
+                        }
+                        onAnimationEnd={
+                            focusPhase === 'pre' || toolFocus
+                                ? onFocusShellAnimationEnd
+                                : undefined
+                        }
+                    >
+                        <main
+                            className={
+                                toolFocus
+                                    ? 'flex min-h-0 flex-1 flex-col overflow-hidden'
+                                    : 'flex flex-1 flex-col'
+                            }
+                        >
+                            <div
+                                className={
+                                    toolFocus
+                                        ? 'flex min-h-0 w-full flex-1 flex-col'
+                                        : 'mx-auto w-full max-w-[1440px] flex-1 px-4 md:px-8 lg:px-12 xl:px-16'
+                                }
+                            >
+                                <div
+                                    className={
+                                        toolFocus ? 'flex min-h-0 flex-1 flex-col' : fadeIn
+                                    }
+                                >
+                                    <DashboardContent tab={tab} onNavigate={onNavigate} />
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                </div>
+            </ToolFocusProvider>
         </DashboardPanelProvider>
     );
 }
@@ -109,8 +244,6 @@ function DashboardAppShell() {
 
     useEffect(() => {
         initGlobalErrorLogging();
-        // Warm-up ping: despierta la función serverless de Vercel en segundo plano
-        // para que los primeros comandos del usuario no sufran cold start.
         void (async () => {
             try {
                 await fetch('/health', { method: 'GET' });
@@ -133,7 +266,6 @@ function DashboardAppShell() {
         };
     }, [userId]);
 
-    // Canonicaliza URL (path-based) y migra hash/?tab= legacy al montar
     useEffect(() => {
         const resolved = resolveDashboardTab(undefined, undefined, undefined, userId);
         setTabState(resolved);
@@ -141,7 +273,6 @@ function DashboardAppShell() {
         persistPanelReturnPath();
     }, [userId]);
 
-    // Escuchar cuando el panel de Inicio cargó datos
     useEffect(() => {
         if (!splashOpen) return;
 
@@ -198,8 +329,11 @@ function DashboardAppShell() {
             {dashboardReady && (
                 <div
                     id="dashboard-page"
-                    className={`flex min-h-full flex-1 flex-col bg-bg-main transition-[filter,opacity] duration-300 ${splashOpen && !splashDone ? 'pointer-events-none opacity-50 blur-[2px]' : ''
-                        }`}
+                    className={`flex min-h-full flex-1 flex-col bg-bg-main transition-[filter,opacity] duration-300 ${
+                        splashOpen && !splashDone
+                            ? 'pointer-events-none opacity-50 blur-[2px]'
+                            : ''
+                    }`}
                 >
                     <DashboardMain
                         tab={tab}

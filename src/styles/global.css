@@ -39,6 +39,8 @@
   --animate-modal-out: modalOut 0.2s cubic-bezier(0.4, 0, 1, 1) both;
   --animate-modal-backdrop-in: modalBackdropIn 0.28s ease-out both;
   --animate-modal-backdrop-out: modalBackdropOut 0.2s ease-in both;
+  --animate-tool-focus-in: toolFocusFadeIn 0.32s ease-in-out both;
+  --animate-tool-focus-out: toolFocusFadeOut 0.32s ease-in-out both;
   --animate-sheet-in: sheetIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-sheet-out: sheetOut 0.22s cubic-bezier(0.4, 0, 1, 1) both;
   --animate-glow-pulse: ctaGlowPulse 2.8s ease-in-out infinite;
@@ -249,4 +251,22 @@
 @keyframes toast-progress {
   0% { width: 100%; }
   100% { width: 0%; }
+}
+
+@keyframes toolFocusFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes toolFocusFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+body.tool-focus-mode {
+  overflow: hidden;
+}
+
+body.tool-focus-mode .app-footer {
+  display: none;
 }

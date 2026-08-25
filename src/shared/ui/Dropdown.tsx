@@ -5,7 +5,7 @@ export {
     dropdownTriggerCompact,
     useDropdown
 } from './DropdownContext';
-export { DropdownPanel } from './DropdownPanel';
+export { DropdownPanel, DROPDOWN_Z_FOCUS } from './DropdownPanel';
 export {
     DropdownHeader,
     DropdownDivider,

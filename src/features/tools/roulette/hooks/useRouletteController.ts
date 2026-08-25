@@ -140,12 +140,13 @@ export function useRouletteController({
             void fetch(API_ENDPOINTS.SEND_MESSAGE, withApiCredentials({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
-                body: JSON.stringify({ message })
+                body: JSON.stringify({ message, source: 'roulette' })
             })).catch(() => showToast(gTRef.current.rouletteSendError, 'error'));
         },
         [session, showToast]
     );
 
+    /** TMI si hay chat conectado; si no, Helix con `source: roulette` para el historial. */
     const sendWinnerMessage = useCallback(
         (winMsg: string) => {
             if (tmiService.isConnected) {

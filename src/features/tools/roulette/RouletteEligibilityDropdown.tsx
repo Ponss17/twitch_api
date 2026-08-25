@@ -7,7 +7,7 @@ import {
     DropdownDivider,
     DropdownPanel,
     DropdownTrigger,
-    dropdownTriggerCompact
+    DROPDOWN_Z_FOCUS
 } from '@/shared/ui/Dropdown';
 import {
     ROLE_OPTIONS,
@@ -17,6 +17,7 @@ import {
     setAllFilters,
     type EligibilityFilters
 } from '@/features/tools/lib/eligibility';
+import { toolConfigControl } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface EligibilityDropdownProps {
@@ -51,14 +52,19 @@ export function EligibilityDropdown({
                 disabled={disabled}
                 haspopup="listbox"
                 aria-label={`${rlT.whoCanPlay}: ${summary}`}
-                className={dropdownTriggerCompact}
+                className={`${toolConfigControl} min-w-[9.5rem] max-w-[11.5rem] disabled:cursor-not-allowed disabled:opacity-50 aria-expanded:border-primary/25 aria-expanded:bg-primary/[0.08]`}
             >
                 <Users className="size-3.5 shrink-0 text-brand-text" aria-hidden />
                 <span className="min-w-0 flex-1 truncate text-left">{summary}</span>
                 <DropdownChevron />
             </DropdownTrigger>
 
-            <DropdownPanel role="listbox" aria-label={rlT.whoCanPlay} padding="compact">
+            <DropdownPanel
+                role="listbox"
+                aria-label={rlT.whoCanPlay}
+                padding="compact"
+                zIndex={DROPDOWN_Z_FOCUS}
+            >
                 <DropdownCheckboxItem
                     inputRef={todosRef}
                     checked={isAllFilters(filters)}

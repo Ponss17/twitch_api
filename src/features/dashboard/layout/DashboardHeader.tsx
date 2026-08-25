@@ -1,15 +1,17 @@
 import type { DashboardTab } from '@/core/config/config';
-import { TAB_META } from '@/features/dashboard/lib/dashboardTabs';
-import { Menu } from 'lucide-react';
+import { isToolTab, TAB_META } from '@/features/dashboard/lib/dashboardTabs';
+import { Maximize2, Menu } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { Translations } from '@/core/i18n/locales/es';
 import { NotificationsBell } from '@/features/dashboard/announcements/NotificationsBell';
 import { FeedbackWidget } from '@/features/dashboard/feedback/FeedbackWidget';
+import { hoverSubtleIconBtn } from '@/core/utils/tw';
 
 interface DashboardHeaderProps {
     tab: DashboardTab;
     onMenuToggle: () => void;
     mobileMenuOpen?: boolean;
+    onEnterFocusMode?: () => void;
 }
 
 function getTabSubtitle(tab: string, t: Translations): string {
@@ -20,11 +22,13 @@ function getTabSubtitle(tab: string, t: Translations): string {
 export function DashboardHeader({
     tab,
     onMenuToggle,
-    mobileMenuOpen = false
+    mobileMenuOpen = false,
+    onEnterFocusMode
 }: DashboardHeaderProps) {
     const { t } = useTranslation();
     const meta = TAB_META[tab];
     const tabKey = tab as keyof typeof t.sidebar.items;
+    const showFocusToggle = Boolean(onEnterFocusMode) && isToolTab(tab);
 
     return (
         <header className="w-full pt-7">
@@ -53,6 +57,18 @@ export function DashboardHeader({
                 </div>
 
                 <div className="flex items-center gap-2">
+                    {showFocusToggle ? (
+                        <button
+                            type="button"
+                            onClick={onEnterFocusMode}
+                            className={`inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-[0.8rem] font-medium text-text-muted transition-[transform,background-color] active:scale-[0.97] sm:px-3 ${hoverSubtleIconBtn}`}
+                            aria-label={t.header.enterFocusMode}
+                            title={t.header.enterFocusMode}
+                        >
+                            <Maximize2 className="size-4 shrink-0" aria-hidden />
+                            <span className="hidden sm:inline">{t.header.enterFocusMode}</span>
+                        </button>
+                    ) : null}
                     <FeedbackWidget />
                     <NotificationsBell />
                 </div>

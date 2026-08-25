@@ -131,8 +131,17 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
             );
 
             if (!res.ok) {
-                const data = (await res.json().catch(() => ({}))) as { error?: string };
-                throw new Error(data.error || fT.errorSend);
+                const data = (await res.json().catch(() => ({}))) as {
+                    error?: string | { message?: string };
+                    message?: string;
+                };
+                const nested =
+                    typeof data.error === 'object' && data.error?.message
+                        ? data.error.message
+                        : typeof data.error === 'string'
+                          ? data.error
+                          : data.message;
+                throw new Error(nested || fT.errorSend);
             }
 
             setStatus('success');

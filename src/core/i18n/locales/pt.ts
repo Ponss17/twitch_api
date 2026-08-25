@@ -445,7 +445,7 @@ export const pt: Translations = {
         },
         todayChart: {
             title: 'Atividade Hoje',
-            info: 'Requisições de cada comando hoje.',
+            info: 'Requisições e erros de cada comando hoje.',
             success: 'Sucessos',
             errors: 'Erros',
             successRate: 'Taxa de Sucesso',
@@ -509,6 +509,8 @@ export const pt: Translations = {
         },
         closeMenu: 'Fechar menu',
         openMenu: 'Abrir menu',
+        enterFocusMode: 'Vista completa',
+        exitFocusMode: 'Sair da vista completa',
         accountMenu: 'Menu da conta',
         myAccount: 'MINHA CONTA',
         settings: 'Configurações',
@@ -544,7 +546,9 @@ export const pt: Translations = {
         },
         docs: 'Documentação',
         discord: 'Comunidade',
-        navigation: 'Navegação do Painel'
+        navigation: 'Navegação do Painel',
+        collapseMenu: 'Recolher menu',
+        expandMenu: 'Expandir menu'
     },
     common: {
         channel: 'Canal',
@@ -557,6 +561,7 @@ export const pt: Translations = {
         loading: 'Carregando...',
         error: 'Erro',
         success: 'Sucesso',
+        moreOptions: 'Mais opções',
         tabError: 'Erro ao carregar aba',
         aria: {
             close: 'Fechar',
@@ -1130,7 +1135,14 @@ export const pt: Translations = {
             stopped: 'Escuta de perguntas pausada',
             missingFilter: 'Escolha pelo menos um cargo que possa perguntar',
             loadError: 'Não foi possível carregar o histórico de perguntas',
-            retentionHint: 'São guardadas até {max} perguntas e apagadas após {days} dias, ou quando você limpar.'
+            retentionHint: 'São guardadas até {max} perguntas e apagadas após {days} dias, ou quando você limpar.',
+            btnHistory: 'Ver histórico',
+            historyTitle: 'Histórico de perguntas',
+            historyEmpty: 'Não há perguntas guardadas',
+            historyFilterAll: 'Todas',
+            historyFilterPending: 'Pendentes',
+            historyFilterAnswered: 'Respondidas',
+            historyFilterSkipped: 'Puladas'
         },
     },
     overlay: {

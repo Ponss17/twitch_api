@@ -1,3 +1,4 @@
+import { SIDEBAR_WIDTH_EXPANDED_PX } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { Skeleton, SkeletonCircle } from './SkeletonPrimitives';
 import { AnalyticsSkeleton } from './AnalyticsSkeleton';
@@ -21,7 +22,10 @@ export function DashboardSessionSkeleton({ tab = 'home' }: { tab?: string }) {
 
     return (
         <div className="flex min-h-screen bg-bg-main" aria-busy="true" aria-label={t.globals.loading.dashboard}>
-            <aside className="hidden w-[240px] shrink-0 p-4 lg:block">
+            <aside
+                className="hidden shrink-0 p-4 lg:block"
+                style={{ width: SIDEBAR_WIDTH_EXPANDED_PX }}
+            >
                 <Skeleton className="mb-6 h-10 w-40 bg-transparent" />
                 <div className="space-y-2">
                     {Array.from({ length: 8 }).map((_, i) => (
