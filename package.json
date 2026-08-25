@@ -6,7 +6,7 @@
     "engines": {
         "node": ">=22.12.0"
     },
-    "packageManager": "pnpm@11.13.0",
+    "packageManager": "pnpm@11.24.0",
     "scripts": {
         "dev": "run-p dev:api dev:web",
         "dev:web": "astro dev",
