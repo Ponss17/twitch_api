@@ -29,6 +29,8 @@ export const MESSAGES = {
         MESSAGE_REQUIRED: 'El mensaje es requerido.',
         SUCCESS: 'Feedback enviado correctamente.',
         SEND_ERROR: 'Error al enviar el feedback.',
+        WEBHOOK_UNAVAILABLE:
+            'El canal de feedback no está disponible ahora. Inténtalo más tarde o avisa a Ponss.',
         MESSAGE_TOO_LONG: 'Mensaje demasiado largo (max 2000 caracteres).',
         ANONYMOUS_USER: 'Anónimo',
         VIEWER_ROLE: '📺 Viewer',

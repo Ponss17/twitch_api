@@ -122,7 +122,11 @@ function getActivityMetaDict(t: Translations): Record<ActivityLogType, Omit<Acti
         roulette: {
             label: act.roulette.label,
             icon: Dices,
-            detailText: () => act.roulette.defaultDetail
+            detailText: (item) => {
+                const msg = metaStr(item.metadata, 'message');
+                if (msg) return `"${msg}"`;
+                return act.roulette.defaultDetail;
+            }
         },
         other: {
             label: act.other.label,

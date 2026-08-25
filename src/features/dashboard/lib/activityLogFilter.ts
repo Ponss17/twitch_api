@@ -16,7 +16,6 @@ const USAGE_TO_ACTIVITY: Record<DashboardUsageKey, ActivityLogType> = {
     followage: 'followage',
     watchtime: 'watchtime',
     so: 'shoutout',
-    message: 'message',
     stalker: 'stalker',
     trends: 'trends',
     roulette: 'roulette',

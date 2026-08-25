@@ -5,7 +5,6 @@ const COMMAND_KEYS = [
     'watchtime',
     'clips',
     'so',
-    'message',
     'stalker',
     'trends',
     'roulette',

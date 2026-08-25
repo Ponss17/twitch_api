@@ -19,16 +19,6 @@ export const COMMAND_INTEGRATIONS = [
         ]
     },
     {
-        id: 'message',
-        label: 'Enviar Mensaje al Chat',
-        description: 'Envia un mensaje al chat de tu canal mediante la API',
-        method: 'POST' as const,
-        variants: [
-            { name: 'Mensaje Simple', params: '', body: '{"message":"Hola chat!"}', desc: 'Envia un mensaje de texto plano (max 500 caracteres)' },
-            { name: 'Mensaje con Variables de Bot', params: '', body: '{"message":"$(user) acaba de usar el comando!"}', desc: 'Incluye variables del bot en el mensaje' }
-        ]
-    },
-    {
         id: 'followage',
         label: 'Followage (Tiempo de Seguimiento)',
         description: 'Muestra cuánto tiempo lleva alguien siguiendo',
