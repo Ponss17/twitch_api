@@ -55,7 +55,7 @@ export const watchtime = async (req: AuthenticatedRequest, res: Response) => {
         {
             type: 'watchtime',
             user: sanitizedUser,
-            metadata: { target: channel },
+            metadata: { target: channel, lang },
             incrementStat: 'watchtime'
         },
         async () => {

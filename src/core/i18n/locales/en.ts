@@ -424,7 +424,27 @@ export const en: Translations = {
             technicalMetadata: 'Technical Metadata',
             copy: 'Copy',
             unknownDate: 'Unknown',
-            unknownTime: '---'
+            unknownTime: '---',
+            emptyMetadata: 'No additional metadata',
+            fieldType: 'Type',
+            fieldTimestamp: 'Timestamp',
+            fieldTarget: 'Target',
+            fieldTitle: 'Title',
+            fieldUrl: 'URL',
+            fieldMessage: 'Message',
+            fieldQuestion: 'Question',
+            fieldResponse: 'Response',
+            fieldSource: 'Source',
+            fieldAnnounce: 'Announce',
+            fieldAction: 'Action',
+            fieldClipId: 'Clip ID',
+            fieldLatency: 'Latency',
+            fieldLang: 'Language',
+            fieldFormat: 'Format',
+            fieldMood: 'Mood',
+            fieldHardcore: 'Hardcore',
+            fieldRawDetail: 'Detail',
+            rawJson: 'event.json'
         }
     },
     analytics: {

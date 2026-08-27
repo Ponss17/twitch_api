@@ -422,7 +422,27 @@ export const es = {
             technicalMetadata: 'Metadatos Técnicos',
             copy: 'Copiar',
             unknownDate: 'Desconocida',
-            unknownTime: '---'
+            unknownTime: '---',
+            emptyMetadata: 'Sin metadatos adicionales',
+            fieldType: 'Tipo',
+            fieldTimestamp: 'Timestamp',
+            fieldTarget: 'Objetivo',
+            fieldTitle: 'Título',
+            fieldUrl: 'URL',
+            fieldMessage: 'Mensaje',
+            fieldQuestion: 'Pregunta',
+            fieldResponse: 'Respuesta',
+            fieldSource: 'Origen',
+            fieldAnnounce: 'Anuncio',
+            fieldAction: 'Acción',
+            fieldClipId: 'ID del clip',
+            fieldLatency: 'Latencia',
+            fieldLang: 'Idioma',
+            fieldFormat: 'Formato',
+            fieldMood: 'Mood',
+            fieldHardcore: 'Hardcore',
+            fieldRawDetail: 'Detalle',
+            rawJson: 'event.json'
         }
     },
     analytics: {

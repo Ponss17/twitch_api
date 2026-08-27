@@ -1,7 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
+import { AUTH_QUERY_DISPLAY_MASK } from '@/core/api/authQuery';
+import { es } from '@/core/i18n/locales/es';
 import {
+    buildActivityTechnicalRows,
     formatActivityTime,
     mergeActivityLogs,
+    sanitizeActivitySecrets,
     type ActivityLogItem
 } from '@/features/dashboard/lib/activityLogDisplay';
 
@@ -57,5 +61,74 @@ describe('mergeActivityLogs', () => {
     it('dedupes by activity key', () => {
         const row = item(iso(10_000), 'clip', 'a');
         expect(mergeActivityLogs([row], [row])).toHaveLength(1);
+    });
+});
+
+describe('sanitizeActivitySecrets', () => {
+    it('redacts metadata.apiKey and sensitive query params in URLs', () => {
+        const input = {
+            type: 'clip',
+            metadata: {
+                apiKey: 'sk_live_secret_value',
+                url: 'https://example.com/clip?apiKey=secreto123&foo=1',
+                title: 'My clip'
+            }
+        };
+        const sanitized = sanitizeActivitySecrets(input) as typeof input;
+        expect(sanitized.metadata.apiKey).toBe(AUTH_QUERY_DISPLAY_MASK);
+        expect(sanitized.metadata.url).toContain(`apiKey=${AUTH_QUERY_DISPLAY_MASK}`);
+        expect(sanitized.metadata.url).not.toContain('secreto123');
+        expect(sanitized.metadata.url).toContain('foo=1');
+        expect(sanitized.metadata.title).toBe('My clip');
+        expect(JSON.stringify(sanitized)).not.toContain('sk_live_secret_value');
+    });
+
+    it('redacts nested token keys', () => {
+        const sanitized = sanitizeActivitySecrets({
+            metadata: { overlayToken: 'ov_secret', nested: { access_token: 'tok' } }
+        }) as { metadata: { overlayToken: string; nested: { access_token: string } } };
+        expect(sanitized.metadata.overlayToken).toBe(AUTH_QUERY_DISPLAY_MASK);
+        expect(sanitized.metadata.nested.access_token).toBe(AUTH_QUERY_DISPLAY_MASK);
+    });
+});
+
+describe('buildActivityTechnicalRows', () => {
+    it('includes type, timestamp and known metadata labels without leaking apiKey', () => {
+        const rows = buildActivityTechnicalRows(
+            {
+                type: 'clip',
+                timestamp: '2026-08-27T18:00:00.000Z',
+                user: 'streamer',
+                metadata: {
+                    title: 'Highlight',
+                    url: 'https://clips.twitch.tv/abc?apiKey=leak',
+                    apiKey: 'should-not-appear',
+                    response: 'https://clips.twitch.tv/abc',
+                    latencyMs: 42,
+                    custom_flag: 'extra'
+                }
+            },
+            es
+        );
+
+        expect(rows.map((r) => r.key)).toEqual([
+            'type',
+            'timestamp',
+            'title',
+            'url',
+            'response',
+            'latencyMs',
+            'apiKey',
+            'custom_flag'
+        ]);
+        expect(rows.find((r) => r.key === 'title')?.label).toBe(es.home.activityInspector.fieldTitle);
+        expect(rows.find((r) => r.key === 'response')?.label).toBe(es.home.activityInspector.fieldResponse);
+        expect(rows.find((r) => r.key === 'latencyMs')?.value).toBe('42 ms');
+        expect(rows.find((r) => r.key === 'url')?.isUrl).toBe(true);
+        expect(rows.find((r) => r.key === 'url')?.value).toContain(AUTH_QUERY_DISPLAY_MASK);
+        expect(rows.find((r) => r.key === 'apiKey')?.value).toBe(AUTH_QUERY_DISPLAY_MASK);
+        expect(rows.every((r) => !r.value.includes('should-not-appear') && !r.value.includes('leak'))).toBe(
+            true
+        );
     });
 });
