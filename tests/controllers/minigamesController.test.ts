@@ -169,7 +169,11 @@ describe('minigamesController', () => {
             expect(playDuel).toHaveBeenCalledWith('Hero', 'Enemy', 'es');
             expect(dbService.addUserActivity).toHaveBeenCalledWith(
                 '123',
-                expect.objectContaining({ type: 'duel', user: 'Hero', metadata: { target: 'Enemy' } })
+                expect.objectContaining({
+                    type: 'duel',
+                    user: 'Hero',
+                    metadata: expect.objectContaining({ target: 'Enemy', lang: 'es' })
+                })
             );
             // Sin Nightbot-Response-Url → un solo mensaje
             expect(res.send).toHaveBeenCalledWith('¡Hero gana!');

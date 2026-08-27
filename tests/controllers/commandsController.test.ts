@@ -245,7 +245,7 @@ describe('commandsController', () => {
                 '123',
                 expect.objectContaining({
                     type: 'followage',
-                    metadata: { target: 'channel' }
+                    metadata: expect.objectContaining({ target: 'channel', lang: 'es' })
                 })
             );
         });
