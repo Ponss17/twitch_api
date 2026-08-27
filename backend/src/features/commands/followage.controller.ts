@@ -47,7 +47,7 @@ export const followage = async (req: AuthenticatedRequest, res: Response) => {
         {
             type: 'followage',
             user: sanitizedUser,
-            metadata: { target: channel },
+            metadata: { target: channel, lang },
             incrementStat: 'followage'
         },
         async () => {

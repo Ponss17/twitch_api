@@ -2,6 +2,7 @@ import { Sheet } from '@/shared/ui/Sheet';
 import {
     getActivityMeta,
     sanitizeActivityUser,
+    sanitizeActivitySecrets,
     formatActivityTime,
     type ActivityLogItem
 } from '@/features/dashboard/lib/activityLogDisplay';
@@ -19,13 +20,30 @@ function DetailRow({
     label,
     value,
     highlight = false,
-    isLast = false
+    isLast = false,
+    multiline = false
 }: {
     label: string;
     value: React.ReactNode;
     highlight?: boolean;
     isLast?: boolean;
+    multiline?: boolean;
 }) {
+    if (multiline) {
+        return (
+            <div className={`flex flex-col gap-1.5 py-3 ${isLast ? '' : 'border-b border-border-subtle/70'}`}>
+                <span className="text-[0.75rem] font-medium tracking-wide text-text-muted">{label}</span>
+                <div
+                    className={`whitespace-pre-wrap break-words text-[0.8rem] leading-relaxed ${
+                        highlight ? 'font-medium text-primary' : 'text-text-main'
+                    }`}
+                >
+                    {value}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div
             className={`flex items-center justify-between gap-4 py-3 ${isLast ? '' : 'border-b border-border-subtle/70'}`}
@@ -42,6 +60,58 @@ function DetailRow({
     );
 }
 
+/** Resalta JSON sin innerHTML (evita XSS desde metadata). */
+function JsonLine({ line }: { line: string }) {
+    const keyMatch = line.match(/^(\s*)("(?:\\.|[^"\\])*")(\s*:\s*)(.*)$/);
+    if (keyMatch) {
+        const [, indent, key, sep, rest] = keyMatch;
+        let valueNode: React.ReactNode = rest;
+        if (/^".*"[,]?$/.test(rest.trim()) || /^".*"$/.test(rest.trim().replace(/,$/, ''))) {
+            valueNode = <span className="text-brand-text">{rest}</span>;
+        } else if (/^(true|false|null)(,)?$/.test(rest.trim())) {
+            valueNode = <span className="text-primary/80">{rest}</span>;
+        } else if (/^-?\d+(\.\d+)?(,)?$/.test(rest.trim())) {
+            valueNode = <span className="text-primary">{rest}</span>;
+        }
+        return (
+            <div className="leading-[1.4rem]">
+                {indent}
+                <span className="font-medium text-text-main">{key}</span>
+                {sep}
+                {valueNode}
+            </div>
+        );
+    }
+    return <div className="leading-[1.4rem]">{line || ' '}</div>;
+}
+
+function readSanitizedMeta(item: ActivityLogItem): {
+    response?: string;
+    latencyLabel?: string;
+    lang?: string;
+    format?: string;
+    mood?: string;
+    hardcore?: string;
+} {
+    const sanitized = sanitizeActivitySecrets(item.metadata ?? {}) as Record<string, unknown>;
+    const asTrimmed = (key: string): string | undefined => {
+        const v = sanitized[key];
+        return typeof v === 'string' && v.trim() ? v.trim() : undefined;
+    };
+    const response = asTrimmed('response');
+    const latencyMs = sanitized.latencyMs;
+    const latencyLabel =
+        typeof latencyMs === 'number' && Number.isFinite(latencyMs) ? `${latencyMs} ms` : undefined;
+    return {
+        response,
+        latencyLabel,
+        lang: asTrimmed('lang'),
+        format: asTrimmed('format'),
+        mood: asTrimmed('mood'),
+        hardcore: asTrimmed('hardcore')
+    };
+}
+
 export function ActivityDetailSheet({ item, onClose, timeZone }: ActivityDetailSheetProps) {
     const { t, locale } = useTranslation();
     const iT = t.home.activityInspector;
@@ -51,6 +121,7 @@ export function ActivityDetailSheet({ item, onClose, timeZone }: ActivityDetailS
     const meta = getActivityMeta(item.type, t);
     const user = sanitizeActivityUser(item.user);
     const detail = meta.detailText(item);
+    const { response, latencyLabel, lang, format, mood, hardcore } = readSanitizedMeta(item);
     const time = item.timestamp ? formatActivityTime(item.timestamp, timeZone, locale) : '';
     let date = '';
     if (item.timestamp) {
@@ -66,7 +137,16 @@ export function ActivityDetailSheet({ item, onClose, timeZone }: ActivityDetailS
         }
     }
 
-    const jsonStr = JSON.stringify(item, null, 2);
+    const jsonLines = JSON.stringify(sanitizeActivitySecrets(item), null, 2).split('\n');
+    const sanitizedJson = jsonLines.join('\n');
+    const extraRows = [
+        lang ? { label: iT.fieldLang, value: lang } : null,
+        format ? { label: iT.fieldFormat, value: format } : null,
+        mood ? { label: iT.fieldMood, value: mood } : null,
+        hardcore ? { label: iT.fieldHardcore, value: hardcore } : null,
+        response ? { label: iT.fieldResponse, value: response, multiline: true } : null,
+        latencyLabel ? { label: iT.fieldLatency, value: latencyLabel } : null
+    ].filter(Boolean) as Array<{ label: string; value: string; multiline?: boolean }>;
 
     return (
         <Sheet open={!!item} onClose={onClose} title={iT.title} description={meta.label}>
@@ -90,61 +170,50 @@ export function ActivityDetailSheet({ item, onClose, timeZone }: ActivityDetailS
                             highlight
                         />
                     )}
-                    <DetailRow label={iT.summary} value={detail} isLast />
+                    <DetailRow
+                        label={iT.summary}
+                        value={detail}
+                        isLast={extraRows.length === 0}
+                    />
+                    {extraRows.map((row, index) => (
+                        <DetailRow
+                            key={row.label}
+                            label={row.label}
+                            value={row.value}
+                            multiline={row.multiline}
+                            isLast={index === extraRows.length - 1}
+                        />
+                    ))}
                 </div>
 
                 <div className="flex flex-col gap-2 pt-2">
-                    <div className="flex items-center justify-between px-1">
-                        <span className="text-[0.7rem] font-bold tracking-widest text-text-muted uppercase">
-                            {iT.technicalMetadata}
-                        </span>
-                        <button
-                            type="button"
-                            onClick={() => void copyText(jsonStr)}
-                            className={`${btnSecondary} h-7 w-auto flex-none px-3 text-[0.65rem] font-medium`}
-                        >
-                            {iT.copy}
-                        </button>
-                    </div>
+                    <span className="px-1 text-[0.7rem] font-bold tracking-widest text-text-muted uppercase">
+                        {iT.technicalMetadata}
+                    </span>
+
                     <div className="relative overflow-hidden rounded-xl border border-border-subtle bg-bg-main shadow-inner">
-                        <div className="flex items-center border-b border-border-subtle bg-bg-tertiary/60 px-4 py-2.5">
-                            <span className="text-[0.65rem] font-medium text-text-muted">event.json</span>
+                        <div className="flex items-center justify-between gap-3 border-b border-border-subtle bg-bg-tertiary/60 px-4 py-2.5">
+                            <span className="text-[0.65rem] font-medium text-text-muted">{iT.rawJson}</span>
+                            <button
+                                type="button"
+                                onClick={() => void copyText(sanitizedJson)}
+                                className={`${btnSecondary} h-7 w-auto flex-none px-3 text-[0.65rem] font-medium`}
+                            >
+                                {iT.copy}
+                            </button>
                         </div>
                         <div className="flex">
                             <div className="flex select-none flex-col items-end border-r border-border-subtle bg-bg-tertiary/30 px-3 py-4 font-mono text-[0.65rem] text-text-muted/60">
-                                {jsonStr.split('\n').map((_, i) => (
+                                {jsonLines.map((_, i) => (
                                     <span key={i} className="leading-[1.4rem]">
                                         {i + 1}
                                     </span>
                                 ))}
                             </div>
-                            <pre className="overflow-x-auto bg-bg-main/60 p-4 font-mono text-[0.75rem] leading-[1.4rem] text-text-muted [scrollbar-width:thin]">
-                                {jsonStr.split('\n').map((line, i) => {
-                                    const escapeHtml = (s: string) =>
-                                        s
-                                            .replace(/&/g, '&amp;')
-                                            .replace(/</g, '&lt;')
-                                            .replace(/>/g, '&gt;')
-                                            .replace(/"/g, '&quot;');
-                                    const safe = escapeHtml(line);
-                                    const coloredLine = safe
-                                        .replace(
-                                            /&quot;([^&]+)&quot;:/g,
-                                            '<span class="text-text-main font-medium">&quot;$1&quot;</span>:'
-                                        )
-                                        .replace(
-                                            /: (&quot;[^&]*&quot;)/g,
-                                            ': <span class="text-brand-text">$1</span>'
-                                        )
-                                        .replace(/: ([0-9]+)/g, ': <span class="text-primary">$1</span>')
-                                        .replace(
-                                            /: (true|false|null)/g,
-                                            ': <span class="text-primary/80">$1</span>'
-                                        );
-                                    return (
-                                        <div key={i} dangerouslySetInnerHTML={{ __html: coloredLine || ' ' }} />
-                                    );
-                                })}
+                            <pre className="overflow-x-auto bg-bg-main/60 p-4 font-mono text-[0.75rem] text-text-muted [scrollbar-width:thin]">
+                                {jsonLines.map((line, i) => (
+                                    <JsonLine key={i} line={line} />
+                                ))}
                             </pre>
                         </div>
                     </div>
