@@ -22,6 +22,7 @@ import type {
 import { isActivityLogType } from '@contracts/commandCatalog';
 import type { Translations } from '@/core/i18n/locales/es';
 import { getBcp47, type Locale } from '@/core/i18n/I18nContext';
+import { AUTH_QUERY_DISPLAY_MASK } from '@/core/api/authQuery';
 
 export type { ActivityLogType } from '@contracts/dashboardContracts';
 
@@ -155,6 +156,181 @@ export function sanitizeActivityUser(user?: string): string {
     const trimmed = user?.trim() || '';
     if (/^\d{5,}$/.test(trimmed)) return '';
     return trimmed;
+}
+
+const SENSITIVE_KEY_RE =
+    /^(api[_-]?key|token|access[_-]?token|refresh[_-]?token|authorization|x-api-key|overlay[_-]?token)$/i;
+
+const SENSITIVE_QUERY_PARAMS = ['apiKey', 'api_key', 'token', 'access_token', 'refresh_token', 'overlayToken', 'overlay_token'] as const;
+
+function redactUrlSecrets(raw: string): string {
+    try {
+        const url = new URL(raw);
+        let changed = false;
+        for (const param of SENSITIVE_QUERY_PARAMS) {
+            if (url.searchParams.has(param)) {
+                url.searchParams.set(param, AUTH_QUERY_DISPLAY_MASK);
+                changed = true;
+            }
+        }
+        return changed ? url.toString() : raw;
+    } catch {
+        // Relative or non-URL strings: strip common query secret patterns.
+        return raw.replace(
+            /([?&](?:api[_-]?key|token|access[_-]?token|refresh[_-]?token|overlay[_-]?token)=)[^&#]*/gi,
+            `$1${AUTH_QUERY_DISPLAY_MASK}`
+        );
+    }
+}
+
+/** Redacta secretos en un valor arbitrario (objetos/arrays/strings) para UI y copia. */
+export function sanitizeActivitySecrets(value: unknown): unknown {
+    if (value == null) return value;
+    if (typeof value === 'string') return redactUrlSecrets(value);
+    if (typeof value !== 'object') return value;
+    if (Array.isArray(value)) return value.map(sanitizeActivitySecrets);
+
+    const out: Record<string, unknown> = {};
+    for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+        if (SENSITIVE_KEY_RE.test(key)) {
+            out[key] = AUTH_QUERY_DISPLAY_MASK;
+            continue;
+        }
+        out[key] = sanitizeActivitySecrets(child);
+    }
+    return out;
+}
+
+const KNOWN_META_KEYS = [
+    'target',
+    'title',
+    'url',
+    'message',
+    'question',
+    'response',
+    'lang',
+    'format',
+    'mood',
+    'hardcore',
+    'source',
+    'announce',
+    'action',
+    'clipId',
+    'latencyMs',
+    'raw_detail'
+] as const;
+
+type KnownMetaKey = (typeof KNOWN_META_KEYS)[number];
+
+export type ActivityTechnicalRow = {
+    key: string;
+    label: string;
+    value: string;
+    isUrl?: boolean;
+    multiline?: boolean;
+};
+
+function formatMetaValue(value: unknown): string {
+    if (value == null) return '';
+    if (typeof value === 'boolean') return value ? 'true' : 'false';
+    if (typeof value === 'number') return String(value);
+    if (typeof value === 'string') return value;
+    try {
+        return JSON.stringify(value);
+    } catch {
+        return String(value);
+    }
+}
+
+function labelForMetaKey(key: KnownMetaKey | string, iT: Translations['home']['activityInspector']): string {
+    switch (key) {
+        case 'target':
+            return iT.fieldTarget;
+        case 'title':
+            return iT.fieldTitle;
+        case 'url':
+            return iT.fieldUrl;
+        case 'message':
+            return iT.fieldMessage;
+        case 'question':
+            return iT.fieldQuestion;
+        case 'response':
+            return iT.fieldResponse;
+        case 'lang':
+            return iT.fieldLang;
+        case 'format':
+            return iT.fieldFormat;
+        case 'mood':
+            return iT.fieldMood;
+        case 'hardcore':
+            return iT.fieldHardcore;
+        case 'source':
+            return iT.fieldSource;
+        case 'announce':
+            return iT.fieldAnnounce;
+        case 'action':
+            return iT.fieldAction;
+        case 'clipId':
+            return iT.fieldClipId;
+        case 'latencyMs':
+            return iT.fieldLatency;
+        case 'raw_detail':
+            return iT.fieldRawDetail;
+        default:
+            return key;
+    }
+}
+
+/** Filas técnicas para el inspector (sin repetir fecha/hora/usuario/resumen). */
+export function buildActivityTechnicalRows(
+    item: ActivityLogItem,
+    t: Translations
+): ActivityTechnicalRow[] {
+    const iT = t.home.activityInspector;
+    const sanitized = sanitizeActivitySecrets(item) as ActivityLogItem;
+    const rows: ActivityTechnicalRow[] = [];
+
+    if (sanitized.type) {
+        rows.push({ key: 'type', label: iT.fieldType, value: String(sanitized.type) });
+    }
+    if (sanitized.timestamp) {
+        rows.push({ key: 'timestamp', label: iT.fieldTimestamp, value: String(sanitized.timestamp) });
+    }
+
+    const meta = (sanitized.metadata ?? {}) as Record<string, unknown>;
+    const seen = new Set<string>();
+
+    for (const key of KNOWN_META_KEYS) {
+        if (!(key in meta) || meta[key] == null || meta[key] === '') continue;
+        seen.add(key);
+        const value =
+            key === 'latencyMs' && typeof meta[key] === 'number'
+                ? `${meta[key]} ms`
+                : formatMetaValue(meta[key]);
+        if (!value) continue;
+        rows.push({
+            key,
+            label: labelForMetaKey(key, iT),
+            value,
+            isUrl: key === 'url' && /^https?:\/\//i.test(value),
+            multiline: key === 'response' || key === 'message' || key === 'question' || key === 'raw_detail'
+        });
+    }
+
+    for (const [key, raw] of Object.entries(meta)) {
+        if (seen.has(key) || raw == null || raw === '') continue;
+        const value = formatMetaValue(raw);
+        if (!value) continue;
+        rows.push({
+            key,
+            label: labelForMetaKey(key, iT),
+            value,
+            isUrl: key === 'url' && /^https?:\/\//i.test(value),
+            multiline: value.length > 80
+        });
+    }
+
+    return rows;
 }
 
 export function activityEntryKey(item: ActivityLogItem): string {

@@ -64,7 +64,7 @@ export const createClip = async (req: AuthenticatedRequest, res: Response) => {
                 await dbService.addUserActivity(userId, {
                     type: 'clip',
                     user: chatter,
-                    metadata: { title: finalTitle, url: clipUrl }
+                    metadata: { title: finalTitle, url: clipUrl, response: clipUrl }
                 });
             }
 

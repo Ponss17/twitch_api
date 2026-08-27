@@ -53,7 +53,7 @@ export const askMagic8 = async (req: AuthenticatedRequest, res: Response) => {
             {
                 type: 'magic8',
                 user: user || 'Anónimo',
-                metadata: { question },
+                metadata: { question, lang },
                 incrementStat: 'magic8'
             },
             () => magic8Service.generateMagic8Response(question, mood as string, user as string, lang),
@@ -104,7 +104,7 @@ export const playRussian = async (req: AuthenticatedRequest, res: Response) => {
             {
                 type: 'russian',
                 user: user || 'Anónimo',
-                metadata: { target: channel },
+                metadata: { target: channel, lang, hardcore: isHardcore ? 'true' : 'false' },
                 incrementStat: 'russian'
             },
             async () => {
@@ -163,7 +163,7 @@ export const startDuel = async (req: AuthenticatedRequest, res: Response) => {
             {
                 type: 'duel',
                 user: challenger,
-                metadata: { target },
+                metadata: { target, lang },
                 incrementStat: 'duel'
             },
             () => Promise.resolve(duelService.playDuel(challenger, target, lang)),
@@ -221,6 +221,7 @@ export const playSlots = async (req: AuthenticatedRequest, res: Response) => {
             {
                 type: 'slots',
                 user: user || 'Anónimo',
+                metadata: { lang },
                 incrementStat: 'slots'
             },
             () => Promise.resolve(slotsService.playSlots(user, lang)),
