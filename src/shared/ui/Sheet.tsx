@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { X } from 'lucide-react';
 import { btnIcon } from '@/core/utils/tw';
-import { promoteToasterAboveModals } from '@/shared/ui/ToastProvider';
+import { promoteToasterAboveModals } from '@/shared/ui/toast/ToastProvider';
 
 interface SheetProps {
     open: boolean;

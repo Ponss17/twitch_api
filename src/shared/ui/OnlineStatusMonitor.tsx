@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useToast } from '@/shared/ui/ToastProvider';
+import { useToast } from '@/shared/ui/toast/ToastProvider';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 export function OnlineStatusMonitor() {

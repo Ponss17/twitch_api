@@ -1,0 +1,227 @@
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { Modal, ModalCloseButton, useModalClose } from '@/shared/ui/modals/Modal';
+import { modalBtnSecondary, modalBtnPrimary } from '@/core/utils/tw';
+import { useTranslation } from '@/core/i18n/I18nContext';
+
+interface DiscordLinkConfirmModalProps {
+    open: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+}
+
+export function DiscordLinkConfirmModal({ open, onClose, onConfirm }: DiscordLinkConfirmModalProps) {
+    const { t } = useTranslation();
+    const dT = t.modals.discordLink;
+
+    return (
+        <Modal
+            open={open}
+            onClose={onClose}
+            title={dT.title}
+            footer={
+                <>
+                    <button
+                        type="button"
+                        onClick={onConfirm}
+                        data-modal-primary
+                        className={modalBtnPrimary}
+                    >
+                        {dT.continue}
+                    </button>
+                    <ModalCloseButton className={modalBtnSecondary}>{t.modals.login.cancel}</ModalCloseButton>
+                </>
+            }
+        >
+            <p>{dT.desc1}</p>
+            <p className="mt-4">{dT.desc2}</p>
+            <ul className="my-4">
+                <li>{dT.point1}</li>
+                <li>{dT.point2}</li>
+                <li>{dT.point3}</li>
+            </ul>
+            <p className="text-sm opacity-80">{dT.disclaimer}</p>
+        </Modal>
+    );
+}
+
+interface DiscordUnlinkConfirmModalProps {
+    open: boolean;
+    busy?: boolean;
+    username?: string | null;
+    onClose: () => void;
+    onConfirm: () => void | Promise<void>;
+}
+
+export function DiscordUnlinkConfirmModal({
+    open,
+    busy = false,
+    username,
+    onClose,
+    onConfirm
+}: DiscordUnlinkConfirmModalProps) {
+    const [loading, setLoading] = useState(false);
+    const { t } = useTranslation();
+    const dT = t.modals.discordUnlink;
+
+    const disabled = loading || busy;
+
+    return (
+        <Modal
+            open={open}
+            onClose={disabled ? () => {} : onClose}
+            title={dT.title}
+            closeOnBackdrop={!disabled}
+            footer={
+                <DiscordUnlinkActions
+                    disabled={disabled}
+                    loading={loading}
+                    setLoading={setLoading}
+                    onConfirm={onConfirm}
+                />
+            }
+        >
+            <p>{username ? dT.descUsername(username) : dT.descNoUsername}</p>
+            <p className="mt-4">{dT.desc2}</p>
+            <ul className="my-4">
+                <li>{dT.point1}</li>
+                <li>{dT.point2}</li>
+                <li>{dT.point3}</li>
+            </ul>
+            <p className="text-sm opacity-80">{dT.disclaimer}</p>
+        </Modal>
+    );
+}
+
+function DiscordUnlinkActions({
+    disabled,
+    loading,
+    setLoading,
+    onConfirm
+}: {
+    disabled: boolean;
+    loading: boolean;
+    setLoading: (v: boolean) => void;
+    onConfirm: () => void | Promise<void>;
+}) {
+    const close = useModalClose();
+    const { t } = useTranslation();
+    const dT = t.modals.discordUnlink;
+
+    const handleConfirm = async () => {
+        setLoading(true);
+        try {
+            await onConfirm();
+            close?.();
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <>
+            <button
+                type="button"
+                className={modalBtnPrimary}
+                disabled={disabled}
+                onClick={() => void handleConfirm()}
+            >
+                {loading ? (
+                    <>
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                        {dT.unlinking}
+                    </>
+                ) : (
+                    dT.confirm
+                )}
+            </button>
+            <ModalCloseButton className={modalBtnSecondary} disabled={disabled}>
+                {t.modals.login.cancel}
+            </ModalCloseButton>
+        </>
+    );
+}
+
+export type DiscordResultKind =
+    | 'linked'
+    | 'unlinked'
+    | 'error_taken'
+    | 'error_auth'
+    | 'error_config'
+    | 'error';
+
+interface DiscordResultModalProps {
+    open: boolean;
+    kind: DiscordResultKind | null;
+    onClose: () => void;
+}
+
+export function DiscordResultModal({ open, kind, onClose }: DiscordResultModalProps) {
+    const { t } = useTranslation();
+    const dT = t.modals.discordResult;
+
+    if (!kind) return null;
+
+    let title = '';
+    let lead = '';
+    let points: string[] = [];
+    let isError = false;
+
+    switch (kind) {
+        case 'linked':
+            title = dT.linked.title;
+            lead = dT.linked.lead;
+            points = dT.linked.points;
+            break;
+        case 'unlinked':
+            title = dT.unlinked.title;
+            lead = dT.unlinked.lead;
+            points = dT.unlinked.points;
+            break;
+        case 'error_taken':
+            isError = true;
+            title = dT.errorTaken.title;
+            lead = dT.errorTaken.lead;
+            points = dT.errorTaken.points;
+            break;
+        case 'error_auth':
+            isError = true;
+            title = dT.errorAuth.title;
+            lead = dT.errorAuth.lead;
+            points = dT.errorAuth.points;
+            break;
+        case 'error_config':
+            isError = true;
+            title = dT.errorConfig.title;
+            lead = dT.errorConfig.lead;
+            points = dT.errorConfig.points;
+            break;
+        case 'error':
+            isError = true;
+            title = dT.error.title;
+            lead = dT.error.lead;
+            points = dT.error.points;
+            break;
+    }
+
+    return (
+        <Modal
+            open={open}
+            onClose={onClose}
+            title={title}
+            footer={
+                <ModalCloseButton className={isError ? modalBtnSecondary : modalBtnPrimary}>
+                    {isError ? dT.close : dT.gotIt}
+                </ModalCloseButton>
+            }
+        >
+            <p>{lead}</p>
+            <ul className="my-4">
+                {points.map((point) => (
+                    <li key={point}>{point}</li>
+                ))}
+            </ul>
+            {kind === 'linked' && dT.linked.hint ? <p className="text-sm opacity-80">{dT.linked.hint}</p> : null}
+        </Modal>
+    );
+}

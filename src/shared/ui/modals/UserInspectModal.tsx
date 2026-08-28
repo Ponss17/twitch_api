@@ -1,0 +1,158 @@
+import { useState } from 'react';
+import { BaseModal, ModalCloseButton } from '@/shared/ui/modals/Modal';
+import type { ChatLogItem } from '@/features/chat/lib/chatLogStore';
+import { chatLogStore } from '@/features/chat/lib/chatLogStore';
+import { calculateAccountAge, broadcasterLabel, type TwitchUser } from '@/core/types/twitch';
+import { formatDate } from '@/core/utils/utils';
+import { staticPath } from '@/core/config/paths';
+import { X, Check, Copy } from 'lucide-react';
+import { useTranslation } from '@/core/i18n/I18nContext';
+import { copyText } from '@/core/utils/clipboard';
+
+interface UserInspectModalProps {
+    user: TwitchUser | null;
+    onClose: () => void;
+    showLogs?: boolean;
+}
+
+export function UserInspectModal({ user, onClose, showLogs = true }: UserInspectModalProps) {
+    const { t } = useTranslation();
+    const mT = t.modals.userInspect;
+    const [logs, setLogs] = useState<ChatLogItem[]>([]);
+    const [showHistory, setShowHistory] = useState(false);
+    const [isIdCopied, setIsIdCopied] = useState(false);
+
+    const copyUserId = async () => {
+        if (!user) return;
+        const ok = await copyText(user.id);
+        if (ok) {
+            setIsIdCopied(true);
+            setTimeout(() => setIsIdCopied(false), 2000);
+        }
+    };
+
+
+
+    if (!user) return null;
+
+    const rankLabel = broadcasterLabel(user.broadcaster_type);
+    const rankColor =
+        user.broadcaster_type === 'partner' || user.broadcaster_type === 'affiliate'
+            ? 'var(--primary)'
+            : 'var(--text-muted)';
+
+    const loadLogs = () => {
+        setLogs(chatLogStore.getByUser(user.login));
+        setShowHistory(true);
+    };
+
+    return (
+        <BaseModal
+            open={!!user}
+            onClose={onClose}
+            className="relative my-auto max-h-[min(90vh,720px)] w-full max-w-[450px] overflow-y-auto overscroll-contain rounded-xl border border-border-strong bg-bg-card shadow-2xl [scrollbar-width:thin]"
+            aria-labelledby="user-inspect-title"
+        >
+            <ModalCloseButton
+                aria-label={mT.close}
+                className="absolute top-[15px] right-[15px] z-10 flex h-8 w-8 items-center justify-center rounded-full border-none bg-bg-secondary text-[1.2rem] text-text-main transition hover:rotate-90 hover:bg-error hover:text-white"
+            >
+                <X className="w-4 h-4" />
+            </ModalCloseButton>
+
+            <div className="flex items-center gap-5 border-b border-border-subtle bg-bg-secondary/70 p-6 max-md:flex-col max-md:text-center">
+                <img
+                    src={user.profile_image_url ?? staticPath('/img/logo.svg')}
+                    alt={user.display_name}
+                    loading="lazy"
+                    className="h-20 w-20 shrink-0 rounded-full border-[3px] border-bg-card object-cover"
+                />
+                <div className="flex flex-col gap-1">
+                    <h2
+                        id="user-inspect-title"
+                        className="m-0 text-[1.4rem] leading-tight font-bold text-text-main"
+                    >
+                        {user.display_name}
+                    </h2>
+                    <p className="m-0 text-[0.9rem] font-medium text-brand-text">@{user.login}</p>
+                </div>
+            </div>
+
+            <div className="p-6">
+                <div className="mb-5 grid grid-cols-2 gap-4 rounded-xl border border-border-strong bg-bg-card p-4 max-md:grid-cols-1">
+                    <div className="flex flex-col gap-1 text-left">
+                        <span className="text-[0.65rem] tracking-wide text-text-muted uppercase">{mT.rank}</span>
+                        <span className="font-[Consolas,monospace] text-[0.85rem] font-medium" style={{ color: rankColor }}>
+                            {rankLabel}
+                        </span>
+                    </div>
+                    <div className="flex flex-col gap-1 text-left">
+                        <span className="text-[0.65rem] tracking-wide text-text-muted uppercase">{mT.userId}</span>
+                        <button
+                            type="button"
+                            onClick={() => void copyUserId()}
+                            className="flex items-center justify-start gap-1.5 font-[Consolas,monospace] text-[0.85rem] font-medium text-text-muted transition hover:text-text-main"
+                            title={mT.copyId}
+                        >
+                            {user.id}
+                            {isIdCopied ? <Check className="text-primary" /> : <Copy className="w-4 h-4" />}
+                            {isIdCopied ? <span className="text-[0.75rem] text-primary">{mT.copied}</span> : null}
+                        </button>
+                    </div>
+                    <div className="flex flex-col gap-1 text-left">
+                        <span className="text-[0.65rem] tracking-wide text-text-muted uppercase">{mT.accountAge}</span>
+                        <span className="font-[Consolas,monospace] text-[0.85rem] font-medium text-text-muted">
+                            {calculateAccountAge(user.created_at)}
+                        </span>
+                    </div>
+                </div>
+
+                {!showHistory ? (
+                    <p className="mx-auto my-2.5 px-2.5 text-center text-[0.95rem] leading-relaxed text-text-muted">
+                        {user.description || mT.noBio}
+                    </p>
+                ) : (
+                    <div className="mt-5 border-t border-border-strong pt-4">
+                        <h4 className="mb-2.5 text-[0.95rem] font-semibold text-text-main">
+                            {mT.chatHistory}
+                        </h4>
+                        {logs.length === 0 ? (
+                            <p className="py-5 text-center text-[0.85rem] text-text-muted italic">
+                                {mT.noMessages}
+                            </p>
+                        ) : (
+                            <div className="flex max-h-[200px] flex-col gap-2 overflow-y-auto">
+                                {logs.map((l, i) => (
+                                    <div
+                                        key={`${l.time.getTime()}-${i}`}
+                                        className="flex gap-2.5 rounded bg-bg-secondary p-1.5 text-[0.85rem]"
+                                    >
+                                        <span className="shrink-0 font-[Consolas,monospace] text-[0.8rem] whitespace-nowrap text-text-muted">
+                                            [{l.time.toLocaleTimeString()}]
+                                        </span>
+                                        <span className="break-words text-text-muted">{l.text}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                <div className="mt-4 rounded-b-[20px] border-t border-border-strong bg-bg-secondary pt-5">
+                    <p className="mb-4 text-center text-[0.85rem] text-text-muted">
+                        {mT.accountCreated(formatDate(user.created_at ?? ''))}
+                    </p>
+                    {showLogs && !showHistory && (
+                        <button
+                            type="button"
+                            onClick={loadLogs}
+                            className="w-full rounded-lg border border-border-strong bg-bg-secondary px-4 py-2 text-[0.8125rem] font-semibold text-text-main transition hover:border-border-strong hover:bg-white/[0.02]"
+                        >
+                            {mT.viewHistory}
+                        </button>
+                    )}
+                </div>
+            </div>
+        </BaseModal>
+    );
+}
