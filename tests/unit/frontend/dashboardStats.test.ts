@@ -8,7 +8,7 @@ import {
     mergeTimeSeriesPatch,
     parseDashboardStatsFromRow,
     sumDashboardCategoryUsage
-} from '@/features/dashboard/lib/dashboardStats';
+} from '@/features/dashboard/lib/data/dashboardStats';
 
 describe('timezone helpers', () => {
     it('tolera una zona inválida usando UTC', () => {

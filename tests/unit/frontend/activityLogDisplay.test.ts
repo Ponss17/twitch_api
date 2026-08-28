@@ -7,7 +7,7 @@ import {
     mergeActivityLogs,
     sanitizeActivitySecrets,
     type ActivityLogItem
-} from '@/features/dashboard/lib/activityLogDisplay';
+} from '@/features/dashboard/lib/logs/activityLogDisplay';
 
 describe('formatActivityTime', () => {
     it('uses 12-hour clock with am/pm', () => {
