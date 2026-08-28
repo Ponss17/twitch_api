@@ -13,7 +13,7 @@ import { InlineIcon } from '@/shared/ui/Icon';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
 import type { QuestionsOverlayState } from '@/features/overlay/lib/types';
-import { useToolFocus } from '@/features/dashboard/lib/ToolFocusContext';
+import { useToolFocus } from '@/features/dashboard/lib/ui/ToolFocusContext';
 
 export function QuestionsView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();

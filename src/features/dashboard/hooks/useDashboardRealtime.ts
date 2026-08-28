@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Session } from '@/core/config/config';
-import type { RealtimeStatsUpdate } from '@/features/dashboard/lib/dashboardStats';
-import type { ActivityLogItem } from '@/features/dashboard/lib/activityLogDisplay';
+import type { RealtimeStatsUpdate } from '@/features/dashboard/lib/data/dashboardStats';
+import type { ActivityLogItem } from '@/features/dashboard/lib/logs/activityLogDisplay';
 
 const loadRealtimeModule = () => import('@/features/dashboard/lib/realtime');
 

@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { useRequiredSession } from '@/core/session/useSession';
-import { useToast } from '@/shared/ui/ToastProvider';
+import { useToast } from '@/shared/ui/toast/ToastProvider';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { IGNORED_BOTS } from '@/core/config/config';
 import {

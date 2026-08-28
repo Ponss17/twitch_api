@@ -1,10 +1,10 @@
 ﻿import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import type { Session } from '@/core/config/config';
-import type { DashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
+import type { DashboardProfile } from '@/features/dashboard/lib/data/dashboardSummary';
 import { useDashboardPanelState } from './hooks/useDashboardPanelState';
 import { useDashboardPanelEngine } from './hooks/useDashboardPanelEngine';
-import type { DashboardLiveStats } from '@/features/dashboard/lib/dashboardStats';
-import type { ActivityLogItem } from '@/features/dashboard/lib/activityLogDisplay';
+import type { DashboardLiveStats } from '@/features/dashboard/lib/data/dashboardStats';
+import type { ActivityLogItem } from '@/features/dashboard/lib/logs/activityLogDisplay';
 
 export interface DashboardPanelContextValue {
     stats: DashboardLiveStats;

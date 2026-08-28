@@ -5,7 +5,7 @@ import {
     DropdownItem,
     DropdownLink,
     useDropdown
-} from '@/shared/ui/Dropdown';
+} from '@/shared/ui/dropdown/Dropdown';
 
 const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
 

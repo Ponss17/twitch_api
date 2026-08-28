@@ -19,7 +19,7 @@ import { isWithinSessionAuthGrace } from '@/core/auth/sessionAuthGrace';
 import type { Session } from '@/core/config/config';
 import { appPath } from '@/core/config/paths';
 import { SessionContext } from '@/core/session/context';
-import { useToastOptional } from '@/shared/ui/ToastProvider';
+import { useToastOptional } from '@/shared/ui/toast/ToastProvider';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { saveOverlayStoredSession, getOverlayStoredSession } from '@/features/overlay/lib/overlaySession';
 import { useProactiveTokenRefresh } from '@/core/session/useProactiveTokenRefresh';

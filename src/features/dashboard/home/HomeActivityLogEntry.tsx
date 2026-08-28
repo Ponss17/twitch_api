@@ -6,7 +6,7 @@ import {
     getActivityMeta,
     sanitizeActivityUser,
     type ActivityLogItem
-} from '@/features/dashboard/lib/activityLogDisplay';
+} from '@/features/dashboard/lib/logs/activityLogDisplay';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface HomeActivityLogEntryProps {

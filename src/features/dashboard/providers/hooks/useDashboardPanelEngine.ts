@@ -1,13 +1,13 @@
 ﻿import { useEffect, useRef, useCallback } from 'react';
 import type { Session } from '@/core/config/config';
-import { TabSyncService } from '@/features/dashboard/lib/tabSyncService';
+import { TabSyncService } from '@/features/dashboard/lib/tabs/tabSyncService';
 import { useDashboardRealtime } from '@/features/dashboard/hooks/useDashboardRealtime';
 import { formatFetchErrorForUi, isFetchNetworkError } from '@/core/api/apiError';
 import { logError } from '@/core/logging/logError';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
-import { loadDashboardPanelData } from '@/features/dashboard/lib/loadDashboardPanelData';
-import type { ActivityLogItem } from '@/features/dashboard/lib/activityLogDisplay';
-import type { DashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
+import { loadDashboardPanelData } from '@/features/dashboard/lib/data/loadDashboardPanelData';
+import type { ActivityLogItem } from '@/features/dashboard/lib/logs/activityLogDisplay';
+import type { DashboardProfile } from '@/features/dashboard/lib/data/dashboardSummary';
 import {
     DASHBOARD_FALLBACK_POLL_MS,
     DASHBOARD_POLL_MS,
@@ -15,8 +15,8 @@ import {
     subscribeHomeDataReset,
     writePanelSyncPref,
     consumeHomeDataResetPending
-} from '@/features/dashboard/lib/dashboardSync';
-import { EMPTY_DASHBOARD_LIVE_STATS, getStatsLocalDateString } from '@/features/dashboard/lib/dashboardStats';
+} from '@/features/dashboard/lib/data/dashboardSync';
+import { EMPTY_DASHBOARD_LIVE_STATS, getStatsLocalDateString } from '@/features/dashboard/lib/data/dashboardStats';
 import type { useDashboardPanelState } from './useDashboardPanelState';
 
 const PANEL_SYNC_CHANNEL = 'dashboard_panel_data_sync';

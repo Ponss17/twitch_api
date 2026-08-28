@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ClipsGridSkeleton } from '@/shared/ui/Skeleton';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { panelCard, fadeIn, textInput, hoverSubtleControl, hoverSubtleBorderedRow } from '@/core/utils/tw';
-import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
+import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
 import { ClipPlayerOverlay } from '@/features/clips/ClipPlayerOverlay';
 import { SelectField } from '@/shared/ui/SelectField';
 import { ClipCommandView } from '@/features/clips/ClipCommandView';

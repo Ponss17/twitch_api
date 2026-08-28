@@ -7,7 +7,7 @@ import {
     DropdownPanel,
     DropdownTrigger,
     useDropdown
-} from '@/shared/ui/Dropdown';
+} from '@/shared/ui/dropdown/Dropdown';
 import { useAnnouncements } from './useAnnouncements';
 import type { AnnouncementDef, AnnouncementIcon, AnnouncementId } from './announcements';
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Check, History, MessageCircleQuestion, SkipForward, Trash2 } from 'lucide-react';
-import { Modal } from '@/shared/ui/Modal';
+import { Modal } from '@/shared/ui/modals/Modal';
 import { SimpleEmptyState } from '@/shared/ui/SimpleEmptyState';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { hoverSubtleIconBtn } from '@/core/utils/tw';

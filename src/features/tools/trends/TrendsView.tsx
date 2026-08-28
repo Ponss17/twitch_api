@@ -18,11 +18,11 @@ import { OverlayUrlButton } from '@/features/overlay/components/OverlayUrlButton
 import { useOverlayPublish } from '@/features/overlay/hooks/useOverlayPublish';
 import { fadeIn, hoverSubtleIconBtn, toolPanelShell, toolHeaderIconBtn, toolConfigControl } from '@/core/utils/tw';
 import { ToolPanelHeader } from '@/features/tools/components/ToolPanelHeader';
-import { useToast } from '@/shared/ui/ToastProvider';
+import { useToast } from '@/shared/ui/toast/ToastProvider';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { InlineIcon } from '@/shared/ui/Icon';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { useToolFocus } from '@/features/dashboard/lib/ToolFocusContext';
+import { useToolFocus } from '@/features/dashboard/lib/ui/ToolFocusContext';
 
 export function TrendsView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();

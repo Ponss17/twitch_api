@@ -6,12 +6,12 @@ import {
     mergeDashboardStats,
     type DashboardLiveStats,
     type RealtimeStatsUpdate
-} from '@/features/dashboard/lib/dashboardStats';
-import { activityEntryKey, mergeActivityLogs, type ActivityLogItem } from '@/features/dashboard/lib/activityLogDisplay';
+} from '@/features/dashboard/lib/data/dashboardStats';
+import { activityEntryKey, mergeActivityLogs, type ActivityLogItem } from '@/features/dashboard/lib/logs/activityLogDisplay';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
-import { dispatchDashboardDataReady } from '@/features/dashboard/lib/dashboardPanelEvents';
-import { consumeHomeDataResetPending } from '@/features/dashboard/lib/dashboardSync';
-import type { DashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
+import { dispatchDashboardDataReady } from '@/features/dashboard/lib/tabs/dashboardPanelEvents';
+import { consumeHomeDataResetPending } from '@/features/dashboard/lib/data/dashboardSync';
+import type { DashboardProfile } from '@/features/dashboard/lib/data/dashboardSummary';
 
 export function useDashboardPanelState(session: Session) {
     const [stats, setStats] = useState<DashboardLiveStats>(EMPTY_DASHBOARD_LIVE_STATS);

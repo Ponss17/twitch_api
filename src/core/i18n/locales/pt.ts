@@ -95,6 +95,7 @@ export const pt: Translations = {
     exporter: {
         home: 'Início',
         docs: 'Documentação',
+        about: 'Sobre',
         dashboard: 'Painel',
         reportBadge: 'Relatório da Conta',
         followers: 'Seguidores',

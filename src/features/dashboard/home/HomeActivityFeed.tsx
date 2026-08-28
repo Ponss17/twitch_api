@@ -3,21 +3,21 @@ import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import { Filter, Terminal, LayoutGrid, Bot, Wrench, Swords, Activity } from 'lucide-react';
 
 import { panelCard, fadeIn } from '@/core/utils/tw';
-import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
+import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
 import {
     activityEntryKey,
     formatActivityDate,
     getActivityMeta,
     type ActivityLogItem,
     type ActivityLogType
-} from '@/features/dashboard/lib/activityLogDisplay';
+} from '@/features/dashboard/lib/logs/activityLogDisplay';
 import {
     ACTIVITY_TYPES_BY_CATEGORY,
     countActivityByCategory,
     filterActivityLog,
     getActivityCategoryLabels,
     type ActivityCategoryFilter
-} from '@/features/dashboard/lib/activityLogFilter';
+} from '@/features/dashboard/lib/logs/activityLogFilter';
 import { HomeActivityLogEntry } from '@/features/dashboard/home/HomeActivityLogEntry';
 import { ActivityDetailSheet } from '@/features/dashboard/home/ActivityDetailSheet';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';

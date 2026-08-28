@@ -8,14 +8,14 @@ import { cache, CACHE_TTL } from '@/core/cache/cacheService';
 import { chatLogStore } from '@/features/chat/lib/chatLogStore';
 import type { StalkerUser, TwitchUser } from '@/core/types/twitch';
 import { fadeIn, hoverSubtleBorderedRow, hoverSubtleRowBg, toolPanelShell, toolConfigInput, toolHeaderIconBtn } from '@/core/utils/tw';
-import { useToast } from '@/shared/ui/ToastProvider';
-import { UserInspectModal } from '@/shared/ui/UserInspectModal';
+import { useToast } from '@/shared/ui/toast/ToastProvider';
+import { UserInspectModal } from '@/shared/ui/modals/UserInspectModal';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { StalkerRowSkeleton } from '@/shared/ui/Skeleton';
 import { EmptyStateIcon, IconSm, InlineIcon } from '@/shared/ui/Icon';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useDebounce } from '@/shared/hooks/useDebounce';
-import { useToolFocus } from '@/features/dashboard/lib/ToolFocusContext';
+import { useToolFocus } from '@/features/dashboard/lib/ui/ToolFocusContext';
 import { ToolPanelHeader } from '@/features/tools/components/ToolPanelHeader';
 
 const LISTENER_ID = 'stalker';
