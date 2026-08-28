@@ -26,8 +26,8 @@ describe('buildAnalyticsCsv', () => {
         expect(csv).toContain('login,streamer');
         expect(csv).toContain('todayRequests,12');
         expect(csv).toContain('followage,10');
-        expect(csv).toContain('date,command,requests,errors,latency_sum');
-        expect(csv).toContain('2026-08-20,followage,5,0,120');
+        expect(csv).toContain('fecha,comando,peticiones,errores,latencia_media_ms');
+        expect(csv).toContain('2026-08-20,followage,5,0,24');
     });
 
     it('escapa comas y comillas', () => {
@@ -36,7 +36,7 @@ describe('buildAnalyticsCsv', () => {
             { login: 'user,name', exportedAt: 't' }
         );
         expect(csv).toContain('"user,name"');
-        expect(csv).toContain('"80,5ms"');
-        expect(csv).toContain('"99%""ok"""');
+        expect(csv).toContain('averageLatencyMs,80');
+        expect(csv).toContain('"99""ok"""');
     });
 });
