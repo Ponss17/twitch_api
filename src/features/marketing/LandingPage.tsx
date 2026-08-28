@@ -2,19 +2,19 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { appPath } from '@/core/config/paths';
 import { getSession } from '@/core/auth/sessionStorage';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
-import { LandingHeader } from './LandingHeader';
-import { LandingHero } from './LandingHero';
-import { LandingUsers } from './LandingUsers';
-import { LandingFeatures } from './LandingFeatures';
-import { LandingFit } from './LandingFit';
-import { LandingFaq } from './LandingFaq';
-import { LandingResources } from './LandingResources';
+import { LandingHeader } from './sections/LandingHeader';
+import { LandingHero } from './sections/LandingHero';
+import { LandingUsers } from './sections/LandingUsers';
+import { LandingFeatures } from './sections/LandingFeatures';
+import { LandingFit } from './sections/LandingFit';
+import { LandingFaq } from './sections/LandingFaq';
+import { LandingResources } from './sections/LandingResources';
 
 const LoginDisclaimerModal = lazy(() =>
-    import('@/shared/ui/LoginDisclaimerModal').then((m) => ({ default: m.LoginDisclaimerModal }))
+    import('@/shared/ui/modals/LoginDisclaimerModal').then((m) => ({ default: m.LoginDisclaimerModal }))
 );
 const VerifyingSessionModal = lazy(() =>
-    import('@/shared/ui/VerifyingSessionModal').then((m) => ({ default: m.VerifyingSessionModal }))
+    import('@/shared/ui/modals/VerifyingSessionModal').then((m) => ({ default: m.VerifyingSessionModal }))
 );
 
 function syncSessionHint(hasSession: boolean) {

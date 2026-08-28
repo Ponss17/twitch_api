@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Home, ArrowLeft } from 'lucide-react';
 import { appPath } from '@/core/config/paths';
-import { landingBtnPrimary, landingBtnSecondary } from './landingContent';
+import { landingBtnPrimary, landingBtnSecondary } from './lib/landingContent';
 
 export function NotFound404() {
     return (
