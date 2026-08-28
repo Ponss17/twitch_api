@@ -1,6 +1,6 @@
 import type { Session } from '@/core/config/config';
-import type { ActivityLogItem } from '../activityLogDisplay';
-import type { RealtimeStatsUpdate } from '../dashboardStats';
+import type { ActivityLogItem } from '../logs/activityLogDisplay';
+import type { RealtimeStatsUpdate } from '../data/dashboardStats';
 import { RealtimeService } from './RealtimeService';
 import type { RealtimeCallbacks, RealtimeSubscribeOptions, SubscriberEntry } from './types';
 import { isRealtimeInCooldown, markRealtimeCooldown } from './cooldown';

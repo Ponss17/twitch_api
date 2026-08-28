@@ -1,4 +1,4 @@
-import type { ActivityLogItem } from '../activityLogDisplay';
+import type { ActivityLogItem } from '../logs/activityLogDisplay';
 import type { RawActivityLog } from './types';
 
 export function formatActivityLog(raw: RawActivityLog): ActivityLogItem {

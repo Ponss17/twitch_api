@@ -1,12 +1,12 @@
 import {
     DASHBOARD_USAGE_CATEGORIES,
     type DashboardUsageKey
-} from '@/features/dashboard/lib/dashboardStats';
+} from '@/features/dashboard/lib/data/dashboardStats';
 import {
     normalizeActivityType,
     type ActivityLogItem,
     type ActivityLogType
-} from '@/features/dashboard/lib/activityLogDisplay';
+} from '@/features/dashboard/lib/logs/activityLogDisplay';
 import type { Translations } from '@/core/i18n/locales/es';
 
 export type ActivityCategoryFilter = 'all' | 'commands' | 'tools' | 'minigames';
