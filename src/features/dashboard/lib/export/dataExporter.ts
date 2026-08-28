@@ -129,21 +129,21 @@ const DataExport = {
         const apiKey = await resolveExportApiKey(options.includeApiKey === true);
         const maskedKey = options.includeApiKey === true ? maskKey(apiKey) : 'No incluida';
 
-        const todayRequests = (analytics.todayRequests as number) ?? (analytics.today_req_raw as number) ?? 0;
-        const totalRequests = (analytics.totalRequests as number) ?? (analytics.total_requests as number) ?? 0;
+        const todayRequests = Number((analytics.todayRequests ?? analytics.today_req_raw ?? 0));
+        let totalRequests = Number((analytics.totalRequests ?? analytics.total_requests ?? 0));
         const averageLatency = (analytics.averageLatency as string) ?? '0ms';
         const successRate = (analytics.successRate as string) ?? '100%';
 
         const timeSeries = (analytics.timeSeries as Array<{ command_name: string; requests_count: number }>) ?? [];
         const seriesCount: Record<string, number> = {};
         for (const row of timeSeries) {
-            seriesCount[row.command_name] = (seriesCount[row.command_name] ?? 0) + (row.requests_count ?? 0);
+            seriesCount[row.command_name] = (seriesCount[row.command_name] ?? 0) + Number(row.requests_count ?? 0);
         }
 
         const analyticsAggregated: AnalyticsData = { ...analytics, ...seriesCount };
 
         const getCount = (key: string): number =>
-            ((seriesCount[key] ?? 0) || (analytics[key] as number) || (analytics[`${key}_count`] as number) || 0);
+            Number((seriesCount[key] ?? 0) || (analytics[key] as number) || (analytics[`${key}_count`] as number) || 0);
 
         const safeDescription = escapeHtml(userInfo.description || '—');
 
@@ -176,6 +176,14 @@ const DataExport = {
         const gameTotal =
             getCount('russian') + getCount('magic8') +
             getCount('duel') + getCount('slots');
+
+        const computedTotal = cmdTotal + toolTotal + gameTotal;
+        if (totalRequests < computedTotal) {
+            totalRequests = computedTotal;
+        }
+        if (totalRequests < todayRequests) {
+            totalRequests = todayRequests;
+        }
 
         const reportId = `${safeLogin}-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
 
