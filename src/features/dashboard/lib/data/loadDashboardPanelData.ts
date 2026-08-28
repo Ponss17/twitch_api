@@ -1,16 +1,16 @@
 import { API_ENDPOINTS } from '@/core/config/config';
 import { apiFetch } from '@/core/api/auth';
-import { fetchDashboardSummary } from '@/features/dashboard/lib/dashboardSummary';
+import { fetchDashboardSummary } from '@/features/dashboard/lib/data/dashboardSummary';
 import {
     EMPTY_DASHBOARD_LIVE_STATS,
     parseDashboardStatsFromRow,
     isStatsDateOutdated,
     getStatsLocalDateString,
     type DashboardLiveStats
-} from '@/features/dashboard/lib/dashboardStats';
-import type { ActivityLogItem } from '@/features/dashboard/lib/activityLogDisplay';
+} from '@/features/dashboard/lib/data/dashboardStats';
+import type { ActivityLogItem } from '@/features/dashboard/lib/logs/activityLogDisplay';
 import type { Session } from '@/core/config/config';
-import type { DashboardProfile } from '@/features/dashboard/lib/dashboardSummary';
+import type { DashboardProfile } from '@/features/dashboard/lib/data/dashboardSummary';
 
 export interface DashboardPanelLoadResult {
     analytics: DashboardLiveStats;
@@ -85,7 +85,7 @@ export async function loadDashboardPanelData(
 
     if (!profile && session.login) {
         try {
-            const { fetchDashboardProfile } = await import('@/features/dashboard/lib/dashboardSummary');
+            const { fetchDashboardProfile } = await import('@/features/dashboard/lib/data/dashboardSummary');
             profile = await fetchDashboardProfile(session, { fresh: options?.fresh });
         } catch (e) {
             failures.push(e);
