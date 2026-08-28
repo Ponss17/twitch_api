@@ -4,11 +4,11 @@ import {
     isDashboardTab,
     parseTabFromPathname,
     resolveDashboardTab
-} from '@/features/dashboard/lib/dashboardTabUrl';
+} from '@/features/dashboard/lib/tabs/dashboardTabUrl';
 import {
     parseSettingsTabFromLocation,
     settingsTabPath
-} from '@/features/dashboard/settings/settingsPaths';
+} from '@/features/dashboard/settings/lib/settingsPaths';
 
 const BASE = getDashboardBasePath();
 

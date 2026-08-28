@@ -5,7 +5,7 @@ import {
     auditScopeDetail,
     formatAuditRelativeTime,
     isUserAuditAction
-} from '@/features/dashboard/lib/auditLogDisplay';
+} from '@/features/dashboard/lib/logs/auditLogDisplay';
 
 describe('auditLogDisplay', () => {
     it('recognizes user-facing actions only', () => {

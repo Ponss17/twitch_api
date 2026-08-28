@@ -1,4 +1,4 @@
-import { TabSyncService } from '@/features/dashboard/lib/tabSyncService';
+import { TabSyncService } from '@/features/dashboard/lib/tabs/tabSyncService';
 
 /**
  * Fake BroadcastChannel que enruta mensajes entre instancias del mismo canal,
