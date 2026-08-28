@@ -1,9 +1,9 @@
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { ToolFocusExitButton } from '@/features/dashboard/layout/ToolFocusExitButton';
-import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
+import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
 import { toolHeaderConfigBar, toolHeaderTopRow } from '@/core/utils/tw';
-import { useToolFocus } from '@/features/dashboard/lib/ToolFocusContext';
+import { useToolFocus } from '@/features/dashboard/lib/ui/ToolFocusContext';
 
 interface ToolPanelHeaderProps {
     icon: LucideIcon;

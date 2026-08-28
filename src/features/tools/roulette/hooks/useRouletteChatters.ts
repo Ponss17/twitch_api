@@ -7,7 +7,7 @@ import {
     normalizeChatKeyword
 } from '@/features/tools/lib/normalizeChatKeyword';
 import type { RouletteUser } from '@/core/types/twitch';
-import { TabSyncService } from '@/features/dashboard/lib/tabSyncService';
+import { TabSyncService } from '@/features/dashboard/lib/tabs/tabSyncService';
 import {
     DEFAULT_ELIGIBILITY_FILTERS,
     filtersToApiParam,

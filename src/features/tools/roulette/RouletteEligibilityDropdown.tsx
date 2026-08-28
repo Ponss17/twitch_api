@@ -8,7 +8,7 @@ import {
     DropdownPanel,
     DropdownTrigger,
     DROPDOWN_Z_FOCUS
-} from '@/shared/ui/Dropdown';
+} from '@/shared/ui/dropdown/Dropdown';
 import {
     ROLE_OPTIONS,
     filtersSummaryLabel,

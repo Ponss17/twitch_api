@@ -1,5 +1,5 @@
 import { Minimize2 } from 'lucide-react';
-import { useToolFocus } from '@/features/dashboard/lib/ToolFocusContext';
+import { useToolFocus } from '@/features/dashboard/lib/ui/ToolFocusContext';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { hoverSubtleIconBtn } from '@/core/utils/tw';
 

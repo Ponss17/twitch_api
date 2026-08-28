@@ -8,7 +8,7 @@ import {
 } from '@/features/overlay/lib/overlaySetupGuide';
 import type { OverlayTool } from '@/features/overlay/lib/types';
 import { Sheet } from '@/shared/ui/Sheet';
-import { useToast } from '@/shared/ui/ToastProvider';
+import { useToast } from '@/shared/ui/toast/ToastProvider';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { readScopedPref, writeScopedPref } from '@/core/session/localPrefs';
 import { resolveWheelPalette, ROULETTE_COLOR_PRESETS } from '@/features/tools/roulette/lib/wheelUtils';

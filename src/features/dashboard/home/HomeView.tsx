@@ -1,6 +1,6 @@
 import type { DashboardTab } from '@/core/config/config';
 
-import { SettingsHero } from '@/features/dashboard/settings/SettingsHero';
+import { SettingsHero } from '@/features/dashboard/settings/components/SettingsHero';
 import { HomeActivityFeed } from '@/features/dashboard/home/HomeActivityFeed';
 import { HomeResourcesPanel } from '@/features/dashboard/home/HomeResourcesPanel';
 import { useRequiredSession } from '@/core/session/useSession';

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { DashboardTab } from '@/core/config/config';
 import { staticPath } from '@/core/config/paths';
-import { NAV_ITEMS } from '@/features/dashboard/lib/dashboardTabs';
+import { NAV_ITEMS } from '@/features/dashboard/lib/tabs/dashboardTabs';
 import {
     sidebarBackdrop,
     sidebarBrandHeader,
@@ -20,7 +20,7 @@ import { useRequiredSession } from '@/core/session/useSession';
 import {
     Dropdown,
     DropdownTrigger
-} from '@/shared/ui/Dropdown';
+} from '@/shared/ui/dropdown/Dropdown';
 import { SidebarAccountMenu } from './SidebarAccountMenu';
 
 interface SidebarProps {

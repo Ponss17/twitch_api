@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { apiFetch } from '@/core/api/auth';
 import { useRequiredSession } from '@/core/session/useSession';
-import { useToast } from '@/shared/ui/ToastProvider';
+import { useToast } from '@/shared/ui/toast/ToastProvider';
 import { cache, CACHE_TTL } from '@/core/cache/cacheService';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { copyText } from '@/core/utils/clipboard';

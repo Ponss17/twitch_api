@@ -3,7 +3,7 @@ import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanel
 import { AlertTriangle } from 'lucide-react';
 import { fadeIn } from '@/core/utils/tw';
 import { useRequiredSession } from '@/core/session/useSession';
-import { buildLocalDateRange, getStatsLocalDateString } from '@/features/dashboard/lib/dashboardStats';
+import { buildLocalDateRange, getStatsLocalDateString } from '@/features/dashboard/lib/data/dashboardStats';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 import { AnalyticsKPIs } from './AnalyticsKPIs';

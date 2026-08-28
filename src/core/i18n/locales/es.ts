@@ -100,6 +100,7 @@ export const es = {
     exporter: {
         home: 'Inicio',
         docs: 'Documentación',
+        about: 'Acerca de',
         dashboard: 'Dashboard',
         reportBadge: 'Reporte de cuenta',
         followers: 'Seguidores',

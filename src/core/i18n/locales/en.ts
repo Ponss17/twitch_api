@@ -95,6 +95,7 @@ export const en: Translations = {
     exporter: {
         home: 'Home',
         docs: 'Documentation',
+        about: 'About',
         dashboard: 'Dashboard',
         reportBadge: 'Account Report',
         followers: 'Followers',
