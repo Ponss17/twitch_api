@@ -6,7 +6,7 @@ import {
     DropdownPanel,
     DropdownTrigger,
     DROPDOWN_Z_FOCUS
-} from '@/shared/ui/Dropdown';
+} from '@/shared/ui/dropdown/Dropdown';
 import { toolHeaderIconBtn } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
 

@@ -2,7 +2,7 @@ import { Check, Loader2, AlertTriangle, Play, FlaskConical } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react';
 import { btnPrimary, panelCard, responseCard, fadeIn, formGrid } from '@/core/utils/tw';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
-import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
+import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface ApiTestCardProps {

@@ -17,12 +17,12 @@ import { BOT_OPTIONS } from '@/features/commands/lib/commandGenerator';
 import type { CommandConfigItem } from '@/features/commands/lib/config';
 import { useRequiredSession } from '@/core/session/useSession';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
-import { useToast } from '@/shared/ui/ToastProvider';
+import { useToast } from '@/shared/ui/toast/ToastProvider';
 import { IconSm } from '@/shared/ui/Icon';
 import { copyText } from '@/core/utils/clipboard';
 import { useCommandConfig } from '@/features/commands/hooks/useCommandStore';
 import { getCommandConfig } from '@/features/commands/lib/commandStore';
-import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
+import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 function CommandCardHeader({

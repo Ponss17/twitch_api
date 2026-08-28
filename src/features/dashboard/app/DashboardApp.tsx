@@ -2,16 +2,16 @@ import { useCallback, useEffect, useLayoutEffect, useState, type AnimationEvent 
 import { Sidebar } from '@/features/dashboard/layout/Sidebar';
 import { DashboardHeader } from '@/features/dashboard/layout/DashboardHeader';
 import { DashboardContent } from '@/features/dashboard/DashboardContent';
-import { ToastProvider, AppToaster, useToast } from '@/shared/ui/ToastProvider';
+import { ToastProvider, AppToaster, useToast } from '@/shared/ui/toast/ToastProvider';
 import { OnlineStatusMonitor } from '@/shared/ui/OnlineStatusMonitor';
-import { VerifyingSessionModal } from '@/shared/ui/VerifyingSessionModal';
+import { VerifyingSessionModal } from '@/shared/ui/modals/VerifyingSessionModal';
 import { SessionProvider } from '@/shared/providers/SessionProvider';
 import { useSession, useRequiredSession } from '@/core/session/useSession';
 import { DashboardSessionSkeleton } from '@/shared/ui/Skeleton';
 import { logout, shouldShowDashboardSplash, clearDashboardSplashFlags } from '@/core/api/auth';
-import { DASHBOARD_DATA_READY_EVENT } from '@/features/dashboard/lib/dashboardPanelEvents';
+import { DASHBOARD_DATA_READY_EVENT } from '@/features/dashboard/lib/tabs/dashboardPanelEvents';
 import { initGlobalErrorLogging } from '@/core/logging/logError';
-import { resolveDashboardTab, setTabInUrl } from '@/features/dashboard/lib/dashboardTabUrl';
+import { resolveDashboardTab, setTabInUrl } from '@/features/dashboard/lib/tabs/dashboardTabUrl';
 import { persistPanelReturnPath } from '@/core/config/paths';
 import { fadeIn, SIDEBAR_WIDTH_COLLAPSED_PX, SIDEBAR_WIDTH_EXPANDED_PX, sidebarContentOffset } from '@/core/utils/tw';
 import type { DashboardTab } from '@/core/config/config';
@@ -21,9 +21,9 @@ import { ThemeEasterEggs } from '@/features/dashboard/easterEggs/ThemeEasterEggs
 import {
     readSidebarCollapsedPref,
     writeSidebarCollapsedPref
-} from '@/features/dashboard/lib/sidebarPrefs';
-import { isToolTab } from '@/features/dashboard/lib/dashboardTabs';
-import { ToolFocusProvider } from '@/features/dashboard/lib/ToolFocusContext';
+} from '@/features/dashboard/lib/ui/sidebarPrefs';
+import { isToolTab } from '@/features/dashboard/lib/tabs/dashboardTabs';
+import { ToolFocusProvider } from '@/features/dashboard/lib/ui/ToolFocusContext';
 
 type ToolFocusPhase = 'off' | 'pre' | 'in' | 'on' | 'out';
 

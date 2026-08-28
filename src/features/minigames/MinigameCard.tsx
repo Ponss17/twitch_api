@@ -2,7 +2,7 @@ import { type LucideIcon } from 'lucide-react';
 import { type ReactNode } from 'react';
 import { fadeIn, panelCard } from '@/core/utils/tw';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
-import { subtleIcon } from '@/features/dashboard/lib/subtleAccents';
+import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
 
 export function MinigameCard({
     icon: Icon,

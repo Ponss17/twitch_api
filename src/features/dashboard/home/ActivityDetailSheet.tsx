@@ -5,7 +5,7 @@ import {
     sanitizeActivitySecrets,
     formatActivityTime,
     type ActivityLogItem
-} from '@/features/dashboard/lib/activityLogDisplay';
+} from '@/features/dashboard/lib/logs/activityLogDisplay';
 import { btnSecondary } from '@/core/utils/tw';
 import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
 import { copyText } from '@/core/utils/clipboard';

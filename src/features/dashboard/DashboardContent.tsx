@@ -12,7 +12,7 @@ import {
     CommandViewSkeleton 
 } from '@/shared/ui/Skeleton';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { useToolFocus } from '@/features/dashboard/lib/ToolFocusContext';
+import { useToolFocus } from '@/features/dashboard/lib/ui/ToolFocusContext';
 
 const HomeView = lazy(() =>
     import('@/features/dashboard/home/HomeView').then((m) => ({ default: m.HomeView }))

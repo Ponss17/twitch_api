@@ -8,10 +8,10 @@ import { useOverlayPublish } from '@/features/overlay/hooks/useOverlayPublish';
 import { fadeIn, hoverSubtleIconBtn, toolPanelShell, toolHeaderIconBtn, toolConfigInput, toolConfigSegment } from '@/core/utils/tw';
 import { RouletteEligibilityDropdown } from '@/features/tools/roulette/RouletteEligibilityDropdown';
 import { ToolPanelHeader } from '@/features/tools/components/ToolPanelHeader';
-import { useToast } from '@/shared/ui/ToastProvider';
+import { useToast } from '@/shared/ui/toast/ToastProvider';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { useToolFocus } from '@/features/dashboard/lib/ToolFocusContext';
+import { useToolFocus } from '@/features/dashboard/lib/ui/ToolFocusContext';
 
 export function RouletteView({ active = true }: { active?: boolean }) {
     const session = useRequiredSession();

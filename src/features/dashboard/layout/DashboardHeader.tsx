@@ -1,5 +1,5 @@
 import type { DashboardTab } from '@/core/config/config';
-import { isToolTab, TAB_META } from '@/features/dashboard/lib/dashboardTabs';
+import { isToolTab, TAB_META } from '@/features/dashboard/lib/tabs/dashboardTabs';
 import { Maximize2, Menu } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { Translations } from '@/core/i18n/locales/es';

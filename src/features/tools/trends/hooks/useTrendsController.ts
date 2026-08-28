@@ -3,7 +3,7 @@ import { API_ENDPOINTS, IGNORED_BOTS, type Session } from '@/core/config/config'
 import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { useTmiChat } from '@/features/chat/hooks/useTmiChat';
 import { chatLogStore } from '@/features/chat/lib/chatLogStore';
-import { TabSyncService } from '@/features/dashboard/lib/tabSyncService';
+import { TabSyncService } from '@/features/dashboard/lib/tabs/tabSyncService';
 import { rankWordCounts, trimWordCounts } from '@/features/tools/trends/lib/rankWordCounts';
 import type { TrendsOverlayState } from '@/features/overlay/lib/types';
 import { useTranslation } from '@/core/i18n/I18nContext';
