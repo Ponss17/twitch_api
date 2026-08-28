@@ -4,14 +4,14 @@ import { authHeaders, withApiCredentials } from '@/core/api/auth';
 import { logError } from '@/core/logging/logError';
 import { debugWarn } from '@/core/logging/debugLog';
 
-import type { ActivityLogItem } from '../activityLogDisplay';
+import type { ActivityLogItem } from '../logs/activityLogDisplay';
 import {
     parseDashboardStatsFromRow,
     getStatsLocalDateString,
     type DashboardLiveStats,
     type DailyStatsRealtimePatch,
     type RealtimeStatsUpdate
-} from '../dashboardStats';
+} from '../data/dashboardStats';
 
 import type { RawActivityLog } from './types';
 import { isTransportFailure, isBenignRealtimeClose, installUnloadGuard } from './errors';

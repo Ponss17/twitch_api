@@ -48,23 +48,39 @@ const DataExport = {
     async fetchAnalytics(_session: Session): Promise<AnalyticsData> {
         try {
             const res = await fetch(API_ENDPOINTS.ANALYTICS, withApiCredentials());
-            if (res.ok) return await res.json();
+            if (res.ok) {
+                const body = await res.json() as { analytics?: AnalyticsData };
+                return body.analytics ?? {};
+            }
         } catch (error) {
             console.error('[DataExport] Error fetching analytics:', error);
         }
         return {};
     },
 
+
     async fetchUserInfo(session: Session): Promise<ExportUserInfo> {
         try {
             const url = `${API_ENDPOINTS.USER_INFO}?login=${encodeURIComponent(session.login ?? '')}`;
             const res = await fetch(url, withApiCredentials());
-            if (res.ok) return await res.json();
+            if (res.ok) {
+                const data = await res.json() as Record<string, unknown>;
+                return {
+                    followers: (data.followers ?? data.follower_count) as number | undefined,
+                    broadcaster_type: data.broadcaster_type as string | undefined,
+                    created_at: (data.created_at ?? data.createdAt) as string | undefined,
+                    description: data.description as string | undefined,
+                    rateLimit: (data.rateLimit ?? data.rate_limit ?? 120) as number,
+                    timezone: data.timezone as string | undefined,
+                    discordId: data.discordId as string | null | undefined,
+                    discordUsername: data.discordUsername as string | null | undefined,
+                };
+            }
         } catch (error) {
             console.error('[DataExport] Error fetching user info:', error);
         }
         return {
-            followers: '---',
+            followers: undefined,
             broadcaster_type: '---',
             created_at: '---',
             description: '---',
@@ -113,10 +129,21 @@ const DataExport = {
         const apiKey = await resolveExportApiKey(options.includeApiKey === true);
         const maskedKey = options.includeApiKey === true ? maskKey(apiKey) : 'No incluida';
 
-        const todayRequests = analytics.todayRequests ?? 0;
-        const totalRequests = analytics.totalRequests ?? 0;
-        const averageLatency = analytics.averageLatency ?? '0ms';
-        const successRate = analytics.successRate ?? '100%';
+        const todayRequests = (analytics.todayRequests as number) ?? (analytics.today_req_raw as number) ?? 0;
+        const totalRequests = (analytics.totalRequests as number) ?? (analytics.total_requests as number) ?? 0;
+        const averageLatency = (analytics.averageLatency as string) ?? '0ms';
+        const successRate = (analytics.successRate as string) ?? '100%';
+
+        const timeSeries = (analytics.timeSeries as Array<{ command_name: string; requests_count: number }>) ?? [];
+        const seriesCount: Record<string, number> = {};
+        for (const row of timeSeries) {
+            seriesCount[row.command_name] = (seriesCount[row.command_name] ?? 0) + (row.requests_count ?? 0);
+        }
+
+        const analyticsAggregated: AnalyticsData = { ...analytics, ...seriesCount };
+
+        const getCount = (key: string): number =>
+            ((seriesCount[key] ?? 0) || (analytics[key] as number) || (analytics[`${key}_count`] as number) || 0);
 
         const safeDescription = escapeHtml(userInfo.description || '—');
 
@@ -124,41 +151,35 @@ const DataExport = {
             userInfo.broadcaster_type === 'partner'
                 ? 'Partner'
                 : userInfo.broadcaster_type === 'affiliate'
-                  ? 'Afiliado'
-                  : 'Estándar';
+                    ? 'Afiliado'
+                    : 'Estándar';
 
         const followerCount =
             typeof userInfo.followers === 'number'
-                ? userInfo.followers.toLocaleString()
+                ? userInfo.followers.toLocaleString(bcp47)
                 : (userInfo.followers ?? '—');
 
         const createdAtDate = new Date(userInfo.created_at || now);
         const createdAtStr = isNaN(createdAtDate.getTime())
             ? '---'
             : createdAtDate.toLocaleDateString(bcp47, {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-              });
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
 
         const cmdTotal =
-            ((analytics.clips as number) || 0) +
-            ((analytics.followage as number) || 0) +
-            ((analytics.watchtime as number) || 0) +
-            ((analytics.so as number) || 0);
+            getCount('clips') + getCount('followage') +
+            getCount('watchtime') + getCount('so');
         const toolTotal =
-            ((analytics.stalker as number) || 0) +
-            ((analytics.trends as number) || 0) +
-            ((analytics.roulette as number) || 0);
+            getCount('stalker') + getCount('trends') + getCount('roulette');
         const gameTotal =
-            ((analytics.russian as number) || 0) +
-            ((analytics.magic8 as number) || 0) +
-            ((analytics.duel as number) || 0) +
-            ((analytics.slots as number) || 0);
+            getCount('russian') + getCount('magic8') +
+            getCount('duel') + getCount('slots');
 
         const reportId = `${safeLogin}-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
 
-        const commandRows = buildCommandRows(analytics, apiKey);
+        const commandRows = buildCommandRows(analyticsAggregated, apiKey);
         const siteOrigin = getExportSiteOrigin();
         const homeUrl = `${siteOrigin}${appPath('/')}`;
         const docsUrl = `${siteOrigin}${appPath('/docs')}`;
@@ -212,13 +233,19 @@ const DataExport = {
         t: Translations,
         onSuccess?: (message: string) => void
     ) {
-        const analytics = await this.fetchAnalytics(session);
+        const [analytics, userInfo] = await Promise.all([
+            this.fetchAnalytics(session),
+            this.fetchUserInfo(session)
+        ]);
+        const now = new Date();
+        const dateTag = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
         const csv = buildAnalyticsCsv(analytics, {
             login: session.login || 'usuario',
-            exportedAt: new Date().toISOString()
+            exportedAt: now.toISOString(),
+            timezone: userInfo.timezone || 'UTC'
         });
         const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
-        downloadBlob(blob, `Analytics_LosPerrisAPI_${session.login || 'usuario'}.csv`);
+        downloadBlob(blob, `Analytics_LosPerrisAPI_${session.login || 'usuario'}_${dateTag}.csv`);
         onSuccess?.(t.settings.toasts.exportSuccess);
     }
 };
