@@ -4,8 +4,8 @@ import {
     countActivityByCategory,
     filterActivityLog,
     matchesActivityCategory
-} from '@/features/dashboard/lib/activityLogFilter';
-import type { ActivityLogItem } from '@/features/dashboard/lib/activityLogDisplay';
+} from '@/features/dashboard/lib/logs/activityLogFilter';
+import type { ActivityLogItem } from '@/features/dashboard/lib/logs/activityLogDisplay';
 
 const SAMPLE: ActivityLogItem[] = [
     { type: 'clip', user: 'user1', timestamp: '2026-01-01T10:00:00Z' },

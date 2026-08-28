@@ -2,7 +2,7 @@ import { describe, expect, it, jest, beforeEach, afterEach } from '@jest/globals
 import {
     broadcastHomeDataReset,
     subscribeHomeDataReset
-} from '@/features/dashboard/lib/dashboardSync';
+} from '@/features/dashboard/lib/data/dashboardSync';
 
 describe('dashboardSync home data reset', () => {
     beforeEach(() => {

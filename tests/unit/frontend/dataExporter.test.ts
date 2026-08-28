@@ -3,7 +3,7 @@ jest.mock('@/core/config/config', () => ({
     STATUS_PAGE_URL: 'https://status.example'
 }));
 
-import { resolveExportApiKey } from '@/features/dashboard/lib/dataExporter';
+import { resolveExportApiKey } from '@/features/dashboard/lib/export/dataExporter';
 
 describe('resolveExportApiKey', () => {
     it('usa placeholder sin consentimiento y no revela secretos', async () => {

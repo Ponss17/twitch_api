@@ -32,7 +32,7 @@ jest.mock('@/core/api/auth', () => ({
 
 const showToastMock = jest.fn();
 
-jest.mock('@/shared/ui/ToastProvider', () => ({
+jest.mock('@/shared/ui/toast/ToastProvider', () => ({
     useToastOptional: () => showToastMock
 }));
 

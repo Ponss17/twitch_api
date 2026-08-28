@@ -1,4 +1,4 @@
-import { buildAnalyticsCsv } from '@/features/dashboard/lib/exporterCsv';
+import { buildAnalyticsCsv } from '@/features/dashboard/lib/export/exporterCsv';
 
 describe('buildAnalyticsCsv', () => {
     it('arma resumen, comandos y serie diaria', () => {

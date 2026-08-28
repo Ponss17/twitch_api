@@ -13,9 +13,9 @@ import {
     type RealtimeCallbacks
 } from '@/features/dashboard/lib/realtime';
 import { formatActivityLog } from '@/features/dashboard/lib/realtime/formatters';
-import { parseDashboardStatsFromRow } from '@/features/dashboard/lib/dashboardStats';
+import { parseDashboardStatsFromRow } from '@/features/dashboard/lib/data/dashboardStats';
 import type { Session } from '@/core/config/config';
-import { EMPTY_DASHBOARD_LIVE_STATS } from '@/features/dashboard/lib/dashboardStats';
+import { EMPTY_DASHBOARD_LIVE_STATS } from '@/features/dashboard/lib/data/dashboardStats';
 
 const callbacks: RealtimeCallbacks = {
     onStatsUpdate: jest.fn(),
