@@ -70,8 +70,8 @@ export function SettingsHero({
                     </div>
                 </div>
 
-                <div className="flex w-full flex-wrap gap-y-4 rounded-xl border border-border-subtle bg-bg-secondary p-4 [box-shadow:var(--shadow-card,0_8px_30px_rgba(0,0,0,0.5))] xl:w-auto xl:min-w-[29rem] xl:justify-end">
-                    <div className="pr-6">
+                <div className="flex w-full flex-wrap rounded-xl border border-border-subtle bg-bg-secondary p-4 [box-shadow:var(--shadow-card,0_8px_30px_rgba(0,0,0,0.5))] xl:w-auto xl:min-w-[29rem] xl:justify-end">
+                    <div className="w-full sm:w-auto sm:pr-6">
                         <ProfileStat icon={Heart} label={sT.followers}>
                             {followers === undefined && !isLoading ? (
                                 <span
@@ -89,14 +89,14 @@ export function SettingsHero({
                             )}
                         </ProfileStat>
                     </div>
-                    <div className="border-l border-border-subtle px-6">
+                    <div className="w-full border-t border-border-subtle pt-4 sm:w-auto sm:border-l sm:border-t-0 sm:px-6 sm:pt-0">
                         <ProfileStat icon={Video} label={sT.channelType}>
                             <span className="text-[1.4rem] font-bold leading-none tracking-tight text-text-main">
                                 {broadcasterLabel}
                             </span>
                         </ProfileStat>
                     </div>
-                    <div className="border-l border-border-subtle pl-6">
+                    <div className="w-full border-t border-border-subtle pt-4 sm:w-auto sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
                         <ProfileStat icon={Calendar} label={sT.memberSince}>
                             <span className="text-[1.4rem] font-bold leading-none tracking-tight text-text-main">
                                 {memberSince}
