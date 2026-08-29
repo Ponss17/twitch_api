@@ -14,7 +14,7 @@ import {
 } from '@/core/utils/tw';
 import { AppLogo } from '@/shared/ui/AppLogo';
 import { IconMd } from '@/shared/ui/Icon';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
 import {
@@ -66,11 +66,15 @@ export function Sidebar({
     const { t } = useTranslation();
     const session = useRequiredSession();
     const asideRef = useRef<HTMLElement>(null);
+    const navRefs = useRef<Map<string, HTMLButtonElement | null>>(new Map());
+    const [indicator, setIndicator] = useState({ top: 0, left: 0, width: 0, height: 0, opacity: 0 });
     const isDesktop = useIsDesktopLg();
-    /** En móvil el drawer siempre muestra labels; el rail compacto solo en lg+. */
     const railCollapsed = collapsed && isDesktop;
     const displayName = session.displayName ?? session.login ?? 'Streamer';
-    const loginLabel = session.login ? `@${session.login}` : '';
+    const loginLabel =
+        session.login && session.login.toLowerCase() !== (session.displayName ?? '').toLowerCase()
+            ? `@${session.login}`
+            : '';
     const twitchProfileUrl = session.login ? `https://www.twitch.tv/${session.login}` : '#';
     const avatarSrc =
         session.profile_image_url?.replace('300x300', '70x70') ?? staticPath('/img/logo.svg');
@@ -103,6 +107,21 @@ export function Sidebar({
         return () => window.removeEventListener('keydown', onKey);
     }, [mobileOpen, onClose]);
 
+    useEffect(() => {
+        const btn = navRefs.current.get(active);
+        if (!btn) {
+            setIndicator(prev => ({ ...prev, opacity: 0 }));
+            return;
+        }
+        setIndicator({
+            top: btn.offsetTop,
+            left: btn.offsetLeft,
+            width: btn.offsetWidth,
+            height: btn.offsetHeight,
+            opacity: 1
+        });
+    }, [active, railCollapsed, mobileOpen]);
+
     const toggleCollapsed = () => {
         onCollapsedChange?.(!collapsed);
     };
@@ -117,11 +136,10 @@ export function Sidebar({
             >
                 <div className={sidebarBrandHeader(railCollapsed)}>
                     <div
-                        className={`flex min-w-0 items-center gap-2.5 overflow-hidden transition-[opacity,max-width] ${SIDEBAR_MOTION} ${
-                            railCollapsed
+                        className={`flex min-w-0 items-center gap-2.5 overflow-hidden transition-[opacity,max-width] ${SIDEBAR_MOTION} ${railCollapsed
                                 ? 'pointer-events-none max-w-0 opacity-0'
                                 : 'max-w-[9.5rem] opacity-100'
-                        }`}
+                            }`}
                         aria-hidden={railCollapsed}
                     >
                         <AppLogo className="pointer-events-none h-8 w-8 shrink-0 text-primary" />
@@ -133,11 +151,10 @@ export function Sidebar({
                     {onCollapsedChange ? (
                         <button
                             type="button"
-                            className={`shrink-0 items-center justify-center rounded-lg text-text-muted ${hoverSubtleIconBtn} ${
-                                railCollapsed
+                            className={`shrink-0 items-center justify-center rounded-lg text-text-muted ${hoverSubtleIconBtn} ${railCollapsed
                                     ? 'inline-flex size-10'
                                     : 'hidden size-8 lg:inline-flex'
-                            }`}
+                                }`}
                             aria-label={
                                 railCollapsed ? t.sidebar.expandMenu : t.sidebar.collapseMenu
                             }
@@ -145,16 +162,23 @@ export function Sidebar({
                             aria-controls="dashboard-sidebar"
                             onClick={toggleCollapsed}
                         >
-                            {railCollapsed ? (
-                                <ChevronRight className="size-4" aria-hidden />
-                            ) : (
-                                <ChevronLeft className="size-4" aria-hidden />
-                            )}
+                            <Menu className="size-4" aria-hidden />
                         </button>
                     ) : null}
                 </div>
 
-                <nav className={sidebarNavScroll} aria-label={t.sidebar.navigation}>
+                <nav className={`${sidebarNavScroll} relative`} aria-label={t.sidebar.navigation}>
+                    <div
+                        aria-hidden
+                        className="pointer-events-none absolute rounded-md bg-primary/15 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] dark:bg-primary/20 dark:shadow-md dark:shadow-black/40"
+                        style={{
+                            top: indicator.top,
+                            left: indicator.left,
+                            width: indicator.width,
+                            height: indicator.height,
+                            opacity: indicator.opacity
+                        }}
+                    />
                     {MAIN_NAV.map((item, index) => {
                         const prevCategory = index > 0 ? MAIN_NAV[index - 1].category : '';
                         const isCategoryStart =
@@ -170,22 +194,20 @@ export function Sidebar({
                                 {isCategoryStart ? (
                                     <>
                                         <p
-                                            className={`overflow-hidden px-4 text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-text-muted transition-[max-height,margin,opacity,padding] ${SIDEBAR_MOTION} ${
-                                                railCollapsed
+                                            className={`overflow-hidden px-4 text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-text-muted transition-[max-height,margin,opacity,padding] ${SIDEBAR_MOTION} ${railCollapsed
                                                     ? 'mb-0 mt-0 max-h-0 opacity-0'
                                                     : `mb-2 max-h-8 opacity-100 ${index === 0 ? 'mt-2' : 'mt-8'}`
-                                            }`}
+                                                }`}
                                             aria-hidden={railCollapsed}
                                         >
                                             {item.category ? t.sidebar.categories[catKey] : ''}
                                         </p>
                                         {index > 0 ? (
                                             <div
-                                                className={`mx-auto h-px w-5 bg-border-subtle transition-[margin,opacity] ${SIDEBAR_MOTION} ${
-                                                    railCollapsed
+                                                className={`mx-auto h-px w-5 bg-border-subtle transition-[margin,opacity] ${SIDEBAR_MOTION} ${railCollapsed
                                                         ? 'my-2.5 opacity-100'
                                                         : 'my-0 max-h-0 opacity-0'
-                                                }`}
+                                                    }`}
                                                 aria-hidden
                                             />
                                         ) : null}
@@ -193,25 +215,19 @@ export function Sidebar({
                                 ) : null}
                                 <button
                                     type="button"
+                                    ref={(el) => { navRefs.current.set(item.id, el); }}
                                     onClick={() => {
                                         onChange(item.id);
                                         onClose();
                                     }}
-                                    className={`${sidebarNavItem(isActive, railCollapsed)} relative overflow-hidden`}
+                                    className={`${sidebarNavItem(isActive, railCollapsed)} relative overflow-hidden ${isActive ? '!bg-transparent shadow-none' : ''}`}
                                     aria-label={itemLabel}
                                     title={railCollapsed ? itemLabel : undefined}
                                     aria-current={isActive ? 'page' : undefined}
                                 >
-                                    {isActive ? (
-                                        <span
-                                            className="absolute inset-0 bg-primary/20"
-                                            aria-hidden
-                                        />
-                                    ) : null}
                                     <div
-                                        className={`relative z-10 flex min-w-0 items-center transition-[gap] ${SIDEBAR_MOTION} ${
-                                            railCollapsed ? 'gap-0' : 'gap-3'
-                                        }`}
+                                        className={`relative z-10 flex min-w-0 items-center transition-[gap] ${SIDEBAR_MOTION} ${railCollapsed ? 'gap-0' : 'gap-3'
+                                            }`}
                                     >
                                         <IconMd
                                             icon={item.icon}
@@ -228,23 +244,20 @@ export function Sidebar({
                 </nav>
 
                 <div
-                    className={`relative flex h-[4.25rem] shrink-0 items-center overflow-visible border-t border-border-subtle transition-[padding,justify-content] ${SIDEBAR_MOTION} ${
-                        railCollapsed ? 'justify-center px-1.5' : 'px-2.5'
-                    }`}
+                    className={`relative flex h-[4.25rem] shrink-0 items-center overflow-visible border-t border-border-subtle transition-[padding,justify-content] ${SIDEBAR_MOTION} ${railCollapsed ? 'justify-center px-1.5' : 'px-2.5'
+                        }`}
                 >
                     <Dropdown
-                        className={`relative overflow-visible transition-[width] ${SIDEBAR_MOTION} ${
-                            railCollapsed ? 'w-auto' : 'w-full'
-                        }`}
+                        className={`relative overflow-visible transition-[width] ${SIDEBAR_MOTION} ${railCollapsed ? 'w-auto' : 'w-full'
+                            }`}
                     >
                         <DropdownTrigger
                             aria-label={t.header.accountMenu}
                             title={railCollapsed ? displayName : undefined}
-                            className={`group flex items-center rounded-xl border border-transparent text-left transition-[padding,gap,width] ${SIDEBAR_MOTION} hover:bg-white/[0.02] aria-expanded:border-border-subtle aria-expanded:bg-white/[0.03] ${
-                                railCollapsed
+                            className={`group flex items-center rounded-xl border border-transparent text-left transition-[padding,gap,width] ${SIDEBAR_MOTION} hover:bg-white/[0.02] aria-expanded:border-border-subtle aria-expanded:bg-white/[0.03] ${railCollapsed
                                     ? 'justify-center gap-0 p-1.5'
                                     : 'w-full gap-2.5 px-2 py-2'
-                            }`}
+                                }`}
                         >
                             <img
                                 src={avatarSrc}
@@ -252,11 +265,10 @@ export function Sidebar({
                                 className="size-9 shrink-0 rounded-full object-cover ring-1 ring-border-subtle"
                             />
                             <span
-                                className={`min-w-0 flex-1 overflow-hidden transition-[max-width,opacity] ${SIDEBAR_MOTION} ${
-                                    railCollapsed
+                                className={`min-w-0 flex-1 overflow-hidden transition-[max-width,opacity] ${SIDEBAR_MOTION} ${railCollapsed
                                         ? 'max-w-0 opacity-0'
                                         : 'max-w-[9rem] opacity-100'
-                                }`}
+                                    }`}
                                 aria-hidden={railCollapsed}
                             >
                                 <span className="block truncate whitespace-nowrap text-[0.875rem] font-semibold text-text-main">

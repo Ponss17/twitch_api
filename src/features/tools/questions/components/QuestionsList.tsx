@@ -26,7 +26,7 @@ export function QuestionsList({ items, currentId, onAnswer, onSkip, onRemove }: 
 
     if (items.length === 0) {
         return (
-            <div className="rounded-xl border-2 border-dashed border-border-subtle bg-bg-overlay/30 py-20">
+            <div className="rounded-xl border border-border-subtle bg-bg-overlay/30 py-20">
                 <SimpleEmptyState icon={MessageCircleQuestion} label={qT.emptyList} />
             </div>
         );

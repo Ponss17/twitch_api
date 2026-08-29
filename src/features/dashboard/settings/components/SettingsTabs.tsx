@@ -1,9 +1,11 @@
-import type { ReactNode } from 'react';
+import { useRef, useEffect, useState, type ReactNode } from 'react';
 import { isSettingsTabId, type SettingsTabId } from '@/features/dashboard/settings/lib/settingsPaths';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 export type { SettingsTabId };
 export { isSettingsTabId };
+
+
 
 interface SettingsTabsProps {
     active: SettingsTabId;
@@ -12,7 +14,9 @@ interface SettingsTabsProps {
 
 export function SettingsTabs({ active, onChange }: SettingsTabsProps) {
     const { t } = useTranslation();
-    
+    const tabRefs = useRef<Map<SettingsTabId, HTMLButtonElement | null>>(new Map());
+    const [indicator, setIndicator] = useState({ left: 0, width: 0 });
+
     const TABS: { id: SettingsTabId; label: string }[] = [
         { id: 'general', label: t.settings.tabs.general },
         { id: 'datos', label: t.settings.tabs.data || 'Datos' },
@@ -20,9 +24,27 @@ export function SettingsTabs({ active, onChange }: SettingsTabsProps) {
         { id: 'conexiones', label: t.settings.tabs.connections }
     ];
 
+    useEffect(() => {
+        const btn = tabRefs.current.get(active);
+        if (!btn) return;
+        const parent = btn.parentElement;
+        if (!parent) return;
+        const parentRect = parent.getBoundingClientRect();
+        const btnRect = btn.getBoundingClientRect();
+        setIndicator({
+            left: btnRect.left - parentRect.left,
+            width: btnRect.width
+        });
+    }, [active]);
+
+    const handleClick = (tabId: SettingsTabId) => {
+        if (tabId === active) return;
+        onChange(tabId);
+    };
+
     return (
         <div
-            className="mb-7 flex gap-0.5 border-b border-border-subtle"
+            className="relative mb-7 flex gap-0.5 border-b border-border-subtle"
             aria-label={t.common.aria.settingsSections}
             role="tablist"
         >
@@ -36,17 +58,20 @@ export function SettingsTabs({ active, onChange }: SettingsTabsProps) {
                         id={`settings-tab-${tab.id}`}
                         aria-selected={isActive}
                         aria-controls={`settings-panel-${tab.id}`}
-                        onClick={() => onChange(tab.id)}
-                        className={`relative -mb-px px-4 py-2.5 text-[0.875rem] font-semibold transition ${
-                            isActive
-                                ? 'border-b-2 border-primary text-primary'
-                                : 'border-b-2 border-transparent text-text-muted hover:text-text-main'
-                        }`}
+                        ref={(el) => { tabRefs.current.set(tab.id, el); }}
+                        onClick={() => handleClick(tab.id)}
+                        className={`relative -mb-px px-4 py-2.5 text-[0.875rem] font-semibold transition-colors duration-200 ${isActive ? 'text-primary' : 'text-text-muted hover:text-text-main'
+                            }`}
                     >
                         {tab.label}
                     </button>
                 );
             })}
+            <span
+                aria-hidden
+                className="pointer-events-none absolute bottom-0 h-0.5 rounded-full bg-primary transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                style={{ left: indicator.left, width: indicator.width }}
+            />
         </div>
     );
 }
