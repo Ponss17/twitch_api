@@ -1,6 +1,6 @@
 import { Clock, Play } from 'lucide-react';
 import { TrackerRow, formatTrendsTime } from '@/features/tools/trends/TrackerRow';
-import { EmptyStateIcon } from '@/shared/ui/Icon';
+import { SimpleEmptyState } from '@/shared/ui/SimpleEmptyState';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 export type TrendsLeaderboardVariant = 'full' | 'overlay';
@@ -93,14 +93,12 @@ export function TrendsLeaderboardDisplay({
                     <tbody>
                         {showReady && !isOverlay ? (
                             <tr>
-                                <td colSpan={4} className="px-5 py-10 text-center text-text-muted">
-                                    <EmptyStateIcon icon={Play} />
-                                    <p className="mb-1 text-[0.8125rem] font-bold text-text-main">
-                                        {trends.table.readyTitle}
-                                    </p>
-                                    <p className="text-[0.8125rem]">
-                                        {trends.table.readyDesc}
-                                    </p>
+                                <td colSpan={4} className="px-5 py-10 text-center">
+                                    <SimpleEmptyState
+                                        icon={Play}
+                                        label={trends.table.readyTitle}
+                                        description={trends.table.readyDesc}
+                                    />
                                 </td>
                             </tr>
                         ) : showWaiting ? (

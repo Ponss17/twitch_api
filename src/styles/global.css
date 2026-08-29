@@ -49,103 +49,243 @@
   --animate-dropdown-in-right: dropdownInRight 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @keyframes fadeInSoft {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes revealCard {
-    0% { opacity: 0; transform: translateY(10px) scale(0.98); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
+    0% {
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
   @keyframes tabIn {
     from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes dropdownInUp {
-    from { opacity: 0; transform: translateY(6px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.98);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
   @keyframes dropdownInRight {
-    from { opacity: 0; transform: translateX(-6px) scale(0.98); }
-    to { opacity: 1; transform: translateX(0) scale(1); }
+    from {
+      opacity: 0;
+      transform: translateX(-6px) scale(0.98);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
   }
 
   @keyframes navIconBounce {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
+
+    0%,
+    100% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(1.2);
+    }
   }
 
   @keyframes highlightFade {
-    0% { background: color-mix(in srgb, var(--primary) 18%, transparent); }
-    100% { background: transparent; }
+    0% {
+      background: color-mix(in srgb, var(--primary) 18%, transparent);
+    }
+
+    100% {
+      background: transparent;
+    }
   }
 
   @keyframes gunShake {
-    10%, 90% { transform: translate3d(-2px, 0, 0) rotate(-2deg); }
-    20%, 80% { transform: translate3d(4px, 0, 0) rotate(2deg); }
-    30%, 50%, 70% { transform: translate3d(-6px, 0, 0) rotate(-3deg); }
-    40%, 60% { transform: translate3d(6px, 0, 0) rotate(3deg); }
+
+    10%,
+    90% {
+      transform: translate3d(-2px, 0, 0) rotate(-2deg);
+    }
+
+    20%,
+    80% {
+      transform: translate3d(4px, 0, 0) rotate(2deg);
+    }
+
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-6px, 0, 0) rotate(-3deg);
+    }
+
+    40%,
+    60% {
+      transform: translate3d(6px, 0, 0) rotate(3deg);
+    }
   }
 
   @keyframes modalShake {
-    10%, 90% { transform: translate3d(-1px, 0, 0); }
-    20%, 80% { transform: translate3d(2px, 0, 0); }
-    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-    40%, 60% { transform: translate3d(4px, 0, 0); }
+
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
   }
 
   @keyframes aboutFadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes aboutLegoIn {
-    0% { opacity: 0; transform: translateY(-40px) rotateX(-15deg) scale(1.05); filter: blur(4px); }
-    60% { transform: translateY(4px) rotateX(5deg) scale(0.98); filter: blur(0); }
-    100% { opacity: 1; transform: translateY(0) rotateX(0) scale(1); }
+    0% {
+      opacity: 0;
+      transform: translateY(-40px) rotateX(-15deg) scale(1.05);
+      filter: blur(4px);
+    }
+
+    60% {
+      transform: translateY(4px) rotateX(5deg) scale(0.98);
+      filter: blur(0);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0) rotateX(0) scale(1);
+    }
   }
 
   @keyframes modalIn {
-    from { opacity: 0; transform: translateY(10px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
   @keyframes modalOut {
-    from { opacity: 1; transform: translateY(0) scale(1); }
-    to { opacity: 0; transform: translateY(8px) scale(0.98); }
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    to {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
   }
 
   @keyframes modalBackdropIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
 
   @keyframes modalBackdropOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+    }
   }
 
   @keyframes sheetIn {
-    from { opacity: 0; transform: translateX(100%); }
-    to { opacity: 1; transform: translateX(0); }
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
   @keyframes sheetOut {
-    from { opacity: 1; transform: translateX(0); }
-    to { opacity: 0; transform: translateX(100%); }
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    to {
+      opacity: 0;
+      transform: translateX(100%);
+    }
   }
 
   @keyframes ctaGlowPulse {
-    0%, 100% { box-shadow: 0 0 16px -4px var(--primary), 0 0 32px -12px var(--primary); }
-    50% { box-shadow: 0 0 28px -2px var(--primary), 0 0 56px -8px var(--primary), 0 0 80px -20px var(--primary); }
+
+    0%,
+    100% {
+      box-shadow: 0 0 16px -4px var(--primary), 0 0 32px -12px var(--primary);
+    }
+
+    50% {
+      box-shadow: 0 0 28px -2px var(--primary), 0 0 56px -8px var(--primary), 0 0 80px -20px var(--primary);
+    }
   }
 }
 
 @layer base {
-  html, body {
+
+  html,
+  body {
     font-family: var(--font-family-base, var(--font-sans));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -184,7 +324,6 @@
 }
 
 @layer components {
-  /* Backdrop fade for centered modals (<dialog class="modal-dialog">) */
   .modal-dialog {
     position: fixed;
     inset: 0;
@@ -214,7 +353,6 @@
     animation: modalBackdropOut 0.2s ease-in both;
   }
 
-  /* Overlay toaster sobre modales */
   .app-toaster-popover,
   .app-toaster-popover:popover-open {
     position: fixed;
@@ -253,26 +391,57 @@
     animation-play-state: paused;
   }
 
-  .toast-with-progress.progress-success::after { background-color: var(--success, #10b981); }
-  .toast-with-progress.progress-error::after { background-color: var(--error, #ef4444); }
-  .toast-with-progress.progress-warning::after { background-color: var(--warning, #f59e0b); }
-  .toast-with-progress.progress-info::after { background-color: var(--primary, #9146ff); }
-  .toast-with-progress.progress-loading::after { background-color: var(--text-muted, #a1a1aa); animation: none; width: 100%; }
+  .toast-with-progress.progress-success::after {
+    background-color: var(--success, #10b981);
+  }
+
+  .toast-with-progress.progress-error::after {
+    background-color: var(--error, #ef4444);
+  }
+
+  .toast-with-progress.progress-warning::after {
+    background-color: var(--warning, #f59e0b);
+  }
+
+  .toast-with-progress.progress-info::after {
+    background-color: var(--primary, #9146ff);
+  }
+
+  .toast-with-progress.progress-loading::after {
+    background-color: var(--text-muted, #a1a1aa);
+    animation: none;
+    width: 100%;
+  }
 }
 
 @keyframes toast-progress {
-  0% { width: 100%; }
-  100% { width: 0%; }
+  0% {
+    width: 100%;
+  }
+
+  100% {
+    width: 0%;
+  }
 }
 
 @keyframes toolFocusFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes toolFocusFadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 body.tool-focus-mode {

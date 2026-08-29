@@ -26,10 +26,10 @@ import {
 } from '@/features/clips/lib/clipMedia';
 
 const CLIPS_GRID =
-    'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5 max-[600px]:grid-cols-1';
+    'grid grid-cols-4 gap-5 max-[900px]:grid-cols-3 max-[600px]:grid-cols-2 max-[400px]:grid-cols-1';
 
 const CLIP_CARD =
-    'group/card relative overflow-hidden rounded-xl border border-border-strong bg-bg-secondary transition-all duration-200 hover:border-primary/10 hover:bg-primary/[0.015]';
+    'group/card relative overflow-hidden rounded-xl border border-border-strong bg-bg-secondary transition-all duration-200 hover:border-border-subtle hover:bg-text-main/[0.03]';
 
 const CLIP_OVERLAY_BTN =
     'flex h-7 w-7 items-center justify-center rounded-md bg-black/40 text-white/70 backdrop-blur-[2px] transition hover:bg-primary/20 hover:text-white';

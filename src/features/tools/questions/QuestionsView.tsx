@@ -10,6 +10,7 @@ import { OverlayUrlButton } from '@/features/overlay/components/OverlayUrlButton
 import { useOverlayPublish } from '@/features/overlay/hooks/useOverlayPublish';
 import { toolPanelShell, fadeIn, toolConfigInput, toolHeaderIconBtn } from '@/core/utils/tw';
 import { InlineIcon } from '@/shared/ui/Icon';
+import { QuestionsListSkeleton } from '@/shared/ui/skeletons/QuestionsListSkeleton';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
 import type { QuestionsOverlayState } from '@/features/overlay/lib/types';
@@ -195,9 +196,7 @@ export function QuestionsView({ active = true }: { active?: boolean }) {
 
                 <div className="flex-1 overflow-y-auto">
                     {loadingHistory ? (
-                        <p className="py-8 text-center text-[0.8125rem] text-text-muted">
-                            {t.common.loading}
-                        </p>
+                        <QuestionsListSkeleton />
                     ) : (
                         <QuestionsList
                             items={items}

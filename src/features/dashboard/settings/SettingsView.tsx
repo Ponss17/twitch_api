@@ -8,6 +8,7 @@ import { SettingsModals } from '@/features/dashboard/settings/components/Setting
 import { useSettingsController } from '@/features/dashboard/settings/hooks/useSettingsController';
 import { SettingsTabsSkeleton } from '@/shared/ui/Skeleton';
 
+
 export function SettingsView({ active = true }: { active?: boolean }) {
     const s = useSettingsController(active);
 
@@ -86,3 +87,4 @@ export function SettingsView({ active = true }: { active?: boolean }) {
         </div>
     );
 }
+

@@ -146,7 +146,7 @@ export function SlotsView() {
                     </button>
                 </div>
 
-                <div className="mt-5 w-full max-w-md">
+                <div className="mt-5 w-full max-w-md mx-auto">
                     <GameResponse
                         result={result}
                         loadingNode={

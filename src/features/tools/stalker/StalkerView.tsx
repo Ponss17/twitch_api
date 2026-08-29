@@ -12,7 +12,8 @@ import { useToast } from '@/shared/ui/toast/ToastProvider';
 import { UserInspectModal } from '@/shared/ui/modals/UserInspectModal';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { StalkerRowSkeleton } from '@/shared/ui/Skeleton';
-import { EmptyStateIcon, IconSm, InlineIcon } from '@/shared/ui/Icon';
+import { IconSm, InlineIcon } from '@/shared/ui/Icon';
+import { SimpleEmptyState } from '@/shared/ui/SimpleEmptyState';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useDebounce } from '@/shared/hooks/useDebounce';
 import { useToolFocus } from '@/features/dashboard/lib/ui/ToolFocusContext';
@@ -304,13 +305,11 @@ export function StalkerView({ active = true }: { active?: boolean }) {
                                 ) : showEmpty ? (
                                     <tr>
                                         <td colSpan={4} className="px-5 py-12 text-center">
-                                            <EmptyStateIcon icon={Radio} />
-                                            <h2 className="mb-2 text-[0.95rem] font-bold text-text-main">
-                                                {stalker.table.readyTitle}
-                                            </h2>
-                                            <p className="mx-auto max-w-[400px] text-[0.8125rem] text-text-muted">
-                                                {stalker.table.readyDesc}
-                                            </p>
+                                            <SimpleEmptyState
+                                                icon={Radio}
+                                                label={stalker.table.readyTitle}
+                                                description={stalker.table.readyDesc}
+                                            />
                                         </td>
                                     </tr>
                                 ) : showWaiting ? (
