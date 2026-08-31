@@ -66,8 +66,6 @@ export function Sidebar({
     const { t } = useTranslation();
     const session = useRequiredSession();
     const asideRef = useRef<HTMLElement>(null);
-    const navRefs = useRef<Map<string, HTMLButtonElement | null>>(new Map());
-    const [indicator, setIndicator] = useState({ top: 0, left: 0, width: 0, height: 0, opacity: 0 });
     const isDesktop = useIsDesktopLg();
     const railCollapsed = collapsed && isDesktop;
     const displayName = session.displayName ?? session.login ?? 'Streamer';
@@ -106,21 +104,6 @@ export function Sidebar({
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
     }, [mobileOpen, onClose]);
-
-    useEffect(() => {
-        const btn = navRefs.current.get(active);
-        if (!btn) {
-            setIndicator(prev => ({ ...prev, opacity: 0 }));
-            return;
-        }
-        setIndicator({
-            top: btn.offsetTop,
-            left: btn.offsetLeft,
-            width: btn.offsetWidth,
-            height: btn.offsetHeight,
-            opacity: 1
-        });
-    }, [active, railCollapsed, mobileOpen]);
 
     const toggleCollapsed = () => {
         onCollapsedChange?.(!collapsed);
@@ -168,17 +151,6 @@ export function Sidebar({
                 </div>
 
                 <nav className={`${sidebarNavScroll} relative`} aria-label={t.sidebar.navigation}>
-                    <div
-                        aria-hidden
-                        className="pointer-events-none absolute rounded-md bg-primary/15 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] dark:bg-primary/20 dark:shadow-md dark:shadow-black/40"
-                        style={{
-                            top: indicator.top,
-                            left: indicator.left,
-                            width: indicator.width,
-                            height: indicator.height,
-                            opacity: indicator.opacity
-                        }}
-                    />
                     {MAIN_NAV.map((item, index) => {
                         const prevCategory = index > 0 ? MAIN_NAV[index - 1].category : '';
                         const isCategoryStart =
@@ -215,12 +187,11 @@ export function Sidebar({
                                 ) : null}
                                 <button
                                     type="button"
-                                    ref={(el) => { navRefs.current.set(item.id, el); }}
                                     onClick={() => {
                                         onChange(item.id);
                                         onClose();
                                     }}
-                                    className={`${sidebarNavItem(isActive, railCollapsed)} relative overflow-hidden ${isActive ? '!bg-transparent shadow-none' : ''}`}
+                                    className={`${sidebarNavItem(isActive, railCollapsed)} relative overflow-hidden`}
                                     aria-label={itemLabel}
                                     title={railCollapsed ? itemLabel : undefined}
                                     aria-current={isActive ? 'page' : undefined}
@@ -305,3 +276,4 @@ export function Sidebar({
         </>
     );
 }
+
