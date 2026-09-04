@@ -378,7 +378,7 @@ export const en: Translations = {
         },
         resources: {
             title: 'Resources',
-            commands: 'Quick commands',
+            commands: 'Most used',
             links: 'Useful links',
             about: 'About the API',
             docs: 'Documentation',

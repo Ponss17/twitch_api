@@ -371,7 +371,7 @@ export const pt: Translations = {
         },
         resources: {
             title: 'Recursos',
-            commands: 'Comandos rápidos',
+            commands: 'Mais usados',
             links: 'Links úteis',
             about: 'Sobre a API',
             docs: 'Documentação',
