@@ -4,7 +4,7 @@ import { SettingsRow } from '@/features/dashboard/settings/components/SettingsGr
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface SettingsAccountSectionProps {
-    userId?: string;
+    accountId?: string;
     rateLimit: number;
     heavyLimit?: number;
     cacheTtl: number;
@@ -15,7 +15,7 @@ interface SettingsAccountSectionProps {
 }
 
 export function SettingsAccountSection({
-    userId,
+    accountId,
     rateLimit,
     heavyLimit,
     cacheTtl,
@@ -47,17 +47,19 @@ export function SettingsAccountSection({
             <SettingsRow
                 title={pT.userId}
                 icon={Hash}
+                description={pT.userIdDesc}
                 control={
                     <div className="flex min-w-0 max-w-full items-center gap-1.5">
                         <code className="truncate rounded-md border border-border-subtle bg-bg-secondary px-2.5 py-1.5 font-[Consolas,monospace] text-[0.8rem] text-text-main">
-                            {userId ?? '---'}
+                            {accountId ?? '---'}
                         </code>
                         <button
                             type="button"
                             onClick={handleCopyId}
+                            disabled={!accountId}
                             title={pT.copyUserId}
                             aria-label={pT.copyUserId}
-                            className="inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-border-subtle text-text-muted transition hover:bg-white/[0.02] hover:text-text-main"
+                            className="inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-border-subtle text-text-muted transition hover:bg-white/[0.02] hover:text-text-main disabled:pointer-events-none disabled:opacity-40"
                         >
                             {isIdCopied ? (
                                 <Check className="h-3.5 w-3.5 text-success" aria-hidden="true" />

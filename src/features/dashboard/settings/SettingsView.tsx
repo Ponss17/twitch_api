@@ -26,7 +26,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
 
             <SettingsTabPanel id="general" active={s.settingsTab}>
                 <SettingsGeneralPanel
-                    userId={s.session.userId}
+                    accountId={s.profile?.accountId}
                     profile={s.profile}
                     onCopyId={() => void s.copyId()}
                     onPreferencesChanged={s.onPreferencesChanged}

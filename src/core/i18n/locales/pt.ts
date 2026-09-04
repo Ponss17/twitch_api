@@ -255,6 +255,8 @@ export const pt: Translations = {
         },
         panels: {
             userId: 'ID do Usuário',
+            userIdDesc:
+                'Identificador interno da sua conta. Use para convites e suporte; não é o ID da Twitch.',
             copyUserId: 'Copiar ID do Usuário',
             planAndQuota: 'Plano e cota',
             planTooltip: 'Seu plano de API: maior = mais cota e dados mais recentes',
