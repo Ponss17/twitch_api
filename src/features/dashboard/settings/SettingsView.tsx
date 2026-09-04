@@ -45,9 +45,11 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                 <SettingsSecurityPanel
                     apiKey={s.apiKeyDisplay}
                     keyVisible={s.keyVisible}
+                    accountId={s.profile?.accountId}
                     onToggleKey={s.toggleKeyVisibility}
                     onCopyKey={() => void s.copyKey()}
                     onRegenKey={() => s.setRegenOpen(true)}
+                    onCopyAccountId={() => void s.copyId()}
                     onClearData={s.openClearDataModal}
                     onDeleteAccount={s.openDeleteAccountModal}
                     auditActive

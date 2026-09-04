@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, ScrollText } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Copy, ScrollText } from 'lucide-react';
 import { SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
 import { useSettingsAuditLogs } from '@/features/dashboard/settings/hooks/useSettingsAuditLogs';
 import {
@@ -19,6 +19,8 @@ interface SettingsAuditLogsProps {
     active: boolean;
     refreshEpoch: number;
     timezone?: string;
+    accountId?: string;
+    onCopyAccountId?: () => void;
 }
 
 function AuditLogsSkeleton() {
@@ -37,11 +39,19 @@ function AuditLogsSkeleton() {
     );
 }
 
-export function SettingsAuditLogs({ active, refreshEpoch, timezone }: SettingsAuditLogsProps) {
+export function SettingsAuditLogs({
+    active,
+    refreshEpoch,
+    timezone,
+    accountId,
+    onCopyAccountId
+}: SettingsAuditLogsProps) {
     const { t, locale } = useTranslation();
     const gT = t.settings.groups.auditLogs;
     const aT = t.settings.auditLogs;
+    const pT = t.settings.panels;
     const [open, setOpen] = useState(false);
+    const [isIdCopied, setIsIdCopied] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const { logs, page, pageCount, total, loading, error, goPrev, goNext } = useSettingsAuditLogs(
         active && open,
@@ -53,6 +63,12 @@ export function SettingsAuditLogs({ active, refreshEpoch, timezone }: SettingsAu
     }, [page, refreshEpoch]);
 
     const showPagination = !loading && !error && total > 0 && pageCount > 1;
+
+    const handleCopyAccountId = () => {
+        onCopyAccountId?.();
+        setIsIdCopied(true);
+        setTimeout(() => setIsIdCopied(false), 2000);
+    };
 
     return (
         <>
@@ -104,6 +120,33 @@ export function SettingsAuditLogs({ active, refreshEpoch, timezone }: SettingsAu
                 }
             >
                 <p className="mb-4 text-[0.85rem] leading-relaxed text-text-muted">{gT.desc}</p>
+
+                {accountId ? (
+                    <div className="mb-4 rounded-lg border border-border-subtle bg-bg-secondary/60 px-3 py-2.5">
+                        <div className="text-[0.72rem] font-medium text-text-muted">{aT.accountLabel}</div>
+                        <div className="mt-1.5 flex min-w-0 items-center gap-1.5">
+                            <code className="min-w-0 truncate rounded-md border border-border-subtle bg-bg-secondary px-2 py-1 font-[Consolas,monospace] text-[0.75rem] text-text-main">
+                                {accountId}
+                            </code>
+                            {onCopyAccountId ? (
+                                <button
+                                    type="button"
+                                    onClick={handleCopyAccountId}
+                                    title={pT.copyUserId}
+                                    aria-label={pT.copyUserId}
+                                    className="inline-flex size-7 shrink-0 items-center justify-center rounded-md border border-border-subtle text-text-muted transition hover:bg-white/[0.02] hover:text-text-main"
+                                >
+                                    {isIdCopied ? (
+                                        <Check className="h-3.5 w-3.5 text-success" aria-hidden="true" />
+                                    ) : (
+                                        <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                                    )}
+                                </button>
+                            ) : null}
+                        </div>
+                        <p className="mt-1.5 text-[0.72rem] leading-relaxed text-text-muted">{aT.accountHint}</p>
+                    </div>
+                ) : null}
 
                 {loading ? (
                     <AuditLogsSkeleton />
