@@ -376,7 +376,7 @@ export const es = {
         },
         resources: {
             title: 'Recursos',
-            commands: 'Comandos frecuentes',
+            commands: 'Más usados',
             links: 'Enlaces útiles',
             about: 'Sobre la API',
             docs: 'Documentación',
