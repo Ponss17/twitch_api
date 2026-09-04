@@ -27,6 +27,7 @@
         "lint": "eslint .",
         "test": "jest --config jest.config.js",
         "audit:prod": "pnpm audit --audit-level=high",
+        "audit:ci": "pnpm audit --audit-level=high --ignore-registry-errors",
         "prepare": "husky",
         "smoke": "node scripts/smoke-production.mjs",
         "verify:migrations": "node scripts/verify-migrations.mjs",
