@@ -103,11 +103,15 @@ const DataExport = {
         t: Translations,
         locale: string,
         onSuccess?: (message: string) => void,
-        options: { includeApiKey?: boolean } = {}
+        options: { includeApiKey?: boolean; includeActivity?: boolean } = {}
     ) {
+        const includeApiKey = options.includeApiKey === true;
+        const includeActivity = options.includeActivity === true;
         const bcp47 = getBcp47(locale);
         const user = session;
-        const name = escapeHtml(user.displayName || user.login || 'Usuario');
+        const name = escapeHtml(
+            user.displayName || user.login || t.settings.panels.exportFallbackUser
+        );
         const safeLogin = escapeHtml(user.login || '---');
         const safeUserId = escapeHtml(user.userId || '---');
         const safeAvatarUrl = escapeHtml(user.profile_image_url || '');
@@ -123,11 +127,13 @@ const DataExport = {
         const [userInfo, analytics, activity] = await Promise.all([
             this.fetchUserInfo(session),
             this.fetchAnalytics(session),
-            this.fetchActivity()
+            includeActivity ? this.fetchActivity() : Promise.resolve([])
         ]);
 
-        const apiKey = await resolveExportApiKey(options.includeApiKey === true);
-        const maskedKey = options.includeApiKey === true ? maskKey(apiKey) : 'No incluida';
+        const apiKey = await resolveExportApiKey(includeApiKey);
+        const maskedKey = includeApiKey
+            ? maskKey(apiKey)
+            : t.settings.panels.exportApiKeyOmitted;
 
         const todayRequests = Number((analytics.todayRequests ?? analytics.today_req_raw ?? 0));
         let totalRequests = Number((analytics.totalRequests ?? analytics.total_requests ?? 0));

@@ -42,7 +42,7 @@ También puedes enviar la clave en la cabecera `X-Api-Key` en lugar del query pa
 | Uso | Método | Dónde |
 | :--- | :--- | :--- |
 | **Bots de chat** | `apiKey` en la URL o `X-Api-Key` | Nightbot, StreamElements, scripts |
-| **Panel web** | Sesión OAuth de Twitch (Bearer) | Dashboard, overlays, analytics |
+| **Panel web** | Cookie de sesión HttpOnly (`lp_sess`) | Dashboard, overlays, analytics |
 
 Los bots **no** necesitan iniciar sesión en el panel: solo la API Key. El panel usa OAuth además de la clave para rutas `/api/dashboard/*`.
 

@@ -5,6 +5,8 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     getDailyStats: jest.fn().mockResolvedValue([]),
     getUserActivity: jest.fn(),
     clearUserStatsAndLogs: jest.fn(),
+    clearUserStats: jest.fn(),
+    clearUserActivityLogs: jest.fn(),
     deleteUser: jest.fn(),
     recordUserRequest: jest.fn().mockResolvedValue(undefined),
     getUser: jest.fn(),
@@ -192,7 +194,7 @@ describe('dashboardController', () => {
     });
 
     describe('clearUserData', () => {
-        it('should clear stats and questions by default', async () => {
+        it('should clear stats, activity and questions by default', async () => {
             const req = mockReq({ login: 'streamer', body: { confirm: 'LIMPIAR' } });
             const res = mockRes();
 
@@ -205,58 +207,68 @@ describe('dashboardController', () => {
             expect(invalidateDashboardStatsCaches).toHaveBeenCalledWith('123', 'streamer');
             expect(dbService.addAuditLog).toHaveBeenCalledWith('stats_cleared', '123', '123', {
                 stats: true,
+                activity: true,
                 questions: true
             });
             expect(invalidateAllUserCaches).not.toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: true,
-                    cleared: { stats: true, questions: true },
+                    cleared: { stats: true, activity: true, questions: true },
                     analytics: expect.objectContaining({ todayRequests: 0, clips: 0 }),
                     activity: []
                 })
             );
         });
 
-        it('should clear only questions when stats is false', async () => {
+        it('should clear only questions when stats and activity are false', async () => {
             const req = mockReq({
                 login: 'streamer',
-                body: { confirm: 'LIMPIAR', scopes: { stats: false, questions: true } }
+                body: {
+                    confirm: 'LIMPIAR',
+                    scopes: { stats: false, activity: false, questions: true }
+                }
             });
             const res = mockRes();
 
             await clearUserData(req, res);
 
             expect(dbService.clearUserStatsAndLogs).not.toHaveBeenCalled();
+            expect(dbService.clearUserStats).not.toHaveBeenCalled();
+            expect(dbService.clearUserActivityLogs).not.toHaveBeenCalled();
             expect(questionsService.clearStreamerQuestions).toHaveBeenCalledWith('123', false);
             expect(invalidateDashboardStatsCaches).not.toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: true,
-                    cleared: { stats: false, questions: true },
+                    cleared: { stats: false, activity: false, questions: true },
                     analytics: undefined,
                     activity: undefined
                 })
             );
         });
 
-        it('should clear only stats when questions is false', async () => {
+        it('should clear only stats when activity and questions are false', async () => {
             const req = mockReq({
                 login: 'streamer',
-                body: { confirm: 'LIMPIAR', scopes: { stats: true, questions: false } }
+                body: {
+                    confirm: 'LIMPIAR',
+                    scopes: { stats: true, activity: false, questions: false }
+                }
             });
             const res = mockRes();
 
-            (dbService.clearUserStatsAndLogs as jest.Mock).mockResolvedValue(undefined);
+            (dbService.clearUserStats as jest.Mock).mockResolvedValue(undefined);
 
             await clearUserData(req, res);
 
-            expect(dbService.clearUserStatsAndLogs).toHaveBeenCalledWith('123');
+            expect(dbService.clearUserStats).toHaveBeenCalledWith('123');
+            expect(dbService.clearUserStatsAndLogs).not.toHaveBeenCalled();
             expect(questionsService.clearStreamerQuestions).not.toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     success: true,
-                    cleared: { stats: true, questions: false }
+                    cleared: { stats: true, activity: false, questions: false }
                 })
             );
         });

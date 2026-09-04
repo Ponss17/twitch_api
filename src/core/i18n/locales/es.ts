@@ -217,8 +217,10 @@ export const es = {
             resetWord: 'LIMPIAR',
             resetConfirm: 'Confirmar y Borrar',
             resetScopesLabel: 'Qué borrar',
-            resetScopeStats: 'Estadísticas y actividad',
-            resetScopeStatsHint: 'Uso de comandos, analíticas, clips y el registro de actividad del panel.',
+            resetScopeStats: 'Estadísticas',
+            resetScopeStatsHint: 'Uso de comandos, analíticas y contadores del panel.',
+            resetScopeActivity: 'Historial de actividad',
+            resetScopeActivityHint: 'Feed de eventos recientes del panel (comandos, minijuegos, etc.).',
             resetScopeQuestions: 'Historial de preguntas',
             resetScopeQuestionsHint: 'Preguntas capturadas del chat en la herramienta Preguntas.',
             resetScopesRequired: 'Marca al menos una opción.',
@@ -272,7 +274,7 @@ export const es = {
             apiKeyInfo: 'Mantén esta información privada. No la compartas en directo.',
             apiKeyWarning: 'Tu clave personal e intransferible. Úsala en Nightbot, StreamElements, etc.',
             activeKey: 'API Key Activa',
-            activeKeyDesc: 'Lista para autenticar peticiones (Bearer).',
+            activeKeyDesc: 'Lista para autenticar bots (query apiKey o cabecera X-Api-Key).',
             toggleVisibility: 'Ver/Ocultar',
             copyKey: 'Copiar',
             regenKey: 'Regenerar',
@@ -287,10 +289,18 @@ export const es = {
             unlinkDiscord: 'Desvincular Discord',
             fullReport: 'Reporte de Cuenta Completo',
             exportReport: 'Exportar HTML',
-            exportDesc: 'Descarga un reporte HTML con tu perfil, actividad y ajustes.',
+            exportDesc: 'Descarga un reporte HTML con tu perfil y ajustes. Elige si incluir actividad reciente.',
+            exportIncludeActivity: 'Incluir historial de actividad',
+            exportIncludeActivityHint: 'Nombres de viewers y respuestas de comandos recientes.',
+            exportIncludeApiKey: 'Incluir API Key en URLs de comandos',
+            exportIncludeApiKeyHint: 'Solo si guardas el archivo en privado. Por defecto se usa un placeholder.',
+            exportApiKeyOmitted: 'No incluida',
+            exportFallbackUser: 'Usuario',
+            copyKeySecretWarning: 'API Key copiada. No la muestres en stream ni la pegues en chats públicos.',
+            commandCopiedSecretWarning: 'Comando copiado con tu API Key. No lo compartas en vivo.',
             csvReport: 'Analíticas en CSV',
             exportCsv: 'Exportar CSV',
-            csvDesc: 'Descarga un CSV con el resumen, uso por comando y la serie de los últimos 7 días. Sirve para Excel o un recap semanal.'
+            csvDesc: 'Descarga un CSV con el resumen, uso por comando y la serie de los últimos 30 días. Sirve para Excel o un recap semanal.'
         },
         auditLogs: {
             action: 'Acción',
@@ -313,7 +323,8 @@ export const es = {
                 stats_cleared: 'Limpiaste tus datos'
             },
             scopes: {
-                stats: 'Estadísticas y actividad',
+                stats: 'Estadísticas',
+                activity: 'Actividad',
                 questions: 'Historial de preguntas',
                 both: 'Estadísticas y preguntas'
             },
@@ -456,18 +467,23 @@ export const es = {
             info: 'Métricas agregadas del uso de tu API.',
             today: 'Hoy',
             sevenDays: '7d',
+            thirtyDays: '30d',
             requests: 'Peticiones Totales',
             successRate: 'Tasa de Éxito',
             latency: 'Latencia Media',
             commands: 'Comandos Usados',
             requestsToday: 'Peticiones hoy',
             requests7d: 'Peticiones en 7 días',
+            requests30d: 'Peticiones en 30 días',
             successToday: 'Éxito hoy',
             success7d: 'Éxito en 7 días',
+            success30d: 'Éxito en 30 días',
             latencyToday: 'Tiempo de respuesta hoy',
             latency7d: 'Tiempo de respuesta en 7 días',
+            latency30d: 'Tiempo de respuesta en 30 días',
             commandsToday: 'Comandos únicos hoy',
-            commands7d: 'Comandos únicos en 7 días'
+            commands7d: 'Comandos únicos en 7 días',
+            commands30d: 'Comandos únicos en 30 días'
         },
         todayChart: {
             title: 'Actividad Hoy',
@@ -589,6 +605,14 @@ export const es = {
         success: 'Éxito',
         moreOptions: 'Más opciones',
         tabError: 'Error al cargar la pestaña',
+        sessionLoad: {
+            starting: 'Iniciando…',
+            cached: 'Sesión validada (caché local)',
+            validating: 'Validando con Twitch…',
+            waking: 'Despertando servidor (sin caché)…',
+            verified: 'Sesión verificada',
+            checking: 'Comprobando credenciales…'
+        },
         aria: {
             close: 'Cerrar',
             closePanel: 'Cerrar panel',
@@ -1255,6 +1279,150 @@ export const es = {
             rouletteErrorTitle: 'Overlay de ruleta',
             trendsErrorTitle: 'Overlay de tendencias',
             questionsErrorTitle: 'Overlay de preguntas'
+        }
+    },
+    landing: {
+        features: {
+            stepsTitle: 'Empieza con un comando',
+            stepsSubtitle: 'Fácilmente en 3 pasos. Todo desde el navegador.',
+            panelTitle: 'Todo en un panel',
+            panelSubtitle: 'Comandos, overlays y minijuegos. Sin otro programa.',
+            steps: {
+                connect: {
+                    title: 'Conecta Twitch',
+                    text: 'Entras con tu cuenta de streamer. Todo funciona directo en el navegador, sin necesidad de instalar programas adicionales.'
+                },
+                generate: {
+                    title: 'Genera el comando',
+                    text: 'Eliges followage, watchtime, clips o shoutout. El panel arma el comando con tu API key, listo para copiar.'
+                },
+                bots: {
+                    title: 'Pégalo en tu bot',
+                    text: 'Nightbot, StreamElements o Streamlabs. Lo pegas como comando custom y el chat ya lo puede usar.'
+                }
+            },
+            panels: {
+                commands: {
+                    title: 'Comandos',
+                    text: 'Followage, watchtime, clips y shoutouts. El chat pregunta y el bot responde con el texto que genera la API.',
+                    items: ['!followage', '!watchtime', '!clip', '!so']
+                },
+                tools: {
+                    title: 'Herramientas',
+                    text: 'Tendencias, stalker, ruleta y preguntas. Varias tienen overlay: la URL va a OBS como fuente de navegador.',
+                    items: ['Tendencias', 'Ruleta', 'Preguntas', 'Stalker']
+                },
+                minigames: {
+                    title: 'Minijuegos',
+                    text: 'Bola 8, ruleta rusa, duelos y slots. El chat juega solo; tú no dejas el directo.',
+                    items: ['!8ball', '!ruleta', '!duelo', '!slots']
+                }
+            }
+        },
+        hero: {
+            headlineLine1: 'Comandos para tu',
+            headlineLine2: 'Stream.',
+            subtitle: 'Comandos, overlays y minijuegos. Pégalo en Nightbot, StreamElements, Streamlabs u OBS.',
+            legacyNotice: 'Tu sesión anterior ya no es válida. Vuelve a conectar con Twitch.',
+            seePanel: 'Ver el panel',
+            disclaimerBefore: 'Al conectar aceptas la',
+            privacy: 'política de privacidad',
+            disclaimerAnd: 'y los',
+            terms: 'términos de uso',
+            disclaimerAfter: '.',
+            tablistAria: 'El panel',
+            tabs: {
+                inicio: {
+                    label: 'Panel',
+                    text: 'El panel de LosPerrisAPI: comandos, overlays y minijuegos en un solo sitio.'
+                },
+                comandos: {
+                    label: 'Comandos',
+                    text: 'El generador arma el comando para Nightbot, StreamElements o Streamlabs.'
+                },
+                herramientas: {
+                    label: 'Herramientas',
+                    text: 'Overlays en OBS y utilidades del panel, sin otro programa.'
+                },
+                minijuegos: {
+                    label: 'Minijuegos',
+                    text: 'El chat juega solo. Tú sigues en el stream.'
+                }
+            }
+        },
+        fit: {
+            title: 'Solo copias y pegas',
+            subtitle: 'Sin instalar otro bot. El comando o la URL van a Nightbot, StreamElements, Streamlabs u OBS.',
+            chatTitle: 'Chat del stream',
+            welcome: '¡Te damos la bienvenida a la sala de chat de ponss17!',
+            hello: 'buenas',
+            sendPlaceholder: 'Enviar un mensaje',
+            demoTabsAria: 'Probar comando',
+            points: {
+                free: {
+                    title: '100% Gratis',
+                    text: 'El panel es completamente gratis y sin costos ocultos.'
+                },
+                browser: {
+                    title: 'Sin instalar',
+                    text: 'Todo corre en el navegador. No hay exe ni extensión.'
+                },
+                bots: {
+                    title: 'Sin otro bot',
+                    text: 'Sigues con Nightbot, StreamElements o Streamlabs.'
+                }
+            },
+            demos: {
+                followage: {
+                    label: 'Followage',
+                    reply: 'mynana17 ha seguido a ponss17 por 2 años y 3 meses.'
+                },
+                watchtime: {
+                    label: 'Watchtime',
+                    reply: 'mynana17 lleva 2 años y 3 meses viendo a ponss17.'
+                },
+                '8ball': {
+                    label: '8ball',
+                    reply: 'Los astros se alinean a tu favor, @mynana17... pero tus decisiones futuras me preocupan. SÍ.'
+                },
+                so: {
+                    label: 'Shoutout',
+                    reply: '¡Vayan a seguir a mynana17! Estaba jugando Just Chatting'
+                }
+            }
+        },
+        faq: {
+            title: 'Preguntas frecuentes',
+            subtitle: 'Gratis, bots y OBS. Lo que preguntan antes de conectar.',
+            items: {
+                gratis: {
+                    title: '¿Es gratis?',
+                    content: 'Sí. LosPerrisAPI es completamente gratis. Puedes usar todas las funciones del panel sin costo.'
+                },
+                bots: {
+                    title: '¿Con qué bots funciona?',
+                    content: 'Nightbot, StreamElements y Streamlabs. Copias el comando que genera el panel y lo pegas en tu bot.'
+                },
+                empezar: {
+                    title: '¿Cómo empiezo?',
+                    content: 'Conectas Twitch, eliges el comando u overlay y lo pegas en el bot o en OBS. En un minuto está listo.'
+                },
+                permisos: {
+                    title: '¿Qué permisos pide Twitch?',
+                    content: 'Solo los necesarios para identificar tu canal y generar los comandos. No publicamos en tu chat ni cambiamos el stream.'
+                },
+                obs: {
+                    title: '¿Puedo usarlo en OBS?',
+                    content: 'Sí. Tendencias, ruleta, preguntas y otras herramientas tienen overlay: copias la URL y la pegas como fuente de navegador.'
+                }
+            }
+        },
+        users: {
+            title: 'Streamers que utilizan la API',
+            subtitle: 'Únete a los streamers que ya confían en la API para sus directos.',
+            noDescription: 'Sin descripción en Twitch.',
+            loadingAria: 'Cargando pioneros',
+            twitchChannelAria: (name: string): string => `Canal de Twitch de ${name}`
         }
     }
 };

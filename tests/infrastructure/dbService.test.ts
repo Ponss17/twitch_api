@@ -255,7 +255,7 @@ describe('dbService', () => {
             {
                 action: 'stats_cleared',
                 createdAt: '2026-08-21T11:00:00.000Z',
-                scopes: { stats: true, questions: false }
+                scopes: { stats: true, activity: false, questions: false }
             }
         ]);
         expect(result.logs[0]).not.toHaveProperty('metadata');

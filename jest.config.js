@@ -18,7 +18,7 @@ const frontendTransform = {
 };
 
 module.exports = {
-    forceExit: true,
+    forceExit: false,
     detectOpenHandles: true,
     projects: [
         {

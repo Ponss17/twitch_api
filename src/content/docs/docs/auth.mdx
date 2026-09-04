@@ -54,11 +54,11 @@ https://ttv.losperris.dev/api/followage?channel=TU_CANAL&user=VIEWER&apiKey=TU_A
 | Contexto | Autenticación | Límite típico |
 | :--- | :--- | :--- |
 | Bots de chat (`/followage`, `/magic8`, …) | `apiKey` o `X-Api-Key` | 30–120 req/min según rol |
-| Panel (`/api/dashboard/*`) | `Authorization: Bearer` (token Twitch) | 500 req/min |
+| Panel (`/api/dashboard/*`) | Cookie de sesión HttpOnly (`lp_sess`) | 500 req/min |
 | Overlays OBS | Token de solo lectura (`overlayToken`) | Lectura del estado publicado |
 
-<Aside type="note" title="OAuth del panel">
-  El dashboard guarda además un token OAuth de Twitch para rutas internas. Los bots **solo** necesitan la API Key en la URL; no hace falta OAuth en Nightbot ni similares.
+<Aside type="note" title="Sesión del panel">
+  El dashboard autentica con una **cookie HttpOnly** (`lp_sess`) tras el login con Twitch. Los bots **solo** necesitan la API Key en la URL o cabecera; no hace falta OAuth en Nightbot ni similares.
 </Aside>
 
 ---
@@ -77,11 +77,11 @@ No solicitamos contraseña ni Stream Key.
 
 ## Validar sesión (panel)
 
-El frontend llama a `GET /api/system/validate` al cargar. Respuesta exitosa (resumen):
+El frontend llama a `GET /api/system/validate` al cargar (con cookie `lp_sess`). Respuesta exitosa (resumen):
 
 <IndentRainbowCode code={`{
   "valid": true,
-  "apiKey": "…",
+  "tokenExpiresAt": "…",
   "user": {
     "id": "…",
     "login": "tu_canal",
@@ -90,6 +90,8 @@ El frontend llama a `GET /api/system/validate` al cargar. Respuesta exitosa (res
     "timezone": "Europe/Madrid"
   }
 }`} />
+
+La API Key **no** viaja en validate: se revela solo desde Configuración → Seguridad cuando la necesitas para bots.
 
 Los tokens de overlay devuelven **403** en validate — son de solo lectura y no representan sesión de panel.
 

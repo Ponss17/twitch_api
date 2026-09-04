@@ -37,7 +37,7 @@ function ClearScopeOptions({
     const m = t.settings.dangerModals;
 
     const row = (
-        id: 'stats' | 'questions',
+        id: 'stats' | 'activity' | 'questions',
         checked: boolean,
         title: string,
         hint: string
@@ -70,8 +70,9 @@ function ClearScopeOptions({
                 {m.resetScopesLabel}
             </legend>
             {row('stats', scopes.stats, m.resetScopeStats, m.resetScopeStatsHint)}
+            {row('activity', scopes.activity, m.resetScopeActivity, m.resetScopeActivityHint)}
             {row('questions', scopes.questions, m.resetScopeQuestions, m.resetScopeQuestionsHint)}
-            {!scopes.stats && !scopes.questions ? (
+            {!scopes.stats && !scopes.activity && !scopes.questions ? (
                 <p className="text-[0.75rem] text-error">{m.resetScopesRequired}</p>
             ) : null}
         </fieldset>
@@ -96,7 +97,7 @@ export function SettingsModals({
     onCloseDanger
 }: SettingsModalsProps) {
     const scopes = dangerModal?.clearScopes;
-    const canConfirm = scopes ? scopes.stats || scopes.questions : true;
+    const canConfirm = scopes ? scopes.stats || scopes.activity || scopes.questions : true;
 
     return (
         <>
