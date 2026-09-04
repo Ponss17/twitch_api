@@ -20,6 +20,7 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
     const {
         activity,
         profile,
+        stats,
         hasLiveData,
         error,
         syncing,
@@ -65,7 +66,7 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
                     timeZone={profile?.timezone}
                     title={t.home.activityFeed.title}
                 />
-                <HomeResourcesPanel onNavigate={onNavigate} />
+                <HomeResourcesPanel onNavigate={onNavigate} stats={stats} />
             </div>
         </div>
     );
