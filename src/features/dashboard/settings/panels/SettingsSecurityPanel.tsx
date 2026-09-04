@@ -7,9 +7,11 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 interface SettingsSecurityPanelProps {
     apiKey: string;
     keyVisible: boolean;
+    accountId?: string;
     onToggleKey: () => void;
     onCopyKey: () => void;
     onRegenKey: () => void;
+    onCopyAccountId?: () => void;
     onClearData: () => void;
     onDeleteAccount: () => void;
     auditActive: boolean;
@@ -20,9 +22,11 @@ interface SettingsSecurityPanelProps {
 export function SettingsSecurityPanel({
     apiKey,
     keyVisible,
+    accountId,
     onToggleKey,
     onCopyKey,
     onRegenKey,
+    onCopyAccountId,
     onClearData,
     onDeleteAccount,
     auditActive,
@@ -42,11 +46,19 @@ export function SettingsSecurityPanel({
                 <SettingsSecuritySection
                     apiKey={apiKey}
                     keyVisible={keyVisible}
+                    accountId={accountId}
                     onToggleKey={onToggleKey}
                     onCopyKey={onCopyKey}
                     onRegenKey={onRegenKey}
+                    onCopyAccountId={onCopyAccountId}
                 />
-                <SettingsAuditLogs active={auditActive} refreshEpoch={auditEpoch} timezone={timezone} />
+                <SettingsAuditLogs
+                    active={auditActive}
+                    refreshEpoch={auditEpoch}
+                    timezone={timezone}
+                    accountId={accountId}
+                    onCopyAccountId={onCopyAccountId}
+                />
             </SettingsGroup>
 
             <SettingsDangerZone

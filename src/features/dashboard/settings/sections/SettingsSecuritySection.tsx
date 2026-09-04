@@ -7,27 +7,38 @@ interface SettingsSecuritySectionProps {
     apiKey: string;
     keyVisible: boolean;
     keyLoading?: boolean;
+    accountId?: string;
     onToggleKey: () => void;
     onCopyKey: () => void;
     onRegenKey: () => void;
+    onCopyAccountId?: () => void;
 }
 
 export function SettingsSecuritySection({
     apiKey,
     keyVisible,
     keyLoading = false,
+    accountId,
     onToggleKey,
     onCopyKey,
-    onRegenKey
+    onRegenKey,
+    onCopyAccountId
 }: SettingsSecuritySectionProps) {
     const { t } = useTranslation();
     const pT = t.settings.panels;
     const [isKeyCopied, setIsKeyCopied] = useState(false);
+    const [isIdCopied, setIsIdCopied] = useState(false);
 
     const handleCopyKey = () => {
         onCopyKey();
         setIsKeyCopied(true);
         setTimeout(() => setIsKeyCopied(false), 2000);
+    };
+
+    const handleCopyAccountId = () => {
+        onCopyAccountId?.();
+        setIsIdCopied(true);
+        setTimeout(() => setIsIdCopied(false), 2000);
     };
 
     return (
@@ -96,10 +107,37 @@ export function SettingsSecuritySection({
                     </span>
                     {pT.activeKey}
                 </span>
-                <span className="text-[0.75rem] text-text-muted">
-                    {pT.activeKeyDesc}
-                </span>
+                <span className="text-[0.75rem] text-text-muted">{pT.activeKeyDesc}</span>
             </div>
+
+            {accountId ? (
+                <div className="mt-3 rounded-lg border border-border-subtle bg-bg-secondary/60 px-3 py-2.5">
+                    <div className="text-[0.72rem] font-medium text-text-muted">{pT.apiKeyAccountLabel}</div>
+                    <div className="mt-1.5 flex min-w-0 items-center gap-1.5">
+                        <code className="min-w-0 truncate rounded-md border border-border-subtle bg-bg-secondary px-2 py-1 font-[Consolas,monospace] text-[0.75rem] text-text-main">
+                            {accountId}
+                        </code>
+                        {onCopyAccountId ? (
+                            <button
+                                type="button"
+                                onClick={handleCopyAccountId}
+                                title={pT.copyUserId}
+                                aria-label={pT.copyUserId}
+                                className="inline-flex size-7 shrink-0 items-center justify-center rounded-md border border-border-subtle text-text-muted transition hover:bg-white/[0.02] hover:text-text-main"
+                            >
+                                {isIdCopied ? (
+                                    <Check className="h-3.5 w-3.5 text-success" aria-hidden="true" />
+                                ) : (
+                                    <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                                )}
+                            </button>
+                        ) : null}
+                    </div>
+                    <p className="mt-1.5 text-[0.72rem] leading-relaxed text-text-muted">
+                        {pT.apiKeyAccountHint}
+                    </p>
+                </div>
+            ) : null}
         </SettingsRow>
     );
 }

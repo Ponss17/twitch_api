@@ -191,6 +191,11 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
             ) : (
                 <form id="feedback-modal-form" onSubmit={handleSubmit} className="space-y-4">
                     <p className="text-[0.8125rem] text-text-muted">{fT.desc}</p>
+                    {panel?.profile?.accountId ? (
+                        <p className="rounded-lg border border-border-subtle bg-bg-secondary/60 px-3 py-2 text-[0.75rem] leading-relaxed text-text-muted">
+                            {fT.accountIdIncluded}
+                        </p>
+                    ) : null}
 
                     <div className="space-y-1.5">
                         <label htmlFor="feedback-modal-type" className={inputLabel}>

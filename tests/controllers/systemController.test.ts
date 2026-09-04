@@ -245,6 +245,7 @@ describe('systemController', () => {
                 login: 'testuser',
                 displayName: 'TestUser',
                 role: 'default',
+                accountId: '11111111-2222-4333-8444-555555555555',
                 discordId: '999888',
                 discordUsername: 'discorduser',
                 discordAvatar: 'https://cdn.discordapp.com/avatars/999888/abc.png'
@@ -268,12 +269,37 @@ describe('systemController', () => {
                         expect.objectContaining({
                             fields: expect.arrayContaining([
                                 expect.objectContaining({ name: '🪪 Identidad', value: 'Discord' }),
-                                expect.objectContaining({ name: '🆔 ID', value: '999888' })
+                                expect.objectContaining({ name: '🆔 ID', value: '999888' }),
+                                expect.objectContaining({
+                                    name: '🔑 User ID',
+                                    value: '`11111111-2222-4333-8444-555555555555`'
+                                })
                             ])
                         })
                     ]
                 })
             );
+        });
+
+        it('should omit User ID when anonymous', async () => {
+            (dbService.getUser as jest.Mock).mockResolvedValue({
+                userId: '123',
+                accountId: '11111111-2222-4333-8444-555555555555'
+            });
+            const req = mockReq({
+                body: { message: 'Anon tip', anonymous: true },
+                userId: '123',
+                login: 'testuser'
+            });
+            const res = mockRes();
+            (axios.post as jest.Mock).mockResolvedValue({ data: { success: true } });
+
+            await submitFeedback(req, res);
+
+            const payload = (axios.post as jest.Mock).mock.calls[0][1] as {
+                embeds: { fields: { name: string }[] }[];
+            };
+            expect(payload.embeds[0].fields.some((f) => f.name === '🔑 User ID')).toBe(false);
         });
     });
 
