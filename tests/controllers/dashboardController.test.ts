@@ -12,7 +12,11 @@ jest.mock('../../backend/src/core/database/dbService', () => ({
     getUser: jest.fn(),
     addAuditLog: jest.fn().mockResolvedValue(undefined),
     getUserAuditLogs: jest.fn().mockResolvedValue({ logs: [], page: 1, pageSize: 20, total: 0 }),
-    getViewerLeaderboards: jest.fn().mockResolvedValue({ leaderboardToday: [], leaderboardWeekly: [] })
+    getViewerLeaderboards: jest.fn().mockResolvedValue({
+        leaderboardToday: [],
+        leaderboardWeekly: [],
+        leaderboard30d: []
+    })
 }));
 
 jest.mock('../../backend/src/core/database/questionsService', () => ({

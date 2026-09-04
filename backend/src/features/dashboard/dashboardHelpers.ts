@@ -36,7 +36,11 @@ export function isAnalyticsCacheFresh(
 export function buildAnalyticsPayload(
     stats: Record<string, number>,
     statsRev: number,
-    leaderboards?: { leaderboardToday: Record<string, unknown>[]; leaderboardWeekly: Record<string, unknown>[] }
+    leaderboards?: {
+        leaderboardToday: Record<string, unknown>[];
+        leaderboardWeekly: Record<string, unknown>[];
+        leaderboard30d?: Record<string, unknown>[];
+    }
 ): Record<string, unknown> {
     return {
         ...stats,
@@ -44,7 +48,8 @@ export function buildAnalyticsPayload(
         ...computeAnalyticsFromStats(stats),
         [ANALYTICS_STATS_REV_KEY]: statsRev,
         leaderboardToday: leaderboards?.leaderboardToday || [],
-        leaderboardWeekly: leaderboards?.leaderboardWeekly || []
+        leaderboardWeekly: leaderboards?.leaderboardWeekly || [],
+        leaderboard30d: leaderboards?.leaderboard30d || []
     };
 }
 

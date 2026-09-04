@@ -118,6 +118,7 @@ export interface DashboardLiveStats {
     timeSeries?: DashboardTimeSeriesRow[];
     leaderboardToday?: ViewerLeaderboardEntry[];
     leaderboardWeekly?: ViewerLeaderboardEntry[];
+    leaderboard30d?: ViewerLeaderboardEntry[];
 }
 
 export interface DashboardTimeSeriesRow {
@@ -241,6 +242,12 @@ export function parseDashboardStatsFromRow(
         result.leaderboardWeekly = [];
     }
 
+    if ('leaderboard30d' in raw) {
+        result.leaderboard30d = raw.leaderboard30d as ViewerLeaderboardEntry[];
+    } else if (!isPartial) {
+        result.leaderboard30d = [];
+    }
+
     return isPartial ? result : (result as DashboardLiveStats);
 }
 
@@ -261,5 +268,6 @@ export const EMPTY_DASHBOARD_LIVE_STATS: DashboardLiveStats = {
     duel: 0,
     slots: 0,
     leaderboardToday: [],
-    leaderboardWeekly: []
+    leaderboardWeekly: [],
+    leaderboard30d: []
 };

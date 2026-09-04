@@ -228,7 +228,11 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                     {timeRange === 'today' ? (
                         <AnalyticsTodayBarChart active={active} pieData={displayPieData} />
                     ) : (
-                        <AnalyticsAreaChart active={active} areaData={areaData} />
+                        <AnalyticsAreaChart
+                            active={active}
+                            areaData={areaData}
+                            timeRange={timeRange === '30d' ? '30d' : '7d'}
+                        />
                     )}
 
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

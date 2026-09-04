@@ -8,15 +8,23 @@ import { LandingFloatIcons } from '../sections/LandingMotif';
 const NIGHTBOT_COLOR = '#47487f';
 const STREAMER_COLOR = '#FF4500';
 
-function ChatBadge({ role }: { role: 'viewer' | 'broadcaster' | 'bot' }) {
+function ChatBadge({
+    role,
+    moderatorLabel,
+    streamerLabel
+}: {
+    role: 'viewer' | 'broadcaster' | 'bot';
+    moderatorLabel: string;
+    streamerLabel: string;
+}) {
     if (role === 'bot') {
         return (
             <span
                 className="mr-1 inline-flex h-4 w-4 items-center justify-center rounded-[0.2rem] text-white"
                 style={{ backgroundColor: '#05994f' }}
-                title="Moderador"
+                title={moderatorLabel}
             >
-                <span className="sr-only">Moderador</span>
+                <span className="sr-only">{moderatorLabel}</span>
                 <SwordIcon className="h-2.5 w-2.5" />
             </span>
         );
@@ -26,9 +34,9 @@ function ChatBadge({ role }: { role: 'viewer' | 'broadcaster' | 'bot' }) {
             <span
                 className="mr-1 inline-flex h-4 w-4 items-center justify-center rounded-[0.2rem] text-white"
                 style={{ backgroundColor: '#e91916' }}
-                title="Streamer"
+                title={streamerLabel}
             >
-                <span className="sr-only">Streamer</span>
+                <span className="sr-only">{streamerLabel}</span>
                 <VideoIcon className="h-2.5 w-2.5 fill-current" />
             </span>
         );
@@ -40,16 +48,20 @@ function ChatLine({
     user,
     color,
     text,
-    role
+    role,
+    moderatorLabel,
+    streamerLabel
 }: {
     user: string;
     color: string;
     text: string;
     role: 'viewer' | 'broadcaster' | 'bot';
+    moderatorLabel: string;
+    streamerLabel: string;
 }) {
     return (
-        <p className="px-4 py-1 text-[13px] leading-5 text-[#efeff1] hover:bg-[#1f1f23] transition-colors">
-            <ChatBadge role={role} />
+        <p className="px-4 py-1 text-[13px] leading-5 text-[#efeff1] transition-colors hover:bg-[#1f1f23]">
+            <ChatBadge role={role} moderatorLabel={moderatorLabel} streamerLabel={streamerLabel} />
             <span className="font-semibold" style={{ color }}>
                 {user}
             </span>
@@ -172,6 +184,8 @@ export function LandingFit() {
                                 color={STREAMER_COLOR}
                                 text={fit.hello}
                                 role="broadcaster"
+                                moderatorLabel={fit.moderator}
+                                streamerLabel={fit.streamer}
                             />
                             {phase !== 'typing' ? (
                                 <div className="motion-safe:animate-fade-soft motion-reduce:animate-none">
@@ -181,6 +195,8 @@ export function LandingFit() {
                                         color={demoMeta.color}
                                         text={demoMeta.command}
                                         role={demoMeta.role}
+                                        moderatorLabel={fit.moderator}
+                                        streamerLabel={fit.streamer}
                                     />
                                 </div>
                             ) : null}
@@ -195,6 +211,8 @@ export function LandingFit() {
                                         color={NIGHTBOT_COLOR}
                                         text={demoCopy.reply}
                                         role="bot"
+                                        moderatorLabel={fit.moderator}
+                                        streamerLabel={fit.streamer}
                                     />
                                 </div>
                             ) : null}

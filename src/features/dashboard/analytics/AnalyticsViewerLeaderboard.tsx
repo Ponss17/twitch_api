@@ -25,6 +25,7 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
 
     const [todayMap, setTodayMap] = useState<Map<string, ViewerLeaderboardEntry>>(new Map());
     const [weeklyMap, setWeeklyMap] = useState<Map<string, ViewerLeaderboardEntry>>(new Map());
+    const [monthMap, setMonthMap] = useState<Map<string, ViewerLeaderboardEntry>>(new Map());
     const lastActivityTsRef = useRef<string | null>(null);
 
     useEffect(() => {
@@ -40,11 +41,17 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
         }
         setWeeklyMap(wMap);
 
+        const mMap = new Map<string, ViewerLeaderboardEntry>();
+        for (const entry of stats.leaderboard30d || []) {
+            mMap.set(entry.user_name.toLowerCase(), { ...entry });
+        }
+        setMonthMap(mMap);
+
         if (activity.length > 0 && !lastActivityTsRef.current) {
             lastActivityTsRef.current = activity[0].timestamp || null;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [stats.leaderboardToday, stats.leaderboardWeekly]);
+    }, [stats.leaderboardToday, stats.leaderboardWeekly, stats.leaderboard30d]);
 
     useEffect(() => {
         if (!activity.length) return;
@@ -83,10 +90,18 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
 
         setTodayMap(incrementMap);
         setWeeklyMap(incrementMap);
+        setMonthMap(incrementMap);
     }, [activity]);
 
-    // 30d uses the same weekly board data (backend provides today + 7d boards).
-    const activeMap = timeRange === 'today' ? todayMap : weeklyMap;
+    const activeMap =
+        timeRange === 'today' ? todayMap : timeRange === '30d' ? monthMap : weeklyMap;
+    const info =
+        timeRange === 'today'
+            ? board.infoToday
+            : timeRange === '30d'
+              ? board.info30d
+              : board.info7d;
+
     const rows = useMemo(() => {
         return Array.from(activeMap.values())
             .sort((a, b) => b.total - a.total)
@@ -103,7 +118,7 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
         <AnalyticsSection
             panelClassName="flex h-[244px] flex-col"
             title={board.title}
-            info={timeRange === 'today' ? board.infoToday : board.info7d}
+            info={info}
         >
             <AnalyticsSimpleList
                 leftHeader={board.colUser}
