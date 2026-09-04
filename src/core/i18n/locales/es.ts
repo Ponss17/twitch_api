@@ -506,21 +506,27 @@ export const es = {
             colLatency: 'Latencia'
         },
         areaChart: {
-            title: 'Tráfico y Errores (7 días)',
-            info: 'Historial de los últimos 7 días. El día actual se actualiza en vivo.',
+            title7d: 'Tráfico y Errores (7 días)',
+            title30d: 'Tráfico y Errores (30 días)',
+            info7d: 'Historial de los últimos 7 días. El día actual se actualiza en vivo.',
+            info30d: 'Historial de los últimos 30 días. El día actual se actualiza en vivo.',
             requests: 'Peticiones',
             errors: 'Errores',
-            noData: 'Sin tráfico esta semana',
-            noDataSub: 'Cuando haya peticiones, verás la curva de los últimos 7 días.'
+            noData7d: 'Sin tráfico esta semana',
+            noData30d: 'Sin tráfico en 30 días',
+            noDataSub7d: 'Cuando haya peticiones, verás la curva de los últimos 7 días.',
+            noDataSub30d: 'Cuando haya peticiones, verás la curva de los últimos 30 días.'
         },
         leaderboard: {
             title: 'Top Usuarios',
             infoToday: 'Usuarios más activos hoy.',
             info7d: 'Usuarios más activos en 7 días.',
+            info30d: 'Usuarios más activos en 30 días.',
             noData: 'Nadie ha interactuado aún',
             noDataSub: 'Los viewers aparecerán aquí al usar tus comandos.',
             rankingToday: 'Top Hoy',
             ranking7d: 'Top 7 Días',
+            ranking30d: 'Top 30 Días',
             totalInteractions: 'interacciones',
             totalInteractionsTooltip: 'Total de usos por todos los viewers',
             unitSingular: 'uso',
@@ -611,7 +617,8 @@ export const es = {
             validating: 'Validando con Twitch…',
             waking: 'Despertando servidor (sin caché)…',
             verified: 'Sesión verificada',
-            checking: 'Comprobando credenciales…'
+            checking: 'Comprobando credenciales…',
+            preparingPanel: 'Preparando tu panel...'
         },
         aria: {
             close: 'Cerrar',
@@ -1282,6 +1289,29 @@ export const es = {
         }
     },
     landing: {
+        nav: {
+            sectionsAria: 'Secciones',
+            product: 'Producto',
+            docs: 'Docs',
+            discord: 'Discord'
+        },
+        cta: {
+            start: 'Empezar',
+            reconnect: 'Volver a conectar con Twitch',
+            panelShort: 'Panel',
+            goToPanel: 'Ir al Panel',
+            panelAria: 'Panel de control'
+        },
+        resources: {
+            docsTitle: 'Documentación Oficial',
+            docsText:
+                'Guías paso a paso, variables para comandos y tutoriales detallados para que configures tu panel y tus integraciones en minutos.',
+            docsCta: 'Leer la Docs',
+            discordTitle: 'Comunidad en Discord',
+            discordText:
+                'Únete a nuestro servidor. Resuelve tus dudas en tiempo real, sugiere nuevas funciones y conoce a otros creadores como tú.',
+            discordCta: 'Unirse al servidor'
+        },
         features: {
             stepsTitle: 'Empieza con un comando',
             stepsSubtitle: 'Fácilmente en 3 pasos. Todo desde el navegador.',
@@ -1358,6 +1388,8 @@ export const es = {
             hello: 'buenas',
             sendPlaceholder: 'Enviar un mensaje',
             demoTabsAria: 'Probar comando',
+            moderator: 'Moderador',
+            streamer: 'Streamer',
             points: {
                 free: {
                     title: '100% Gratis',

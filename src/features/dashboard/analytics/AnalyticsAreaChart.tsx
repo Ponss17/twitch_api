@@ -21,6 +21,7 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 interface AnalyticsAreaChartProps {
     active: boolean;
     areaData: Array<{ date: string; requests: number; errors: number }>;
+    timeRange: '7d' | '30d';
 }
 
 type HoverTip = {
@@ -40,9 +41,14 @@ function formatChartDate(value: unknown): string {
 
 const CHART_H = 220;
 
-export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps) {
+export function AnalyticsAreaChart({ active, areaData, timeRange }: AnalyticsAreaChartProps) {
     const { t } = useTranslation();
     const chart = t.analytics.areaChart;
+    const is30 = timeRange === '30d';
+    const title = is30 ? chart.title30d : chart.title7d;
+    const info = is30 ? chart.info30d : chart.info7d;
+    const noData = is30 ? chart.noData30d : chart.noData7d;
+    const noDataSub = is30 ? chart.noDataSub30d : chart.noDataSub7d;
     const [hover, setHover] = useState<HoverTip | null>(null);
 
     const peak = useMemo(
@@ -98,8 +104,8 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
     return (
         <AnalyticsSection
             panelClassName="flex flex-col"
-            title={chart.title}
-            info={chart.info}
+            title={title}
+            info={info}
             action={
                 hasSeries ? (
                     <AnalyticsSeriesLegend
@@ -113,8 +119,8 @@ export function AnalyticsAreaChart({ active, areaData }: AnalyticsAreaChartProps
                 <div style={{ height: CHART_H }}>
                     <AnalyticsEmptyState
                         icon={Activity}
-                        title={chart.noData}
-                        description={chart.noDataSub}
+                        title={noData}
+                        description={noDataSub}
                     />
                 </div>
             ) : (

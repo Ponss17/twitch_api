@@ -247,47 +247,62 @@ export const getDailyStats = async (userId: string, days: number = 7) => {
 };
 
 export const getViewerLeaderboards = async (userId: string, limit: number = 10) => {
+    const empty = {
+        leaderboardToday: [] as Array<{ user_name: string; total: number; last_seen: string }>,
+        leaderboardWeekly: [] as Array<{ user_name: string; total: number; last_seen: string }>,
+        leaderboard30d: [] as Array<{ user_name: string; total: number; last_seen: string }>
+    };
+
     try {
         const tz = await ensureUserTimezone(userId);
         const now = new Date();
         const todayStr = getDateFormatter(tz).format(now);
-        const firstDate = localDateDaysAgo(tz, 6);
+        const weekStart = localDateDaysAgo(tz, 6);
+        const monthStart = localDateDaysAgo(tz, 29);
         const safeLimit = Math.max(1, Math.min(Math.floor(limit), 25));
 
-        const rpc = await supabase.rpc('get_viewer_leaderboard', {
-            p_user_id: userId,
-            p_from_date: firstDate,
-            p_to_date: todayStr,
-            p_timezone: tz,
-            p_limit: safeLimit
-        });
+        const mapRpc = (rows: unknown) =>
+            ((rows as Array<{ user_name: string; total: number; last_seen: string }> | null) ?? []).map(
+                (row) => ({ ...row, total: Number(row.total) })
+            );
 
-        if (!rpc.error && rpc.data) {
-            const weekly = (rpc.data as Array<{ user_name: string; total: number; last_seen: string }>)
-                .map((row) => ({ ...row, total: Number(row.total) }));
-            const todayRpc = await supabase.rpc('get_viewer_leaderboard', {
+        const [todayRpc, weekRpc, monthRpc] = await Promise.all([
+            supabase.rpc('get_viewer_leaderboard', {
                 p_user_id: userId,
                 p_from_date: todayStr,
                 p_to_date: todayStr,
                 p_timezone: tz,
                 p_limit: safeLimit
-            });
-            if (!todayRpc.error) {
-                return {
-                    leaderboardToday: (todayRpc.data ?? []).map((row: { user_name: string; total: number; last_seen: string }) => ({
-                        ...row,
-                        total: Number(row.total)
-                    })),
-                    leaderboardWeekly: weekly
-                };
-            }
+            }),
+            supabase.rpc('get_viewer_leaderboard', {
+                p_user_id: userId,
+                p_from_date: weekStart,
+                p_to_date: todayStr,
+                p_timezone: tz,
+                p_limit: safeLimit
+            }),
+            supabase.rpc('get_viewer_leaderboard', {
+                p_user_id: userId,
+                p_from_date: monthStart,
+                p_to_date: todayStr,
+                p_timezone: tz,
+                p_limit: safeLimit
+            })
+        ]);
+
+        if (!todayRpc.error && !weekRpc.error && !monthRpc.error) {
+            return {
+                leaderboardToday: mapRpc(todayRpc.data),
+                leaderboardWeekly: mapRpc(weekRpc.data),
+                leaderboard30d: mapRpc(monthRpc.data)
+            };
         }
 
         const { data, error } = await supabase
             .from('activity_logs')
             .select('user_name, created_at')
             .eq('user_id', userId)
-            .gte('created_at', new Date(now.getTime() - 8 * 86_400_000).toISOString())
+            .gte('created_at', new Date(now.getTime() - 31 * 86_400_000).toISOString())
             .in('activity_type', [...VIEWER_ACTIVITY_TYPES])
             .neq('user_name', 'Anónimo')
             .neq('user_name', 'Streamer')
@@ -296,10 +311,11 @@ export const getViewerLeaderboards = async (userId: string, limit: number = 10) 
 
         if (error) {
             logger.error('Error obteniendo leaderboard de viewers:', error.message);
-            return { leaderboardToday: [], leaderboardWeekly: [] };
+            return empty;
         }
 
         const weeklyMap = new Map<string, { total: number; last_seen: string; display_name: string }>();
+        const monthMap = new Map<string, { total: number; last_seen: string; display_name: string }>();
         const todayMap = new Map<string, { total: number; last_seen: string; display_name: string }>();
 
         for (const row of data ?? []) {
@@ -309,39 +325,46 @@ export const getViewerLeaderboards = async (userId: string, limit: number = 10) 
             const key = rawName.toLowerCase();
             const createdAt = new Date(row.created_at as string);
             const rowDateStr = getDateFormatter(tz).format(createdAt);
-            if (rowDateStr < firstDate || rowDateStr > todayStr) continue;
-            
-            // Weekly
-            const existingW = weeklyMap.get(key);
-            if (existingW) {
-                existingW.total += 1;
-            } else {
-                weeklyMap.set(key, { total: 1, last_seen: row.created_at as string, display_name: rawName });
-            }
+            if (rowDateStr < monthStart || rowDateStr > todayStr) continue;
 
-            // Today
-            if (rowDateStr === todayStr) {
-                const existingT = todayMap.get(key);
-                if (existingT) {
-                    existingT.total += 1;
+            const bump = (
+                map: Map<string, { total: number; last_seen: string; display_name: string }>
+            ) => {
+                const existing = map.get(key);
+                if (existing) {
+                    existing.total += 1;
                 } else {
-                    todayMap.set(key, { total: 1, last_seen: row.created_at as string, display_name: rawName });
+                    map.set(key, {
+                        total: 1,
+                        last_seen: row.created_at as string,
+                        display_name: rawName
+                    });
                 }
-            }
+            };
+
+            bump(monthMap);
+            if (rowDateStr >= weekStart) bump(weeklyMap);
+            if (rowDateStr === todayStr) bump(todayMap);
         }
 
-        const toArray = (map: Map<string, { total: number; last_seen: string; display_name: string }>) => Array.from(map.values())
-            .map(({ display_name, total, last_seen }) => ({ user_name: display_name, total, last_seen }))
-            .sort((a, b) => b.total - a.total)
-            .slice(0, safeLimit);
+        const toArray = (map: Map<string, { total: number; last_seen: string; display_name: string }>) =>
+            Array.from(map.values())
+                .map(({ display_name, total, last_seen }) => ({
+                    user_name: display_name,
+                    total,
+                    last_seen
+                }))
+                .sort((a, b) => b.total - a.total)
+                .slice(0, safeLimit);
 
         return {
             leaderboardToday: toArray(todayMap),
-            leaderboardWeekly: toArray(weeklyMap)
+            leaderboardWeekly: toArray(weeklyMap),
+            leaderboard30d: toArray(monthMap)
         };
     } catch (e) {
         logger.error('Error fatal en getViewerLeaderboards:', e);
-        return { leaderboardToday: [], leaderboardWeekly: [] };
+        return empty;
     }
 };
 

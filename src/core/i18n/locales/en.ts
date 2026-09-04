@@ -508,21 +508,27 @@ export const en: Translations = {
             colLatency: 'Latency'
         },
         areaChart: {
-            title: 'Traffic & Errors (7 days)',
-            info: 'History of the last 7 days. Today updates in real-time.',
+            title7d: 'Traffic & Errors (7 days)',
+            title30d: 'Traffic & Errors (30 days)',
+            info7d: 'History of the last 7 days. Today updates in real-time.',
+            info30d: 'History of the last 30 days. Today updates in real-time.',
             requests: 'Requests',
             errors: 'Errors',
-            noData: 'No traffic this week',
-            noDataSub: 'When requests come in, you will see the last 7 days here.'
+            noData7d: 'No traffic this week',
+            noData30d: 'No traffic in 30 days',
+            noDataSub7d: 'When requests come in, you will see the last 7 days here.',
+            noDataSub30d: 'When requests come in, you will see the last 30 days here.'
         },
         leaderboard: {
             title: 'Top Users',
             infoToday: 'Most active users today.',
             info7d: 'Most active users in 7 days.',
+            info30d: 'Most active users in 30 days.',
             noData: 'No interactions yet',
             noDataSub: 'Viewers will appear here when they use your commands.',
             rankingToday: 'Top Today',
             ranking7d: 'Top 7 Days',
+            ranking30d: 'Top 30 Days',
             totalInteractions: 'interactions',
             totalInteractionsTooltip: 'Total uses by all viewers',
             unitSingular: 'use',
@@ -617,7 +623,8 @@ export const en: Translations = {
             validating: 'Validating with Twitch…',
             waking: 'Waking server (no cache)…',
             verified: 'Session verified',
-            checking: 'Checking credentials…'
+            checking: 'Checking credentials…',
+            preparingPanel: 'Preparing your panel...'
         },
         aria: {
             close: 'Close',
@@ -1288,6 +1295,29 @@ export const en: Translations = {
         }
     },
     landing: {
+        nav: {
+            sectionsAria: 'Sections',
+            product: 'Product',
+            docs: 'Docs',
+            discord: 'Discord'
+        },
+        cta: {
+            start: 'Get started',
+            reconnect: 'Reconnect with Twitch',
+            panelShort: 'Panel',
+            goToPanel: 'Go to Panel',
+            panelAria: 'Control panel'
+        },
+        resources: {
+            docsTitle: 'Official documentation',
+            docsText:
+                'Step-by-step guides, command variables, and detailed tutorials so you can set up your panel and integrations in minutes.',
+            docsCta: 'Read the docs',
+            discordTitle: 'Discord community',
+            discordText:
+                'Join our server. Get answers in real time, suggest features, and meet other creators like you.',
+            discordCta: 'Join the server'
+        },
         features: {
             stepsTitle: 'Start with a command',
             stepsSubtitle: 'Easy in 3 steps. All from the browser.',
@@ -1364,6 +1394,8 @@ export const en: Translations = {
             hello: 'hey',
             sendPlaceholder: 'Send a message',
             demoTabsAria: 'Try a command',
+            moderator: 'Moderator',
+            streamer: 'Streamer',
             points: {
                 free: {
                     title: '100% Free',

@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { appPath } from '@/core/config/paths';
 import { getSession } from '@/core/auth/sessionStorage';
+import { I18nProvider, useTranslation } from '@/core/i18n/I18nContext';
 import { reportSessionLoadProgress } from '@/core/session/loadProgress';
 import { LandingHeader } from './sections/LandingHeader';
 import { LandingHero } from './sections/LandingHero';
@@ -26,7 +27,9 @@ function syncSessionHint(hasSession: boolean) {
     }
 }
 
-export function LandingPage() {
+function LandingPageInner() {
+    const { t } = useTranslation();
+    const preparingLabel = t.common.sessionLoad.preparingPanel;
     const [scrolled, setScrolled] = useState(false);
     const [disclaimerOpen, setDisclaimerOpen] = useState(false);
     const [isVerifying, setIsVerifying] = useState(false);
@@ -62,7 +65,7 @@ export function LandingPage() {
                         setIsVerifying(true);
                         reportSessionLoadProgress({
                             progress: 12,
-                            label: 'Preparando tu panel...',
+                            label: preparingLabel,
                             cached: false
                         });
                         markDashboardSplashForFreshLogin();
@@ -77,7 +80,7 @@ export function LandingPage() {
                     setIsVerifying(true);
                     reportSessionLoadProgress({
                         progress: 12,
-                        label: 'Preparando tu panel...',
+                        label: preparingLabel,
                         cached: false
                     });
                     markDashboardSplashForFreshLogin();
@@ -85,7 +88,7 @@ export function LandingPage() {
                 })();
             }
         );
-    }, []);
+    }, [preparingLabel]);
 
     useEffect(() => {
         let cancelled = false;
@@ -163,5 +166,13 @@ export function LandingPage() {
                 {isVerifying ? <VerifyingSessionModal open={isVerifying} /> : null}
             </Suspense>
         </div>
+    );
+}
+
+export function LandingPage() {
+    return (
+        <I18nProvider>
+            <LandingPageInner />
+        </I18nProvider>
     );
 }

@@ -28,9 +28,12 @@ export const getViewerLeaderboard = async (req: AuthenticatedRequest, res: Respo
         if (revision >= 0 && cached?.revision === revision) return res.json(cached.data);
 
         const leaderboards = await dbService.getViewerLeaderboards(userId, limit);
-        const leaderboard = range === 'today'
-            ? leaderboards.leaderboardToday
-            : leaderboards.leaderboardWeekly;
+        const leaderboard =
+            range === 'today'
+                ? leaderboards.leaderboardToday
+                : range === '30d'
+                  ? leaderboards.leaderboard30d
+                  : leaderboards.leaderboardWeekly;
 
         const ttl = resolveCache('ACTIVITY_FEED', res.locals?.apiUser?.role, res.locals?.apiUser?.customCacheTtl);
         if (revision >= 0) await cacheService.set(cacheKey, { revision, data: leaderboard }, ttl);

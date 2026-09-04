@@ -74,7 +74,7 @@ export const deleteAccountSchema = z.object({
 
 export const getViewerLeaderboardSchema = z.object({
     query: z.object({
-        range: z.enum(['today', '7d']).optional().default('today'),
+        range: z.enum(['today', '7d', '30d']).optional().default('today'),
         limit: z.coerce.number().min(1).max(25).optional().default(10)
     })
 });

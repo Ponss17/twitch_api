@@ -501,21 +501,27 @@ export const pt: Translations = {
             colLatency: 'Latência'
         },
         areaChart: {
-            title: 'Tráfego e Erros (7 dias)',
-            info: 'Histórico dos últimos 7 dias. Hoje atualiza em tempo real.',
+            title7d: 'Tráfego e Erros (7 dias)',
+            title30d: 'Tráfego e Erros (30 dias)',
+            info7d: 'Histórico dos últimos 7 dias. Hoje atualiza em tempo real.',
+            info30d: 'Histórico dos últimos 30 dias. Hoje atualiza em tempo real.',
             requests: 'Requisições',
             errors: 'Erros',
-            noData: 'Sem tráfego esta semana',
-            noDataSub: 'Quando houver requisições, você verá a curva dos últimos 7 dias.'
+            noData7d: 'Sem tráfego esta semana',
+            noData30d: 'Sem tráfego em 30 dias',
+            noDataSub7d: 'Quando houver requisições, você verá a curva dos últimos 7 dias.',
+            noDataSub30d: 'Quando houver requisições, você verá a curva dos últimos 30 dias.'
         },
         leaderboard: {
             title: 'Top Usuários',
             infoToday: 'Usuários mais ativos hoje.',
             info7d: 'Usuários mais ativos em 7 dias.',
+            info30d: 'Usuários mais ativos em 30 dias.',
             noData: 'Ninguém interagiu ainda',
             noDataSub: 'Os viewers aparecem aqui ao usar seus comandos.',
             rankingToday: 'Top Hoje',
             ranking7d: 'Top 7 Dias',
+            ranking30d: 'Top 30 Dias',
             totalInteractions: 'interações',
             totalInteractionsTooltip: 'Total de usos por todos os espectadores',
             unitSingular: 'uso',
@@ -606,7 +612,8 @@ export const pt: Translations = {
             validating: 'Validando com a Twitch…',
             waking: 'Acordando servidor (sem cache)…',
             verified: 'Sessão verificada',
-            checking: 'Verificando credenciais…'
+            checking: 'Verificando credenciais…',
+            preparingPanel: 'Preparando seu painel...'
         },
         aria: {
             close: 'Fechar',
@@ -1277,6 +1284,29 @@ export const pt: Translations = {
         }
     },
     landing: {
+        nav: {
+            sectionsAria: 'Seções',
+            product: 'Produto',
+            docs: 'Docs',
+            discord: 'Discord'
+        },
+        cta: {
+            start: 'Começar',
+            reconnect: 'Reconectar com a Twitch',
+            panelShort: 'Painel',
+            goToPanel: 'Ir ao Painel',
+            panelAria: 'Painel de controle'
+        },
+        resources: {
+            docsTitle: 'Documentação oficial',
+            docsText:
+                'Guias passo a passo, variáveis de comandos e tutoriais detalhados para configurar seu painel e integrações em minutos.',
+            docsCta: 'Ler a Docs',
+            discordTitle: 'Comunidade no Discord',
+            discordText:
+                'Entre no nosso servidor. Tire dúvidas em tempo real, sugira funções e conheça outros criadores como você.',
+            discordCta: 'Entrar no servidor'
+        },
         features: {
             stepsTitle: 'Comece com um comando',
             stepsSubtitle: 'Fácil em 3 passos. Tudo pelo navegador.',
@@ -1353,6 +1383,8 @@ export const pt: Translations = {
             hello: 'eae',
             sendPlaceholder: 'Enviar uma mensagem',
             demoTabsAria: 'Testar comando',
+            moderator: 'Moderador',
+            streamer: 'Streamer',
             points: {
                 free: {
                     title: '100% Grátis',
