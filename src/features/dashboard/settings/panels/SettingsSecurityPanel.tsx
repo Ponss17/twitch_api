@@ -46,11 +46,9 @@ export function SettingsSecurityPanel({
                 <SettingsSecuritySection
                     apiKey={apiKey}
                     keyVisible={keyVisible}
-                    accountId={accountId}
                     onToggleKey={onToggleKey}
                     onCopyKey={onCopyKey}
                     onRegenKey={onRegenKey}
-                    onCopyAccountId={onCopyAccountId}
                 />
                 <SettingsAuditLogs
                     active={auditActive}
