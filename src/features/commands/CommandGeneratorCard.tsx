@@ -197,7 +197,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange, headerBadge 
                 setTimeout(() => setIsCopied(false), 2000);
             }
             showToast(
-                ok ? cmdT.toasts.copied : cmdT.toasts.copyError,
+                ok ? t.settings.panels.commandCopiedSecretWarning : cmdT.toasts.copyError,
                 ok ? 'success' : 'error'
             );
         } catch {

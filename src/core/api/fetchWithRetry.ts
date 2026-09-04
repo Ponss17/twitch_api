@@ -3,27 +3,27 @@
  *
  * Vercel congela las funciones serverless tras ~5 min de inactividad.
  * El primer request puede fallar con un 500 mientras la función "despierta".
- * Este helper reintenta una vez tras 900 ms si recibe un 5xx.
+ * Este helper reintenta hasta 2 veces tras 1200 ms si recibe un 5xx.
  */
 export async function fetchWithRetry(
     input: RequestInfo | URL,
     init?: RequestInit,
     options?: {
-        /** ms a esperar antes de reintentar. Default: 900 */
+        /** ms a esperar antes de reintentar. Default: 1200 */
         retryDelayMs?: number;
-        /** Número máximo de reintentos. Default: 1 */
+        /** Número máximo de reintentos. Default: 2 */
         maxRetries?: number;
         /** Permite reintentar una mutación que el caller sabe que es idempotente. */
         retryUnsafe?: boolean;
     }
 ): Promise<Response> {
-    const retryDelayMs = options?.retryDelayMs ?? 900;
+    const retryDelayMs = options?.retryDelayMs ?? 1200;
     const method = (init?.method ?? 'GET').toUpperCase();
     const headers = new Headers(init?.headers);
     const isSafeMethod = ['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method);
     const canRetry =
         isSafeMethod || options?.retryUnsafe === true || headers.has('Idempotency-Key');
-    const maxRetries = canRetry ? (options?.maxRetries ?? 1) : 0;
+    const maxRetries = canRetry ? (options?.maxRetries ?? 2) : 0;
 
     let response = await fetch(input, init);
 

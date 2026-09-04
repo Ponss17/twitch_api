@@ -149,7 +149,7 @@ En comandos de chat, muchos fallos de API Key llegan como <HttpStatusBadge code=
 
 ## Panel y sesión
 
-El dashboard usa **sesión OAuth** de Twitch (`Authorization: Bearer`), no la API Key de los bots. Límite: **500 req/min** (ver [Límites](/docs/limits/)).
+El dashboard usa **cookie de sesión** HttpOnly (`lp_sess`), no la API Key de los bots. Límite: **500 req/min** (ver [Límites](/docs/limits/)).
 
 <DashboardAuthNotice />
 

@@ -209,7 +209,7 @@ export function useSettingsController(active: boolean) {
             scheduleKeyHide();
             const ok = await copyText(key);
             if (ok) {
-                showToast(t.settings.toasts.copyKeySuccess, 'success');
+                showToast(t.settings.panels.copyKeySecretWarning, 'success');
                 if (neededReveal) bumpAuditLogs();
             } else {
                 showToast(t.settings.toasts.copyKeyError, 'error');
@@ -225,7 +225,10 @@ export function useSettingsController(active: boolean) {
         if (ok) showToast(t.settings.toasts.copyIdSuccess, 'success');
     };
 
-    const exportData = async (format: 'html' | 'csv' = 'html') => {
+    const exportData = async (
+        format: 'html' | 'csv' = 'html',
+        options?: { includeActivity?: boolean; includeApiKey?: boolean }
+    ) => {
         setExportLoading(format);
         try {
             const res = await fetchWithRetry(
@@ -252,7 +255,7 @@ export function useSettingsController(active: boolean) {
             if (format === 'csv') {
                 await DataExport.exportCsv(session, t, (msg) => showToast(msg, 'success'));
             } else {
-                await DataExport.export(session, t, locale, (msg) => showToast(msg, 'success'));
+                await DataExport.export(session, t, locale, (msg) => showToast(msg, 'success'), options);
             }
 
             await fetchWithRetry(

@@ -397,6 +397,40 @@ export const recordUserRequest = async (
     }
 };
 
+export const clearUserStats = async (userId: string): Promise<void> => {
+    try {
+        const results = await Promise.all([
+            supabase.from('user_stats').delete().eq('user_id', userId),
+            supabase.from('user_daily_stats').delete().eq('user_id', userId)
+        ]);
+        const failed = results.find((result) => result.error);
+        if (failed?.error) {
+            throw new Error(`Limpieza incompleta de estadísticas: ${failed.error.message}`);
+        }
+        STATS_CACHE.delete(userId);
+        EXISTS_CACHE.delete(userId);
+        await cacheService.bumpStatsRevision(userId);
+        logger.info(`🧹 Stats eliminados para: ${userId}`);
+    } catch (e) {
+        logger.error('Error clearing user stats:', e);
+        throw e;
+    }
+};
+
+export const clearUserActivityLogs = async (userId: string): Promise<void> => {
+    try {
+        const { error } = await supabase.from('activity_logs').delete().eq('user_id', userId);
+        if (error) {
+            throw new Error(`Limpieza incompleta de actividad: ${error.message}`);
+        }
+        await cacheService.bumpStatsRevision(userId);
+        logger.info(`🧹 Activity logs eliminados para: ${userId}`);
+    } catch (e) {
+        logger.error('Error clearing user activity logs:', e);
+        throw e;
+    }
+};
+
 export const clearUserStatsAndLogs = async (userId: string): Promise<void> => {
     try {
         const rpcResult = await supabase.rpc('clear_user_stats_and_logs', {
@@ -412,15 +446,9 @@ export const clearUserStatsAndLogs = async (userId: string): Promise<void> => {
         }
 
         if (rpcMissing) {
-            const results = await Promise.all([
-            supabase.from('user_stats').delete().eq('user_id', userId),
-            supabase.from('user_daily_stats').delete().eq('user_id', userId),
-            supabase.from('activity_logs').delete().eq('user_id', userId)
-            ]);
-            const failed = results.find((result) => result.error);
-            if (failed?.error) {
-                throw new Error(`Limpieza incompleta: ${failed.error.message}`);
-            }
+            await clearUserStats(userId);
+            await clearUserActivityLogs(userId);
+            return;
         }
 
         STATS_CACHE.delete(userId);

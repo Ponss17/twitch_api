@@ -68,7 +68,7 @@ export interface AuditLogEntry {
 export interface UserAuditLogEntry {
     action: UserAuditAction;
     createdAt: string;
-    scopes?: { stats: boolean; questions: boolean };
+    scopes?: { stats: boolean; activity?: boolean; questions: boolean };
 }
 
 export interface UserAuditLogsPage {
@@ -84,12 +84,19 @@ function isUserAuditAction(action: string): action is UserAuditAction {
     return USER_AUDIT_ACTION_SET.has(action);
 }
 
-function scopesFromMetadata(metadata: unknown): { stats: boolean; questions: boolean } | undefined {
+function scopesFromMetadata(metadata: unknown): { stats: boolean; activity?: boolean; questions: boolean } | undefined {
     if (!metadata || typeof metadata !== 'object') return undefined;
     const row = metadata as Record<string, unknown>;
-    if (typeof row.stats !== 'boolean' && typeof row.questions !== 'boolean') return undefined;
+    if (
+        typeof row.stats !== 'boolean' &&
+        typeof row.questions !== 'boolean' &&
+        typeof row.activity !== 'boolean'
+    ) {
+        return undefined;
+    }
     return {
         stats: row.stats === true,
+        activity: row.activity === true,
         questions: row.questions === true
     };
 }

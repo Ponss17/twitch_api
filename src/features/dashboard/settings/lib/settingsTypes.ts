@@ -1,5 +1,6 @@
 export type ClearDataScopes = {
     stats: boolean;
+    activity: boolean;
     questions: boolean;
 };
 

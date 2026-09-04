@@ -19,7 +19,10 @@ describe('clearUserDataSchema', () => {
     it('acepta scopes parciales', () => {
         expect(
             clearUserDataSchema.safeParse({
-                body: { confirm: 'LIMPIAR', scopes: { stats: true, questions: false } }
+                body: {
+                    confirm: 'LIMPIAR',
+                    scopes: { stats: true, activity: false, questions: false }
+                }
             }).success
         ).toBe(true);
     });
@@ -27,7 +30,10 @@ describe('clearUserDataSchema', () => {
     it('rechaza si no hay ningún scope', () => {
         expect(
             clearUserDataSchema.safeParse({
-                body: { confirm: 'LIMPIAR', scopes: { stats: false, questions: false } }
+                body: {
+                    confirm: 'LIMPIAR',
+                    scopes: { stats: false, activity: false, questions: false }
+                }
             }).success
         ).toBe(false);
     });

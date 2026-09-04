@@ -6,9 +6,11 @@ import { AnalyticsSection } from './AnalyticsShared';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { Translations } from '@/core/i18n/locales/es';
 
+export type AnalyticsTimeRange = 'today' | '7d' | '30d';
+
 interface AnalyticsKPIsProps {
-    timeRange: 'today' | '7d';
-    setTimeRange: (val: 'today' | '7d') => void;
+    timeRange: AnalyticsTimeRange;
+    setTimeRange: (val: AnalyticsTimeRange) => void;
     isLoading: boolean;
     displayRequests: number;
     displaySuccessRate: number;
@@ -24,46 +26,40 @@ function RangeToggle({
     setTimeRange,
     t
 }: {
-    timeRange: 'today' | '7d';
-    setTimeRange: (val: 'today' | '7d') => void;
+    timeRange: AnalyticsTimeRange;
+    setTimeRange: (val: AnalyticsTimeRange) => void;
     t: Translations;
 }) {
+    const options: { id: AnalyticsTimeRange; label: string }[] = [
+        { id: 'today', label: t.analytics.kpis.today },
+        { id: '7d', label: t.analytics.kpis.sevenDays },
+        { id: '30d', label: t.analytics.kpis.thirtyDays }
+    ];
+
     return (
         <div
-            className="relative grid grid-cols-2 rounded-lg border border-border-subtle bg-bg-main p-0.5"
+            className="grid grid-cols-3 rounded-lg border border-border-subtle bg-bg-main p-0.5"
             role="group"
             aria-label={t.analytics.rangeGroup}
         >
-            <span
-                aria-hidden
-                className={`pointer-events-none absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-md bg-primary/20 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                    timeRange === '7d' ? 'translate-x-full' : 'translate-x-0'
-                }`}
-            />
-            <button
-                type="button"
-                onClick={() => setTimeRange('today')}
-                aria-pressed={timeRange === 'today'}
-                className={`relative z-10 rounded-md px-3 py-1 text-xs transition-colors duration-300 ${
-                    timeRange === 'today'
-                        ? 'font-semibold text-brand-text'
-                        : `font-medium text-text-muted ${hoverSubtleChip}`
-                }`}
-            >
-                {t.analytics.kpis.today}
-            </button>
-            <button
-                type="button"
-                onClick={() => setTimeRange('7d')}
-                aria-pressed={timeRange === '7d'}
-                className={`relative z-10 rounded-md px-3 py-1 text-xs transition-colors duration-300 ${
-                    timeRange === '7d'
-                        ? 'font-semibold text-brand-text'
-                        : `font-medium text-text-muted ${hoverSubtleChip}`
-                }`}
-            >
-                {t.analytics.kpis.sevenDays}
-            </button>
+            {options.map((opt) => {
+                const pressed = timeRange === opt.id;
+                return (
+                    <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setTimeRange(opt.id)}
+                        aria-pressed={pressed}
+                        className={`relative z-10 rounded-md px-2.5 py-1 text-xs transition-colors duration-200 ${
+                            pressed
+                                ? 'bg-primary/20 font-semibold text-brand-text'
+                                : `font-medium text-text-muted ${hoverSubtleChip}`
+                        }`}
+                    >
+                        {opt.label}
+                    </button>
+                );
+            })}
         </div>
     );
 }
@@ -99,6 +95,17 @@ function KpiTile({
     );
 }
 
+function periodSubtext(
+    timeRange: AnalyticsTimeRange,
+    today: string,
+    seven: string,
+    thirty: string
+): string {
+    if (timeRange === 'today') return today;
+    if (timeRange === '30d') return thirty;
+    return seven;
+}
+
 export function AnalyticsKPIs({
     timeRange,
     setTimeRange,
@@ -129,7 +136,12 @@ export function AnalyticsKPIs({
                         label={kpis.requests}
                         icon={Zap}
                         iconClass="border-primary/25 bg-transparent text-primary"
-                        subtext={timeRange === 'today' ? kpis.requestsToday : kpis.requests7d}
+                        subtext={periodSubtext(
+                            timeRange,
+                            kpis.requestsToday,
+                            kpis.requests7d,
+                            kpis.requests30d
+                        )}
                     >
                         <AnimatedNumber
                             value={displayRequests}
@@ -145,7 +157,12 @@ export function AnalyticsKPIs({
                         label={kpis.successRate}
                         icon={CheckCircle2}
                         iconClass="border-primary/25 bg-transparent text-primary"
-                        subtext={timeRange === 'today' ? kpis.successToday : kpis.success7d}
+                        subtext={periodSubtext(
+                            timeRange,
+                            kpis.successToday,
+                            kpis.success7d,
+                            kpis.success30d
+                        )}
                     >
                         <AnimatedNumber
                             value={displaySuccessRate}
@@ -162,7 +179,12 @@ export function AnalyticsKPIs({
                         label={kpis.latency}
                         icon={Gauge}
                         iconClass="border-primary/25 bg-transparent text-primary"
-                        subtext={timeRange === 'today' ? kpis.latencyToday : kpis.latency7d}
+                        subtext={periodSubtext(
+                            timeRange,
+                            kpis.latencyToday,
+                            kpis.latency7d,
+                            kpis.latency30d
+                        )}
                     >
                         <div className="flex items-end gap-1.5">
                             <AnimatedNumber
@@ -186,7 +208,12 @@ export function AnalyticsKPIs({
                         label={kpis.commands}
                         icon={Command}
                         iconClass="border-primary/25 bg-transparent text-primary"
-                        subtext={timeRange === 'today' ? kpis.commandsToday : kpis.commands7d}
+                        subtext={periodSubtext(
+                            timeRange,
+                            kpis.commandsToday,
+                            kpis.commands7d,
+                            kpis.commands30d
+                        )}
                     >
                         <AnimatedNumber
                             value={displayCommands}

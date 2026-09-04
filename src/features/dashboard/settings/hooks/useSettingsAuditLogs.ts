@@ -62,7 +62,7 @@ export function useSettingsAuditLogs(active: boolean, refreshEpoch: number) {
                     const entry = row as {
                         action?: unknown;
                         createdAt?: unknown;
-                        scopes?: { stats?: unknown; questions?: unknown };
+                        scopes?: { stats?: unknown; activity?: unknown; questions?: unknown };
                     };
                     if (typeof entry.action !== 'string' || !isUserAuditAction(entry.action)) continue;
                     if (typeof entry.createdAt !== 'string' || !entry.createdAt) continue;
@@ -73,6 +73,7 @@ export function useSettingsAuditLogs(active: boolean, refreshEpoch: number) {
                     if (entry.action === 'stats_cleared' && entry.scopes) {
                         next.scopes = {
                             stats: entry.scopes.stats === true,
+                            activity: entry.scopes.activity === true,
                             questions: entry.scopes.questions === true
                         };
                     }

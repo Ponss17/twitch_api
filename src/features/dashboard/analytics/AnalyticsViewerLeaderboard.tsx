@@ -4,6 +4,7 @@ import { VIEWER_ACTIVITY_TYPES } from '@contracts/commandCatalog';
 import { AnalyticsSection, AnalyticsSimpleList, AnalyticsEmptyState } from './AnalyticsShared';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import type { AnalyticsTimeRange } from './AnalyticsKPIs';
 
 export interface ViewerLeaderboardEntry {
     user_name: string;
@@ -12,7 +13,7 @@ export interface ViewerLeaderboardEntry {
 }
 
 interface AnalyticsViewerLeaderboardProps {
-    timeRange: 'today' | '7d';
+    timeRange: AnalyticsTimeRange;
 }
 
 const VIEWER_TYPES = new Set<string>(VIEWER_ACTIVITY_TYPES);
@@ -84,6 +85,7 @@ export function AnalyticsViewerLeaderboard({ timeRange }: AnalyticsViewerLeaderb
         setWeeklyMap(incrementMap);
     }, [activity]);
 
+    // 30d uses the same weekly board data (backend provides today + 7d boards).
     const activeMap = timeRange === 'today' ? todayMap : weeklyMap;
     const rows = useMemo(() => {
         return Array.from(activeMap.values())

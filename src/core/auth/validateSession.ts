@@ -11,6 +11,7 @@ import {
     writeValidateCache
 } from './validateCache';
 import { markSessionValidated } from './sessionAuthGrace';
+import { fetchWithRetry } from '@/core/api/fetchWithRetry';
 
 function canUseDegradedSession(session: Session): boolean {
     if (session.userId || session.apiKey || session.token || session.overlayToken) return true;
@@ -60,7 +61,7 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
     if (cached) {
         reportSessionLoadProgress({
             progress: 48,
-            label: 'Sesión validada (caché local)',
+            label: 'sessionLoad.cached',
             cached: true
         });
         if (cached.valid === true) {
@@ -71,7 +72,7 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
 
     reportSessionLoadProgress({
         progress: 28,
-        label: 'Validando con Twitch…',
+        label: 'sessionLoad.validating',
         cached: false
     });
 
@@ -82,7 +83,7 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
                   driftProgress = Math.min(driftProgress + 1, 46);
                   reportSessionLoadProgress({
                       progress: driftProgress,
-                      label: 'Despertando servidor (sin caché)…',
+                      label: 'sessionLoad.waking',
                       cached: false
                   });
               }, 450)
@@ -90,7 +91,7 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
 
     const attempt = async (credentials: Session) => {
         try {
-            const response = await fetch(
+            const response = await fetchWithRetry(
                 API_ENDPOINTS.VALIDATE,
                 withApiCredentials({
                     headers: authHeaders(credentials)
@@ -128,7 +129,7 @@ async function runValidateSession(session: Session): Promise<ApiResponse> {
 
         reportSessionLoadProgress({
             progress: 52,
-            label: result.valid === true ? 'Sesión verificada' : 'Comprobando credenciales…',
+            label: result.valid === true ? 'sessionLoad.verified' : 'sessionLoad.checking',
             cached: false
         });
 
