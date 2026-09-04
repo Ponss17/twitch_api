@@ -260,9 +260,10 @@ export const en: Translations = {
         panels: {
             userId: 'User ID',
             userIdDesc:
-                'Internal account identifier. Use it for invites and support; it is not your Twitch ID.',
+                'Internal account identifier. Use it for support; it is not your Twitch ID.',
             copyUserId: 'Copy User ID',
             planAndQuota: 'Plan and quota',
+            planAndQuotaDesc: 'Your API plan and this account\'s request and cache limits.',
             planTooltip: 'Your API plan: higher = more quota and fresher data',
             apiQuotaTooltip: 'Requests per minute with your API Key (commands and integrations)',
             heavyQuotaTooltip: 'Heavy endpoints quota (clips / chatters) with API Key',
@@ -276,8 +277,6 @@ export const en: Translations = {
             apiKeyWarning: 'Your personal, non-transferable key. Use it in Nightbot, StreamElements, etc.',
             activeKey: 'Active API Key',
             activeKeyDesc: 'Ready to authenticate bots (apiKey query or X-Api-Key header).',
-            apiKeyAccountLabel: 'Linked to your User ID',
-            apiKeyAccountHint: 'This key belongs to this account. It is not a second login factor.',
             toggleVisibility: 'Show/Hide',
             copyKey: 'Copy',
             regenKey: 'Regenerate',

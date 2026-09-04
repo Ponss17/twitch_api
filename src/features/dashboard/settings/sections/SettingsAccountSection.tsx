@@ -74,6 +74,7 @@ export function SettingsAccountSection({
             <SettingsRow
                 title={pT.planAndQuota}
                 icon={Crown}
+                description={pT.planAndQuotaDesc}
                 control={
                     <div className="flex flex-wrap items-center justify-end gap-1.5">
                         <span
