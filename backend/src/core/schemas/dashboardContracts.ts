@@ -68,4 +68,6 @@ export interface DashboardProfile {
     discordAvatar?: string | null;
     dbCreatedAt?: string;
     dbLastActive?: string;
+    /** UUID interno de cuenta (`users.id`). Opaco; no es el id de Twitch. */
+    accountId?: string;
 }

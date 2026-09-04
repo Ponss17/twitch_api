@@ -36,6 +36,8 @@ export interface TwitchClip {
 
 export interface StoredUser {
     userId: string;
+    /** UUID interno opaco (`users.id`). No es el Helix id de Twitch. */
+    accountId?: string;
     login: string;
     displayName: string;
     accessToken: string;

@@ -133,4 +133,32 @@ describe('userService', () => {
             expect(user?.apiKey).toBe(rawKey);
         });
     });
+
+    describe('getUserByAccountId', () => {
+        it('rechaza ids que no son UUID', async () => {
+            const res = await userService.getUserByAccountId('12345');
+            expect(res).toBeNull();
+            expect(mockSupabase.from).not.toHaveBeenCalled();
+        });
+
+        it('carga por users.id y expone accountId', async () => {
+            const accountId = 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
+            mockCache.get.mockResolvedValue(null);
+            mockSupabase.maybeSingle.mockResolvedValue({
+                data: {
+                    user_id: 'twitch-99',
+                    id: accountId,
+                    login: 'ponss',
+                    display_name: 'Ponss'
+                },
+                error: null
+            });
+
+            const user = await userService.getUserByAccountId(accountId);
+
+            expect(mockSupabase.eq).toHaveBeenCalledWith('id', accountId);
+            expect(user?.userId).toBe('twitch-99');
+            expect(user?.accountId).toBe(accountId);
+        });
+    });
 });

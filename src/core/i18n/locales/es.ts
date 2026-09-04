@@ -260,6 +260,8 @@ export const es = {
         },
         panels: {
             userId: 'User ID',
+            userIdDesc:
+                'Identificador interno de tu cuenta. Úsalo para invitaciones y soporte; no es tu ID de Twitch.',
             copyUserId: 'Copiar User ID',
             planAndQuota: 'Plan y cuota',
             planTooltip: 'Tu plan de API: más alto = más cuota y datos más frescos',

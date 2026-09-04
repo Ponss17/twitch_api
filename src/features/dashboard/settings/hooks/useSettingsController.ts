@@ -220,8 +220,9 @@ export function useSettingsController(active: boolean) {
     };
 
     const copyId = async () => {
-        if (!session.userId) return;
-        const ok = await copyText(session.userId);
+        const accountId = profile?.accountId;
+        if (!accountId) return;
+        const ok = await copyText(accountId);
         if (ok) showToast(t.settings.toasts.copyIdSuccess, 'success');
     };
 

@@ -218,6 +218,10 @@ export const saveUser = async (user: StoredUser, options?: SaveUserOptions): Pro
         cacheService.del(`cache:user:login:${user.login.toLowerCase()}`)
     ];
 
+    if (user.accountId) {
+        cachePromises.push(cacheService.del(`cache:user:account:${user.accountId.toLowerCase()}`));
+    }
+
     if (user.apiKey) {
         cachePromises.push(cacheService.invalidateApiKeyCache(user.apiKey));
     }
@@ -323,6 +327,38 @@ export const getUserByLogin = async (login: string): Promise<StoredUser | null> 
         secureUserForL2(result),
         CACHE_TTL_MATRIX.USER_BY_LOGIN.default
     );
+    return result;
+};
+
+const ACCOUNT_ID_RE =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/** Lookup por UUID interno (`users.id`). Prep para grants/managers. */
+export const getUserByAccountId = async (accountId: string): Promise<StoredUser | null> => {
+    const id = accountId.trim();
+    if (!ACCOUNT_ID_RE.test(id)) return null;
+
+    const cacheKey = `cache:user:account:${id.toLowerCase()}`;
+    const cached = await cacheService.get<StoredUser>(cacheKey);
+    if (cached) {
+        const plain = await ensurePlaintextUser(cached, `caché account ${id}`);
+        if (!plain) return null;
+        rememberUserCaches(plain);
+        await cacheService
+            .set(cacheKey, secureUserForL2(plain), CACHE_TTL_MATRIX.API_USER.default)
+            .catch((e) => logger.error('Error reescribiendo caché accountId:', e));
+        return plain;
+    }
+
+    const { data, error } = await supabase.from('users').select('*').eq('id', id).maybeSingle();
+    if (error || !data) return null;
+
+    const user = fromRow(data as Record<string, unknown>);
+    const result = await decryptAndMigrateIfNeeded(user, `accountId ${id}`);
+    if (!result) return null;
+
+    rememberUserCaches(result);
+    await cacheService.set(cacheKey, secureUserForL2(result), CACHE_TTL_MATRIX.API_USER.default);
     return result;
 };
 

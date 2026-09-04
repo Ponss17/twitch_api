@@ -5,14 +5,14 @@ import { SettingsPreferencesSection } from '@/features/dashboard/settings/sectio
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface SettingsGeneralPanelProps {
-    userId?: string;
+    accountId?: string;
     profile: DashboardProfile | null;
     onCopyId: () => void;
     onPreferencesChanged: () => void;
 }
 
 export function SettingsGeneralPanel({
-    userId,
+    accountId,
     profile,
     onCopyId,
     onPreferencesChanged
@@ -24,7 +24,7 @@ export function SettingsGeneralPanel({
         <>
             <SettingsGroup title={gT.account.title} description={gT.account.desc} delay={40}>
                 <SettingsAccountSection
-                    userId={userId}
+                    accountId={accountId}
                     rateLimit={profile?.rateLimit ?? 60}
                     heavyLimit={profile?.heavyLimit}
                     cacheTtl={profile?.cacheTtl ?? 60}
