@@ -96,6 +96,9 @@ export function useSettingsProfile({
             if (incoming.dbLastActive == null && prev.dbLastActive != null) {
                 next.dbLastActive = prev.dbLastActive;
             }
+            if (incoming.accountId == null && prev.accountId != null) {
+                next.accountId = prev.accountId;
+            }
             return next;
         });
         setLoading(false);

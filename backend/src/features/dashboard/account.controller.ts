@@ -98,7 +98,8 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                             timezone,
                             ...(discordFields ?? {}),
                             dbCreatedAt: apiUser?.createdAt,
-                            dbLastActive: apiUser?.lastActive
+                            dbLastActive: apiUser?.lastActive,
+                            accountId: apiUser?.accountId
                         };
                     }
                 }
@@ -131,7 +132,8 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                     timezone, 
                     cacheTtl: limits.cacheTtl,
                     dbCreatedAt: apiUser?.createdAt,
-                    dbLastActive: apiUser?.lastActive
+                    dbLastActive: apiUser?.lastActive,
+                    accountId: apiUser?.accountId
                 };
             }, 'getUserInfo');
         },

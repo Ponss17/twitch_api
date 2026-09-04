@@ -18,6 +18,7 @@ export function hydrateUserFromRow(row: Record<string, unknown>): StoredUser {
 
     return {
         userId: row.user_id as string,
+        accountId: typeof row.id === 'string' ? row.id : undefined,
         login: row.login as string,
         displayName: row.display_name as string,
         accessToken: (row.access_token as string) ?? '',
