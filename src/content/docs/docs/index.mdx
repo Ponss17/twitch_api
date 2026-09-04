@@ -47,7 +47,7 @@ También puedes enviar la clave en la cabecera `X-Api-Key`. Para bots antiguos s
 | Uso | Cómo te autenticas | Para qué sirve |
 | :--- | :--- | :--- |
 | **Bots de chat** | `apiKey` en la URL o `X-Api-Key` | Nightbot, StreamElements, scripts propios |
-| **Panel web** | Sesión OAuth de Twitch (Bearer) | Dashboard, overlays, analytics |
+| **Panel web** | Cookie de sesión HttpOnly (`lp_sess`) | Dashboard, overlays, analytics |
 
 Los bots **no** necesitan iniciar sesión en el panel: solo tu API Key. La clave se crea en tu primer login con Twitch y puedes regenerarla desde Configuración → **Seguridad**.
 

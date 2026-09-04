@@ -17,11 +17,18 @@ describe('auditLogDisplay', () => {
 
     it('maps actions and clear-data scopes', () => {
         expect(auditActionLabel('session_login', es)).toBe('Inicio de sesión');
-        expect(auditScopeDetail({ stats: true, questions: true }, es)).toBe(
-            es.settings.auditLogs.scopes.both
+        expect(auditScopeDetail({ stats: true, activity: true, questions: true }, es)).toBe(
+            [
+                es.settings.auditLogs.scopes.stats,
+                es.settings.auditLogs.scopes.activity,
+                es.settings.auditLogs.scopes.questions
+            ].join(', ')
         );
         expect(auditScopeDetail({ stats: true, questions: false }, es)).toBe(
             es.settings.auditLogs.scopes.stats
+        );
+        expect(auditScopeDetail({ stats: false, activity: true, questions: false }, es)).toBe(
+            es.settings.auditLogs.scopes.activity
         );
         expect(auditScopeDetail({ stats: false, questions: true }, es)).toBe(
             es.settings.auditLogs.scopes.questions

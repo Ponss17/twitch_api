@@ -13,7 +13,7 @@ import { appPath } from '@/core/config/paths';
 import type { Translations } from '@/core/i18n/locales/es';
 import type { ClearDataScopes, SettingsDangerModal } from '@/features/dashboard/settings/lib/settingsTypes';
 
-const DEFAULT_CLEAR_SCOPES: ClearDataScopes = { stats: true, questions: true };
+const DEFAULT_CLEAR_SCOPES: ClearDataScopes = { stats: true, activity: true, questions: true };
 
 async function parseJsonSafe(res: Response): Promise<Record<string, unknown>> {
     const contentType = res.headers.get('content-type') || '';
@@ -52,7 +52,7 @@ export function useSettingsDangerActions({ session, showToast, t, onDataCleared 
             const data = await parseJsonSafe(res);
             if (res.ok && data.success) {
                 const cleared = (data.cleared as ClearDataScopes | undefined) ?? scopes;
-                if (cleared.stats) {
+                if (cleared.stats || cleared.activity) {
                     clearDashboardSyncPrefs(session.userId);
                     if (session.userId) broadcastHomeDataReset(session.userId);
                 }

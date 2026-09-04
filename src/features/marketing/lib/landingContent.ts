@@ -10,150 +10,68 @@ export const landingBtnSecondary =
 export const landingBtnHeader =
     'inline-flex items-center justify-center rounded-lg bg-primary px-3.5 py-1.5 text-[0.8125rem] font-semibold text-white no-underline transition hover:-translate-y-0.5 hover:bg-primary-hover';
 
+/** Estructura visual del hero; copy en `t.landing.hero.tabs`. */
 export const PRODUCT_TABS = [
-    {
-        id: 'inicio',
-        label: 'Panel',
-        text: 'El panel de LosPerrisAPI: comandos, overlays y minijuegos en un solo sitio.',
-        src: '/img/ss/home.png'
-    },
-    {
-        id: 'comandos',
-        label: 'Comandos',
-        text: 'El generador arma el comando para Nightbot, StreamElements o Streamlabs.',
-        src: '/img/ss/comando.png'
-    },
-    {
-        id: 'herramientas',
-        label: 'Herramientas',
-        text: 'Overlays en OBS y utilidades del panel, sin otro programa.',
-        src: '/img/ss/herramientas.png'
-    },
-    {
-        id: 'minijuegos',
-        label: 'Minijuegos',
-        text: 'El chat juega solo. Tú sigues en el stream.',
-        src: '/img/ss/minijuego.png'
-    }
-] as const;
+    { id: 'inicio' as const, src: '/img/ss/home.png' },
+    { id: 'comandos' as const, src: '/img/ss/comando.png' },
+    { id: 'herramientas' as const, src: '/img/ss/herramientas.png' },
+    { id: 'minijuegos' as const, src: '/img/ss/minijuego.png' }
+];
 
+/** Pasos; copy en `t.landing.features.steps`. */
 export const FEATURE_STEPS = [
-    {
-        n: '01',
-        title: 'Conecta Twitch',
-        text: 'Entras con tu cuenta de streamer. Todo funciona directo en el navegador, sin necesidad de instalar programas adicionales.',
-        visual: 'connect'
-    },
-    {
-        n: '02',
-        title: 'Genera el comando',
-        text: 'Eliges followage, watchtime, clips o shoutout. El panel arma el comando con tu API key, listo para copiar.',
-        visual: 'generate'
-    },
-    {
-        n: '03',
-        title: 'Pégalo en tu bot',
-        text: 'Nightbot, StreamElements o Streamlabs. Lo pegas como comando custom y el chat ya lo puede usar.',
-        visual: 'bots'
-    }
-] as const;
+    { n: '01', visual: 'connect' as const },
+    { n: '02', visual: 'generate' as const },
+    { n: '03', visual: 'bots' as const }
+];
 
+/** Bloques del panel; copy en `t.landing.features.panels`. */
 export const PANEL_ITEMS = [
-    {
-        title: 'Comandos',
-        text: 'Followage, watchtime, clips y shoutouts. El chat pregunta y el bot responde con el texto que genera la API.',
-        items: ['!followage', '!watchtime', '!clip', '!so']
-    },
-    {
-        title: 'Herramientas',
-        text: 'Tendencias, stalker, ruleta y preguntas. Varias tienen overlay: la URL va a OBS como fuente de navegador.',
-        items: ['Tendencias', 'Ruleta', 'Preguntas', 'Stalker']
-    },
-    {
-        title: 'Minijuegos',
-        text: 'Bola 8, ruleta rusa, duelos y slots. El chat juega solo; tú no dejas el directo.',
-        items: ['!8ball', '!ruleta', '!duelo', '!slots']
-    }
-] as const;
+    { id: 'commands' as const },
+    { id: 'tools' as const },
+    { id: 'minigames' as const }
+];
 
-export const FIT_POINTS = [
-    {
-        title: '100% Gratis',
-        text: 'El panel es completamente gratis y sin costos ocultos.'
-    },
-    {
-        title: 'Sin instalar',
-        text: 'Todo corre en el navegador. No hay exe ni extensión.'
-    },
-    {
-        title: 'Sin otro bot',
-        text: 'Sigues con Nightbot, StreamElements o Streamlabs.'
-    }
-] as const;
+/** Puntos “para quién”; copy en `t.landing.fit.points`. */
+export const FIT_POINTS = [{ id: 'free' as const }, { id: 'browser' as const }, { id: 'bots' as const }];
 
+/** Demos de chat; label/reply en `t.landing.fit.demos`. */
 export const FIT_DEMOS = [
     {
-        id: 'followage',
-        label: 'Followage',
+        id: 'followage' as const,
         command: '!followage',
         user: 'mynana17',
         color: '#FF69B4',
-        role: 'viewer' as const,
-        reply: 'mynana17 ha seguido a ponss17 por 2 años y 3 meses.'
+        role: 'viewer' as const
     },
     {
-        id: 'watchtime',
-        label: 'Watchtime',
+        id: 'watchtime' as const,
         command: '!watchtime',
         user: 'mynana17',
         color: '#FF69B4',
-        role: 'viewer' as const,
-        reply: 'mynana17 lleva 2 años y 3 meses viendo a ponss17.'
+        role: 'viewer' as const
     },
     {
-        id: '8ball',
-        label: '8ball',
+        id: '8ball' as const,
         command: '!8ball ¿gane ranked?',
         user: 'mynana17',
         color: '#FF69B4',
-        role: 'viewer' as const,
-        reply: 'Los astros se alinean a tu favor, @mynana17... pero tus decisiones futuras me preocupan. SÍ.'
+        role: 'viewer' as const
     },
     {
-        id: 'so',
-        label: 'Shoutout',
+        id: 'so' as const,
         command: '!so mynana17',
         user: 'ponss17',
         color: '#FF4500',
-        role: 'broadcaster' as const,
-        reply: '¡Vayan a seguir a mynana17! Estaba jugando Just Chatting'
+        role: 'broadcaster' as const
     }
-] as const;
+];
 
+/** FAQ; copy en `t.landing.faq.items`. */
 export const FAQ_ITEMS = [
-    {
-        id: 'gratis',
-        title: '¿Es gratis?',
-        content: 'Sí. LosPerrisAPI es completamente gratis. Puedes usar todas las funciones del panel sin costo.'
-    },
-    {
-        id: 'bots',
-        title: '¿Con qué bots funciona?',
-        content: 'Nightbot, StreamElements y Streamlabs. Copias el comando que genera el panel y lo pegas en tu bot.'
-    },
-    {
-        id: 'empezar',
-        title: '¿Cómo empiezo?',
-        content: 'Conectas Twitch, eliges el comando u overlay y lo pegas en el bot o en OBS. En un minuto está listo.'
-    },
-    {
-        id: 'permisos',
-        title: '¿Qué permisos pide Twitch?',
-        content: 'Solo los necesarios para identificar tu canal y generar los comandos. No publicamos en tu chat ni cambiamos el stream.'
-    },
-    {
-        id: 'obs',
-        title: '¿Puedo usarlo en OBS?',
-        content: 'Sí. Tendencias, ruleta, preguntas y otras herramientas tienen overlay: copias la URL y la pegas como fuente de navegador.'
-    }
-] as const;
+    { id: 'gratis' as const },
+    { id: 'bots' as const },
+    { id: 'empezar' as const },
+    { id: 'permisos' as const },
+    { id: 'obs' as const }
+];

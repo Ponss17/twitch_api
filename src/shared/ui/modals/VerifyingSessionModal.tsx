@@ -130,7 +130,19 @@ export function VerifyingSessionModal({ open, done = false, onExited }: Verifyin
 
     if (!visible) return null;
 
-    const detailLabel = detail.label === 'Iniciando…' ? t.globals.loading.starting : detail.label;
+    const sessionLoad = t.common.sessionLoad;
+    const sessionLoadLabels: Record<string, string> = {
+        'sessionLoad.starting': sessionLoad.starting,
+        'sessionLoad.cached': sessionLoad.cached,
+        'sessionLoad.validating': sessionLoad.validating,
+        'sessionLoad.waking': sessionLoad.waking,
+        'sessionLoad.verified': sessionLoad.verified,
+        'sessionLoad.checking': sessionLoad.checking
+    };
+    const detailLabel =
+        detail.label === 'Iniciando…'
+            ? t.globals.loading.starting
+            : (sessionLoadLabels[detail.label] ?? detail.label);
     const statusTitle = barDone ? t.verifying.authenticated : detailLabel;
     const statusHint = barDone
         ? t.verifying.accessGranted

@@ -37,7 +37,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                 <SettingsDataPanel
                     profile={s.profile}
                     exportLoading={s.exportLoading}
-                    onExport={(format) => void s.exportData(format)}
+                    onExport={(format, options) => void s.exportData(format, options)}
                 />
             </SettingsTabPanel>
 

@@ -6,7 +6,7 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { buildLocalDateRange, getStatsLocalDateString } from '@/features/dashboard/lib/data/dashboardStats';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
-import { AnalyticsKPIs } from './AnalyticsKPIs';
+import { AnalyticsKPIs, type AnalyticsTimeRange } from './AnalyticsKPIs';
 
 const AnalyticsAreaChart = React.lazy(() =>
     import('./AnalyticsAreaChart').then((module) => ({ default: module.AnalyticsAreaChart }))
@@ -28,21 +28,22 @@ const AnalyticsTodayBarChart = React.lazy(() =>
 function AnalyticsViewContent({ active }: { active: boolean }) {
     const { stats, hasLiveData, error, profile } = useDashboardPanel();
     const { t } = useTranslation();
-    const [timeRange, setTimeRange] = useState<'today' | '7d'>('today');
+    const [timeRange, setTimeRange] = useState<AnalyticsTimeRange>('today');
 
     const { timeSeries = [] } = stats;
 
-    const { areaData, pieDataWeekly, pieDataToday, summaryWeekly, summaryToday } = useMemo(() => {
+    const { areaData, pieDataPeriod, pieDataToday, summaryPeriod, summaryToday } = useMemo(() => {
         const todayDateStr = getStatsLocalDateString(profile?.timezone);
+        const periodDays = timeRange === '30d' ? 30 : 7;
         const dailyMap = new Map<string, { date: string; requests: number; errors: number }>();
-        const commandMapWeekly = new Map<string, { requests: number; errors: number; latency: number }>();
+        const commandMapPeriod = new Map<string, { requests: number; errors: number; latency: number }>();
         const commandMapToday = new Map<string, { requests: number; errors: number; latency: number }>();
 
         let tRequests = 0;
         let tErrors = 0;
         let tLatency = 0;
 
-        for (const dateStr of buildLocalDateRange(profile?.timezone, 7)) {
+        for (const dateStr of buildLocalDateRange(profile?.timezone, periodDays)) {
             dailyMap.set(dateStr, { date: dateStr, requests: 0, errors: 0 });
         }
 
@@ -54,13 +55,13 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
 
             const cmd = row.command_name === 'other' ? t.analytics.other : row.command_name;
 
-            if (!commandMapWeekly.has(cmd)) {
-                commandMapWeekly.set(cmd, { requests: 0, errors: 0, latency: 0 });
+            if (!commandMapPeriod.has(cmd)) {
+                commandMapPeriod.set(cmd, { requests: 0, errors: 0, latency: 0 });
             }
-            const cmdStatsW = commandMapWeekly.get(cmd)!;
-            cmdStatsW.requests += row.requests_count;
-            cmdStatsW.errors += row.errors_count;
-            cmdStatsW.latency += row.latency_sum || 0;
+            const cmdStatsP = commandMapPeriod.get(cmd)!;
+            cmdStatsP.requests += row.requests_count;
+            cmdStatsP.errors += row.errors_count;
+            cmdStatsP.latency += row.latency_sum || 0;
 
             if (row.date === todayDateStr) {
                 if (!commandMapToday.has(cmd)) {
@@ -79,7 +80,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
 
         const sortedArea = Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
 
-        const pieDataWeekly = Array.from(commandMapWeekly.entries())
+        const pieDataPeriod = Array.from(commandMapPeriod.entries())
             .map(([name, s]) => ({
                 name,
                 value: s.requests,
@@ -99,24 +100,24 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             }))
             .sort((a, b) => b.value - a.value);
 
-        const totalRequestsWeekly = Array.from(commandMapWeekly.values()).reduce((sum, s) => sum + s.requests, 0);
-        const totalErrorsWeekly = Array.from(commandMapWeekly.values()).reduce((sum, s) => sum + s.errors, 0);
-        const totalLatencyWeekly = Array.from(commandMapWeekly.values()).reduce((sum, s) => sum + s.latency, 0);
-        const avgLatencyWeekly = totalRequestsWeekly > 0 ? Math.round(totalLatencyWeekly / totalRequestsWeekly) : 0;
-        const successRateWeekly = totalRequestsWeekly > 0 ? ((1 - totalErrorsWeekly / totalRequestsWeekly) * 100).toFixed(1) : '0.0';
+        const totalRequestsPeriod = Array.from(commandMapPeriod.values()).reduce((sum, s) => sum + s.requests, 0);
+        const totalErrorsPeriod = Array.from(commandMapPeriod.values()).reduce((sum, s) => sum + s.errors, 0);
+        const totalLatencyPeriod = Array.from(commandMapPeriod.values()).reduce((sum, s) => sum + s.latency, 0);
+        const avgLatencyPeriod = totalRequestsPeriod > 0 ? Math.round(totalLatencyPeriod / totalRequestsPeriod) : 0;
+        const successRatePeriod = totalRequestsPeriod > 0 ? ((1 - totalErrorsPeriod / totalRequestsPeriod) * 100).toFixed(1) : '0.0';
 
         const todayAvgLatency = tRequests > 0 ? Math.round(tLatency / tRequests) : 0;
         const todaySuccessRate = tRequests > 0 ? ((1 - tErrors / tRequests) * 100).toFixed(1) : '0.0';
 
         return {
             areaData: sortedArea,
-            pieDataWeekly,
+            pieDataPeriod,
             pieDataToday,
-            summaryWeekly: {
-                totalRequests: totalRequestsWeekly,
-                successRate: successRateWeekly,
-                avgLatency: avgLatencyWeekly,
-                uniqueCommands: pieDataWeekly.length
+            summaryPeriod: {
+                totalRequests: totalRequestsPeriod,
+                successRate: successRatePeriod,
+                avgLatency: avgLatencyPeriod,
+                uniqueCommands: pieDataPeriod.length
             },
             summaryToday: {
                 totalRequests: tRequests,
@@ -125,7 +126,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 uniqueCommands: pieDataToday.length
             }
         };
-    }, [timeSeries, profile?.timezone, t.analytics.other]);
+    }, [timeSeries, profile?.timezone, t.analytics.other, timeRange]);
 
     const todayRequestsCount = summaryToday.totalRequests;
 
@@ -159,7 +160,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             window.clearTimeout(t2);
             mo.disconnect();
         };
-    }, [active, areaData, pieDataWeekly, pieDataToday, timeRange]);
+    }, [active, areaData, pieDataPeriod, pieDataToday, timeRange]);
 
     if (error && !hasLiveData) {
         return (
@@ -191,16 +192,16 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
             ? pieDataToday.length
             : commandKeys.filter((key) => (stats[key] ?? 0) > 0).length;
 
-    const latencyWeekly = summaryWeekly.avgLatency ?? 0;
-    const successRateWeekly = parseFloat(summaryWeekly.successRate) || 0;
-    const requestsWeekly = summaryWeekly.totalRequests;
-    const uniqueCommandsWeekly = summaryWeekly.uniqueCommands;
+    const latencyPeriod = summaryPeriod.avgLatency ?? 0;
+    const successRatePeriod = parseFloat(summaryPeriod.successRate) || 0;
+    const requestsPeriod = summaryPeriod.totalRequests;
+    const uniqueCommandsPeriod = summaryPeriod.uniqueCommands;
 
-    const displayRequests = timeRange === 'today' ? todayRequestsCount : requestsWeekly;
-    const displaySuccessRate = timeRange === 'today' ? successRateDaily : successRateWeekly;
-    const displayLatency = timeRange === 'today' ? latencyDaily : latencyWeekly;
-    const displayCommands = timeRange === 'today' ? uniqueCommandsDaily : uniqueCommandsWeekly;
-    const displayPieData = timeRange === 'today' ? pieDataToday : pieDataWeekly;
+    const displayRequests = timeRange === 'today' ? todayRequestsCount : requestsPeriod;
+    const displaySuccessRate = timeRange === 'today' ? successRateDaily : successRatePeriod;
+    const displayLatency = timeRange === 'today' ? latencyDaily : latencyPeriod;
+    const displayCommands = timeRange === 'today' ? uniqueCommandsDaily : uniqueCommandsPeriod;
+    const displayPieData = timeRange === 'today' ? pieDataToday : pieDataPeriod;
 
     const isLoading = !hasLiveData;
     const requestsDuration = displayRequests === 0 ? 0 : active ? 400 : 0;

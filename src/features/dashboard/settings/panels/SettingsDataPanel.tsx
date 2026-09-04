@@ -1,13 +1,16 @@
 import { Clock, CalendarDays } from 'lucide-react';
 import type { DashboardProfile } from '@/features/dashboard/lib/data/dashboardSummary';
 import { SettingsGroup, SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
-import { SettingsExportSection } from '@/features/dashboard/settings/sections/SettingsExportSection';
+import {
+    SettingsExportSection,
+    type SettingsExportOptions
+} from '@/features/dashboard/settings/sections/SettingsExportSection';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface SettingsDataPanelProps {
     profile: DashboardProfile | null;
     exportLoading: 'html' | 'csv' | null;
-    onExport: (format: 'html' | 'csv') => void | Promise<void>;
+    onExport: (format: 'html' | 'csv', options?: SettingsExportOptions) => void | Promise<void>;
 }
 
 function formatDateTimeSplit(isoDate?: string, timezone?: string, locale = 'es-ES') {

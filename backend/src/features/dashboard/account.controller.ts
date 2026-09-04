@@ -164,18 +164,30 @@ export const clearUserData = async (req: AuthenticatedRequest, res: Response) =>
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     const clearStats = req.body?.scopes?.stats ?? true;
+    const clearActivity = req.body?.scopes?.activity ?? true;
     const clearQuestions = req.body?.scopes?.questions ?? true;
 
     try {
-        if (clearStats) {
+        if (clearStats && clearActivity) {
             await dbService.clearUserStatsAndLogs(userId);
+        } else if (clearStats) {
+            await dbService.clearUserStats(userId);
+        } else if (clearActivity) {
+            await dbService.clearUserActivityLogs(userId);
+        }
+
+        if (clearStats) {
             await Promise.all([
                 invalidateDashboardStatsCaches(userId, req.login),
                 invalidateOverlayStateCaches(userId),
-                cacheService.del(`cache:activity:${userId}`),
                 cacheService.del(`cache:dashboard:analytics:${userId}`),
+                cacheService.del(`cache:dashboard:analytics:${userId}:d30`),
                 cacheService.del(`cache:analytics:${userId}`)
             ]);
+        }
+
+        if (clearActivity) {
+            await cacheService.del(`cache:activity:${userId}`);
         }
 
         if (clearQuestions) {
@@ -190,20 +202,22 @@ export const clearUserData = async (req: AuthenticatedRequest, res: Response) =>
         }
 
         const parts: string[] = [];
-        if (clearStats) parts.push('estadísticas y actividad');
+        if (clearStats) parts.push('estadísticas');
+        if (clearActivity) parts.push('actividad');
         if (clearQuestions) parts.push('historial de preguntas');
 
         await dbService.addAuditLog('stats_cleared', userId, userId, {
             stats: clearStats,
+            activity: clearActivity,
             questions: clearQuestions
         });
 
         res.json({
             success: true,
-            message: `Se borró: ${parts.join(' y ')}.`,
-            cleared: { stats: clearStats, questions: clearQuestions },
+            message: `Se borró: ${parts.join(', ')}.`,
+            cleared: { stats: clearStats, activity: clearActivity, questions: clearQuestions },
             analytics: clearStats ? buildEmptyUserAnalytics() : undefined,
-            activity: clearStats ? ([] as unknown[]) : undefined
+            activity: clearActivity ? ([] as unknown[]) : undefined
         });
     } catch (e) {
         logger.error('Error clearing user data:', e);

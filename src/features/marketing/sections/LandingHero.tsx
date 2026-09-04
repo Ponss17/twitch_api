@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { legalPath, staticPath } from '@/core/config/paths';
+import { useTranslation } from '@/core/i18n/I18nContext';
 import { landingBtnSecondary, PRODUCT_TABS } from '../lib/landingContent';
 import { LandingAuthCta } from '../sections/LandingAuthCta';
 
@@ -9,10 +10,13 @@ type LandingHeroProps = {
 };
 
 export function LandingHero({ legacyReloginNotice, onLoginClick }: LandingHeroProps) {
+    const { t } = useTranslation();
+    const hT = t.landing.hero;
     const [index, setIndex] = useState(0);
     const [paused, setPaused] = useState(false);
     const total = PRODUCT_TABS.length;
-    const tab = PRODUCT_TABS[index] ?? PRODUCT_TABS[0];
+    const tabMeta = PRODUCT_TABS[index] ?? PRODUCT_TABS[0];
+    const tab = tabMeta ? hT.tabs[tabMeta.id] : hT.tabs.inicio;
 
     useEffect(() => {
         if (paused || total < 2) return;
@@ -51,14 +55,12 @@ export function LandingHero({ legacyReloginNotice, onLoginClick }: LandingHeroPr
                         <a href="https://streamlabs.com/" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-text-main">Streamlabs</a>
                     </p>
                     <h1 className="text-[2.35rem] leading-[1.08] font-semibold tracking-tight text-text-main sm:text-5xl md:text-[3.5rem] md:leading-[1.05]">
-                        Comandos para tu
+                        {hT.headlineLine1}
                         <br />
-                        Stream.
+                        {hT.headlineLine2}
                     </h1>
                     <p className="mx-auto mt-5 max-w-[34rem] text-base leading-relaxed text-text-muted md:text-lg">
-                        {legacyReloginNotice
-                            ? 'Tu sesión anterior ya no es válida. Vuelve a conectar con Twitch.'
-                            : 'Comandos, overlays y minijuegos. Pégalo en Nightbot, StreamElements, Streamlabs u OBS.'}
+                        {legacyReloginNotice ? hT.legacyNotice : hT.subtitle}
                     </p>
                     <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                         <LandingAuthCta
@@ -67,28 +69,28 @@ export function LandingHero({ legacyReloginNotice, onLoginClick }: LandingHeroPr
                             onLoginClick={onLoginClick}
                         />
                         <a href="#panel" className={landingBtnSecondary}>
-                            Ver el panel
+                            {hT.seePanel}
                         </a>
                     </div>
                     <p
                         data-lp-auth-disclaimer
                         className="mx-auto mt-4 max-w-sm text-[0.75rem] leading-relaxed text-text-muted"
                     >
-                        Al conectar aceptas la{' '}
+                        {hT.disclaimerBefore}{' '}
                         <a
                             href={legalPath('privacidad')}
                             className="underline underline-offset-2 transition hover:text-text-main"
                         >
-                            política de privacidad
+                            {hT.privacy}
                         </a>{' '}
-                        y los{' '}
+                        {hT.disclaimerAnd}{' '}
                         <a
                             href={legalPath('terminos')}
                             className="underline underline-offset-2 transition hover:text-text-main"
                         >
-                            términos de uso
+                            {hT.terms}
                         </a>
-                        .
+                        {hT.disclaimerAfter}
                     </p>
                 </div>
             </div>
@@ -97,10 +99,11 @@ export function LandingHero({ legacyReloginNotice, onLoginClick }: LandingHeroPr
                 <div
                     className="absolute top-0 left-1/2 z-[1] flex w-max max-w-[calc(100%-1.5rem)] -translate-x-1/2 -translate-y-1/2 flex-wrap justify-center gap-0.5 rounded-lg border border-border-subtle bg-bg-secondary p-1"
                     role="tablist"
-                    aria-label="El panel"
+                    aria-label={hT.tablistAria}
                 >
                     {PRODUCT_TABS.map((item, i) => {
                         const active = i === index;
+                        const label = hT.tabs[item.id].label;
                         return (
                             <button
                                 key={item.id}
@@ -114,17 +117,17 @@ export function LandingHero({ legacyReloginNotice, onLoginClick }: LandingHeroPr
                                         : 'text-text-muted hover:bg-white/[0.02] hover:text-text-main'
                                 }`}
                             >
-                                {item.label}
+                                {label}
                             </button>
                         );
                     })}
                 </div>
             </div>
 
-            {tab ? (
+            {tabMeta ? (
                 <div id="panel" className="relative scroll-mt-24 px-5 pt-12 pb-0 md:px-8 md:pt-14">
                     <p
-                        key={tab.id}
+                        key={tabMeta.id}
                         className="mx-auto mb-8 max-w-xl text-center text-sm leading-relaxed text-text-muted opacity-0 motion-safe:animate-fade-soft md:text-[0.95rem]"
                     >
                         {tab.text}
@@ -135,7 +138,7 @@ export function LandingHero({ legacyReloginNotice, onLoginClick }: LandingHeroPr
                             <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
                             <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
                             <span
-                                key={tab.id}
+                                key={tabMeta.id}
                                 className="ml-2 truncate font-mono text-[0.7rem] text-text-muted opacity-0 motion-safe:animate-fade-soft"
                             >
                                 ttv.losperris.dev · {tab.label}
@@ -146,7 +149,7 @@ export function LandingHero({ legacyReloginNotice, onLoginClick }: LandingHeroPr
                                 <img
                                     key={item.id}
                                     src={staticPath(item.src)}
-                                    alt={item.label}
+                                    alt={hT.tabs[item.id].label}
                                     width={1912}
                                     height={918}
                                     fetchPriority={i === 0 ? 'high' : 'low'}

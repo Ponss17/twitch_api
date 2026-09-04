@@ -45,14 +45,16 @@ export const clearUserDataSchema = z.object({
             scopes: z
                 .object({
                     stats: z.boolean().optional(),
+                    activity: z.boolean().optional(),
                     questions: z.boolean().optional()
                 })
                 .optional()
         })
         .superRefine((body, ctx) => {
             const stats = body.scopes?.stats ?? true;
+            const activity = body.scopes?.activity ?? true;
             const questions = body.scopes?.questions ?? true;
-            if (!stats && !questions) {
+            if (!stats && !activity && !questions) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
                     path: ['scopes'],

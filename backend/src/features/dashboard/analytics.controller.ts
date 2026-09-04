@@ -44,14 +44,14 @@ export const getAnalytics = async (req: AuthenticatedRequest, res: Response) => 
     if (!userId) return jsonError(res, 401, MESSAGES.SYSTEM.USER_NOT_FOUND);
 
     try {
-        const cacheKey = `cache:dashboard:analytics:${userId}`;
+        const cacheKey = `cache:dashboard:analytics:${userId}:d30`;
         const statsRev = await cacheService.getStatsRevision(userId);
         const cached = await cacheService.get<Record<string, unknown>>(cacheKey);
         if (cached && isAnalyticsCacheFresh(cached, statsRev)) return res.json(cached);
 
         const [stats, dailyStats, leaderboards] = await Promise.all([
             dbService.getUserStats(userId),
-            dbService.getDailyStats(userId, 7),
+            dbService.getDailyStats(userId, 30),
             dbService.getViewerLeaderboards(userId, 10)
         ]);
         const payload = buildAnalyticsPayload(stats, statsRev, leaderboards);
@@ -103,7 +103,7 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
     }
 
     const profileKey = cacheId ? `cache:dashboard:profile:${cacheId}` : null;
-    const analyticsKey = userId && cacheId ? `cache:dashboard:analytics:${cacheId}` : null;
+    const analyticsKey = userId && cacheId ? `cache:dashboard:analytics:${cacheId}:d30` : null;
     const statsRev = userId ? await cacheService.getStatsRevision(userId) : 0;
 
     const [rawCachedProfile, cachedAnalytics] = await Promise.all([
@@ -187,7 +187,7 @@ export const getSummary = async (req: AuthenticatedRequest, res: Response) => {
                 ? (async () => {
                       const [stats, dailyStats, leaderboards] = await Promise.all([
                           dbService.getUserStats(userId),
-                          dbService.getDailyStats(userId, 7),
+                          dbService.getDailyStats(userId, 30),
                           dbService.getViewerLeaderboards(userId, 10)
                       ]);
                       const payload = buildAnalyticsPayload(stats, statsRev, leaderboards);

@@ -16,7 +16,7 @@ export type UserAuditAction = (typeof USER_AUDIT_ACTIONS)[number];
 export type UserAuditLogEntry = {
     action: UserAuditAction;
     createdAt: string;
-    scopes?: { stats: boolean; questions: boolean };
+    scopes?: { stats: boolean; activity?: boolean; questions: boolean };
 };
 
 const USER_AUDIT_ACTION_SET = new Set<string>(USER_AUDIT_ACTIONS);
@@ -34,10 +34,11 @@ export function auditScopeDetail(
     t: Translations
 ): string {
     if (!scopes) return '';
-    if (scopes.stats && scopes.questions) return t.settings.auditLogs.scopes.both;
-    if (scopes.stats) return t.settings.auditLogs.scopes.stats;
-    if (scopes.questions) return t.settings.auditLogs.scopes.questions;
-    return '';
+    const parts: string[] = [];
+    if (scopes.stats) parts.push(t.settings.auditLogs.scopes.stats);
+    if (scopes.activity) parts.push(t.settings.auditLogs.scopes.activity);
+    if (scopes.questions) parts.push(t.settings.auditLogs.scopes.questions);
+    return parts.join(', ');
 }
 
 export function formatAuditRelativeTime(iso: string, t: Translations): string {

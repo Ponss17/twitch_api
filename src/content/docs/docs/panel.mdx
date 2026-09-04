@@ -49,6 +49,7 @@ La barra lateral agrupa las pestañas por categoría. Las herramientas con docum
 | [Bola 8](/dashboard/magic8) | Prueba el Magic 8 con distintas personalidades. | [Ver docs](/docs/minijuegos/magic8/) |
 | [Ruleta Rusa](/dashboard/russian) | Minijuego de ruleta rusa contra la API. | [Ver docs](/docs/minijuegos/russian/) |
 | [Duelo](/dashboard/duel) | Duelos narrativos entre dos viewers. | [Ver docs](/docs/minijuegos/duel/) |
+| [Slots](/dashboard/slots) | Tragamonedas del chat (Nightbot: 3 mensajes). | [Ver docs](/docs/minijuegos/slots/) |
 
 ### Soporte
 
@@ -58,11 +59,13 @@ Usa el botón **Feedback** del header del panel para enviar sugerencias o report
 
 ## Sesión y datos en vivo
 
-Tras el login con Twitch, el panel canjea un token de un solo uso y valida la sesión antes de cargar datos:
+Tras el login con Twitch, el panel canjea un código de un solo uso y deja una cookie de sesión:
 
 1. **OAuth** → redirect a `/dashboard/?auth=…`
-2. **`GET /api/auth/exchange`** → devuelve `apiKey`, perfil y token de Twitch
-3. **`GET /api/system/validate`** → confirma sesión y refresca token si hace falta
+2. **`GET /api/auth/exchange`** → establece cookie HttpOnly `lp_sess` y perfil básico (sin devolver la API Key)
+3. **`GET /api/system/validate`** → confirma la cookie y refresca el token de Twitch en servidor si hace falta
+
+La API Key se obtiene bajo demanda en **Configuración → Seguridad** (revelar / copiar / regenerar).
 
 <Aside type="note" title="Pestaña líder">
   Con varias pestañas del panel abiertas, solo la **líder** mantiene Realtime activo (Supabase). Las demás sincronizan por `BroadcastChannel`. Si Realtime falla, hay polling de respaldo.

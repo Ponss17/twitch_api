@@ -27,7 +27,7 @@ export function subscribeSessionLoadProgress(
 export function resetSessionLoadProgress(): void {
     reportSessionLoadProgress({
         progress: 0,
-        label: 'Iniciando…',
+        label: 'sessionLoad.starting',
         cached: false
     });
 }
