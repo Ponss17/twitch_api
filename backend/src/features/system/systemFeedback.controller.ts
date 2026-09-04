@@ -27,12 +27,17 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
     let identityLabel = MESSAGES.FEEDBACK.IDENTITY_ANONYMOUS;
     let idField = 'Anónimo';
     let accountField: string | null = null;
+    let accountIdField: string | null = null;
 
     if (!anonymous && (userId || login)) {
         try {
             let cachedUser = null;
             if (userId) {
                 cachedUser = await dbService.getUser(userId);
+            }
+
+            if (cachedUser?.accountId) {
+                accountIdField = cachedUser.accountId;
             }
 
             const discordLinked = Boolean(cachedUser?.discordId);
@@ -117,6 +122,13 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
         }
         if (accountField) {
             fields.push({ name: '🔗 Cuenta', value: accountField, inline: false });
+        }
+        if (accountIdField) {
+            fields.push({
+                name: '🔑 User ID',
+                value: `\`${accountIdField}\``,
+                inline: false
+            });
         }
         fields.push({ name: '📝 Mensaje', value: message, inline: false });
 
