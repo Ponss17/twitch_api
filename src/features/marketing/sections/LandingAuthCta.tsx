@@ -1,5 +1,6 @@
 import { TwitchIcon } from '@/shared/ui/icons/BrandIcons';
 import { appPath } from '@/core/config/paths';
+import { useTranslation } from '@/core/i18n/I18nContext';
 import { landingBtnHeader, landingBtnPrimary } from '../lib/landingContent';
 import { ArrowRightIcon } from '../lib/landingIcons';
 import '../styles/LandingAuthCta.css';
@@ -15,9 +16,11 @@ export function LandingAuthCta({
     onLoginClick,
     variant
 }: LandingAuthCtaProps) {
+    const { t } = useTranslation();
+    const cta = t.landing.cta;
     const isHeader = variant === 'header';
     const shell = isHeader ? landingBtnHeader : landingBtnPrimary;
-    const guestLabel = legacyReloginNotice ? 'Volver a conectar con Twitch' : 'Empezar';
+    const guestLabel = legacyReloginNotice ? cta.reconnect : cta.start;
 
     const guestInner = isHeader ? (
         guestLabel
@@ -29,10 +32,10 @@ export function LandingAuthCta({
     );
 
     const sessionInner = isHeader ? (
-        'Panel'
+        cta.panelShort
     ) : (
         <>
-            Ir al Panel
+            {cta.goToPanel}
             <ArrowRightIcon className="h-4 w-4" />
         </>
     );
@@ -43,7 +46,7 @@ export function LandingAuthCta({
                 href={appPath('/dashboard/')}
                 className={`${shell} lp-auth-cta__session col-start-1 row-start-1`}
                 data-lp-auth="session"
-                aria-label="Panel de control"
+                aria-label={cta.panelAria}
             >
                 {sessionInner}
             </a>
