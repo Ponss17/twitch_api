@@ -12,6 +12,7 @@ overrides:
   "@types/hast": "3.0.4"
   fast-uri: ">=3.1.6"
   fast-uri@3: "3.1.6"
+  qs: ">=6.16.0"
 
 auditConfig:
   ignoreGhsas:
