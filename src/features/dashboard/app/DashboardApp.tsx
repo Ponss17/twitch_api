@@ -9,7 +9,7 @@ import { SessionProvider } from '@/shared/providers/SessionProvider';
 import { useSession, useRequiredSession } from '@/core/session/useSession';
 import { DashboardSessionSkeleton } from '@/shared/ui/Skeleton';
 import { logout, shouldShowDashboardSplash, clearDashboardSplashFlags } from '@/core/api/auth';
-import { DASHBOARD_DATA_READY_EVENT } from '@/features/dashboard/lib/tabs/dashboardPanelEvents';
+import { DASHBOARD_DATA_READY_EVENT, DASHBOARD_NAVIGATE_EVENT, type DashboardNavigateDetail } from '@/features/dashboard/lib/tabs/dashboardPanelEvents';
 import { initGlobalErrorLogging } from '@/core/logging/logError';
 import { resolveDashboardTab, setTabInUrl } from '@/features/dashboard/lib/tabs/dashboardTabUrl';
 import { persistPanelReturnPath } from '@/core/config/paths';
@@ -46,7 +46,7 @@ function DashboardMain({
 }) {
     const session = useRequiredSession();
     const { showToast } = useToast();
-    const prioritySync = tab === 'home' || tab === 'analytics';
+    const prioritySync = tab === 'home' || tab === 'analytics' || tab === 'reports';
     const [sidebarCollapsed, setSidebarCollapsed] = useState(readSidebarCollapsedPref);
     const [focusPhase, setFocusPhase] = useState<ToolFocusPhase>('off');
     const toolFocus =
@@ -241,6 +241,26 @@ function DashboardAppShell() {
         },
         [userId]
     );
+
+    useEffect(() => {
+        const onNavigate = (event: Event) => {
+            const detail = (event as CustomEvent<DashboardNavigateDetail>).detail;
+            if (!detail?.tab) return;
+            setTabState(detail.tab);
+            setTabInUrl(detail.tab, { userId });
+            if (detail.search) {
+                const url = new URL(window.location.href);
+                for (const [key, value] of Object.entries(detail.search)) {
+                    if (value == null || value === '') url.searchParams.delete(key);
+                    else url.searchParams.set(key, value);
+                }
+                history.replaceState({}, '', `${url.pathname}${url.search}`);
+            }
+            persistPanelReturnPath();
+        };
+        window.addEventListener(DASHBOARD_NAVIGATE_EVENT, onNavigate);
+        return () => window.removeEventListener(DASHBOARD_NAVIGATE_EVENT, onNavigate);
+    }, [userId]);
 
     useEffect(() => {
         initGlobalErrorLogging();

@@ -12,7 +12,8 @@ import {
     Swords,
     BarChart3,
     Clock,
-    MessageCircleQuestion
+    MessageCircleQuestion,
+    FileBarChart
 } from 'lucide-react';
 import { MAGIC8_ICON, RUSSIAN_ICON, SLOTS_ICON } from '@/features/minigames/icons';
 
@@ -26,6 +27,7 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
     { id: 'home', label: 'Inicio', icon: Home, category: 'general' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, category: 'general' },
+    { id: 'reports', label: 'Reportes', icon: FileBarChart, category: 'general' },
     { id: 'followage', label: 'Followage', icon: UserRoundCheck, category: 'commands' },
     { id: 'watchtime', label: 'Watchtime', icon: Clock, category: 'commands' },
     { id: 'clips', label: 'Clips', icon: Clapperboard, category: 'commands' },

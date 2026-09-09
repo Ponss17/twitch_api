@@ -6,6 +6,7 @@ import {
     HomeViewSkeleton, 
     SettingsViewSkeleton,
     AnalyticsSkeleton,
+    ReportsSkeleton,
     TrendsSkeleton,
     StalkerViewSkeleton,
     ClipsViewSkeleton,
@@ -19,6 +20,9 @@ const HomeView = lazy(() =>
 );
 const AnalyticsView = lazy(() =>
     import('@/features/dashboard/analytics/AnalyticsView').then((m) => ({ default: m.AnalyticsView }))
+);
+const ReportsView = lazy(() =>
+    import('@/features/dashboard/reports/ReportsView').then((m) => ({ default: m.ReportsView }))
 );
 const SettingsView = lazy(() =>
     import('@/features/dashboard/settings/SettingsView').then((m) => ({ default: m.SettingsView }))
@@ -71,6 +75,7 @@ interface TabPanelProps {
 function TabFallback({ tab }: { tab: DashboardTab }) {
     if (tab === 'settings') return <SettingsViewSkeleton />;
     if (tab === 'analytics') return <AnalyticsSkeleton />;
+    if (tab === 'reports') return <ReportsSkeleton />;
     if (tab === 'trends') return <TrendsSkeleton />;
     if (tab === 'stalker') return <StalkerViewSkeleton />;
     if (tab === 'clips') return <ClipsViewSkeleton />;
@@ -86,6 +91,8 @@ function renderTabPanel(tab: DashboardTab, { active, onNavigate }: TabPanelProps
             return <HomeView active={active} onNavigate={onNavigate} />;
         case 'analytics':
             return <AnalyticsView active={active} />;
+        case 'reports':
+            return <ReportsView active={active} />;
         case 'followage':
             return <FollowageView />;
         case 'watchtime':
