@@ -12,6 +12,7 @@ import {
 const VALID_TABS: ReadonlySet<DashboardTab> = new Set([
     'home',
     'analytics',
+    'reports',
     'followage',
     'watchtime',
     'clips',

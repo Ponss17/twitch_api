@@ -39,7 +39,11 @@ export const API_ENDPOINTS = {
     EXPORT_CHECK: `${API_BASE}/dashboard/export-check/`,
     EXPORT_COMPLETE: `${API_BASE}/dashboard/export-complete/`,
     REVEAL_API_KEY: `${API_BASE}/dashboard/reveal-api-key/`,
-    VIEWER_LEADERBOARD: `${API_BASE}/dashboard/viewer-leaderboard/`
+    VIEWER_LEADERBOARD: `${API_BASE}/dashboard/viewer-leaderboard/`,
+    MONTHLY_REPORTS: `${API_BASE}/dashboard/monthly-reports/`,
+    MONTHLY_REPORTS_ENSURE: `${API_BASE}/dashboard/monthly-reports/ensure/`,
+    NOTIFICATIONS: `${API_BASE}/dashboard/notifications/`,
+    NOTIFICATIONS_READ_ALL: `${API_BASE}/dashboard/notifications/read-all/`
 } as const;
 
 /** Página pública de estado (Better Stack). */
@@ -76,6 +80,7 @@ export const SUPABASE_ANON_KEY = import.meta.env.SUPABASE_ANON_KEY ?? '';
 export type DashboardTab =
     | 'home'
     | 'analytics'
+    | 'reports'
     | 'followage'
     | 'watchtime'
     | 'clips'

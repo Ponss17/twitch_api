@@ -8,6 +8,7 @@ export {
     ClipsGridSkeleton,
     ClipsViewSkeleton,
     AnalyticsSkeleton,
+    ReportsSkeleton,
     CommandViewSkeleton,
     TrendsSkeleton,
     StalkerViewSkeleton,
