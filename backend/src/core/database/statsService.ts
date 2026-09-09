@@ -246,6 +246,61 @@ export const getDailyStats = async (userId: string, days: number = 7) => {
     }
 };
 
+/** Filas de `user_daily_stats` en un rango inclusivo `YYYY-MM-DD` (TZ ya aplicada en date). */
+export const getDailyStatsByDateRange = async (
+    userId: string,
+    startDate: string,
+    endDate: string
+) => {
+    try {
+        const { data, error } = await supabase
+            .from('user_daily_stats')
+            .select('*')
+            .eq('user_id', userId)
+            .gte('date', startDate)
+            .lte('date', endDate)
+            .order('date', { ascending: true });
+
+        if (error) {
+            logger.error('Error obteniendo daily stats por rango:', error.message);
+            throw error;
+        }
+        return data || [];
+    } catch (e) {
+        logger.error('Error obteniendo daily stats por rango:', e);
+        throw e;
+    }
+};
+
+export const getViewerLeaderboardForRange = async (
+    userId: string,
+    fromDate: string,
+    toDate: string,
+    limit: number = 10
+): Promise<Array<{ user_name: string; total: number; last_seen: string }>> => {
+    try {
+        const tz = await ensureUserTimezone(userId);
+        const safeLimit = Math.max(1, Math.min(Math.floor(limit), 25));
+        const { data, error } = await supabase.rpc('get_viewer_leaderboard', {
+            p_user_id: userId,
+            p_from_date: fromDate,
+            p_to_date: toDate,
+            p_timezone: tz,
+            p_limit: safeLimit
+        });
+        if (error) {
+            logger.warn('RPC get_viewer_leaderboard rango falló:', error.message);
+            return [];
+        }
+        return ((data as Array<{ user_name: string; total: number; last_seen: string }> | null) ?? []).map(
+            (row) => ({ ...row, total: Number(row.total) })
+        );
+    } catch (e) {
+        logger.error('Error leaderboard por rango:', e);
+        return [];
+    }
+};
+
 export const getViewerLeaderboards = async (userId: string, limit: number = 10) => {
     const empty = {
         leaderboardToday: [] as Array<{ user_name: string; total: number; last_seen: string }>,
@@ -430,6 +485,18 @@ export const clearUserStats = async (userId: string): Promise<void> => {
         if (failed?.error) {
             throw new Error(`Limpieza incompleta de estadísticas: ${failed.error.message}`);
         }
+
+        const extras = await Promise.all([
+            supabase.from('monthly_reports').delete().eq('user_id', userId),
+            supabase.from('user_notifications').delete().eq('user_id', userId).eq('type', 'monthly_report')
+        ]);
+        for (const result of extras) {
+            if (result.error) {
+                // Tablas nuevas: no bloquear wipe si aún no se aplicó la migración.
+                logger.warn('clearUserStats: reportes/notificaciones:', result.error.message);
+            }
+        }
+
         STATS_CACHE.delete(userId);
         EXISTS_CACHE.delete(userId);
         await cacheService.bumpStatsRevision(userId);

@@ -3,6 +3,7 @@ import * as analyticsController from './analytics.controller';
 import * as accountController from './account.controller';
 import * as settingsController from './settings.controller';
 import * as overlayController from './overlay/controller';
+import * as monthlyReportsController from './monthlyReports.controller';
 import { getViewerLeaderboard } from './viewerLeaderboard.controller';
 import toolsRoutes from '../tools/tools.routes';
 import { csrfProtection } from '../../core/middleware/csrfProtection';
@@ -18,7 +19,13 @@ import {
     clearUserDataSchema,
     deleteAccountSchema,
     getViewerLeaderboardSchema,
-    updateSettingsSchema
+    updateSettingsSchema,
+    ensureMonthlyReportSchema,
+    listMonthlyReportsSchema,
+    getMonthlyReportSchema,
+    listNotificationsSchema,
+    markNotificationReadSchema,
+    markAllNotificationsReadSchema
 } from './dashboard.schema';
 import { exportCheckSchema, exportCompleteSchema } from './export.schema';
 import { overlayToolParamSchema, putOverlayStateSchema, overlayLinkSchema } from './overlay/schema';
@@ -59,6 +66,51 @@ router.get(
     /* codeql[js/missing-rate-limiting] */ accountController.getUserAuditLogs
 );
 router.get('/viewer-leaderboard', globalRateLimiter, validate(getViewerLeaderboardSchema), /* codeql[js/missing-rate-limiting] */ getViewerLeaderboard);
+
+router.post(
+    '/monthly-reports/ensure',
+    globalRateLimiter,
+    heavyRateLimiter,
+    csrfProtection,
+    validate(ensureMonthlyReportSchema),
+    // codeql[js/missing-rate-limiting]: globalRateLimiter (sesiones) + heavyRateLimiter (API keys).
+    monthlyReportsController.ensureMonthlyReport
+);
+router.get(
+    '/monthly-reports',
+    globalRateLimiter,
+    validate(listMonthlyReportsSchema),
+    /* codeql[js/missing-rate-limiting] */ monthlyReportsController.listMonthlyReports
+);
+router.get(
+    '/monthly-reports/:yearMonth',
+    globalRateLimiter,
+    validate(getMonthlyReportSchema),
+    /* codeql[js/missing-rate-limiting] */ monthlyReportsController.getMonthlyReport
+);
+
+router.get(
+    '/notifications',
+    globalRateLimiter,
+    validate(listNotificationsSchema),
+    /* codeql[js/missing-rate-limiting] */ monthlyReportsController.listNotifications
+);
+router.post(
+    '/notifications/read-all',
+    globalRateLimiter,
+    csrfProtection,
+    validate(markAllNotificationsReadSchema),
+    // codeql[js/missing-rate-limiting]: globalRateLimiter (Redis KV).
+    monthlyReportsController.markAllNotificationsRead
+);
+router.post(
+    '/notifications/:id/read',
+    globalRateLimiter,
+    csrfProtection,
+    validate(markNotificationReadSchema),
+    // codeql[js/missing-rate-limiting]: globalRateLimiter (Redis KV).
+    monthlyReportsController.markNotificationRead
+);
 
 router.post(
     '/clear-data',
