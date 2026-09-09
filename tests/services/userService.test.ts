@@ -128,9 +128,33 @@ describe('userService', () => {
 
             const user = await userService.getUserByApiKey(rawKey);
 
-            expect(mockSupabase.eq).toHaveBeenCalledWith('api_key_hash', apiKeyLookupHash(rawKey));
+            expect(mockSupabase.in).toHaveBeenCalledWith('api_key_hash', [apiKeyLookupHash(rawKey)]);
             expect(mockSupabase.eq).not.toHaveBeenCalledWith('api_key_hash', rawKey);
             expect(user?.apiKey).toBe(rawKey);
+        });
+
+        it('falls back to plaintext api_key column for legacy rows', async () => {
+            const rawKey = '33333333-3333-4333-8333-333333333333';
+            mockSupabase.maybeSingle
+                .mockResolvedValueOnce({ data: null, error: null })
+                .mockResolvedValueOnce({
+                    data: {
+                        user_id: 'legacy-1',
+                        login: 'legacy_user',
+                        display_name: 'Legacy',
+                        api_key: rawKey,
+                        is_active: true
+                    },
+                    error: null
+                });
+            mockSupabase.upsert.mockResolvedValue({ error: null });
+
+            const user = await userService.getUserByApiKey(rawKey);
+
+            expect(mockSupabase.in).toHaveBeenCalledWith('api_key_hash', [apiKeyLookupHash(rawKey)]);
+            expect(mockSupabase.in).toHaveBeenCalledWith('api_key', [rawKey]);
+            expect(user?.apiKey).toBe(rawKey);
+            expect(user?.login).toBe('legacy_user');
         });
     });
 

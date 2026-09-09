@@ -14,6 +14,7 @@ import { logger } from '../utils/logger';
 import { setUserTimezone } from './userTimezoneCache';
 import {
     apiKeyLookupHash,
+    apiKeyLookupHashes,
     decryptStoredApiKey,
     encryptApiKey,
     normalizeApiKey
@@ -365,14 +366,16 @@ export const getUserByAccountId = async (accountId: string): Promise<StoredUser 
 export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null> => {
     const normalizedKey = normalizeApiKey(apiKey);
     const lookupKeys = normalizedKey === apiKey ? [normalizedKey] : [normalizedKey, apiKey];
+    const hashes = apiKeyLookupHashes(normalizedKey);
 
     let { data, error } = await supabase
         .from('users')
         .select('*')
-        .eq('api_key_hash', apiKeyLookupHash(normalizedKey))
+        .in('api_key_hash', hashes)
         .limit(1)
         .maybeSingle();
 
+    let usedLegacyPlaintext = false;
     if (!data) {
         const legacy = await supabase
             .from('users')
@@ -382,6 +385,7 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
             .maybeSingle();
         data = legacy.data;
         error = legacy.error;
+        usedLegacyPlaintext = Boolean(legacy.data);
     }
 
     if (error || !data) return null;
@@ -391,6 +395,12 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
     if (user.isActive === false) {
         logger.warn(`🛑 Blocked user attempted access: ${user.login}`);
         return null;
+    }
+
+    if (usedLegacyPlaintext) {
+        logger.info(
+            `API key de ${user.login} aún en plaintext; migrando a GCM+hash (dual-read legacy)`
+        );
     }
 
     const result = await decryptAndMigrateIfNeeded(user, `api_key hash ${apiKeyLookupHash(apiKey)}`);
