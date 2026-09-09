@@ -78,3 +78,35 @@ export const getViewerLeaderboardSchema = z.object({
         limit: z.coerce.number().min(1).max(25).optional().default(10)
     })
 });
+
+const yearMonthParam = z
+    .string()
+    .regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Formato de mes inválido (YYYY-MM).');
+
+export const ensureMonthlyReportSchema = z.object({
+    body: z.object({}).optional()
+});
+
+export const listMonthlyReportsSchema = z.object({
+    query: z.object({}).optional()
+});
+
+export const getMonthlyReportSchema = z.object({
+    params: z.object({
+        yearMonth: yearMonthParam
+    })
+});
+
+export const listNotificationsSchema = z.object({
+    query: z.object({}).optional()
+});
+
+export const markNotificationReadSchema = z.object({
+    params: z.object({
+        id: z.string().uuid('ID de notificación inválido.')
+    })
+});
+
+export const markAllNotificationsReadSchema = z.object({
+    body: z.object({}).optional()
+});
