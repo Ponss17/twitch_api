@@ -61,4 +61,26 @@ test.describe('API (Express real)', () => {
         expect(text.length).toBeGreaterThan(0);
         expect(text).not.toMatch(/^\s*\{/);
     });
+
+    test('regenerate-key sin auth rechaza', async ({ request }) => {
+        const res = await request.post(`${API}/api/system/regenerate-key`, {
+            headers: { Accept: 'application/json', 'Content-Type': 'application/json' }
+        });
+        expect([401, 403]).toContain(res.status());
+    });
+
+    test('feedback sin auth rechaza', async ({ request }) => {
+        const res = await request.post(`${API}/api/system/feedback`, {
+            headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+            data: { message: 'e2e', anonymous: true, type: 'general' }
+        });
+        expect([401, 403]).toContain(res.status());
+    });
+
+    test('export-check sin auth rechaza', async ({ request }) => {
+        const res = await request.post(`${API}/api/dashboard/export-check`, {
+            headers: { Accept: 'application/json', 'Content-Type': 'application/json' }
+        });
+        expect([401, 403]).toContain(res.status());
+    });
 });
