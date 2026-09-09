@@ -22,6 +22,7 @@ import { HomeActivityLogEntry } from '@/features/dashboard/home/HomeActivityLogE
 import { ActivityDetailSheet } from '@/features/dashboard/home/ActivityDetailSheet';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { SimpleEmptyState } from '@/shared/ui/SimpleEmptyState';
+import { ActivityListRowsSkeleton } from '@/shared/ui/skeletons/SectionSkeletons';
 import { useTranslation } from '@/core/i18n/I18nContext';
 
 interface HomeActivityFeedProps {
@@ -45,30 +46,7 @@ const CATEGORY_META: Record<ActivityCategoryFilter, { icon: React.ElementType }>
 };
 
 function ActivityFeedSkeleton() {
-    return (
-        <div className="flex flex-col gap-1 py-2" aria-hidden>
-            {Array.from({ length: SKELETON_ROWS }, (_, i) => (
-                <div
-                    key={i}
-                    className="flex items-center gap-3 border-b border-border-subtle py-2.5"
-                    style={{ animationDelay: `${i * 80}ms` }}
-                >
-                    <div className="h-7 w-7 shrink-0 animate-pulse rounded-md bg-text-main/5" />
-                    <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                        <div
-                            className="h-3.5 animate-pulse rounded bg-text-main/5"
-                            style={{ width: `${42 + (i % 3) * 10}%` }}
-                        />
-                        <div
-                            className="h-3 animate-pulse rounded bg-text-main/5"
-                            style={{ width: `${55 + (i % 2) * 15}%` }}
-                        />
-                    </div>
-                    <div className="h-3 w-10 shrink-0 animate-pulse rounded bg-text-main/5" />
-                </div>
-            ))}
-        </div>
-    );
+    return <ActivityListRowsSkeleton rows={SKELETON_ROWS} />;
 }
 
 const LOG_DATE_DIVIDER =

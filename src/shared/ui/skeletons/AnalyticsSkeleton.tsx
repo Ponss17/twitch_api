@@ -1,21 +1,25 @@
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { panelCard } from '@/core/utils/tw';
 import { Skeleton } from './SkeletonPrimitives';
 
-const panel =
-    'rounded-xl border border-border-subtle bg-bg-panel shadow-[0_8px_30px_rgba(0,0,0,0.15)]';
+const panel = panelCard;
 
 export function AnalyticsSkeleton() {
     const { t } = useTranslation();
     return (
         <div
-            className="space-y-4 animate-fade-soft"
+            className="animate-fade-soft space-y-4"
             aria-busy="true"
             aria-label={t.globals.loading.analytics}
         >
             <section className={`${panel} shrink-0`}>
                 <header className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-2.5">
                     <Skeleton className="h-4 w-36" />
-                    <Skeleton className="h-7 w-28 rounded-lg" />
+                    <div className="flex gap-1.5">
+                        <Skeleton className="h-7 w-12 rounded-lg" />
+                        <Skeleton className="h-7 w-12 rounded-lg" />
+                        <Skeleton className="h-7 w-12 rounded-lg" />
+                    </div>
                 </header>
                 <div className="grid grid-cols-1 px-5 py-2 md:grid-cols-2 lg:grid-cols-4">
                     {Array.from({ length: 4 }).map((_, i) => (

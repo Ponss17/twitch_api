@@ -6,6 +6,7 @@ export {
     SettingsTabsSkeleton,
     StalkerRowSkeleton,
     ClipsGridSkeleton,
+    ClipsViewSkeleton,
     AnalyticsSkeleton,
     CommandViewSkeleton,
     TrendsSkeleton,
