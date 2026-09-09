@@ -1,9 +1,10 @@
-import { Check, Loader2, AlertTriangle, Play, FlaskConical } from 'lucide-react';
+import { Check, Loader2, AlertTriangle, Play, FlaskConical, BookOpen } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { btnPrimary, panelCard, responseCard, fadeIn, formGrid } from '@/core/utils/tw';
 import { InfoTooltip } from '@/shared/ui/InfoTooltip';
 import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { appPath, saveDocsReturnPath } from '@/core/config/paths';
 
 interface ApiTestCardProps {
     title: string;
@@ -11,7 +12,11 @@ interface ApiTestCardProps {
     infoTooltip?: string;
     children: ReactNode;
     onTest: () => Promise<void>;
-    result: { status: 'idle' | 'loading' | 'success' | 'error'; message: string };
+    result: {
+        status: 'idle' | 'loading' | 'success' | 'error';
+        message: string;
+        docsHint?: 'errors' | 'limits' | null;
+    };
     buttonLabel?: string;
 }
 
@@ -48,8 +53,21 @@ export function ApiTestCard({
             clearTimeout(fadeTimer);
             clearTimeout(hideTimer);
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [result.status]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [result.status, result.message]);
+
+    const docsHref =
+        result.docsHint === 'limits'
+            ? appPath('/docs/limits')
+            : result.docsHint === 'errors'
+              ? appPath('/docs/extras/errores')
+              : null;
+    const docsLabel =
+        result.docsHint === 'limits'
+            ? t.commands.apiTest.docsLimits
+            : result.docsHint === 'errors'
+              ? t.commands.apiTest.docsErrors
+              : null;
 
     return (
         <div className={`${panelCard} ${fadeIn} mb-5 flex flex-col [animation-delay:60ms]`}>
@@ -120,6 +138,16 @@ export function ApiTestCard({
                         }`}
                     >
                         {result.message}
+                        {result.status === 'error' && docsHref && docsLabel ? (
+                            <a
+                                href={docsHref}
+                                onClick={saveDocsReturnPath}
+                                className="mt-2 inline-flex items-center gap-1.5 text-[0.8rem] font-semibold text-brand-text underline-offset-2 hover:underline"
+                            >
+                                <BookOpen className="size-3.5 shrink-0" aria-hidden />
+                                {docsLabel}
+                            </a>
+                        ) : null}
                     </div>
                 </div>
             </div>
