@@ -31,6 +31,7 @@
         "prepare": "husky",
         "smoke": "node scripts/smoke-production.mjs",
         "verify:migrations": "node scripts/verify-migrations.mjs",
+        "backfill:api-keys": "tsx -r dotenv/config scripts/backfill-api-key-encryption.ts",
         "test:watch": "jest --config jest.config.js --watch",
         "test:coverage": "jest --config jest.config.js --coverage",
         "test:e2e": "playwright test",
