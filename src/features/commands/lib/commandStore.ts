@@ -1,8 +1,4 @@
 import { userPrefKey } from '@/core/session/localPrefs';
-import {
-    DEFAULT_PREFERRED_BOT,
-    readPreferredBot
-} from '@/features/commands/lib/preferredBot';
 
 export interface CommandConfigState {
     bot: string;
@@ -32,15 +28,13 @@ const STORAGE_BASE = 'twitch_command_store_v1';
 const LEGACY_STORAGE_KEY = 'twitch_command_store_v1';
 const PERSIST_DEBOUNCE_MS = 400;
 
-const BASE_DEFAULT_CONFIG: CommandConfigState = Object.freeze({
-    bot: DEFAULT_PREFERRED_BOT,
+/** Default al abrir un comando sin config guardada; el bot se elige en cada tarjeta. */
+const DEFAULT_COMMAND_CONFIG: CommandConfigState = Object.freeze({
+    bot: 'nightbot',
     template: '',
     format: 'full',
     extraValues: {}
 });
-
-let preferredBotDefault = DEFAULT_PREFERRED_BOT;
-let defaultConfigForPreferred: CommandConfigState = BASE_DEFAULT_CONFIG;
 
 /** Referencia estable para useSyncExternalStore cuando no hay resultado guardado */
 export const EMPTY_TEST_RESULT: CommandTestResult = { status: null, message: '' };
@@ -56,25 +50,6 @@ let state: CommandStoreState = { ...EMPTY_STATE };
 
 const listeners = new Set<() => void>();
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
-
-export function setPreferredBotDefault(bot: string): void {
-    if (bot === preferredBotDefault) return;
-    preferredBotDefault = bot;
-    defaultConfigForPreferred = Object.freeze({
-        ...BASE_DEFAULT_CONFIG,
-        bot
-    });
-    emit(false);
-}
-
-function syncPreferredBotFromPrefs(userId: string | null): void {
-    const bot = userId ? readPreferredBot(userId) : DEFAULT_PREFERRED_BOT;
-    preferredBotDefault = bot;
-    defaultConfigForPreferred = Object.freeze({
-        ...BASE_DEFAULT_CONFIG,
-        bot
-    });
-}
 
 function loadPersistedState(userId: string): Pick<CommandStoreState, 'configs' | 'testFields'> {
     if (typeof window === 'undefined') {
@@ -159,7 +134,6 @@ export function bindCommandStoreUser(userId: string | undefined): void {
     flushPersist();
 
     currentUserId = nextId;
-    syncPreferredBotFromPrefs(nextId);
     state = nextId
         ? { ...EMPTY_STATE, ...loadPersistedState(nextId) }
         : { ...EMPTY_STATE };
@@ -173,7 +147,7 @@ export function subscribeCommandStore(listener: () => void): () => void {
 
 export function getCommandConfig(commandId: string): CommandConfigState {
     // Referencia estable cuando no hay config guardada (requerido por useSyncExternalStore).
-    return state.configs[commandId] ?? defaultConfigForPreferred;
+    return state.configs[commandId] ?? DEFAULT_COMMAND_CONFIG;
 }
 
 export function setCommandConfig(commandId: string, partial: Partial<CommandConfigState>): void {
