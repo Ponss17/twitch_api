@@ -12,7 +12,7 @@ interface SettingsSecurityPanelProps {
     onCopyKey: () => void;
     onRegenKey: () => void;
     onCopyAccountId?: () => void;
-    onClearData: () => void;
+    onRevokeSessions: () => void;
     onDeleteAccount: () => void;
     auditActive: boolean;
     auditEpoch: number;
@@ -27,7 +27,7 @@ export function SettingsSecurityPanel({
     onCopyKey,
     onRegenKey,
     onCopyAccountId,
-    onClearData,
+    onRevokeSessions,
     onDeleteAccount,
     auditActive,
     auditEpoch,
@@ -38,11 +38,7 @@ export function SettingsSecurityPanel({
 
     return (
         <>
-            <SettingsGroup
-                title={gT.security.title}
-                description={gT.security.desc}
-                delay={40}
-            >
+            <SettingsGroup title={gT.security.title} description={gT.security.desc} delay={40}>
                 <SettingsSecuritySection
                     apiKey={apiKey}
                     keyVisible={keyVisible}
@@ -60,7 +56,7 @@ export function SettingsSecurityPanel({
             </SettingsGroup>
 
             <SettingsDangerZone
-                onClearData={onClearData}
+                onRevokeSessions={onRevokeSessions}
                 onDeleteAccount={onDeleteAccount}
             />
         </>

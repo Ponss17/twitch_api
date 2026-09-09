@@ -44,6 +44,7 @@ export function useSettingsController(active: boolean) {
         dangerModal,
         setDangerModal,
         openClearDataModal,
+        openRevokeSessionsModal,
         openDeleteAccountModal
     } = useSettingsDangerActions({ session, showToast, t, onDataCleared: bumpAuditLogs });
 
@@ -186,7 +187,7 @@ export function useSettingsController(active: boolean) {
             scheduleKeyHide();
             bumpAuditLogs();
         } catch (e) {
-            showToast((e as Error).message || 'No se pudo revelar la API Key', 'error');
+            showToast((e as Error).message || t.settings.toasts.revealKeyError, 'error');
         }
     };
 
@@ -298,6 +299,7 @@ export function useSettingsController(active: boolean) {
         regenerateKey,
         auditEpoch,
         openClearDataModal,
+        openRevokeSessionsModal,
         openDeleteAccountModal,
         dangerModal,
         setDangerModal,

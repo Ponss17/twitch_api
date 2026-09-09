@@ -47,6 +47,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
 
     const [type, setType] = useState<FeedbackType>('general');
     const [identity, setIdentity] = useState<FeedbackIdentity>('twitch');
+    const [anonymous, setAnonymous] = useState(false);
     const [discordUsername, setDiscordUsername] = useState('');
     const [message, setMessage] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -59,6 +60,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
         setDiscordUsername('');
         setType('general');
         setIdentity('twitch');
+        setAnonymous(false);
         setErrorMessage('');
     }, [open]);
 
@@ -102,7 +104,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!message.trim()) return;
-        if (identity === 'discord' && !discordLinked) {
+        if (!anonymous && identity === 'discord' && !discordLinked) {
             setStatus('error');
             setErrorMessage(fT.discordRequiresLink);
             return;
@@ -122,10 +124,15 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                     },
                     body: JSON.stringify({
                         message: message.trim(),
-                        anonymous: false,
-                        identity,
+                        anonymous,
                         type,
-                        discordUsername: identity === 'twitch' ? discordUsername.trim() : undefined
+                        ...(anonymous
+                            ? {}
+                            : {
+                                  identity,
+                                  discordUsername:
+                                      identity === 'twitch' ? discordUsername.trim() || undefined : undefined
+                              })
                     })
                 })
             );
@@ -191,7 +198,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
             ) : (
                 <form id="feedback-modal-form" onSubmit={handleSubmit} className="space-y-4">
                     <p className="text-[0.8125rem] text-text-muted">{fT.desc}</p>
-                    {panel?.profile?.accountId ? (
+                    {!anonymous && panel?.profile?.accountId ? (
                         <p className="rounded-lg border border-border-subtle bg-bg-secondary/60 px-3 py-2 text-[0.75rem] leading-relaxed text-text-muted">
                             {fT.accountIdIncluded}
                         </p>
@@ -211,37 +218,64 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                         />
                     </div>
 
-                    <div className="space-y-1.5">
-                        <label htmlFor="feedback-modal-contact" className={inputLabel}>
-                            {fT.contactBy}
-                        </label>
-                        <SelectField
-                            id="feedback-modal-contact"
-                            aria-label={fT.contactBy}
-                            value={identity}
-                            options={identityOptions}
-                            className="!max-w-none w-full"
-                            onChange={(e) => {
-                                const next = e.target.value as FeedbackIdentity;
-                                if (next === 'discord' && !discordLinked) return;
-                                setIdentity(next);
-                            }}
-                        />
-                        {identity === 'twitch' && (
-                            <div className="pt-1">
-                                <input
-                                    type="text"
-                                    placeholder={fT.discordOptionalPlaceholder}
-                                    value={discordUsername}
-                                    onChange={(e) => setDiscordUsername(e.target.value)}
-                                    className={textInput}
-                                />
-                                <p className="mt-1.5 text-[0.7rem] text-text-muted">
-                                    {fT.discordOptionalHint}
-                                </p>
-                            </div>
-                        )}
+                    <div className="flex items-start justify-between gap-3 rounded-lg border border-border-subtle bg-bg-secondary/40 px-3 py-2.5">
+                        <div className="min-w-0">
+                            <div className="text-[0.85rem] font-medium text-text-main">{fT.anonymousTitle}</div>
+                            <p className="mt-0.5 text-[0.75rem] leading-relaxed text-text-muted">
+                                {anonymous ? fT.hintAnonymous : fT.anonymousOff}
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            role="switch"
+                            aria-checked={anonymous}
+                            aria-label={fT.anonymousTitle}
+                            onClick={() => setAnonymous((v) => !v)}
+                            className={`relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition-colors ${
+                                anonymous ? 'bg-primary' : 'bg-border-strong'
+                            }`}
+                        >
+                            <span
+                                className={`absolute top-0.5 left-0.5 size-5 rounded-full bg-white transition-transform ${
+                                    anonymous ? 'translate-x-5' : 'translate-x-0'
+                                }`}
+                            />
+                        </button>
                     </div>
+
+                    {!anonymous ? (
+                        <div className="space-y-1.5">
+                            <label htmlFor="feedback-modal-contact" className={inputLabel}>
+                                {fT.contactBy}
+                            </label>
+                            <SelectField
+                                id="feedback-modal-contact"
+                                aria-label={fT.contactBy}
+                                value={identity}
+                                options={identityOptions}
+                                className="!max-w-none w-full"
+                                onChange={(e) => {
+                                    const next = e.target.value as FeedbackIdentity;
+                                    if (next === 'discord' && !discordLinked) return;
+                                    setIdentity(next);
+                                }}
+                            />
+                            {identity === 'twitch' && (
+                                <div className="pt-1">
+                                    <input
+                                        type="text"
+                                        placeholder={fT.discordOptionalPlaceholder}
+                                        value={discordUsername}
+                                        onChange={(e) => setDiscordUsername(e.target.value)}
+                                        className={textInput}
+                                    />
+                                    <p className="mt-1.5 text-[0.7rem] text-text-muted">
+                                        {fT.discordOptionalHint}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    ) : null}
 
                     <div className="space-y-1.5">
                         <label htmlFor="feedback-modal-message" className={inputLabel}>

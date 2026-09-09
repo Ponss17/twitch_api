@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Download, FileSpreadsheet, Loader2 } from 'lucide-react';
 import { SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
 import { Modal, ModalCloseButton } from '@/shared/ui/modals/Modal';
+import { SelectField } from '@/shared/ui/SelectField';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { btnSecondary, modalBtnPrimary, modalBtnSecondary } from '@/core/utils/tw';
 
@@ -10,9 +11,11 @@ export type SettingsExportOptions = {
     includeApiKey?: boolean;
 };
 
+type ExportFormat = 'html' | 'csv';
+
 interface SettingsExportSectionProps {
-    onExport: (format: 'html' | 'csv', options?: SettingsExportOptions) => void | Promise<void>;
-    loading?: 'html' | 'csv' | null;
+    onExport: (format: ExportFormat, options?: SettingsExportOptions) => void | Promise<void>;
+    loading?: ExportFormat | null;
 }
 
 function optionRow(
@@ -51,13 +54,13 @@ function optionRow(
 export function SettingsExportSection({ onExport, loading = null }: SettingsExportSectionProps) {
     const { t } = useTranslation();
     const pT = t.settings.panels;
+    const [format, setFormat] = useState<ExportFormat>('html');
     const [htmlModalOpen, setHtmlModalOpen] = useState(false);
     const [includeActivity, setIncludeActivity] = useState(false);
     const [includeApiKey, setIncludeApiKey] = useState(false);
 
+    const busy = loading !== null;
     const htmlBusy = loading === 'html';
-    const csvBusy = loading === 'csv';
-    const anyBusy = loading !== null;
 
     useEffect(() => {
         if (!htmlModalOpen) return;
@@ -76,46 +79,58 @@ export function SettingsExportSection({ onExport, loading = null }: SettingsExpo
         });
     };
 
+    const startExport = () => {
+        if (format === 'html') {
+            setHtmlModalOpen(true);
+            return;
+        }
+        void onExport('csv');
+    };
+
+    const formatOptions = [
+        {
+            value: 'html',
+            label: pT.exportFormatHtml,
+            icon: <Download className="size-3.5" aria-hidden />
+        },
+        {
+            value: 'csv',
+            label: pT.exportFormatCsv,
+            icon: <FileSpreadsheet className="size-3.5" aria-hidden />
+        }
+    ];
+
     return (
         <>
             <SettingsRow
-                title={pT.fullReport}
+                title={pT.exportAccount}
                 icon={Download}
-                description={pT.exportDesc}
+                description={pT.exportAccountDesc}
                 control={
-                    <button
-                        type="button"
-                        onClick={() => setHtmlModalOpen(true)}
-                        disabled={anyBusy}
-                        className={`${btnSecondary} w-full min-w-[12.25rem] sm:w-auto`}
-                    >
-                        {htmlBusy ? (
-                            <Loader2 className="size-4 shrink-0 animate-spin" />
-                        ) : (
-                            <Download className="size-4 shrink-0" />
-                        )}
-                        {htmlBusy ? t.common.loading : pT.exportReport}
-                    </button>
-                }
-            />
-            <SettingsRow
-                title={pT.csvReport}
-                icon={FileSpreadsheet}
-                description={pT.csvDesc}
-                control={
-                    <button
-                        type="button"
-                        onClick={() => void onExport('csv')}
-                        disabled={anyBusy}
-                        className={`${btnSecondary} w-full min-w-[12.25rem] sm:w-auto`}
-                    >
-                        {csvBusy ? (
-                            <Loader2 className="size-4 shrink-0 animate-spin" />
-                        ) : (
-                            <FileSpreadsheet className="size-4 shrink-0" />
-                        )}
-                        {csvBusy ? t.common.loading : pT.exportCsv}
-                    </button>
+                    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                        <SelectField
+                            id="settings-export-format"
+                            aria-label={pT.exportFormatLabel}
+                            value={format}
+                            options={formatOptions}
+                            disabled={busy}
+                            className="!max-w-none w-full sm:w-[11rem]"
+                            onChange={(e) => setFormat(e.target.value as ExportFormat)}
+                        />
+                        <button
+                            type="button"
+                            onClick={startExport}
+                            disabled={busy}
+                            className={`${btnSecondary} w-full min-w-[7.5rem] px-3.5 sm:w-auto`}
+                        >
+                            {busy ? (
+                                <Loader2 className="size-4 shrink-0 animate-spin" />
+                            ) : (
+                                <Download className="size-4 shrink-0" />
+                            )}
+                            {busy ? t.common.loading : pT.exportAction}
+                        </button>
+                    </div>
                 }
             />
 

@@ -38,6 +38,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                     profile={s.profile}
                     exportLoading={s.exportLoading}
                     onExport={(format, options) => void s.exportData(format, options)}
+                    onClearData={s.openClearDataModal}
                 />
             </SettingsTabPanel>
 
@@ -50,7 +51,7 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                     onCopyKey={() => void s.copyKey()}
                     onRegenKey={() => s.setRegenOpen(true)}
                     onCopyAccountId={() => void s.copyId()}
-                    onClearData={s.openClearDataModal}
+                    onRevokeSessions={s.openRevokeSessionsModal}
                     onDeleteAccount={s.openDeleteAccountModal}
                     auditActive
                     auditEpoch={s.auditEpoch}

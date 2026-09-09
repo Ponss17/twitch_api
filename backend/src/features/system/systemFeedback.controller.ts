@@ -117,7 +117,7 @@ export const submitFeedback = async (req: AuthenticatedRequest, res: Response) =
         if (!anonymous) {
             fields.push({ name: '🏷️ Rango', value: userType, inline: true });
         }
-        if (discordUsername && identity === 'twitch') {
+        if (discordUsername && identity === 'twitch' && !anonymous) {
             fields.push({ name: '👾 Discord Contacto', value: discordUsername, inline: true });
         }
         if (accountField) {

@@ -1,4 +1,4 @@
-import { Clock, CalendarDays } from 'lucide-react';
+import { Clock, CalendarDays, RotateCcw } from 'lucide-react';
 import type { DashboardProfile } from '@/features/dashboard/lib/data/dashboardSummary';
 import { SettingsGroup, SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
 import {
@@ -6,11 +6,13 @@ import {
     type SettingsExportOptions
 } from '@/features/dashboard/settings/sections/SettingsExportSection';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { btnSecondary } from '@/core/utils/tw';
 
 interface SettingsDataPanelProps {
     profile: DashboardProfile | null;
     exportLoading: 'html' | 'csv' | null;
     onExport: (format: 'html' | 'csv', options?: SettingsExportOptions) => void | Promise<void>;
+    onClearData: () => void;
 }
 
 function formatDateTimeSplit(isoDate?: string, timezone?: string, locale = 'es-ES') {
@@ -58,18 +60,20 @@ function DateTimeBadge({ isoDate, timezone, locale, fallback }: { isoDate?: stri
 export function SettingsDataPanel({
     profile,
     exportLoading,
-    onExport
+    onExport,
+    onClearData
 }: SettingsDataPanelProps) {
     const { t, locale } = useTranslation();
     const gT = t.settings.groups;
+    const pT = t.settings.panels;
 
     return (
         <>
-            <SettingsGroup title={gT.data?.title || 'Datos'} description={gT.data?.desc || 'Información de tu cuenta y exportación de datos'} delay={40}>
+            <SettingsGroup title={gT.data.title} description={gT.data.desc} delay={40}>
                 <SettingsRow
-                    title={gT.data?.firstLogin || 'Primer Ingreso'}
+                    title={gT.data.firstLogin}
                     icon={CalendarDays}
-                    description={gT.data?.firstLoginDesc || 'Fecha de tu primer inicio de sesión'}
+                    description={gT.data.firstLoginDesc}
                     control={
                         <DateTimeBadge
                             isoDate={profile?.dbCreatedAt}
@@ -79,11 +83,11 @@ export function SettingsDataPanel({
                         />
                     }
                 />
-                
+
                 <SettingsRow
-                    title={gT.data?.lastLogin || 'Último Ingreso Previo'}
+                    title={gT.data.lastLogin}
                     icon={Clock}
-                    description={gT.data?.lastLoginDesc || 'Fecha de tu última sesión'}
+                    description={gT.data.lastLoginDesc}
                     control={
                         <DateTimeBadge
                             isoDate={profile?.dbLastActive}
@@ -91,6 +95,23 @@ export function SettingsDataPanel({
                             locale={locale}
                             fallback="Desconocido"
                         />
+                    }
+                />
+            </SettingsGroup>
+
+            <SettingsGroup title={gT.manageData.title} description={gT.manageData.desc} delay={50}>
+                <SettingsRow
+                    icon={RotateCcw}
+                    title={pT.resetStats}
+                    description={pT.resetStatsDesc}
+                    control={
+                        <button
+                            type="button"
+                            onClick={onClearData}
+                            className={`${btnSecondary} w-full min-w-[7.5rem] px-3.5 sm:w-auto`}
+                        >
+                            {pT.resetStatsAction}
+                        </button>
                     }
                 />
             </SettingsGroup>
