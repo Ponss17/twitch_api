@@ -1,10 +1,10 @@
 import React, { Suspense, useMemo, useEffect, useState } from 'react';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
-import { AlertTriangle } from 'lucide-react';
 import { fadeIn } from '@/core/utils/tw';
 import { useRequiredSession } from '@/core/session/useSession';
 import { buildLocalDateRange, getStatsLocalDateString } from '@/features/dashboard/lib/data/dashboardStats';
 import { useTranslation } from '@/core/i18n/I18nContext';
+import { PanelLoadError } from '@/shared/ui/PanelLoadError';
 
 import { AnalyticsKPIs, type AnalyticsTimeRange } from './AnalyticsKPIs';
 
@@ -26,7 +26,7 @@ const AnalyticsTodayBarChart = React.lazy(() =>
 );
 
 function AnalyticsViewContent({ active }: { active: boolean }) {
-    const { stats, hasLiveData, error, profile } = useDashboardPanel();
+    const { stats, hasLiveData, error, profile, syncing, refreshPanel } = useDashboardPanel();
     const { t } = useTranslation();
     const [timeRange, setTimeRange] = useState<AnalyticsTimeRange>('today');
 
@@ -164,10 +164,11 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
 
     if (error && !hasLiveData) {
         return (
-            <div className="rounded-xl border border-error/30 bg-error/[0.05] p-6 text-error">
-                <AlertTriangle className="mr-2" />
-                {error}
-            </div>
+            <PanelLoadError
+                message={error}
+                onRetry={() => void refreshPanel()}
+                retrying={syncing}
+            />
         );
     }
 

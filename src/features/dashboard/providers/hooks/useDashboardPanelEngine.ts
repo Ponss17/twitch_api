@@ -33,6 +33,12 @@ interface UseDashboardPanelEngineOptions {
     state: ReturnType<typeof useDashboardPanelState>['state'];
     actions: ReturnType<typeof useDashboardPanelState>['actions'];
     refs: ReturnType<typeof useDashboardPanelState>['refs'];
+    labels: {
+        syncing: string;
+        realtime: string;
+        fetchingPanelStats: string;
+        preparingHome: string;
+    };
 }
 
 export function useDashboardPanelEngine({
@@ -42,7 +48,8 @@ export function useDashboardPanelEngine({
     showToast,
     state,
     actions,
-    refs
+    refs,
+    labels
 }: UseDashboardPanelEngineOptions) {
     const countdownRef = useRef(90);
     const syncRef = useRef<TabSyncService | null>(null);
@@ -63,6 +70,9 @@ export function useDashboardPanelEngine({
     const refsBag = useRef(refs);
     refsBag.current = refs;
 
+    const labelsRef = useRef(labels);
+    labelsRef.current = labels;
+
     const performSyncRef = useRef<() => Promise<void>>(async () => {});
     const fetchPanelDataRef = useRef<
         (options?: { broadcast?: boolean; retryOnNetwork?: boolean; fresh?: boolean; silent?: boolean }) => Promise<boolean>
@@ -72,13 +82,14 @@ export function useDashboardPanelEngine({
     const updateSyncLabel = useCallback(() => {
         const currentActions = actionsRef.current;
         const currentRefs = refsBag.current;
+        const L = labelsRef.current;
         if (currentRefs.isRealtimeLiveRef.current) {
-            currentActions.setSyncLabel('Realtime');
+            currentActions.setSyncLabel(L.realtime);
             return;
         }
         const sync = syncRef.current;
         if (!sync?.getIsLeader()) {
-            currentActions.setSyncLabel(currentRefs.hasLiveDataRef.current ? 'Realtime' : 'Sincronizando…');
+            currentActions.setSyncLabel(currentRefs.hasLiveDataRef.current ? L.realtime : L.syncing);
             return;
         }
         currentActions.setSyncLabel(`${countdownRef.current}s`);
@@ -106,7 +117,7 @@ export function useDashboardPanelEngine({
             }
             reportSessionLoadProgress({
                 progress: 70,
-                label: 'Obteniendo estadisticas del panel...',
+                label: labelsRef.current.fetchingPanelStats,
                 cached: false
             });
 
@@ -153,7 +164,7 @@ export function useDashboardPanelEngine({
                 applyResult(result, { broadcast });
                 reportSessionLoadProgress({
                     progress: 94,
-                    label: 'Preparando tu inicio...',
+                    label: labelsRef.current.preparingHome,
                     cached: false
                 });
                 return true;
@@ -449,4 +460,15 @@ export function useDashboardPanelEngine({
             void fetchPanelDataRef.current({ broadcast: true, retryOnNetwork: false, fresh: true, silent: true });
         }
     }, [active, session.userId]);
+
+    const refreshPanel = useCallback(async () => {
+        await fetchPanelDataRef.current({
+            broadcast: true,
+            retryOnNetwork: true,
+            fresh: true,
+            silent: false
+        });
+    }, []);
+
+    return { refreshPanel };
 }

@@ -3,12 +3,13 @@ import type { DashboardTab } from '@/core/config/config';
 import { SettingsHero } from '@/features/dashboard/settings/components/SettingsHero';
 import { HomeActivityFeed } from '@/features/dashboard/home/HomeActivityFeed';
 import { HomeResourcesPanel } from '@/features/dashboard/home/HomeResourcesPanel';
+import { HomeEmptyOnboarding } from '@/features/dashboard/home/HomeEmptyOnboarding';
 import { useRequiredSession } from '@/core/session/useSession';
 import { fadeIn } from '@/core/utils/tw';
-import { AlertTriangle } from 'lucide-react';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { formatDate } from '@/core/utils/utils';
+import { PanelLoadError } from '@/shared/ui/PanelLoadError';
 
 interface HomeViewProps {
     onNavigate?: (tab: DashboardTab) => void;
@@ -26,16 +27,18 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
         syncing,
         syncLabel,
         highlightKeys,
-        isRealtimeLive
+        isRealtimeLive,
+        refreshPanel
     } = useDashboardPanel();
     const { t, locale } = useTranslation();
 
     if (error && !hasLiveData) {
         return (
-            <div className="rounded-xl border border-error/30 bg-error/[0.05] p-6 text-error">
-                <AlertTriangle className="mr-2" />
-                {error}
-            </div>
+            <PanelLoadError
+                message={error}
+                onRetry={() => void refreshPanel()}
+                retrying={syncing}
+            />
         );
     }
 
@@ -44,6 +47,8 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
         if (type === 'affiliate') return t.home.broadcaster.affiliate;
         return t.home.broadcaster.streamer;
     };
+
+    const showOnboarding = hasLiveData && activity.length === 0;
 
     return (
         <div className={fadeIn}>
@@ -54,6 +59,8 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
                 isLive={profile?.isLive}
                 isLoading={!hasLiveData}
             />
+
+            {showOnboarding ? <HomeEmptyOnboarding onNavigate={onNavigate} /> : null}
 
             <div className="grid grid-cols-1 items-stretch gap-5 min-[1001px]:grid-cols-[1fr_310px]">
                 <HomeActivityFeed
