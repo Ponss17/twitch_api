@@ -10,14 +10,23 @@ export function normalizeApiKey(apiKey: string): string {
         : normalized;
 }
 
+/**
+ * HMAC-SHA256 en hex para huellas / lookup de secretos de alta entropía.
+ * No es almacenamiento de passwords (ahí iría Argon2/bcrypt); CodeQL lo confunde.
+ */
+function hmacSha256Hex(secret: string, message: string): string {
+    // lgtm[js/insufficient-password-hash]
+    // codeql[js/insufficient-password-hash]
+    return crypto.createHmac('sha256', secret).update(message, 'utf8').digest('hex');
+}
+
 /** Huellas HMAC (secreto actual + PREVIOUS opcional) para lookup sin romper rotación. */
 export function apiKeyLookupHashes(apiKey: string): string[] {
     const normalized = normalizeApiKey(apiKey);
     const seen = new Set<string>();
     const hashes: string[] = [];
     for (const secret of getHmacSecrets()) {
-        // codeql[js/insufficient-password-hash] Huella HMAC de API key (alta entropía), no hash de password
-        const hash = crypto.createHmac('sha256', secret).update(normalized).digest('hex');
+        const hash = hmacSha256Hex(secret, normalized);
         if (seen.has(hash)) continue;
         seen.add(hash);
         hashes.push(hash);
@@ -26,11 +35,7 @@ export function apiKeyLookupHashes(apiKey: string): string[] {
 }
 
 export function apiKeyLookupHash(apiKey: string): string {
-    // codeql[js/insufficient-password-hash] Huella HMAC de API key (alta entropía), no hash de password
-    return crypto
-        .createHmac('sha256', getPrimaryHmacSecret())
-        .update(normalizeApiKey(apiKey))
-        .digest('hex');
+    return hmacSha256Hex(getPrimaryHmacSecret(), normalizeApiKey(apiKey));
 }
 
 export function encryptApiKey(apiKey: string): string {
