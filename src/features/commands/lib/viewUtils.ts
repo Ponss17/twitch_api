@@ -1,12 +1,20 @@
 export function toApiTestResult(
     loading: boolean,
-    stored: { status: 'success' | 'error' | null; message: string }
-) {
-    if (loading) return { status: 'loading' as const, message: '' };
-    if (stored.status === 'success' || stored.status === 'error') {
-        return { status: stored.status, message: stored.message };
+    stored: {
+        status: 'success' | 'error' | null;
+        message: string;
+        docsHint?: 'errors' | 'limits' | null;
     }
-    return { status: 'idle' as const, message: '' };
+) {
+    if (loading) return { status: 'loading' as const, message: '', docsHint: null };
+    if (stored.status === 'success' || stored.status === 'error') {
+        return {
+            status: stored.status,
+            message: stored.message,
+            docsHint: stored.docsHint ?? null
+        };
+    }
+    return { status: 'idle' as const, message: '', docsHint: null };
 }
 
 export const followageErrorPattern =

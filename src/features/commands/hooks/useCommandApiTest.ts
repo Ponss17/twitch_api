@@ -3,20 +3,20 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 import { fetchRevealApiKey } from '@/core/api/auth';
 import { buildAuthQueryParam } from '@/core/api/authQuery';
 import { fetchWithRetry } from '@/core/api/fetchWithRetry';
-
-export type CommandTestResult = {
-    status: 'success' | 'error' | null;
-    message: string;
-};
+import type { CommandTestResult } from '@/features/commands/lib/commandStore';
 
 type UseCommandApiTestOptions = {
     buildUrl: (apiKey: string) => string;
     validateResponse?: (text: string, responseOk: boolean) => boolean;
 };
 
-export function useCommandApiTest(
-    setStoredResult: (result: CommandTestResult) => void
-) {
+function docsHintForStatus(status: number): CommandTestResult['docsHint'] {
+    if (status === 429) return 'limits';
+    if (status === 401 || status === 403) return 'errors';
+    return null;
+}
+
+export function useCommandApiTest(setStoredResult: (result: CommandTestResult) => void) {
     const [loading, setLoading] = useState(false);
     const requestIdRef = useRef(0);
     const { t } = useTranslation();
@@ -31,12 +31,14 @@ export function useCommandApiTest(
             if (requestId !== requestIdRef.current) return;
 
             const text = (await response.text()).trim();
+            const docsHint = docsHintForStatus(response.status);
             if (!text) {
                 setStoredResult({
                     status: 'error',
                     message: response.ok
                         ? t.commands.generator.toasts.noCommand
-                        : `Error HTTP ${response.status}.`
+                        : t.commands.apiTest.httpError(response.status),
+                    docsHint
                 });
                 return;
             }
@@ -47,11 +49,16 @@ export function useCommandApiTest(
 
             setStoredResult({
                 status: isValid ? 'success' : 'error',
-                message: text
+                message: text,
+                docsHint: isValid ? null : docsHint
             });
         } catch {
             if (requestId !== requestIdRef.current) return;
-            setStoredResult({ status: 'error', message: t.commands.generator.toasts.apiError });
+            setStoredResult({
+                status: 'error',
+                message: t.commands.generator.toasts.apiError,
+                docsHint: 'errors'
+            });
         } finally {
             if (requestId === requestIdRef.current) {
                 setLoading(false);
