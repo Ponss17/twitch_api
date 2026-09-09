@@ -15,6 +15,7 @@ overrides:
   fast-uri: ">=3.1.6"
   fast-uri@3: "3.1.6"
   qs: ">=6.16.0"
+  smol-toml: ">=1.7.1"
 
 auditConfig:
   ignoreGhsas:
@@ -27,4 +28,5 @@ minimumReleaseAgeExclude:
   - js-yaml@3.15.2
   - js-yaml@4.3.2
   - sharp@0.35.4
+  - smol-toml@1.8.0
   - svgo@4.1.0
