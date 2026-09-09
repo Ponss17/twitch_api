@@ -5,3 +5,22 @@ export function dispatchDashboardDataReady(): void {
     if (typeof window === 'undefined') return;
     window.dispatchEvent(new CustomEvent(DASHBOARD_DATA_READY_EVENT));
 }
+
+export const DASHBOARD_NAVIGATE_EVENT = 'dashboard:navigate';
+
+export type DashboardNavigateDetail = {
+    tab: import('@/core/config/config').DashboardTab;
+    search?: Record<string, string | null>;
+};
+
+export function navigateDashboard(
+    tab: DashboardNavigateDetail['tab'],
+    search?: DashboardNavigateDetail['search']
+): void {
+    if (typeof window === 'undefined') return;
+    window.dispatchEvent(
+        new CustomEvent<DashboardNavigateDetail>(DASHBOARD_NAVIGATE_EVENT, {
+            detail: { tab, search }
+        })
+    );
+}
