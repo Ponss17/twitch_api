@@ -5,6 +5,7 @@ import { useDashboardPanelState } from './hooks/useDashboardPanelState';
 import { useDashboardPanelEngine } from './hooks/useDashboardPanelEngine';
 import type { DashboardLiveStats } from '@/features/dashboard/lib/data/dashboardStats';
 import type { ActivityLogItem } from '@/features/dashboard/lib/logs/activityLogDisplay';
+import { useTranslation } from '@/core/i18n/I18nContext';
 
 export interface DashboardPanelContextValue {
     stats: DashboardLiveStats;
@@ -17,6 +18,7 @@ export interface DashboardPanelContextValue {
     syncLabel: string;
     highlightKeys: ReadonlySet<string>;
     isRealtimeLive: boolean;
+    refreshPanel: () => Promise<void>;
 }
 
 const DashboardPanelContext = createContext<DashboardPanelContextValue | null>(null);
@@ -48,16 +50,23 @@ export function DashboardPanelProvider({
     showToast,
     children
 }: DashboardPanelProviderProps) {
+    const { t } = useTranslation();
     const { state, actions, refs } = useDashboardPanelState(session);
 
-    useDashboardPanelEngine({
+    const { refreshPanel } = useDashboardPanelEngine({
         active,
         prioritySync,
         session,
         showToast,
         state,
         actions,
-        refs
+        refs,
+        labels: {
+            syncing: t.common.sessionLoad.syncing,
+            realtime: t.common.sessionLoad.realtime,
+            fetchingPanelStats: t.common.sessionLoad.fetchingPanelStats,
+            preparingHome: t.common.sessionLoad.preparingHome
+        }
     });
 
     const value = useMemo<DashboardPanelContextValue>(
@@ -71,7 +80,8 @@ export function DashboardPanelProvider({
             syncing: state.syncing,
             syncLabel: state.syncLabel,
             highlightKeys: state.highlightKeys,
-            isRealtimeLive: state.isRealtimeLive
+            isRealtimeLive: state.isRealtimeLive,
+            refreshPanel
         }),
         [
             state.stats,
@@ -83,7 +93,8 @@ export function DashboardPanelProvider({
             state.syncing,
             state.syncLabel,
             state.highlightKeys,
-            state.isRealtimeLive
+            state.isRealtimeLive,
+            refreshPanel
         ]
     );
 
