@@ -1,15 +1,17 @@
-import { AlertTriangle, RotateCcw } from 'lucide-react';
+import { AlertTriangle, LogOut } from 'lucide-react';
 import { SettingsGroup, SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { btnSecondary } from '@/core/utils/tw';
 
 interface SettingsDangerZoneProps {
-    onClearData: () => void;
+    onRevokeSessions: () => void;
     onDeleteAccount: () => void;
 }
 
-/** Un solo bloque: reiniciar datos + eliminar cuenta. */
-export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDangerZoneProps) {
+const actionBtn = `${btnSecondary} w-full min-w-[7.5rem] px-3.5 sm:w-auto`;
+
+/** Cerrar sesiones + eliminar cuenta. */
+export function SettingsDangerZone({ onRevokeSessions, onDeleteAccount }: SettingsDangerZoneProps) {
     const { t } = useTranslation();
     const gT = t.settings.groups;
     const pT = t.settings.panels;
@@ -17,16 +19,12 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
     return (
         <SettingsGroup title={gT.dangerZone.title} description={gT.dangerZone.desc} delay={120}>
             <SettingsRow
-                icon={RotateCcw}
-                title={pT.resetStats}
-                description={pT.resetStatsDesc}
+                icon={LogOut}
+                title={pT.revokeSessions}
+                description={pT.revokeSessionsDesc}
                 control={
-                    <button
-                        type="button"
-                        onClick={onClearData}
-                        className={`${btnSecondary} w-full min-w-[12.25rem] sm:w-auto`}
-                    >
-                        {pT.resetStats}
+                    <button type="button" onClick={onRevokeSessions} className={actionBtn}>
+                        {pT.revokeSessionsAction}
                     </button>
                 }
             />
@@ -35,12 +33,8 @@ export function SettingsDangerZone({ onClearData, onDeleteAccount }: SettingsDan
                 title={pT.deleteAccount}
                 description={pT.deleteAccountDesc}
                 control={
-                    <button
-                        type="button"
-                        onClick={onDeleteAccount}
-                        className={`${btnSecondary} w-full min-w-[12.25rem] sm:w-auto`}
-                    >
-                        {pT.deleteAccount}
+                    <button type="button" onClick={onDeleteAccount} className={actionBtn}>
+                        {pT.deleteAccountAction}
                     </button>
                 }
             />

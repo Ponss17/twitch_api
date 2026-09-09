@@ -10,6 +10,7 @@ import {
 } from '@/features/dashboard/lib/data/dashboardSync';
 import { extractApiErrorMessage } from '@/core/api/apiError';
 import { appPath } from '@/core/config/paths';
+import { logout } from '@/core/auth/oauthFlow';
 import type { Translations } from '@/core/i18n/locales/es';
 import type { ClearDataScopes, SettingsDangerModal } from '@/features/dashboard/settings/lib/settingsTypes';
 
@@ -117,10 +118,28 @@ export function useSettingsDangerActions({ session, showToast, t, onDataCleared 
             action: deleteAccount
         });
 
+    const revokeAllSessions = async () => {
+        try {
+            await logout();
+        } catch {
+            showToast(t.settings.toasts.revokeSessionsError, 'error');
+        }
+    };
+
+    const openRevokeSessionsModal = () =>
+        setDangerModal({
+            title: t.settings.dangerModals.revokeSessionsTitle,
+            desc: t.settings.dangerModals.revokeSessionsDesc,
+            word: t.settings.dangerModals.revokeSessionsWord,
+            confirmLabel: t.settings.dangerModals.revokeSessionsConfirm,
+            action: revokeAllSessions
+        });
+
     return {
         dangerModal,
         setDangerModal,
         openClearDataModal,
+        openRevokeSessionsModal,
         openDeleteAccountModal
     };
 }
