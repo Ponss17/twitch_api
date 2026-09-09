@@ -168,6 +168,11 @@ export const es = {
                 label: 'Idioma de la Interfaz',
                 description: 'Elige el idioma en que se muestra el panel de control.',
             },
+            preferredBot: {
+                label: 'Bot preferido',
+                description:
+                    'Bot por defecto al generar comandos nuevos. Los comandos que ya configuraste no cambian.',
+            },
             theme: {
                 label: 'Tema de la Interfaz',
                 description: 'Elige el esquema de colores de la aplicación.',
@@ -194,9 +199,11 @@ export const es = {
             clearError: 'Error de conexión al limpiar los datos',
             clearSuccess: 'Estadísticas reiniciadas',
             deleteError: 'Error de conexión al eliminar la cuenta',
+            revokeSessionsError: 'No se pudieron cerrar las sesiones',
             deleteSuccess: 'Cuenta eliminada. Redirigiendo...',
             copyKeySuccess: 'API Key copiada',
             copyKeyError: 'No se pudo copiar la API Key',
+            revealKeyError: 'No se pudo revelar la API Key',
             copyIdSuccess: 'ID copiado',
             limitError: 'Error de conexión al verificar límite.',
             connectionError: 'Error de conexión.',
@@ -227,7 +234,12 @@ export const es = {
             deleteTitle: 'Eliminar Perfil de LosPerris API',
             deleteDesc: '¡ATENCIÓN! Esta acción es irreversible dentro de nuestra plataforma. Se borrarán tus datos y API Key. Esto NO afectará a tu canal ni cuenta de Twitch de ninguna manera.',
             deleteWord: 'ELIMINAR',
-            deleteConfirm: 'Confirmar y Borrar'
+            deleteConfirm: 'Confirmar y Borrar',
+            revokeSessionsTitle: 'Cerrar todas las sesiones',
+            revokeSessionsDesc:
+                'Te sacará de todos los dispositivos, incluido este. Tu API Key seguirá activa; solo se invalidan las sesiones del panel.',
+            revokeSessionsWord: 'CERRAR',
+            revokeSessionsConfirm: 'Cerrar sesiones'
         },
         hero: {
             hello: 'Hola,',
@@ -242,12 +254,16 @@ export const es = {
             preferences: { title: 'Preferencias', desc: 'Ajustes de tu cuenta' },
             data: {
                 title: 'Datos de Cuenta',
-                desc: 'Información y gestión de datos.',
+                desc: 'Fechas de ingreso a LosPerrisAPI.',
                 firstLogin: 'Primer Ingreso',
                 firstLoginDesc:
                     'Primera vez que entraste a LosPerrisAPI (no es la fecha de creación de tu cuenta de Twitch).',
                 lastLogin: 'Último Ingreso Previo',
                 lastLoginDesc: 'Fecha de tu última sesión antes de la actual.'
+            },
+            manageData: {
+                title: 'Limpiar datos',
+                desc: 'Borra analíticas o historial sin eliminar tu cuenta.'
             },
             export: { title: 'Exportar', desc: 'Exporta la información de tu cuenta' },
             security: { title: 'Seguridad', desc: 'Claves y accesos' },
@@ -255,7 +271,7 @@ export const es = {
                 title: 'Registro de seguridad',
                 desc: 'Inicios de sesión, cambios de API key, Discord y limpieza de datos.'
             },
-            dangerZone: { title: 'Zona de Peligro', desc: 'Acciones destructivas' },
+            dangerZone: { title: 'Zona de Peligro', desc: 'Cerrar sesiones o eliminar tu cuenta' },
             discord: { title: 'Discord', desc: 'Integraciones' }
         },
         panels: {
@@ -271,7 +287,7 @@ export const es = {
             cacheTooltip: 'Retención de caché de comandos de bot (followage, etc.)',
             planTier: 'Plan',
             requestsLimit: 'Peticiones / min',
-            heavyLimit: 'Pesadas / 10m',
+            heavyLimit: 'Pesadas / min',
             cacheTime: 'Caché (min)',
             apiKeyPrivate: 'API Key privada',
             apiKeyInfo: 'Mantén esta información privada. No la compartas en directo.',
@@ -284,8 +300,14 @@ export const es = {
             dangerZoneTitle: 'Zona de Peligro',
             resetStats: 'Reiniciar datos',
             resetStatsDesc: 'Elige qué limpiar: analíticas, actividad o historial de preguntas. No afecta a tu cuenta.',
-            deleteAccount: 'Eliminar Cuenta',
+            resetStatsAction: 'Reiniciar',
+            revokeSessions: 'Cerrar todas las sesiones',
+            revokeSessionsDesc:
+                'Te saca del panel en todos los dispositivos, incluido este. La API Key no se regenera.',
+            revokeSessionsAction: 'Cerrar sesiones',
+            deleteAccount: 'Eliminar cuenta',
             deleteAccountDesc: 'Borra todos tus datos permanentemente y cierra tu sesión.',
+            deleteAccountAction: 'Eliminar',
             discordTitle: 'Discord',
             discordStatus: (linked: boolean): string => (linked ? 'Conectado' : 'No conectado'),
             linkDiscord: 'Vincular Discord',
@@ -293,6 +315,12 @@ export const es = {
             fullReport: 'Reporte de Cuenta Completo',
             exportReport: 'Exportar HTML',
             exportDesc: 'Descarga un reporte HTML con tu perfil y ajustes.',
+            exportAccount: 'Exportar cuenta',
+            exportAccountDesc: 'Elige el formato y descarga un reporte de tu cuenta.',
+            exportFormatLabel: 'Formato de exportación',
+            exportFormatHtml: 'HTML',
+            exportFormatCsv: 'CSV',
+            exportAction: 'Exportar',
             exportModalTitle: 'Exportar reporte HTML',
             exportModalDesc: 'Elige qué datos sensibles incluir. Por defecto se omiten.',
             exportModalOptions: 'Opciones',
@@ -401,6 +429,13 @@ export const es = {
             emptyFilteredDesc: 'Prueba otro filtro o vuelve a Todos.',
             emptyAllDesc: 'Cuando alguien use un comando en tu chat, aparecerá aquí.',
             all: 'Todos'
+        },
+        onboarding: {
+            title: 'Aún no hay actividad',
+            desc: 'Empieza copiando un comando para tu bot, o mira la documentación.',
+            ctaFollowage: 'Ir a Followage',
+            ctaDocs: 'Ver documentación',
+            dismiss: 'No mostrar otra vez'
         },
         activityLog: {
             categories: {
@@ -620,6 +655,15 @@ export const es = {
         success: 'Éxito',
         moreOptions: 'Más opciones',
         tabError: 'Error al cargar la pestaña',
+        retry: 'Reintentar',
+        retrying: 'Reintentando…',
+        loadErrorTitle: 'No se pudieron cargar los datos',
+        errorBoundary: {
+            title: 'No se pudo cargar esta sección',
+            hint: 'Inténtalo de nuevo. Si el problema continúa, recarga la página o contacta soporte en Discord.',
+            hintDev:
+                'Si estás en desarrollo local, prueba reiniciar el servidor, borrar caché del navegador o usar ventana de incógnito sin extensiones.'
+        },
         sessionLoad: {
             starting: 'Iniciando…',
             cached: 'Sesión validada (caché local)',
@@ -627,7 +671,11 @@ export const es = {
             waking: 'Despertando servidor (sin caché)…',
             verified: 'Sesión verificada',
             checking: 'Comprobando credenciales…',
-            preparingPanel: 'Preparando tu panel...'
+            preparingPanel: 'Preparando tu panel...',
+            fetchingPanelStats: 'Obteniendo estadísticas del panel…',
+            preparingHome: 'Preparando tu inicio…',
+            syncing: 'Sincronizando…',
+            realtime: 'Realtime'
         },
         aria: {
             close: 'Cerrar',
@@ -972,6 +1020,9 @@ export const es = {
         apiTest: {
             btnTest: 'Probar',
             btnTesting: 'Probando...',
+            httpError: (status: number): string => `Error HTTP ${status}.`,
+            docsErrors: 'Ver ayuda de errores',
+            docsLimits: 'Ver límites de cuota',
         },
     },
     feedback: {
