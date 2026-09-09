@@ -1,4 +1,4 @@
-import { Globe, Languages, Palette, Search, ChevronDown, Check, Bot } from 'lucide-react';
+import { Globe, Languages, Palette, Search, ChevronDown, Check } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { btnSecondary } from '@/core/utils/tw';
 import { Dropdown, DropdownTrigger, DropdownPanel, DropdownItem } from '@/shared/ui/dropdown/Dropdown';
@@ -12,9 +12,6 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 import type { Locale } from '@/core/i18n/I18nContext';
 import { useTheme, SUPPORTED_THEMES, THEME_DEFINITIONS } from '@/core/theme';
 import { resolveSafeTimezone } from '@/features/dashboard/lib/data/dashboardStats';
-import { BOT_OPTIONS } from '@/features/commands/lib/commandGenerator';
-import { readPreferredBot, writePreferredBot } from '@/features/commands/lib/preferredBot';
-import { setPreferredBotDefault } from '@/features/commands/lib/commandStore';
 
 interface SettingsPreferencesSectionProps {
     currentTimezone: string;
@@ -35,11 +32,6 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
     const { theme, setTheme } = useTheme();
 
     const [saving, setSaving] = useState(false);
-    const [preferredBot, setPreferredBot] = useState(() => readPreferredBot(session.userId));
-
-    useEffect(() => {
-        setPreferredBot(readPreferredBot(session.userId));
-    }, [session.userId]);
 
     const [timezones] = useState(() => {
         try {
@@ -209,61 +201,6 @@ export function SettingsPreferencesSection({ currentTimezone, onSettingsChanged 
                                             <div className="flex w-full items-center justify-between">
                                                 <span className="truncate">{opt.label}</span>
                                                 {locale === opt.value && <Check className="h-3.5 w-3.5 text-brand-text" />}
-                                            </div>
-                                        </DropdownItem>
-                                    ))}
-                                </div>
-                            </DropdownPanel>
-                        </Dropdown>
-                    </div>
-                }
-            />
-
-            <SettingsRow
-                title={t.settings.preferences.preferredBot.label}
-                icon={Bot}
-                description={
-                    <span id="settings-preferred-bot-label">
-                        {t.settings.preferences.preferredBot.description}
-                    </span>
-                }
-                control={
-                    <div className="flex w-full sm:w-auto">
-                        <Dropdown className="relative w-full sm:w-auto">
-                            <DropdownTrigger
-                                aria-labelledby="settings-preferred-bot-label"
-                                className="flex w-full min-w-[200px] items-center justify-between gap-2 rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2 text-sm font-medium text-text-main transition-colors hover:border-border-strong hover:bg-white/[0.02] aria-expanded:border-primary/25 aria-expanded:bg-primary/[0.08] sm:w-auto"
-                            >
-                                <span className="truncate max-w-[180px] text-left">
-                                    {BOT_OPTIONS.find((opt) => opt.value === preferredBot)?.label ||
-                                        preferredBot}
-                                </span>
-                                <ChevronDown className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
-                            </DropdownTrigger>
-                            <DropdownPanel
-                                align="right"
-                                zIndex={1000}
-                                widthClassName="w-full sm:w-[200px]"
-                                className="flex flex-col p-1"
-                            >
-                                <div className="max-h-[240px] overflow-y-auto px-1 py-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border-strong [&::-webkit-scrollbar]:w-1.5">
-                                    {BOT_OPTIONS.map((opt) => (
-                                        <DropdownItem
-                                            key={opt.value}
-                                            active={preferredBot === opt.value}
-                                            onClick={() => {
-                                                setPreferredBot(opt.value);
-                                                writePreferredBot(session.userId, opt.value);
-                                                setPreferredBotDefault(opt.value);
-                                                showToast(t.settings.toasts.settingsSaved, 'success');
-                                            }}
-                                            className="mb-0.5 rounded-md px-2.5 py-1.5"
-                                        >
-                                            <div className="flex w-full items-center justify-between">
-                                                <span className="truncate">{opt.label}</span>
-                                                {preferredBot === opt.value && (
-                                                    <Check className="h-3.5 w-3.5 text-brand-text" />
-                                                )}
                                             </div>
                                         </DropdownItem>
                                     ))}
