@@ -25,16 +25,36 @@ interface SettingsAuditLogsProps {
 
 function AuditLogsSkeleton() {
     return (
-        <div className={`${AUDIT_VIEWPORT_CLASS} flex flex-col gap-0`} aria-hidden>
-            {Array.from({ length: 6 }, (_, i) => (
-                <div key={i} className="flex items-center justify-between gap-4 border-b border-border-subtle py-3">
-                    <div
-                        className="h-3.5 animate-pulse rounded bg-text-main/5"
-                        style={{ width: `${44 + (i % 3) * 12}%` }}
-                    />
-                    <div className="h-3 w-24 shrink-0 animate-pulse rounded bg-text-main/5" />
+        <div className="min-w-0 overflow-hidden rounded-lg border border-border-subtle" aria-hidden>
+            <div className="grid grid-cols-[1fr_auto] gap-4 border-b border-border-subtle bg-bg-secondary px-4 py-2.5">
+                <div className="h-2.5 w-14 animate-pulse rounded bg-text-main/5" />
+                <div className="h-2.5 w-12 animate-pulse rounded bg-text-main/5 justify-self-end" />
+            </div>
+            <div className={AUDIT_VIEWPORT_CLASS}>
+                <div className="divide-y divide-border-subtle">
+                    {Array.from({ length: 6 }, (_, i) => (
+                        <div
+                            key={i}
+                            className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3"
+                        >
+                            <div className="min-w-0 space-y-1.5">
+                                <div
+                                    className="h-3.5 animate-pulse rounded bg-text-main/5"
+                                    style={{ width: `${44 + (i % 3) * 12}%` }}
+                                />
+                                <div
+                                    className="h-3 animate-pulse rounded bg-text-main/5"
+                                    style={{ width: `${28 + (i % 2) * 10}%` }}
+                                />
+                            </div>
+                            <div className="flex shrink-0 flex-col items-end gap-1">
+                                <div className="h-5 w-14 animate-pulse rounded bg-text-main/5" />
+                                <div className="h-2.5 w-20 animate-pulse rounded bg-text-main/5" />
+                            </div>
+                        </div>
+                    ))}
                 </div>
-            ))}
+            </div>
         </div>
     );
 }

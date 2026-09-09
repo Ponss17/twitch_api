@@ -54,7 +54,12 @@ function OverlayRouletteApp() {
 function OverlayRouletteBoundary() {
     const { t } = useTranslation();
     return (
-        <ErrorBoundary title={t.overlay.apps.rouletteErrorTitle}>
+        <ErrorBoundary
+            title={t.overlay.apps.rouletteErrorTitle}
+            retryLabel={t.common.retry}
+            hint={t.common.errorBoundary.hint}
+            hintDev={t.common.errorBoundary.hintDev}
+        >
             <OverlayRouletteApp />
         </ErrorBoundary>
     );
