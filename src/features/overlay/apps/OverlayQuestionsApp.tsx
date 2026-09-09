@@ -38,7 +38,12 @@ function OverlayQuestionsApp() {
 function OverlayQuestionsBoundary() {
     const { t } = useTranslation();
     return (
-        <ErrorBoundary title={t.overlay.apps.questionsErrorTitle}>
+        <ErrorBoundary
+            title={t.overlay.apps.questionsErrorTitle}
+            retryLabel={t.common.retry}
+            hint={t.common.errorBoundary.hint}
+            hintDev={t.common.errorBoundary.hintDev}
+        >
             <OverlayQuestionsApp />
         </ErrorBoundary>
     );

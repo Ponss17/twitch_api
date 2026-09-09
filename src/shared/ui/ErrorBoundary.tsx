@@ -1,11 +1,13 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { AlertTriangle } from 'lucide-react';
 
-
 interface ErrorBoundaryProps {
     children: ReactNode;
     fallback?: ReactNode;
     title?: string;
+    retryLabel?: string;
+    hint?: string;
+    hintDev?: string;
 }
 
 interface ErrorBoundaryState {
@@ -22,9 +24,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     componentDidCatch(error: Error, info: ErrorInfo) {
         console.error('[ErrorBoundary]', error, info.componentStack);
-        
-        // Detección de error de chunk perdido tras un nuevo deploy
-        const isChunkError = 
+
+        const isChunkError =
             error.message.includes('Failed to fetch dynamically imported module') ||
             error.message.includes('Importing a module script failed') ||
             error.message.includes('error loading dynamically imported module');
@@ -43,15 +44,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         if (import.meta.env.DEV) {
             return (
                 <p className="mb-4 text-sm text-text-muted">
-                    Si estás en desarrollo local, prueba reiniciar el servidor, borrar caché del navegador o
-                    usar ventana de incógnito sin extensiones.
+                    {this.props.hintDev ??
+                        'Si estás en desarrollo local, prueba reiniciar el servidor, borrar caché del navegador o usar ventana de incógnito sin extensiones.'}
                 </p>
             );
         }
 
         return (
             <p className="mb-4 text-sm text-text-muted">
-                Inténtalo de nuevo. Si el problema continúa, recarga la página o contacta soporte en Discord.
+                {this.props.hint ??
+                    'Inténtalo de nuevo. Si el problema continúa, recarga la página o contacta soporte en Discord.'}
             </p>
         );
     }
@@ -72,7 +74,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         onClick={() => this.setState({ error: null })}
                         className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover"
                     >
-                        Reintentar
+                        {this.props.retryLabel ?? 'Reintentar'}
                     </button>
                 </div>
             );

@@ -54,7 +54,12 @@ function OverlayTrendsApp() {
 function OverlayTrendsBoundary() {
     const { t } = useTranslation();
     return (
-        <ErrorBoundary title={t.overlay.apps.trendsErrorTitle}>
+        <ErrorBoundary
+            title={t.overlay.apps.trendsErrorTitle}
+            retryLabel={t.common.retry}
+            hint={t.common.errorBoundary.hint}
+            hintDev={t.common.errorBoundary.hintDev}
+        >
             <OverlayTrendsApp />
         </ErrorBoundary>
     );

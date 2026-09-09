@@ -8,7 +8,7 @@ import {
     AnalyticsSkeleton,
     TrendsSkeleton,
     StalkerViewSkeleton,
-    ClipsGridSkeleton,
+    ClipsViewSkeleton,
     CommandViewSkeleton 
 } from '@/shared/ui/Skeleton';
 import { useTranslation } from '@/core/i18n/I18nContext';
@@ -73,7 +73,7 @@ function TabFallback({ tab }: { tab: DashboardTab }) {
     if (tab === 'analytics') return <AnalyticsSkeleton />;
     if (tab === 'trends') return <TrendsSkeleton />;
     if (tab === 'stalker') return <StalkerViewSkeleton />;
-    if (tab === 'clips') return <div className="animate-fade-soft" aria-busy="true"><ClipsGridSkeleton /></div>;
+    if (tab === 'clips') return <ClipsViewSkeleton />;
     if (tab === 'home') return <HomeViewSkeleton />;
     
     // Fallback genérico para vistas de comandos y minijuegos (Overlay, Magic8, Followage, etc.)
@@ -139,7 +139,12 @@ export function DashboardContent({ tab, onNavigate }: DashboardContentProps) {
                         }
                         aria-hidden={!isActive}
                     >
-                        <ErrorBoundary title={errorTitle}>
+                        <ErrorBoundary
+                            title={errorTitle}
+                            retryLabel={t.common.retry}
+                            hint={t.common.errorBoundary.hint}
+                            hintDev={t.common.errorBoundary.hintDev}
+                        >
                             <Suspense
                                 fallback={
                                     isActive ? (
