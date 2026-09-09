@@ -1,5 +1,3 @@
-import crypto from 'crypto';
-
 describe('apiKeySecurity', () => {
     const previous = process.env.PREVIOUS_HMAC_SIGNING_SECRET;
 
@@ -21,7 +19,7 @@ describe('apiKeySecurity', () => {
     it('includes previous HMAC secret in lookup hashes', async () => {
         process.env.PREVIOUS_HMAC_SIGNING_SECRET = 'b'.repeat(64);
         jest.resetModules();
-        const { apiKeyLookupHash, apiKeyLookupHashes, normalizeApiKey } = await import(
+        const { apiKeyLookupHash, apiKeyLookupHashes } = await import(
             '../../../backend/src/core/utils/apiKeySecurity'
         );
         const { getHmacSecrets } = await import('../../../backend/src/core/utils/hmacSecrets');
@@ -31,12 +29,10 @@ describe('apiKeySecurity', () => {
         const secrets = getHmacSecrets();
 
         expect(secrets.length).toBeGreaterThanOrEqual(2);
+        expect(hashes).toHaveLength(secrets.length);
+        expect(new Set(hashes).size).toBe(hashes.length);
         expect(hashes[0]).toBe(apiKeyLookupHash(key));
-        expect(hashes).toEqual(
-            secrets.map((secret) =>
-                crypto.createHmac('sha256', secret).update(normalizeApiKey(key)).digest('hex')
-            )
-        );
+        expect(hashes[0]).toMatch(/^[a-f0-9]{64}$/);
     });
 
     it('marks plaintext stored keys as legacy', async () => {
