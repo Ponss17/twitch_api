@@ -6,11 +6,15 @@ import {
     DropdownLink,
     useDropdown
 } from '@/shared/ui/dropdown/Dropdown';
+import { TwitchIcon, DiscordIcon } from '@/shared/ui/icons/BrandIcons';
+import { BookOpen, Heart, LogOut, Settings } from 'lucide-react';
 
 const PAYPAL_URL = 'https://www.paypal.me/Ponssjean';
 
 const panelShell =
     'overflow-hidden rounded-xl border border-border-strong bg-bg-modal p-1.5 text-text-main shadow-[0_8px_24px_rgba(0,0,0,0.35)]';
+
+const itemIconClass = 'size-4 shrink-0';
 
 type SidebarAccountMenuProps = {
     railCollapsed: boolean;
@@ -46,6 +50,7 @@ export function SidebarAccountMenu({
                     onClose();
                 }}
             >
+                <Settings className={itemIconClass} aria-hidden />
                 {t.header.settings}
             </DropdownItem>
             <DropdownLink
@@ -54,6 +59,7 @@ export function SidebarAccountMenu({
                 target="_blank"
                 rel="noopener noreferrer"
             >
+                <TwitchIcon className={itemIconClass} aria-hidden />
                 {t.header.twitchProfile}
             </DropdownLink>
             <DropdownDivider />
@@ -62,6 +68,7 @@ export function SidebarAccountMenu({
                 href={appPath('/docs')}
                 onClick={saveDocsReturnPath}
             >
+                <BookOpen className={itemIconClass} aria-hidden />
                 {t.sidebar.docs}
             </DropdownLink>
             <DropdownLink
@@ -70,6 +77,7 @@ export function SidebarAccountMenu({
                 target="_blank"
                 rel="noopener noreferrer"
             >
+                <DiscordIcon className={itemIconClass} aria-hidden />
                 {t.sidebar.discord}
             </DropdownLink>
             <DropdownLink
@@ -78,10 +86,12 @@ export function SidebarAccountMenu({
                 target="_blank"
                 rel="noopener noreferrer"
             >
+                <Heart className={itemIconClass} aria-hidden />
                 {t.header.supportProject}
             </DropdownLink>
             <DropdownDivider />
             <DropdownItem className="rounded-lg" variant="danger" onClick={onLogout}>
+                <LogOut className={itemIconClass} aria-hidden />
                 {t.header.logout}
             </DropdownItem>
         </div>
