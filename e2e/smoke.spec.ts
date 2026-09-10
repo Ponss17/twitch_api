@@ -301,7 +301,7 @@ test.describe('dashboard', () => {
             'aria-selected',
             'true'
         );
-        await expect(page.getByText('Exportar cuenta')).toBeVisible();
+        await expect(page.getByText('Respaldo de cuenta')).toBeVisible();
 
         await page.getByRole('button', { name: 'Formato de exportación' }).click();
         await page.getByRole('option', { name: 'CSV' }).click();
@@ -309,7 +309,7 @@ test.describe('dashboard', () => {
         const exportCheck = page.waitForResponse(
             (response) => response.url().includes('/dashboard/export-check') && response.ok()
         );
-        await page.getByRole('button', { name: 'Exportar' }).click();
+        await page.getByRole('button', { name: 'Descargar respaldo' }).click();
         await exportCheck;
 
         await expect(page.getByText('Archivo descargado correctamente')).toBeVisible({
