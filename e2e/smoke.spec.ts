@@ -301,9 +301,13 @@ test.describe('dashboard', () => {
             'aria-selected',
             'true'
         );
-        await expect(page.getByText('Respaldo de cuenta')).toBeVisible();
 
-        await page.getByRole('button', { name: 'Formato de exportación' }).click();
+        // Selectors estables: el título del grupo y el de la fila ya no deben compartirse en el assert.
+        const exportFormat = page.locator('#settings-export-format');
+        await expect(exportFormat).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Descargar respaldo' })).toBeVisible();
+
+        await exportFormat.click();
         await page.getByRole('option', { name: 'CSV' }).click();
 
         const exportCheck = page.waitForResponse(

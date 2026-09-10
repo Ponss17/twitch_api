@@ -311,7 +311,7 @@ export const es = {
             fullReport: 'Reporte de Cuenta Completo',
             exportReport: 'Exportar HTML',
             exportDesc: 'Descarga un reporte HTML con tu perfil y ajustes.',
-            exportAccount: 'Respaldo de cuenta',
+            exportAccount: 'Descargar archivo',
             exportAccountDesc:
                 'Descarga perfil y datos de cuenta. El informe del mes cerrado está en Reportes.',
             exportFormatLabel: 'Formato de exportación',

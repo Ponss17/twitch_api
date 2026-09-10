@@ -310,7 +310,7 @@ export const en: Translations = {
             fullReport: 'Full Account Report',
             exportReport: 'Export HTML',
             exportDesc: 'Download an HTML report with your profile and settings.',
-            exportAccount: 'Account backup',
+            exportAccount: 'Download file',
             exportAccountDesc:
                 'Download profile and account data. Closed-month reports live under Reports.',
             exportFormatLabel: 'Export format',
