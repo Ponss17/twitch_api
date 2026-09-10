@@ -306,7 +306,7 @@ export const pt: Translations = {
             fullReport: 'Relatório Completo da Conta',
             exportReport: 'Exportar HTML',
             exportDesc: 'Baixe um relatório HTML com seu perfil e configurações.',
-            exportAccount: 'Backup da conta',
+            exportAccount: 'Baixar arquivo',
             exportAccountDesc:
                 'Baixe perfil e dados da conta. O relatório do mês fechado fica em Relatórios.',
             exportFormatLabel: 'Formato de exportação',
