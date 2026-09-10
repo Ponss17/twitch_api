@@ -47,12 +47,12 @@ export function AnalyticsSkeleton() {
                     <Skeleton className="h-4 w-40" />
                     <Skeleton className="size-3.5 rounded-full" />
                 </header>
-                <div className="flex min-h-0 flex-1 items-end gap-2.5 px-5 pb-4 pt-5">
+                <div className="flex min-h-0 flex-1 items-end justify-center gap-2.5 px-5 pb-4 pt-5">
                     {[38, 62, 45, 78, 52, 70, 40, 58].map((h, i) => (
                         <Skeleton
                             key={i}
-                            className="min-w-0 flex-1 rounded-t-md"
-                            style={{ height: `${h}%`, maxWidth: 22 }}
+                            className="w-[22px] shrink-0 rounded-t-md"
+                            style={{ height: `${h}%` }}
                         />
                     ))}
                 </div>
