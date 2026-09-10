@@ -186,12 +186,14 @@ export function AnalyticsEmptyState({
     description?: string;
 }) {
     return (
-        <SimpleEmptyState
-            icon={icon}
-            label={title}
-            description={description}
-            className="min-h-0 w-full flex-1 py-6"
-        />
+        <div className="flex min-h-0 w-full flex-1 items-center justify-center rounded-xl border border-border-strong px-3 py-2">
+            <SimpleEmptyState
+                icon={icon}
+                label={title}
+                description={description}
+                className="min-h-0 w-full flex-1 py-8"
+            />
+        </div>
     );
 }
 
