@@ -80,10 +80,12 @@ export function isMissingRelationError(error: unknown): boolean {
         typeof error === 'object' && error && 'message' in error
             ? String((error as { message?: unknown }).message ?? '')
             : String(error ?? '');
+    // includes (no regex) — evita alertas ReDoS de CodeQL sobre mensajes de error.
+    const normalized = message.slice(0, 500).toLowerCase();
     return (
-        /Could not find the table/i.test(message) ||
-        /relation .* does not exist/i.test(message) ||
-        /schema cache/i.test(message)
+        normalized.includes('could not find the table') ||
+        (normalized.includes('relation') && normalized.includes('does not exist')) ||
+        normalized.includes('schema cache')
     );
 }
 
