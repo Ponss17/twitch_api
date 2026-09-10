@@ -60,7 +60,7 @@ function ActivityEmptyState({ filtered }: { filtered?: boolean }) {
             icon={filtered ? Filter : Terminal}
             label={filtered ? aT.emptyFiltered : aT.emptyAll}
             description={filtered ? aT.emptyFilteredDesc : aT.emptyAllDesc}
-            className="min-h-0 w-full flex-1 py-16"
+            className="h-full min-h-0 w-full flex-1 py-10"
         />
     );
 }
@@ -176,98 +176,139 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                 })}
             </div>
 
-            {typeOptions.length > 0 ? (
-                <div
-                    className="flex flex-wrap items-center gap-2 border-b border-border-subtle px-5 py-2.5"
-                    role="group"
-                    aria-label={t.common.aria.filterResource}
-                >
-                    <button
-                        type="button"
-                        onClick={() => setTypeFilter('all')}
-                        className={`rounded-md px-2 py-1 text-[0.68rem] font-medium transition-colors duration-200 ${typeFilter === 'all'
-                            ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_var(--color-primary-hover)]/10'
-                            : 'text-text-muted hover:bg-white/[0.02] hover:text-text-main'
-                            }`}
-                        aria-pressed={typeFilter === 'all'}
-                    >
-                        {aT.all}
-                    </button>
-                    {typeOptions
-                        .map((type) => ({ type, meta: getActivityMeta(type, t) }))
-                        .sort((a, b) => a.meta.label.localeCompare(b.meta.label))
-                        .map(({ type, meta }) => {
-                            const active = typeFilter === type;
-                            const TypeIcon = meta.icon;
-                            const count = activity.filter((a) => a.type === type).length;
-                            return (
+            <LazyMotion features={domAnimation}>
+                <AnimatePresence initial={false}>
+                    {typeOptions.length > 0 ? (
+                        <m.div
+                            key="type-filters"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
+                            className="overflow-hidden border-b border-border-subtle"
+                        >
+                            <div
+                                className="flex flex-wrap items-center gap-2 px-5 py-2.5"
+                                role="group"
+                                aria-label={t.common.aria.filterResource}
+                            >
                                 <button
-                                    key={type}
                                     type="button"
-                                    onClick={() => setTypeFilter(type)}
-                                    className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.68rem] font-medium transition-colors duration-200 ${active
+                                    onClick={() => setTypeFilter('all')}
+                                    className={`rounded-md px-2 py-1 text-[0.68rem] font-medium transition-colors duration-200 ${typeFilter === 'all'
                                         ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_var(--color-primary-hover)]/10'
                                         : 'text-text-muted hover:bg-white/[0.02] hover:text-text-main'
                                         }`}
-                                    aria-pressed={active}
+                                    aria-pressed={typeFilter === 'all'}
                                 >
-                                    <span
-                                        className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${active ? 'border-primary/30 bg-primary/10 text-primary' : 'border-border-subtle bg-transparent text-text-muted'
-                                            }`}
-                                    >
-                                        <TypeIcon className="h-2.5 w-2.5" />
-                                    </span>
-                                    {meta.label}
-                                    {!isLoading && count > 0 ? (
-                                        <span className="text-[0.65rem] opacity-70">{count}</span>
-                                    ) : null}
+                                    {aT.all}
                                 </button>
-                            );
-                        })}
-                </div>
-            ) : null}
+                                {typeOptions
+                                    .map((type) => ({ type, meta: getActivityMeta(type, t) }))
+                                    .sort((a, b) => a.meta.label.localeCompare(b.meta.label))
+                                    .map(({ type, meta }) => {
+                                        const active = typeFilter === type;
+                                        const TypeIcon = meta.icon;
+                                        const count = activity.filter((a) => a.type === type).length;
+                                        return (
+                                            <button
+                                                key={type}
+                                                type="button"
+                                                onClick={() => setTypeFilter(type)}
+                                                className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.68rem] font-medium transition-colors duration-200 ${active
+                                                    ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_var(--color-primary-hover)]/10'
+                                                    : 'text-text-muted hover:bg-white/[0.02] hover:text-text-main'
+                                                    }`}
+                                                aria-pressed={active}
+                                            >
+                                                <span
+                                                    className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${active ? 'border-primary/30 bg-primary/10 text-primary' : 'border-border-subtle bg-transparent text-text-muted'
+                                                        }`}
+                                                >
+                                                    <TypeIcon className="h-2.5 w-2.5" />
+                                                </span>
+                                                {meta.label}
+                                                {!isLoading && count > 0 ? (
+                                                    <span className="text-[0.65rem] opacity-70">{count}</span>
+                                                ) : null}
+                                            </button>
+                                        );
+                                    })}
+                            </div>
+                        </m.div>
+                    ) : null}
+                </AnimatePresence>
 
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-4 pt-2">
-                {isLoading ? (
-                    <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-border-strong px-3 py-2 [scrollbar-width:thin]">
-                        <ActivityFeedSkeleton />
-                    </div>
-                ) : filteredActivity.length === 0 ? (
-                    <ActivityEmptyState filtered={categoryFilter !== 'all' || typeFilter !== 'all'} />
-                ) : (
-                    <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-border-strong px-3 py-2 [overflow-anchor:none] [scrollbar-width:thin]">
-                        <LazyMotion features={domAnimation}>
-                            <AnimatePresence initial={false}>
-                                {renderItems.map(({ item, showDivider, dateLabel, key }) => {
-                                    const isNew = highlightKeys?.has(key) ?? false;
-                                    const isActive =
-                                        selectedActivity != null &&
-                                        activityEntryKey(selectedActivity) === key;
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-4 pt-2">
+                    {isLoading ? (
+                        <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-border-strong px-3 py-2 [scrollbar-width:thin]">
+                            <ActivityFeedSkeleton />
+                        </div>
+                    ) : (
+                        <div className="relative min-h-0 flex-1 overflow-hidden rounded-xl border border-border-strong">
+                            <AnimatePresence mode="wait" initial={false}>
+                                {filteredActivity.length === 0 ? (
+                                    <m.div
+                                        key={`empty-${categoryFilter}-${typeFilter}`}
+                                        initial={{ opacity: 0, y: 8 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -6 }}
+                                        transition={{ duration: 0.2, ease: 'easeOut' }}
+                                        className="absolute inset-0 flex flex-col px-3 py-2"
+                                    >
+                                        <ActivityEmptyState
+                                            filtered={categoryFilter !== 'all' || typeFilter !== 'all'}
+                                        />
+                                    </m.div>
+                                ) : (
+                                    <m.div
+                                        key={`list-${categoryFilter}-${typeFilter}`}
+                                        initial={{ opacity: 0, y: 8 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -6 }}
+                                        transition={{ duration: 0.22, ease: 'easeOut' }}
+                                        className="absolute inset-0 overflow-y-auto px-3 py-2 [overflow-anchor:none] [scrollbar-width:thin]"
+                                    >
+                                        <AnimatePresence initial={false}>
+                                            {renderItems.map(({ item, showDivider, dateLabel, key }, index) => {
+                                                const isNew = highlightKeys?.has(key) ?? false;
+                                                const isActive =
+                                                    selectedActivity != null &&
+                                                    activityEntryKey(selectedActivity) === key;
 
-                                    return (
-                                        <m.div
-                                            key={key}
-                                            layout
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.3, ease: 'easeOut' }}
-                                        >
-                                            {showDivider ? <div className={LOG_DATE_DIVIDER}>{dateLabel}</div> : null}
-                                            <HomeActivityLogEntry
-                                                item={item}
-                                                isNew={isNew}
-                                                isActive={isActive}
-                                                timeZone={timeZone}
-                                                onClick={setSelectedActivity}
-                                            />
-                                        </m.div>
-                                    );
-                                })}
+                                                return (
+                                                    <m.div
+                                                        key={key}
+                                                        initial={{ opacity: 0, y: 6 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -4 }}
+                                                        transition={{
+                                                            duration: 0.22,
+                                                            ease: 'easeOut',
+                                                            delay: Math.min(index, 8) * 0.02
+                                                        }}
+                                                    >
+                                                        {showDivider ? (
+                                                            <div className={LOG_DATE_DIVIDER}>{dateLabel}</div>
+                                                        ) : null}
+                                                        <HomeActivityLogEntry
+                                                            item={item}
+                                                            isNew={isNew}
+                                                            isActive={isActive}
+                                                            timeZone={timeZone}
+                                                            onClick={setSelectedActivity}
+                                                        />
+                                                    </m.div>
+                                                );
+                                            })}
+                                        </AnimatePresence>
+                                    </m.div>
+                                )}
                             </AnimatePresence>
-                        </LazyMotion>
-                    </div>
-                )}
-            </div>
+                        </div>
+                    )}
+                </div>
+            </LazyMotion>
 
             <ActivityDetailSheet
                 item={selectedActivity}
