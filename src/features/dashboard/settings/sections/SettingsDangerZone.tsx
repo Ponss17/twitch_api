@@ -8,9 +8,7 @@ interface SettingsDangerZoneProps {
     onDeleteAccount: () => void;
 }
 
-const revokeBtn = `${btnSecondary} w-full min-w-[7.5rem] px-3.5 sm:w-auto`;
-const deleteBtn =
-    'inline-flex w-full min-w-[7.5rem] items-center justify-center gap-1.5 rounded-lg border border-error/45 bg-error/10 px-3.5 py-2 text-[0.8125rem] font-semibold text-error transition hover:bg-error/15 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto';
+const actionBtn = `${btnSecondary} w-full min-w-[7.5rem] px-3.5 sm:w-auto`;
 
 /** Cerrar sesiones + eliminar cuenta. */
 export function SettingsDangerZone({ onRevokeSessions, onDeleteAccount }: SettingsDangerZoneProps) {
@@ -25,7 +23,7 @@ export function SettingsDangerZone({ onRevokeSessions, onDeleteAccount }: Settin
                 title={pT.revokeSessions}
                 description={pT.revokeSessionsDesc}
                 control={
-                    <button type="button" onClick={onRevokeSessions} className={revokeBtn}>
+                    <button type="button" onClick={onRevokeSessions} className={actionBtn}>
                         {pT.revokeSessionsAction}
                     </button>
                 }
@@ -35,7 +33,7 @@ export function SettingsDangerZone({ onRevokeSessions, onDeleteAccount }: Settin
                 title={pT.deleteAccount}
                 description={pT.deleteAccountDesc}
                 control={
-                    <button type="button" onClick={onDeleteAccount} className={deleteBtn}>
+                    <button type="button" onClick={onDeleteAccount} className={actionBtn}>
                         {pT.deleteAccountAction}
                     </button>
                 }
