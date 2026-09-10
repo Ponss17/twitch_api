@@ -6,6 +6,7 @@ import {
     type SettingsExportOptions
 } from '@/features/dashboard/settings/sections/SettingsExportSection';
 import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
+import { btnSecondary } from '@/core/utils/tw';
 
 interface SettingsDataPanelProps {
     profile: DashboardProfile | null;
@@ -66,8 +67,7 @@ function DateTimeBadge({
     );
 }
 
-const resetBtn =
-    'inline-flex w-full min-w-[7.5rem] items-center justify-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-[0.8125rem] font-semibold text-amber-500 transition hover:bg-amber-500/15 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto';
+const resetBtn = `${btnSecondary} w-full min-w-[7.5rem] px-3.5 sm:w-auto`;
 
 export function SettingsDataPanel({
     profile,
