@@ -372,6 +372,7 @@ export const es = {
         badge: 'Novedad',
         bellLabel: 'Notificaciones',
         countLabel: '{count} nuevas',
+        inboxTitle: 'Notificaciones',
         emptyTitle: 'Sin notificaciones',
         emptyBody: 'Aquí verás novedades del panel y tus reportes mensuales.',
         timeNew: 'Nuevo',

@@ -191,7 +191,11 @@ function BellPanel({
                     <Bell className="size-3.5" aria-hidden />
                 </div>
                 <p className="min-w-0 flex-1 text-[0.8125rem] font-semibold text-text-main">
-                    {count > 0 ? aT.countLabel.replace('{count}', String(count)) : aT.emptyTitle}
+                    {count > 0
+                        ? aT.countLabel.replace('{count}', String(count))
+                        : announcements.length > 0 || serverNotifications.length > 0
+                          ? aT.inboxTitle
+                          : aT.emptyTitle}
                 </p>
                 <button
                     type="button"
