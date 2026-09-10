@@ -2,52 +2,51 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 import { panelCard } from '@/core/utils/tw';
 import { Skeleton } from './SkeletonPrimitives';
 
-/** Skeleton: rail de meses + detalle (mismo shell que ReportsView). */
+/** Skeleton: archivo de meses + carta del informe. */
 export function ReportsSkeleton() {
     const { t } = useTranslation();
     return (
         <div
-            className="grid animate-fade-soft gap-4 lg:grid-cols-[13.5rem_minmax(0,1fr)]"
+            className="grid animate-fade-soft gap-4 lg:grid-cols-[12rem_minmax(0,1fr)]"
             aria-busy="true"
             aria-label={t.globals.loading.reports}
         >
             <aside className={panelCard}>
                 <div className="border-b border-border-subtle px-3.5 py-2.5">
-                    <Skeleton className="h-2.5 w-16" />
+                    <Skeleton className="h-2.5 w-14" />
                 </div>
                 <div className="space-y-1 p-1.5">
                     {Array.from({ length: 4 }).map((_, i) => (
-                        <div
-                            key={i}
-                            className="flex items-center justify-between gap-2 rounded-lg px-2.5 py-2"
-                        >
+                        <div key={i} className="rounded-lg px-2.5 py-2">
                             <Skeleton className="h-3.5 w-24" />
-                            <Skeleton className="h-3 w-5" />
                         </div>
                     ))}
                 </div>
             </aside>
             <article className={`${panelCard} overflow-hidden`}>
-                <div className="flex items-start justify-between gap-3 border-b border-border-subtle px-5 py-4">
-                    <div className="space-y-2">
-                        <Skeleton className="h-3 w-40" />
-                        <Skeleton className="h-5 w-56" />
-                    </div>
-                    <div className="flex gap-2">
-                        <Skeleton className="h-8 w-28 rounded-lg" />
-                        <Skeleton className="h-8 w-24 rounded-lg" />
-                    </div>
+                <div className="border-b border-border-subtle px-5 py-5 sm:px-7">
+                    <Skeleton className="h-2.5 w-20" />
+                    <Skeleton className="mt-3 h-7 w-64 max-w-full" />
+                    <Skeleton className="mt-2 h-3 w-40" />
                 </div>
-                <div className="space-y-4 px-5 py-5">
-                    <Skeleton className="h-12 w-full max-w-xl" />
-                    <div className="flex flex-wrap gap-2">
-                        <Skeleton className="h-8 w-32 rounded-lg" />
-                        <Skeleton className="h-8 w-28 rounded-lg" />
-                        <Skeleton className="h-8 w-36 rounded-lg" />
+                <div className="space-y-4 px-5 py-6 sm:px-7">
+                    <Skeleton className="h-2.5 w-28" />
+                    <Skeleton className="h-16 w-full max-w-2xl" />
+                    <Skeleton className="h-3 w-52" />
+                    <div className="space-y-3 border-t border-border-subtle pt-6">
+                        <Skeleton className="h-3.5 w-36" />
+                        <Skeleton className="h-3 w-full" />
+                        <Skeleton className="h-3 w-5/6" />
+                        <Skeleton className="mt-4 h-3.5 w-32" />
+                        <Skeleton className="h-3 w-full" />
+                        <Skeleton className="h-3 w-4/5" />
                     </div>
-                    <div className="grid gap-5 sm:grid-cols-2">
-                        <Skeleton className="h-28 rounded-xl" />
-                        <Skeleton className="h-28 rounded-xl" />
+                    <div className="border-t border-border-subtle pt-5">
+                        <Skeleton className="h-2.5 w-32" />
+                        <div className="mt-3 flex gap-2">
+                            <Skeleton className="h-9 w-32 rounded-lg" />
+                            <Skeleton className="h-9 w-28 rounded-lg" />
+                        </div>
                     </div>
                 </div>
             </article>
