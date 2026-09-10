@@ -8,7 +8,8 @@ import {
 } from '../../backend/src/core/middleware/redisRateLimiter';
 
 jest.mock('@/core/database/cacheService', () => ({
-    isKvWriteAvailable: jest.fn().mockReturnValue(true)
+    isKvWriteAvailable: jest.fn().mockReturnValue(true),
+    reportKvFailure: jest.fn()
 }));
 
 jest.mock('@/core/utils/logger', () => ({
