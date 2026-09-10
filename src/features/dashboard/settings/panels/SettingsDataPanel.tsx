@@ -5,8 +5,7 @@ import {
     SettingsExportSection,
     type SettingsExportOptions
 } from '@/features/dashboard/settings/sections/SettingsExportSection';
-import { useTranslation } from '@/core/i18n/I18nContext';
-import { btnSecondary } from '@/core/utils/tw';
+import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
 
 interface SettingsDataPanelProps {
     profile: DashboardProfile | null;
@@ -23,21 +22,31 @@ function formatDateTimeSplit(isoDate?: string, timezone?: string, locale = 'es-E
             timeZone: timezone || 'UTC',
             dateStyle: 'medium'
         }).format(dateObj);
-        
+
         const time = new Intl.DateTimeFormat(locale, {
             timeZone: timezone || 'UTC',
             timeStyle: 'short'
         }).format(dateObj);
-        
+
         return { date, time };
     } catch {
         return null;
     }
 }
 
-function DateTimeBadge({ isoDate, timezone, locale, fallback }: { isoDate?: string, timezone?: string, locale: string, fallback: string }) {
+function DateTimeBadge({
+    isoDate,
+    timezone,
+    locale,
+    fallback
+}: {
+    isoDate?: string;
+    timezone?: string;
+    locale: string;
+    fallback: string;
+}) {
     const split = formatDateTimeSplit(isoDate, timezone, locale);
-    
+
     if (!split) {
         return <span className="text-sm font-medium text-text-muted">{fallback}</span>;
     }
@@ -57,6 +66,9 @@ function DateTimeBadge({ isoDate, timezone, locale, fallback }: { isoDate?: stri
     );
 }
 
+const resetBtn =
+    'inline-flex w-full min-w-[7.5rem] items-center justify-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-[0.8125rem] font-semibold text-amber-500 transition hover:bg-amber-500/15 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto';
+
 export function SettingsDataPanel({
     profile,
     exportLoading,
@@ -66,6 +78,8 @@ export function SettingsDataPanel({
     const { t, locale } = useTranslation();
     const gT = t.settings.groups;
     const pT = t.settings.panels;
+    const bcp47 = getBcp47(locale);
+    const unknown = t.home.activityInspector.unknownDate;
 
     return (
         <>
@@ -78,8 +92,8 @@ export function SettingsDataPanel({
                         <DateTimeBadge
                             isoDate={profile?.dbCreatedAt}
                             timezone={profile?.timezone}
-                            locale={locale}
-                            fallback="Desconocido"
+                            locale={bcp47}
+                            fallback={unknown}
                         />
                     }
                 />
@@ -92,8 +106,8 @@ export function SettingsDataPanel({
                         <DateTimeBadge
                             isoDate={profile?.dbLastActive}
                             timezone={profile?.timezone}
-                            locale={locale}
-                            fallback="Desconocido"
+                            locale={bcp47}
+                            fallback={unknown}
                         />
                     }
                 />
@@ -105,11 +119,7 @@ export function SettingsDataPanel({
                     title={pT.resetStats}
                     description={pT.resetStatsDesc}
                     control={
-                        <button
-                            type="button"
-                            onClick={onClearData}
-                            className={`${btnSecondary} w-full min-w-[7.5rem] px-3.5 sm:w-auto`}
-                        >
+                        <button type="button" onClick={onClearData} className={resetBtn}>
                             {pT.resetStatsAction}
                         </button>
                     }
