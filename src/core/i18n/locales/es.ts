@@ -260,7 +260,7 @@ export const es = {
                 title: 'Limpiar datos',
                 desc: 'Borra analíticas o historial sin eliminar tu cuenta.'
             },
-            export: { title: 'Exportar', desc: 'Exporta la información de tu cuenta' },
+            export: { title: 'Respaldo de cuenta', desc: 'Descarga tus datos de cuenta (no es el informe mensual)' },
             security: { title: 'Seguridad', desc: 'Claves y accesos' },
             auditLogs: {
                 title: 'Registro de seguridad',
@@ -310,13 +310,14 @@ export const es = {
             fullReport: 'Reporte de Cuenta Completo',
             exportReport: 'Exportar HTML',
             exportDesc: 'Descarga un reporte HTML con tu perfil y ajustes.',
-            exportAccount: 'Exportar cuenta',
-            exportAccountDesc: 'Elige el formato y descarga un reporte de tu cuenta.',
+            exportAccount: 'Respaldo de cuenta',
+            exportAccountDesc:
+                'Descarga perfil y datos de cuenta. El informe del mes cerrado está en Reportes.',
             exportFormatLabel: 'Formato de exportación',
             exportFormatHtml: 'HTML',
             exportFormatCsv: 'CSV',
-            exportAction: 'Exportar',
-            exportModalTitle: 'Exportar reporte HTML',
+            exportAction: 'Descargar respaldo',
+            exportModalTitle: 'Descargar respaldo HTML',
             exportModalDesc: 'Elige qué datos sensibles incluir. Por defecto se omiten.',
             exportModalOptions: 'Opciones',
             exportModalConfirm: 'Descargar HTML',

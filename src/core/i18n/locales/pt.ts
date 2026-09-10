@@ -255,7 +255,7 @@ export const pt: Translations = {
                 title: 'Limpar dados',
                 desc: 'Apague análises ou histórico sem excluir sua conta.'
             },
-            export: { title: 'Exportar', desc: 'Exporte as informações da sua conta' },
+            export: { title: 'Backup da conta', desc: 'Baixe os dados da conta (não é o relatório mensal)' },
             security: { title: 'Segurança', desc: 'Chaves e acesso' },
             auditLogs: {
                 title: 'Registro de segurança',
@@ -305,13 +305,14 @@ export const pt: Translations = {
             fullReport: 'Relatório Completo da Conta',
             exportReport: 'Exportar HTML',
             exportDesc: 'Baixe um relatório HTML com seu perfil e configurações.',
-            exportAccount: 'Exportar conta',
-            exportAccountDesc: 'Escolha o formato e baixe um relatório da sua conta.',
+            exportAccount: 'Backup da conta',
+            exportAccountDesc:
+                'Baixe perfil e dados da conta. O relatório do mês fechado fica em Relatórios.',
             exportFormatLabel: 'Formato de exportação',
             exportFormatHtml: 'HTML',
             exportFormatCsv: 'CSV',
-            exportAction: 'Exportar',
-            exportModalTitle: 'Exportar relatório HTML',
+            exportAction: 'Baixar backup',
+            exportModalTitle: 'Baixar backup HTML',
             exportModalDesc: 'Escolha quais dados sensíveis incluir. Por padrão são omitidos.',
             exportModalOptions: 'Opções',
             exportModalConfirm: 'Baixar HTML',
