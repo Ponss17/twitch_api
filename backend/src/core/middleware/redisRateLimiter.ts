@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { kv } from '../database/redisClient';
-import { isKvWriteAvailable } from '../database/cacheService';
+import { isKvWriteAvailable, reportKvFailure } from '../database/cacheService';
 import { RATE_LIMITS } from '../config/limits';
 import { resolveUserRateLimit, resolveUserHeavyLimit } from '../config/userRoles';
 import { MESSAGES } from '../config/messages';
@@ -52,6 +52,7 @@ async function kvIncrWithWindow(key: string, windowSeconds: number): Promise<num
         );
     } catch (error) {
         if (process.env.NODE_ENV !== 'production') {
+            reportKvFailure('KV counter falló');
             logger.debug(`KV counter failed for ${key}, fail-open en dev/test`, { error });
             return 0;
         }

@@ -39,6 +39,9 @@ process.env.SUPABASE_ANON_KEY = 'test_anon_key';
 process.env.API_URL = 'http://localhost:3000';
 process.env.GROQ_API_KEY = 'test_groq_api_key';
 process.env.DISCORD_FEEDBACK_WEBHOOK_URL = 'https://discord.com/api/webhooks/test';
+// Dummy KV para que cacheService no desactive escrituras (redisClient está mockeado).
+process.env.KV_REST_API_URL = process.env.KV_REST_API_URL || 'https://example.upstash.io';
+process.env.KV_REST_API_TOKEN = process.env.KV_REST_API_TOKEN || 'test_kv_token';
 
 // Mock global de Supabase para evitar llamadas de red reales
 jest.mock('@supabase/supabase-js', () => ({
