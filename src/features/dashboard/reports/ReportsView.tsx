@@ -11,7 +11,7 @@ import {
     themeIdleChip
 } from '@/core/utils/tw';
 import { PanelLoadError } from '@/shared/ui/PanelLoadError';
-import { ReportsSkeleton } from '@/shared/ui/skeletons/ReportsSkeleton';
+import { ReportsSkeleton, ReportsArticleSkeleton } from '@/shared/ui/skeletons/ReportsSkeleton';
 import { navigateDashboard } from '@/features/dashboard/lib/tabs/dashboardPanelEvents';
 import {
     ensureMonthlyReport,
@@ -268,11 +268,8 @@ export function ReportsView({ active }: { active: boolean }) {
 
             <article className={`${panelCard} min-w-0 overflow-hidden`}>
                 {busy ? (
-                    <div className="space-y-4 px-5 py-6 sm:px-7" aria-busy="true">
-                        <div className="h-3 w-36 animate-pulse rounded bg-text-main/5" />
-                        <div className="h-7 w-3/4 max-w-md animate-pulse rounded bg-text-main/5" />
-                        <div className="h-20 w-full max-w-2xl animate-pulse rounded bg-text-main/[0.04]" />
-                        <div className="h-3 w-48 animate-pulse rounded bg-text-main/5" />
+                    <div aria-busy="true">
+                        <ReportsArticleSkeleton />
                     </div>
                 ) : (
                     <>
