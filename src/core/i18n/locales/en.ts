@@ -259,7 +259,7 @@ export const en: Translations = {
                 title: 'Clear data',
                 desc: 'Clear analytics or history without deleting your account.'
             },
-            export: { title: 'Export', desc: 'Export your account information' },
+            export: { title: 'Account backup', desc: 'Download your account data (not the monthly report)' },
             security: { title: 'Security', desc: 'Keys and access' },
             auditLogs: {
                 title: 'Audit logs',
@@ -309,13 +309,14 @@ export const en: Translations = {
             fullReport: 'Full Account Report',
             exportReport: 'Export HTML',
             exportDesc: 'Download an HTML report with your profile and settings.',
-            exportAccount: 'Export account',
-            exportAccountDesc: 'Choose a format and download a report of your account.',
+            exportAccount: 'Account backup',
+            exportAccountDesc:
+                'Download profile and account data. Closed-month reports live under Reports.',
             exportFormatLabel: 'Export format',
             exportFormatHtml: 'HTML',
             exportFormatCsv: 'CSV',
-            exportAction: 'Export',
-            exportModalTitle: 'Export HTML report',
+            exportAction: 'Download backup',
+            exportModalTitle: 'Download HTML backup',
             exportModalDesc: 'Choose which sensitive data to include. Omitted by default.',
             exportModalOptions: 'Options',
             exportModalConfirm: 'Download HTML',
