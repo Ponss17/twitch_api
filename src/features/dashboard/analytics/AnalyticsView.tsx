@@ -7,6 +7,7 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 import { PanelLoadError } from '@/shared/ui/PanelLoadError';
 
 import { AnalyticsKPIs, type AnalyticsTimeRange } from './AnalyticsKPIs';
+import { analyticsPanel } from './AnalyticsShared';
 
 const AnalyticsAreaChart = React.lazy(() =>
     import('./AnalyticsAreaChart').then((module) => ({ default: module.AnalyticsAreaChart }))
@@ -224,7 +225,31 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
                 latencyDuration={latencyDuration}
             />
 
-            <Suspense fallback={null}>
+            <Suspense
+                fallback={
+                    <div className="space-y-4" aria-busy="true">
+                        <div className={`${analyticsPanel} flex h-[280px] flex-col`}>
+                            <div className="border-b border-border-subtle px-5 py-2.5">
+                                <div className="h-4 w-40 animate-pulse rounded bg-text-main/5" />
+                            </div>
+                            <div className="flex min-h-0 flex-1 items-end justify-center gap-2.5 px-5 pb-4 pt-5">
+                                {[38, 62, 45, 78, 52, 70, 40, 58].map((h, i) => (
+                                    <div
+                                        key={i}
+                                        className="w-[22px] shrink-0 animate-pulse rounded-t-md bg-text-main/5"
+                                        style={{ height: `${h}%` }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                            {Array.from({ length: 2 }).map((_, i) => (
+                                <div key={i} className={`${analyticsPanel} h-[244px]`} />
+                            ))}
+                        </div>
+                    </div>
+                }
+            >
                 <div key={timeRange} className="space-y-4 animate-tab-in">
                     {timeRange === 'today' ? (
                         <AnalyticsTodayBarChart active={active} pieData={displayPieData} />
