@@ -44,7 +44,7 @@ export function SettingsHero({
     followers,
     broadcasterLabel,
     memberSince,
-
+    isLive = false,
     isLoading = false
 }: SettingsHeroProps) {
     const session = useRequiredSession();
@@ -65,6 +65,15 @@ export function SettingsHero({
                                     {sT.hello} <span className="text-brand-text">{name}</span>
                                 </span>
                             </h1>
+                            {isLive ? (
+                                <div className="flex items-center gap-1.5 rounded-md border border-border-subtle bg-bg-secondary px-2 py-1 text-[0.6875rem] font-semibold tracking-wide text-text-main">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                                        <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+                                    </span>
+                                    <span>{sT.liveBadge}</span>
+                                </div>
+                            ) : null}
                         </div>
                         <p className="mt-1 text-[0.875rem] text-text-muted">{sT.welcome}</p>
                     </div>

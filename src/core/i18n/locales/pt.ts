@@ -237,7 +237,8 @@ export const pt: Translations = {
             followers: 'Seguidores',
             channelType: 'Tipo de Canal',
             memberSince: 'Membro desde',
-            notAvailable: 'Não disponível agora'
+            notAvailable: 'Não disponível agora',
+            liveBadge: 'AO VIVO'
         },
         groups: {
             account: { title: 'Conta', desc: 'Seu identificador de plano e limites' },
@@ -483,11 +484,14 @@ export const pt: Translations = {
             title: 'Histórico de Atividade',
             subtitle: 'Filtre por categoria ou recurso em tempo real •',
             syncing: 'Sincronizando...',
+            liveBadge: 'AO VIVO',
             liveTooltip: 'Filtre por categoria ou recurso. Novos eventos chegam ao vivo.',
             emptyFiltered: 'Sem resultados',
             emptyAll: 'Sem atividade recente',
             emptyFilteredDesc: 'Tente outro filtro ou volte para Todos.',
             emptyAllDesc: 'Quando alguém usar um comando no seu chat, aparecerá aqui.',
+            emptyWithOnboarding: 'O histórico se preenche sozinho',
+            emptyWithOnboardingDesc: 'Enquanto isso, configure um comando acima.',
             all: 'Todos'
         },
         onboarding: {
