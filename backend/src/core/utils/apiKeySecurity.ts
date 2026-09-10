@@ -11,13 +11,15 @@ export function normalizeApiKey(apiKey: string): string {
 }
 
 /**
- * HMAC-SHA256 en hex para huellas / lookup de secretos de alta entropía.
- * No es almacenamiento de passwords (ahí iría Argon2/bcrypt); CodeQL lo confunde.
+ * HMAC-SHA256 keyed fingerprint for high-entropy API keys (lookup / cache keys).
+ * Not password storage — Argon2/bcrypt would break O(1) keyed lookup.
+ * CodeQL js/insufficient-password-hash is a false positive here.
  */
 function hmacSha256Hex(secret: string, message: string): string {
-    // lgtm[js/insufficient-password-hash]
-    // codeql[js/insufficient-password-hash]
-    return crypto.createHmac('sha256', secret).update(message, 'utf8').digest('hex');
+    return (
+        /* codeql[js/insufficient-password-hash] keyed API-key fingerprint, not password storage */
+        crypto.createHmac('sha256', secret).update(message, 'utf8').digest('hex')
+    );
 }
 
 /** Huellas HMAC (secreto actual + PREVIOUS opcional) para lookup sin romper rotación. */
