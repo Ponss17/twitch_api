@@ -5,6 +5,7 @@ import { AnalyticsSkeleton } from './AnalyticsSkeleton';
 import { ClipsViewSkeleton } from './ClipsViewSkeleton';
 import { CommandViewSkeleton } from './CommandViewSkeleton';
 import { HomeViewSkeleton } from './HomeViewSkeleton';
+import { ReportsSkeleton } from './ReportsSkeleton';
 import { SettingsViewSkeleton } from './SettingsViewSkeleton';
 import { StalkerViewSkeleton } from './StalkerViewSkeleton';
 import { TrendsSkeleton } from './TrendsSkeleton';
@@ -14,6 +15,7 @@ export function DashboardSessionSkeleton({ tab = 'home' }: { tab?: string }) {
     const { t } = useTranslation();
     let ContentSkeleton = HomeViewSkeleton;
     if (tab === 'analytics') ContentSkeleton = AnalyticsSkeleton;
+    else if (tab === 'reports') ContentSkeleton = ReportsSkeleton;
     else if (tab === 'settings') ContentSkeleton = SettingsViewSkeleton;
     else if (tab === 'trends') ContentSkeleton = TrendsSkeleton;
     else if (tab === 'stalker') ContentSkeleton = StalkerViewSkeleton;
