@@ -241,7 +241,8 @@ export const en: Translations = {
             followers: 'Followers',
             channelType: 'Channel Type',
             memberSince: 'Member Since',
-            notAvailable: 'Not available right now'
+            notAvailable: 'Not available right now',
+            liveBadge: 'LIVE'
         },
         groups: {
             account: { title: 'Account', desc: 'Your plan identifier and limits' },
@@ -490,11 +491,14 @@ export const en: Translations = {
             title: 'Activity History',
             subtitle: 'Filter by category or resource in real-time •',
             syncing: 'Syncing...',
+            liveBadge: 'LIVE',
             liveTooltip: 'Filter by category or resource. New events arrive live.',
             emptyFiltered: 'No results',
             emptyAll: 'No recent activity',
             emptyFilteredDesc: 'Try another filter or return to All.',
             emptyAllDesc: 'When someone uses a command in your chat, it will appear here.',
+            emptyWithOnboarding: 'History will fill in on its own',
+            emptyWithOnboardingDesc: 'Meanwhile, set up a command above.',
             all: 'All'
         },
         onboarding: {

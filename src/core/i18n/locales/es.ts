@@ -242,7 +242,8 @@ export const es = {
             followers: 'Seguidores',
             channelType: 'Tipo Canal',
             memberSince: 'Miembro Desde',
-            notAvailable: 'No disponible ahora mismo'
+            notAvailable: 'No disponible ahora mismo',
+            liveBadge: 'EN VIVO'
         },
         groups: {
             account: { title: 'Cuenta', desc: 'Identificador y límites de tu plan' },
@@ -488,11 +489,14 @@ export const es = {
             title: 'Historial de Actividad',
             subtitle: 'Filtra por categoría o recurso en tiempo real •',
             syncing: 'Sincronizando...',
+            liveBadge: 'EN VIVO',
             liveTooltip: 'Filtra por categoría o recurso. Los eventos nuevos siguen entrando en vivo.',
             emptyFiltered: 'Sin resultados',
             emptyAll: 'Sin actividad todavía',
             emptyFilteredDesc: 'Prueba otro filtro o vuelve a Todos.',
             emptyAllDesc: 'Cuando alguien use un comando en tu chat, aparecerá aquí.',
+            emptyWithOnboarding: 'El historial se llenará solo',
+            emptyWithOnboardingDesc: 'Mientras tanto, configura un comando arriba.',
             all: 'Todos'
         },
         onboarding: {

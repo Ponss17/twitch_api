@@ -31,6 +31,8 @@ interface HomeActivityFeedProps {
     syncLabel: string;
     isLoading?: boolean;
     isLive?: boolean;
+    /** When Home already shows onboarding, use shorter empty copy in the feed. */
+    compactEmpty?: boolean;
     highlightKeys?: ReadonlySet<string>;
     title?: string;
     timeZone?: string;
@@ -52,15 +54,31 @@ function ActivityFeedSkeleton() {
 const LOG_DATE_DIVIDER =
     "relative mt-1 py-2 pb-1 text-center text-[0.75rem] uppercase tracking-[1px] text-text-muted before:absolute before:left-0 before:top-1/2 before:h-px before:w-[calc(50%-60px)] before:bg-border-strong before:content-[''] after:absolute after:right-0 after:top-1/2 after:h-px after:w-[calc(50%-60px)] after:bg-border-strong after:content-['']";
 
-function ActivityEmptyState({ filtered }: { filtered?: boolean }) {
+function ActivityEmptyState({
+    filtered,
+    compactEmpty
+}: {
+    filtered?: boolean;
+    compactEmpty?: boolean;
+}) {
     const { t } = useTranslation();
     const aT = t.home.activityFeed;
+    const label = filtered
+        ? aT.emptyFiltered
+        : compactEmpty
+          ? aT.emptyWithOnboarding
+          : aT.emptyAll;
+    const description = filtered
+        ? aT.emptyFilteredDesc
+        : compactEmpty
+          ? aT.emptyWithOnboardingDesc
+          : aT.emptyAllDesc;
     return (
         <SimpleEmptyState
             icon={filtered ? Filter : Terminal}
-            label={filtered ? aT.emptyFiltered : aT.emptyAll}
-            description={filtered ? aT.emptyFilteredDesc : aT.emptyAllDesc}
-            className="h-full min-h-0 w-full flex-1 py-10"
+            label={label}
+            description={description}
+            className={`h-full min-h-0 w-full flex-1 ${compactEmpty && !filtered ? 'py-6' : 'py-10'}`}
         />
     );
 }
@@ -71,6 +89,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
     syncLabel,
     isLoading = false,
     isLive = false,
+    compactEmpty = false,
     highlightKeys,
     title,
     timeZone
@@ -135,7 +154,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
                                 <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
                             </span>
-                            <span>LIVE</span>
+                            <span>{aT.liveBadge}</span>
                         </div>
                     ) : null}
                     <InfoTooltip
@@ -195,8 +214,8 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                 <button
                                     type="button"
                                     onClick={() => setTypeFilter('all')}
-                                    className={`rounded-md px-2 py-1 text-[0.68rem] font-medium transition-colors duration-200 ${typeFilter === 'all'
-                                        ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_var(--color-primary-hover)]/10'
+                                    className={`rounded-md px-2 py-1 text-[0.7rem] font-semibold transition-colors duration-200 ${typeFilter === 'all'
+                                        ? 'bg-primary/15 text-brand-text ring-1 ring-primary/25 shadow-sm'
                                         : 'text-text-muted hover:bg-white/[0.02] hover:text-text-main'
                                         }`}
                                     aria-pressed={typeFilter === 'all'}
@@ -215,21 +234,21 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                                 key={type}
                                                 type="button"
                                                 onClick={() => setTypeFilter(type)}
-                                                className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.68rem] font-medium transition-colors duration-200 ${active
-                                                    ? 'bg-primary/15 text-primary ring-1 ring-primary/20 shadow-[0_1px_3px_var(--color-primary-hover)]/10'
+                                                className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.7rem] font-semibold transition-colors duration-200 ${active
+                                                    ? 'bg-primary/15 text-brand-text ring-1 ring-primary/25 shadow-sm'
                                                     : 'text-text-muted hover:bg-white/[0.02] hover:text-text-main'
                                                     }`}
                                                 aria-pressed={active}
                                             >
                                                 <span
-                                                    className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${active ? 'border-primary/30 bg-primary/10 text-primary' : 'border-border-subtle bg-transparent text-text-muted'
+                                                    className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${active ? 'border-primary/30 bg-primary/10 text-brand-text' : 'border-border-subtle bg-transparent text-text-muted'
                                                         }`}
                                                 >
                                                     <TypeIcon className="h-2.5 w-2.5" />
                                                 </span>
                                                 {meta.label}
                                                 {!isLoading && count > 0 ? (
-                                                    <span className="text-[0.65rem] opacity-70">{count}</span>
+                                                    <span className="text-[0.65rem] opacity-90">{count}</span>
                                                 ) : null}
                                             </button>
                                         );
@@ -258,6 +277,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
                                     >
                                         <ActivityEmptyState
                                             filtered={categoryFilter !== 'all' || typeFilter !== 'all'}
+                                            compactEmpty={compactEmpty}
                                         />
                                     </m.div>
                                 ) : (
