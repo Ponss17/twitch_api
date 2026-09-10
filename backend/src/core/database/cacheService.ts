@@ -51,19 +51,30 @@ function disableKvWrites(reason: string): void {
     if (kvWritesDisabled) return;
     kvWritesDisabled = true;
     if (process.env.NODE_ENV !== 'production') {
-        console.warn(`[Cache] KV escritura deshabilitada en dev (${reason}). Solo caché L1 en memoria.`);
+        console.warn(`[Cache] KV deshabilitado en dev (${reason}). Solo caché L1 en memoria.`);
     }
 }
 
-/** En dev, false si el token KV es read-only o falló una escritura. */
+/** En dev/test, false si falta KV, es read-only o falló una operación. */
 export function isKvWriteAvailable(): boolean {
     if (process.env.NODE_ENV === 'production') return true;
     return !kvWritesDisabled;
 }
 
+/** Marca KV como no usable tras un fallo (p. ej. rate limiter). No-op en producción. */
+export function reportKvFailure(reason: string): void {
+    if (process.env.NODE_ENV === 'production') return;
+    disableKvWrites(reason);
+}
+
 (function initKvDevMode(): void {
     if (process.env.NODE_ENV === 'production') return;
+    const url = process.env.KV_REST_API_URL?.trim();
     const token = process.env.KV_REST_API_TOKEN?.trim();
+    if (!url || !token) {
+        disableKvWrites('KV_REST_API_URL/TOKEN no configurados');
+        return;
+    }
     const readOnly = process.env.KV_REST_API_READ_ONLY_TOKEN?.trim();
     if (token && readOnly && token === readOnly) {
         disableKvWrites('KV_REST_API_TOKEN coincide con el token read-only');
@@ -73,6 +84,7 @@ export function isKvWriteAvailable(): boolean {
 export const get = async <T = unknown>(key: string): Promise<T | null> => {
     const cached = l1Get<T>(key);
     if (cached !== undefined) return cached;
+    if (!isKvWriteAvailable()) return null;
 
     try {
         const value = await kv.get<T>(`twitch_api:${key}`);
@@ -81,6 +93,10 @@ export const get = async <T = unknown>(key: string): Promise<T | null> => {
         }
         return value;
     } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            disableKvWrites('KV get falló');
+            return null;
+        }
         console.error('[Cache] Error KV get:', { key, error });
         return null; // Fail-soft: devolver null para que el sistema consulte la DB original
     }
@@ -160,10 +176,16 @@ export type SensitiveGetResult<T> =
     | { status: 'unavailable'; value: null };
 
 export const getSensitive = async <T = unknown>(key: string): Promise<SensitiveGetResult<T>> => {
+    if (!isKvWriteAvailable()) {
+        return { status: 'unavailable', value: null };
+    }
     try {
         const value = await kv.get<T>(`twitch_api:${key}`);
         return { status: 'ok', value: value ?? null };
     } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+            disableKvWrites('KV sensitive get falló');
+        }
         console.error('[Cache] Error KV sensitive get:', { key, error });
         return { status: 'unavailable', value: null };
     }
@@ -228,10 +250,14 @@ export const bumpStatsRevision = async (userId: string): Promise<void> => {
 };
 
 export const getStatsRevision = async (userId: string): Promise<number> => {
+    if (!isKvWriteAvailable()) return -1;
     try {
         const value = await kv.get<number>(`twitch_api:${statsRevisionKey(userId)}`);
         return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : -1;
     } catch {
+        if (process.env.NODE_ENV !== 'production') {
+            disableKvWrites('KV stats revision get falló');
+        }
         return -1;
     }
 };
@@ -276,6 +302,10 @@ export const revokeApiKeyGlobally = async (apiKey: string): Promise<void> => {
 
 export const isApiKeyRevoked = async (apiKey: string): Promise<boolean> => {
     if (!apiKey.trim()) return false;
+    // Dev/test sin KV: no hay store de revocación; no bloquear ni esperar timeouts de Upstash.
+    if (!isKvWriteAvailable() && process.env.NODE_ENV !== 'production') {
+        return false;
+    }
     const result = await getSensitive<number>(
         `cache:apikey:revoked:${apiKeyLookupHash(apiKey)}`
     );
