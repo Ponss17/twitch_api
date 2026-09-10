@@ -372,6 +372,7 @@ export const en: Translations = {
         badge: 'New',
         bellLabel: 'Notifications',
         countLabel: '{count} new',
+        inboxTitle: 'Notifications',
         emptyTitle: 'No notifications',
         emptyBody: 'Panel updates and your monthly reports will show up here.',
         timeNew: 'New',

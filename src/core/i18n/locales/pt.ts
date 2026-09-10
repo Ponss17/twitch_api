@@ -367,6 +367,7 @@ export const pt: Translations = {
         badge: 'Novidade',
         bellLabel: 'Notificações',
         countLabel: '{count} novas',
+        inboxTitle: 'Notificações',
         emptyTitle: 'Sem notificações',
         emptyBody: 'Aqui aparecem novidades do painel e seus relatórios mensais.',
         timeNew: 'Novo',
