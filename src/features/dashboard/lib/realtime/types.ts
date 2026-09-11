@@ -1,6 +1,7 @@
 import type { Session } from '@/core/config/config';
 import type { ActivityLogItem } from '../logs/activityLogDisplay';
 import type { RealtimeStatsUpdate } from '../data/dashboardStats';
+import type { ServerNotification } from '@/features/dashboard/reports/reportsApi';
 
 export interface RawActivityLog {
     activity_type?: string;
@@ -13,6 +14,7 @@ export interface RawActivityLog {
 export interface RealtimeCallbacks {
     onStatsUpdate: (stats: RealtimeStatsUpdate) => void;
     onActivityInsert: (log: ActivityLogItem) => void;
+    onNotification?: (notification: ServerNotification) => void;
 }
 
 export interface RealtimeSubscribeOptions {

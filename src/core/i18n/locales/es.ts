@@ -504,7 +504,44 @@ export const es = {
             desc: 'Empieza copiando un comando para tu bot, o mira la documentación.',
             ctaFollowage: 'Ir a Followage',
             ctaDocs: 'Ver documentación',
-            dismiss: 'No mostrar otra vez'
+            dismiss: 'No mostrar otra vez',
+            welcomeTitle: 'Bienvenido a LosPerrisAPI',
+            welcomeBody: 'Permíteme mostrarte las funciones principales con un tour rápido para que empieces enseguida.',
+            start: 'Empezar',
+            skip: 'Saltar',
+            back: 'Atrás',
+            next: 'Siguiente',
+            finish: 'Terminar',
+            stepOf: 'Paso {step} de {total}',
+            doneTitle: '¡Ya lo tienes todo!',
+            doneBody: 'Gracias por hacer el tour. Disfruta el panel y no dudes en explorar cada sección a tu ritmo.',
+            doneBtn: 'Empezar a usar',
+            steps: {
+                'sidebar-nav': {
+                    title: 'Menú de navegación',
+                    body: 'Desde aquí navegas entre todas las secciones: Inicio, Analíticas, Reportes, Comandos, Herramientas y Minijuegos. En escritorio puedes colapsarlo a iconos para ganar más espacio.'
+                },
+                'home-hero': {
+                    title: 'Resumen de tu canal',
+                    body: 'Seguidores totales, tipo de canal y fecha de inicio. Esta tarjeta se actualiza con tus datos reales de Twitch cada vez que entras.'
+                },
+                'home-activity': {
+                    title: 'Actividad en tiempo real',
+                    body: 'Cada vez que alguien use un comando en tu chat aparece aquí al instante vía WebSocket. Filtra por categoría o haz clic en cualquier entrada para ver los detalles completos.'
+                },
+                'home-resources': {
+                    title: 'Accesos rápidos',
+                    body: 'Los 3 comandos que más usas esta semana, links directos a la API y a la documentación. Se actualiza solo según tu actividad.'
+                },
+                analytics: {
+                    title: 'Analíticas del canal',
+                    body: 'Gráficas de uso por día, semana o mes. Compara qué comandos y herramientas son más populares en tu comunidad.'
+                },
+                followage: {
+                    title: 'Generador de comandos',
+                    body: 'Copia la URL lista para Nightbot, StreamElements o cualquier bot. Elige el formato, el idioma y prueba la respuesta directamente desde aquí.'
+                }
+            }
         },
         activityLog: {
             categories: {

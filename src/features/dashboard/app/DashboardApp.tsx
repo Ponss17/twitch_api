@@ -24,6 +24,7 @@ import {
 } from '@/features/dashboard/lib/ui/sidebarPrefs';
 import { isToolTab } from '@/features/dashboard/lib/tabs/dashboardTabs';
 import { ToolFocusProvider } from '@/features/dashboard/lib/ui/ToolFocusContext';
+import { DashboardOnboarding } from '@/features/dashboard/onboarding/DashboardOnboarding';
 
 type ToolFocusPhase = 'off' | 'pre' | 'in' | 'on' | 'out';
 
@@ -33,16 +34,20 @@ function DashboardMain({
     mobileMenuOpen,
     onMenuToggle,
     onCloseMobile,
+    onOpenMobile,
     onSettings,
-    onLogout
+    onLogout,
+    onboardingEnabled
 }: {
     tab: DashboardTab;
     onNavigate: (next: DashboardTab) => void;
     mobileMenuOpen: boolean;
     onMenuToggle: () => void;
     onCloseMobile: () => void;
+    onOpenMobile: () => void;
     onSettings: () => void;
     onLogout: () => void | Promise<void>;
+    onboardingEnabled: boolean;
 }) {
     const session = useRequiredSession();
     const { showToast } = useToast();
@@ -205,6 +210,13 @@ function DashboardMain({
                         </main>
                     </div>
                 </div>
+            <DashboardOnboarding
+                    enabled={onboardingEnabled}
+                    tab={tab}
+                    onNavigate={onNavigate}
+                    onOpenMobile={onOpenMobile}
+                    onCloseMobile={onCloseMobile}
+                />
             </ToolFocusProvider>
         </DashboardPanelProvider>
     );
@@ -361,8 +373,10 @@ function DashboardAppShell() {
                         mobileMenuOpen={mobileMenuOpen}
                         onMenuToggle={() => setMobileMenuOpen((open) => !open)}
                         onCloseMobile={() => setMobileMenuOpen(false)}
+                        onOpenMobile={() => setMobileMenuOpen(true)}
                         onSettings={() => setTab('settings')}
                         onLogout={logout}
+                        onboardingEnabled={!splashOpen}
                     />
                 </div>
             )}

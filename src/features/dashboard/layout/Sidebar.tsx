@@ -150,7 +150,7 @@ export function Sidebar({
                     ) : null}
                 </div>
 
-                <nav className={`${sidebarNavScroll} relative`} aria-label={t.sidebar.navigation}>
+                <nav data-tour="sidebar-nav" className={`${sidebarNavScroll} relative`} aria-label={t.sidebar.navigation}>
                     {MAIN_NAV.map((item, index) => {
                         const prevCategory = index > 0 ? MAIN_NAV[index - 1].category : '';
                         const isCategoryStart =
