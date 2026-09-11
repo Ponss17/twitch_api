@@ -137,6 +137,7 @@ export const HomeResourcesPanel = memo(function HomeResourcesPanel({
 
     return (
         <div
+            data-tour="home-resources"
             className={`${panelCard} ${fadeIn} flex h-auto flex-col min-[1001px]:h-full`}
             style={{ animationDelay: '60ms' }}
         >

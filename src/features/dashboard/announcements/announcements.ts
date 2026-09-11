@@ -1,6 +1,6 @@
 /** Anuncios del panel — id estable; bump el id al publicar otra novedad. */
 
-export type AnnouncementId = 'clips-download-2026-08';
+export type AnnouncementId = string & { __announcement?: never };
 
 export type AnnouncementIcon = 'download' | 'sparkles';
 
@@ -11,12 +11,6 @@ export interface AnnouncementDef {
     requiresRelogin?: boolean;
 }
 
-export const ANNOUNCEMENTS: readonly AnnouncementDef[] = [
-    {
-        id: 'clips-download-2026-08',
-        icon: 'download',
-        requiresRelogin: true
-    }
-] as const;
+export const ANNOUNCEMENTS: readonly AnnouncementDef[] = [] as const;
 
 export const ANNOUNCEMENT_DISMISS_PREF = 'feature_announce_dismissed';

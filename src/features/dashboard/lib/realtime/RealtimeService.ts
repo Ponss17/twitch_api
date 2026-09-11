@@ -12,6 +12,7 @@ import {
     type DailyStatsRealtimePatch,
     type RealtimeStatsUpdate
 } from '../data/dashboardStats';
+import type { ServerNotification } from '@/features/dashboard/reports/reportsApi';
 
 import type { RawActivityLog } from './types';
 import { isTransportFailure, isBenignRealtimeClose, installUnloadGuard } from './errors';
@@ -31,6 +32,7 @@ export class RealtimeService {
     private timezone = 'UTC';
     private dispatchStats: (stats: RealtimeStatsUpdate) => void = () => {};
     private dispatchActivity: (log: ActivityLogItem) => void = () => {};
+    private dispatchNotification: (n: ServerNotification) => void = () => {};
     private isConnected = false;
     private intentionalClose = false;
     private onDisconnectCallback: (() => void) | null = null;
@@ -52,10 +54,12 @@ export class RealtimeService {
 
     setDispatchers(
         onStats: (stats: RealtimeStatsUpdate) => void,
-        onActivity: (log: ActivityLogItem) => void
+        onActivity: (log: ActivityLogItem) => void,
+        onNotification?: (n: ServerNotification) => void
     ): void {
         this.dispatchStats = onStats;
         this.dispatchActivity = onActivity;
+        if (onNotification) this.dispatchNotification = onNotification;
     }
 
     get connected(): boolean {
@@ -276,6 +280,19 @@ export class RealtimeService {
                             filter: userFilter
                         },
                         dailyStatsHandler
+                    )
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'INSERT',
+                            schema: 'public',
+                            table: 'notifications',
+                            filter: userFilter
+                        },
+                        (payload) => {
+                            const row = payload.new as ServerNotification;
+                            if (row?.id) this.dispatchNotification(row);
+                        }
                     )
                     .on(
                         'postgres_changes',

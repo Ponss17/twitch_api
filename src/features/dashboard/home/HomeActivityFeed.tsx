@@ -127,7 +127,7 @@ export const HomeActivityFeed = memo(function HomeActivityFeed({
     }, [filteredActivity, timeZone, locale, t]);
 
     return (
-        <div className={`group/card ${panelCard} ${fadeIn} flex h-[510px] flex-col`} aria-busy={isLoading}>
+        <div data-tour="home-activity" className={`group/card ${panelCard} ${fadeIn} flex h-[510px] flex-col`} aria-busy={isLoading}>
             <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
                 <div className="flex min-w-0 items-center gap-3">
                     <div

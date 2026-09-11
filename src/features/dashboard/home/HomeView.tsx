@@ -3,7 +3,6 @@ import type { DashboardTab } from '@/core/config/config';
 import { SettingsHero } from '@/features/dashboard/settings/components/SettingsHero';
 import { HomeActivityFeed } from '@/features/dashboard/home/HomeActivityFeed';
 import { HomeResourcesPanel } from '@/features/dashboard/home/HomeResourcesPanel';
-import { HomeEmptyOnboarding } from '@/features/dashboard/home/HomeEmptyOnboarding';
 import { useRequiredSession } from '@/core/session/useSession';
 import { fadeIn } from '@/core/utils/tw';
 import { useDashboardPanel } from '@/features/dashboard/providers/DashboardPanelProvider';
@@ -48,8 +47,6 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
         return t.home.broadcaster.streamer;
     };
 
-    const showOnboarding = hasLiveData && activity.length === 0;
-
     return (
         <div className={fadeIn}>
             <SettingsHero
@@ -60,8 +57,6 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
                 isLoading={!hasLiveData}
             />
 
-            {showOnboarding ? <HomeEmptyOnboarding onNavigate={onNavigate} /> : null}
-
             <div className="grid grid-cols-1 items-stretch gap-5 min-[1001px]:grid-cols-[1fr_310px]">
                 <HomeActivityFeed
                     activity={activity}
@@ -69,7 +64,7 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
                     syncLabel={syncLabel}
                     isLoading={!hasLiveData}
                     isLive={isRealtimeLive}
-                    compactEmpty={showOnboarding}
+                    compactEmpty={false}
                     highlightKeys={highlightKeys}
                     timeZone={profile?.timezone}
                     title={t.home.activityFeed.title}
