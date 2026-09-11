@@ -53,7 +53,7 @@ export function SettingsHero({
     const name = session.displayName ?? session.login ?? 'Streamer';
 
     return (
-        <section className={`relative mb-5 flex flex-col justify-center overflow-hidden ${panelCard} p-6`}>
+        <section data-tour="home-hero" className={`relative mb-5 flex flex-col justify-center overflow-hidden ${panelCard} p-6`}>
             <div className="relative z-10 flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
                 <div className="flex items-center gap-4">
                     <div className="min-w-0">

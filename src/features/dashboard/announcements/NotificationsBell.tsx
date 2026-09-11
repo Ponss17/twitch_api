@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type ComponentType } from 'react';
-import { Bell, Download, FileBarChart, Sparkles, X } from 'lucide-react';
+import { Bell, FileBarChart, Sparkles, X } from 'lucide-react';
 import { logout } from '@/core/api/auth';
 import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
@@ -19,9 +19,9 @@ import {
     type ServerNotification
 } from '@/features/dashboard/reports/reportsApi';
 import { navigateDashboard } from '@/features/dashboard/lib/tabs/dashboardPanelEvents';
+import { useDashboardRealtime } from '@/features/dashboard/hooks/useDashboardRealtime';
 
-const ICON_MAP: Record<AnnouncementIcon, ComponentType<{ className?: string }>> = {
-    download: Download,
+const ICON_MAP: Partial<Record<AnnouncementIcon, ComponentType<{ className?: string }>>> = {
     sparkles: Sparkles
 };
 
@@ -67,6 +67,20 @@ export function NotificationsBell() {
         void refreshServer();
     }, [refreshServer]);
 
+    const handleRealtimeNotification = useCallback((incoming: ServerNotification) => {
+        setServerNotifications((prev) => {
+            if (prev.some((n) => n.id === incoming.id)) return prev;
+            return [incoming, ...prev];
+        });
+    }, []);
+
+    useDashboardRealtime({
+        id: 'notifications-bell',
+        active: true,
+        session,
+        onNotification: handleRealtimeNotification
+    });
+
     const unreadServer = serverNotifications.filter((n) => !n.read_at);
     const count = announceCount + unreadServer.length;
 
@@ -90,12 +104,19 @@ export function NotificationsBell() {
         }
     };
 
+    const onDismissNotification = async (notification: ServerNotification) => {
+        try {
+            await markServerNotificationRead(session, notification.id);
+        } catch {
+            /* ignore */
+        }
+        setServerNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+    };
+
     const onMarkAllServerRead = async () => {
         try {
             await markAllServerNotificationsRead(session);
-            setServerNotifications((prev) =>
-                prev.map((n) => ({ ...n, read_at: n.read_at ?? new Date().toISOString() }))
-            );
+            setServerNotifications([]);
         } catch {
             /* ignore */
         }
@@ -124,11 +145,12 @@ export function NotificationsBell() {
             >
                 <BellPanel
                     announcements={announcements}
-                    serverNotifications={serverNotifications}
+                    serverNotifications={unreadServer}
                     count={count}
                     dismiss={dismiss}
                     dismissAll={dismissAll}
                     onOpenReport={(n) => void onOpenReport(n)}
+                    onDismissNotification={(n) => void onDismissNotification(n)}
                     onMarkAllServerRead={() => void onMarkAllServerRead()}
                     reportTitle={(month) =>
                         rT.notificationTitle.replace('{month}', formatMonthLabel(month, bcp47))
@@ -148,6 +170,7 @@ function BellPanel({
     dismiss,
     dismissAll,
     onOpenReport,
+    onDismissNotification,
     onMarkAllServerRead,
     reportTitle,
     reportBody,
@@ -159,6 +182,7 @@ function BellPanel({
     dismiss: (id: AnnouncementId) => void;
     dismissAll: () => void;
     onOpenReport: (notification: ServerNotification) => void;
+    onDismissNotification: (notification: ServerNotification) => void;
     onMarkAllServerRead: () => void;
     reportTitle: (month: string) => string;
     reportBody: string;
@@ -237,11 +261,23 @@ function BellPanel({
                                                 <p className="text-[0.8125rem] font-semibold leading-snug text-text-main">
                                                     {title}
                                                 </p>
-                                                {unread ? (
-                                                    <span className="shrink-0 pt-0.5 text-[0.65rem] text-text-muted">
-                                                        {aT.timeNew}
-                                                    </span>
-                                                ) : null}
+                                                <div className="flex shrink-0 items-center gap-1 pt-0.5">
+                                                    {unread ? (
+                                                        <span className="text-[0.65rem] text-text-muted">
+                                                            {aT.timeNew}
+                                                        </span>
+                                                    ) : null}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            onDismissNotification(item);
+                                                        }}
+                                                        aria-label={t.common.aria.close}
+                                                        className="rounded p-0.5 text-text-muted transition hover:bg-white/[0.04] hover:text-text-main"
+                                                    >
+                                                        <X className="size-3" aria-hidden />
+                                                    </button>
+                                                </div>
                                             </div>
                                             <p className="mt-0.5 text-[0.75rem] leading-snug text-text-muted">
                                                 {reportBody}
@@ -266,7 +302,7 @@ function BellPanel({
                         {announcements.map((item) => {
                             const copy = announcementCopy(aT.items, item.id);
                             if (!copy) return null;
-                            const Icon = ICON_MAP[item.icon ?? 'sparkles'];
+                            const Icon = ICON_MAP[item.icon ?? 'sparkles'] ?? Sparkles;
 
                             return (
                                 <li

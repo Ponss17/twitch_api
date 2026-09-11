@@ -206,7 +206,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange, headerBadge 
     };
 
     return (
-        <div className={`${panelCard} ${fadeIn} relative z-10 mb-5 flex flex-col focus-within:z-20`}>
+        <div data-tour="command-generator" className={`${panelCard} ${fadeIn} relative z-10 mb-5 flex flex-col focus-within:z-20`}>
             <CommandCardHeader
                 icon={config.icon}
                 title={title}

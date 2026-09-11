@@ -1,6 +1,7 @@
 import type { Session } from '@/core/config/config';
 import type { ActivityLogItem } from '../logs/activityLogDisplay';
 import type { RealtimeStatsUpdate } from '../data/dashboardStats';
+import type { ServerNotification } from '@/features/dashboard/reports/reportsApi';
 import { RealtimeService } from './RealtimeService';
 import type { RealtimeCallbacks, RealtimeSubscribeOptions, SubscriberEntry } from './types';
 import { isRealtimeInCooldown, markRealtimeCooldown } from './cooldown';
@@ -88,14 +89,16 @@ function scheduleDestroyIfIdle(): void {
 }
 
 function dispatchToSubscribers(
-    kind: 'stats' | 'activity',
-    payload: RealtimeStatsUpdate | ActivityLogItem
+    kind: 'stats' | 'activity' | 'notification',
+    payload: RealtimeStatsUpdate | ActivityLogItem | ServerNotification
 ): void {
     for (const entry of subscribers.values()) {
         if (kind === 'stats') {
             entry.callbacks.onStatsUpdate(payload as RealtimeStatsUpdate);
-        } else {
+        } else if (kind === 'activity') {
             entry.callbacks.onActivityInsert(payload as ActivityLogItem);
+        } else {
+            entry.callbacks.onNotification?.(payload as ServerNotification);
         }
     }
 }
@@ -124,7 +127,8 @@ function ensureService(session: Session): RealtimeService {
 
     realtimeServiceInstance.setDispatchers(
         (stats) => dispatchToSubscribers('stats', stats),
-        (log) => dispatchToSubscribers('activity', log)
+        (log) => dispatchToSubscribers('activity', log),
+        (n) => dispatchToSubscribers('notification', n)
     );
 
     return realtimeServiceInstance;
