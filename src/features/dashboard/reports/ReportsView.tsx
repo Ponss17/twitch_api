@@ -14,7 +14,7 @@ import { PanelLoadError } from '@/shared/ui/PanelLoadError';
 import { ReportsSkeleton, ReportsArticleSkeleton } from '@/shared/ui/skeletons/ReportsSkeleton';
 import { SplitFormatDownload, type DownloadFormat } from '@/shared/ui/SplitFormatDownload';
 import { navigateDashboard } from '@/features/dashboard/lib/tabs/dashboardPanelEvents';
-import { ReportsHowItWorksSheet } from './ReportsHowItWorksSheet';
+import { ReportsHowItWorksModal } from './ReportsHowItWorksModal';
 import {
     ensureMonthlyReport,
     fetchMonthlyReport,
@@ -174,7 +174,7 @@ export function ReportsView({ active }: { active: boolean }) {
         return (
             <>
                 <PanelLoadError message={error} onRetry={() => void loadList()} />
-                <ReportsHowItWorksSheet open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
+                <ReportsHowItWorksModal open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
             </>
         );
     }
@@ -217,7 +217,7 @@ export function ReportsView({ active }: { active: boolean }) {
                         </button>
                     </div>
                 </div>
-                <ReportsHowItWorksSheet open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
+                <ReportsHowItWorksModal open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
             </>
         );
     }
@@ -260,20 +260,9 @@ export function ReportsView({ active }: { active: boolean }) {
         <>
         <div className={`${fadeIn} grid gap-4 lg:grid-cols-[12rem_minmax(0,1fr)]`}>
             <aside className={`${panelCard} lg:sticky lg:top-4 lg:self-start`}>
-                <div className="flex items-center justify-between gap-2 border-b border-border-subtle px-3.5 py-2.5">
-                    <p className="text-[0.7rem] font-semibold uppercase tracking-wide text-text-muted">
-                        {rT.browseByMonth}
-                    </p>
-                    <button
-                        type="button"
-                        onClick={() => setHowItWorksOpen(true)}
-                        className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[0.7rem] font-medium text-text-muted transition-colors hover:bg-white/[0.02] hover:text-text-main"
-                        aria-label={rT.howItWorks}
-                    >
-                        <HelpCircle className="size-3.5 shrink-0" aria-hidden />
-                        <span className="hidden sm:inline">{rT.howItWorks}</span>
-                    </button>
-                </div>
+                <p className="border-b border-border-subtle px-3.5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-wide text-text-muted">
+                    {rT.browseByMonth}
+                </p>
                 <nav className="flex flex-col gap-0.5 p-1.5" aria-label={rT.months}>
                     {list.map((item) => {
                         const pressed = item.yearMonth === selected;
@@ -306,24 +295,36 @@ export function ReportsView({ active }: { active: boolean }) {
                 ) : (
                     <>
                         <div className="border-b border-border-subtle px-5 py-5 sm:px-7">
-                            <div className="flex flex-wrap items-center gap-2">
-                                <p className="text-[0.7rem] font-medium uppercase tracking-wide text-text-muted">
-                                    {rT.eyebrow}
-                                </p>
-                                {isLatest ? (
-                                    <span className="rounded-md border border-primary/30 bg-primary/[0.08] px-2 py-0.5 text-[0.65rem] font-semibold tracking-wide text-brand-text">
-                                        {rT.latestBadge}
-                                    </span>
-                                ) : null}
+                            <div className="flex flex-wrap items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <p className="text-[0.7rem] font-medium uppercase tracking-wide text-text-muted">
+                                            {rT.eyebrow}
+                                        </p>
+                                        {isLatest ? (
+                                            <span className="rounded-lg border border-primary/30 bg-primary/[0.08] px-2 py-0.5 text-[0.65rem] font-semibold tracking-wide text-brand-text">
+                                                {rT.latestBadge}
+                                            </span>
+                                        ) : null}
+                                    </div>
+                                    <h3 className="mt-2 text-[1.35rem] font-semibold tracking-tight text-text-main sm:text-[1.5rem]">
+                                        {rT.entryTitle.replace('{month}', monthLabel)}
+                                    </h3>
+                                    <p className="mt-1 text-[0.78rem] text-text-muted">
+                                        {monthLabel}
+                                        <span className="mx-1.5 text-text-muted/50">·</span>
+                                        {rT.metaCategory}
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setHowItWorksOpen(true)}
+                                    className={`${btnSecondary} shrink-0 !px-3 !py-1.5 text-[0.78rem]`}
+                                >
+                                    <HelpCircle className="size-3.5 shrink-0" aria-hidden />
+                                    {rT.howItWorks}
+                                </button>
                             </div>
-                            <h3 className="mt-2 text-[1.35rem] font-semibold tracking-tight text-text-main sm:text-[1.5rem]">
-                                {rT.entryTitle.replace('{month}', monthLabel)}
-                            </h3>
-                            <p className="mt-1 text-[0.78rem] text-text-muted">
-                                {monthLabel}
-                                <span className="mx-1.5 text-text-muted/50">·</span>
-                                {rT.metaCategory}
-                            </p>
                         </div>
 
                         <div className="px-5 py-6 sm:px-7">
@@ -393,7 +394,7 @@ export function ReportsView({ active }: { active: boolean }) {
                 )}
             </article>
         </div>
-        <ReportsHowItWorksSheet open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
+        <ReportsHowItWorksModal open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
         </>
     );
 }

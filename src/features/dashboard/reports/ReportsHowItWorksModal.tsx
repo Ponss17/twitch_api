@@ -1,9 +1,9 @@
-import { Sheet } from '@/shared/ui/Sheet';
-import { btnSecondary } from '@/core/utils/tw';
+import { Modal, ModalCloseButton } from '@/shared/ui/modals/Modal';
+import { modalBtnSecondary } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { Archive, BarChart3, CalendarClock, ShieldCheck } from 'lucide-react';
 
-interface ReportsHowItWorksSheetProps {
+interface ReportsHowItWorksModalProps {
     open: boolean;
     onClose: () => void;
 }
@@ -15,23 +15,31 @@ const STEPS = [
     { key: 'analytics', icon: BarChart3 }
 ] as const;
 
-export function ReportsHowItWorksSheet({ open, onClose }: ReportsHowItWorksSheetProps) {
+export function ReportsHowItWorksModal({ open, onClose }: ReportsHowItWorksModalProps) {
     const { t } = useTranslation();
     const rT = t.reports;
     const steps = rT.howItWorksSteps;
 
     return (
-        <Sheet open={open} onClose={onClose} title={rT.howItWorks} description={rT.howItWorksDesc}>
-            <ol className="space-y-4">
+        <Modal
+            open={open}
+            onClose={onClose}
+            title={rT.howItWorks}
+            footer={
+                <ModalCloseButton className={modalBtnSecondary}>{rT.howItWorksClose}</ModalCloseButton>
+            }
+        >
+            <p className="mb-4 text-[0.8125rem] leading-relaxed text-text-muted">{rT.howItWorksDesc}</p>
+            <ol className="space-y-2.5">
                 {STEPS.map(({ key, icon: Icon }) => {
                     const title = steps[`${key}Title` as keyof typeof steps];
                     const body = steps[`${key}Body` as keyof typeof steps];
                     return (
                         <li
                             key={key}
-                            className="flex gap-3 rounded-xl border border-border-subtle bg-bg-secondary/40 px-3.5 py-3"
+                            className="flex gap-3 rounded-lg border border-border-subtle bg-bg-secondary px-3.5 py-3"
                         >
-                            <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl border border-border-subtle bg-bg-card text-brand-text">
+                            <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg border border-border-subtle bg-bg-card text-brand-text">
                                 <Icon className="size-4" aria-hidden />
                             </span>
                             <div className="min-w-0">
@@ -42,9 +50,6 @@ export function ReportsHowItWorksSheet({ open, onClose }: ReportsHowItWorksSheet
                     );
                 })}
             </ol>
-            <button type="button" onClick={onClose} className={`${btnSecondary} mt-6 w-full`}>
-                {rT.howItWorksClose}
-            </button>
-        </Sheet>
+        </Modal>
     );
 }
