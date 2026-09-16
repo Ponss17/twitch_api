@@ -220,7 +220,7 @@ export const es = {
             resetConfirm: 'Confirmar y Borrar',
             resetScopesLabel: 'Qué borrar',
             resetScopeStats: 'Estadísticas',
-            resetScopeStatsHint: 'Uso de comandos, analíticas y contadores del panel.',
+            resetScopeStatsHint: 'Uso de comandos, analíticas y contadores del panel. No borra los informes mensuales.',
             resetScopeActivity: 'Historial de actividad',
             resetScopeActivityHint: 'Feed de eventos recientes del panel (comandos, minijuegos, etc.).',
             resetScopeQuestions: 'Historial de preguntas',
@@ -447,6 +447,22 @@ export const es = {
         notificationTitle: 'Informe listo: {month}',
         notificationBody: 'Ya puedes leer o descargar el resumen del mes cerrado.',
         openReport: 'Abrir informe',
+        howItWorks: 'Cómo funciona',
+        howItWorksDesc: 'Archivo del mes cerrado vs Analíticas',
+        howItWorksClose: 'Entendido',
+        howItWorksSteps: {
+            archiveTitle: 'Es un archivo, no el panel en vivo',
+            archiveBody:
+                'Al cerrar el mes guardamos una foto del uso de tus comandos LosPerris. Eso es Reportes. Analíticas sigue mostrando el momento actual.',
+            timingTitle: 'El mes en curso aún no aparece',
+            timingBody:
+                'Lo que usas hoy alimenta Analíticas. El informe de ese mes solo se crea cuando el mes termina y hubo uso.',
+            resetTitle: 'Reiniciar datos no borra Reportes',
+            resetBody:
+                'Si limpias estadísticas en Ajustes, los informes ya archivados se quedan. Solo se pierden con Eliminar cuenta.',
+            analyticsTitle: '¿Quieres lo de ahora?',
+            analyticsBody: 'Abre Analíticas: ahí están los contadores vivos del panel.'
+        },
         kpis: {
             requests: 'Usos totales',
             requestsHint: 'Veces que alguien usó un comando',
