@@ -64,7 +64,6 @@ function HomeViewContent({ onNavigate }: { onNavigate?: (tab: DashboardTab) => v
                     syncLabel={syncLabel}
                     isLoading={!hasLiveData}
                     isLive={isRealtimeLive}
-                    compactEmpty={false}
                     highlightKeys={highlightKeys}
                     timeZone={profile?.timezone}
                     title={t.home.activityFeed.title}

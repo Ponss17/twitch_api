@@ -502,11 +502,6 @@ export const en: Translations = {
             all: 'All'
         },
         onboarding: {
-            title: 'No activity yet',
-            desc: 'Start by copying a command for your bot, or check the docs.',
-            ctaFollowage: 'Go to Followage',
-            ctaDocs: 'View docs',
-            dismiss: "Don't show again",
             welcomeTitle: 'Welcome to LosPerrisAPI',
             welcomeBody: "Let me give you a quick tour of the main features so you can get up and running fast.",
             start: 'Start',

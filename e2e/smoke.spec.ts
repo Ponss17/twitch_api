@@ -106,6 +106,7 @@ function waitForValidate(page: Page) {
 async function seedSession(page: Page) {
     await page.addInitScript((session) => {
         localStorage.setItem('twitch_api_session', JSON.stringify(session));
+        localStorage.setItem(`home_onboarding_dismissed_${session.userId}`, '1');
     }, e2eSession);
 }
 
@@ -137,6 +138,11 @@ test.describe('smoke', () => {
 
 test.describe('dashboard', () => {
     test.describe.configure({ mode: 'serial' });
+    test.beforeEach(async ({ page }) => {
+        await page.addInitScript((userId) => {
+            localStorage.setItem(`home_onboarding_dismissed_${userId}`, '1');
+        }, e2eSession.userId);
+    });
     test('redirects unauthenticated users to landing', async ({ page }) => {
         await page.goto('/dashboard/');
         await expect(page).toHaveURL(/^(?:http:\/\/(?:localhost|127\.0\.0\.1):\d+)\/?$/);
