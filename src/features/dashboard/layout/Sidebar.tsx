@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { DashboardTab } from '@/core/config/config';
 import { staticPath } from '@/core/config/paths';
 import { NAV_ITEMS } from '@/features/dashboard/lib/tabs/dashboardTabs';
@@ -66,6 +66,14 @@ export function Sidebar({
     const { t } = useTranslation();
     const session = useRequiredSession();
     const asideRef = useRef<HTMLElement>(null);
+    const navListRef = useRef<HTMLDivElement>(null);
+    const navBtnRefs = useRef(new Map<DashboardTab, HTMLButtonElement | null>());
+    const [navPill, setNavPill] = useState<{
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+    } | null>(null);
     const isDesktop = useIsDesktopLg();
     const railCollapsed = collapsed && isDesktop;
     const displayName = session.displayName ?? session.login ?? 'Streamer';
@@ -105,9 +113,62 @@ export function Sidebar({
         return () => window.removeEventListener('keydown', onKey);
     }, [mobileOpen, onClose]);
 
+    const layoutKey = `${railCollapsed}-${mobileOpen}-${isDesktop}`;
+    const prevLayoutKey = useRef(layoutKey);
+    const [smoothPill, setSmoothPill] = useState(false);
+
     const toggleCollapsed = () => {
         onCollapsedChange?.(!collapsed);
     };
+
+    useLayoutEffect(() => {
+        const measure = () => {
+            const btn = navBtnRefs.current.get(active);
+            const list = navListRef.current;
+            if (!btn || !list) return;
+            const listRect = list.getBoundingClientRect();
+            const btnRect = btn.getBoundingClientRect();
+            if (btnRect.width < 2 || btnRect.height < 2) return;
+            setNavPill({
+                top: btnRect.top - listRect.top,
+                left: btnRect.left - listRect.left,
+                width: btnRect.width,
+                height: btnRect.height
+            });
+        };
+
+        const layoutChanged = prevLayoutKey.current !== layoutKey;
+        prevLayoutKey.current = layoutKey;
+        setSmoothPill(!layoutChanged);
+
+        measure();
+
+        const ro = new ResizeObserver(measure);
+        const list = navListRef.current;
+        const aside = asideRef.current;
+        if (list) ro.observe(list);
+        if (aside) ro.observe(aside);
+        navBtnRefs.current.forEach((el) => {
+            if (el) ro.observe(el);
+        });
+
+        let raf = 0;
+        if (layoutChanged) {
+            const started = performance.now();
+            const followLayout = (now: number) => {
+                measure();
+                if (now - started < 520) raf = requestAnimationFrame(followLayout);
+            };
+            raf = requestAnimationFrame(followLayout);
+        }
+
+        window.addEventListener('resize', measure);
+        return () => {
+            cancelAnimationFrame(raf);
+            ro.disconnect();
+            window.removeEventListener('resize', measure);
+        };
+    }, [active, layoutKey]);
 
     return (
         <>
@@ -150,7 +211,24 @@ export function Sidebar({
                     ) : null}
                 </div>
 
-                <nav data-tour="sidebar-nav" className={`${sidebarNavScroll} relative`} aria-label={t.sidebar.navigation}>
+                <nav data-tour="sidebar-nav" className={sidebarNavScroll} aria-label={t.sidebar.navigation}>
+                    <div ref={navListRef} className="relative">
+                    {navPill ? (
+                        <span
+                            aria-hidden
+                            className={`pointer-events-none absolute z-0 rounded-md bg-primary/15 dark:bg-primary/20 dark:shadow-md dark:shadow-black/40 motion-reduce:transition-none ${
+                                smoothPill
+                                    ? 'transition-[top,left,width,height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'
+                                    : ''
+                            }`}
+                            style={{
+                                top: navPill.top,
+                                left: navPill.left,
+                                width: navPill.width,
+                                height: navPill.height
+                            }}
+                        />
+                    ) : null}
                     {MAIN_NAV.map((item, index) => {
                         const prevCategory = index > 0 ? MAIN_NAV[index - 1].category : '';
                         const isCategoryStart =
@@ -187,11 +265,14 @@ export function Sidebar({
                                 ) : null}
                                 <button
                                     type="button"
+                                    ref={(el) => {
+                                        navBtnRefs.current.set(item.id, el);
+                                    }}
                                     onClick={() => {
                                         onChange(item.id);
                                         onClose();
                                     }}
-                                    className={`${sidebarNavItem(isActive, railCollapsed)} relative overflow-hidden`}
+                                    className={`${sidebarNavItem(isActive, railCollapsed, true)} relative z-[1] overflow-hidden`}
                                     aria-label={itemLabel}
                                     title={railCollapsed ? itemLabel : undefined}
                                     aria-current={isActive ? 'page' : undefined}
@@ -212,6 +293,7 @@ export function Sidebar({
                             </div>
                         );
                     })}
+                    </div>
                 </nav>
 
                 <div
