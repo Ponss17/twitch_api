@@ -14,7 +14,7 @@ import { PanelLoadError } from '@/shared/ui/PanelLoadError';
 import { ReportsSkeleton, ReportsArticleSkeleton } from '@/shared/ui/skeletons/ReportsSkeleton';
 import { SplitFormatDownload, type DownloadFormat } from '@/shared/ui/SplitFormatDownload';
 import { navigateDashboard } from '@/features/dashboard/lib/tabs/dashboardPanelEvents';
-import { ReportsHowItWorksModal } from './ReportsHowItWorksModal';
+import { ReportsHowItWorksSheet } from './ReportsHowItWorksSheet';
 import {
     ensureMonthlyReport,
     fetchMonthlyReport,
@@ -174,7 +174,7 @@ export function ReportsView({ active }: { active: boolean }) {
         return (
             <>
                 <PanelLoadError message={error} onRetry={() => void loadList()} />
-                <ReportsHowItWorksModal open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
+                <ReportsHowItWorksSheet open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
             </>
         );
     }
@@ -217,7 +217,7 @@ export function ReportsView({ active }: { active: boolean }) {
                         </button>
                     </div>
                 </div>
-                <ReportsHowItWorksModal open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
+                <ReportsHowItWorksSheet open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
             </>
         );
     }
@@ -394,7 +394,7 @@ export function ReportsView({ active }: { active: boolean }) {
                 )}
             </article>
         </div>
-        <ReportsHowItWorksModal open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
+        <ReportsHowItWorksSheet open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
         </>
     );
 }
