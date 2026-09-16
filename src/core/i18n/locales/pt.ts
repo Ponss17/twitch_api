@@ -404,6 +404,7 @@ export const pt: Translations = {
         storyNoCommand: 'nenhum comando',
         storyNoViewer: 'ninguém do chat',
         downloadTitle: 'Guardar o relatório',
+        downloadAction: 'Baixar',
         downloadHtmlDesc: 'Página pronta para guardar ou compartilhar.',
         downloadCsvDesc: 'Para Excel ou Google Sheets.',
         emptyTitle: 'Ainda sem mês fechado',

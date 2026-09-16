@@ -409,6 +409,7 @@ export const en: Translations = {
         storyNoCommand: 'no command',
         storyNoViewer: 'nobody in chat',
         downloadTitle: 'Save this report',
+        downloadAction: 'Download',
         downloadHtmlDesc: 'A page you can save or share.',
         downloadCsvDesc: 'For Excel or Google Sheets.',
         emptyTitle: 'No closed month yet',
