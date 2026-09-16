@@ -180,12 +180,15 @@ export const SIDEBAR_MOTION =
 export const sidebarNavButtonBase =
     `relative mb-0.5 flex items-center rounded-md border border-transparent py-1.5 text-left font-[inherit] text-[0.85rem] font-medium outline-none transition-[width,padding,margin,background-color,color,box-shadow] ${SIDEBAR_MOTION} focus-visible:bg-bg-tertiary focus-visible:text-text-main focus-visible:ring-1 focus-visible:ring-text-main/10`;
 
-export const sidebarNavItem = (active: boolean, collapsed = false) => {
+export const sidebarNavItem = (active: boolean, collapsed = false, slidingHighlight = false) => {
     const width = collapsed
         ? 'mx-auto w-10 justify-center px-0'
         : 'mx-auto w-[calc(100%-16px)] justify-start px-3';
     if (active) {
-        return `${sidebarNavButtonBase} ${width} bg-primary/15 text-text-main shadow-none dark:bg-primary/20 dark:shadow-md dark:shadow-black/40 [&_svg]:text-primary`;
+        const bg = slidingHighlight
+            ? 'bg-transparent shadow-none'
+            : 'bg-primary/15 shadow-none dark:bg-primary/20 dark:shadow-md dark:shadow-black/40';
+        return `${sidebarNavButtonBase} ${width} ${bg} text-text-main [&_svg]:text-primary`;
     }
     return `${sidebarNavButtonBase} ${width} text-text-muted ${hoverSubtleIconBtn}`;
 };
