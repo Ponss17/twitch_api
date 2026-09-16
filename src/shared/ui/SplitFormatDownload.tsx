@@ -39,6 +39,7 @@ export function SplitFormatDownload({
             <div className="inline-flex h-9 w-full min-w-0 overflow-hidden rounded-lg border border-border-strong sm:w-auto">
                 <button
                     type="button"
+                    data-dropdown-match
                     onClick={onDownload}
                     disabled={disabled || busy}
                     className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 bg-bg-secondary px-3.5 text-[0.8125rem] font-semibold text-text-main transition hover:bg-white/[0.02] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:px-4"
@@ -64,7 +65,8 @@ export function SplitFormatDownload({
                 role="listbox"
                 align="right"
                 padding="compact"
-                widthClassName="min-w-[10rem]"
+                matchTrigger
+                widthClassName=""
                 aria-label={formatMenuLabel}
             >
                 <DropdownItem
