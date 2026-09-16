@@ -5,7 +5,7 @@ import { useCommandTestField, useCommandTestResult } from '@/features/commands/h
 import { buildCommandTestUrl, useCommandApiTest } from '@/features/commands/hooks/useCommandApiTest';
 import { useRequiredSession } from '@/core/session/useSession';
 import { ApiTestCard, CommandGeneratorCard, FormField } from '../CommandGeneratorCard';
-import { fadeIn } from '@/core/utils/tw';
+import { fadeIn, btnSecondary } from '@/core/utils/tw';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { Sheet } from '@/shared/ui/Sheet';
 import { toApiTestResult, followageErrorPattern } from '../lib/viewUtils';
@@ -46,7 +46,7 @@ export function WatchtimeView() {
         <button
             type="button"
             onClick={() => setSheetOpen(true)}
-            className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[0.7rem] font-medium text-primary transition-colors hover:bg-primary/20"
+            className={`${btnSecondary} !px-2.5 !py-1 text-[0.7rem]`}
         >
             {viewT.watchtime.disclaimerTitle}
         </button>
