@@ -127,17 +127,13 @@ export function Sidebar({
             const list = navListRef.current;
             if (!btn || !list) return;
             const listRect = list.getBoundingClientRect();
-            const chip = btn.querySelector<HTMLElement>('[data-nav-chip]');
-            const target = railCollapsed || !chip ? btn : chip;
-            const rect = target.getBoundingClientRect();
-            if (rect.width < 2 || rect.height < 2) return;
-            const padX = !railCollapsed && chip ? 10 : 0;
-            const padY = !railCollapsed && chip ? 6 : 0;
+            const btnRect = btn.getBoundingClientRect();
+            if (btnRect.width < 2 || btnRect.height < 2) return;
             setNavPill({
-                top: rect.top - listRect.top - padY,
-                left: rect.left - listRect.left - padX,
-                width: rect.width + padX * 2,
-                height: rect.height + padY * 2
+                top: btnRect.top - listRect.top,
+                left: btnRect.left - listRect.left,
+                width: btnRect.width,
+                height: btnRect.height
             });
         };
 
@@ -220,7 +216,7 @@ export function Sidebar({
                     {navPill ? (
                         <span
                             aria-hidden
-                            className={`pointer-events-none absolute z-0 rounded-md border border-border-strong bg-bg-secondary motion-reduce:transition-none ${
+                            className={`pointer-events-none absolute z-0 rounded-md bg-primary/15 dark:bg-primary/20 dark:shadow-md dark:shadow-black/40 motion-reduce:transition-none ${
                                 smoothPill
                                     ? 'transition-[top,left,width,height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'
                                     : ''
@@ -282,13 +278,12 @@ export function Sidebar({
                                     aria-current={isActive ? 'page' : undefined}
                                 >
                                     <div
-                                        data-nav-chip
-                                        className={`relative z-10 flex w-max max-w-full items-center transition-[gap] ${SIDEBAR_MOTION} ${railCollapsed ? 'gap-0' : 'gap-3'
+                                        className={`relative z-10 flex min-w-0 items-center transition-[gap] ${SIDEBAR_MOTION} ${railCollapsed ? 'gap-0' : 'gap-3'
                                             }`}
                                     >
                                         <IconMd
                                             icon={item.icon}
-                                            className="shrink-0"
+                                            className={`shrink-0 ${isActive ? 'text-primary' : ''}`}
                                         />
                                         <span className={sidebarLabelClip(railCollapsed)}>
                                             {itemLabel}
