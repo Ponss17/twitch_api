@@ -116,6 +116,7 @@ export function Sidebar({
     const layoutKey = `${railCollapsed}-${mobileOpen}-${isDesktop}`;
     const prevLayoutKey = useRef(layoutKey);
     const [smoothPill, setSmoothPill] = useState(false);
+    const [pillReady, setPillReady] = useState(true);
 
     const toggleCollapsed = () => {
         onCollapsedChange?.(!collapsed);
@@ -139,9 +140,21 @@ export function Sidebar({
 
         const layoutChanged = prevLayoutKey.current !== layoutKey;
         prevLayoutKey.current = layoutKey;
-        setSmoothPill(!layoutChanged);
 
-        measure();
+        let settleTimer = 0;
+
+        if (layoutChanged) {
+            // Evita la “franja” del rail: la pastilla no sigue bien el width animado.
+            setPillReady(false);
+            setSmoothPill(false);
+            settleTimer = window.setTimeout(() => {
+                measure();
+                setPillReady(true);
+            }, 520);
+        } else {
+            setSmoothPill(true);
+            measure();
+        }
 
         const ro = new ResizeObserver(measure);
         const list = navListRef.current;
@@ -152,19 +165,9 @@ export function Sidebar({
             if (el) ro.observe(el);
         });
 
-        let raf = 0;
-        if (layoutChanged) {
-            const started = performance.now();
-            const followLayout = (now: number) => {
-                measure();
-                if (now - started < 520) raf = requestAnimationFrame(followLayout);
-            };
-            raf = requestAnimationFrame(followLayout);
-        }
-
         window.addEventListener('resize', measure);
         return () => {
-            cancelAnimationFrame(raf);
+            window.clearTimeout(settleTimer);
             ro.disconnect();
             window.removeEventListener('resize', measure);
         };
@@ -213,10 +216,10 @@ export function Sidebar({
 
                 <nav data-tour="sidebar-nav" className={sidebarNavScroll} aria-label={t.sidebar.navigation}>
                     <div ref={navListRef} className="relative">
-                    {navPill ? (
+                    {navPill && pillReady ? (
                         <span
                             aria-hidden
-                            className={`pointer-events-none absolute z-0 rounded-md bg-primary/15 dark:bg-primary/20 dark:shadow-md dark:shadow-black/40 motion-reduce:transition-none ${
+                            className={`pointer-events-none absolute z-0 rounded-lg bg-primary/15 dark:bg-primary/20 dark:shadow-md dark:shadow-black/40 motion-reduce:transition-none ${
                                 smoothPill
                                     ? 'transition-[top,left,width,height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'
                                     : ''
@@ -272,7 +275,7 @@ export function Sidebar({
                                         onChange(item.id);
                                         onClose();
                                     }}
-                                    className={`${sidebarNavItem(isActive, railCollapsed, true)} relative z-[1] overflow-hidden`}
+                                    className={`${sidebarNavItem(isActive, railCollapsed, pillReady)} relative z-[1]`}
                                     aria-label={itemLabel}
                                     title={railCollapsed ? itemLabel : undefined}
                                     aria-current={isActive ? 'page' : undefined}

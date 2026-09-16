@@ -178,7 +178,7 @@ export const SIDEBAR_MOTION =
     'duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]';
 
 export const sidebarNavButtonBase =
-    `relative mb-0.5 flex items-center rounded-md border border-transparent py-1.5 text-left font-[inherit] text-[0.85rem] font-medium outline-none transition-[width,padding,margin,background-color,color,box-shadow] ${SIDEBAR_MOTION} focus-visible:bg-bg-tertiary focus-visible:text-text-main focus-visible:ring-1 focus-visible:ring-text-main/10`;
+    `relative mb-0.5 flex items-center rounded-lg border border-transparent py-1.5 text-left font-[inherit] text-[0.85rem] font-medium outline-none transition-[width,padding,margin,background-color,color,box-shadow] ${SIDEBAR_MOTION} focus-visible:bg-bg-tertiary focus-visible:text-text-main focus-visible:ring-1 focus-visible:ring-text-main/10`;
 
 export const sidebarNavItem = (active: boolean, collapsed = false, slidingHighlight = false) => {
     const width = collapsed
