@@ -486,17 +486,6 @@ export const clearUserStats = async (userId: string): Promise<void> => {
             throw new Error(`Limpieza incompleta de estadísticas: ${failed.error.message}`);
         }
 
-        const extras = await Promise.all([
-            supabase.from('monthly_reports').delete().eq('user_id', userId),
-            supabase.from('user_notifications').delete().eq('user_id', userId).eq('type', 'monthly_report')
-        ]);
-        for (const result of extras) {
-            if (result.error) {
-                // Tablas nuevas: no bloquear wipe si aún no se aplicó la migración.
-                logger.warn('clearUserStats: reportes/notificaciones:', result.error.message);
-            }
-        }
-
         STATS_CACHE.delete(userId);
         EXISTS_CACHE.delete(userId);
         await cacheService.bumpStatsRevision(userId);
