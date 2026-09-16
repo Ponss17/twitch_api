@@ -56,9 +56,9 @@ export function SplitFormatDownload({
                     disabled={disabled || busy}
                     haspopup="listbox"
                     aria-label={formatMenuLabel}
-                    className="inline-flex w-8 shrink-0 items-center justify-center border-l border-primary/40 bg-primary text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex w-8 shrink-0 items-center justify-center border-l border-border-strong bg-bg-secondary text-text-muted transition hover:bg-white/[0.02] hover:text-text-main disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    <DropdownChevron className="size-3.5 shrink-0 text-white transition-transform" />
+                    <DropdownChevron className="size-3.5 shrink-0 text-current transition-transform" />
                 </DropdownTrigger>
             </div>
             <DropdownPanel
