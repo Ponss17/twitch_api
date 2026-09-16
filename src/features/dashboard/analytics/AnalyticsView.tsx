@@ -211,7 +211,7 @@ function AnalyticsViewContent({ active }: { active: boolean }) {
     const latencyDuration = active ? 1000 : 0;
 
     return (
-        <div className={`space-y-4 ${fadeIn}`}>
+        <div data-tour="analytics" className={`space-y-4 ${fadeIn}`}>
             <AnalyticsKPIs
                 timeRange={timeRange}
                 setTimeRange={setTimeRange}

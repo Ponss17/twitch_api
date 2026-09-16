@@ -50,7 +50,11 @@ export function OnboardingSpotlight({
         if (el instanceof HTMLElement) {
             el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
         }
-    }, [selector, stepIndex]);
+        const timeout = window.setTimeout(() => {
+            if (!readTargetRect(selector)) onNext();
+        }, 3500);
+        return () => window.clearTimeout(timeout);
+    }, [selector, stepIndex, onNext]);
 
     useLayoutEffect(() => {
         const update = () => setRect(readTargetRect(selector));

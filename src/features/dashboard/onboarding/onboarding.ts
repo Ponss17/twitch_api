@@ -23,6 +23,6 @@ export const ONBOARDING_TOUR_STEPS: readonly OnboardingTourStep[] = [
     { id: 'home-hero',      target: '[data-tour="home-hero"]',      tab: 'home' },
     { id: 'home-activity',  target: '[data-tour="home-activity"]',  tab: 'home' },
     { id: 'home-resources', target: '[data-tour="home-resources"]', tab: 'home' },
-    { id: 'analytics',      target: '[data-tour="sidebar-nav"]',    tab: 'analytics', openSidebar: true },
+    { id: 'analytics',      target: '[data-tour="analytics"]',      tab: 'analytics' },
     { id: 'followage',      target: '[data-tour="command-generator"]', tab: 'followage' }
 ];
