@@ -32,6 +32,7 @@ export const DROPDOWN_Z_FOCUS = 1200 as const;
 function resolveTriggerEl(container: HTMLDivElement | null): HTMLElement | null {
     if (!container) return null;
     return (
+        container.querySelector<HTMLElement>('[data-dropdown-match]') ??
         container.querySelector<HTMLElement>('[aria-haspopup]') ??
         container.querySelector<HTMLElement>('button, [role="button"]') ??
         container
