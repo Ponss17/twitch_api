@@ -187,8 +187,8 @@ export const sidebarNavItem = (active: boolean, collapsed = false, slidingHighli
     if (active) {
         const bg = slidingHighlight
             ? 'bg-transparent shadow-none'
-            : 'border-border-strong bg-bg-secondary shadow-none';
-        return `${sidebarNavButtonBase} ${width} ${bg} text-text-main`;
+            : 'bg-primary/15 shadow-none dark:bg-primary/20 dark:shadow-md dark:shadow-black/40';
+        return `${sidebarNavButtonBase} ${width} ${bg} text-text-main [&_svg]:text-primary`;
     }
     return `${sidebarNavButtonBase} ${width} text-text-muted ${hoverSubtleIconBtn}`;
 };
