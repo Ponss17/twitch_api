@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BarChart3, Download, FileBarChart, Terminal } from 'lucide-react';
+import { BarChart3, FileBarChart, Terminal } from 'lucide-react';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@/core/utils/tw';
 import { PanelLoadError } from '@/shared/ui/PanelLoadError';
 import { ReportsSkeleton, ReportsArticleSkeleton } from '@/shared/ui/skeletons/ReportsSkeleton';
+import { SplitFormatDownload, type DownloadFormat } from '@/shared/ui/SplitFormatDownload';
 import { navigateDashboard } from '@/features/dashboard/lib/tabs/dashboardPanelEvents';
 import {
     ensureMonthlyReport,
@@ -68,6 +69,7 @@ export function ReportsView({ active }: { active: boolean }) {
     const [loading, setLoading] = useState(true);
     const [detailLoading, setDetailLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [downloadFormat, setDownloadFormat] = useState<DownloadFormat>('html');
 
     const loadList = useCallback(async () => {
         setLoading(true);
@@ -138,28 +140,28 @@ export function ReportsView({ active }: { active: boolean }) {
         history.replaceState({}, '', `${url.pathname}${url.search}`);
     };
 
-    const onDownloadCsv = () => {
+    const onDownload = () => {
         if (!detail) return;
-        downloadTextFile(
-            buildMonthlyReportCsv(detail.summary, {
-                login: session.login ?? 'user',
-                exportedAt: new Date().toISOString()
-            }),
-            `Reporte_${detail.yearMonth}_${session.login ?? 'user'}.csv`,
-            'text/csv;charset=utf-8'
-        );
-    };
-
-    const onDownloadHtml = () => {
-        if (!detail) return;
+        const login = session.login ?? 'user';
+        if (downloadFormat === 'csv') {
+            downloadTextFile(
+                buildMonthlyReportCsv(detail.summary, {
+                    login,
+                    exportedAt: new Date().toISOString()
+                }),
+                `Reporte_${detail.yearMonth}_${login}.csv`,
+                'text/csv;charset=utf-8'
+            );
+            return;
+        }
         downloadTextFile(
             buildMonthlyReportHtml(detail.summary, {
-                login: session.login ?? 'user',
+                login,
                 title: monthLabel,
                 note: `${rT.intro} ${rT.note}`,
                 exportedAt: new Date().toISOString()
             }),
-            `Reporte_${detail.yearMonth}_${session.login ?? 'user'}.html`,
+            `Reporte_${detail.yearMonth}_${login}.html`,
             'text/html;charset=utf-8'
         );
     };
@@ -341,23 +343,16 @@ export function ReportsView({ active }: { active: boolean }) {
                                 <p className="mt-1 max-w-xl text-[0.78rem] text-text-muted">
                                     {rT.downloadHtmlDesc} {rT.downloadCsvDesc}
                                 </p>
-                                <div className="mt-3 grid max-w-md grid-cols-2 gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={onDownloadHtml}
-                                        className={`${btnSecondary} inline-flex w-full items-center justify-center gap-1.5 !px-3 !py-2`}
-                                    >
-                                        <Download className="size-3.5 shrink-0" aria-hidden />
-                                        {rT.downloadHtml}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={onDownloadCsv}
-                                        className={`${btnSecondary} inline-flex w-full items-center justify-center gap-1.5 !px-3 !py-2`}
-                                    >
-                                        <Download className="size-3.5 shrink-0" aria-hidden />
-                                        {rT.downloadCsv}
-                                    </button>
+                                <div className="mt-3">
+                                    <SplitFormatDownload
+                                        format={downloadFormat}
+                                        onFormatChange={setDownloadFormat}
+                                        onDownload={onDownload}
+                                        downloadLabel={rT.downloadAction}
+                                        formatMenuLabel={t.settings.panels.exportFormatLabel}
+                                        htmlLabel={t.settings.panels.exportFormatHtml}
+                                        csvLabel={t.settings.panels.exportFormatCsv}
+                                    />
                                 </div>
                                 <p className="mt-4 text-[0.7rem] leading-relaxed text-text-muted">
                                     {rT.note}

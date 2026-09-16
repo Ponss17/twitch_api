@@ -409,6 +409,7 @@ export const es = {
         storyNoCommand: 'ningún comando',
         storyNoViewer: 'nadie del chat',
         downloadTitle: 'Guardar el informe',
+        downloadAction: 'Descargar',
         downloadHtmlDesc: 'Página lista para guardar o compartir.',
         downloadCsvDesc: 'Para Excel o Google Sheets.',
         emptyTitle: 'Aún no hay un mes cerrado',

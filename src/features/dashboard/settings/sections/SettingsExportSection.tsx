@@ -1,21 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Download, FileSpreadsheet, Loader2 } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import { SettingsRow } from '@/features/dashboard/settings/components/SettingsGroup';
 import { Modal, ModalCloseButton } from '@/shared/ui/modals/Modal';
-import { SelectField } from '@/shared/ui/SelectField';
+import { SplitFormatDownload, type DownloadFormat } from '@/shared/ui/SplitFormatDownload';
 import { useTranslation } from '@/core/i18n/I18nContext';
-import { btnSecondary, modalBtnPrimary, modalBtnSecondary } from '@/core/utils/tw';
+import { modalBtnPrimary, modalBtnSecondary } from '@/core/utils/tw';
 
 export type SettingsExportOptions = {
     includeActivity?: boolean;
     includeApiKey?: boolean;
 };
 
-type ExportFormat = 'html' | 'csv';
-
 interface SettingsExportSectionProps {
-    onExport: (format: ExportFormat, options?: SettingsExportOptions) => void | Promise<void>;
-    loading?: ExportFormat | null;
+    onExport: (format: DownloadFormat, options?: SettingsExportOptions) => void | Promise<void>;
+    loading?: DownloadFormat | null;
 }
 
 function optionRow(
@@ -54,7 +52,7 @@ function optionRow(
 export function SettingsExportSection({ onExport, loading = null }: SettingsExportSectionProps) {
     const { t } = useTranslation();
     const pT = t.settings.panels;
-    const [format, setFormat] = useState<ExportFormat>('html');
+    const [format, setFormat] = useState<DownloadFormat>('html');
     const [htmlModalOpen, setHtmlModalOpen] = useState(false);
     const [includeActivity, setIncludeActivity] = useState(false);
     const [includeApiKey, setIncludeApiKey] = useState(false);
@@ -87,19 +85,6 @@ export function SettingsExportSection({ onExport, loading = null }: SettingsExpo
         void onExport('csv');
     };
 
-    const formatOptions = [
-        {
-            value: 'html',
-            label: pT.exportFormatHtml,
-            icon: <Download className="size-3.5" aria-hidden />
-        },
-        {
-            value: 'csv',
-            label: pT.exportFormatCsv,
-            icon: <FileSpreadsheet className="size-3.5" aria-hidden />
-        }
-    ];
-
     return (
         <>
             <SettingsRow
@@ -107,30 +92,18 @@ export function SettingsExportSection({ onExport, loading = null }: SettingsExpo
                 icon={Download}
                 description={pT.exportAccountDesc}
                 control={
-                    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-                        <SelectField
-                            id="settings-export-format"
-                            aria-label={pT.exportFormatLabel}
-                            value={format}
-                            options={formatOptions}
-                            disabled={busy}
-                            className="!max-w-none w-full sm:w-[11rem]"
-                            onChange={(e) => setFormat(e.target.value as ExportFormat)}
-                        />
-                        <button
-                            type="button"
-                            onClick={startExport}
-                            disabled={busy}
-                            className={`${btnSecondary} w-full min-w-[7.5rem] px-3.5 sm:w-auto`}
-                        >
-                            {busy ? (
-                                <Loader2 className="size-4 shrink-0 animate-spin" />
-                            ) : (
-                                <Download className="size-4 shrink-0" />
-                            )}
-                            {busy ? t.common.loading : pT.exportAction}
-                        </button>
-                    </div>
+                    <SplitFormatDownload
+                        format={format}
+                        onFormatChange={setFormat}
+                        onDownload={startExport}
+                        downloadLabel={busy ? t.common.loading : pT.exportAction}
+                        formatMenuLabel={pT.exportFormatLabel}
+                        htmlLabel={pT.exportFormatHtml}
+                        csvLabel={pT.exportFormatCsv}
+                        disabled={busy}
+                        busy={busy}
+                        formatTriggerId="settings-export-format"
+                    />
                 }
             />
 
