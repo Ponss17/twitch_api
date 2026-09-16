@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BarChart3, FileBarChart, Terminal } from 'lucide-react';
+import { BarChart3, FileBarChart, HelpCircle, Terminal } from 'lucide-react';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
 import {
@@ -14,6 +14,7 @@ import { PanelLoadError } from '@/shared/ui/PanelLoadError';
 import { ReportsSkeleton, ReportsArticleSkeleton } from '@/shared/ui/skeletons/ReportsSkeleton';
 import { SplitFormatDownload, type DownloadFormat } from '@/shared/ui/SplitFormatDownload';
 import { navigateDashboard } from '@/features/dashboard/lib/tabs/dashboardPanelEvents';
+import { ReportsHowItWorksSheet } from './ReportsHowItWorksSheet';
 import {
     ensureMonthlyReport,
     fetchMonthlyReport,
@@ -70,6 +71,7 @@ export function ReportsView({ active }: { active: boolean }) {
     const [detailLoading, setDetailLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [downloadFormat, setDownloadFormat] = useState<DownloadFormat>('html');
+    const [howItWorksOpen, setHowItWorksOpen] = useState(false);
 
     const loadList = useCallback(async () => {
         setLoading(true);
@@ -169,38 +171,54 @@ export function ReportsView({ active }: { active: boolean }) {
     if (!active) return null;
 
     if (error && list.length === 0 && !loading) {
-        return <PanelLoadError message={error} onRetry={() => void loadList()} />;
+        return (
+            <>
+                <PanelLoadError message={error} onRetry={() => void loadList()} />
+                <ReportsHowItWorksSheet open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
+            </>
+        );
     }
 
     if (loading) return <ReportsSkeleton />;
 
     if (list.length === 0) {
         return (
-            <div className={`${fadeIn} ${panelCard} px-6 py-12 text-center`}>
-                <FileBarChart className="mx-auto mb-3 size-8 text-brand-text" aria-hidden />
-                <p className="text-[1rem] font-semibold text-text-main">{rT.emptyTitle}</p>
-                <p className="mx-auto mt-2 max-w-md text-[0.8125rem] leading-relaxed text-text-muted">
-                    {rT.emptyBody}
-                </p>
-                <div className="mt-5 flex flex-wrap justify-center gap-2">
-                    <button
-                        type="button"
-                        onClick={() => navigateDashboard('analytics')}
-                        className={`${btnSecondary} inline-flex items-center gap-1.5`}
-                    >
-                        <BarChart3 className="size-3.5" aria-hidden />
-                        {rT.emptyCtaAnalytics}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => navigateDashboard('followage')}
-                        className={`${btnSecondary} inline-flex items-center gap-1.5`}
-                    >
-                        <Terminal className="size-3.5" aria-hidden />
-                        {rT.emptyCtaCommands}
-                    </button>
+            <>
+                <div className={`${fadeIn} ${panelCard} px-6 py-12 text-center`}>
+                    <FileBarChart className="mx-auto mb-3 size-8 text-brand-text" aria-hidden />
+                    <p className="text-[1rem] font-semibold text-text-main">{rT.emptyTitle}</p>
+                    <p className="mx-auto mt-2 max-w-md text-[0.8125rem] leading-relaxed text-text-muted">
+                        {rT.emptyBody}
+                    </p>
+                    <div className="mt-5 flex flex-wrap justify-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setHowItWorksOpen(true)}
+                            className={`${btnSecondary} inline-flex items-center gap-1.5`}
+                        >
+                            <HelpCircle className="size-3.5" aria-hidden />
+                            {rT.howItWorks}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => navigateDashboard('analytics')}
+                            className={`${btnSecondary} inline-flex items-center gap-1.5`}
+                        >
+                            <BarChart3 className="size-3.5" aria-hidden />
+                            {rT.emptyCtaAnalytics}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => navigateDashboard('followage')}
+                            className={`${btnSecondary} inline-flex items-center gap-1.5`}
+                        >
+                            <Terminal className="size-3.5" aria-hidden />
+                            {rT.emptyCtaCommands}
+                        </button>
+                    </div>
                 </div>
-            </div>
+                <ReportsHowItWorksSheet open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
+            </>
         );
     }
 
@@ -239,11 +257,23 @@ export function ReportsView({ active }: { active: boolean }) {
     })();
 
     return (
+        <>
         <div className={`${fadeIn} grid gap-4 lg:grid-cols-[12rem_minmax(0,1fr)]`}>
             <aside className={`${panelCard} lg:sticky lg:top-4 lg:self-start`}>
-                <p className="border-b border-border-subtle px-3.5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-wide text-text-muted">
-                    {rT.browseByMonth}
-                </p>
+                <div className="flex items-center justify-between gap-2 border-b border-border-subtle px-3.5 py-2.5">
+                    <p className="text-[0.7rem] font-semibold uppercase tracking-wide text-text-muted">
+                        {rT.browseByMonth}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => setHowItWorksOpen(true)}
+                        className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[0.7rem] font-medium text-text-muted transition-colors hover:bg-white/[0.02] hover:text-text-main"
+                        aria-label={rT.howItWorks}
+                    >
+                        <HelpCircle className="size-3.5 shrink-0" aria-hidden />
+                        <span className="hidden sm:inline">{rT.howItWorks}</span>
+                    </button>
+                </div>
                 <nav className="flex flex-col gap-0.5 p-1.5" aria-label={rT.months}>
                     {list.map((item) => {
                         const pressed = item.yearMonth === selected;
@@ -363,6 +393,8 @@ export function ReportsView({ active }: { active: boolean }) {
                 )}
             </article>
         </div>
+        <ReportsHowItWorksSheet open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
+        </>
     );
 }
 
