@@ -495,11 +495,6 @@ export const pt: Translations = {
             all: 'Todos'
         },
         onboarding: {
-            title: 'Ainda não há atividade',
-            desc: 'Comece copiando um comando para o seu bot, ou veja a documentação.',
-            ctaFollowage: 'Ir para Followage',
-            ctaDocs: 'Ver documentação',
-            dismiss: 'Não mostrar de novo',
             welcomeTitle: 'Bem-vindo ao LosPerrisAPI',
             welcomeBody: 'Deixa eu te mostrar as principais funcionalidades em um tour rápido para você começar logo.',
             start: 'Começar',

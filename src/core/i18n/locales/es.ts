@@ -500,11 +500,6 @@ export const es = {
             all: 'Todos'
         },
         onboarding: {
-            title: 'Aún no hay actividad',
-            desc: 'Empieza copiando un comando para tu bot, o mira la documentación.',
-            ctaFollowage: 'Ir a Followage',
-            ctaDocs: 'Ver documentación',
-            dismiss: 'No mostrar otra vez',
             welcomeTitle: 'Bienvenido a LosPerrisAPI',
             welcomeBody: 'Permíteme mostrarte las funciones principales con un tour rápido para que empieces enseguida.',
             start: 'Empezar',
