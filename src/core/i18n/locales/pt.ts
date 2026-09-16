@@ -215,7 +215,7 @@ export const pt: Translations = {
             resetConfirm: 'Confirmar e Limpar',
             resetScopesLabel: 'O que apagar',
             resetScopeStats: 'Estatísticas',
-            resetScopeStatsHint: 'Uso de comandos, análises e contadores do painel.',
+            resetScopeStatsHint: 'Uso de comandos, análises e contadores do painel. Não apaga os relatórios mensais.',
             resetScopeActivity: 'Histórico de atividade',
             resetScopeActivityHint: 'Feed de eventos recentes do painel (comandos, minijogos, etc.).',
             resetScopeQuestions: 'Histórico de perguntas',
@@ -442,6 +442,22 @@ export const pt: Translations = {
         notificationTitle: 'Relatório pronto: {month}',
         notificationBody: 'Já dá para ler ou baixar o resumo do mês fechado.',
         openReport: 'Abrir relatório',
+        howItWorks: 'Como funciona',
+        howItWorksDesc: 'Arquivo do mês fechado vs Análises',
+        howItWorksClose: 'Entendi',
+        howItWorksSteps: {
+            archiveTitle: 'É um arquivo, não o painel ao vivo',
+            archiveBody:
+                'Ao fechar o mês guardamos uma foto do uso dos seus comandos LosPerris. Isso é Relatórios. Análises continua mostrando o momento atual.',
+            timingTitle: 'O mês atual ainda não aparece',
+            timingBody:
+                'O que você usa hoje alimenta Análises. O relatório daquele mês só é criado quando o mês termina e houve uso.',
+            resetTitle: 'Reiniciar dados não apaga Relatórios',
+            resetBody:
+                'Se limpar estatísticas em Ajustes, os relatórios já arquivados ficam. Só saem se você excluir a conta.',
+            analyticsTitle: 'Quer o momento atual?',
+            analyticsBody: 'Abra Análises: lá estão os contadores vivos do painel.'
+        },
         kpis: {
             requests: 'Usos totais',
             requestsHint: 'Vezes que alguém usou um comando',

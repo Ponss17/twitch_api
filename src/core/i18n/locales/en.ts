@@ -219,7 +219,7 @@ export const en: Translations = {
             resetConfirm: 'Confirm and Clear',
             resetScopesLabel: 'What to clear',
             resetScopeStats: 'Statistics',
-            resetScopeStatsHint: 'Command usage, analytics, and panel counters.',
+            resetScopeStatsHint: 'Command usage, analytics, and panel counters. Does not delete monthly reports.',
             resetScopeActivity: 'Activity history',
             resetScopeActivityHint: 'Recent panel event feed (commands, minigames, etc.).',
             resetScopeQuestions: 'Question history',
@@ -447,6 +447,22 @@ export const en: Translations = {
         notificationTitle: 'Report ready: {month}',
         notificationBody: 'You can read or download the closed-month summary.',
         openReport: 'Open report',
+        howItWorks: 'How it works',
+        howItWorksDesc: 'Closed-month archive vs Analytics',
+        howItWorksClose: 'Got it',
+        howItWorksSteps: {
+            archiveTitle: 'An archive, not the live panel',
+            archiveBody:
+                'When a month ends we save a snapshot of your LosPerris command usage. That is Reports. Analytics still shows the current moment.',
+            timingTitle: 'The current month is not here yet',
+            timingBody:
+                'What you use today feeds Analytics. That month’s report is only created after the month ends and there was usage.',
+            resetTitle: 'Resetting data does not delete Reports',
+            resetBody:
+                'If you clear statistics in Settings, archived reports stay. They are only removed if you delete your account.',
+            analyticsTitle: 'Need the live view?',
+            analyticsBody: 'Open Analytics for the live panel counters.'
+        },
         kpis: {
             requests: 'Total uses',
             requestsHint: 'Times someone ran a command',
