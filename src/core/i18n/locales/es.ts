@@ -449,20 +449,11 @@ export const es = {
         openReport: 'Abrir informe',
         howItWorks: 'Cómo funciona',
         howItWorksDesc: 'Archivo del mes cerrado vs Analíticas',
-        howItWorksClose: 'Entendido',
-        howItWorksSteps: {
-            archiveTitle: 'Es un archivo, no el panel en vivo',
-            archiveBody:
-                'Al cerrar el mes guardamos una foto del uso de tus comandos LosPerris. Eso es Reportes. Analíticas sigue mostrando el momento actual.',
-            timingTitle: 'El mes en curso aún no aparece',
-            timingBody:
-                'Lo que usas hoy alimenta Analíticas. El informe de ese mes solo se crea cuando el mes termina y hubo uso.',
-            resetTitle: 'Reiniciar datos no borra Reportes',
-            resetBody:
-                'Si limpias estadísticas en Ajustes, los informes ya archivados se quedan. Solo se pierden con Eliminar cuenta.',
-            analyticsTitle: '¿Quieres lo de ahora?',
-            analyticsBody: 'Abre Analíticas: ahí están los contadores vivos del panel.'
-        },
+        howItWorksBody: [
+            'Reportes guarda una foto del uso de tus comandos LosPerris cuando termina un mes. No es el panel en vivo: eso sigue en Analíticas.',
+            'Lo que usas hoy alimenta Analíticas. El informe de ese mes solo aparece aquí cuando el mes cierra y hubo uso de comandos.',
+            'Si reinicias estadísticas en Ajustes, los informes ya archivados se quedan. Solo se eliminan si borras la cuenta.'
+        ],
         kpis: {
             requests: 'Usos totales',
             requestsHint: 'Veces que alguien usó un comando',

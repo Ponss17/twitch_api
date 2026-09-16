@@ -449,20 +449,11 @@ export const en: Translations = {
         openReport: 'Open report',
         howItWorks: 'How it works',
         howItWorksDesc: 'Closed-month archive vs Analytics',
-        howItWorksClose: 'Got it',
-        howItWorksSteps: {
-            archiveTitle: 'An archive, not the live panel',
-            archiveBody:
-                'When a month ends we save a snapshot of your LosPerris command usage. That is Reports. Analytics still shows the current moment.',
-            timingTitle: 'The current month is not here yet',
-            timingBody:
-                'What you use today feeds Analytics. That month’s report is only created after the month ends and there was usage.',
-            resetTitle: 'Resetting data does not delete Reports',
-            resetBody:
-                'If you clear statistics in Settings, archived reports stay. They are only removed if you delete your account.',
-            analyticsTitle: 'Need the live view?',
-            analyticsBody: 'Open Analytics for the live panel counters.'
-        },
+        howItWorksBody: [
+            'Reports stores a snapshot of your LosPerris command usage when a month ends. It is not the live panel — that stays in Analytics.',
+            'What you use today feeds Analytics. That month’s report only shows up here after the month closes and there was command usage.',
+            'If you reset statistics in Settings, archived reports stay. They are only removed if you delete your account.'
+        ],
         kpis: {
             requests: 'Total uses',
             requestsHint: 'Times someone ran a command',
