@@ -8,12 +8,13 @@ interface SheetProps {
     open: boolean;
     onClose: () => void;
     title: string;
+    titleBadge?: string;
     description?: string;
     children: ReactNode;
     footer?: ReactNode;
 }
 
-export function Sheet({ open, onClose, title, description, children, footer }: SheetProps) {
+export function Sheet({ open, onClose, title, titleBadge, description, children, footer }: SheetProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
     const [closing, setClosing] = useState(false);
@@ -111,7 +112,14 @@ export function Sheet({ open, onClose, title, description, children, footer }: S
             >
                 <header className="flex shrink-0 items-center justify-between border-b border-border-subtle px-6 py-4">
                     <div>
-                        <h2 className="text-[1.15rem] font-bold tracking-tight text-text-main">{title}</h2>
+                        <h2 className="flex flex-wrap items-center gap-2 text-[1.15rem] font-bold tracking-tight text-text-main">
+                            {title}
+                            {titleBadge ? (
+                                <span className="rounded-md border border-primary/35 bg-primary/15 px-1.5 py-0.5 text-[0.625rem] font-bold tracking-wide text-primary">
+                                    {titleBadge}
+                                </span>
+                            ) : null}
+                        </h2>
                         {description && (
                             <p className="mt-0.5 text-[0.8rem] leading-relaxed text-text-muted">{description}</p>
                         )}

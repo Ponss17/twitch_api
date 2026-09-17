@@ -1399,6 +1399,7 @@ export const en: Translations = {
         },
         setupModal: {
             titlePrefix: 'Overlay —',
+            betaBadge: 'Beta',
             description: 'Follow the instructions to connect the overlay to your streaming software.',
             warning: 'The URL contains your secret token.',
             warningBold: 'Do not share it publicly.',
@@ -1416,40 +1417,49 @@ export const en: Translations = {
                 sourceTitle: 'New source',
                 sourceDetail: 'Sources → Browser Source.',
                 urlTitle: 'Paste URL',
-                urlDetail: 'Paste the URL you copied from the panel (Overlay button).',
-                sizeTitle: 'Size',
-                sizeDetail: (size: string): string => `${size}, transparent background.`,
+                urlDetail:
+                    'Copy the URL from the button below (includes your chosen color and size) and paste it in OBS.',
+                sizeTitle: 'Width and height',
+                sizeDetail: (size: string): string =>
+                    `Set exactly ${size}, transparent background. If you change Small/Normal/Large above, use these new dimensions.`,
                 refreshTitle: 'On scene active',
-                refreshDetail: 'Check "Refresh browser when scene becomes active".'
+                refreshDetail:
+                    'Check "Refresh browser when scene becomes active". If it stays blank when you return, try "Shutdown source when not visible".'
             },
-            obsNote: 'It only displays on screen. To start, spin, or reset, use the panel.',
+            obsNote:
+                'Pick color and size above before copying the URL. The overlay only displays; to start, spin, or reset, use the panel.',
             slTitle: 'Setup in Streamlabs',
             slSteps: {
                 sourceTitle: 'New source',
                 sourceDetail: 'Sources → Custom Widget or Browser Source.',
                 urlTitle: 'Paste URL',
-                urlDetail: 'Paste the URL you copied from the panel (Overlay button).',
-                sizeTitle: 'Size',
-                sizeDetail: (size: string): string => `${size}, no background color.`,
+                urlDetail:
+                    'Copy the URL from the button below (includes your chosen color and size) and paste it in Streamlabs.',
+                sizeTitle: 'Width and height',
+                sizeDetail: (size: string): string =>
+                    `Set exactly ${size}, no background color. If you change Small/Normal/Large above, use these new dimensions.`,
                 refreshTitle: 'On scene show',
                 refreshDetail: 'Enable auto-refresh if your plan allows it.'
             },
-            slNote: 'If the source is black, check the size, transparent background, and refresh on scene show.',
+            slNote:
+                'Pick color and size above before copying the URL. If the source is black, check dimensions, transparent background, and refresh on scene show.',
             tools: {
                 trends: 'Trends',
                 roulette: 'Roulette',
                 questions: 'Questions'
             },
             sizes: {
-                trends: '900 × 580 px (top 10; full width if preferred)',
-                roulette: '720 × 720 px',
-                questions: '800 × 280 px (current question; full width if preferred)'
+                trends: (w: number, h: number): string =>
+                    `${w} × ${h} px (top 10; full width if preferred)`,
+                roulette: (w: number, h: number): string => `${w} × ${h} px`,
+                questions: (w: number, h: number): string =>
+                    `${w} × ${h} px (current question; full width if preferred)`
             }
         },
         appearance: {
             title: 'On-stream appearance',
             badge: 'Overlay only',
-            desc: 'Color and size go in the OBS URL. They do not change your dashboard theme or add extra requests.',
+            desc: 'Color and size go in the URL. OBS/Streamlabs dimensions below update when you pick Small, Normal, or Large.',
             colorLabel: 'Color',
             customColor: 'Custom color',
             preset: 'Preset',

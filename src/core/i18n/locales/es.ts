@@ -1393,6 +1393,7 @@ export const es = {
         },
         setupModal: {
             titlePrefix: 'Overlay —',
+            betaBadge: 'Beta',
             description: 'Sigue las instrucciones para conectar el overlay a tu software de streaming.',
             warning: 'La URL lleva tu token secreto.',
             warningBold: 'No la compartas públicamente.',
@@ -1410,40 +1411,49 @@ export const es = {
                 sourceTitle: 'Nueva fuente',
                 sourceDetail: 'Fuentes → Navegador (Browser Source).',
                 urlTitle: 'Pegar URL',
-                urlDetail: 'Pega la URL que copiaste en el panel (botón Overlay).',
-                sizeTitle: 'Tamaño',
-                sizeDetail: (size: string): string => `${size}, fondo transparente.`,
+                urlDetail:
+                    'Copia la URL del botón de abajo (incluye color y tamaño elegidos) y pégala en OBS.',
+                sizeTitle: 'Ancho y alto',
+                sizeDetail: (size: string): string =>
+                    `Pon exactamente ${size}, fondo transparente. Si cambias Pequeño/Normal/Grande arriba, usa estas medidas nuevas.`,
                 refreshTitle: 'Al activar escena',
-                refreshDetail: 'Marca «Actualizar navegador cuando la escena se active».'
+                refreshDetail:
+                    'Marca «Actualizar navegador cuando la escena se active». Si se queda en blanco al volver, prueba «Apagar fuente cuando no sea visible».'
             },
-            obsNote: 'Solo muestra en pantalla. Para iniciar, girar o reiniciar, usa el panel.',
+            obsNote:
+                'Elige color y tamaño arriba antes de copiar la URL. El overlay solo muestra; para iniciar, girar o reiniciar usa el panel.',
             slTitle: 'Configurar en Streamlabs',
             slSteps: {
                 sourceTitle: 'Nueva fuente',
                 sourceDetail: 'Fuentes → Custom Widget o Browser Source.',
                 urlTitle: 'Pegar URL',
-                urlDetail: 'Pega la URL que copiaste en el panel (botón Overlay).',
-                sizeTitle: 'Tamaño',
-                sizeDetail: (size: string): string => `${size}, sin color de fondo.`,
+                urlDetail:
+                    'Copia la URL del botón de abajo (incluye color y tamaño elegidos) y pégala en Streamlabs.',
+                sizeTitle: 'Ancho y alto',
+                sizeDetail: (size: string): string =>
+                    `Pon exactamente ${size}, sin color de fondo. Si cambias Pequeño/Normal/Grande arriba, usa estas medidas nuevas.`,
                 refreshTitle: 'Al mostrar escena',
                 refreshDetail: 'Activa el refresco automático si tu plan lo permite.'
             },
-            slNote: 'Si la fuente se ve negra, revisa el tamaño, el fondo transparente y el refresco al mostrar la escena.',
+            slNote:
+                'Elige color y tamaño arriba antes de copiar la URL. Si la fuente se ve negra, revisa medidas, fondo transparente y refresco al mostrar la escena.',
             tools: {
                 trends: 'Tendencias',
                 roulette: 'Ruleta',
                 questions: 'Preguntas'
             },
             sizes: {
-                trends: '900 × 580 px (top 10; ancho de escena si prefieres)',
-                roulette: '720 × 720 px',
-                questions: '800 × 280 px (pregunta actual; ancho de escena si prefieres)'
+                trends: (w: number, h: number): string =>
+                    `${w} × ${h} px (top 10; ancho de escena si prefieres)`,
+                roulette: (w: number, h: number): string => `${w} × ${h} px`,
+                questions: (w: number, h: number): string =>
+                    `${w} × ${h} px (pregunta actual; ancho de escena si prefieres)`
             }
         },
         appearance: {
             title: 'Apariencia en directo',
             badge: 'Solo overlay',
-            desc: 'Color y tamaño van en la URL de OBS. No cambia el tema del panel ni genera peticiones extra.',
+            desc: 'Color y tamaño van en la URL. Las medidas de OBS/Streamlabs abajo se actualizan según Pequeño, Normal o Grande.',
             colorLabel: 'Color',
             customColor: 'Color personalizado',
             preset: 'Preset',
