@@ -55,16 +55,21 @@ export function DangerConfirmModal({
     const [confirmInput, setConfirmInput] = useState('');
     const [shake, setShake] = useState(false);
     const [closing, setClosing] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
     const [animKey, setAnimKey] = useState(0);
     const dialogRef = useRef<HTMLDialogElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
+    const submittingRef = useRef(false);
     const titleId = useId();
     const descId = useId();
+    const busy = loading || submitting;
 
     useEffect(() => {
         if (!open) {
             setConfirmInput('');
             setShake(false);
+            setSubmitting(false);
+            submittingRef.current = false;
         }
     }, [open]);
 
@@ -80,7 +85,7 @@ export function DangerConfirmModal({
     }, [open]);
 
     const handleClose = useCallback(() => {
-        if (closing || loading) return;
+        if (closing || loading || submittingRef.current) return;
         setClosing(true);
         const panel = panelRef.current;
         dialogRef.current?.classList.add('modal-dialog-closing');
@@ -119,7 +124,7 @@ export function DangerConfirmModal({
         if (!dialog) return;
         const onCancel = (e: Event) => {
             e.preventDefault();
-            if (!loading) handleClose();
+            if (!loading && !submittingRef.current) handleClose();
         };
         dialog.addEventListener('cancel', onCancel);
         return () => dialog.removeEventListener('cancel', onCancel);
@@ -135,16 +140,23 @@ export function DangerConfirmModal({
     const ready = wordOk && canConfirm;
 
     const handleSubmit = async () => {
-        if (!ready) {
-            setShake(true);
-            window.setTimeout(() => setShake(false), 500);
+        if (!ready || busy) {
+            if (!ready) {
+                setShake(true);
+                window.setTimeout(() => setShake(false), 500);
+            }
             return;
         }
+        submittingRef.current = true;
+        setSubmitting(true);
         try {
             await onConfirm();
+            submittingRef.current = false;
+            setSubmitting(false);
             handleClose();
         } catch {
-            // el toast ya muestra el error; dejar el modal abierto
+            submittingRef.current = false;
+            setSubmitting(false);
         }
     };
 
@@ -155,7 +167,7 @@ export function DangerConfirmModal({
             aria-labelledby={titleId}
             aria-describedby={descId}
         >
-            <div className={modalOverlay} onClick={loading ? undefined : handleClose}>
+            <div className={modalOverlay} onClick={busy ? undefined : handleClose}>
                 <div
                     key={animKey}
                     ref={panelRef}
@@ -171,7 +183,7 @@ export function DangerConfirmModal({
                             className={btnIcon}
                             aria-label={t.common.aria.close}
                             tabIndex={-1}
-                            disabled={loading}
+                            disabled={busy}
                             onClick={handleClose}
                         >
                             <X className="w-5 h-5" />
@@ -193,10 +205,10 @@ export function DangerConfirmModal({
                                 value={confirmInput}
                                 autoComplete="off"
                                 placeholder={dT.placeholder}
-                                disabled={loading}
+                                disabled={busy}
                                 onChange={(e) => setConfirmInput(e.target.value)}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && ready && !loading) {
+                                    if (e.key === 'Enter' && ready && !busy) {
                                         e.preventDefault();
                                         void handleSubmit();
                                     }
@@ -207,11 +219,11 @@ export function DangerConfirmModal({
                     <div className={modalFooter}>
                         <button
                             type="button"
-                            disabled={!ready || loading}
+                            disabled={!ready || busy}
                             className={modalBtnPrimary}
                             onClick={() => void handleSubmit()}
                         >
-                            {loading ? (
+                            {busy ? (
                                 <>
                                     <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                                     {dT.processing}
@@ -220,7 +232,7 @@ export function DangerConfirmModal({
                                 finalConfirmLabel
                             )}
                         </button>
-                        <button type="button" className={modalBtnSecondary} disabled={loading} onClick={handleClose}>
+                        <button type="button" className={modalBtnSecondary} disabled={busy} onClick={handleClose}>
                             {dT.cancel}
                         </button>
                     </div>
