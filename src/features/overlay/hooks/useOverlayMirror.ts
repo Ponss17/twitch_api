@@ -200,6 +200,28 @@ export function useOverlayMirror<T extends OverlayTool>(
         return () => ac.abort();
     }, [sessionKey, poll, session]);
 
+    useEffect(() => {
+        if (!hasOverlayPollCredentials(session)) return;
+
+        let resumeAc: AbortController | null = null;
+        const resume = () => {
+            if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+            resumeAc?.abort();
+            resumeAc = new AbortController();
+            void poll(resumeAc.signal);
+        };
+
+        document.addEventListener('visibilitychange', resume);
+        window.addEventListener('pageshow', resume);
+        window.addEventListener('focus', resume);
+        return () => {
+            document.removeEventListener('visibilitychange', resume);
+            window.removeEventListener('pageshow', resume);
+            window.removeEventListener('focus', resume);
+            resumeAc?.abort();
+        };
+    }, [sessionKey, poll, session]);
+
     // Intervalo adaptativo: reinicia el timer sin GET extra.
     useEffect(() => {
         if (!hasOverlayPollCredentials(session)) return;

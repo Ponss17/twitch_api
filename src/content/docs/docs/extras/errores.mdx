@@ -307,10 +307,11 @@ Si la URL es antigua o regeneraste la API Key, OBS puede quedar en blanco o sin 
 
 <Steps>
 1. Clic derecho en la fuente **Navegador** → **Propiedades**.
-2. Pulsa **Actualizar la caché de la página actual**.
-3. Marca **Actualizar navegador cuando la escena se active**.
-4. Activa **fondo transparente** en la fuente.
-5. Comprueba que la URL incluye `overlayToken` y fue copiada **desde el panel**.
+2. Marca **Actualizar navegador cuando la escena se active**.
+3. Si sigue fallando al cambiar de escena, marca **Apagar fuente cuando no sea visible** (reinicia limpio al mostrar).
+4. Como último recurso, pulsa **Actualizar la caché de la página actual**.
+5. Activa **fondo transparente** y usa el **ancho × alto** que indica el modal Overlay (cambia con Pequeño / Normal / Grande).
+6. Comprueba que la URL incluye `overlayToken` y fue copiada **desde el panel** tras elegir color/tamaño.
 </Steps>
 
 ### Comprobaciones por herramienta
@@ -318,10 +319,12 @@ Si la URL es antigua o regeneraste la API Key, OBS puede quedar en blanco o sin 
 | Herramienta | Comprobación | Detalle |
 | :--- | :--- | :--- |
 | **Tendencias** | Control | OBS solo refleja; pulsa **Play** en el panel para iniciar el temporizador. |
-| **Tendencias** | Tamaño OBS | **900 × 580 px** (o ancho de escena). |
+| **Tendencias** | Tamaño OBS | Base Normal **900 × 580 px**; Pequeño/Grande ajustan el modal. |
 | **Tendencias** | Fin de sesión | Ranking final **30 s** y luego el overlay se oculta (fondo transparente). |
 | **Ruleta** | Estado | El panel publica el giro; OBS lee `GET /dashboard/overlay-state/roulette`. |
-| **Cualquiera** | Caché OBS | Si cambiaste la URL, refresca la caché del navegador en OBS. |
+| **Ruleta** | Tamaño OBS | Base Normal **720 × 720 px**. |
+| **Preguntas** | Tamaño OBS | Base Normal **800 × 280 px**. |
+| **Cualquiera** | Caché OBS | Si cambiaste la URL o el tamaño, refresca la fuente o apágala al ocultar. |
 
 <Aside type="tip" title="Más detalle">
   Configuración OBS paso a paso en [Tendencias](/docs/herramientas/trends/) y API del overlay en la misma página.
