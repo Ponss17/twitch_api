@@ -77,10 +77,18 @@ export function subscribeHomeDataReset(
 ): () => void {
     if (typeof window === 'undefined' || !userId) return () => {};
 
+    let lastResetAt = 0;
+    const runReset = () => {
+        const now = Date.now();
+        if (now - lastResetAt < 750) return;
+        lastResetAt = now;
+        onReset();
+    };
+
     const handle = (event: Event) => {
         const detail = (event as CustomEvent<{ userId?: string }>).detail;
         if (detail?.userId !== userId) return;
-        onReset();
+        runReset();
     };
 
     window.addEventListener(HOME_DATA_RESET_EVENT, handle);
@@ -90,7 +98,7 @@ export function subscribeHomeDataReset(
         channel = new BroadcastChannel(HOME_DATA_RESET_CHANNEL);
         channel.onmessage = (msg) => {
             if (msg.data?.userId !== userId) return;
-            if (msg.data?.type === 'HOME_DATA_RESET') onReset();
+            if (msg.data?.type === 'HOME_DATA_RESET') runReset();
         };
     } catch {
         /* ignore */

@@ -25,6 +25,16 @@ const FALLBACK_POLL_MS = DASHBOARD_FALLBACK_POLL_MS;
 const REALTIME_SAFETY_POLL_MS = 75_000;
 const REALTIME_SAFETY_POLL_IDLE_MS = 120_000;
 
+async function waitForPanelFetchIdle(
+    isInFlight: () => boolean,
+    maxMs = 5_000
+): Promise<void> {
+    const started = Date.now();
+    while (isInFlight() && Date.now() - started < maxMs) {
+        await new Promise((r) => setTimeout(r, 50));
+    }
+}
+
 interface UseDashboardPanelEngineOptions {
     active: boolean;
     prioritySync?: boolean;
@@ -430,7 +440,8 @@ export function useDashboardPanelEngine({
         panelBootstrappedRef.current = true;
         if (consumeHomeDataResetPending(session.userId)) {
             actionsRef.current.applyHomeDataReset(async () => {
-                await fetchPanelDataRef.current({ broadcast: true, silent: true });
+                await waitForPanelFetchIdle(() => panelFetchInFlightRef.current);
+                await fetchPanelDataRef.current({ broadcast: true, silent: true, fresh: true });
             });
             return;
         }
@@ -440,7 +451,8 @@ export function useDashboardPanelEngine({
     useEffect(() => {
         return subscribeHomeDataReset(session.userId, () => {
             actionsRef.current.applyHomeDataReset(async () => {
-                await fetchPanelDataRef.current({ broadcast: true, silent: true });
+                await waitForPanelFetchIdle(() => panelFetchInFlightRef.current);
+                await fetchPanelDataRef.current({ broadcast: true, silent: true, fresh: true });
             });
         });
     }, [session.userId]);
@@ -449,7 +461,8 @@ export function useDashboardPanelEngine({
         if (!active || !session.userId) return;
         if (consumeHomeDataResetPending(session.userId)) {
             actionsRef.current.applyHomeDataReset(async () => {
-                await fetchPanelDataRef.current({ broadcast: true, silent: true });
+                await waitForPanelFetchIdle(() => panelFetchInFlightRef.current);
+                await fetchPanelDataRef.current({ broadcast: true, silent: true, fresh: true });
             });
             return;
         }
