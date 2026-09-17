@@ -1,6 +1,6 @@
 import { useMemo, useState, memo } from 'react';
 import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
-import { Filter, Terminal, LayoutGrid, Bot, Wrench, Swords, Activity } from 'lucide-react';
+import { Filter, Terminal, LayoutGrid, Bot, Wrench, Sword, Activity } from 'lucide-react';
 
 import { panelCard, fadeIn } from '@/core/utils/tw';
 import { subtleIcon } from '@/features/dashboard/lib/ui/subtleAccents';
@@ -44,7 +44,7 @@ const CATEGORY_META: Record<ActivityCategoryFilter, { icon: React.ElementType }>
     all: { icon: LayoutGrid },
     commands: { icon: Bot },
     tools: { icon: Wrench },
-    minigames: { icon: Swords }
+    minigames: { icon: Sword }
 };
 
 function ActivityFeedSkeleton() {

@@ -11,7 +11,8 @@ export function MinigameCard({
     info,
     children,
     staggered = false,
-    centerBody = false
+    centerBody = false,
+    compactBody = false
 }: {
     icon?: LucideIcon;
     title: string;
@@ -20,6 +21,7 @@ export function MinigameCard({
     children: ReactNode;
     staggered?: boolean;
     centerBody?: boolean;
+    compactBody?: boolean;
 }) {
     return (
         <div
@@ -43,7 +45,11 @@ export function MinigameCard({
                     </div>
                 ) : null}
             </header>
-            <div className={`p-5 text-text-main ${centerBody ? 'text-center' : ''}`}>{children}</div>
+            <div
+                className={`text-text-main ${centerBody ? 'text-center' : ''} ${compactBody ? 'p-4' : 'p-5'}`}
+            >
+                {children}
+            </div>
         </div>
     );
 }

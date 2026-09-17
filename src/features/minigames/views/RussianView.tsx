@@ -69,29 +69,30 @@ export function RussianView() {
                 description={mgT.testDesc}
                 staggered
                 centerBody
+                compactBody
             >
-                <div className="relative z-[1] my-5 flex justify-center px-5 py-5">
+                <div className="relative z-[1] my-1 flex justify-center py-1">
                     {gunDead ? (
                         <Skull
-                            className={`size-20 shrink-0 transition-all max-[600px]:size-16 text-error ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-primary' : ''}`}
+                            className={`size-12 shrink-0 transition-all max-[600px]:size-10 text-error ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-primary' : ''}`}
                             strokeWidth={1.75}
                             aria-hidden
                         />
                     ) : (
                         <RUSSIAN_ICON
-                            className={`size-20 shrink-0 transition-all max-[600px]:size-16 ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-primary' : 'text-text-muted hover:scale-110 hover:rotate-[-5deg]'}`}
+                            className={`size-12 shrink-0 transition-all max-[600px]:size-10 ${loading ? 'animate-[gunShake_0.5s_cubic-bezier(0.36,0.07,0.19,0.97)_both] text-primary' : gunSuccess ? 'text-primary' : 'text-text-muted hover:scale-110 hover:rotate-[-5deg]'}`}
                             strokeWidth={1.75}
                             aria-hidden
                         />
                     )}
                 </div>
 
-                <div className="relative before:absolute before:top-[-10px] before:left-1/2 before:h-px before:w-[200px] before:-translate-x-1/2 before:bg-gradient-to-r before:from-transparent before:via-error/30 before:to-transparent max-[600px]:before:w-[100px]">
+                <div className="relative mt-2 before:absolute before:top-[-8px] before:left-1/2 before:h-px before:w-[160px] before:-translate-x-1/2 before:bg-gradient-to-r before:from-transparent before:via-error/30 before:to-transparent max-[600px]:before:w-[100px]">
                     <button
                         type="button"
                         onClick={() => void pullTrigger()}
                         disabled={loading}
-                        className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-border-subtle bg-error-dark px-10 py-3.5 text-[1rem] font-semibold text-white transition hover:-translate-y-0.5 hover:scale-105 hover:bg-error active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-6 max-[600px]:py-3 max-[600px]:text-[0.9375rem]"
+                        className="relative inline-flex items-center gap-2 overflow-hidden rounded-xl border-2 border-border-subtle bg-error-dark px-7 py-2.5 text-[0.9375rem] font-semibold text-white transition hover:-translate-y-0.5 hover:scale-105 hover:bg-error active:translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 max-[600px]:w-full max-[600px]:justify-center max-[600px]:px-5 max-[600px]:py-2.5"
                     >
                         {loading ? (
                             <Loader2 className="size-4 animate-spin" />
@@ -102,7 +103,7 @@ export function RussianView() {
                     </button>
                 </div>
 
-                <div className="mt-5 w-full max-w-md mx-auto">
+                <div className="mt-3 w-full max-w-md mx-auto">
                     <GameResponse
                         result={result}
                         successIcon={Check}
