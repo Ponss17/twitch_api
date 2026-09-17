@@ -1,7 +1,7 @@
 import { CommandGenerator } from './commandGenerator';
-import { UserRoundCheck, Clock, Video, Megaphone, Theater, Flame, Swords } from 'lucide-react';
+import { UserRoundCheck, Clock, Video, Megaphone, Theater, Flame } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { MAGIC8_ICON, RUSSIAN_ICON, SLOTS_ICON } from '@/features/minigames/icons';
+import { MAGIC8_ICON, RUSSIAN_ICON, SLOTS_ICON, DUEL_ICON } from '@/features/minigames/icons';
 
 export interface ExtraSelector {
     id: string;
@@ -178,7 +178,7 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     duel: {
         id: 'duel',
         title: 'Comando !duelo',
-        icon: Swords,
+        icon: DUEL_ICON,
         desc: 'Duelo 1vs1 narrado (Nightbot: 3 mensajes)',
         info: 'Con Nightbot el bot cuenta el duelo en 3 mensajes. En otros bots sale en una sola línea.',
         supportsLanguage: true,

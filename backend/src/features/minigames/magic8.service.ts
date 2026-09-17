@@ -82,7 +82,8 @@ export async function generateMagic8Response(
                         content: buildMagic8UserMessage(question, userName, resolvedMood)
                     }
                 ],
-                model: 'llama-3.3-70b-versatile',
+                // Groq retiró llama-3.3-70b-versatile (16 ago 2026); reemplazo de producción.
+                model: 'openai/gpt-oss-120b',
                 temperature,
                 max_tokens: 180,
                 top_p: 0.95

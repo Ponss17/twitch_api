@@ -108,19 +108,19 @@ export function SlotsView() {
                 staggered
                 centerBody
             >
-                <div className="my-4 inline-flex items-center gap-2 rounded-2xl border border-border-subtle bg-bg-secondary/60 p-3 shadow-inner max-[600px]:gap-1.5 max-[600px]:p-2.5">
+                <div className="my-3 inline-flex items-center gap-2 rounded-2xl border border-border-subtle bg-bg-secondary/50 p-2.5 max-[600px]:gap-1.5 max-[600px]:p-2">
                     {reels.map((symbol, i) => {
                         const locked = symbol !== '❓';
                         const pulsing = busy && !locked;
                         return (
                             <div
                                 key={i}
-                                className={`flex h-20 w-[4.5rem] items-center justify-center rounded-xl border text-[2.35rem] leading-none transition-all duration-300 max-[600px]:h-16 max-[600px]:w-14 max-[600px]:text-[1.85rem] ${
+                                className={`flex h-16 w-16 items-center justify-center rounded-xl border text-[2rem] leading-none transition-all duration-300 max-[600px]:h-14 max-[600px]:w-14 max-[600px]:text-[1.7rem] ${
                                     locked
                                         ? 'scale-105 border-primary/40 bg-primary/10'
                                         : pulsing
-                                          ? 'animate-pulse border-border-strong bg-bg-main text-text-muted'
-                                          : 'border-border-subtle bg-bg-main/80 text-text-muted'
+                                          ? 'animate-pulse border-border-strong bg-bg-tertiary text-text-muted'
+                                          : 'border-border-subtle bg-bg-tertiary text-text-muted'
                                 }`}
                                 aria-hidden
                             >
