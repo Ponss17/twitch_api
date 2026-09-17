@@ -116,7 +116,7 @@ export function Sidebar({
     const layoutKey = `${railCollapsed}-${mobileOpen}-${isDesktop}`;
     const prevLayoutKey = useRef(layoutKey);
     const [smoothPill, setSmoothPill] = useState(false);
-    const [pillReady, setPillReady] = useState(true);
+    const activeInMainNav = MAIN_NAV.some((item) => item.id === active);
 
     const toggleCollapsed = () => {
         onCollapsedChange?.(!collapsed);
@@ -124,9 +124,18 @@ export function Sidebar({
 
     useLayoutEffect(() => {
         const measure = () => {
-            const btn = navBtnRefs.current.get(active);
             const list = navListRef.current;
-            if (!btn || !list) return;
+            if (!list) return;
+            // Ajustes (y tabs fuera del nav) no tienen botón: quitar pastilla.
+            if (!activeInMainNav) {
+                setNavPill(null);
+                return;
+            }
+            const btn = navBtnRefs.current.get(active);
+            if (!btn) {
+                setNavPill(null);
+                return;
+            }
             const listRect = list.getBoundingClientRect();
             const btnRect = btn.getBoundingClientRect();
             if (btnRect.width < 2 || btnRect.height < 2) return;
@@ -141,15 +150,26 @@ export function Sidebar({
         const layoutChanged = prevLayoutKey.current !== layoutKey;
         prevLayoutKey.current = layoutKey;
 
+        let raf = 0;
         let settleTimer = 0;
+        let followCancelled = false;
 
         if (layoutChanged) {
-            // Evita la “franja” del rail: la pastilla no sigue bien el width animado.
-            setPillReady(false);
+            // Sin ocultar la pastilla (evita parpadeo): seguir el layout frame a frame
+            // sin transition CSS para que no quede una “franja” al colapsar.
             setSmoothPill(false);
+            measure();
+            const start = performance.now();
+            const tick = (now: number) => {
+                if (followCancelled) return;
+                measure();
+                if (now - start < 520) {
+                    raf = requestAnimationFrame(tick);
+                }
+            };
+            raf = requestAnimationFrame(tick);
             settleTimer = window.setTimeout(() => {
                 measure();
-                setPillReady(true);
             }, 520);
         } else {
             setSmoothPill(true);
@@ -167,11 +187,13 @@ export function Sidebar({
 
         window.addEventListener('resize', measure);
         return () => {
+            followCancelled = true;
             window.clearTimeout(settleTimer);
+            cancelAnimationFrame(raf);
             ro.disconnect();
             window.removeEventListener('resize', measure);
         };
-    }, [active, layoutKey]);
+    }, [active, activeInMainNav, layoutKey]);
 
     return (
         <>
@@ -216,7 +238,7 @@ export function Sidebar({
 
                 <nav data-tour="sidebar-nav" className={sidebarNavScroll} aria-label={t.sidebar.navigation}>
                     <div ref={navListRef} className="relative">
-                    {navPill && pillReady ? (
+                    {navPill ? (
                         <span
                             aria-hidden
                             className={`pointer-events-none absolute z-0 rounded-lg bg-primary/15 dark:bg-primary/20 dark:shadow-md dark:shadow-black/40 motion-reduce:transition-none ${
@@ -275,7 +297,7 @@ export function Sidebar({
                                         onChange(item.id);
                                         onClose();
                                     }}
-                                    className={`${sidebarNavItem(isActive, railCollapsed, pillReady)} relative z-[1]`}
+                                    className={`${sidebarNavItem(isActive, railCollapsed, Boolean(navPill))} relative z-[1]`}
                                     aria-label={itemLabel}
                                     title={railCollapsed ? itemLabel : undefined}
                                     aria-current={isActive ? 'page' : undefined}

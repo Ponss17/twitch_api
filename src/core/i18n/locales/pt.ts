@@ -442,12 +442,21 @@ export const pt: Translations = {
         notificationTitle: 'Relatório pronto: {month}',
         notificationBody: 'Já dá para ler ou baixar o resumo do mês fechado.',
         openReport: 'Abrir relatório',
-        howItWorks: 'Como funciona',
-        howItWorksDesc: 'Arquivo do mês fechado vs Análises',
-        howItWorksBody: [
-            'Relatórios guarda uma foto do uso dos seus comandos LosPerris quando o mês termina. Não é o painel ao vivo: isso continua em Análises.',
-            'O que você usa hoje alimenta Análises. O relatório daquele mês só aparece aqui quando o mês fecha e houve uso de comandos.',
-            'Se reiniciar estatísticas em Ajustes, os relatórios já arquivados ficam. Só são removidos se você excluir a conta.'
+        howItWorks: 'Como funciona?',
+        howItWorksDesc: 'Sobre os relatórios do mês fechado',
+        howItWorksFaq: [
+            {
+                q: 'O que o Relatórios guarda?',
+                a: 'Ao fechar um mês em que você usou comandos LosPerris, arquivamos esses dados do mês terminado. Não é o painel ao vivo: Análises continua mostrando o momento atual; aqui fica o resumo já fechado para consultar ou baixar depois.'
+            },
+            {
+                q: 'O mês atual aparece aqui?',
+                a: 'Ainda não. O que você usa hoje aparece em Análises. O relatório daquele mês só é criado quando o mês termina e houve uso de comandos; se não houve uso, não se gera arquivo.'
+            },
+            {
+                q: 'Se eu reiniciar estatísticas em Ajustes → Dados, os relatórios são apagados?',
+                a: 'Não. Reiniciar estatísticas limpa o contador ao vivo, mas os relatórios já arquivados são mantidos. Só desaparecem se você excluir a conta por completo.'
+            }
         ],
         kpis: {
             requests: 'Usos totais',
