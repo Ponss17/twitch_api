@@ -10,7 +10,7 @@ import {
     Dices,
     Megaphone,
     MessageSquare,
-    Swords,
+    Sword,
     TrendingUp,
     UserRoundCheck
 } from 'lucide-react';
@@ -99,7 +99,7 @@ function getActivityMetaDict(t: Translations): Record<ActivityLogType, Omit<Acti
         },
         duel: {
             label: act.duel.label,
-            icon: Swords,
+            icon: Sword,
             detailText: (item) => {
                 const target = metaStr(item.metadata, 'target') || metaStr(item.metadata, 'raw_detail');
                 return target ? act.duel.vs(target) : act.duel.defaultDetail;

@@ -1,4 +1,4 @@
-import { Loader2, Swords, Gavel } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { API_ENDPOINTS } from '@/core/config/config';
 import { authHeaders, withApiCredentials } from '@/core/api/auth';
@@ -7,6 +7,7 @@ import { useRequiredSession } from '@/core/session/useSession';
 import { COMMAND_CONFIG } from '@/features/commands/lib/config';
 import { btnPrimary, fadeIn, formGrid, formGroupLabel, textInput } from '@/core/utils/tw';
 import { CommandGeneratorCard } from '@/features/commands/CommandGeneratorCard';
+import { DUEL_ICON } from '@/features/minigames/icons';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { MinigameCard } from '../MinigameCard';
 import {
@@ -62,7 +63,7 @@ export function DuelView() {
         <div className={fadeIn}>
             <CommandGeneratorCard config={COMMAND_CONFIG.duel} />
             <MinigameCard
-                icon={Swords}
+                icon={DUEL_ICON}
                 title={mgT.testTitle}
                 description={mgT.testDesc}
                 info={mgT.testInfo}
@@ -108,7 +109,7 @@ export function DuelView() {
                     {result.status === 'loading' ? (
                         <Loader2 className="animate-spin" />
                     ) : (
-                        <Gavel className="h-4 w-4" />
+                        <DUEL_ICON className="h-4 w-4" strokeWidth={2.25} />
                     )}
                     {result.status === 'loading' ? mgT.btnLoading : mgT.btnFight}
                 </button>
@@ -116,7 +117,7 @@ export function DuelView() {
                     result={result}
                     loadingNode={
                         <div className="flex items-center gap-3 font-medium italic text-warning">
-                            <Swords className="animate-[gunShake_1s_infinite_linear] text-[1.8rem]" />
+                            <DUEL_ICON className="animate-[gunShake_1s_infinite_linear] text-[1.8rem]" />
                             {mgT.loadingResult}
                         </div>
                     }

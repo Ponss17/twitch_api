@@ -18,13 +18,13 @@ import {
     Dices,
     Crosshair,
     CircleDot,
-    Swords,
     Cherry,
     Info,
     Book,
     Server,
     LayoutGrid
 } from 'lucide-react';
+import { DUEL_ICON } from '@/features/minigames/icons';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import type { Translations } from '@/core/i18n/locales/es';
 import type { LucideIcon } from 'lucide-react';
@@ -75,7 +75,7 @@ const TAB_ICONS: Record<UsageTab, LucideIcon> = {
     roulette: Dices,
     russian: Crosshair,
     magic8: CircleDot,
-    duel: Swords,
+    duel: DUEL_ICON,
     slots: Cherry
 };
 
