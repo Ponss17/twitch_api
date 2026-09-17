@@ -51,20 +51,23 @@ export function useSettingsDangerActions({ session, showToast, t, onDataCleared 
                 })
             );
             const data = await parseJsonSafe(res);
-            if (res.ok && data.success) {
-                const cleared = (data.cleared as ClearDataScopes | undefined) ?? scopes;
-                if (cleared.stats || cleared.activity) {
-                    clearDashboardSyncPrefs(session.userId);
-                    if (session.userId) broadcastHomeDataReset(session.userId);
-                }
-                writePanelSyncPref(session.userId, Date.now().toString());
-                onDataCleared?.();
-                showToast((data.message as string) ?? t.settings.toasts.clearSuccess, 'success');
-            } else {
+            if (!res.ok || !data.success) {
                 showToast(extractApiErrorMessage(data, t.settings.toasts.clearError), 'error');
+                throw new Error('clear_failed');
             }
-        } catch {
+
+            const cleared = (data.cleared as ClearDataScopes | undefined) ?? scopes;
+            if (cleared.stats || cleared.activity) {
+                clearDashboardSyncPrefs(session.userId);
+                if (session.userId) broadcastHomeDataReset(session.userId);
+            }
+            writePanelSyncPref(session.userId, Date.now().toString());
+            onDataCleared?.();
+            showToast((data.message as string) ?? t.settings.toasts.clearSuccess, 'success');
+        } catch (err) {
+            if (err instanceof Error && err.message === 'clear_failed') throw err;
             showToast(t.settings.toasts.clearError, 'error');
+            throw err instanceof Error ? err : new Error('clear_failed');
         }
     };
 
@@ -79,16 +82,18 @@ export function useSettingsDangerActions({ session, showToast, t, onDataCleared 
                 })
             );
             const data = await parseJsonSafe(res);
-            if (res.ok && data.success) {
-                showToast(t.settings.toasts.deleteSuccess, 'success');
-                setTimeout(() => {
-                    window.location.href = appPath('/');
-                }, 2000);
-            } else {
+            if (!res.ok || !data.success) {
                 showToast(extractApiErrorMessage(data, t.settings.toasts.deleteError), 'error');
+                throw new Error('delete_failed');
             }
-        } catch {
+            showToast(t.settings.toasts.deleteSuccess, 'success');
+            setTimeout(() => {
+                window.location.href = appPath('/');
+            }, 2000);
+        } catch (err) {
+            if (err instanceof Error && err.message === 'delete_failed') throw err;
             showToast(t.settings.toasts.deleteError, 'error');
+            throw err instanceof Error ? err : new Error('delete_failed');
         }
     };
 

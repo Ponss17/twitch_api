@@ -286,7 +286,7 @@ export class RealtimeService {
                         {
                             event: 'INSERT',
                             schema: 'public',
-                            table: 'notifications',
+                            table: 'user_notifications',
                             filter: userFilter
                         },
                         (payload) => {

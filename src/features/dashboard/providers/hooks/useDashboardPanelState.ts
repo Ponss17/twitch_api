@@ -35,6 +35,8 @@ export function useDashboardPanelState(session: Session) {
     isTabLeaderRef.current = isTabLeader;
 
     const resetPendingRef = useRef(false);
+    const resetGenerationRef = useRef(0);
+    const resetSafetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const todayLocalRef = useRef(getStatsLocalDateString());
 
     const statsTimeZone =
@@ -46,6 +48,15 @@ export function useDashboardPanelState(session: Session) {
         if (!statsTimeZone) return;
         todayLocalRef.current = getStatsLocalDateString(statsTimeZone);
     }, [statsTimeZone]);
+
+    useEffect(() => {
+        return () => {
+            if (resetSafetyTimerRef.current) {
+                clearTimeout(resetSafetyTimerRef.current);
+                resetSafetyTimerRef.current = null;
+            }
+        };
+    }, []);
 
     const markDataReady = useCallback(() => {
         if (dataReadyFiredRef.current) return;
@@ -83,21 +94,39 @@ export function useDashboardPanelState(session: Session) {
         );
     }, []);
 
+    const clearResetPending = useCallback((generation: number) => {
+        if (resetGenerationRef.current !== generation) return;
+        resetPendingRef.current = false;
+        if (resetSafetyTimerRef.current) {
+            clearTimeout(resetSafetyTimerRef.current);
+            resetSafetyTimerRef.current = null;
+        }
+    }, []);
+
     const applyHomeDataReset = useCallback(
         (engineFetchDataCallback: () => Promise<void>) => {
             consumeHomeDataResetPending(session.userId);
+            const generation = ++resetGenerationRef.current;
             resetPendingRef.current = true;
             setStats(EMPTY_DASHBOARD_LIVE_STATS);
             setActivity([]);
             setError(null);
             setHighlightKeys(new Set());
             dataReadyFiredRef.current = false;
-            
-            engineFetchDataCallback().then(() => {
-                resetPendingRef.current = false;
-            });
+
+            if (resetSafetyTimerRef.current) clearTimeout(resetSafetyTimerRef.current);
+            resetSafetyTimerRef.current = setTimeout(() => {
+                clearResetPending(generation);
+            }, 8_000);
+
+            void Promise.resolve()
+                .then(() => engineFetchDataCallback())
+                .catch(() => {})
+                .finally(() => {
+                    clearResetPending(generation);
+                });
         },
-        [session.userId]
+        [clearResetPending, session.userId]
     );
 
     const handleRealtimeStats = useCallback((next: RealtimeStatsUpdate) => {
