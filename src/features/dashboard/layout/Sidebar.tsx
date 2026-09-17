@@ -19,7 +19,8 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
 import {
     Dropdown,
-    DropdownTrigger
+    DropdownTrigger,
+    DropdownChevron
 } from '@/shared/ui/dropdown/Dropdown';
 import { SidebarAccountMenu } from './SidebarAccountMenu';
 
@@ -322,7 +323,7 @@ export function Sidebar({
                 </nav>
 
                 <div
-                    className={`relative flex h-[4.25rem] shrink-0 items-center overflow-visible border-t border-border-subtle transition-[padding,justify-content] ${SIDEBAR_MOTION} ${railCollapsed ? 'justify-center px-1.5' : 'px-2.5'
+                    className={`relative shrink-0 overflow-visible border-t border-border-subtle transition-[padding] ${SIDEBAR_MOTION} ${railCollapsed ? 'px-1.5' : 'px-0'
                         }`}
                 >
                     <Dropdown
@@ -332,15 +333,15 @@ export function Sidebar({
                         <DropdownTrigger
                             aria-label={t.header.accountMenu}
                             title={railCollapsed ? displayName : undefined}
-                            className={`group flex items-center rounded-xl border border-transparent text-left transition-[padding,gap,width] ${SIDEBAR_MOTION} hover:bg-white/[0.02] aria-expanded:border-border-subtle aria-expanded:bg-white/[0.03] ${railCollapsed
-                                    ? 'justify-center gap-0 p-1.5'
-                                    : 'w-full gap-2.5 px-2 py-2'
+                            className={`group flex w-full items-center text-left transition-colors ${SIDEBAR_MOTION} hover:bg-white/[0.02] aria-expanded:bg-white/[0.03] ${railCollapsed
+                                    ? 'justify-center gap-0 px-0 py-3'
+                                    : 'gap-2.5 px-3.5 py-3'
                                 }`}
                         >
                             <img
                                 src={avatarSrc}
                                 alt=""
-                                className="size-9 shrink-0 rounded-full object-cover ring-1 ring-border-subtle"
+                                className="size-9 shrink-0 rounded-full object-cover"
                             />
                             <span
                                 className={`min-w-0 flex-1 overflow-hidden transition-[max-width,opacity] ${SIDEBAR_MOTION} ${railCollapsed
@@ -349,15 +350,19 @@ export function Sidebar({
                                     }`}
                                 aria-hidden={railCollapsed}
                             >
-                                <span className="block truncate whitespace-nowrap text-[0.875rem] font-semibold text-text-main">
+                                <span className="block truncate whitespace-nowrap text-[0.8125rem] font-semibold tracking-tight text-text-main">
                                     {displayName}
                                 </span>
                                 {loginLabel ? (
-                                    <span className="block truncate whitespace-nowrap text-[0.7rem] text-text-muted">
+                                    <span className="block truncate whitespace-nowrap text-[0.65rem] text-text-muted">
                                         {loginLabel}
                                     </span>
                                 ) : null}
                             </span>
+                            <DropdownChevron
+                                className={`size-3.5 shrink-0 text-text-muted transition-[opacity,transform,margin] ${SIDEBAR_MOTION} group-hover:text-text-main ${railCollapsed ? 'm-0 max-w-0 opacity-0' : 'opacity-100'
+                                    }`}
+                            />
                         </DropdownTrigger>
 
                         <SidebarAccountMenu

@@ -1074,6 +1074,7 @@ export const pt: Translations = {
         },
         generator: {
             variables: 'Variáveis disponíveis:',
+            insertVar: 'Inserir {var} na mensagem',
             botSelect: 'Selecionar Bot',
             langSelect: 'Idioma de resposta do bot',
             langOptions: {

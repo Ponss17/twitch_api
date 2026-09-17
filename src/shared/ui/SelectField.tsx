@@ -18,6 +18,7 @@ export interface SelectFieldProps {
     options: SelectFieldOption[];
     className?: string;
     'aria-label'?: string;
+    'aria-labelledby'?: string;
     disabled?: boolean;
     name?: string;
     required?: boolean;
@@ -31,6 +32,7 @@ export function SelectField({
     onChange,
     className = '',
     'aria-label': ariaLabel,
+    'aria-labelledby': ariaLabelledBy,
     disabled = false,
     name,
     required = false
@@ -86,6 +88,7 @@ export function SelectField({
                 id={id}
                 disabled={disabled}
                 aria-label={ariaLabel}
+                aria-labelledby={ariaLabelledBy}
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
                 aria-controls={listboxId}
@@ -175,15 +178,22 @@ export function SelectFieldRow({
     icon,
     controlId,
     rowClassName = '',
+    'aria-label': ariaLabel,
     ...selectProps
 }: SelectFieldRowProps) {
+    const labelId = `${controlId}-label`;
     return (
         <div className={`${toolSelector} ${rowClassName}`.trim()}>
-            <label htmlFor={controlId} className={toolLabel}>
+            <div id={labelId} className={toolLabel}>
                 <IconSm icon={icon} className="mr-2" />
                 <span>{label}</span>
-            </label>
-            <SelectField id={controlId} {...selectProps} />
+            </div>
+            <SelectField
+                id={controlId}
+                {...selectProps}
+                aria-label={ariaLabel ?? label}
+                aria-labelledby={labelId}
+            />
         </div>
     );
 }
