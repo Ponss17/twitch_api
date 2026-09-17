@@ -27,7 +27,7 @@ export function InfoTooltip({ text, className, placement = 'bottom' }: InfoToolt
             <span
                 id={tipId}
                 role="tooltip"
-                className={`pointer-events-none absolute right-0 z-[200] w-[min(260px,calc(100vw-2rem))] rounded-md border border-border-strong bg-bg-card p-3 text-left font-[Outfit,sans-serif] text-[0.82rem] leading-snug font-normal text-text-main opacity-0 shadow-lg transition group-hover/info:opacity-100 group-focus-visible/info:opacity-100 ${
+                className={`pointer-events-none absolute right-0 z-[200] w-[min(260px,calc(100vw-2rem))] rounded-md border border-border-strong bg-bg-modal p-3 text-left font-[Outfit,sans-serif] text-[0.82rem] leading-snug font-normal text-text-main opacity-0 shadow-[0_8px_28px_rgba(0,0,0,0.55)] transition group-hover/info:opacity-100 group-focus-visible/info:opacity-100 ${
                     opensBelow
                         ? 'top-[calc(100%+8px)] group-hover/info:translate-y-0.5 group-focus-visible/info:translate-y-0.5'
                         : 'bottom-[calc(100%+10px)] group-hover/info:-translate-y-0.5 group-focus-visible/info:-translate-y-0.5'

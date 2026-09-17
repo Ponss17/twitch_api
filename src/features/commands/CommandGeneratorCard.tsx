@@ -1,5 +1,5 @@
 import { Edit, Check, Copy, Bot, FileCode, Languages } from 'lucide-react';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
     btnCopy,
     panelCard,
@@ -59,23 +59,35 @@ function CommandCardHeader({
     );
 }
 
-function TemplateVarsHelp({ vars }: { vars: string }) {
+function TemplateVarsHelp({
+    vars,
+    onInsert
+}: {
+    vars: string;
+    onInsert: (token: string) => void;
+}) {
     const { t } = useTranslation();
-    const text = vars.replace(/^Variables(?:\s+disponibles)?:\s*/i, '').trim();
-    const parts = text.split(',').map((v) => v.trim());
+    const text = vars
+        .replace(/^(?:Variables(?:\s+disponibles)?|Available variables|Variáveis disponíveis):\s*/i, '')
+        .trim();
+    const parts = text.split(',').map((v) => v.trim()).filter(Boolean);
     return (
-        <small className="mt-0.5 block text-[0.6875rem] leading-snug text-text-muted">
-            <strong className="text-text-main">{t.commands.generator.variables}</strong>{' '}
-            {parts.map((part, i) => {
+        <small className="mt-0.5 flex flex-wrap items-center gap-x-1 gap-y-1 text-[0.6875rem] leading-snug text-text-muted">
+            <strong className="text-text-main">{t.commands.generator.variables}</strong>
+            {parts.map((part) => {
                 const match = part.match(/\{(\w+)\}/);
                 const badge = match ? `{${match[1]}}` : part;
                 return (
-                    <span key={part}>
-                        {i > 0 ? ', ' : ''}
-                        <code className="mx-0.5 rounded border border-primary/30 bg-primary/15 px-1 py-px text-[0.8125rem] font-medium text-brand-text">
-                            {badge}
-                        </code>
-                    </span>
+                    <button
+                        key={badge}
+                        type="button"
+                        onClick={() => onInsert(badge)}
+                        title={t.commands.generator.insertVar.replace('{var}', badge)}
+                        aria-label={t.commands.generator.insertVar.replace('{var}', badge)}
+                        className="rounded border border-primary/30 bg-primary/15 px-1.5 py-0.5 font-mono text-[0.8125rem] font-medium text-brand-text transition-colors hover:border-primary/50 hover:bg-primary/25 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
+                    >
+                        {badge}
+                    </button>
                 );
             })}
         </small>
@@ -104,6 +116,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange, headerBadge 
     const { showToast } = useToast();
     const [stored, updateConfig] = useCommandConfig(config.id);
     const [isCopied, setIsCopied] = useState(false);
+    const templateInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (!config.extraSelectors?.length) return;
@@ -121,6 +134,21 @@ export function CommandGeneratorCard({ config, onExtraValuesChange, headerBadge 
     }, [config.id, config.extraSelectors, updateConfig]);
 
     const { bot, template, format, extraValues } = stored;
+
+    const insertTemplateVar = (token: string) => {
+        const el = templateInputRef.current;
+        const start = el?.selectionStart ?? template.length;
+        const end = el?.selectionEnd ?? template.length;
+        const next = `${template.slice(0, start)}${token}${template.slice(end)}`;
+        updateConfig({ template: next });
+        requestAnimationFrame(() => {
+            const input = templateInputRef.current;
+            if (!input) return;
+            input.focus();
+            const caret = start + token.length;
+            input.setSelectionRange(caret, caret);
+        });
+    };
 
     const botOptions = useMemo(
         () => BOT_OPTIONS.filter((opt) => !config.excludedBots?.includes(opt.value)),
@@ -274,6 +302,7 @@ export function CommandGeneratorCard({ config, onExtraValuesChange, headerBadge 
                             <span>{cmdT.customMsg}</span>
                         </label>
                         <input
+                            ref={templateInputRef}
                             id={`${config.id}-template`}
                             type="text"
                             value={template}
@@ -281,7 +310,9 @@ export function CommandGeneratorCard({ config, onExtraValuesChange, headerBadge 
                             placeholder={templatePlaceholder}
                             className={textInput}
                         />
-                        {templateVars && <TemplateVarsHelp vars={templateVars} />}
+                        {templateVars && (
+                            <TemplateVarsHelp vars={templateVars} onInsert={insertTemplateVar} />
+                        )}
                     </div>
                 )}
 

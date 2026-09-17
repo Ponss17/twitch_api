@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BarChart3, FileBarChart, HelpCircle, Terminal } from 'lucide-react';
 import { useRequiredSession } from '@/core/session/useSession';
 import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
@@ -73,50 +73,66 @@ export function ReportsView({ active }: { active: boolean }) {
     const [downloadFormat, setDownloadFormat] = useState<DownloadFormat>('html');
     const [howItWorksOpen, setHowItWorksOpen] = useState(false);
 
+    // session cambia de identidad en validate/refresh; solo el userId debe disparar recargas.
+    const sessionRef = useRef(session);
+    sessionRef.current = session;
+    const sessionKey = session.userId ?? '';
+    const loadErrorRef = useRef(rT.loadError);
+    loadErrorRef.current = rT.loadError;
+    const listRef = useRef(list);
+    listRef.current = list;
+    const detailRef = useRef(detail);
+    detailRef.current = detail;
+    const loadedForUserRef = useRef<string | null>(null);
+
     const loadList = useCallback(async () => {
-        setLoading(true);
+        const silent = listRef.current.length > 0;
+        if (!silent) setLoading(true);
         setError(null);
         try {
             try {
-                await ensureMonthlyReport(session);
+                await ensureMonthlyReport(sessionRef.current);
             } catch {
                 /* listar igual si ensure falla (429/red/migración) */
             }
-            const reports = await fetchMonthlyReports(session);
+            const reports = await fetchMonthlyReports(sessionRef.current);
             setList(reports);
-            const fromUrl = readMonthFromUrl();
-            const initial =
-                (fromUrl && reports.some((r) => r.yearMonth === fromUrl) ? fromUrl : null) ??
-                reports[0]?.yearMonth ??
-                null;
-            setSelected(initial);
+            setSelected((prev) => {
+                const fromUrl = readMonthFromUrl();
+                if (fromUrl && reports.some((r) => r.yearMonth === fromUrl)) return fromUrl;
+                if (prev && reports.some((r) => r.yearMonth === prev)) return prev;
+                return reports[0]?.yearMonth ?? null;
+            });
+            loadedForUserRef.current = sessionKey;
         } catch (e) {
-            setError(e instanceof Error ? e.message : rT.loadError);
+            setError(e instanceof Error ? e.message : loadErrorRef.current);
         } finally {
             setLoading(false);
         }
-    }, [session, rT.loadError]);
+    }, [sessionKey]);
 
     useEffect(() => {
         if (!active) return;
+        // Keep-alive: no volver a pedir la lista al reentrar al tab.
+        if (loadedForUserRef.current === sessionKey) return;
         void loadList();
-    }, [active, loadList]);
+    }, [active, sessionKey, loadList]);
 
     useEffect(() => {
-        if (!active || !selected) {
-            setDetail(null);
-            return;
-        }
+        if (!active || !selected) return;
+        // Ya tenemos el detalle de este mes (p. ej. al volver al tab): no parpadear.
+        if (detailRef.current?.yearMonth === selected) return;
+
         let cancelled = false;
         setDetailLoading(true);
-        void fetchMonthlyReport(session, selected)
+        void fetchMonthlyReport(sessionRef.current, selected)
             .then((data) => {
                 if (!cancelled) setDetail(data);
             })
             .catch((e) => {
                 if (!cancelled) {
                     setDetail(null);
-                    setError(e instanceof Error ? e.message : rT.loadError);
+                    setError(e instanceof Error ? e.message : loadErrorRef.current);
                 }
             })
             .finally(() => {
@@ -125,7 +141,7 @@ export function ReportsView({ active }: { active: boolean }) {
         return () => {
             cancelled = true;
         };
-    }, [active, selected, session, rT.loadError]);
+    }, [active, selected, sessionKey]);
 
     const latestYearMonth = list[0]?.yearMonth ?? null;
     const isLatest = Boolean(selected && latestYearMonth && selected === latestYearMonth);
