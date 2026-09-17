@@ -1388,6 +1388,7 @@ export const pt: Translations = {
         },
         setupModal: {
             titlePrefix: 'Overlay —',
+            betaBadge: 'Beta',
             description: 'Siga as instruções para conectar o overlay ao seu software de streaming.',
             warning: 'A URL contém seu token secreto.',
             warningBold: 'Não a compartilhe publicamente.',
@@ -1405,40 +1406,49 @@ export const pt: Translations = {
                 sourceTitle: 'Nova fonte',
                 sourceDetail: 'Fontes → Fonte de Navegador.',
                 urlTitle: 'Colar URL',
-                urlDetail: 'Cole a URL que você copiou do painel (botão Overlay).',
-                sizeTitle: 'Tamanho',
-                sizeDetail: (size: string): string => `${size}, fundo transparente.`,
+                urlDetail:
+                    'Copie a URL do botão abaixo (inclui cor e tamanho escolhidos) e cole no OBS.',
+                sizeTitle: 'Largura e altura',
+                sizeDetail: (size: string): string =>
+                    `Defina exatamente ${size}, fundo transparente. Se mudar Pequeno/Normal/Grande acima, use estas medidas novas.`,
                 refreshTitle: 'Ao ativar cena',
-                refreshDetail: 'Marque "Atualizar navegador quando a cena ficar ativa".'
+                refreshDetail:
+                    'Marque "Atualizar navegador quando a cena ficar ativa". Se ficar em branco ao voltar, tente "Desligar fonte quando não estiver visível".'
             },
-            obsNote: 'Só exibe na tela. Para iniciar, girar ou resetar, use o painel.',
+            obsNote:
+                'Escolha cor e tamanho acima antes de copiar a URL. O overlay só exibe; para iniciar, girar ou resetar, use o painel.',
             slTitle: 'Configuração no Streamlabs',
             slSteps: {
                 sourceTitle: 'Nova fonte',
                 sourceDetail: 'Fontes → Widget Personalizado ou Fonte de Navegador.',
                 urlTitle: 'Colar URL',
-                urlDetail: 'Cole a URL que você copiou do painel (botão Overlay).',
-                sizeTitle: 'Tamanho',
-                sizeDetail: (size: string): string => `${size}, sem cor de fundo.`,
+                urlDetail:
+                    'Copie a URL do botão abaixo (inclui cor e tamanho escolhidos) e cole no Streamlabs.',
+                sizeTitle: 'Largura e altura',
+                sizeDetail: (size: string): string =>
+                    `Defina exatamente ${size}, sem cor de fundo. Se mudar Pequeno/Normal/Grande acima, use estas medidas novas.`,
                 refreshTitle: 'Ao mostrar cena',
                 refreshDetail: 'Ative a atualização automática se seu plano permitir.'
             },
-            slNote: 'Se a fonte ficar preta, verifique o tamanho, fundo transparente e atualização ao mostrar cena.',
+            slNote:
+                'Escolha cor e tamanho acima antes de copiar a URL. Se a fonte ficar preta, verifique medidas, fundo transparente e atualização ao mostrar cena.',
             tools: {
                 trends: 'Tendências',
                 roulette: 'Roleta',
                 questions: 'Perguntas'
             },
             sizes: {
-                trends: '900 × 580 px (top 10; largura total se preferir)',
-                roulette: '720 × 720 px',
-                questions: '800 × 280 px (pergunta atual; largura total se preferir)'
+                trends: (w: number, h: number): string =>
+                    `${w} × ${h} px (top 10; largura total se preferir)`,
+                roulette: (w: number, h: number): string => `${w} × ${h} px`,
+                questions: (w: number, h: number): string =>
+                    `${w} × ${h} px (pergunta atual; largura total se preferir)`
             }
         },
         appearance: {
             title: 'Aparência ao vivo',
             badge: 'Só overlay',
-            desc: 'Cor e tamanho vão na URL do OBS. Não mudam o tema do painel nem geram pedidos extra.',
+            desc: 'Cor e tamanho vão na URL. As medidas do OBS/Streamlabs abaixo atualizam conforme Pequeno, Normal ou Grande.',
             colorLabel: 'Cor',
             customColor: 'Cor personalizada',
             preset: 'Preset',

@@ -60,7 +60,10 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
         return stored && isOverlayScaleId(stored) ? stored : 'md';
     });
 
-    const guide = getOverlayPlatformGuide(tool, platform, gT);
+    const guide = useMemo(
+        () => getOverlayPlatformGuide(tool, platform, gT, obsScale),
+        [tool, platform, gT, obsScale]
+    );
     const toolLabel = gT.tools[tool] ?? tool;
 
     const handleColorChange = (newColor: string) => {
@@ -134,6 +137,7 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
             open={open}
             onClose={onClose}
             title={`${mT.titlePrefix} ${toolLabel}`}
+            titleBadge={mT.betaBadge}
             description={mT.description}
             footer={
                 <div className="flex w-full flex-col gap-3">

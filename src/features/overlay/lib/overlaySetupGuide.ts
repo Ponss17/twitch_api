@@ -1,9 +1,32 @@
 import type { OverlayTool } from '@/features/overlay/lib/types';
 import type { Translations } from '@/core/i18n/locales/es';
+import {
+    OVERLAY_SCALE_VALUES,
+    type OverlayScaleId
+} from '@/features/overlay/lib/overlayAppearance';
 
 export type OverlayPlatform = 'obs' | 'streamlabs';
 
 export const OVERLAY_SETUP_VERSION = 'beta 1.4';
+
+/** Tamaño base del Browser Source (scale `md` = 1×). */
+export const OVERLAY_OBS_BASE_SIZE: Record<OverlayTool, { width: number; height: number }> = {
+    trends: { width: 900, height: 580 },
+    roulette: { width: 720, height: 720 },
+    questions: { width: 800, height: 280 }
+};
+
+export function resolveOverlayBrowserSize(
+    tool: OverlayTool,
+    scale: OverlayScaleId = 'md'
+): { width: number; height: number } {
+    const base = OVERLAY_OBS_BASE_SIZE[tool];
+    const factor = OVERLAY_SCALE_VALUES[scale];
+    return {
+        width: Math.round(base.width * factor),
+        height: Math.round(base.height * factor)
+    };
+}
 
 /** Muestra la URL sin token ni credenciales en query. */
 export function maskOverlayUrlForDisplay(url: string): string {
@@ -36,9 +59,11 @@ export interface OverlayPlatformGuide {
 export function getOverlayPlatformGuide(
     tool: OverlayTool,
     platform: OverlayPlatform,
-    gT: Translations['overlay']['guide']
+    gT: Translations['overlay']['guide'],
+    scale: OverlayScaleId = 'md'
 ): OverlayPlatformGuide {
-    const size = gT.sizes[tool];
+    const { width, height } = resolveOverlayBrowserSize(tool, scale);
+    const size = gT.sizes[tool](width, height);
 
     if (platform === 'obs') {
         return {
