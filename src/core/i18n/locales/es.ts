@@ -447,12 +447,21 @@ export const es = {
         notificationTitle: 'Informe listo: {month}',
         notificationBody: 'Ya puedes leer o descargar el resumen del mes cerrado.',
         openReport: 'Abrir informe',
-        howItWorks: 'Cómo funciona',
-        howItWorksDesc: 'Archivo del mes cerrado vs Analíticas',
-        howItWorksBody: [
-            'Reportes guarda una foto del uso de tus comandos LosPerris cuando termina un mes. No es el panel en vivo: eso sigue en Analíticas.',
-            'Lo que usas hoy alimenta Analíticas. El informe de ese mes solo aparece aquí cuando el mes cierra y hubo uso de comandos.',
-            'Si reinicias estadísticas en Ajustes, los informes ya archivados se quedan. Solo se eliminan si borras la cuenta.'
+        howItWorks: '¿Cómo funciona?',
+        howItWorksDesc: 'Sobre los informes del mes cerrado',
+        howItWorksFaq: [
+            {
+                q: '¿Qué guarda Reportes?',
+                a: 'Al cerrar un mes en el que usaste comandos LosPerris, archivamos esos datos del mes terminado. No es un panel en vivo: Analíticas sigue mostrando lo actual; aquí queda el resumen ya cerrado para consultarlo o descargarlo después.'
+            },
+            {
+                q: '¿El mes en curso aparece aquí?',
+                a: 'Todavía no. Lo que usas hoy se ve en Analíticas. El informe de ese mes solo se crea cuando el mes termina y hubo uso de comandos; si no hubo uso, no se genera archivo.'
+            },
+            {
+                q: '¿Si reinicio estadísticas en Ajustes → Datos, se borran los reportes?',
+                a: 'No. Reiniciar estadísticas limpia el contador en vivo, pero los informes ya archivados se conservan. Solo desaparecen si borras la cuenta por completo.'
+            }
         ],
         kpis: {
             requests: 'Usos totales',

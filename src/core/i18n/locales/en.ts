@@ -447,12 +447,21 @@ export const en: Translations = {
         notificationTitle: 'Report ready: {month}',
         notificationBody: 'You can read or download the closed-month summary.',
         openReport: 'Open report',
-        howItWorks: 'How it works',
-        howItWorksDesc: 'Closed-month archive vs Analytics',
-        howItWorksBody: [
-            'Reports stores a snapshot of your LosPerris command usage when a month ends. It is not the live panel — that stays in Analytics.',
-            'What you use today feeds Analytics. That month’s report only shows up here after the month closes and there was command usage.',
-            'If you reset statistics in Settings, archived reports stay. They are only removed if you delete your account.'
+        howItWorks: 'How does it work?',
+        howItWorksDesc: 'About closed-month reports',
+        howItWorksFaq: [
+            {
+                q: 'What does Reports store?',
+                a: 'When a month ends with LosPerris command usage, we archive that month’s data. This is not the live panel: Analytics still shows what’s current; here you keep the closed summary to review or download later.'
+            },
+            {
+                q: 'Does the current month show up here?',
+                a: 'Not yet. What you use today appears in Analytics. That month’s report is only created after the month ends and there was command usage; if there was none, no archive is created.'
+            },
+            {
+                q: 'If I reset statistics in Settings → Data, are reports deleted?',
+                a: 'No. Resetting statistics clears the live counters, but archived reports are kept. They are only removed if you delete your account entirely.'
+            }
         ],
         kpis: {
             requests: 'Total uses',
