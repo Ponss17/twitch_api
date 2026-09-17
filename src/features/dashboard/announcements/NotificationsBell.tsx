@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ComponentType } from 'react';
+import { useCallback, useEffect, useState, useRef, type ComponentType } from 'react';
 import { Bell, FileBarChart, Sparkles, X } from 'lucide-react';
 import { logout } from '@/core/api/auth';
 import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
@@ -48,20 +48,24 @@ export function NotificationsBell() {
     const { announcements, count: announceCount, dismiss, dismissAll } = useAnnouncements();
     const [serverNotifications, setServerNotifications] = useState<ServerNotification[]>([]);
     const bcp47 = getBcp47(locale);
+    const sessionRef = useRef(session);
+    sessionRef.current = session;
+    const sessionKey = session.userId ?? '';
 
     const refreshServer = useCallback(async () => {
+        const current = sessionRef.current;
         try {
-            await ensureMonthlyReport(session);
+            await ensureMonthlyReport(current);
         } catch {
             /* ensure no debe bloquear la bandeja */
         }
         try {
-            const data = await fetchServerNotifications(session);
+            const data = await fetchServerNotifications(current);
             setServerNotifications(data.notifications);
         } catch {
             /* silencioso: campanita no debe romper el panel */
         }
-    }, [session]);
+    }, [sessionKey]);
 
     useEffect(() => {
         void refreshServer();
