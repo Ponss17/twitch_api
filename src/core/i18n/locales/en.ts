@@ -1478,7 +1478,8 @@ export const en: Translations = {
         },
         banners: {
             connecting: 'Connecting overlay…',
-            waiting: 'Waiting for dashboard data…'
+            waiting: 'Waiting for dashboard data…',
+            unauthorized: 'Invalid or expired overlay link. Generate a new one from the dashboard.'
         },
         gate: {
             invalidLink: 'Invalid overlay link. Generate a new one from the dashboard.'

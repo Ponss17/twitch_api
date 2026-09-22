@@ -11,7 +11,7 @@ import type { Session } from '@/core/config/config';
 import { I18nProvider, useTranslation } from '@/core/i18n/I18nContext';
 
 function OverlayRouletteContent({ session }: { session: Session }) {
-    const { state, connected, stale } = useOverlayMirror('roulette', session);
+    const { state, connected, stale, unauthorized, retrying, retry } = useOverlayMirror('roulette', session);
     const rouletteState = state as RouletteOverlayState;
     const visible = useRouletteOverlayVisible(rouletteState);
 
@@ -26,7 +26,13 @@ function OverlayRouletteContent({ session }: { session: Session }) {
         <OverlayAppearanceRoot>
             <div className="flex min-h-screen items-center justify-center overflow-hidden p-4">
                 <div className="flex flex-col items-center gap-2">
-                    <OverlayConnectionBanners connected={connected} stale={stale} />
+                    <OverlayConnectionBanners
+                        connected={connected}
+                        stale={stale}
+                        unauthorized={unauthorized}
+                        retrying={retrying}
+                        onRetry={retry}
+                    />
                     <RouletteWheelDisplay
                         chatters={rouletteState.chatters}
                         wheelRotation={rouletteState.wheelRotation}

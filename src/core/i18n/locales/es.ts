@@ -1472,7 +1472,8 @@ export const es = {
         },
         banners: {
             connecting: 'Conectando overlay…',
-            waiting: 'Esperando datos del panel…'
+            waiting: 'Esperando datos del panel…',
+            unauthorized: 'Enlace de overlay inválido o caducado. Genera uno nuevo en el panel.'
         },
         gate: {
             invalidLink: 'Enlace de overlay inválido. Genera uno nuevo desde el panel.'
