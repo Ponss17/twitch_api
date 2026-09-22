@@ -77,7 +77,7 @@ Cuerpo JSON: `{ "timezone": "Europe/Madrid" }`
 
 ### Datos (exportar)
 
-Genera un **reporte de cuenta completo** en HTML o un **CSV de analíticas** (resumen, uso por comando y serie de 7 días). El CSV se arma en el navegador con los mismos datos; no añade endpoints nuevos.
+Genera un **reporte de cuenta completo** en HTML o un **CSV de analíticas** (resumen, uso por comando y serie según el rango del panel: hoy, 7 o 30 días). El CSV se arma en el navegador con los mismos datos; no añade endpoints nuevos.
 
 Nombre al descargar:
 
@@ -144,7 +144,7 @@ Siempre visible en la pestaña **Seguridad**. Cada acción abre un modal: debes 
 
 | Acción | Palabra | Qué borra | Qué se mantiene |
 | :--- | :--- | :--- | :--- |
-| **Reiniciar estadísticas** | `LIMPIAR` | Historial de comandos, clips, latencia, gráficas y feed de actividad. | Cuenta, OAuth y **API Key activa**. |
+| **Reiniciar estadísticas** | `LIMPIAR` | Lo que marques en el modal: **estadísticas** (uso/analíticas), **historial de actividad** y/o **historial de preguntas**. | Cuenta, OAuth, **API Key activa** y lo que no marques. |
 | **Eliminar cuenta** | `ELIMINAR` | Perfil en LosPerris, datos asociados y API Key. | Tu **cuenta de Twitch** no se toca. |
 
 <Aside type="danger" title="Eliminar cuenta">
@@ -153,7 +153,7 @@ Siempre visible en la pestaña **Seguridad**. Cada acción abre un modal: debes 
 
 <ApiEndpoint method="POST" path="/dashboard/clear-data" />
 
-Cuerpo: `{ "confirm": "LIMPIAR" }`
+Cuerpo: `{ "confirm": "LIMPIAR", "scopes": { "stats": true, "activity": true, "questions": false } }` (elige al menos un scope).
 
 <ApiEndpoint method="DELETE" path="/dashboard/delete-account" />
 
@@ -187,7 +187,7 @@ Si el enlace de Discord ya está usado por otra cuenta Twitch, verás un error y
 | Zona de peligro | Configuración → **Seguridad** |
 | Discord | Configuración → **Conexiones** |
 | Actividad en vivo | Pestaña **Inicio** ([`/dashboard/`](/dashboard/)) |
-| Gráficas de 7 días | Pestaña **Analytics** ([`/dashboard/analytics`](/dashboard/analytics)) |
+| Gráficas (hoy / 7d / 30d) | Pestaña **Analytics** ([`/dashboard/analytics`](/dashboard/analytics)) |
 
 ---
 

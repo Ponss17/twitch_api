@@ -5,7 +5,6 @@ import * as apiService from '../twitch/twitch.service';
 import { MESSAGES } from '../../core/config/messages';
 import { logger } from '../../core/utils/logger';
 import { jsonError } from '../../core/utils/jsonResponse';
-import { establishSession } from '../../core/utils/sessionState';
 import { isAuthenticationError } from '../../core/errors/AppError';
 
 import { AuthenticatedRequest } from '../../types/twitch';
@@ -75,9 +74,6 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
                 timezone?: string;
                 tokenExpiresAt?: number;
             };
-            if (!res.locals.isCookieSession) {
-                await establishSession(res, user.userId);
-            }
             // tokenExpiresAt fresco (post-renew del middleware) para useProactiveTokenRefresh
             let tokenExpiresAt =
                 user.tokenExpiresAt && user.tokenExpiresAt > 0 ? user.tokenExpiresAt : null;
@@ -117,11 +113,6 @@ export const validateToken = async (req: AuthenticatedRequest, res: Response) =>
 
             const tokenExpiresAt =
                 dbUser?.tokenExpiresAt && dbUser.tokenExpiresAt > 0 ? dbUser.tokenExpiresAt : null;
-            if (validation.user_id) {
-                if (!res.locals.isCookieSession) {
-                    await establishSession(res, validation.user_id);
-                }
-            }
             return res.json(
                 panelValidatePayload({
                     userId: userProfile.id,

@@ -25,9 +25,12 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
             });
         }
 
+        const detailed =
+            res.locals.isCookieSession === true && res.locals.authSource === 'cookie';
+
         const now = Date.now();
-        // 1. Cache en memoria (warm start): respuesta instantánea
-        if (cachedHealthResult && healthCacheExpiry > now) {
+        // 1. Cache en memoria (warm start): solo respuestas básicas (sin métricas).
+        if (!detailed && cachedHealthResult && healthCacheExpiry > now) {
             return res.status(cachedHealthResult.httpStatus).json(cachedHealthResult.data);
         }
 
@@ -78,40 +81,47 @@ export const getHealth = async (req: AuthenticatedRequest, res: Response) => {
         const memoryUsage = process.memoryUsage();
 
         const httpStatus = isOperational ? 200 : 503;
-        const responseData = {
+        const basePayload = {
             status: isOperational ? 'operational' : dbStatus === 'online' ? 'degraded' : 'down',
             probe: 'readiness',
             timestamp: new Date().toISOString(),
             version: APP_VERSION,
-            uptime: `${Math.floor(process.uptime())}s`,
-            services: {
-                database: {
-                    status: dbStatus,
-                    latency: `${dbResult.latency}ms`,
-                    provider: 'Supabase'
-                },
-                cache: {
-                    status: redisStatus,
-                    latency: `${redisResult.latency}ms`,
-                    provider: 'Vercel KV'
-                },
-                twitch: {
-                    status: twitchStatus,
-                    latency: `${twitchResult.latency}ms`
-                }
-            },
-            system: {
-                memory: {
-                    heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)}MB`,
-                    heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)}MB`,
-                    rss: `${Math.round(memoryUsage.rss / 1024 / 1024)}MB`
-                }
-            }
+            uptime: `${Math.floor(process.uptime())}s`
         };
 
-        // Caché breve: evita amplificar probes sin ocultar recuperaciones durante un minuto.
-        cachedHealthResult = { httpStatus, data: responseData };
-        healthCacheExpiry = now + 10_000;
+        const responseData = detailed
+            ? {
+                  ...basePayload,
+                  services: {
+                      database: {
+                          status: dbStatus,
+                          latency: `${dbResult.latency}ms`,
+                          provider: 'Supabase'
+                      },
+                      cache: {
+                          status: redisStatus,
+                          latency: `${redisResult.latency}ms`,
+                          provider: 'Vercel KV'
+                      },
+                      twitch: {
+                          status: twitchStatus,
+                          latency: `${twitchResult.latency}ms`
+                      }
+                  },
+                  system: {
+                      memory: {
+                          heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)}MB`,
+                          heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)}MB`,
+                          rss: `${Math.round(memoryUsage.rss / 1024 / 1024)}MB`
+                      }
+                  }
+              }
+            : basePayload;
+
+        if (!detailed) {
+            cachedHealthResult = { httpStatus, data: responseData };
+            healthCacheExpiry = now + 10_000;
+        }
 
         res.status(httpStatus).json(responseData);
     } catch (e) {

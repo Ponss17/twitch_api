@@ -376,7 +376,11 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
         .maybeSingle();
 
     let usedLegacyPlaintext = false;
-    if (!data) {
+    const allowLegacyPlaintext =
+        process.env.ALLOW_LEGACY_PLAINTEXT_API_KEY === 'true' ||
+        process.env.NODE_ENV !== 'production';
+
+    if (!data && allowLegacyPlaintext) {
         const legacy = await supabase
             .from('users')
             .select('*')
@@ -398,7 +402,7 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
     }
 
     if (usedLegacyPlaintext) {
-        logger.info(
+        logger.warn(
             `API key de ${user.login} aún en plaintext; migrando a GCM+hash (dual-read legacy)`
         );
     }

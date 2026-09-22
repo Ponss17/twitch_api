@@ -7,6 +7,9 @@ import { MAGIC8_MOODS, resolveMagic8Mood } from './magic8Moods';
 
 type GroqClient = import('groq-sdk').default;
 
+/** Default Groq model — override with `GROQ_MODEL`. */
+export const DEFAULT_GROQ_MODEL = 'openai/gpt-oss-120b';
+
 let groqClient: GroqClient | null = null;
 
 // Caché para evitar doble cargo si un usuario pregunta lo mismo consecutivamente o si hay lag
@@ -83,7 +86,7 @@ export async function generateMagic8Response(
                     }
                 ],
                 // Groq retiró llama-3.3-70b-versatile (16 ago 2026); reemplazo de producción.
-                model: 'openai/gpt-oss-120b',
+                model: process.env.GROQ_MODEL || DEFAULT_GROQ_MODEL,
                 temperature,
                 max_tokens: 180,
                 top_p: 0.95

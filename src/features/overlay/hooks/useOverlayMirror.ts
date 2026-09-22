@@ -229,6 +229,7 @@ export function useOverlayMirror<T extends OverlayTool>(
 
         let tickAc: AbortController | null = null;
         const id = window.setInterval(() => {
+            if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
             tickAc?.abort();
             tickAc = new AbortController();
             void poll(tickAc.signal);

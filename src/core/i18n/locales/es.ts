@@ -778,6 +778,9 @@ export const es = {
         retry: 'Reintentar',
         retrying: 'Reintentando…',
         loadErrorTitle: 'No se pudieron cargar los datos',
+        fetchNetworkError:
+            'No se pudo conectar con la API. Comprueba tu conexión o que el backend esté en marcha.',
+        fetchGenericError: 'Error cargando datos',
         errorBoundary: {
             title: 'No se pudo cargar esta sección',
             hint: 'Inténtalo de nuevo. Si el problema continúa, recarga la página o contacta soporte en Discord.',
@@ -1393,7 +1396,6 @@ export const es = {
         },
         setupModal: {
             titlePrefix: 'Overlay —',
-            betaBadge: 'Beta',
             description: 'Sigue las instrucciones para conectar el overlay a tu software de streaming.',
             warning: 'La URL lleva tu token secreto.',
             warningBold: 'No la compartas públicamente.',

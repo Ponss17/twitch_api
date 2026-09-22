@@ -5,7 +5,7 @@ import {
     readOverlayOptimisticAuthState
 } from '@/features/overlay/lib/overlaySession';
 
-/** Credenciales unificadas para poll OBS (gate + mirror). */
+/** Credenciales unificadas para poll OBS (gate + mirror). Solo overlayToken. */
 export function resolveOverlayPollSession(): Session | null {
     const fromPage = getOverlayTokenFromPage();
     const stored = getOverlayStoredSession();
@@ -17,30 +17,20 @@ export function resolveOverlayPollSession(): Session | null {
         stored?.overlayToken?.trim() ||
         '';
 
-    if (overlayToken) {
-        return {
-            ...(stored ?? optimistic.session ?? {}),
-            overlayToken,
-            login: stored?.login ?? optimistic.session?.login ?? '',
-            displayName: stored?.displayName ?? optimistic.session?.displayName ?? ''
-        };
-    }
+    if (!overlayToken) return null;
 
-    if (stored?.apiKey || stored?.token) {
-        return stored;
-    }
-
-    if (optimistic.session?.apiKey || optimistic.session?.token) {
-        return optimistic.session;
-    }
-
-    return null;
+    return {
+        ...(stored ?? optimistic.session ?? {}),
+        overlayToken,
+        login: stored?.login ?? optimistic.session?.login ?? '',
+        displayName: stored?.displayName ?? optimistic.session?.displayName ?? ''
+    };
 }
 
 export function hasOverlayPollCredentials(session: Session | null | undefined): boolean {
-    return !!(session?.overlayToken || session?.apiKey || session?.token);
+    return !!session?.overlayToken;
 }
 
 export function overlaySessionKey(session: Session | null | undefined): string {
-    return `${session?.overlayToken ?? ''}|${session?.apiKey ?? ''}|${session?.token ?? ''}`;
+    return session?.overlayToken ?? '';
 }

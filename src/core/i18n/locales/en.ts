@@ -784,6 +784,9 @@ export const en: Translations = {
         retry: 'Retry',
         retrying: 'Retrying…',
         loadErrorTitle: 'Could not load data',
+        fetchNetworkError:
+            'Could not connect to the API. Check your connection or that the backend is running.',
+        fetchGenericError: 'Error loading data',
         errorBoundary: {
             title: 'Could not load this section',
             hint: 'Try again. If the problem continues, reload the page or contact support on Discord.',
@@ -1399,7 +1402,6 @@ export const en: Translations = {
         },
         setupModal: {
             titlePrefix: 'Overlay —',
-            betaBadge: 'Beta',
             description: 'Follow the instructions to connect the overlay to your streaming software.',
             warning: 'The URL contains your secret token.',
             warningBold: 'Do not share it publicly.',

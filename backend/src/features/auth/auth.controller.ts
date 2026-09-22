@@ -232,10 +232,11 @@ export const discordLinkStart = (req: AuthenticatedRequest, res: Response) => {
 
     try {
         const redirectOrigin = safeString(req.query.redirect_origin) || '';
-        const url = discordAuthService.getDiscordAuthorizeUrl(
+        const { url, state } = discordAuthService.getDiscordAuthorizeUrl(
             userId,
             redirectOrigin ? getValidOrigin(redirectOrigin, req) ?? undefined : undefined
         );
+        setOAuthStateCookie(res, state);
         return res.redirect(url);
     } catch (error: unknown) {
         const msg = error instanceof Error ? error.message : '';
@@ -253,14 +254,35 @@ export const discordLinkCallback = async (req: Request, res: Response) => {
     const error = req.query.error;
 
     if ((typeof error === 'string' && error.length > 0) || typeof code !== 'string' || typeof state !== 'string') {
+        clearOAuthStateCookie(res);
         return res.redirect(frontendPagePath('/dashboard/settings', 'discord=error'));
     }
 
     try {
+        const cookieState = readOAuthStateCookie(req);
+        const browserStateMatches =
+            cookieState !== null &&
+            cookieState.length === state.length &&
+            crypto.timingSafeEqual(Buffer.from(cookieState), Buffer.from(state));
+        if (!browserStateMatches) {
+            clearOAuthStateCookie(res);
+            return res.redirect(frontendPagePath('/dashboard/settings', 'discord=error'));
+        }
+
+        clearOAuthStateCookie(res);
+        const consumeResult = await authService.consumeOAuthState(state);
+        if (consumeResult === 'replay') {
+            return res.redirect(frontendPagePath('/dashboard/settings', 'discord=error'));
+        }
+        if (consumeResult === 'unavailable') {
+            return res.redirect(frontendPagePath('/dashboard/settings', 'discord=error'));
+        }
+
         const { userId } = await discordAuthService.handleDiscordLinkCallback(code, state);
         await establishSession(res, userId);
         return res.redirect(frontendPagePath('/dashboard/settings', 'discord=linked'));
     } catch (err: unknown) {
+        clearOAuthStateCookie(res);
         const msg = err instanceof Error ? err.message : '';
         logger.error('Discord link callback failed', { error: msg });
 

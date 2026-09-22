@@ -5,6 +5,7 @@ import { validate } from '../../core/middleware/validate';
 import { regenerateKeySchema, submitFeedbackSchema } from './system.schema';
 
 import { csrfProtection } from '../../core/middleware/csrfProtection';
+import { requireCookieSession } from '../../core/middleware/requireCookieSession';
 import { feedbackRateLimiter, globalRateLimiter } from '../../core/middleware/redisRateLimiter';
 
 const router = express.Router();
@@ -13,6 +14,7 @@ const router = express.Router();
 router.get('/validate', globalRateLimiter, /* codeql[js/missing-rate-limiting] */ systemController.validateToken);
 router.post(
     '/regenerate-key',
+    requireCookieSession,
     globalRateLimiter,
     csrfProtection,
     validate(regenerateKeySchema),

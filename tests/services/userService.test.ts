@@ -34,6 +34,7 @@ jest.mock('@/core/utils/logger', () => ({
 import * as userService from '../../backend/src/core/database/userService';
 import { encrypt } from '../../backend/src/core/database/cryptoService';
 import { apiKeyLookupHash } from '../../backend/src/core/utils/apiKeySecurity';
+import { logger } from '../../backend/src/core/utils/logger';
 
 describe('userService', () => {
     beforeEach(() => {
@@ -155,6 +156,32 @@ describe('userService', () => {
             expect(mockSupabase.in).toHaveBeenCalledWith('api_key', [rawKey]);
             expect(user?.apiKey).toBe(rawKey);
             expect(user?.login).toBe('legacy_user');
+            expect(logger.warn).toHaveBeenCalledWith(
+                expect.stringContaining('plaintext')
+            );
+        });
+
+        it('skips plaintext legacy lookup in production unless ALLOW_LEGACY_PLAINTEXT_API_KEY', async () => {
+            const prevEnv = process.env.NODE_ENV;
+            const prevAllow = process.env.ALLOW_LEGACY_PLAINTEXT_API_KEY;
+            process.env.NODE_ENV = 'production';
+            delete process.env.ALLOW_LEGACY_PLAINTEXT_API_KEY;
+
+            mockSupabase.maybeSingle.mockResolvedValueOnce({ data: null, error: null });
+
+            try {
+                const user = await userService.getUserByApiKey('44444444-4444-4444-8444-444444444444');
+                expect(user).toBeNull();
+                expect(mockSupabase.in).toHaveBeenCalledWith(
+                    'api_key_hash',
+                    expect.any(Array)
+                );
+                expect(mockSupabase.in).not.toHaveBeenCalledWith('api_key', expect.any(Array));
+            } finally {
+                process.env.NODE_ENV = prevEnv;
+                if (prevAllow === undefined) delete process.env.ALLOW_LEGACY_PLAINTEXT_API_KEY;
+                else process.env.ALLOW_LEGACY_PLAINTEXT_API_KEY = prevAllow;
+            }
         });
     });
 

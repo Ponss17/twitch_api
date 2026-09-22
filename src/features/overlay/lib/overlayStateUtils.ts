@@ -32,8 +32,8 @@ export const ROULETTE_OVERLAY_WINNER_MS = 20_000;
 export const OVERLAY_POLL_IDLE_MS = 60_000;
 export const OVERLAY_POLL_TRENDS_MS = 2_500;
 export const OVERLAY_POLL_QUESTIONS_MS = 2_500;
-export const OVERLAY_POLL_ROULETTE_MS = 600;
-export const OVERLAY_POLL_SPINNING_MS = 300;
+export const OVERLAY_POLL_ROULETTE_MS = 1500;
+export const OVERLAY_POLL_SPINNING_MS = 800;
 
 export interface OverlayPollAnchors {
     winnerShownAt: number | null;
