@@ -58,6 +58,10 @@ export interface StoredUser {
     stats?: Record<string, number>;
     lastActive?: string;
     createdAt?: string;
+    /** Último uso autenticado con API key (bots). */
+    apiKeyLastUsedAt?: string;
+    /** Última regeneración de API key. */
+    apiKeyRotatedAt?: string;
     profileImageUrl?: string;
     timezone?: string;
     /** Epoch ms — persistido en Supabase como token_expires_at */

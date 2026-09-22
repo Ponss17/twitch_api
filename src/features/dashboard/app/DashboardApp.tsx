@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useState, type AnimationEvent } from 'react';
 import { Sidebar } from '@/features/dashboard/layout/Sidebar';
 import { DashboardHeader } from '@/features/dashboard/layout/DashboardHeader';
+import { ApiHealthBanner } from '@/features/dashboard/layout/ApiHealthBanner';
 import { DashboardContent } from '@/features/dashboard/DashboardContent';
 import { ToastProvider, AppToaster, useToast } from '@/shared/ui/toast/ToastProvider';
 import { OnlineStatusMonitor } from '@/shared/ui/OnlineStatusMonitor';
@@ -204,6 +205,7 @@ function DashboardMain({
                                         toolFocus ? 'flex min-h-0 flex-1 flex-col' : fadeIn
                                     }
                                 >
+                                    {!toolFocus ? <ApiHealthBanner /> : null}
                                     <DashboardContent tab={tab} onNavigate={onNavigate} />
                                 </div>
                             </div>
@@ -278,9 +280,9 @@ function DashboardAppShell() {
         initGlobalErrorLogging();
         void (async () => {
             try {
-                await fetch('/health', { method: 'GET' });
+                await fetch('/health?probe=live', { method: 'GET', cache: 'no-store' });
             } catch {
-                /* silencioso */
+                /* silencioso — ApiHealthBanner hace el seguimiento en UI */
             }
         })();
     }, []);

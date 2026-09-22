@@ -37,6 +37,10 @@ const getValidOrigin = (origin: string, req: Request): string | null => {
 export const login = (req: Request, res: Response) => {
     const redirectOrigin = safeString(req.query.redirect_origin) || '';
     const tz = safeString(req.query.tz) || '';
+    const forceVerify =
+        safeString(req.query.update_permissions) === '1' ||
+        safeString(req.query.force_verify) === '1' ||
+        safeString(req.query.force_verify) === 'true';
 
     const extraData: Record<string, unknown> = {};
     if (tz) extraData.tz = tz;
@@ -48,7 +52,8 @@ export const login = (req: Request, res: Response) => {
     const url = authService.getAuthorizeUrl(
         redirectOrigin,
         Object.keys(extraData).length > 0 ? extraData : undefined,
-        state
+        state,
+        { forceVerify }
     );
     setOAuthStateCookie(res, state);
     res.redirect(url);

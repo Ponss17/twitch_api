@@ -285,6 +285,13 @@ export const pt: Translations = {
             apiKeyWarning: 'Sua chave pessoal e intransferível. Use-a no Nightbot, StreamElements, etc.',
             activeKey: 'API Key Ativa',
             activeKeyDesc: 'Pronta para autenticar bots (query apiKey ou cabeçalho X-Api-Key).',
+            keyLastUsed: 'Último uso por bots',
+            keyLastUsedNever: 'Ainda não há uso registado com esta key',
+            keyRotated: 'Última regeneração',
+            keyRotatedUnknown: 'Sem data de rotação',
+            keyRotateNudge:
+                'Já passaram 90 dias ou mais sem regenerar a API key. Se a colaste num sítio público, convém rodá-la.',
+            keyRotateNudgeCta: 'Regenerar agora',
             toggleVisibility: 'Mostrar/Ocultar',
             copyKey: 'Copiar',
             regenKey: 'Regenerar',
@@ -375,12 +382,23 @@ export const pt: Translations = {
         timeNew: 'Novo',
         markAllRead: 'Marcar tudo como lido',
         dismiss: 'Entendi',
-        reloginCta: 'Sair e entrar de novo',
-        reloginLoading: 'Saindo…',
+        reloginCta: 'Atualizar permissões da Twitch',
+        reloginLoading: 'Abrindo a Twitch…',
+        updatePermissionsTitle: 'Atualizar permissões da Twitch',
+        updatePermissionsIntro:
+            'A Twitch pedirá autorização de novo. Basta aceitar as permissões novas; você não perde a conta do painel.',
+        updatePermissionsConfirm: 'Continuar com a Twitch',
+        updatePermissionsCancel: 'Agora não',
+        permissions: {
+            clips: 'Criar e gerir clips (download MP4 e !clip)',
+            followers: 'Ver follows do canal (!followage)',
+            chatters: 'Listar viewers do chat (roleta / chatters)',
+            chat: 'Ler e escrever no chat (ferramentas do painel)'
+        },
         items: {
             'clips-download-2026-08': {
                 title: 'Baixar clips em MP4',
-                body: 'Saia e entre de novo com a Twitch para liberar a nova permissão.'
+                body: 'Atualize as permissões da Twitch para liberar o download de clips.'
             }
         }
     },
@@ -776,6 +794,10 @@ export const pt: Translations = {
         fetchNetworkError:
             'Não foi possível conectar à API. Verifique sua conexão ou se o backend está no ar.',
         fetchGenericError: 'Erro ao carregar dados',
+        apiHealth: {
+            down: 'A API não responde. Pode estar acordando ou haver uma interrupção temporária.',
+            checking: 'Verificando a API…'
+        },
         errorBoundary: {
             title: 'Não foi possível carregar esta seção',
             hint: 'Tente de novo. Se o problema continuar, recarregue a página ou fale com o suporte no Discord.',

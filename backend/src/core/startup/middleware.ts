@@ -60,7 +60,8 @@ export const configureMiddleware = (app: Application) => {
                         defaultSrc: ["'self'"],
                         scriptSrc: [
                             "'self'",
-                            // Requerido por Astro para inyectar scripts inline (islands, preloads, etc.) sin soporte nativo de nonce en modo híbrido
+                            // Deferred: Astro islands still need unsafe-inline in hybrid mode.
+                            // Revisit when Astro/build can emit nonces for island scripts without breaking panel/docs.
                             "'unsafe-inline'",
                             'https://cdnjs.cloudflare.com',
                             'https://unpkg.com',

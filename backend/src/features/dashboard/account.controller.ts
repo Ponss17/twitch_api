@@ -99,6 +99,8 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                             ...(discordFields ?? {}),
                             dbCreatedAt: apiUser?.createdAt,
                             dbLastActive: apiUser?.lastActive,
+                            apiKeyLastUsedAt: apiUser?.apiKeyLastUsedAt,
+                            apiKeyRotatedAt: apiUser?.apiKeyRotatedAt,
                             accountId: apiUser?.accountId
                         };
                     }
@@ -133,6 +135,8 @@ export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
                     cacheTtl: limits.cacheTtl,
                     dbCreatedAt: apiUser?.createdAt,
                     dbLastActive: apiUser?.lastActive,
+                    apiKeyLastUsedAt: apiUser?.apiKeyLastUsedAt,
+                    apiKeyRotatedAt: apiUser?.apiKeyRotatedAt,
                     accountId: apiUser?.accountId
                 };
             }, 'getUserInfo');

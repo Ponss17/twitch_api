@@ -98,9 +98,26 @@ describe('authController', () => {
             expect(authService.getAuthorizeUrl).toHaveBeenCalledWith(
                 'https://losperris.dev',
                 undefined,
-                'signed-browser-state'
+                'signed-browser-state',
+                { forceVerify: false }
             );
             expect(setOAuthStateCookie).toHaveBeenCalledWith(res, 'signed-browser-state');
+        });
+
+        it('forces verify when update_permissions=1', () => {
+            const req = mockReq({ query: { update_permissions: '1' } });
+            const res = mockRes();
+
+            (authService.getAuthorizeUrl as jest.Mock).mockReturnValue('https://twitch.tv/auth');
+
+            login(req, res);
+
+            expect(authService.getAuthorizeUrl).toHaveBeenCalledWith(
+                '',
+                undefined,
+                'signed-browser-state',
+                { forceVerify: true }
+            );
         });
     });
 
