@@ -36,6 +36,8 @@ export function hydrateUserFromRow(row: Record<string, unknown>): StoredUser {
         timezone: (row.timezone as string) ?? 'UTC',
         lastActive: (row.last_active as string) ?? undefined,
         createdAt: (row.created_at as string) ?? undefined,
+        apiKeyLastUsedAt: (row.api_key_last_used_at as string) ?? undefined,
+        apiKeyRotatedAt: (row.api_key_rotated_at as string) ?? undefined,
         tokenExpiresAt,
         discordId: (row.discord_id as string) ?? null,
         discordUsername: (row.discord_username as string) ?? null,
@@ -77,6 +79,10 @@ export function userToRow(
 
     if (!options?.preserveCreatedAt && user.createdAt) {
         row.created_at = new Date(user.createdAt).toISOString();
+    }
+
+    if (user.apiKeyRotatedAt) {
+        row.api_key_rotated_at = new Date(user.apiKeyRotatedAt).toISOString();
     }
 
     if ('discordId' in user) {

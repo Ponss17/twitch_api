@@ -29,6 +29,7 @@ const LAST_ACTIVE_THROTTLE_MS = 30 * 60 * 1000;
 const userCache = new BoundedMap<string, { user: StoredUser; expiry: number }>(1000);
 const invalidTokensCache = new NegativeCache<string>(30 * 1000);
 const lastActiveThrottle = new BoundedMap<string, number>(1000);
+const apiKeyLastUsedThrottle = new BoundedMap<string, number>(1000);
 const pendingUserDbRequests = new BoundedMap<string, Promise<StoredUser | null>>(500);
 
 const throttledUpdateLastActive = (userId: string) => {
@@ -39,6 +40,17 @@ const throttledUpdateLastActive = (userId: string) => {
     lastActiveThrottle.set(userId, now);
     dbService.updateLastActive(userId).catch((err) => {
         logger.error('Error updating last active:', err);
+    });
+};
+
+const throttledUpdateApiKeyLastUsed = (userId: string) => {
+    const now = Date.now();
+    const lastUpdate = apiKeyLastUsedThrottle.get(userId);
+    if (lastUpdate && now - lastUpdate < LAST_ACTIVE_THROTTLE_MS) return;
+
+    apiKeyLastUsedThrottle.set(userId, now);
+    dbService.updateApiKeyLastUsed(userId).catch((err) => {
+        logger.error('Error updating api key last used:', err);
     });
 };
 
@@ -168,6 +180,9 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
             }
 
             throttledUpdateLastActive(user.userId);
+            if (res.locals.authSource === 'apiKey') {
+                throttledUpdateApiKeyLastUsed(user.userId);
+            }
             return next();
         }
 
@@ -337,6 +352,9 @@ const checkToken = async (req: AuthenticatedRequest, res: Response, next: NextFu
 
         if (req.userId) {
             throttledUpdateLastActive(req.userId);
+            if (res.locals.authSource === 'apiKey') {
+                throttledUpdateApiKeyLastUsed(req.userId);
+            }
         }
 
         req.twitchToken = token;

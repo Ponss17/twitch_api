@@ -47,6 +47,8 @@ export function SettingsView({ active = true }: { active?: boolean }) {
                     apiKey={s.apiKeyDisplay}
                     keyVisible={s.keyVisible}
                     accountId={s.profile?.accountId}
+                    apiKeyLastUsedAt={s.profile?.apiKeyLastUsedAt}
+                    apiKeyRotatedAt={s.profile?.apiKeyRotatedAt}
                     onToggleKey={s.toggleKeyVisibility}
                     onCopyKey={() => void s.copyKey()}
                     onRegenKey={() => s.setRegenOpen(true)}

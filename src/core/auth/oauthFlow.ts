@@ -109,7 +109,7 @@ export function readOptimisticAuthState(): {
     return { session: null, loading: true, authenticated: false };
 }
 
-export function startTwitchLogin(): void {
+export function startTwitchLogin(options?: { updatePermissions?: boolean }): void {
     invalidateSession({ broadcast: false });
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
     const redirectOrigin = window.location.origin + window.location.pathname;
@@ -118,8 +118,22 @@ export function startTwitchLogin(): void {
         redirect_origin: redirectOrigin
     });
     if (tz) params.set('tz', tz);
+    if (options?.updatePermissions) params.set('update_permissions', '1');
 
     window.location.href = `${API_ENDPOINTS.AUTH_LOGIN}?${params.toString()}`;
+}
+
+/** Cierra la sesión del panel y abre OAuth con force_verify para conceder scopes nuevos. */
+export async function reauthorizeTwitchPermissions(): Promise<void> {
+    markIntentionalLogout();
+    try {
+        await fetch(API_ENDPOINTS.AUTH_LOGOUT, withApiCredentials({ method: 'POST' }));
+    } catch {
+        /* sin red */
+    }
+    clearRevealedApiKeyCache();
+    invalidateSession({ broadcast: true });
+    startTwitchLogin({ updatePermissions: true });
 }
 
 export async function logout(): Promise<void> {

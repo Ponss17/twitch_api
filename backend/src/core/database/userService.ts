@@ -404,6 +404,20 @@ export const updateLastActive = async (userId: string): Promise<void> => {
     }
 };
 
+/** Solo tráfico autenticado con API key (bots). Throttle en el caller. */
+export const updateApiKeyLastUsed = async (userId: string): Promise<void> => {
+    try {
+        const { error } = await supabase
+            .from('users')
+            .update({ api_key_last_used_at: new Date().toISOString() })
+            .eq('user_id', userId);
+
+        if (error) logger.error('Error actualizando api_key_last_used_at:', error.message);
+    } catch (e) {
+        logger.error('Error updating api key last used:', e);
+    }
+};
+
 export const deleteUser = async (userId: string): Promise<void> => {
     try {
         const user = await getUser(userId);
