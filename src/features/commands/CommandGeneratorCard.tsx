@@ -107,8 +107,8 @@ export function CommandGeneratorCard({ config, onExtraValuesChange, headerBadge 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const configT: any = t.commands.config[config.id as keyof typeof t.commands.config] || {};
 
-    const title = configT.title || config.title;
-    const desc = configT.desc || config.desc;
+    const title = configT.title || '';
+    const desc = configT.desc || '';
     const info = configT.info || config.info;
     const templatePlaceholder = configT.templatePlaceholder || config.templatePlaceholder;
     const templateVars = configT.templateVars || config.templateVars;

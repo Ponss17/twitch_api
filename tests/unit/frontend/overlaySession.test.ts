@@ -1,9 +1,3 @@
-jest.mock('@/core/api/auth', () => ({
-    resolveSessionFromUrl: jest.fn(),
-    stripSensitiveQueryParams: jest.fn()
-}));
-
-import { resolveSessionFromUrl, stripSensitiveQueryParams } from '@/core/api/auth';
 import {
     clearOverlayStoredSession,
     getOverlayStoredSession,
@@ -14,7 +8,6 @@ import {
 
 describe('overlaySession', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
         clearOverlayStoredSession();
         window.history.replaceState({}, '', '/api/twitch/overlay/trends');
     });
@@ -40,34 +33,29 @@ describe('overlaySession', () => {
             displayName: '',
             isNewLogin: true
         });
-        expect(resolveSessionFromUrl).not.toHaveBeenCalled();
     });
 
-    it('resolveOverlaySessionFromUrl lee apiKey legacy sin delegar en auth', async () => {
+    it('resolveOverlaySessionFromUrl ignora apiKey legacy', async () => {
         window.history.replaceState({}, '', '/api/twitch/overlay/trends?apiKey=obs_key');
 
         const session = await resolveOverlaySessionFromUrl();
 
-        expect(session).toEqual({
-            apiKey: 'obs_key',
-            login: '',
-            displayName: '',
-            isNewLogin: true
-        });
-        expect(resolveSessionFromUrl).not.toHaveBeenCalled();
+        expect(session).toEqual({});
     });
 
-    it('resolveOverlaySessionFromUrl delega en auth cuando no hay credenciales en query', async () => {
-        (resolveSessionFromUrl as jest.Mock).mockResolvedValue({
-            apiKey: 'stored',
-            login: 'streamer',
-            isNewLogin: false
-        });
-
+    it('resolveOverlaySessionFromUrl sin query no inventa sesión', async () => {
         const session = await resolveOverlaySessionFromUrl();
+        expect(session).toEqual({});
+    });
 
-        expect(resolveSessionFromUrl).toHaveBeenCalled();
-        expect(session.apiKey).toBe('stored');
+    it('readOverlayOptimisticAuthState rechaza apiKey en query', () => {
+        window.history.replaceState({}, '', '/api/twitch/overlay/trends?apiKey=obs_key');
+
+        expect(readOverlayOptimisticAuthState()).toEqual({
+            session: null,
+            loading: false,
+            authenticated: false
+        });
     });
 
     it('readOverlayOptimisticAuthState usa sesión guardada en sessionStorage', () => {
@@ -82,17 +70,5 @@ describe('overlaySession', () => {
             overlayToken: 'stored_token',
             login: 'streamer'
         });
-    });
-
-    it('resolveOverlaySessionFromUrl legacy auth limpia la URL', async () => {
-        (resolveSessionFromUrl as jest.Mock).mockResolvedValue({
-            apiKey: 'from_auth',
-            login: 'streamer',
-            isNewLogin: true
-        });
-
-        await resolveOverlaySessionFromUrl();
-
-        expect(stripSensitiveQueryParams).toHaveBeenCalled();
     });
 });

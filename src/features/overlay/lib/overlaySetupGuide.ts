@@ -7,7 +7,7 @@ import {
 
 export type OverlayPlatform = 'obs' | 'streamlabs';
 
-export const OVERLAY_SETUP_VERSION = 'beta 1.4';
+export const OVERLAY_SETUP_VERSION = '1.5';
 
 /** Tamaño base del Browser Source (scale `md` = 1×). */
 export const OVERLAY_OBS_BASE_SIZE: Record<OverlayTool, { width: number; height: number }> = {

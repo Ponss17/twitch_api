@@ -47,12 +47,14 @@ describe('discordAuth.service', () => {
     });
 
     it('getDiscordAuthorizeUrl incluye state firmado y scopes', () => {
-        const url = getDiscordAuthorizeUrl('user-42', 'https://losperris.dev');
+        const { url, state } = getDiscordAuthorizeUrl('user-42', 'https://losperris.dev');
+        const parsed = new URL(url);
 
-        expect(url).toContain('discord.com/api/oauth2/authorize');
-        expect(url).toContain('client_id=discord-client');
-        expect(url).toContain('scope=identify');
-        expect(url).toMatch(/state=[^&]+/);
+        expect(parsed.hostname).toContain('discord.com');
+        expect(parsed.searchParams.get('client_id')).toBe('discord-client');
+        expect(parsed.searchParams.get('scope')).toBe('identify');
+        expect(parsed.searchParams.get('state')).toBe(state);
+        expect(state.includes('.')).toBe(true);
     });
 
     it('handleDiscordLinkCallback vincula cuenta Discord', async () => {

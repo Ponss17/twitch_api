@@ -11,7 +11,7 @@ const OVERLAY_TOKEN_CACHE_MS = 5 * 60 * 1000;
 
 const AUTH_EXCHANGE_TTL_MS = 5 * 60 * 1000;
 /** Token de solo lectura para OBS — no expone la API key maestra. */
-const OVERLAY_READ_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const OVERLAY_READ_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 const authExchangeBurnMemory = new BoundedMap<string, number>(500);
 

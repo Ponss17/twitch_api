@@ -65,7 +65,9 @@ export function DashboardPanelProvider({
             syncing: t.common.sessionLoad.syncing,
             realtime: t.common.sessionLoad.realtime,
             fetchingPanelStats: t.common.sessionLoad.fetchingPanelStats,
-            preparingHome: t.common.sessionLoad.preparingHome
+            preparingHome: t.common.sessionLoad.preparingHome,
+            fetchNetworkError: t.common.fetchNetworkError,
+            fetchGenericError: t.common.fetchGenericError
         }
     });
 

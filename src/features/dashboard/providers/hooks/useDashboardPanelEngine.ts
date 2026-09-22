@@ -48,6 +48,8 @@ interface UseDashboardPanelEngineOptions {
         realtime: string;
         fetchingPanelStats: string;
         preparingHome: string;
+        fetchNetworkError: string;
+        fetchGenericError: string;
     };
 }
 
@@ -198,7 +200,13 @@ export function useDashboardPanelEngine({
 
                 logError('DashboardPanel', e, 'Error cargando datos del panel');
                 if (!options?.silent) {
-                    currentActions.setError(formatFetchErrorForUi(e));
+                    const L = labelsRef.current;
+                    currentActions.setError(
+                        formatFetchErrorForUi(e, {
+                            network: L.fetchNetworkError,
+                            generic: L.fetchGenericError
+                        })
+                    );
                 }
                 return false;
             } finally {

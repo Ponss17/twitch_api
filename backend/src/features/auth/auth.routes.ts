@@ -3,6 +3,7 @@ import * as authController from './auth.controller';
 import { validate } from '../../core/middleware/validate';
 import { loginSchema, callbackSchema, exchangeSchema, overlayExchangeSchema } from './auth.schema';
 import { csrfProtection } from '../../core/middleware/csrfProtection';
+import { requireCookieSession } from '../../core/middleware/requireCookieSession';
 import { authRateLimiter } from '../../core/middleware/redisRateLimiter';
 
 const router = express.Router();
@@ -16,6 +17,12 @@ router.get('/overlay-exchange', authRateLimiter, validate(overlayExchangeSchema)
 
 router.get('/discord', authRateLimiter, /* codeql[js/missing-rate-limiting] */ authController.discordLinkStart);
 router.get('/discord/callback', authRateLimiter, /* codeql[js/missing-rate-limiting] */ authController.discordLinkCallback);
-router.post('/discord/unlink', authRateLimiter, csrfProtection, /* codeql[js/missing-rate-limiting] */ authController.discordUnlink);
+router.post(
+    '/discord/unlink',
+    requireCookieSession,
+    authRateLimiter,
+    csrfProtection,
+    /* codeql[js/missing-rate-limiting] */ authController.discordUnlink
+);
 
 export default router;
