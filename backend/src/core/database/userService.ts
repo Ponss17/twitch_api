@@ -365,32 +365,14 @@ export const getUserByAccountId = async (accountId: string): Promise<StoredUser 
 
 export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null> => {
     const normalizedKey = normalizeApiKey(apiKey);
-    const lookupKeys = normalizedKey === apiKey ? [normalizedKey] : [normalizedKey, apiKey];
     const hashes = apiKeyLookupHashes(normalizedKey);
 
-    let { data, error } = await supabase
+    const { data, error } = await supabase
         .from('users')
         .select('*')
         .in('api_key_hash', hashes)
         .limit(1)
         .maybeSingle();
-
-    let usedLegacyPlaintext = false;
-    const allowLegacyPlaintext =
-        process.env.ALLOW_LEGACY_PLAINTEXT_API_KEY === 'true' ||
-        process.env.NODE_ENV !== 'production';
-
-    if (!data && allowLegacyPlaintext) {
-        const legacy = await supabase
-            .from('users')
-            .select('*')
-            .in('api_key', lookupKeys)
-            .limit(1)
-            .maybeSingle();
-        data = legacy.data;
-        error = legacy.error;
-        usedLegacyPlaintext = Boolean(legacy.data);
-    }
 
     if (error || !data) return null;
 
@@ -399,12 +381,6 @@ export const getUserByApiKey = async (apiKey: string): Promise<StoredUser | null
     if (user.isActive === false) {
         logger.warn(`🛑 Blocked user attempted access: ${user.login}`);
         return null;
-    }
-
-    if (usedLegacyPlaintext) {
-        logger.warn(
-            `API key de ${user.login} aún en plaintext; migrando a GCM+hash (dual-read legacy)`
-        );
     }
 
     const result = await decryptAndMigrateIfNeeded(user, `api_key hash ${apiKeyLookupHash(apiKey)}`);

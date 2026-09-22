@@ -37,6 +37,9 @@ export function useOverlayMirror<T extends OverlayTool>(
     state: OverlayStateForTool<T>;
     connected: boolean;
     stale: boolean;
+    unauthorized: boolean;
+    retrying: boolean;
+    retry: () => void;
 } {
     type State = OverlayStateForTool<T>;
 
@@ -50,6 +53,8 @@ export function useOverlayMirror<T extends OverlayTool>(
     emptyStateRef.current = emptyState;
     const [connected, setConnected] = useState(false);
     const [stale, setStale] = useState(true);
+    const [unauthorized, setUnauthorized] = useState(false);
+    const [retrying, setRetrying] = useState(false);
     const [pollIntervalMs, setPollIntervalMs] = useState<number | null>(null);
     const lastPollAtRef = useRef(0);
     const lastSpinSeqRef = useRef(0);
@@ -129,9 +134,10 @@ export function useOverlayMirror<T extends OverlayTool>(
     );
 
     const poll = useCallback(
-        async (signal?: AbortSignal) => {
+        async (signal?: AbortSignal, opts?: { manual?: boolean }) => {
             if (!hasOverlayPollCredentials(session)) return;
 
+            if (opts?.manual) setRetrying(true);
             try {
                 const res = await fetch(overlayStatePollUrl(tool, session), {
                     headers: overlayAuthHeaders(session),
@@ -143,6 +149,7 @@ export function useOverlayMirror<T extends OverlayTool>(
                     debugWarn(`[overlay] poll ${tool} HTTP ${res.status}`);
                     setConnected(false);
                     setStale(true);
+                    setUnauthorized(res.status === 401 || res.status === 403);
                     syncPollInterval(null);
                     return;
                 }
@@ -151,6 +158,7 @@ export function useOverlayMirror<T extends OverlayTool>(
                 if (signal?.aborted) return;
 
                 setConnected(true);
+                setUnauthorized(false);
                 lastPollAtRef.current = Date.now();
                 setStale(false);
 
@@ -186,10 +194,16 @@ export function useOverlayMirror<T extends OverlayTool>(
                 setConnected(false);
                 setStale(true);
                 syncPollInterval(mirroredStateRef.current);
+            } finally {
+                if (opts?.manual) setRetrying(false);
             }
         },
         [session, tool, applyRouletteSpin, syncPollInterval]
     );
+
+    const retry = useCallback(() => {
+        void poll(undefined, { manual: true });
+    }, [poll]);
 
     // Solo poll inmediato al cambiar credenciales/sesión — no al adaptar el intervalo.
     useEffect(() => {
@@ -254,5 +268,5 @@ export function useOverlayMirror<T extends OverlayTool>(
         return () => clearInterval(id);
     }, []);
 
-    return { state, connected, stale };
+    return { state, connected, stale, unauthorized, retrying, retry };
 }

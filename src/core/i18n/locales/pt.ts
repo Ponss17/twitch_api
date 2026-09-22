@@ -1467,7 +1467,8 @@ export const pt: Translations = {
         },
         banners: {
             connecting: 'Conectando overlay…',
-            waiting: 'Aguardando dados do painel…'
+            waiting: 'Aguardando dados do painel…',
+            unauthorized: 'Link de overlay inválido ou expirado. Gere um novo no painel.'
         },
         gate: {
             invalidLink: 'Link de overlay inválido. Gere um novo no painel.'
