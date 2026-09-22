@@ -14,7 +14,7 @@ import {
 } from '@/core/utils/tw';
 import { AppLogo } from '@/shared/ui/AppLogo';
 import { IconMd } from '@/shared/ui/Icon';
-import { Menu } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useTranslation } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
 import {
@@ -206,33 +206,34 @@ export function Sidebar({
             >
                 <div className={sidebarBrandHeader(railCollapsed)}>
                     <div
-                        className={`flex min-w-0 items-center gap-2.5 overflow-hidden transition-[opacity,max-width] ${SIDEBAR_MOTION} ${railCollapsed
-                                ? 'pointer-events-none max-w-0 opacity-0'
-                                : 'max-w-[9.5rem] opacity-100'
-                            }`}
-                        aria-hidden={railCollapsed}
+                        className={`flex min-w-0 items-center overflow-hidden transition-[gap] ${SIDEBAR_MOTION} ${
+                            railCollapsed ? 'justify-center gap-0' : 'gap-2.5'
+                        }`}
                     >
                         <AppLogo className="pointer-events-none h-8 w-8 shrink-0 text-primary" />
-                        <span className="whitespace-nowrap text-[1.05rem] font-bold leading-none text-text-main">
+                        <span
+                            className={`whitespace-nowrap text-[1.05rem] font-bold leading-none text-text-main transition-[max-width,opacity,margin] ${SIDEBAR_MOTION} ${
+                                railCollapsed
+                                    ? 'pointer-events-none m-0 max-w-0 opacity-0'
+                                    : 'max-w-[9.5rem] opacity-100'
+                            }`}
+                            aria-hidden={railCollapsed}
+                        >
                             LosPerris
                             <span className="text-[color:var(--brand-text)]">API</span>
                         </span>
                     </div>
-                    {onCollapsedChange ? (
+                    {/* Expandido: colapsar al lado del brand (estilo Netlify). Colapsado: el expand va abajo. */}
+                    {onCollapsedChange && !railCollapsed ? (
                         <button
                             type="button"
-                            className={`shrink-0 items-center justify-center rounded-lg text-text-muted ${hoverSubtleIconBtn} ${railCollapsed
-                                    ? 'inline-flex size-10'
-                                    : 'hidden size-8 lg:inline-flex'
-                                }`}
-                            aria-label={
-                                railCollapsed ? t.sidebar.expandMenu : t.sidebar.collapseMenu
-                            }
-                            aria-expanded={!railCollapsed}
+                            className={`hidden size-8 shrink-0 items-center justify-center rounded-lg text-text-muted lg:inline-flex ${hoverSubtleIconBtn}`}
+                            aria-label={t.sidebar.collapseMenu}
+                            aria-expanded
                             aria-controls="dashboard-sidebar"
                             onClick={toggleCollapsed}
                         >
-                            <Menu className="size-4" aria-hidden />
+                            <PanelLeftClose className="size-4" aria-hidden />
                         </button>
                     ) : null}
                 </div>
@@ -326,6 +327,18 @@ export function Sidebar({
                     className={`relative shrink-0 overflow-visible border-t border-border-subtle transition-[padding] ${SIDEBAR_MOTION} ${railCollapsed ? 'px-1.5' : 'px-0'
                         }`}
                 >
+                    {onCollapsedChange && railCollapsed ? (
+                        <button
+                            type="button"
+                            className={`mx-auto mb-1 flex size-10 items-center justify-center rounded-lg text-text-muted ${hoverSubtleIconBtn}`}
+                            aria-label={t.sidebar.expandMenu}
+                            aria-expanded={false}
+                            aria-controls="dashboard-sidebar"
+                            onClick={toggleCollapsed}
+                        >
+                            <PanelLeftOpen className="size-4" aria-hidden />
+                        </button>
+                    ) : null}
                     <Dropdown
                         className={`relative overflow-visible transition-[width] ${SIDEBAR_MOTION} ${railCollapsed ? 'w-auto' : 'w-full'
                             }`}
