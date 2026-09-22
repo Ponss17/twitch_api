@@ -11,7 +11,7 @@ import type { Session } from '@/core/config/config';
 import { I18nProvider, useTranslation } from '@/core/i18n/I18nContext';
 
 function OverlayQuestionsContent({ session }: { session: Session }) {
-    const { state, connected, stale } = useOverlayMirror('questions', session);
+    const { state, connected, stale, unauthorized, retrying, retry } = useOverlayMirror('questions', session);
     const questionsState = state as QuestionsOverlayState;
     const visible = useQuestionsOverlayVisible(questionsState);
 
@@ -21,7 +21,13 @@ function OverlayQuestionsContent({ session }: { session: Session }) {
 
     return (
         <OverlayAppearanceRoot>
-            <OverlayConnectionBanners connected={connected} stale={stale} />
+            <OverlayConnectionBanners
+                connected={connected}
+                stale={stale}
+                unauthorized={unauthorized}
+                retrying={retrying}
+                onRetry={retry}
+            />
             <QuestionsOverlayDisplay state={questionsState} />
         </OverlayAppearanceRoot>
     );

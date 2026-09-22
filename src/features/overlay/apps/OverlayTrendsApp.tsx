@@ -13,7 +13,7 @@ import type { Session } from '@/core/config/config';
 import { I18nProvider, useTranslation } from '@/core/i18n/I18nContext';
 
 function OverlayTrendsContent({ session }: { session: Session }) {
-    const { state, connected, stale } = useOverlayMirror('trends', session);
+    const { state, connected, stale, unauthorized, retrying, retry } = useOverlayMirror('trends', session);
     const trendsState = state as TrendsOverlayState;
     const displayRemaining = useOverlayTrendsRemaining(trendsState);
     const visible = useTrendsOverlayVisible(trendsState);
@@ -26,7 +26,13 @@ function OverlayTrendsContent({ session }: { session: Session }) {
     return (
         <OverlayAppearanceRoot>
             <div className="min-h-screen overflow-hidden p-1 text-text-main">
-                <OverlayConnectionBanners connected={connected} stale={stale} />
+                <OverlayConnectionBanners
+                    connected={connected}
+                    stale={stale}
+                    unauthorized={unauthorized}
+                    retrying={retrying}
+                    onRetry={retry}
+                />
                 <TrendsLeaderboardDisplay
                     ranked={ranked}
                     maxCount={maxCount}
