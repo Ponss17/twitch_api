@@ -14,6 +14,7 @@ export {
     resolveSessionFromUrl,
     readOptimisticAuthState,
     startTwitchLogin,
+    reauthorizeTwitchPermissions,
     logout
 } from './oauthFlow';
 export { validateSession } from './validateSession';

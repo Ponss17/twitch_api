@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useRef, type ComponentType } from 'react';
-import { Bell, FileBarChart, Sparkles, X } from 'lucide-react';
-import { logout } from '@/core/api/auth';
+import { Bell, Download, FileBarChart, Sparkles, X } from 'lucide-react';
+import { reauthorizeTwitchPermissions } from '@/core/api/auth';
 import { useTranslation, getBcp47 } from '@/core/i18n/I18nContext';
 import { useRequiredSession } from '@/core/session/useSession';
 import {
@@ -9,8 +9,14 @@ import {
     DropdownTrigger,
     useDropdown
 } from '@/shared/ui/dropdown/Dropdown';
+import { Sheet } from '@/shared/ui/Sheet';
 import { useAnnouncements } from './useAnnouncements';
-import type { AnnouncementDef, AnnouncementIcon, AnnouncementId } from './announcements';
+import type {
+    AnnouncementDef,
+    AnnouncementIcon,
+    AnnouncementId,
+    AnnouncementPermissionHint
+} from './announcements';
 import {
     ensureMonthlyReport,
     fetchServerNotifications,
@@ -22,7 +28,8 @@ import { navigateDashboard } from '@/features/dashboard/lib/tabs/dashboardPanelE
 import { useDashboardRealtime } from '@/features/dashboard/hooks/useDashboardRealtime';
 
 const ICON_MAP: Partial<Record<AnnouncementIcon, ComponentType<{ className?: string }>>> = {
-    sparkles: Sparkles
+    sparkles: Sparkles,
+    download: Download
 };
 
 function announcementCopy(
@@ -195,21 +202,34 @@ function BellPanel({
     const { t } = useTranslation();
     const aT = t.announcements;
     const { close } = useDropdown();
-    const [loggingOut, setLoggingOut] = useState<AnnouncementId | null>(null);
+    const [pendingPermissions, setPendingPermissions] = useState<AnnouncementDef | null>(null);
+    const [updatingPermissions, setUpdatingPermissions] = useState(false);
 
-    const onRelogin = async (id: AnnouncementId) => {
-        setLoggingOut(id);
-        dismiss(id);
+    const openPermissionsSheet = (item: AnnouncementDef) => {
+        setPendingPermissions(item);
+        close();
+    };
+
+    const confirmPermissionsUpdate = async () => {
+        if (!pendingPermissions) return;
+        setUpdatingPermissions(true);
+        dismiss(pendingPermissions.id);
         try {
-            await logout();
+            await reauthorizeTwitchPermissions();
         } catch {
-            setLoggingOut(null);
+            setUpdatingPermissions(false);
+            setPendingPermissions(null);
         }
     };
 
     const markAll = () => {
         dismissAll();
         onMarkAllServerRead();
+    };
+
+    const permissionLabels = (hints: readonly AnnouncementPermissionHint[] | undefined) => {
+        if (!hints?.length) return [];
+        return hints.map((key) => aT.permissions[key]).filter(Boolean);
     };
 
     return (
@@ -332,13 +352,10 @@ function BellPanel({
                                             {item.requiresRelogin && (
                                                 <button
                                                     type="button"
-                                                    onClick={() => void onRelogin(item.id)}
-                                                    disabled={loggingOut === item.id}
-                                                    className="mt-1.5 text-left text-[0.7rem] font-semibold text-brand-text transition hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                                                    onClick={() => openPermissionsSheet(item)}
+                                                    className="mt-1.5 text-left text-[0.7rem] font-semibold text-brand-text transition hover:underline"
                                                 >
-                                                    {loggingOut === item.id
-                                                        ? aT.reloginLoading
-                                                        : aT.reloginCta}
+                                                    {aT.reloginCta}
                                                 </button>
                                             )}
                                         </div>
@@ -361,6 +378,49 @@ function BellPanel({
                     </button>
                 </footer>
             )}
+
+            <Sheet
+                open={pendingPermissions !== null}
+                onClose={() => {
+                    if (updatingPermissions) return;
+                    setPendingPermissions(null);
+                }}
+                title={aT.updatePermissionsTitle}
+                description={aT.updatePermissionsIntro}
+                footer={
+                    <div className="flex flex-wrap justify-end gap-2">
+                        <button
+                            type="button"
+                            disabled={updatingPermissions}
+                            onClick={() => setPendingPermissions(null)}
+                            className="rounded-lg px-3 py-2 text-sm font-medium text-text-muted hover:bg-bg-secondary hover:text-text-main disabled:opacity-50"
+                        >
+                            {aT.updatePermissionsCancel}
+                        </button>
+                        <button
+                            type="button"
+                            disabled={updatingPermissions}
+                            onClick={() => void confirmPermissionsUpdate()}
+                            className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
+                        >
+                            {updatingPermissions
+                                ? aT.reloginLoading
+                                : aT.updatePermissionsConfirm}
+                        </button>
+                    </div>
+                }
+            >
+                <ul className="space-y-2 text-sm text-text-main">
+                    {permissionLabels(pendingPermissions?.permissionHints).map((label) => (
+                        <li
+                            key={label}
+                            className="rounded-lg border border-border-subtle bg-bg-secondary px-3 py-2"
+                        >
+                            {label}
+                        </li>
+                    ))}
+                </ul>
+            </Sheet>
         </>
     );
 }

@@ -8,6 +8,8 @@ interface SettingsSecurityPanelProps {
     apiKey: string;
     keyVisible: boolean;
     accountId?: string;
+    apiKeyLastUsedAt?: string | null;
+    apiKeyRotatedAt?: string | null;
     onToggleKey: () => void;
     onCopyKey: () => void;
     onRegenKey: () => void;
@@ -23,6 +25,8 @@ export function SettingsSecurityPanel({
     apiKey,
     keyVisible,
     accountId,
+    apiKeyLastUsedAt,
+    apiKeyRotatedAt,
     onToggleKey,
     onCopyKey,
     onRegenKey,
@@ -42,6 +46,9 @@ export function SettingsSecurityPanel({
                 <SettingsSecuritySection
                     apiKey={apiKey}
                     keyVisible={keyVisible}
+                    apiKeyLastUsedAt={apiKeyLastUsedAt}
+                    apiKeyRotatedAt={apiKeyRotatedAt}
+                    timezone={timezone}
                     onToggleKey={onToggleKey}
                     onCopyKey={onCopyKey}
                     onRegenKey={onRegenKey}

@@ -68,6 +68,10 @@ export interface DashboardProfile {
     discordAvatar?: string | null;
     dbCreatedAt?: string;
     dbLastActive?: string;
+    /** Último uso de la API key por bots. */
+    apiKeyLastUsedAt?: string;
+    /** Última regeneración de la API key. */
+    apiKeyRotatedAt?: string;
     /** UUID interno de cuenta (`users.id`). Opaco; no es el id de Twitch. */
     accountId?: string;
 }

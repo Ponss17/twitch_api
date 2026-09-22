@@ -81,7 +81,8 @@ export const verifyState = (state: string): Record<string, unknown> | null => {
 export const getAuthorizeUrl = (
     redirectOrigin: string,
     extraData?: Record<string, unknown>,
-    providedState?: string
+    providedState?: string,
+    options?: { forceVerify?: boolean }
 ): string => {
     const scope =
         'user:read:email moderator:read:followers clips:edit channel:manage:clips moderator:read:chatters user:write:chat chat:read chat:edit moderator:manage:banned_users channel:read:vips channel:read:subscriptions';
@@ -92,10 +93,12 @@ export const getAuthorizeUrl = (
         redirect_uri: CONFIG.TWITCH_REDIRECT_URI as string,
         response_type: 'code',
         scope: scope,
-        state: state,
-        // Obliga a re-aceptar scopes (p. ej. moderator:read:followers) tras añadir permisos nuevos.
-        force_verify: 'true'
+        state: state
     });
+    // Solo al actualizar permisos: evita forzar re-consent en cada login cotidiano.
+    if (options?.forceVerify) {
+        params.set('force_verify', 'true');
+    }
 
     return `${TWITCH_AUTH_URL}/authorize?${params.toString()}`;
 };
@@ -255,6 +258,7 @@ export const regenerateApiKey = async (userId: string): Promise<string> => {
     const oldApiKey = user.apiKey;
     const newApiKey = crypto.randomUUID();
     user.apiKey = newApiKey;
+    user.apiKeyRotatedAt = new Date().toISOString();
 
     await dbService.saveUser(user, { preservePlan: true, preserveCreatedAt: true });
 

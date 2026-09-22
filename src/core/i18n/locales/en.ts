@@ -289,6 +289,13 @@ export const en: Translations = {
             apiKeyWarning: 'Your personal, non-transferable key. Use it in Nightbot, StreamElements, etc.',
             activeKey: 'Active API Key',
             activeKeyDesc: 'Ready to authenticate bots (apiKey query or X-Api-Key header).',
+            keyLastUsed: 'Last bot use',
+            keyLastUsedNever: 'No bot use recorded for this key yet',
+            keyRotated: 'Last regenerated',
+            keyRotatedUnknown: 'No rotation date',
+            keyRotateNudge:
+                'It has been 90 days or more since you regenerated your API key. If you pasted it somewhere public, rotate it.',
+            keyRotateNudgeCta: 'Regenerate now',
             toggleVisibility: 'Show/Hide',
             copyKey: 'Copy',
             regenKey: 'Regenerate',
@@ -380,12 +387,23 @@ export const en: Translations = {
         timeNew: 'New',
         markAllRead: 'Mark all as read',
         dismiss: 'Got it',
-        reloginCta: 'Sign out and sign back in',
-        reloginLoading: 'Signing out…',
+        reloginCta: 'Update Twitch permissions',
+        reloginLoading: 'Opening Twitch…',
+        updatePermissionsTitle: 'Update Twitch permissions',
+        updatePermissionsIntro:
+            'Twitch will ask for authorization again. You only need to accept the new permissions; you will not lose your panel account.',
+        updatePermissionsConfirm: 'Continue with Twitch',
+        updatePermissionsCancel: 'Not now',
+        permissions: {
+            clips: 'Create and manage clips (MP4 download and !clip)',
+            followers: 'View channel follows (!followage)',
+            chatters: 'List chat viewers (roulette / chatters)',
+            chat: 'Read and write chat (panel tools)'
+        },
         items: {
             'clips-download-2026-08': {
                 title: 'Download clips as MP4',
-                body: 'Sign out and sign back in with Twitch to unlock the new permission.'
+                body: 'Update Twitch permissions to unlock clip downloads.'
             }
         }
     },
@@ -787,6 +805,10 @@ export const en: Translations = {
         fetchNetworkError:
             'Could not connect to the API. Check your connection or that the backend is running.',
         fetchGenericError: 'Error loading data',
+        apiHealth: {
+            down: 'The API is not responding. It may be waking up or there is a temporary outage.',
+            checking: 'Checking the API…'
+        },
         errorBoundary: {
             title: 'Could not load this section',
             hint: 'Try again. If the problem continues, reload the page or contact support on Discord.',
