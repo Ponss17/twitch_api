@@ -95,8 +95,7 @@ export const isPublicRoute = (path: string, method: string = 'GET'): boolean => 
         '/delete-account',
         '/track-usage',
         '/overlay-state',
-        '/overlay-link',
-        '/health-cron'
+        '/overlay-link'
     ];
 
     const isApiDataRoute = apiDataPatterns.some((pattern) => cleanPath.includes(pattern));

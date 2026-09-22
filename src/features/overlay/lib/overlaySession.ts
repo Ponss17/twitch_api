@@ -41,7 +41,7 @@ export function clearOverlayStoredSession(): void {
     sessionStorage.removeItem(OVERLAY_SESSION_KEY);
 }
 
-/** Estado inicial en páginas /overlay/* — espera ?overlayToken= en la URL. */
+/** Estado inicial en páginas /overlay/* — solo ?overlayToken=. */
 export function readOverlayOptimisticAuthState(): {
     session: Session | null;
     loading: boolean;
@@ -62,21 +62,18 @@ export function readOverlayOptimisticAuthState(): {
     }
 
     if (params.get('apiKey') || params.get('auth')) {
-        return { session: null, loading: true, authenticated: false };
+        return { session: null, loading: false, authenticated: false };
     }
 
     const stored = getOverlayStoredSession();
-    if (stored?.overlayToken || stored?.apiKey || stored?.token) {
+    if (stored?.overlayToken) {
         return { session: stored, loading: false, authenticated: true };
     }
 
     return { session: null, loading: true, authenticated: false };
 }
 
-/**
- * Sesión OBS: ?overlayToken= firmado (solo lectura, sin API key maestra).
- * Legacy: ?apiKey= y ?auth= siguen soportados temporalmente.
- */
+/** Sesión OBS: solo ?overlayToken= firmado (solo lectura). */
 export async function resolveOverlaySessionFromUrl(): Promise<Session> {
     if (typeof window === 'undefined') return {};
 
@@ -91,20 +88,5 @@ export async function resolveOverlaySessionFromUrl(): Promise<Session> {
         };
     }
 
-    const apiKeyParam = params.get('apiKey')?.trim();
-    if (apiKeyParam) {
-        return {
-            apiKey: apiKeyParam,
-            login: '',
-            displayName: '',
-            isNewLogin: true
-        };
-    }
-
-    const { resolveSessionFromUrl, stripSensitiveQueryParams } = await import('@/core/api/auth');
-    const legacy = await resolveSessionFromUrl();
-    if (legacy.isNewLogin) {
-        stripSensitiveQueryParams();
-    }
-    return legacy;
+    return {};
 }

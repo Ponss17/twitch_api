@@ -16,7 +16,9 @@ export const MESSAGES = {
             '🔑 API Key requerida. Obtén tu llave en el Dashboard para usar esta ruta.',
         RATE_LIMIT_EXCEEDED: '⚠️ Has excedido el límite de peticiones. Por favor, espera un minuto.',
         SESSION_EXPIRED:
-            'Sesión expirada. Por favor, vuelve a autenticarte o pide ayuda a Ponss 🦆'
+            'Sesión expirada. Por favor, vuelve a autenticarte o pide ayuda a Ponss 🦆',
+        COOKIE_SESSION_REQUIRED:
+            'Esta acción requiere sesión del panel. Inicia sesión en el dashboard (no uses API Key).'
     },
     SYSTEM: {
         KEY_REQUIRED: 'Key requerida',

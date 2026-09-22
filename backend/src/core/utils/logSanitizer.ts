@@ -1,8 +1,8 @@
 const REDACTED = '[REDACTED]';
 const MAX_DEPTH = 8;
-const SENSITIVE_KEY = /^(authorization|proxy-authorization|cookie|set-cookie|secret|client[_-]?secret|token|access[_-]?token|refresh[_-]?token|api[_-]?key|password)$/i;
+const SENSITIVE_KEY = /^(authorization|proxy-authorization|cookie|set-cookie|secret|client[_-]?secret|token|access[_-]?token|refresh[_-]?token|api[_-]?key|password|overlay[_-]?token|x-overlay-token)$/i;
 const URL_KEY = /^(url|uri|href|endpoint|originalUrl|requestUrl)$/i;
-const URL_SECRET = /([?&])(authorization|cookie|secret|client[_-]?secret|token|access[_-]?token|refresh[_-]?token|api[_-]?key|password)=([^&#]*)/gi;
+const URL_SECRET = /([?&])(authorization|cookie|secret|client[_-]?secret|token|access[_-]?token|refresh[_-]?token|api[_-]?key|password|overlay[_-]?token)=([^&#]*)/gi;
 
 function redactUrl(value: string): string {
     let safe = value.replace(URL_SECRET, '$1$2=[REDACTED]');

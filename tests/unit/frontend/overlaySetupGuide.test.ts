@@ -69,6 +69,6 @@ describe('overlaySetupGuide', () => {
     });
 
     it('expone la versión del setup', () => {
-        expect(OVERLAY_SETUP_VERSION).toBe('beta 1.4');
+        expect(OVERLAY_SETUP_VERSION).toBe('1.5');
     });
 });

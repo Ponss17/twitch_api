@@ -307,6 +307,8 @@ describe('systemController', () => {
         it('should return health status with checks', async () => {
             const req = mockReq();
             const res = mockRes();
+            res.locals.isCookieSession = true;
+            res.locals.authSource = 'cookie';
 
             (apiService.validateToken as jest.Mock).mockResolvedValue({ login: 'test' });
 
@@ -323,6 +325,18 @@ describe('systemController', () => {
                     uptime: expect.any(String)
                 })
             );
+        });
+
+        it('omits infra metrics without cookie session', async () => {
+            const req = mockReq();
+            const res = mockRes();
+
+            await getHealth(req, res);
+
+            const payload = (res.json as jest.Mock).mock.calls[0][0];
+            expect(payload.services).toBeUndefined();
+            expect(payload.system).toBeUndefined();
+            expect(payload.status).toEqual(expect.any(String));
         });
 
         it('serves liveness without checking dependencies', async () => {
@@ -344,6 +358,8 @@ describe('systemController', () => {
             jest.mocked(kv.ping).mockRejectedValueOnce(new Error('Redis unavailable'));
             const req = mockReq({ query: { probe: 'ready' } });
             const res = mockRes();
+            res.locals.isCookieSession = true;
+            res.locals.authSource = 'cookie';
 
             await getHealth(req, res);
 

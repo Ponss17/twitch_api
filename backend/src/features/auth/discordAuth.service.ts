@@ -27,7 +27,10 @@ export function isDiscordOAuthConfigured(): boolean {
     );
 }
 
-export function getDiscordAuthorizeUrl(userId: string, redirectOrigin?: string): string {
+export function getDiscordAuthorizeUrl(userId: string, redirectOrigin?: string): {
+    url: string;
+    state: string;
+} {
     if (!isDiscordOAuthConfigured()) {
         throw new Error('DISCORD_OAUTH_NOT_CONFIGURED');
     }
@@ -35,7 +38,8 @@ export function getDiscordAuthorizeUrl(userId: string, redirectOrigin?: string):
     const state = signDiscordState({
         purpose: 'discord_link',
         userId,
-        redirectOrigin: redirectOrigin || ''
+        redirectOrigin: redirectOrigin || '',
+        nonce: crypto.randomBytes(16).toString('base64url')
     });
 
     const params = new URLSearchParams({
@@ -47,7 +51,7 @@ export function getDiscordAuthorizeUrl(userId: string, redirectOrigin?: string):
         prompt: 'consent'
     });
 
-    return `${DISCORD_AUTHORIZE}?${params.toString()}`;
+    return { url: `${DISCORD_AUTHORIZE}?${params.toString()}`, state };
 }
 
 function discordAvatarUrl(id: string, avatar: string | null | undefined): string | null {

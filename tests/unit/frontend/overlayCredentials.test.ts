@@ -31,14 +31,14 @@ describe('overlay credentials', () => {
         });
     });
 
-    it('hasOverlayPollCredentials detecta credenciales válidas', () => {
+    it('hasOverlayPollCredentials solo acepta overlayToken', () => {
         expect(hasOverlayPollCredentials(null)).toBe(false);
         expect(hasOverlayPollCredentials({ overlayToken: 'abc' })).toBe(true);
-        expect(hasOverlayPollCredentials({ apiKey: 'key' })).toBe(true);
+        expect(hasOverlayPollCredentials({ apiKey: 'key' })).toBe(false);
     });
 
-    it('overlaySessionKey estabiliza la identidad de sesión', () => {
-        expect(overlaySessionKey({ overlayToken: 'abc' })).toBe('abc||');
-        expect(overlaySessionKey({ apiKey: 'key' })).toBe('|key|');
+    it('overlaySessionKey usa solo overlayToken', () => {
+        expect(overlaySessionKey({ overlayToken: 'abc' })).toBe('abc');
+        expect(overlaySessionKey({ apiKey: 'key' })).toBe('');
     });
 });

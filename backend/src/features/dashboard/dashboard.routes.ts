@@ -7,6 +7,7 @@ import * as monthlyReportsController from './monthlyReports.controller';
 import { getViewerLeaderboard } from './viewerLeaderboard.controller';
 import toolsRoutes from '../tools/tools.routes';
 import { csrfProtection } from '../../core/middleware/csrfProtection';
+import { requireCookieSession } from '../../core/middleware/requireCookieSession';
 import { globalRateLimiter, heavyRateLimiter, revealKeyRateLimiter, destructiveAccountRateLimiter } from '../../core/middleware/redisRateLimiter';
 import { requireDashboardAjax } from '../../core/middleware/dashboardAjaxGuard';
 import { validate } from '../../core/middleware/validate';
@@ -37,6 +38,7 @@ router.use(toolsRoutes);
 
 router.get(
     '/reveal-api-key',
+    requireCookieSession,
     requireDashboardAjax,
     revealKeyRateLimiter,
     /* codeql[js/missing-rate-limiting] */ accountController.revealApiKey
@@ -114,6 +116,7 @@ router.post(
 
 router.post(
     '/clear-data',
+    requireCookieSession,
     globalRateLimiter,
     csrfProtection,
     validate(clearUserDataSchema),
@@ -122,6 +125,7 @@ router.post(
 );
 router.delete(
     '/delete-account',
+    requireCookieSession,
     heavyRateLimiter,
     destructiveAccountRateLimiter,
     csrfProtection,
@@ -132,6 +136,7 @@ router.delete(
 
 router.post(
     '/export-check',
+    requireCookieSession,
     globalRateLimiter,
     csrfProtection,
     validate(exportCheckSchema),
@@ -140,6 +145,7 @@ router.post(
 );
 router.post(
     '/export-complete',
+    requireCookieSession,
     globalRateLimiter,
     csrfProtection,
     validate(exportCompleteSchema),
@@ -155,6 +161,7 @@ router.get(
 );
 router.put(
     '/overlay-state/:tool',
+    requireCookieSession,
     globalRateLimiter,
     csrfProtection,
     validate(putOverlayStateSchema),
@@ -162,6 +169,7 @@ router.put(
 );
 router.post(
     '/overlay-link',
+    requireCookieSession,
     globalRateLimiter,
     csrfProtection,
     validate(overlayLinkSchema),

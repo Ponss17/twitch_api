@@ -19,7 +19,8 @@ export type ApiErrorCode =
     | 'INVALID_OVERLAY_TOKEN'
     | 'OVERLAY_REVOKED'
     | 'AJAX_REQUIRED'
-    | 'API_KEY_NOT_FOUND';
+    | 'API_KEY_NOT_FOUND'
+    | 'COOKIE_SESSION_REQUIRED';
 
 export interface ApiErrorBody {
     success: false;

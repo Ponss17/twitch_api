@@ -12,9 +12,11 @@ export interface ExtraSelector {
 
 export interface CommandConfigItem {
     id: string;
-    title: string;
+    /** Prefer i18n `t.commands.config[id].title`; leave empty so missing keys are visible. */
+    title?: string;
     icon: LucideIcon;
-    desc: string;
+    /** Prefer i18n `t.commands.config[id].desc`; leave empty so missing keys are visible. */
+    desc?: string;
     info: string;
     /** Bots sin soporte para este comando (p. ej. Wizebot ya trae !clip nativo). */
     excludedBots?: string[];
@@ -41,9 +43,9 @@ const appendLangParam = (params: string, extraValues?: Record<string, string>) =
 export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     follow: {
         id: 'follow',
-        title: 'Comando !followage',
+        title: '',
         icon: UserRoundCheck,
-        desc: 'Muestra cuánto tiempo lleva alguien siguiéndote',
+        desc: '',
         info: 'Genera el código para que tu bot responda con el tiempo exacto que un usuario te sigue.',
         templatePlaceholder: 'Ej: {user} lleva sufriendo {time}.',
         templateVars: 'Variables: {user}, {time}, {channel}',
@@ -60,9 +62,9 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     },
     watchtime: {
         id: 'watchtime',
-        title: 'Comando !watchtime',
+        title: '',
         icon: Clock,
-        desc: 'Muestra cuánto tiempo lleva alguien viendo tu canal',
+        desc: '',
         info: 'Genera el código para que tu bot responda con el tiempo exacto que un espectador lleva en el canal.',
         templatePlaceholder: 'Ej: {user} lleva {time} viendo el stream.',
         templateVars: 'Variables: {user}, {time}, {channel}',
@@ -79,9 +81,9 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     },
     clip: {
         id: 'clip',
-        title: 'Comando !clip',
+        title: '',
         icon: Video,
-        desc: 'Permite crear clips desde el chat',
+        desc: '',
         info: 'Tus moderadores podrán crear clips instantáneos escribiendo !clip. Requiere estar en vivo. Wizebot y Fossabot ya incluyen !clip nativo, no hace falta integrar la API.',
         excludedBots: ['wizebot', 'fossabot'],
         templatePlaceholder: 'Ej: ¡Miren este clip de {user}! 👉 {url}',
@@ -102,9 +104,9 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     },
     shoutout: {
         id: 'shoutout',
-        title: 'Comando !so',
+        title: '',
         icon: Megaphone,
-        desc: 'Promociona a otro streamer',
+        desc: '',
         info: 'Genera un enlace para que tu bot haga un Shoutout con el juego y el enlace del canal.',
         templatePlaceholder: 'Ej: Dale follow a {user}, jugando {game} 👉 {url}',
         templateVars: 'Variables disponibles: {user}, {game}, {url}',
@@ -119,9 +121,9 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     },
     magic8: {
         id: 'magic8',
-        title: 'Comando !8ball',
+        title: '',
         icon: MAGIC8_ICON,
-        desc: 'Comando para que tus viewers pregunten a la IA',
+        desc: '',
         info: 'Genera el código para añadir el comando de la Bola 8 a tu bot de chat.',
         extraSelectors: [
             {
@@ -150,9 +152,9 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     },
     russian: {
         id: 'russian',
-        title: 'Comando !ruleta',
+        title: '',
         icon: RUSSIAN_ICON,
-        desc: 'Juego de Ruleta Rusa para el chat',
+        desc: '',
         info: 'Tus viewers podrán jugar a la Ruleta Rusa escribiendo !ruleta.',
         extraSelectors: [
             {
@@ -177,9 +179,9 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     },
     duel: {
         id: 'duel',
-        title: 'Comando !duelo',
+        title: '',
         icon: DUEL_ICON,
-        desc: 'Duelo 1vs1 narrado (Nightbot: 3 mensajes)',
+        desc: '',
         info: 'Con Nightbot el bot cuenta el duelo en 3 mensajes. En otros bots sale en una sola línea.',
         supportsLanguage: true,
         generate: (domain, login, tokenParam, bot, _templateVal, _queryParams, extraValues = {}) => {
@@ -194,9 +196,9 @@ export const COMMAND_CONFIG: Record<string, CommandConfigItem> = {
     },
     slots: {
         id: 'slots',
-        title: 'Comando !slots',
+        title: '',
         icon: SLOTS_ICON,
-        desc: 'Tragamonedas para el chat',
+        desc: '',
         info: 'Con Nightbot los carretes salen en 3 mensajes. En otros bots, solo el resultado final.',
         supportsLanguage: true,
         generate: (domain, login, tokenParam, bot, _templateVal, _queryParams, extraValues = {}) => {

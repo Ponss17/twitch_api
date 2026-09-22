@@ -137,7 +137,6 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
             open={open}
             onClose={onClose}
             title={`${mT.titlePrefix} ${toolLabel}`}
-            titleBadge={mT.betaBadge}
             description={mT.description}
             footer={
                 <div className="flex w-full flex-col gap-3">

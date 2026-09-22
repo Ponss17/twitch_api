@@ -55,14 +55,20 @@ export function isFetchNetworkError(error: unknown): boolean {
 }
 
 /** Mensaje amigable para fallos de red en el dashboard. */
-export function formatFetchErrorForUi(error: unknown): string {
+export function formatFetchErrorForUi(
+    error: unknown,
+    messages?: { network?: string; generic?: string }
+): string {
     if (isFetchNetworkError(error)) {
-        return 'No se pudo conectar con la API. Comprueba tu conexión o que el backend esté en marcha.';
+        return (
+            messages?.network ??
+            'No se pudo conectar con la API. Comprueba tu conexión o que el backend esté en marcha.'
+        );
     }
     if (error instanceof Error && error.message.trim()) {
         return error.message.trim();
     }
-    return 'Error cargando datos';
+    return messages?.generic ?? 'Error cargando datos';
 }
 
 /** Parsea texto o JSON de una respuesta HTTP fallida. */
