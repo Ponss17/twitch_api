@@ -393,12 +393,17 @@ export const pt: Translations = {
             clips: 'Criar e gerir clips (download MP4 e !clip)',
             followers: 'Ver follows do canal (!followage)',
             chatters: 'Listar viewers do chat (roleta / chatters)',
-            chat: 'Ler e escrever no chat (ferramentas do painel)'
+            chat: 'Ler e escrever no chat (ferramentas do painel)',
+            bits: 'Ler bits / cheers do canal (alertas de roleta)'
         },
         items: {
             'clips-download-2026-08': {
                 title: 'Baixar clips em MP4',
                 body: 'Atualize as permissões da Twitch para liberar o download de clips.'
+            },
+            'bits-roulette-2026-09': {
+                title: 'Roleta por bits',
+                body: 'Nova alerta: quando alguém doar bits, a roleta de prémios gira no OBS. Configura em Alertas.'
             }
         }
     },
@@ -747,6 +752,7 @@ export const pt: Translations = {
             general: 'Geral',
             commands: 'Comandos',
             tools: 'Ferramentas',
+            alerts: 'Alertas',
             minigames: 'Minijogos',
             support: 'Suporte'
         },
@@ -761,6 +767,7 @@ export const pt: Translations = {
             trends: 'Tendências',
             stalker: 'Stalker',
             roulette: 'Roleta',
+            bitsRoulette: 'Roleta Bits',
             magic8: 'Bola 8 Mágica',
             russian: 'Roleta Russa',
             duel: 'Duelo',
@@ -795,8 +802,8 @@ export const pt: Translations = {
             'Não foi possível conectar à API. Verifique sua conexão ou se o backend está no ar.',
         fetchGenericError: 'Erro ao carregar dados',
         apiHealth: {
-            down: 'A API não responde. Pode estar acordando ou haver uma interrupção temporária.',
-            checking: 'Verificando a API…'
+            down: 'Sem contacto com o servidor. Se o painel responde, podes ignorar isto.',
+            checking: 'A verificar a ligação…'
         },
         errorBoundary: {
             title: 'Não foi possível carregar esta seção',
@@ -957,6 +964,7 @@ export const pt: Translations = {
             commands: 'Carregando comandos',
             trends: 'Carregando tendências',
             stalker: 'Carregando stalker',
+            bitsRoulette: 'Carregando roleta bits',
             settings: 'Carregando configurações',
             starting: 'Iniciando...'
         },
@@ -1258,6 +1266,40 @@ export const pt: Translations = {
             loadingResult: 'Aguardando resultado...',
         },
     },
+    alerts: {
+        bitsRoulette: {
+            title: 'Roleta por bits',
+            desc: 'Quando alguém cheer a quantidade que escolheres, a roleta gira sozinha no OBS com os teus prémios.',
+            triggerTitle: 'Disparo',
+            enabled: 'Ativar alerta',
+            threshold: 'Bits',
+            matchMode: 'Modo',
+            matchExact: 'Exatamente essa quantidade',
+            matchMin: 'Essa quantidade ou mais',
+            cooldown: 'Cooldown (s)',
+            triggerHint:
+                'Bits e prémios vão na URL do overlay (como a cor). Guarda, gera Overlay e cola no OBS. Ativar só liga a escuta da Twitch.',
+            optionsTitle: 'Prémios da roleta',
+            addOption: 'Adicionar',
+            removeOption: 'Remover',
+            optionsMin: 'Põe pelo menos 2 prémios.',
+            optionsMaxHint: 'Máximo {max} prémios (plano {plan}).',
+            save: 'Guardar na URL',
+            saving: 'A guardar…',
+            saved: 'Alerta guardada',
+            savedLocal: 'Config pronta: gera Overlay e atualiza a URL no OBS',
+            enabledOn: 'Escuta de bits ativada',
+            enabledOff: 'Escuta de bits desativada',
+            saveError: 'Não foi possível guardar a alerta',
+            loadError: 'Não foi possível carregar a alerta',
+            testSpin: 'Testar no OBS',
+            testing: 'A enviar…',
+            testOk: 'Cheer de teste enviado (o overlay usa a sua URL)',
+            testError: 'Não foi possível testar o spin',
+            announceChat: 'Enviar prémio vencedor no chat',
+            announceChatHint: 'Quando a roleta para, o canal escreve no chat o prémio e quem ganhou.'
+        }
+    },
     tools: {
         stalker: {
             toasts: {
@@ -1459,14 +1501,16 @@ export const pt: Translations = {
             tools: {
                 trends: 'Tendências',
                 roulette: 'Roleta',
-                questions: 'Perguntas'
+                questions: 'Perguntas',
+                'bits-roulette': 'Roleta Bits'
             },
             sizes: {
                 trends: (w: number, h: number): string =>
                     `${w} × ${h} px (top 10; largura total se preferir)`,
                 roulette: (w: number, h: number): string => `${w} × ${h} px`,
                 questions: (w: number, h: number): string =>
-                    `${w} × ${h} px (pergunta atual; largura total se preferir)`
+                    `${w} × ${h} px (pergunta atual; largura total se preferir)`,
+                'bits-roulette': (w: number, h: number): string => `${w} × ${h} px`
             }
         },
         appearance: {
@@ -1497,6 +1541,7 @@ export const pt: Translations = {
         },
         apps: {
             rouletteErrorTitle: 'Overlay de Roleta',
+            bitsRouletteErrorTitle: 'Overlay de Roleta por bits',
             trendsErrorTitle: 'Overlay de Tendências',
             questionsErrorTitle: 'Overlay de Perguntas'
         }

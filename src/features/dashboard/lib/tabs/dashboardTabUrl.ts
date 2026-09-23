@@ -25,6 +25,7 @@ const VALID_TABS: ReadonlySet<DashboardTab> = new Set([
     'duel',
     'slots',
     'questions',
+    'bitsRoulette',
     'settings'
 ]);
 

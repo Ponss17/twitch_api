@@ -4,6 +4,7 @@
  * - rateLimit: peticiones/min con API key (bots / integraciones)
  * - heavyLimit: peticiones/min a endpoints caros (clips, chatters) con API key
  * - commandCacheTtl: retención de respuestas de comandos de bot (más alto = menos hits a Twitch)
+ * - maxBitsRouletteOptions: premios máximos en la alerta Ruleta Bits
  */
 
 export const USER_ROLES = {
@@ -11,25 +12,29 @@ export const USER_ROLES = {
         label: 'Default',
         rateLimit: 30,
         heavyLimit: 5,
-        commandCacheTtl: 60
+        commandCacheTtl: 60,
+        maxBitsRouletteOptions: 4
     },
     pro: {
         label: 'Pro',
         rateLimit: 60,
         heavyLimit: 12,
-        commandCacheTtl: 80
+        commandCacheTtl: 80,
+        maxBitsRouletteOptions: 5
     },
     vip: {
         label: 'VIP',
         rateLimit: 90,
         heavyLimit: 20,
-        commandCacheTtl: 120
+        commandCacheTtl: 120,
+        maxBitsRouletteOptions: 8
     },
     partner: {
         label: 'Partner',
         rateLimit: 120,
         heavyLimit: 40,
-        commandCacheTtl: 240
+        commandCacheTtl: 240,
+        maxBitsRouletteOptions: 10
     }
 } as const;
 
@@ -49,6 +54,7 @@ export interface ResolvedUserLimits {
     rateLimit: number;
     heavyLimit: number;
     cacheTtl: number;
+    maxBitsRouletteOptions: number;
     hasCustomRateLimit: boolean;
     hasCustomCacheTtl: boolean;
 }
@@ -76,6 +82,11 @@ export function resolveUserHeavyLimit(user?: UserLimitsSource | null): number {
     return getRoleConfig(user?.role).heavyLimit;
 }
 
+/** Máximo de premios en Ruleta Bits según plan. */
+export function resolveMaxBitsRouletteOptions(user?: UserLimitsSource | null): number {
+    return getRoleConfig(user?.role).maxBitsRouletteOptions;
+}
+
 export function resolveUserLimits(user?: UserLimitsSource | null): ResolvedUserLimits {
     const role = normalizeUserRole(user?.role);
     const roleConfig = USER_ROLES[role];
@@ -90,6 +101,7 @@ export function resolveUserLimits(user?: UserLimitsSource | null): ResolvedUserL
         rateLimit: hasCustomRateLimit ? user!.customRateLimit! : roleConfig.rateLimit,
         heavyLimit: roleConfig.heavyLimit,
         cacheTtl: hasCustomCacheTtl ? user!.customCacheTtl! : roleConfig.commandCacheTtl,
+        maxBitsRouletteOptions: roleConfig.maxBitsRouletteOptions,
         hasCustomRateLimit,
         hasCustomCacheTtl
     };

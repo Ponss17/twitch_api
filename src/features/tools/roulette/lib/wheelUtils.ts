@@ -182,11 +182,17 @@ export function normalizeDegrees(deg: number): number {
     return ((deg % 360) + 360) % 360;
 }
 
-export function winnerIndex(rotationDeg: number, participantCount: number): number {
+export function winnerIndex(
+    rotationDeg: number,
+    participantCount: number,
+    pointerSide: 'top' | 'bottom' = 'top'
+): number {
     if (participantCount <= 1) return 0;
     const arcDeg = 360 / participantCount;
     const degrees = normalizeDegrees(rotationDeg);
-    const index = Math.floor(((360 - ((degrees + 90) % 360)) % 360) / arcDeg);
+    // Canvas 0° = este; +90 = aguja arriba; +270 = aguja abajo.
+    const pointerOffset = pointerSide === 'bottom' ? 270 : 90;
+    const index = Math.floor(((360 - ((degrees + pointerOffset) % 360)) % 360) / arcDeg);
     return index % participantCount;
 }
 
@@ -278,6 +284,18 @@ export function drawWheelOnCanvas(
         ctx.lineWidth = 2;
         ctx.strokeStyle = palette.glowRgba;
         ctx.stroke();
+
+        if (showLabels) {
+            ctx.save();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 14px Geist, system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,0.85)';
+            ctx.shadowBlur = 4;
+            ctx.fillText(truncateLabel(users[0]?.user_name || '', 14), cx, cy - (outsideRadius + insideRadius) / 2);
+            ctx.restore();
+        }
     } else {
         const segments = len;
         const arc = (Math.PI * 2) / segments;
@@ -308,7 +326,7 @@ export function drawWheelOnCanvas(
             if (showLabels) {
                 ctx.save();
                 ctx.fillStyle = '#ffffff';
-                ctx.font = `bold ${segments > 16 ? 10 : segments > 10 ? 11 : 13}px Inter, system-ui, sans-serif`;
+                ctx.font = `bold ${segments > 16 ? 10 : segments > 10 ? 11 : 13}px Geist, system-ui, sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.shadowColor = 'rgba(0,0,0,0.85)';
@@ -318,7 +336,11 @@ export function drawWheelOnCanvas(
                     cx + Math.cos(labelAngle) * textRadius,
                     cy + Math.sin(labelAngle) * textRadius
                 );
-                ctx.rotate(labelAngle + Math.PI / 2);
+                // Evita texto al revés en la mitad izquierda del disco.
+                let rot = labelAngle + Math.PI / 2;
+                const deg = ((labelAngle * 180) / Math.PI + 360) % 360;
+                if (deg > 90 && deg < 270) rot += Math.PI;
+                ctx.rotate(rot);
                 ctx.fillText(truncateLabel(participant.user_name, segments > 12 ? 8 : 12), 0, 0);
                 ctx.restore();
             }

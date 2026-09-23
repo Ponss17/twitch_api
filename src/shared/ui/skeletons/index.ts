@@ -7,6 +7,7 @@ export { ClipsViewSkeleton } from './ClipsViewSkeleton';
 export { AnalyticsSkeleton } from './AnalyticsSkeleton';
 export { ReportsSkeleton } from './ReportsSkeleton';
 export { CommandViewSkeleton } from './CommandViewSkeleton';
+export { BitsRouletteSkeleton } from './BitsRouletteSkeleton';
 export { TrendsSkeleton } from './TrendsSkeleton';
 export { StalkerViewSkeleton } from './StalkerViewSkeleton';
 export { SettingsViewSkeleton } from './SettingsViewSkeleton';

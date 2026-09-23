@@ -46,7 +46,19 @@ export const configureMiddleware = (app: Application) => {
 
     // Los middlewares pesados se saltan para assets estáticos que llegan por el rewrite catch-all
     app.use(skipForAssets(requestLogger));
-    app.use(skipForAssets(express.json()));
+    // Conservar raw body para verificar firma HMAC de EventSub.
+    app.use(
+        skipForAssets(
+            express.json({
+                verify: (req, _res, buf) => {
+                    const path = (req as { url?: string }).url?.split('?')[0] || '';
+                    if (path.includes('/webhooks/twitch/eventsub')) {
+                        (req as { rawBody?: Buffer }).rawBody = Buffer.from(buf);
+                    }
+                }
+            })
+        )
+    );
 
     // Generar nonce único por request antes de Helmet para usarlo en la CSP
     app.use(skipForAssets(cspNonce));

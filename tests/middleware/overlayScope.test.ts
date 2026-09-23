@@ -61,6 +61,54 @@ describe('overlayScopeGuard', () => {
         expect(next).toHaveBeenCalled();
     });
 
+    it('allows overlay GET on overlay-exchange bootstrap', () => {
+        const req = mockReq('GET', '/api/auth/overlay-exchange');
+        const res = mockRes({ isOverlayReadRequest: true, overlayTool: 'bits-roulette' });
+        const next = jest.fn() as NextFunction;
+
+        overlayScopeGuard(req, res, next);
+
+        expect(next).toHaveBeenCalled();
+        expect(jsonError).not.toHaveBeenCalled();
+    });
+
+    it('allows overlay GET on bits-roulette overlay-state route', () => {
+        const req = mockReq('GET', '/api/dashboard/overlay-state/bits-roulette');
+        const res = mockRes({ isOverlayReadRequest: true, overlayTool: 'bits-roulette' });
+        const next = jest.fn() as NextFunction;
+
+        overlayScopeGuard(req, res, next);
+
+        expect(next).toHaveBeenCalled();
+    });
+
+    it('allows overlay POST to announce a bits prize', () => {
+        const req = mockReq('POST', '/api/alerts/bits-roulette/announce');
+        const res = mockRes({ isOverlayReadRequest: true, overlayTool: 'bits-roulette' });
+        const next = jest.fn() as NextFunction;
+
+        overlayScopeGuard(req, res, next);
+
+        expect(next).toHaveBeenCalled();
+        expect(jsonError).not.toHaveBeenCalled();
+    });
+
+    it('blocks overlay POST to other alert routes', () => {
+        const req = mockReq('POST', '/api/alerts/bits-roulette/test-spin');
+        const res = mockRes({ isOverlayReadRequest: true, overlayTool: 'bits-roulette' });
+        const next = jest.fn() as NextFunction;
+
+        overlayScopeGuard(req, res, next);
+
+        expect(next).not.toHaveBeenCalled();
+        expect(jsonError).toHaveBeenCalledWith(
+            res,
+            403,
+            expect.stringContaining('overlay'),
+            expect.objectContaining({ code: 'OVERLAY_READ_ONLY' })
+        );
+    });
+
     it('blocks overlay from dashboard summary', () => {
         const req = mockReq('GET', '/api/dashboard/summary');
         const res = mockRes({ isOverlayReadRequest: true });

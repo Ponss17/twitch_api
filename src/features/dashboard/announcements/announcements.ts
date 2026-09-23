@@ -5,7 +5,7 @@ export type AnnouncementId = string & { __announcement?: never };
 export type AnnouncementIcon = 'download' | 'sparkles';
 
 /** Claves de permiso mostradas en el sheet “Actualizar permisos”. */
-export type AnnouncementPermissionHint = 'clips' | 'followers' | 'chatters' | 'chat';
+export type AnnouncementPermissionHint = 'clips' | 'followers' | 'chatters' | 'chat' | 'bits';
 
 export interface AnnouncementDef {
     id: AnnouncementId;
@@ -18,10 +18,8 @@ export interface AnnouncementDef {
 
 export const ANNOUNCEMENTS: readonly AnnouncementDef[] = [
     {
-        id: 'clips-download-2026-08' as AnnouncementId,
-        icon: 'download',
-        requiresRelogin: true,
-        permissionHints: ['clips']
+        id: 'bits-roulette-2026-09' as AnnouncementId,
+        icon: 'sparkles'
     }
 ] as const;
 

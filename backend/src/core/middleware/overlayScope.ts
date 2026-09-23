@@ -23,11 +23,20 @@ function normalizePath(req: Request): string {
     return raw.replace(/\/+/g, '/').replace(/\/$/, '') || '/';
 }
 
-/** Overlay autenticado solo puede leer estado OBS vía GET. */
+/** Overlay autenticado solo puede leer estado OBS vía GET (+ anunciar el premio de bits). */
 function isOverlayAllowedRoute(req: Request): boolean {
-    if (req.method !== 'GET') return false;
-
     const path = normalizePath(req);
+    if (
+        req.method === 'POST' &&
+        (path === '/api/alerts/bits-roulette/announce' || path === '/alerts/bits-roulette/announce')
+    ) {
+        return true;
+    }
+    if (req.method !== 'GET') return false;
+    if (path === '/api/auth/overlay-exchange' || path === '/auth/overlay-exchange') {
+        return true;
+    }
+
     const tools = OVERLAY_TOOLS.join('|');
     return new RegExp(`^/(?:api/)?dashboard/overlay-state/(${tools})$`).test(path);
 }

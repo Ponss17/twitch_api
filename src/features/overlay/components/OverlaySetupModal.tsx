@@ -13,6 +13,12 @@ import { useTranslation } from '@/core/i18n/I18nContext';
 import { readScopedPref, writeScopedPref } from '@/core/session/localPrefs';
 import { resolveWheelPalette, ROULETTE_COLOR_PRESETS } from '@/features/tools/roulette/lib/wheelUtils';
 import { appendOverlayAppearanceParams, isOverlayScaleId, type OverlayScaleId } from '@/features/overlay/lib/overlayAppearance';
+import {
+    appendBitsRouletteParams,
+    BITS_ROULETTE_PREF,
+    DEFAULT_BITS_ROULETTE_URL,
+    type BitsRouletteUrlConfig
+} from '@/features/alerts/bitsRouletteUrl';
 import { copyText } from '@/core/utils/clipboard';
 import { modalBtnPrimary, themeActiveChip, themeActiveChoice, themeIdleChip, themeIdleChoice } from '@/core/utils/tw';
 
@@ -31,11 +37,23 @@ const OBS_ROULETTE_COLOR_PREF = 'roulette_obs_wheel_color';
 const OBS_OVERLAY_SCALE_PREF = 'overlay_obs_scale';
 
 function overlayColorPrefKey(tool: OverlayTool): string {
-    return tool === 'roulette' ? OBS_ROULETTE_COLOR_PREF : `overlay_obs_color_${tool}`;
+    return tool === 'roulette' || tool === 'bits-roulette'
+        ? OBS_ROULETTE_COLOR_PREF
+        : `overlay_obs_color_${tool}`;
 }
 
 function overlayScalePrefKey(tool: OverlayTool): string {
     return `${OBS_OVERLAY_SCALE_PREF}_${tool}`;
+}
+
+function readBitsUrlConfig(userId?: string): BitsRouletteUrlConfig {
+    try {
+        const raw = readScopedPref(BITS_ROULETTE_PREF, userId);
+        if (!raw) return { ...DEFAULT_BITS_ROULETTE_URL };
+        return { ...DEFAULT_BITS_ROULETTE_URL, ...(JSON.parse(raw) as BitsRouletteUrlConfig) };
+    } catch {
+        return { ...DEFAULT_BITS_ROULETTE_URL };
+    }
 }
 
 export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProps) {
@@ -76,14 +94,16 @@ export function OverlaySetupModal({ open, onClose, tool }: OverlaySetupModalProp
         writeScopedPref(overlayScalePrefKey(tool), session.userId, next);
     };
 
-    const finalUrl = useMemo(
-        () =>
-            appendOverlayAppearanceParams(rawUrl, {
-                color: obsWheelColor,
-                scale: obsScale
-            }),
-        [rawUrl, obsWheelColor, obsScale]
-    );
+    const finalUrl = useMemo(() => {
+        let url = appendOverlayAppearanceParams(rawUrl, {
+            color: obsWheelColor,
+            scale: obsScale
+        });
+        if (tool === 'bits-roulette') {
+            url = appendBitsRouletteParams(url, readBitsUrlConfig(session.userId));
+        }
+        return url;
+    }, [rawUrl, obsWheelColor, obsScale, tool, session.userId]);
 
     const loadUrl = useCallback(async () => {
         setLoading(true);

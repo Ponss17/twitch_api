@@ -10,6 +10,7 @@ export {
     AnalyticsSkeleton,
     ReportsSkeleton,
     CommandViewSkeleton,
+    BitsRouletteSkeleton,
     TrendsSkeleton,
     StalkerViewSkeleton,
     SettingsViewSkeleton,

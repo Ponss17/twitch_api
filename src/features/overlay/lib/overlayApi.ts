@@ -9,9 +9,10 @@ export function overlayAuthHeaders(session: Session | null): Record<string, stri
     return authHeaders(session, { preferApiKey: true });
 }
 
-/** URL de poll GET — query overlayToken como respaldo (OBS / pruebas en consola). */
+/** URL de poll GET — query overlayToken como respaldo (OBS / pruebas en consola).
+ * Barra final obligatoria: Astro `trailingSlash: always` 404'ea `/api/.../tool` sin `/`. */
 export function overlayStatePollUrl(tool: OverlayTool, session: Session | null): string {
-    const base = `${API_ENDPOINTS.OVERLAY_STATE}${tool}`;
+    const base = `${API_ENDPOINTS.OVERLAY_STATE}${tool}/`;
     if (!session?.overlayToken) return base;
     return `${base}?overlayToken=${encodeURIComponent(session.overlayToken)}`;
 }
